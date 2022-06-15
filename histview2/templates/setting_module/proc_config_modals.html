@@ -1,0 +1,271 @@
+<div id="deleteProcModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _('Please confirm') }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform">{{ _('Do you want to delete this record?') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button id="btnDeleteProc" onclick="confirmDelProc();" class="btn btn-danger" data-item-id=""
+                    data-dismiss="modal">{{ _('Delete') }}</button>
+                <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="procSettingModal" tabindex="-1" role="dialog" aria-labelledby="procSettingLabel"
+    aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+			<form id="procCfgForm" onSubmit="return false;">
+            <div class="modal-header">
+                <h4 class="modal-title" id="procSettingLabel">{{ _("Process Config") }}: {{ _("Detail") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" name="modal-body-input" id="procSettingModalBody">
+
+                <div id="processGeneralInfo" name="processGeneralInfo">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            {{ macros.alert_message("alertProcessNameErrorMsg") }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10">
+                            {{ macros.input_row('processName',_("Process Name")) }}
+							{{ macros.input_hidden('processID') }}
+							{{ macros.input_hidden('processDsID') }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10">
+                            {{ macros.input_row('comment',_("Comment"),'','text',4,8) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10">
+                            {{ macros.single_selectbox('databaseName',_("Data Source Name"),{},1,4,8) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10">
+                            {{ macros.single_selectbox('tableName',_("Table Name"),{},1,4,8) }}
+                        </div>
+                        <div class="col-sm-2 form-group">
+                            <button name="showRecords" type="button" class="btn btn-secondary">{{ _("Show") }}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Last 5 records -->
+                <div class="row">
+                    <div class="col-sm-9  text-left">
+                        {{macros.label(_("Last Records"))}}
+                    </div>
+                    <div class="col-sm-3 col-form-label" style="position: relative;">
+                        <div id="selectAllColumn" class="custom-control custom-checkbox" style="display: none; position: absolute; right: 1rem;">
+                            <input type="checkbox" class="custom-control-input" id="selectAllSensor" onchange="selectAllColumnEvent(this)">
+                            <label class="custom-control-label" for="selectAllSensor">{{_("Select All")}}</label>
+                        </div>
+						<div id="autoSelectAllColumn" class="custom-control custom-checkbox" style="display:none; position: absolute; right: 8rem;">
+                            <input type="checkbox" class="custom-control-input" id="autoSelect" onchange="autoSelectColumnEvent(this)">
+                            <label class="custom-control-label" for="autoSelect">{{_("Auto Select")}}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table class="table bg-secondary table-striped table-hover" name="latestDataTable">
+                                <thead class="thead-light">
+                                </thead>
+                                <tbody class="table-info table-active">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+					<div>
+						<ul id="checkColsContextMenu" class="context-menu" style="display:none;" data-target-col="">
+							<li class="menu-item" onclick="selecAllToRight(true)">{{ _("Select all to the right") }}</li>
+							<li class="menu-item" onclick="selecAllToRight(false)">{{ _("Unselect all to the right") }}</li>
+						</ul>
+					</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm text-left" style="margin-top: 17px;">
+                        {{macros.label(_("Setting Content"))}}
+                    </div>
+					<div class="col-sm">
+						<button id="prcEditMode" class="changeMode btn btn-primary btn-right" type="button" data-sm="prcSM">
+							<i class="far fa-file-excel"></i> <span>{{ _("Edit Mode") }}</span>
+						</button>
+					</div>
+                </div>
+                <div class="row" id="procSettingContent">
+                    <div class="col-sm-12">
+                        {{ macros.alert_message("alertMsgSelectedColumnsTable") }}
+                        <div class="table-responsive-xl">
+                            <table name="selectedColumnsTable" id="selectedColumnsTable"
+                                class="table table-bordered table-dark table-striped table-hover">
+                                <thead>
+                                    <tr>
+										<th class="col-number">{{ _("No.") }}</th>
+										<th class="pr-head">{{ _("Column Name") }}</th>
+                                        <th class="pr-head">{{ _("As Datetime") }}</th>
+                                        <th class="pr-head" title="{{ _('As Link ID Hover') }}">
+											<span class="hint-text">{{ _("As Link ID") }}</span></th>
+                                        <th class="pr-head pr-head-sm" title="{{ _('Order set explain') }}">
+											<span class="hint-text">{{ _("Order set") }}</span></th>
+                                        <th class="pr-head pr-head-sm" title="{{ _('As Key (Option) Hover') }}">
+											<span class="hint-text">{{ _("As Key (Option)") }}</span></th>
+                                        <th class="pr-head">{{ _("English Name") }}</th>
+                                        <th class="pr-head">{{ _("Shown Name") }}</th>
+                                        <th class="pr-head" title="{{ _('Operator Hover') }}">
+											<span class="hint-text">{{ _("Operator") }}</span></th>
+                                        <th class="pr-head pr-head-sm" title="{{ _('Coef Hover') }}">
+											<span class="hint-text">{{ _("Coef") }}</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+				<!-- Process Cfg Spreadmode -->
+				<div class="editmode-container hide">
+					<div id="prcSM" name="jexcel"></div>
+				</div>
+            </div>
+            <div class="modal-footer" style="border-top:none;">
+                <label id="validateCoefErrMsgNoZero" class="error-msg hide-msg">{{ _("Zero is not allowed") }}</label>
+                <label id="validateCoefErrMsgNeedOperator"
+                    class="error-msg hide-msg">{{ _("Operator is needed when input coef") }}</label>
+                <label id="validateCoefErrMsgEmptyCoef"
+                    class="error-msg hide-msg">{{ _("Coef is needed when specify operator") }}</label>
+                <label id="validateNoEnglishName"
+                    class="error-msg hide-msg">{{ _("Please fill in English name textbox") }}</label>
+                <label id="validateNoMasterName"
+                    class="error-msg hide-msg">{{ _("Please fill in Master name textbox") }}</label>
+                <label id="validateDuplicatedEnglish"
+                    class="error-msg hide-msg">{{ _("English name is duplicated") }}</label>
+                <label id="validateDuplicatedMaster"
+                    class="error-msg hide-msg">{{ _("Master name is duplicated") }}</label>
+                <div class="form-group" style="display: flex;">
+                    <button name="reRegisterBtn" id="reRegisterBtn" type="button" class="btn btn-green" data-itemId=""
+                        onclick="" title="{{ _("Register the corrected contents such as Shown Name.") }}">{{ _("Re-register") }}</button>
+                    <button name="okBtn" id="createOrUpdateProcCfgBtn" type="button" class="btn btn-primary" data-itemId=""
+                        onclick="" style="margin: 0 1rem;">{{ _("Import Data") }}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                </div>
+            </div>
+			</form>
+        </div>
+    </div>
+</div>
+
+<div id="msgModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Warning") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="msgContent" class="modal-inform" style="white-space: pre-line"></p>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button id="msgConfirmBtn" class="btn btn-primary confirm-btn" data-item-id="">{{ _("OK") }}</button>
+                    <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="confirmImportDataModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">{{ _("Do you want to import data") }}?</p>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button id="confirmImportDataBtn" class="btn btn-primary confirm-btn" data-item-id="">{{ _("OK") }}</button>
+                    <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="confirmReRegisterProcModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">{{ _("Do you want to register with the modified contents?") }}</p>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button id="confirmReRegisterProcBtn" class="btn btn-primary confirm-btn" data-item-id="">{{ _("OK") }}</button>
+                    <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="warningResetDataLinkModal" class="modal fade in" data-backdrop="static" data-keyboard="false" href="#">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">{{ _("If you change this setting, you must reset Data Link Config.") }}</p>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button class="btn btn-primary confirm-btn" data-item-id="" data-dismiss="modal">{{ _("OK") }}</button>
+                    <button id="revertChangeAsLinkIdBtn" class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="procConfigConfirmSwitchModal" class="modal fade in" name="procConfigConfirmSwitchModal" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform">{{ _("The error data highlighed in red will be lost. Do you want to continue?") }}</p>
+            </div>
+            <div class="modal-footer">
+                <a id="confirmSwitch" class="btn btn-primary" name="confirmSwitch" data-item-id=""
+                   data-dismiss="modal">{{ _("OK") }}</a>
+                <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+            </div>
+        </div>
+    </div>
+</div>

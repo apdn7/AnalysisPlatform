@@ -1,0 +1,122 @@
+.graphNavActions {
+    position: fixed;
+    bottom: 10px;
+    right: 1px;
+    z-index: 999;
+}
+
+.graphNavButton {
+    height: 20px;
+    width: 20px;
+    display: block;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.graphNavButton svg {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.graphNavButton svg:nth-child(1) {
+    top: 0;
+}
+
+.graphNavButton svg:nth-child(2) {
+    bottom: 0;
+}
+
+.graphNavButtons {
+    position: absolute;
+    width: 20px;
+    bottom: 50vh;
+    right: -1px;
+    transform: translateY(55%);
+    text-align: center;
+}
+
+.graphNavButtons a {
+    display: none;
+    border-radius: 50%;
+    text-decoration: none;
+    margin: 0 auto;
+    line-height: 1.15;
+    color: #fff;
+    opacity: 0;
+    visibility: hidden;
+    position: relative;
+    box-shadow: 0 0 5px 1px rgba(51, 51, 51, 0.3);
+    padding-bottom: 14px;
+}
+
+.graphNavButtons a svg {
+    font-size: 14px;
+}
+
+.graphNavButtons a:hover {
+    transform: scale(1.3);
+}
+
+.graphNavButtons a:nth-child(1) {
+    transition: opacity 0.2s ease-in-out 0.3s, transform 0.15s ease-in-out;
+}
+
+.graphNavButtons a:nth-child(2) {
+    transition: opacity 0.2s ease-in-out 0.25s, transform 0.15s ease-in-out;
+}
+
+.graphNavButtons a:nth-child(3) {
+    transition: opacity 0.2s ease-in-out 0.2s, transform 0.15s ease-in-out;
+}
+
+.graphNavButtons a:nth-child(4) {
+    transition: opacity 0.2s ease-in-out 0.15s, transform 0.15s ease-in-out;
+}
+
+.graphNavButtons a:nth-child(5) {
+    transition: opacity 0.2s ease-in-out 0.10s, transform 0.15s ease-in-out;
+}
+
+.graphNavButtons a:nth-child(6) {
+    transition: opacity 0.2s ease-in-out 0.05s, transform 0.15s ease-in-out;
+}
+
+.graphNavActions a i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.graphNavToggle {
+    -webkit-appearance: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    background-color: transparent;
+    border: 1px solid #444;
+    border-radius: 3px;
+    z-index: 2;
+    transition: box-shadow 0.2s ease-in-out;
+    box-shadow: 0 3px 5px 1px rgba(51, 51, 51, 0.3);
+}
+
+.graphNavToggle:hover {
+    box-shadow: 0 3px 6px 2px rgba(51, 51, 51, 0.3);
+}
+
+.graphNavToggle:checked ~ .graphNavButtons a {
+    opacity: 1;
+    visibility: visible;
+    display: block;
+}
+
+.graphNavToggle:checked ~ .graphNavButton i {
+    transform: rotate(-45deg)
+}

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
+          rel="stylesheet">
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
+
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('categorical_plot.static', filename = 'css/categorical_plot.css') }}"/>
+
+    <script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
+
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='StP', title=_('Stratified Plot'), hint=_('Compare data distribution with histograms and estimated density lines. Split the graph with  stratified variables.'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+<div class="card" id="varTab" class="no-top-border">
+    <form id="categoricalPlotForm" class="no-top-border">
+        <!-- Process + sensor -->
+        <div class="card-body table-bordered graph-navi no-top-border">
+            <div class="row">
+                <div class="col-sm-2 d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                    {{ macros.label(_("Show value"), title=_('Enter target item of data (quantitative variable like measurement value) to create data distributions. This data is plotted on the graph.')) }}
+                    {{ macros.paste_btn() }}
+                    </div>
+                    <div class="mt-auto pl-3 pt-3">
+                        {{ macros.start_proc_select(procs) }}
+                    </div>
+                </div>
+                <div class="col-sm-10">
+					<div class="row" id="end-proc-row">
+						<div class="col-12 col-lg-6 col-sm-12 p-1">
+                            <button id="btn-add-end-proc" name="btnAddEndProc" type="button"
+                                    class="btn simple-btn">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>
+                        </div>
+					</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date range -->
+        <div class="card-body table-bordered graph-navi" id="varSrtPrc">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="d-flex justify-content-between">
+                    {{ macros.label(_("Target period")) }}
+                    {{ macros.paste_btn() }}
+                    </div>
+                </div>
+                <div class="col-sm-10">
+                    <div class="row">
+                        {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover StP'))}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{macros.cond_proc([],'', prefix='var', title=_('Stratified Category Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true)}}
+        <br class="graph-navi graph-navi-top-down">
+        <div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-10">
+                <div class="d-flex">
+                    {{ macros.exception_est(checkId='varIsExceptionEstimation') }}
+                </div>
+            </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-center show-graph-div">
+            <button type="button" id="varShowGraphBtn" value="{{ _('Display graph') }}" onClick="showGraph()"
+                class="btn btn-primary show-graph" data-with-tab="true"><i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+        </div>
+        <br>
+    </form>
+</div>
+
+<br>
+<div id="categoricalPlotArea" style="display: none">
+    <div class="flex-row-center">
+        <div id="summaryMenu" class="summary-menu">
+            <button id="varSummarySelectBtn" class="btn btn-sm border-white">...</button>
+            <div class="summary-menu-content">
+                <div class="form-check">
+                    <label class="form-check-label" for="varRadio1">
+                        <input class="form-check-input SummaryOption" id="varRadio1" type="radio" name="SummaryOption" value="none" checked>
+                        <span>{{ _("None") }}</span>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label" for="varRadio3">
+                        <input class="form-check-input SummaryOption" id="varRadio3" type="radio" name="SummaryOption" value="count">
+                        <span>{{ _("Count") }}</span>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label" for="varRadio4">
+                        <input class="form-check-input SummaryOption" id="varRadio4" type="radio" name="SummaryOption" value="basic-statistics">
+                        <span>{{ _("Basic statistics") }}</span>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label" for="varRadio5">
+                        <input class="form-check-input SummaryOption" id="varRadio5" type="radio" name="SummaryOption" value="non-parametric">
+                        <span>{{ _("Non parametric") }}</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        {{ macros.y_scale_option(name='HistScale') }}
+    </div>
+    <div id="CatePlotCards"  class="stratifiedTabs mt-2" data-str-by="var"></div>
+</div>
+
+
+    <div class="loading"></div>
+    <div style="display: none;">
+        <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+        <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+           target="_blank">{{ _('Click here to fix') }}</a>
+    </div>
+
+    <div id="varInfo">
+        <span class="" id="vi-title">{{ _("Median") }}</span>
+        <div id="vi-content">
+            <p>{{ _("Median_mean") }}</p>
+        </div>
+    </div>
+
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <script src="{{ url_for('categorical_plot.static', filename = 'js/categorical_histogram_with_density_curve.js') }}"></script>
+    <script src="{{ url_for('categorical_plot.static', filename = 'js/categorical_plot_utils.js') }}"></script>
+    <script src="{{ url_for('categorical_plot.static', filename = 'js/categorical_plot.js') }}"></script>
+
+{% endblock %}

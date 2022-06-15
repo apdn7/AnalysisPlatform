@@ -1,0 +1,180 @@
+#RLPCardCategory {
+    width: 100%;
+    border: 0;
+    display: none;
+    padding: 5px;
+    margin-top: 20px;
+}
+
+#rlp-compare-tabs {
+    border-bottom: none;
+}
+
+#rlp-compare-tabs .nav-item {
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    margin-left: 1px;
+    width: 225px;
+    text-align: center;
+}
+
+#rlp-compare-tabs .nav-item .active {
+    background-color: #303030;
+}
+
+.cate-plot-cards {
+    border: none;
+    background-color: #222222;
+}
+
+.no-top-border {
+    border-top: none;
+}
+
+.ridgeLineCard {
+    display: inline-table;
+    float: left;
+    width: 29vw;
+    height: 100vh;
+}
+
+.ridgeLineCard-org {
+    display: inline-table;
+    float: left;
+    width: 100%;
+}
+
+.ridgeLineCard-full {
+    /*border: 1px solid red;*/
+    /*margin-bottom: 10px;*/
+    margin-left: 60px;
+    width: calc(100% - 80px);
+    /*margin-top: -35px;*/
+}
+
+.cyclic-term-target-period {
+    padding-left: 1rem;
+    border: 2px solid #444444;
+    border-radius: 3px;
+    padding-right: 1rem;
+}
+
+.ridgeLineItem {
+    border: 1px solid #434343;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #303030;
+}
+
+.chart-title {
+    /*transform: rotate(-90deg) translateY(-7vw) translateX(-10vw);*/
+    transform-origin: center;
+    color: #65c5f1;
+    text-align: center;
+    font-size: 0.8vw;
+    width: 18vw;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    position: absolute;
+}
+
+.showLabel {
+    line-height: 28px;
+    float: right;
+    margin-left: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.showOutlier {
+    margin-bottom: 10px;
+}
+
+.showOutlier button {
+    float: right;
+}
+
+.switch {
+    position: relative;
+    float: right;
+    /* display: inline-block; */
+    width: 54px;
+    height: 28px;
+    margin-bottom: 0;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    display: none;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #434343;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 28px;
+    width: 28px;
+    left: 0px;
+    bottom: 0px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input.primary:checked + .slider {
+    background-color: #375a7f;
+}
+
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #375a7f;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(28px);
+    -ms-transform: translateX(28px);
+    transform: translateX(28px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 28px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.pin-chart {
+    height: 20px;
+    font-size: 12px;
+    float: right;
+    margin: -20px 5px 0 0;
+    color: #757575;
+}
+
+.pin-chart .pin {
+    color: white;
+    cursor: pointer;
+}
+
+.pinChart {
+    position: fixed;
+    top: 0;
+    /*height: 25vh !important;*/
+    /*width: calc(100% - 170px) !important;*/
+    z-index: 100;
+}

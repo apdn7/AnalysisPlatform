@@ -1,0 +1,3153 @@
+# ウェールズ語 Welsh translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "cy_ウェールズ語_Welsh"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:14+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: cy\n"
+"Language-Team: cy\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Harbed"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Mae gwall wedi digwydd"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Cyfluniad Cais"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Tudalen heb ei darganfod"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Mae gwall wedi digwydd"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Ap DATALINK A DADANSODDI"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Dewiswch Iaith"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Prif sgrin"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Gwirio Gweithredol"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Gwirio Gweithredol"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Ffurfwedd Sylfaenol"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Gofrestrent"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Hail -lwythet"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Gyfanrif"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Go iawn (arnofio)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "DateTime"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Moch"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Teitl"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Plannem"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Ffatri"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Leinith"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Cadarnhewch."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Cadwch y data a dechrau mewnforio data gyda'r cynnwys a osodir ar y dudalen Gosod Proses?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "iawn"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Chansliff"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Config Cronfa Ddata"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Enw'r Gronfa Ddata"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Math o gronfa ddata"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Ffurfwedden"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Sylwadau"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Gyfrifon"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Dewiswch ffeil cronfa ddata."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Enw Ffeil"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Ddetholem"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Ydych chi am ddileu'r cofnod hwn?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "croeswn"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Olrhain"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Graff olrhain"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Profi olrhain"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Dechreuwch brofi"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Amser Cychwyn"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Amser Diwedd"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID Peiriant (Detholiadau Lluosog)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Leinith"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Rhan"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Ffurfweddu Cyswllt Data"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Dewiswch Iaith"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Japaneaidd"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Saesneg"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Nodau"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Nod ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Labelith"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Meistr"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Gronfa ddata"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Mewnforied"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Hallforion"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Enw gwesteiwr"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Rhif porthladd"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Enw Defnyddiwr"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Gyfrinair"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Sgema"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Llwyddais."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; Wedi methu."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Cyfluniad proses"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Phrosesu"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Enw Proses"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Enw'r Tabl"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Manylai"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Rhagolwg"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Pum cofnod cyntaf"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Gosod cynnwys"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Enw colofn"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Enw Saesneg"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Enw Arddangos"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "cyfernod"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Gweithredwr"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Rhowch werth heblaw 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Gweithredwr mewnbwn."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Cyfernod mewnbwn."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Mewnbwn Enw Saesneg."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Enw Arddangos Mewnbwn."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Mae'r enw Saesneg wedi'i ddyblygu."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Mae'r enw arddangos wedi'i ddyblygu."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Mae angen mewnbwn ar bob \"enwau arddangos\"."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Mae caeau ag \"enw Saesneg\" gwag yn cael eu llenwi'n awtomatig."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Dewiswch Bawb"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Mewnforio data"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Ydych chi'n sicr o fewnforio data?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Pan wasgwch y botwm OK, byddwch yn mewnforio data o'r amser cyfredol i fis o'r blaen."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Mae'r data blaenorol yn cael ei fewnforio yn awtomatig fesul tipyn."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Os ydych chi am fewnforio'r data ar ôl yr amser cyfredol, pwyswch y botwm darllen data eto, neu pwyswch y gronfa ddata CSV gan sefydlu'r gosodiadau ar y dudalen Gosod Darllen."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Pan fydd \"Cylch Diweddaru\" o \"gronfa ddata / CSV yn gosod gosodiad\" wedi'i osod, bydd yn cael ei fewnforio yn awtomatig yn y cyfnod pan fydd y data ar ôl yr amser cyfredol wedi'i osod."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Olrhain gwybodaeth"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Olrhain Data"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Ni allai gael mynediad"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Cliciwch yma i'w drwsio."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Golygu Edge"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Proses Blaenorol"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Colofn Blaenorol"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Proses Post"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Post Colofn"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Fel DateTime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Fel cyfresol"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Fel cyswllt ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Eisoes wedi cofrestru"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Rhowch enw'r broses"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Hidlo/graff"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Config graff"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Ffurfwedd Hidlo Llinell"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Colofn Llinell"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Gwerthfawrogwch"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Ffurfwedd Hidlo Peiriant"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Peiriant ID colofn"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Rhan dim ffurfwedd hidlydd"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Rhan dim colofn"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Enw Hidlo"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Cyflwr Hidlo"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Mae eraill yn hidlo ffurfwedd"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Colofn darged"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Ffurfweddiad Delweddu"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Trothwy is"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Trothwy Uchaf"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Trothwy proses is"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Trothwy proses uchaf"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Ystod Y-Exes: Min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Ystod Y-Exes: Max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Rhan Na"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "gorffen gyda"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Dechreuwch gyda"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like Chwilio)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Chydwela ’"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Mynegiadau rheolaidd"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Arddangos y Graff"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Allforio"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Mae angen y broses"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Mae angen enw'r golofn"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Mae angen llinell"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Mae angen enw arddangos"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Mae'r enw arddangos wedi'i ddyblygu."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Mae angen gwerth peiriant"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Peiriant wedi'i ddyblygu ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Arbed yn llwyddiannus"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Wedi methu ag arbed"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Rhan Dim Colofn Mae angen Colofn"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Mae angen y golofn darged"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Mae angen enw hidlo"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Mae angen cyflwr"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Mae enw'r hidlo wedi'i ddyblygu."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Mae'r amodau'n cael eu dyblygu."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Diofyn"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Enw Proses"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Ychwanegu hidlwyr eraill"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Ffurfwedd mewnforio"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Ffynhonnell"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Cylch adnewyddu"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Chysyllta ’"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Unwaith yr Awr"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Unwaith y dydd"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Cadarnhad Data"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Nid oes ffolder."
+
+msgid "File does not exist"
+msgstr "Nid oes ffeil."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Gallwch gysylltu."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Llenwch y gwerth."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Nid oes unrhyw gynnwys gosod."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Mae'r gosodiadau wedi'u dyblygu."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Gosodiadau cronfa ddata wedi'u cadw."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Wedi methu ag arbed gosodiadau cronfa ddata."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Gosodiadau Sylfaenol wedi'u Cadw."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Wedi methu ag arbed gosodiadau sylfaenol."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Prawf Cysylltiad"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Cychwyniadau"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Ystod Dyddiad"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Diweddaraf"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Diweddariad Auto"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "munud"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "munudau"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "awr"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "oriau"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Newidyn targed"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Hidlech"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X echel"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Amserlenni"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Mynegeion"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Newidynnau Stratify"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Hidlwyr"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Cronfa Ddata/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Ddadelfennith"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Ar ôl datblygu"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Dadansoddi:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Plot Rhaeadr"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Graffigol LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogram"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Plot wedi'i haenu"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Plot pwyntiau llawn"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Delweddu Data"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Delweddiadau"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Redych"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Rhowch enw'r gronfa ddata."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Rhowch enw'r ffynhonnell ddata."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Nid yw colofnau nad oes ganddynt fath o ddata yn cael eu mewnforio."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Mae angen o leiaf un golofn amser."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Ar gyfer delweddu, defnyddiwch '{col}' ar gyfer yr echelin-x."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Ydych chi'n sicr o barhau?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Gwyliwr bwrdd"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Bwrdd"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Didolwch"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Nifer y data"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Disgynyddion"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Esgynnol"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Cydweddiad perffaith"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Gêm Rannol"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Dewis digid annilys"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Mae hyd y cymeriad a ddefnyddir ar gyfer y cysylltiad yn wahanol."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Dim hidlydd"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Pob llinell"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "sefyllfa"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Restr"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "I gyd"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Mewnforio wedi'i gwblhau."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Mewnforio"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Methwyd mewnforio"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Bydd y data wedi'i lwytho yn cael ei ddileu. Ydy hi'n iawn? (Ni adlewyrchir unrhyw newid nes bod y botwm cofrestru yn cael ei wasgu)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Restr"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "ID Swydd"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Enw Swydd"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Cenhedlaeth o gysylltiadID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Arddangos swydd cynhyrchu cyswllt ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Dileu gwybodaeth broses"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Mewnforio data ffatri"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Mewnforio data ffatri yn y gorffennol"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Dangos swydd mewnforio data ffatri yn y gorffennol"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Data mewnforio"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Dileu hen ddata"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Amser Cychwyn"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "amser a aeth heibio"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Cronfa Ddata/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Symudon"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Phrosesu"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Rhestr Histogram"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Cofrestrwch fel gwerth achos"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Ungof Outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Cuddio allgleifion"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Dangos allgleifion"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Gwirio allgleifion"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Dangos Rhestr Histogram"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Amser Diweddaru Diwethaf"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Mae cofrestru allanol wedi'i ganslo."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Wedi'i gofrestru fel allgleiwr"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Allanol"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Dim ond unwaith"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Manylion Swydd"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Copïo I'r clipfwrdd"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Plot Aml -wasgariad"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Plot gwasgariad"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "I ddelweddu newidyn categori"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratify yn ôl newidynnau"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Newidyn"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Peiriant Na"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Cyfnod targed"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Amledd)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Amcangyfrif Dwysedd"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Newidyn categori"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify yn ôl tymor (uniongyrchol)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Ni allwch ddewis wyth neu fwy o newidynnau targed. Dewiswch y newidyn targed."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Canfod anghysondebau"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Dadansoddiad Cydran Egwyddor"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Prif sgôr cydran y data profi"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Prif sgôr cydran y data hyfforddi"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Siart Cyfres o Ystadegau T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Siart Cyfres o Ystadegau Q"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Plot cyfraniad o ystadegau T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Plot Cyfraniad o Ystadegau Q"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Tynnwch y tu allan"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Data Hyfforddi"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Profi Data"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Ie"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Na"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Math o ddata"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Hesiamol"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Gwallau"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Rhybuddion"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Gan fod yr holl resi wedi'u dileu gan brosesu gwerth diffyg (tynnu NA), nid oes unrhyw ddata i'w ddadansoddi. Sicrhewch nad yw'r gwerth gwag, gan gynnwys NA, yn cael ei ddewis."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Ni ellir ei ddadansoddi oherwydd ei fod yn cynnwys data heblaw rhifau. Sicrhewch eich bod wedi dewis colofn sy'n cynnwys llinyn neu werth categori."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Ni all ddadansoddi oherwydd ei fod yn cynnwys data gydag amrywiant o 0. Sicrhewch mai dim ond un golofn gwerth na chaiff ei dewis."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Canfuwyd data categori a gwerth cyfanrif disgwyliedig. Os nad yw'r gwerth cyfanrif hwn yn raddfa archeb, graddfa egwyl, neu raddfa gymhareb, gellir effeithio'n andwyol ar ganlyniadau'r dadansoddiad."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Ydych chi'n sicr o fynd ymlaen â dadansoddiad?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "chwiloon"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Mae'r canolrif yn un o'r ystadegau nodweddiadol. Mae'n werth sydd wedi'i leoli yn y canol pan drefnir y data cyfyngedig yn y drefn esgynnol. Er enghraifft, yn achos pump, canolrif oedran yr oedran yw'r drydedd oedran yn nhrefn oedran. Os yw nifer y data hyd yn oed, defnyddir cyfartaledd y rhifyddeg brevitable canolog."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Crynodeb o'r dosbarthiad"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N RHIF"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Chyfartaleddwch"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Beth yw'r canolrif ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Gyfanswm"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Ryfedd"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Derfynol"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Proses darged"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Cyfres Amser"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Mapiau"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Nifer y Cyswllt Data"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Eiliadau"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Amser ymateb"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "golygwch"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Baciwn"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Ychwanegu nod"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Ychwanegu ymyl"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "NODE Golygu"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Cliciwch ar y lle gwag i osod nod newydd."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Cliciwch y nod, llusgwch yr ymyl i nod arall a'u cysylltu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Cliciwch y pwynt rheoli, ei lusgo i'r nod a chysylltu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Ni ellir ychwanegu ymyl."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Ni ellir dileu'r clwstwr."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Ni ellir golygu'r clwstwr."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Mae'r enw neu'r gwerth arddangos wedi'i ddyblygu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Rhowch enw a gwerth yr arddangosfa."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Rhowch y golofn llinell."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Oriau"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Gwybodaeth Data"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Dydd"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Wythnosau"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Lwythet"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Hiachasit"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Orysgrifen"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Gosodiad"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Newid y teitl oherwydd bod yr un teitl wedi'i osod."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Cadw lleoliad"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Creu screenshot"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "lawrlwythwch"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Mae'r rhesymau pam na ellir arddangos y graff fel a ganlyn. BREAK_LINE Gwiriwch y sefyllfa. Nid yw data BREAK_LINE・ yn cael ei fewnforio, nac yng nghanol y mewnforio. BREAK_LINE・ Nid oes unrhyw ddata wedi'i gysylltu, nac yng nghanol clymu. BREAK_LINE・ Mae gosodiad y graff yn amhriodol."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Rhybuddion"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Nid yw cofnodion sy'n cynnwys data annilys yn y golofn ddata dyddiad yn cael eu mewnforio."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Gallwch gyfeirio at y ffeiliau yn y ffolder isod ar gyfer data na ellid eu mewnforio."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Ni ellir uwchlwytho statws defnyddio oherwydd nad yw wedi'i gysylltu â'r Rhyngrwyd."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Gwiriwch gysylltiad rhwydwaith."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Bydd yn cymryd amser hir i gysylltu data eto."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Ydych chi'n sicr o ailgysylltu'r data?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Herthygl"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Dienyddiant"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Ydych chi'n sicr o ail -lwytho'r gosodiadau cyswllt data a gofrestrwyd yn flaenorol?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Wedi dechrau mewnforio data."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Gallwch wirio cynnydd y mewnforio o'r ddolen isod."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Gweler y dudalen rhestr swyddi am statws gwall."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Wedi dechrau cysylltu data."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Unwaith bob 3 munud"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Unwaith bob 5 munud"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Unwaith bob 10 munud"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Swyddogaeth ddewisol"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Math o Ffeil"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Allforio"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Oherwydd y nifer fawr o gofnodion dethol a'r amser sy'n ofynnol i arddangos y graff, roedd nifer y cofnodion fesul graff wedi'i gyfyngu i 50,000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Siart Cyfres Amser"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Gwerth Categori"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Gan fod nifer y cofnodion yn y cyfnod penodedig yn fwy na 5,000, mae cyswllt BREAK_LINE wedi'i rwymo o fewn ± 14 diwrnod i'r cyfnod penodedig. Os nad ydych am gyfyngu'r ystod gyswllt, addaswch hyd i leihau nifer y cofnodion o BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Graddfa Gosod"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Raddfa gyffredin"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Nhrothwy"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Graddfa Auto"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Graddfa gael ei defnyddio"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn o'r broses"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Mini"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Neb"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Nghrynodeb"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Gyfrifon"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Ystadegau Sylfaenol"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Nad yw'n baramedrig"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Ansawdd data"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Ngwylwyr"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Mewnforio data"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Bydd y broses cyswllt data yn cychwyn yn seiliedig ar y cyfluniad cyfredol."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Efallai y bydd yn cymryd amser os oes llawer o ddata i'w gysylltu. A yw'n iawn cychwyn?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Ar gyfer data sy'n cael ei fewnforio yn awtomatig ac o bryd i'w gilydd, cynhyrchir Link ID yn awtomatig."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Enw Ffynhonnell Data"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Math o Ffynhonnell Data"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Ydych chi'n sicr o arbed newidiadau?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Gwybodaeth OS Gorfodol i Gosodiadau Parth Amser."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Lleoliad Uwch"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Mae gosodiadau'n cael eu cadw ar gyfer y gronfa ddata /CSV ffeil o ddata mewnforio. Ewch i'r dudalen Gosod, gosodwch y colofnau o ddata mewnforio i fewnforio'r data."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Nid oes unrhyw briodoledd ofynnol yn y data elfen."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Nid oes angen gwerth priodoledd ar gyfer data elfen."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Mae angen o leiaf ddau newidyn ar ganfod annormal gan PCA. Dewiswch ddau neu fwy o newidynnau."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Dewiswch o leiaf un golofn"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Nid yw newidynnau categori sy'n lleihau lled y blwch yn cael eu harddangos."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Dechrau digid"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Plot Ridgeline"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Stopiwch y cais (Edge Server). Os byddwch chi'n stopio, ni fydd unrhyw ddefnyddiwr arall yn gallu defnyddio hefyd, felly cysylltwch â'r gweinyddwr. <br> Yn achos diwedd arferol, canslo yma a chau'r porwr yn unig."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Mae'r holl swydd wedi'i stopio. Gallwch chi gau eich porwr a'ch consol yn ddiogel."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Ffynhonnell Ffynhonnell Data"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Ffynhonnell Ffynhonnell Data Ffurfweddu"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Ychydig o golofnau cymeriad a ganfu colofnau. Gwiriwch y gellir cam -gydnabod y golofn math rhifol ac ati."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Hidlo eitem"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Gwerth Hidlo"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Dyddiad dod i ben (cychwyn)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Dyddiad dod i ben (diwedd)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Ni ellid mewnforio data oherwydd camgymeriadau cyfluniad math data colofn. Enw Ffynhonnell Data __param__ CSV/TSV Gwiriwch y gosodiadau math o ddata yn rhagolwg data'r dudalen Gosod Darllen. Dileu'r gosodiadau cam na ellid eu mewnforio a gosod y gosodiadau."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Roedd ffeil heb ddata. Gwiriwch gynnwys y ffeil. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Mewnbwn o leiaf un gwerth o'r cyfnod dilysrwydd o neu i."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Rhannwch yn ôl categori"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Rhannwch yn ôl term (cylchol)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Rhannwch yn ôl term (uniongyrchol)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Mae gwerth yr egwyl a gofnodwyd yn annilys. Rhowch nifer o 0.1 neu fwy, 720 neu lai, neu -720 neu fwy, a -0.1 neu lai."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Mae nifer y Ridgeline Mewnbwn yn annilys. Rhowch gyfanrif o 1 neu fwy a 150 neu lai. (mae'n well ganddyn nhw ddefnyddio tua 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Cychwyn data ac amser"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Egwyl"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Hyd ffenestri"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Eitem reoli"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Theipia ’"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Henwem"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Sylwch, os yw nifer y pwyntiau data mewn un categori o dan 50 oed, gall cywirdeb y graff leihau."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Dangos cyrchwr gwallt traws (cliciwch)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Dangos cyrchwr gwallt aml -groes (clic dwbl)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Dangos rhestr o histogramau"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Canslo gwiriad allanol"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Mae `Enw Ffynhonnell Data 'penodedig eisoes yn bodoli."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Methodd mewnforio data oherwydd canfuwyd ffeil ag enw colofn wahanol yn y ffynhonnell ddata. Gwiriwch gynnwys y ffeil a gosodwch y gosodiadau mewnforio ffynhonnell ddata eto."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Nifer a ragwelir o gofnodion i'w cysylltu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Nifer y samplau"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Nifer y cofnodion i'w cysylltu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Nifer y cyfanswm cofnodion"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Enwch y ffolder lle mae ffeiliau CSV/TSV yn cael eu cadw fel \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Rhagfynegiad"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Config hidlo"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Meistr Config"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "O hidlydd config"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Dangos popeth"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Fel allwedd (opsiwn)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Wedi'i ddileu REMOVED_COUNT o werth diffyg, gwerth annormal, a gwerth allanol o TOTAL_COUNT yn y gwreiddiol."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Cyfeiriad IP"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Cymharwch ddosbarthiad data ag amcangyfrif histogram ac dwysedd. Rhennir y graff gan y newidyn haenedig. Mae hefyd wedi'i rannu yn ôl agwedd."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Plotiwch bob nifer o ddata ar yr echel amser neu'r echel ID."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Matrics plot gwasgariad arddangos. Gallwch ddefnyddio o 2 i 7 newidyn targed."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Yn ôl dadansoddiad prif gydran, perfformir delweddu \"gwahanol\" a'i ddadansoddiad ffactor. Rhowch ddata arferol fel data athrawon a delweddwch a yw'r data cyfredol yr un sefyllfa â'i ddata arferol (T2/Q). Os oes gennych sefyllfa wahanol, gallwch wirio'r prif ffactorau yn y plot cyfraniadau."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Rhennir y dosbarthiad yn graffiau lluosog gan y newidyn hwn. Dewiswch newidynnau categori (newidynnau ansoddol) fel rhifau rhan a gorsafoedd."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Hidlo Categori Haenedig: Yn cyfyngu ar ddata i'w arddangos i is -set. (Categori: Rhif Rhan, Rhif Gorsaf, ac ati)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Mae newidynnau categori (megis Rhan Rhif, Rhif Gorsaf, ac ati) yn cael eu harddangos fel labeli ar frig lleiniau i ddod o hyd i bwyntiau newid."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Hidlo Graff: Yn cyfyngu ar ddata i'w arddangos i is -set."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Gosodwch y data dysgu a ddehonglir fel sefyllfa arferol. Gosodwch yr adran ddata nad yw'n cynnwys unrhyw ddata NG. Os cânt eu cynnwys, mae'r rhai sy'n agos at y data NG hefyd yn cael eu barnu fel data arferol."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Gosod data prawf i'w farnu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Hidlo Eitem: Yn cyfyngu ar ddata (dadansoddi ac arddangos) i'w arddangos i is -set."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Mae'n arddangosfa agregau dau ddimensiwn (cywasgiad dimensiwn gan brif gydrannau) o ddata gwirio amlddimensiwn. Os yw'r data yn y canol, gellir ei ddehongli mor agos at normal."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Mae'n arddangosfa agregau dau ddimensiwn (cywasgiad dimensiwn gan brif gydrannau) o ddata dysgu amlddimensiwn. Mae'r targed canolog yn cael ei bennu gan y data dysgu, felly dylai'r rhan fwyaf o'r data dysgu fod yn y targed."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Llain o ystadegyn T2, sy'n monitro anghysonderau ym mhrif gydran y data hwn. Mae'r data dysgu yn cael ei blotio mewn gwyn ac yn y gyfran X negyddol. Y plot melyn yw'r data dilysu. Po uchaf yw'r data dilysu yn cael ei gymharu â'r data gwyn, y mwyaf tebygol yw'r sefyllfa o wyro. Cliciwch Pwynt Data i weld y plot cyfraniad o ba elfennau sy'n ffurfio'r sefyllfa."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Llain o'r ystadegyn Q (monitro am anghysonderau yn rhan fach y data hwn, gweddilliol). Mae'r data dysgu yn cael ei blotio mewn gwyn ac yn y gyfran X negyddol. Y plot melyn yw'r data dilysu. Po uchaf yw'r data dilysu yn cael ei gymharu â'r data gwyn, y mwyaf tebygol yw'r sefyllfa o wyro. Cliciwch Pwynt Data i weld y plot cyfraniad o ba elfennau sy'n ffurfio'r sefyllfa."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Ei drefn y mae newidynnau yn cyfrannu at y sefyllfa ar y pwynt a ddewisir yn y plot ystadegyn T2. Po hiraf y hyd, y mwyaf tebygol yw'r achos."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Ei drefn y mae newidynnau yn cyfrannu at y sefyllfa ar y pwynt a ddewisir yn y plot ystadegyn Q. Po hiraf y hyd, y mwyaf tebygol yw'r achos."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Nifer y pwyntiau data sydd â gwerth yn llai na neu'n hafal i Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Nifer y pwyntiau data sydd â gwerth sy'n fwy na neu'n hafal i Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Cyfanswm nifer y data gan gynnwys NA (ddim ar gael), NaN (nid rhif) a Inf± (anfeidredd) yn y cyfnod a ddewiswyd."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Canran y data y tu allan i'r trothwy uchaf ac isaf (cyfrif) yn y cyfnod a ddewiswyd"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Canran y data y tu allan i'r trothwy terfyn uchaf ac isaf (cyfrif) yn y cyfnod a ddewiswyd"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Canran o NA (ddim ar gael) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Canran o NaN (nid rhif) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Canran o Inf+ (ynghyd ag anfeidredd) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Canran o Inf- (minws anfeidredd) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Cyfanswm canran y data y tu allan i'r gwerth trothwy, NA (ddim ar gael), NaN (nid rhif) a Inf± (anfeidredd) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Nifer y data ac eithrio NA (ddim ar gael), NaN (nid rhif) a Inf± (anfeidredd) yn y cyfnod a ddewiswyd."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95ain ganradd"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75ain ganradd (trydydd chwartel)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25ain ganradd (chwartel gyntaf)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5ed ganradd"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Ystod rhyngchwartel (gwerth cynrychioliadol amrywioldeb dosbarthu: IRQ = Q3 - Q1 ≒ 1.349σ@ dosbarthiad arferol)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Canolrif)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Cyfrif/awr"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Cyfrif/munud"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Amser Beicio [au]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Rhaniad"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Cylch arddangos"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Arddangos cyfwng"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Map Gwres Calenda"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Ni ellir dewis newidynnau targed gan MAX_NUM_SENSOR neu fwy. Dewiswch y newidyn targed."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Y targedau o gael gwared ar y tu allan yw Max, Mean, Min, σ a Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Heblaw am rifau real"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Gellir delweddu'r dosbarthiad trwy gyfrifo ar gyfer pob newidyn categori (newidynnau ansoddol, rhif lot, ac ati) neu amser dyddiad, a'u harddangos ochr yn ochr. Dull delweddu sy'n caniatáu dadansoddiad traws-grŵp (cymhariaeth rhwng llawer, dyddiau, sifftiau ac ati) o ddata heb arwahanol ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Gosodwch y trothwy i'w dynnu ar graffiau."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Os yw gwasgariad ymlaen, gallwch ddangos y plot gwasgariad ag ef. Y plot gwasgariad rhwng yr eitem gyfredol a'r eitem rhes nesaf. Llusgwch a gollwng cardiau plot y lleiniau priodol gyda'r llygoden i newid echelin-x ac echelin y plot gwasgariad."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Eitem o ddata (fel newidyn rhifiadol neu werth mesur) sy'n creu dosbarthiad o ddata. Mae'r data hwn yn cael ei blotio ar y plot. Gellir dewis hyd at 20 eitem."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Mae'r newidyn haenedig hwn yn rhannu'r dosbarthiad yn lleiniau lluosog ac yn eu harddangos ochr yn ochr. Dewiswch newidyn categori, fel Lot No neu Swp Rhif"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Mewnbwn y dyddiad cychwyn i arddangos plot Ridgeline ar gyfer pob dyddiad."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Mewnbwn yn uniongyrchol y cyfnod i arddangos plot Ridgeline ar gyfer pob dyddiad."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Gallwch ddewis opsiynau i fewnforio data o ffeil CSV/TSV sy'n gofyn am drin arbennig, megis trosi strwythurau data."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Bydd pwyso'r botwm Rhagolwg isod yn dangos rhywfaint o ran o'r data yn y ffeil fel y gallwch wirio ei gynnwys."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Dewiswch ddolen ID i'w defnyddio fel yr amod ar gyfer cysylltu data. Gallwch hefyd ddewis eitemau lluosog."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Pan fydd eich ap yn mewnforio data o bryd i'w gilydd, gallwch ddewis colofn DateTime a ddefnyddir yn ffafriol fel allwedd amser dyddiad."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Os dewiswch weithredwr a nodwch rif o dan 'ffactor', bydd y gwerth yn y graff yn cael ei gyfrif gan ddefnyddio'r gweithredwr a'r ffactor penodedig."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Os dewiswch weithredwr a nodwch rif o dan 'ffactor', bydd y gwerth yn y graff yn cael ei gyfrif gan ddefnyddio'r gweithredwr a'r ffactor penodedig."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Mae'n bosibl rhagweld faint o ddata fydd yn cael ei gysylltu gan yr amodau cysylltu sydd wedi'u gosod ar hyn o bryd."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Yn taflu'r amod cysylltu data a osodir ar hyn o bryd ac yn galw'r cyflwr a gofrestrwyd yn flaenorol."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "Cynhyrchir ID yn fewnol i gysylltu data â'r amodau cysylltu set."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Dewiswch yr eitemau rheoli ansawdd neu reoli offer gan ddefnyddio mewn gosodiadau graff."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Dewiswch y math o darged rheoli fel rhan rhif ac offer."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Dewiswch y targed rheoli fel gwerth y rhif rhan a gwerth yr offer."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Gosodwch y dyddiad cychwyn ar gyfer gosodiadau graff. (Yn ofynnol)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Gosodwch y dyddiad diwedd ar gyfer gosodiadau graff. (Dewisol)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Darllenwch y cyfluniad a arbedwyd."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Arbedwch y cyfluniad diweddaraf y gwnaethoch chi ei nodi."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Cadwch y sgrin fel ffeil PNG."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Ydych chi am ddileu'r gosodiad hwn?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Newidyn targed (rhif real)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Newidyn targed (categori)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Archebu Mynegai"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Golofnau"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Harchebon"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Blaenoriaeth"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Nhrefniadau"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Newidynnau"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Go iawn a chategoreiddiol yn unig"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Go iawn yn unig"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Categori yn unig"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Mewn trefn benodol"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Mewn trefn broses"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Mewn cydberthynas coef. harchebon"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Trothwy Cydberthynas (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Dewiswch i newidyn gwrthrychol"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Newidyn gwrthrychol"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Newidyn esboniadol"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Cymhareb ar gael"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Diagram Sanky"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Match (Match Perffaith)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Chwilio"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Chwilio"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Gan na all plot cyfesuryn cyfochrog drin rhifau real, mae data rhifau real wedi'i ddileu."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Ailgofrestriadau"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Cofrestrwch y wybodaeth wedi'i golygu fel enw arddangos."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Ydych chi am gofrestru gyda'r cynnwys wedi'i addasu?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Os ydych chi'n newid dolen ID, ailosodwch y cyswllt data."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Graff cyd-ddigwydd"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Ffeil Data"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Agregu gan"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Awr"
+
+# co-occurrence
+msgid "Day"
+msgstr "Dydd"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Golygu Modd"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Modd gosod"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Bydd y data annilys a amlygir yn goch yn cael ei ddileu. Ydych chi'n sicr o newid i'r modd gosod?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "blaenoriaeth"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Canfuwyd enw Saesneg dyblyg, felly ychwanegwyd y rhif cyfresol yn awtomatig. Gwiriwch enwau colofnau."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Unedau agregu"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Y golofn gyntaf yw amser dyddiad, ac mae'r ail golofn a'r colofnau dilynol yn werth fel baneri hysbysu larwm/cyfrif digwyddiadau (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Perthnasoedd cyd-ddigwydd agregau yn ôl awr/dydd."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Trothwy arddangos"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Os dewiswch werth llai na 100%%, byddwch yn cuddio perthynas gyd -ddigwyddiad bach. (Diofyn: lluniwch linell os oes unwaith hyd yn oed)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Nodi a delweddu newidynnau sydd â chydberthynas uniongyrchol neu'n anuniongyrchol â'r newidyn targed."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Delweddwch y gydberthynas rhwng y newidynnau a bennir yma. Gellir dewis hyd at 60 o eitemau."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Newidynnau ymgeisydd sy'n gysylltiedig â newidynnau gwrthrychol."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Plot cyfesuryn cyfochrog"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "o'r holl ymylon"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Gynllun"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Cylchred"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Awtomatig"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Effeithlonrwydd"
+
+msgid "Set threshold"
+msgstr "Control Line: Gwiriwch wrth dynnu lefelau rheoli fel llinellau safonol"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Platfform dadansoddi"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Siart Pareto"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Nifer y digwyddiad"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Cymhareb gronnus [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Delweddu paramedrau a all amrywio yn ôl data dros gyfnod hir o amser, megis amrywiadau blynyddol mewn prosesau, dyddiau'r wythnos, sifftiau, ac ati."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Delweddwch y gydberthynas rhwng nifer fawr o newidynnau mewn perthynas â'r newidyn targed."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Delweddu cyd-ddigwydd o ddiffygion, larymau, digwyddiadau ac ati (perthynas sy'n canolbwyntio ar amlder digwyddiadau un ffenomen ac un arall ar yr un pryd)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Wacoch"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Offeryn syml ar gyfer mapio data, delweddu, dadansoddiad ystadegol, a dysgu â pheiriant."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Defnyddir y set ddata yma fel cyfeiriad ar gyfer cysylltu a chynllwynio data. Defnyddir y gosodiadau yn echel lorweddol y plot. Yn ogystal, mae'r plot tarddiad yn cael ei arddangos gyda ffrâm las golau."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Yn nodi'r data (er enghraifft, newidynnau rhifiadol: gwerth mesur) ar gyfer y plot. Dewiswch y prosesau a'r eitemau i'w plotio ar y plot. Gellir dewis hyd at 20 eitem."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Yn nodi'r data (er enghraifft, newidynnau rhifiadol: gwerth mesur) ar gyfer y plot. Dewiswch y prosesau a'r eitemau i'w plotio ar y plot. Gellir dewis hyd at 8 eitem."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Wacoch"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Mae'r newidyn haenu hwn yn rhannu'r patrwm i'w ddelweddu yn lleiniau lluosog ac yn eu harddangos ochr yn ochr. Dewiswch newidynnau categori fel Rhan Rhif a Rhif Gorsaf Gellir dewis hyd at 100 o eitemau."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Yr eitem o ddata sy'n delweddu'r gydberthynas rhwng newidynnau (newidynnau meintiol: gwerthoedd mesur, ac ati). Mae'r data hwn yn cael ei blotio ar y siart. O 2 i 7 gellir dewis paramedr."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Dewiswch yr eitem i ddelweddu'r gydberthynas rhwng newidynnau. Gellir dewis hyd at 60 o eitemau."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Eitemau newidynnau categori (megis rhifau rhan) i ddelweddu'r gydberthynas rhwng newidynnau."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Cerdyn mwyaf posibl"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Lleihau cerdyn"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Os yw'r gosodiad hwn yn cael ei newid, mae angen ailosod y gosodiadau cyswllt data."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Dewis auto"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Dewiswch Bawb i'r Dde"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Dad -ddewis popeth i'r dde"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Pob go iawn (arnofio) o'r fan hon"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Pob cyfanrif o'r fan hon"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Pob llinyn o'r fan hon"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Oherwydd y nifer fawr o gofnodion a ddewiswyd a'r amser sy'n ofynnol i arddangos plot, roedd nifer y celloedd fesul llain wedi'i gyfyngu i 10,000. Os ydych chi am weld yr holl ddata ar gyfer y cyfnod targed BREAK_LINE, cynyddwch yr egwyl arddangos neu leihau'r cyfnod targed i leihau nifer y celloedd."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Cyfresi"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Gallwch chi addasu graddfa'r plot trwy dde-glicio ar y llain."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Graddfa Graff"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Modd gosod"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Nifer yr eitemau data na ellir eu cysylltu"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Plot gwasgariad"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "gyda chyfuchlin"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Harbed"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Wacoch"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Llwytho Llwyth"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Rhannu/preifat"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Disgrifiadau"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "A grëwyd gan"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Defnyddio/llwytho"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Lwythet"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Nifer y data na ellid eu cysylltu â'r broses man cychwyn (canran y cyswllt)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Arbed amser dyddiad"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Rhannu Gosodiadau"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "hiachasit"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Gallwch ddewis o 2 i 7 newidyn targed. Gwiriwch nifer y newidynnau targed a chywirwch y gosodiadau."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Terfyn maint y ffeil yw 10 MB. Lleihau maint y ffeil a rhoi cynnig arall arni."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Os cânt eu gwirio, mae'r dyddiad penodedig hefyd yn cael eu cadw."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Gwiriwch i rannu'r gosodiad hwn."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Arbedwch y gosodiadau."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Ydych chi'n sicr o drosysgrifo gosodiadau?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "ranna ’"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Preifat"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Wedi'i greu yn"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Chaewch"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Gosod Gorchymyn"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Cychwyn amser dyddiad"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Diwedd Amser"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Dangos labeli echelin-x"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Ystod DateTime"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Llusgo a gollwng ffeil yma"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Neu"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Dewiswch Ffeiliau"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Ni ellir ei arddangos"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Amharwyd ar brosesu oherwydd y swm mawr o ddata a'r amser prosesu hir. Adolygwch y gosodiadau amser ac arddangos y plot eto."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Allbynnu ffeil CSV. Arhoswch wrth i'r ffeil lawrlwytho."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Allbynnu ffeil TSV. Arhoswch wrth i'r ffeil lawrlwytho."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Ystod awto"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Ystod lawn"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Gosod Gorchymyn Mynegai"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Ymagorant"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Croeswn"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Gan fod nifer y pwyntiau data fesul graff dros 12,000, roedd nifer y pwyntiau data wedi'i gyfyngu i uchafswm o 12,000. Os ydych chi am weld y data cyfan, gosodwch y cyfnod targed byrrach."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratify yn ôl tymor (cylchol)"
+
+#: component.js
+msgid "Facet"
+msgstr "Agwedd"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Yn perfformio rhannu categori gyda'r eitem a ddewiswyd."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Amcangyfrif Eithriad"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Ystod rhyngchwartel wedi'i normaleiddio (mynegai yn cysylltu IQR â dosbarthiad arferol, Niqr = 0.7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Modd yw'r gwerth sy'n digwydd amlaf."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "gydag allgleiwr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "Heb Outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Arferol"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Heddiw"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Ddoe"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "7 diwrnod diwethaf"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "30 diwrnod diwethaf"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Y mis yma"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 mis"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 mis"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Gynigiwch"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Wythnosau"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 diwrnod yn ôl"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 diwrnod yn ôl"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Diwrnod dwrn y mis hwn"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Diwrnod olaf y mis hwn"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 mis"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Wedi'i ddiweddaru yn"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Crynhoir pwyntiau data gyda'r modd cyflym. Os ydych chi am gael plot heb hepgor data, addaswch y cyfnod targed yn fyrrach."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Ystod o echel y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Allanol"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Wacoch"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Chwilio proses"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Lyfrnodau"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Gan fod nifer y pwyntiau data fesul llain dros 10,000, tynnwyd plot dwysedd. Os ydych chi am arddangos yr holl bwyntiau data gyda llain gwasgariad, gosodwch y cyfnod targed yn fyrrach."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Wacoch"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Amser Beicio"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Realiti"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Newidyn gwrthrychol"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Cyfrifir y cyfernod cydberthynas gan ddefnyddio'r newidyn hwn fel y newidyn targed. Mae'r newidyn targed a bennir yma hefyd yn cael ei arddangos ynghyd â bar lliw ar ochr dde eithaf y plot. Os ydych chi am newid y newidynnau targed ar y plot, gallwch chi newid rhyngddynt trwy glicio ar y dde ar bob enw newidiol."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Ni chafodd data ei foddi oherwydd bod gormod o gategorïau. BREAK_LINE Gwiriwch ac, os oes angen, adolygwch y cyfnod targed yn fyrrach."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Gosodiad hidlo"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Label (newidynnau categori)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Chopïedig"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Pasted"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Copi config"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Pastio config"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Heb osod tarddiad, dewisir y targed cyntaf fel y tarddiad."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Allforio Data"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Ddim yn defnyddio"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Nid yw data'n cael ei dynnu oherwydd bod gormod o gategorïau."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Gwiriwch ac, os oes angen, adolygu gosodiadau'r cyfnod targed."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Rhannwch yn ôl cyfrif data (cylchol)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Nifer y data"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Wacoch"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Wacoch"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Dewiswch y newidyn pwrpas."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Wacoch"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Dim dadelfennu / dadelfennu categori"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Plot gwasgariad"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Os yw naill ai math data X neu Y yn llinyn, ni allwch ddefnyddio newidynnau nad ydynt yn llinyn ar gyfer gosod lliw."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Canfuwyd gwerth y tu allan i'r ystod a ganiateir, felly penderfynwyd yn awtomatig ar yr isafswm neu uchafswm yr ystod ddilys. Newid y gosodiadau yn ôl yr angen."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Cliciwch ar y dde: Gosod/golygu/dileu cyswllt data"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Amser a aeth heibio"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Gorchymyn Amser"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Gosod Gorchymyn Data"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Dileu data diangen oherwydd bod capasiti'r ddisg galed o `__SERVER_INFO__` wedi cyrraedd __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Stopiwyd y porthladd data oherwydd bod capasiti'r ddisg galed o `__SERVER_INFO__` wedi cyrraedd __SERVER_INFO__ %%. Os caiff data diangen ei ddileu a bod capasiti gwag yn cynyddu, bydd y data'n cael ei ailddechrau."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Nodwch nifer y dosraniadau sydd i'w harddangos (nifer yr is -adrannau). Rhowch gyfanrif o 2 neu 150 neu lai."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Nodwch nifer y dosraniadau sydd i'w harddangos (nifer yr is -adrannau). Rhowch gyfanrif o 1 neu fwy 32 neu lai."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Wacoch"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Wacoch"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Wacoch"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Wacoch"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Mae gormod o ffidil i bob llain, felly roedd yn gyfyngedig yn awtomatig."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Oherwydd y nifer fawr o gofnodion a ddewiswyd, mae nifer y lleiniau yn gyfyngedig o'r dyddiad hynaf i'r cyfrif terfyn."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Rwy'n derbyn"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Ddirywiad"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Tuag"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Nifer y plot ar golofn"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Defnyddir y newidynnau categori (Rhan Rhif, Rhif Gorsaf, ac ati) a ddangosir fel labeli ar frig y plot i ddelweddu'r pwyntiau newid (newid rhifau rhan, ac ati) y newidynnau ansoddol."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Dewiswch eitemau i'w dadansoddi (newidynnau meintiol: gwerth mesur, ac ati). Gellir dewis hyd at 60 o eitemau."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Dewiswch eitemau i ddidoli data. Gallwch hefyd ddewis eitemau lluosog."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Nid yw hen ddata sy'n gorlifo yn cael ei arddangos oherwydd bod y DateTime yn cyfrif o'r data diweddaraf gyda'r terfyn arddangos."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Roedd nifer y plot wedi'i gyfyngu i NUMBER. Os ydych chi am arddangos y cyfan, ailedrych ar y gosodiadau."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Roedd nifer y plot ar un tab wedi'i gyfyngu i NUMBER. Os ydych chi am arddangos y cyfan, ailedrych ar y gosodiadau."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Nifer y newidynnau targed i'w dewis yw lleiafswm min a'r uchafswm uchafswm. Gwiriwch nifer y newidynnau targed a chywirwch y gosodiadau."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Mae nifer y newidynnau targed i'w dewis hyd at y mwyafswm ar y mwyaf. Gwiriwch nifer y newidynnau targed a chywirwch y gosodiadau."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

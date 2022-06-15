@@ -1,0 +1,165 @@
+<div class="card graph-navi" id="data_source">
+    <div class="card-body">
+        <div class="panel-group" id="accordionDS" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+                <form id="db-config-form">
+                    <div class="panel-heading" role="tab" id="headingDS">
+                        <div class="form-header">
+                            <div class="row d-flex align-items-center justify-content-between"
+                                 style="padding-top: 5px;">
+                                <div class="col-5">
+                                    <div class="collapse-box header-left">
+                                        <a role="button" data-toggle="collapse" data-parent="#accordionDS"
+                                           href="#collapseDS" aria-expanded="true" aria-controls="collapseDS">
+                                            <i class="more-less fas fa-window-minimize"></i>
+                                        </a>
+                                    </div>
+                                    <h3 class="header-left">{{ _("Data Source Config") }}</h3>
+                                </div>
+                                <div class="col-7 d-flex align-items-center justify-content-end">
+                                    <input type="search" id="searchDataSource"
+                                           class="form-control common-search-input mr-3"
+                                           placeholder="{{ _('Search') }}...">
+                                    <div class="d-flex align-items-center w-auto"
+                                         style="margin-right: 0 !important; float: right">
+                                        <label for="pollingFreq" class="col-form-label vertical-center"
+                                               style="margin: 0 15px 0 0; padding: 0;">
+                                            <h5 class="m-0">{{ _("Polling Frequency") }}</h5></label>
+                                        <div class="w-auto">
+                                            <select type="select" name="pollingFreq" class="form-control"
+                                                    id="pollingFreq" onchange="changePollingFreq(this);">
+                                                <option value="0" {{ 'selected' if polling_frequency == 0 else '' }}>{{ _("Only once") }}</option>
+                                                <option value="3" {{ 'selected' if polling_frequency == 3*60 else '' }}>{{ _("Once per 3 minutes") }}</option>
+                                                <option value="5" {{ 'selected' if polling_frequency == 5*60 else '' }}>{{ _("Once per 5 minutes") }}</option>
+                                                <option value="10" {{ 'selected' if polling_frequency == 10*60 else '' }}>{{ _("Once per 10 minutes") }}</option>
+                                                <option value="60" {{ 'selected' if polling_frequency == 60*60 else '' }}>{{ _("Once per hour") }}</option>
+                                                <option value="1440" {{ 'selected' if polling_frequency == 1440*60 else '' }}>{{ _("Once per day") }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-1">
+								   <button id="db-config-register" style="display: none;" class="btn btn-primary btn-right" type="button"><i
+										class="far fa-save"></i> {{ _("Save Setting") }}</button>
+								</div> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapseDS" class="panel-collapse collapse show" role="tabpanel"
+                         aria-labelledby="headingDS">
+                        {{ macros.alert_message("alert-msg-db") }}
+                        <div class="table-responsive panel-body">
+                            <table id="tblDbConfig" class="table table-bordered table-main">
+                                <thead>
+                                <tr>
+                                    <th class="col-number">{{ _("No.") }}</th>
+                                    <th scope="col"
+                                        class="text-center th-title-other th-lg">{{ _("Data Source Name") }}
+                                    </th>
+                                    <th scope="col"
+                                        class="text-center th-title-other th-lg">{{ _("Data Source Type") }}</th>
+                                    <th scope="col" class="text-center th-title-other"></th>
+                                    <th scope="col" class="text-center th-title-other">{{ _("Comment") }}</th>
+                                    <th scope="col" class="text-center th-title-other col-btn">
+                                        <!-- <i class="fas fa-filter icon-secondary"
+                                        style="color:#449fff;cursor:pointer;"
+                                        onclick="showFilter('tblDbConfig', true)"></i> -->
+                                    </th>
+                                </tr>
+                                <!-- <tr id="filter-tblDbConfig" class="filter-row">
+										<th scope="col" class="search-box"><input class="form-control" placeholder='{{ _("Filter") }}...'></th>
+										<th scope="col" class="search-box"><input class="form-control" placeholder='{{ _("Filter") }}...'></th>
+										<th scope="col" class="search-box"></th>
+										<th scope="col" class="search-box"><input class="form-control" placeholder='{{ _("Filter") }}...'></th>
+										<th scope="col" class="search-box fixwidth"></th>
+										<th scope="col" class="search-box col-btn text-center">
+											<i class="fas fa-times-circle icon-secondary"
+												style="color:#9a9a9a;cursor:pointer;"
+												onclick="showFilter('tblDbConfig', false)"></i>
+										</th>
+									</tr> -->
+                                </thead>
+                                <tbody>
+                                {% for db_info in data_sources %}
+                                    <tr name="db-info" id="ds_{{ db_info.id.data }}" data-ds-id="{{ db_info.id.data }}">
+                                        <td class="col-number">{{ loop.index }}</td>
+                                        <td>
+                                            <input name="name" class="form-control" type="text"
+                                                   placeholder="{{ _('Data Source Name') }}"
+                                                   value="{{ db_info.name.data }}"
+                                                   disabled="disabled"
+                                                   data-order>
+                                        </td>
+                                        <td class="text-center">
+                                            <select name="type" class="form-control">
+                                                {% for dbtype in ('CSV', 'SQLITE','POSTGRESQL', 'MSSQLSERVER', 'ORACLE', 'MYSQL') %}
+                                                    {% if dbtype == db_info.type.data %}
+                                                        {% if dbtype == 'CSV' %}
+                                                            <option value="{{ dbtype }}" selected>csv/tsv</option>
+                                                        {% else %}
+                                                            <option value="{{ dbtype }}"
+                                                                    selected>{{ dbtype.lower() }}</option>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% if dbtype == 'CSV' %}
+                                                            <option value="{{ dbtype }}">csv/tsv</option>
+                                                        {% else %}
+                                                            <option value="{{ dbtype }}">{{ dbtype.lower() }}</option>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-secondary db-file"
+                                                    onclick="loadDetail(this)" data-item-id="{{ db_info.id.data }}"
+                                                    title=""><i
+                                                    class="fas fa-edit icon-secondary"></i></button>
+                                        </td>
+                                        <td>
+                                            {% if db_info.comment.data != None %}
+                                                <textarea name="comment"
+                                                          class="form-control form-data"
+                                                          rows="1"
+                                                          disabled="disabled">{{ db_info.comment.data }}</textarea>
+                                            {% else %}
+                                                <textarea name="comment"
+                                                          class="form-control form-data"
+                                                          rows="1"
+                                                          disabled="disabled"></textarea>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <button onclick="deleteRow(this,'{{ db_info.id.data }}')" type="button"
+                                                    class="btn btn-secondary" style="margin: 5px;">
+                                                <i class="fas fa-trash-alt icon-secondary"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="row" style="padding-top: 5px;">
+                            <div class="col-2">
+                                <button id="btn-add-db-config" onclick="addDBConfigRow()" type="button"
+                                        class="btn btn-success"><i
+                                        class="fas fa-plus-circle"></i></button>
+                            </div>
+                            <div class="col-8"></div>
+                            <div class="col-2"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div>
+        <ul id="dataSrcContextMenu" name="contextMenu" class="context-menu" style="display:none;">
+            <li class="menu-item" onclick="maximizeCard('collapseDS')">{{ _("Maximize card") }}</li>
+            <li class="menu-item" onclick="minimizeCard('collapseDS')">{{ _("Minimize card") }}</li>
+        </ul>
+    </div>
+</div>
+{% include 'db_config_modals.html' %}

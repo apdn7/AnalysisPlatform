@@ -1,0 +1,22 @@
+#proc-tree {
+    width: 80%;
+    height: 400px;
+    border: 2px solid #444444 !important;
+}
+
+.pc-datetime-td {
+    display: flex;
+    border: 0 !important;
+}
+
+.end_time {
+    border-top: 1px solid #444 !important;
+}
+
+#table-menu {
+    font-size: 1.25em !important;
+}
+
+#table-menu th {
+    font-weight: 100 !important;
+}

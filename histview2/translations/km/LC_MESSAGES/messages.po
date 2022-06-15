@@ -1,0 +1,3154 @@
+# クメール語 Khmer translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: km\n"
+"Language-Team: km\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "បានសរេមចសរបុម"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "កំហុសមួយបានកើតឡើង"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "ការកំណត់រចនាសម្ព័ន្ធកម្មវិធី"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "រកមិនឃើញទំព័រ"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "កំហុសមួយបានកើតឡើង"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "កម្មវិធី DataLink & វិភាគកម្មវិធី"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "ជ្រើសរើសភាសា"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "អេក្រង់មេ"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "ការផ្ទៀងផ្ទាត់ប្រតិបត្តិការ"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "ការផ្ទៀងផ្ទាត់ប្រតិបត្តិការ"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "ការកំណត់រចនាសម្ព័ន្ធមូលដ្ឋាន"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "ការចុហបហ្ជី"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "រេកាម"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "ចំនួនគត់"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "ពិត (អណ្តែត)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "ពេល​ណាត់ជួប"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "ខេស"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "ចមនងចើង"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "រុក្ខចាតិ"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "រោងចរក"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "ការឈរចាចយរ"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "សូម​បញ្ជាក់។"
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "រក្សាទុកទិន្នន័យហើយចាប់ផ្តើមនាំចូលទិន្នន័យដែលមានមាតិកាដែលបានកំណត់នៅលើទំព័រកំណត់ដំណើរការ?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "យល់ព្រម"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "លប់ចោល"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "confident មូលដ្ឋានទិន្នន័យ"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "ឈ្មោះមូលដ្ឋានទិន្នន័យ"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "ប្រភេទមូលដ្ឋានទិន្នន័យ"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "c ងែល"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "អធិប្បាយ"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "បុក / ករ"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "ជ្រើសរើសឯកសារមូលដ្ឋានទិន្នន័យ។"
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "ឈ្មោះ​ឯកសារ"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "រេចីសរើស"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "តើអ្នកចង់លុបកំណត់ត្រានេះទេ?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "របៅបេលរសច"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "ការរកលុយ"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "ក្រាហ្វិច TraceaBility"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "ការធ្វើតេស្តិ៍ដាន"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "ចាប់ផ្តើមសាកល្បង"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "ពេលវេលាចាប់ផ្តើម"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "ពេលវេលាបញ្ចប់"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "លេខសម្គាល់ម៉ាស៊ីន (ការជ្រើសរើសច្រើន)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "ការឈរចាចយរ"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "លេខ"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "កំណត់រចនាសម្ព័ន្ធតំណភ្ជាប់ទិន្នន័យ"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "ជ្រើសរើសភាសា"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "ជនជាតិជប៉ុន"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "អាលេវីម"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "ថ្នរ"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "ថ្នាំង __11"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "ស្លាក​សញ្ញា"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "ឈ្មោះមេ"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "មូលដ្ឋានទិន្នន័យ"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "ការនាមចុល"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "នាមចេញ"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "ឈ្មោះម៉ាស៊ីន"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "លេខច្រក"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "ឈ្មោះ​អ្នកប្រើប្រាស់"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "ហក្យសមងាត់"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "គ្រោងការណ៍"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; ខ្ញុំទទួលបានជោគជ័យ។"
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; បានបរាជ័យ។"
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "កំណត់រចនាសម្ព័ន្ធដំណើរការ"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "អនុលោម"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "ឈ្មោះដំណើរការ"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "ឈ្មោះតារាង"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "សេចក្ដីបិស្ដារ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "បុរេតសសន៍"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "កំណត់ត្រាប្រាំដំបូង"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "ការកំណត់មាតិកា"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "ឈ្មោះជួរឈរ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "ឈ្មោះអង់គ្លេស"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "ឈ្មោះបង្ហាញ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "សហគ្រិន"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "តុរស័ប្ទការី"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "បញ្ចូលតម្លៃផ្សេងទៀតជាង 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "ប្រតិបត្តិករបញ្ចូល។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "បញ្ចូលមេគុណបញ្ចូល។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "បញ្ចូលឈ្មោះអង់គ្លេស។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "ឈ្មោះបង្ហាញបញ្ចូល។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "ឈ្មោះអង់គ្លេសត្រូវបានចម្លង។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "ឈ្មោះបង្ហាញត្រូវបានចម្លង។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "ទាំងអស់ \"ឈ្មោះបង្ហាញ\" ត្រូវការបញ្ចូល។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "វាលដែលមាន \"ឈ្មោះអង់គ្លេសទទេ\" ត្រូវបានបំពេញដោយស្វ័យប្រវត្តិ។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "ជ្រើសរើស​ទាំងអស់"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "នាំចូលទិន្នន័យ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "តើអ្នកប្រាកដជានាំចូលទិន្នន័យឬ?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "នៅពេលអ្នកចុចប៊ូតុង OK អ្នកនឹងនាំចូលទិន្នន័យពីពេលវេលាបច្ចុប្បន្នទៅមួយខែមុន។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "ទិន្នន័យមុនត្រូវបាននាំចូលដោយស្វ័យប្រវត្តិបន្តិចដោយតិច។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "ប្រសិនបើអ្នកចង់នាំចូលទិន្នន័យបន្ទាប់ពីពេលវេលាបច្ចុប្បន្នចុចប៊ូតុងអានទិន្នន័យម្តងទៀតឬចុចមូលដ្ឋានទិន្នន័យ CSV ការបង្កើតការកំណត់នៅលើទំព័រអាន។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "នៅពេលដែល \"ការធ្វើបច្ចុប្បន្នភាពវដ្ត\" នៃ \"មូលដ្ឋានទិន្នន័យ / CSV\" ត្រូវបានកំណត់វានឹងត្រូវបាននាំចូលដោយស្វ័យប្រវត្តិក្នុងរយៈពេលដែលទិន្នន័យបន្ទាប់ពីពេលវេលាបច្ចុប្បន្នត្រូវបានកំណត់។"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "ព័ត៌មានដាន"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "ទិន្នន័យដាន"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "មិនអាចចូលដំណើរការបានទេ"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "ចុចត្រង់នេះដើម្បីជួសជុលវា។"
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "កែសម្រួលគែម"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "ដំណើរការ"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "មុនជួរឈរ"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "ដំណើរការប្រកាស"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "ជួរឈរ) ជួរឈរ"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "ដូច DATETIME"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "ក្នុងនាមជាសៀរៀល"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "ដូចតំណភ្ជាប់ ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "បានចុះឈ្មោះរួចហើយ"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "សូមបញ្ចូលឈ្មោះដំណើរការ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "ត្រង / ក្រាហ្វ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "កំណត់រចនាសម្ព័ន្ធក្រាហ្វិច"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "កំណត់រចនាសម្ព័ន្ធតម្រងបន្ទាត់"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "បន្ទាត់ជួរឈរ"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "ប៉ាន់តមលៃ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "កំណត់រចនាសម្ព័ន្ធតម្រងម៉ាស៊ីន"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "ម៉ាស៊ីន ID ជួរឈរ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "ផ្នែកតម្រងតម្រង"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "ផ្នែកគ្មានជួរឈរ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "តម្រងឈ្មោះ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "ម៉ាស៊ីនចម្រោះ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "កំណត់រចនាសម្ព័ន្ធតម្រងផ្សេងទៀត"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "ជួរឈរគោលដៅ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "កំណត់រចនាសម្ព័ន្ធរូបភាព"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "កម្រិតទាប"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "កម្រិតខាងលើ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "កំរិតដំណើរការទាប"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "កំរិតដំណើរការខាងលើ"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "y-icoes ជួរ: MIN"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "ជួរអ័ក្ស y: អតិបរមា"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "ផ្នែកទេ"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "បញ្ចប់ដោយ"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "ចាប់ផ្តើម​ជាមួយ"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like ស្វែងរក)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "យល់របម"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "កន្សោមធម្មតា"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "បង្ហាញក្រាហ្វិច"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV ការនាំចេញ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "ដំណើរការត្រូវបានទាមទារ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "ឈ្មោះជួរឈរត្រូវបានទាមទារ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "បន្ទាត់គឺចាំបាច់"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "ឈ្មោះបង្ហាញគឺចាំបាច់"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "ឈ្មោះបង្ហាញត្រូវបានចម្លង។"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "តម្លៃម៉ាស៊ីនគឺចាំបាច់"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "ម៉ាស៊ីនចម្លង ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "រក្សាទុកដោយជោគជ័យ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "បានបរាជ័យក្នុងការរក្សាទុក"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "ផ្នែកគ្មានជួរឈរត្រូវបានទាមទារ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "ជួរឈរគោលដៅត្រូវបានទាមទារ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "ឈ្មោះតម្រងត្រូវបានទាមទារ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "ទាមទារលក្ខខណ្ឌ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "តម្រងឈ្មោះត្រូវបានចម្លង។"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "លក្ខខណ្ឌត្រូវបានចម្លង។"
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "ការមិនកោរបតាមសន្យា"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "ឈ្មោះដំណើរការ"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "បានបន្ថែមតម្រងផ្សេងទៀត"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV តំឡើងតំឡើង"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "របផប"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "វដ្តបន្ត"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "តផ្ជាប់"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "ម្តងក្នុងមួយម៉ោង"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "ម្តងក្នុងមួយថ្ងៃ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "ការបញ្ជាក់ទិន្នន័យ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "មិនមានថតឯកសារទេ។"
+
+msgid "File does not exist"
+msgstr "មិនមានឯកសារទេ។"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "អ្នកអាចភ្ជាប់បាន។"
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "សូមបំពេញក្នុងតម្លៃ។"
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "មិនមានការកំណត់មាតិកាទេ។"
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "ការកំណត់ត្រូវបានចម្លង។"
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "ការកំណត់មូលដ្ឋានទិន្នន័យបានរក្សាទុក។"
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "បានបរាជ័យក្នុងការរក្សាទុកការកំណត់មូលដ្ឋានទិន្នន័យ។"
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "ការកំណត់មូលដ្ឋានបានរក្សាទុក។"
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "បានបរាជ័យក្នុងការរក្សាទុកការកំណត់មូលដ្ឋាន។"
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "ការតភ្ជាប់សាកល្បង"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "ចំណុចចាប់ផ្តើម"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "ជួរកាលបរិច្ឆេទ"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "យឺតបមផុត"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "ធ្វើឱ្យទាន់សម័យដោយស្វ័យប្រវត្តិ"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "នាទី"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "បីតោ"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "ម៉ោង"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "ម៉ោង"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "អថេរគោលដៅ"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "តរមង"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "អ័ក្ស x"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "ត្រាធី"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "លេខសមកាល់"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "អថេរស្ត្រេស"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "រុរ៉ូ"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "មូលដ្ឋានទិន្នន័យ / CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "វិផាក"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "ក្រោមការអភិវឌ្ឍ"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "វិភាគ:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "គ្រោងទឹកជ្រោះ"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "ក្រាហ្វិច LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "អ៊ីស្ត្រូក្រាម"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "គ្រោងឆ្អឹង"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "គ្រោងពេញចំណុច"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "ការមើលឃើញទិន្នន័យ"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "ការមើលឃើញ"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "ការរត់"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "បញ្ចូលឈ្មោះមូលដ្ឋានទិន្នន័យ។"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "បញ្ចូលឈ្មោះប្រភពទិន្នន័យ។"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "ជួរឈរដែលគ្មានប្រភេទទិន្នន័យមិនត្រូវបាននាំចូលទេ។"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "យ៉ាងហោចណាស់ជួរឈរទិន្នន័យមួយត្រូវបានទាមទារ។"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "សម្រាប់ការមើលឃើញសូមប្រើ '{col}' សម្រាប់អ័ក្ស X ។"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "តើអ្នកប្រាកដជាបន្តបន្តទេ?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "អ្នកមើលតុ"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "តុ"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "ញេក"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "ចំនួនទិន្នន័យ"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "ចុះ"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "ឡើង"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "ការប្រកួតល្អឥតខ្ចោះ"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "ការប្រកួតមួយផ្នែក"
+
+#: trace_config.js
+msgid "th character"
+msgstr "តួអក្សរទី 1"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "ការជ្រើសរើសខ្ទង់ដែនមិនត្រឹមត្រូវ"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "ប្រវែងនៃតួអក្សរដែលបានប្រើសម្រាប់ការតភ្ជាប់គឺខុសគ្នា។"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "មិន​មាន​តម្រង"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "បន្ទាត់ទាំងអស់"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "ស្ថានផាប"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "បញ្ជីការងារ"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "តាមងអស់"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "ការនាំចូលបានបញ្ចប់។"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "ការនាំចូល"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "ការនាំចូលបានបរាជ័យ"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "ទិន្នន័យដែលផ្ទុកនឹងត្រូវបានលុបចោល។ តើវាមិនអីទេ? (គ្មានការផ្លាស់ប្តូរត្រូវបានឆ្លុះបញ្ចាំងទេរហូតដល់ប៊ូតុងចុះឈ្មោះត្រូវបានចុច)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "បញ្ជីការងារ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "លេខសម្គាល់ការងារ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "ឈ្មោះការងារ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "ជំនាន់នៃ LinkedID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "ការងារធ្វើជំនាន់នៃតំណភ្ជាប់ ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "ការលុបព័ត៌មានដំណើរការ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "នាំចូលទិន្នន័យរោងចក្រ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "នាំចូលទិន្នន័យរោងចក្រ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "បង្ហាញការនាំចូលការងាររបស់រោងចក្រពីអតីតកាល"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV ទិន្នន័យនាំចូល"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "លុបទិន្នន័យចាស់"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "ពេលវេលាចាប់ផ្តើម"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "រយះ​ពេល​ប្រតិបត្តិ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "មូលដ្ឋានទិន្នន័យ / CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "ចមរើន"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "អនុលោម"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "បញ្ជីអ៊ីស្ត្រូក្រាម"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "ចុះឈ្មោះជាតម្លៃផ្ទុះ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "លើសពី edglier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "លាក់អ្នកខាងក្រៅ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "បង្ហាញ Outliers"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "ពិនិត្យអ្នកលេងក្រៅ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "បង្ហាញបញ្ជីអ៊ីស្តូក្រាម"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "ពេលវេលាធ្វើបច្ចុប្បន្នភាពចុងក្រោយ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "ការចុះឈ្មោះក្រៅត្រូវបានលុបចោល។"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "បានចុះឈ្មោះជាអ្នកដែលមិនសមរម្យ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "សមបុរមងាយ"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "តែម្ដងប៉ុណ្ណោះ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "ព័ត៌មានលម្អិតការងារ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "ចម្លងទៅក្ដារតម្បៀតខ្ទាស់"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "គ្រោងច្រើនប្រភេទ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "គ្រោងខ្ចាត់ខ្ចាយ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "ដើម្បីមើលឃើញអថេរប្រភេទ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "stratify ដោយអថេរ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "ដេលផ្លាស់ប្ដូរ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "ទេម៉ាស៊ីន"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "រយៈពេលកំណត់"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "ភាពញឹកញាប់ (ចំនួន)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "ការប៉ាន់ស្មានដង់ស៊ីតេ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "អថេរប្រភេទ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "stratify ដោយពាក្យ (ផ្ទាល់)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "អ្នកមិនអាចជ្រើសរើសអថេរគោលដៅប្រាំបីឬច្រើនបានទេ។ ជ្រើសរើសអថេរគោលដៅ។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "ការរកឃើញ anomaly"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "ការវិភាគគោលការណ៍គោលការណ៍"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. ពិន្ទុសមាសធាតុសំខាន់នៃទិន្នន័យសាកល្បង"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. សមាសភាពសំខាន់នៃទិន្នន័យបណ្តុះបណ្តាល"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. តារាងស៊េរីស្ថិតិ T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. តារាងស៊េរីស្ថិតិសំណួរ"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5- ការចូលរួមចំណែកនៃស្ថិតិ T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. ការចូលរួមចំណែកនៃស្ថិតិ q"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "យកម៉ាស៊ីនចេញ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "ទិន្នន័យបណ្តុះបណ្តាល"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "ទិន្នន័យសាកល្បង"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "បាត"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "ដេលក្ផាន"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "ប្រភេទ​ទិន្នន័យ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "កមរុ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "កមហុស"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "ការរបមាន"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "ចាប់តាំងពីជួរទាំងអស់ត្រូវបានលុបដោយដំណើរការតម្លៃឱនភាព (NA ការដកយកចេញ) មិនមានទិន្នន័យដើម្បីវិភាគទេ។ ត្រូវប្រាកដថាតម្លៃទទេរួមទាំងតម្លៃ NA មិនត្រូវបានជ្រើសរើសទេ។"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "វាមិនអាចត្រូវបានវិភាគទេព្រោះវាមានទិន្នន័យក្រៅពីលេខ។ សូមប្រាកដថាអ្នកបានជ្រើសរើសជួរឈរដែលមានខ្សែអក្សរឬប្រភេទ។"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "មិនអាចវិភាគបានទេព្រោះវាមានទិន្នន័យដែលមានភាពខុសគ្នានៃ 0. ធ្វើឱ្យប្រាកដថាមានតែជួរឈរតម្លៃមួយប៉ុណ្ណោះដែលមិនត្រូវបានជ្រើសរើស។"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "រកឃើញប្រភេទទិន្នន័យប្រភេទនិងតម្លៃចំនួនគត់ដែលរំពឹងទុក។ ប្រសិនបើតម្លៃចំនួនគត់នេះមិនមែនជាមាត្រដ្ឋានបញ្ជាទិញជញ្ជីងចន្លោះពេលឬមាត្រដ្ឋានសមាមាត្រលទ្ធផលវិភាគអាចត្រូវបានប៉ះពាល់យ៉ាងធ្ងន់ធ្ងរ។"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "តើអ្នកប្រាកដជាធ្វើបន្តការវិភាគមែនទេ?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "ការឆេកឆេ"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "មេដ្យានគឺជាស្ថិតិធម្មតាមួយ។ វាគឺជាតម្លៃដែលមានទីតាំងនៅកណ្តាលនៅពេលដែលទិន្នន័យកំណត់ត្រូវបានរៀបចំតាមលំដាប់ឡើង។ ឧទាហរណ៍ក្នុងករណីមនុស្សប្រាំអាយុជាមធ្យមគឺជាយុគសម័យទី 3 តាមលំដាប់នៃអាយុ។ ប្រសិនបើចំនួនទិន្នន័យគឺសូម្បីតែជាមធ្យមនៃនព្វន្ធដែលអាចរកបានកណ្តាលត្រូវបានប្រើ។"
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "អស្ដី"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "សេចក្តីសង្ខេបនៃការចែកចាយ"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "លេខ n"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "មធ្យម"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "តើអ្វីទៅជាមេដ្យាន ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "បុកសរុប"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "ចិបះបកមរាលការប្រញាប់ឫហ៍"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "ចំណុចបញ្ចប់"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "ដំណើរការគោលដៅ"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "ស៊េរីពេលវេលា"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "មកចាមធង"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "ចំនួនតំណភ្ជាប់ទិន្នន័យ"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "វិនាទី"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "ពេលវេលាឆ្លើយតប"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "បិនិត្យ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "រតលប់"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "បន្ថែមថ្នាំង"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "បន្ថែមគែម"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "កែសម្រួលថ្នាំង"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "ចុចលើចន្លោះទំនេរដើម្បីដាក់ថ្នាំងថ្មី។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "ចុចលើថ្នាំងអូសគែមទៅថ្នាំងផ្សេងទៀតហើយភ្ជាប់វា។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "ចុចលើចំណុចបញ្ជាអូសវាទៅថ្នាំងហើយភ្ជាប់។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "គែមមិនអាចបន្ថែមបានទេ។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "ចង្កោមមិនអាចលុបបានទេ។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "ចង្កោមមិនអាចកែបានទេ។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "ឈ្មោះបង្ហាញឬតម្លៃត្រូវបានចម្លង។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "បញ្ចូលឈ្មោះបង្ហាញនិងតម្លៃ។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "បញ្ចូលជួរឈរបន្ទាត់។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "ម៉ោង"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "ព័ត៌មានទិន្នន័យ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "ថៃ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "សបា្ដហ៍"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "ផ្ទុក"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "សរេង្គាហ"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "បិនិត្យកមដោ"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "ការកំណត់"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "ផ្លាស់ប្តូរចំណងជើងព្រោះចំណងជើងដូចបានកំណត់។"
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "រក្សាទុកការកំណត់"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "បង្កើតរូបថតអេក្រង់"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "របចាបរេកា"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "ហេតុផលដែលក្រាហ្វនេះមិនអាចបង្ហាញបានដូចខាងក្រោម។ BREAK_LINE ពិនិត្យមើលស្ថានភាព។ ទិន្នន័យមិនត្រូវបាននាំចូលឬនៅពាក់កណ្តាលនៃការនាំចូល។ BREAK_LINE・ មិនមានទិន្នន័យភ្ជាប់ឬនៅពាក់កណ្តាលនៃការចងខ្សែ។ BREAK_LINE・ ការកំណត់ក្រាហ្វគឺមិនសមរម្យទេ។"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "ការរបមាន"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "កំណត់ត្រាដែលមានទិន្នន័យមិនត្រឹមត្រូវនៅក្នុងជួរឈរទិន្នន័យកាលបរិច្ឆេទមិនត្រូវបាននាំចូលទេ។"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "អ្នកអាចយោងទៅលើឯកសារនៅក្នុងថតខាងក្រោមសម្រាប់ទិន្នន័យដែលមិនអាចនាំចូលបាន។"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "ស្ថានភាពប្រើប្រាស់មិនអាចត្រូវបានផ្ទុកឡើងទេព្រោះវាមិនត្រូវបានភ្ជាប់ទៅអ៊ីនធឺណិត។"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "សូមពិនិត្យមើលការភ្ជាប់បណ្តាញ។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "វានឹងចំណាយពេលយូរដើម្បីភ្ជាប់ទិន្នន័យម្តងទៀត។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "តើអ្នកប្រាកដជាបានភ្ជាប់ទិន្នន័យឡើងវិញទេ?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "សន្និដ្ឋាន"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "បិឃាដ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "តើអ្នកប្រាកដជាផ្ទុកការកំណត់តំណទិន្នន័យដែលបានចុះឈ្មោះពីមុនឬ?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "បានចាប់ផ្តើមនាំចូលទិន្នន័យ។"
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "អ្នកអាចពិនិត្យមើលវឌ្ឍនភាពនៃការនាំចូលពីតំណភ្ជាប់ខាងក្រោម។"
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "មើលទំព័របញ្ជីការងារសម្រាប់ស្ថានភាពកំហុស។"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "បានចាប់ផ្តើមភ្ជាប់ទិន្នន័យ។"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "រៀងរាល់ 3 នាទីម្តង"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "ម្តងរៀងរាល់ 5 នាទីម្តង"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "រៀងរាល់ 10 នាទីម្តង"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "មុខងារស្រេចចិត្ត"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "ប្រភេទឯកសារ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV ការនាំចេញ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "ដោយសារតែចំនួនកំណត់ត្រាមួយចំនួនធំនិងពេលវេលាដែលត្រូវការដើម្បីបង្ហាញក្រាហ្វចំនួនកំណត់ត្រាក្នុងមួយក្រាហ្វត្រូវបានកំណត់ត្រឹម 50.000 ។"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "តារាងពេលវេលាស៊េរី"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "តម្លៃប្រភេទ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "ចាប់តាំងពីចំនួនកំណត់ត្រាដែលមានរយៈពេលដែលបានបញ្ជាក់គឺមានច្រើនជាង 5,000, តំណភ្ជាប់ BREAK_LINE ត្រូវបានចងនៅក្នុងរយៈពេល 14 ថ្ងៃនៃរយៈពេលដែលបានបញ្ជាក់។ ប្រសិនបើអ្នកមិនចង់កំណត់ជួរភ្ជាប់សូមលៃតម្រូវរយៈពេលដើម្បីកាត់បន្ថយចំនួនកំណត់ត្រា BREAK_LINE ។"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "កំណត់ខ្នាត"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "មាត្រដ្ឋានទូទៅ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "បន្ទាត់កម្រិត"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "មាត្រដ្ឋានដោយស្វ័យប្រវត្តិ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "កំពុងត្រូវបានប្រើជញ្ជីង"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn នៃដំណើរការ"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_PROC"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "អស្ដី"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "នាទី"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "ឥតមានអវីសោហ"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "សង្ខេប"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "រាប់"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "ស្ថិតិមូលដ្ឋាន"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "មិនមានប៉ារ៉ាឡែល"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "គុណភាពទិន្នន័យ"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "អ្នកមើល"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "នាំចូលទិន្នន័យ"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "ដំណើរការភ្ជាប់ទិន្នន័យនឹងចាប់ផ្តើមដោយផ្អែកលើការកំណត់រចនាសម្ព័ន្ធបច្ចុប្បន្ន។"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "វាអាចត្រូវការពេលវេលាប្រសិនបើមានទិន្នន័យជាច្រើនដើម្បីភ្ជាប់។ តើវាមិនអីទេក្នុងការចាប់ផ្តើម?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* សម្រាប់ទិន្នន័យដែលត្រូវបាននាំចូលដោយស្វ័យប្រវត្តិហើយជាទៀងទាត់តំណភ្ជាប់ ID ត្រូវបានបង្កើតដោយស្វ័យប្រវត្តិ។"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "ឈ្មោះប្រភពទិន្នន័យ"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "ប្រភេទប្រភពទិន្នន័យ"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "តើអ្នកប្រាកដជារក្សាទុកការផ្លាស់ប្តូរឬ?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "ព័ត៌មានអំពីប្រព័ន្ធប្រតិបត្តិការទៅតំបន់ពេលវេលាកំណត់ពេលវេលា។"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "ការកំណត់កម្រិតខ្ពស់"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "ការកំណត់ត្រូវបានរក្សាទុកសម្រាប់មូលដ្ឋានទិន្នន័យ / CSV ឯកសារនៃការនាំចូលទិន្នន័យ។ ចូលទៅកាន់ទំព័រកំណត់កំណត់ជួរឈរទិន្នន័យនាំចូលដើម្បីនាំចូលទិន្នន័យ។"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "មិនមានគុណលក្ខណៈចាំបាច់នៅក្នុងទិន្នន័យធាតុទេ។"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "មិនមានគុណលក្ខណៈគុណលក្ខណៈដែលត្រូវការសម្រាប់ទិន្នន័យធាតុទេ។"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "ការរកឃើញមិនប្រក្រតីដោយ PCA ទាមទារអថេរពីរយ៉ាងតិច។ ជ្រើសរើសអថេរពីរឬច្រើន។"
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "ជ្រើសរើសយ៉ាងហោចណាស់ជួរឈរមួយ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "អថេរប្រភេទដែលកាត់បន្ថយទទឹងប្រអប់មិនត្រូវបានបង្ហាញទេ។"
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "ខ្ទង់ចាប់ផ្តើម"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "គ្រោងឆ្អឹង"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "បញ្ឈប់កម្មវិធី (Edge Server) ។ ប្រសិនបើអ្នកឈប់អ្នកប្រើប្រាស់ផ្សេងទៀតនឹងមិនអាចប្រើបានទេដូច្នេះសូមទាក់ទងអ្នកគ្រប់គ្រង។ <br> ក្នុងករណីចុងក្រោយបញ្ចប់សូមបោះបង់នៅទីនេះហើយគ្រាន់តែបិទកម្មវិធីអ៊ីនធឺណិតប៉ុណ្ណោះ។"
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "ការងារទាំងអស់ត្រូវបានបញ្ឈប់។ អ្នកអាចបិទកម្មវិធីរុករកនិងកុងសូលរបស់អ្នកដោយសុវត្ថិភាព។"
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "កំណត់ប្រភពទិន្នន័យ"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "កំណត់ការនាំចូលប្រភពទិន្នន័យ"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": ជួរឈររកឃើញជួរឈរតួអក្សរពីរបី។ សូមពិនិត្យមើលថាជួរឈរប្រភេទលេខ។ ល។ អាចត្រូវបានគេយល់ឃើញ។"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "តម្រងធាតុ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "តម្លៃតម្រង"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "កាលបរិច្ឆេទផុតកំណត់ (ការចាប់ផ្តើម)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "កាលបរិច្ឆេទផុតកំណត់ (បញ្ចប់)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "ទិន្នន័យមិនអាចត្រូវបាននាំចូលដោយសារតែសញ្ញាកំណត់រចនាសម្ព័ន្ធប្រភេទទិន្នន័យប្រភេទទិន្នន័យ។ ឈ្មោះប្រភពទិន្នន័យ __param__ CSV/TSV ពិនិត្យមើលការកំណត់ប្រភេទទិន្នន័យក្នុងការមើលទិន្នន័យជាមុននៃទំព័រតំឡើង។ លុបការកំណត់ជំហានដែលមិនអាចនាំចូលហើយកំណត់ការកំណត់បាន។"
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "មានឯកសារដោយគ្មានទិន្នន័យ។ ធីកមាតិកាឯកសារ។ <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "បញ្ចូលយ៉ាងហោចណាស់តម្លៃមួយនៃរយៈពេលសុពលភាពពីឬទៅ។"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "ចែកតាមប្រភេទ"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "ចែកដោយពាក្យ (ស៊ីក្លូ)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "ចែកតាមពាក្យ (ផ្ទាល់)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "តម្លៃនៃចន្លោះពេលដែលបានបញ្ចូលគឺមិនត្រឹមត្រូវទេ។ បញ្ចូលចំនួន 0.1 ឬច្រើនជាងនេះ 720 ឬតិចជាងនេះឬ -720 ឬច្រើនជាងនេះ - 0.1 ឬតិចជាងនេះ។"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "បានបញ្ជាក់ថាតើ \"ប្រវែងបង្អួចមិនត្រឹមត្រូវ។ តម្លៃត្រូវតែមានចន្លោះពី 0.1 និង 48 ។"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "ចំនួននៃ Ridgeline បញ្ចូលគឺមិនត្រឹមត្រូវ។ បញ្ចូលចំនួនគត់ 1 ឬច្រើនជាងនេះនិង 150 ឬតិចជាងនេះ។ (ចូលចិត្តប្រើប្រហែល 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "ចាប់ផ្តើមទិន្នន័យនិងពេលវេលា"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "ចន្លោហបេល"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "ប្រវែងបង្អួច"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "វត្ថុបញ្ជា"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "បុម្ពអកសរ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "ឈ្ផោហ"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "ចំណាំថាប្រសិនបើចំនួនចំណុចទិន្នន័យក្នុងប្រភេទមួយមានអាយុក្រោម 50 ឆ្នាំគឺភាពត្រឹមត្រូវនៃក្រាហ្វិចអាចថយចុះ។"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "បង្ហាញទស្សន៍ទ្រនិចសក់ឆ្លងកាត់ (ចុច)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "បង្ហាញទស្សន៍ទ្រនិចសក់ឆ្លងកាត់ (ចុចទ្វេដង)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "បង្ហាញបញ្ជីអ៊ីស្តូក្រាម"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "បោះបង់ការត្រួតពិនិត្យលើស"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "មានឈ្មោះ `ប្រភពទិន្នន័យដែលបានបញ្ជាក់រួចហើយ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "ការនាំចូលទិន្នន័យបានបរាជ័យពីព្រោះឯកសារដែលមានឈ្មោះជួរឈរផ្សេងគ្នាត្រូវបានរកឃើញនៅក្នុងប្រភពទិន្នន័យ។ ធីកមាតិកាឯកសារហើយកំណត់ការកំណត់នាំចូលប្រភពទិន្នន័យម្តងទៀត។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "ចំនួនកំណត់ត្រាដែលបានព្យាករណ៍ដែលត្រូវបានភ្ជាប់"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "ចំនួនគំរូ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "ចំនួនកំណត់ត្រាដែលត្រូវភ្ជាប់"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "ចំនួនកំណត់ត្រាសរុប"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "សូមដាក់ឈ្មោះថតដែលឯកសារ CSV/TSV ត្រូវបានរក្សាទុកដូចជា \"yyyymdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "ការទូចចិត្ត"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "តម្រងកំណត់រចនាសម្ព័ន្ធ"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "កំណត់រចនាសម្ព័ន្ធមេ"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "ពីការកំណត់រចនាសម្ព័ន្ធតម្រង"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "បង្ហាញ​ទាំងអស់"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "ជាកូនសោ (ជម្រើស)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "បានលុប REMOVED_COUNT នៃតម្លៃឱនភាពតម្លៃមិនធម្មតាតម្លៃមិនធម្មតានិងតម្លៃលើសពី TOTAL_COUNT ក្នុងដើម។"
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "អាសយដ្ឋាន IP"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "ប្រៀបធៀបការចែកចាយទិន្នន័យដោយការប៉ាន់ស្មានអ៊ីស្តូក្រាមនិងដង់ស៊ីតេ។ ក្រាហ្វត្រូវបានបែងចែកដោយអថេរដែលមានលក្ខណៈខុសគ្នា។ វាក៏ត្រូវបានបែងចែកដោយ Facet ផងដែរ។"
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "គ្រោងទិន្នន័យទាំងអស់នៅលើអ័ក្សពេលវេលាឬអ័ក្ស ID ។"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "បង្ហាញម៉ាទ្រីសគ្រោងខ្ចាត់ខ្ចាយខ្ចាត់ខ្ចាយ។ អ្នកអាចប្រើពីអថេរគោលដៅ 2 ទៅ 7 ។"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "ដោយការវិភាគផ្នែកដើមនៃសមាសធាតុនេះការមើលឃើញនៃ \"ខុសគ្នា\" ហើយការវិភាគកត្តារបស់វាត្រូវបានអនុវត្ត។ បញ្ចូលទិន្នន័យធម្មតាជាទិន្នន័យគ្រូនិងមើលឃើញថាតើទិន្នន័យបច្ចុប្បន្នគឺជាស្ថានភាពដូចគ្នានឹងទិន្នន័យធម្មតារបស់វា (T2 / Q) ដែរឬទេ។ ប្រសិនបើអ្នកមានស្ថានភាពខុសគ្នាអ្នកអាចពិនិត្យមើលកត្តាចំបងក្នុងដីវិភាគទាន។"
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "ការចែកចាយត្រូវបានបែងចែកជាក្រាហ្វិចជាច្រើនដោយអថេរនេះ។ ជ្រើសរើសអថេរប្រភេទ (អថេរគុណភាព) ដូចជាលេខផ្នែកនិងស្ថានីយ៍ផ្នែក។"
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "តម្រងប្រភេទដែលបានសង្សារ: កំណត់ទិន្នន័យដែលត្រូវបង្ហាញទៅសំណុំរង។ (ចំណាត់ថ្នាក់: លេខផ្នែកស្ថានីយ៍ទំរង់លេខណាមួយឡើយ។ ល។ )"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "អថេរប្រភេទ (ដូចជាលេខផ្នែកណាមួយស្ថានីយ៍ទេ។ ល។ ) បង្ហាញជាស្លាកនៅផ្នែកខាងលើនៃដីឡូត៍ដើម្បីរកចំណុចផ្លាស់ប្តូរ។"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "តម្រងក្រាហ្វិចៈកំណត់ទិន្នន័យដែលត្រូវបង្ហាញទៅសំណុំរង។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "កំណត់ទិន្នន័យសិក្សាដែលបកស្រាយថាជាស្ថានភាពធម្មតា។ កំណត់ផ្នែកទិន្នន័យដែលមិនមានទិន្នន័យ NG ណាមួយ។ ប្រសិនបើបានបញ្ចូល, អ្នកដែលនៅជិតនឹងទិន្នន័យ NG ក៏ត្រូវបានគេចាត់ទុកថាជាទិន្នន័យធម្មតាផងដែរ។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "កំណត់ទិន្នន័យតេស្តដែលត្រូវបានវិនិច្ឆ័យ។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "តម្រងធាតុ: កំណត់ទិន្នន័យ (វិភាគនិងបង្ហាញ) ដើម្បីបង្ហាញទៅសំណុំរង។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "វាគឺជាការបង្ហាញសរុបចំនួនពីរវិមាត្រ (ការបង្ហាប់វិមាត្រដោយសមាសធាតុសំខាន់) នៃទិន្នន័យផ្ទៀងផ្ទាត់ពហុភាគី។ ប្រសិនបើទិន្នន័យស្ថិតនៅចំកណ្តាលវាអាចត្រូវបានបកស្រាយថាជិតនឹងធម្មតា។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "វាគឺជាការបង្ហាញសរុបចំនួនពីរវិមាត្រ (ការបង្ហាប់វិមាត្រដោយសមាសធាតុសំខាន់) នៃទិន្នន័យសិក្សាពហុភាគី។ គោលដៅកណ្តាលត្រូវបានកំណត់ដោយទិន្នន័យសិក្សាដូច្នេះទិន្នន័យសិក្សាភាគច្រើនគួរតែស្ថិតនៅក្នុងគោលដៅ។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "គ្រោងនៃស្ថិតិ T2 ដែលតាមដានម៉ាន់នីសនៅក្នុងសមាសធាតុសំខាន់នៃទិន្នន័យនេះ។ ទិន្នន័យនៃការរៀនសូត្រត្រូវបានគ្រោងទុកជាពណ៌សនិងក្នុងផ្នែកអវិជ្ជមាន X ។ គ្រោងពណ៌លឿងគឺជាទិន្នន័យសុពលភាព។ ទិន្នន័យសុពលភាពខ្ពស់ជាងនេះត្រូវបានប្រៀបធៀបទៅនឹងទិន្នន័យពណ៌សស្ថានភាពដែលទំនងជាត្រូវបង្វែរ។ ចុចចំណុចទិន្នន័យដើម្បីមើលផែនការបរិច្ចាគនៃអ្វីដែលធាតុធ្វើឱ្យមានស្ថានភាព។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "គ្រោងនៃស្ថិតិ Q Q (ការត្រួតពិនិត្យសម្រាប់ភាពមិនប្រក្រតីនៅក្នុងផ្នែកតូចតាចនៃទិន្នន័យនេះដែលនៅសល់។ ទិន្នន័យនៃការរៀនសូត្រត្រូវបានគ្រោងទុកជាពណ៌សនិងក្នុងផ្នែកអវិជ្ជមាន X ។ គ្រោងពណ៌លឿងគឺជាទិន្នន័យសុពលភាព។ ទិន្នន័យសុពលភាពខ្ពស់ជាងនេះត្រូវបានប្រៀបធៀបទៅនឹងទិន្នន័យពណ៌សស្ថានភាពដែលទំនងជាត្រូវបង្វែរ។ ចុចចំណុចទិន្នន័យដើម្បីមើលផែនការបរិច្ចាគនៃអ្វីដែលធាតុធ្វើឱ្យមានស្ថានភាព។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "លំដាប់នៃអថេរណាដែលរួមចំណែកដល់ស្ថានភាពនៅចំណុចដែលបានជ្រើសរើសនៅក្នុងគ្រោងស្ថិតិ T2 ។ ប្រវែងកាន់តែយូរបុព្វហេតុ។"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "លំដាប់នៃអថេរណាដែលរួមចំណែកដល់ស្ថានភាពនៅចំណុចដែលបានជ្រើសរើសនៅក្នុងផែនការស្ថិតិ Q ។ ប្រវែងកាន់តែយូរបុព្វហេតុ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "ចំនួនពិន្ទុទិន្នន័យដែលមានតំលៃតិចជាងរឺស្មើ Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "ចំនួនពិន្ទុទិន្នន័យដែលមានតម្លៃខ្ពស់ជាងឬស្មើ Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "ចំនួនទិន្នន័យសរុបរួមទាំងចំនួន NA (មិនមាន) NaN (មិនមែនលេខ) និង Inf± (ភាពមិនគ្រប់គ្រាន់) ក្នុងរយៈពេលដែលបានជ្រើសរើស។"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: ភាគរយនៃទិន្នន័យនៅខាងក្រៅនៃកម្រិតខាងលើនិងខាងក្រោម (រាប់) ក្នុងរយៈពេលដែលបានជ្រើសរើស"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: ភាគរយនៃទិន្នន័យនៅខាងក្រៅកម្រិតកំណត់ខាងលើនិងខាងក្រោម (រាប់) ក្នុងរយៈពេលដែលបានជ្រើសរើស"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "ភាគរយនៃ NA (មិនមាន) ក្នុងរយៈពេលដែលបានជ្រើសរើស (រាប់)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "ភាគរយនៃ NaN (មិនមែនលេខ) ក្នុងរយៈពេលដែលបានជ្រើសរើស (រាប់)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "ភាគរយនៃ Inf+ (បូកនឹងភាពមិនប្រាកដប្រជា) ក្នុងរយៈពេលដែលបានជ្រើសរើស (រាប់)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "ភាគរយនៃ Inf- (ដកតិចតួច) ក្នុងរយៈពេលដែលបានជ្រើសរើស (រាប់)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "ភាគរយសរុបនៃទិន្នន័យនៅខាងក្រៅតម្លៃកម្រិតនេះ NA (មិនមាន) NaN (មិនមែនលេខ) និង Inf± (អ៊ិនធឺណិត) ក្នុងរយៈពេលដែលបានជ្រើសរើស (រាប់)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "ចំនួនទិន្នន័យដែលមិនរាប់បញ្ចូល NA (មិនមាន) NaN (មិនមែនលេខ) និង Inf± (ភាពមិនគ្រប់គ្រាន់) ក្នុងរយៈពេលដែលបានជ្រើសរើស។"
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95 ភាគរយ"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75 ភាគរយ (ត្រីមាសទីបី)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "ភាគរយ 25 ភាគរយ (ត្រីមាសដំបូង)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "ភាគរយ 5 ភាគរយ"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "ជួរ Itpitile (តម្លៃតំណាងនៃភាពប្រែប្រួលអថេរ: IRQ = Q3 - Q1 ≒ 1.349 @ ចែកចាយធម្មតា)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "មេដ្យាន (50 ភាគរយ)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "រាប់ / ម៉ោង"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "រាប់ / នាទី"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "វដ្តពេលវេលា [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "លេខចែក"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "វដ្តបង្ហាញ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "ចន្លោះពេលបង្ហាញ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "ផែនទីកំដៅកំដៅប្រតិទិន"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "អថេរគោលដៅមិនអាចត្រូវបានជ្រើសរើសដោយ MAX_NUM_SENSOR ឬច្រើនជាងនេះទេ។ ជ្រើសរើសអថេរគោលដៅ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "គោលដៅនៃការដកយកចេញ ForeLier គឺ Max, Mean, __188 σ, σ និង Range ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "ក្រៅពីលេខពិត"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "ការចែកចាយអាចមើលឃើញដោយការគណនាសម្រាប់ការគណនាសម្រាប់អថេរប្រភេទនីមួយៗ (អថេរគុណភាពមានចំនួនច្រើន។ ល។ ) ឬឌីធូមនិងបង្ហាញពួកវានៅក្បែរគ្នា។ វិធីសាស្រ្តដែលមើលឃើញដែលអនុញ្ញាតឱ្យមានការវិភាគក្រុម (ប្រៀបធៀបរវាងឡូត៍ថ្ងៃវេននិងល) នៃទិន្នន័យដែលមិនមានភាពខុសគ្នា ID ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "កំណត់កំរិតដែលត្រូវបានគូរលើក្រាហ្វិច។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "ប្រសិនបើខ្ចាត់ខ្ចាយគឺនៅលើអ្នកអាចបង្ហាញគ្រោងកំចាត់កំចាយជាមួយវា។ គ្រោងខ្ចាត់ខ្ចាយរវាងធាតុបច្ចុប្បន្ននិងធាតុជួរដេកបន្ទាប់។ អូសនិងទម្លាក់កាតគ្រោងនៃដីឡូត៍រៀងៗខ្លួនដោយប្រើកណ្តុរដើម្បីប្តូរអ័ក្ស X និងអ័ក្ស Y នៃគ្រោងខ្ចាត់ខ្ចាយ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "ធាតុនៃទិន្នន័យ (ដូចជាតម្លៃអថេរឬតម្លៃរង្វាស់) ដែលបង្កើតការចែកចាយទិន្នន័យ។ ទិន្នន័យនេះត្រូវបានគ្រោងលើដីឡូតិ៍។ ទំនិញរហូតដល់ 20 ដែលអាចត្រូវបានជ្រើសរើស។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "អថេរដែលមានលក្ខណៈសម្ងាត់នេះបែងចែកការចែកចាយទៅក្នុងដីឡូត៍ជាច្រើនហើយបង្ហាញវានៅចំហៀង។ ជ្រើសរើសអថេរប្រភេទដូចជាច្រើនឬបាច់។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "បញ្ចូលកាលបរិច្ឆេទចាប់ផ្តើមដើម្បីបង្ហាញដីឡូដិលលីនសម្រាប់ឌីតធីតានីមួយៗ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "បញ្ចូលដោយផ្ទាល់រយៈពេលដើម្បីបង្ហាញគ្រោងរបស់ Ridgeline សម្រាប់រាល់ថ្ងៃ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "អ្នកអាចជ្រើសរើសជម្រើសដើម្បីនាំចូលទិន្នន័យពីឯកសារ CSV/TSV ដែលត្រូវការការដោះស្រាយពិសេសដូចជាការបំលែងរចនាសម្ព័ន្ធទិន្នន័យ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "ចុចប៊ូតុងមើលជាមុនខាងក្រោមនឹងបង្ហាញផ្នែកខ្លះនៃទិន្នន័យនៅក្នុងឯកសារដូច្នេះអ្នកអាចពិនិត្យមើលមាតិការបស់វា។"
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "ជ្រើសតំណ ID ដែលត្រូវប្រើជាលក្ខខណ្ឌសម្រាប់ភ្ជាប់ទិន្នន័យ។ អ្នកក៏អាចជ្រើសរើសធាតុជាច្រើនផងដែរ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "នៅពេលដែលកម្មវិធីរបស់អ្នកបាននាំចូលទិន្នន័យជាទៀងទាត់អ្នកអាចជ្រើសរើសជួរឈរទិន្នន័យដែលត្រូវបានប្រើជាគន្លឹះនៃឌីតថល។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "ប្រសិនបើអ្នកជ្រើសរើសសញ្ញាប្រមាណវិធីមួយហើយបញ្ចូលលេខក្រោម 'កត្តា' តម្លៃនៅក្នុងក្រាហ្វនឹងត្រូវបានគណនាដោយប្រើសញ្ញាប្រមាណវិធីនិងកត្តាដែលបានបញ្ជាក់។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "ប្រសិនបើអ្នកជ្រើសរើសសញ្ញាប្រមាណវិធីមួយហើយបញ្ចូលលេខក្រោម 'កត្តា' តម្លៃនៅក្នុងក្រាហ្វនឹងត្រូវបានគណនាដោយប្រើសញ្ញាប្រមាណវិធីនិងកត្តាដែលបានបញ្ជាក់។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "វាអាចទាយបានថាតើទិន្នន័យភ្ជាប់ដែលបានភ្ជាប់មានចំនួនប៉ុន្មានដែលនឹងត្រូវបានភ្ជាប់។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "បោះបង់ស្ថានភាពភ្ជាប់ទិន្នន័យដែលបានកំណត់បច្ចុប្បន្នហើយហៅលក្ខខណ្ឌដែលបានចុះឈ្មោះពីមុន។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID ត្រូវបានបង្កើតឡើងនៅខាងក្នុងដើម្បីភ្ជាប់ទិន្នន័យដែលមានលក្ខខណ្ឌភ្ជាប់។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "ជ្រើសធាតុត្រួតពិនិត្យដែលមានគុណភាពឬវត្ថុត្រួតពិនិត្យឧបករណ៍ដោយប្រើក្នុងការកំណត់ក្រាហ្វ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "សូមជ្រើសរើសប្រភេទនៃការគ្រប់គ្រងគោលដៅដូចជាលេខផ្នែកនិងឧបករណ៍។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "សូមជ្រើសរើសគោលដៅគ្រប់គ្រងដូចជាតម្លៃនៃចំនួនផ្នែកនិងតម្លៃនៃឧបករណ៍។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "កំណត់ការចាប់ផ្តើមទិន្នន័យសម្រាប់ការកំណត់ក្រាហ្វិច។ (ទាមទារ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "កំណត់កាលបរិច្ឆេទបញ្ចប់សម្រាប់ការកំណត់ក្រាហ្វិច។ (ជាជម្រើស)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "អានការកំណត់រចនាសម្ព័ន្ធដែលបានរក្សាទុក។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "រក្សាទុកការកំណត់រចនាសម្ព័ន្ធចុងក្រោយដែលអ្នកបានបញ្ចូល។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "រក្សាទុកអេក្រង់ជាឯកសារ PNG ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "តើអ្នកចង់លុបការកំណត់នេះទេ?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "អថេរគោលដៅ (ចំនួនពិត)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "អថេរគោលដៅ (ប្រភេទ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "ការបញ្ជាទិញសន្ទស្សន៍"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "សសរ"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "ការដឹកនាម"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "អាតិផាប"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "ការបញ្ជាទិញ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "អថេរ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "តែប្រភេទនិងប្រភេទតែប៉ុណ្ណោះ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "មានតែការពិតប៉ុណ្ណោះ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "ប្រភេទតែប៉ុណ្ណោះ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "ក្នុងលំដាប់កំណត់"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "ក្នុងលំដាប់ដំណើរការ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "នៅក្នុង COEF ។ ការដឹកនាម"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "កម្រិតនៃការជាប់ទាក់ទងគ្នា (អេសអេស)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "ជ្រើសរើសអថេរគោលបំណង"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "អថេរគោលបំណង"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "អថេរពន្យល់"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "សមាមាត្រដែលមាន"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "ដ្យាក្រាមរបស់"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "ការផ្គូផ្គង (ការប្រកួតល្អឥតខ្ចោះ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR ស្វែងរក"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND ស្វែងរក"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "ចាប់តាំងពីផែនការកូអរដោនេប៉ារណែលមិនអាចព្យាបាលតួលេខពិតប្រាកដទិន្នន័យចំនួនពិតប្រាកដត្រូវបានដកចេញទេ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013;"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "ការផ្លាស់ប្តូរទីតាំង"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "ចុះឈ្មោះព័ត៌មានដែលបានកែសម្រួលដូចជាឈ្មោះបង្ហាញ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "តើអ្នកចង់ចុះឈ្មោះជាមួយមាតិកាដែលបានកែប្រែទេ?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "ប្រសិនបើអ្នកផ្លាស់ប្តូរតំណភ្ជាប់ ID សូមកំណត់ការកំណត់រចនាសម្ព័ន្ធតំណភ្ជាប់ទិន្នន័យឡើងវិញ។"
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "ក្រាហ្វិចដែលកើតឡើង"
+
+# co-occurrence
+msgid "Data file"
+msgstr "ឯកសារទិន្នន័យ"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "សរុបដោយ"
+
+# co-occurrence
+msgid "Hour"
+msgstr "ម៉ោង"
+
+# co-occurrence
+msgid "Day"
+msgstr "ថៃ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "របៀបកែសម្រួល"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "ការកំណត់របៀប"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "ទិន្នន័យដែលបានបន្លិចមិនត្រឹមត្រូវនឹងត្រូវលុប។ តើអ្នកប្រាកដជាប្តូរទៅរបៀបកំណត់មែនទេ?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "អាតិផាប"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "ឈ្មោះអង់គ្លេសស្ទួនត្រូវបានរកឃើញដូច្នេះលេខសៀរៀលត្រូវបានបន្ថែមដោយស្វ័យប្រវត្តិ។ ពិនិត្យឈ្មោះជួរឈរ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "ឯកតានៃការប្រមូលផ្តុំ"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "ជួរឈរដំបូងគឺដាតធីមហើយជួរឈរទីពីរនិងជួរឈរជាបន្តបន្ទាប់គឺមានតម្លៃដូចជាទង់ជូនដំណឹងការជូនដំណឹង / ចំនួនដែលកើតឡើង (0,1,2 ... ) ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "ទំនាក់ទំនងរួមគ្នារួមគ្នាតាមម៉ោង / ថ្ងៃ។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "បង្ហាញកម្រិតចាប់ផ្ដើម"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "ប្រសិនបើអ្នកជ្រើសរើសតម្លៃតិចជាង 100%% អ្នកនឹងលាក់ទំនាក់ទំនងរបស់ CO តូចមួយ។ (លំនាំដើម: គូរបន្ទាត់ប្រសិនបើមានសូម្បីតែម្តង)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "កំណត់អត្តសញ្ញាណនិងមើលឃើញអថេរដែលទាក់ទងដោយផ្ទាល់ឬដោយប្រយោលទាក់ទងនឹងអថេរគោលដៅ។"
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "មើលការជាប់ទាក់ទងគ្នារវាងអថេរដែលបានបញ្ជាក់នៅទីនេះ។ ធាតុរហូតដល់ 60 អាចត្រូវបានជ្រើសរើស។"
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "អថេរបេក្ខជនដែលទាក់ទងនឹងអថេរគោលបំណង។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "គ្រោងសម្របសម្រួលប៉ារ៉ាឡែល"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "នៃគែមទាំងអស់"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "តមរបថតឹម"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "ប័ត្ធ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "ដោយសវ័យរបវត្ដ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "សមត្ថផាប"
+
+msgid "Set threshold"
+msgstr "Control Line: ពិនិត្យមើលនៅពេលគ្រប់គ្រងកម្រិតនៃការគ្រប់គ្រងការគូរដូចជាបន្ទាត់ស្តង់ដារ"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "វេទិកាវិភាគ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "គំនូសតាងផាតតូ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "ចំនួននៃការកើតឡើង"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "សមាមាត្រកើន [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "មើលឃើញប៉ារ៉ាម៉ែត្រដែលអាចប្រែប្រួលជាមួយនឹងទិន្នន័យក្នុងរយៈពេលយូរដូចជាការប្រែប្រួលប្រចាំឆ្នាំនៅក្នុងដំណើរការថ្ងៃនៃសប្តាហ៍ប្តូរវេន។ ល។"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "មើលការជាប់ទាក់ទងគ្នារវាងចំនួនអថេរមួយចំនួនធំទាក់ទងនឹងអថេរគោលដៅ។"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "រូបភាពដែលអាចមើលឃើញការផ្លាស់ប្តូរកំហុសនៃកំហុសការជូនដំណឹងព្រឹត្តិការណ៍និង។ ល។ (ទំនាក់ទំនងផ្តោតលើភាពញឹកញាប់នៃការកើតឡើងដំណាលគ្នានៃបាតុភូតមួយនិងមួយទៀត) ។"
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "តមនេរ"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: ឧបករណ៍សាមញ្ញសម្រាប់ផែនទីទិន្នន័យការមើលឃើញការវិភាគស្ថិតិនិងការរៀនម៉ាស៊ីន។"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "សំណុំទិន្នន័យដែលបានកំណត់នៅទីនេះត្រូវបានប្រើជាឯកសារយោងសម្រាប់ភ្ជាប់ការភ្ជាប់និងគ្រោង។ ការកំណត់ត្រូវបានប្រើនៅក្នុងអ័ក្សផ្ដេកនៃគ្រោង។ លើសពីនេះទៀតគ្រោងប្រភពដើមត្រូវបានបង្ហាញដោយស៊ុមពណ៌ខៀវស្រាល។"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "បញ្ជាក់ទិន្នន័យ (ឧទាហរណ៍អថេរលេខ: តម្លៃវាស់) សម្រាប់ដីឡូតិ៍។ ជ្រើសរើសដំណើរការនិងធាតុដែលត្រូវបានគ្រោងលើដីឡូតិ៍។ ទំនិញរហូតដល់ 20 ដែលអាចត្រូវបានជ្រើសរើស។"
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "បញ្ជាក់ទិន្នន័យ (ឧទាហរណ៍អថេរលេខ: តម្លៃវាស់) សម្រាប់ដីឡូតិ៍។ ជ្រើសរើសដំណើរការនិងធាតុដែលត្រូវបានគ្រោងលើដីឡូតិ៍។ ទំនិញរហូតដល់ 8 មុខអាចត្រូវបានជ្រើសរើស។"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "តមនេរ"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "អថេរនៃការបំបាត់ចោលនេះបែងចែកលំនាំដើម្បីមើលឃើញចូលទៅក្នុងដីឡូត៍ជាច្រើនហើយបង្ហាញវានៅចំហៀង។ ជ្រើសរើសអថេរប្រភេទដូចជាលេខផ្នែកនិងស្ថានីយ៍ស្ថានីយ៍រហូតដល់ 100 មុខទំនិញអាចត្រូវបានជ្រើសរើស។"
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "ធាតុនៃទិន្នន័យដែលអាចមើលឃើញការជាប់ទាក់ទងគ្នារវាងអថេរ (អថេរបរិមាណ: តម្លៃរង្វាស់។ ល។ ) ។ ទិន្នន័យនេះត្រូវបានគ្រោងលើតារាង។ ពីប៉ារ៉ាម៉ែត្រ 2 ទៅ 7 អាចត្រូវបានជ្រើសរើស។"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "ជ្រើសរើសធាតុដើម្បីមើលឃើញការជាប់ទាក់ទងគ្នារវាងអថេរ។ ធាតុរហូតដល់ 60 អាចត្រូវបានជ្រើសរើស។"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "ធាតុនៃអថេរប្រភេទ (ដូចជាលេខផ្នែក) ដើម្បីមើលឃើញការជាប់ទាក់ទងគ្នារវាងអថេរ។"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "កាតអតិបរមា"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "បង្រួមកាត"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "ប្រសិនបើការកំណត់នេះត្រូវបានផ្លាស់ប្តូរវាចាំបាច់ត្រូវកំណត់ការកំណត់តំណទិន្នន័យឡើងវិញ។"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "ជ្រើសរើសដោយស្វ័យប្រវត្តិ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "ជ្រើសរើសទាំងអស់ទៅខាងស្តាំ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "មិនជ្រើសរើសទាំងអស់នៅខាងស្តាំ"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "ទាំងអស់ពិតប្រាកដ (អណ្តែត) ពីទីនេះ"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "ចំនួនគត់ទាំងអស់ពីទីនេះ"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "ខ្សែទាំងអស់ពីទីនេះ"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "ដោយសារតែចំនួនកំណត់ត្រាមួយចំនួនធំដែលបានជ្រើសរើសហើយពេលវេលាដែលត្រូវការដើម្បីបង្ហាញគ្រោងចំនួនកោសិកាក្នុងមួយឡូត៍ត្រូវបានកំណត់ត្រឹម 10.000 ។ ប្រសិនបើអ្នកចង់ឃើញទិន្នន័យទាំងអស់សម្រាប់រយៈពេលកំណត់នៃគោលដៅបង្កើនចន្លោះពេលបង្ហាញឬកាត់បន្ថយរយៈពេលគោលដៅដើម្បីកាត់បន្ថយចំនួនកោសិកា។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "សញ្ញាប័ត្រ"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "អ្នកអាចកែសំរួលមាត្រដ្ឋាននៃគ្រោងដោយចុចខាងស្តាំលើដីឡូតិ៍។"
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "ធ្វើមាត្រដ្ឋានក្រាហ្វិច"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "ការកំណត់របៀប"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "ចំនួនធាតុទិន្នន័យដែលមិនអាចភ្ជាប់បាន"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "គ្រោងខ្ចាត់ខ្ចាយ"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "ជាមួយវណ្ឌវង្ក"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "ការសរេប្យេចាាបរត្យេយយ"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "តមនេរ"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "ផ្ទុកការកំណត់"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "ចែករំលែក / ឯកជន"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "ការបិបន៍នា"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "បង្កើត​ឡើង​ដោយ"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "ប្រើ / ផ្ទុក"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "ផ្ទុក"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "ចំនួនទិន្នន័យដែលមិនអាចភ្ជាប់ទៅនឹងដំណើរការចំណុចចាប់ផ្តើម (ភាគរយនៃការភ្ជាប់)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "រក្សាទុកទិន្នន័យ"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "ចែករំលែកការកំណត់"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "សរេង្គាហ"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "អ្នកអាចជ្រើសរើសពីអថេរគោលដៅ 2 ទៅ 7 ។ ពិនិត្យចំនួនអថេរគោលដៅហើយកែការកំណត់។"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "ដែនកំណត់ទំហំឯកសារគឺ 10 មេកាបៃ។ កាត់បន្ថយទំហំឯកសារហើយព្យាយាមម្តងទៀត។"
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "ប្រសិនបើបានគូសធីកកាលបរិច្ឆេទដែលបានបញ្ជាក់ក៏ត្រូវបានរក្សាទុកផងដែរ។"
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "ពិនិត្យដើម្បីចែករំលែកការកំណត់នេះ។"
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "រក្សាទុកការកំណត់។"
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "តើអ្នកប្រាកដជាថាការសរសេរជាន់លើកំរិតណា?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "ការរមលេក"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "ឯកចន"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "បានបង្កើតនៅ"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "បិត"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "សំណុំបញ្ជាទិញ"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "ចាប់ផ្តើមទិន្នន័យ"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "បញ្ចប់ DATETIME"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "បង្ហាញស្លាកអ័ក្ស X"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "ជួរ datetime"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "អូសនិងទម្លាក់ឯកសារនៅទីនេះ"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "រឺ"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "ជ្រើសរើសឯកសារ"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "មិនអាចត្រូវបានបង្ហាញទេ"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "ការកែច្នៃត្រូវបានរំខានដោយសារតែចំនួនទឹកប្រាក់ដ៏ច្រើននៃទិន្នន័យនិងពេលវេលាដំណើរការយូរ។ ពិនិត្យការកំណត់កាលបរិច្ឆេទនិងបង្ហាញគ្រោងម្តងទៀត។"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "ការបញ្ចេញលទ្ធផល CSV ឯកសារ។ សូមរង់ចាំខណៈពេលទាញយកឯកសារ។"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "ការបញ្ចេញឯកសារ TSV ឯកសារ។ សូមរង់ចាំខណៈពេលទាញយកឯកសារ។"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "ជួរស្វ័យប្រវត្តិ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "ជួរពេញ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "ការកំណត់សន្ទស្សន៍ការកំណត់"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "ដេលចមហរ"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "របៅបេលរសច"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "ចាប់តាំងពីចំនួនពិន្ទុទិន្នន័យក្នុងមួយក្រាហ្វមានជាង 12,000 ចំនួនពិន្ទុទិន្នន័យត្រូវបានកំណត់ត្រឹមអតិបរិមា 12.000 ។ ប្រសិនបើអ្នកចង់មើលទិន្នន័យទាំងមូលកំណត់រយៈពេលគោលដៅខ្លីជាងនេះ។"
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "stratify ដោយពាក្យ (ស៊ីក្លូ)"
+
+#: component.js
+msgid "Facet"
+msgstr "ផាប"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "អនុវត្តប្រភេទការបែងចែកដោយធាតុដែលបានជ្រើសរើស។"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "ការប៉ាន់ស្មានករណីលើកលែង"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "ជួរ interquartile ធម្មតា (សន្ទស្សន៍ផ្សារភ្ជាប់ IQR ជាមួយនឹងការចែកចាយធម្មតា niqr = 0.7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "របៀបគឺជាតម្លៃដែលកើតឡើងញឹកញាប់បំផុត។"
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "ជាមួយលើស"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "ដោយគ្មានអ្នកហួសប្រមាណ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "តមន្យេមតមលាប់"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "ថៃនេហ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "បីមសិលមិញ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "7 ថ្ងៃចុងក្រោយ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "30 ថ្ងៃចុងក្រោយ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "ខែ​នេះ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 ខែ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 ខែ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "រេបីចារបយោចន៍"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "សបា្ដហ៍"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 ថ្ងៃមុន"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 ថ្ងៃមុន"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "ថ្ងៃនៃខែនេះ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "ថ្ងៃចុងក្រោយនៃខែនេះ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 ខែ"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "ធ្វើឱ្យទាន់សម័យនៅ"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "ចំណុចទិន្នន័យត្រូវបានសង្ខេបជាមួយនឹងរបៀបលឿន។ ប្រសិនបើអ្នកចង់ទទួលបានដីឡូតិ៍ដោយគ្មានការលុបបំបាត់ទិន្នន័យសូមលៃតម្រូវរយៈពេលគោលដៅខ្លីជាងនេះ។"
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "ជួរអ័ក្ស Y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "សមបុរមងាយ"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "តមនេរ"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "ស្វែងរកដំណើរការ"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "ចំណាស់"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "ចាប់តាំងពីចំនួនពិន្ទុទិន្នន័យក្នុងមួយមានចំនួនជាង 10,000 គ្រោងដង់ស៊ីតេត្រូវបានគូរ។ ប្រសិនបើអ្នកចង់បង្ហាញចំណុចទិន្នន័យទាំងអស់ជាមួយគ្រោងខ្ចាត់ខ្ចាយកំណត់រយៈពេលគោលដៅខ្លីជាង។"
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "តមនេរ"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "ពេលវេលាវដ្ត"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "លេខពិត"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "អថេរគោលបំណង"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "មេគុណទំនាក់ទំនងត្រូវបានគណនាដោយប្រើអថេរនេះជាអថេរគោលដៅ។ អថេរគោលដៅដែលបានបញ្ជាក់នៅទីនេះក៏ត្រូវបានបង្ហាញរួមជាមួយរបារពណ៌នៅផ្នែកខាងស្តាំឆ្ងាយនៃគ្រោង។ ប្រសិនបើអ្នកចង់ផ្លាស់ប្តូរអថេរគោលដៅនៅលើគ្រោងអ្នកអាចប្តូររវាងពួកវាដោយចុចខាងស្តាំលើឈ្មោះអថេរនីមួយៗ។"
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "ទិន្នន័យមិនបានលង់ទឹកទេព្រោះមានប្រភេទច្រើនពេក។ BREAK_LINE មូលប្បទានប័ត្រហើយបើចាំបាច់ពិនិត្យមើលរយៈពេលគោលដៅខ្លីជាង។"
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "ការកំណត់តម្រង"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "ផ្លាក (ប្រភេទអថេរប្រភេទ)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "ថតចម្លង"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "បិទភ្ជាប់"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "config confidely"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "បិទភ្ជាប់"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "បើគ្មានការកំណត់ប្រភពដើមគោលដៅដំបូងត្រូវបានជ្រើសរើសជាប្រភពដើម។"
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "នាំចេញទិន្នន័យ"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "មិន​ប្រើ"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "ទិន្នន័យមិនត្រូវបានអូសទេពីព្រោះមានប្រភេទច្រើនពេក។"
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "ពិនិត្យហើយបើចាំបាច់ពិនិត្យមើលការកំណត់រយៈពេលគោលដៅ។"
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "ចែកដោយចំនួនទិន្នន័យ (ស៊ីក្លូ)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "ចំនួនទិន្នន័យ"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "តមនេរ"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "តមនេរ"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "ជ្រើសអថេរគោលបំណង។"
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "តមនេរ"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "មិនមានការរលួយ / ប្រភេទនៃប្រភេទ"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "គ្រោងខ្ចាត់ខ្ចាយ"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "ប្រសិនបើប្រភេទទិន្នន័យ X ឬ Y គឺខ្សែអ្នកមិនអាចប្រើអថេរមិនមែនខ្សែអក្សរសម្រាប់ការកំណត់ពណ៌ទេ។"
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "តម្លៃនៅខាងក្រៅជួរដែលអនុញ្ញាតត្រូវបានរកឃើញដូច្នេះជួរអប្បបរមាអប្បបរមាឬអតិបរមាត្រូវបានសំរេចដោយស្វ័យប្រវត្តិ។ ផ្លាស់ប្តូរការកំណត់តាមការចាំបាច់។"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "ចុចកណ្តុរខាងស្តាំ: ការកំណត់តំណភ្ជាប់ទិន្នន័យ / កែសម្រួល / លុប"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "រយះ​ពេល​ប្រតិបត្តិ"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "ការបញ្ជាទិញតាមពេលវេលា"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "កំណត់លំដាប់ទិន្នន័យ"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "សូមលុបទិន្នន័យដែលមិនចាំបាច់ពីព្រោះសមត្ថភាពថាសរឹងរបស់ថាសរឹង `__SERVER_INFO__ បានឈានដល់ __SERVER_INFO__ %% ។"
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "កំពង់ផែទិន្នន័យត្រូវបានបញ្ឈប់ពីព្រោះសមត្ថភាពថាសរឹងរបស់ថាសរឹង `__SERVER_INFO__ ទទួលបាន __SERVER_INFO__ %% ។ ប្រសិនបើទិន្នន័យដែលមិនចាំបាច់ត្រូវបានលុបហើយសមត្ថភាពទទេកើនឡើងទិន្នន័យនឹងត្រូវបានចាប់ផ្តើមឡើងវិញ។"
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "បញ្ចូលចំនួនចែកចាយដែលត្រូវបង្ហាញ (ចំនួននៃការបែងចែក) ។ បញ្ចូលចំនួនគត់ 2 ឬ 150 ឬតិចជាងនេះ។"
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "បញ្ចូលចំនួនចែកចាយដែលត្រូវបង្ហាញ (ចំនួននៃការបែងចែក) ។ បញ្ចូលចំនួនគត់ 1 ឬច្រើន 32 ឬតិចជាងនេះ។"
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "តមនេរ"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "តមនេរ"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "តមនេរ"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "តមនេរ"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "មានវីយូឡុងច្រើនពេកក្នុងមួយឡូតូដូច្នេះវាត្រូវបានកំណត់ដោយស្វ័យប្រវត្តិ។"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "ដោយសារតែចំនួនកំណត់ត្រាមួយចំនួនធំដែលបានជ្រើសរើសចំនួនដីឡូត៍មានកំណត់ចាប់ពីកាលបរិច្ឆេទចាស់បំផុតរហូតដល់ចំនួនកំណត់។"
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "ខ្ញុំ​ទទួល​យក"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "ការបដិសេធ"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "អន់ថយ"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "ចំនួនគ្រោងលើជួរឈរ"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "អថេរប្រភេទ (លេខផ្នែកស្ថានីយ៍ស្ថានីយ៍ណាមួយដែលបានបង្ហាញជាស្លាកនៅផ្នែកខាងលើនៃគ្រោងត្រូវបានប្រើដើម្បីមើលឃើញចំណុចផ្លាស់ប្តូរ (ការប្តូរលេខផ្នែក។ ល។ ) នៃអថេរគុណភាព។ ល។"
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "ជ្រើសធាតុដែលត្រូវវិភាគ (អថេរបរិមាណ: តម្លៃរង្វាស់។ ល។ ) ។ ធាតុរហូតដល់ 60 អាចត្រូវបានជ្រើសរើស។"
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "ជ្រើសរើសធាតុដើម្បីតម្រៀបទិន្នន័យ។ អ្នកក៏អាចជ្រើសរើសធាតុជាច្រើនផងដែរ។"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "ការហៀរទិន្នន័យចាស់មិនត្រូវបានបង្ហាញទេពីព្រោះទិន្នន័យដែលរាប់ពីទិន្នន័យចុងក្រោយដែលមានដែនកំណត់បង្ហាញ។"
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "ចំនួនគ្រោងត្រូវបានកំណត់ត្រឹម NUMBER ។ ប្រសិនបើអ្នកចង់បង្ហាញទាំងអស់សូមពិនិត្យមើលការកំណត់ឡើងវិញ។"
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "ចំនួនគ្រោងលើផ្ទាំងតែមួយត្រូវបានកំណត់ត្រឹម NUMBER ។ ប្រសិនបើអ្នកចង់បង្ហាញទាំងអស់សូមពិនិត្យមើលការកំណត់ឡើងវិញ។"
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "ចំនួនអថេរគោលដៅដែលត្រូវជ្រើសរើសគឺអប្បបរមានិងអតិបរមាអតិបរមា។ ពិនិត្យចំនួនអថេរគោលដៅហើយកែការកំណត់។"
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "ចំនួនអថេរគោលដៅដែលត្រូវជ្រើសរើសគឺឡើងដល់អតិបរមាអតិបរមា។ ពិនិត្យចំនួនអថេរគោលដៅហើយកែការកំណត់។"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

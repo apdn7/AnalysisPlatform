@@ -1,0 +1,3435 @@
+# ベトナム語 Vietnamese translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 &
+# Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: vi\n"
+"Language-Team: vi <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Đã lưu"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "một lỗi đã xảy ra"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Cấu hình ứng dụng"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Không tìm thấy trang"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "một lỗi đã xảy ra"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Ứng dụng Datalink & Phân tích"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Chọn một ngôn ngữ"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Màn hình chính"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Cài đặt"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Xác minh hoạt động"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Cấu hình cơ bản"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Đăng ký"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Tải lại"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Số nguyên"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Real (Float)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Ngày giờ"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Chuỗi"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Tiêu đề"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Thực vật"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Nhà máy"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Hàng"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "vui lòng xác nhận."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"Lưu dữ liệu và bắt đầu nhập dữ liệu với nội dung được đặt trên trang Cài "
+"đặt quy trình?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Chấp nhận"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Hủy bỏ"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Cấu hình cơ sở dữ liệu"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Tên cơ sở dữ liệu"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Loại cơ sở dữ liệu"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Cấu hình"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Bình luận"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Thêm"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Chọn một tệp cơ sở dữ liệu."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Tên tập tin"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Lựa chọn"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Bạn có muốn xóa bản ghi này không?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "xóa bỏ"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Cài đặt liên kết"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Biểu đồ liên kết data"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Kiểm tra liên kết"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Bắt đầu kiểm tra"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Thời gian bắt đầu"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Thời gian kết thúc"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID máy (nhiều lựa chọn)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Hàng"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Số phần"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Cấu hình liên kết dữ liệu"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Chọn một ngôn ngữ"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "tiếng Nhật"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Tiếng Anh"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Nút"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Nút ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Nhãn mác"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Tên chính"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Cơ sở dữ liệu"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Nhập khẩu"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Xuất khẩu"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Tên máy chủ"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Số cổng"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Tên tài khoản"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Mật khẩu"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Lược đồ"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Kết nối thành công"
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; kết nối thất bại"
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Xử lý cấu hình"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Quá trình"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Tên quy trình"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Tên bảng"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Chi tiết"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Xem trước"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Năm dòng đầu tiên"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Thiết lập nội dung"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Tên cột"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Tên tiêng Anh"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Tên hiển thị"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "hệ số"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Toán tử"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Nhập một giá trị khác 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Cần nhập toán tử khi nhập hệ số"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Cần nhập hệ số khi chỉ định toán tử"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Nhập tên tiếng Anh."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Hãy nhập tên hiển thị đầu vào."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Tên tiếng Anh được nhân đôi."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Tên hiển thị được trùng lặp."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Tất cả \"tên hiển thị\" yêu cầu đầu vào."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Các trường có trống \"Tên tiếng Anh\" tự động được điền."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Chọn tất cả"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Nhập dữ liệu"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Bạn có chắc chắn để nhập dữ liệu?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"Khi bạn nhấn nút OK, bạn sẽ nhập dữ liệu từ thời gian hiện tại đến một "
+"tháng trước."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Dữ liệu trước đó được tự động nhập từng chút một."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"Nếu bạn muốn nhập dữ liệu sau thời gian hiện tại, hãy nhấn lại nút Đọc dữ"
+" liệu hoặc nhấn cơ sở dữ liệu CSV Cài đặt cài đặt trên trang Cài đặt đọc."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Khi \"Cập nhật chu kỳ\" của \"cơ sở dữ liệu / CSV Cài đặt đọc\" được đặt,"
+" nó sẽ được tự động nhập trong khoảng thời gian khi dữ liệu sau thời gian"
+" hiện tại được đặt."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Thông tin theo dõi"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Dữ liệu theo dõi"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Không thể truy cập"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Nhấn vào đây để sửa nó."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Chỉnh sửa cạnh"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Quá trình trước"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Cột trước"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Quá trình đăng"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Giá trị liên kết đến"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "DateTime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Serial"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "liên kết ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Đã đăng ký"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Vui lòng nhập tên quy trình"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Bộ lọc/đồ thị"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Cấu hình đồ thị"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Cấu hình bộ lọc dòng"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Cột dòng"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Giá trị"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Cấu hình bộ lọc máy"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Máy ID cột"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Cấu hình bộ lọc Part No"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Cột Part No"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Tên bộ lọc"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Điều kiện bộ lọc"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Cấu hình khác"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Cột mục tiêu"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Cấu hình trực quan"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Ngưỡng cửa thấp hơn"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Ngưỡng trên"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Ngưỡng quá trình thấp hơn"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Ngưỡng quá trình trên"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Phạm vi Y-trục: Min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Phạm vi Y-trục: Tối đa"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Part No"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "kết thúc với"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Bắt đầu với"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "Contains"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Đồng nhất"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Regular expressions"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Hiển thị đồ thị"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "Xuất CSV"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Quy trình là bắt buộc"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Tên cột là bắt buộc"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Dòng là bắt buộc"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Tên hiển thị được yêu cầu"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Tên hiển thị được trùng lặp."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Giá trị máy là bắt buộc"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Trùng lặp giá trị máy"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Lưu lại thành công"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Lưu thất bại"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Part No là bắt buộc"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Cột mục tiêu là bắt buộc"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Tên bộ lọc được yêu cầu"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Điều kiện là bắt buộc"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Trùng lặp tên bộ lọc"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Trùng lặp điều kiện"
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Mặc định"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Tên quy trình"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Thêm bộ lọc khác"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "Cấu hình nhập CSV/TSV"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Nguồn"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Chu kỳ đổi mới"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Kết nối"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Một lần mỗi giờ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Một lần một ngày"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Xác nhận dữ liệu"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Không có thư mục."
+
+msgid "File does not exist"
+msgstr "Không có tập tin."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Bạn có thể kết nối."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Vui lòng điền vào giá trị."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Không có nội dung cài đặt."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Các cài đặt được trùng lặp."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Cài đặt cơ sở dữ liệu được lưu."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Không thể lưu cài đặt cơ sở dữ liệu."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Cài đặt cơ bản được lưu."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Không thể lưu các cài đặt cơ bản."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Kiểm tra kết nối"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Điểm bắt đầu"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Phạm vi ngày"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Mới nhất"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Cập nhật tự động"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "phút"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "phút"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "giờ"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "giờ"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Biến mục tiêu"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Lọc"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "Trục X"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Dấu thời gian"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Mục lục"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Phân tầng các biến"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Bộ lọc"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Database/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Phân tích"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Đang trong quá trình phát triển"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Phân tích:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Mô hình thác nước"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Đồ họa LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Biểu đồ"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Mô hình phân tầng"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Mô hình đầy đủ điểm"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Trực quan hóa dữ liệu"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Trực quan hóa"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Chạy"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Nhập tên cơ sở dữ liệu."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Nhập tên nguồn dữ liệu."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Các cột không có loại dữ liệu không được nhập."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Ít nhất một cột DateTime là bắt buộc."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Để trực quan hóa, sử dụng '{col}' cho trục x."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Bạn có chắc chắn sẽ tiếp tục không?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Xem bảng"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Bàn"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Sắp xếp"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Số lượng dữ liệu"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Giảm dần"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Tăng dần"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Thống nhất toàn bộ"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Thống nhất một phần"
+
+#: trace_config.js
+msgid "th character"
+msgstr "Ký tự"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Lựa chọn chữ số không hợp lệ"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Độ dài của ký tự được sử dụng cho liên kết là khác nhau."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Không có bộ lọc"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Tất cả các dòng"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "Trạng thái"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Danh sách Jobs"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Tất cả các"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Đã nhập xong"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Đang nhập"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Nhập dữ liệu thất bại"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"Dữ liệu được tải sẽ bị xóa. Là nó ổn? (Không có thay đổi được phản ánh "
+"cho đến khi nhấn nút đăng ký)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Danh sách công việc"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "ID công việc"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Tên công việc"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Thế hệ liên kếtID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Hiển thị công việc tạo của liên kết ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Xóa thông tin quy trình"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Nhập dữ liệu nhà máy"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Nhập dữ liệu nhà máy trong quá khứ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Hiển thị công việc nhập khẩu của dữ liệu nhà máy trong quá khứ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Nhập dữ liệu"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Xóa dữ liệu cũ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Thời gian bắt đầu"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "thời gian trôi qua"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Cơ sở dữ liệu/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Tiến triển"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Quá trình"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Danh sách biểu đồ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Đăng ký như một giá trị bùng phát"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Xóa giá trị ngoại lệ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Ẩn ngoại giao"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Hiển thị các ngoại lệ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Kiểm tra ngoại lệ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Hiển thị danh sách biểu đồ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Thời gian cập nhật lần cuối"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Đăng ký ngoại lệ đã bị hủy bỏ."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Đăng ký như một ngoại lệ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Ngoại lệ"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Chỉ một lần"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Chi tiết công việc"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Sao chép vào clipboard"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Cốt truyện đa phân tán"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Cốt truyện phân tán"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Để trực quan hóa biến phân loại"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Phân tầng theo các biến"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Biến"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Số máy"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Thời gian mục tiêu"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Tần số (đếm)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Ước tính mật độ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Biến phân loại"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify theo thuật ngữ (trực tiếp)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Bạn không thể chọn tám biến mục tiêu trở lên. Chọn biến mục tiêu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Phát hiện bất thường"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Phân tích thành phần nguyên tắc"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Điểm thành phần chính của dữ liệu kiểm tra"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Điểm thành phần chính của dữ liệu đào tạo"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Biểu đồ loạt số liệu thống kê T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Biểu đồ sê -ri về thống kê q"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Biểu đồ đóng góp của thống kê T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Biểu đồ đóng góp của thống kê q"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Loại bỏ ngoại lệ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Dữ liệu đào tạo"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Kiểm tra dữ liệu"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Đúng"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Không"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Loại dữ liệu"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Thí dụ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Lỗi"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Cảnh báo"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"Vì tất cả các hàng đã bị xóa bằng cách xử lý giá trị thâm hụt (loại bỏ "
+"NA), nên không có dữ liệu để phân tích. Đảm bảo rằng giá trị trống, bao "
+"gồm NA, không được chọn."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"Nó không thể được phân tích vì nó chứa dữ liệu khác với số. Đảm bảo bạn "
+"đã chọn một cột chứa một chuỗi hoặc giá trị danh mục."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"Không thể phân tích vì nó chứa dữ liệu có phương sai 0. Đảm bảo rằng chỉ "
+"có một cột giá trị không được chọn."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"Tìm thấy dữ liệu danh mục và giá trị số nguyên dự kiến. Nếu giá trị số "
+"nguyên này không phải là thang đo, thang đo khoảng hoặc tỷ lệ tỷ lệ, kết "
+"quả phân tích có thể bị ảnh hưởng xấu."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Bạn có chắc chắn để tiến hành phân tích?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Tìm kiếm"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"Trung bình là một trong những số liệu thống kê điển hình. Đó là một giá "
+"trị nằm ở trung tâm khi dữ liệu hữu hạn được sắp xếp theo thứ tự tăng "
+"dần. Ví dụ, trong trường hợp năm, tuổi trung bình của tuổi là tuổi thứ ba"
+" theo thứ tự tuổi. Nếu số lượng dữ liệu là chẵn, trung bình của số học có"
+" thể sử dụng được trung tâm."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Tối đa"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Tóm tắt phân phối"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N số"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Trung bình"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Trung bình là gì ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Tổng cộng"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Thường xuyên"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Điểm cuối"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Quá trình mục tiêu"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Chuỗi thời gian"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Miếng"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Số lượng liên kết dữ liệu"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Giây"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Thời gian đáp ứng"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "chỉnh sửa"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Mặt sau"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Thêm nút"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Thêm cạnh"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Chỉnh sửa nút"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Nhấp vào không gian trống để đặt một nút mới."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Nhấp vào nút, kéo cạnh vào một nút khác và kết nối chúng."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Nhấp vào điểm điều khiển, kéo nó vào nút và kết nối."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Cạnh không thể được thêm vào."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Các cụm không thể bị xóa."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Các cụm không thể được chỉnh sửa."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Tên hoặc giá trị hiển thị được nhân đôi."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Nhập tên và giá trị hiển thị."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Nhập cột dòng."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Giờ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Thông tin dữ liệu"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Ngày"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Tuần"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Trọng tải"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Tiết kiệm"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Ghi đè"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Cài đặt"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Thay đổi tiêu đề vì cùng một tiêu đề được đặt."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Lưu cài đặt"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Tạo ảnh chụp màn hình"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "Tải xuống"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"Các lý do tại sao biểu đồ không thể được hiển thị như sau. BREAK_LINE "
+"Kiểm tra tình hình. BREAK_LINE・ Dữ liệu không được nhập khẩu hoặc ở giữa "
+"nhập khẩu. BREAK_LINE・ Không có dữ liệu nào được liên kết hoặc ở giữa "
+"buộc. BREAK_LINE・ Cài đặt của biểu đồ là không phù hợp."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Cảnh báo"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr ""
+"Các bản ghi có chứa dữ liệu không hợp lệ trong cột dữ liệu ngày không "
+"được nhập."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr ""
+"Bạn có thể tham khảo các tệp trong thư mục dưới đây để biết dữ liệu không"
+" thể nhập."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr ""
+"Trạng thái sử dụng không thể được tải lên vì nó không được kết nối với "
+"Internet."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Vui lòng kiểm tra kết nối mạng."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Sẽ mất nhiều thời gian để liên kết dữ liệu một lần nữa."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Bạn có chắc chắn kết nối lại dữ liệu?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Huỷ bỏ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Hành hình"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr ""
+"Bạn có chắc chắn tải lại cài đặt liên kết dữ liệu đã đăng ký trước đó "
+"không?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Bắt đầu nhập dữ liệu."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Bạn có thể kiểm tra tiến trình nhập từ liên kết dưới đây."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Xem trang danh sách công việc để biết trạng thái lỗi."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Bắt đầu liên kết dữ liệu."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Mỗi 3 phút một lần"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Cứ sau 5 phút"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Cứ sau 10 phút"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Chức năng tùy chọn"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Loại tệp"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Xuất"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"Do số lượng lớn các bản ghi được chọn và thời gian cần thiết để hiển thị "
+"biểu đồ, số lượng bản ghi trên mỗi biểu đồ được giới hạn ở mức 50.000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Biểu đồ chuỗi thời gian"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Giá trị danh mục"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"Vì số lượng hồ sơ trong khoảng thời gian được chỉ định là hơn 5.000, liên"
+" kết BREAK_LINE bị ràng buộc trong vòng ± 14 ngày của khoảng thời gian "
+"được chỉ định. Nếu bạn không muốn giới hạn phạm vi liên kết, hãy điều "
+"chỉnh thời lượng để giảm số lượng hồ sơ của BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Thiết lập quy mô"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Quy mô chung"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Dòng ngưỡng"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Quy mô tự động"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Được sử dụng quy mô"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn của quá trình"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_Proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Tối đa"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Tối thiểu"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Không có"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Bản tóm tắt"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Đếm"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Thống kê cơ bản"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Phi tham số"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Chất lượng dữ liệu"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Người xem"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Nhập dữ liệu"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Quá trình liên kết dữ liệu sẽ bắt đầu dựa trên cấu hình hiện tại."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr ""
+"Có thể mất thời gian nếu có nhiều dữ liệu để liên kết. Có ổn không khi "
+"bắt đầu?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr ""
+"* Đối với dữ liệu được nhập tự động và định kỳ, liên kết ID được tạo tự "
+"động."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Tên nguồn dữ liệu"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Loại nguồn dữ liệu"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Bạn có chắc chắn để lưu các thay đổi?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Buộc thông tin hệ điều hành đến cài đặt múi giờ."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Cài đặt nâng cao"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"Cài đặt được lưu cho cơ sở dữ liệu /CSV Tệp nhập dữ liệu. Chuyển đến "
+"trang cài đặt, đặt các cột của dữ liệu nhập để nhập dữ liệu."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Không có thuộc tính bắt buộc trong dữ liệu phần tử."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Không có giá trị thuộc tính cần thiết cho dữ liệu phần tử."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"Một phát hiện bất thường của PCA đòi hỏi ít nhất hai biến. Chọn hai hoặc "
+"nhiều biến."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Chọn ít nhất một cột"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Các biến thể loại làm giảm chiều rộng của hộp không được hiển thị."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Chữ số bắt đầu"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline Lô"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"Dừng ứng dụng (Máy chủ cạnh). Nếu bạn dừng lại, bất kỳ người dùng nào "
+"khác cũng sẽ không thể sử dụng, vì vậy vui lòng liên hệ với quản trị "
+"viên. <br> Trong trường hợp kết thúc bình thường, hủy tại đây và chỉ cần "
+"đóng trình duyệt."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr ""
+"Tất cả công việc đã được dừng lại. Bạn có thể đóng trình duyệt và bảng "
+"điều khiển của bạn một cách an toàn."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Cấu hình nguồn dữ liệu"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Cấu hình nhập nguồn dữ liệu"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": Các cột tìm thấy một vài cột ký tự. Kiểm tra xem cột loại số, vv có thể"
+" được công nhận sai."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Mục lọc"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Giá trị lọc"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Ngày hết hạn (bắt đầu)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Ngày hết hạn (kết thúc)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"Dữ liệu không thể được nhập do lỗi cấu hình kiểu dữ liệu cột. Tên nguồn "
+"dữ liệu __param__ CSV/TSV Kiểm tra cài đặt kiểu dữ liệu trong bản xem "
+"trước dữ liệu của trang Cài đặt đọc. Xóa cài đặt bước không thể nhập và "
+"đặt cài đặt."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr ""
+"Có một tập tin không có dữ liệu. Kiểm tra nội dung của tệp. <br>: "
+"__param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Đầu vào ít nhất một giá trị của thời hạn hiệu lực từ hoặc đến."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Chia theo thể loại"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Chia theo thuật ngữ (theo chu kỳ)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Chia theo thuật ngữ (trực tiếp)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"Giá trị của khoảng thời gian nhập là không hợp lệ. Nhập một số từ 0,1 trở"
+" lên, 720 trở xuống, hoặc -720 trở lên và -0.1 trở xuống."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"Số lượng của đường vòng đầu vào không hợp lệ. Nhập một số nguyên từ 1 trở"
+" lên và 150 hoặc ít hơn. (thích sử dụng khoảng 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Bắt đầu dữ liệu & thời gian"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Khoảng thời gian"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Chiều dài cửa sổ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Mục kiểm soát"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Loại hình"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Tên"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"Lưu ý rằng nếu số lượng điểm dữ liệu trong một danh mục dưới 50, độ chính"
+" xác của biểu đồ có thể giảm."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Hiển thị con trỏ tóc chéo (click)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Hiển thị con trỏ nhiều tóc chéo (nhấp chuột đôi)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Hiển thị danh sách biểu đồ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Hủy kiểm tra ngoại lệ"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Được chỉ định `Tên nguồn dữ liệu 'đã tồn tại."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"Nhập dữ liệu không thành công vì một tệp có tên cột khác đã được tìm thấy"
+" trong nguồn dữ liệu. Kiểm tra nội dung của tệp và đặt lại cài đặt nhập "
+"nguồn dữ liệu."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Số lượng hồ sơ dự đoán sẽ được liên kết"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Số lượng mẫu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Số lượng hồ sơ được liên kết"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Số tổng số hồ sơ"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr ""
+"Vui lòng đặt tên cho thư mục trong đó các tệp CSV/TSV được lưu như "
+"\"yyyymmdd\\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Sự dự đoán"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Cấu hình lọc"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Cấu hình chính"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Từ cấu hình bộ lọc"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Hiển thị tất cả"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Như một khóa (tùy chọn)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"Đã xóa REMOVED_COUNT của giá trị thâm hụt, giá trị bất thường và giá trị "
+"ngoại lệ từ TOTAL_COUNT trong bản gốc."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Địa chỉ IP"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"So sánh phân phối dữ liệu với biểu đồ và ước tính mật độ. Biểu đồ được "
+"chia cho biến phân tầng. Nó cũng được chia cho khía cạnh."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Vẽ tất cả số lượng dữ liệu trên trục thời gian hoặc trục ID."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr ""
+"Hiển thị Ma trận biểu đồ phân tán. Bạn có thể sử dụng từ 2 đến 7 biến mục"
+" tiêu."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"Bằng phân tích thành phần chính, hình dung của \"khác nhau\" và phân tích"
+" nhân tố của nó được thực hiện. Nhập dữ liệu bình thường dưới dạng dữ "
+"liệu của giáo viên và trực quan hóa liệu dữ liệu hiện tại có phải là tình"
+" huống tương tự như dữ liệu bình thường (T2/Q) hay không. Nếu bạn có một "
+"tình huống khác, bạn có thể kiểm tra các yếu tố chính trong âm mưu đóng "
+"góp."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"Phân phối được chia thành nhiều biểu đồ cho biến này. Chọn các biến danh "
+"mục (biến định tính) như số phần và trạm."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Bộ lọc danh mục phân tầng: Giới hạn dữ liệu sẽ được hiển thị cho một tập "
+"hợp con. (Thể loại: Số phần, Trạm số, v.v.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"Các biến danh mục (như số phần, trạm số, v.v.) được hiển thị dưới dạng "
+"nhãn ở đầu lô để tìm điểm thay đổi."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Bộ lọc đồ thị: Giới hạn dữ liệu được hiển thị cho một tập hợp con."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"Đặt dữ liệu học tập được giải thích là một tình huống bình thường. Đặt "
+"phần dữ liệu không chứa bất kỳ dữ liệu NG nào. Nếu bao gồm, những người "
+"gần với dữ liệu NG cũng được đánh giá là dữ liệu bình thường."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Đặt dữ liệu kiểm tra được đánh giá."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr ""
+"Bộ lọc vật phẩm: Giới hạn dữ liệu (Phân tích & Hiển thị) sẽ được hiển thị"
+" cho một tập hợp con."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"Nó là một màn hình tổng hợp hai chiều (nén kích thước theo các thành phần"
+" chính) của dữ liệu xác minh đa chiều. Nếu dữ liệu nằm ở trung tâm, nó có"
+" thể được hiểu là gần với bình thường."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"Nó là một màn hình tổng hợp hai chiều (nén kích thước theo các thành phần"
+" chính) của dữ liệu học tập đa chiều. Mục tiêu trung tâm được xác định "
+"bởi dữ liệu học tập, vì vậy hầu hết các dữ liệu học tập nên nằm trong mục"
+" tiêu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"Một âm mưu của thống kê T2, theo dõi sự bất thường trong thành phần chính"
+" của dữ liệu này. Dữ liệu học tập được vẽ bằng màu trắng và trong phần x "
+"âm. Biểu đồ màu vàng là dữ liệu xác nhận. Dữ liệu xác thực càng cao được "
+"so sánh với dữ liệu trắng, tình huống càng có khả năng đi chệch hướng. "
+"Nhấp vào điểm dữ liệu để xem biểu đồ đóng góp của những yếu tố tạo nên "
+"tình huống."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"Một biểu đồ của thống kê Q (giám sát sự bất thường trong phần nhỏ của dữ "
+"liệu này, còn lại). Dữ liệu học tập được vẽ bằng màu trắng và trong phần "
+"x âm. Biểu đồ màu vàng là dữ liệu xác nhận. Dữ liệu xác thực càng cao "
+"được so sánh với dữ liệu trắng, tình huống càng có khả năng đi chệch "
+"hướng. Nhấp vào điểm dữ liệu để xem biểu đồ đóng góp của những yếu tố tạo"
+" nên tình huống."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Thứ tự mà các biến đóng góp vào tình huống tại điểm được chọn trong biểu "
+"đồ thống kê T2. Chiều dài càng dài, càng có nhiều nguyên nhân."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"Thứ tự mà các biến đóng góp vào tình huống tại điểm được chọn trong biểu "
+"đồ thống kê Q. Chiều dài càng dài, càng có nhiều nguyên nhân."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Số điểm dữ liệu có giá trị nhỏ hơn hoặc bằng Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Số điểm dữ liệu có giá trị lớn hơn hoặc bằng Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"Tổng số dữ liệu bao gồm NA (không có sẵn), NaN (không phải là một số) và "
+"Inf± (vô cực) trong giai đoạn đã chọn."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"Out of Control Line: Tỷ lệ dữ liệu bên ngoài ngưỡng trên và dưới (đếm) "
+"trong giai đoạn đã chọn"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: Tỷ lệ dữ liệu bên ngoài ngưỡng giới hạn trên và dưới "
+"(đếm) trong khoảng thời gian đã chọn"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Tỷ lệ phần trăm của NA (không có sẵn) trong khoảng thời gian đã chọn (đếm)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr ""
+"Tỷ lệ phần trăm của NaN (không phải là một số) trong khoảng thời gian đã "
+"chọn (đếm)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Tỷ lệ phần trăm của Inf+ (cộng với vô cực) trong giai đoạn đã chọn (đếm)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Tỷ lệ phần trăm của Inf- (trừ vô cực) trong giai đoạn đã chọn (đếm)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"Tổng phần trăm dữ liệu bên ngoài giá trị ngưỡng, NA (không có sẵn), NaN "
+"(không phải là số) và Inf± (vô cực) trong khoảng thời gian đã chọn (đếm)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"Số lượng dữ liệu không bao gồm NA (không có sẵn), NaN (không phải là số) "
+"và Inf± (vô cực) trong giai đoạn đã chọn."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "Tỷ lệ phần trăm thứ 95"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "Tỷ lệ phần trăm thứ 75 (Bộ tứ thứ ba)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "Tỷ lệ phần trăm thứ 25 (tứ phân vị đầu tiên)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "Phần trăm thứ 5"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Phạm vi liên vùng (giá trị đại diện của biến đổi phân phối: IRQ = Q3 - Q1"
+" 1.349σ@ Phân phối bình thường)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Trung bình (phần trăm thứ 50)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Số lượng/giờ"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Đếm/phút"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Thời gian chu kỳ]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Số phân chia"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Chu kỳ hiển thị"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Hiển thị khoảng thời gian"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Bản đồ nhiệt lịch"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"Các biến mục tiêu không thể được chọn bởi MAX_NUM_SENSOR trở lên. Chọn "
+"biến mục tiêu."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Các mục tiêu của việc loại bỏ ngoại lệ là Max, Mean, Min, σ và Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Khác với số thực"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"Phân phối có thể được hiển thị bằng cách tính toán cho từng biến phân "
+"loại (các biến định tính, số lô, v.v.) hoặc datetime và hiển thị chúng "
+"cạnh nhau. Một phương pháp trực quan cho phép phân tích nhóm chéo (so "
+"sánh giữa các lô, ngày, ca, v.v.) của dữ liệu mà không có ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Đặt ngưỡng được vẽ trên biểu đồ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"Nếu phân tán được bật, bạn có thể hiển thị cốt truyện phân tán với nó. "
+"Biểu đồ phân tán giữa mục hiện tại và mục hàng tiếp theo. Kéo và thả các "
+"thẻ lô của các ô tương ứng với chuột để chuyển trục x và trục y của lô "
+"phân tán."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"Một mục dữ liệu (chẳng hạn như biến số hoặc giá trị đo) tạo ra phân phối "
+"dữ liệu. Dữ liệu này được vẽ trên cốt truyện. Có thể chọn tối đa 20 mặt "
+"hàng."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"Biến phân tầng này chia phân phối thành nhiều ô và hiển thị chúng cạnh "
+"nhau. Chọn một biến phân loại, chẳng hạn như lô số không hoặc số"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Nhập DateTime bắt đầu để hiển thị biểu đồ Ridgeline cho mỗi DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr ""
+"Đầu vào trực tiếp khoảng thời gian để hiển thị biểu đồ Ridgeline cho mỗi "
+"DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"Bạn có thể chọn các tùy chọn để nhập dữ liệu từ tệp CSV/TSV yêu cầu xử lý"
+" đặc biệt, chẳng hạn như chuyển đổi cấu trúc dữ liệu."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"Nhấn nút xem trước bên dưới sẽ hiển thị một số phần dữ liệu trong tệp để "
+"bạn có thể kiểm tra nội dung của nó."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"Chọn Liên kết ID để được sử dụng làm điều kiện để liên kết dữ liệu. Bạn "
+"cũng có thể chọn nhiều mục."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"Khi ứng dụng của bạn định kỳ nhập dữ liệu, bạn có thể chọn cột DateTime "
+"được sử dụng tốt hơn làm khóa của DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"Nếu bạn chọn toán tử và nhập một số trong 'Hệ số', giá trị trong biểu đồ "
+"sẽ được tính toán bằng toán tử và hệ số được chỉ định."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"Nếu bạn chọn toán tử và nhập một số trong 'Hệ số', giá trị trong biểu đồ "
+"sẽ được tính toán bằng toán tử và hệ số được chỉ định."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr ""
+"Có thể dự đoán số lượng dữ liệu sẽ được liên kết bởi các điều kiện liên "
+"kết hiện đang được đặt."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr ""
+"Loại bỏ điều kiện liên kết dữ liệu hiện đang đặt và gọi lên điều kiện đã "
+"đăng ký trước đó."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID được tạo nội bộ để liên kết dữ liệu với các điều kiện liên kết tập hợp."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr ""
+"Chọn các mục điều khiển chất lượng hoặc kiểm soát thiết bị bằng cách sử "
+"dụng trong cài đặt biểu đồ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Vui lòng chọn loại mục tiêu quản lý như số phần và thiết bị."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr ""
+"Vui lòng chọn mục tiêu quản lý như giá trị của số bộ phận và giá trị của "
+"thiết bị."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Đặt DateTime bắt đầu cho cài đặt biểu đồ. (Yêu cầu)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Đặt DateTime kết thúc cho cài đặt biểu đồ. (Không bắt buộc)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Đọc cấu hình đã lưu."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Lưu cấu hình mới nhất bạn đã nhập."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Lưu màn hình dưới dạng tệp PNG."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Bạn có muốn xóa cài đặt này không?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Biến mục tiêu (số thực)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Biến mục tiêu (danh mục)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Đặt hàng chỉ mục"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Cột"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Gọi món"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Quyền ưu tiên"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Đặt hàng"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Biến"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Chỉ thực sự & phân loại"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Chỉ thực sự"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Chỉ phân loại"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Theo thứ tự thiết lập"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Theo thứ tự xử lý"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Trong Cof tương quan. gọi món"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Ngưỡng tương quan (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Chọn biến mục tiêu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Biến mục tiêu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Biến giải thích"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Tỷ lệ có sẵn"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Sơ đồ sanky"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Trận đấu (kết hợp hoàn hảo)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Tìm kiếm"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Tìm kiếm"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Vì sơ đồ tọa độ song song không thể xử lý các số thực, dữ liệu số thực đã"
+" bị xóa."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013;・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Reeregistration"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Đăng ký thông tin đã chỉnh sửa như tên hiển thị."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Bạn có muốn đăng ký với nội dung sửa đổi?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Nếu bạn thay đổi liên kết ID, vui lòng đặt lại cấu hình liên kết dữ liệu."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Biểu đồ đồng xuất"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Tập tin dữ liệu"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Tổng hợp bởi"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Giờ"
+
+# co-occurrence
+msgid "Day"
+msgstr "Ngày"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Chế độ chỉnh sửa"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Chế độ cài đặt"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"Dữ liệu không hợp lệ được tô màu đỏ sẽ bị xóa. Bạn có chắc chắn chuyển "
+"sang chế độ cài đặt không?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "quyền ưu tiên"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"Một tên tiếng Anh trùng lặp đã được phát hiện, vì vậy số sê -ri được tự "
+"động thêm vào. Kiểm tra tên cột."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Đơn vị tổng hợp"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"Cột đầu tiên là DateTime và cột thứ hai và các cột tiếp theo là giá trị "
+"như cờ thông báo báo động/số lần xuất hiện (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Tổng hợp các mối quan hệ đồng xuất hiện theo giờ/ngày."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Hiển thị ngưỡng"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"Nếu bạn chọn một giá trị nhỏ hơn 100%%, bạn sẽ ẩn một mối quan hệ nhỏ. "
+"(Mặc định: Vẽ một dòng nếu thậm chí có một lần)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"Xác định và trực quan hóa các biến có liên quan trực tiếp hoặc gián tiếp "
+"với biến mục tiêu."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"Hình dung mối tương quan giữa các biến được chỉ định ở đây. Có thể chọn "
+"tối đa 60 mục."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Các biến ứng cử viên tương quan với các biến khách quan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Cốt truyện tọa độ song song"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "của tất cả các cạnh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Cách trình bày"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Vòng tròn"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Tự động"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Hiệu quả"
+
+msgid "Set threshold"
+msgstr "Control Line: Kiểm tra khi các cấp quản lý bản vẽ như các dòng tiêu chuẩn"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Nền tảng phân tích"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Biểu đồ Pareto"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Số lần xuất hiện"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Tỷ lệ tích lũy [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"Trực quan hóa các tham số có thể thay đổi theo dữ liệu trong một thời "
+"gian dài, chẳng hạn như các biến thể hàng năm trong các quy trình, ngày "
+"trong tuần, ca làm việc, v.v."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr ""
+"Hình dung mối tương quan giữa một số lượng lớn các biến liên quan đến "
+"biến mục tiêu."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr ""
+"Trực quan hóa sự xuất hiện của các lỗi, báo động, sự kiện và v.v. (mối "
+"quan hệ tập trung vào tần suất xuất hiện đồng thời của một hiện tượng này"
+" và một hiện tượng khác)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"Trống rỗngDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: Một công cụ đơn giản để lập bản đồ dữ liệu, trực quan "
+"hóa, phân tích thống kê và học máy."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"Các tập dữ liệu ở đây được sử dụng làm tài liệu tham khảo cho liên kết và"
+" vẽ dữ liệu. Các cài đặt được sử dụng trong trục ngang của lô. Ngoài ra, "
+"biểu đồ gốc được hiển thị với khung màu xanh nhạt."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"Chỉ định dữ liệu (ví dụ: các biến số: giá trị đo lường) cho biểu đồ. Chọn"
+" các quy trình và mục sẽ được vẽ trên lô. Có thể chọn tối đa 20 mặt hàng."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"Chỉ định dữ liệu (ví dụ: các biến số: giá trị đo lường) cho biểu đồ. Chọn"
+" các quy trình và mục sẽ được vẽ trên lô. Có thể chọn tối đa 8 mục."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"Trống rỗng可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"Biến phân tầng này chia mẫu để trực quan hóa thành nhiều ô và hiển thị "
+"chúng cạnh nhau. Chọn các biến phân loại như số phần và số trạm có thể "
+"được chọn tối đa 100 mục."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"Mục của dữ liệu trực quan hóa mối tương quan giữa các biến (các biến định"
+" lượng: giá trị đo lường, v.v.). Dữ liệu này được vẽ trên biểu đồ. Từ 2 "
+"đến 7 tham số có thể được chọn."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"Chọn mục để trực quan hóa mối tương quan giữa các biến. Có thể chọn tối "
+"đa 60 mục."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"Các mục của các biến danh mục (như số phần) để trực quan hóa mối tương "
+"quan giữa các biến."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Tối đa hóa thẻ"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Giảm thiểu thẻ"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Nếu cài đặt này được thay đổi, cần phải đặt lại cài đặt liên kết dữ liệu."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Tự động lựa chọn"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Chọn tất cả ở bên phải"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Không chọn tất cả sang phải"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Tất cả thực (phao) từ đây"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Tất cả số nguyên từ đây"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Tất cả chuỗi từ đây"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"Do số lượng lớn các hồ sơ được chọn và thời gian cần thiết để hiển thị sơ"
+" đồ, số lượng ô trên mỗi ô bị giới hạn ở mức 10.000. Nếu bạn muốn xem tất"
+" cả dữ liệu cho thời gian mục tiêu BREAK_LINE, hãy tăng khoảng thời gian "
+"hiển thị hoặc giảm thời gian mục tiêu để giảm số lượng ô."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Nối tiếp"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr ""
+"Bạn có thể điều chỉnh thang đo của cốt truyện bằng cách nhấp chuột phải "
+"vào cốt truyện."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Đồ thị tỷ lệ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Chế độ cài đặt"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Số lượng mục dữ liệu không thể được liên kết"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Cốt truyện phân tán"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "với đường viền"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Tiết kiệm"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"Trống "
+"rỗngファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Cài đặt tải"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Chia sẻ/riêng tư"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Sự mô tả"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Được tạo bởi"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Sử dụng/tải"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Trọng tải"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr ""
+"Số lượng dữ liệu không thể được liên kết với quá trình điểm bắt đầu (tỷ "
+"lệ phần trăm liên kết)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Lưu DateTime"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Chia sẻ cài đặt"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "tiết kiệm"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"Bạn có thể chọn từ 2 đến 7 biến mục tiêu. Kiểm tra số lượng biến đích và "
+"sửa các cài đặt."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Giới hạn kích thước tệp là 10 MB. Giảm kích thước tệp và thử lại."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Nếu được kiểm tra, DateTime được chỉ định cũng được lưu."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Kiểm tra để chia sẻ cài đặt này."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Lưu cài đặt."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Bạn có chắc chắn để ghi đè cài đặt?"
+
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "đăng lại"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Riêng tư"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Được tạo ra tại"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Đóng"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Đặt hàng"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Bắt đầu DateTime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Kết thúc DateTime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Hiển thị nhãn trục X."
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Phạm vi DateTime"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Kéo và thả tệp ở đây"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Hoặc"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Chọn tệp tin"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Không thể được hiển thị"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"Xử lý bị gián đoạn do lượng dữ liệu lớn và thời gian xử lý dài. Xem lại "
+"cài đặt DateTime và hiển thị lại lô."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Xuất ra tệp CSV. Vui lòng đợi trong khi tải xuống tập tin."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Xuất ra tệp TSV. Vui lòng đợi trong khi tải xuống tập tin."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Phạm vi tự động"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Phạm vi đầy đủ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Cài đặt thứ tự chỉ mục"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Mở"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Xóa bỏ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"Do số lượng điểm dữ liệu trên mỗi biểu đồ là hơn 12.000, số lượng điểm dữ"
+" liệu được giới hạn ở mức tối đa 12.000. Nếu bạn muốn xem toàn bộ dữ "
+"liệu, hãy đặt khoảng thời gian mục tiêu ngắn hơn."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Phân tầng theo thuật ngữ (theo chu kỳ)"
+
+#: component.js
+msgid "Facet"
+msgstr "Mặt"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Thực hiện phân chia danh mục với mục đã chọn."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Ước tính ngoại lệ"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"Phạm vi liên vùng được chuẩn hóa (chỉ số IQR liên kết với phân phối bình "
+"thường, NIQR = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Chế độ là giá trị xảy ra thường xuyên nhất."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "với ngoại lệ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "không có ngoại lệ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Phong tục"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Hôm nay"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Hôm qua"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "7 ngày qua"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "30 ngày trước"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Tháng này"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 tháng"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 tháng"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Ứng dụng"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Tuần"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 ngày trước"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 ngày trước"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Ngày nắm tay của tháng này"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Ngày cuối cùng của tháng này"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 tháng"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Cập nhật tại"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"Điểm dữ liệu được tóm tắt với chế độ nhanh. Nếu bạn muốn nhận được cốt "
+"truyện mà không bỏ qua dữ liệu, hãy điều chỉnh thời gian đích ngắn hơn."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Phạm vi của trục y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Ngoại lệ"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"Trống rỗng'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Quá trình tìm kiếm"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Đánh dấu"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Vì số lượng điểm dữ liệu trên mỗi lô là hơn 10.000, nên vẽ sơ đồ mật độ. "
+"Nếu bạn muốn hiển thị tất cả các điểm dữ liệu với biểu đồ phân tán, hãy "
+"đặt khoảng thời gian đích ngắn hơn."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"Trống rỗng以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Thời gian chu kỳ"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Số thực"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Biến mục tiêu"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"Hệ số tương quan được tính toán bằng cách sử dụng biến này làm biến đích."
+" Biến mục tiêu được chỉ định ở đây cũng được hiển thị cùng với một thanh "
+"màu ở phía bên phải của cốt truyện. Nếu bạn muốn thay đổi các biến mục "
+"tiêu trên lô, bạn có thể chuyển đổi giữa chúng bằng cách nhấp chuột phải "
+"vào từng tên biến."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"Dữ liệu không bị chết đuối vì có quá nhiều loại. BREAK_LINE Kiểm tra và, "
+"nếu cần thiết, hãy sửa đổi khoảng thời gian mục tiêu ngắn hơn."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Cài đặt bộ lọc"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Nhãn (Biến danh mục)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Đã sao chép"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Dán"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Sao chép cấu hình"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Cấu hình dán"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Không có cài đặt gốc, mục tiêu đầu tiên được chọn là gốc."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Xuất dữ liệu"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Không dùng"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Dữ liệu không được rút ra vì có quá nhiều loại."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Kiểm tra và, nếu cần thiết, hãy sửa đổi cài đặt của giai đoạn mục tiêu."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Chia theo số dữ liệu (theo chu kỳ)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Số lượng dữ liệu"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Trống rỗngFacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"Trống rỗngグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Chọn biến mục đích."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Trống rỗng【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Không phân hủy / phân hủy thể loại"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Cốt truyện phân tán"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"Nếu loại dữ liệu x hoặc y là chuỗi, bạn không thể sử dụng các biến không "
+"chuỗi cho cài đặt màu."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"Giá trị bên ngoài phạm vi cho phép đã được phát hiện, do đó phạm vi tối "
+"thiểu hoặc tối đa hợp lệ được tự động quyết định. Thay đổi cài đặt khi "
+"cần thiết."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Nhấp chuột phải: Cài đặt liên kết dữ liệu/Chỉnh sửa/Xóa"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Thời gian trôi qua"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Giờ đặt hàng"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Đặt thứ tự dữ liệu"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"Vui lòng xóa dữ liệu không cần thiết vì dung lượng của đĩa cứng của "
+"`__SERVER_INFO__` đã đạt đến __LIMIT_PERCENT__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"Cổng dữ liệu đã bị dừng vì dung lượng của đĩa cứng của `__SERVER_INFO__` "
+"đạt được __LIMIT_PERCENT__ %%. Nếu dữ liệu không cần thiết bị xóa và công"
+" suất trống tăng, dữ liệu sẽ được nối lại."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"Nhập số lượng phân phối sẽ được hiển thị (số lượng bộ phận). Nhập một số "
+"nguyên từ 2 hoặc 150 hoặc ít hơn."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"Nhập số lượng phân phối sẽ được hiển thị (số lượng bộ phận). Nhập một số "
+"nguyên từ 1 hoặc hơn 32 hoặc ít hơn."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Trống rỗng表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Trống "
+"rỗngプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Trống "
+"rỗng1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Trống rỗng1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Có quá nhiều violin trên mỗi âm mưu, vì vậy nó đã được tự động giới hạn."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"Do số lượng lớn các hồ sơ được chọn, số lượng lô bị giới hạn từ ngày cũ "
+"nhất đến số giới hạn."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Tôi chấp nhận"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Từ chối"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Ngược"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Số lượng lô trên cột"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"Các biến phân loại (số phần, trạm số, v.v.) được hiển thị dưới dạng nhãn "
+"ở đầu lô được sử dụng để trực quan hóa các điểm thay đổi (chuyển đổi số "
+"phần, v.v.) của các biến định tính."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"Chọn các mục sẽ được phân tích (các biến định lượng: giá trị đo lường, "
+"v.v.). Có thể chọn tối đa 60 mục."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Chọn các mục để sắp xếp dữ liệu. Bạn cũng có thể chọn nhiều mục."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"Tràn dữ liệu cũ không được hiển thị vì số lượng DateTime từ dữ liệu mới "
+"nhất với giới hạn hiển thị."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"Số lượng lô được giới hạn ở NUMBER. Nếu bạn muốn hiển thị tất cả, hãy thu"
+" hồi các cài đặt."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"Số lượng lô trên một tab duy nhất được giới hạn ở NUMBER. Nếu bạn muốn "
+"hiển thị tất cả, hãy thu hồi các cài đặt."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"Số lượng biến mục tiêu để chọn là tối thiểu tối thiểu và tối đa tối đa. "
+"Kiểm tra số lượng biến đích và sửa các cài đặt."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"Số lượng biến mục tiêu để chọn là tối đa tối đa. Kiểm tra số lượng biến "
+"đích và sửa các cài đặt."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+

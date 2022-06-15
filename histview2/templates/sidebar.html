@@ -1,0 +1,167 @@
+<!-- Sidebar  https://bootsnipp.com/snippets/Q0dAX -->
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <button type="button" id="sidebarCollapse" class="btn navbar-btn">
+            <i class="fas fa-bars "></i>
+        </button>
+        <a href="/" class="navbar-left"><img
+                src="{{ url_for('static', filename = 'common/images/logo.png') }}" style="width: 150px;"
+                type="image/x-icon"></a>
+    </div>
+
+    <ul id="sidebarBody" class="list-unstyled components sidebar-body">
+        <li>
+            <a href="#traceDataSubmenu" data-toggle="collapse" aria-expanded="false"
+               class="side-dropdown-toggle dropdown-toggle collapsed"
+               data-tog="anlSm">
+                <i class="fas fa-chart-bar"></i><span class="nav-text">{{ _('Data Visualization') }}</span></a>
+            <ul class="list-unstyled collapse" id="traceDataSubmenu">
+                <li>
+                    <a href="{{ url_for('trace_data.trace_data') }}"
+                       title="{{ _('Plot all data points with time axis or ID axis.') }}">
+                        <span class="page-character">FPP</span>
+                        <span class="nav-text hint-text">{{ _('Full-points Plot') }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('categorical_plot.categorical_plot') }}"
+                       title="{{ _('Compare data distribution with histograms and estimated density lines. Split the graph with  stratified variables.') }}">
+                        <span class="page-character">StP</span>
+                        <span class="nav-text hint-text">{{ _('Stratified Plot') }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('ridgeline_plot.ridgeline_plot') }}" title="{{ _('RidgeLine Plot Hover') }}">
+                        <span class="page-character">RLP</span>
+                        <span class="nav-text hint-text">{{ _('Ridgeline Plot') }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('heatmap.index') }}"
+                       title="{{ _('Visualize long-term data such as annual variations in processes and parameters that can vary depending on days of the week or shifts, etc.') }}">
+                        <span class="page-character">CHM</span>
+                        <span class="nav-text hint-text">{{ _('Calendar Heat Map') }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('multiple_scatter_plot.index') }}"
+                       title="{{ _('Displays a scatter chart matrix. You can create a matrix between up to four target variables.') }}">
+                        <span class="page-character">MSP</span>
+                        <span class="nav-text hint-text">{{ _('Multi Scatter Plot') }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('scatter_plot.index') }}"
+                       title="{{ _('Displays a scatter chart matrix. You can create a matrix between up to four target variables.') }}">
+                        <span class="page-character">ScP</span>
+                        <span class="nav-text hint-text">{{ _('Scatter Plot') }}</span></a>
+                </li>
+                <li>
+                    <a href="{{ url_for('parallel_plot.index') }}"
+                       title="{{ _('Visualize the correlation between a large number of variables with respect to target variable.') }}">
+                        <span class="page-character">PCP</span>
+                        <span class="nav-text hint-text">{{ _('Parallel Plot') }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('sankey_plot.index') }}"
+                       title="{{ _('Identify and visualize directly/indirectly correlated variables of objective(s)') }}">
+                        <span class="page-character">SkD</span>
+                        <span class="nav-text hint-text">{{ _('Sankey Diagram') }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('co_occurrence.index') }}"
+                       title="{{ _('Visualize co-occurrence (relationships that focus on how often one phenomenon and another occur at the same time) of faults/alarms.') }}">
+                        <span class="page-character">COG</span>
+                        <span class="nav-text hint-text">{{ _('Co-occurrence Graph') }}</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#analyzeSubmenu" data-toggle="collapse" aria-expanded="false"
+               class="side-dropdown-toggle dropdown-toggle collapsed"
+               data-tog="anlSm"><i class="fas fa-brain"></i><span class="nav-text">{{ _('Analyze') }}</span></a>
+            <ul class="list-unstyled collapse" id="analyzeSubmenu">
+                <li>
+                    <a href="#anomalyDetectionMn" data-toggle="collapse" aria-expanded="false"
+                       class="side-dropdown-toggle dropdown-toggle collapsed"
+                       data-tog="anlSm"><span class="nav-text">{{ _('Anomaly Detection') }}</span></a>
+                    <ul class="list-unstyled collapse" id="anomalyDetectionMn">
+                        <li>
+                            <a href="{{ url_for('analyze.pca') }}"
+                               title="{{ _('This function visualizes “unusual” and analyzes its factors by Principal Component Analysis.') }}">
+                                <span class="page-character">PCA</span>
+                                <span class="nav-text hint-text">{{ _('Principle Component Analysis') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a class="nav-link" href="{{ url_for('table_viewer.index') }}"><i class="fas fa-table"></i><span
+                    class="nav-text">{{ _('Table Viewer') }}</span></a>
+        </li>
+        <li id="settingPageMenu">
+            <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="true"
+               class="side-dropdown-toggle dropdown-toggle"
+               data-tog="cfgSm"><i class="fas fa-cog"></i><span class="nav-text">{{ _('Config') }}</span></a>
+            <ul class="list-unstyled collapse show" id="pageSubmenu">
+                <li>
+                    <a href="{{ url_for('setting_module.config_screen') }}#data_source"><span
+                            class="nav-text">{{ _('Data Source Config') }}</span></a>
+                </li>
+                <li>
+                    <a href="{{ url_for('setting_module.config_screen') }}#process"><span
+                            class="nav-text">{{ _('Process Config') }}</span></a>
+                </li>
+                <li>
+                    <a href="{{ url_for('setting_module.config_screen') }}#data_link"><span
+                            class="nav-text">{{ _('Data Link Config') }}</span></a>
+                </li>
+                <li>
+                    <a href="{{ url_for('setting_module.filter_config') }}"><span
+                            class="nav-text">{{ _('Filter Config') }}</span></a>
+                </li>
+                <li>
+                    <a href="{{ url_for('setting_module.master_config') }}" title="{{ _('Master Config Hover') }}">
+                        <span class="nav-text hint-text">{{ _("Master Config") }}</span></a>
+                </li>
+                <li>
+                    <a href="{{ url_for('setting_module.backgound_process') }}"><span
+                            class="nav-text">{{ _("Job list") }}</span></a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a class="nav-link" href="{{ url_for('setting_module.about') }}"><i class="fas fa-info-circle"></i><span
+                    class="nav-text">About</span></a>
+        </li>
+        <li><br></li>
+        <li><br></li>
+        <li><br></li>
+    </ul>
+
+    <div class="position-absolute p-0 m-0 w-100" style="bottom: 0;">
+        <div class="sidebar-marquee" style="visibility: collapse;">
+            <div class="marquee">
+                <div class="marquee-content">
+                    <span>
+                        <p id="marquee-msg-edgeserver"></p>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-shutdown" id="shutdownApp">
+            <span class="sidebar-btm"><i class="fas fa-power-off"></i></span>
+        </div>
+        <div class="sidebar-footer">
+            <span id="appVersion" class="sidebar-btm"></span>
+        </div>
+        <div class="sidebar-footer">
+            <span id="appLocation" class="sidebar-btm"></span>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+
+    <!-- Common CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('setting_module.static', filename = 'css/index.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('setting_module.static', filename = 'css/config_view.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jexcel.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jsuites.css') }}">
+    <script>
+        const pcaDataDir = "{{ pca_data_dir|safe }}";
+        const importErrDir = "{{ import_err_dir|safe }}";
+
+        gtag('config', 'UA-156244372-2', {
+            'page_title': '{{ _("Config") }}',
+        });
+    </script>
+
+    <!-- VIS CSS -->
+    <link href="{{ url_for('static', filename = 'modules/vis/vis-network.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('setting_module.static', filename = 'css/trace_config.css') }}">
+{% endblock %}
+
+{% block header %}
+    <div class="page-title graph-navi"><h2>{{ _("Config") }}</h2></div>
+{% endblock %}
+
+{% block midbody %}
+
+    {% include 'db_config.html' %}
+
+    <!-- 工程設定 -->
+    {% include 'proc_config.html' %}
+
+    {% include 'trace_config.html' %}
+
+    <div id="register-confirm-modal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-inform">{{ _("Do you want to save changes and start to import data with configure at Process Config page?") }}</p>
+                    <div class="custom-control custom-checkbox mb-3" id="withImportFlag" style="display: none;">
+                        <input type="checkbox" class="custom-control-input" id="withImport" name="with-import">
+                        <label class="custom-control-label modal-inform" for="withImport">{{ _("ImportData") }}</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a id="btn-confirm-register" class="btn btn-primary" data-item-id=""
+                       data-dismiss="modal">{{ _("OK") }}</a>
+                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--    remove-->
+    <div id="basic-confirm-modal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-inform">{{ _("Do you want to save changes?") }}</p>
+                </div>
+                <div class="modal-footer">
+                    <a id="basic-confirm-register" class="btn btn-primary" data-dismiss="modal">{{ _("OK") }}</a>
+                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="configLoadingScreen" style="display: none;"></div>
+
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <!-- Config View JS -->
+    <script src="{{ url_for('static', filename = 'common/js/database-config.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/config_view.js') }}"></script>
+    <!-- VIS -->
+    <script src="{{ url_for('static', filename = 'modules/vis/vis-network.min.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/predict_data_type.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/trace_config.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/db_config.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/proc_config.js') }}"></script>
+
+    <script src="{{ url_for('static', filename = 'common/js/dom-text.js') }}"></script>
+
+	<script src="{{ url_for('static', filename = 'common/js/jexcel.js') }}"></script>
+	<script src="{{ url_for('static', filename = 'common/js/jsuites.js') }}"></script>
+
+{% endblock %}

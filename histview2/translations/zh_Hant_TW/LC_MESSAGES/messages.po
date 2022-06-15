@@ -1,0 +1,3153 @@
+# 中国語(繁体) Chinese(Traditional Chinese) translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "zh_TW"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_Hant_TW\n"
+"Language-Team: zh_Hant_TW\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "保存"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "發生了錯誤"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "應用程序配置"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "網頁未找到"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "發生了錯誤"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "數據鏈接和分析應用程序"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "選擇一種語言"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "主屏幕"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "操作驗證"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "操作驗證"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "基本配置"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "登記"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "重新加載"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "整數"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "真實（浮動）"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "約會時間"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "細繩"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "標題"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "植物"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "工廠"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "線"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "請確認。"
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "保存數據並開始使用“進程設置”頁面上設置的內容導入數據？"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "好的"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "取消"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "數據庫配置"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "數據庫名稱"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "數據庫類型"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "config"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "評論"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "添加"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "選擇一個數據庫文件。"
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "文件名"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "選擇"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "您想刪除此唱片嗎？"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "刪除"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "可追溯性"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "可追溯性圖"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "跟踪測試"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "開始測試"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "開始時間"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "時間結束"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "機器ID（多個選擇）"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "線"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "零件號"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "數據鏈接配置"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "選擇一種語言"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "日本人"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "英語"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "節點"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "節點ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "標籤"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "主名"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "數據庫"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "進口"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "出口"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "主機名"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "端口號"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "用戶名"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "密碼"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "模式"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003;我成功了。"
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005;失敗。"
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "進程配置"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "過程"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "過程名稱"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "表名"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "細節"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "預習"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "前五個記錄"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "設置內容"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "列名"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "英文名"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "顯示名稱"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "係數"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "操作員"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "輸入0以外的值"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "輸入操作員。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "輸入係數。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "輸入英語名稱。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "輸入顯示名稱。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "英文名稱複製。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "顯示名稱已重複。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "所有“顯示名稱”都需要輸入。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "具有空白“英語名稱”的字段自動填充。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "全選"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "導入數據"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "您確定導入數據嗎？"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "按下OK按鈕時，您將從當前時間到一個月前導入數據。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "先前的數據會自動逐步導入。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "如果要在當前時間之後導入數據，請再次按數據讀取按鈕，或按數據庫CSV在讀取設置頁面上設置設置。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "設置“數據庫 / CSV讀取設置”的“更新周期”時，將在設置當前時間後的數據時自動導入它。"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "跟踪信息"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "跟踪數據"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "無法訪問"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "單擊此處修復它。"
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "編輯邊緣"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "上一個過程"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "上一個列"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "後期處理"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "帖子列"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "作為日期"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "作為序列"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "作為鏈接ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "已經登記了"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "請輸入過程名稱"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "過濾器/圖形"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "圖形配置"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "線過濾器配置"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "線列"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "價值"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "機器過濾器配置"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "機器ID列"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "零件沒有過濾器配置"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "零件沒有列"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "過濾器名稱"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "過濾條件"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "其他過濾器配置"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "目標列"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "可視化配置"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "較低的閾值"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "上閾值"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "較低的過程閾值"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "高過程閾值"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y軸範圍：最小"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y軸範圍：最大"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "零件編號"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "結束"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "從...開始"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "（Like搜索）"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "同意"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "常用表達"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "顯示圖"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV出口"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "需要過程"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "需要列名稱"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "需要線"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "需要顯示名稱"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "顯示名稱已重複。"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "需要機器價值"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "重複的機器ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "保存成功"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "無法保存"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "零件不需要列"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "需要目標列"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "需要過濾名稱"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "需要條件"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "過濾器名稱已重複。"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "條件是重複的。"
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "默認"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "過程名稱"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "添加了其他過濾器"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV導入配置"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "資源"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "更新周期"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "連接"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "每小時一次"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "每天一次"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "數據確認"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "沒有文件夾。"
+
+msgid "File does not exist"
+msgstr "沒有文件。"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "您可以連接。"
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "請填寫值。"
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "沒有設置內容。"
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "設置重複。"
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "保存數據庫設置。"
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "無法保存數據庫設置。"
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "保存的基本設置。"
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "無法保存基本設置。"
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "測試連接"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "起點"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "日期範圍"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "最新的"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "自動更新"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "分鐘"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "分鐘"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "小時"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "小時"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "目標變量"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "篩選"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "x軸"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "時間戳"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "指數"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "分層變量"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "過濾器"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "數據庫/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "分析"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "正在開發中"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "分析："
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "瀑布圖"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "圖形LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "直方圖"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "分層圖"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "全點情節"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "數據可視化"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "可視化"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "跑"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "輸入數據庫名稱。"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "輸入數據源名稱。"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "沒有任何數據類型的列未導入。"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "至少需要一個DateTime列。"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "要進行可視化，請使用'{col}'進行X軸。"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "您一定會繼續嗎？"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "表查看器"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "桌子"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "種類"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "數據數"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "下降"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "上升"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "完美的一對"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "部分比賽"
+
+#: trace_config.js
+msgid "th character"
+msgstr "- 角色"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "無效的數字選擇"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "用於鏈接的字符的長度不同。"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "沒有過濾器"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "所有線條"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "情況"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "工作清單"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "全部"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "進口完成。"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "輸入"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "導入失敗"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "加載數據將被刪除。可以嗎？ （在按下註冊按鈕之前，不反映任何更改）"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "工作清單"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "工作ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "工作名稱"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "鏈接的ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "展示鏈接的生成工作ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "刪除過程信息"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "導入工廠數據"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "導入過去的工廠數據"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "顯示過去工廠數據的進口工作"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV導入數據"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "刪除舊數據"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "開始時間"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "經過時間"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "數據庫/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "進步"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "過程"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "直方圖列表"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "註冊為爆發價值"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "解體異常"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "隱藏異常值"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "顯示異常值"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "檢查離群值"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "顯示直方圖列表"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "最後更新時間"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "離群值的註冊已被取消。"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "註冊為異常值"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "離群值"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "只有一次"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "工作細節"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "複製到剪貼板"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "多散點圖"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "散點圖"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "可視化分類變量"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "按變量分層"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "多變的"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "機器"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "目標週期"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "頻率（計數）"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "密度估計"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "分類變量"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "按學期分層（直接）"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "您不能選擇八個或更多目標變量。選擇目標變量。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "異常檢測"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "原理分析"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1.測試數據的主要成分得分"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2.培訓數據的主要成分得分"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. T2統計的系列圖表"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Q統計的系列圖表"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. T2統計的貢獻圖"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Q統計的貢獻圖"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "刪除異常值"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "培訓數據"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "測試數據"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "是的"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "不"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "數據類型"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "例子"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "錯誤"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "警告"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "由於所有行都被赤字值處理（NA刪除）刪除，因此沒有數據可以分析。確保未選擇包括NA在內的空值。"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "無法分析它，因為它包含數字以外的數據。確保您選擇了包含字符串或類別值的列。"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "無法分析，因為它包含差異為0的數據。請確保僅選擇一個值列。"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "找到類別數據和預期整數值。如果此整數值不是訂單量表，間隔量表或比例量表，則分析結果可能會受到不利影響。"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "您一定要進行分析嗎？"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "搜索"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "中位數是典型的統計數據之一。當有限數據按上升順序排列時，它是中心位於中心的值。例如，在五個的情況下，年齡的中位年齡是年齡的第三年齡。如果數據的數量均勻，則使用中央簡潔算術的平均值。"
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "最大限度"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "分佈摘要"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "n數字"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "平均"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "中間是什麼..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "全部的"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "頻率"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "終點"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "目標過程"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "時間序列"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "件"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "數據鏈接數"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "秒"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "響應時間"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "編輯"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "後退"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "添加節點"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "添加邊緣"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "編輯節點"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "單擊空白空間以放置一個新節點。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "單擊節點，將邊緣拖動到另一個節點並將其連接。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "單擊控制點，將其拖動到節點並連接。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "無法添加邊緣。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "群集無法刪除。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "群集無法編輯。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "顯示名稱或值重複。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "輸入顯示名稱和值。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "輸入行列。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "小時"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "數據信息"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "天"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "星期"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "加載"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "節省"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "覆蓋"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "環境"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "更改標題是因為設置了相同的標題。"
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "保存設置"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "創建屏幕截圖"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "下載"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "無法顯示圖形的原因如下。 BREAK_LINE檢查情況。 BREAK_LINE・數據不是導入的，也不是在導入的中間。 BREAK_LINE・沒有鏈接的數據，或者在綁紮中間。 BREAK_LINE・圖的設置不合適。"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "警告"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "日期數據列中包含無效數據的記錄未導入。"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "您可以參考下面文件夾中的文件以獲取無法導入的數據。"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "由於未連接到Internet，因此無法上傳使用狀態。"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "請檢查網絡連接。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "再次鏈接數據將需要很長時間。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "您確定重新連接數據嗎？"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "中止"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "執行"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "您一定要重新加載以前註冊的數據鏈接設置？"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "開始導入數據。"
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "您可以從下面的鏈接中檢查導入的進度。"
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "有關錯誤狀態，請參見“作業列表”頁面。"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "開始鏈接數據。"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "每3分鐘一次"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "每5分鐘一次"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "每10分鐘一次"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "可選功能"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "文件類型"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV出口"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "由於選定的記錄數量和顯示圖所需的時間，每張圖的記錄數量限制為50,000。"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "時間序列圖"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "類別價值"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "由於指定期限內的記錄數量超過5,000，因此BREAK_LINE鏈接在指定期間的±14天內約束。如果您不想限制鏈接範圍，請調整持續時間以減少BREAK_LINE的記錄數量。"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "設置刻度"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "普通規模"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "閾值線"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "自動秤"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "被使用比例"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn流程"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "p_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "最大限度"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "最小"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "沒有任何"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "概括"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "數數"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "基本統計"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "非參數"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "數據質量"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "觀眾"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "導入數據"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "數據鏈接進程將根據當前配置開始。"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "如果有很多數據要鏈接，可能需要花費時間。可以開始嗎？"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "*對於自動和定期導入的數據，鏈接ID是自動生成的。"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "數據源名稱"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "數據源類型"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "您確定保存更改嗎？"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "強制操作系統信息到時區設置。"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "高級設置"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "為數據庫 /CSV導入數據文件保存設置。轉到設置頁面，設置導入數據的列以導入數據。"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "元素數據中沒有必要的屬性。"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "元素數據不需要屬性值。"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "PCA異常檢測需要至少兩個變量。選擇兩個或多個變量。"
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "選擇至少一列"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "不顯示減少框寬度的類別變量。"
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "開始數字"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline情節"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "停止應用程序（邊緣服務器）。如果您停止，其他任何用戶也將無法使用，因此請聯繫管理員。 <br>在正常結束的情況下，請在此處取消，然後關閉瀏覽器。"
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "所有工作都被停止了。您可以安全地關閉瀏覽器和控制台。"
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "數據源配置"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "數據源導入配置"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr "：列找到的字符列很少。檢查數字類型列等可能被誤認為。"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "過濾項目"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "濾波器值"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "到期日期（開始）"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "到期日期（結束）"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "由於列數據類型配置錯誤，無法導入數據。數據源名稱__param__ CSV/TSV檢查讀取設置頁面的數據預覽中的數據類型設置。刪除無法導入的步驟設置並設置設置。"
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "有一個沒有數據的文件。檢查文件的內容。 <br>：__param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "輸入有效期至少一個值的一個值。"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "除以類別"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "按學期劃分（循環）"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "按學期劃分（直接）"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "輸入間隔的值無效。輸入0.1或更多，720或更少或-720或更多，以及-0.1或更少。"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "指定的“窗口長度”無效。值必須在0.1到48之間。"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "輸入山脊線的數量無效。輸入1個或更多的整數和150或更少。 （更喜歡使用大約100個）"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "開始數據和時間"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "間隔"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "窗口長度"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "控制項目"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "類型"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "姓名"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "請注意，如果一個類別中的數據點數量低於50，則圖的準確性可能會降低。"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "顯示雜交光標（單擊）"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "顯示多雜交光標（雙擊）"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "顯示直方圖清單"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "取消異常值支票"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "指定的`數據源名稱已經存在。"
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "數據導入失敗，因為在數據源中找到了具有不同列名的文件。檢查文件的內容，然後再次設置數據源導入設置。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "預測鏈接的記錄數"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "樣品數量"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "要鏈接的記錄數量"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "總記錄數"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "請命名CSV/TSV文件保存的文件夾，如' yyyymmdd'"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "預言"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "過濾器配置"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "主配置"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "從過濾器配置"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "顯示所有"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "作為鑰匙（選項）"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "刪除赤字值，異常值和異常值的REMOVED_COUNT在TOTAL_COUNT中刪除。"
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP地址"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "將數據分佈與直方圖和密度估計進行比較。該圖除以分層變量。它也按刻面分開。"
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "在時間軸或ID軸上繪製所有數據數。"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "顯示散點圖矩陣。您可以使用2到7個目標變量。"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "通過主成分分析，進行了“不同”及其因子分析的可視化。輸入正常數據作為教師數據，並可視化當前數據是否與其正常數據（T2/Q）相同。如果您的情況不同，則可以檢查貢獻圖中的主要因素。"
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "該變量將分佈分為多個圖。選擇類別變量（定性變量），例如零件號和站。"
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "分層類別過濾器：限制要顯示為子集的數據。 （類別：零件號，車站編號等）"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "類別變量（例如零件號，站點等）顯示為圖的標籤，以查找更改點。"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "圖形過濾器：將要顯示為子集的數據限制。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "將學習數據解釋為正常情況。設置不包含任何NG數據的數據部分。如果包括，那些接近NG數據的數據也被判斷為正常數據。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "設置測試數據要進行判斷。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "項目過濾器：限制要顯示到子集的數據（分析和顯示）。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "它是多維驗證數據的二維聚合顯示（主組件的維度壓縮）。如果數據位於中心，則可以將其解釋為接近正常。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "它是多維學習數據的二維聚合顯示（主組件的維度壓縮）。中心目標是由學習數據決定的，因此大多數學習數據都應在目標中。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "T2統計量的圖，該圖在此數據的主要組成部分中監視異常。學習數據以白色和負X部分繪製。黃色圖是驗證數據。將驗證數據與白色數據進行比較越高，情況偏離的可能性就越大。單擊數據點以查看構成情況的元素的貢獻圖。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Q統計量的圖（在此數據的次要部分中監視異常，殘留）。學習數據以白色和負X部分繪製。黃色圖是驗證數據。將驗證數據與白色數據進行比較越高，情況偏離的可能性就越大。單擊數據點以查看構成情況的元素的貢獻圖。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "在T2統計圖中選擇的點，變量的順序有助於情況。長度越長，原因越有可能。"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "在Q統計圖中選擇的點，變量的順序有助於情況。長度越長，原因越有可能。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "值小於或等於Q1 - 4.5 * IQR的數據點數"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "值大於或等於Q3 + 4.5 * IQR的數據點數"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "在選定期間，包括NA（不可用），NaN（不是數字）和Inf±（無窮大）在內的數據總數。"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line：在選定期間的上和下閾值以外（計數）之外的數據百分比"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line：在選定期間的上限和下限閾值（計數）之外的數據百分比"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "NA（不可用）的百分比（count）"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "NaN（不是數字）的百分比（計數）（count）"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Inf+（加上無窮大）的百分比（count）"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Inf-（減去無窮大）的百分比（計數）"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "閾值值以外的數據總數，NA（不可用），NaN（不是數字）和Inf±（無窮大）在選定的期間（count）"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "在選定期間不包括NA（不可用），NaN（不是數字）和Inf±（無窮大）的數據數。"
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "第95個百分點"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "第75個百分位數（第三四分之一）"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "第25個百分點（第一四分之一）"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "第五百分點"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "四分位數範圍（分配變異性的代表性值：IRQ = Q3 - Q1≒1.349σ@正常分佈）"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "中位數（第50個百分點）"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "計數/小時"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "計數/分鐘"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "週期時間[S]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "部門編號"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "顯示週期"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "顯示間隔"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "日曆熱圖"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "目標變量不能由MAX_NUM_SENSOR或更多。選擇目標變量。"
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "刪除離群值的目標是Max，Mean，Min，σ和Range。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "除了實數"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "可以通過計算每個分類變量（定性變量，批號等）或DateTime來可視化分佈，並並排顯示它們。一種可視化方法，允許數據的跨組分析（在批次，天數，偏移等之間進行比較），而無需離散ID。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "設置要在圖形上繪製的閾值。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "如果散射打開，則可以顯示散點圖。當前項目和下一行項目之間的散點圖。用鼠標拖動各個圖的繪圖卡以切換散點圖的X軸和Y軸。"
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "創建數據分佈的數據項目（例如數值變量或測量值）。該數據繪製在圖上。最多可以選擇20個項目。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "該分層變量將分佈分為多個圖，並並排顯示它們。選擇一個分類變量，例如批次或批次號。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "輸入“開始日期”以顯示每個DateTime的Ridgeline圖。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "直接輸入每個DateTime顯示Ridgeline圖的時期。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "您可以從需要特殊處理的CSV/TSV文件中選擇選項，例如轉換數據結構。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "按下下面的預覽按鈕將顯示文件中的某些數據，因此您可以檢查其內容。"
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "選擇鏈接ID用於用作數據鏈接的條件。您還可以選擇多個項目。"
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "當您的應用程序定期導入數據時，您可以選擇一個優先用作DateTime的DateTime列。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "如果選擇一個操作員並輸入“因子”下的數字，則圖中的值將使用指定的操作員和因子計算。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "如果選擇一個操作員並輸入“因子”下的數字，則圖中的值將使用指定的操作員和因子計算。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "可以預測當前設置的鏈接條件將鏈接多少數據。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "丟棄當前設置的數據鏈接條件，並調用先前註冊的條件。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID是在內部生成的，以將數據與設置鏈接條件相關聯。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "使用圖形設置中選擇質量控製或設備控制項目。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "請選擇管理目標的類型，例如零件號和設備。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "請選擇管理目標，例如零件號的值和設備值。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "為圖形設置設置“開始日期”。 （必需的）"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "為圖形設置設置End DateTime。 （可選的）"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "閱讀保存的配置。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "保存您輸入的最新配置。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "將屏幕保存為PNG文件。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "您要刪除此設置嗎？"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "目標變量（實際數字）"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "目標變量（類別）"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "索引排序"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "柱子"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "命令"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "優先"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "訂購"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "變量"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "僅真實和分類"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "僅真實"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "僅分類"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "按設定順序"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "按過程順序"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "在相關係數中。命令"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "相關閾值（ABS）"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "選擇客觀變量"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "客觀變量"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "解釋性變量"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "可用比率"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "有習慣的圖"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "比賽（完美匹配）"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR搜索"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND搜索"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "由於並行坐標圖無法處理實數，因此已刪除了實數數據。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr "General Search Options&#013;"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "重新分配"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "註冊編輯的信息，例如顯示名稱。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "您要註冊修改後的內容嗎？"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "如果更改鏈接ID，請重置數據鏈接配置。"
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "共發生圖"
+
+# co-occurrence
+msgid "Data file"
+msgstr "數據文件"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "匯總"
+
+# co-occurrence
+msgid "Hour"
+msgstr "小時"
+
+# co-occurrence
+msgid "Day"
+msgstr "天"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "編輯模式"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "設置模式"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "無效的數據突出顯示了紅色。您確定要切換到設置模式嗎？"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "優先"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "檢測到重複的英語名稱，因此序列號自動添加。檢查列名。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "聚合單位"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "第一列是DateTime，第二列和後續列是值，例如警報通知標誌/出現計數（0,1,2 ...）。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "按小時/天的總體共存在關係。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "顯示閾值"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "如果您選擇一個小於100%%的值，則將隱藏一個小的CORCURRENCE關係。 （默認：如果有一次，則畫一條線）"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "識別和可視化與目標變量直接或間接相關的變量。"
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "可視化此處指定的變量之間的相關性。最多可以選擇60個項目。"
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "與客觀變量相關的候選變量。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "並行坐標圖"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "所有邊緣"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "佈局"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "圓圈"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "自動的"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "效率"
+
+msgid "Set threshold"
+msgstr "Control Line：檢查何時繪製管理級別（例如標準行）"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "分析平台"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "帕累托圖"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "發生數量"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "累積比率[％]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "可視化可以在很長一段時間內隨數據而變化的參數，例如過程，一周中的天數，輪班等等。"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "可視化大量變量相對於目標變量之間的相關性。"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "可視化故障，警報，事件等的同時出現（重點是同時出現一種現象的頻率）。"
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "空的"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform：用於數據映射，可視化，統計分析和機器學習的簡單工具。"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "此處的數據集用作數據鏈接和繪圖的參考。設置用於圖的水平軸。此外，原點圖還顯示了淺藍色的框架。"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "指定圖的數據（例如數值變量：測量值）。選擇要在圖上繪製的過程和項目。最多可以選擇20個項目。"
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "指定圖的數據（例如數值變量：測量值）。選擇要在圖上繪製的過程和項目。最多可以選擇8個項目。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "空的"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "該分層變量將圖案劃分為可視化到多個圖，並並排顯示它們。選擇分類變量，例如零件號和電台編號，最多可以選擇100個項目。"
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "可視化變量之間相關性的數據項（定量變量：測量值等）。該數據繪製在圖表上。可以選擇2到7個參數。"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "選擇項目以可視化變量之間的相關性。最多可以選擇60個項目。"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "類別變量（例如零件號）的項目可視化變量之間的相關性。"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "最大化卡"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "最小化卡"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "如果此設置已更改，則有必要重置數據鏈接設置。"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "自動選擇"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "選擇右邊的全部"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "取消選擇右邊的全部"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "所有真實的（浮動）從這裡"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "所有整數從這裡"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "所有字符串從這裡"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "由於選定的記錄數量和顯示圖所需的時間，每個圖的單元格數限制為10,000。如果您想查看BREAK_LINE目標週期的所有數據，請增加顯示間隔或減少目標週期以減少單元格的數量。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "系列"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "您可以通過右鍵單擊圖來調整圖的比例。"
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "圖表"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "設置模式"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "無法鏈接的數據項數量"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "散點圖"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "用輪廓"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "保存"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "空的"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "負載設置"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "共享/私人"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "描述"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "由...製作"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "使用/加載"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "加載"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "無法鏈接到起點過程的數據數（鏈接的百分比）"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "保存日期時間"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "共享設置"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "節省"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "您可以從2到7個目標變量中進行選擇。檢查目標變量的數量並糾正設置。"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "文件大小限制為10 MB。減小文件大小，然後重試。"
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "如果檢查了，則還保存了指定的DateTime。"
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "檢查以共享此設置。"
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "保存設置。"
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "您一定要覆蓋設置嗎？"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "分享"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "私人的"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "創建在"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "關"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "訂單集"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "開始DateTime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "結束日期"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "顯示X軸標籤"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "DateTime範圍"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "在這裡拖放文件"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "或者"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "選擇文件"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "無法顯示"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "由於大量數據和較長的處理時間，處理中斷了處理。查看DateTime設置並再次顯示圖。"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "輸出CSV文件。請在文件下載時等待。"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "輸出TSV文件。請在文件下載時等待。"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "自動範圍"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "全系列"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "索引訂單設置"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "打開"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "刪除"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "由於每圖的數據點數量超過12,000，因此數據點的數量限於最大12,000。如果要查看整個數據，請設置較短的目標週期。"
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "按學期分層（循環）"
+
+#: component.js
+msgid "Facet"
+msgstr "方面"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "執行與所選項目分開的類別。"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "異常估計"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "歸一化的四分位間範圍（將IQR與正態分佈相關聯，NIQR = 0.7413×IQR）"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "模式是最常見的值。"
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "與異常值"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "沒有異常值"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "風俗"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "今天"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "昨天"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "最近7天"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "最近30天"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "這個月"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1個月"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3個月"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "申請"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "星期"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7天前"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30天前"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "本月的拳頭"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "本月的最後一天"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3個月"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "更新在"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "數據點以快速模式匯總。如果您想在不忽略數據的情況下獲取繪圖，請調整目標週期較短。"
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Y軸範圍"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "離群值"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "空的"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "流程搜索"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "書籤"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "由於每個圖的數據點數量超過10,000，因此繪製了密度圖。如果要使用散點圖顯示所有數據點，請設置目標週期較短。"
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "空的"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "週期"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "實數"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "客觀變量"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "相關係數是使用該變量作為目標變量計算的。此處指定的目標變量還與圖塊最右側的顏色欄一起顯示。如果要更改圖上的目標變量，則可以通過右鍵單擊每個變量名稱來切換它們。"
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "數據沒有淹沒，因為類別太多。 BREAK_LINE檢查，如有必要，修改目標週期較短。"
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "過濾器設置"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "標籤（類別變量）"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "複製"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "粘貼"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "複製配置"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "糊狀配置"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "沒有原點設置，第一個目標被選擇為原點。"
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "導出數據"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "不使用"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "數據沒有繪製，因為類別太多。"
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "檢查並在必要時修改目標週期的設置。"
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "除以數據計數（循環）"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "數據數"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "空的"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "空的"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "選擇目的變量。"
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "空的"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "無分解 /類別分解"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "散點圖"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "如果X或Y數據類型是字符串，則不能將非弦變量用於顏色設置。"
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "檢測到允許範圍之外的值，因此自動確定最小或最大有效範圍。根據需要更改設置。"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "右鍵單擊：數據鏈接設置/編輯/刪除"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "經過時間"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "時間順序"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "設置數據順序"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "請刪除不必要的數據，因為“ __SERVER_INFO__”硬盤的容量已達到__SERVER_INFO__ %%。"
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "由於“ __SERVER_INFO__”硬盤的容量到達__SERVER_INFO__ %%，因此停止了數據端口。如果刪除了不必要的數據並增加了空容量，則將恢復數據。"
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "輸入要顯示的分佈數（分區數）。輸入2或150或更少的整數。"
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "輸入要顯示的分佈數（分區數）。輸入1或以上的整數或以上。"
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "空的"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "空的"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "空的"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "空的"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "每個劇情有太多小提琴，因此自動限制。"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "由於選擇的記錄數量大量，因此繪圖的數量從最古老的日期到限制計數的限制。"
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "我接受"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "衰退"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "向後"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "列的圖數"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "用作圖表頂部的標籤顯示的分類變量（零件號，站點等）用於可視化定性變量的更改點（零件號切換等）。"
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "選擇要分析的項目（定量變量：測量值等）。最多可以選擇60個項目。"
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "選擇用於排序數據的項目。您還可以選擇多個項目。"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "由於DateTime從具有顯示限制的最新數據計數，因此未顯示溢出的舊數據。"
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "情節的數量僅限於NUMBER。如果您想顯示全部，請重新設置設置。"
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "單個選項卡上的情節數僅限於NUMBER。如果您想顯示全部，請重新設置設置。"
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "要選擇的目標變量的數量為最小最小值和最大最大值。檢查目標變量的數量並糾正設置。"
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "要選擇的目標變量的數量最大為最大值。檢查目標變量的數量並糾正設置。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

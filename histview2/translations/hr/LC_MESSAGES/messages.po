@@ -1,0 +1,3153 @@
+# クロアチア語 Croatian translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "hr_クロアチア語_Croatian"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:14+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: hr\n"
+"Language-Team: hr\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Spreman"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Došlo je do pogreške"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Konfiguracija aplikacije"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Stranica nije pronađena"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Došlo je do pogreške"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Aplikacija DataLink & Analysing"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Odaberite jezik"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Glavni zaslon"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Provjera rada"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Provjera rada"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Osnovna konfigura"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Registar"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Ponovno učitati"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Cijeli broj"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Stvarno (plutati)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Datum vrijeme"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Niz"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Titula"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Biljka"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Tvornica"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Crta"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "molim potvrdite."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Spremite podatke i počnite uvoziti podatke sa sadržajem postavljenim na stranici Postavke procesa?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "u redu"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Otkazati"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Konfiguracija baze podataka"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Naziv baze podataka"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Vrsta baze podataka"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Konfigurirati"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Komentar"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Dodati"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Odaberite datoteku baze podataka."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Naziv datoteke"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Odaberi"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Želite li izbrisati ovaj zapis?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "izbrisati"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Sljedivost"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Grafikon sljedivosti"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Testiranje u tragovima"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Započnite testiranje"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Vrijeme početka"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Krajnji put"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID stroja (višestruki odabir)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Crta"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Broj dijela"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Konfiguriranje podataka"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Odaberite jezik"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "japanski"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Engleski"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Čvor"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Čvor ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Označiti"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Glavno ime"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Baza podataka"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Uvoz"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Izvoz"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Naziv domaćina"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Broj luka"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Korisničko ime"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Zaporka"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Shema"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; uspio sam."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; nije uspio."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Proces config"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Postupak"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Naziv procesa"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Naziv stola"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Detalj"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Pregled"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Prvih pet zapisa"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Postavljanje sadržaja"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Naziv stupca"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Englesko ime"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Naziv prikaza"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "koeficijent"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Operater"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Unesite vrijednost koja nije 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Ulazni operator."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Koeficijent ulaza."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Unesite engleski naziv."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Naziv zaslona za prikaz."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Englesko ime je duplicirano."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Naziv zaslona je duplicirano."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Svi \"zaslonski nazivi\" zahtijevaju unos."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Polja s praznim \"engleskim imenom\" automatski se ispunjavaju."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Odaberi sve"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Uvoz podataka"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Jeste li sigurni u uvoz podataka?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Kada pritisnete gumb OK, uvesti ćete podatke iz trenutnog vremena u mjesec dana prije."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Prethodni se podaci automatski uvoze malo po malo."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Ako želite uvesti podatke nakon trenutnog vremena, ponovo pritisnite gumb za čitanje podataka ili pritisnite bazu podataka CSV Postavljanje postavki na stranici za postavljanje čitanja."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Kada se postavi \"ciklus ažuriranja" "Postavke za čitanje baze podataka / CSV\", automatski će se uvesti u razdoblju kada se postavljaju podaci nakon trenutnog vremena."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Informacije o tragovima"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Podaci u tragovima"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Nije mogao pristupiti"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Kliknite ovdje da biste ga popravili."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Uredi Edge"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Prev postupak"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Prev stupca"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Postupak"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Stupac"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Kao DateTime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Kao serijski"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Kao veza ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Već registrirani"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Unesite naziv procesa"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filtriranje/grafikon"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Konfiguracija grafikona"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Linijski filter config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Linijski stupac"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Vrijednost"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Konfiguriranje filtra stroja"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Stroj ID stupac"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Dio nema konfiguracije filtra"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Dio nema stupca"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Naziv filtra"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Stanje filtra"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Drugi filtrira config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Ciljani stupac"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Konfiguracija vizualizacije"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Niži prag"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Gornji prag"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Niži prag procesa"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Gornji prag procesa"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y-osi raspon: min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y-osi raspon: max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Dio ne"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "završiti sa"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Početi sa"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like pretraživanje)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Složiti se"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Redovni izrazi"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Prikažite grafikon"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Izvoz"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Potreban je postupak"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Naziv stupca je potrebno"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Potrebna je linija"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Naziv zaslona je potrebno"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Naziv zaslona je duplicirano."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Potrebna je vrijednost stroja"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Duplicirani stroj ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Spremi uspješno"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Nije uspjelo uštedjeti"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Dio nije potreban stupac"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Potreban je ciljni stupac"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Potrebno je naziv filtra"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Potrebno je stanje"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Naziv filtra je dupliciran."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Uvjeti su duplicirani."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Zadano"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Naziv procesa"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Dodao druge filtre"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Uvoz Config"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Izvor"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Ciklus obnove"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Spojiti"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Jednom na sat"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Jednom dnevno"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Potvrda podataka"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Nema mape."
+
+msgid "File does not exist"
+msgstr "Nema datoteke."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Možete se povezati."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Molimo ispunite vrijednost."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Nema sadržaja postavki."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Postavke su duplicirane."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Spremljene postavke baze podataka."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Nije uspjelo spremanje postavki baze podataka."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Osnovne postavke spremljene."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Nije uspio spremiti osnovne postavke."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Testna veza"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Početna točka"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Raspon datuma"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Najnoviji"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Automatsko ažuriranje"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "minuta"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "minute"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "sat"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "sati"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Ciljna varijabla"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "filtar"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X osi"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Vremenska oznaka"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Indeks"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Stratify varijable"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Filtri"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Baza podataka/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Analizirati"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "U razvoju"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Analizirati:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Vodopad"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Grafički LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogram"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Stratificirana zavjera"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Zaplet punih točaka"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Vizualizacija podataka"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Vizualizacija"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Trčanje"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Unesite naziv baze podataka."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Unesite naziv izvora podataka."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Stupci koji nemaju vrstu podataka nisu uvedeni."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Potreban je najmanje jedan stupac DateTime."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Za vizualizaciju koristite '{col}' za X-osi."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Jeste li sigurni da nastavite?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Gledatelj"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Stol"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Vrsta"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Broj podataka"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Silazni"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Uzlazni"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Savršeno podudaranje"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Djelomični meč"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Nevažeća selekcija znamenke"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Duljina znaka koja se koristi za povezivanje je drugačija."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Bez filtera"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Sve crte"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "situacija"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Lista posla"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "svi"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Uvoz završen."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Uvoz"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Neuspjelo uvoz"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Učitani podaci će se izbrisati. Je li u redu? (Ne odražava se promjena dok se ne pritisne gumb za registraciju)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Lista posla"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Id posla"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Naziv posla"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Generacija povezanogID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Posao generiranja za prikaz ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Brisanje informacija o procesu"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Podaci o uvozu"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Uvoz prošlih tvorničkih podataka"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Pokažite uvoz posla prošlih tvorničkih podataka"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Uvoz podataka"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Izbrišite stare podatke"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Vrijeme početka"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "Proteklo vrijeme"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Baza podataka/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Napredak"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Postupak"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Popis histograma"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Registrirajte se kao vrijednost epidemije"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Neregistriran"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Sakriti odmetnike"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Pokazati odmetnike"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Provjerite odmetnike"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Prikaži popis histograma"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Posljednje vrijeme ažuriranja"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Otkazana je registracija nadležnosti."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Registriran kao vanjski"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Vanjski"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Samo jednom"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Pojedinosti o poslu"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Kopirati u međuspremnik"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Višestruko raspršivanje"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Zaplet raspršivanja"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Za vizualizaciju kategoričke varijable"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratify po varijablama"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Promjenljiv"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Stroj"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Ciljano razdoblje"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Frekvencija (brojanje)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Procjena gustoće"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Kategorička varijabla"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify po terminu (izravno)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Ne možete odabrati osam ili više ciljanih varijabli. Odaberite ciljnu varijablu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Otkrivanje anomalije"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Načelna analiza komponenata"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Ocjena glavne komponente podataka o testiranju podataka"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Ocjena glavne komponente podataka o treningu"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Serijski grafikon T2 statistike"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Serijski grafikon Q statistike"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. SLOBON PRIJAVE T2 Statistike"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Shema doprinosa Q statistike"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Uklonite vanjski"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Podaci o obuci"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Podaci o testiranju"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Da"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Ne"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Vrsta podataka"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Primjer"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Pogreška"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Upozorenje"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Budući da su svi redovi izbrisani obradom vrijednosti deficita (NA uklanjanje), nema podataka za analizu. Provjerite da nije odabrana prazna vrijednost, uključujući NA."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Ne može se analizirati jer sadrži podatke osim brojeva. Provjerite jeste li odabrali stupac koji sadrži vrijednost niza ili kategorije."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Ne može se analizirati jer sadrži podatke s varijancom od 0. Provjerite da nije odabran samo jedan stupac vrijednosti."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Pronađeni podaci o kategoriji i očekivana cijela vrijednost. Ako ova cijela vrijednost nije ljestvica narudžbe, intervalna skala ili skala omjera, na rezultate analize može se negativno utjecati."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Jeste li sigurni da nastavite analizu?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "traži"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Medijan je jedna od tipičnih statistika. To je vrijednost smještena u središtu kada su konačni podaci raspoređeni u uzlaznom redoslijedu. Na primjer, u slučaju pet, srednja dob dobi je treća dob u redu. Ako je broj podataka ujedan, koristi se prosjek središnje aritmetike."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Maksimum"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Sažetak distribucije"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N Broj"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Prosječan"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Koji je medijan ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Ukupno"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Frekvencija"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Krajnja točka"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Ciljani postupak"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Vremenske serije"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Komadići"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Broj podataka podataka"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Sekundi"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Vrijeme odziva"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "Uredi"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "leđa"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Dodajte čvor"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Dodajte rub"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Uredi čvor"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Kliknite na prazan prostor da biste postavili novi čvor."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Kliknite čvor, povucite rub na drugi čvor i spojite ih."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Kliknite kontrolnu točku, povucite je na čvor i povežite se."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Edge se ne može dodati."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Klaster se ne može izbrisati."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Klaster se ne može uređivati."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Naziv ili vrijednost zaslona je dupliciran."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Unesite naziv zaslona i vrijednost."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Unesite stupac linije."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Sati"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Podaci o podacima"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Dan"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Tjedan"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Opterećenje"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Uštedjeti"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Prepisati"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Postavljanje"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Promijenite naslov jer je postavljen isti naslov."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Spremite postavku"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Stvorite snimku zaslona"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "preuzimanje datoteka"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Razlozi zbog kojih se grafikon ne može prikazati su sljedeći. BREAK_LINE Provjerite situaciju. BREAK_LINE・ Podaci se ne uvoze ili usred uvoza. BREAK_LINE・ Nijedan podaci nisu povezani ili usred vezanje. BREAK_LINE・ Postavka grafikona je neprikladna."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Upozorenje"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Zapisi koji sadrže nevaljane podatke u stupcu podataka datuma se ne uvoze."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Datoteke u donjoj mapi možete se obratiti za podatke koji se ne mogu uvesti."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Status upotrebe ne može se prenijeti jer nije povezan s Internetom."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Provjerite mrežnu vezu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Trebat će dugo vremena da se podaci ponovno povežu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Jeste li sigurni da ćete ponovno povezati podatke?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Prekid"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Izvršiti"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Jeste li sigurni da ponovno učitavate prethodno registrirane postavke podataka?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Počeo uvoziti podatke."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Možete provjeriti napredak uvoza s donje veze."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Pogledajte stranicu s popisom poslova za status pogreške."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Počeo povezati podatke."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Jednom svaka 3 minute"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Jednom svakih 5 minuta"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Jednom svakih 10 minuta"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Neobavezna funkcija"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Vrsta datoteke"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Izvoz"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Zbog velikog broja odabranih zapisa i vremena potrebno za prikaz grafikona, broj zapisa po grafu bio je ograničen na 50 000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Grafikon vremenskih serija"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Vrijednost kategorije"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Budući da je broj zapisa u navedenom razdoblju veći od 5000, veza BREAK_LINE vezana je u roku od ± 14 dana od navedenog razdoblja. Ako ne želite ograničiti raspon povezivanja, prilagodite trajanje kako biste smanjili broj zapisa BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Ljestvica"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Uobičajena ljestvica"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Prag"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Automatska ljestvica"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Upotrijebljena skala"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Maksimum"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Min"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Nijedan"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Sažetak"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Računati"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Osnovna statistika"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Ne parametričan"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Kvaliteta podataka"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Gledatelj"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Uvoz podataka"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Postupak podataka o podacima pokrenut će se na temelju trenutne konfiguracije."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Možda će trebati vrijeme ako postoji puno podataka za povezivanje. Je li u redu početi?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Za podatke koji se automatski i povremeno uvoze, veza ID automatski se generira."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Naziv izvora podataka"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Vrsta izvora podataka"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Jeste li sigurni da spremate promjene?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Prisilne OS informacije o postavkama vremenske zone."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Napredne postavke"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Postavke se spremaju za datoteku baze podataka /CSV uvoza podataka. Idite na stranicu za postavljanje, postavite stupce uvoznih podataka za uvoz podataka."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "U podacima elemenata nema potrebnog atributa."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Ne postoji vrijednost atributa potrebna za podatke elemenata."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Nenormalno otkrivanje PCA zahtijeva najmanje dvije varijable. Odaberite dvije ili više varijabli."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Odaberite barem jedan stupac"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Varijable kategorija koje smanjuju širinu okvira nisu prikazane."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Početna znamenka"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Zaplet"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Zaustavite aplikaciju (rubni poslužitelj). Ako se zaustavite, bilo koji drugi korisnik neće moći koristiti, pa se obratite administratoru. <br> U slučaju normalnog kraja, otkažite ovdje i samo zatvorite preglednik."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Sav posao je zaustavljen. Možete sigurno zatvoriti preglednik i konzolu."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Konfiguriranje izvora podataka"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Konfiguriranje izvora izvora podataka"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Stupci su pronašli nekoliko stupaca znakova. Provjerite je li stupac numeričkog tipa itd. Može se pogrešno prepoznati."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Predmet filtra"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Vrijednost filtra"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Datum isteka (početak)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Datum isteka (kraj)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Podaci se ne mogu uvesti zbog pogrešaka u konfiguraciji podataka. Naziv izvora podataka __param__ CSV/TSV Provjerite postavke vrste podataka u pregledu podataka na stranici za postavljanje čitanja. Izbrišite postavke koraka koje se nisu mogle uvesti i postaviti postavke."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Postojala je datoteka bez podataka. Provjerite sadržaj datoteke. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Unesite barem jednu vrijednost razdoblja valjanosti od ili do."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Podijelite po kategoriji"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Podijelite pojma (ciklički)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Podijelite pojma (izravno)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Vrijednost unesenog intervala nije valjana. Unesite brojni 0,1 ili više, 720 ili manje, ili -720 ili više, i -0.1 ili manje."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Broj ulaznog Ridgeline nije valjan. Unesite cijeli broj 1 ili više i 150 ili manje. (radije koristite oko 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Pokrenite podatke i vrijeme"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Interval"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Dužina prozora"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Kontrola"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Tip"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Ime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Imajte na umu da ako je broj podataka u jednoj kategoriji ispod 50 godina, točnost grafikona može se smanjiti."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Prikaži Cross kosu pokazivač (klik)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Prikaži multi poprečnu kursoru kose (dvostruki klik)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Prikaži popis histograma"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Otkaži Outlier Check"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Navedeno \"Naziv izvora podataka\" već postoji."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Uvoz podataka nije uspio jer je u izvoru podataka pronađena datoteka s drugim nazivom stupca. Provjerite sadržaj datoteke i ponovo postavite postavke uvoza izvora podataka."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Predviđeni broj zapisa koji će biti povezani"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Broj uzoraka"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Broj zapisa koji treba povezati"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Broj ukupnih zapisa"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Navedite mapu u kojoj se CSV/TSV datoteke spremaju poput \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Predviđanje"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Filter Config"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master Config"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Iz filtra config"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Pokaži sve"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Kao ključ (opcija)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Izbrisano REMOVED_COUNT vrijednosti deficita, nenormalne vrijednosti i vanjske vrijednosti od TOTAL_COUNT u originalu."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP adresa"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Usporedite raspodjelu podataka s procjenom histograma i gustoće. Grafikon je podijeljen sa slojevitom varijablom. Podijeljen je i fazom."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Nacrtajte sav broj podataka na vremenskoj osi ili ID osi."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Prikažite matricu raspršivanja. Možete koristiti od 2 do 7 ciljanih varijabli."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Analizom glavnih komponenti provodi se vizualizacija \"različitog\" i njegove faktorske analize. Unesite normalne podatke kao podaci učitelja i vizualizirajte jesu li trenutni podaci ista situacija kao i njegovi normalni podaci (T2/Q). Ako imate drugačiju situaciju, možete provjeriti glavne čimbenike na parceli doprinosa."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Raspodjela je podijeljena na više grafikona po ovoj varijabli. Odaberite varijable kategorija (kvalitativne varijable) kao što su brojevi dijelova i stanice."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Stratificirani filter kategorije: Ograničava podatke koji se prikazuju na podskupinu. (Kategorija: Broj dijela, stanica br., Itd.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Varijable kategorija (kao što su broj dijela, stanica br., Itd.) Prikazane su kao naljepnice na vrhu parcela kako bi se pronašli promjenjivi bodovi."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Grafički filter: Ograničava podatke koji se prikazuju na podskupinu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Postavite podatke o učenju koji se tumače kao normalna situacija. Postavite odjeljak podataka koji ne sadrži NG podataka. Ako su uključeni, oni koji su bliski podacima NG također se ocjenjuju kao normalni podaci."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Postavite testne podatke koji će se ocjenjivati."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Filter predmeta: Ograniči podatke (analizirati i prikazati) koji će se prikazati u podskupinu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "To je dvodimenzionalni agregatni zaslon (dimenzionalna kompresija po glavnim komponentama) višedimenzionalnih podataka o provjeri. Ako su podaci u središtu, mogu se tumačiti kao blizu normalno."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "To je dvodimenzionalni agregatni zaslon (dimenzionalna kompresija po glavnim komponentama) višedimenzionalnih podataka o učenju. Središnji cilj određuje se podacima učenja, tako da bi većina podataka o učenju trebala biti u cilju."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Zaplet T2 statistike, koji nadzire anomalije u glavnoj komponenti ovih podataka. Podaci o učenju prikazani su u bijelom i negativnom dijelu x. Žuta crta je podaci o validaciji. Što se veće podaci o validaciji uspoređuju s bijelim podacima, vjerojatnije je da će situacija odstupiti. Kliknite točku Data da biste vidjeli crtež doprinosa koji elementi čine situaciju."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Zaplet q statistike (nadzor anomalija u manjem dijelu ovih podataka, zaostatak). Podaci o učenju prikazani su u bijelom i negativnom dijelu x. Žuta crta je podaci o validaciji. Što se veće podaci o validaciji uspoređuju s bijelim podacima, vjerojatnije je da će situacija odstupiti. Kliknite točku Data da biste vidjeli crtež doprinosa koji elementi čine situaciju."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Redoslijed varijabli doprinosi situaciji u točki odabranom u T2 statističkoj ploči. Što je duljina duljina, to je vjerojatnije da je uzrok."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Redoslijed varijabli doprinosi situaciji u točki odabranom u Q statističkoj ploči. Što je duljina duljina, to je vjerojatnije da je uzrok."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Broj podataka s vrijednošću manjom ili jednakom Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Broj podataka s vrijednošću većom ili jednakom Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Ukupni broj podataka, uključujući NA (nije dostupan), NaN (nije broj) i Inf± (beskonačnost) u odabranom razdoblju."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Postotak podataka izvan gornjeg i donjeg praga (broja) u odabranom razdoblju"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Postotak podataka izvan gornjeg i donjeg graničnog praga (broj) u odabranom razdoblju"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Postotak od NA (nije dostupan) u odabranom razdoblju (broj)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Postotak NaN (nije broj) u odabranom razdoblju (broj)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Postotak od Inf+ (plus beskonačnost) u odabranom razdoblju (broj)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Postotak od Inf- (minus beskonačnosti) u odabranom razdoblju (broj)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Ukupni postotak podataka izvan vrijednosti praga, NA (nije dostupan), NaN (nije broj) i Inf± (beskonačnost) u odabranom razdoblju (broj)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Broj podataka koji isključuju NA (nisu dostupni), NaN (nije broj) i Inf± (beskonačnost) u odabranom razdoblju."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95. postotak"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75. postotak (treći kvartil)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25. postotak (prvi kvartil)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5. postotak"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Interkvartilni raspon (reprezentativna vrijednost varijabilnosti distribucije: IRQ = Q3 - Q1 ≒ 1.349σ@ Normalna distribucija)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Medijan (50. postotak)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Broji/sat"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Broji/minutu"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Vrijeme ciklusa [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Broj odjela"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Ciklus prikaza"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Prikaz intervala"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Kalenda toplinska karta"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Ciljne varijable ne mogu odabrati MAX_NUM_SENSOR ili više. Odaberite ciljnu varijablu."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Ciljevi uklanjanja vanjske strane su Max, Mean, Min, σ i Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Osim stvarnih brojeva"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Raspodjela se može vizualizirati izračunavanjem za svaku kategoričku varijablu (kvalitativne varijable, broj lota itd.) Ili DateTime i prikazujući ih jedan pored drugog. Metoda vizualizacije koja omogućuje analizu unakrsne grupe (usporedba između parcela, dana, smjena itd.) Podataka bez diskretnog ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Postavite prag koji će se nacrtati na grafovima."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Ako je Scatter uključen, s njim možete pokazati zaplet rasipanja. Raspršivanje između trenutne stavke i sljedeće stavke retka. Povucite i ispustite kartice zaplete odgovarajućih parcela s mišem kako biste prebacili osi X i Y osi raspršivanja."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Stavka podataka (poput numeričke varijable ili mjerne vrijednosti) koja stvara raspodjelu podataka. Ti se podaci prikazuju na crtežu. Može se odabrati do 20 predmeta."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Ova slojevita varijabla dijeli raspodjelu na više parcela i prikazuje ih jedan pored drugog. Odaberite kategoričku varijablu, kao što je lot no ili serija br."
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Unesite start DateTime za prikaz crteža za Ridgeline za svako dateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Unesite izravno razdoblje za prikaz crteža Ridgeline za svako dateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Možete odabrati opcije za uvoz podataka iz CSV/TSV datoteke koja zahtijeva posebno rukovanje, poput pretvaranja struktura podataka."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Pritiskom na gumb za pregled ispod prikazat ćete neki dio podataka u datoteci kako biste mogli provjeriti njegov sadržaj."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Odaberite vezu ID da biste se koristili kao uvjet za povezivanje podataka. Također možete odabrati više stavki."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Kada vaša aplikacija povremeno uvozi podatke, možete odabrati stupac DateTime koji se preferirano koristi kao ključ DateTimea."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Ako odaberete operatera i unesete broj pod 'faktor', vrijednost u grafikonu izračunavat će se pomoću navedenog operatora i faktora."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Ako odaberete operatera i unesete broj pod 'faktor', vrijednost u grafikonu izračunavat će se pomoću navedenog operatora i faktora."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Moguće je predvidjeti koliko će podataka biti povezano trenutno postavljenim uvjetima povezivanja."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Odbacuje trenutno postavljeni uvjet povezivanja podataka i poziva prethodno registrirano stanje."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID se generira interno za povezivanje podataka s uvjetima povezivanja skupa."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Odaberite stavke kontrole kvalitete ili opreme pomoću postavki grafikona."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Odaberite vrstu cilja upravljanja, kao što su broj dijela i oprema."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Odaberite cilj upravljanja kao što su vrijednost broja dijela i vrijednost opreme."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Postavite start DateTime za postavke grafikona. (Potreban)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Postavite kraj DateTime za postavke grafikona. (Neobavezno)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Pročitajte spremljenu konfiguraciju."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Spremite najnoviju konfiguraciju koju ste unijeli."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Spremite zaslon kao PNG datoteku."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Želite li izbrisati ovu postavku?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Ciljna varijabla (stvarni broj)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Ciljna varijabla (kategorija)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Indeks naručivanja"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Stupac"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Narudžba"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Prioritet"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Naručivanje"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Varijable"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Real i kategorički samo"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Stvaran"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Samo kategorički"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "U postavljenom redu"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "U procesnom redoslijedu"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "U korelacijskoj koeF. narudžba"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Prag korelacije (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Odaberite za Objektivnu varijablu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Objektivna varijabla"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Objašnjavajuća varijabla"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Raspoloživi omjer"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Sljutan dijagram"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Podudaranje (savršeno podudaranje)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Budući da paralelna crta koordinata ne može liječiti stvarne brojeve, uklonjeni su podaci o stvarnom broju."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Preneporaba"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Registrirajte uređene podatke poput prikaza."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Želite li se registrirati s modificiranim sadržajem?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Ako promijenite vezu ID, resetirajte Config veze podataka."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Grafikon zajedničke pojave"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Podatkovna datoteka"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Agregiran od strane"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Sat"
+
+# co-occurrence
+msgid "Day"
+msgstr "Dan"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Uređivanje načina"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Način postavljanja"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Nevažeći podaci istaknuti crveni će biti izbrisani. Jeste li sigurni da se prebacite na način postavljanja?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "prioritet"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Otkriveno je duplikatno englesko ime, pa je serijski broj automatski dodan. Provjerite imena stupca."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Jedinice združivanja"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Prvi stupac je DateTime, a drugi stupac i sljedeći stupci su vrijednost kao što su za zastave/pojavljivanje zastava za obavijest alarma (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Agregatni odnosi zajedničkog pojavljivanja po satu/dan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Prag prikaza"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Ako odaberete vrijednost manju od 100%%, sakrit ćete mali odnos CO -COUSCHRENCE. (Zadano: Nacrtajte crtu ako postoji čak i jednom)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Identificirajte i vizualizirajte varijable koje su izravno ili neizravno povezane s ciljanom varijablom."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Vizualizirajte povezanost između ovdje navedenih varijabli. Može se odabrati do 60 predmeta."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Kandidatske varijable koje su u korelaciji s objektivnim varijablama."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Paralelna koordinatna crta"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "od svih rubova"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Raspored"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Krug"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Automatski"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Učinkovitost"
+
+msgid "Set threshold"
+msgstr "Control Line: Provjerite prilikom upravljanja crtežom, kao što su standardne linije"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Platforma za analizu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Pareto grafikon"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Broj pojave"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Kumulativni omjer [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Vizualizirajte parametre koji se mogu razlikovati s podacima tijekom dugog vremenskog razdoblja, poput godišnjih varijacija u procesima, dana u tjednu, smjena itd."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Vizualizirajte korelaciju između velikog broja varijabli s obzirom na ciljnu varijablu."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Vizualizirajte zajedničku pojavu grešaka, alarma, događaja itd. (Odnos usredotočen na učestalost istodobnog pojave jednog fenomena i drugog)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Prazan"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Jednostavan alat za mapiranje podataka, vizualizaciju, statističku analizu i strojno učenje."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Ovdje se skup podataka koristi kao referenca za povezivanje i crtanje podataka. Postavke se koriste u vodoravnoj osi parcele. Osim toga, prikaz se podrijetla prikazuje svijetloplavim okvirom."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Određuje podatke (na primjer, numeričke varijable: vrijednost mjerenja) za crtež. Odaberite postupke i stavke koje će se prikazati na parceli. Može se odabrati do 20 predmeta."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Određuje podatke (na primjer, numeričke varijable: vrijednost mjerenja) za crtež. Odaberite postupke i stavke koje će se prikazati na parceli. Može se odabrati do 8 predmeta."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Prazan"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Ova varijabla stratifikacije dijeli uzorak da vizualizira na više parcela i prikazuje ih jedan pored drugog. Odaberite kategoričke varijable poput broja dijela i stanice br. Do 100 predmeta."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Stavka podataka koja vizualizira korelaciju između varijabli (kvantitativne varijable: mjerne vrijednosti itd.). Ti su podaci prikazani na grafikonu. Od 2 do 7 parametara se može odabrati."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Odaberite stavku za vizualizaciju korelacije između varijabli. Može se odabrati do 60 predmeta."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Stavke varijabli kategorija (poput brojeva dijelova) radi vizualizacije korelacije između varijabli."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Maksimizirati karticu"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Označavanje kartice"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Ako se ova postavka promijeni, potrebno je resetirati postavke podataka."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Automatski odaberite"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Odaberite sve udesno"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Osjetite sve udesno"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Sve stvarno (lebdi) odavde"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Sav cijeli broj odavde"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Svi niz odavde"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Zbog velikog broja odabranih zapisa i vremena potrebno za prikaz crteža, broj ćelija po parceli bio je ograničen na 10 000. Ako želite vidjeti sve podatke za ciljano razdoblje BREAK_LINE, povećajte interval prikaza ili smanjite ciljano razdoblje kako biste smanjili broj stanica."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Serijski"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Opseg zapleta možete prilagoditi desnom tipkom miša na zaplet."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Ljestvica"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Način postavljanja"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Broj stavki podataka koje se ne mogu povezati"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Zaplet raspršivanja"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "konturom"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Štednja"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Prazan"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Postavljanje učitavanja"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Podijelite/privatni"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Opis"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Napravio"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Korištenje/opterećenje"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Opterećenje"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Broj podataka koji se ne mogu povezati s postupkom početne točke (postotak veze)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Spremi DateTime"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Dijeliti postavke"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "uštedjeti"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Možete odabrati između 2 do 7 ciljanih varijabli. Provjerite broj ciljnih varijabli i ispravite postavke."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Ograničenje veličine datoteke je 10 MB. Smanjite veličinu datoteke i pokušajte ponovo."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Ako se provjeri, također se spremaju navedeni datetime."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Provjerite da biste podijelili ovu postavku."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Spremite postavke."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Jeste li sigurni da prepisujete postavke?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "udio"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Privatni"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Stvoren na"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Zatvoriti"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Set narudžbe"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Pokrenite DateTime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Kraj Datetime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Prikaži naljepnice X-osi"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Raspon DateTime"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Povucite i ispustite datoteku ovdje"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Ili"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Odaberite datoteke"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Ne može se prikazati"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Obrada je prekinuta zbog velike količine podataka i dugog vremena obrade. Pregledajte postavke DateTime i ponovo prikažite zaplet."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Izlazna CSV datoteka. Pričekajte dok datoteka preuzima."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Izlazna TSV datoteka. Pričekajte dok datoteka preuzima."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Auto -raspon"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Puni raspon"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Postavljanje narudžbe indeksa"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Otvorena"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Izbrisati"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Budući da je broj podatkovnih točaka po grafikonu preko 12 000, broj podataka o podacima bio je ograničen na maksimum 12 000. Ako želite pogledati cijele podatke, postavite kraće ciljano razdoblje."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratify po terminu (ciklički)"
+
+#: component.js
+msgid "Facet"
+msgstr "Aspekt"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Izvodi kategoriju koja se dijeli s odabranom stavkom."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Procjena iznimke"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Normalizirani interkvartilni raspon (Index Associating IQR s normalnom raspodjelom, NIQR = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Način je najčešća vrijednost."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "s vanjskim"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "bez vanjskog"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Prilagođen"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Danas"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Jučer"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Zadnjih 7 dana"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Zadnjih 30 dana"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Ovaj mjesec"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 mjesec"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 mjeseca"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Prijaviti"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Tjedan"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Prije 7 dana"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Prije 30 dana"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Dan šake ovog mjeseca"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Posljednji dan ovog mjeseca"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 mjeseca"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Ažurirano na"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Podatkovne točke sažete su brzim načinom rada. Ako želite dobiti crtu bez izostavljanja podataka, prilagodite ciljano razdoblje kraće."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Raspon osi y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Vanjski"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Prazan"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Pretraživanje procesa"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Oznaka"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Budući da je broj podatkovnih točaka po parceli preko 10 000, crtanje gustoće je izvučen. Ako želite prikazati sve podatkovne točke s granom raspršivanja, ciljano razdoblje postavite kraće."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Prazan"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Vrijeme ciklusa"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Pravi broj"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Objektivna varijabla"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Koeficijent korelacije izračunava se pomoću ove varijable kao ciljne varijable. Ovdje je prikazana i ciljana varijabla, zajedno s trakom boja na krajnjoj desnoj strani crteža. Ako želite promijeniti ciljne varijable na grafikonu, možete ih prebaciti desnom tipkom miša na svakom nazivu varijable."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Podaci se nisu utopili jer postoji previše kategorija. BREAK_LINE Provjerite i, ako je potrebno, revidirajte ciljano razdoblje kraće."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Postavljanje filtra"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Oznaka (varijable kategorija)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Kopiran"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Zalijepljen"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Kopirajte config"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Zalijepiti config"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Bez postavke podrijetla, prvi je cilj odabran kao podrijetlo."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Izvozni podaci"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Ne koristiti"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Podaci se ne crtaju jer postoji previše kategorija."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Provjerite i, ako je potrebno, revidirajte postavke ciljanog razdoblja."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Podijelite s brojem podataka (ciklički)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Broj podataka"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Prazan"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Prazan"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Odaberite varijablu namjene."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Prazan"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Nema raspadanja / kategorije raspadanje"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Zaplet raspršivanja"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Ako je vrsta x ili y podataka niz, ne možete koristiti varijable koje nisu string za postavljanje boja."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Otkrivena je vrijednost izvan dopuštenog raspona, tako da je automatski odlučen minimalni ili maksimalni valjani raspon. Promijenite postavke prema potrebi."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Desnom tipkom miša: Postavljanje veze podataka/uređivanje/brisanje"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Proteklo vrijeme"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Vremenski nalog"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Postavljanje podatkovnog naloga"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Izbrišite nepotrebne podatke jer je kapacitet tvrdog diska `__SERVER_INFO__` dosegao __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Port podataka je zaustavljen jer je kapacitet tvrdog diska `__SERVER_INFO__ 'dosegao __SERVER_INFO__ %%. Ako se izbriše nepotrebni podaci i povećavaju se prazan kapacitet, podaci će se nastaviti."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Unesite broj distribucija koje se prikazuju (broj podjela). Unesite cijeli broj 2 ili 150 ili manje."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Unesite broj distribucija koje se prikazuju (broj podjela). Unesite cijeli broj 1 ili više 32 ili manje."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Prazan"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Prazan"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Prazan"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Prazan"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Previše je violina po parceli, tako da je automatski ograničena."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Zbog velikog broja odabranih zapisa, broj parcela je ograničen od najstarijeg datuma do ograničenja."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Prihvaćam"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Odbiti"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Unazad"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Broj crteža na stupcu"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Kategorijske varijable (broj dijela, stanica br. Itd.) Prikazane kao naljepnice na vrhu crteža koriste se za vizualizaciju točaka promjena (prebacivanje broja dijela itd.) Kvalitativnih varijabli."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Odaberite stavke koje treba analizirati (kvantitativne varijable: vrijednost mjerenja itd.). Može se odabrati do 60 predmeta."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Odaberite stavke za sortiranje podataka. Također možete odabrati više stavki."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Prelijevanje starih podataka nije prikazano jer se DateTime broji iz najnovijih podataka s ograničenjem prikaza."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Broj parcele bio je ograničen na NUMBER. Ako želite prikazati sve, revite postavke."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Broj crteža na jednoj kartici bio je ograničen na NUMBER. Ako želite prikazati sve, revite postavke."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Broj ciljanih varijabli za odabir je minimalno min i maksimalno max. Provjerite broj ciljnih varijabli i ispravite postavke."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Broj ciljnih varijabli za odabir je do maksimalnog max. Provjerite broj ciljnih varijabli i ispravite postavke."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

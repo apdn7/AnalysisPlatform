@@ -1,0 +1,36 @@
+/* thead {
+    background-color: #f8f8f8;
+} */
+.select-tables {
+    text-align: left;
+    padding-right: 50px;
+}
+/* http://unicus.jp/wp/archives/143 */
+.ui-datepicker { z-index: 10000 !important; }
+
+.left-space {
+    margin-left: 20px;
+}
+
+.table-main {
+    table-layout:fixed;
+    word-wrap:break-word;
+    /* For centering */
+    /* https://www.granneman.com/webdev/coding/css/centertables */
+    margin-left:auto; 
+    margin-right:auto;
+}
+
+/* .th-title-left {
+    width: 180;
+} */
+
+.th-title-other {
+    width: 200;
+}
+
+/* http://hensa40.cutegirl.jp/archives/657 */
+.td-hide-leftright {
+    border-right-style:hidden;
+    border-left-style:hidden;
+}

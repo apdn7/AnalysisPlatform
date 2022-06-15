@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+    <link href="{{ url_for('multiple_scatter_plot.static', filename = 'css/multiple_scatter_plot.css') }}"
+          rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
+          rel="stylesheet">
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
+
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"/>
+
+    <script type="text/javascript" src="/static/common/js/js.cookie.min.js"></script>
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='MSP', title=_('Multi Scatter Plot'), hint=_('Displays a scatter chart matrix. You can create a matrix between up to four target variables.'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+    <div class="card">
+        <form id="traceDataForm">
+            {{ macros.scatter_end_proc(procs,'', title=_('Enter target item of data (quantitative variable like measurement value) to visualize the correlation between variables. This data is plotted on the graph. It can be selected up to four items.'), isShowMinMax=false) }}
+            {{ macros.start_proc(procs,'', traceData=true) }}
+            {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
+            <br class="graph-navi graph-navi-top-down">
+            <div class="row">
+                <div class="col-sm-2">
+                </div>
+                <div class="col-sm-10">
+                    <div class="d-flex">
+                        {{ macros.exception_est() }}
+                    </div>
+                </div>
+            </div>
+            <div class="show-graph-div" style="text-align: center;">
+                <button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
+                        onClick="mspTracing();" class="btn btn-primary show-graph"><i
+                        class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+            </div>
+            <br>
+        </form>
+    </div>
+    <div class="row" id="showContour" style="display: none">
+        <div class="col d-flex justify-content-end">
+            <label for="showContourInput" id="showLabel" class="mr-2">{{ _("Only scatter plot") }}</label>
+            <label class="switch">
+                <input id="showContourInput" type="checkbox" class="primary" onchange="showContour();">
+                <span class="slider round"></span>
+            </label>
+            <label for="showContourInput" id="showLabel">{{ _("with shading") }}</label>
+        </div>
+    </div>
+    <div class="card graph-navi ui-sortable" id="sctr-card" style="display: none;">
+    </div>
+
+    <div class=" loading"></div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+    <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+       target="_blank">{{ _("Click here to fix") }}</a>
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <script src="{{ url_for('multiple_scatter_plot.static', filename = 'js/multiple_scatter_histogram.js') }}"></script>
+    <script src="{{ url_for('multiple_scatter_plot.static', filename = 'js/multiple_scatter_contour.js') }}"></script>
+    <script src="{{ url_for('multiple_scatter_plot.static', filename = 'js/multiple_scatter_plot.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,3153 @@
+# モンゴル語 Mongolian translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "mn_モンゴル語_Mongolian"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: mn\n"
+"Language-Team: mn\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Ургагдсан"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Алдаа гарсан байна"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Програмын тохиргоо"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Хуудас олдсонгүй"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Алдаа гарсан байна"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "DATALINK ба Анимлагын програм"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Хэл сонгоно уу"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Гол дэлгэц"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Үйл ажиллагааны баталгаажуулалт"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Үйл ажиллагааны баталгаажуулалт"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Үндсэн тохиргоо"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Бүртгүүлэх"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Дүүргэх"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Ittendition ЦАГ"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Бодит (хөвөх)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Он сар өдөр цаг"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Чавхдас"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Гарчиг"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Ургамал"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Үйлдвэр"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Шугам"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "баталгаажуулна уу."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Мэдээллийг хадгалаад өгөгдлийг ашиглан өгөгдлийг Process Contring хуудас дээр оруулсан агуулгыг импортлох уу?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "БОЛЖ БАЙНА УУ"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Цуаах"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Мэдээллийн сангийн тохиргоо"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Мэдээллийн сангийн нэр"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Өгөгдлийн сангийн төрөл"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Нарийн дээдо"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Сэтгэгдэл"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Нэмэх"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Өгөгдлийн сангийн файлыг сонгоно уу."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Хөдөлгөөний нэр"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Шилэх"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Та энэ бичлэгийг устгахыг хүсч байна уу?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "эдгээх"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Трацын байдал"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "TraceApeAsce график"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Трейзийн туршилт"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Туршилт эхлэх"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Эхлэх цаг"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Дуусгах цаг"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Машины ID (олон сонголт)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Шугам"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Хэсгийн дугаар"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Мэдээллийн холбоосын тохиргоо"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Хэл сонгоно уу"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Япон"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Англи хэл"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Хувь зэлт"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Зангилаа ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Шошго"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Тайбсарын нэр"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Мэдээллийн сан"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Импортлох"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Гадаадад гаргах"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Хуудшлагын нэр"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Порт дугаар"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Скэдхэн нэр"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Нууц үг"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Схем"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Би амжилтанд хүрсэн."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; амжилтгүй болсон."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Prive тохиргоог боловсруулах"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Боловсруулах"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Даалгагийн нэр"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Хэлэлцэх тоглоом"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Нарийн учир"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Киноны урөдчилсан үзлэг"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Эхний таван бичлэг"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Агуй тогтоох"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Багийн нэр"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Англи нэр"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Харагдах нэр"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "коэффициент"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Жижүүр операторч"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "0-ээс бусад утгыг оруулна уу"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Оролтын оператор."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Оролтын коэффициент."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "ОРОЛЦОГЧ АНГЛИ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Оруулсан дэлгэцийн нэр."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Английн нэрийг хуулбарласан байна."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Дэлгэцийн нэрийг хуулбарласан байна."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Бүх \"Дэлгэцийн нэрс\" нь оролтыг шаарддаг."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Хоосон \"Англи нэр\" -тэй талбарууд автоматаар дүүргэдэг."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Бүгдийг сонгох"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Мэдээлэлийг импорт оруулах"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Мэдээлэл импортлоход итгэлтэй байна уу?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Та OK товчийг дарахад та өгөгдлийг одоогийн цагаас нэг сарын өмнө импортлох болно."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Өмнөх өгөгдөл нь автоматаар бага зэрэг импортолж өгдөг."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Хэрэв та одоогийн цагаар өгөгдлийг импортлохыг хүсч байвал өгөгдлийн унших товчийг дахин дарна уу, эсвэл мэдээллийн санг унших хуудасны хуудсыг товшино уу."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Өгөгдлийн сан / __140 унших \"-г\" шинэчлэх мөчлөг \"-ийг уншихад\" Одоогийн цагийг тохируулсны дараа өгөгдөл нь автоматаар орж ирнэ."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Ул мөрийг хянах"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Шат мөр"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Нэвтрэх боломжгүй байна"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Үүнийг засахын тулд энд дарна уу."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Edit Edit"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Урьдчилсан явц"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Урьдчилан хос багана"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Шуудангийн үйл явц"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Дараах багана"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Dateime шиг"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Сериал шиг"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Холбоос ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Аль хэдийн бүртгэгдсэн"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Процессийн нэрийг оруулна уу"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Шүүлтүүр / график"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "График тохиргоо"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Шугам шүүлтүүрийн тохиргоо"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Шугамны багана"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Үнэлэх"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Машин шүүлтүүрийн тохиргоо"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Машин ID багана"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Хэсэг нь шүүлтүүрийн тохиргоо байхгүй байна"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Хэсэг багана байхгүй"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Шууд шүүлтүүр нэр"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Шүүлтүүр"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Бусад нь шүүлтүүрийг тохируулна"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Зорилтооны багана"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Visualization Config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Доод босго"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Дээд босго"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Багаалтын доод босго"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Дээд үйл явцын босго"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y-тэнхлэгийн хүрээ: мин"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y-AXES-ийн хүрээ: Макс"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Үгүй"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "төгс төгөлдөр төгс"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Эхлэх"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like Хайлт)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Зөвшөөрөх"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Тогтмол илэрхийлэл"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Графикийг харуул"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV экспортлох"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Үйл явц шаардлагатай"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Баганын нэр шаардлагатай байна"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Шугам шаардлагатай байна"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Дэлгэцийн нэр шаардлагатай байна"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Дэлгэцийн нэрийг хуулбарласан байна."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Машины утга шаардлагатай"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Давхардсан машин ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Амжилттай хадгалах"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Хадгалах боломжгүй байна"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Хэсэг нь баганыг оруулах шаардлагагүй"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Зорилтот багана шаардлагатай байна"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Шүүлтүүрийн нэр шаардлагатай"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Нөхцөл шаардлагатай"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Шүүлтүүрийн нэрийг хуулбарласан байна."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Нөхцөл нь давхардсан байна."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Үл хүрэлцэх"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Даалгагийн нэр"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Бусад шүүлтүүрийг нэмсэн"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV импортын тохиргоо"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Язгуур"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "ХӨДӨЛМӨРИЙН ЦАГ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Холбох"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Нэг цагт нэг удаа"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Өдөрт нэг удаа"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Өгөгдөл дамжуулах"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Фолдер байхгүй байна."
+
+msgid "File does not exist"
+msgstr "Файл байхгүй байна."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Та холбогдож болно."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Утга нь бөглөнө үү."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Тохируулах агуулга байхгүй байна."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Тохиргоог давхардсан байна."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Мэдээллийн сангийн тохиргоог хадгалсан."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Мэдээллийн сангийн тохиргоог хадгалж чадсангүй."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Хадгалсан үндсэн тохиргоо."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Үндсэн тохиргоог хадгалж чадсангүй."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Талт шалгалтын холболт"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Эн эхлэх цэг"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Огноо цар"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Хамгийн сүүлчийн"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Автомат шинэчлэлт"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "моч / минут"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "хоёр хоног"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "аг"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "цаг"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Зорилтот хувьсагч"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Шүүх"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X тэнхлэг"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Хугацаагаар"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Индекс"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Stratify хувьсагчууд"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Шүүгч"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Өгөгдлийн сан / CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Шинжлэх"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Боловсруулж байгаа"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Дүн шинжилгээ:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Хүрхрээ талбай"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "График LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Гиститт"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Давхардсан хуйвалдаан"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Бүрэн онооны талбай"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Мэдээллийн дүрслэл"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Дүрээх чадвар"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Урсгал"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Өгөгдлийн сангийн нэрийг оруулна уу."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Мэдээллийн эх сурвалжийн нэрийг оруулна уу."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Мэдээллийн төрлийг оруулаагүй багана импортлохгүй байна."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Дор хаяж нэг DateTime багана шаардлагатай."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Visualation-ийн хувьд x-тэнхлэгт '{col}' ашиглана уу."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Үргэлжлүүлэхээ больж байна уу?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Хүслэн хамт үзэх"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Ширээ"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Ангилах"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Мэдээлэлийн тоо"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Урсгал"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Эхлэх"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Төгс тохирох"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Хэсэг яриа"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "ЭНД ДАРЖ БИЧЛЭГИЙН СУРГАЛТ"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Холбоотой байхад ашигласан тэмдэгтүүдийн урт нь өөр юм."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Шүүлтүүргүй"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Бүх загвар"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "байрлал"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Ажлын жагсаалт"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Бүгд"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Импорт дууссан."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Импорт оруулах"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Импорт амжилтгүй боллоо"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Ачаалагдсан өгөгдлийг устгах болно. Энэ зүгээр үү? (Бүртгэлийн товчлуур дарагдах хүртэл ямар ч өөрчлөлт гарахгүй)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Ажлын жагсаалт"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Ажлын дугаар"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Онлын нэр"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Linked ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "PERSERER MORRENTON LINK ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Боловсруулалтын мэдээллийг устгах"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Импорт өгөгдлийнж"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Өнгөрсөн үйлдвэрийн өгөгдлийг импортлох"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Өнгөрсөн үйлдвэрийн мэдээллийн өгөгдлийн ажлын импорт"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "Inf+ импортын өгөгдөл"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Хуучин мэдээллийг устгах"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Эхлэх цаг"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "зарцуулсан цаг хугацаа"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Өгөгдлийн сан / CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Дэвшил"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Боловсруулах"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Гистограмын жагсаалт"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Дэгдэлт утга болгон бүртгүүлнэ үү"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Бүртгэлгүй худалдагч"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Нүүрнүүдээ нуу"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Гадуур тоглогчдыг харуул"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Тоглогчдыг шалгана уу"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Гистограмын жагсаалтыг харуул"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Сүүлийн шинэчлэлтийн цаг"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Гаднах бүртгэлийг цуцаллаа."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Нүүрнүүдээр бүртгэгдсэн"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Исгэгч"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Зөвхөн нэг удаа"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Ажлын мэдээлэл"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Clipboard уруу хуулах"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Олон тархины хуйвалдаан"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Тараах хуйвалдаан"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Ангилалын хувьсагчийг төсөөлөхийн тулд"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Хувьсагчаар стратеги"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Хувөсах"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Машинаа"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Зорилт зая хуваарь"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Давтамж (тоолох)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Нягтралын тооцоо"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Категорийн хувьсагч"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Нэр томъёогоор давхаргах (шууд)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Та найм буюу түүнээс дээш зорилтот хувьсагчийг сонгох боломжгүй. Зорилтот хувьсагчийг сонгоно уу."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Anomaly-ийг илрүүлэх"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Commance Component дүн шинжилгээ"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Туршилтын өгөгдлийн үндсэн бүрэлдэхүүн хэсэг"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Сургалтын үндсэн мэдээллийн үндсэн оноо"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. T2 статистикийн цуврал график"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Q Статистикийн цуврал график"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. T2 статистикийн хувь нэмэр"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Q Статистикийн хувь нэмэр"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "OUTLIER-ийг устгах"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Сургалтын мэдээлэл"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Шалгалтын мэдээлэл"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Мон"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "#NAME?"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Мэдээллийн төрөл"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Жишээ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Алдаа"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Анхааруулга"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Бүх мөрийг алдагдал боловсруулалтаар устгасан (NA ______ арилгах), дүн шинжилгээ хийхэд ямар ч өгөгдөл байхгүй болно. Хоосон утга, NA NA үүнд сонгоогүй эсэхийг шалгаарай."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Энэ нь тооноос бусад өгөгдөл агуулсан тул дүн шинжилгээ хийх боломжгүй юм. Та мөр эсвэл категорийн утгыг агуулсан баганыг сонгосон эсэхийг шалгаарай."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "0-ийн хэлбэлзэлтэй өгөгдөл агуулсан өгөгдөл нь 0-ийн хэлбэлзэлтэй өгөгдөл агуулж болохгүй."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Дата өгөгдөл, хүлээгдэж буй бүхэл тоо. Хэрэв энэ бүхэл тоо нь захиалгын хэмжээ, интервалын хэмжээ биш бол, эсвэл харьцааны хэмжээ, харьцааны үр дүнг сөргөөр нөлөөлж болзошгүй юм."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Та шинжилгээг үргэлжлүүлэхдээ итгэлтэй байна уу?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "эрэл хайгуул хийх"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Медиан бол ердийн статистикийн нэг юм. Энэ нь эцсийн өгөгдлийг дээшлүүлэх дарааллаар зохион байгуулалттай байх үед төвд байрладаг утга юм. Жишээлбэл, тав нь таван настай тохиолдолд наснаасаа гурав дахь нас бол наснаас гурав дахь нас юм. Хэрэв өгөгдлийн тоо нь ч байтугай ерөнхийдөө төвийн товчлолыг ашигладаг."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Нарийн дээд биш"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Тархалтын хураангуй"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N дугаар"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Дундаж тоо"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Медиан гэж юу вэ ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Нийт"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Илүү даваа"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Эцсийн цэг"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Зорилт з тавих явц"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Цаг цувдал"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Жижиг хэрэгсэл"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Мэдээллийн холбоосын тоо"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Хоёр цаг"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Хариу цаг"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "хянан засварлах / хэвлэлд бэлтгэх"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Буцах"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Зангилаа нэмэх"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Ирмэг нэмэх"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Зогсолтыг засах"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Шинэ зангилаа байрлуулахын тулд хоосон зай дээр дарна уу."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Зангилаа товшоод, ирмэгийг өөр зангилаа чирээд тэдгээрийг холбоно уу."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Хяналтын цэг дээр дарна уу, зангилаа руу чирээд холбогдоорой."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Ирмэгийг нэмж болохгүй."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Кластерыг устгах боломжгүй байна."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Кластерыг засварлах боломжгүй байна."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Дэлгэцийн нэр эсвэл утгыг давхардсан байна."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Дэлгэцийн нэр, утгыг оруулна уу."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Шугамын баганыг оруулна уу."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Цаг"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Өгөгдлийн мэдээлэл"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Өдөр"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Долоо хоног"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Ачих"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Аврах"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Хугацаа баталгаажуулах"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Тэмдэг"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Ижил гарчиг тохируулсан тул гарчгийг өөрчил."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Тохиргоог хадгалах"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Дэлгэцийн хөрөнг засах"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "татаж авах"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "График үзүүлэх боломжгүй шалтгаан нь дараах байдалтай байна. BREAK_LINE Нөхцөл байдлыг шалгана уу. BREAK_LINE・ Мэдээлэл импортлохгүй, эсвэл импортын дундуур. BREAK_LINE・ Дата холбоогүй, эсвэл уях дундуур нь. BREAK_LINE・ Графикийн тохиргоо нь зохисгүй юм."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Анхааруулга"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Өгөгдлийн баганад буруу өгөгдөл агуулсан бичлэгийг оруулаагүй болно."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Та дараахь хавтсанд байгаа файл дээрх файлд орж ирж чадахгүй байгаа өгөгдлийг хэлж болно."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Хэрэглээний статусыг интернетэд холбоогүй тул байршуулах боломжгүй."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Сүлжээний холболтыг шалгана уу."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Датаг холболтыг дахин холбоход их хугацаа шаардагдана."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Мэдээллийг дахин холбож өгөх итгэлтэй байна уу?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Таргасан"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Цаазлах"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Өмнө нь бүртгэгдсэн өгөгдлийн холбоосын тохиргоог дахин ачаалж байна уу?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Өгөгдлийг импортолж эхлэв."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Та доорхи линкээс импортын явцыг шалгаж болно."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Алдааны статусын жагсаалтад зориулсан ажлын жагсаалтын хуудсыг үзнэ үү."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Өгөгдлийг холбож эхлэв."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "3 минут тутамд нэг удаа"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "5 минут тутамд нэг удаа"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "10 минут тутамд нэг удаа"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Нэмэлт чиглүүлнэ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Файлын төрөл"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV экспорт"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Сонгосон олон тооны бүртгэлээс болж, графикийг харуулахад шаардлагатай цаг хугацаа, график бүрт нэг график хязгаарлагдмал байсан."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Цагийн цуврал"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Жамшлэл"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Тодорхойлсон бичлэгийн тоо нь 5000 гаруй, BREAK_LINE холбоос нь заасан хугацаанд ± 14 хоногийн дотор холбогдсон байна. Хэрэв та холболтын хязгаарыг хязгаарлахыг хүсэхгүй бол BREAK_LINE-ийн бүртгэлийн тоог багасгахын тулд үргэлжлэх хугацааг тохируулна уу."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Хэмжээг тохируулах"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Нийтлэгийн хэмжээ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Босго шугам"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Автомат цэмжих"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Ашигласан масштабтай"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn үйл явцын"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Нарийн дээд биш"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Агнээ"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Хэн ч"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Товч утга"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Тоолох"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Үндсэн статистик"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Параттгүй"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Мэдээллийглэх чанар"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Үзөөдөгч"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Мэдээлэлийг импорт оруулах"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Мэдээллийн холбоосын процесс нь одоогийн тохиргоонд үндэслэн эхлэх болно."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Холбоос хийхэд маш их мэдээлэл байгаа бол цаг хугацаа шаардагдана. Эхлэх нь зүгээр үү?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Автомат, үе үе импортолсон өгөгдлийн хувьд ID автоматаар үүсгэдэг."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Мэдээллийн эх сурвалжийн нэр"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Мэдээллийн эх үүсвэрийн төрөл"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Та өөрчлөлтийг хэмнэхэд итгэлтэй байна уу?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Цагийн бүсийн Тохиргоонд албадан os мэдээлэл."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Дэвшилтэт тохиргоо"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Тохиргоог өгөгдлийн сан / CSV-р өгөгдлийг импортлоход хүргэдэг. Тохиргооны хуудас руу очоод, импортын өгөгдлийг өгөгдлийг импортлохын тулд багана тохируулна уу."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Элементийн өгөгдөлд шаардлагатай шинж чанар байхгүй байна."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Элемент өгөгдөлд оруулах шинж чанарын утга байхгүй."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "PCA-ийн хэвийн бус илрүүлэлт нь дор хаяж хоёр хувьсагчийг шаарддаг. Хоёр ба түүнээс дээш хувьсагчийг сонгоно уу."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Дор хаяж нэг баганыг сонгоно уу"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Хайрцагны өргөнийг бууруулдаг категорийн хувьсагчууд харагдахгүй байна."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Оруулж байна"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline хуйвалдаан"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Програмыг зогсоох (Edge Server Server). Хэрэв зөвхөн санал бол бол өөр юу, адмазнаар шүүгээгээ даяал, шаардлагатай бөгөөд илгээнд орж болохгүй. <br> Энгийн эцэст хэвийн болсон тохиолдолд эндийг нь цуцалж, зүгээр л хөтөчийг хаа."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Бүх ажлыг зогсоосон байна. Та хөтөч, консолыг аюулгүй хаах боломжтой."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Мэдээллийн эх үүсвэр"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Мэдээллийн эх сурвалж импортлох тохиргоо"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Багана нь цөөн тооны тэмдэгт багана олдсон. Тоон төрлийн баганын текст гэх мэт эсэхийг шалгана уу."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Шүүлтүүрийн зүйл"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Хэрэгжүүлэх өрөө Ниплүүлэх"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Хугацаа дуусах огноо (Эхлэх)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Хугацаа дуусах огноо (төгсгөл)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Баганын мэдээллийн хэлбэрийн тохируулгын алдаанаас болж өгөгдлийг оруулах боломжгүй. Өгөгдлийн эх сурвалжийн нэр __param__ CSV/TSV унших хуудасны тохиргоог унших хуудасны тохиргоог шалгана уу. Тохиргоог импортолж, тохируулж болох алхамуудын тохиргоог устгана уу."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Мэдээлэлгүйгээр файл байсан. Файлын агуулгыг шалгана уу. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Хүчинтэй хугацаа, эсвэл хүчинтэй байх хугацааг дор хаяж нэг утга оруулна уу."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Ангилалаар хуваана"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Нэр томруулах (цикл)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Нэр томруулах замаар (шууд) хуваана"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Оруулсан интервалын үнэ буруу байна. 0.1 ба түүнээс дээш тооны 0.1 ба түүнээс дээш, 720 ба түүнээс бага, эсвэл -720 ба түүнээс дээш, -0.1 ба түүнээс бага хэмжээг оруулна уу."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Zadané „Dĺžka okna“ je neplatná. Hodnota musí byť medzi 0,1 a 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Оролтын урсгалын тоо буруу байна. 1 ба түүнээс дээш, 150 ба түүнээс бага бүхэл тоо оруулна уу. (100 орчим ашиглахыг илүүд үздэг)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Өгөгдөл, цагийг эхлүүлэх"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Завсарлага"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Цонхны урт"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Хяналт тавих"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Маяг"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Нэр"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Нэг категорийн мэдээллийн тоо 50-аас доош настай бол графикийн нарийвчлал буурч магадгүй юм."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Хөндлөн үсний курсорыг үзүүлээрэй (дарна уу)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Олон хөндлөн үсний курсорыг үзүүлэх (давхар товшилт)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Гистограмын жагсаалтыг харуул"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Гадаадын шалгалтыг цуцлах"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Заасан `Мэдээллийн эх сурвалжийн нэрийг аль хэдийн байна."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Мэдээллийн импортын өөр баганын нэрийг өгөгдлийн эх үүсвэрээс олдсон файлыг олсон. Файлын агуулгыг шалгаж, мэдээллийн эх сурвалжийн эх сурвалжийн импортын тохиргоог дахин тохируулаарай."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Холбогдох бичлэгийн тоог урьдчилан таамаглаж байсан"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Дээжийн тоо"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Холбогдох бичлэгийн тоо"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Нийт бүртгэлүүдийн тоо"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "CSV/TSV файлыг CSV/TSV файлын файлыг нэрлэнэ үү."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Түүх"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Шүүлтүүрийн тохиргоо"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Мастер тохируулагч"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Шүүлтүүрийн тохиргооноос"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Бүгдийг харуул"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Түлхүүр (сонголт) болгон"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Deficit утга, хэвийн бус үнэ цэнэ, хэвийн бус үнэ цэнэ, TOTAL_COUNT-ээс TOTAL_COUNT"
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP хаяг"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Мэдээллийн тархалтыг гистограм ба нягтралын тооцоотой харьцуулах. График нь давхардсан хувьсагчаар хуваагддаг. Энэ нь бас нүүрэн дээр хуваагддаг."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Тодорхой цагийн тэнхлэг эсвэл ID тэнхлэгийн талаархи бүх өгөгдлийг хуйвалдана."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Тархины хуйвалдааны матрицыг харуулах. Та 2-оос 7 зорилтот хувьсагчдыг ашиглаж болно."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Үндсэн бүрэлдэхүүн хэсгийн шинжилгээгээр, \"өөр\" гэсэн дүрслэлээр дүрслэх, түүний хүчин зүйлийн дүн шинжилгээ хийгддэг. Энгийн өгөгдлийг багшийн өгөгдлийг багшийн өгөгдөл болгон оруулаад одоогийн өгөгдөл нь ижил мэдээлэлтэй ижил нөхцөл байдал (T2 / q). Хэрэв танд өөр нөхцөл байдал байгаа бол та хувь нэмрийн талбайн үндсэн хүчин зүйлүүдийг шалгаж болно."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Түгээлт нь энэ хувьсагчаар олон график руу хуваагддаг. Хэсэг ба станц гэх мэт ангиллын хувьсагчдыг (чанарын хувьсагч) сонгоно уу."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Давхардсан категорийн шүүлтүүр: Дэд хэсгүүдийг дэд зүйл болгон харуулах хязгаарлалт. (Ангилал: Хэсгийн дугаар, станц, Станцын дугаар.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Ангилал хувьсагч (хэсэг, станц гэх мэт) өөрчлөгдөх цэгүүдийг олохын тулд цэгүүдийн дээд хэсэгт байрлах шошго болгон харуулсан."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "График шүүлтүүр: Дэд хэсгээс дэд зүйл рүү үзүүлэх хязгаарыг хязгаарлана."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Сургалтын өгөгдлийг ердийн нөхцөл байдал гэж тодорхойлсон. NG өгөгдлийг агуулаагүй өгөгдлийн хэсгийг тохируулна уу. Хэрэв оруулсан бол NG Дата нь ердийн мэдээлэл гэж нэрлэгддэг."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Туршилтын өгөгдлийг шүүхэд тохируулах."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Зүйлийн шүүлтүүр: Дэд хэсгүүдэд мэдэгдэхүйц (дүн шинжилгээ, дэлгэц)."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Энэ нь олон тооны хэмжээст агрегатын дэлгэц (үндсэн бүрэлдэхүүн хэсгүүдийн бүрэлдэхүүн хэсгүүд) олон талт баталгаажуулах мэдээллийн өгөгдлийг (үндсэн бүрэлдэхүүн хэсгүүд) юм. Хэрэв өгөгдөл нь төвд байгаа бол энэ нь ердийнхөөс ойрхон тайлбарлаж болно."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Энэ нь олон тооны хэмжээст ангийн дэлгэц (үндсэн бүрэлдэхүүн хэсгүүдийн бүрэлдэхүүн хэсгүүд) олон талт сургалтын өгөгдлийн өгөгдлийг агуулдаг. Төв зорилтот түвшинг сургалтын өгөгдлийг тодорхойлно, тиймээс ихэнх сургалтын өгөгдөл нь зорилтот түвшинд байх ёстой."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Энэ мэдээллийн үндсэн бүрэлдэхүүн хэсэгт мониторын аномалиатыг мониторын талбай, энэ мэдээллийн үндсэн бүрэлдэхүүн хэсэг. Сургалтын өгөгдлийг цагаан, сөрөг X хэсэгт байрлуулна. Шар хуйвалдаан бол баталгаажуулалтын өгөгдөл юм. Баталгаажуулалтын өгөгдөл нь цагаан өгөгдлийг цагаан өгөгдлийг харьцуулахад нөхцөл байдалтай байна. Нөхцөл байдлыг бий болгохын тулд өгөгдлийн цэгийг харахын тулд Дата цэгийг товшино уу."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Q статистикийн талбай (энэ өгөгдөл, үлдэгдэл, үлдэгдэл). Сургалтын өгөгдлийг цагаан, сөрөг X хэсэгт байрлуулна. Шар хуйвалдаан бол баталгаажуулалтын өгөгдөл юм. Баталгаажуулалтын өгөгдөл нь цагаан өгөгдлийг цагаан өгөгдлийг харьцуулахад нөхцөл байдалтай байна. Нөхцөл байдлыг бий болгохын тулд өгөгдлийн цэгийг харахын тулд Дата цэгийг товшино уу."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Хувьсагч нь T2 статистик талбайд сонгосон цэг дээр хувь нэмэр оруулдаг. Урт урт нь илүү их магадлалтай."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Q статистикийн талбайд сонгосон цэг дэх хувьсагчдад хувьсагчдад хувь нэмэр оруулдаг. Урт урт нь илүү их магадлалтай."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Q1 - 4.5 * IQR-ээс бага буюу тэнцүү утгатай өгөгдлийн цэгүүдийн тоо"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Q3 + 4.5 * IQR-ээс их буюу тэнцүү утгатай өгөгдлийн цэгийн тоо"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Нийт NA (боломжгүй), __- байхгүй байна), NaN (тоо биш) ба Inf± (хязгааргүй), сонгосон хугацаанд Inf± (хязгааргүй) ба Inf± (хязгааргүй)."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Сонгосон хугацаанд дээд ба доод босго (тоолох) хувь"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Сонгосон хугацаанд дээд ба доод хязгаараас гадуур байгаа мэдээллийн хувь"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Сонгосон хугацаанд NA (боломжгүй) хувь (байхгүй)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Сонгосон хугацаанд NaN (тоо биш) хувь (тоо биш)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Сонгосон хугацаанд Inf+ (нэмэх хязгааргүй) хувь (тоолох)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Сонгосон хугацаанд Inf- (хасах хязгааргүй хязгааргүй) хувь (тоо)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Босго хэмжээнээс гадуур өгөгдлийн нийт хувь, NA (боломжгүй), NaN (тоо биш), NaN."
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "NA NA (боломжгүй), NaN (тоо биш), NaN (хязгааргүй), Inf± (хязгааргүй) ба Inf± (хязгааргүй), Inf± (хязгааргүй), сонгосон хугацаанд Inf± (хязгааргүй) ба Inf± (хязгааргүй)."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95-р хувь"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75-р хувь (гурав дахь дөрөвний нэг)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25-р хувь (эхний дөрвөлжин)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5-р хувь"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Хөндлөн огтилох хүрээ (түгээлтийн хувьсах эрхийн үнэ: IRQ = Q3 - Q1 ≒ 1.349σ @349σ @ хэвийн хуваарилалт)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Медиан (50-р хувь)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Тоолох / цаг"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Тоолох / минут"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Циклийн цаг [S]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Хуваагдлын тоо"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Дэлгэцийн мөчлөг"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Дэлгэцийн интервал"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Календара дулааны газрын зураг"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Зорилтот хувьсагчдыг MAX_NUM_SENSOR эсвэл түүнээс дээш хуваах боломжгүй. Зорилтот хувьсагчийг сонгоно уу."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Гаднах хэрэгслийг арилгах зорилт нь Max, Max, Min, Min, σ, σ, σ ба Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Бодит тооноос бусад"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Түгээлт нь категорийн хувьсагч бүрийг тооцож, эсвэл маш их хэмжээгээр төсөөлөх замаар дүрслэн харуулж болно. Хөндлөн бүлгийн шинжилгээ хийх боломжийг олгодог дүрслэл (олон, өдөр, өдөр, ажлын хооронд) өгөгдөл (өдөр, өдөр, өдөр, ажлын хоорондох харьцуулалт) ID;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Босгоыг график дээр зурна уу."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Хэрэв та тараах юм бол та тараах хуйвалдааныг харуулж болно. Одоогийн зүйл болон дараагийн мөрүүдийн хоорондох тараалтын талбай. Тархины хуйвалдааны x-тэнхлэг, y-тэнхлэгийг солихын тулд хулганаа чирж, хуйвалдааны кардлуудыг чирнэ үү."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Өгөгдлийг хуваарилахад хүргэдэг өгөгдөл (хэмжигдэхүүн эсвэл хэмжилтийн утга). Энэ өгөгдлийг хуйвалдаанд хуйвалдана. 20 хүртэлх зүйлийг сонгож болно."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Энэхүү давхардсан хувьсагч нь тархалтыг олон газар дээр хувааж, хажуу тийш нь харуулна. НЭГДҮГЭЭР ЭНД ДАРЖ ҮГҮЙ, БАРИМТ, ҮНЭГҮЙ ҮНЭГҮЙ сонгоно уу."
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "DateLime бүрт Ridgeline Clay-ийг харуулахын тулд эхлүүлэх DateTime-ийг оруулна уу."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Дата бүрт Ridgeline хуйвалдааныг харуулах үеийг шууд оруулаарай."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Мэдээллийн бүтцийг хөрвүүлэх шаардлагатай тусгай харьцуулалтыг оруулах шаардлагатай CSV/TSV файлыг оруулах сонголтыг сонгож болно."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Урьдчилан харах товчийг дарж доор дарахад өгөгдлийг файлын зарим хэсгийг харуулна. Та үүний агуулгыг шалгаж болно."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Дата холболтын нөхцөл болгон ашиглахын тулд LINK ID-ийг сонгоно уу. Та бас олон зүйлийг сонгож болно."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Таны програм үе үе өгөгдлийг тогтмол импортлох үед та DateTime түлхүүр болгон ашиглахыг илүүд үздэг DateTime баганыг сонгож болно."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Хэрэв та операторыг сонгоод \"Factor\" -ын дугаарыг оруулаад 'Factor'-д дугаарыг оруулаарай."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Хэрэв та операторыг сонгоод \"Factor\" -ын дугаарыг оруулаад 'Factor'-д дугаарыг оруулаарай."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Одоогийн байдлаар тохируулах нөхцөлийг одоогийн байдлаар хэр их холбосон болохыг урьдчилан таамаглах боломжтой."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Одоогоор тохируулсан өгөгдлийг холбож, өмнө нь бүртгүүлсэн нөхцөлийг дуудаж, залгасан."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID Датаг тохируулах нөхцлийг холбосон нөхцлөөр холбодог."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "График тохиргоонд ашиглан чанарын хяналт эсвэл тоног төхөөрөмжийн хяналтын хэрэгслийг сонгоно уу."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Хэсгийн дугаар, тоног төхөөрөмж гэх мэт менежментийн зорилтыг сонгоно уу."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Хэсгийн дугаар ба тоног төхөөрөмжийн үнэ цэнэ гэх мэт менежментийн зорилгыг сонгоно уу."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "График тохиргоонд эхлэх DateTime-г тохируулна уу. (Шаардлагатай)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "График Тохиргоонд зориулж төгсгөлийн DateTime тохируул. (Заавал биш)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Хадгалсан тохиргоог уншина уу."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Таны оруулсан хамгийн сүүлийн тохиргоог хадгал."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Дэлгэцийг PNG файл болгон хадгалах."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Та энэ тохиргоог устгахыг хүсч байна уу?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Зорилтот хувьсагч (бодит тоо)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Зорилтот хувьсагч (ангилал)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Индекс захиалах"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Багана"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Захиалга"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Ахлах"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Урьдчлэх"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Хувьслах"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "ЗӨВХӨН, ЗӨВХӨН ЗӨВЛӨГӨӨ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Зөвхөн шүү дээ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Ангиллын зөвхөн ангилал"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Тогтоосон дарааллаар"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Процессын дарааллаар"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Корреляци хийхэд. захиалга"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Корреляцийн босго (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Зорилтот хувьсагчийг сонгоно уу"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "ЗОРИУЛСАН ТУХАЙ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Тайлбарлах хувьсагч"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Боломжтой харьцаа"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Хиа диаграмм"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Тоглолт (төгс тохирох)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Хайлт"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Хайлт"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Хяналтын координатын координатын талбайнууд бодит тоонуудыг эмчилж чадахгүй, бодит тоон мэдээлэл хасагдсан."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr "General Search Options&#013;"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Босгоход"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Дэлгэцийн нэр гэх мэт засварласан мэдээллийг бүртгүүлнэ үү."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Өөрчлөгдсөн агуулгыг бүртгүүлэхийг хүсч байна уу?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Хэрэв та холбоосыг сольж байгаа бол ID ID Дата холбоосын тохиргоог дахин тохируулна уу."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Хамтран ажиллагсдын график"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Мэдээллийн файл"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Нэгтгэсэн"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Аг"
+
+# co-occurrence
+msgid "Day"
+msgstr "Өдөр"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Засах горим"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Тохиргоо горим"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Буруу өгөгдөл нь тодруулсан улааныг устгана. Тохируулах горим руу шилжсэн үү?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "ахлах"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Давхардсан англи хэл дээр илрүүлсэн тул серийн дугаарыг автоматаар нэмсэн. Баганын нэрийг шалгана уу."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Нэгтгэх нэгж"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Эхний багана нь DATETIME, хоёр дахь багана, хоёр дахь багана нь дохиоллын тэмдэглэгээ / үзлийн туг / үзэгдэл гэх мэт утга юм (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Дүүргэгчийн харилцааг нэг цаг / өдөрт нэгтгэх."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Босго дэлгэц"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Хэрэв та 100.510.10-аас бага утгыг сонговол та жижиг CO -cururence харилцааг нуух болно. (Анхдагч: Нэг удаа ч гэсэн мөрийг зурах)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Зорилтот хувьсагч руу шууд эсвэл шууд бус хамааралтай хувьсагчдыг тодорхойлж, төсөөлөх."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Энд заасан хувьсагчдын хоорондын хамаарлыг төсөөл. 60 хүртэлх зүйлийг сонгож болно."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Объектив хувьсагчтай харьцуулсан нэр дэвшигчийн хувьсагчууд."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Зэрэгцээ координатын хуйвалдаан"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "бүх ирмэг"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Төлөвлөгөө"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Дүгуй"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Автоматжүүлал"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Бүтээмж"
+
+msgid "Set threshold"
+msgstr "Control Line: Стандарт шугамууд гэх мэт удирдлагын түвшинг зурах үед шалгана уу"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Хэмжилдолцооны платол хий"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Тавлал зурах"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Тохиолдлын тоо"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Хуримтлагдсан харьцаа [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Долоо хоногийн үйл явц, өдөр тутмын үйл явц, өдөр тутмын өөрчлөлтүүд гэх мэт олон жилийн туршид мэдээлэл, цаг хугацаа, жишээ нь"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Зорилтот хувьсагчтай холбоотой олон тооны хувьсагчийн хоорондын хамаарлыг төсөөлөх."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Алдаа, дохиолол, үйл явдлууд, үйл явдлууд, гэх мэт."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Хоосон"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Мэдээллийн зураглал, харааны зураглал, статистик, Статистик дүн шинжилгээ хийх энгийн хэрэгсэл."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Энд байгаа өгөгдлийн багцыг өгөгдлийг холбох, хуйвалдааны лавлагаа болгон ашигладаг. Тохиргоо нь хуйвалдааны хэвтээ тэнхлэгт ашиглагддаг. Нэмж хэлэхэд, гарал үүслийн талбайг хөнгөн цэнхэр хүрээтэй харуулна."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Мэдээллийг зааж өг (жишээ нь, тоон хувьсагчдад: Хэмжилтийг хэмжих үнэ). Талбай дээр хуйвалдах үйл явц, зүйлийг сонгоно уу. 20 хүртэлх зүйлийг сонгож болно."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Мэдээллийг зааж өг (жишээ нь, тоон хувьсагчдад: Хэмжилтийг хэмжих үнэ). Талбай дээр хуйвалдах үйл явц, зүйлийг сонгоно уу. 8 хүртэлх зүйлийг сонгож болно."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Хоосон"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Энэхүү давхаргын хувьсагч нь хэв маягийг олон тооны талбайд дүрсэлж, тэдгээрийг хажуу тийш нь харуулна. Хэсэг, станцын дугаар, станцын дугаар, станц гэх мэт категорийн хувьсагчдыг сонгож болно. 100 хүртэлх зүйлийг сонгож болно."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Хувьсагчийн хоорондох хамаарал (тоон хувьсагч) хоорондын хамаарлыг дүрсэлсэн өгөгдлийн зүйл: Хэмжилт. Хэмжилтийн утга, гэх мэт). Энэ өгөгдлийг диаграм дээр хуйвалдана. 2-оос 7 параметрээс сонгож болно."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Хувьсагчдын хоорондох хамаарлыг төсөөлөхийн тулд зүйлийг сонгоно уу. 60 хүртэлх зүйлийг сонгож болно."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Ангиллын хувьсагч (хэсэг хэсгийн тоо гэх мэт) хувьсагчдын хоорондох хамаарлыг дүрслэх."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Картыг хамгийн их байлгах"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Картыг багасгах"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Хэрэв энэ тохиргоо өөрчлөгдсөн бол өгөгдлийн холбоосын тохиргоог дахин тохируулах шаардлагатай байна."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Авто сонгох"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Бүгдийг баруун тийш нь сонгоно уу"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Бүгдийг нь зөв биш"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Бүгдийг нь жинхэнэ (хөвөх) эндээс"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Эндээс бүх бүхэл тоо"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Эндээс бүх мөр"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Сонгосон олон тооны бүртгэлээс болж, хуйвалдааныг харуулах цаг хугацаа, төслийг харуулах цаг хугацаа, нэг хуйвалдааны тоо 10,000-ыг хязгаарласан. Хэрэв та BREAK_LINE зорилтот хугацааны туршид бүх өгөгдлийг харахыг хүсч байвал дэлгэцийн интервалыг нэмэгдүүлэх эсвэл зорилтот хугацааг багасгахын тулд зорилтот хугацааг багасгахыг хүсч байна."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Цувгаа"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Та хуйвалдаан дээр дарж хуйвалдааны хэмжээг зөв товшиж тохируулж болно."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Граф талбай"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Тохиргоо горим"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Холбогдох боломжгүй өгөгдлийн зүйлсийн тоо"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Тараах хуйвалдаан"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "Контуртай"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Хэмнэлт"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Хоосон"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Ачаалах тохиргоо"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Хуваалцах / хувийн"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Тодорхойлолт / төрөл анги"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Бүтээсэн байгуулсан зохион бүтээсэн"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Ашиглах / ачаалах"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Ачих"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Эхлэх цэгийн процесстой холбоогүй өгөгдлийн тоо (холбоосын хувь)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Өгөгдлийг хадгалах"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Хуваалцаа хадгалах"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "аврах"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Та 2-оос 7 зорилтот хувьсагчдыг сонгож болно. Зорилтот хувьсагчдын тоог шалгаж, тохиргоогоо засна уу."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Файлын хэмжээ хязгаар нь 10 MB юм. Файлын хэмжээг багасгах, дахин оролдоно уу."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Хэрэв шалгагдсан бол заасан өгөгдөл бас хадгалагдана."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Энэ тохиргоог хуваалцахыг шалгана уу."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Тохиргоог хадгал."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Тохиргоог дарж бичихдээ итгэлтэй байна уу?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "хуваах"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Хувийн"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Бүтэмж дээр бүтсэн"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Ойр дөхөм"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Захиалгын газар"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "DateTime эхлэх"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Төгсгөлийн Dateyime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "X-тэнхлэгийн шошгыг харуул"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Datetime муж"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Файлыг энд чирч, буулгана уу"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Эсвэл"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Файлуудыг сонгоно уу"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Үзүүлэх боломжгүй"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Их хэмжээний өгөгдөл, урт хугацааны боловсруулалтаас болж боловсруулалт тасалдсан. DateTime тохиргоог хянаж, талбайг дахин харуул."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "CSV файлыг гаргана. Файл татаж авах явцдаа хүлээнэ үү."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "__115__ файлыг гаргана. Файл татаж авах явцдаа хүлээнэ үү."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Автоматаар хүрээ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Бүрэн хүрээ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Индексийн захиалгын тохиргоо"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Нээлттэй"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Эдгээх"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "График тутамд өгөгдлийн цэгүүдийн тоо 12,000 гаруй байдаг тул мэдээллийн цэгийн тоо хамгийн ихдээ 12,000-той хязгаарлагдсан. Хэрэв та өгөгдлийг бүхэлд нь үзэхийг хүсч байвал богино зорилтот хугацааг тохируулна уу."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Нэр томъёоны дагуу (цикл)"
+
+#: component.js
+msgid "Facet"
+msgstr "Аср Гадаан Нүүр"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Сонгосон зүйлээр хуваах категорийг гүйцэтгэдэг."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Үл хамаарах тооцоо"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Хэвийн бус интервалтай хүрээ (IQR-ийг хэвийн хуваарилах IQR-ийг хэвийн хуваарилалт, niqr = 0.7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Горим нь хамгийн олон удаа тохиолддог утга юм."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "гаднагчтай"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "НЭМЭЛТГҮЙ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Ес заншил"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Оноо"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Өчигдөр"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Сүүлийн 7 өдөр"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "СУРГУУЛИЙН 30 30"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Энэ сар"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 сар"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 сар"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Хандах"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Долоо хоног"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 хоногийн өмнө"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 хоногийн өмнө"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Энэ сарын нударга өдөр"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Энэ сарын сүүлийн өдөр"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 сар"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Шинэчлэгдсэн"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Мэдээллийн цэгүүдийг хурдан горимоор нэгтгэсэн. Хэрэв та өгөгдөл оруулахгүйгээр хуйвалдаан авахыг хүсч байвал зорилтот хугацааг богиносгана."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Y тэнхлэгийн хүрээ"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Исгэгч"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Хоосон"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Явцын хайлт"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Pgititйл"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Талбайн өгөгдлийн цэгийн тоо 10,000 гаруй, нягтралтай хуйвалдааныг зуржээ. Хэрэв та бүх өгөгдлийн цэгүүдийг тараах хуйвалдаанаар харуулахыг хүсч байвал зорилтот хугацааг богиносгана уу."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Хоосон"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Цөхуу цаг"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Reiит дугаар"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "ЗОРИУЛСАН ТУХАЙ"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Корреляцийн коэффициентийг энэ хувьсагчийг зорилтот хувьсагч болгон ашиглан тооцоолно. Энд заасан зорилтот хувьсагч нь хуйвалдааны баруун талд байгаа өнгөт баартай хамт гарч ирнэ. Хэрэв та зорилтот хувьсагчийг хуйвалдаан дээр өөрчлөхийг хүсч байвал та тэдгээрийн хоорондох товчийг дарж, хувьсах нэр дээр баруун товшиж шилжиж болно."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Хэт олон ангилал байгаа тул өгөгдлийг живүүлээгүй. BREAK_LINE・ Шаардлагатай бол шалгах, хэрэв шаардлагатай бол зорилтот хугацааг богиносгох."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Шүүлтүүрийн тохиргоо"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Шошго (Ангилалын хувьсагч)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Хуулсан"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Богагсан"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Хуулах тохиргоог хуулах"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Paste тохиргоо"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Гаралтгүй тохируулга хийхгүйгээр эхний зорилтыг гарал үүсэл байдлаар сонгоно."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Өгөх мэдээлэл"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Хэрэглэх хэрэггүй"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Хэт олон ангилал байгаа тул өгөгдөл зураагүй байна."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Шаардлагатай бол, шаардлагатай бол зорилтот хугацааны тохиргоог шалгана уу."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Мэдээллийн тоог хуваана (мөчлөг)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Мэдээлэлийн тоо"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Хоосон"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Хоосон"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Заавал хувьсагчийг сонгоно уу."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Хоосон"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Ялзрах / ангиллын ялгааг задалдаггүй"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Тараах хуйвалдаан"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Хэрэв x эсвэл y өгөгдлийн төрөл нь String дээр байвал та өнгөт бус хувьсагчийг ашиглах боломжгүй."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Зөвшөөрөгдсөн хүрээний гадна талын утга илэрсэн тул хамгийн багадаа эсвэл хамгийн их хязгаарыг автоматаар шийдсэн. Шаардлагатай бол тохиргоог өөрчлөх."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Баруун товшилт: өгөгдлийн холбоос тохируулах / засварлах / устгах"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Зарцуулсан цаг хугацаа"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Цаг хугацааны захиалга"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Өгөгдлийн захиалга тохируулах"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Шаардлагагүй өгөгдлийг устгах `__SERVER_INFO__ __SERVER_INFO__ __52 %% хүрсэн тул` __SERVER_INFO__ %% хүрч байгаа тул __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "`__SERVER_INFO__ __SERVER_INFO__52 __52 %%51 %%52 %% багтсан тул өгөгдлийн порт зогссон. Хэрэв шаардлагагүй өгөгдөл устгагдаж, хоосон хүчин чадал нэмэгдэж байгаа бол өгөгдлийг үргэлжлүүлнэ."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Үзэхийн тулд тархалтын тоог оруулна уу (хэлтсийн тоо). 2 эсвэл 150 ба түүнээс бага бүхэл тоо оруулна уу."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Үзэхийн тулд тархалтын тоог оруулна уу (хэлтсийн тоо). 1 ба түүнээс дээш 32 ба түүнээс бага бүхэл тоо оруулна уу."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Хоосон"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Хоосон"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Хоосон"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Хоосон"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Хэт олон тооны хиймэл гаралт байдаг тул автоматаар хязгаарлагдмал байсан."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Сонгосон олон тооны бичлэгээс болж сонгогдсонтой холбоотой, талбайгийн тоог хязгаарлагдмал байдлаар хязгаарладаг."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Би зөвшөөрч байна"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Доройтол"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Хойноо"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Багана дээрх хуйвалдааны тоо"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Категорийн хувьсагч (хэсэг, станц, Station гэх мэт) Шошгоны дээд хэсэгт байрлах шошго (хэсэг."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Шинжилгээтэй байх зүйлсийг сонгоно уу (тоон хувьсагч: хэмжих үнэ цэнэ, гэх мэт). 60 хүртэлх зүйлийг сонгож болно."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Мэдээллийг эрэмбэлэх зүйлсийг сонгоно уу. Та бас олон зүйлийг сонгож болно."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Хэт их өгөгдөл нь дэлгэцийн хязгаарлалт бүхий хамгийн сүүлийн үеийн мэдээллийг тоолохгүй байгаа тул хуучин мэдээллийг харуулахгүй."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Талбайн тоог NUMBER хязгаарласан. Хэрэв та бүгдийг нь харуулахыг хүсч байвал тохиргоогоо дахин оруулна уу."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Нэг таб дээрх хуйвалдааны тоо NUMBER-тэй хязгаарлагдсан. Хэрэв та бүгдийг нь харуулахыг хүсч байвал тохиргоогоо дахин оруулна уу."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Зорилтот хувьсагчдын тоо хамгийн багадаа хамгийн бага ба хамгийн ихдээ хамгийн ихдээ. Зорилтот хувьсагчдын тоог шалгаж, тохиргоогоо засна уу."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Зорилтот хувьсагчдын тоо хамгийн ихдээ хамгийн дээд хэмжээнд хүртэл байна. Зорилтот хувьсагчдын тоог шалгаж, тохиргоогоо засна уу."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

@@ -1,0 +1,3153 @@
+# パンジャーブ語 Punjabi translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "pa_パンジャーブ語_Punjabi"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:14+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: pa\n"
+"Language-Team: pa\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "ਸੰਭਾਲੀ ਗਈ"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "ਇੱਕ ਗਲਤੀ ਆਈ ਹੈ"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "ਐਪਲੀਕੇਸ਼ਨ ਕੌਨਫਿਗਰੇਸ਼ਨ"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "ਪੰਨਾ ਮਿਲਿਆ ਨਹੀਂ"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "ਇੱਕ ਗਲਤੀ ਆਈ ਹੈ"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "ਡੈਟਲਿੰਕ ਅਤੇ ਵਿਸ਼ਲੇਸ਼ਣ ਐਪ"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "ਇੱਕ ਭਾਸ਼ਾ ਚੁਣੋ"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "ਮੁੱਖ ਸਕਰੀਨ"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "ਓਪਰੇਸ਼ਨ ਤਸਦੀਕ"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "ਓਪਰੇਸ਼ਨ ਤਸਦੀਕ"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "ਮੁ Sety ਲੀ ਵਰਤੋਂ"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "ਰਜਿਸਟਰ"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "ਮੁੜ ਲੋਡ ਕਰੋ"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "ਪੂਰਨ ਅੰਕ"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "ਅਸਲ (ਫਲੋਟ)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "ਤਾਰੀਖ ਦਾ ਸਮਾਂ"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "ਸਤਰ"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "ਸਿਰਲੇਖ"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "ਪੌਦਾ"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "ਫੈਕਟਰੀ"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "ਲਾਈਨ"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "ਕ੍ਰਿਪਾ ਕਰਕੇ ਪੁਸ਼ਟੀ ਕਰੋ."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "ਡੇਟਾ ਨੂੰ ਸੇਵ ਕਰੋ ਅਤੇ ਪ੍ਰਕਿਰਿਆ ਸੈਟਿੰਗ ਪੰਨੇ ਤੇ ਸੈਟ ਕੀਤੇ ਵਿਸ਼ਾ ਸਥਾਨ ਨਾਲ ਡਾਟਾ ਆਯਾਤ ਸ਼ੁਰੂ ਕਰੋ?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "ਠੀਕ ਹੈ"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "ਰੱਦ ਕਰੋ"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "ਡਾਟਾਬੇਸ ਸੰਰਚਨਾ"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "ਡਾਟਾਬੇਸ ਦਾ ਨਾਮ"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "ਡਾਟਾਬੇਸ ਕਿਸਮ"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "ਕੌਂਫਿਗ"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "ਟਿੱਪਣੀ"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "ਸ਼ਾਮਲ ਕਰੋ"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "ਇੱਕ ਡਾਟਾਬੇਸ ਫਾਈਲ ਦੀ ਚੋਣ ਕਰੋ."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "ਫਾਈਲ ਦਾ ਨਾਮ"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "ਚੁਣੋ"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "ਕੀ ਤੁਸੀਂ ਇਸ ਰਿਕਾਰਡ ਨੂੰ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "ਮਿਟਾਓ"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "ਟਰੇਸੀਬਿਲਟੀ"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "ਟਰੇਸਿਬਿਲਿਟੀ ਗ੍ਰਾਫ"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "ਟਰੇਸ ਟੈਸਟਿੰਗ"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "ਟੈਸਟਿੰਗ ਸ਼ੁਰੂ ਕਰੋ"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "ਸ਼ੁਰੂ ਕਰਨ ਦਾ ਸਮਾਂ"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "ਅੰਤ ਦਾ ਸਮਾਂ"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ਮਸ਼ੀਨ ਆਈਡੀ (ਮਲਟੀਪਲ ਚੋਣ)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "ਲਾਈਨ"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "ਭਾਗ ਨੰਬਰ"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "ਡਾਟਾ ਲਿੰਕ ਕੌਂਫਿਗ੍ਰਾ"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "ਇੱਕ ਭਾਸ਼ਾ ਚੁਣੋ"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "ਜਪਾਨੀ"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "ਅੰਗਰੇਜ਼ੀ"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "ਨੋਡ"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "ਨੋਡ ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "ਲੇਬਲ"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "ਮਾਸਟਰ ਨਾਮ"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "ਡਾਟਾਬੇਸ"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "ਆਯਾਤ"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "ਨਿਰਯਾਤ"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "ਹੋਸਟ ਨਾਮ"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "ਪੋਰਟ ਨੰਬਰ"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "ਉਪਭੋਗਤਾ ਨਾਮ"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "ਪਾਸਵਰਡ"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "ਸਕੀਮਾ"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; ਮੈਂ ਸਫਲ ਹੋ ਗਿਆ."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; ਫੇਲ੍ਹ ਹੋਇਆ."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "ਕਾਰਜ"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "ਪ੍ਰਕਿਰਿਆ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "ਪ੍ਰਕਿਰਿਆ ਦਾ ਨਾਮ"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "ਟੇਬਲ ਦਾ ਨਾਮ"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "ਵੇਰਵਾ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "ਝਲਕ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "ਪਹਿਲੇ ਪੰਜ ਰਿਕਾਰਡ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "ਸਮੱਗਰੀ ਸੈਟ ਕਰਨਾ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "ਕਾਲਮ ਦਾ ਨਾਮ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "ਅੰਗਰੇਜ਼ੀ ਦਾ ਨਾਮ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "ਦਿਖਾਇਆ ਹੋਇਆ ਨਾਮ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "ਕੁਸ਼ਲ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "ਓਪਰੇਟਰ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "0 ਤੋਂ ਇਲਾਵਾ ਕੋਈ ਮੁੱਲ ਦਰਜ ਕਰੋ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "ਇਨਪੁਟ ਆਪਰੇਟਰ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "ਇੰਪੁੱਟ ਇੰਪੁੱਟ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "ਇਨਪੁਟ ਅੰਗਰੇਜ਼ੀ ਨਾਮ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "ਇਨਪੁਟ ਡਿਸਪਲੇਅ ਨਾਮ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "ਅੰਗਰੇਜ਼ੀ ਨਾਮ ਡੁਪਲਿਕੇਟ ਹੈ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "ਡਿਸਪਲੇਅ ਨਾਮ ਡੁਪਲਿਕੇਟ ਹੈ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "ਸਾਰੇ \"ਡਿਸਪਲੇਅ ਨਾਮ\" ਇੰਪੁੱਟ ਲੋੜੀਂਦੇ ਹਨ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "ਅੰਗਰੇਜ਼ੀ ਨਾਮ ਵਾਲੇ ਖੇਤਰ ਆਪਣੇ ਆਪ ਭਰ ਜਾਂਦੇ ਹਨ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "ਸਾਰਿਆ ਨੂੰ ਚੁਣੋ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "ਡਾਟਾ ਆਯਾਤ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "ਕੀ ਤੁਹਾਨੂੰ ਡੇਟਾ ਆਯਾਤ ਕਰਨਾ ਨਿਸ਼ਚਤ ਹੈ?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "ਜਦੋਂ ਤੁਸੀਂ OK ਬਟਨ ਨੂੰ ਦਬਾਉਂਦੇ ਹੋ, ਤਾਂ ਤੁਸੀਂ ਮੌਜੂਦਾ ਸਮੇਂ ਤੋਂ ਇੱਕ ਮਹੀਨੇ ਪਹਿਲਾਂ ਤੱਕ ਡਾਟਾ ਆਯਾਤ ਕਰੋਗੇ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "ਪਿਛਲੇ ਅੰਕੜੇ ਥੋੜੇ ਸਮੇਂ ਤੋਂ ਥੋੜ੍ਹੀ ਦੇਰ ਨਾਲ ਆਯਾਤ ਕੀਤਾ ਜਾਂਦਾ ਹੈ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "ਜੇ ਤੁਸੀਂ ਮੌਜੂਦਾ ਸਮੇਂ ਤੋਂ ਬਾਅਦ ਡੇਟਾ ਆਯਾਤ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ, ਤਾਂ ਦੁਬਾਰਾ ਡਾਟਾ ਰੀਡਿੰਗ ਬਟਨ ਨੂੰ ਦਬਾਓ, ਜਾਂ ਡੈਟਾਬੇਸ ਨੂੰ ਦਬਾਓ ਰੀਡ ਸੈਟਿੰਗਸ ਪੇਜ 'ਤੇ ਸੈਟਿੰਗਜ਼ ਸਥਾਪਤ ਕਰਨ ਵਾਲੇ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "ਜਦੋਂ \"ਡਾਟਾਬੇਸ ਰੀਡਿੰਗ ਸੈਟਿੰਗ\" ਦਾ ਚੱਕਰ \"ਅਪਡੇਟ ਕਰੋ\" ਸੈੱਟ ਕੀਤਾ ਜਾਂਦਾ ਹੈ, ਇਹ ਮੌਜੂਦਾ ਸਮੇਂ ਨਿਰਧਾਰਤ ਹੋਣ 'ਤੇ ਆਪਣੇ ਆਪ ਆਯਾਤ ਕੀਤਾ ਜਾਏਗਾ, ਜਦੋਂ ਮੌਜੂਦਾ ਸਮੇਂ ਤੋਂ ਬਾਅਦ ਡਾਟਾ ਨਿਰਧਾਰਤ ਕੀਤਾ ਜਾਂਦਾ ਹੈ."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "ਪਤਾ ਲਗਾਓ"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "ਟਰੇਸ ਡੇਟਾ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "ਪਹੁੰਚ ਨਹੀਂ ਕਰ ਸਕਿਆ"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "ਇਸ ਨੂੰ ਠੀਕ ਕਰਨ ਲਈ ਇੱਥੇ ਕਲਿੱਕ ਕਰੋ."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "ਸੰਪਾਦਿਤ ਕਿਨਾਰੇ"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "ਪ੍ਰੀਵ ਪ੍ਰਕਿਰਿਆ"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "ਪਿਛਲਾ ਕਾਲਮ"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "ਪੋਸਟ ਪ੍ਰਕਿਰਿਆ"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "ਪੋਸਟ ਕਾਲਮ"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "ਤਾਰੀਖ ਦੇ ਤੌਰ ਤੇ"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "ਸੀਰੀਅਲ ਦੇ ਤੌਰ ਤੇ"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "ਲਿੰਕ ਦੇ ਤੌਰ ਤੇ ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "ਪਹਿਲਾਂ ਹੀ ਰਜਿਸਟਰਡ ਹੈ"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "ਕਿਰਪਾ ਕਰਕੇ ਪ੍ਰਕਿਰਿਆ ਦਾ ਨਾਮ ਦਰਜ ਕਰੋ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "ਫਿਲਟਰ / ਗ੍ਰਾਫ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "ਗ੍ਰਾਫ ਸੰਰਚਨਾ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "ਲਾਈਨ ਫਿਲਟਰ ਕੌਨਫਿਗ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "ਲਾਈਨ ਕਾਲਮ"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "ਮੁੱਲ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "ਮਸ਼ੀਨ ਫਿਲਟਰ ਸੰਰਚਨਾ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "ਮਸ਼ੀਨ ID"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "ਭਾਗ ਕੋਈ ਫਿਲਟਰ ਕੌਨਫਿਗ ਨਹੀਂ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "ਭਾਗ ਕੋਈ ਕਾਲਮ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "ਫਿਲਟਰ ਨਾਮ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "ਫਿਲਟਰ ਸਥਿਤੀ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "ਹੋਰ ਫਿਲਟਰ ਸੰਰਚਨਾ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "ਟਾਰਗੇਟ ਕਾਲਮ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "ਵਿਜ਼ੂਅਲਾਈਜ਼ੇਸ਼ਨ ਕੌਨਫਿਗ੍ਰਾ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "ਘੱਟ ਥ੍ਰੈਸ਼ੋਲਡ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "ਉਪਰਲਾ ਥ੍ਰੈਸ਼ੋਲਡ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "ਘੱਟ ਪ੍ਰਕਿਰਿਆ ਦੇ ਥ੍ਰੈਸ਼ੋਲਡ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "ਉਪਰਲੀ ਪ੍ਰਕਿਰਿਆ ਥ੍ਰੈਸ਼ੋਲਡ"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "ਵਾਈ-ਐਕਸਜ਼ ਰੇਂਜ: ਮਿਨ"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "ਵਾਈ-ਐਕਸਜ਼ ਰੇਂਜ: ਮੈਕਸ"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "ਭਾਗ ਨੰ"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "ਨਾਲ ਖਤਮ"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "ਨਾਲ ਸ਼ੁਰੂ ਕਰੋ"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like ਖੋਜ)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "ਸਹਿਮਤ"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "ਨਿਯਮਤ ਸਮੀਕਰਨ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "ਗ੍ਰਾਫ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰੋ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV ਨਿਰਯਾਤ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "ਪ੍ਰਕਿਰਿਆ ਦੀ ਲੋੜ ਹੈ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "ਕਾਲਮ ਨਾਮ ਲੋੜੀਂਦਾ ਹੈ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "ਲਾਈਨ ਦੀ ਲੋੜ ਹੈ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "ਡਿਸਪਲੇਅ ਨਾਮ ਲੋੜੀਂਦਾ ਹੈ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "ਡਿਸਪਲੇਅ ਨਾਮ ਡੁਪਲਿਕੇਟ ਹੈ."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "ਮਸ਼ੀਨ ਵੈਲਯੂ ਦੀ ਲੋੜ ਹੈ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "ਡੁਪਲਿਕੇਟ ਮਸ਼ੀਨ ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "ਸਫਲਤਾਪੂਰਕ ਬਚਾਓ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "ਬਚਾਉਣ ਵਿੱਚ ਅਸਫਲ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "ਭਾਗ ਕੋਈ ਕਾਲਮ ਲੋੜੀਂਦਾ ਹੈ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "ਟਾਰਗੇਟ ਕਾਲਮ ਲੋੜੀਂਦਾ ਹੈ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "ਫਿਲਟਰ ਨਾਮ ਲੋੜੀਂਦਾ ਹੈ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "ਸਥਿਤੀ ਦੀ ਲੋੜ ਹੈ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "ਫਿਲਟਰ ਨਾਮ ਡੁਪਲਿਕੇਟ ਹੈ."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "ਸ਼ਰਤਾਂ ਡੁਪਲਿਕੇਟ ਕੀਤੀਆਂ ਜਾਂਦੀਆਂ ਹਨ."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "ਮੂਲ"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "ਪ੍ਰਕਿਰਿਆ ਦਾ ਨਾਮ"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "ਹੋਰ ਫਿਲਟਰ ਸ਼ਾਮਲ ਕੀਤੇ ਗਏ"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "__13OK ਆਯਾਤ ਕੌਂਫਿਗਰੇਸ਼ਨ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "ਸਰੋਤ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "ਨਵੀਨੀਕਰਣ ਚੱਕਰ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "ਕਨੈਕਟ ਕਰੋ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "ਇਕ ਵਾਰ ਪ੍ਰਤੀ ਘੰਟਾ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "ਇਕ ਵਾਰ ਪ੍ਰਤੀ ਦਿਨ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "ਡਾਟਾ ਪੁਸ਼ਟੀਕਰਣ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "ਕੋਈ ਫੋਲਡਰ ਨਹੀਂ ਹੈ."
+
+msgid "File does not exist"
+msgstr "ਕੋਈ ਫਾਈਲ ਨਹੀਂ ਹੈ."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "ਤੁਸੀਂ ਜੁੜ ਸਕਦੇ ਹੋ."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "ਕਿਰਪਾ ਕਰਕੇ ਮੁੱਲ ਭਰੋ."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "ਇੱਥੇ ਕੋਈ ਨਿਰਧਾਰਤ ਸਮੱਗਰੀ ਨਹੀਂ ਹੈ."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "ਸੈਟਿੰਗ ਡੁਪਲਿਕੇਟ ਹਨ."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "ਡਾਟਾਬੇਸ ਸੈਟਿੰਗਾਂ ਨੂੰ ਸੇਵ."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "ਡਾਟਾਬੇਸ ਸੈਟਿੰਗਾਂ ਨੂੰ ਸੁਰੱਖਿਅਤ ਕਰਨ ਵਿੱਚ ਅਸਫਲ."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "ਮੁ basic ਲੀ ਸੈਟਿੰਗਾਂ ਸੁਰੱਖਿਅਤ ਕੀਤੀਆਂ."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "ਮੁ basic ਲੀ ਸੈਟਿੰਗਾਂ ਨੂੰ ਬਚਾਉਣ ਵਿੱਚ ਅਸਫਲ."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "ਟੈਸਟ ਕਨੈਕਸ਼ਨ"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "ਸ਼ੁਰੂਆਤੀ ਬਿੰਦੂ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "ਤਾਰੀਖ ਦੀ ਰੇਂਜ"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "ਤਾਜ਼ਾ"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "ਆਟੋ ਅਪਡੇਟ"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "ਮਿੰਟ"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "ਮਿੰਟ"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "ਘੰਟਾ"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "ਘੰਟੇ"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "ਟਾਰਗੇਟ ਵੇਰੀਏਬਲ"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "ਫਿਲਟਰ"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X ਧੁਰਾ"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "ਟਾਈਮਸਟੈਂਪ"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "ਇੰਡੈਕਸ"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "ਸਤਰ ਪਰਿਵਰਤਨਸ਼ੀਲ"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "ਫਿਲਟਰ"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "ਡਾਟਾਬੇਸ / CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "ਵਿਸ਼ਲੇਸ਼ਣ"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "ਵਿਕਾਸ ਅਧੀਨ"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "ਵਿਸ਼ਲੇਸ਼ਣ:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "ਝਰਨੇ ਪਲਾਟ"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "ਗ੍ਰਾਫਿਕਲ LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "ਹਿਸਟੋਗ੍ਰਾਮ"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "ਸਟ੍ਰੇਟਿਡ ਪਲਾਟ"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "ਪੂਰੀ-ਬਿੰਦੂ ਪਲਾਟ"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "ਡਾਟਾ ਵਿਜ਼ੂਅਲਾਈਜ਼ੇਸ਼ਨ"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "ਦਿੱਖ"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "ਰਨ"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "ਡਾਟਾਬੇਸ ਦਾ ਨਾਮ ਦਰਜ ਕਰੋ."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "ਡਾਟਾ ਸਰੋਤ ਨਾਮ ਦਰਜ ਕਰੋ."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "ਕਾਲਮ ਜਿਨ੍ਹਾਂ ਵਿੱਚ ਕੋਈ ਡਾਟਾ ਕਿਸਮ ਦੀ ਆਯਾਤ ਨਹੀਂ ਕੀਤੀ ਜਾਂਦੀ."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "ਘੱਟੋ ਘੱਟ ਇਕ ਤਾਰੀਖ ਦਾ ਕਾਲਮ ਲੋੜੀਂਦਾ ਹੈ."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "ਵਿਜ਼ੂਅਲਾਈਜ਼ੇਸ਼ਨ ਲਈ, x- ਧੁਰੇ ਲਈ '{col}'."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "ਕੀ ਤੁਸੀਂ ਜਾਰੀ ਰੱਖਣਾ ਨਿਸ਼ਚਤ ਹੋ?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "ਟੇਬਲ ਦਰਸ਼ਕ"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "ਟੇਬਲ"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "ਕ੍ਰਮਬੱਧ"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "ਡਾਟਾ ਦੀ ਗਿਣਤੀ"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "ਉਤਰਦਾ"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "ਚੜ੍ਹਨਾ"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "ਸੰਪੂਰਣ ਮੈਚ"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "ਅੰਸ਼ਕ ਮੈਚ"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "ਗਲਤ ਅੰਕ ਦੀ ਚੋਣ"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "ਲਿੰਕਿੰਗ ਲਈ ਵਰਤੇ ਗਏ ਪਾਤਰ ਦੀ ਲੰਬਾਈ ਵੱਖਰੀ ਹੈ."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "ਕੋਈ ਫਿਲਟਰ ਨਹੀਂ"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "ਸਾਰੀਆਂ ਲਾਈਨਾਂ"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "ਸਥਿਤੀ"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "ਨੌਕਰੀ ਦੀ ਸੂਚੀ"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "ਸਾਰੇ"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "ਆਯਾਤ ਮੁਕੰਮਲ."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "ਆਯਾਤ ਕਰਨਾ"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "ਆਯਾਤ ਕਰਨ ਵਿੱਚ ਅਸਫਲ"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "ਲੋਡ ਕੀਤਾ ਡਾਟਾ ਮਿਟਾ ਦਿੱਤਾ ਜਾਏਗਾ. ਇਹ ਠੀਕ ਹੈ? (ਕੋਈ ਤਬਦੀਲੀ ਨਹੀਂ ਜਦੋਂ ਤੱਕ ਰਜਿਸਟਰੀਕਰਣ ਬਟਨ ਦਬਾਇਆ ਨਹੀਂ ਜਾਂਦਾ ਹੈ)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "ਨੌਕਰੀ ਦੀ ਸੂਚੀ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "ਨੌਕਰੀ ਆਈਡੀ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "ਨੌਕਰੀ ਦਾ ਨਾਮ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "ਲਿੰਕਡ__1 ਦਾ ਉਤਪਾਦਨ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "ਲਿੰਕ ਦਾ ਡਿਸਪਲੇਅ ਤਿਆਰ ਕਰੋ ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "ਕਾਰਜ ਜਾਣਕਾਰੀ ਨੂੰ ਹਟਾਉਣ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "ਫੈਕਟਰੀ ਡੇਟਾ ਆਯਾਤ ਕਰੋ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "ਪਿਛਲੀ ਫੈਕਟਰੀ ਡੇਟਾ ਆਯਾਤ ਕਰੋ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "ਪਿਛਲੇ ਫੈਕਟਰੀ ਡੇਟਾ ਦੀ ਆਯਾਤ ਕਰਨ ਵਾਲੀ ਨੌਕਰੀ ਦਿਖਾਓ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV ਦਾ ਡੇਟਾ ਆਯਾਤ ਕਰੋ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "ਪੁਰਾਣੇ ਡੇਟਾ ਨੂੰ ਮਿਟਾਓ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "ਸ਼ੁਰੂ ਕਰਨ ਦਾ ਸਮਾਂ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "ਲੰਘਿਆ ਸਮਾਂ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "ਡਾਟਾਬੇਸ / CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "ਤਰੱਕੀ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "ਪ੍ਰਕਿਰਿਆ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "ਹਿਸਟੋਗ੍ਰਾਮ ਸੂਚੀ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "ਇੱਕ ਪ੍ਰਕੋਪ ਮੁੱਲ ਦੇ ਤੌਰ ਤੇ ਰਜਿਸਟਰ ਕਰੋ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "ਰਜਿਸਟਰਡ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "ਆਉਟਲਰ ਲੁਕਾਓ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "ਬਾਹਰ ਦਿਖਾਓ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "ਬਾਹਰ ਦੀ ਜਾਂਚ ਕਰੋ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "ਹਿਸਟੋਗ੍ਰਾਮ ਸੂਚੀ ਦਿਖਾਓ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "ਆਖਰੀ ਅਪਡੇਟ ਦਾ ਸਮਾਂ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "ਆਉਟਲਰ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਰੱਦ ਕਰ ਦਿੱਤੀ ਗਈ ਹੈ."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "ਇੱਕ ਬਾਹਰ ਦੇ ਤੌਰ ਤੇ ਰਜਿਸਟਰਡ"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "ਬਾਹਰ"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "ਸਿਰਫ ਇਕ ਵਾਰ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "ਨੌਕਰੀ ਦੇ ਵੇਰਵੇ"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "ਕਲਿੱਪਬੋਰਡ ਵਿੱਚ ਕਾਪੀ ਕਰੋ"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "ਮਲਟੀ ਸਕੈਟਰ ਪਲਾਟ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "ਸਕੈਟਰ ਪਲਾਟ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "ਸ਼੍ਰੇਣੀਵਾਦੀ ਵੇਰੀਏਬਲ ਦੀ ਕਲਪਨਾ ਕਰਨ ਲਈ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "ਵੇਰੀਏਬਲ ਦੁਆਰਾ ਸਟ੍ਰੈਟਿਫਿਫਿਨ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "ਵੇਰੀਏਬਲ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "ਮਸ਼ੀਨ ਨਹੀਂ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "ਟਾਰਗੇਟ ਪੀਰੀਅਡ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "ਬਾਰੰਬਾਰਤਾ (ਗਿਣਤੀ)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "ਘਣਤਾ ਦਾ ਅਨੁਮਾਨ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "ਸ਼੍ਰੇਣੀਵਾਦੀ ਵੇਰੀਏਬਲ"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "ਟਰਮ ਦੁਆਰਾ ਸਟ੍ਰੇਟਿਫ (ਸਿੱਧਾ)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "ਤੁਸੀਂ ਅੱਠ ਜਾਂ ਵਧੇਰੇ ਟਾਰਗੇਟ ਵੇਰੀਏਬਲ ਨਹੀਂ ਚੁਣ ਸਕਦੇ. ਟੀਚੇ ਦੇ ਵੇਰੀਏਬਲ ਦੀ ਚੋਣ ਕਰੋ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "ਅਨੌਲੇ ਖੋਜ"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "ਸਿਧਾਂਤ ਭਾਗ ਵਿਸ਼ਲੇਸ਼ਣ"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. ਪ੍ਰਿੰਸੀਪਲ ਕੰਪੋਨੈਂਟ ਡੇਟਾ ਦਾ ਸਕੋਰ"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. ਪ੍ਰਿੰਸੀਪਲ ਕੰਪੋਨੈਂਟ ਡਾਟਾ ਦਾ ਸਕੋਰ"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. ਟੀ 2 ਦੇ ਅੰਕੜਿਆਂ ਦਾ ਸੀਰੀਜ਼ ਚਾਰਟ"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. ਅੰਕ ਦੇ ਅੰਕੜਿਆਂ ਦਾ ਸੀਰੀਜ਼ ਚਾਰਟ"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. ਟੀ 2 ਦੇ ਅੰਕੜਿਆਂ ਦਾ ਯੋਗਦਾਨ ਪਲਾਟ"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. ਅੰਕ ਦੇ ਅੰਕੜਿਆਂ ਦਾ ਯੋਗਦਾਨ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "ਬਾਹਰ ਕੱ .ੋ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "ਸਿਖਲਾਈ ਡੇਟਾ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "ਟੈਸਟਿੰਗ ਡੇਟਾ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "ਹਾਂ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "ਨਹੀਂ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "ਡਾਟਾ ਕਿਸਮ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "ਉਦਾਹਰਣ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "ਗਲਤੀ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "ਚੇਤਾਵਨੀ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "ਕਿਉਂਕਿ ਸਾਰੀਆਂ ਕਤਾਰਾਂ ਨੂੰ ਘਾਟਾ ਮੁੱਲ ਪ੍ਰੋਸੈਸਿੰਗ ਕਰਕੇ ਮਿਟਾ ਦਿੱਤਾ ਗਿਆ ਹੈ (NA) ਵਿਸ਼ਲੇਸ਼ਣ ਕਰਨ ਲਈ ਕੋਈ ਡਾਟਾ ਨਹੀਂ ਹੈ. ਇਹ ਸੁਨਿਸ਼ਚਿਤ ਕਰੋ ਕਿ NA, ਨਹੀਂ ਚੁਣਿਆ ਗਿਆ ਹੈ."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "ਇਸ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ ਕਿਉਂਕਿ ਇਸ ਵਿੱਚ ਨੰਬਰਾਂ ਤੋਂ ਇਲਾਵਾ ਹੋਰ ਡਾਟਾ ਸ਼ਾਮਲ ਹਨ. ਇਹ ਸੁਨਿਸ਼ਚਿਤ ਕਰੋ ਕਿ ਤੁਸੀਂ ਇੱਕ ਕਾਲਮ ਨੂੰ ਇੱਕ ਸਤਰ ਜਾਂ ਸ਼੍ਰੇਣੀ ਦਾ ਮੁੱਲ ਦਿੱਤਾ ਹੈ."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "ਵਿਸ਼ਲੇਸ਼ਣ ਨਹੀਂ ਕਰ ਸਕਦਾ ਕਿਉਂਕਿ ਇਸ ਵਿੱਚ 0. ਦੇ ਪਰਿਵਰਤਨ ਨਾਲ ਅੰਕੜੇ ਸ਼ਾਮਲ ਹੁੰਦੇ ਹਨ ਕਿ ਇਹ ਸਿਰਫ ਇੱਕ ਹੀ ਮੁੱਲ ਵਾਲਾ ਕਾਲਮ ਨਹੀਂ ਚੁਣਿਆ ਗਿਆ ਹੈ."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "ਸ਼੍ਰੇਣੀ ਡੇਟਾ ਅਤੇ ਅਨੁਮਾਨਤ ਪੂਰਨ ਅੰਕ ਪ੍ਰਾਪਤ ਕੀਤਾ. ਜੇ ਇਹ ਪੂਰਨ ਅੰਕ ਕੋਈ ਆਰਡਰ ਸਕੇਲ, ਅੰਤਰਾਲ ਪੈਮਾਨਾ, ਜਾਂ ਅਨੁਪਾਤ ਸਕੇਲ ਨਹੀਂ ਹੈ, ਤਾਂ ਵਿਸ਼ਲੇਸ਼ਣ ਦੇ ਨਤੀਜੇ ਮਾੜੇ ਪ੍ਰਭਾਵਿਤ ਹੋ ਸਕਦੇ ਹਨ."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "ਕੀ ਤੁਹਾਨੂੰ ਵਿਸ਼ਲੇਸ਼ਣ ਕਰਨ ਲਈ ਯਕੀਨ ਹੈ?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "ਖੋਜ"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "ਮੀਡੀਅਨ ਇਕ ਆਮ ਅੰਕੜੇ ਵਿਚੋਂ ਇਕ ਹੈ. ਇਹ ਕੇਂਦਰ ਵਿੱਚ ਸਥਿਤ ਇੱਕ ਮੁੱਲ ਹੈ ਜਦੋਂ ਚੜ੍ਹਦੇ ਕ੍ਰਮ ਵਿੱਚ ਸੀਮਤ ਡੇਟਾ ਦਾ ਪ੍ਰਬੰਧ ਕੀਤਾ ਜਾਂਦਾ ਹੈ. ਉਦਾਹਰਣ ਦੇ ਲਈ, ਪੰਜਾਂ ਦੀ ਸਥਿਤੀ ਵਿੱਚ, ਉਮਰ ਦਾ ਦਰਮਿਆਨੀ ਉਮਰ ਤੀਜੀ ਉਮਰ ਹੈ. ਜੇ ਡੇਟਾ ਦੀ ਸੰਖਿਆ ਵੀ ਹੈ, ਤਾਂ ਕੇਂਦਰੀ ਬ੍ਰੇਵਿਟ ਹੋਣ ਯੋਗ ਹਿਸਾਬ ਦੀ .ਸਤਨ ਵਰਤੀ ਜਾਂਦੀ ਹੈ."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "ਅਧਿਕਤਮ"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "ਵੰਡ ਦਾ ਸਾਰ"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N ਨੰਬਰ"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Average ਸਤ"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "ਮੀਡੀਅਨ ਕੀ ਹੈ ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "ਕੁੱਲ"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "ਫ੍ਰੀਕੈਂਸ"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "ਅੰਤ ਬਿੰਦੂ"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "ਟਾਰਗੇਟ ਪ੍ਰਕਿਰਿਆ"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "ਟਾਈਮ ਸੀਰੀਜ਼"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "ਟੁਕੜੇ"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "ਡਾਟਾ ਲਿੰਕ ਦੀ ਗਿਣਤੀ"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "ਸਕਿੰਟ"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "ਜਵਾਬ ਦਾ ਸਮਾਂ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "ਸੋਧ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "ਵਾਪਸ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "ਨੋਡ ਸ਼ਾਮਲ ਕਰੋ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "ਕਿਨਾਰੇ ਸ਼ਾਮਲ ਕਰੋ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "ਨੋਡ ਨੂੰ ਸੋਧੋ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "ਇੱਕ ਨਵਾਂ ਨੋਡ ਲਗਾਉਣ ਲਈ ਖਾਲੀ ਥਾਂ ਤੇ ਕਲਿਕ ਕਰੋ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "ਨੋਡ ਤੇ ਕਲਿਕ ਕਰੋ, ਕਿਨਾਰੇ ਨੂੰ ਕਿਸੇ ਹੋਰ ਨੋਡ ਤੇ ਸੁੱਟੋ ਅਤੇ ਉਹਨਾਂ ਨਾਲ ਜੁੜੋ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "ਕੰਟਰੋਲ ਪੁਆਇੰਟ ਤੇ ਕਲਿਕ ਕਰੋ, ਇਸ ਨੂੰ ਨੋਡ ਤੇ ਖਿੱਚੋ ਅਤੇ ਕਨੈਕਟ ਕਰੋ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "ਕਿਨਾਰੇ ਸ਼ਾਮਲ ਨਹੀਂ ਕੀਤੇ ਜਾ ਸਕਦੇ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "ਕਲੱਸਟਰ ਨੂੰ ਹਟਾਇਆ ਨਹੀਂ ਜਾ ਸਕਦਾ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "ਕਲੱਸਟਰ ਨੂੰ ਸੰਪਾਦਿਤ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "ਡਿਸਪਲੇਅ ਦਾ ਨਾਮ ਜਾਂ ਮੁੱਲ ਨਕਲ ਹੈ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "ਡਿਸਪਲੇਅ ਦਾ ਨਾਮ ਅਤੇ ਮੁੱਲ ਦਰਜ ਕਰੋ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "ਲਾਈਨ ਕਾਲਮ ਦਾਖਲ ਕਰੋ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "ਘੰਟੇ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "ਡਾਟਾ ਜਾਣਕਾਰੀ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "ਦਿਨ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "ਹਫ਼ਤਾ"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "ਲੋਡ"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "ਸੇਵ"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "ਓਵਰਰਾਈਟ"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "ਸੈਟਿੰਗ"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "ਸਿਰਲੇਖ ਬਦਲੋ ਕਿਉਂਕਿ ਉਹੀ ਸਿਰਲੇਖ ਸੈਟ ਕੀਤਾ ਗਿਆ ਹੈ."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "ਸੈਟਿੰਗ ਸੇਵ ਕਰੋ"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "ਸਕਰੀਨ ਸ਼ਾਟ ਬਣਾਓ"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "ਡਾਉਨਲੋਡ ਕਰੋ"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "ਹੇਠਾਂ ਦਿੱਤੇ ਕਾਰਨ ਦੇ ਕਾਰਨਾਂ ਨੂੰ ਪ੍ਰਦਰਸ਼ਤ ਕਰਨ ਦੇ ਕਾਰਨ ਹਨ. BREAK_LINE ਸਥਿਤੀ ਦੀ ਜਾਂਚ ਕਰੋ. __333 __ ਡਾਟਾ ਆਯਾਤ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ, ਜਾਂ ਆਯਾਤ ਦੇ ਮੱਧ ਵਿੱਚ. __333 __333 ____ ਕੋਈ ਡਾਟਾ ਜੁੜਿਆ ਨਹੀਂ ਹੈ, ਜਾਂ ਬੰਨ੍ਹਣ ਦੇ ਵਿਚਕਾਰ. BREAK_LINE・333 ਗ੍ਰਾਫ ਦੀ ਸੈਟਿੰਗ ਅਣਉਚਿਤ ਹੈ."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "ਚੇਤਾਵਨੀ"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "ਰਿਕਾਰਡ ਕੀਤੇ ਗਏ ਰਿਕਾਰਡ ਵਿੱਚ ਡੈਟਾ ਡੈਟਾ ਕਾਲਮ ਵਿੱਚ ਅਪ੍ਰਮਾਣਿਕ ​​ਡੇਟਾ ਆਯਾਤ ਨਹੀਂ ਕੀਤਾ ਜਾਂਦਾ."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "ਤੁਸੀਂ ਹੇਠਾਂ ਦਿੱਤੇ ਫੋਲਡਰ ਵਿੱਚ ਫਾਈਲਾਂ ਦਾ ਹਵਾਲਾ ਦੇ ਸਕਦੇ ਹੋ ਜਿਸ ਵਿੱਚ ਆਯਾਤ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "ਉਪਯੋਗਤਾ ਸਥਿਤੀ ਅਪਲੋਡ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਕਿਉਂਕਿ ਇਹ ਇੰਟਰਨੈਟ ਨਾਲ ਜੁੜਿਆ ਨਹੀਂ ਹੈ."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "ਕਿਰਪਾ ਕਰਕੇ ਨੈੱਟਵਰਕ ਕੁਨੈਕਸ਼ਨ ਦੀ ਜਾਂਚ ਕਰੋ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "ਦੁਬਾਰਾ ਡੇਟਾ ਨੂੰ ਜੋੜਨ ਵਿੱਚ ਬਹੁਤ ਸਮਾਂ ਲੱਗੇਗਾ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "ਕੀ ਤੁਹਾਨੂੰ ਡੇਟਾ ਨੂੰ ਮੁੜ ਜੋੜਨਾ ਪੱਕਾ ਹੈ?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "ਅਧੂਰਾ ਛੱਡਣਾ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "ਚਲਾਓ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "ਕੀ ਤੁਸੀਂ ਪਹਿਲਾਂ ਰਜਿਸਟਰਡ ਡਾਟਾ ਲਿੰਕ ਸੈਟਿੰਗਾਂ ਨੂੰ ਮੁੜ ਲੋਡ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "ਆਯਾਤ ਡੇਟਾ ਆਯਾਤ ਕਰਨਾ ਸ਼ੁਰੂ ਕੀਤਾ."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "ਤੁਸੀਂ ਹੇਠਾਂ ਦਿੱਤੇ ਲਿੰਕ ਤੋਂ ਆਯਾਤ ਦੀ ਪ੍ਰਗਤੀ ਦੀ ਜਾਂਚ ਕਰ ਸਕਦੇ ਹੋ."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "ਗਲਤੀ ਦੀ ਸਥਿਤੀ ਲਈ ਨੌਕਰੀ ਸੂਚੀ ਦਾ ਪੰਨਾ ਵੇਖੋ."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "ਲਿੰਕਿੰਗ ਡੇਟਾ ਨੂੰ ਸ਼ੁਰੂ ਕੀਤਾ."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "ਹਰ 3 ਮਿੰਟ ਵਿਚ ਇਕ ਵਾਰ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "ਹਰ 5 ਮਿੰਟ ਵਿਚ ਇਕ ਵਾਰ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "ਹਰ 10 ਮਿੰਟ ਵਿਚ ਇਕ ਵਾਰ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "ਵਿਕਲਪਿਕ ਕਾਰਜ"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "ਫਾਈਲ ਕਿਸਮ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "Inf± ਨਿਰਯਾਤ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "ਚੁਣੇ ਗਏ ਰਿਕਾਰਡਾਂ ਦੀ ਵੱਡੀ ਗਿਣਤੀ ਦੇ ਕਾਰਨ ਅਤੇ ਗ੍ਰਾਫ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨ ਲਈ ਲੋੜੀਂਦਾ ਸਮਾਂ, ਪ੍ਰਤੀ ਗ੍ਰਾਫ ਦੇ ਰਿਕਾਰਡਾਂ ਦੀ ਗਿਣਤੀ 50,000 ਤੱਕ ਸੀਮਿਤ ਸੀ."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "ਟਾਈਮ ਸੀਰੀਜ਼ ਚਾਰਟ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "ਸ਼੍ਰੇਣੀ ਦਾ ਮੁੱਲ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "ਕਿਉਂਕਿ ਨਿਰਧਾਰਤ ਅਵਧੀ ਵਿੱਚ ਰਿਕਾਰਡਾਂ ਦੀ ਗਿਣਤੀ 5,000 ਤੋਂ ਵੱਧ ਹੈ, BREAK_LINE ਲਿੰਕ ਨਿਰਧਾਰਤ ਅਵਧੀ ਦੇ ± 14 ਦਿਨਾਂ ਦੇ ਅੰਦਰ ਬੱਝੀ ਹੋਈ ਹੈ. ਜੇ ਤੁਸੀਂ ਲਿੰਕਿੰਗ ਰੇਂਜ ਨੂੰ ਸੀਮਿਤ ਨਹੀਂ ਕਰਨਾ ਚਾਹੁੰਦੇ, ਤਾਂ BREAK_LINE ਦੇ ਰਿਕਾਰਡਾਂ ਦੀ ਗਿਣਤੀ ਘਟਾਉਣ ਲਈ ਅਵਧੀ ਵਿਵਸਥਿਤ ਕਰੋ."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "ਸੈਟਿੰਗ ਸਕੇਲ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "ਆਮ ਪੈਮਾਨਾ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "ਥ੍ਰੈਸ਼ੋਲਡ ਲਾਈਨ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "ਆਟੋ ਸਕੇਲ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "ਵਰਤੇ ਜਾ ਰਹੇ ਹਨ"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "ਪ੍ਰਕਿਰਿਆ ਦਾ __422__"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_ਪ੍ਰੋ"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "ਅਧਿਕਤਮ"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "ਮਿਨ"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "ਕੋਈ ਨਹੀਂ"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "ਸੰਖੇਪ"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "ਗਿਣਤੀ"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "ਮੁੱ ort ਲੇ ਅੰਕੜੇ"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "ਗੈਰ-ਪ੍ਰਭਾਸ਼ਿਤ"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "ਡਾਟਾ ਕੁਆਲਟੀ"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "ਦਰਸ਼ਕ"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "ਡਾਟਾ ਆਯਾਤ"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "ਡਾਟਾ ਲਿੰਕ ਪ੍ਰਕਿਰਿਆ ਮੌਜੂਦਾ ਕੌਂਫਿਗਰੇਸ਼ਨ ਦੇ ਅਧਾਰ ਤੇ ਅਰੰਭ ਹੋ ਜਾਵੇਗੀ."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "ਇਹ ਸਮਾਂ ਲੈ ਸਕਦਾ ਹੈ ਜੇ ਇਸ ਨੂੰ ਜੋੜਨ ਲਈ ਬਹੁਤ ਸਾਰਾ ਡੇਟਾ ਹੈ. ਕੀ ਇਹ ਸ਼ੁਰੂ ਕਰਨਾ ਠੀਕ ਹੈ?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* ਡੇਟਾ ਲਈ ਜੋ ਸਵੈਚਾਲਤ ਅਤੇ ਸਮੇਂ-ਸਮੇਂ ਤੇ ਆਯਾਤ ਹੁੰਦਾ ਹੈ, ਲਿੰਕ ID ਆਪਣੇ ਆਪ ਤਿਆਰ ਹੁੰਦਾ ਹੈ."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "ਡਾਟਾ ਸਰੋਤ ਨਾਮ"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "ਡਾਟਾ ਸਰੋਤ ਕਿਸਮ"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "ਕੀ ਤੁਹਾਨੂੰ ਤਬਦੀਲੀਆਂ ਸੰਭਾਲਣੀਆਂ ਯਕੀਨ ਹੈ?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "ਟਾਈਮ ਜ਼ੋਨ ਸੈਟਿੰਗਾਂ ਲਈ ਓਐਸ ਜਾਣਕਾਰੀ ਨੂੰ."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "ਤਕਨੀਕੀ ਸੈਟਿੰਗ"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "ਸੈਟਿੰਗਾਂ ਨੂੰ ਆਯਾਤ ਕਰਨ ਦੀ ਡਾਟਾਬੇਸ / CSV ਫਾਈਲ ਨੂੰ ਸੇਵ ਕੀਤਾ ਜਾਂਦਾ ਹੈ. ਸੈਟਿੰਗ ਪੇਜ ਤੇ ਜਾਓ, ਡੇਟਾ ਨੂੰ ਆਯਾਤ ਕਰਨ ਲਈ ਆਯਾਤ ਡੇਟਾ ਨੂੰ ਆਯਾਤ ਕਰੋ."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "ਐਲੀਮੈਂਟ ਡੇਟਾ ਵਿੱਚ ਕੋਈ ਲੋੜੀਂਦਾ ਗੁਣ ਨਹੀਂ ਹੁੰਦਾ."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "ਐਲੀਮੈਂਟ ਡੇਟਾ ਲਈ ਕੋਈ ਗੁਣ ਮੁੱਲ ਨਹੀਂ ਹੈ."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "ਪੀਸੀਏ ਦੁਆਰਾ ਅਸਾਧਾਰਣ ਖੋਜ ਘੱਟੋ ਘੱਟ ਦੋ ਵੇਰੀਏਬਲ ਦੀ ਜ਼ਰੂਰਤ ਹੈ. ਦੋ ਜਾਂ ਵਧੇਰੇ ਪਰਿਵਰਤਨ ਦੀ ਚੋਣ ਕਰੋ."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "ਘੱਟੋ ਘੱਟ ਇੱਕ ਕਾਲਮ ਚੁਣੋ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "ਸ਼੍ਰੇਣੀ ਪਰਿਵਰਤਨ ਜੋ ਬਕਸੇ ਦੀ ਚੌੜਾਈ ਨੂੰ ਘਟਾਉਂਦੇ ਹਨ."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "ਸ਼ੁਰੂਆਤੀ ਅੰਕ"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "ਰਿਜਲਾਈਨ ਪਲਾਟ"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "ਐਪਲੀਕੇਸ਼ਨ ਨੂੰ ਰੋਕੋ (ਐਜ ਸਰਵਰ) ਜੇ ਤੁਸੀਂ ਰੁਕਦੇ ਹੋ, ਕੋਈ ਹੋਰ ਉਪਭੋਗਤਾ ਵੀ ਇਸਤੇਮਾਲ ਕਰਨ ਦੇ ਯੋਗ ਨਹੀਂ ਹੋਵੇਗਾ, ਇਸ ਲਈ ਪ੍ਰਬੰਧਕ ਨਾਲ ਸੰਪਰਕ ਕਰੋ. <br> ਆਮ ਅੰਤ ਦੇ ਮਾਮਲੇ ਵਿੱਚ, ਇੱਥੇ ਰੱਦ ਕਰੋ ਅਤੇ ਸਿਰਫ ਬ੍ਰਾ .ਜ਼ਰ ਨੂੰ ਬੰਦ ਕਰੋ."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "ਸਾਰੇ ਕੰਮ ਬੰਦ ਕਰ ਦਿੱਤੇ ਗਏ ਹਨ. ਤੁਸੀਂ ਆਪਣੇ ਬ੍ਰਾ browser ਜ਼ਰ ਅਤੇ ਕੰਸੋਲ ਨੂੰ ਸੁਰੱਖਿਅਤ dest ੰਗ ਨਾਲ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "ਡਾਟਾ ਸਰੋਤ ਸੰਰਚਨਾ"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "ਡਾਟਾ ਸਰੋਤ ਆਯਾਤ ਸੰਰਚਨਾ"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": ਕਾਲਮਾਂ ਨੂੰ ਕੁਝ ਅੱਖਰ ਦੇ ਕਾਲਮ ਮਿਲੇ. ਜਾਂਚ ਕਰੋ ਕਿ ਸੰਖਿਆਤਮਿਕ ਕਿਸਮ ਦੇ ਕਾਲਮ ਆਦਿ ਦੁਆਰਾ ਗਲਤ ਜਾਣਕਾਰੀ ਦਿੱਤੀ ਜਾ ਸਕਦੀ ਹੈ."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "ਫਿਲਟਰ ਆਈਟਮ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "ਫਿਲਟਰ ਮੁੱਲ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "ਮਿਆਦ ਪੁੱਗਣ ਦੀ ਤਾਰੀਖ (ਸ਼ੁਰੂ)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "ਮਿਆਦ ਪੁੱਗਣ ਦੀ ਤਾਰੀਖ (ਅੰਤ)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "ਕਾਲਮ ਡਾਟਾ ਟਾਈਪ ਕੌਂਫਿਗਰੇਸ਼ਨ ਗਲਤੀਆਂ ਦੇ ਕਾਰਨ ਡਾਟਾ ਆਯਾਤ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ. ਡਾਟਾ ਸਰੋਤ ਨਾਮ __49OK ਪੜ੍ਹਨ ਸੈਟਿੰਗ ਪੰਨੇ ਦੀ ਡੇਟਾ ਝਲਕ ਵਿੱਚ ਡੇਟਾ ਟਾਈਪ ਸੈਟਿੰਗਾਂ ਦੀ ਜਾਂਚ ਕਰੋ. ਉਹ ਪਗ ਸੈਟਿੰਗਾਂ ਮਿਟਾਓ ਜਿਹੜੀਆਂ ਨੂੰ ਆਯਾਤ ਅਤੇ ਸੈੱਟ ਨਹੀਂ ਕੀਤੀਆਂ ਜਾ ਸਕੀਆਂ."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "ਬਿਨਾਂ ਇੱਕ ਫਾਈਲ ਤੋਂ ਬਿਨਾਂ ਇੱਕ ਫਾਈਲ ਸੀ. ਫਾਈਲ ਦੇ ਭਾਗਾਂ ਦੀ ਜਾਂਚ ਕਰੋ. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "ਤੋਂ ਜਾਂ ਇਸ ਤੋਂ ਵੈਧਤਾ ਦੀ ਮਿਆਦ ਦਾ ਘੱਟੋ ਘੱਟ ਇੱਕ ਮੁੱਲ ਸ਼ਾਮਲ ਕਰੋ."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "ਸ਼੍ਰੇਣੀ ਅਨੁਸਾਰ ਵੰਡੋ"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "ਅਵਧੀ (ਸਾਈਕਲ) ਨਾਲ ਵੰਡੋ"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "ਨਿਯਮ (ਸਿੱਧੇ) ਦੁਆਰਾ ਵੰਡੋ"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "ਦਾਖਲ ਹੋਣ ਦੇ ਅੰਤਰਾਲ ਦਾ ਮੁੱਲ ਅਵੈਧ ਹੈ. ਇੱਕ ਨੰਬਰ 0.1 ਜਾਂ ਇਸ ਤੋਂ ਵੱਧ, 720 ਜਾਂ ਘੱਟ ਜਾਂ ਘੱਟ, ਜਾਂ -720 ਜਾਂ ਵੱਧ, ਅਤੇ -0.1 ਜਾਂ ਘੱਟ ਦਾਖਲ ਕਰੋ."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Mae `hyd ffenestr` nodedig yn annilys. Rhaid i'r gwerth fod rhwng 0.1 a 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "ਇਨਪੁਟ ਰੀਜਲਾਈਨ ਦੀ ਗਿਣਤੀ ਅਵੈਧ ਹੈ. 1 ਜਾਂ ਵੱਧ ਤੋਂ ਵੱਧ ਅਤੇ 150 ਜਾਂ ਇਸਤੋਂ ਘੱਟ ਦਾ ਪੂਰਨ ਅੰਕ ਦਿਓ. (100 ਦੇ ਆਸ ਪਾਸ ਦੀ ਵਰਤੋਂ ਕਰਨਾ ਪਸੰਦ ਕਰੋ)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "ਡਾਟਾ ਅਤੇ ਸਮਾਂ ਸ਼ੁਰੂ ਕਰੋ"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "ਅੰਤਰਾਲ"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "ਵਿੰਡੋ ਦੀ ਲੰਬਾਈ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "ਕੰਟਰੋਲ ਆਈਟਮ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "ਕਿਸਮ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "ਨਾਮ"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "ਯਾਦ ਰੱਖੋ ਕਿ ਜੇ ਇੱਕ ਸ਼੍ਰੇਣੀ ਵਿੱਚ ਡੇਟਾ ਬਿੰਦੂਆਂ ਦੀ ਗਿਣਤੀ 50 ਸਾਲ ਤੋਂ ਘੱਟ ਹੈ, ਗ੍ਰਾਫ ਦੀ ਸ਼ੁੱਧਤਾ ਘੱਟ ਸਕਦੀ ਹੈ."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "ਕਰਾਸ ਵਾਲ ਕਰਸਰ ਦਿਖਾਓ (ਕਲਿਕ ਕਰੋ)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "ਮਲਟੀ ਕਰਾਸ ਵਾਲ ਕਰਸਰ ਦਿਖਾਓ (ਡਬਲ ਕਲਿੱਕ)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "ਹਿਸਟੋਗ੍ਰਾਮ ਦੀ ਸੂਚੀ ਵੇਖੋ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "ਬਾਹਰ ਕੱ Cank ੋ ਚੈੱਕ ਕਰੋ"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "ਨਿਰਧਾਰਤ `ਡੇਟਾ ਸਰੋਤ ਨਾਮ ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹੈ."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "ਡਾਟਾ ਆਯਾਤ ਅਸਫਲ ਹੋਇਆ ਕਿਉਂਕਿ ਡੇਟਾ ਸਰੋਤ ਵਿੱਚ ਵੱਖਰੇ ਕਾਲਮ ਦੇ ਨਾਮ ਵਾਲੀ ਇੱਕ ਫਾਈਲ ਪਾਈ ਗਈ ਸੀ. ਫਾਈਲ ਦੇ ਭਾਗਾਂ ਦੀ ਜਾਂਚ ਕਰੋ ਅਤੇ ਡੇਟਾ ਸਰੋਤ ਆਯਾਤ ਸੈਟਿੰਗਜ਼ ਨੂੰ ਦੁਬਾਰਾ ਸੈਟ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "ਰਿਕਾਰਡ ਕੀਤੇ ਜਾਣ ਵਾਲੇ ਰਿਕਾਰਡਾਂ ਦੀ ਭਵਿੱਖਬਾਣੀ ਕੀਤੀ ਗਿਣਤੀ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "ਨਮੂਨੇ ਦੀ ਗਿਣਤੀ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "ਜੋੜਨ ਲਈ ਰਿਕਾਰਡਾਂ ਦੀ ਗਿਣਤੀ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "ਕੁੱਲ ਰਿਕਾਰਡਾਂ ਦੀ ਗਿਣਤੀ"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "ਕਿਰਪਾ ਕਰਕੇ ਫੋਲਡਰ ਦਾ ਨਾਮ ਦੱਸੋ ਜਿਸ ਵਿੱਚ CSV/TSV ਫਾਈਲਾਂ ਨੂੰ \"yyymmmdds\" ਵਾਂਗ ਸੁਰੱਖਿਅਤ ਕੀਤਾ ਜਾਂਦਾ ਹੈ"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "ਭਵਿੱਖਬਾਣੀ"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "ਫਿਲਟਰ ਸੰਰਚਨਾ"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "ਮਾਸਟਰ ਸੰਰਚਨਾ"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "ਫਿਲਟਰ ਕੌਨਫਿਗ ਤੋਂ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "ਸਾਰੇ ਦਿਖਾਓ"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "ਇੱਕ ਕੁੰਜੀ (ਵਿਕਲਪ) ਦੇ ਤੌਰ ਤੇ"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "ਮਿਟਾਏ ਗਏ REMOVED_COUNT ਘਾਟੇ ਦਾ ਮੁੱਲ, ਅਸਧਾਰਨ ਮੁੱਲ, ਅਤੇ ਬਾਹਰੀ ਮੁੱਲ ਤੋਂ ਮੂਲ ਵਿੱਚ."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP ਪਤਾ"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "ਡੇਟਾ ਡਿਸਟਰੀਬਿ .ਸ਼ਨ ਅਤੇ ਘਣਤਾ ਅਨੁਮਾਨ ਨਾਲ ਤੁਲਨਾ ਕਰੋ. ਗ੍ਰਾਫ ਨੂੰ ਸਟ੍ਰੇਟਿਕ ਵੇਰੀਏਬਲ ਦੁਆਰਾ ਵੰਡਿਆ ਗਿਆ ਹੈ. ਇਸ ਨੂੰ ਪਹਿਲੂ ਦੁਆਰਾ ਵੀ ਵੰਡਿਆ ਜਾਂਦਾ ਹੈ."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "ਸਮੇਂ ਧੁਰੇ ਜਾਂ __1 x 'ਤੇ ਸਾਰੇ ਡੇਟਾ ਨੂੰ ਪਲਾਟ ਕਰੋ."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "ਸਕੈਟਰ ਪਲਾਟ ਮੈਟ੍ਰਿਕਸ ਪ੍ਰਦਰਸ਼ਤ ਕਰੋ. ਤੁਸੀਂ 2 ਤੋਂ 7 ਟਾਰਗੇਟ ਵੇਰੀਏਬਲਸ ਤੱਕ ਵਰਤ ਸਕਦੇ ਹੋ."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "ਪ੍ਰਿੰਸੀਪਲ ਕੰਪੋਨੈਂਟ ਵਿਸ਼ਲੇਸ਼ਣ ਦੁਆਰਾ, \"ਵੱਖਰੇ\" ਅਤੇ ਇਸਦੇ ਕਾਰਕ ਵਿਸ਼ਲੇਸ਼ਣ ਦਾ ਦਰਸ਼ਣ ਪ੍ਰਦਰਸ਼ਨ ਕੀਤਾ ਜਾਂਦਾ ਹੈ. ਇੱਕ ਅਧਿਆਪਕ ਦੇ ਡੇਟਾ ਦੇ ਤੌਰ ਤੇ ਸਧਾਰਣ ਡੇਟਾ ਦਾਖਲ ਕਰੋ ਅਤੇ ਕਲਪਨਾ ਕਰੋ ਕਿ ਮੌਜੂਦਾ ਡੇਟਾ ਉਹੀ ਸਥਿਤੀ ਹੈ ਜੋ ਇਸਦੇ ਸਧਾਰਣ ਡੇਟਾ (ਟੀ 2 / ਪ੍ਰ) ਦੇ ਰੂਪ ਵਿੱਚ ਉਹੀ ਸਥਿਤੀ ਹੈ. ਜੇ ਤੁਹਾਡੀ ਕੋਈ ਵੱਖਰੀ ਸਥਿਤੀ ਹੈ, ਤਾਂ ਤੁਸੀਂ ਯੋਗਦਾਨ ਦੀ ਸਾਜਿਸ਼ ਦੇ ਮੁੱਖ ਕਾਰਕਾਂ ਦੀ ਜਾਂਚ ਕਰ ਸਕਦੇ ਹੋ."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "ਇਸ ਪਰਿਵਰਤਨ ਦੁਆਰਾ ਵੰਡ ਨੂੰ ਇਸ ਵੇਰੀਏਬਲ ਦੁਆਰਾ ਕਈ ਗ੍ਰਾਫਾਂ ਵਿੱਚ ਵੰਡਿਆ ਗਿਆ ਹੈ. ਸ਼੍ਰੇਣੀ ਵੇਰੀਏਬਲ (ਗੁਣਾਤਮਕ ਵੇਰੀਏਬਲ) ਜਿਵੇਂ ਕਿ ਭਾਗ ਨੰਬਰ ਅਤੇ ਸਟੇਸ਼ਨਾਂ ਦੀ ਚੋਣ ਕਰੋ."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "ਸਟਰੇਟਿਡ ਸ਼੍ਰੇਣੀ ਫਿਲਟਰ: ਇੱਕ ਸਬਸੈੱਟ ਉੱਤੇ ਪ੍ਰਦਰਸ਼ਿਤ ਹੋਣ ਲਈ ਡਾਟਾ ਸੀਮਿਤ ਕਰਦਾ ਹੈ. (ਸ਼੍ਰੇਣੀ: ਪਾਰਟ ਨੰਬਰ, ਸਟੇਸ਼ਨ ਨੰਬਰ, ਆਦਿ)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "ਸ਼੍ਰੇਣੀ ਵੇਰੀਏਬਲਸ (ਜਿਵੇਂ ਕਿ ਪਾਰਟ ਨੰਬਰ, ਸਟੇਸ਼ਨ ਨੰਬਰ, ਆਦਿ) ਬਦਲਦੇ ਬਿੰਦੂਆਂ ਨੂੰ ਲੱਭਣ ਲਈ ਪਲਾਟਾਂ ਦੇ ਸਿਖਰ ਤੇ ਲੇਬਲ ਦੇ ਰੂਪ ਵਿੱਚ ਪ੍ਰਦਰਸ਼ਿਤ ਹੁੰਦੇ ਹਨ."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "ਗ੍ਰਾਫ ਫਿਲਟਰ: ਉਪਸੈੱਟ ਨੂੰ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨ ਲਈ ਡਾਟਾ ਸੀਮਿਤ ਕਰਦਾ ਹੈ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "ਸਿਖਲਾਈ ਦੇ ਅੰਕੜਿਆਂ ਨੂੰ ਆਮ ਸਥਿਤੀ ਵਜੋਂ ਨਿਰਧਾਰਤ ਕਰੋ. ਡਾਟਾ ਸੈਕਸ਼ਨ ਸੈੱਟ ਕਰੋ ਜਿਸ ਵਿੱਚ ਕੋਈ NG ਅੰਕ ਨਹੀਂ ਹੁੰਦਾ. ਜੇ ਸ਼ਾਮਲ ਹੁੰਦੇ ਹਨ, ਉਹ ਜਿਹੜੇ NG ਦੇ ਡੇਟਾ ਦੇ ਨੇੜੇ ਹੁੰਦੇ ਹਨ ਨੂੰ ਵੀ ਆਮ ਡੇਟਾ ਵਜੋਂ ਨਿਰਣਾ ਕੀਤਾ ਜਾਂਦਾ ਹੈ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "ਨਿਰਣਾ ਕਰਨ ਲਈ ਟੈਸਟ ਡੇਟਾ ਸੈਟ ਕਰੋ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "ਆਈਟਮ ਫਿਲਟਰ: ਸਬਸੈੱਟ ਨੂੰ ਪ੍ਰਦਰਸ਼ਤ ਕਰਨ ਲਈ ਡਾਟਾ (ਵਿਸ਼ਲੇਸ਼ਣ ਕਰਨਾ ਅਤੇ ਡਿਸਪਲੇਅ) ਸੀਮਿਤ ਕਰਦਾ ਹੈ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "ਇਹ ਬਹੁ-ਆਯਾਮੀ ਤਸਦੀਕ ਡੇਟਾ ਦਾ ਦੋ-ਅਯਾਮੀ ਸਮੁੱਚੀ ਪ੍ਰਦਰਸ਼ਨੀ ਹੈ (ਪ੍ਰਮੁੱਖ ਕੰਪੋਨੈਂਟਸ ਦੁਆਰਾ ਅਯਾਮੀ ਹਿੱਸੇ). ਜੇ ਡੇਟਾ ਕੇਂਦਰ ਵਿਚ ਹੈ, ਤਾਂ ਇਸ ਦੀ ਵਿਆਖਿਆ ਆਮ ਦੇ ਨੇੜੇ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "ਇਹ ਬਹੁ-ਆਯਾਮੀ ਸਿੱਖਣ ਦੇ ਅੰਕੜਿਆਂ ਦਾ ਦੋ-ਅਯਾਮੀ ਸਮੁੱਚੀ ਪ੍ਰਦਰਸ਼ਨੀ (ਪ੍ਰਮੁੱਖ ਹਿੱਸਿਆਂ ਦੁਆਰਾ) ਪ੍ਰਿੰਸੀਪਲ ਕੰਪੋਨੈਂਟਸ ਦੁਆਰਾ) ਹੈ. ਕੇਂਦਰੀ ਟੀਚਾ ਲਰਨਿੰਗ ਡੇਟਾ ਦੁਆਰਾ ਨਿਰਧਾਰਤ ਕੀਤਾ ਜਾਂਦਾ ਹੈ, ਇਸ ਲਈ ਜ਼ਿਆਦਾਤਰ ਲਰਨਿੰਗ ਡੇਟਾ ਟੀਚੇ ਵਿੱਚ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "ਟੀ 2 ਦੇ ਅੰਕੜਿਆਂ ਦਾ ਇੱਕ ਪਲਾਟ, ਜੋ ਇਸ ਡੇਟਾ ਦੇ ਪ੍ਰਿੰਸੀਪਲ ਹਿੱਸੇ ਵਿੱਚ ਵਿਕਰੇਤਾਵਾਂ ਨੂੰ ਨਿਗਰਾਨੀ ਕਰਦਾ ਹੈ. ਲਰਨਿੰਗ ਡੇਟਾ ਨੂੰ ਚਿੱਟੇ ਅਤੇ ਨਕਾਰਾਤਮਕ ਐਕਸ ਹਿੱਸੇ ਵਿੱਚ ਸਾਜਿਸ਼ ਰਚੀ ਗਈ ਹੈ. ਪੀਲੇ ਪਲਾਟ ਵੈਧਤਾ ਡੇਟਾ ਹੈ. ਪ੍ਰਮਾਣਿਕਤਾ ਦੇ ਅੰਕੜਿਆਂ ਦੀ ਤੁਲਨਾ ਚਿੱਟਾ ਡੇਟਾ ਨਾਲ ਕੀਤੀ ਜਾਂਦੀ ਹੈ, ਇਸ ਤੋਂ ਵੱਧ ਸਮੇਂ ਦੀ ਸੰਭਾਵਨਾ ਨੂੰ ਭਟਕਾਉਣਾ ਵਧੇਰੇ ਹੁੰਦਾ ਹੈ. ਸਥਿਤੀ ਨੂੰ ਬਣਾਉਣ ਦੇ ਯੋਗਦਾਨ ਨੂੰ ਵੇਖਣ ਲਈ ਡੇਟਾ ਪੁਆਇੰਟ ਤੇ ਕਲਿਕ ਕਰੋ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Q ਅੰਕੜੇ ਦਾ ਇੱਕ ਪਲਾਟ (ਇਸ ਡੇਟਾ ਦੇ ਮਾਮੂਲੀ ਹਿੱਸੇ, ਰਹਿੰਦ ਖੂੰਹਦ ਦੀ ਨਿਗਰਾਨੀ ਲਈ ਨਿਗਰਾਨੀ). ਲਰਨਿੰਗ ਡੇਟਾ ਨੂੰ ਚਿੱਟੇ ਅਤੇ ਨਕਾਰਾਤਮਕ ਐਕਸ ਹਿੱਸੇ ਵਿੱਚ ਸਾਜਿਸ਼ ਰਚੀ ਗਈ ਹੈ. ਪੀਲੇ ਪਲਾਟ ਵੈਧਤਾ ਡੇਟਾ ਹੈ. ਪ੍ਰਮਾਣਿਕਤਾ ਦੇ ਅੰਕੜਿਆਂ ਦੀ ਤੁਲਨਾ ਚਿੱਟਾ ਡੇਟਾ ਨਾਲ ਕੀਤੀ ਜਾਂਦੀ ਹੈ, ਇਸ ਤੋਂ ਵੱਧ ਸਮੇਂ ਦੀ ਸੰਭਾਵਨਾ ਨੂੰ ਭਟਕਾਉਣਾ ਵਧੇਰੇ ਹੁੰਦਾ ਹੈ. ਸਥਿਤੀ ਨੂੰ ਬਣਾਉਣ ਦੇ ਯੋਗਦਾਨ ਨੂੰ ਵੇਖਣ ਲਈ ਡੇਟਾ ਪੁਆਇੰਟ ਤੇ ਕਲਿਕ ਕਰੋ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "ਇਸ ਆਰਡਰ ਦੇ ਕਿਹੜੇ ਵੇਰੀਏਬਲਸ ਟੀ 2 ਸਟੈਟਿਸਟਿਕ ਪਲਾਟ ਵਿੱਚ ਚੁਣੇ ਗਏ ਸਥਿਤੀ ਵਿੱਚ ਯੋਗਦਾਨ ਪਾਉਂਦੇ ਹਨ. ਲੰਬਾਈ ਦੀ ਜਿੰਨੀ ਲੰਬਾਈ, ਵਧੇਰੇ ਸੰਭਾਵਨਾ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "ਜਿਸ ਦੇ ਵੇਰੀਏਬਲਸ ਕਿ ਅੰਕੜੇ ਪਲਾਟ ਵਿੱਚ ਚੁਣੇ ਗਏ ਸਥਿਤੀ ਵਿੱਚ ਸਥਿਤੀ ਵਿੱਚ ਯੋਗਦਾਨ ਪਾਉਂਦੇ ਹਨ. ਲੰਬਾਈ ਦੀ ਜਿੰਨੀ ਲੰਬਾਈ, ਵਧੇਰੇ ਸੰਭਾਵਨਾ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "ਤੋਂ ਘੱਟ ਜਾਂ ਇਸਦੇ ਬਰਾਬਰ ਜਾਂ ਇਸਦੇ ਬਰਾਬਰ ਦੇ ਨਾਲ ਡੇਟਾ ਪੁਆਇੰਟਾਂ ਦੀ ਗਿਣਤੀ Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "ਤੋਂ ਵੱਧ ਜਾਂ ਇਸਦੇ ਬਰਾਬਰ ਜਾਂ ਇਸਦੇ ਬਰਾਬਰ ਦੇ ਡੇਟਾ ਪੁਆਇੰਟਾਂ ਦੀ ਗਿਣਤੀ Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "ਜਿਸ ਵਿੱਚ NA (ਉਪਲੱਬਧ ਨਹੀਂ) ਸਮੇਤ ਡਾਟਾ ਦੀ ਕੁੱਲ ਸੰਖਿਆ NaN9 NaN9 __ 9 (ਕੋਈ ਨੰਬਰ ਨਹੀਂ) ਅਤੇ Inf± (ਅਨੰਤ)."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: ਚੁਣੀ ਮਿਆਦ ਵਿੱਚ ਉੱਪਰਲੇ ਅਤੇ ਹੇਠਲੇ ਥ੍ਰੈਸ਼ੋਲਡ (ਗਿਣਤੀ) ਦੇ ਬਾਹਰਲੇ ਡੇਟਾ ਦੀ ਪ੍ਰਤੀਸ਼ਤਤਾ"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: ਚੁਣੇ ਹੋਏ ਸਮੇਂ ਵਿੱਚ ਉੱਪਰਲੇ ਅਤੇ ਹੇਠਲੇ ਸੀਮਾ ਦੇ ਥ੍ਰੈਸ਼ੋਲਡ (ਗਿਣਤੀ) ਦੇ ਬਾਹਰਲੇ ਡੇਟਾ ਦੀ ਪ੍ਰਤੀਸ਼ਤਤਾ"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "ਚੁਣੀ ਮਿਆਦ ਵਿੱਚ NA (ਉਪਲਬਧ ਨਹੀਂ) ਦੀ ਪ੍ਰਤੀਸ਼ਤਤਾ (ਗਿਣਤੀ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "ਚੁਣੀ ਮਿਆਦ ਵਿੱਚ NaN (ਕੋਈ ਨੰਬਰ ਨਹੀਂ) ਦੀ ਪ੍ਰਤੀਸ਼ਤਤਾ (ਗਿਣਤੀ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "ਚੁਣੀ ਮਿਆਦ ਵਿੱਚ Inf+ (ਪਲੱਸ ਅਨੰਤ) ਦੀ ਪ੍ਰਤੀਸ਼ਤਤਾ (ਗਿਣਤੀ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "ਚੁਣੀ ਮਿਆਦ ਵਿੱਚ Inf- (ਘਟਾਓ ਇਨਫਿਨਿਟੀ) ਦੀ ਪ੍ਰਤੀਸ਼ਤਤਾ (ਗਿਣਤੀ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "ਥ੍ਰੈਸ਼ੋਲਡ ਵੈਲਯੂ ਦੇ ਬਾਹਰ ਡੇਟਾ ਦੀ ਕੁੱਲ ਪ੍ਰਤੀਸ਼ਤਤਾ, NA (ਉਪਲੱਬਧ ਨਹੀਂ), NaN9 NaN9 NaN (ਅਨੰਤ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "NA (ਉਪਲੱਬਧ ਨਹੀਂ) ਨੂੰ ਛੱਡ ਕੇ ਡਾਟਾ ਦੀ ਗਿਣਤੀ NaN9 NaN9 NaN9 __ (ਕੋਈ ਨੰਬਰ ਨਹੀਂ) ਅਤੇ Inf± (ਅਨੰਤ)."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95 ਵੇਂ ਪ੍ਰਤੀਸ਼ਤ"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75 ਵਾਂ ਪ੍ਰਤੀਸ਼ਤ (ਤੀਜਾ ਚੌਥਾ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25 ਵੀਂ ਪ੍ਰਤੀਸ਼ਤ (ਪਹਿਲਾ ਚੌਥਾ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5 ਵੇਂ ਪ੍ਰਤੀਸ਼ਤ"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "ਇੰਟਰਕਐਂਟਲ ਰੇਂਜ (ਵੰਡ ਪਰਿਵਰਤਨਸ਼ੀਲਤਾ ਦਾ ਪ੍ਰਤੀਨਿਧ ਮੁੱਲ: IRQ = Q3 - Q1 ≒ 1.349σ @ ਸਧਾਰਣ ਡਿਸਟਰੀਬਿ .ਸ਼ਨ)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "ਮੀਡੀਅਨ (50 ਵਾਂ ਪ੍ਰਤੀਸ਼ਤ)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "ਗਿਣਤੀ / ਘੰਟਾ"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "ਗਿਣਤੀ / ਮਿੰਟ"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "ਚੱਕਰ ਦਾ ਸਮਾਂ [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "ਡਿਵੀਜ਼ਨ ਨੰਬਰ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "ਡਿਸਪਲੇਅ ਚੱਕਰ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "ਡਿਸਪਲੇਅ ਅੰਤਰਾਲ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "ਕੈਲੰਗਾ ਗਰਮੀ ਦਾ ਨਕਸ਼ਾ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "ਟੀਚੇ ਦੇ ਵੇਰੀਏਬਲ MAX_NUM_SENSOR ਜਾਂ ਇਸ ਤੋਂ ਵੱਧ ਨਹੀਂ ਚੁਣਿਆ ਜਾ ਸਕਦਾ. ਟੀਚੇ ਦੇ ਵੇਰੀਏਬਲ ਦੀ ਚੋਣ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "ਬਾਹਰ ਕੱ remost ਣ ਦੇ ਟੀਚੇ Max, Mean, Min, PNG ਅਤੇ Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "ਅਸਲ ਨੰਬਰ ਤੋਂ ਇਲਾਵਾ"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "ਡਿਸਟਰੀਬਿ .ਸ਼ਨ ਹਰੇਕ ਵਰਦੀਪ ਵੇਰੀਏਬਲ (ਗੁਣਾਤਮਕ ਪਰਿਵਰਤਨ, ਆਦਿ) ਜਾਂ ਤਾਰੀਖ ਦੇ ਸਮੇਂ ਜਾਂ ਮਿਤੀ ਸਮੇਂ ਲਈ ਹਿਸਾਬ ਨਾਲ ਦਰਸਾਈ ਜਾਂਦੀ ਹੈ. ਇੱਕ ਵਿਜ਼ੂਅਲਾਈਜ਼ੇਸ਼ਨ ਵਿਧੀ ਜੋ ਕਰਾਸ-ਗਰੁੱਪ ਵਿਸ਼ਲੇਸ਼ਣ ਦੀ ਆਗਿਆ ਦਿੰਦੀ ਹੈ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "ਗ੍ਰਾਫ 'ਤੇ ਖਿੱਚਣ ਲਈ ਥ੍ਰੈਸ਼ੋਲਡ ਸੈਟ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "ਜੇ ਸਕੈਟਰ ਚਾਲੂ ਹੈ, ਤਾਂ ਤੁਸੀਂ ਇਸ ਨਾਲ ਸਕੈਟਰ ਪਲਾਟ ਦਿਖਾ ਸਕਦੇ ਹੋ. ਮੌਜੂਦਾ ਆਈਟਮ ਅਤੇ ਅਗਲੀ ਕਤਾਰ ਆਈਟਮ ਦੇ ਵਿਚਕਾਰ ਸਕੈਟਰ ਪਲਾਟ. ਸਕੈਟਰ ਪਲਾਟ ਦੇ ਐਕਸ-ਐਕਸ ਅਤੇ ਵਾਈ-ਐਕਸਿਸ ਨੂੰ ਬਦਲਣ ਲਈ ਆਪਣੇ ਪਲਾਟਾਂ ਦੇ ਪਲਾਟ ਪਲਾਟਾਂ ਨੂੰ ਖਿੱਚੋ ਅਤੇ ਸੁੱਟੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "ਡੇਟਾ ਦੀ ਇਕ ਚੀਜ਼ (ਜਿਵੇਂ ਇਕ ਸੰਖਿਆਤਮਕ ਜਾਂ ਮਾਪ ਦਾ ਮੁੱਲ) ਜੋ ਡੇਟਾ ਦੀ ਵੰਡ ਪੈਦਾ ਕਰਦਾ ਹੈ. ਇਸ ਡੇਟਾ ਨੂੰ ਪਲਾਟ 'ਤੇ ਸਾਜਿਸ਼ ਰਚੀ ਗਈ ਹੈ. 20 ਚੀਜ਼ਾਂ ਦੀ ਚੋਣ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "ਇਹ ਸਟ੍ਰੇਟਿਫਾਈਡ ਵੇਰੀਏਬਲ ਡਿਸਟ੍ਰੀਬਿ ਨੂੰ ਕਈ ਪਲਾਟਾਂ ਵਿੱਚ ਵੰਡਦਾ ਹੈ ਅਤੇ ਉਹਨਾਂ ਨੂੰ ਨਾਲ ਨਾਲ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਦਾ ਹੈ. ਇਕ ਸਪੱਸ਼ਟ ਵੇਰੀਏਬਲ ਦੀ ਚੋਣ ਕਰੋ, ਜਿਵੇਂ ਕਿ ਬਹੁਤ ਜ਼ਿਆਦਾ ਜਾਂ ਬੈਚ ਨੰਬਰ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "ਹਰ ਤਾਰੀਖ ਦੇ ਸਮੇਂ ਲਈ ਰਿਜਲਾਈਨ ਪਲਾਟ ਨੂੰ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨ ਲਈ ਸ਼ੁਰੂਆਤੀ ਤਾਰੀਖ ਦਾ ਸਮਾਂ ਸ਼ਾਮਲ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "ਇੰਪੁੱਟ ਸਿੱਧੇ ਤੌਰ 'ਤੇ ਰਿਸਟਲ ਦੇ ਸਮੇਂ ਲਈ ਰਿਸਟਲ ਪਲਾਟ ਨੂੰ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨ ਲਈ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "ਤੁਸੀਂ CSV/TSV ਫਾਈਲ ਤੋਂ ਡੇਟਾ ਨੂੰ ਇੰਪੋਰਟ ਕਰਨ ਲਈ ਵਿਕਲਪਾਂ ਦੀ ਚੋਣ ਕਰ ਸਕਦੇ ਹੋ ਜਿਸ ਲਈ ਵਿਸ਼ੇਸ਼ ਪ੍ਰਬੰਧਨ ਦੀ ਜ਼ਰੂਰਤ ਹੈ, ਜਿਵੇਂ ਕਿ ਡਾਟਾ structures ਾਂਚਿਆਂ ਨੂੰ ਬਦਲਣਾ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "ਹੇਠਾਂ ਪੂਰਵਦਰਸ਼ਨ ਬਟਨ ਦਬਾਉਣ ਨਾਲ ਫਾਈਲ ਵਿਚਲੇ ਡੇਟਾ ਦਾ ਕੁਝ ਹਿੱਸਾ ਦਿਖਾਏਗਾ ਤਾਂ ਜੋ ਤੁਸੀਂ ਇਸ ਦੇ ਸੰਖੇਪਾਂ ਦੀ ਜਾਂਚ ਕਰ ਸਕੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "ਲਿੰਕ ਜੋੜਨ ਲਈ ਸਥਿਤੀ ਦੇ ਤੌਰ ਤੇ ਵਰਤਣ ਲਈ ਲਿੰਕ ਚੁਣੋ ID. ਤੁਸੀਂ ਕਈ ਚੀਜ਼ਾਂ ਵੀ ਚੁਣ ਸਕਦੇ ਹੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "ਜਦੋਂ ਤੁਹਾਡਾ ਐਪ ਸਮੇਂ-ਸਮੇਂ ਤੇ ਡੇਟਾ ਦੀ ਆਯਾਤ ਕਰਦਾ ਹੈ, ਤਾਂ ਤੁਸੀਂ ਇੱਕ ਮਿਤੀ ਸਮੇਂ ਦਾ ਕਾਲਮ ਚੁਣ ਸਕਦੇ ਹੋ ਜੋ ਤਰਜੀਹੀ ਤੌਰ ਤੇ ਤਾਰੀਖ ਦੇ ਸਮੇਂ ਵਜੋਂ ਵਰਤਿਆ ਜਾਂਦਾ ਹੈ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "ਜੇ ਤੁਸੀਂ ਕੋਈ ਓਪਰੇਟਰ ਚੁਣਦੇ ਹੋ ਅਤੇ 'ਕਾਰਕ ਦੇ ਅਧੀਨ ਇੱਕ ਨੰਬਰ ਦਾਖਲ ਕਰਦੇ ਹੋ, ਗ੍ਰਾਫ ਵਿੱਚ ਮੁੱਲ ਨਿਰਧਾਰਤ ਓਪਰੇਟਰ ਅਤੇ ਕਾਰਕ ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਗਿਣਿਆ ਜਾਵੇਗਾ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "ਜੇ ਤੁਸੀਂ ਕੋਈ ਓਪਰੇਟਰ ਚੁਣਦੇ ਹੋ ਅਤੇ 'ਕਾਰਕ ਦੇ ਅਧੀਨ ਇੱਕ ਨੰਬਰ ਦਾਖਲ ਕਰਦੇ ਹੋ, ਗ੍ਰਾਫ ਵਿੱਚ ਮੁੱਲ ਨਿਰਧਾਰਤ ਓਪਰੇਟਰ ਅਤੇ ਕਾਰਕ ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਗਿਣਿਆ ਜਾਵੇਗਾ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "ਇਹ ਦੱਸਣਾ ਸੰਭਵ ਹੈ ਕਿ ਇਸ ਵੇਲੇ ਲਿੰਕਿੰਗ ਹਾਲਤਾਂ ਵਿੱਚ ਇਸ ਬਾਰੇ ਕਿੰਨਾ ਡਾਟਾ ਜੋੜਿਆ ਜਾਏਗਾ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "ਇਸ ਵੇਲੇ ਸੈੱਟ ਕੀਤੇ ਡੇਟਾ ਲਿੰਕਿੰਗ ਸਥਿਤੀ ਨੂੰ ਰੱਦ ਕਰਦਾ ਹੈ ਅਤੇ ਪਿਛਲੀ ਰਜਿਸਟਰਡ ਸਥਿਤੀ ਨੂੰ ਕਾਲ ਕਰਦਾ ਹੈ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID ਨਿਰਧਾਰਤ ਲਿੰਕਿੰਗ ਦੀਆਂ ਸਥਿਤੀਆਂ ਨਾਲ ਡੇਟਾ ਨੂੰ ਜੋੜਨ ਲਈ ਉਤਪ੍ਰੇਸ ਕੀਤਾ ਜਾਂਦਾ ਹੈ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "ਗ੍ਰਾਫ ਸੈਟਿੰਗਾਂ ਦੀ ਵਰਤੋਂ ਕਰਦਿਆਂ ਕੁਆਲਿਟੀ ਕੰਟਰੋਲ ਜਾਂ ਉਪਕਰਣ ਨਿਯੰਤਰਣ ਵਾਲੀਆਂ ਚੀਜ਼ਾਂ ਦੀ ਚੋਣ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "ਕਿਰਪਾ ਕਰਕੇ ਪ੍ਰਬੰਧਨ ਟਾਰਗੇਟ ਦੀ ਕਿਸਮ ਜਿਵੇਂ ਕਿ ਭਾਗ ਨੰਬਰ ਅਤੇ ਉਪਕਰਣਾਂ ਦੀ ਚੋਣ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "ਕਿਰਪਾ ਕਰਕੇ ਪ੍ਰਬੰਧਨ ਟੀਚੇ ਦੀ ਚੋਣ ਕਰੋ ਜਿਵੇਂ ਕਿ ਪਾਰਟ ਨੰਬਰ ਅਤੇ ਉਪਕਰਣਾਂ ਦੀ ਕੀਮਤ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "ਗ੍ਰਾਫ ਸੈਟਿੰਗਾਂ ਲਈ ਸ਼ੁਰੂਆਤੀ ਤਾਰੀਖ ਦਾ ਸਮਾਂ ਨਿਰਧਾਰਤ ਕਰੋ. (ਲੋੜੀਂਦਾ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "ਗ੍ਰਾਫ ਸੈਟਿੰਗਾਂ ਲਈ ਅੰਤ ਦੀ ਮਿਤੀ ਦਾ ਸਮਾਂ ਨਿਰਧਾਰਤ ਕਰੋ. (ਵਿਕਲਪਿਕ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "ਸੁਰੱਖਿਅਤ ਕੀਤੀ ਗਈ ਸੰਰਚਨਾ ਨੂੰ ਪੜ੍ਹੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "ਤੁਹਾਡੇ ਦੁਆਰਾ ਦਾਖਲ ਕੀਤੀ ਗਈ ਨਵੀਨਤਮ ਸੰਰਚਨਾ ਨੂੰ ਸੁਰੱਖਿਅਤ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "ਸਕ੍ਰੀਨ ਨੂੰ ਇੱਕ PNG ਫਾਈਲ ਦੇ ਤੌਰ ਤੇ ਸੇਵ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "ਕੀ ਤੁਸੀਂ ਇਸ ਸੈਟਿੰਗ ਨੂੰ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "ਟਾਰਗੇਟ ਵੇਰੀਏਬਲ (ਰੀਅਲ ਨੰਬਰ)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "ਟਾਰਗੇਟ ਵੇਰੀਏਬਲ (ਸ਼੍ਰੇਣੀ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "ਇੰਡੈਕਸ ਆਰਡਰ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "ਕਾਲਮ"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "ਆਰਡਰ"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "ਤਰਜੀਹ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "ਆਰਡਰਿੰਗ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "ਵੇਰੀਏਬਲ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "ਸਿਰਫ ਅਸਲ ਅਤੇ ਸ਼੍ਰੇਣੀ ਸੰਬੰਧੀ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "ਸਿਰਫ ਅਸਲ ਵਿੱਚ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "ਸਿਰਫ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "ਸੈੱਟ ਆਰਡਰ ਵਿੱਚ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "ਪ੍ਰੋਸੈਸ ਆਰਡਰ ਵਿੱਚ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "ਸੰਬੰਧਾਂ ਵਿਚ ਕੋਇਫ ਵਿਚ. ਆਰਡਰ"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "ਸੰਬੰਧ ਥ੍ਰੈਸ਼ੋਲਡ (ਐਬ)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "ਉਦੇਸ਼ ਪਰਿਵਰਤਨ ਲਈ ਚੁਣੋ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "ਉਦੇਸ਼ ਪਰਿਵਰਤਨਸ਼ੀਲ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "ਵਿਆਖਿਆਤਮਕ ਵੇਰੀਏਬਲ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "ਉਪਲੱਬਧ ਅਨੁਪਾਤ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "ਸੰਮੇਲਨ ਡਾਇਗਰਾਮ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "ਮੈਚ (ਸੰਪੂਰਨ ਮੈਚ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "ਕਿਉਂਕਿ ਪੈਰਲਲ ਕੋਆਰਡੀਨੇਟ ਪਲਾਟ ਅਸਲ ਸੰਖਿਆਵਾਂ ਦਾ ਇਲਾਜ ਨਹੀਂ ਕਰ ਸਕਦਾ, ਅਸਲ ਨੰਬਰ ਡੇਟਾ ਨੂੰ ਹਟਾ ਦਿੱਤਾ ਗਿਆ ਹੈ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr "General Search Options&#013;"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "ਰੀਗ੍ਰਾਉਂਡਿਸ਼ਨ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "ਸੋਧਿਆ ਜਾਣਕਾਰੀ ਜਿਵੇਂ ਕਿ ਡਿਸਪਲੇਅ ਨਾਮ ਰਜਿਸਟਰ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "ਕੀ ਤੁਸੀਂ ਸੋਧੇ ਹੋਏ ਸਮਗਰੀ ਨਾਲ ਰਜਿਸਟਰ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "ਜੇ ਤੁਸੀਂ ਲਿੰਕ ਨੂੰ ਬਦਲਦੇ ਹੋ ID, ਕਿਰਪਾ ਕਰਕੇ ਡਾਟਾ ਰੀਸੈਟ ਕਰੋ ਕਨਫਿਗਰੇਸ਼ਨ."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "ਸਹਿ-ਸਮਾਗਮ ਗ੍ਰਾਫ"
+
+# co-occurrence
+msgid "Data file"
+msgstr "ਡਾਟਾ ਫਾਈਲ"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "ਦੁਆਰਾ ਇਕੱਤਰ ਕੀਤਾ"
+
+# co-occurrence
+msgid "Hour"
+msgstr "ਘੰਟਾ"
+
+# co-occurrence
+msgid "Day"
+msgstr "ਦਿਨ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "ਸੰਪਾਦਨ ਮੋਡ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "ਸੈਟਿੰਗ ਮੋਡ"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "ਗਲਤ ਡੇਟਾ ਹਾਈਲਾਈਟ ਕੀਤੇ ਲਾਲ ਨੂੰ ਮਿਟਾ ਦਿੱਤਾ ਜਾਏਗਾ. ਕੀ ਤੁਹਾਨੂੰ ਪੇਸਟਰ ਸੈਟਿੰਗ ਮੋਡ ਵਿੱਚ ਬਦਲਣਾ ਹੈ?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "ਤਰਜੀਹ"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "ਡੁਪਲਿਕੇਟ ਅੰਗਰੇਜ਼ੀ ਦਾ ਨਾਮ ਲੱਭਿਆ ਗਿਆ ਸੀ, ਇਸ ਲਈ ਸੀਰੀਅਲ ਨੰਬਰ ਆਪਣੇ ਆਪ ਹੀ ਸ਼ਾਮਲ ਕੀਤਾ ਗਿਆ ਸੀ. ਕਾਲਮ ਦੇ ਨਾਮ ਚੈੱਕ ਕਰੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "ਇਕੱਤਰਤਾ ਦੀਆਂ ਇਕਾਈਆਂ"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "ਪਹਿਲਾ ਕਾਲਮ ਮਿਤੀ ਸਾਲ ਰਿਹਾ ਹੈ, ਅਤੇ ਦੂਜਾ ਕਾਲਮ ਅਤੇ ਅਗਲਾ ਕਾਲਮ ਅਤੇ ਇਸ ਦੇ ਕਾਲਮ ਇਸ ਤਰਾਂ ਦੇ ਹਨ ਜਿਵੇਂ ਅਲਾਰਮ ਨੋਟੀਫਿਕੇਸ਼ਨ ਫਲੈਗਸ / ਘਟਨਾ ਗਿਣਤੀ (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "ਘੰਟੇ / ਦਿਨ ਦੇ ਸਮੁੱਚਾ ਸਹਿ-ਘਟਨਾ ਸੰਬੰਧ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "ਡਿਸਪਲੇਅ ਥ੍ਰੈਸ਼ੋਲਡ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "ਜੇ ਤੁਸੀਂ 100__51 ਤੋਂ ਘੱਟ ਮੁੱਲ ਨੂੰ ਚੁਣਦੇ ਹੋ, ਤਾਂ ਤੁਸੀਂ ਇੱਕ ਛੋਟਾ ਜਿਹਾ ਸਹਿ-ਓਕੋਕੋਰੈਂਸ ਸੰਬੰਧ ਲੁਕਾਓਗੇ. (ਡਿਫੌਲਟ: ਜੇ ਇਕ ਵਾਰ ਵੀ ਹੋਵੇ ਤਾਂ ਇਕ ਲਾਈਨ ਖਿੱਚੋ)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "ਵੇਰੀਏਬਲ ਦੀ ਪਛਾਣ ਅਤੇ ਕਲਪਨਾ ਕਰੋ ਜੋ ਸਿੱਧੇ ਜਾਂ ਅਸਿੱਧੇ ਤੌਰ ਤੇ ਟੀਚੇ ਦੇ ਵੇਰੀਏਬਲ ਤੇ ਜੁੜੇ ਹੋਏ ਹਨ."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "ਇੱਥੇ ਦਿੱਤੇ ਵੇਰੀਏਬਲਸ ਦੇ ਵਿਚਕਾਰ ਸੰਬੰਧ ਦੀ ਕਲਪਨਾ ਕਰੋ. 60 ਚੀਜ਼ਾਂ ਦੀ ਚੋਣ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "ਉਮੀਦਵਾਰ ਪਰਿਵਰਤਨ ਜੋ ਉਦੇਸ਼ ਪਰਿਵਰਤਨਸ਼ੀਲ ਵੇਰੀਏਬਲ ਨਾਲ ਜੁੜੇ ਹੋਏ ਹਨ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "ਪੈਰਲਲ ਕੋਆਰਡੀਨੇਟ ਪਲਾਟ"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "ਸਾਰੇ ਕਿਨਾਰਿਆਂ ਦਾ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "ਖਾਕਾ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "ਚੱਕਰ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "ਆਟੋਮੈਟਿਕ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "ਕੁਸ਼ਲਤਾ"
+
+msgid "Set threshold"
+msgstr "Control Line: ਜਾਂਚ ਕਰੋ ਕਿ ਪ੍ਰਬੰਧਨ ਦੇ ਪੱਧਰਾਂ ਜਿਵੇਂ ਕਿ ਸਟੈਂਡਰਡ ਲਾਈਨਾਂ"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "ਵਿਸ਼ਲੇਸ਼ਣ ਪਲੇਟਫਾਰਮ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "ਪੈਰੇਟੋ ਚਾਰਟ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "ਘਟਨਾ ਦੀ ਗਿਣਤੀ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "ਸੰਚਤ ਅਨੁਪਾਤ [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "ਦਰਿਸ਼ ਵੇਖੋ ਜੋ ਲੰਬੇ ਸਮੇਂ ਤੋਂ ਡੇਟਾ ਨਾਲ ਵੱਖਰੇ ਹੋ ਸਕਦੇ ਹਨ, ਜਿਵੇਂ ਕਿ ਕਾਰਜਾਂ ਵਿੱਚ ਸਾਲਾਨਾ ਭਿੰਨਤਾ, ਹਫਤੇ ਦੇ ਦਿਨ, ਸ਼ਿਫਟ, ਆਦਿ."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "ਟੀਚੇ ਦੇ ਵੇਰੀਏਬਲ ਦੇ ਸੰਬੰਧ ਵਿੱਚ ਵੱਡੀ ਗਿਣਤੀ ਵਿੱਚ ਵੇਰੀਏਬਲ ਦੇ ਵਿਚਕਾਰ ਸੰਬੰਧ ਦੀ ਕਲਪਨਾ ਕਰੋ."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "ਨੁਕਸਾਂ, ਅਲਾਰਮ, ਇਵੈਂਟਾਂ ਅਤੇ ਆਦਿ ਦੀ ਬਾਰੰਬਾਰਤਾ ਦੀ ਬਾਰੰਬਾਰਤਾ ਦੀ ਬਾਰੰਬਾਰਤਾ 'ਤੇ ਧਿਆਨ ਕੇਂਦ੍ਰਤ ਕਰੋ."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "ਖਾਲੀ"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: ਡੇਟਾ ਮੈਪਿੰਗ, ਵਿਜ਼ੂਅਲਾਈਜ਼ੇਸ਼ਨ, ਅੰਕੜਾ ਵਿਸ਼ਲੇਸ਼ਣ, ਅਤੇ ਮਸ਼ੀਨ ਸਿਖਲਾਈ ਲਈ ਇੱਕ ਸਧਾਰਨ ਟੂਲ."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "ਇੱਥੇ ਸੈੱਟ ਕੀਤਾ ਡਾਟਾ ਡੇਟਾ ਲਿੰਕਿੰਗ ਅਤੇ ਸਾਜਿਸ਼ਟ ਕਰਨ ਦੇ ਸੰਦਰਭ ਵਜੋਂ ਵਰਤਿਆ ਜਾਂਦਾ ਹੈ. ਸੈਟਿੰਗਾਂ ਦੀ ਵਰਤੋਂ ਸਾਜਿਸ਼ ਦੇ ਖਿਤਿਜੀ ਧੁਰੇ ਵਿੱਚ ਕੀਤੀ ਜਾਂਦੀ ਹੈ. ਇਸ ਤੋਂ ਇਲਾਵਾ, ਓਰਟ ਪਲਾਟ ਹਲਕੇ ਨੀਲੇ ਫਰੇਮ ਨਾਲ ਪ੍ਰਦਰਸ਼ਿਤ ਹੁੰਦਾ ਹੈ."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "ਨਿਰਧਾਰਤ ਕਰਦਾ ਹੈ (ਉਦਾਹਰਣ ਲਈ, ਸੰਬਲਣ: ਪਲਾਟ ਲਈ ਮਾਪ ਮੁੱਲ). ਪਲਾਟ 'ਤੇ ਸਾਜਿਸ਼ ਰਚਣ ਲਈ ਪ੍ਰਕਿਰਿਆਵਾਂ ਅਤੇ ਚੀਜ਼ਾਂ ਦੀ ਚੋਣ ਕਰੋ. 20 ਚੀਜ਼ਾਂ ਦੀ ਚੋਣ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "ਨਿਰਧਾਰਤ ਕਰਦਾ ਹੈ (ਉਦਾਹਰਣ ਲਈ, ਸੰਬਲਣ: ਪਲਾਟ ਲਈ ਮਾਪ ਮੁੱਲ). ਪਲਾਟ 'ਤੇ ਸਾਜਿਸ਼ ਰਚਣ ਲਈ ਪ੍ਰਕਿਰਿਆਵਾਂ ਅਤੇ ਚੀਜ਼ਾਂ ਦੀ ਚੋਣ ਕਰੋ. 8 ਆਈਟਮਾਂ ਦੀ ਚੋਣ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "ਖਾਲੀ"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "ਇਹ ਸਟਰੇਟਿਕਤਾ ਵੇਰੀਏਬਲ ਪੈਟਰਨ ਨੂੰ ਮਲਟੀਪਲ ਪਲਾਟਾਂ ਦੀ ਕਲਪਨਾ ਕਰਨ ਲਈ ਅਤੇ ਉਹਨਾਂ ਨੂੰ ਸਾਈਡ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨ ਲਈ ਵੰਡਦਾ ਹੈ. ਸ਼੍ਰੇਣੀਆਂ ਦਾ ਨੰਬਰ ਅਤੇ ਸਟੇਸ਼ਨ ਨੰਬਰ 100 ਆਈਟਮਾਂ ਤੱਕ ਦੀ ਚੋਣ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ ਦੀ ਚੋਣ ਕਰੋ."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "ਡੇਟਾ ਦੀ ਇਕਾਈ ਜੋ ਵੇਰੀਏਬਲਜ਼ (ਮਾਤਰਾਤਮਕ ਪਰਿਵਰਤਨ: ਮਾਪ ਦੇ ਮੁੱਲਾਂ, ਆਦਿ) ਦੇ ਵਿਚਕਾਰ ਸੰਬੰਧ ਦਰਸਾਉਂਦੀ ਹੈ. ਇਸ ਡੇਟਾ ਨੂੰ ਚਾਰਟ ਤੇ ਦਿੱਤਾ ਗਿਆ ਹੈ. 2 ਤੋਂ 7 ਪੈਰਾਮੀਟਰਾਂ ਤੱਕ ਚੁਣਿਆ ਜਾ ਸਕਦਾ ਹੈ."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "ਵੇਰੀਏਬਲ ਦੇ ਵਿਚਕਾਰ ਸੰਬੰਧ ਵੇਖਣ ਲਈ ਇਕਾਈ ਦੀ ਚੋਣ ਕਰੋ. 60 ਚੀਜ਼ਾਂ ਦੀ ਚੋਣ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "ਵੇਰੀਏਬਲਜ਼ ਦੇ ਵਿਚਕਾਰ ਸੰਬੰਧਾਂ ਦੇ ਅਨੁਕੂਲ ਹੋਣ ਦੀ ਕਲਪਨਾ ਕਰਨ ਲਈ ਸ਼੍ਰੇਣੀ ਵੇਰੀਏਬਲ (ਜਿਵੇਂ ਕਿ ਭਾਗ ਨੰਬਰ) ਦੀਆਂ ਚੀਜ਼ਾਂ."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "ਵੱਧ ਤੋਂ ਵੱਧ ਕਾਰਡ"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "ਕਾਰਡ ਘੱਟ ਤੋਂ ਘੱਟ"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "ਜੇ ਇਹ ਸੈਟਿੰਗ ਬਦਲੀ ਗਈ ਹੈ, ਤਾਂ ਡਾਟਾ ਲਿੰਕ ਸੈਟਿੰਗਾਂ ਨੂੰ ਰੀਸੈਟ ਕਰਨਾ ਜ਼ਰੂਰੀ ਹੈ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "ਆਟੋ ਦੀ ਚੋਣ ਕਰੋ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "ਸਭ ਨੂੰ ਸੱਜੇ ਚੁਣੋ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "ਸਭ ਨੂੰ ਸਹੀ ਨਾ ਚੁਣੋ"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "ਸਾਰੇ ਅਸਲ (ਫਲੋਟ) ਇਥੋਂ"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "ਇਥੋਂ ਸਾਰੇ ਪੂਰਨ ਅੰਕ"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "ਇਥੋਂ ਸਾਰੇ ਸਤਰ"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "ਚੁਣੇ ਗਏ ਵੱਡੀ ਗਿਣਤੀ ਵਿੱਚ ਰਿਕਾਰਡਾਂ ਦੇ ਕਾਰਨ ਅਤੇ ਪਲਾਟ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨ ਦਾ ਸਮਾਂ, ਪ੍ਰਤੀ ਪਲਾਟ ਸੈੱਲਾਂ ਦੀ ਗਿਣਤੀ 10,000 ਤੱਕ ਸੀਮਤ ਸੀ. ਜੇ ਤੁਸੀਂ BREAK_LINE ਦੇ ਨਾਲ ਵੇਖਣਾ ਚਾਹੁੰਦੇ ਹੋ ਜਾਂ ਸੈੱਲਾਂ ਦੀ ਸੰਖਿਆ ਨੂੰ ਘਟਾਉਣ ਲਈ ਟੀਚੇ ਦੀ ਅਵਧੀ ਨੂੰ ਘਟਾਓ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "ਸੀਰੀਅਲ"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "ਤੁਸੀਂ ਪਲਾਟ 'ਤੇ ਸੱਜਾ ਕਲਿੱਕ ਕਰਕੇ ਪਲਾਟ ਦੇ ਪੈਮਾਨੇ ਨੂੰ ਵਿਵਸਥਿਤ ਕਰ ਸਕਦੇ ਹੋ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "ਗ੍ਰਾਫ ਸਕੇਲ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "ਸੈਟਿੰਗ ਮੋਡ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "ਡਾਟਾ ਆਈਟਮਾਂ ਦੀ ਗਿਣਤੀ ਜੋ ਲਿੰਕ ਨਹੀਂ ਹੋ ਸਕਦੀ"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "ਸਕੈਟਰ ਪਲਾਟ"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "ਸਮਾਲਸ ਦੇ ਨਾਲ"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "ਬਚਤ"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "ਖਾਲੀ"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "ਲੋਡ ਸੈਟਿੰਗ"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "ਸਾਂਝਾ / ਨਿਜੀ"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "ਵੇਰਵਾ"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "ਦੁਆਰਾ ਬਣਾਇਆ ਗਿਆ"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "ਵਰਤੋਂ / ਲੋਡ"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "ਲੋਡ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "ਡੇਟਾ ਦੀ ਗਿਣਤੀ ਜੋ ਸ਼ੁਰੂਆਤੀ ਬਿੰਦੂ ਪ੍ਰਕਿਰਿਆ ਨਾਲ ਲਿੰਕ ਨਹੀਂ ਹੋ ਸਕੀਆਂ (ਜੋੜ ਦੀ ਪ੍ਰਤੀਸ਼ਤਤਾ)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "ਤਾਰੀਖ ਨੂੰ ਬਚਾਓ"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "ਸ਼ੇਅਰ ਸੈਟਿੰਗਜ਼"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "ਸੇਵ"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "ਤੁਸੀਂ 2 ਤੋਂ 7 ਟਾਰਗਿਟ ਵੇਰੀਏਬਲਸ ਦੀ ਚੋਣ ਕਰ ਸਕਦੇ ਹੋ. ਟਾਰਗੇਟ ਵੇਰੀਏਬਲ ਦੀ ਗਿਣਤੀ ਦੀ ਜਾਂਚ ਕਰੋ ਅਤੇ ਸੈਟਿੰਗਾਂ ਨੂੰ ਸਹੀ ਕਰੋ."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "ਫਾਈਲ ਅਕਾਰ ਦੀ ਸੀਮਾ 10 ਐਮ.ਬੀ. ਫਾਈਲ ਅਕਾਰ ਨੂੰ ਘਟਾਓ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "ਜੇ ਚੋਣ ਕੀਤੀ ਗਈ ਤਾਂ ਨਿਰਧਾਰਤ ਮਿਤੀ ਸਮੇਂ ਵੀ ਬਚੀਆਂ ਜਾਂਦੀਆਂ ਹਨ."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "ਇਸ ਸੈਟਿੰਗ ਨੂੰ ਸਾਂਝਾ ਕਰਨ ਲਈ ਚੈੱਕ ਕਰੋ."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "ਸੈਟਿੰਗਜ਼ ਨੂੰ ਸੇਵ ਕਰੋ."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "ਕੀ ਤੁਹਾਨੂੰ ਸੈਟਿੰਗਾਂ ਨੂੰ ਓਵਰਰਾਈਟ ਕਰਨਾ ਨਿਸ਼ਚਤ ਹੈ?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "ਸਾਂਝਾ ਕਰੋ"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "ਨਿਜੀ"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "'ਤੇ ਬਣਾਇਆ"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "ਨੇੜੇ"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "ਆਰਡਰ ਸੈੱਟ"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "ਤਾਰੀਖ ਦੀ ਸ਼ੁਰੂਆਤ ਕਰੋ"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "ਤਾਰੀਖ ਦਾ ਸਮਾਂ"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "ਐਕਸ-ਐਕਸਿਸ ਲੇਬਲ ਦਿਖਾਓ"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "ਮਿਤੀ ਸਮੇਂ ਦੀ ਰੇਂਜ"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "ਫਾਈਲ ਨੂੰ ਇੱਥੇ ਖਿੱਚੋ ਅਤੇ ਸੁੱਟੋ"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "ਜਾਂ"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "ਫਾਈਲਾਂ ਦੀ ਚੋਣ ਕਰੋ"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "ਪ੍ਰਦਰਸ਼ਤ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "ਪ੍ਰੋਸੈਸਿੰਗ ਵਿੱਚ ਡੇਟਾ ਦੀ ਵੱਡੀ ਮਾਤਰਾ ਅਤੇ ਲੰਬੇ ਪ੍ਰੋਸੈਸਿੰਗ ਸਮੇਂ ਦੇ ਕਾਰਨ ਰੋਕਿਆ ਗਿਆ ਸੀ. ਤਾਰੀਖ ਦੀ ਸੈਟਿੰਗ ਦੀ ਸਮੀਖਿਆ ਕਰੋ ਅਤੇ ਪਲਾਟ ਨੂੰ ਦੁਬਾਰਾ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰੋ."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "ਆਉਟਪੁੱਟ CSV ਫਾਈਲ. ਕਿਰਪਾ ਕਰਕੇ ਫਾਈਲ ਡਾਉਨਲੋਡ ਕਰਨ ਵੇਲੇ ਉਡੀਕ ਕਰੋ."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "ਆਉਟਪੁੱਟ Inf± ਫਾਈਲ. ਕਿਰਪਾ ਕਰਕੇ ਫਾਈਲ ਡਾਉਨਲੋਡ ਕਰਨ ਵੇਲੇ ਉਡੀਕ ਕਰੋ."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "ਆਟੋ ਸੀਮਾ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "ਪੂਰੀ ਸੀਮਾ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "ਇੰਡੈਕਸ ਆਰਡਰ ਸੈਟਿੰਗ"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "ਖੁੱਲਾ"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "ਮਿਟਾਓ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "ਕਿਉਂਕਿ ਗ੍ਰਾਫ ਪੁਆਇੰਟਾਂ ਦੀ ਗਿਣਤੀ 12,000 ਤੋਂ ਵੱਧ ਹੈ, ਡਾਟਾ ਪੁਆਇੰਟਾਂ ਦੀ ਗਿਣਤੀ ਅਧਿਕਤਮ 12,000 ਤੋਂ ਵੱਧ ਸੀਮਤ ਸੀ. ਜੇ ਤੁਸੀਂ ਪੂਰਾ ਡੇਟਾ ਵੇਖਣਾ ਚਾਹੁੰਦੇ ਹੋ, ਤਾਂ ਛੋਟਾ ਟਾਰਗੇਟ ਅਵਧੀ ਨਿਰਧਾਰਤ ਕਰੋ."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "ਟਰਮਾਈਟ (ਸਾਈਕਲ) ਦੁਆਰਾ ਸਟ੍ਰੇਟਰ"
+
+#: component.js
+msgid "Facet"
+msgstr "ਪਹਿਲੂ"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "ਚੁਣੀ ਗਈ ਇਕਾਈ ਨਾਲ ਵੰਡਣਾ ਸ਼੍ਰੇਣੀ ਕਰਦਾ ਹੈ."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "ਅਪਵਾਦ ਅਨੁਮਾਨ"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "ਸਧਾਰਣ ਤੌਰ 'ਤੇ ਇੰਟਰਕਾਉਂਟਾਈਲ ਰੇਂਜ (ਆਈਕਿਯੂਆਰ ਨੂੰ ਸਧਾਰਣ ਵੰਡ, niqr = 0.7413 × iqr ਦੇ ਨਾਲ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "ਮੋਡ ਸਭ ਤੋਂ ਵੱਧ ਵਾਪਰਦਾ ਮੁੱਲ ਹੁੰਦਾ ਹੈ."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "ਬਾਹਰਲੇ ਨਾਲ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "ਬਿਨਾ ਚੁਣੇ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "ਪ੍ਰਥਾ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "ਅੱਜ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "ਕੱਲ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "ਪਿਛਲੇ 7 ਦਿਨ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "ਪਿਛਲੇ 30 ਦਿਨ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "ਇਸ ਮਹੀਨੇ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 ਮਹੀਨਾ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 ਮਹੀਨੇ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "ਲਾਗੂ ਕਰੋ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "ਹਫ਼ਤਾ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 ਦਿਨ ਪਹਿਲਾਂ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 ਦਿਨ ਪਹਿਲਾਂ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "ਇਸ ਮਹੀਨੇ ਦੇ ਮੁੱਠੀ ਦਾ ਦਿਨ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "ਇਸ ਮਹੀਨੇ ਦਾ ਆਖਰੀ ਦਿਨ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 ਮਹੀਨੇ"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "ਤੇ ਅਪਡੇਟ ਕੀਤਾ"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "ਡਾਟਾ ਪੁਆਇੰਟਸ ਨੂੰ ਫਾਸਟ ਮੋਡ ਨਾਲ ਸੰਖੇਪ ਵਿੱਚ ਸ਼ਾਮਲ ਕੀਤਾ ਜਾਂਦਾ ਹੈ. ਜੇ ਤੁਸੀਂ ਡੇਟਾ ਨੂੰ ਛੱਡ ਦੇ ਬਿਨਾਂ ਪਲਾਟ ਪ੍ਰਾਪਤ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ, ਤਾਂ ਟੀਚੇ ਦੀ ਮਿਆਦ ਨੂੰ ਵਧਾਉਣ ਲਈ."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "ਵਾਈ ਧੁਰੇ ਦੀ ਸੀਮਾ"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "ਬਾਹਰ"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "ਖਾਲੀ"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "ਪ੍ਰਕਿਰਿਆ ਦੀ ਭਾਲ"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "ਬੁੱਕਮਾਰਕ"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "ਕਿਉਂਕਿ ਪ੍ਰਤੀ ਪਲਾਟ ਦੇ ਡੇਟਾ ਬਿੰਦੂਆਂ ਦੀ ਗਿਣਤੀ 10,000 ਤੋਂ ਵੱਧ, ਘਣਤਾ ਪਲਾਟ ਖਿੱਚੀ ਗਈ ਹੈ. ਜੇ ਤੁਸੀਂ ਸਕੈਟਰ ਪਲਾਟ ਨਾਲ ਸਾਰੇ ਡੇਟਾ ਪੁਆਇੰਟ ਪ੍ਰਦਰਸ਼ਤ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ, ਤਾਂ ਟੀਚਾ ਪੀਰੀਅਡ ਛੋਟਾ ਕਰੋ."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "ਖਾਲੀ"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "ਚੱਕਰ ਦਾ ਸਮਾਂ"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "ਅਸਲ ਨੰਬਰ"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "ਉਦੇਸ਼ ਪਰਿਵਰਤਨਸ਼ੀਲ"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "ਇਸ ਵੇਰੀਏਬਲ ਨੂੰ ਟੀਚੇ ਦੇ ਵੇਰੀਏਬਲ ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਕਾਵੇਲੇਸ਼ਨ ਕਾਬਲ ਦੀ ਗਣਨਾ ਕੀਤੀ ਜਾਂਦੀ ਹੈ. ਇੱਥੇ ਨਿਰਧਾਰਤ ਨਿਸ਼ਾਨਾ ਵੇਰੀਏਬਲ ਸਾਜਿਸ਼ ਦੇ ਬਿਲਕੁਲ ਸੱਜੇ ਪਾਸੇ ਰੰਗ ਪੱਟੀ ਦੇ ਨਾਲ ਵੀ ਪ੍ਰਦਰਸ਼ਿਤ ਹੁੰਦਾ ਹੈ. ਜੇ ਤੁਸੀਂ ਪਲਾਟ ਤੇ ਟੀਚੇ ਦੇ ਵੇਰੀਏਬਲ ਬਦਲਣਾ ਚਾਹੁੰਦੇ ਹੋ, ਤਾਂ ਤੁਸੀਂ ਉਨ੍ਹਾਂ ਵਿਚਕਾਰ ਹਰੇਕ ਵੇਰੀਏਬਲ ਨਾਮ ਤੇ ਸੱਜਾ ਕਲਿੱਕ ਕਰਕੇ ਬਦਲ ਸਕਦੇ ਹੋ."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "ਡੇਟਾ ਡੁੱਬਣ ਨਹੀਂ ਸੀ ਕਿਉਂਕਿ ਇੱਥੇ ਬਹੁਤ ਸਾਰੀਆਂ ਸ਼੍ਰੇਣੀਆਂ ਹਨ. BREAK_LINE ਜਾਂਚ ਕਰੋ ਅਤੇ, ਜੇ ਜਰੂਰੀ ਹੋਏ, ਟੀਚੇ ਦੀ ਮਿਆਦ ਨੂੰ ਸੋਧੋ."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "ਫਿਲਟਰ ਸੈਟਿੰਗ"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "ਲੇਬਲ (ਸ਼੍ਰੇਣੀ ਪਰਿਵਰਤਨ)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "ਨਕਲ"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "ਚਿਪਕਾਇਆ"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "ਕਾੱਪੀ ਸੰਰਚਨਾ"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "ਪੇਸਟ ਕੌਂਫਿਗ"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "ਮੂਲ ਸੈਟਿੰਗ ਤੋਂ ਬਿਨਾਂ, ਪਹਿਲਾ ਟੀਚਾ ਮੂਲ ਦੇ ਤੌਰ ਤੇ ਚੁਣਿਆ ਗਿਆ ਹੈ."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "ਨਿਰਯਾਤ ਡੇਟਾ"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "ਨਾ ਵਰਤੋ"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "ਡਾਟਾ ਖਿੱਚਿਆ ਨਹੀਂ ਜਾਂਦਾ ਕਿਉਂਕਿ ਇੱਥੇ ਬਹੁਤ ਸਾਰੀਆਂ ਸ਼੍ਰੇਣੀਆਂ ਹਨ."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "ਚੈੱਕ ਕਰੋ ਅਤੇ, ਜੇ ਜਰੂਰੀ ਹੋਏ ਤਾਂ ਟੀਚੇ ਦੀ ਮਿਆਦ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਨੂੰ ਸੋਧੋ."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "ਡਾਟਾ ਗਿਣਤੀ (ਸਾਈਕਲ) ਦੁਆਰਾ ਵੰਡੋ"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "ਡਾਟਾ ਦੀ ਗਿਣਤੀ"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "ਖਾਲੀ"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "ਖਾਲੀ"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "ਉਦੇਸ਼ ਵੇਰੀਏਬਲ ਦੀ ਚੋਣ ਕਰੋ."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "ਖਾਲੀ"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "ਕੋਈ ਸਜਾਵਟ / ਸ਼੍ਰੇਣੀ ਵਿਗਾੜ ਨਹੀਂ"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "ਸਕੈਟਰ ਪਲਾਟ"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "ਜੇ ਜਾਂ ਤਾਂ ਐਕਸ ਜਾਂ ਵਾਈ ਡਾਟਾ ਕਿਸਮ ਸਤਰ ਹੈ, ਤੁਸੀਂ ਰੰਗ ਸੈਟਿੰਗ ਲਈ ਨਾਨ-ਸਤਰ ਵੇਰੀਏਬਲ ਨਹੀਂ ਵਰਤ ਸਕਦੇ."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "ਆਗਿਆ ਸੀਮਾ ਤੋਂ ਬਾਹਰ ਮੁੱਲ ਦਾ ਪਤਾ ਲਗਾਇਆ ਗਿਆ, ਇਸ ਲਈ ਘੱਟੋ ਘੱਟ ਜਾਂ ਵੱਧ ਤੋਂ ਵੱਧ ਯੋਗ ਸੀਮਾ ਆਪਣੇ ਆਪ ਫੈਸਲਾ ਲਿਆ ਗਿਆ. ਸੈਟਿੰਗ ਨੂੰ ਜ਼ਰੂਰੀ ਤੌਰ ਤੇ ਬਦਲੋ."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "ਸੱਜਾ ਕਲਿਕ: ਡਾਟਾ ਲਿੰਕ ਸੈਟਿੰਗ / ਸੋਧ / ਡਿਲੀਟ"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "ਲੰਘਿਆ ਸਮਾਂ"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "ਟਾਈਮ ਆਰਡਰ"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "ਡਾਟਾ ਆਰਡਰ ਸੈਟ ਕਰਨਾ"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "ਕਿਰਪਾ ਕਰਕੇ ਬੇਲੋੜਾ ਡੇਟਾ ਮਿਟਾਓ ਕਿਉਂਕਿ `__SERVER_INFO__` ਦੀ ਹਾਰਡ ਡਿਸਕ ਦੀ ਸਮਰੱਥਾ __SERVER_INFO__."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "ਡੇਟਾ ਪੋਰਟ ਨੂੰ ਰੋਕਿਆ ਗਿਆ ਸੀ ਕਿਉਂਕਿ `__SERVER_INFO__` ਦੇ ਹਾਰਡ ਡਿਸਕ ਦੀ ਸਮਰੱਥਾ __SERVER_INFO__ %%. ਜੇ ਬੇਲੋੜੀ ਡੇਟਾ ਮਿਟਾ ਦਿੱਤਾ ਜਾਂਦਾ ਹੈ ਅਤੇ ਖਾਲੀ ਸਮਰੱਥਾ ਵਧ ਜਾਂਦੀ ਹੈ, ਤਾਂ ਡਾਟਾ ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕੀਤਾ ਜਾਵੇਗਾ."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨ ਲਈ ਡਿਸਟਰੀਬਿ .ਸ਼ਨਾਂ ਦੀ ਗਿਣਤੀ ਦਰਜ ਕਰੋ (ਵੰਡਾਂ ਦੀ ਗਿਣਤੀ). 2 ਜਾਂ 150 ਜਾਂ ਘੱਟ ਜਾਂ ਘੱਟ ਦਾ ਪੂਰਨ ਅੰਕ ਦਾਖਲ ਕਰੋ."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨ ਲਈ ਡਿਸਟਰੀਬਿ .ਸ਼ਨਾਂ ਦੀ ਗਿਣਤੀ ਦਰਜ ਕਰੋ (ਵੰਡਾਂ ਦੀ ਗਿਣਤੀ). 1 ਜਾਂ ਇਸ ਤੋਂ ਘੱਟ 32 ਜਾਂ ਇਸ ਤੋਂ ਘੱਟ ਦਾ ਪੂਰਨ ਅੰਕ ਦਿਓ."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "ਖਾਲੀ"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "ਖਾਲੀ"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "ਖਾਲੀ"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "ਖਾਲੀ"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "ਇੱਥੇ ਬਹੁਤ ਸਾਰੀਆਂ ਵਾਇਲਨ ਪ੍ਰਤੀ ਪਲਾਟ ਹਨ, ਇਸ ਲਈ ਇਹ ਆਪਣੇ ਆਪ ਸੀਮਤ ਹੋ ਗਿਆ."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "ਵੱਡੇ ਰਿਕਾਰਡਾਂ ਦੇ ਕਾਰਨ ਚੁਣੇ ਗਏ ਪਲਾਟਾਂ ਦੀ ਗਿਣਤੀ ਸੀਮਿਤ ਗਿਣਤੀ ਤੱਕ ਸੀਮਿਤ ਕੀਤੀ ਗਈ ਮਿਤੀ ਤੋਂ ਸੀਮਿਤ ਹੈ."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "ਮੈਂ ਸਵੀਕਾਰ ਕਰਦਾ ਹਾਂ"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "ਗਿਰਾਵਟ"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "ਪਿੱਛੇ ਵੱਲ"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "ਕਾਲਮ 'ਤੇ ਪਲਾਟ ਦੀ ਗਿਣਤੀ"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "ਸ਼੍ਰੇਣੀਬੱਧ ਵੇਰੀਏਬਲਸ (ਪਾਰਟ ਨੰਬਰ, ਸਟੇਸ਼ਨ ਨੰਬਰ) ਜੋ ਪਲਾਟ ਦੇ ਸਿਖਰ 'ਤੇ ਲੇਬਲ ਦੇ ਰੂਪ ਵਿੱਚ ਪ੍ਰਦਰਸ਼ਿਤ ਹੁੰਦਾ ਹੈ ਕਿ ਤਬਦੀਲੀ ਦੇ ਅੰਕ (ਭਾਗ ਨੰਬਰ ਬਦਲਣਾ ਆਦਿ ਗੁਣਾਤਮਕ ਵੇਰੀਏਬਲ) ਦੀ ਕਲਪਨਾ ਕਰਨ ਲਈ ਵਰਤਿਆ ਜਾਂਦਾ ਹੈ."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "ਵਿਸ਼ਲੇਸ਼ਣ ਕਰਨ ਲਈ ਆਈਟਮਾਂ ਦੀ ਚੋਣ ਕਰੋ (ਮਾਤਰਾ ਪਰਿਵਰਤਨ: ਮਾਪ ਦਾ ਮੁੱਲ, ਆਦਿ). 60 ਚੀਜ਼ਾਂ ਦੀ ਚੋਣ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "ਡੇਟਾ ਨੂੰ ਛਾਂਟਣ ਲਈ ਆਈਟਮਾਂ ਦੀ ਚੋਣ ਕਰੋ. ਤੁਸੀਂ ਕਈ ਚੀਜ਼ਾਂ ਵੀ ਚੁਣ ਸਕਦੇ ਹੋ."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "ਪੁਰਾਣੇ ਡੇਟਾ ਨੂੰ ਓਵਰਫੁੱਲ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ ਕਿਉਂਕਿ ਮਿਤੀ ਸਮਾਂ ਡਿਸਪਲੇਅ ਸੀਮਾ ਦੇ ਨਾਲ ਨਵੀਨਤਮ ਡੇਟਾ ਤੋਂ ਗਿਣਿਆ ਜਾਂਦਾ ਹੈ."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "ਪਲਾਟ ਦੀ ਗਿਣਤੀ NUMBER. ਜੇ ਤੁਸੀਂ ਸਭ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ, ਤਾਂ ਸੈਟਿੰਗਾਂ ਨੂੰ ਸੰਸ਼ੋਧਿਤ ਕਰੋ."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "ਇਕੋ ਟੈਬ 'ਤੇ ਪਲਾਟ ਦੀ ਗਿਣਤੀ NUMBER. ਤੱਕ ਸੀਮਿਤ ਸੀ. ਜੇ ਤੁਸੀਂ ਸਭ ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ, ਤਾਂ ਸੈਟਿੰਗਾਂ ਨੂੰ ਸੰਸ਼ੋਧਿਤ ਕਰੋ."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "ਦੀ ਚੋਣ ਕਰਨ ਲਈ ਟਾਰਗੇਟ ਵੇਰੀਏਬਲ ਦੀ ਗਿਣਤੀ ਘੱਟੋ ਘੱਟ ਘੱਟੋ ਘੱਟ ਮਿੰਟ ਅਤੇ ਵੱਧ ਤੋਂ ਵੱਧ ਅਧਿਕਤਮ ਹੈ. ਟਾਰਗੇਟ ਵੇਰੀਏਬਲ ਦੀ ਗਿਣਤੀ ਦੀ ਜਾਂਚ ਕਰੋ ਅਤੇ ਸੈਟਿੰਗਾਂ ਨੂੰ ਸਹੀ ਕਰੋ."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "ਚੁਣਨ ਲਈ ਟੀਚੇ ਦੇ ਵੇਰੀਏਬਲ ਦੀ ਗਿਣਤੀ ਵੱਧ ਤੋਂ ਵੱਧ ਅਧਿਕਤਮ ਹੈ. ਟਾਰਗੇਟ ਵੇਰੀਏਬਲ ਦੀ ਗਿਣਤੀ ਦੀ ਜਾਂਚ ਕਰੋ ਅਤੇ ਸੈਟਿੰਗਾਂ ਨੂੰ ਸਹੀ ਕਰੋ."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

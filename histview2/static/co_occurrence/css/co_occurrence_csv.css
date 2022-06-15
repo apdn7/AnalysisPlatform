@@ -1,0 +1,56 @@
+#plot-card {
+    height: 80vh;
+    display: none;
+}
+
+#plotCard {
+    display: none;
+}
+
+.form-group {
+    margin-bottom: 0 !important;
+}
+
+.edge-hover {
+    text-decoration:none;
+    position:relative;
+}
+
+.edge-hover span {
+    display:none;
+    position:fixed;
+    overflow:hidden;
+    color: #00aeff;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.edge-hover:hover span {
+    display:block;
+    position:fixed;
+    overflow:hidden;
+}
+
+.coo {
+    height: 83vh !important;
+}
+
+.btn-control{
+    text-align: right;
+    padding: 0.5rem 0 0 0;
+}
+.collapse-option {
+    float: right;
+    /*text-decoration: underline;*/
+}
+.file-selection-group {
+    margin: 10px 0 !important;
+}
+.drag-card {
+    border: none;
+    height: 250px;
+    padding: 0;
+}
+#fileSelection {
+    /*border: 3px dotted #444444;*/
+}

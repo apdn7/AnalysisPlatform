@@ -1,0 +1,153 @@
+<div name="filterOtherCard" class="card graph-navi" id="filter-other01">
+    <div class="card-body">
+        <div class="panel-group" id="accordionOther01" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+                <form name="otherFilter" onSubmit="return false;">
+                    <div class="panel-heading" role="tab" id="headingOther01">
+                        <div class="row form-header">
+                            <div class="col-4">
+                                <div class="collapse-box header-left">
+                                    <a class="header-left" name="minMaxBtn" role="button" data-toggle="collapse"
+                                       data-parent="#accordionOther01"
+                                       href="#collapseOther01" aria-expanded="true" aria-controls="collapseOther01">
+                                        <i class="more-less fas fa-window-minimize"></i>
+                                    </a>
+                                    <h3 class="header-left"
+                                        style="margin-left: 10px">{{ _("Others Filter Config") }}</h3>
+                                </div>
+                            </div>
+                            <div class="col-8 d-flex align-items-center justify-content-end">
+                               <input type="search" class="form-control common-search-input mr-3"
+									  name="SearchOtherFilter" placeholder="{{_('Search')}}...">
+                               <button name="configDelete" type="button" class="btn btn-secondary mr-3">
+                                   <i class="fas fa-trash-alt icon-secondary"></i>
+                               </button>
+								<button name="configRegister" class="btn btn-primary" type="button">
+									<i class="far fa-save"></i>
+                                    {{ _("Register") }}
+                                </button>
+                                <button id="sModeOther01" class="changeMode btn btn-primary" type="button"
+                                        data-sm="other01SM">
+									<i class="far fa-file-excel"></i> <span>{{ _("Edit Mode") }}</span></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="collapseOther01" name="collapseOther" class="panel-collapse collapse show" role="tabpanel"
+                         aria-labelledby="headingOther01">
+                        {{ macros.alert_message("alertMsgSetting") }}
+                        <div class="row">
+                            <div class="col-6 form-group">
+                                <h5>{{ _("Target Column") }}</h5>
+                                <input type="hidden" name="filterId" disabled>
+                                <select name="columnName" class="form-control">
+                                    <option value="---">---</option>
+                                </select>
+                            </div>
+                            <div class="col-4 form-group">
+                                <h5>{{ _("Shown Name") }}</h5>
+                                <input type="text" name="filterTitle" class="form-control">
+                            </div>
+                        </div>
+                        <table id="tblConfigfilter-other01" class="table table-bordered table-main">
+                            <thead>
+                            <tr>
+                                <th class="col-number">{{ _("No.") }}</th>
+                                <th class="filter-name text-center">{{ _("Filter Name") }}</th>
+                                <th colspan="2" class="filter-condition text-center" title="{{ _("Search Options") }}">
+                                    <span class="hint-text">{{ _("Filter Condition") }}</span>
+                                </th>
+                                <th class="filter-start-digit text-center">{{ _("Starting Digit") }}</th>
+                                <th class="filter-btn text-center"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <div class="editmode-container hide">
+                            <div id="other01SM" name="jexcel" class=""></div>
+                        </div>
+                        <div class="row" style="padding-top: 5px;">
+                            <div class="col-2">
+                                <button name="addConfig" type="button" class="btn btn-success">
+                                    <i class="fas fa-plus-circle"></i></button>
+                            </div>
+                            <div class="col-8"></div>
+                            <div class="col-2">
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div id="filterConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-inform">{{ _("Do you want to save changes?") }}</p>
+                </div>
+                <div class="modal-footer">
+                    <a id="confirmRegister" class="btn btn-primary" data-item-id=""
+                       data-dismiss="modal">{{ _("OK") }}</a>
+                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="" class="modal fade in" name="filterConfirmSwitchModal" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-inform">{{ _("The error data highlighed in red will be lost. Do you want to continue?") }}</p>
+                </div>
+                <div class="modal-footer">
+                    <a id="" class="btn btn-primary" name="confirmSwitch" data-item-id=""
+                       data-dismiss="modal">{{ _("OK") }}</a>
+                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete other filter modal -->
+    <div class="modal fade in delete-cfg-modal" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _('Please confirm') }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-inform">{{ _('Do you want to delete this setting?') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-danger delete-cfg-btn" data-item-id=""
+                       data-dismiss="modal">{{ _('Delete') }}</a>
+                    <a class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <ul name="contextMenu" class="context-menu" style="display:none;">
+            <li class="menu-item" onclick="maximizeCard('collapseOther',this,name=true)">{{ _("Maximize card") }}</li>
+            <li class="menu-item" onclick="minimizeCard('collapseOther',this,name=true)">{{ _("Minimize card") }}</li>
+        </ul>
+    </div>
+</div>
+<button id="addFilterOther" type="button" class="btn btn-success"><i class="fas fa-plus-circle"></i>
+    {{ _("Add other filter") }}</button>

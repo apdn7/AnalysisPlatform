@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+<link href="{{ url_for('scatter_plot.static', filename = 'css/scatter_plot.css')}}" rel="stylesheet">
+<link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css')}}"
+    rel="stylesheet">
+<link href="{{ url_for('static', filename = 'common/css/pagination.css') }}" rel="stylesheet">
+
+<script
+    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js')}}"></script>
+<script
+    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js')}}"></script>
+<script src="{{ url_for('static', filename = 'common/js/pagination.min.js') }}"></script>
+
+<script type="text/javascript" src="/static/common/js/Chart.bundle.min.js"></script>
+<script type="text/javascript" src="/static/common/js/js.cookie.min.js"></script>
+<script src="{{ url_for('scatter_plot.static', filename = 'js/scatter_chart.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('scatter_plot.static', filename='js/hist_with_density.js') }}"></script>
+
+<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='ScP', title=_('Scatter Plot'), hint=_('SCP Page title description'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+<div class="card">
+    <form id="traceDataForm">
+        {{macros.scatter_end_proc(procs,'', title=_('SCP show value description'), isShowMinMax=false)}}
+		{{ macros.cat_label_filter_modal(scp=true) }}
+         <!-- Date range -->
+        <div class="card-body table-bordered graph-navi">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="d-flex justify-content-between">
+                    {{ macros.label(_("Target period")) }}
+                    {{ macros.paste_btn() }}
+                    </div>
+                </div>
+                <div class="col-sm-10">
+                    <div class="row">
+                        {{macros.multiple_target_period(rlp=true, dataNumber=true, scp=true, DivisionNumberHover=_('Division number Hover ScP'), WindowLengthHover=_('Window length Hover ScP'))}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'))}}
+        <br class="graph-navi graph-navi-top-down">
+		<div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-10">
+                <div class="d-flex">
+                     {{ macros.exception_est() }}
+                </div>
+            </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-center show-graph-div">
+            <button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
+                onClick="scpTracing();" class="btn btn-primary show-graph"><i
+                    class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+        </div>
+        <br>
+    </form>
+</div>
+<br>
+<!-- Color setting -->
+<div class="row" id="colorSettingGrp" style="display: none;">
+	<div class="col d-flex justify-content-end">
+		<div class="mr-auto d-flex flex-wrap">
+			<div id="sim" class="setting-inform-modal show-filter-info">
+				<div class="setting-inform border-white">
+					<span><i class="fas fa-info-circle"></i></span>
+				</div>
+				<div id="settingHoverContent" class="setting-inform-content show-filter-info">
+					<button class="btn clipboard" style="float:right;"
+						data-clipboard-target="#setting-infor-table" title="Copy to Clipboard">
+						<i class="fa fa-copy" aria-hidden="true"></i>
+					</button>
+					<div class="setting-content">
+						<table class="table table-borderless" id="setting-infor-table">
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			{{macros.y_scale_option(name='scpChartScale', className='mr-3')}}
+			<div class="d-flex align-items-center mr-3">
+				<span class="mr-2">Color</span>
+				<select name="scpColorOrder" class="form-control border-white w-auto scale-dropdown">
+					<option value="1">{{_('Setting Order')}}</option>
+					<option value="2">{{_('Time')}}</option>
+					<option value="3">{{_('Elapsed Time')}}</option>
+				</select>
+				<select name="scpColorScale" class="form-control border-white w-auto scale-dropdown ml-1">
+					<option value="SETTING">{{ _('Setting scale') }}</option>
+					<option value="COMMON">{{ _('Common scale') }}</option>
+					<option value="THRESHOLD">{{ _('Threshold line') }}</option>
+					<option value="AUTO">{{ _('Auto range') }}</option>
+					<option value="FULL" selected>{{ _('Full range') }}</option>
+				</select>
+			</div>
+			<div class="d-flex align-items-center mr-3">
+				<label class="switch" style="margin-bottom: 0 !important;">
+					<input id="showBackward" name="showBackward" type="checkbox" class="primary already-convert-hankaku" checked="checked">
+					<span class="slider round"></span>
+				</label>
+				<label for="showBackward" class="ml-1" style="margin-bottom: 0 !important;">{{_('Backwards')}}</label>
+			</div>
+			<div class="d-flex align-items-center pr-3">
+				<select name="colNumber" class="form-control border-white w-auto scale-dropdown ml-1">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7" selected>7</option>
+				</select>
+				<span class="ml-2">{{_('Number of graph on column')}}</span>
+			</div>
+		</div>
+		<div class="ml-auto d-flex">
+			<div class="align-items-center ml-3 pr-3" id="navigation-bar" style="display: none;">
+				<div class="modebar">
+					<div class="modebar-group">
+						<a onclick="downloadPlot();" rel="tooltip" class="modebar-btn" title="Download plot as a png" data-toggle="false" data-gravity="n">
+							<svg viewBox="0 0 875 1000" class="icon" height="1em" width="1em">
+								<path d="m500 450c-83 0-150-67-150-150 0-83 67-150 150-150 83 0 150 67 150 150 0 83-67 150-150 150z m400 150h-120c-16 0-34 13-39 29l-31 93c-6 15-23 28-40 28h-340c-16 0-34-13-39-28l-31-94c-6-15-23-28-40-28h-120c-55 0-100-45-100-100v-450c0-55 45-100 100-100h800c55 0 100 45 100 100v450c0 55-45 100-100 100z m-400-550c-138 0-250 112-250 250 0 138 112 250 250 250 138 0 250-112 250-250 0-138-112-250-250-250z m365 380c-19 0-35 16-35 35 0 19 16 35 35 35 19 0 35-16 35-35 0-19-16-35-35-35z" transform="matrix(1 0 0 -1 0 850)"></path>
+							</svg>
+						</a>
+						<a onclick="autoScalePlot();" rel="tooltip" class="modebar-btn" title="Autoscale" data-attr="zoom" data-val="auto" data-toggle="false" data-gravity="n">
+							<svg viewBox="0 0 1000 1000" class="icon" height="1em" width="1em">
+								<path d="m250 850l-187 0-63 0 0-62 0-188 63 0 0 188 187 0 0 62z m688 0l-188 0 0-62 188 0 0-188 62 0 0 188 0 62-62 0z m-875-938l0 188-63 0 0-188 0-62 63 0 187 0 0 62-187 0z m875 188l0-188-188 0 0-62 188 0 62 0 0 62 0 188-62 0z m-125 188l-1 0-93-94-156 156 156 156 92-93 2 0 0 250-250 0 0-2 93-92-156-156-156 156 94 92 0 2-250 0 0-250 0 0 93 93 157-156-157-156-93 94 0 0 0-250 250 0 0 0-94 93 156 157 156-157-93-93 0 0 250 0 0 250z" transform="matrix(1 0 0 -1 0 850)"></path>
+							</svg>
+						</a>
+						<a onclick="resetAxesPlot();" rel="tooltip" class="modebar-btn" title="Reset axes" data-attr="zoom" data-val="reset" data-toggle="false" data-gravity="n">
+							<svg viewBox="0 0 928.6 1000" class="icon" height="1em" width="1em">
+								<path d="m786 296v-267q0-15-11-26t-25-10h-214v214h-143v-214h-214q-15 0-25 10t-11 26v267q0 1 0 2t0 2l321 264 321-264q1-1 1-4z m124 39l-34-41q-5-5-12-6h-2q-7 0-12 3l-386 322-386-322q-7-4-13-4-7 2-12 7l-35 41q-4 5-3 13t6 12l401 334q18 15 42 15t43-15l136-114v109q0 8 5 13t13 5h107q8 0 13-5t5-13v-227l122-102q5-5 6-12t-4-13z" transform="matrix(1 0 0 -1 0 850)"></path>
+							</svg>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="card graph-navi text-center position-relative" id="sctr-card" style="width: inherit">
+</div>
+
+<div class=" loading"></div>
+<div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+<a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+    target="_blank">{{ _("Click here to fix") }}</a>
+{{optdata}}
+{% endblock %}
+
+{% block js %}
+<script>
+    const procJsons = {{ list_procs | safe }};
+    const hasGraphCfgsFilterDetails= {{ graph_filter_detail_ids | safe }};
+    const procConfigs = {};
+    for (let procJson of procJsons){
+        const cfgProcess = new CfgProcess(procJson);
+        procConfigs[cfgProcess.id] = cfgProcess;
+    }
+</script>
+<script src="{{ url_for('scatter_plot.static', filename = 'js/scatter_plot.js')}}"></script>
+<script src="{{ url_for('scatter_plot.static', filename = 'js/scp_heatmap_plot.js')}}"></script>
+<script src="{{ url_for('scatter_plot.static', filename = 'js/scp_violin_plot.js')}}"></script>
+<script src="{{ url_for('static', filename = 'common/js/cat_facet_label_filter_modal.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,3154 @@
+# インドネシア語 Indonesian translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: id\n"
+"Language-Team: id\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Diselamatkan"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Sebuah kesalahan telah terjadi"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Konfigurasi Aplikasi"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Halaman tidak ditemukan"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Sebuah kesalahan telah terjadi"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Aplikasi Datalink & Analisis"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Pilih bahasa"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Layar utama"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Verifikasi Operasi"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Verifikasi Operasi"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Konfigurasi Dasar"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Daftar"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Muat ulang"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Bilangan bulat"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Nyata (float)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Tanggal Waktu"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Rangkaian"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Judul"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Tanaman"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Pabrik"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Garis"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Harap konfirmasi."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Simpan data dan mulailah mengimpor data dengan konten yang diatur pada halaman pengaturan proses?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Oke"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Membatalkan"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Konfigurasi basis data"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Nama Basis Data"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Jenis database"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Konfigurasi"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Komentar"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Menambahkan"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Pilih file database."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Nama file"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Pilih"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Apakah Anda ingin menghapus catatan ini?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "menghapus"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Keterlacakan"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Grafik penelusuran"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Lacak pengujian"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Mulai pengujian"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Waktu mulai"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Akhir waktu"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID mesin (beberapa pilihan)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Garis"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Nomor bagian"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Konfigurasi Tautan Data"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Pilih bahasa"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Jepang"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Bahasa inggris"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Node"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Simpul ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Label"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Nama Master"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Database"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Impor"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Ekspor"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Nama host"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Nomor Port"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Nama belakang"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Kata sandi"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Skema"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Saya berhasil."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; gagal."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Konfigurasi Proses"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Proses"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Nama proses"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Nama Tabel"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Detail"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Pratinjau"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Lima catatan pertama"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Mengatur konten"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Nama kolom"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Nama Inggris"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Nama tampilan"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "koefisien"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Operator"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Masukkan nilai selain 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Operator input."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Koefisien input."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Masukan nama bahasa Inggris."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Nama Tampilan Input."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Nama bahasa Inggris digandakan."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Nama tampilan digandakan."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Semua \"nama tampilan\" memerlukan input."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Bidang dengan \"nama bahasa Inggris\" kosong diisi secara otomatis."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Pilih Semua"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Impor data"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Apakah Anda pasti akan mengimpor data?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Saat Anda menekan tombol OK, Anda akan mengimpor data dari waktu saat ini hingga satu bulan sebelumnya."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Data sebelumnya secara otomatis diimpor sedikit demi sedikit."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Jika Anda ingin mengimpor data setelah waktu saat ini, tekan tombol membaca data lagi, atau tekan database CSV mengatur pengaturan pada halaman pengaturan baca."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Ketika \"Perbarui Siklus\" dari \"Database / CSV Pengaturan Membaca\" diatur, itu akan diimpor secara otomatis pada periode ketika data setelah waktu saat ini diatur."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Lacak informasi"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Lacak data"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Tidak bisa mengakses"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Klik di sini untuk memperbaikinya."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Edit Edge"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Proses sebelumnya"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Kolom sebelumnya"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Proses Posting"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Kolom Pos"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Sebagai datetime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Sebagai serial"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Sebagai tautan ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Sudah terdaftar"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Harap masukkan nama prosesnya"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filter/grafik"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Konfigurasi Grafik"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Konfigurasi filter baris"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Kolom baris"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Nilai"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Konfigurasi Filter Mesin"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Kolom Mesin ID"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Bagian Tidak Ada Konfigurasi Filter"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Bagian Tidak Ada Kolom"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Nama filter"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Kondisi filter"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Lainnya menyaring konfigurasi"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Kolom target"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Konfigurasi Visualisasi"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Ambang batas yang lebih rendah"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Ambang batas atas"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Ambang proses yang lebih rendah"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Ambang proses atas"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Kisaran Y-Axes: Min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Kisaran Y-Axes: Max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Bagian no"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "berakhir dengan"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Dimulai dari"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like pencarian)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Setuju"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Ekspresi reguler"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Tampilkan grafik"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Ekspor"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Proses diperlukan"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Nama kolom diperlukan"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Diperlukan baris"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Nama tampilan diperlukan"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Nama tampilan digandakan."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Nilai mesin diperlukan"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Mesin duplikat ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Simpan dengan sukses"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Gagal Menyimpan"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Bagian Tidak Ada Kolom Diperlukan"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Kolom target diperlukan"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Nama filter diperlukan"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Kondisi diperlukan"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Nama filter digandakan."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Kondisinya diduplikasi."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Bawaan"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Nama proses"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Menambahkan filter lain"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Impor Config"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Sumber"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Siklus pembaruan"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Menghubung"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Sekali per jam"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Sekali sehari"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Konfirmasi Data"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Tidak ada folder."
+
+msgid "File does not exist"
+msgstr "Tidak ada file."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Anda dapat terhubung."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Harap isi nilainya."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Tidak ada konten pengaturan."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Pengaturannya digandakan."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Pengaturan Basis Data disimpan."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Gagal menyimpan pengaturan basis data."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Pengaturan Dasar Disimpan."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Gagal menyimpan pengaturan dasar."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Tes koneksi"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Titik awal"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Kisaran Tanggal"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Terbaru"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Pembaruan Otomatis"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "menit"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "menit"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "jam"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "jam"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Variabel target"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Saring"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X Axis"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Cap waktu"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Indeks"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Variabel stratifikasi"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Filter"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Database/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Menganalisa"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Dalam pengembangan"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Menganalisa:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Plot air terjun"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Grafis LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogram"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Plot bertingkat"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Plot poin penuh"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Visualisasi data"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Visualisasi"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Lari"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Masukkan nama database."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Masukkan nama sumber data."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Kolom yang tidak memiliki tipe data tidak diimpor."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Setidaknya satu kolom datetime diperlukan."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Untuk visualisasi, gunakan '{col}' untuk sumbu x."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Apakah Anda pasti akan melanjutkan?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Penampil meja"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Meja"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Menyortir"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Jumlah data"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Menurun"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Naik"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Pasangan sempurna"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Pertandingan parsial"
+
+#: trace_config.js
+msgid "th character"
+msgstr "Karakter -TH"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Seleksi digit tidak valid"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Panjang karakter yang digunakan untuk tautan berbeda."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Tidak ada filter"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Semua baris"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "situasi"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Daftar Pekerjaan"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Semua"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Impor selesai."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Pengimporan"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Gagal mengimpor"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Data yang dimuat akan dihapus. Apakah tidak apa -apa? (Tidak ada perubahan yang tercermin sampai tombol pendaftaran ditekan)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Daftar Pekerjaan"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "ID Pekerjaan"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Nama Pekerjaan"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Generasi LinkedID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Pekerjaan Generasi Tampilan Tautan ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Penghapusan informasi proses"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Impor data pabrik"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Impor data pabrik masa lalu"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Tampilkan pekerjaan mengimpor data pabrik masa lalu"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Impor data"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Hapus data lama"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Waktu mulai"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "waktu berlalu"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Database/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Kemajuan"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Proses"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Daftar Histogram"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Daftar sebagai nilai wabah"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Batalkan register outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Sembunyikan outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Tunjukkan outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Periksa outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Tunjukkan daftar histogram"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Waktu pembaruan terakhir"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Pendaftaran outlier telah dibatalkan."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Terdaftar sebagai outlier"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Outlier"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Hanya sekali"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Rincian pekerjaan"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Menyalin ke clipboard"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Plot multi -sebar"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Sebaran plot"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Untuk memvisualisasikan variabel kategori"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratifikasi oleh variabel"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Variabel"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Mesin no"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Periode target"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Frekuensi (hitungan)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Estimasi kepadatan"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Variabel kategori"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify dengan istilah (langsung)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Anda tidak dapat memilih delapan atau lebih variabel target. Pilih variabel target."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Deteksi anomali"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Analisis Komponen Prinsip"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Skor komponen utama data pengujian"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Skor Komponen Utama Data Pelatihan"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Bagan seri statistik T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Bagan Seri Statistik Q"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Plot Kontribusi Statistik T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Plot Kontribusi Statistik Q"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Hapus outlier"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Data pelatihan"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Menguji data"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Ya"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Tidak"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Tipe data"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Contoh"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Kesalahan"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Peringatan"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Karena semua baris telah dihapus oleh pemrosesan nilai defisit (penghapusan NA), tidak ada data untuk dianalisis. Pastikan bahwa nilai kosong, termasuk NA, tidak dipilih."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Itu tidak dapat dianalisis karena berisi data selain angka. Pastikan Anda telah memilih kolom yang berisi nilai string atau kategori."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Tidak dapat menganalisis karena berisi data dengan varian 0. Pastikan hanya satu kolom nilai yang tidak dipilih."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Ditemukan data kategori dan nilai integer yang diharapkan. Jika nilai integer ini bukan skala pesanan, skala interval, atau skala rasio, hasil analisis dapat terpengaruh."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Apakah Anda pasti akan melanjutkan analisis?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Cari"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Median adalah salah satu statistik khas. Ini adalah nilai yang terletak di tengah ketika data terbatas diatur dalam urutan naik. Sebagai contoh, dalam kasus lima, usia rata -rata usia adalah usia ketiga dalam urutan usia. Jika jumlah data genap, rata -rata aritmatika pusat yang dapat digunakan."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Ringkasan distribusi"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N nomor"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Rata-rata"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Apa mediannya ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Total"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Frekuensi"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Titik akhir"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Proses target"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Deret waktu"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Bagian-bagian"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Jumlah Tautan Data"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Detik"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Waktu merespon"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "edit"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Kembali"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Tambahkan Node"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Tambahkan tepi"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Edit Node"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Klik pada ruang kosong untuk menempatkan simpul baru."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Klik node, seret tepi ke simpul lain dan sambungkan."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Klik titik kontrol, seret ke node dan sambungkan."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Tepi tidak dapat ditambahkan."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Cluster tidak dapat dihapus."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Cluster tidak dapat diedit."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Nama atau nilai tampilan digandakan."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Masukkan nama dan nilai tampilan."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Masukkan kolom baris."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Jam"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Info data"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Hari"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Pekan"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Memuat"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Menyimpan"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Timpa"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Pengaturan"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Ubah judul karena judul yang sama ditetapkan."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Simpan Pengaturan"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Buat tangkapan layar"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "unduh"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Alasan mengapa grafik tidak dapat ditampilkan adalah sebagai berikut. BREAK_LINE Periksa situasinya. BREAK_LINE・ Data tidak diimpor, atau di tengah impor. BREAK_LINE・ Tidak ada data yang ditautkan, atau di tengah ikatan. BREAK_LINE・ Pengaturan grafik tidak pantas."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Peringatan"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Catatan yang berisi data tidak valid di kolom data tanggal tidak diimpor."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Anda dapat merujuk ke file di folder di bawah ini untuk data yang tidak dapat diimpor."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Status penggunaan tidak dapat diunggah karena tidak terhubung ke internet."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Harap periksa koneksi jaringan."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Butuh waktu lama untuk menghubungkan data lagi."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Apakah Anda pasti akan menghubungkan kembali data?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Menggugurkan"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Menjalankan"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Apakah Anda pasti akan memuat ulang pengaturan tautan data yang terdaftar sebelumnya?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Mulai mengimpor data."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Anda dapat memeriksa kemajuan impor dari tautan di bawah ini."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Lihat halaman Daftar Pekerjaan untuk status kesalahan."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Mulai menghubungkan data."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Setiap 3 menit sekali"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Setiap 5 menit sekali"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Setiap 10 menit sekali"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Fungsi opsional"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Jenis file"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Ekspor"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Karena sejumlah besar catatan yang dipilih dan waktu yang diperlukan untuk menampilkan grafik, jumlah catatan per grafik dibatasi hingga 50.000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Bagan Seri Waktu"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Nilai kategori"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Karena jumlah catatan dalam periode yang ditentukan lebih dari 5.000, tautan BREAK_LINE terikat dalam ± 14 hari dari periode yang ditentukan. Jika Anda tidak ingin membatasi rentang tautan, sesuaikan durasi untuk mengurangi jumlah catatan BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Skala pengaturan"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Skala umum"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Garis ambang batas"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Skala otomatis"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Sedang digunakan skala"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn proses"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Min"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Tidak ada"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Ringkasan"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Menghitung"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Statistik dasar"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Non parametrik"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Kualitas data"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Penonton"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Impor data"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Proses tautan data akan dimulai berdasarkan konfigurasi saat ini."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Mungkin butuh waktu jika ada banyak data untuk ditautkan. Apakah boleh memulai?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Untuk data yang diimpor secara otomatis dan berkala, tautan ID dihasilkan secara otomatis."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Nama Sumber Data"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Jenis Sumber Data"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Apakah Anda pasti akan menyimpan perubahan?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Informasi OS paksa ke pengaturan zona waktu."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Pengaturan lanjutan"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Pengaturan disimpan untuk database /CSV file mengimpor data. Buka halaman Pengaturan, atur kolom data impor untuk mengimpor data."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Tidak ada atribut yang diperlukan dalam data elemen."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Tidak ada nilai atribut yang diperlukan untuk data elemen."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Deteksi abnormal oleh PCA membutuhkan setidaknya dua variabel. Pilih dua atau lebih variabel."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Pilih setidaknya satu kolom"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Variabel kategori yang mengurangi lebar kotak tidak ditampilkan."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Mulai digit"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Plot Ridgeline"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Hentikan aplikasi (Edge Server). Jika Anda berhenti, pengguna lain tidak akan dapat menggunakan juga, jadi silakan hubungi administrator. <br> Dalam kasus akhir normal, batalkan di sini dan tutup saja browser."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Semua pekerjaan telah dihentikan. Anda dapat dengan aman menutup browser dan konsol Anda."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Konfigurasi Sumber Data"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Konfigurasi impor sumber data"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Kolom menemukan beberapa kolom karakter. Periksa bahwa kolom tipe numerik dll. Dapat salah diakui."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Item filter"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Nilai filter"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Tanggal Kedaluwarsa (Mulai)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Tanggal Kedaluwarsa (Akhir)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Data tidak dapat diimpor karena kesalahan konfigurasi tipe data kolom. Nama Sumber Data __param__ CSV/TSV Periksa Pengaturan Jenis Data dalam Pratinjau Data Halaman Pengaturan Baca. Hapus pengaturan langkah yang tidak dapat diimpor dan mengatur pengaturan."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Ada file tanpa data. Periksa konten file. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Masukkan setidaknya satu nilai periode validitas dari atau ke."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Bagilah dengan kategori"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Bagilah dengan istilah (siklik)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Bagilah dengan istilah (langsung)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Nilai interval yang dimasukkan tidak valid. Masukkan sejumlah 0,1 atau lebih, 720 atau kurang, atau -720 atau lebih, dan -0.1 atau kurang."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "`Window Length` yang ditentukan tidak valid. Nilai harus antara 0,1 dan 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Jumlah input ridgeline tidak valid. Masukkan bilangan bulat 1 atau lebih dan 150 atau kurang. (Lebih suka menggunakan sekitar 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Mulai Data & Waktu"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Selang"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Panjang jendela"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Item kontrol"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Jenis"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Nama"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Perhatikan bahwa jika jumlah titik data dalam satu kategori di bawah 50, keakuratan grafik dapat berkurang."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Tunjukkan kursor rambut silang (klik)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Tampilkan Kursor Rambut Multi Cross (klik ganda)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Tunjukkan daftar histogram"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Batalkan cek outlier"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "`Nama sumber data yang ditentukan sudah ada."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Impor data gagal karena file dengan nama kolom yang berbeda ditemukan di sumber data. Periksa konten file dan atur pengaturan impor sumber data lagi."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Jumlah catatan yang diprediksi untuk ditautkan"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Jumlah sampel"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Jumlah catatan yang akan ditautkan"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Jumlah total catatan"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Silakan beri nama folder di mana file CSV/TSV disimpan seperti \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Ramalan"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Konfigurasi Filter"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Konfigurasi Master"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Dari konfigurasi filter"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Tunjukkan semua"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Sebagai kunci (opsi)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Dihapus REMOVED_COUNT dari nilai defisit, nilai abnormal, dan nilai outlier dari TOTAL_COUNT dalam aslinya."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Alamat IP"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Bandingkan distribusi data dengan estimasi histogram dan kepadatan. Grafik dibagi dengan variabel bertingkat. Itu juga dibagi dengan facet."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Plot semua jumlah data pada sumbu waktu atau sumbu ID."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Tampilan matriks plot sebar. Anda dapat menggunakan dari 2 hingga 7 variabel target."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Dengan analisis komponen utama, visualisasi \"berbeda\" dan analisis faktornya dilakukan. Masukkan data normal sebagai data guru dan visualisasikan apakah data saat ini adalah situasi yang sama dengan data normal (T2/Q). Jika Anda memiliki situasi yang berbeda, Anda dapat memeriksa faktor utama dalam plot kontribusi."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Distribusi dibagi menjadi beberapa grafik dengan variabel ini. Pilih variabel kategori (variabel kualitatif) seperti nomor bagian dan stasiun."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Filter kategori bertingkat: Membatasi data yang akan ditampilkan ke subset. (Kategori: Nomor Bagian, No Stasiun, dll.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Variabel kategori (seperti nomor bagian, stasiun no, dll.) Ditampilkan sebagai label di bagian atas plot untuk menemukan poin yang berubah."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Filter Grafik: Membatasi data yang akan ditampilkan ke subset."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Atur data pembelajaran yang ditafsirkan sebagai situasi normal. Atur bagian data yang tidak berisi data NG. Jika dimasukkan, yang dekat dengan data NG juga dinilai sebagai data normal."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Atur data uji untuk dinilai."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Filter Item: Batas Data (Analisis & Tampilan) yang akan ditampilkan ke subset."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Ini adalah tampilan agregat dua dimensi (kompresi dimensi oleh komponen utama) dari data verifikasi multidimensi. Jika data berada di tengah, dapat ditafsirkan sedekat mungkin dengan normal."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Ini adalah tampilan agregat dua dimensi (kompresi dimensi oleh komponen utama) dari data pembelajaran multidimensi. Target pusat ditentukan oleh data pembelajaran, sehingga sebagian besar data pembelajaran harus berada di target."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Plot statistik T2, yang memantau anomali dalam komponen utama data ini. Data pembelajaran diplot dalam warna putih dan dalam bagian x negatif. Plot kuning adalah data validasi. Semakin tinggi data validasi dibandingkan dengan data putih, semakin besar situasinya untuk menyimpang. Klik titik data untuk melihat plot kontribusi dari elemen apa yang membentuk situasi."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Plot statistik Q (pemantauan untuk anomali di bagian minor dari data ini, residual). Data pembelajaran diplot dalam warna putih dan dalam bagian x negatif. Plot kuning adalah data validasi. Semakin tinggi data validasi dibandingkan dengan data putih, semakin besar situasinya untuk menyimpang. Klik titik data untuk melihat plot kontribusi dari elemen apa yang membentuk situasi."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Urutan variabel mana yang berkontribusi pada situasi pada titik yang dipilih dalam plot statistik T2. Semakin lama panjangnya, semakin besar penyebabnya."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Urutan variabel mana yang berkontribusi pada situasi pada titik yang dipilih dalam plot statistik Q. Semakin lama panjangnya, semakin besar penyebabnya."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Jumlah titik data dengan nilai kurang dari atau sama dengan Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Jumlah titik data dengan nilai yang lebih besar dari atau sama dengan Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Jumlah total data termasuk NA (tidak tersedia), NaN (bukan angka) dan Inf± (infinity) pada periode yang dipilih."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Persentase data di luar ambang batas atas dan bawah (hitungan) pada periode yang dipilih"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Persentase data di luar ambang batas batas atas dan bawah (hitungan) pada periode yang dipilih"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Persentase NA (tidak tersedia) dalam periode yang dipilih (Hitungan)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Persentase NaN (bukan angka) dalam periode yang dipilih (Hitungan)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Persentase Inf+ (ditambah infinity) dalam periode yang dipilih (hitungan)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Persentase Inf- (minus infinity) pada periode yang dipilih (Hitungan)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Persentase total data di luar nilai ambang batas, NA (tidak tersedia), NaN (bukan angka) dan Inf± (infinity) dalam periode yang dipilih (hitungan)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Jumlah data yang tidak termasuk NA (tidak tersedia), NaN (bukan angka) dan Inf± (infinity) pada periode yang dipilih."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "Persentil ke -95"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "Persentil ke -75 (kuartil ketiga)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "Persentil ke -25 (kuartil pertama)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "Persentil ke -5"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Rentang interkuartil (nilai representatif dari variabilitas distribusi: IRQ = Q3 - Q1 ≒ 1.349σ@ distribusi normal)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Median (persentil ke -50)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Jumlah/jam"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Jumlah/menit"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Waktu siklus [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Nomor Divisi"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Siklus tampilan"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Tampilkan interval"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Peta Panas Calenda"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Variabel target tidak dapat dipilih oleh MAX_NUM_SENSOR atau lebih. Pilih variabel target."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Target penghapusan outlier adalah Max, Mean, Min, σ dan Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Selain bilangan real"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Distribusi dapat divisualisasikan dengan menghitung untuk setiap variabel kategori (variabel kualitatif, nomor lot, dll.) Atau datetime, dan menampilkannya berdampingan. Metode visualisasi yang memungkinkan analisis lintas kelompok (perbandingan antara lot, hari, shift dan dll.) Data tanpa diskrit ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Atur ambang batas yang akan ditarik pada grafik."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Jika pencar, Anda dapat menunjukkan plot sebar dengannya. Plot sebar antara item saat ini dan item baris berikutnya. Seret dan jatuhkan kartu plot dari plot masing-masing dengan mouse untuk mengganti sumbu x dan sumbu y dari plot sebar."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Item data (seperti variabel numerik atau nilai pengukuran) yang membuat distribusi data. Data ini diplot pada plot. Hingga 20 item dapat dipilih."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Variabel bertingkat ini membagi distribusi menjadi beberapa plot dan menampilkannya berdampingan. Pilih variabel kategori, seperti Lot No atau Batch No."
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Masukkan datetime start untuk menampilkan plot ridgeline untuk setiap datetime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Masukkan langsung periode untuk menampilkan plot ridgeline untuk setiap datetime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Anda dapat memilih opsi untuk mengimpor data dari file CSV/TSV yang memerlukan penanganan khusus, seperti mengonversi struktur data."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Menekan tombol Pratinjau di bawah ini akan menunjukkan beberapa bagian dari data dalam file sehingga Anda dapat memeriksa kontennya."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Pilih Tautan ID untuk digunakan sebagai kondisi untuk menghubungkan data. Anda juga dapat memilih beberapa item."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Ketika aplikasi Anda mengimpor data secara berkala, Anda dapat memilih kolom DateTime yang lebih disukai digunakan sebagai kunci datetime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Jika Anda memilih operator dan memasukkan angka di bawah 'faktor', nilai dalam grafik akan dihitung menggunakan operator dan faktor yang ditentukan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Jika Anda memilih operator dan memasukkan angka di bawah 'faktor', nilai dalam grafik akan dihitung menggunakan operator dan faktor yang ditentukan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Dimungkinkan untuk memprediksi berapa banyak data yang akan ditautkan oleh kondisi penghubung yang saat ini ditetapkan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Buang kondisi penghubung data yang saat ini ditetapkan dan memanggil kondisi yang terdaftar sebelumnya."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID dihasilkan secara internal untuk mengaitkan data dengan kondisi yang menghubungkan set."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Pilih Kontrol Kualitas atau Item Kontrol Peralatan Menggunakan dalam Pengaturan Grafik."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Pilih jenis target manajemen seperti nomor bagian dan peralatan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Pilih target manajemen seperti nilai nomor bagian dan nilai peralatan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Atur start datetime untuk pengaturan grafik. (Yg dibutuhkan)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Atur akhir datetime untuk pengaturan grafik. (Opsional)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Baca konfigurasi yang disimpan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Simpan konfigurasi terbaru yang Anda masukkan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Simpan layar sebagai file PNG."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Apakah Anda ingin menghapus pengaturan ini?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Variabel target (bilangan real)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Variabel target (kategori)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Pemesanan indeks"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Kolom"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Memesan"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Prioritas"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Memerintah"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Variabel"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Nyata & Kategori saja"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Hanya nyata"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Hanya kategorikal"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Dalam urutan set"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Dalam urutan proses"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Dalam Korelasi Coef. memesan"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Ambang korelasi (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Pilih ke variabel objektif"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Variabel objektif"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Variabel penjelas"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Rasio yang tersedia"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Diagram Sanky"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Kecocokan (pertandingan sempurna)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Pencarian"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Pencarian"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Karena plot koordinat paralel tidak dapat mengobati bilangan real, data bilangan real telah dihapus."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Reregistrasi"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Daftarkan informasi yang diedit seperti nama tampilan."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Apakah Anda ingin mendaftar dengan konten yang dimodifikasi?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Jika Anda mengubah tautan ID, silakan atur ulang konfigurasi tautan data."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Grafik co-kejadian"
+
+# co-occurrence
+msgid "Data file"
+msgstr "File data"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Dikumpulkan oleh"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Jam"
+
+# co-occurrence
+msgid "Day"
+msgstr "Hari"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Edit Mode"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Mode Pengaturan"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Data tidak valid disorot merah akan dihapus. Apakah Anda pasti akan beralih ke mode pengaturan?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "prioritas"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Nama duplikat bahasa Inggris terdeteksi, sehingga nomor seri ditambahkan secara otomatis. Periksa nama kolom."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Unit agregasi"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Kolom pertama adalah datetime, dan kolom kedua dan kolom berikutnya adalah nilai seperti bendera pemberitahuan alarm/jumlah kejadian (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Hubungan co-kejadian agregat berdasarkan jam/hari."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Tampilkan ambang batas"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Jika Anda memilih nilai kurang dari 100%%, Anda akan menyembunyikan hubungan bersama yang kecil. (Default: Gambar garis jika ada sekali)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Identifikasi dan visualisasikan variabel yang secara langsung atau tidak langsung berkorelasi dengan variabel target."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Visualisasikan korelasi antara variabel yang ditentukan di sini. Hingga 60 item dapat dipilih."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Variabel kandidat yang berkorelasi dengan variabel objektif."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Plot koordinat paralel"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "dari semua tepi"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Tata letak"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Lingkaran"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Otomatis"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Efisiensi"
+
+msgid "Set threshold"
+msgstr "Control Line: Periksa kapan level manajemen menggambar seperti garis standar"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Platform analisis"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Bagan Pareto"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Jumlah kejadian"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Rasio kumulatif [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Visualisasikan parameter yang dapat bervariasi dengan data dalam jangka waktu yang lama, seperti variasi tahunan dalam proses, hari dalam seminggu, shift, dll."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Visualisasikan korelasi antara sejumlah besar variabel sehubungan dengan variabel target."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Visualisasikan co-kejadian kesalahan, alarm, peristiwa dan dll. (Hubungan yang berfokus pada frekuensi kejadian simultan dari satu fenomena dan lainnya)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Kosong"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Alat sederhana untuk pemetaan data, visualisasi, analisis statistik, dan pembelajaran mesin."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Set data di sini digunakan sebagai referensi untuk menghubungkan dan merencanakan data. Pengaturan digunakan dalam sumbu horizontal plot. Selain itu, plot asal ditampilkan dengan bingkai biru muda."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Menentukan data (misalnya, variabel numerik: nilai pengukuran) untuk plot. Pilih proses dan item yang akan diplot pada plot. Hingga 20 item dapat dipilih."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Menentukan data (misalnya, variabel numerik: nilai pengukuran) untuk plot. Pilih proses dan item yang akan diplot pada plot. Hingga 8 item dapat dipilih."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Kosong"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Variabel stratifikasi ini membagi pola untuk divisualisasikan menjadi beberapa plot dan menampilkannya berdampingan. Pilih variabel kategorikal seperti nomor bagian dan stasiun No. hingga 100 item dapat dipilih."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Item data yang memvisualisasikan korelasi antara variabel (variabel kuantitatif: nilai pengukuran, dll.). Data ini diplot pada grafik. Dari 2 hingga 7 parameter dapat dipilih."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Pilih item untuk memvisualisasikan korelasi antar variabel. Hingga 60 item dapat dipilih."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Item variabel kategori (seperti nomor bagian) untuk memvisualisasikan korelasi antar variabel."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Maksimalkan kartu"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Meminimalkan kartu"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Jika pengaturan ini diubah, perlu mengatur ulang pengaturan tautan data."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Pilih Otomatis"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Pilih semua di sebelah kanan"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Bukalah semua di sebelah kanan"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Semua nyata (mengapung) dari sini"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Semua bilangan bulat dari sini"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Semua string dari sini"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Karena sejumlah besar catatan yang dipilih dan waktu yang diperlukan untuk menampilkan plot, jumlah sel per plot dibatasi hingga 10.000. Jika Anda ingin melihat semua data untuk periode target BREAK_LINE, tingkatkan interval tampilan atau mengurangi periode target untuk mengurangi jumlah sel."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Serial"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Anda dapat menyesuaikan skala plot dengan mengklik kanan pada plot."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Skala grafik"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Mode Pengaturan"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Jumlah item data yang tidak dapat ditautkan"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Sebaran plot"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "dengan kontur"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Penghematan"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Kosong"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Pengaturan Muat"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Bagikan/Pribadi"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Keterangan"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Dibuat oleh"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Gunakan/memuat"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Memuat"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Jumlah data yang tidak dapat dikaitkan dengan proses titik awal (persentase hubungan)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Simpan Datetime"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Bagikan Pengaturan"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "menyimpan"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Anda dapat memilih dari 2 hingga 7 variabel target. Periksa jumlah variabel target dan perbaiki pengaturan."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Batas ukuran file adalah 10 MB. Kurangi ukuran file dan coba lagi."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Jika diperiksa, datetime yang ditentukan juga disimpan."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Periksa untuk membagikan pengaturan ini."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Simpan pengaturan."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Apakah Anda pasti akan menimpa pengaturan?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "Bagikan"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Pribadi"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Dibuat di"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Menutup"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Set pesanan"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Mulai Datetime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Akhir datetime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Tampilkan label sumbu x"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Rentang datetime"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Seret dan lepas file di sini"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Atau"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Pilih file"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Tidak dapat ditampilkan"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Pemrosesan terganggu karena banyaknya data dan waktu pemrosesan yang lama. Tinjau pengaturan DateTime dan tampilkan plot lagi."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Mengeluarkan file CSV. Harap tunggu saat file mengunduh."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Mengeluarkan file TSV. Harap tunggu saat file mengunduh."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Rentang otomatis"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Lengkap"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Pengaturan Pesanan Indeks"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Membuka"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Menghapus"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Karena jumlah titik data per grafik lebih dari 12.000, jumlah titik data dibatasi hingga 12.000. Jika Anda ingin melihat seluruh data, atur periode target yang lebih pendek."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratifikasi dengan istilah (siklik)"
+
+#: component.js
+msgid "Facet"
+msgstr "Segi"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Melakukan kategori yang membagi dengan item yang dipilih."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Estimasi Pengecualian"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Kisaran interkuartil yang dinormalisasi (indeks asosiasi IQR dengan distribusi normal, NIQR = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Mode adalah nilai yang paling sering terjadi."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "dengan outlier"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "tanpa outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Kebiasaan"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Hari ini"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Kemarin"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "7 hari terakhir"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "30 hari terakhir"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Bulan ini"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 bulan"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 bulan"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Berlaku"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Pekan"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09Inf±11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 hari yang lalu"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 hari yang lalu"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Hari tinju bulan ini"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Hari terakhir bulan ini"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 bulan"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Diperbarui di"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Titik data dirangkum dengan mode cepat. Jika Anda ingin mendapatkan plot tanpa menghilangkan data, sesuaikan periode target lebih pendek."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Rentang sumbu y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Outlier"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Kosong"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Pencarian proses"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Penanda buku"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Karena jumlah titik data per plot lebih dari 10.000, plot kepadatan ditarik. Jika Anda ingin menampilkan semua titik data dengan plot sebar, atur periode target lebih pendek."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Kosong"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Waktu siklus"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Bilangan real"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Variabel objektif"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Koefisien korelasi dihitung menggunakan variabel ini sebagai variabel target. Variabel target yang ditentukan di sini juga ditampilkan bersama dengan bilah warna di sisi kanan plot. Jika Anda ingin mengubah variabel target pada plot, Anda dapat beralih di antara mereka dengan mengklik kanan pada setiap nama variabel."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Data tidak tenggelam karena ada terlalu banyak kategori. BREAK_LINE Periksa dan, jika perlu, revisi periode target lebih pendek."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Pengaturan Filter"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Label (variabel kategori)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Disalin"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Ditempelkan"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Salin konfigurasi"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Tempel Konfigurasi"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Tanpa pengaturan asal, target pertama dipilih sebagai asal."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Ekspor Data"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Tidak dipakai"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Data tidak ditarik karena ada terlalu banyak kategori."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Periksa dan, jika perlu, revisi pengaturan periode target."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Bagilah dengan jumlah data (siklik)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Jumlah data"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Kosong"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Kosong"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Pilih variabel tujuan."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Kosong"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Tidak ada dekomposisi dekomposisi / kategori"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Sebaran plot"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Jika tipe data X atau Y adalah string, Anda tidak dapat menggunakan variabel non-string untuk pengaturan warna."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Nilai di luar kisaran yang diizinkan terdeteksi, sehingga kisaran minimum atau maksimum valid secara otomatis diputuskan. Ubah pengaturan seperlunya."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Klik kanan: Pengaturan Tautan Data/Edit/Hapus"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Waktu berlalu"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Pesanan waktu"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Mengatur pesanan data"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Harap hapus data yang tidak perlu karena kapasitas hard disk `__SERVER_INFO__` telah mencapai __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Port data dihentikan karena kapasitas hard disk `__SERVER_INFO__` tercapai __SERVER_INFO__ %%. Jika data yang tidak perlu dihapus dan kapasitas kosong meningkat, data akan dilanjutkan."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Masukkan jumlah distribusi yang akan ditampilkan (jumlah divisi). Masukkan bilangan bulat 2 atau 150 atau kurang."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Masukkan jumlah distribusi yang akan ditampilkan (jumlah divisi). Masukkan bilangan bulat 1 atau lebih 32 atau kurang."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Kosong"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Kosong"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Kosong"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Kosong"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Ada terlalu banyak biola per plot, jadi secara otomatis terbatas."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Karena sejumlah besar catatan yang dipilih, jumlah plot terbatas dari tanggal tertua hingga jumlah batas."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Saya menerima"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Menolak"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Ke belakang"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Jumlah Plot di Kolom"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Variabel kategori (nomor bagian, stasiun no, dll.) Ditampilkan sebagai label di bagian atas plot digunakan untuk memvisualisasikan titik perubahan (switching nomor bagian, dll.) Dari variabel kualitatif."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Pilih item yang akan dianalisis (variabel kuantitatif: nilai pengukuran, dll.). Hingga 60 item dapat dipilih."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Pilih item untuk mengurutkan data. Anda juga dapat memilih beberapa item."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Data lama yang meluap tidak ditampilkan karena datetime dihitung dari data terbaru dengan batas tampilan."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Jumlah plot terbatas pada NUMBER. Jika Anda ingin menampilkan semua, revice pengaturan."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Jumlah plot pada satu tab terbatas pada NUMBER. Jika Anda ingin menampilkan semua, revice pengaturan."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Jumlah variabel target yang akan dipilih adalah min minimum dan maksimum maksimum. Periksa jumlah variabel target dan perbaiki pengaturan."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Jumlah variabel target yang akan dipilih hingga maksimum maksimum. Periksa jumlah variabel target dan perbaiki pengaturan."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

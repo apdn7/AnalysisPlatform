@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+<!-- Common CSS -->
+<link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css')}}"
+    rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jexcel.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jsuites.css') }}">
+<!-- Visualization CSS -->
+<link rel="stylesheet" type="text/css"
+    href="{{ url_for('setting_module.static', filename = 'css/filter_visualization.css')}}">
+<link href="{{ url_for('setting_module.static', filename = 'css/master_cfg.css')}}" rel="stylesheet" />
+
+
+<script>
+    gtag('config', 'UA-156244372-2', {
+        'page_title' : '{{ _("Filter/Graph") }} {{ _("Config") }}',
+    });
+</script>
+{% endblock %}
+
+{% block header %}
+<div class="page-title graph-navi">
+	<h2 title="{{ _('Master Config Hover') }}"><span class="hint-text">{{ _("Master") }} {{ _('Config') }}</span></h2>
+</div>
+{% endblock %}
+
+{% block midbody %}
+<!-- Header -->
+<div class="card card-xl graph-navi">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="header-left">{{ _("Process name") }}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <select name="type" id="processList" class="form-control select2-selection--single">
+                    <option value="" selected>---</option>
+                    {% for proc in procs %}
+                    <option value="{{ proc.id }}">{{ proc.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-4 text-center">
+                <button id="btnShowAllSettings" class="btn btn-secondary">{{ _("Show") }}</button>
+            </div>
+    </div>
+</div>
+</div>
+<div class="loading" style="display: none;"></div>
+
+<div id="detailCards" style="visibility: hidden;">
+	<div class="card graph-navi" id="visualization">
+		<div class="card-body">
+			<form id="visualForm">
+				<div class="row form-header">
+					<div class="col-4">
+						<h3 class="header-left">{{ _("Graph Config") }}</h3>
+					</div>
+					<div class="col-8 d-flex align-items-center justify-content-end mb-2">
+						<input type="search" id="searchMasterConfig" class="form-control common-search-input mr-3" placeholder="{{_('Search')}}...">
+						<button id="visualConfigRegister" class="btn btn-primary btn-right m-0" type="button"><i
+								class="far fa-save"></i> {{ _("Register") }}</button>
+						<button id="sModeMaster" class="changeMode btn btn-primary btn-right m-0" type="button"><i
+                            class="far fa-file-excel"></i> <span>{{ _("Edit Mode") }}</span></button>
+					</div>
+				</div>
+				{{ macros.alert_message("alertMsgVisualization") }}
+				<div class="table-view">
+					<div class="table-wrapper">
+						<table id="tblVisualConfig" class="table table-bordered table-main">
+						<thead>
+							<tr>
+                                <th scope="col" class="col-number">
+									<span class="">{{ _("No.") }}</span>
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm sticky-col first-col">
+									<span class="hint-text" title="{{ _('Control item Hover') }}">{{ _("Control item") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-0"
+										onkeyup="visualModule.filterRow(0)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm sticky-col second-col">
+									<span class="hint-text" title="{{ _('Type Hover') }}">{{ _("Type") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-1"
+										onkeyup="visualModule.filterRow(1)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm sticky-col third-col">
+									<span class="hint-text" title="{{ _('Name MCF Hover') }}">{{ _("Name") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-2"
+										onkeyup="visualModule.filterRow(2)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm thresh-line">
+									<span>{{ _("Lower threshold") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-3"
+										onkeyup="visualModule.filterRow(3)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm thresh-line">
+									<span>{{ _("Upper threshold") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-4"
+										onkeyup="visualModule.filterRow(4)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm thresh-line">
+									<span>{{ _("Lower process threshold") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-5"
+										onkeyup="visualModule.filterRow(5)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm thresh-line">
+									<span>{{ _("Upper process threshold") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-6"
+										onkeyup="visualModule.filterRow(6)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm thresh-line">
+									<span>{{ _("y-axes range: min") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-7"
+										   onkeyup="visualModule.filterRow(7)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm thresh-line">
+									<span>{{ _("y-axes range: max") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-8"
+										   onkeyup="visualModule.filterRow(8)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm thresh-line">
+									<span class="hint-text" title="{{ _('Action from Hover') }}">{{ _("Valid from") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-9"
+										   onkeyup="visualModule.filterRow(9)" placeholder="{{ _('Search') }}...">
+								</th>
+								<th scope="col" class="text-center th-title-other th-sm thresh-line">
+									<span class="hint-text" title="{{ _('Action to Hover') }}">{{ _("Valid to") }}</span>
+									<input class="filter-rows form-control" type="text" id="filter-10"
+										   onkeyup="visualModule.filterRow(10)" placeholder="{{ _('Search') }}..." >
+								</th>
+								<th scope="col" class="text-center th-title-other col-btn"></th>
+							</tr>
+						</thead>
+						<tbody>
+
+						</tbody>
+					</table>
+					</div>
+				</div>
+				<div class="editmode-container hide">
+					<div id="masterSM" class=""></div>
+				</div>
+				<button id="addVisualConfig" type="button" class="btn btn-success"><i
+						class="fas fa-plus-circle"></i></button>
+
+
+			</form>
+			<div id="visualConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+				<div class="modal-dialog modal-confirm">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">{{ _("Please confirm") }}</h4>
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						</div>
+						<div class="modal-body">
+							<p class="modal-inform">{{ _("Do you want to save changes?") }}</p>
+						</div>
+						<div class="modal-footer">
+							<a id="confirmRegister" class="btn btn-primary" data-item-id=""
+								data-dismiss="modal">{{ _("OK") }}</a>
+							<a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="filterConfirmSwitchModal" class="modal fade in" name="filterConfirmSwitchModal" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog modal-confirm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">{{ _("Please confirm") }}</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			</div>
+			<div class="modal-body">
+				<p class="modal-inform">{{ _("The error data highlighed in red will be lost. Do you want to continue?") }}</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" id="confirmSwitch" data-item-id=""
+					data-dismiss="modal">{{ _("OK") }}</button>
+				<button class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+			</div>
+		</div>
+	</div>
+</div>
+{{optdata}}
+{% endblock %}
+
+{% block js %}
+<!-- Select2 -->
+<script src="{{ url_for('static', filename = 'common/js/resizable.js')}}"></script>
+<script
+    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js')}}"></script>
+<script
+    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js')}}"></script>
+<script src="{{ url_for('static', filename = 'common/js/jexcel.js') }}"></script>
+<script src="{{ url_for('static', filename = 'common/js/jsuites.js') }}"></script>
+	<!-- Filter Vizualization View JS -->
+<script src="{{ url_for('setting_module.static', filename = 'js/graph_visualization.js')}}"></script>
+<script src="{{ url_for('setting_module.static', filename = 'js/master_config.js')}}"></script>
+{% endblock %}

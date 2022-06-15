@@ -1,0 +1,3154 @@
+# ハンガリ語 Hungarian translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: hu\n"
+"Language-Team: hu\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Mentett"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Hiba történt"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Alkalmazáskonfiguráció"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Az oldal nem található"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Hiba történt"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "DataLink & Analysis alkalmazás"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Válasszon egy nyelvet"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Fő képernyő"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Üzemeltetési ellenőrzés"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Üzemeltetési ellenőrzés"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Alapvető konfiguráció"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Regisztráció"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Újratöltés"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Egész szám"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Igazi (úszó)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Dátum idő"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Húr"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Cím"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Növény"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Gyár"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Vonal"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "kérem erősítse meg."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Mentse el az adatokat, és kezdje el az adatok importálását a folyamat beállítási oldalán beállított tartalommal?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "rendben"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Megszünteti"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Adatbázis -konfiguráció"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Adatbázis név"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Adatbázis típus"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Konfigurációs"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Megjegyzés"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Hozzáad"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Válassza ki az adatbázis fájlt."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Fájl név"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Válasszon"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Törölni akarja ezt a rekordot?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "töröl"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Nyomon követhetőség"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Nyomon követhetőségi grafikon"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Nyomkövetési tesztelés"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Kezdje a tesztelést"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Kezdési idő"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Idő vége"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Gépi azonosító (többszörös választások)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Vonal"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Cikkszám"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Data Link Config"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Válasszon egy nyelvet"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "japán"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "angol"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Csomópont"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Csomópont ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Címke"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Főnév"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Adatbázis"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Behozatal"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Export"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Fogadó neve"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Portszám"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Felhasználónév"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Jelszó"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Séma"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Sikerült."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; sikertelen."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Feldolgozási konfiguráció"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Folyamat"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Folyamatnév"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Táblázat"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Részlet"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Előnézet"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Első öt rekord"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Tartalom beállítása"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Oszlopnév"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Angol név"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Megjelenítendő név"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "együttható"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Operátor"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Írjon be 0 -tól eltérő értéket"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Bemeneti operátor."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Bemeneti együttható."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Bevitel angol név."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Bemenet a kijelző neve."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Az angol név megismétlődik."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "A kijelző neve megismétlődik."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Az összes \"megjelenítési név\" bemenetet igényel."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Az üres \"angol névvel\" rendelkező mezők automatikusan kitöltöttek."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Mindet kiválaszt"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Adatok importálása"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Biztosan importálja az adatokat?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Amikor megnyomja a OK gombot, akkor az adatokat az aktuális időből egy hónappal korábban importálja."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Az előző adatokat apránként automatikusan importálják."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Ha az adatokat az aktuális idő után szeretné importálni, nyomja meg újra az Adatolvasási gombot, vagy nyomja meg a CSV adatbázist."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Amikor beállítják az \"Adatbázis / CSV beállítás\" \"frissítési ciklusát\", akkor az automatikusan importálódik abban az időszakban, amikor az aktuális idő beállítását követő adatok beállítják."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Nyomkövetéssel kapcsolatos információk"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Nyomkövetési adatok"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Nem tudott hozzáférni"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Kattintson ide a javításhoz."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Szerkesztési él"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Előző folyamat"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Előző oszlop"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Utófolyamat"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Oszlop oszlop"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Mint DateTime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Mint sorozat"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Mint link ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Már regisztrált"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Kérjük, adja meg a folyamat nevét"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Szűrő/grafikon"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Gráf konfigurációs"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Vonalszűrő konfigurációja"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Sor oszlop"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Érték"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Gépszűrő konfigurációja"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Gép ID oszlop"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Rész nincs szűrő konfigurációja"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "No oszlop"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Szűrőnév"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Szűrőfeltétel"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Mások szűrik a konfigurációt"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Céloszlop"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Megjelenítési konfigurációs"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Alsó küszöbérték"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Felső küszöbérték"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Alacsonyabb folyamatküszöb"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Felső folyamat küszöbérték"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y-tengely tartomány: Min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y-tengely tartomány: max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Részben"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "véget vet"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Kezdeni valamivel"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like keresés)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Egyetért"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Rendszeres kifejezések"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Jelenítse meg a grafikont"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV export"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Folyamat szükséges"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Az oszlop neve szükséges"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Vonal szükséges"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Megjelenítésre van szükség"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "A kijelző neve megismétlődik."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Gépi értékre van szükség"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Másolatú gép ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Sikeres mentés"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Nem sikerült megtakarítani"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "RÉSZ Nincs oszlop szükséges"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Céloszlopra van szükség"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Szűrőnévre van szükség"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Feltételre van szükség"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "A szűrő neve megismétlődik."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "A feltételek megismételték."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Mulasztás"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Folyamatnév"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Hozzáadott más szűrőket"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Import Config"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Forrás"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Megújítási ciklus"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Összekapcsol"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Óránként egyszer"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Naponta egyszer"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Adatok megerősítése"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Nincs mappa."
+
+msgid "File does not exist"
+msgstr "Nincs fájl."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Csatlakozhat."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Kérjük, töltse ki az értéket."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Nincs beállítási tartalom."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "A beállítások megismételték."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Az adatbázis -beállítások mentve."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Nem sikerült menteni az adatbázis -beállításokat."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Alapvető beállítások mentve."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Nem sikerült menteni az alapbeállításokat."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Tesztcsatlakozás"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Kezdőpont"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Időintervallum"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Legújabb"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Automatikus frissítés"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "perc"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "percek"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "óra"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "órák"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Célváltozó"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Szűrő"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X tengely"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Időbélyeg"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Index"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "A változók rétegződése"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Szűrők"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Adatbázis/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Elemez"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Fejlesztés alatt"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Elemez:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Vízesés"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Grafikus LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Hisztogram"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Rétegelt telek"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Teljes pontok telek"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Adatmegjelenítés"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Megjelenítés"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Fuss"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Írja be az adatbázis nevét."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Írja be az adatforrás nevét."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Az olyan oszlopokat, amelyeknek nincs adattípusa, nincs importálva."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Legalább egy DateTime oszlop szükséges."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "A megjelenítéshez használja az '{col}'-t az x tengelyhez."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Biztosan folytatod?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Asztalnéző"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "asztal"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Fajta"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Adatok száma"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Leszálló"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Emelkedő"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Tökéletes párosítás"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Részleges mérkőzés"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Érvénytelen számjegyválasztás"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Az összekapcsoláshoz használt karakter hossza eltérő."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Nincs szűrő"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Minden vonal"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "helyzet"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Munkalehetőség"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Összes"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Az import befejeződött."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Importálás"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Sikertelen importálás"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "A betöltött adatokat töröljük. Rendben van? (A regisztrációs gomb megnyomásáig nem tükröződik a változás)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Munkalehetőség"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Munkavállalás"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Munka megnevezés"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "A linkeltID generálása"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "A ID link generációs jobja megjelenítése"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "A folyamatinformációk törlése"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Gyári adatok importálása"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Importálja a korábbi gyári adatait"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Mutassa be a korábbi gyári adatok importálását"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Adatok importálása"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "A régi adatok törlése"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Kezdési idő"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "eltelt idő"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Adatbázis/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Előrehalad"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Folyamat"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Hisztogram lista"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Regisztráljon kitörési értékként"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Regisztrált kívülálló"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Elrejteni a kiugró értékeket"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Mutasd ki a túllépőket"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Ellenőrizze a kiugró értékeket"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "A hisztogram lista megjelenítése"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Utolsó frissítési idő"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "A Outlier regisztráció törlése volt."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Kívülállóan regisztrált"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Kívülálló"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Csak egyszer"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Munka részletei"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Másolja a vágólapra"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Több szórási grafikon"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Szétszórt grafikon"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "A kategorikus változó megjelenítéséhez"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Rétegezni a változók szerint"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Változó"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Gép nem"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Célidőszak"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Frekvencia (szám)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Sűrűségbecslés"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Kategorikus változó"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Rétegződés a kifejezés szerint (közvetlen)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Nem választhat ki nyolc vagy több célváltozót. Válassza ki a célváltozót."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Rendellenességi detektálás"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Alapelv -elemzés"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. A tesztelési adatok fő eleme"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. A képzési adatok fő alkotóeleme"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. A T2 statisztikák sorozatdiagramja"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. A Q statisztikák sorozatú diagramja"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. A T2 statisztikák hozzájárulási diagramja"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. A Q statisztikák hozzájárulási diagramja"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Távolítsa el a külsőt"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Képzési adatok"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Adatok tesztelése"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Igen"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Nem"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Adattípus"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Példa"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Hiba"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Figyelem"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Mivel az összes sort a hiányérték feldolgozása (NA eltávolítás) törölte, nincs adat elemzésre. Győződjön meg arról, hogy az üres érték, beleértve a NA értéket, nincs kiválasztva."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Nem lehet elemezni, mert a számoktól eltérő adatokat tartalmaz. Győződjön meg arról, hogy kiválasztott egy oszlopot, amely karakterláncot vagy kategóriát tartalmaz."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Nem lehet elemezni, mert az adatokat tartalmazza. 0 varianciával rendelkezik"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Megtalálta a kategória adatait és a várható egész értéket. Ha ez az egész szám nem rendelési skála, intervallum skála vagy arány skála, akkor az elemzési eredmények hátrányosan befolyásolhatók."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Biztosan folytatja az elemzést?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "keresés"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "A medián az egyik tipikus statisztika. Ez egy olyan érték, amely a központban helyezkedik el, amikor a véges adatok növekvő sorrendben vannak elrendezve. Például öt esetben az életkor medián életkora a harmadik életkor. Ha az adatok száma egyenletes, akkor a központi brevitálható aritmetika átlagát használjuk."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Maximum"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Az elosztás összefoglalása"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N szám"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Átlagos"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Mi a medián ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Teljes"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Gyakorlás"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Végpont"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Célfolyamat"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Idősorok"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Darabok"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Az adatkapcsolat száma"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Másodpercek"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Válaszidő"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "szerkeszt"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Vissza"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Hozzáadási csomópont"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Add hozzá széle"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Csomópont szerkesztése"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Kattintson az üres helyre egy új csomópont elhelyezéséhez."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Kattintson a csomópontra, húzza a szélét egy másik csomóponthoz, és csatlakoztassa azokat."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Kattintson a vezérlőpontra, húzza a csomópontra és csatlakoztassa."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "A széle nem adható hozzá."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "A klaszter nem törölhető."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "A klaszter nem szerkeszthető."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "A kijelző neve vagy értéke megismétlődik."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Írja be a kijelző nevét és értékét."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Írja be a vonaloszlopot."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Órák"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Adatinformáció"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Nap"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Hét"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Betöltés"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Megment"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Átír"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Beállítás"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Változtassa meg a címet, mert ugyanaz a cím be van állítva."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Mentés beállítás"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Hozzon létre képernyőképet"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "Letöltés"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Az oka annak, hogy a grafikon nem lehet megjeleníteni, a következő. BREAK_LINE Ellenőrizze a helyzetet. BREAK_LINE・ Az adatokat nem importálják, vagy az import közepén. BREAK_LINE・ Nincs adat összekapcsolva, vagy az árukapcsolás közepén. BREAK_LINE・ A grafikon beállítása nem megfelelő."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Figyelem"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Azok a rekordok, amelyek érvénytelen adatokat tartalmaznak a Date Data oszlopban, nem importálják."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Az alábbi mappában található fájlokra hivatkozhat azokra az adatokra, amelyeket nem lehet importálni."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "A használati állapotot nem lehet feltölteni, mert nem kapcsolódik az internethez."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Kérjük, ellenőrizze a hálózati kapcsolatot."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Hosszú időbe telik az adatok újbóli összekapcsolása."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Biztosan újracsatlakoztatja az adatokat?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Elvetél"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Végrehajt"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Biztosan újratölti a korábban regisztrált adatkapcsolat beállításait?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Elkezdte az adatok importálását."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Ellenőrizheti az import előrehaladását az alábbi linkről."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "A hibaállapotot lásd a Munkalista oldalon."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Elkezdte az adatok összekapcsolását."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "3 percenként egyszer"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "5 percenként egyszer"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "10 percenként egyszer"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Opcionális funkció"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Fájltípus"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV export"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "A kiválasztott rekordok nagy száma és a grafikon megjelenítéséhez szükséges idő miatt a grafikononkénti rekordok száma 50 000 -re korlátozódott."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Idősor -diagram"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Kategória érték"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Mivel a megadott időszakban a rekordok száma meghaladja az 5000 -et, a BREAK_LINE kapcsolat a megadott időszaktól számított ± 14 napon belül van kötve. Ha nem akarja korlátozni az összekötő tartományt, állítsa be az időtartamot a BREAK_LINE rekordok számának csökkentéséhez."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Beállítási skála"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Általános lépték"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Küszöbvonal"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Automatikus skála"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Használat skála"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn folyamat"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_PROC"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Maximum"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Perc"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Egyik sem"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Összefoglalás"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Számol"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Alapvető statisztika"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Nem paraméteres"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Adat minőség"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Néző"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Adatok importálása"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Az adatkapcsolati folyamat az aktuális konfiguráció alapján indul."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Időbe telhet, ha sok adat van a kapcsolódáshoz. Rendben van a kezdés?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Az automatikusan és rendszeresen importált adatok esetében a ID link automatikusan generálódik."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Adatforrás neve"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Adatforrás típusa"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Biztosan menti a változásokat?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Kényszerítette az operációs rendszer információkat az időzóna beállításaira."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Haladó beállítás"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "A beállításokat az adatbázis /CSV fájl importálási fájljához menti. Lépjen a beállítási oldalra, állítsa be az adatok importálási oszlopait az adatok importálásához."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Az elem adatokban nincs szükség attribútumra."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Az elem adatokhoz nincs szükség attribútumértékre."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "A PCA általi rendellenes észleléshez legalább két változó szükséges. Válasszon két vagy több változót."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Válasszon legalább egy oszlopot"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "A doboz szélességét csökkentő kategória változók nem jelennek meg."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Kezdő számjegy"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline -parcella"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Állítsa le az alkalmazást (Edge Server). Ha leáll, akkor bármely más felhasználó nem is tudja használni, ezért vegye fel a kapcsolatot az adminisztrátorral. <br> A normál vég esetén törölje itt, és csak bezárja a böngészőt."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Minden munkát leállítottak. Biztonságosan bezárhatja böngészőjét és konzolját."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Adatforrás -konfiguráció"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Adatforrás importálása konfiguráció"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Oszlopok találtak néhány karakteroszlopot. Ellenőrizze, hogy a numerikus típusú oszlop stb. Tévesen felismerhető -e."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Szűrőelem"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Szűrőérték"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "LEÁLLÍTÁS Dátum (START)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "LEÁLLÍTÁS Dátum (vége)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Az adatokat nem lehetett importálni az oszlop adattípus -konfigurációs hibái miatt. Adatforrás neve __param__ CSV/TSV Ellenőrizze az adattípus beállításait az olvasási beállítási oldal adat előnézetében. Törölje azokat a lépésbeállításokat, amelyeket nem lehetett importálni, és állítsa be a beállításokat."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Volt egy fájl adatok nélkül. Ellenőrizze a fájl tartalmát. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Adjon meg legalább egy értéket az érvényességi periódus legalább egy értékének."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Ossza meg kategóriánként"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Ossza meg a kifejezést (ciklikus)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Ossza meg a kifejezést (közvetlen)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "A beírt intervallum értéke érvénytelen. Írjon be egy vagy annál több, legalább 720 vagy annál kevesebb, vagy -720 vagy annál több, és -0,1 vagy annál kevesebb számot."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "A megadott „ablakhossz” érvénytelen. Az értéknek 0,1 és 48 között kell lennie."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "A bemeneti ridgele száma érvénytelen. Írjon be egy legalább 1 és 150 -es számot. (Inkább körülbelül 100 -at használnak)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Indítsa el az adatokat és az időt"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Intervallum"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Ablakhossz"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Vezérlőelem"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "típus"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Név"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Vegye figyelembe, hogy ha az adatpontok száma egy kategóriában 50 év alatt van, akkor a grafikon pontossága csökkenhet."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Mutasd meg a keresztszőrkurzort (kattintson)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Mutasd meg a több keresztes haj kurzort (dupla kattintással)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Mutassa meg a hisztogramok listáját"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Törölje a Outlier Check -t"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "A megadott „adatforrás neve” már létezik."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Az adatok importálása sikertelen, mert az adatforrásban egy másik oszlopnevet tartalmazó fájl található. Ellenőrizze a fájl tartalmát, és állítsa be újra az adatforrás importálási beállításait."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "A rögzített rekordok számának előrejelzése"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Minták száma"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "A kapcsolandó rekordok száma"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Az összes nyilvántartás száma"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Kérjük, nevezze meg azt a mappát, amelyben a CSV/TSV fájlokat menti, mint \"YyyymMdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Előrejelzés"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Szűrő konfiguráció"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Főtanács"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "A szűrő konfigurációból"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Mutasd az összeset"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Kulcsként (opció)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Törölte a deficit -érték REMOVED_COUNT -t, a rendellenes értéket és az outlier értéket az eredeti TOTAL_COUNT -tól."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP-cím"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Hasonlítsa össze az adatok eloszlását a hisztogrammal és a sűrűségbecsléssel. A gráfot a rétegzett változóval osztják. Ez szintén felosztva van."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Döntse el az idő tengelyén vagy az ID tengelyen található összes adatot."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "A Scatter Plot Matrix megjelenítése. Használhat 2-7 célváltozót."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "A fő komponens elemzéssel elvégezzük a \"különböző\" megjelenítését és annak tényező -elemzését. Írja be a normál adatokat tanári adatokként, és képzelje el, hogy az aktuális adatok ugyanolyan helyzetben vannak -e, mint a normál adatok (T2/Q). Ha más helyzete van, ellenőrizheti a hozzájárulási grafikon fő tényezőit."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Az eloszlást ez a változó több grafikonra osztja. Válassza ki a kategóriaváltozókat (kvalitatív változók), például a cikkszámokat és az állomásokat."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Rétegzett kategória szűrő: korlátozza az adatokat egy részhalmazra. (Kategória: cikkszám, állomásszám stb.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "A kategóriaváltozók (például az alkatrészszám, az állomásszám stb.) Címkékként jelennek meg a parcellák tetején, hogy megtalálják a változó pontokat."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Grafikonszűrő: korlátozza az adatokat egy részhalmazra."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Állítsa be a normál helyzetként értelmezett tanulási adatokat. Állítsa be az adatszakaszt, amely nem tartalmaz NG adatot. Ha tartalmazza, azokat a NG adatokhoz közeli azokat is normál adatoknak ítélik meg."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Állítsa be a megítélendő tesztadatokat."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Elem szűrője: Az adatok korlátozása (elemzés és megjelenítés) egy részhalmazra jelenik meg."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Ez a többdimenziós ellenőrzési adatok kétdimenziós aggregált kijelzője (dimenziós tömörítés). Ha az adatok középpontjában vannak, akkor úgy értelmezhető, hogy a normál közelében van."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Ez a többdimenziós tanulási adatok kétdimenziós aggregált kijelzője (dimenziós tömörítés). A központi célt a tanulási adatok határozzák meg, tehát a legtöbb tanulási adatoknak a célban kell lenniük."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "A T2 statisztika egy diagramja, amely figyelemmel kíséri az adatok rendellenességeit ezen adatok fő alkotóelemében. A tanulási adatokat fehéren és a negatív x részben ábrázolják. A sárga diagram az érvényesítési adatok. Minél magasabb az érvényesítési adatok összehasonlítása a fehér adatokkal, annál valószínűbb, hogy a helyzet eltér. Kattintson az Data Point elemre, hogy megnézze, milyen elemek alkotják a helyzetet."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "A Q statisztika diagramja (a rendellenességek monitorozása ezen adatok kisebb részén, maradék). A tanulási adatokat fehéren és a negatív x részben ábrázolják. A sárga diagram az érvényesítési adatok. Minél magasabb az érvényesítési adatok összehasonlítása a fehér adatokkal, annál valószínűbb, hogy a helyzet eltér. Kattintson az Data Point elemre, hogy megnézze, milyen elemek alkotják a helyzetet."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "A változók sorrendje hozzájárul a T2 statisztikai grafikonban kiválasztott helyzethez. Minél hosszabb a hossza, annál valószínűbb az oka."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "A változók sorrendje hozzájárul a helyzethez a Q statisztikai grafikonban kiválasztott ponton. Minél hosszabb a hossza, annál valószínűbb az oka."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Az adatpontok száma, amelynek értéke kevesebb vagy azzal egyenlő, Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Az adatpontok száma, amelynek értéke nagyobb vagy egyenlő, Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Az adatok teljes száma, beleértve NA (nem áll rendelkezésre), NaN (nem szám) és Inf± (végtelen) a kiválasztott időszakban."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Az adatok százalékos aránya a felső és az alsó küszöbön (szám) a kiválasztott időszakban"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Az adatok százalékos aránya a felső és az alsó határküszöbön (szám) a kiválasztott időszakban"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "NA (nem áll rendelkezésre) százalékos aránya a kiválasztott időszakban (szám)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "NaN (nem szám) százalékos aránya a kiválasztott időszakban (szám)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Inf+ (plusz végtelenség) százalékos aránya a kiválasztott időszakban (szám)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Inf- (mínusz végtelenség) százalékos aránya a kiválasztott időszakban (szám)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "A küszöbértéken kívüli adatok teljes százaléka, NA (nem áll rendelkezésre), NaN (nem szám) és Inf± (végtelen) a kiválasztott időszakban (szám)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Az NA (nem áll rendelkezésre), NaN (nem szám) és Inf± (végtelenség) számú adatok száma a kiválasztott időszakban."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95. százalék"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75. százalék (harmadik kvartilis)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25. percentilis (első kvartilis)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5. percentilis"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Interquartile tartomány (az eloszlási variabilitás reprezentatív értéke: IRQ = Q3 - Q1 ≒ 1.349σ@ Normál eloszlás)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Medián (50. percentilis)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Counts/óra"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Counts/perc"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Ciklusidő [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Osztályszám"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Kijelzőciklus"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Megjelenítési intervallum"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Naptárhőtérkép"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "A célváltozókat nem lehet kiválasztani MAX_NUM_SENSOR vagy annál több. Válassza ki a célváltozót."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "A külső eltávolítás célja Max, Mean, Min, σ és Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "A valós számokon kívül"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Az eloszlás megjeleníthető az egyes kategorikus változókra (kvalitatív változók, tételszám stb.) Vagy a DateTime kiszámításával, és egymás mellett jeleníthető meg. Egy megjelenítési módszer, amely lehetővé teszi a csoportok közötti elemzést (a tételek, napok, műszakok stb. Összehasonlítása), az adatok diszkrét ID nélkül."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Állítsa be a grafikonokra húzandó küszöböt."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Ha a szórás be van kapcsolva, akkor megmutathatja a szórási diagramot. A szórási diagram az aktuális tétel és a következő sor elem között. Húzza és dobja el a megfelelő parcellák grafikonkártyáit az egérrel, hogy átváltsa a szórási diagram x tengelyét és Y tengelyét."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Egy adatelem (például egy numerikus változó vagy mérési érték), amely az adatok eloszlását hozza létre. Ezeket az adatokat ábrázoljuk a cselekményen. Legfeljebb 20 elem kiválasztható."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Ez a rétegzett változó osztja az eloszlást több parcellára, és egymás mellett jeleníti meg őket. Válasszon egy kategorikus változót, például a tételszámot vagy a tételszámot"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Adja meg a Start DateTime -t, hogy megjelenítse a Ridgeline diagramot az egyes adatidőkhöz."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Mutassa be közvetlenül a Ridgeline diagram megjelenítéséhez az egyes adatidők megjelenítéséhez."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "A CSV/TSV fájlból származó adatok importálásához lehetőségeket választhat, amelyek speciális kezelést igényelnek, például az adatszerkezetek konvertálását."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Az alábbi előnézeti gomb megnyomásával a fájlban szereplő adatok egy részét megmutatja, így ellenőrizheti annak tartalmát."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Válassza a ID link lehetőséget, amelyet használni kell az adatok összekapcsolásához. Kiválaszthat több elemet is."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Amikor az alkalmazás rendszeresen importálja az adatokat, kiválaszthat egy DateTime oszlopot, amelyet elsősorban a DateTime kulcsaként használnak."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Ha kiválaszt egy operátort, és beír egy számot a „faktor” alatt, akkor a grafikonon szereplő értéket a megadott operátor és a tényező segítségével számítják ki."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Ha kiválaszt egy operátort, és beír egy számot a „faktor” alatt, akkor a grafikonon szereplő értéket a megadott operátor és a tényező segítségével számítják ki."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Meg lehet jelölni, hogy mekkora adatot kötnek a jelenleg beállított összekötő feltételek."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Eldobja a jelenleg beállított adatkapcsolási feltételeket, és felhívja a korábban regisztrált feltételeket."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "A ID belsőleg jön létre, hogy az adatok társítsák a beállított összekapcsolási feltételeket."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Válassza ki a Graph -beállításokban a minőség -vezérlő vagy a berendezés -vezérlő elemeket."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Kérjük, válassza ki a kezelési cél típusát, például a cikkszámot és a berendezéseket."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Kérjük, válassza ki a kezelési célt, például az alkatrészszám értékét és a berendezés értékét."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Állítsa be a grafikon beállításainak kezdési dátumát. (Kívánt)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Állítsa be a grafikon beállításainak végső datime -jét. (Választható)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Olvassa el a mentett konfigurációt."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Mentse el a megadott legújabb konfigurációt."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Mentse el a képernyőt PNG fájlként."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Törölni akarja ezt a beállítást?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Célváltozó (valós szám)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Célváltozó (kategória)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Indexrendelés"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Oszlop"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Rendelés"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Kiemelten fontos"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Megrendelés"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Változók"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Csak valódi és kategorikus"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Csak igazi"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Csak kategorikus"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Beállított sorrendben"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Folyamatrendben"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "A korrelációs coef -ben. rendelés"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Korrelációs küszöb (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Válassza ki az objektív változóhoz"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Objektív változó"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Magyarázó változó"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Rendelkezésre álló arány"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Szivárgásos diagram"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Match (tökéletes mérkőzés)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR keresés"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND keresés"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Mivel a párhuzamos koordináta -diagram nem tudja kezelni a valós számokat, a valós számokat eltávolították."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Újjáépítés"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Regisztrálja a szerkesztett információkat, például a megjelenítés nevét."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Szeretne regisztrálni a módosított tartalommal?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Ha megváltoztatja a ID linket, kérjük, állítsa vissza az Data Link konfigurációját."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Együttes előfordulási grafikon"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Adatfájl"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Aggregált"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Óra"
+
+# co-occurrence
+msgid "Day"
+msgstr "Nap"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Szerkesztési mód"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Beállítási mód"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Az érvénytelen adatok, amelyek kiemelt pirosra kerülnek, töröljük. Biztosan átvált a beállítási módra?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "kiemelten fontos"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Egy duplikált angol nevet észleltek, tehát a sorozatszámot automatikusan hozzáadtuk. Ellenőrizze az oszlopneveket."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Összesítési egység"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Az első oszlop a DateTime, a második oszlop és az azt követő oszlopok olyan értékek, mint a riasztási értesítési zászlók/előfordulási szám (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Összesített együttes előfordulási kapcsolatok órára/nap."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Kijelző küszöbérték"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Ha egy 100%%nél kevesebb értéket választ, elrejt egy kis CO -előfordulási kapcsolatot. (Alapértelmezés: húzzon egy sort, ha még egyszer van)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Azonosítsa és megjelenítse azokat a változókat, amelyek közvetlenül vagy közvetetten korrelálnak a célváltozóval."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Képzelje el az itt megadott változók közötti korrelációt. Legfeljebb 60 elem választható ki."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Jelölt változók, amelyek korrelálnak az objektív változókkal."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Párhuzamos koordináta diagram"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "Az összes él közül"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Elrendezés"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Kör"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Automatikus"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Hatékonyság"
+
+msgid "Set threshold"
+msgstr "Control Line: Ellenőrizze, mikor rajzoljon kezelési szinteket, például a standard sorokat"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Elemzési platform"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Pareto -diagram"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Előfordulási szám"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Kumulatív arány [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Képzelje el azokat a paramétereket, amelyek hosszú ideig változhatnak az adatokkal, például a folyamatok, a hét napjai, a műszakok stb. Éves eltéréseivel."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Képzelje el a nagyszámú változó közötti korrelációt a célváltozóhoz viszonyítva."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Képzelje el a hibák, riasztások, események stb. Ko-előfordulását (a kapcsolat az egyik jelenség és a másik egyidejű előfordulásának gyakoriságára összpontosítva)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Üres"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Egyszerű eszköz az adatok feltérképezéséhez, a megjelenítéshez, a statisztikai elemzéshez és a gépi tanuláshoz."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Az itt található adatkészlet referenciaként használható az adatok összekapcsolásához és ábrázolásához. A beállításokat a grafikon vízszintes tengelyében használják. Ezenkívül az eredeti grafikon világoskék kerettel jelenik meg."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Megadja az adatokat (például numerikus változókat: mérési érték) a diagramhoz. Válassza ki a ábrán ábrázolandó folyamatokat és elemeket. Legfeljebb 20 elem kiválasztható."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Megadja az adatokat (például numerikus változókat: mérési érték) a diagramhoz. Válassza ki a ábrán ábrázolandó folyamatokat és elemeket. Legfeljebb 8 elem kiválasztható."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Üres"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Ez a rétegződési változó elosztja a mintát, hogy több parcellára jelenjen meg, és egymás mellett jeleníti meg őket. Válassza ki a kategorikus változókat, például az alkatrészszámot és az állomásszámot, akár 100 elemre is kiválasztható."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Az adatelem, amely a változók közötti korrelációt látja el (kvantitatív változók: mérési értékek stb.). Ezeket az adatokat ábrázoljuk a diagramon. 2-7 -es paraméter kiválasztható."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Válassza ki az elemet a változók közötti korreláció megjelenítéséhez. Legfeljebb 60 elem választható ki."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "A kategória változók (például alkatrészszámok) elemei a változók közötti korreláció megjelenítésére."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Maximalizálja a kártyát"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Minimalizálja a kártyát"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Ha ez a beállítás megváltozik, vissza kell állítani az adatkapcsolat beállításait."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Automatikus választás"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Válassza ki az összeset a jobb oldalon"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Az összes jobbra jelölje meg a jobb oldalt"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Innen minden valódi (úszó)"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Innen minden egész szám"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Minden karakterlánc innen"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "A kiválasztott rekordok és a diagram megjelenítéséhez szükséges idő miatt a parcellánkénti cellák száma 10 000 -re korlátozódott. Ha szeretné látni az összes adatot a BREAK_LINE célidőszakra, növelje a kijelző intervallumát, vagy csökkentse a célidőszakot a cellák számának csökkentése érdekében."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Sorozatszám"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "A grafikon skáláját a jobb egérgombbal történő beállíthatja a grafikonon."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Grafikon"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Beállítási mód"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Az olyan adatelemek száma, amelyeket nem lehet összekapcsolni"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Szétszórt grafikon"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "kontúrral"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Megtakarítás"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Üres"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Rakomány beállítás"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Megosztás/privát"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Leírás"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Készítette"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Használat/Betöltés"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Betöltés"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Az adatok száma, amelyeket nem lehetett összekapcsolni a kiindulási pont folyamattal (a kapcsolódás százaléka)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Mentse el a DateTime -t"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Beállítások megosztása"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "megment"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Kiválaszthatja a 2–7 célváltozót. Ellenőrizze a célváltozók számát, és javítsa ki a beállításokat."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "A fájlméret korlátja 10 MB. Csökkentse a fájl méretét, és próbálja újra."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Ha ellenőrzésre kerül, akkor a megadott DateTime is mentésre kerül."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Ellenőrizze, hogy ossza meg ezt a beállítást."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Mentse el a beállításokat."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Biztosan felülírja a beállításokat?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "részvény"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Magán"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Létrehozott"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Bezárás"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Megrendeléskészlet"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Start DateTime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "A DateTime End DateTime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Az x tengelycímkék megjelenítése"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Adattartási tartomány"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "ITT Húzza és dobja el a fájlt"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Vagy"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Fájlok kiválasztása"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Nem lehet megjeleníteni"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "A feldolgozást megszakították a nagy mennyiségű adat és a hosszú feldolgozási idő miatt. Tekintse át a DateTime beállításait, és jelenítse meg újra a diagramot."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "CSV fájl kimenete. Kérjük, várjon, amíg a fájl letölti."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "TSV fájl kimenete. Kérjük, várjon, amíg a fájl letölti."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Autótávolság"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Teljes körű"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Indexrendelés beállítás"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Nyisd ki"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Töröl"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Mivel a gráfonkénti adatpontok száma meghaladja a 12 000 -et, az adatpontok száma legfeljebb 12 000 -re korlátozódott. Ha meg szeretné tekinteni a teljes adatot, állítsa be a rövidebb célidőt."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Rétegződés a kifejezés szerint (ciklikus)"
+
+#: component.js
+msgid "Facet"
+msgstr "Oldal"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "A kategóriát végzi el a kiválasztott elemmel."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Kivételbecslés"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Normalizált interkvartilis tartomány (az IQR -t a normál eloszláshoz társítva, NiQR = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "A mód a leggyakrabban előforduló érték."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "outlierrel"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "kívülálló nélkül"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Egyedi"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Ma"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Tegnap"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Az elmúlt 7 nap"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Az elmúlt 30 nap"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Ebben a hónapban"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 hónap"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 hónap"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Alkalmaz"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Hét"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 nappal ezelőtt"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 nappal ezelőtt"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "A hónap ököl napja"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "A hónap utolsó napja"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 hónap"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Frissítve"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Az adatpontokat gyors módban foglaljuk össze. Ha az adatok kihagyása nélkül szeretné megszerezni a diagramot, állítsa be a célidőszakot rövidebbre."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Y tengely tartománya"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Kívülálló"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Üres"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Folyamatkutatás"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Könyvjelző"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Mivel a parcellánkénti adatpontok száma meghaladja a 10 000 -et, sűrűségű diagramot húztunk. Ha az összes adatpontot szórási grafikonnal szeretné megjeleníteni, állítsa be a cél periódusát rövidebbre."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Üres"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Ciklusidő"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Valós szám"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Objektív változó"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "A korrelációs együtthatót kiszámítják, hogy ezt a változót célozóként használjuk. Az itt megadott célváltozó szintén megjelenik, és egy színsáv a grafikon jobb oldalán. Ha meg akarja változtatni a célváltozókat a grafikonon, akkor a jobb egérgombbal kattintson a jobb egérgombbal."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Az adatok nem fulladtak meg, mert túl sok kategória van. BREAK_LINE Ellenőrizze, és szükség esetén rövidebben vizsgálja felül a célidőszakot."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Szűrő beállítás"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Címke (kategória változók)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Másolt"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Beillesztett"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Config Config"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Beilleszteni a konfigurációt"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "A származási beállítás nélkül az első célt az eredetként választják ki."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Exportadatok"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Nem használ"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Az adatokat nem vonják le, mert túl sok kategória van."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Ellenőrizze, és ha szükséges, vizsgálja felül a célidőszak beállításait."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Ossza meg az adatszámot (ciklikus)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Adatok száma"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Üres"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Üres"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Válassza ki a célváltozót."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Üres"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Nincs bomlás / kategória bomlás"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Szétszórt grafikon"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Ha az X vagy az Y adattípus karakterlánc, akkor nem használhat nem húros változókat a színbeállításhoz."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "A megengedett tartományon kívüli értéket detektálták, így a minimális vagy a maximális érvényes tartományt automatikusan döntöttek. Változtassa meg a beállításokat szükség szerint."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Kattintson a jobb egérgombbal: Adat link beállítása/Szerkesztés/Törlés"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Eltelt idő"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Időrend"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Adatrendelés beállítása"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Kérjük, törölje a felesleges adatokat, mert a „__SERVER_INFO__” merevlemez kapacitása elérte a __SERVER_INFO__ %% értéket."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Az adatportot leállították, mert a `__SERVER_INFO__` merevlemez kapacitása elérte a __SERVER_INFO__ %% értéket. Ha a szükségtelen adatokat törlik és az üres kapacitást növelik, az adatok folytatódnak."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Írja be a megjelenítendő eloszlások számát (megosztás száma). Írja be a 2 vagy 150 vagy annál kevesebb egész számot."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Írja be a megjelenítendő eloszlások számát (megosztás száma). Írja be az 1 vagy annál kevesebb egész számot."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Üres"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Üres"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Üres"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Üres"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Túl sok hegedű van parcellánként, tehát automatikusan korlátozott volt."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "A kiválasztott rekordok nagy számának köszönhetően a parcellák száma a legrégebbi dátumtól a limitszámig korlátozott."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Elfogadom"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Hanyatlás"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Visszafelé"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "A diagram száma az oszlopon"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "A kategorikus változókat (alkatrészszám, állomásszám stb.) A telek tetején megjelenő címkékként jelenítik meg a kvalitatív változók változási pontjainak (cikkszám -váltás stb.) Megjelenítésére."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Válassza ki az elemzendő elemeket (kvantitatív változók: mérési érték stb.). Legfeljebb 60 elem választható ki."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Válassza ki az adatok rendezéséhez elemeket. Kiválaszthat több elemet is."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "A régi adatok túlcsordulása nem jelenik meg, mivel a DateTime a legfrissebb adatokból származik a kijelző korlátozásával."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "A diagram száma NUMBER -ra korlátozódott. Ha az összes megjelenítését szeretné megjeleníteni, olvassa el a beállításokat."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Az egyetlen lapon a diagram száma NUMBER -ra korlátozódott. Ha az összes megjelenítését szeretné megjeleníteni, olvassa el a beállításokat."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "A kiválasztandó célváltozók száma minimális perc és maximális maximális. Ellenőrizze a célváltozók számát, és javítsa ki a beállításokat."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "A kiválasztandó célváltozók száma maximum max. Ellenőrizze a célváltozók számát, és javítsa ki a beállításokat."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

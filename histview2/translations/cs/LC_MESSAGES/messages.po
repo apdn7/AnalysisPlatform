@@ -1,0 +1,3155 @@
+# チェコ語 Czech translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: cs\n"
+"Language-Team: cs\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Uložené"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Došlo k chybě"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Konfigurace aplikace"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Stránka nenalezena"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Došlo k chybě"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Aplikace DataLink & Analysis"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Vyberte jazyk"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Úvodní obrazovka"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Ověření operace"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Ověření operace"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Základní konfigurace"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Registrovat"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Znovu načíst"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Celé číslo"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Real (float)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Čas schůzky"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Tětiva"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Titul"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Rostlina"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Továrna"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Čára"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "prosím potvrďte."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Uložte data a spusťte import dat s obsahem nastaveným na stránce nastavení procesu?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "OK"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "zrušení"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Konfigurace databáze"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Jméno databáze"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Typ databáze"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Konfigurace"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Komentář"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Přidat"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Vyberte soubor databáze."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Název souboru"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Vybrat"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Chcete tento záznam odstranit?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "vymazat"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Sledovatelnost"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Graf sledovatelnosti"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Testování stopování"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Začněte testování"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Doba spuštění"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Ukončený čas"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID stroje (více výběrů)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Čára"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Číslo dílu"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Konfigurace datového odkazu"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Vyberte jazyk"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "japonský"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Angličtina"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Uzel"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Uzel ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Označení"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Hlavní jméno"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Databáze"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Import"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Vývozní"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Název hostitele"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Číslo portu"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Uživatelské jméno"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Heslo"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Schéma"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Uspěl jsem."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; selhal."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Procesní konfigurace"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Proces"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Název procesu"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Název tabulky"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Detail"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Náhled"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Prvních pět záznamů"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Nastavení obsahu"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Název sloupce"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Anglické jméno"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Zobrazit název"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "součinitel"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Operátor"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Zadejte jinou hodnotu než 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Vstupní operátor."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Vstupní koeficient."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Vstup angličtiny."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Vstupní zobrazovací název."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Anglické jméno je duplikováno."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Název zobrazení je duplikován."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Všechna „zobrazovací jména“ vyžadují vstup."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Pole s prázdným „anglickým jménem“ jsou automaticky vyplněna."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Vybrat vše"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Import dat"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Určitě importujete data?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Když stisknete tlačítko OK, importujete data z aktuálního času do jednoho měsíce."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Předchozí data jsou automaticky importována po kousku."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Pokud chcete data importovat po aktuálním čase, stiskněte znovu tlačítko pro čtení dat nebo stiskněte databázi CSV Nastavení nastavení na stránce nastavení čtení."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Pokud bude nastaven „Aktualizovací cyklus“ „Nastavení čtení“ databáze / CSV, bude automaticky importován v období, kdy jsou data po aktuálním čase nastavena."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Stopové informace"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Sledovací data"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Nemohl přístup"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Kliknutím sem to opravte."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Upravit okraj"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Předchozí proces"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Předchozí sloupec"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Po procesu"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Sloupec příspěvku"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Jako datetime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Jako sériové"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Jako odkaz ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Již zaregistrované"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Zadejte název procesu"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filtr/graf"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Graf Config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Konfigurace filtru řádku"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Sloupec řádku"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Hodnota"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Konfigurace filtru stroje"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Stroj ID sloupec"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Část bez filtru konfigurace"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Část bez sloupce"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Název filtru"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Podmínka filtru"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Ostatní filtr konfigurace"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Cílový sloupec"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Vizualizační konfigurace"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Spodní práh"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Horní prahová hodnota"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Nižší prahová hodnota procesu"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Horní prahová hodnota procesu"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Rozsah y-osí: min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Rozsah y-osí: max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Část č"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "Konec s"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Začít s"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like vyhledávání)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Souhlasit"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Regulární výrazy"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Zobrazit graf"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Export"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Je vyžadován proces"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Je vyžadován název sloupce"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Je vyžadována linka"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Je vyžadován název zobrazení"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Název zobrazení je duplikován."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Je vyžadována hodnota stroje"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Duplikovaný stroj ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Úspěšně uloženo"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Nepodařilo se to ušetřit"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Část není vyžadována sloupec"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Je vyžadován cílový sloupec"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Je vyžadován název filtru"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Je vyžadován stav"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Název filtru je duplikován."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Podmínky jsou duplikovány."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Výchozí"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Název procesu"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Přidány další filtry"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Import config"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Zdroj"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Cyklus obnovení"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Připojit"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Jednou za hodinu"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Jednou za den"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Potvrzení dat"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Neexistuje žádná složka."
+
+msgid "File does not exist"
+msgstr "Neexistuje žádný soubor."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Můžete se připojit."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Vyplňte prosím hodnotu."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Neexistuje žádný nastavení obsahu."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Nastavení jsou duplikována."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Uložená nastavení databáze."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Nepodařilo se uložit nastavení databáze."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Uložená základní nastavení."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Nepodařilo se uložit základní nastavení."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Testovací připojení"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Startovní bod"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Časové období"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Nejnovější"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Automatická aktualizace"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "minuta"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "minut"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "hodina"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "hodiny"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Cílová proměnná"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Filtr"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X osa"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Časová razítko"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Index"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Stratifikovat proměnné"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Filtry"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Databáze/csv"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Analyzovat"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Ve vývoji"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Analyzovat:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Vodopádní pozemek"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Graphical LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogram"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Stratifikovaný spiknutí"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Plot celého bodu"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Vizualizace dat"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Vizualizace"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Běh"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Zadejte název databáze."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Zadejte název zdroje dat."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Sloupce, které nemají žádný datový typ, nejsou importovány."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Je vyžadován alespoň jeden sloupec DateTime."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Pro vizualizaci použijte '{col}' pro osu x."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Určitě budete pokračovat?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Prohlížeč tabulky"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Stůl"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Třídění"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Počet dat"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Klesající"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Vzestupné"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Dokonalá shoda"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Částečný zápas"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Neplatný výběr číslice"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Délka znaku použitého pro propojení je jiná."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Žádný filtr"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Všechny řádky"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "situace"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Seznam úloh"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Všechno"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Import dokončen."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Import"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Nepodařilo se importovat"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Načtená data budou odstraněna. Je to v pořádku? (Žádná změna se neodráží, dokud není tlačítko registrace stisknuto)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Seznam úloh"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "ID práce"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Název povolání"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Generace propojenýchID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Úloha generování zobrazení odkazu ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Vymazání informací o procesu"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Import tovární data"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Importovat minulá tovární data"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Zobrazit import úlohy minulých továrních dat"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Import dat"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Odstranit stará data"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Doba spuštění"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "uplynulý čas"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Databáze/csv"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Pokrok"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Proces"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Seznam histogramů"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Zaregistrujte se jako hodnota ohniska"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Unregister Outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Skrýt odlehlé hodnoty"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Zobrazit odlehlé hodnoty"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Zkontrolujte odlehlé hodnoty"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Zobrazit seznam histogramů"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Poslední čas aktualizace"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Registrace Outlier byla zrušena."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Registrováno jako odlehlé"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Odlehlé"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Pouze jednou"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Podrobnosti o práci"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Zkopírovat do schránky"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Multi rozptylový graf"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Bodový diagram"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Vizualizovat kategorickou proměnnou"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratify podle proměnných"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Proměnná"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Stroj č"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Cílové období"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Frekvence (počet)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Odhad hustoty"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Kategorická proměnná"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify podle termínu (přímý)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Nemůžete vybrat osm nebo více cílových proměnných. Vyberte cílovou proměnnou."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Detekce anomálie"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Analýza principu komponenty"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Hlavní skóre komponent testovacích dat"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Hlavní skóre složek dat tréninku"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Graf série statistik T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Graf série statistik Q"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Příspěvek spiknutí statistik T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Příspěvek Plot Q Statistics"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Odstraňte odlehlé"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Tréninková data"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Testování dat"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Ano"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Ne"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Datový typ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Příklad"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Chyba"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Varování"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Vzhledem k tomu, že všechny řádky byly odstraněny zpracováním hodnoty deficitu (NA odstranění), neexistují žádná data analyzovat. Ujistěte se, že prázdná hodnota, včetně NA, není vybrána."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Nelze jej analyzovat, protože obsahuje jiná data než čísla. Ujistěte se, že jste vybrali sloupec obsahující hodnotu řetězce nebo kategorie."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Nelze analyzovat, protože obsahuje data s rozptylem 0. Ujistěte se, že není vybrán pouze jeden sloupec hodnoty."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Nalezena data kategorie a očekávaná celočíselná hodnota. Pokud tato celočíselná hodnota není měřítkem objednávky, měřítko intervalového nebo měřítka poměru, mohou být výsledky analýzy nepříznivě ovlivněny."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Určitě budete pokračovat analýzou?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Vyhledávání"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Medián je jednou z typických statistik. Je to hodnota umístěná ve středu, když jsou konečná data uspořádána ve vzestupném pořadí. Například v případě pěti je střední věk věku třetím věkem ve věku. Pokud je počet dat sudý, použije se průměr centrální stručné aritmetiky."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Shrnutí distribuce"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N číslo"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Průměrný"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Co je medián ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Celkový"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Frekvence"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Koncový bod"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Cílový proces"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Časové řady"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Kousky"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Počet datových odkazů"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Sekundy"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Doba odezvy"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "Upravit"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Zadní"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Přidat uzel"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Přidejte hranu"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Upravit uzel"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Kliknutím na prázdný prostor umístíte nový uzel."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Klikněte na uzel, přetáhněte okraj do jiného uzlu a připojte je."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Klikněte na ovládací bod, přetáhněte jej do uzlu a připojte."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Edge nelze přidat."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Cluster nelze odstranit."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Cluster nelze upravit."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Název nebo hodnota zobrazení je duplikováno."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Zadejte název a hodnotu zobrazení."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Zadejte sloupec řádku."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Hodiny"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Informace o datech"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Den"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Týden"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Zatížení"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Uložit"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Přepsat"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Nastavení"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Změňte název, protože je nastaven stejný název."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Uložit nastavení"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Vytvořte snímek obrazovky"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "stažení"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Důvody, proč nelze graf zobrazit, jsou následující. BREAK_LINE Zkontrolujte situaci. BREAK_LINE・ data nejsou importována ani uprostřed importu. BREAK_LINE・ Žádná data nejsou propojena nebo uprostřed vázání. BREAK_LINE・ Nastavení grafu je nevhodné."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Varování"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Záznamy, které obsahují neplatná data ve sloupci data data, nejsou importovány."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Data, která nemohla být importována, můžete odkazovat na soubory ve složce níže."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Stav použití nelze nahrávat, protože není připojen k internetu."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Zkontrolujte prosím síťové připojení."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Opětovné propojení dat bude trvat dlouho."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Určitě data znovu připojíte?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Přerušit"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Vykonat"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Určitě znovu načtěte dříve registrované nastavení datového odkazu?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Začalo importovat data."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Pokrok importu můžete zkontrolovat z níže uvedeného odkazu."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Stav chyby naleznete na stránce seznamu úloh."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Začalo propojit data."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Jednou za 3 minuty"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Jednou za 5 minut"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Jednou za 10 minut"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Volitelná funkce"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Typ souboru"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Export"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Vzhledem k velkému počtu vybraných záznamů a času potřebným k zobrazení grafu byl počet záznamů na graf omezen na 50 000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Graf časových řad"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Hodnota kategorie"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Protože počet záznamů ve stanoveném období je více než 5 000, BREAK_LINE odkaz je vázán do ± 14 dnů od zadaného období. Pokud nechcete omezit rozsah propojení, upravte dobu trvání a zredukujte počet záznamů BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Nastavení měřítka"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Společné měřítko"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Prahová čára"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Automatické měřítko"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Být použitý měřítko"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn procesu"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Min"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Žádný"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "souhrn"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Počet"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Základní statistiky"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Ne parametrické"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Kvalita dat"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Divák"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Import dat"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Proces datového spojení se spustí na základě aktuální konfigurace."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Může trvat čas, pokud existuje mnoho dat k propojení. Je v pořádku začít?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Pro data, která jsou automaticky a periodicky importována, se automaticky generuje odkaz ID."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Název zdroje dat"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Typ zdroje dat"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Určitě ušetříte změny?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Informace o nuceném OS do nastavení časového pásma."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Pokročilé nastavení"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Nastavení se ukládá do souboru databáze /CSV importů dat. Přejděte na stránku Nastavení a nastavte sloupce importních dat pro import dat."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "V datech prvků není nutný žádný atribut."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Pro data prvků není nutná žádná hodnota atributu."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Abnormální detekce pomocí PCA vyžaduje alespoň dvě proměnné. Vyberte dvě nebo více proměnných."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Vyberte alespoň jeden sloupec"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Proměnné kategorie, které zmenšují šířku krabice, nejsou zobrazeny."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Počáteční číslice"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline Plot"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Zastavte aplikaci (Edge Server). Pokud zastavíte, žádný jiný uživatel nebude moci také používat, kontaktujte prosím správce. <br> V případě normálního konce zrušte zde a zavřete prohlížeč."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Veškerá práce byla zastavena. Můžete bezpečně zavřít prohlížeč a konzolu."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Konfigurace zdroje dat"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Konfigurace importu zdroje dat"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Sloupce našly několik sloupců znaků. Zkontrolujte, zda sloupec číselného typu atd."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Filtr položka"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Hodnota filtru"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Datum vypršení platnosti (start)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Datum vypršení platnosti (konec)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Data nemohla být importována kvůli chybám konfigurace dat sloupce. Název zdroje dat __param__ CSV/TSV Zkontrolujte nastavení typu dat v náhledu dat na stránce nastavení čtení. Odstraňte nastavení kroku, které nemohlo být importováno, a nastavení nastavení."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Byl tam soubor bez dat. Zkontrolujte obsah souboru. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Zadejte alespoň jednu hodnotu období platnosti od nebo do."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Rozdělte podle kategorie"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Rozdělte termínem (cyklický)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Rozdělte termínem (přímý)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Hodnota zadaného intervalu je neplatná. Zadejte počet 0,1 nebo více, 720 nebo méně, nebo -720 nebo více a -0,1 nebo méně."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Zadaná „délka okna“ je neplatná. Hodnota musí být mezi 0,1 a 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Číslo vstupní ridgeline je neplatné. Zadejte celé číslo 1 nebo více a 150 nebo méně. (dávejte přednost použití přibližně 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Spusťte data a čas"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Časový úsek"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Délka okna"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Kontrolní položka"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Typ"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "název"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Všimněte si, že pokud je počet datových bodů v jedné kategorii pod 50, může se přesnost grafu snížit."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Zobrazit Cross Hair Cursor (klikněte)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Zobrazit více křížový vlasů (dvojité kliknutí)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Zobrazit seznam histogramů"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Zrušit kontrolu odlehlého"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Zadáno již existuje název zdroje dat."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Import dat selhal, protože soubor s jiným názvem sloupce byl nalezen ve zdroji dat. Zkontrolujte obsah souboru a znovu nastavte nastavení importu zdroje dat."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Předpokládaný počet záznamů, které mají být propojeny"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Počet vzorků"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Počet záznamů, které mají být propojeny"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Počet celkových záznamů"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Pojmenujte složku, ve které jsou soubory CSV/TSV uloženy jako \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Předpověď"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Konfigurace filtru"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master Config"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Z konfigurace filtru"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Ukázat vše"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Jako klíč (možnost)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Smazáno REMOVED_COUNT hodnoty deficitu, abnormální hodnota a odlehlé hodnoty z TOTAL_COUNT v originále."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP adresa"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Porovnejte rozdělení dat s odhadem histogramu a hustoty. Graf je dělen stratifikovanou proměnnou. Je také rozdělena fazetou."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Vykreslete všechny počty dat na osy časové osy nebo ID osy."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Matice rozptylu zobrazení rozptylu. Můžete použít od 2 do 7 cílových proměnných."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Podle analýzy hlavních složek se provádí vizualizace „různých“ a její faktorové analýzy. Zadejte normální data jako data učitele a vizualizujte, zda jsou aktuální data stejná jako její normální data (T2/Q). Pokud máte jinou situaci, můžete zkontrolovat hlavní faktory v grafu příspěvků."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Distribuce je touto proměnnou rozdělena do více grafů. Vyberte proměnné kategorie (kvalitativní proměnné), jako jsou čísla dílů a stanice."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Filtr stratifikované kategorie: omezuje data, která se mají zobrazit do podmnožiny. (Kategorie: Číslo dílu, stanice ne atd.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Proměnné kategorie (například číslo dílu, NO, atd.) Zobrazené jako štítky v horní části grafů pro nalezení měnících se bodů."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Filtr grafu: Omezí data, která se mají zobrazit do podmnožiny."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Nastavte údaje o učení interpretované jako normální situaci. Nastavte sekci dat, která neobsahuje žádná NG data. Pokud jsou zahrnuty, jsou ty, které jsou blízké datům NG, také posouzeny jako normální data."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Nastavte testovací data, která mají být posouzena."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Filtr položky: Omezí data (analyzovat a zobrazovat), která se mají zobrazit na podmnožině."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Jedná se o dvourozměrný agregovaný displej (rozměrová komprese podle hlavních složek) vícerozměrných ověřovacích dat. Pokud jsou data ve středu, lze je interpretovat tak blízko normálu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Jedná se o dvourozměrný agregovaný displej (rozměrová komprese podle hlavních složek) vícerozměrných údajů o učení. Centrální cíl je určen údaji o učení, takže většina údajů o učení by měla být v cíli."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Graf statistiky T2, který monitoruje anomálie v hlavní složce těchto dat. Údaje o učení jsou vyneseny bílou a v negativní části x. Žlutý graf jsou údaje o validaci. Čím vyšší jsou údaje o validaci porovnány s bílými údaji, tím je pravděpodobnější, že se situace odchyluje. Kliknutím na datový bod zobrazíte graf příspěvku toho, jaké prvky tvoří situaci."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Graf statistiky Q (monitorování anomálií v menší části těchto dat, zbytek). Údaje o učení jsou vyneseny bílou a v negativní části x. Žlutý graf jsou údaje o validaci. Čím vyšší jsou údaje o validaci porovnány s bílými údaji, tím je pravděpodobnější, že se situace odchyluje. Kliknutím na datový bod zobrazíte graf příspěvku toho, jaké prvky tvoří situaci."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Pořadí, které proměnné přispívají k situaci v bodě vybraném ve statistickém grafu T2. Čím delší je délka, tím je pravděpodobnější příčinu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Pořadí, které proměnné přispívají k situaci v bodě vybraném ve statistickém grafu Q. Čím delší je délka, tím je pravděpodobnější příčinu."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Počet datových bodů s hodnotou menší nebo roven Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Počet datových bodů s hodnotou větší nebo roven Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Celkový počet dat včetně NA (není k dispozici), NaN (ne číslo) a Inf± (nekonečno) ve vybraném období."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Procento údajů mimo horní a dolní prahovou hodnotu (počet) ve vybraném období"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Procento dat mimo prahovou hodnotu horní a dolní limity (počet) ve vybraném období"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Procento NA (není k dispozici) ve vybraném období (počet)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Procento NaN (nikoli číslo) ve vybraném období (počet)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Procento Inf+ (plus nekonečno) ve vybraném období (počet)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Procento Inf- (mínus nekonečno) ve vybraném období (počet)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Celkové procento dat mimo prahovou hodnotu, NA (není k dispozici), NaN (ne číslo) a Inf± (nekonečno) ve vybraném období (počet)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Počet dat s výjimkou NA (není k dispozici), NaN (ne číslo) a Inf± (nekonečno) ve vybraném období."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95. percentil"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75. percentil (třetí kvartil)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25. percentil (první kvartil)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5. percentil"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Mezikvartilní rozsah (reprezentativní hodnota variability distribuce: IRQ = Q3 - Q1 ≒ 1,349σ@ Normální distribuce)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Medián (50. percentil)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Počítá/hodinu"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Počty/minuta"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Doba cyklu [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Číslo divize"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Displej cyklus"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Interval zobrazení"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Mapa tepla kalendy"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Cílové proměnné nelze vybrat MAX_NUM_SENSOR nebo více. Vyberte cílovou proměnnou."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Cíle odstraňování odlehlé hodnoty jsou Max, Mean, Min, σ a Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Jiné než skutečná čísla"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Distribuce lze vizualizovat výpočtem pro každou kategorickou proměnnou (kvalitativní proměnné, číslo šarže atd.) Nebo DateTime a zobrazením vedle sebe. Vizualizační metoda, která umožňuje analýzu křížových skupin (porovnání šarží, dnů, posunů atd.) Data bez diskrétního ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Nastavte prahovou hodnotu, která má být nakreslena na grafech."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Pokud je rozptyl zapnutý, můžete s ním zobrazit rozptyl. Rozptyl graf mezi aktuální položkou a další položkou řádku. Přetáhněte karty spiknutí příslušných grafů myší a přepněte osu x a osu Y rozptylu."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Položka dat (jako je numerická proměnná nebo hodnota měření), která vytváří distribuci dat. Tato data jsou vynesena na grafu. Lze vybrat až 20 položek."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Tato stratifikovaná proměnná rozděluje distribuci na více grafů a zobrazuje je vedle sebe. Vyberte kategorickou proměnnou, jako je šarže ne nebo dávka č."
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Zadejte start datetime pro zobrazení grafu Ridgeline pro každý datetime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Zadejte přímo období pro zobrazení grafu Ridgeline pro každý datetime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Můžete vybrat možnosti importovat data ze souboru CSV/TSV, který vyžaduje speciální zpracování, například převod datových struktur."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Stisknutím tlačítka náhledu níže zobrazí část dat v souboru, abyste mohli zkontrolovat jeho obsah."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Vyberte odkaz ID, které se chcete použít jako podmínka pro propojení dat. Můžete také vybrat více položek."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Když vaše aplikace pravidelně importuje data, můžete vybrat sloupec DateTime, který je přednostně použit jako klíč DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Pokud vyberete operátora a zadáte číslo pod „faktorem“, hodnota v grafu bude vypočtena pomocí zadaného operátora a faktoru."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Pokud vyberete operátora a zadáte číslo pod „faktorem“, hodnota v grafu bude vypočtena pomocí zadaného operátora a faktoru."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Je možné předpovídat, kolik údajů bude propojeno aktuálně nastavené podmínky propojení."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Zhodí podmínku propojení aktuálně nastavených dat a vyvolává dříve registrovanou podmínku."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID je generován interně pro přidružení dat s podmínkami propojení."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "V nastavení grafu vyberte položky ovládání kvality nebo ovládání zařízení."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Vyberte prosím typ cíle správy, jako je číslo dílu a vybavení."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Vyberte prosím cíl správy, jako je hodnota čísla dílu a hodnota zařízení."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Nastavte start datetime pro nastavení grafu. (Požadované)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Nastavte end datetime pro nastavení grafu. (Volitelný)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Přečtěte si uloženou konfiguraci."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Uložte nejnovější konfiguraci, kterou jste zadali."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Uložte obrazovku jako soubor PNG."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Chcete toto nastavení odstranit?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Cílová proměnná (reálné číslo)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Cílová proměnná (kategorie)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Order indexu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Sloupec"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Objednat"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Přednost"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Objednávání"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Proměnné"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Pouze skutečné a kategorické"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Jen skutečné"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Pouze kategorické"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "V nastaveném pořadí"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "V pořadí procesu"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "V korelační koef. objednat"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Korelační práh (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Vyberte pro proměnnou objektivu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Objektivní proměnná"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Vysvětlující proměnná"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Dostupný poměr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Pokapaný diagram"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Match (Perfect Match)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Hledání"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Hledání"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Vzhledem k tomu, že graf paralelní souřadnice nemůže léčit reálná čísla, byla odstraněna data skutečného čísla."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Rereregistrace"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Zaregistrujte upravené informace, jako je název zobrazení."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Chcete se zaregistrovat u upraveného obsahu?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Pokud změníte odkaz ID, resetujte prosím konfiguraci datového odkazu."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Graf ko-výskytu"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Datový soubor"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Agregováno"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Hodina"
+
+# co-occurrence
+msgid "Day"
+msgstr "Den"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Režim úprav"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Režim nastavení"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Neplatná data zvýrazněná červená budou odstraněna. Určitě přepnete do režimu nastavení?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "přednost"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Byl detekován duplicitní anglický název, takže bylo automaticky přidáno sériové číslo. Zkontrolujte názvy sloupců."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Jednotky agregace"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "První sloupec je DateTime a druhý sloupec a následující sloupce jsou hodnota, jako jsou příznaky oznámení o alarmu/počet výskytu (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Agregované vztahy s soužití po hodině/den."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Prahová hodnota zobrazení"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Pokud vyberete hodnotu menší než 100%%, zakrýváte malý vztah Co -Coucrence. (Výchozí: Nakreslete čáru, pokud je dokonce jednou)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Identifikujte a vizualizujte proměnné, které jsou přímo nebo nepřímo korelovány s cílovou proměnnou."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Vizualizujte korelaci mezi zde uvedenými proměnnými. Lze vybrat až 60 položek."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Kandidátské proměnné, které korelují s objektivními proměnnými."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Paralelní souřadnicový graf"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "všech hran"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Rozvržení"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Kruh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Automatický"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Účinnost"
+
+msgid "Set threshold"
+msgstr "Control Line: Zkontrolujte při kreslení úrovní správy, jako jsou standardní linky"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Analytická platforma"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Pareto graf"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Počet výskytu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Kumulativní poměr [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Vizualizujte parametry, které se mohou lišit podle dat po dlouhou dobu, jako jsou roční změny procesů, dny v týdnu, posuny atd."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Vizualizujte korelaci mezi velkým počtem proměnných s ohledem na cílovou proměnnou."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Vizualizujte společnou výskyt poruch, alarmů, událostí atd. (Vztah zaměřený na frekvenci současného výskytu jednoho jevu a druhého)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Prázdný"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Jednoduchý nástroj pro mapování dat, vizualizaci, statistickou analýzu a strojové učení."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Soubor dat se zde používá jako reference pro propojení a vykreslování dat. Nastavení se používá ve vodorovné ose grafu. Kromě toho je počáteční graf zobrazen se světle modrým rámcem."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Určuje data (například numerické proměnné: hodnota měření) pro graf. Vyberte procesy a položky, které mají být vykresleny na grafu. Lze vybrat až 20 položek."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Určuje data (například numerické proměnné: hodnota měření) pro graf. Vyberte procesy a položky, které mají být vykresleny na grafu. Lze vybrat až 8 položek."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Prázdný"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Tato proměnná stratifikace dělí vzor pro vizualizaci na více grafů a zobrazuje je vedle sebe. Můžete vybrat vybrat kategorické proměnné, jako je číslo dílu a č. Stanice až do 100 položek."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Položka dat, která vizualizuje korelaci mezi proměnnými (kvantitativní proměnné: hodnoty měření atd.). Tato data jsou vynesena do grafu. Od 2 do 7 parametrů lze vybrat."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Vyberte položku pro vizualizaci korelace mezi proměnnými. Lze vybrat až 60 položek."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Položky proměnných kategorií (jako jsou čísla dílů) pro vizualizaci korelace mezi proměnnými."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Maximalizovat kartu"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Minimalizovat kartu"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Pokud se toto nastavení změní, je nutné resetovat nastavení datového odkazu."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Automatický výběr"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Vyberte vše vpravo"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "UNECT VŠECHNO VŠECHNY Vpravo"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Všechny skutečné (plave) odtud"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Celé celé číslo odtud"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Veškerý řetězec odtud"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Vzhledem k velkému počtu vybraných záznamů a času potřebným k zobrazení grafu byl počet buněk na graf omezen na 10 000. Pokud chcete vidět všechna data pro cílovou dobu BREAK_LINE, zvýšte interval displeje nebo zmenší cílovou dobu, aby se snížil počet buněk."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Seriál"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Měřítko pozemku můžete upravit klepnutím pravým tlačítkem myši na graf."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Měřítko grafu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Režim nastavení"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Počet datových položek, které nelze propojit"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Bodový diagram"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "s obrysem"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Úspora"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Prázdný"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Nastavení zátěže"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Sdílet/soukromý"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Popis"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Vytvořil"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Použití/načítání"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Zatížení"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Počet dat, která nemohla být spojena s procesem výchozího bodu (procento propojení)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Uložit datetime"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Nastavení sdílení"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "Uložit"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Můžete si vybrat od 2 do 7 cílových proměnných. Zkontrolujte počet cílových proměnných a opravte nastavení."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Limit velikosti souboru je 10 MB. Snižte velikost souboru a zkuste to znovu."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Při zaškrtnutí se také uloží zadaná datetime."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Zkontrolujte, zda toto nastavení sdílejte."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Uložit nastavení."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Určitě přepíšete nastavení?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "podíl"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Soukromé"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Vytvořeno na"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Zavřít"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Nastavení objednávky"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Spusťte datetime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "End datetime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Zobrazit štítky osy x"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Řada datetime"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Soubor přetažení"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Nebo"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Vyberte soubory"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Nelze zobrazit"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Zpracování bylo přerušeno kvůli velkému množství dat a dlouhé době zpracování. Zkontrolujte nastavení DateTime a znovu zobrazte graf."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Výstup CSV Soubor. Počkejte prosím, když soubor stahuje."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Výstup TSV Soubor. Počkejte prosím, když soubor stahuje."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Automatické rozsah"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Plný rozsah"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Nastavení objednávky indexu"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "OTEVŘENO"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Vymazat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Protože počet datových bodů na graf je více než 12 000, počet datových bodů byl omezen na maximální 12 000. Pokud si chcete prohlédnout celé data, nastavte kratší cílové období."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratify podle termínu (cyklický)"
+
+#: component.js
+msgid "Facet"
+msgstr "Aspekt"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Provádí kategorii dělení s vybranou položkou."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Odhad výjimek"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Normalizovaný rozsah mezikvartilu (index spojuje IQR s normálním rozdělením, niqr = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Režim je nejčastěji se vyskytující hodnota."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "s odlehlým"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "bez odlehlého"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Zvyk"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Dnes"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Včera"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Posledních 7 dní"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Posledních 30 dní"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Tento měsíc"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 měsíc"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 měsíce"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Aplikovat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Týden"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Před 7 dny"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Před 30 dny"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Pěst den tohoto měsíce"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Poslední den tohoto měsíce"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 měsíce"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Aktualizováno na"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Datové body jsou shrnuty pomocí rychlého režimu. Pokud chcete získat graf bez vynechání dat, upravte cílovou dobu kratší."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Rozsah osy y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Odlehlé"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Prázdný"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Vyhledávání procesů"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Záložka do knihy"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Protože počet datových bodů na graf je více než 10 000, byl nakreslen graf hustoty. Pokud chcete zobrazit všechny datové body s rozptylem, nastavte cílové období kratší."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Prázdný"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Doba cyklu"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Reálné číslo"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Objektivní proměnná"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Korelační koeficient se vypočítá pomocí této proměnné jako cílové proměnné. Zde uvedená cílová proměnná je také zobrazena spolu s barevnou lištou na pravé pravé straně grafu. Pokud chcete změnit cílové proměnné na grafu, můžete mezi nimi přepínat klepnutím pravým tlačítkem myši na každý název proměnné."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Data nebyla utopena, protože existuje příliš mnoho kategorií. BREAK_LINE Zkontrolujte a v případě potřeby revidujte cílovou dobu kratší."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Nastavení filtru"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Štítek (proměnné kategorie)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Zkopírováno"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Vložený"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Kopírovat konfiguraci"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Vložit konfiguraci"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Bez nastavení původu je první cíl vybrán jako původ."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Exportní data"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Nepoužívat"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Data nejsou nakreslena, protože existuje příliš mnoho kategorií."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Zkontrolujte a v případě potřeby revidujte nastavení cílového období."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Rozdělte počet dat (cyklický)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Počet dat"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Prázdný"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Prázdný"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Vyberte účelovou proměnnou."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Prázdný"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Rozklad bez rozkladu / kategorie"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Bodový diagram"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Pokud je řetězec datu X nebo Y, nemůžete pro nastavení barev použít proměnné bez řetězce."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Byla detekována hodnota mimo povolený rozsah, takže bylo automaticky rozhodnuto o minimálním nebo maximálním platném rozsahu. Podle potřeby změnit nastavení."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Kliknutím pravým tlačítkem: Nastavení datového odkazu/Upravit/smazat"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Uplynulý čas"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Časová objednávka"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Nastavení pořadí dat"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Odstraňte zbytečné údaje, protože kapacita pevného disku `__SERVER_INFO__` dosáhla __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Datový port byl zastaven, protože kapacita pevného disku `__SERVER_INFO__` dosáhla __SERVER_INFO__ %%. Pokud jsou zbytečná data odstraněna a zvýší se prázdná kapacita, budou data obnovena."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Zadejte počet distribucí, které mají být zobrazeny (počet divizí). Zadejte celé číslo 2 nebo 150 nebo méně."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Zadejte počet distribucí, které mají být zobrazeny (počet divizí). Zadejte celé číslo 1 nebo více 32 nebo méně."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Prázdný"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Prázdný"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Prázdný"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Prázdný"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Na pozemku je příliš mnoho houslí, takže bylo automaticky omezené."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Vzhledem k velkému počtu vybraných záznamů je počet grafů omezen od nejstaršího data k počtu limitu."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Přijímám"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Pokles"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Dozadu"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Počet spiknutí na sloupci"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Kategorické proměnné (číslo dílu, ne stanice č. Atd.) Zobrazené jako štítky v horní části grafu se používají k vizualizaci bodů změny (přepínání čísel dílu atd.) Kvalitativních proměnných."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Vyberte položky, které mají být analyzovány (kvantitativní proměnné: hodnota měření atd.). Lze vybrat až 60 položek."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Vyberte položky pro třídění dat. Můžete také vybrat více položek."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Přetékající stará data se nezobrazí, protože DateTime se počítá z nejnovějších dat s limitem zobrazení."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Počet spiknutí byl omezen na NUMBER. Pokud chcete zobrazit vše, Revidujte nastavení."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Počet grafu na jedné kartě byl omezen na NUMBER. Pokud chcete zobrazit vše, Revidujte nastavení."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Počet cílových proměnných pro výběr je minimální min a maximální max. Zkontrolujte počet cílových proměnných a opravte nastavení."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Počet cílových proměnných, které lze vybrat, je až na maximální maximum. Zkontrolujte počet cílových proměnných a opravte nastavení."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

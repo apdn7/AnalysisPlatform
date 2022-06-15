@@ -1,0 +1,3153 @@
+# 韓国語 Korean translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ko\n"
+"Language-Team: ko\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "저장"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "오류가 발생했습니다"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "응용 프로그램 구성"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "페이지를 찾을 수 없습니다"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "오류가 발생했습니다"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Datalink & Analysis 앱"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "언어를 선택하십시오"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "메인 화면"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "작동 검증"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "작동 검증"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "기본 구성"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "등록하다"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "다시로드"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "정수"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "진짜 (플로트)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "날짜 시간"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "끈"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "제목"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "식물"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "공장"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "선"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "확인 해주세요."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "프로세스 설정 페이지에 설정된 내용으로 데이터를 저장하고 데이터 가져 오기를 시작 하시겠습니까?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "확인"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "취소"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "데이터베이스 구성"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "데이터베이스 이름"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "데이터베이스 유형"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "구성"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "논평"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "추가하다"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "데이터베이스 파일을 선택하십시오."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "파일 이름"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "고르다"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "이 레코드를 삭제 하시겠습니까?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "삭제"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "추적 성"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "추적 성 그래프"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "추적 테스트"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "테스트를 시작하십시오"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "시작 시간"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "종료 시간"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "기계 ID (다중 선택)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "선"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "부품 번호"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "데이터 링크 구성"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "언어를 선택하십시오"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "일본어"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "영어"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "마디"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "노드 ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "상표"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "마스터 이름"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "데이터 베이스"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "수입"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "내보내다"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "호스트 이름"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "포트 번호"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "사용자 이름"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "비밀번호"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "개요"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; 나는 성공했다."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005;가 실패했습니다."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "프로세스 구성"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "프로세스"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "프로세스 이름"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "테이블 이름"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "세부 사항"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "시사"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "처음 다섯 가지 레코드"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "내용 설정"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "열 이름"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "영어 이름"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "이름 표시하기"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "계수"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "운영자"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "0 이외의 값을 입력하십시오"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "입력 연산자."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "입력 계수."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "영어 이름을 입력했습니다."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "입력 표시 이름."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "영어 이름이 복제되었습니다."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "디스플레이 이름이 복제되었습니다."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "모든 \"디스플레이 이름\"에는 입력이 필요합니다."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "빈 \"영어 이름\"이있는 필드는 자동으로 채워집니다."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "모두를 선택하십시오"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "수입 데이터"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "데이터를 가져 오십시오."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "OK 버튼을 누르면 현재 시간에서 1 개월 전으로 데이터를 가져옵니다."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "이전 데이터는 자동으로 조금씩 가져옵니다."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "현재 시간 후 데이터를 가져 오려면 데이터 읽기 버튼을 다시 누르거나 데이터베이스 CSV를 누르십시오. 읽기 설정 페이지에서 설정을 설정하십시오."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "데이터베이스 / CSV 읽기 설정의 \"업데이트 사이클\"이 설정되면 현재 시간이 설정된 후 데이터가 설정된 기간에 자동으로 가져옵니다."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "추적 정보"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "추적 데이터"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "액세스 할 수 없습니다"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "여기를 클릭하여 고정하십시오."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "에지 편집"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "이전 프로세스"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "이전 열"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "후 처리"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "포스트 열"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "DateTime으로"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "연재물로"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "링크 ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "이미 등록"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "프로세스 이름을 입력하십시오"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "필터/그래프"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "그래프 구성"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "라인 필터 구성"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "라인 열"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "값"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "기계 필터 구성"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "기계 ID 열"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "필터 구성이 없음"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "칼 열이 없음"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "필터 이름"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "필터 상태"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "기타 필터 구성"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "대상 열"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "시각화 구성"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "더 낮은 임계 값"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "상단 임계 값"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "낮은 프로세스 임계 값"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "상위 프로세스 임계 값"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y 축 범위 : 최소"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y 축 범위 : Max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "부품 번호"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "끝납니다"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "시작합니다"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like 검색)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "동의하다"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "정규 표현"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "그래프를 표시합니다"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV 수출"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "프로세스가 필요합니다"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "열 이름이 필요합니다"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "라인이 필요합니다"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "표시 이름이 필요합니다"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "디스플레이 이름이 복제되었습니다."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "기계 가치가 필요합니다"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "복제 기계 ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "성공적으로 저장하십시오"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "저장하지 못했습니다"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "부품 열이 필요하지 않습니다"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "대상 열이 필요합니다"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "필터 이름이 필요합니다"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "조건이 필요합니다"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "필터 이름이 복제되었습니다."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "조건이 복제됩니다."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "기본"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "프로세스 이름"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "다른 필터가 추가되었습니다"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV 가져 오기 구성"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "원천"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "갱신주기"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "연결하다"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "시간당 한 번"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "하루에 한 번"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "데이터 확인"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "폴더가 없습니다."
+
+msgid "File does not exist"
+msgstr "파일이 없습니다."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "연결할 수 있습니다."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "가치를 입력하십시오."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "설정 내용이 없습니다."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "설정이 복제됩니다."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "데이터베이스 설정이 저장되었습니다."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "데이터베이스 설정을 저장하지 못했습니다."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "기본 설정이 저장되었습니다."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "기본 설정을 저장하지 못했습니다."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "테스트 연결"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "시작점"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "날짜 범위"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "최신"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "자동 업데이트"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "분"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "분"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "시"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "시간"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "대상 변수"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "필터"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X 축"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "타임 스탬프"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "색인"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "변수를 계층화하십시오"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "필터"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "데이터베이스/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "분석"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "개발중인"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "분석 :"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "폭포 플롯"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "그래픽 LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "히스토그램"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "계층화 된 음모"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "전체 포인트 플롯"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "데이터 시각화"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "심상"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "운영"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "데이터베이스 이름을 입력하십시오."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "데이터 소스 이름을 입력하십시오."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "데이터 유형이없는 열은 가져 오지 않습니다."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "적어도 하나의 datetime 열이 필요합니다."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "시각화하려면 x 축에 '{col}'를 사용하십시오."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "계속할거야?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "테이블 뷰어"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "테이블"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "종류"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "데이터 수"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "내림차순"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "오름차순"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "완벽하게 일치"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "부분 일치"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "잘못된 숫자 선택"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "연결에 사용되는 문자의 길이는 다릅니다."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "필터 없음"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "모든 줄"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "상황"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "작업 목록"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "모두"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "가져온 수입."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "가져 오기"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "수입 실패"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "로드 된 데이터가 삭제됩니다. 괜찮아? (등록 버튼이 누르기 전까지는 변경되지 않습니다)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "작업 목록"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "작업 ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "직업 이름"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "링크 된 ID 생성"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "링크의 디스플레이 생성 작업 ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "프로세스 정보의 삭제"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "공장 데이터 가져 오기"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "과거 공장 데이터 가져 오기"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "과거 공장 데이터의 수입 작업을 보여줍니다"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV 수입 데이터"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "이전 데이터를 삭제합니다"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "시작 시간"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "경과 시간"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "데이터베이스/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "진전"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "프로세스"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "히스토그램 목록"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "발병 값으로 등록하십시오"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "등록되지 않은 특이점"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "이상치를 숨 깁니다"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "특이 치를 보여주십시오"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "이상치를 확인하십시오"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "히스토그램 목록을 표시하십시오"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "마지막 업데이트 시간"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "이상적인 등록이 취소되었습니다."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "특이 치로 등록되었습니다"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "국외자"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "한 번만"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "작업 세부 사항"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "클립 보드에 복사"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "멀티 산포 플롯"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "산포도"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "범주 형 변수를 시각화합니다"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "변수별로 계층화하십시오"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "변하기 쉬운"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "기계 번호"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "대상 기간"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "주파수 (카운트)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "밀도 추정"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "범주 형 변수"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "용어로 계층화 (직접)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "8 개 이상의 대상 변수를 선택할 수 없습니다. 대상 변수를 선택하십시오."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "이상 탐지"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "원칙 구성 요소 분석"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. 테스트 데이터의 주요 구성 요소 점수"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. 교육 데이터의 주요 구성 요소 점수"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. T2 통계의 시리즈 차트"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Q 통계의 시리즈 차트"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. T2 통계의 기여도"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Q 통계의 기여도"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "이상치를 제거하십시오"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "교육 데이터"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "테스트 데이터"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "예"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "아니"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "데이터 형식"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "예시"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "오류"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "경고"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "적자 값 처리 (NA 제거)에 의해 모든 행이 삭제되었으므로 분석 할 데이터는 없습니다. NA를 포함한 빈 값이 선택되지 않았는지 확인하십시오."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "숫자 이외의 데이터가 포함되어 있기 때문에 분석 할 수 없습니다. 문자열 또는 범주 값이 포함 된 열을 선택했는지 확인하십시오."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "분산이 0 인 데이터가 포함되어 있으므로 분석 할 수 없습니다. 하나의 값 열만 선택하지 않도록하십시오."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "범주 데이터 및 예상 정수 값을 발견했습니다. 이 정수 값이 주문 척도, 간격 척도 또는 비율 스케일이 아닌 경우 분석 결과에 악영향을 줄 수 있습니다."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "분석을 진행 하시겠습니까?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "검색"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "중앙값은 일반적인 통계 중 하나입니다. 유한 데이터가 오름차순 순서로 배열 될 때 중앙에 위치한 값입니다. 예를 들어, 5의 경우, 연령의 평균 연령은 연령의 세 번째 나이입니다. 데이터 수가 짝수 인 경우, 중앙 브리티블 산술의 평균이 사용됩니다."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "맥스"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "분포 요약"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "n 번호"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "평균"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "중앙값은 무엇입니까 ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "총"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "주파수"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "종말점"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "목표 프로세스"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "시계열"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "조각"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "데이터 링크 수"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "초"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "응답 시간"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "편집하다"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "뒤"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "노드를 추가하십시오"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "가장자리를 추가하십시오"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "노드 편집"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "빈 공간을 클릭하여 새 노드를 배치하십시오."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "노드를 클릭하고 모서리를 다른 노드로 끌고 연결하십시오."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "제어 지점을 클릭하고 노드로 끌고 연결하십시오."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "모서리를 추가 할 수 없습니다."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "클러스터를 삭제할 수 없습니다."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "클러스터를 편집 할 수 없습니다."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "디스플레이 이름 또는 값이 복제됩니다."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "디스플레이 이름과 값을 입력하십시오."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "라인 열을 입력하십시오."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "시간"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "데이터 정보"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "낮"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "주"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "짐"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "구하다"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "덮어 쓰기"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "환경"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "동일한 제목이 설정되어 있으므로 제목을 변경하십시오."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "설정을 저장하십시오"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "스크린 샷을 만듭니다"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "다운로드"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "그래프를 표시 할 수없는 이유는 다음과 같습니다. BREAK_LINE 상황을 확인하십시오. BREAK_LINE・ 데이터는 가져 오거나 가져 오는 도중에 있습니다. BREAK_LINE・ 데이터는 연결되어 있거나 묶는 도중에 없습니다. BREAK_LINE・ 그래프의 설정은 부적절합니다."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "경고"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "날짜 데이터 열에 잘못된 데이터가 포함 된 레코드는 가져 오지 않습니다."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "가져올 수없는 데이터는 아래 폴더의 파일을 참조 할 수 있습니다."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "사용 상태는 인터넷에 연결되어 있지 않으므로 업로드 할 수 없습니다."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "네트워크 연결을 확인하십시오."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "데이터를 다시 연결하는 데 시간이 오래 걸릴 것입니다."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "데이터를 다시 연결 하시겠습니까?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "중단"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "실행하다"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "이전에 등록 된 데이터 링크 설정을 다시로드 하시겠습니까?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "데이터 가져 오기 시작했습니다."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "아래 링크에서 가져 오기 진행 상황을 확인할 수 있습니다."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "오류 상태는 작업 목록 페이지를 참조하십시오."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "데이터 연결을 시작했습니다."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "3 분마다 한 번"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "5 분마다 한 번"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "10 분마다 한 번"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "선택적 기능"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "파일 유형"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV 수출"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "선택한 레코드의 많은 수와 그래프를 표시하는 데 필요한 시간으로 인해 그래프 당 레코드 수는 50,000으로 제한되었습니다."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "시계열 차트"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "카테고리 값"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "지정된 기간의 레코드 수는 5,000 개 이상이므로 BREAK_LINE 링크는 지정된 기간의 ± 14 일 이내에 제한됩니다. 연결 범위를 제한하지 않으려면 BREAK_LINE의 레코드 수를 줄이기 위해 지속 시간을 조정하십시오."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "설정 척도"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "일반적인 규모"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "임계 값 라인"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "자동 스케일"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "사용되는 규모"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn의 프로세스"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "p_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "맥스"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "최소"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "없음"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "요약"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "세다"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "기본 통계"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "비 매개 변수"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "데이터 품질"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "뷰어"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "수입 데이터"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "데이터 링크 프로세스는 현재 구성에 따라 시작됩니다."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "링크 할 데이터가 많으면 시간이 걸릴 수 있습니다. 시작해도 괜찮습니까?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* 자동으로 주기적으로 가져 오는 데이터의 경우 링크 ID가 자동으로 생성됩니다."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "데이터 소스 이름"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "데이터 소스 유형"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "변경 사항을 저장 하시겠습니까?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "시간대 설정에 대한 OS 정보를 강제로 제공했습니다."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "고급 설정"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "데이터 가져 오기 데이터베이스 /CSV 파일에 대해 설정이 저장됩니다. 설정 페이지로 이동하여 데이터 가져 오기 데이터를 설정하여 데이터를 가져옵니다."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "요소 데이터에는 필요한 속성이 없습니다."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "요소 데이터에 필요한 속성 값이 없습니다."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "PCA에 의한 비정상적인 검출에는 적어도 두 가지 변수가 필요합니다. 두 개 이상의 변수를 선택하십시오."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "하나 이상의 열을 선택하십시오"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "상자의 너비를 줄이는 카테고리 변수는 표시되지 않습니다."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "시작 숫자"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "능선 줄거리"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "응용 프로그램 (Edge Server)을 중지하십시오. 중지하면 다른 사용자도 사용할 수 없으므로 관리자에게 문의하십시오. <br> 정상 종료의 경우 여기에서 취소하고 브라우저를 닫습니다."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "모든 직업이 중단되었습니다. 브라우저와 콘솔을 안전하게 닫을 수 있습니다."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "데이터 소스 구성"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "데이터 소스 가져 오기 구성"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": 열에서 문자 열이 거의 발견되지 않았습니다. 숫자 유형 열 등이 잘못 인식 될 수 있는지 확인하십시오."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "필터 항목"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "필터 값"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "만료일 (시작)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "만료일 (종료)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "열 데이터 유형 구성 실수로 인해 데이터를 가져올 수 없습니다. 데이터 소스 이름 __param__ CSV/TSV 읽기 설정 페이지의 데이터 미리보기에서 데이터 유형 설정을 확인하십시오. 가져올 수없는 단계 설정을 삭제하고 설정을 설정하십시오."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "데이터가없는 파일이있었습니다. 파일의 내용을 확인하십시오. <br> : __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "유효 기간의 적어도 하나 이상의 값을 입력하십시오."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "카테고리별로 나눕니다"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "용어로 나누기 (Cyclic)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "용어로 나누기 (직접)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "입력 된 간격의 값은 유효하지 않습니다. 0.1 이상, 720 이하, 또는 -720 이상, -0.1 이하를 입력하십시오."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "지정된 '창 길이'가 유효하지 않습니다. 값은 0.1에서 48 사이 여야합니다."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "입력 능선의 수가 유효하지 않습니다. 1 이상 150 이하의 정수를 입력하십시오. (약 100 사용을 선호합니다)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "데이터 및 시간을 시작하십시오"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "간격"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "창 길이"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "제어 항목"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "유형"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "이름"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "한 범주의 데이터 포인트 수가 50 미만인 경우 그래프의 정확도가 감소 할 수 있습니다."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "크로스 헤어 커서 표시 (클릭)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "멀티 크로스 헤어 커서 표시 (더블 클릭)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "히스토그램 목록을 표시하십시오"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "이상치 점검을 ​​취소하십시오"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "지정된 '데이터 소스 이름'이 이미 존재합니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "다른 열 이름이 다른 파일이 데이터 소스에서 발견 되었기 때문에 데이터 가져 오기가 실패했습니다. 파일의 내용을 확인하고 데이터 소스 가져 오기 설정을 다시 설정하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "링크 될 레코드의 예측 수"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "샘플 수"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "연결할 레코드 수"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "총 레코드 수"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "CSV/TSV 파일이 \"yyyymmdd\"처럼 저장되는 폴더의 이름을 지정하십시오."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "예측"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "필터 구성"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "마스터 구성"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "필터 구성에서"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "모두 표시"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "키로 (옵션)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "REMOVED_COUNT 누락, 비정상 및 이상을 포함하여 TOTAL_COUNT 데이터가 삭제되었습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP 주소"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "데이터 분포와 히스토그램 및 밀도 추정을 비교하십시오. 그래프는 계층화 된 변수로 나뉩니다. 또한면으로 나뉩니다."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "타임 축 또는 ID 축에 대한 모든 수의 데이터를 플로팅하십시오."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "산점도 매트릭스를 표시합니다. 2 ~ 7 개의 대상 변수를 사용할 수 있습니다."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "주요 구성 요소 분석에 의해, \"다른\"의 시각화와 그 요인 분석이 수행됩니다. 교사 데이터로 일반 데이터를 입력하고 현재 데이터가 일반 데이터 (T2/Q)와 동일한 상황인지 시각화하십시오. 상황이 다른 경우 기여도의 주요 요인을 확인할 수 있습니다."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "분포는이 변수에 의해 여러 그래프로 나뉩니다. 부품 번호 및 스테이션과 같은 범주 변수 (정 성적 변수)를 선택하십시오."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "계층화 된 카테고리 필터 : 데이터를 서브 세트에 표시 할 데이터를 제한합니다. (카테고리 : 부품 번호, 스테이션 번호 등)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "범주 변수 (예 : 부품 번호, 스테이션 번호 등)는 변경 사항을 찾기 위해 플롯 상단의 레이블로 표시됩니다."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "그래프 필터 : 데이터를 서브 세트에 표시 할 데이터를 제한합니다."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "해석 된 학습 데이터를 정상적인 상황으로 설정하십시오. NG 데이터가 포함되지 않은 데이터 섹션을 설정하십시오. 포함 된 경우 NG 데이터에 가까운 데이터도 정상 데이터로 판단됩니다."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "판단 할 테스트 데이터를 설정합니다."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "항목 필터 : 서브 세트에 표시 할 데이터 (분석 및 디스플레이)를 제한합니다."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "다차원 검증 데이터의 2 차원 집계 디스플레이 (주요 구성 요소에 의한 치수 압축)입니다. 데이터가 중앙에 있으면 정상에 가깝게 해석 할 수 있습니다."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "다차원 학습 데이터의 2 차원 집계 디스플레이 (주요 구성 요소에 의한 치수 압축)입니다. 중앙 목표는 학습 데이터에 의해 결정되므로 대부분의 학습 데이터는 목표에 있어야합니다."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "이 데이터의 주요 구성 요소에서 이상을 모니터링하는 T2 통계의 플롯. 학습 데이터는 흰색과 음의 x 부분으로 표시됩니다. 노란색 플롯은 검증 데이터입니다. 검증 데이터가 화이트 데이터와 비교 될수록 상황이 벗어날 가능성이 높아집니다. 데이터 포인트를 클릭하여 요소가 상황을 구성하는 요소의 기여도를 확인하십시오."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Q 통계의 플롯 (이 데이터의 작은 부분에서 변칙에 대한 모니터링, 잔차). 학습 데이터는 흰색과 음의 x 부분으로 표시됩니다. 노란색 플롯은 검증 데이터입니다. 검증 데이터가 화이트 데이터와 비교 될수록 상황이 벗어날 가능성이 높아집니다. 데이터 포인트를 클릭하여 요소가 상황을 구성하는 요소의 기여도를 확인하십시오."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "변수의 순서는 T2 통계 플롯에서 선택된 지점에서 상황에 기여합니다. 길이가 길수록 원인이 더 높습니다."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "변수의 순서는 Q 통계 플롯에서 선택된 지점에서 상황에 기여합니다. 길이가 길수록 원인이 더 높습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "값이 Q1 - 4.5 * IQR보다 적은 값의 데이터 포인트 수"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Q3 + 4.5 * IQR보다 큰 값을 가진 데이터 포인트 수"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "선택된 기간에 NA (사용할 수 없음), NaN (숫자가 아님) 및 Inf± (인피니티)를 포함한 총 데이터 수."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line : 선택된 기간에 상단 및 하부 임계 값 (카운트) 이외의 데이터 백분율"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line : 선택한 기간의 상한 및 하한 임계 값 (카운트) 외부의 데이터 백분율"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "선택된 기간 (카운트)의 NA (사용할 수 없음) 비율"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "선택된 기간 (카운트)의 NaN (숫자가 아님)의 백분율"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "선택된 기간 (카운트)의 Inf+ (Plus Infinity)의 백분율"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "선택된 기간 (카운트)의 Inf- (마이너스 인피니티)의 백분율"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "임계 값 외부의 데이터의 총 백분율, NA (사용할 수 없음), NaN (숫자가 아님) 및 Inf± (무한)."
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "선택된 기간에 NA (사용할 수 없음), NaN (숫자가 아님) 및 Inf± (무한)를 제외한 데이터 수."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95 번째 백분위 수"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75 번째 백분위 수 (세 번째 사 분위수)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25 번째 백분위 수 (첫 번째 사 분위수)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5 번째 백분위 수"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "사 분위 범위 (분포 변동의 대표 값 : IRQ = Q3 - Q1 ≒ 1.349σ@ 정규 분포)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "중앙값 (50 번째 백분위 수)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "수/시간"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "수/분"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "사이클 시간 [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "부서 번호"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "디스플레이 사이클"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "표시 간격"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "캘린다 열지도"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "대상 변수는 MAX_NUM_SENSOR 이상으로 선택할 수 없습니다. 대상 변수를 선택하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "특이 치 제거의 목표는 Max, Mean, Min, σ 및 Range입니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "실수 외에"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "분포는 각 범주 형 변수 (정 성적 변수, 로트 번호 등) 또는 DateTime을 계산하여 나란히 표시하여 시각화 할 수 있습니다. 개별 ID없이 데이터의 그룹 간 분석 (로트, 일, 교대 등의 비교)을 허용하는 시각화 방법."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "그래프에 그릴 임계 값을 설정하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "산란이 켜져 있으면 산란 플롯을 표시 할 수 있습니다. 현재 항목과 다음 행 항목 사이의 산점도. 마우스와 함께 각 플롯의 플롯 카드를 드래그 앤 드롭하여 산점도의 x 축 및 y 축을 전환합니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "데이터 분포를 생성하는 데이터 항목 (예 : 숫자 변수 또는 측정 값). 이 데이터는 플롯에 표시됩니다. 최대 20 개의 항목을 선택할 수 있습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "이 계층화 된 변수는 분포를 여러 플롯으로 나누고 나란히 표시합니다. Lot No 또는 Batch No와 같은 범주 형 변수를 선택하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "각 데이터 타임에 대한 Ridgeline 플롯을 표시하도록 START DATETIME을 입력하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "기간을 직접 입력하여 각 데이터 타임에 대한 Ridgeline 플롯을 표시합니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "데이터 구조 변환과 같은 특수 처리가 필요한 CSV/TSV 파일에서 데이터를 가져 오는 옵션을 선택할 수 있습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "아래 미리보기 버튼을 누르면 파일의 데이터의 일부가 표시되어 내용의 내용을 확인할 수 있습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "데이터 연결 조건으로 사용할 링크 ID를 선택하십시오. 여러 항목을 선택할 수도 있습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "APP가 주기적으로 데이터를 가져 오면 DateTime 키로 우선적으로 사용되는 DateTime 열을 선택할 수 있습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "연산자를 선택하고 '요소'아래에 숫자를 입력하면 그래프의 값이 지정된 연산자와 요소를 사용하여 계산됩니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "연산자를 선택하고 '요소'아래에 숫자를 입력하면 그래프의 값이 지정된 연산자와 요소를 사용하여 계산됩니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "현재 설정된 연결 조건에 의해 얼마나 많은 데이터가 연결될 것인지 예측할 수 있습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "현재 설정된 데이터 연결 조건을 버리고 이전에 등록 된 조건을 호출합니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID는 데이터를 세트 연결 조건과 연결하기 위해 내부적으로 생성됩니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "그래프 설정에서 사용하는 품질 관리 또는 장비 제어 항목을 선택하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "부품 번호 및 장비와 같은 관리 대상 유형을 선택하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "부품 번호의 값 및 장비 값과 같은 관리 대상을 선택하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "그래프 설정의 시작 시간을 설정하십시오. (필수의)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "그래프 설정의 종료 시간을 설정하십시오. (선택 과목)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "저장된 구성을 읽으십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "입력 한 최신 구성을 저장하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "화면을 PNG 파일로 저장하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "이 설정을 삭제 하시겠습니까?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "대상 변수 (실수)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "대상 변수 (범주)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "인덱스 주문"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "열"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "주문하다"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "우선 사항"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "주문"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "변수"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "실제 및 범주 적 만"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "진짜만"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "범주 적 만"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "정해진 순서로"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "과정 순서대로"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "상관 계수에서. 주문하다"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "상관 관계 임계 값 (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "객관적인 변수로 선택하십시오"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "객관적인 변수"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "설명 변수"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "사용 가능한 비율"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "산악한 다이어그램"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "매치 (완벽한 성냥)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR 검색"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND 검색"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "병렬 좌표 플롯은 실수를 처리 할 수 ​​없으므로 실수 데이터가 제거되었습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr "General Search Options&#013;"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN   "
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "재 등록"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "디스플레이 이름과 같은 편집 된 정보를 등록하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "수정 된 컨텐츠에 등록 하시겠습니까?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "링크 ID을 변경하면 데이터 링크 구성을 재설정하십시오."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "동시 발생 그래프"
+
+# co-occurrence
+msgid "Data file"
+msgstr "데이터 파일"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "집계"
+
+# co-occurrence
+msgid "Hour"
+msgstr "시"
+
+# co-occurrence
+msgid "Day"
+msgstr "낮"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "편집 모드"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "설정 모드"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "유효하지 않은 데이터가 빨간색으로 삭제됩니다. 설정 모드로 전환해야합니까?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "우선 순위"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "중복 영어 이름이 감지되었으므로 일련 번호가 자동으로 추가되었습니다. 열 이름을 확인하십시오."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "집계 단위"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "첫 번째 열은 DATETIME이고 두 번째 열 및 후속 열은 경보 알림 플래그/발생 카운트 (0,1,2 ...)와 같은 값입니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "시간/일별 집계 동시 발생 관계."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "임계 값을 표시합니다"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "100%% 미만의 값을 선택하면 작은 동양 관계를 숨길 것입니다. (기본값 : 한 번도 있으면 줄을 그리십시오)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "직간접 적으로 대상 변수와 상관 관계가있는 변수를 식별하고 시각화합니다."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "여기에 지정된 변수 간의 상관 관계를 시각화하십시오. 최대 60 개의 항목을 선택할 수 있습니다."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "객관적인 변수와 관련된 후보 변수."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "병렬 좌표 플롯"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "모든 가장자리의"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "형세"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "원"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "자동적 인"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "능률"
+
+msgid "Set threshold"
+msgstr "Control Line : 표준 라인과 같은 관리 레벨을 그리는 시점 확인"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "분석 플랫폼"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "파레토 차트"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "발생 횟수"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "누적 비율 [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "프로세스의 연간 변동, 요일, 교대 등과 같은 오랜 기간 동안 데이터에 따라 다를 수있는 매개 변수를 시각화합니다."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "대상 변수와 관련하여 다수의 변수 간의 상관 관계를 시각화합니다."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "결함, 경보, 이벤트 등의 동시 발생을 시각화합니다 (한 현상 및 다른 현상의 동시 발생 빈도에 중점을 둔 관계)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "비어 있는"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform : 데이터 매핑, 시각화, 통계 분석 및 기계 학습을위한 간단한 도구."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "여기의 데이터 세트는 데이터 링크 및 플로팅에 대한 참조로 사용됩니다. 설정은 플롯의 수평 축에 사용됩니다. 또한 원점 플롯은 밝은 파란색 프레임으로 표시됩니다."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "플롯에 대한 데이터 (예 : 숫자 변수 : 측정 값)를 지정합니다. 플롯에서 플롯 할 프로세스 및 항목을 선택하십시오. 최대 20 개의 항목을 선택할 수 있습니다."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "플롯에 대한 데이터 (예 : 숫자 변수 : 측정 값)를 지정합니다. 플롯에서 플롯 할 프로세스 및 항목을 선택하십시오. 최대 8 개의 항목을 선택할 수 있습니다."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "비어 있는"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "이 계층화 변수는 패턴을 여러 플롯으로 시각화하고 나란히 표시합니다. 부품 번호 및 스테이션 번호와 같은 범주 형 변수를 선택하십시오. 최대 100 개 항목을 선택할 수 있습니다."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "변수 간의 상관 관계를 시각화하는 데이터 항목 (정량적 변수 : 측정 값 등). 이 데이터는 차트에 표시됩니다. 2 ~ 7 개의 매개 변수를 선택할 수 있습니다."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "변수 간의 상관 관계를 시각화하려면 항목을 선택하십시오. 최대 60 개의 항목을 선택할 수 있습니다."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "변수 간의 상관 관계를 시각화하기 위해 카테고리 변수의 항목 (예 : 부품 번호)."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "카드 최대화"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "카드를 최소화하십시오"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "이 설정이 변경되면 데이터 링크 설정을 재설정해야합니다."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "자동 선택"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "오른쪽으로 모든 것을 선택하십시오"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "오른쪽으로 모든 것을 선택하지 않습니다"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "여기에서 모든 진짜 (플로트)"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "여기에서 모든 정수"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "여기에서 모든 문자열"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "선택된 많은 레코드와 플롯을 표시하는 데 필요한 시간으로 인해 플롯 당 셀 수는 10,000으로 제한되었습니다. BREAK_LINE 목표 기간에 대한 모든 데이터를 보려면 디스플레이 간격을 늘리거나 목표주기를 줄여 셀 수를 줄입니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "연속물"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "플롯을 마우스 오른쪽 버튼으로 클릭하여 플롯 스케일을 조정할 수 있습니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "그래프 스케일"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "설정 모드"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "연결할 수없는 데이터 항목 수"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "산포도"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "윤곽으로"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "절약"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "비어 있는"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "로드 설정"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "공유/개인"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "설명"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "만들어졌습니다"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "사용/로드"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "짐"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "출발점 프로세스에 연결할 수없는 데이터 수 (Linkage 백분율)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "DateTime을 저장하십시오"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "설정을 공유합니다"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "저장"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "2 ~ 7 개의 대상 변수를 선택할 수 있습니다. 대상 변수 수를 확인하고 설정을 수정하십시오."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "파일 크기 제한은 10MB입니다. 파일 크기를 줄이고 다시 시도하십시오."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "확인하면 지정된 DateTime도 저장됩니다."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "이 설정을 공유하도록 확인하십시오."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "설정을 저장하십시오."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "설정을 덮어 쓸 수 있습니까?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "공유하다"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "사적인"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "만들어졌습니다"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "닫다"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "주문 세트"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "DateTime을 시작하십시오"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "끝 datetime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "X 축 레이블 표시"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "DateTime 범위"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "여기서 파일을 드래그 앤 드롭합니다"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "또는"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "파일을 선택하십시오"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "표시 할 수 없습니다"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "많은 양의 데이터와 긴 처리 시간으로 인해 처리가 중단되었습니다. DateTime 설정을 검토하고 플롯을 다시 표시하십시오."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "출력 CSV 파일. 파일이 다운로드하는 동안 기다려주세요."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "출력 TSV 파일. 파일이 다운로드하는 동안 기다려주세요."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "자동 범위"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "전체 범위"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "색인 주문 설정"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "열려 있는"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "삭제"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "그래프 당 데이터 포인트 수가 12,000 이상이므로 데이터 포인트 수는 최대 12,000으로 제한되었습니다. 전체 데이터를 보려면 더 짧은 대상 기간을 설정하십시오."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "용어로 계층화 (순환)"
+
+#: component.js
+msgid "Facet"
+msgstr "한 면"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "선택한 항목으로 나누는 카테고리를 수행합니다."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "예외 추정"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "정규화 된 사 분위수 범위 (IQR을 정규 분포와 연관시키는 지수, NIQR = 0.7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "모드는 가장 자주 발생하는 값입니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "특이 치와 함께"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "특이하지 않으면"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "관습"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "오늘"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "어제"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "지난 7 일"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "지난 30 일"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "이번 달"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 개월"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 개월"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "적용하다"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "주"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 일 전"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 일 전"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "이번 달의 주먹 날"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "이번 달의 마지막 날"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 개월"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "업데이트"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "데이터 포인트는 빠른 모드로 요약됩니다. 데이터를 생략하지 않고 플롯을 얻으려면 대상 기간을 짧게 조정하십시오."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Y 축의 범위"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "국외자"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "비어 있는"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "프로세스 검색"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "서표"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "플롯 당 데이터 포인트 수가 10,000 이상이므로 밀도 플롯이 그려졌습니다. 산점도로 모든 데이터 포인트를 표시하려면 대상 기간을 짧게 설정하십시오."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "비어 있는"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "사이클 시간"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "실수"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "객관적인 변수"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "상관 계수는이 변수를 대상 변수로 사용하여 계산됩니다. 여기에 지정된 대상 변수는 플롯의 가장 오른쪽에있는 컬러 바와 함께 표시됩니다. 플롯에서 대상 변수를 변경하려면 각 변수 이름을 마우스 오른쪽 버튼으로 클릭하여 이시를 전환 할 수 있습니다."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "범주가 너무 많아서 데이터가 익사하지 않았습니다. BREAK_LINE 필요한 경우 대상 기간을 더 짧게 확인하고 수정하십시오."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "필터 설정"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "레이블 (카테고리 변수)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "복사"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "붙여 넣었다"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "구성 복사"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "붙여 넣기 구성"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "원점 설정이 없으면 첫 번째 대상이 원점으로 선택됩니다."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "수출 데이터"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "사용하지 않습니다"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "범주가 너무 많기 때문에 데이터가 그려지지 않습니다."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "필요한 경우 대상 기간의 설정을 확인하고 수정하십시오."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "데이터 수로 나누기 (Cyclic)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "데이터 수"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "비어 있는"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "비어 있는"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "목적 변수를 선택하십시오."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "비어 있는"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "분해 / 카테고리 분해가 없습니다"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "산포도"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "x 또는 y 데이터 유형이 문자열 인 경우 색상 설정에 비 스트링 변수를 사용할 수 없습니다."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "허용 범위 외부의 값이 감지되었으므로 최소 또는 최대 유효 범위가 자동으로 결정되었습니다. 필요에 따라 설정을 변경하십시오."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "마우스 오른쪽 버튼을 클릭 : 데이터 링크 설정/편집/삭제"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "경과 시간"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "시간 순서"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "데이터 순서 설정"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "`__SERVER_INFO__`의 하드 디스크 용량이 __SERVER_INFO__ %%에 도달 했으므로 불필요한 데이터를 삭제하십시오."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "'__SERVER_INFO__`의 하드 디스크 용량이 __SERVER_INFO__ %%에 도달했기 때문에 데이터 포트가 중지되었습니다. 불필요한 데이터가 삭제되고 빈 용량이 증가하면 데이터가 재개됩니다."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "표시 할 분포 수를 입력하십시오 (부서 수). 2 또는 150 이하의 정수를 입력하십시오."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "표시 할 분포 수를 입력하십시오 (부서 수). 1 이상의 32 이하의 정수를 입력하십시오."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "비어 있는"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "비어 있는"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "비어 있는"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "비어 있는"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "플롯 당 바이올린이 너무 많으므로 자동으로 제한되었습니다."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "선택된 많은 레코드로 인해 플롯 수는 가장 오래된 날짜에서 한계 수로 제한됩니다."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "동의 함"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "감소"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "뒤로"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "열에 플롯 수"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "플롯 상단의 레이블로 표시되는 범주 형 변수 (부품 번호, 스테이션 번호 등)는 정 성적 변수의 변경 사항 (부품 번호 전환 등)을 시각화하는 데 사용됩니다."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "분석 할 항목을 선택하십시오 (정량적 변수 : 측정 값 등). 최대 60 개의 항목을 선택할 수 있습니다."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "데이터를 정렬 할 항목을 선택하십시오. 여러 항목을 선택할 수도 있습니다."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "DateTime은 디스플레이 제한이있는 최신 데이터의 계산이므로 오래된 데이터가 표시되지 않습니다."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "플롯 수는 NUMBER로 제한되었습니다. 모든 것을 표시하려면 설정을 다시 보냅니다."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "단일 탭의 플롯 수는 NUMBER로 제한되었습니다. 모든 것을 표시하려면 설정을 다시 보냅니다."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "선택할 대상 변수의 수는 최소 최소 및 최대 최대입니다. 대상 변수 수를 확인하고 설정을 수정하십시오."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "선택할 대상 변수 수는 최대 최대입니다. 대상 변수 수를 확인하고 설정을 수정하십시오."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

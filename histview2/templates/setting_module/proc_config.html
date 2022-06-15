@@ -1,0 +1,125 @@
+<div class="card graph-navi" id="process">
+    <div class="card-body">
+        <div class="panel-group" id="accordionPC" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+                <form id="proc-config-form">
+                    <div class="panel-heading" role="tab" id="headingPC">
+                        <div class="form-header">
+                            <div class="row" style="padding-top: 5px;">
+                                <div class="col-7">
+                                    <div class="collapse-box header-left">
+                                        <a role="button" data-toggle="collapse" data-parent="#accordionPC"
+                                           href="#collapsePC" aria-expanded="true" aria-controls="collapsePC">
+                                            <i class="more-less fas fa-window-minimize"></i>
+                                        </a>
+                                    </div>
+                                    <h3 class="header-left">{{ _("Process Config") }}</h3>
+                                </div>
+                                <div class="col-5">
+                                    <input type="search" id="searchProcConfig"
+                                           class="form-control common-search-input float-right"
+                                           placeholder="{{ _('search') }}...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapsePC" class="panel-collapse collapse show" role="tabpanel"
+                         aria-labelledby="headingPC">
+                        {{ macros.alert_message("alert-msg-db") }}
+                        <div class="table-responsive">
+                            <table id="tblProcConfig" class="table table-bordered table-main">
+                                <thead>
+                                <tr>
+                                    <th class="col-number">{{ _("No.") }}</th>
+                                    <th scope="col"
+                                        class="text-center th-title-other th-md">{{ _("Process Name") }}
+                                    </th>
+                                    <th scope="col"
+                                        class="text-center th-title-other th-md">{{ _("Data Source Name") }}</th>
+                                    <th scope="col" class="text-center th-title-other th-md">{{ _("Table Name") }}</th>
+                                    <th scope="col" class="text-center th-title-other"></th>
+                                    <th scope="col" class="text-center th-title-other">{{ _("Comment") }}</th>
+                                    <th scope="col" class="text-center th-title-other fixwidth">{{ _("Status") }}</th>
+                                    <th scope="col" class="text-center th-title-other col-btn">
+                                        <!-- <i class="fas fa-filter icon-secondary"
+                                        style="color:#449fff;cursor:pointer;"
+                                        onclick="showFilter('tblProcConfig', true)"></i> -->
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for proc_info in proc_list %}
+                                    <tr name="procInfo" id="proc_{{ proc_info.id }}"
+                                        data-ds-id="{{ proc_info.data_source.id }}"
+                                        data-proc-id="{{ proc_info.id }}">
+                                        <td class="col-number">{{ loop.index }}</td>
+                                        <td>
+                                            <input name="processName" class="form-control" type="text"
+                                                   placeholder="{{ _('Process Name') }}" value="{{ proc_info.name }}"
+                                                   disabled
+                                                   data-order>
+                                        </td>
+                                        <td class="text-center">
+                                            <input name="databaseName" class="form-control" type="text"
+                                                   placeholder="{{ _('Database Name') }}"
+                                                   value="{{ proc_info.data_source.name or '' }}" disabled>
+                                        </td>
+                                        <td>
+                                            {% if (proc_info.data_source.type != 'CSV') %}
+                                                <input class="form-control" type="text" name="tableName"
+                                                       placeholder="{{ _('Table Name') }}"
+                                                       value="{{ proc_info.table_name or '' }}"
+                                                       disabled>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-secondary"
+                                                    onclick="showProcSettingModal(this);" title=""><i
+                                                    class="fas fa-edit icon-secondary"></i></button>
+                                        </td>
+                                        <td>
+											<textarea name="comment" class="form-control form-data" rows="1"
+                                                      placeholder="{{ _('Comment') }}"
+                                                      value="{{ proc_info.comment or '' }}"
+                                                      disabled>{{ proc_info.comment or '' }}</textarea>
+                                        </td>
+                                        <td class="process-status" id="jobStatus-{{ proc_info.id }}"></td>
+                                        <td>
+                                            <button onclick="deleteProcess(this);" type="button"
+                                                    class="btn btn-secondary" style="margin:5px;">
+                                                <i class="fas fa-trash-alt icon-secondary"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row" style="padding-top: 5px;">
+                            <div class="col-2">
+                                <button onclick="addProcToTable();" type="button" class="btn btn-success"><i
+                                        class="fas fa-plus-circle"></i></button>
+                            </div>
+                            <div class="col-8"></div>
+                            <div class="col-2">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% include "proc_config_modals.html" %}
+    </div>
+    <div>
+        <ul id="procContextMenu" name="contextMenu" class="context-menu" style="display:none;">
+            <li class="menu-item" onclick="maximizeCard('collapsePC')">{{ _("Maximize card") }}</li>
+            <li class="menu-item" onclick="minimizeCard('collapsePC')">{{ _("Minimize card") }}</li>
+        </ul>
+    </div>
+</div>
+{% block js %}
+    <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_modals.js') }}"></script>
+    <script>
+        const cfgDS = {{ all_datasource|safe }};
+    </script>
+{% endblock %}

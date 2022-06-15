@@ -1,0 +1,79 @@
+#tblUserSetting.dataTable {
+	width: 100% !important;
+	border-collapse: collapse;
+	background: #303030;
+	font-size: 0.8vw;
+}
+#tblUserSetting.dataTable thead {
+	 background: #303030;
+}
+#tblUserSetting.dataTable thead th {
+	padding: 5px !important;
+	font-weight: bold;
+	text-align: center;
+}
+#tblUserSetting.dataTable thead input {
+	height: auto;
+	padding: 3px 5px;
+}
+#tblUserSetting.dataTable.no-footer {
+	border-bottom: none;
+}
+
+#tblUserSetting.dataTable tbody th,
+#tblUserSetting.dataTable tbody td{
+    padding: 3px 5px;
+    /*min-width: 50px;*/
+    /*text-align: center;*/
+	border: 1px solid #444;
+}
+#tblUserSetting.dataTable tbody td.action {
+	text-align: center;
+}
+#tblUserSetting.dataTable tbody tr {
+	background: #303030;
+}
+
+#tblUserSetting.dataTable th:nth-child(1){
+	min-width: 50px !important;
+}
+#tblUserSetting.dataTable th:nth-child(2){
+    width: 100px !important;
+}
+
+#tblUserSetting.dataTable th:nth-child(6),
+#tblUserSetting.dataTable th:nth-child(7),
+#tblUserSetting.dataTable th:nth-child(8){
+    width: 70px !important;
+}
+
+#tblUserSetting.dataTable td:nth-child(5){
+    /*width: 180px !important;*/
+	font-size: 0.8vw;
+}
+.col-date {
+    width: 150px;
+}
+.col-with-button {
+    width: 100px !important;
+}
+
+#tblUserSetting.dataTable th:nth-child(10){
+    width: 200px !important;
+}
+
+#tblUserSetting.dataTable button{
+    font-size: 0.6vw !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+#tblUserSetting.dataTable select {
+	font-size: 0.8vw;
+}
+
+#tblUserSetting.dataTable td:nth-child(1),
+#tblUserSetting.dataTable td:nth-child(2),
+#tblUserSetting.dataTable td:nth-child(5){
+    text-align: center;
+}

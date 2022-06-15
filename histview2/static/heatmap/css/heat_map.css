@@ -1,0 +1,131 @@
+#sctr-card {
+    margin-top: 20px;
+    display: table;
+    border-collapse: collapse;
+}
+
+.coef-item {
+    border: 1px solid #444444;
+}
+
+.sc-row {
+    display: table-row;
+}
+
+.sc-col {
+    display: table-cell;
+    border: 1px solid #4e4e4e;
+    width: auto;
+    padding: 10px;
+}
+
+.sc-col span {
+    color: #60b5dd;
+}
+
+canvas {
+    max-width: 95%;
+    margin: 0 auto;
+}
+
+.chart-column {
+    float: left;
+    border: 1px solid #4e4e4e;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+/* Clear floats after the columns */
+.chart-row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.center {
+    margin: 0;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.coef-text {
+    font-size: 18pt;
+    text-align: center;
+}
+
+.chm-row .js-plotly-plot .plotly .modebar-btn svg {
+    top: 0;
+    font-size: 13px;
+}
+
+.chm-row .js-plotly-plot .plotly .modebar {
+    top: unset;
+    bottom: 2px;
+    right: 1px;
+    z-index: 99;
+}
+
+.chm-row .js-plotly-plot .plotly .modebar-group {
+    padding-left: 0;
+}
+
+.chm-row .js-plotly-plot .plotly .modebar-btn {
+    padding: 0 4px;
+}
+
+.chm-row.custom-height .chm-col {
+    height: calc(43vh);
+}
+
+.chm-col {
+    height: 32vh;
+    padding: 2px !important;
+    /*padding-top: 2px !important;*/
+    /*padding-left: 2px !important;*/
+    /*padding-right: 2px !important;*/
+}
+
+.chm-col .js-plotly-plot .plotly .main-svg {
+    width: 100%;
+    z-index: 9;
+}
+
+.chm-plot {
+    height: 100%;
+    border-radius: 3px;
+}
+
+.chm-plot .plot-container.plotly, .chm-plot .plot-container.plotly .modebar-container {
+    height: 100%;
+    width: 100%;
+}
+
+.chm-col-1 {
+    text-align: right;
+    min-width: 120px;
+}
+
+/* chart scale options bar */
+.y-scale-group {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.y-scale {
+    margin: 0.5rem;
+}
+
+.ui-sortable-handle {
+    max-width: 100% !important;
+}

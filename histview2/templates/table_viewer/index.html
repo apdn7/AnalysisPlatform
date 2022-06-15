@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+<link rel="stylesheet" href="{{ url_for('table_viewer.static', filename = 'css/table_viewer.css')}}">
+
+<script>
+    gtag('config', 'UA-156244372-2', {
+        'page_title' : '{{ page_title }}',
+    });
+</script>
+{% endblock %}
+
+{% block header %}
+<div class="page-title graph-navi">
+    <h2>{{ page_title }}</h2>
+</div>
+{% endblock %}
+
+{% block midbody %}
+<div class="card">
+    <div class="card-body">
+        <form id="formUserInput">
+            {{ macros.alert_message("alert-msg-info") }}
+            <div class="table-responsive-xl" style="overflow: hidden;">
+                <div class="form-group">
+                    <label for="dbSelection"><h5>{{ _('Database') }}</h5></label>
+                    <div style="display: flex;justify-content: left;">
+                        <select class="form-control select2-selection--single col-md-5" id="dbSelection" name="dbSelection"></select>
+                        <span id="tblViewerSpinner" class="text-info" role="status" style="margin-left: 10px;"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="tableSelection"><h5>{{ _('Table') }}</h5></label>
+                    <select class="form-control select2-selection--single col-md-5" id="tableSelection" name="tableSelection">
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sortSelection"><h5>{{ _('Sort') }}</h5></label>
+                    <div class="form-inline">
+                        <select class="form-control select2-selection--single col-md-5" id="sortSelection" name="sortSelection">
+                            <option value="">---</option>
+                        </select>
+                        <div class="form-group col-sm-3">
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="btnRadioSortDesc" name="btnRadioSortOrder" class="custom-control-input" value="DESC" checked>
+                                <label class="custom-control-label" for="btnRadioSortDesc">{{ _('Descending') }}</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="btnRadioSortAsc" name="btnRadioSortOrder" value="ASC" class="custom-control-input">
+                                <label class="custom-control-label" for="btnRadioSortAsc">{{ _('Ascending') }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rowLimitSelection"><h5>{{ _('Number of Data') }}</h5></label>
+                    <select class="form-control col-md-5" id="rowLimitSelection" name="rowLimitSelection">
+                        <option value="100" selected>100</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                    </select>
+                </div>
+                <div class="col-md-12 text-center">
+                    <button type="button" id="btnViewData" class="btn btn-primary center">{{ _('Show') }}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" id="tblViewerCard">
+    <div class="card-body">
+        <table id="tableViewData" class="table table-bordered table-main">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div id="loadingScreen" class="loading hide"></div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('table_viewer.static', filename = 'js/table_viewer.js')}}"></script>
+{% endblock %}

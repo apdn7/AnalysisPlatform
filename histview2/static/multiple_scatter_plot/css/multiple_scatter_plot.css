@@ -1,0 +1,89 @@
+#sctr-card {
+    margin: 1rem auto 0;
+    border-collapse: collapse;
+    background-color: #222222;
+}
+
+.coef-item {
+    border: 1px solid #444444;
+}
+
+.sc-row {
+    display: table-row;
+}
+
+.sc-col {
+    display: table-cell;
+    border: 1px solid #4e4e4e;
+    width: auto;
+    padding: 10px;
+}
+
+.sc-col span {
+    color: #60b5dd;
+}
+
+canvas {
+    max-width: 95%;
+    margin: 0 auto;
+}
+
+.chart-column {
+    float: left;
+    border: 1px solid #4e4e4e;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+/* Clear floats after the columns */
+.chart-row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.center {
+    margin: 0;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.coef-text {
+    font-size: 1vw;
+    display: inline-grid;
+    line-height: 1.4;
+}
+
+@media (max-width: 1200px ) {
+    .coef-text {
+        font-size: 2vw;
+    }
+}
+
+#showLabel, .showLabel {
+    line-height: 28px;
+    /*float: right;*/
+    margin-left: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#showContour {
+    margin-top: 20px;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}

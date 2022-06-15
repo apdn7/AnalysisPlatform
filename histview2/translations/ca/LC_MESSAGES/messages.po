@@ -1,0 +1,3153 @@
+# カタロニア語 Catalan translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "ca_カタロニア語_Catalan"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ca\n"
+"Language-Team: ca\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Guardat"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "S'ha produït un error"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Configuració de l'aplicació"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Pàgina no trobada"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "S'ha produït un error"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Aplicació de DataLink & Analysis"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Seleccioneu un idioma"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Pantalla principal"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Verificació de l'operació"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Verificació de l'operació"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Configuració bàsica"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Registrar"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Recarregar"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Enter"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Real (flotador)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Data i hora"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Corda"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Títol"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Planta"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Fàbrica"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Filera"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "siusplau confirma."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Deseu les dades i comenceu a importar dades amb el contingut establert a la pàgina de configuració del procés?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "D'acord"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Cancel · lar"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Configuració de la base de dades"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Nom de la base de dades"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Tipus de base de dades"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Configurar"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Comentari"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Addiccionar"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Seleccioneu un fitxer de base de dades."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Nom de l'arxiu"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Seleccionar"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Voleu suprimir aquest registre?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "esborrar"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Traçabilitat"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Gràfic de traçabilitat"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Proves de traça"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Començar a provar"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "L'hora d'inici"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Fi del temps"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Identificador de màquina (seleccions múltiples)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Filera"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Número de part"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Configuració de l'enllaç de dades"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Seleccioneu un idioma"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Japonès"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Anglès"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Node"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Node ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Etiqueta"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Nom de domini"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Base de dades"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Importar"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Exportació"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Nom d'amfitrió"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Número de port"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Nom d'usuari"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Contrasenya"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Esquema"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Vaig tenir èxit."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; va fallar."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Procés de configuració"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Elaborar"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Nom de procés"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Nom de taula"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Detall"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Vista prèvia"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Primers cinc registres"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Configuració del contingut"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Nom de la columna"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Nom anglès"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Nom de visualització"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "coeficient"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Telefonista"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Introduïu un valor diferent de 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Operador d'entrada."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Coeficient d’entrada."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Introduïu el nom anglès."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Nom de visualització d'entrada."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "El nom anglès es duplica."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "El nom de la pantalla es duplica."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Tots els \"noms de visualització\" requereixen entrada."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Els camps amb \"nom anglès\" en blanc s'omplen automàticament."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Seleccionar tot"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Importa dades"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Esteu segur que importareu dades?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Quan premeu el botó OK, importareu dades des de l’hora actual fins a un mes abans."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Les dades anteriors s’importen automàticament a poc a poc."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Si voleu importar les dades després de l’hora actual, torneu a prémer el botó de lectura de dades o premeu la base de dades CSV Configuració de la configuració de la pàgina de configuració de lectura."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Quan s’estableixi \"Cicle d'actualització\" de \"Base de dades / CSV Configuració de lectura\", s'importarà automàticament en el període en què es configuren les dades després de la definició de l'hora actual."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Rastreja la informació"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Rastreja les dades"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "No s'ha pogut accedir"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Feu clic aquí per solucionar -ho."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Edició"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Procés anterior"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Columna anterior"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Procés post"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Post columna"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Com a DateTime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Com a sèrie"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Com a enllaç ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Ja registrat"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Introduïu el nom del procés"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filtre/gràfic"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Configuració del gràfic"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Configuració del filtre de línia"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Columna de línia"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Valorar"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Configuració del filtre de màquina"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Machine ID Columna"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "PART NO FILLA CONFIG"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "PART NO COLUMNA"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Nom del filtre"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Condició de filtre"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Altres filtren la configuració"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Columna objectiu"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Configuració de la visualització"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Llindar inferior"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Llindar superior"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Llindar de procés inferior"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Llindar del procés superior"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Range dels eixos Y: min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Range dels eixos Y: màxim"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "PART NO"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "acabar amb"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Començar amb"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like cerca)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Acordar"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Expressions regulars"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Mostra el gràfic"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Exportació"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Cal procés"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "El nom de la columna és obligatori"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Cal la línia"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "El nom de la visualització és obligatori"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "El nom de la pantalla es duplica."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "El valor de la màquina és necessari"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Màquina duplicada ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Estalvieu amb èxit"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "No s'ha pogut desar"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "PART No es requereix columna"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Cal la columna Target"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "El nom del filtre és necessari"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Cal condició"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "El nom del filtre es duplica."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Les condicions es duplicen."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Absència"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Nom de procés"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "S'ha afegit altres filtres"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Importa configuració"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Font"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Cicle de renovació"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Conectar"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Un cop per hora"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Un cop al dia"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Confirmació de dades"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "No hi ha cap carpeta."
+
+msgid "File does not exist"
+msgstr "No hi ha cap fitxer."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Podeu connectar -vos."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Empleneu el valor."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "No hi ha contingut de configuració."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "La configuració es duplica."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Configuració de la base de dades desada."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "No s'ha pogut desar la configuració de la base de dades."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Configuració bàsica desada."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "No s'ha pogut desar la configuració bàsica."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Connexió de prova"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Punt d’inici"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Rang de dates"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Últim"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Actualització automàtica"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "minut"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "minuts"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "hores"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "hores"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Variable objectiu"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Filtre"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X Eix"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Marca de temps"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Índex"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Estratificar variables"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Filtres"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Base de dades/csv"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Analitzar"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "En desenvolupament"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Analitzar:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Parcel·la de la cascada"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Gràfic LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histograma"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Trama estratificada"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Trama de punts complets"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Visualització de dades"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Visualització"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Correr"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Introduïu el nom de la base de dades."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Introduïu el nom de la font de dades."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Les columnes que no tenen cap tipus de dades no s’importen."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Es requereix almenys una columna DateTime."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Per a la visualització, utilitzeu '{col}' per a l’eix x."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Esteu segur que continuareu?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Espectador de taula"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Taula"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Classificar"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Nombre de dades"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Descendent"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Ascendent"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Combinació perfecta"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Partit parcial"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Selecció de dígits no vàlid"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "La longitud del caràcter utilitzat per a l'enllaç és diferent."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Sense filtre"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Totes les línies"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "situació"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Llista de treballs"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Tota"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Importació finalitzada."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Importació"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Importació fallada"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "S'eliminaran les dades carregades. Està bé? (No es reflecteix cap canvi fins que es prem el botó de registre)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Llista de treballs"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Identitat de treball"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Nom del treball"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Generació de LinkedID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Visualització de la generació de l'enllaç ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Supressió de la informació del procés"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Importa dades de fàbrica"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Importa dades de fàbrica passades"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Mostra la feina d’importació de dades de fàbrica passades"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Importa dades"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Suprimeix dades antigues"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "L'hora d'inici"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "temps transcorregut"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Base de dades/csv"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Progrés, progressar"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Elaborar"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Llista d’histogrames"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Registreu -vos com a valor de brot"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "No registrat anteriorment"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Amaga els outliers"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Espectacle Outliers"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Consulteu Outliers"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Mostra la llista d’histogrames"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Últim temps d’actualització"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "S'ha cancel·lat el registre anterior."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Registrat com a anterior"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Anterior"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Només una vegada"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Detalls de la feina"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Copiar al portapapers"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Trama de dispersió multi"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Gràfic de dispersió"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Per visualitzar la variable categòrica"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Estratificar per variables"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Variable"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Machine No"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Període objectiu"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Freqüència (recompte)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Estimació de la densitat"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Variable categòrica"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Estratificar per terme (directe)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "No podeu seleccionar vuit o més variables objectiu. Seleccioneu la variable de destinació."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Detecció d’anomalies"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Anàlisi de components principals"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Puntuació del component principal de les dades de proves"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Puntuació principal del component de dades de formació"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Gràfic de sèries de les estadístiques de T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Gràfic de sèries d’estadístiques Q"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Contribució Trama de les estadístiques T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Contribució Trama d’estadístiques Q"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Elimina el destacat"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Dades de formació"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Dades de prova"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Sí"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "No"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Tipus de dades"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Exemple"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Error"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Advertència"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Atès que totes les files han estat suprimides mitjançant el processament del valor de dèficit (eliminació NA), no hi ha dades per analitzar. Assegureu -vos que el valor buit, inclòs NA, no estigui seleccionat."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "No es pot analitzar perquè conté dades diferents dels números. Assegureu -vos que heu seleccionat una columna que conté un valor de cadena o categoria."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "No es pot analitzar perquè conté dades amb una variància de 0. Assegureu -vos que només no s'ha seleccionat una columna de valor."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "S'han trobat les dades de la categoria i el valor enter esperat. Si aquest valor enter no és una escala de comandes, escala d’interval o escala de proporció, els resultats de l’anàlisi poden veure’s afectats negativament."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Esteu segurs de procedir a l'anàlisi?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "cerca"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "La mediana és una de les estadístiques típiques. És un valor situat al centre quan les dades finites estan ordenades en l'ordre ascendent. Per exemple, en el cas de cinc, l’edat mitjana de l’edat és la tercera edat en ordre d’edat. Si el nombre de dades és uniforme, s’utilitza la mitjana de l’aritmètica brevitable central."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Màxim"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Resum de la distribució"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N número"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Mitjana"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Què és la mediana ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Total"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Freqüència"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Punt final"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Procés objectiu"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Sèries temporals"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Trossos"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Nombre d'enllaç de dades"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Segons"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Temps de resposta"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "preprarar una edició"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "esquena"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Afegiu node"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Afegiu la vora"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Edita el node"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Feu clic a l’espai buit per col·locar un node nou."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Feu clic al node, arrossegueu la vora a un altre node i connecteu -los."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Feu clic al punt de control, arrossegueu -lo al node i connecteu -lo."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "No es pot afegir Edge."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "No es pot suprimir el clúster."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "El clúster no es pot editar."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "El nom de la pantalla o el valor es duplica."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Introduïu el nom i el valor de la visualització."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Introduïu la columna de línia."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Hores"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Informació de dades"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Dia"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Setmana"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Carregar"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Estalviar"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Sobreescriure"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Plena"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Canvieu el títol perquè es defineix el mateix títol."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Configuració de desar"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Creeu captura de pantalla"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "descarregar"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Els motius pels quals el gràfic no es pot mostrar és el següent. BREAK_LINE Comproveu la situació. BREAK_LINE・ Les dades no s’importen ni enmig de la importació. BREAK_LINE・ No hi ha dades enllaçats ni enmig de lligar. BREAK_LINE・ La configuració del gràfic és inadequada."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Advertència"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Els registres que contenen dades no vàlides a la columna de dades de data no s’importen."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Podeu referir -vos als fitxers de la carpeta següent per obtenir dades que no es podrien importar."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "L'estat d'ús no es pot penjar perquè no està connectat a Internet."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Comproveu la connexió de xarxa."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Es necessitarà molt de temps per enllaçar les dades."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Esteu segur que torneu a connectar les dades?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Avortar"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Executar"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Esteu segur que tornareu a carregar la configuració de l'enllaç de dades registrada anteriorment?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Va començar a importar dades."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Podeu comprovar el progrés de la importació de l’enllaç següent."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Consulteu la pàgina de la llista de treballs per obtenir un estat d’error."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Va començar a enllaçar dades."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Un cop cada 3 minuts"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Un cop cada 5 minuts"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Un cop cada 10 minuts"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Funció opcional"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Tipus d'arxiu"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Exportació"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "A causa del gran nombre de registres seleccionats i el temps necessari per mostrar el gràfic, el nombre de registres per gràfic es va limitar a 50.000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Gràfic de sèries horàries"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Valor de la categoria"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Com que el nombre de registres en el període especificat és superior a 5.000, BREAK_LINE enllaç està unit dins de ± 14 dies del període especificat. Si no voleu limitar el rang d’enllaç, ajusteu la durada per reduir el nombre de registres de BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Escala de configuració"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Escala comuna"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Línia llindar"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Escala automàtica"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "S'utilitza l'escala"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn de procés"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Màxim"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Min"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Res"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Sumari"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Compte"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Estadístiques bàsiques"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "No paramètric"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Qualitat de les dades"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Espectador"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Importa dades"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "El procés d’enllaç de dades s’iniciarà en funció de la configuració actual."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Pot trigar temps si hi ha moltes dades per enllaçar. Està bé començar?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Per a dades que s’importen automàticament i periòdicament, l’enllaç ID es genera automàticament."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Nom de la font de dades"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Tipus d'origen de dades"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Esteu segur que guardeu canvis?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Informació del sistema operatiu forçat a la configuració de la zona horària."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Configuració avançada"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Els paràmetres es guarden per a la base de dades /CSV fitxer d’importació de dades. Vés a la pàgina de configuració, configura les columnes de les dades d’importació per importar les dades."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "No hi ha cap atribut obligatori a les dades de l'element."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "No hi ha cap valor d’atribut necessari per a les dades d’elements."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Una detecció anormal per PCA requereix almenys dues variables. Seleccioneu dues o més variables."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Seleccioneu almenys una columna"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "No es mostren variables de categoria que redueixen l'amplada del quadre."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Digit inicial"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Parcel·la de Ridgeline"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Atureu l'aplicació (servidor Edge). Si us atureu, qualsevol altre usuari no podrà utilitzar -lo també, així que poseu -vos en contacte amb l'administrador. <br> En el cas del final normal, cancel·leu aquí i tanqueu el navegador."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Tota la feina s’ha aturat. Podeu tancar amb seguretat el navegador i la consola."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Configuració de la font de dades"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Configuració d'importació d'importació de la font de dades"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Les columnes van trobar poques columnes de caràcters. Comproveu que la columna de tipus numèric, etc., es pugui reconèixer malament."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Element de filtre"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Valor de filtre"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Data de caducitat (Inici)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Data de caducitat (final)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Les dades no es podrien importar a causa dels errors de configuració del tipus de dades de columna. Nom de la font de dades __param__ CSV/TSV Comproveu la configuració del tipus de dades a la vista prèvia de dades de la pàgina de configuració de lectura. Suprimeix la configuració del pas que no es va poder importar i configurar la configuració."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Hi havia un fitxer sense dades. Comproveu el contingut del fitxer. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Introduïu almenys un valor del període de validesa de o a."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Dividir per categoria"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Divideix per terme (cíclic)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Divideix per terme (directe)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "El valor de l'interval introduït no és vàlid. Introduïu un nombre de 0,1 o més, 720 o menys, o -720 o més, i -0,1 o menys."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "La longitud de la finestra especificada no és vàlida. El valor ha d’estar entre 0,1 i 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "El nombre de RidGeline d'entrada no és vàlid. Introduïu un nombre enter d’1 o més i 150 o menys. (preferiu utilitzar al voltant de 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Inicieu les dades i el temps"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Interval"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Longitud de la finestra"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Article de control"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Lletra"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Nom"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Tingueu en compte que si el nombre de punts de dades d'una categoria és inferior a 50, la precisió del gràfic pot disminuir."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Mostra el cursor de cabells creuats (feu clic)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Mostra el cursor de cabells multi creu (doble clic)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Mostra la llista d’histogrames"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Cancel·la la comprovació anterior"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Ja existeix el \"nom de la font de dades\" especificat."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "La importació de dades ha fallat perquè es va trobar un fitxer amb un nom de columna diferent a la font de dades. Comproveu el contingut del fitxer i configureu de nou la configuració d’importació de l’origen de dades."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Nombre de registres previstos a enllaçar"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Nombre de mostres"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Nombre de registres que s'enllaçaran"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Nombre de registres totals"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Si us plau, nomeneu la carpeta en què es guarden els fitxers CSV/TSV com \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Predicció"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Configuració del filtre"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Configuració del mestre"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "De la configuració del filtre"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Mostrar tots"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Com a clau (opció)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Esborrat REMOVED_COUNT de valor de dèficit, valor anormal i valor anterior de TOTAL_COUNT en original."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Adreça IP"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Compareu la distribució de dades amb l’histograma i l’estimació de la densitat. El gràfic està dividit per la variable estratificada. També es divideix per faceta."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Ploteu tota el nombre de dades sobre l’eix de temps o l’eix ID."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Mostra la matriu de trama de dispersió. Podeu utilitzar de 2 a 7 variables objectiu."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Per anàlisi de components principals, es realitza la visualització de \"diferents\" i la seva anàlisi de factors. Introduïu les dades normals com a dades del professor i visualitzeu si les dades actuals són la mateixa situació que les seves dades normals (T2/Q). Si teniu una situació diferent, podeu comprovar els principals factors de la trama de contribució."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "La distribució es divideix en diversos gràfics per aquesta variable. Seleccioneu Variables de categoria (variables qualitatives) com ara números de part i estacions."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Filtre de categories estratificades: limita les dades que es mostraran en un subconjunt. (Categoria: número de part, estació núm., Etc.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Les variables de categoria (com ara el número de part, l'estació núm., Etc.) es mostren com a etiquetes a la part superior de les parcel·les per trobar punts de canvi."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Filtre de gràfics: limita les dades que es mostraran a un subconjunt."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Estableix les dades d’aprenentatge interpretades com una situació normal. Definiu la secció de dades que no conté dades NG. Si s’inclouen, també es jutgen els que es troben a prop de les dades NG com a dades normals."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Definiu les dades de la prova a jutjar."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Filtre d’elements: limita les dades (analitzar i visualitzar) que es mostraran en un subconjunt."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "És una pantalla agregada bidimensional (compressió dimensional per components principals) de dades de verificació multidimensionals. Si les dades es troben al centre, es poden interpretar tan a prop de la normalitat."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "És una pantalla agregada bidimensional (compressió dimensional per components principals) de dades d’aprenentatge multidimensional. L’objectiu central està determinat per les dades d’aprenentatge, de manera que la majoria de les dades d’aprenentatge haurien d’estar a l’objectiu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Una trama de l'estadística T2, que supervisa les anomalies en el component principal d'aquestes dades. Les dades d’aprenentatge es representen en blanc i en la porció X negativa. La trama groga són les dades de validació. Com més elevades es comparen les dades de validació amb les dades blanques, més probabilitats és desviar -se. Feu clic a Punts de dades per veure la trama de contribució de quins elements constitueixen la situació."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Una trama de l'estadística Q (seguiment de les anomalies a la part menor d'aquestes dades, residual). Les dades d’aprenentatge es representen en blanc i en la porció X negativa. La trama groga són les dades de validació. Com més elevades es comparen les dades de validació amb les dades blanques, més probabilitats és desviar -se. Feu clic a Punts de dades per veure la trama de contribució de quins elements constitueixen la situació."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "L'ordre de la qual les variables contribueixen a la situació en el punt seleccionat a la trama estadística T2. Com més llarga sigui la longitud, més probabilitats és la causa."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "L'ordre de la qual les variables contribueixen a la situació en el punt seleccionat a la trama estadística Q. Com més llarga sigui la longitud, més probabilitats és la causa."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Nombre de punts de dades amb un valor inferior o igual a Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Nombre de punts de dades amb un valor superior o igual a Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Nombre total de dades incloses NA (no disponible), NaN (no un nombre) i Inf± (infinitat) en el període seleccionat."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Percentatge de dades fora del llindar superior i inferior (recompte) en el període seleccionat"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Percentatge de dades fora del llindar límit superior i inferior (recompte) en el període seleccionat"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Percentatge de NA (no disponible) en el període seleccionat (recompte)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Percentatge de NaN (no un nombre) en el període seleccionat (recompte)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Percentatge de Inf+ (més infinit) en el període seleccionat (recompte)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Percentatge de Inf- (menys infinit) en el període seleccionat (recompte)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "El percentatge total de dades fora del valor del llindar, NA (no disponible), NaN (no un nombre) i Inf± (infinitat) en el període seleccionat (recompte)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Nombre de dades, excloent NA (no disponibles), NaN (no un nombre) i Inf± (infinit) en el període seleccionat."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95è percentil"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75è percentil (tercer quartil)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25è percentil (primer quartil)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5è percentil"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Interval interquartil (valor representatiu de la variabilitat de distribució: IRQ = Q3 - Q1 ≒ 1.349σ@ distribució normal)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Mediana (50è percentil)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Comptes/hora"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Comptes/minut"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Temps de cicle [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Número de divisió"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Cicle de visualització"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Interval de visualització"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Mapa de calor calendes"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Les variables de destinació no poden ser seleccionades per MAX_NUM_SENSOR o més. Seleccioneu la variable de destinació."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Els objectius d’eliminar els anteriors són Max, Mean, Min, σ i Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "A part dels números reals"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "La distribució es pot visualitzar calculant per a cada variable categòrica (variables qualitatives, número de lot, etc.) o dateTime i mostrant -les una al costat de l'altra. Un mètode de visualització que permet l’anàlisi del grup creuat (comparació entre lots, dies, torns i etc.) de dades sense discrets ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Configureu el llindar per obtenir gràfics."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Si la dispersió està encesa, podeu mostrar la trama de dispersió amb ella. La trama de dispersió entre l’element actual i l’element de la fila següent. Arrossegueu i deixeu anar les targetes argumentals de les parcel·les respectives amb el ratolí per canviar l’eix x i l’eix Y de la trama de dispersió."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Un element de dades (com una variable numèrica o valor de mesura) que crea una distribució de dades. Aquestes dades es representen a la trama. Es poden seleccionar fins a 20 articles."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Aquesta variable estratificada divideix la distribució en múltiples trames i les mostra colze a colze. Seleccioneu una variable categòrica, com ara el lot no o el lot núm."
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Introduïu el dateTime d'inici per mostrar la trama Ridgeline per a cada DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Introduïu directament el període per mostrar la trama Ridgeline per a cada dateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Podeu seleccionar opcions per importar dades del fitxer CSV/TSV que requereixi un maneig especial, com ara convertir les estructures de dades."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Si premeu el botó de vista prèvia que hi ha a continuació, mostrarà alguna part de les dades del fitxer perquè pugueu comprovar -ne el contingut."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Seleccioneu l'enllaç ID que s'utilitzarà com a condició per a l'enllaç de dades. També podeu seleccionar diversos elements."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Quan l’aplicació importa periòdicament dades, podeu seleccionar una columna DateTime que s’utilitza preferentment com a clau de DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Si seleccioneu un operador i introduïu un número a \"Factor\", el valor del gràfic es calcularà mitjançant l'operador i el factor especificats."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Si seleccioneu un operador i introduïu un número a \"Factor\", el valor del gràfic es calcularà mitjançant l'operador i el factor especificats."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "És possible predir quantes dades seran vinculades per les condicions d'enllaç de configuració actualment."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Descanta la condició d’enllaç de dades establertes actualment i fa una crida a la condició registrada anteriorment."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID es genera internament per associar les dades amb les condicions d’enllaç de conjunt."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Seleccioneu els elements de control de qualitat o de control d'equips mitjançant la configuració del gràfic."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Seleccioneu el tipus d’objectiu de gestió, com ara el número de part i l’equip."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Seleccioneu l'objectiu de gestió, com ara el valor del número de part i el valor de l'equip."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Definiu el dateTime d'inici per a la configuració del gràfic. (Obligatori)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Definiu el dateTime final per a la configuració del gràfic. (Opcional)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Llegiu la configuració desada."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Deseu la configuració més recent que heu introduït."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Deseu la pantalla com a fitxer PNG."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Voleu suprimir aquesta configuració?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Variable objectiu (número real)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Variable objectiu (categoria)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Ordre d'índex"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Columna"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Ordenar"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Prioritat"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Ordenar"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Les variables"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Només real i categòric"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Real només"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Només categòric"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "En ordre establert"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "En ordre de procés"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "En correlació CoEF. ordenar"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Llindar de correlació (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Seleccioneu per a la variable objectiva"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Variable objectiva"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Variable explicativa"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Ràtio disponible"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Diagrama enfonsat"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Partit (partit perfecte)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Cerca"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Cerca"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Atès que la trama de coordenades paral·lel no pot tractar els números reals, s'han eliminat les dades del nombre real."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Reregistració"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Registra la informació editada com ara el nom de la pantalla."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Voleu registrar -vos amb el contingut modificat?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Si canvieu l'enllaç ID, restabliu la configuració de l'enllaç de dades."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Gràfic de coincidència"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Arxiu de dades"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Agregat per"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Hores"
+
+# co-occurrence
+msgid "Day"
+msgstr "Dia"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Edició"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Mode de configuració"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "S'eliminaran les dades no vàlides en vermell. Esteu segur que canvieu al mode de configuració?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "prioritat"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Es va detectar un nom anglès duplicat, de manera que es va afegir automàticament el número de sèrie. Comproveu els noms de columnes."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Unitats d’agregació"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "La primera columna és DateTime, i la segona columna i les columnes posteriors són valor com ara els indicadors de notificació d'alarma/recompte d'ocurrència (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Relacions de coincidència agregada per hora/dia."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Mostra llindar"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Si seleccioneu un valor inferior a 100%%, amagareu una petita relació de co -ocurrència. (Predeterminat: dibuixa una línia si hi ha una vegada)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Identifiqueu i visualitzeu variables que estan directament o indirectament correlacionades amb la variable objectiu."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Visualitzeu la correlació entre les variables especificades aquí. Es poden seleccionar fins a 60 articles."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Variables candidats correlacionades amb variables objectives."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Trama de coordenades paral·leles"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "de totes les vores"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Pla"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Cercle"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Automàtic"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Eficiència"
+
+msgid "Set threshold"
+msgstr "Control Line: Comproveu quan dibuixi nivells de gestió com ara línies estàndard"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Platforma d’anàlisi"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Gràfic Pareto"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Nombre d'ocurrència"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Proporció acumulada [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Visualitzeu paràmetres que puguin variar amb les dades durant un llarg període de temps, com ara variacions anuals en processos, dies de la setmana, torns, etc."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Visualitzeu la correlació entre un gran nombre de variables respecte a la variable objectiu."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Visualitzeu la coincidència de falles, alarmes, esdeveniments i etc. (relació centrada en la freqüència d'ocurrència simultània d'un fenomen i un altre)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Buit"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: una eina senzilla per al mapeig de dades, la visualització, l’anàlisi estadística i l’aprenentatge automàtic."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "El conjunt de dades aquí s'utilitza com a referència per a l'enllaç i la trama de dades. La configuració s’utilitza a l’eix horitzontal de la trama. A més, la trama d’origen es mostra amb un marc blau clar."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Especifica les dades (per exemple, variables numèriques: valor de mesura) per a la trama. Seleccioneu els processos i els elements que es representen a la trama. Es poden seleccionar fins a 20 articles."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Especifica les dades (per exemple, variables numèriques: valor de mesura) per a la trama. Seleccioneu els processos i els elements que es representen a la trama. Es poden seleccionar fins a 8 articles."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Buit"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Aquesta variable d’estratificació divideix el patró per visualitzar -se en diverses trames i les mostra una al costat de l’altre. Es poden seleccionar variables categòriques com ara el número de part i el número de l'estació de fins a 100 articles."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "L’element de dades que visualitza la correlació entre variables (variables quantitatives: valors de mesura, etc.). Aquestes dades es representen al gràfic. De 2 a 7 paràmetres es poden seleccionar."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Seleccioneu l'element per visualitzar la correlació entre variables. Es poden seleccionar fins a 60 articles."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Ítems de variables de categoria (com ara números de part) per visualitzar la correlació entre variables."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Maximitzar la targeta"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Minimitzar la targeta"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Si es canvia aquesta configuració, cal restablir la configuració de l'enllaç de dades."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Selecció automàtica"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Seleccioneu tot a la dreta"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Deselecteu tot a la dreta"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Tot real (float) des d’aquí"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Tot enter des d’aquí"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Tota la cadena d’aquí"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "A causa del gran nombre de registres seleccionats i el temps necessari per mostrar la trama, el nombre de cèl·lules per trama es va limitar a 10.000. Si voleu veure totes les dades del període de destinació BREAK_LINE, augmenteu l’interval de visualització o reduïu el període objectiu per reduir el nombre de cèl·lules."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Sèrgic"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Podeu ajustar l'escala de la trama fent clic amb el botó dret a la trama."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Escala de gràfics"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Mode de configuració"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Nombre d'elements de dades que no es poden enllaçar"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Gràfic de dispersió"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "amb contorn"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Estalviar"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Buit"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Configuració de càrrega"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Comparteix/privat"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Descripció"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Creat per"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Ús/càrrega"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Carregar"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Nombre de dades que no es podrien enllaçar amb el procés de punt de partida (percentatge d’enllaç)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Deseu DateTime"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Comparteix la configuració"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "estalviar"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Podeu seleccionar de 2 a 7 variables objectiu. Comproveu el nombre de variables de destinació i corregiu la configuració."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "El límit de la mida del fitxer és de 10 MB. Reduïu la mida del fitxer i torneu -ho a provar."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Si es comprova, també es guarden el dateTime especificat."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Consulteu per compartir aquesta configuració."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Deseu la configuració."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Esteu segur de sobreescriure la configuració?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "Compartir"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Privat"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Creat a"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Tanca"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Conjunt de comandes"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Inicieu DateTime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Finalitzar dateTime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Mostra les etiquetes de l'eix x"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Gamma de dateTime"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Arrossegueu i deixeu anar el fitxer aquí"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "O"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Seleccioneu fitxers"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "No es pot mostrar"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "El processament es va interrompre a causa de la gran quantitat de dades i el llarg temps de processament. Reviseu la configuració de DateTime i torneu a mostrar la trama."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Sortint fitxer CSV. Espereu mentre es descarrega el fitxer."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Sortint fitxer TSV. Espereu mentre es descarrega el fitxer."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Gamma automàtica"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Gamma completa"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Configuració de la comanda de l'índex"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Obrir"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Esborrar"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Com que el nombre de punts de dades per gràfic és superior a 12.000, el nombre de punts de dades es va limitar a 12.000 màxims. Si voleu veure les dades senceres, configureu un període objectiu més curt."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Estratificar per terme (cíclic)"
+
+#: component.js
+msgid "Facet"
+msgstr "Faceta"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Realitza la divisió de la categoria amb l'element seleccionat."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Estimació d'excepcions"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Interval interquartil normalitzat (Índex Associating IQR amb distribució normal, NIQR = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "El mode és el valor més freqüent."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "amb més destacat"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "Sense anterior"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Costum"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Avui"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Ahir"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Últims 7 dies"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Últims 30 dies"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Aquest mes"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 mes"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 mesos"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Aplicar -se"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Setmana"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Fa 7 dies"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Fa 30 dies"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Dia del puny d’aquest mes"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Últim dia d’aquest mes"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 mesos"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Actualitzat a"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Els punts de dades es resumeixen amb mode ràpid. Si voleu obtenir una trama sense ometre dades, ajusteu el període de destinació més curt."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Gamma d'eix Y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Anterior"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Buit"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Processar la cerca"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Marcador"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Atès que el nombre de punts de dades per trama és superior a 10.000, es va treure la trama de densitat. Si voleu mostrar tots els punts de dades amb trama de dispersió, configureu el període de destinació més curt."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Buit"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Temps de cicle"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Número real"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Variable objectiva"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "El coeficient de correlació es calcula mitjançant aquesta variable com a variable de destinació. La variable de destinació especificada aquí també es mostra juntament amb una barra de colors a l'extrem dret de la trama. Si voleu canviar les variables de destinació de la trama, podeu canviar entre elles fent clic amb el botó dret a cada nom de variable."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Les dades no es van ofegar perquè hi ha massa categories. BREAK_LINE Comproveu i, si cal, reviseu el període objectiu més curt."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Configuració del filtre"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Etiqueta (variables de categoria)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Copiat"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Enganxat"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Copia la configuració"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Configurar la configuració"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Sense configuració d’origen, el primer objectiu es selecciona com a origen."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Dades d’exportació"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "No utilitzar"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Les dades no es dibuixen perquè hi ha massa categories."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Comproveu i, si cal, reviseu la configuració del període objectiu."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Divideix per recompte de dades (cíclic)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Nombre de dades"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Buit"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Buit"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Seleccioneu la variable de finalitat."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Buit"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Sense descomposició / descomposició de categories"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Gràfic de dispersió"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Si el tipus de dades X o Y és cadena, no podeu utilitzar variables que no siguin de cadena per a la configuració de color."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Es va detectar el valor fora del rang permès, de manera que es va decidir automàticament el rang mínim o màxim vàlid. Canvieu la configuració segons sigui necessari."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Feu clic amb el botó dret: Configuració d'enllaç de dades/edita/suprimeix"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Temps transcorregut"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Ordre de temps"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Configuració de la comanda de dades"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Si us plau, suprimiu dades innecessàries perquè la capacitat del disc dur de `__SERVER_INFO__` ha arribat a __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "El port de dades es va aturar perquè la capacitat del disc dur de `__SERVER_INFO__` va arribar a __SERVER_INFO__ %%. Si es suprimeixen les dades innecessàries i augmenta la capacitat buida, es reprendran les dades."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Introduïu el nombre de distribucions a mostrar (nombre de divisions). Introduïu un nombre enter de 2 o 150 o menys."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Introduïu el nombre de distribucions a mostrar (nombre de divisions). Introduïu un nombre enter d’1 o més 32 o menys."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Buit"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Buit"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Buit"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Buit"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Hi ha massa violins per trama, de manera que es va limitar automàticament."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "A causa del gran nombre de registres seleccionats, el nombre de parcel·les es limita des de la data més antiga fins al recompte de límit."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Accepto"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Declinació"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Cap endarrere"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Nombre de trama a la columna"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Les variables categòriques (número de part, l'estació núm., Etc.) es mostren com a etiquetes a la part superior de la trama s'utilitzen per visualitzar els punts de canvi (commutació del número de part, etc.) de les variables qualitatives."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Seleccioneu els ítems a analitzar (variables quantitatives: valor de mesura, etc.). Es poden seleccionar fins a 60 articles."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Seleccioneu els elements per ordenar les dades. També podeu seleccionar diversos elements."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Les dades antigues desbordades no es mostren perquè el DateTime compta de les darreres dades amb límit de visualització."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "El nombre de trama es limitava a NUMBER. Si voleu mostrar -ho tot, reviseu la configuració."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "El nombre de trama en una sola pestanya es limitava a NUMBER. Si voleu mostrar -ho tot, reviseu la configuració."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "El nombre de variables objectiu a seleccionar és mínim mínim i màxim. Comproveu el nombre de variables de destinació i corregiu la configuració."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "El nombre de variables de destinació a seleccionar és fins al màxim màxim. Comproveu el nombre de variables de destinació i corregiu la configuració."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

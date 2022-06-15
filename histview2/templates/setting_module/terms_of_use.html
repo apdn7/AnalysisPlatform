@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block header %}
+    <br>
+{% endblock %}
+
+{% block midbody %}
+    {{ css }}
+    <div class="card term-of-use px-4" style="overflow-y: scroll; height: 80vh;">
+        {{ content }}
+    </div>
+    <div style="text-align: center;padding-top: 10px;">
+        <button class="btn btn-primary" onclick="acceptTerms();">{{ _('I Accept') }}</button>
+        <button class="btn btn-secondary" onclick="denyTerms();">{{ _('Decline') }}</button>
+    </div>
+{% endblock %}

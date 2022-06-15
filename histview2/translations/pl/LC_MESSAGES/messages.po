@@ -1,0 +1,3153 @@
+# ポーランド語 Polish translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: pl\n"
+"Language-Team: pl\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Uratowany"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Wystąpił błąd"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Konfiguracja aplikacji"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Strona nie znaleziona"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Wystąpił błąd"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Aplikacja Datalink & Analysis"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Wybierz język"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Główny ekran"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Weryfikacja operacji"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Weryfikacja operacji"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Podstawowa konfiguracja"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Zarejestrować"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Przeładować"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Liczba całkowita"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Real (Float)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Datetime"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Strunowy"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Tytuł"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Zakład"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Fabryka"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Linia"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "proszę potwierdzić."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Zapisz dane i rozpocznij importowanie danych z zawartością ustawioną na stronie ustawienia procesu?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "OK"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Anulować"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Konfiguracja bazy danych"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Nazwa bazy danych"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Typ bazy danych"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Konfigurator"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Komentarz"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Dodać"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Wybierz plik bazy danych."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Nazwa pliku"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Wybierz"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Chcesz usunąć ten rekord?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "kasować"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Identyfikowalność"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Wykres identyfikowalności"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Testowanie śledzenia"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Rozpocznij testowanie"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Czas rozpoczęcia"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Koniec czasu"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Identyfikator maszyny (wiele selekcji)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Linia"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Numer części"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Konfiguracja linków danych"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Wybierz język"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "język japoński"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "język angielski"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Węzeł"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Węzeł ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Etykieta"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Nazwa główna"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Baza danych"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Import"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Eksport"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Nazwa hosta"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Numer portu"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Nazwa użytkownika"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Hasło"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Schemat"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; udało mi się."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; nie powiodło się."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Konfiguracja procesu"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Proces"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Nazwa procesu"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Nazwa tabeli"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Szczegół"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Zapowiedź"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Pierwsze pięć rekordów"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Ustawienie treści"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Nazwa kolumny"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Angielskie imie"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Wyświetlana nazwa"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "współczynnik"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Operator"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Wprowadź wartość inną niż 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Operator wejściowy."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Współczynnik wejściowy."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Wejście nazwa angielskiego."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Wejście Nazwa wyświetlania."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Angielska nazwa jest powielana."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Nazwa wyświetlania jest zduplikowana."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Wszystkie „nazwy wyświetlania” wymagają wejścia."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Pola z pustą „angielską nazwą” są automatycznie wypełnione."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Zaznacz wszystko"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Zaimportować dane"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Czy na pewno zaimportujesz dane?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Po naciśnięciu przycisku OK zaimportujesz dane z bieżącego czasu do miesiąca wcześniej."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Poprzednie dane są automatycznie importowane stopniowo."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Jeśli chcesz zaimportować dane po bieżącym czasie, naciśnij ponownie przycisk odczytu danych lub naciśnij bazę danych CSV Konfigurowanie ustawień na stronie ustawienia odczytu."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Gdy ustawiono „cykl aktualizacji” „Ustawienia odczytu” / CSV ”, zostanie ona automatycznie zaimportowana w okresie, w którym dane po ustawieniu bieżącego czasu są ustawione."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Informacje śledzenia"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Dane śledzenia"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Nie mógł uzyskać dostępu"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Kliknij tutaj, aby to naprawić."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Edytuj Edge"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Proces uprzywilejowany"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Kolumna prev"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Proces po"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Kolumna post"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Jako datetime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Jako szereg"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Jako link ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Już zarejestrowany"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Wprowadź nazwę procesu"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filtr/wykres"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Konfiguracja wykresu"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Konfiguracja filtra linii"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Kolumna linii"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Wartość"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Konfiguracja filtra maszynowego"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Maszyna ID kolumna"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Część nr Config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Część bez kolumny"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Nazwa filtru"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Warunek filtra"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Inne Filtr Config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Kolumna docelowa"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Konfiguracja wizualizacji"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Dolny próg"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Górny próg"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Niższy próg procesu"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Górny próg procesu"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Zakres od osi Y: min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Zakres od osi Y: Max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Część nr"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "kończyć z"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Zacząć od"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like Wyszukaj)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Zgodzić się"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Wyrażenia regularne"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Wyświetl wykres"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Eksportuj"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Wymagany jest proces"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Nazwa kolumny jest wymagana"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Wymagana jest linia"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Nazwa wyświetlania jest wymagana"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Nazwa wyświetlania jest zduplikowana."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Wartość maszyny jest wymagana"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Duplikowana maszyna ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Oszczędzaj pomyślnie"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Nie udało się uratować"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Część nie jest wymagana kolumna"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Kolumna docelowa jest wymagana"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Nazwa filtru jest wymagana"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Wymagany jest warunek"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Nazwa filtra jest zduplikowana."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Warunki są zduplikowane."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Domyślna"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Nazwa procesu"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Dodano inne filtry"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Import Config"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Źródło"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Cykl odnowy"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Łączyć"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Raz na godzinę"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Raz dziennie"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Potwierdzenie danych"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Nie ma folderu."
+
+msgid "File does not exist"
+msgstr "Nie ma pliku."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Możesz się połączyć."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Proszę wypełnić wartość."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Nie ma zawartości ustawienia."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Ustawienia są zduplikowane."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Zapisane ustawienia bazy danych."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Nie udało się zapisać ustawień bazy danych."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Zapisane ustawienia podstawowe."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Nie udało się zapisać podstawowych ustawień."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Połączenie testowe"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Punkt startu"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Zakres dat"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Najnowszy"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Automatyczna aktualizacja"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "minuta"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "minuty"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "godzina"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "godziny"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Zmienna docelowa"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Filtr"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "Oś x"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Znak czasu"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Indeks"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Zmienne stratyfikujące"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Filtry"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Baza danych/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Analizować"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "W budowie"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Analizować:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Wykres wodospadu"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Graficzny LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogram"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Wykres warstwowy"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Wykres pełny"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Wizualizacja danych"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Wyobrażanie sobie"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Biegać"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Wprowadź nazwę bazy danych."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Wprowadź nazwę źródła danych."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Kolumny, które nie mają typu danych, nie są importowane."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Wymagana jest co najmniej jedna kolumna DATETIME."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Do wizualizacji użyj '{col}' dla osi X."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Czy na pewno będziesz kontynuować?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Przeglądarka tabeli"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Stół"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Sortować"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Liczba danych"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Schodzenie"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Wznoszący się"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Idealne dopasowanie"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Częściowy mecz"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Nieprawidłowy wybór cyfr"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Długość znaku zastosowanego do łączenia jest inna."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Bez filtra"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Wszystkie linie"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "sytuacja"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Lista pracy"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Wszystko"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Import zakończony."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Importowanie"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Nieudane importowanie"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Załadowane dane zostaną usunięte. Czy to jest w porządku? (Żadna zmiana nie jest odzwierciedlona do czasu naciśnięcia przycisku rejestracji)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Lista pracy"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Identyfikator pracy"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Nazwa pracy"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Generowanie LinkedID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Wyświetl zadanie generowania linku ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Usunięcie informacji o procesie"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Importuj dane fabryczne"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Zaimportuj wcześniejsze dane fabryczne"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Pokaż importowanie danych z przeszłych danych fabrycznych"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Importuj dane"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Usuń stare dane"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Czas rozpoczęcia"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "upłynął czas"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Baza danych/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Postęp"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Proces"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Lista histogramów"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Zarejestruj się jako wartość wybuchu"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Unregister odstające"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Ukryj wartości odstające"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Pokaż wartości odstające"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Sprawdź wartości odstające"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Pokaż listę histogramów"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Ostatnia czas aktualizacji"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Rejestracja wartości odstających została anulowana."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Zarejestrowany jako wartości odstające"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Wartości odstające"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Tylko raz"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Szczegóły pracy"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Skopiuj do schowka"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Wykres wielu rozproszonych"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Wykres punktowy"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Aby wizualizować zmienną kategoryczną"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratyfikuj według zmiennych"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Zmienny"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Maszyna nr"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Okres docelowy"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Częstotliwość (liczba)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Oszacowanie gęstości"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Zmienna kategoryczna"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify według terminu (bezpośredni)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Nie można wybrać ośmiu lub więcej zmiennych docelowych. Wybierz zmienną docelową."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Wykrywanie anomalii"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Analiza komponentów podstawowych"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Główny wynik danych testowych danych"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Główny wynik danych treningowych"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Wykres seryjny statystyki T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Wykres seryjny statystyki Q"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Wykres wkładu statystyki T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Wykres wkładu statystyki Q"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Usuń wartości odstające"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Dane szkoleniowe"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Testowanie danych"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "TAk"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Nie"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Typ danych"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Przykład"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Błąd"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Ostrzeżenie"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Ponieważ wszystkie wiersze zostały usunięte przez przetwarzanie wartości deficytu (NA usuwanie), nie ma danych do analizy. Upewnij się, że pusta wartość, w tym NA, nie jest wybrana."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Nie można go przeanalizować, ponieważ zawiera dane inne niż liczby. Upewnij się, że wybrałeś kolumnę zawierającą wartość ciągu lub kategorii."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Nie można analizować, ponieważ zawiera dane o wariancji 0. Upewnij się, że nie jest wybrana tylko jedna kolumna wartości."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Znaleziono dane kategorii i oczekiwana wartość liczb całkowita. Jeśli ta wartość liczb całkowita nie jest skalą zamówienia, skali interwałowej ani skali współczynnika, mogą mieć negatywny wpływ na wyniki analizy."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Czy na pewno przeprowadzisz analizę?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Szukaj"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Mediana jest jedną z typowych statystyk. Jest to wartość znajdująca się w centrum, gdy dane skończone są ułożone w kolejności rosnącej. Na przykład w przypadku pięciu mediany wieku jest trzecim wieku w wieku. Jeśli liczba danych jest równa, stosowana jest średnia centralnej arytmetyki."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Podsumowanie dystrybucji"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N Numer"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Przeciętny"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Jaka jest mediana ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Całkowity"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Częstość"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Punkt końcowy"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Proces docelowy"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Szereg czasowy"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Sztuki"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Liczba linków danych"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "sekundy"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Czas odpowiedzi"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "edytować"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Z powrotem"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Dodaj węzeł"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Dodaj krawędź"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Edytuj węzeł"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Kliknij pustą przestrzeń, aby umieścić nowy węzeł."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Kliknij węzeł, przeciągnij krawędź do innego węzła i podłącz je."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Kliknij punkt sterowania, przeciągnij go do węzła i połącz."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Nie można dodać krawędzi."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Klastra nie można usunąć."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Klastra nie można edytować."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Nazwa lub wartość wyświetlania jest zduplikowana."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Wprowadź nazwę i wartość wyświetlania."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Wprowadź kolumnę linii."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "godziny"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Informacje o danych"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Dzień"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Tydzień"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Obciążenie"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Ratować"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Przepisać"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Ustawienie"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Zmień tytuł, ponieważ ten sam tytuł jest ustawiony."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Zapisz ustawienia"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Utwórz zrzut ekranu"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "Ściągnij"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Powody, dla których wykres nie można wyświetlić, są następujące. BREAK_LINE Sprawdź sytuację. BREAK_LINE・ Dane nie są importowane ani w trakcie importu. BREAK_LINE・ Żadne dane nie są powiązane ani w trakcie powiązań. BREAK_LINE・ Ustawienie wykresu jest nieodpowiednie."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Ostrzeżenie"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Rekordy zawierające nieprawidłowe dane w kolumnie daty danych nie są importowane."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Dane, których nie można zaimportować, możesz zapoznać się z plikami w folderze."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Statusu użytkowania nie można przesłać, ponieważ nie jest podłączony do Internetu."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Sprawdź połączenie sieciowe."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Ponowne połączenie danych zajmie dużo czasu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Czy na pewno ponownie podłączysz dane?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Anulować"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Wykonać"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Czy na pewno ponownie załadujesz zarejestrowane ustawienia linków danych?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Zaczął importować dane."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Możesz sprawdzić postęp importu z poniższego linku."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Zobacz stronę listy zadań, aby uzyskać status błędu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Zacząłem łączyć dane."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Raz na 3 minuty"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Raz na 5 minut"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Raz na 10 minut"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Funkcja opcjonalna"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Typ pliku"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Eksportuj"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Ze względu na dużą liczbę wybranych rekordów i czas wymagany do wyświetlenia wykresu, liczba rekordów na wykres była ograniczona do 50 000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Wykres szeregów czasowych"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Wartość kategorii"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Ponieważ liczba rekordów w określonym okresie wynosi ponad 5000, link BREAK_LINE jest związany w ciągu ± 14 dni od określonego okresu. Jeśli nie chcesz ograniczać zakresu łączenia, dostosuj czas trwania, aby skrócić liczbę rekordów BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Skala ustawienia"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Wspólna skala"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Linia progowa"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Automatyczne skalowanie"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Używana skala"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn procesu"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Min"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Nic"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Streszczenie"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Liczyć"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Podstawowe statystyki"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Nie parametryczny"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Jakość danych"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Widz"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Zaimportować dane"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Proces łącza danych rozpocznie się na podstawie bieżącej konfiguracji."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Link może zająć trochę czasu, jeśli jest dużo danych. Czy możesz zacząć?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Dla danych, które są automatycznie i okresowo importowane, link ID jest automatycznie generowany."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Nazwa źródła danych"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Typ źródła danych"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Czy na pewno zaoszczędzisz zmiany?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Wymuszone informacje systemu operacyjnego do ustawień stref czasowych."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Zaawansowane ustawienie"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Ustawienia są zapisywane dla pliku bazy danych /CSV w zakresie importowania danych. Przejdź do strony Ustawienia, ustaw kolumny danych importu, aby zaimportować dane."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "W danych elementu nie ma wymaganego atrybutu."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Nie ma wartości atrybutowej wymaganej dla danych elementów."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Nieprawidłowe wykrywanie przez PCA wymaga co najmniej dwóch zmiennych. Wybierz dwie lub więcej zmiennych."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Wybierz co najmniej jedną kolumnę"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Zmienne kategorii, które zmniejszają szerokość pudełka, nie są wyświetlane."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Rozpoczęcie cyfry"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Wykres Ridgeline"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Zatrzymaj aplikację (serwer Edge). Jeśli zatrzymasz, jakikolwiek inny użytkownik nie będzie mógł również korzystać, więc skontaktuj się z administratorem. <br> W przypadku normalnego końca anuluj tutaj i po prostu zamknij przeglądarkę."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Cała praca została zatrzymana. Możesz bezpiecznie zamknąć przeglądarkę i konsolę."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Konfiguracja źródła danych"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Importuj źródło danych konfigurację"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Kolumny znalazły kilka kolumn znaków. Sprawdź, czy kolumna typu liczbowego itp. Może zostać błędnie rozpoznawana."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Element filtru"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Wartość filtra"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Data ważności (start)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Data ważności (koniec)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Dane nie można było zaimportować z powodu błędów konfiguracji typu kolumny. Nazwa źródła danych __param__ CSV/TSV Sprawdź ustawienia typu danych w podglądu danych strony Ustawienia odczytu. Usuń ustawienia kroku, których nie można było zaimportować, i ustaw ustawienia."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Był plik bez danych. Sprawdź zawartość pliku. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Wprowadza co najmniej jedną wartość okresu ważności od lub do."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Podziel przez kategorię"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Podziel przez termin (cykliczny)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Podziel przez termin (bezpośredni)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Wartość wprowadzonego przedziału jest nieprawidłowa. Wprowadź liczbę 0,1 lub więcej, 720 lub mniej, lub -720 lub więcej i -0,1 lub mniej."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Określona „długość okna” jest nieprawidłowa. Wartość musi wynosić między 0,1 a 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Liczba wejściowej linii Ridgeline jest nieprawidłowa. Wprowadź liczbę całkowitą 1 lub więcej i 150 lub mniej. (wolę użyć około 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Rozpocznij dane i czas"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Interwał"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Długość okna"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Element kontrolny"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Rodzaj"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Nazwa"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Należy zauważyć, że jeśli liczba punktów danych w jednej kategorii jest poniżej 50 lat, dokładność wykresu może zmniejszyć się."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Pokaż kursor włosów krzyżowych (kliknij)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Pokaż Kursor Multi Cross Hair (dwukrotnie kliknięcie)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Pokaż listę histogramów"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Anuluj kontrolę odstającego"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Określona „nazwa źródła danych” już istnieje."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Import danych nie powiódł się, ponieważ w źródle danych znaleziono plik o innej nazwie kolumny. Sprawdź zawartość pliku i ponownie ustaw ustawienia importu źródła danych."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Przewidywana liczba rekordów zostanie powiązana"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Liczba przykładów"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Liczba rekordów do połączenia"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Liczba całkowitych rekordów"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Nazwij folder, w którym pliki CSV/TSV są zapisywane jak \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Prognoza"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Filtruj konfigurację"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Konfiguracja główna"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Z Filtr Config"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Pokaż wszystko"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Jako klucz (opcja)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Usunięto REMOVED_COUNT wartości deficytu, wartości nienormalnej i wartości odstającej z TOTAL_COUNT w oryginale."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Adres IP"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Porównaj rozkład danych z histogramem i oszacowaniem gęstości. Wykres jest podzielony przez zmienną stratyfikowaną. Jest również podzielony przez aspekt."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Wykonaj całą liczbę danych na osi czasu lub osi ID."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Wyświetl macierz wykresu rozproszenia. Możesz użyć od 2 do 7 zmiennych docelowych."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Według analizy głównych składników przeprowadza się wizualizację „różnych” i jej analizy czynnikowej. Wprowadź normalne dane jako dane nauczyciela i wizualizuj, czy bieżące dane są taką samą sytuacją jak ich normalne dane (T2/Q). Jeśli masz inną sytuację, możesz sprawdzić główne czynniki na wykresie wkładu."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Rozkład jest podzielony na wiele wykresów przez tę zmienną. Wybierz zmienne kategorii (zmienne jakościowe), takie jak liczby części i stacje."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Filtr kategorii stratyfikowanej: ogranicza dane do wyświetlania do podzbioru. (Kategoria: numer części, stacja nr itp.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Zmienne kategorii (takie jak numer części, stacja nr itp.) Wyświetlane jako etykiety na szczycie działek w celu znalezienia punktów zmieniających się."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Filtr wykresu: ogranicza dane do wyświetlania do podzbioru."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Ustaw dane uczenia się interpretowane jako normalna sytuacja. Ustaw sekcję danych, która nie zawiera żadnych danych NG. Jeśli uwzględniono, te, które są bliskie danych NG, są również oceniane jako normalne dane."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Ustaw dane testowe do oceny."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Filtr pozycji: Ogranicza dane (analiza i wyświetlanie) do wyświetlenia do podzbioru."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Jest to dwuwymiarowy wyświetlacz zagregowany (kompresja wymiarowa według głównych składników) wielowymiarowych danych weryfikacyjnych. Jeśli dane znajdują się w centrum, można je interpretować jako zbliżone do normy."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Jest to dwuwymiarowy wyświetlacz zagregowany (kompresja wymiarowa według głównych komponentów) wielowymiarowych danych uczenia się. Centralny cel zależy od danych uczenia się, więc większość danych uczenia się powinna być w celu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Wykres statystyki T2, który monitoruje anomalie w głównym składniku tych danych. Dane uczenia się są wykreślane na biało i w ujemnej części X. Żółty wykres jest danymi sprawdzania poprawności. Im wyższe dane sprawdzania poprawności są porównywane z danymi białymi, tym bardziej prawdopodobne jest, że sytuacja ma się odchylić. Kliknij punkt danych, aby zobaczyć wykres wkładu, jakie elementy składają się na sytuację."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Wykres statystyki Q (monitorowanie anomalii w niewielkiej części tych danych, pozostały). Dane uczenia się są wykreślane na biało i w ujemnej części X. Żółty wykres jest danymi sprawdzania poprawności. Im wyższe dane sprawdzania poprawności są porównywane z danymi białymi, tym bardziej prawdopodobne jest, że sytuacja ma się odchylić. Kliknij punkt danych, aby zobaczyć wykres wkładu, jakie elementy składają się na sytuację."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Kolejność, której zmienne przyczyniają się do sytuacji w punkcie wybranym na wykresie statystycznym T2. Im dłuższa długość, tym bardziej prawdopodobne jest przyczyna."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Kolejność, której zmienne przyczyniają się do sytuacji w punkcie wybranym w wykresie statystycznym Q. Im dłuższa długość, tym bardziej prawdopodobne jest przyczyna."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Liczba punktów danych o wartości mniejszej lub równej Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Liczba punktów danych o wartości większej lub równej Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Całkowita liczba danych, w tym NA (niedostępna), NaN (nie liczba) i Inf± (nieskończoność) w wybranym okresie."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Procent danych poza górnym i dolnym progiem (liczba) w wybranym okresie"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Procent danych poza górnym i dolnym progiem granicznym (liczba) w wybranym okresie"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Procent NA (niedostępny) w wybranym okresie (liczba)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Procent NaN (nie liczba) w wybranym okresie (liczba)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Procent Inf+ (plus nieskończoność) w wybranym okresie (liczba)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Procent Inf- (minus nieskończoność) w wybranym okresie (liczba)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Całkowity procent danych poza wartością progową, NA (niedostępny), NaN (nie liczba) i Inf± (nieskończoność) w wybranym okresie (liczba)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Liczba danych z wyłączeniem NA (niedostępna), NaN (nie liczba) i Inf± (nieskończoność) w wybranym okresie."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95. percentyl"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75. percentyl (trzeci kwartyl)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25. percentyl (pierwszy kwartyl)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5. percentyl"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Zakres międzykwartylowy (reprezentatywna wartość zmienności rozkładu: IRQ = Q3 - Q1 ≒ 1.349σ@ rozkład normalny)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Mediana (50. percentyl)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Liczba/godzinę"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Liczenie/minutę"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Czasy cyklu]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Numer podziału"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Cykl wyświetlania"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Przedział wyświetlania"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Mapa ciepła Calenda"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Zmiennych docelowych nie można wybrać przez MAX_NUM_SENSOR lub więcej. Wybierz zmienną docelową."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Cele usuwania wartości odstające są Max, Mean, Min, σ i Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Inne niż liczby rzeczywiste"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Rozkład można wizualizować, obliczając dla każdej zmiennej kategorycznej (zmienne jakościowe, numer partii itp.) Lub DateTime, i wyświetlając je obok siebie. Metoda wizualizacji, która umożliwia analizę między grupami (porównanie partii, dni, zmian itp.) Bez dyskretnego ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Ustaw próg, który ma być narysowany na wykresach."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Jeśli rozproszenie jest włączone, możesz pokazać z nim wykres rozproszenia. Wykres rozproszenia między bieżącym elementem a następnym elementem wiersza. Przeciągnij i upuść karty fabularne odpowiednich działek za pomocą myszy, aby przełączyć osi X i oś y wykresu rozproszenia."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Element danych (takich jak zmienna numeryczna lub wartość pomiarowa), która tworzy rozkład danych. Te dane są wykreślane na wykresie. Można wybrać do 20 pozycji."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Ta zmienna stratyfikowana dzieli rozkład na wiele wykresów i wyświetla je obok siebie. Wybierz zmienną kategoryczną, taką jak nr partii lub nr partii"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Wprowadź DATETIME START, aby wyświetlić wykres Ridgeline dla każdego datetime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Wpisz bezpośrednio okres, aby wyświetlić wykres Ridgeline dla każdego datetime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Możesz wybrać opcje importowania danych z pliku CSV/TSV, który wymaga specjalnego obsługi, takich jak konwersja struktur danych."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Naciśnięcie poniższego przycisku podglądu wyświetli część danych w pliku, abyś mógł sprawdzić zawartość."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Wybierz link ID, który ma być używany jako warunek łączenia danych. Możesz także wybrać wiele elementów."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Gdy aplikacja okresowo importuje dane, możesz wybrać kolumnę DATETIME, która jest preferencyjnie używana jako klucz DATETIME."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Jeśli wybierzesz operatora i wprowadzisz liczbę pod „współczynnikiem”, wartość na wykresie zostanie obliczona za pomocą określonego operatora i współczynnika."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Jeśli wybierzesz operatora i wprowadzisz liczbę pod „współczynnikiem”, wartość na wykresie zostanie obliczona za pomocą określonego operatora i współczynnika."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Możliwe jest przewidzieć, ile danych zostanie połączone przez aktualnie ustawione warunki łączące."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Odrzuca aktualnie ustawiony warunek łączenia danych i wywołuje wcześniej zarejestrowany warunek."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID jest generowany wewnętrznie w celu powiązania danych z warunkami łączącymi ustawioną."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Wybierz elementy kontroli jakości lub sprzętu za pomocą ustawień wykresu."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Wybierz rodzaj celu zarządzania, taki jak numer części i sprzęt."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Wybierz cel zarządzania, taki jak wartość numeru części i wartość sprzętu."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Ustaw DATETIME Start dla ustawień wykresu. (Wymagany)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Ustaw końcowe datETime dla ustawień wykresu. (Opcjonalny)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Przeczytaj zapisaną konfigurację."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Zapisz najnowszą wprowadzoną konfigurację."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Zapisz ekran jako plik PNG."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Chcesz usunąć to ustawienie?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Zmienna docelowa (liczba rzeczywista)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Zmienna docelowa (kategoria)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Zamawianie indeksu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Kolumna"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Zamówienie"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Priorytet"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Zamawianie"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Zmienne"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Tylko prawdziwe i kategoryczne"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Tylko prawdziwe"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Tylko kategoryczne"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "W ustalonej kolejności"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "W kolejności procesu"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "W korelacji COEF. zamówienie"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Próg korelacji (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Wybierz zmienną obiektywną"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Zmienna obiektywna"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Zmienna objaśniająca"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Dostępny stosunek"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Sanki Schemat"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Mecz (idealny mecz)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Wyszukaj"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Wyszukaj"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Ponieważ wykres współrzędnych równoległych nie może leczyć liczb rzeczywistych, dane liczby rzeczywistych zostały usunięte."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr "General Search Options&#013;"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Rejestracja"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Zarejestruj edytowane informacje, takie jak nazwa wyświetlania."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Czy chcesz zarejestrować się w zmodyfikowanej treści?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Jeśli zmienisz link ID, zresetuj konfigurację linków danych."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Wykres współwystępowania"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Plik danych"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Agregowane przez"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Godzina"
+
+# co-occurrence
+msgid "Day"
+msgstr "Dzień"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Tryb edycji"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Tryb ustawienia"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Niepoprawne dane podkreślone czerwone zostaną usunięte. Czy na pewno przejdziesz do trybu ustawienia?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "priorytet"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Wykryto zduplikowaną nazwę angielskiego, więc numer seryjny został automatycznie dodany. Sprawdź nazwy kolumn."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Jednostki agregacji"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Pierwsza kolumna to dataTime, a druga kolumna i kolejne kolumny są wartością, taką jak liczba powiadomień alarmowych/liczba występowania (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Zagregują się relacje współwystępujące w godzinach/dzień."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Próg wyświetlania"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Jeśli wybierzesz wartość mniejszą niż 100%%, ukryjesz małą relację z odmiany. (Domyślnie: narysuj linię, jeśli jest nawet raz)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Zidentyfikuj i wizualizuj zmienne, które są bezpośrednio lub pośrednio skorelowane z zmienną docelową."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Wizualizuj korelację między określonymi tutaj zmiennymi. Można wybrać do 60 pozycji."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Zmienne kandydujące, które są skorelowane ze zmiennymi obiektywnymi."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Wykres współrzędnych równoległych"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "wszystkich krawędzi"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Układ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Koło"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Automatyczny"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Efektywność"
+
+msgid "Set threshold"
+msgstr "Control Line: Sprawdź podczas rysowania poziomów zarządzania, takich jak linie standardowe"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Platforma analizy"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Wykres Pareto"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Liczba występowania"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Skumulowany stosunek [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Wizualizuj parametry, które mogą się różnić w zależności od danych przez długi czas, takie jak roczne odmiany procesów, dni tygodnia, zmiany itp."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Wizualizuj korelację między dużą liczbą zmiennych w odniesieniu do zmiennej docelowej."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Wizualizuj współwystępowanie błędów, alarmów, zdarzeń itp. (Związek koncentrujący się na częstotliwości jednoczesnego występowania jednego zjawiska i drugiego)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Pusty"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Proste narzędzie do mapowania danych, wizualizacji, analizy statystycznej i uczenia maszynowego."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Zestaw danych jest używany jako odniesienie do łączenia danych i wykreślania danych. Ustawienia są używane w osi poziomej wykresu. Ponadto wykres pochodzenia jest wyświetlany z jasnoniebieską ramą."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Określa dane (na przykład zmienne numeryczne: wartość pomiaru) dla wykresu. Wybierz procesy i elementy, które mają być wykreślone na wykresie. Można wybrać do 20 pozycji."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Określa dane (na przykład zmienne numeryczne: wartość pomiaru) dla wykresu. Wybierz procesy i elementy, które mają być wykreślone na wykresie. Można wybrać do 8 pozycji."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Pusty"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Ta zmienna stratyfikacyjna dzieli wzór do wizualizacji na wiele wykresów i wyświetla je obok siebie. Wybierz zmienne kategoryczne, takie jak numer części i stacja nr do 100 pozycji można wybrać."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Przedmiot danych, który wizualizuje korelację między zmiennymi (zmienne ilościowe: wartości pomiaru itp.). Te dane są wykreślane na wykresie. Od 2 do 7 parametrów można wybrać."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Wybierz element, aby wizualizować korelację między zmiennymi. Można wybrać do 60 pozycji."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Elementy zmiennych kategorii (takich jak liczby części) w celu wizualizacji korelacji między zmiennymi."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Zmaksymalizować kartę"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Zminimalizować kartę"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Jeśli to ustawienie zostanie zmienione, konieczne jest zresetowanie ustawień łącza danych."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Automatyczny wybór"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Wybierz wszystko po prawej stronie"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Rozczaruj wszystko po prawej stronie"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Wszystkie prawdziwe (pływakowe) stąd"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Cała liczba całkowita stąd"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Cały ciąg stąd"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Ze względu na dużą liczbę wybranych rekordów i czas wymagany do wyświetlania wykresu, liczba komórek na wykres była ograniczona do 10 000. Jeśli chcesz zobaczyć wszystkie dane dla okresu docelowego BREAK_LINE, zwiększyć interwał wyświetlania lub zmniejszyć okres docelowy, aby zmniejszyć liczbę komórek."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Seryjny"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Możesz dostosować skalę wykresu, klikając prawym przyciskiem myszy działkę."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Skala wykresu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Tryb ustawienia"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Liczba elementów danych, których nie można połączyć"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Wykres punktowy"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "z konturem"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Oszczędność"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Pusty"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Ustawienie obciążenia"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Udostępnij/prywatny"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Opis"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Stworzone przez"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Użyj/załaduj"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Obciążenie"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Liczba danych, których nie można powiązać z procesem punktu wyjścia (procent powiązania)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Zapisz Datetime"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Udostępnij ustawienia"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "ratować"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Możesz wybrać od 2 do 7 zmiennych docelowych. Sprawdź liczbę zmiennych docelowych i popraw ustawienia."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Limit wielkości pliku wynosi 10 MB. Zmniejsz rozmiar pliku i spróbuj ponownie."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Po sprawdzeniu określony dataTime jest również zapisywana."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Sprawdź, aby udostępnić to ustawienie."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Zapisz ustawienia."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Czy na pewno zastąpisz ustawienia?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "dzielić"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Prywatny"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Utworzony w"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Blisko"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Zestaw zamówień"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Rozpocznij datetime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Koniec datetime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Pokaż etykiety osi X."
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Zakres datetime"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Przeciągnij i upuść plik tutaj"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Lub"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Wybierz pliki"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Nie można wyświetlić"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Przetwarzanie zostało przerwane z powodu dużej ilości danych i długiego czasu przetwarzania. Przejrzyj ustawienia DATETIME i ponownie wyświetl wykres."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Wyjście plik CSV. Poczekaj, gdy plik pobiera."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Wyjście plik TSV. Poczekaj, gdy plik pobiera."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Auto Zasięg"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Pełny zasięg"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Ustawienie zamówienia indeksu"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "otwarty"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Usuwać"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Ponieważ liczba punktów danych na wykres wynosi ponad 12 000, liczba punktów danych była ograniczona do maksimum 12 000. Jeśli chcesz wyświetlić całe dane, ustaw krótszy okres docelowy."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratyfikuj według terminu (cykliczny)"
+
+#: component.js
+msgid "Facet"
+msgstr "Aspekt"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Wykonuje podział kategorii z wybranym elementem."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Szacowanie wyjątków"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Znormalizowany zakres międzykwartylowy (indeks IQR z rozkładem normalnym, NIQR = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Tryb jest najczęściej występującą wartością."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "z odstającym"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "bez wartości odstającego"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Zwyczaj"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Dziś"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Wczoraj"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Ostatnie 7 dni"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Ostatnie 30 dni"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Ten miesiąc"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 miesiąc"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 miesiące"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Stosować"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Tydzień"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 dni temu"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 dni temu"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Dzień pięści tego miesiąca"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Ostatni dzień tego miesiąca"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 miesiące"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Zaktualizowano w"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Punkty danych są podsumowane trybem szybkim. Jeśli chcesz uzyskać wykres bez pomijania danych, dostosuj okres docelowy krótszy."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Zakres osi y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Wartości odstające"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Pusty"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Wyszukiwanie procesu"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Zakładka"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Ponieważ liczba punktów danych na wykres wynosi ponad 10 000, narysowano wykres gęstości. Jeśli chcesz wyświetlić wszystkie punkty danych za pomocą wykresu rozproszenia, skrócisz okres docelowy."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Pusty"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Czas cyklu"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Prawdziwy numer"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Zmienna obiektywna"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Współczynnik korelacji jest obliczany przy użyciu tej zmiennej jako zmiennej docelowej. Podana tutaj zmienna docelowa jest również wyświetlana wraz z paskiem kolorów po prawej stronie wykresu. Jeśli chcesz zmienić zmienne docelowe na wykresie, możesz przełączać się między nimi, klikając prawym przyciskiem myszy każdą nazwę zmiennej."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Dane nie zostały utopione, ponieważ istnieje zbyt wiele kategorii. BREAK_LINE Sprawdź i, jeśli to konieczne, skróć okres docelowy krótszy."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Ustawienie filtru"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Etykieta (zmienne kategorii)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Skopiowane"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Wklejone"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Kopiuj konfigurację"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Wklej konfigurację"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Bez ustawienia pochodzenia pierwszy cel jest wybierany jako pochodzenie."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Dane eksportujące"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Nie używać"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Dane nie są narysowane, ponieważ istnieje zbyt wiele kategorii."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Sprawdź i, jeśli to konieczne, zrewiduj ustawienia okresu docelowego."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Podziel przez liczbę danych (cykliczny)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Liczba danych"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Pusty"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Pusty"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Wybierz zmienną celu."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Pusty"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Brak rozkładu / rozkładu kategorii"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Wykres punktowy"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Jeśli typ danych x lub y to ciąg, nie można użyć zmiennych nierównówkowych do ustawienia kolorów."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Wartość poza dozwolonym zakresem wykryto, więc minimalny lub maksymalny prawidłowy zakres został automatycznie rozstrzygnięty. Zmień ustawienia w razie potrzeby."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Kliknij prawym przyciskiem myszy: Ustawienie/edytuj/usuń/usuń"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Upłynął czas"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Zamówienie czasowe"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Ustawienie zamówienia danych"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Usuń niepotrzebne dane, ponieważ pojemność dysku twardego „__SERVER_INFO__` osiągnęła __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Port danych został zatrzymany, ponieważ pojemność dysku twardego `__SERVER_INFO__` osiągnęła __SERVER_INFO__ %%. Jeśli niepotrzebne dane zostaną usunięte, a pusta pojemność wzrośnie, dane zostaną wznowione."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Wprowadź liczbę wyświetlanych rozkładów (liczba podziałów). Wprowadź liczbę całkowitą 2 lub 150 lub mniej."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Wprowadź liczbę wyświetlanych rozkładów (liczba podziałów). Wprowadź liczbę całkowitą 1 lub więcej 32 lub mniej."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Pusty"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Pusty"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Pusty"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Pusty"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Na działkę jest zbyt wiele skrzypiec, więc było ono automatycznie ograniczone."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Ze względu na dużą liczbę wybranych rekordów liczba działek jest ograniczona od najstarszego daty do liczby limitów."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Akceptuję"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Spadek"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Wstecz"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Liczba wykresu na kolumnie"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Zmienne kategoryczne (numer części, stacja nr itp.) Wyświetlane jako etykiety u góry wykresu są używane do wizualizacji punktów zmiany (przełączanie numeru części itp.) Zmiennych jakościowych."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Wybierz elementy do analizy (zmienne ilościowe: wartość pomiaru itp.). Można wybrać do 60 pozycji."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Wybierz elementy do sortowania danych. Możesz także wybrać wiele elementów."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Przepełnione stare dane nie są wyświetlane, ponieważ datetime liczy się z najnowszych danych z limitem wyświetlania."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Liczba fabuły była ograniczona do NUMBER. Jeśli chcesz wyświetlić wszystko, prześwituj ustawienia."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Liczba wykresu na jednej karcie była ograniczona do NUMBER. Jeśli chcesz wyświetlić wszystko, prześwituj ustawienia."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Liczba docelowych zmiennych do wyboru jest minimalna min i maksymalna maks. Sprawdź liczbę zmiennych docelowych i popraw ustawienia."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Liczba docelowych zmiennych do wyboru jest maksymalna maks. Sprawdź liczbę zmiennych docelowych i popraw ustawienia."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

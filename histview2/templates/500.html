@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block asset %}
+<script>
+    gtag('config', 'UA-156244372-2', {
+        'page_title' : '500 Error',
+    });
+</script>
+{% endblock %}
+{% block midbody %}
+<div class="content">
+    <h2 class="text-center">{{ _("Sorry, something went wrong") }} <i class="fas fa-sad-tear"></i></h2>
+</div>
+{% endblock %}

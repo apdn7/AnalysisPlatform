@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block asset %}
+    <script>
+        gtag('config', 'UA-156244372-2', {
+            'page_title': '404 Error',
+        });
+    </script>
+{% endblock %}
+{% block midbody %}
+    <div class="content" style="padding-top: 40vh">
+        <h2 class="text-center">{{ _("Page not found") }}</h2>
+    </div>
+{% endblock %}

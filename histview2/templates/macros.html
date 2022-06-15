@@ -1,0 +1,898 @@
+{% macro input(name,label,value='',max_length=500,type='text') %}
+    <div class="form-group">
+        <label for="{{ name }}" class="col-form-label">{{ label }}</label>
+        <input type="{{ type }}" id="{{ name }}" name="{{ name }}" class="form-control" value="{{ value | escape }}"
+               maxlength="{{ max_length }}"/>
+    </div>
+{% endmacro %}
+
+{% macro input_hidden(name, value, id='') %}
+    <input type="hidden"{% if id !='' %} id="{{ id }}" {% endif %}name="{{ name }}" value="{{ value }}"/>
+{% endmacro %}
+
+{% macro flash(type, message) %}
+    {% if type == false %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+    {% elif type == true %}
+        <div class="alert alert-success" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}
+
+
+{% macro alert_message(alertID) %}
+    <div id="{{ alertID }}" class="alert alert-dismissible fade" style="text-align: left; display:none" role="alert">
+        <strong id="{{ alertID }}-content"></strong>
+        <button type="button" class="close" onclick="$(this).parent().css('display','none');" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endmacro %}
+
+{% macro input_row(name, label, value='', type='text',label_block_cnt = 4,input_block_cnt = 8) %}
+    <div class="form-group row">
+        <label for="{{ name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
+            <h5>{{ _(label) }}</h5>
+        </label>
+        <div class="col-sm-{{ input_block_cnt }}">
+            <input type="{{ type }}" name="{{ name }}" class="form-control" value="{{ value | escape }}" id="{{ name }}"
+                   {% if type == 'password' %}autocomplete=on{% endif %}/>
+            <span id="{{ name }}-error-msg" class="error text-danger"
+                  style="display: none; text-align: left; font-size: smaller;">{{ _("Already registered") }}</span>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro label(label, h=5, name='', title='', hl='') %}
+    <label for="{{ name }}" class="col-form-label label-left{{ hl }}">
+        {% if title %}
+            <span title="{{ title|e }}" class="hint-text section-label">{{ label }}</span>
+        {% else %}
+            <span class="section-label">{{ label }}</span>
+        {% endif %}
+    </label>
+{% endmacro %}
+
+{% macro sub_label(label, name='', title='', hl='') %}
+    <label for="{{ name }}" class="col-form-label label-left{{ hl }}">
+        {% if title %}
+            <span title="{{ title|e }}" class="hint-text sub-label">{{ label }}</span>
+        {% else %}
+            <span class="sub-label">{{ label }}</span>
+        {% endif %}
+    </label>
+{% endmacro %}
+
+<!--  selectbox ex:procs-->
+{% macro single_selectbox(name, label,items, selected,label_block_cnt = 1,selectbox_block_cnt = 11, is_required=false) %}
+    <div class="mb-2 row">
+        {% if label != '' %}
+            <label for="{{ name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
+                <h5>{{ label }}</h5>
+            </label>
+            {% set col = selectbox_block_cnt %}
+        {% else %}
+            {% set col = selectbox_block_cnt + label_block_cnt %}
+        {% endif %}
+        <div class="col-sm-{{ col }}">
+            <select class="form-control select2-selection--single {{ 'required-input' if is_required else '' }}" name="{{ name }}" id="{{name}}">
+                <option value="">---</option>
+                {% for item in items %}
+                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- datepick -->
+{% macro datepick(name, label='', date_value='',with_time=False,time_value='',id='') %}
+    <div class="row">
+        {% if label != '' %}
+            <label for="{{ name }}" class="col-sm-1 label-right">
+                <h5>{{ label }}</h5>
+            </label>
+            {% set col = 11 %}
+        {% else %}
+            {% set col = 12 %}
+        {% endif %}
+        <div class="col-sm-{{ col }}">
+            {% if id == '' %}
+                <input class="datepicker hasdatepicker form-control category-plot-time" data-date-format="yyyy-mm-dd"
+                       name="{{ name }}" type="text">
+            {% else %}
+                <input id="{{ id }}" class="datepicker hasdatepicker form-control category-plot-time"
+                       data-date-format="yyyy-mm-dd" name="{{ name }}" type="text">
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- datetime_range_picker -->
+{% macro datetime_range_picker(name, label='', id='', noCoverDiv=False, isShowTimePicker=True, isSetDefaultValue=True, dtClassName='', isShowRecentDates=True) %}
+    {% if noCoverDiv == False %}
+    <div class="row">{% endif %}
+        {% if label != '' %}
+            <label for="{{ name }}" class="col-sm-1 label-right">
+                <h5>{{ label }}</h5>
+            </label>
+            {% set col = 11 %}
+        {% else %}
+            {% set col = 12 %}
+        {% endif %}
+        {% if noCoverDiv == False %}
+        <div class="col-sm-{{ col }}">{% endif %}
+            <input {% if id != '' %} id="{{ id }}" {% endif %} name="{{ name }}" type="text" value="" class="datetimepicker form-control {{dtClassName}}" is-show-time-picker="{{ isShowTimePicker }}" is-set-default-value="{{ isSetDefaultValue }}" is-show-recent-dates="{{ isShowRecentDates }}" autocomplete="off">
+        {% if noCoverDiv == False %}
+        </div>
+    </div>{% endif %}
+{% endmacro %}
+
+<!-- start proc -->
+{% macro start_proc(procs, selected, traceData=false, title='', width=2, showAutoUpdate=true) %}
+    <div class="card-body table-bordered graph-navi" id="srtPrc">
+        <div class="row">
+            <div class="col-sm-{{ width }}">
+                <div class="d-flex justify-content-between">
+                {{ label(_('Target period'), title=title) }}
+                {{ paste_btn() }}
+                </div>
+            </div>
+            <div class="col-sm-{{ 12 - width }}">
+                <div class="row">
+                   <div class="col-12 col-lg-6 col-sm-12 p-1">
+                       {{ start_proc_interval(showAutoUpdate) }}
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endmacro %}
+
+{% macro heatmap_target_period() %}
+    <div class="card-body table-bordered graph-navi" id="srtPrc">
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="d-flex justify-content-between">
+                {{ label(_('Target period'), title='') }}
+                {{ paste_btn() }}
+                </div>
+            </div>
+            <div class="col-sm-10">
+               <div class="row">
+                   <div class="col-12 col-lg-6 col-sm-12 p-1">
+                       {{ start_proc_interval(showAutoUpdate=false) }}
+                       {{ heatmap_cycle() }}
+                   </div>
+               </div>
+            </div>
+        </div>
+    </div>
+
+{% endmacro %}
+
+<!-- Heat Map menu draft -->
+{% macro heatmap_cycle() %}
+    <div class="d-flex align-items-center mt-2" id="cycle">
+        <div class="d-flex align-items-center mr-lg-5 mr-3">
+            <span class="sub-label d-block mr-3">{{ _('Cycle') }}</span>
+            <select id="mode" class="form-control w-auto" name="mode">
+                <option value="7">{{ _('Weekly') }}</option>
+                <option value="1">{{ _('Daily') }}</option>
+            </select>
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="sub-label d-block mr-3">{{ _('Step') }}</span>
+            <select id="stepMinute" class="form-control w-auto" name="step_minute">
+                <option value="10">10 min</option>
+                <option value="15">15 min</option>
+                <option value="20">20 min</option>
+                <option value="30">30 min</option>
+                <option value="60">60 min</option>
+                <option value="120">120 min</option>
+                <option value="180">180 min</option>
+            </select>
+            <select id="stepHour" class="form-control w-auto" name="step_hour">
+                <option value="1">1 h</option>
+                <option value="2">2 h</option>
+                <option value="4">4 h</option>
+                <option value="6">6 h</option>
+                <option value="8">8 h</option>
+                <option value="12">12 h</option>
+                <option value="24">24 h</option>
+            </select>
+        </div>
+    </div>
+
+{% endmacro %}
+
+<!-- end proc -->
+{% macro end_proc(procs, selected, label_i18n_key='Show value', title='', width=2, multiple_proc=true, traceData=false, dom_prefix='', showStartProc=false) %}
+    <div class="card-body table-bordered graph-navi">
+        <div class="row">
+            <div class="col-sm-{{ width }} d-flex flex-column">
+                <div class="d-flex justify-content-between">
+                {{ label(_(label_i18n_key), title=title) }}
+                {{ paste_btn() }}
+                </div>
+                {% if traceData or showStartProc %}
+                    <div class="mt-auto pl-3 pt-3">
+						{% if traceData %}
+							<div class="custom-control custom-checkbox custom-control-inline grp-height-align mb-2">
+								<input type="checkbox" name="showScatterPlotSelect" value="1" class="custom-control-input already-convert-hankaku" id="showScatterPlotSelect">
+								<label class="custom-control-label" for="showScatterPlotSelect">{{_('Scatter Plot display')}}</label>
+							</div>
+						{% endif %}
+                        <!-- start proc  -->
+                        {{ start_proc_select(procs) }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-sm-{{ 12 - width }}">
+                <div class="row" id="{{ dom_prefix }}end-proc-row">
+                    <div class="col-12 col-lg-6 col-sm-12 p-1">
+                        {% if multiple_proc == true %}
+                        <button id="btn-add-end-proc" name="btnAddEndProc"
+                                onclick="addGroupListCheckboxWithSearch()" type="button" class="btn simple-btn"><i class="fas fa-plus-circle"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- end_proc_cate -->
+{% macro end_proc_cate(title='', label_i18n_key='Category value', width=2, is_optional=false) %}
+    <div class="card-body table-bordered graph-navi">
+        <div class="row">
+            <div class="col-sm-{{ width }}">
+                <div class="d-flex justify-content-between">
+                {{ label(_(label_i18n_key), title=title) }}
+                {{ paste_btn() }}
+                </div>
+            </div>
+            <div class="col-sm-{{ 12 - width }}">
+                <div class="row" id="end-proc-cate-row">
+                    <div class="col-12 col-lg-6 col-sm-12 p-1">
+                        <button id="btn-add-end-proc-cate" name="btnAddEndProc" type="button" class="btn simple-btn"><i class="fas fa-plus-circle"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+
+<!-- end proc -->
+{% macro heatmap_end_proc(title='', width=2) %}
+    <div class="card-body table-bordered graph-navi">
+        <div class="row">
+            <div class="col-sm-{{ width }} d-flex flex-column">
+                <div class="d-flex justify-content-between">
+                    {{ label(_('Show value'), title=title) }}
+                    {{ paste_btn() }}
+                </div>
+                <div class="mt-auto pl-3">
+                    {{ sub_label(_('Real(Float)'), hl=' pb-0') }}
+                    <select id="hmFunctionReal" class="form-control mb-2" name="function_real">
+                        <option value="median">{{ _('CHMMedian') }}</option>
+                        <option value="max">{{ _('CHMMax') }}</option>
+                        <option value="mean">{{ _('CHMMean') }}</option>
+                        <option value="min">{{ _('CHMMin') }}</option>
+                        <option value="std">{{ _('CHMStd') }}</option>
+                        <option value="range">{{ _('CHMRange') }}</option>
+                        <option value="iqr">{{ _('IQR (Q3-Q1)') }}</option>
+                    </select>
+                    {{ sub_label(_('Cat.'), hl=' pb-0') }}
+                    <select id="hmFunctionCate" class="form-control" name="function_cate">
+                        <option value="count">{{ _('CHMCount') }}</option>
+                        <option value="count_per_hour">{{ _('CHMCountPerHour') }}</option>
+                        <option value="count_per_min">{{ _('CHMCountPerMin') }}</option>
+                        <option value="time_per_count">{{ _('CHMTimePerCount') }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-{{ 12 - width}}">
+                 <div class="row" id="end-proc-row">
+                     <div class="col-12 col-lg-6 col-sm-12 p-1">
+                         <button id="btn-add-end-proc" name="btnAddEndProc"
+                                 onclick="addGroupListCheckboxWithSearch()" type="button"
+                                 class="btn simple-btn">
+                             <i class="fas fa-plus-circle"></i>
+                         </button>
+                     </div>
+                 </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- condition proc -->
+{% macro cond_proc(procs, selected, prefix='', title='', width=2, pysm=4, is_optional=false) %}
+    <div class="card-body table-bordered graph-navi">
+        <div class="row">
+            <div class="col-sm-{{ width }}">
+                <div class="d-flex justify-content-between">
+                {{ label(_('Filter'), title=title) }}
+                {{ paste_btn() }}
+                </div>
+            </div>
+            <div class="col-sm-{{ 12 - width }}">
+                <div class="row" id="{{ prefix }}cond-proc-row">
+                    <div class="col-12 col-lg-6 col-sm-12 p-1">
+                        <button id="{{ prefix }}btn-add-cond-proc" name="btnAddCondProc" type="button"
+                                class="btn simple-btn">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro check_db_connection_message(dbType, html, btnID, msgID) %}
+    <button id="{{ btnID }}" onclick="checkDBConnection('{{ dbType.lower() }}', '{{ html }}', '{{ msgID }}')"
+            class="btn btn-secondary">
+        {{ _('Test connection') }}
+    </button>
+    <span id="{{ msgID }}" class="check-db-msg text-left mr-auto" style="text-align:left"></span>
+{% endmacro %}
+
+{% macro import_status(db_id, status) %}
+    {% set st = {
+        'DONE': {
+            'title': 'Finished Importing',
+            'class': 'check green'
+        },
+        'FAILED': {
+            'title': 'Failed Importing',
+            'class': 'exclamation-triangle yellow'
+        },
+        'PROCESSING': {
+            'title': 'Importing',
+            'class': 'spinner fa-spin'
+        },
+        'KILLED': {
+            'title': 'Killed',
+            'class': 'exclamation-triangle yellow'
+        },
+        'PENDING': {
+            'title': 'Pending',
+            'class': 'exclamation-triangle yellow'
+        }
+    } %}
+    <div class="align-middle text-center" data-st="{{ st[status]['title'] }}">
+        <div class="" data-toggle="tooltip" data-placement="top" title="{{ _(st[status]['title']) }}">
+            <i class="fas fa-{{ st[status]['class'] }} status-i"></i>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro import_progress(db_id, status, percentage) %}
+    {% set progress = {
+        'DONE': {
+            'class': 'bg-success',
+        },
+        'FAILED': {
+            'class': 'bg-warning',
+        },
+        'KILLED': {
+            'class': 'bg-warning',
+        },
+        'PROCESSING': {
+            'class': 'progress-bar-animated',
+        },
+        'PENDING': {
+            'class': 'progress-bar-animated',
+        },
+    } %}
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped {{ progress[status]['class'] }}"
+             role="progressbar" style="width: {{ percentage }}%" aria-valuenow="{{ percentage }}"
+             aria-valuemin="0" aria-valuemax="100">{{ percentage }}%
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- Scatter End Proc -->
+{% macro scatter_end_proc(procs, selected,start_date,start_tm,end_date,end_tm, title='', width=2, multiple_proc=true, isShowMinMax=true) %}
+    <div class="card-body table-bordered graph-navi">
+        <div class="row">
+            <div class="col-sm-{{ width }} d-flex flex-column">
+                <div class="d-flex justify-content-between">
+                {{ label(_('Show value'), title=title) }}
+                {{ paste_btn() }}
+                </div>
+                {% if isShowMinMax %}
+                    <label class="num-sensor-limit">
+                        <span>{{ _('Min') }}: 2</span>
+                        <span>{{ _('Max') }}: 7</span>
+                    </label>
+                {% endif %}
+                <div class="mt-auto pl-3 pt-3">
+                    {{ start_proc_select(procs) }}
+                </div>
+            </div>
+            <div class="col-sm-{{12 - width}}">
+                <div class="row" id="end-proc-row">
+                    <div class="col-12 col-lg-6 col-sm-12 p-1">
+                        <button id="btn-add-end-proc" name="btnAddEndProc" type="button"
+                                class="btn simple-btn">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- end_proc_real -->
+<!-- used in paracords page -->
+{% macro end_proc_paracords_real(procs, title='', width=2) %}
+    <div class="card-body table-bordered graph-navi">
+        <div class="row">
+            <div class="col-sm-{{ width }} d-flex flex-column">
+                <div class="d-flex justify-content-between">
+                {{ label(_('Show value'), title=title) }}
+                {{ paste_btn() }}
+                </div>
+                <div class="mt-auto pl-3 pt-3">
+                    {{ start_proc_select(procs) }}
+                </div>
+            </div>
+            <div class="col-sm-{{ 12 - width }}">
+                <div class="row" id="end-proc-paracords-real-row" sensor-type="real">
+                    <div class="col-12 col-lg-6 col-sm-12 p-1">
+                        <button id="btn-add-end-proc-paracords-real" name="btnAddEndProc" type="button"
+                                class="btn simple-btn">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+<!-- -->
+<!-- used in paracords page -->
+{% macro end_proc_paracords_cate(procs, title='', width=2) %}
+    <div class="card-body table-bordered graph-navi">
+        <div class="row">
+            <div class="col-sm-{{ width }}">
+                <div class="d-flex justify-content-between">
+                {{ label(_('Show value (Category)'), title=title) }}
+                {{ paste_btn() }}
+                </div>
+            </div>
+            <div class="col-sm-{{ 12 - width}}">
+                <div class="row" id="end-proc-paracords-cate-row" sensor-type="cate">
+                    <div class="col-12 col-lg-6 col-sm-12 p-1">
+                        <button id="btn-add-end-proc-paracords-cate" name="btnAddEndProc" type="button"
+                                class="btn simple-btn">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+<!-- -->
+<!-- Page title -->
+{% macro page_title(title='', hint='', hasAction=false, key='') %}
+    <div class="page-title graph-navi row">
+        <div class="col-8 d-flex">
+            {% if hint %}
+                <h2 class="top-index" title="{{ hint }}">
+                    {% if key %}
+                        <span class="page-title-character">{{ key }}</span>
+                    {% endif %}
+                    <span class="hint-text">{{ title }}</span>
+                </h2>
+            {% else %}
+                <h2 class="top-index">
+                    {{ title }}
+                </h2>
+            {% endif %}
+            {% if hasAction == true %}
+                <div class="d-flex align-items-center ml-3">
+                    <button name="copyPage" type="button" class="btn p-0 top-index" data-toggle="tooltip"
+                            data-placement="top" title="{{_('Copy config')}}">
+                        <i class="fa fa-copy"></i>
+                    </button>
+                    <button name="pastePage" type="button" class="btn p-0 ml-1 top-index" data-toggle="tooltip"
+                            data-placement="top" title="{{_('Paste config')}}">
+                        <i class="fa fa-file-import"></i>
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+<!-- -->
+<!-- Page title -->
+{% macro paste_btn() %}
+    <button name="pasteCard" type="button" class="btn p-0 ml-1" data-toggle="tooltip" data-placement="top"
+            title="{{_('Paste config')}}">
+        <i class="fa fa-file-import"></i>
+    </button>
+{% endmacro %}
+<!-- -->
+<!-- Exception Estimation  -->
+{% macro exception_est(checkId='isValidateData') %}
+    <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
+        <input type="checkbox" name="isValidateData" class="custom-control-input already-convert-hankaku" id="{{ checkId }}" checked>
+        <label class="custom-control-label" for="{{ checkId }}">
+            <span title="{{ _('Exception Estimation Explanation') }}">
+                    <span class="hint-text">{{ _("Exception Estimation") }}</span>
+            </span>
+        </label>
+    </div>
+{% endmacro%}
+<!-- -->
+
+<!-- Graph range dropdown -->
+{% macro y_scale_option(name='yScaleGroup', className='') %}
+    <div class="d-flex align-items-center ml-2 {{ className }}">
+        <span class="mr-2">
+            {{ _('Range of Y axis')}}
+        </span>
+         <select name="{{ name }}" class="form-control border-white w-auto scale-dropdown">
+            <option value="1">{{ _('Setting scale') }}</option>
+            <option value="2">{{ _('Common scale') }}</option>
+            <option value="3">{{ _('Threshold line') }}</option>
+            <option value="4">{{ _('Auto range') }}</option>
+            <option value="5">{{ _('Full range') }}</option>
+        </select>
+    </div>
+
+{% endmacro %}
+<!-- category label filter in trace -->
+{% macro cat_label_filter_modal(scp=false) %}
+    <div class="cat-filter-modal modal fade" id="catFilterModal">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <!--    head actions    -->
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h4>{{_('Filter Setting')}}</h4>
+                        <div class="d-flex align-items-center">
+                            <span id="filterSortBtn" class="mr-1" title="Sort"><i class="fa fa-sort"></i></span>
+                            <div class="d-flex align-items-center mr-3 border-gray-curve p-1">
+                                <input placeholder="{{_('Search')}}" id="catFilterSearch" class="form-control mr-1">
+                                <button class="btn simple-btn btn-setting mr-1" id="catFilterSet">Set</button>
+                                <button class="btn simple-btn btn-setting" id="catFilterReset">Reset</button>
+                            </div>
+                            <button type="button" id="catFilterSubmit" class="btn btn-setting simple-btn mr-1">OK</button>
+                            <button type="button" class="btn btn-setting simple-btn" data-dismiss="modal" aria-label="Close"
+                                    id="catFilterCancel">Cancel
+                            </button>
+                        </div>
+                    </div>
+                    <!--    body   -->
+                    <div class="d-flex h-auto overflow-auto custom-scroll">
+                        <div class="mr-2 cats-exp-box">
+                            <span id="catExpBoxTitle" class="cat-title">{{_('Facet')}}</span>
+                            <div id="catExpBox" class="d-flex"></div>
+                        </div>
+                        {% if scp %}
+                        <div class="mr-2 cats-exp-box">
+                            <span id="divTitle" class="cat-title">Div</span>
+                            <div id="divBox" class="d-flex"></div>
+                        </div>
+                        <div class="mr-2 cats-exp-box">
+                            <span id="colorTitle" class="cat-title">Color</span>
+                            <div id="colorBox" class="d-flex"></div>
+                        </div>
+                        {% endif %}
+                        <div class="category-box">
+                            <span id="categoriesBoxTitle"
+                                  class="cat-title ui-sortable">{{'Other' if scp else 'Label'}}</span>
+                            <div id="categoriesBox" class="d-flex ui-sortable"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro index_order_modal(modalId='xAxisModal', tableId='serialTable', addBtnId='btnAddSerial', okBtnId='btnXAxisModalOK', cancelBtnId='btnXAxisModalCancel') %}
+<div id="{{modalId}}" class="modal in" data-backdrop="static">
+    <div class="modal-dialog modal-confirm modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _('Index ordering') }}</h4>
+                <button type="button" class="close {{cancelBtnId}}" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <table id="{{tableId}}"
+                       class="table table-bordered table-main table-bordered table-dark table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th class="text-center">{{ _("Priority") }}</th>
+                        <th class="text-center col-serial">{{ _("Process") }}</th>
+                        <th class="text-center col-serial">{{ _("Column") }}</th>
+                        <th class="text-center">{{ _("Order") }}</th>
+                        <th class="text-center col-del-btn"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <button id="{{addBtnId}}" class="btn btn-success">
+                                <i class="fas fa-plus-circle"></i>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button id="{{okBtnId}}" class="btn btn-primary" data-item-id=""
+                        data-dismiss="modal">{{ _('OK') }}</button>
+                <button id="{{cancelBtnId}}" class="btn btn-secondary {{cancelBtnId}}" data-dismiss="modal">{{ _('Cancel') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+<!--  対象期間　日時と最新入り替えボックス  -->
+{% macro start_proc_interval(showAutoUpdate=true, prefix='', disableLatest=false, name='traceTime', commonClass='') %}
+    <div class="d-flex">
+        <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
+            <input type="radio" name="{{name}}" onchange="handleChangeInterval(this, 'default-{{prefix}}')"
+                   class="custom-control-input {{commonClass}}" id="{{prefix}}radioDefaultInterval"
+                   value="default" checked="checked">
+            <label class="custom-control-label" for="{{prefix}}radioDefaultInterval" class="label-left">
+                <span class="sub-label">{{ _('Date range') }}</span>
+            </label>
+        </div>
+        <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
+            <input class="custom-control-input {{commonClass}}" type="radio" name="{{name}}"
+                   onchange="handleChangeInterval(this, 'recent-{{prefix}}')" id="{{prefix}}radioRecentInterval"
+                   value="recent" {{ 'disabled' if disableLatest else '' }}>
+            <label class="custom-control-label" for="{{prefix}}radioRecentInterval" class="label-left">
+                <span class="sub-label">{{ _('Latest') }}</span>
+            </label>
+        </div>
+        <!-- switch content -->
+        <div class="flex-grow-1">
+            <div id="for-default-{{prefix}}">
+                {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker' + prefix,noCoverDiv=True, dtClassName=commonClass) }}
+                <input id="{{prefix}}startDate" class="datepicker hasdatepicker form-control category-plot-time"
+                       data-date-format="yyyy-mm-dd" name="START_DATE" type="text" hidden>
+                <input name="START_TIME" class="form-control" id="{{prefix}}startTime" type="text" hidden>
+                <input id="{{prefix}}endDate" class="datepicker hasdatepicker form-control category-plot-time"
+                       data-date-format="yyyy-mm-dd" name="END_DATE" type="text" hidden>
+                <input name="END_TIME" class="form-control" id="{{prefix}}endTime" type="text" hidden>
+            </div>
+            <div id="for-recent-{{prefix}}" style="display: none">
+                <div class="d-flex">
+                    <input type="text" id="{{prefix}}recentTimeInterval" class="form-control mr-2 {{commonClass}}"
+                           name="recentTimeInterval"
+                           style="width: 30%" {{ 'disabled' if disableLatest else '' }}>
+                    <select class="form-control mr-2 {{commonClass}}" id="{{prefix}}timeUnit" name="timeUnit" style="width: 30%" {{ 'disabled' if disableLatest else '' }}>
+                        <option value="60">{{ _('hour') }}</option>
+                        <option value="1">{{ _('minute') }}</option>
+                        <option value="1440">{{ _('day') }}</option>
+                        <option value="10080">{{ _('week') }}</option>
+                    </select>
+                    {% if showAutoUpdate %}
+                        <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
+                            <input type="checkbox" name="autoUpdateInterval" value="1"
+                                   class="custom-control-input already-convert-hankaku"
+                                   id="{{prefix}}autoUpdateInterval" {{ 'disabled' if disableLatest else '' }}>
+                            <label class="custom-control-label" for="{{prefix}}autoUpdateInterval">{{_('Auto Update')}}</label>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- X index -->
+{% macro x_index() %}
+    <div class="d-flex align-items-center mr-3">
+        <span class="sub-label mr-3">{{_('X axis')}}</span>
+        <select class="form-control" id="xOption" name="xOption" style="width: 140px">
+            <option value="TIME">{{ _("Timestamp") }}</option>
+            <option value="INDEX">{{ _('Index') }}</option>
+        </select>
+        <div class="index-inform-modal" style="width: 35px">
+            <div class="index-inform btn-primary">
+                <span><i class="fas fa-info-circle"></i></span>
+            </div>
+            <div id="indexHoverContent" class="index-inform-content">
+                <span class="sub-label">{{ _('Index Ordering Setting') }}</span>
+                <button class="btn clipboard" style="float:right;"
+                        data-clipboard-target="#index-infor-table"
+                        title="Copy to Clipboard">
+                    <i class="fa fa-copy" aria-hidden="true"></i>
+                </button>
+                <div class="index-content">
+                    <table class="table table-borderless" id="index-infor-table">
+                        <thead>
+                            <tr>
+                                <th class="text-center">{{ _("Priority") }}</th>
+                                <th class="text-center">{{ _("Process") }}</th>
+                                <th class="text-center">{{ _("Column") }}</th>
+                                <th class="text-center">{{ _("Order") }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Process 1</td>
+                                <td>Index Key</td>
+                                <td>昇順</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Process 1</td>
+                                <td>Index Key</td>
+                                <td>昇順</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- 起点　セレクション -->
+{% macro start_proc_select(procs=[]) %}
+    <div class="">
+        {{ sub_label(_('Start point'), title=_('If you do not select start process, the process of the first target variable will be start process.'), hl=' pb-1') }}
+        {{ single_selectbox('start_proc','', procs,) }}
+    </div>
+{% endmacro %}
+
+{% macro multiple_target_period(rlp=False, dataNumber=false, scp=false, DivisionNumberHover='', WindowLengthHover=_('Window length Hover'), IntervalHover=_('Interval Hover')) %}
+    <div class="col-12 col-lg-6 col-sm-12 p-1">
+        <div class="d-flex align-items-center">
+            <select class="form-control" id="divideOption" name="compareType" onchange="handleChangeDivideOption(this)" style="width: 200px">
+                {% if rlp %}
+                    <option value="category">{{ _("Divide by category") if not scp else _('Non-Divided / Divide by Category') }}</option>
+                    <option value="cyclicTerm">{{ _('Divide by term (Cyclic)') }}</option>
+                    <option value="directTerm">{{_('Divide by term (Direct)')}}</option>
+                {% else %}
+                    <option value="var">{{ _("Stratify by variables") }}</option>
+                    <option value="cyclicTerm">{{ _('Stratify by term (Cyclic)') }}</option>
+                    <option value="directTerm">{{_('Stratify by term')}}</option>
+                {% endif %}
+
+                {% if dataNumber %}
+                    <option value="dataNumberTerm">{{_('Divide by data number (Cyclic)')}}</option>
+                {% endif %}
+            </select>
+            <span class="ml-2">
+                {{ _('Datetime Range') }} <span id="datetimeRangeShowValue"></span>
+            </span>
+        </div>
+        <div class="mt-3">
+            <div id="for-{{'category' if rlp else 'var'}}" name="var-form">
+                {{start_proc_interval(name='varTraceTime1', commonClass='to-update-time-range')}}
+            </div>
+            <div id="for-cyclicTerm" style="display: none; visibility: hidden">
+                <div class="d-flex mb-2">
+                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
+                        <input type="radio" name="cyclicTermTraceTime1" onchange="handleChangeInterval(this, 'fromTo')" class="custom-control-input to-update-time-range" id="cyclicTermFrom"
+                               value="from" checked="checked">
+                        <label class="custom-control-label" for="cyclicTermFrom" class="label-left">
+                            <span class="sub-label">{{ _('From') }}</span>
+                        </label>
+                    </div>
+                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
+                        <input type="radio" name="cyclicTermTraceTime1" onchange="handleChangeInterval(this, 'fromTo')" class="custom-control-input to-update-time-range" id="cyclicTermTo"
+                               value="to">
+                        <label class="custom-control-label" for="cyclicTermTo" class="label-left">
+                            <span class="sub-label">{{ _('To') }}</span>
+                        </label>
+                    </div>
+                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
+                        <input class="custom-control-input to-update-time-range" type="radio" name="cyclicTermTraceTime1" onchange="handleChangeInterval(this, 'cyclicCecent')" id="cyclicRecentInterval" value="recent">
+                        <label class="custom-control-label" for="cyclicRecentInterval" class="label-left">
+                            <span class="sub-label">{{ _('Latest') }}</span>
+                        </label>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div id="for-fromTo">
+                             {{ datetime_range_picker('DATETIME_PICKER','',id='cyclicTermDatetimePicker',noCoverDiv=True, isShowTimePicker=True, dtClassName='to-update-time-range') }}
+                            <input id="cyclicTermStartDate" class="datepicker hasdatepicker form-control category-plot-time"
+                                   data-date-format="yyyy-mm-dd" name="START_DATE" type="text" hidden>
+                            <input name="START_TIME" class="form-control" id="cyclicTermStartTime" type="text" hidden>
+                        </div>
+                        <div id="for-cyclicCecent" style="display: none">
+                            <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
+                                <input type="checkbox" name="autoUpdateInterval" value="1" class="custom-control-input already-convert-hankaku" id="CyclicAutoUpdateInterval">
+                                <label class="custom-control-label" for="CyclicAutoUpdateInterval">{{_('Auto Update')}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-2 d-flex align-items-center flex-wrap">
+                    <div class="d-flex align-items-center mr-3">
+                        <label class="mr-2 mb-0" title="{{ DivisionNumberHover }}">
+                            <span class="hint-text sub-label">{{_('Division number')}}</span>
+                        </label>
+                        <input type="text" class="form-control to-update-time-range" id="cyclicTermDivNum" name="cyclicTermDivNum" value="{{49 if scp else 30}}" style="max-width: 100px">
+                    </div>
+                    <div class="d-flex align-items-center mr-3">
+                        <label title="{{ WindowLengthHover }}" class="mr-2 mb-0">
+                            <span class="hint-text sub-label">{{ _('Window length') }} [hour]</span>
+                        </label>
+                        <input type="text" class="form-control to-update-time-range" id="cyclicTermWindowLength" name="cyclicTermWindowLength" value="1" style="max-width: 80px">
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <label class="mr-2 mb-0" title="{{ IntervalHover }}">
+                            <span class="hint-text sub-label">{{ _('Interval') }} [hour]</span>
+                        </label>
+                        <input type="text" class="form-control to-update-time-range" id="cyclicTermInterval" style="max-width: 80px" name="cyclicTermInterval" value="1">
+                    </div>
+                </div>
+            </div>
+            <div id="for-directTerm" style="display: none; visibility: hidden">
+                <div class="d-flex">
+                    <div class="custom-control custom-radio grp-height-align" style="width: 200px">
+                        <input type="radio" name="termTraceTime1" onchange="handleChangeInterval(this)" class="custom-control-input" id="radioDefaultInterval"
+                               value="default" checked="checked">
+                        <label class="custom-control-label" for="radioDefaultInterval" class="label-left">
+                            <span class="sub-label">{{ _('Date range') }}</span>
+                        </label>
+                    </div>
+                    <div id="datetimeList" class="flex-grow-1 position-relative ml-2">
+                        <div class="datetimerange-group d-flex align-items-center">
+                            {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker1' ,noCoverDiv=True, isSetDefaultValue=True, dtClassName='to-update-time-range') }}
+                            <input id="startDate1" class="datepicker hasdatepicker form-control category-plot-time"
+                                   data-date-format="yyyy-mm-dd" name="START_DATE" type="text" hidden>
+                            <input name="START_TIME" class="form-control" id="startTime1" type="text" hidden>
+                            <input id="endDate1" class="datepicker hasdatepicker form-control category-plot-time"
+                                       data-date-format="yyyy-mm-dd" name="END_DATE" type="text" hidden>
+                            <input name="END_TIME" class="form-control" id="endTime1" type="text" hidden>
+                            <span class="ml-2" style="width: 8.5px"></span>
+                        </div>
+                        {% for i in range(2,9) %}
+                            <div class="datetimerange-group d-flex align-items-center">
+                                {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker' + i|string ,noCoverDiv=True, isSetDefaultValue=False, dtClassName='to-update-time-range') }}
+                                <input id="startDate{{i}}" class="datepicker hasdatepicker form-control category-plot-time"
+                                       data-date-format="yyyy-mm-dd" name="START_DATE" type="text" hidden>
+                                <input name="START_TIME" class="form-control" id="startTime{{i}}" type="text" hidden>
+                                <input id="endDate{{i}}" class="datepicker hasdatepicker form-control category-plot-time"
+                                       data-date-format="yyyy-mm-dd" name="END_DATE" type="text" hidden>
+                                <input name="END_TIME" class="form-control" id="endTime{{i}}" type="text" hidden>
+                                <span class="ml-2 remove-date"><i class="fa fa-times fa-sm"></i></span>
+                            </div>
+                        {% endfor %}
+                        <button id="termBtnAddDateTime" type="button" class="btn simple-btn">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% if dataNumber %}
+                <div id="for-dataNumberTerm" style="display: none; visibility: hidden">
+                    {{start_proc_interval(name='varTraceTime2', prefix='dataNumberTerm', commonClass='to-update-time-range', showAutoUpdate=true)}}
+                    <div class="d-flex align-items-center mt-2">
+                        <span class="sub-label mr-2">{{_('Number of data')}}</span>
+                        <input type="text" class="form-control to-update-time-range" id="dataNumber" name="dataNumber" value="1000" style="max-width: 100px">
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- 外れ値除去　セレクション -->
+{% macro remove_outlier(id='hmRemoveOutlier', name='remove_outlier', cl='', showHintText=true) %}
+    <div class="d-flex justify-content-center align-items-center {{cl}}">
+        {{ sub_label(_('Remove outlier'), title=_('The targets of removing outlier are Max, Mean Min, σ, and Range.') if showHintText else '', hl=' pb-0 mr-3') }}
+        <select id="{{id}}" class="form-control" name="{{name}}" style="width: 100px">
+            <option value="1">{{ _('Yes') }}</option>
+            <option value="0">{{ _('No') }}</option>
+        </select>
+    </div>
+{% endmacro %}

@@ -1,0 +1,37 @@
+<link
+        href="{{ url_for('static', filename = 'common/css/graph_nav.css') }}"
+        rel="stylesheet"
+/>
+<div class="graphNavActions">
+    <input type="checkbox" name="graphNavToggle" class="graphNavToggle" checked/>
+    <a class="graphNavButton" href="#!">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
+             class="bi bi-caret-up-fill" viewBox="0 0 16 16">
+            <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
+             class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+            <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+        </svg>
+        <i class="bi bi-caret-up-fill"></i>
+    </a>
+    <div class="graphNavButtons">
+        <a href="#baseHeader" onclick="return graphNavUtil.moveFirst()" title="Jump to first graph">
+            <i class="fas fa-step-forward" style="transform:rotate(-90deg)"></i></a>
+        <a href="#" onclick="return graphNavUtil.moveByStep(-3)" title="Jump to 3 graphs above">
+            <i class="fas fa-forward" style="transform:rotate(-90deg)"></i></a>
+        <a href="#" onclick="return graphNavUtil.moveByStep(-1)" title="Jump to 1 graph above">
+            <i class="fas fa-play" style="transform:rotate(-90deg)"></i></a>
+        <a href="#" onclick="return graphNavUtil.moveByStep(+1)" title="Jump to 1 graph below">
+            <i class="fas fa-play" style="transform:rotate(+90deg)"></i></a>
+        <a href="#" onclick="return graphNavUtil.moveByStep(+3)" title="Jump to 3 graphs below">
+            <i class="fas fa-backward" style="transform:rotate(-90deg)"></i></a>
+        <a href="#baseFooter" onclick="return graphNavUtil.moveLast()" title="Jump to last graph">
+            <i class="fas fa-step-backward" style="transform:rotate(-90deg)"></i></a>
+        <a href="#" onclick="return takeScreenShot()" title="{{ _('Create Screenshot Hover') }}"
+           style="margin-top: 30px">
+            <i class="fa fa-camera" aria-hidden="true"></i>
+        </a>
+    </div>
+</div>
+<script src="{{ url_for('static', filename = 'common/js/graph_nav.js') }}"></script>

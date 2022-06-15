@@ -1,0 +1,109 @@
+
+scaling.R:
+  basic:
+    name: "scaling"
+    desc: "Normalize given data to zero mean and unit variance."
+    func: "scaling"
+    is_last_func: False
+  params:
+  outputs:
+   - field: "x"
+     title: "Scaled x"
+     how_to_show: "table"
+
+heads_and_tails.R:
+  basic:
+    name: "Heads and tails"
+    desc: "Get heads and tails of given data"
+    func: "heads_and_tails"
+    is_last_func: False
+  params:
+    - name: "nhead"
+      type: "slider"
+      min: 10
+      max: 100
+      step: 10
+      default: 10
+    - name: "ntail"
+      type: "slider"
+      min: 10
+      max: 100
+      step: 10
+      default: 10
+  outputs:
+  - field: "out1"
+    title: "Head of data"
+    how_to_show: "table"
+  - field: "out2"
+    title: "Tail of data"
+    how_to_show: "table"
+
+emd.R:
+  basic:
+    name: "Earth Movers Distance (Moving Window)"
+    desc: "Calculate Earth Movers Distance"
+    func: "emd"
+    is_last_func: False
+  params:
+    - name: "step_size"
+      type: "slider"
+      min: 10
+      max: 100
+      step: 10
+      default: 10
+    - name: "window_size"
+      type: "slider"
+      min: 10
+      max: 100
+      step: 10
+      default: 30
+  outputs:
+    - field: "x"
+      title: "EMD"
+      how_to_show: "table"
+
+wfp.R:
+  basic:
+    name: "Waterfall Plot"
+    desc: "Visualize density evolve over time"
+    func: "wfp"
+    is_last_func: True
+  params:
+    - name: "step_size"
+      type: "slider"
+      min: 10
+      max: 100
+      step: 10
+      default: 10
+    - name: "window_size"
+      type: "slider"
+      min: 10
+      max: 100
+      step: 10
+      default: 30
+  outputs:
+    - field: "fname_out"
+      title: "WFP"
+      how_to_show: "png"
+
+glasso.R:
+  basic:
+    name: "Graphical LASSO (with target column)"
+    desc: "Apply graphical lasso and visualize partial correlation"
+    func: "glasso"
+    is_last_func: True
+  params:
+    - name: "target"
+      type: "selectbox"
+      item: "variable"
+    - name: "max_neighbors"
+      type: "slider"
+      min: 1
+      max: 10
+      step: 1
+      default: 1
+  outputs:
+    - field: "fname_out"
+      title: "Partial Correlations"
+      how_to_show: "png"
+

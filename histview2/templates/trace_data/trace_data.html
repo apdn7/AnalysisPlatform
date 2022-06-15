@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+    <link href="{{ url_for('trace_data.static', filename = 'css/trace_data.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
+          rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'common/css/pagination.css') }}" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/Chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/chartjs-adapter-moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/chartjs-plugin-annotation-latest.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/pagination.min.js') }}"></script>
+
+    <script type="text/javascript" src="/static/common/js/js.cookie.min.js"></script>
+    <script type="text/javascript"
+            src="{{ url_for('trace_data.static', filename = 'js/trace_data_time_series.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('trace_data.static', filename = 'js/trace_data_histogram.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('trace_data.static', filename = 'js/trace_data_step_bar_chart.js') }}"></script>
+
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"/>
+
+    <script>
+        gtag('config', 'UA-156244372-2', {
+            'page_title': '{{ _("Full-points Plot") }}',
+        });
+
+        $(document).ready(function () {
+            $("#tabs a").click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='FPP', title=_('Full-points Plot'), hint=_('Plot all data points with time axis or ID axis.'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+    <div class="card">
+        <form id="traceDataForm" onSubmit="return false;">
+            {{ macros.end_proc(procs,'', traceData=true, title=_('Enter target item of data (quantitative variable like measurement value) to be plotted on the graph. Select the process and item you want to plot on the graph.')) }}
+            {{ macros.start_proc(procs,'', traceData=true) }}
+            {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
+            {{ macros.cat_label_filter_modal() }}
+            <br class="graph-navi graph-navi-top-down">
+            <div class="row">
+                <div class="col-sm-2">
+                </div>
+                <div class="col-sm-10">
+                    <div class="d-flex">
+                        {{ macros.x_index() }}
+                        {{ macros.exception_est() }}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
+                <button type="button" value="{{ _('Display graph') }}" onClick="traceDataWithDBChecking('TRACE-DATA');"
+                        id="showTraceDataGraph" class="btn btn-primary show-graph"><i
+                        class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                </button>
+                <div class="dropdown ml-3">
+                    <button class="btn dropdown-toggle form-control" type="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        {{ _('Export data') }}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="Bookmark">
+                        <a class="dropdown-item" href="#" onclick="traceDataWithDBChecking('CSV-OUT')">csv</a>
+                        <a class="dropdown-item" href="#" onclick="traceDataWithDBChecking('TSV-OUT')">tsv</a>
+                        <a class="dropdown-item" href="#" onclick="takeScreenShot()">png(Image)</a>
+                        <a class="dropdown-item" href="#" onclick="traceDataWithDBChecking('TSV-CLIPBOARD')">Clipboard(Value)</a>
+                        <a class="dropdown-item" href="#" onclick="copyImageToClipboard()">Clipboard(Image)</a>
+                    </div>
+                </div>
+            </div>
+            <br>
+            {{ macros.index_order_modal() }}
+            {{ macros.index_order_modal(modalId='xAxisModal2', tableId='serialTable2', addBtnId='btnAddSerial2', okBtnId='btnXAxisModalOK2', cancelBtnId='btnXAxisModalCancel2') }}
+        </form>
+    </div>
+
+    {#	<div class="row" id="showOutlier">#}
+    {#	</div>#}
+    <br>
+    <div id="traceDataTabs" style="display: none;" class="">
+        <ul id="tabs" class="nav nav-tabs justify-content-end" role="tablist">
+            <li class="nav-item active">
+                <a href="#timeSeriestab" id="timeSeriestabMenu" class="nav-link active" role="tab" data-toggle="tab"
+                >{{ _("Full-points Plot") }}</a>
+            </li>
+            <li class="nav-item">
+                <a href="#histogramsTab" class="nav-link" role="tab" data-toggle="tab">{{ _("Histogram") }}</a>
+            </li>
+        </ul>
+
+        <div id="tabContent" class="tab-content clearfix">
+            <div class="tab-pane fade show active" id="timeSeriestab">
+                <div class="justify-content-center" id="cate-card"></div>
+                <div class="justify-content-center ui-sortable" id="plot-cards"></div>
+                <div id="stContentTab">
+                    <div class="setting-inform-content"></div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="histogramsTab">
+                <div class="position-relative">
+                    <div class="d-flex align-items-center position-absolute" style="top: -50px">
+                        <div id="histSummaryMenu" class="summary-menu">
+                            <button id="summarySelectBtn" class="btn btn-sm border-white">...</button>
+                            <div class="summary-menu-content">
+                                <div class="form-check">
+                                    <label class="form-check-label" for="histRadio1">
+                                        <input class="form-check-input" id="histRadio1" type="radio"
+                                               name="histSummaryOption" value="none" checked>
+                                        <span>{{ _("None") }}</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label" for="histRadio3">
+                                        <input class="form-check-input" id="histRadio3" type="radio"
+                                               name="histSummaryOption" value="count">
+                                        <span>{{ _("Count") }}</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label" for="histRadio4">
+                                        <input class="form-check-input" id="histRadio4" type="radio"
+                                               name="histSummaryOption" value="basic-statistics">
+                                        <span>{{ _("Basic statistics") }}</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label" for="histRadio5">
+                                        <input class="form-check-input" id="histRadio5" type="radio"
+                                               name="histSummaryOption" value="non-parametric">
+                                        <span>{{ _("Non parametric") }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {{ macros.y_scale_option(className='ml-4') }}
+                    </div>
+                </div>
+                <div class="justify-content-center card cate-plot-cards clearfix chart-margin ui-sortable" id="hist-cards"></div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <ul id="contextMenuTimeSeries" class="context-menu" style="display:none;">
+            <li class="menu-item show-filter-info" onmouseover="hideGraphScaleMenu(); saveOffset(this);"
+                onclick="handleSelectTSMenuItem('showSettingInfor', this)">{{ _("Setting View") }}</li>
+            <li class="menu-item" onmouseover="handleSelectTSMenuItem('graphScale', this)">{{ _("Graph scale") }}</li>
+
+            <li class="menu-item" onmouseover="hideGraphScaleMenu()"
+                onclick="handleSelectTSMenuItem('click')">{{ _("Display Cross hair cursor (Click)") }}</li>
+            <li class="menu-item cross-hair" onmouseover="hideGraphScaleMenu()"
+                onclick="handleSelectTSMenuItem('doubleClick')">{{ _("Display Multi cross hair cursor (Double click)") }}</li>
+
+            <li class="menu-item cross-hair" onmouseover="hideGraphScaleMenu()"
+                onclick="handleSelectTSMenuItem('showPlotView')">{{ _("Plot View") }}</li>
+
+            <!-- <li class="menu-item" onmouseover="hideGraphScaleMenu()" onclick="handleSelectTSMenuItem('checkOutlier')">{{ _("Check as an outlier") }}</li>
+			<li class="menu-item" onmouseover="hideGraphScaleMenu()" onclick="handleSelectTSMenuItem('showListHistograms')">{{ _("Display list of histograms") }}</li>
+			<li class="menu-item" onmouseover="hideGraphScaleMenu()" onclick="handleSelectTSMenuItem('cancelCheckedOutlier')">{{ _("Cancel checked outlier") }}</li> -->
+        </ul>
+    </div>
+    <div>
+        <ul id="contextMenuScatter" class="context-menu" style="display:none;">
+            <li class="menu-item"
+                onclick="handleSelectSCPMenuItem('click')">{{ _("Display Cross hair cursor (Click)") }}</li>
+            <li class="menu-item cross-hair"
+                onclick="handleSelectSCPMenuItem('doubleClick')">{{ _("Display Multi cross hair cursor (Double click)") }}</li>
+        </ul>
+    </div>
+    <div>
+        <ul id="contextMenuGraphScale" class="context-menu-2nd" style="display: none;"
+            onmouseleave="hideGraphScaleMenu()">
+            <li class="menu-item" onclick="handleGraphScaleClick('1')">{{ _("Setting scale") }}</li>
+            <li class="menu-item" onclick="handleGraphScaleClick('2')">{{ _("Common scale") }}</li>
+            <li class="menu-item" onclick="handleGraphScaleClick('3')">{{ _("Threshold line") }}</li>
+            <li class="menu-item" onclick="handleGraphScaleClick('4')">{{ _("Auto range") }}</li>
+            <li class="menu-item" onclick="handleGraphScaleClick('5')">{{ _("Full range") }}</li>
+        </ul>
+    </div>
+
+
+
+    <div class="loading"></div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+    <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+       target="_blank">{{ _("Click here to fix") }}</a>
+
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <script type="text/javascript"
+            src="{{ url_for('trace_data.static', filename = 'js/trace_data_summary_table.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('trace_data.static', filename = 'js/trace_data_cross_hair.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('trace_data.static', filename = 'js/trace_data_categorical_table.js') }}"></script>
+    <script src="{{ url_for('trace_data.static', filename = 'js/trace_data_scatter_plot.js') }}"></script>
+    <script src="{{ url_for('trace_data.static', filename = 'js/trace_data_whisker_plot.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/cat_facet_label_filter_modal.js') }}"></script>
+    <script src="{{ url_for('trace_data.static', filename = 'js/trace_data.js') }}"></script>
+    <script src="{{ url_for('trace_data.static', filename = 'js/trace_data_histogram_with_kde.js') }}"></script>
+{% endblock %}

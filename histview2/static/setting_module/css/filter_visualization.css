@@ -1,0 +1,278 @@
+.btn-right {
+    float: right;
+    margin: 10px 0;
+}
+
+.btn-lft {
+    float: left;
+    margin: 10px 0;
+}
+
+.header-left {
+    float: left !important;
+}
+
+.card {
+    margin: 10px 0;
+}
+
+.btn-add-other-config {
+    margin-bottom: 2rem;
+}
+
+/* .modal-dialog {
+    max-width: 570px !important;
+} */
+
+.modal-body {
+    text-align: left;
+}
+
+.modal-label {
+    height: fit-content;
+    margin-right: .75rem;
+}
+
+.modal-file-label {
+    word-break: break-all;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 25px;
+    padding: .375rem .75rem;
+    height: 38px;
+    max-width: 100%;
+    border: 1px solid gray;
+    border-radius: 5px 0px 0px 5px !important;
+}
+
+#proc-selector {
+    width: 45%;
+}
+
+.right {
+    float: right;
+}
+
+.right .btn {
+    margin: 10px 0;
+}
+
+/*.th-sm {*/
+/*    min-width: 5% !important;*/
+/*    width: 5% !important;  !* to overide CSS in main.css *!*/
+/*}*/
+
+.col-btn {
+    width: 3.5% !important;
+}
+
+#tblVisualConfig th, #tblVisualConfig td {
+    padding: 0.1rem 0.25rem;
+}
+
+#tblVisualConfig td span.select2 {
+    width: auto !important;
+}
+
+.filter-name {
+    width: 30%;
+}
+
+.machine-filter-name {
+    width: 20%;
+}
+
+.filter-condition {
+    width: 30%;
+}
+
+.filter-start-digit {
+    width: 5%;
+    min-width: 100px;
+}
+
+.filter-btn {
+    width: 3.5%;
+}
+
+.select2-container--default .select2-selection--single {
+    background-color: #222 !important;
+}
+
+.select2-results {
+    background-color: #222;
+    color: #fff;
+}
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+    color: white !important;
+    background-color: #222 !important;
+}
+
+.selection {
+    color: white !important;
+    background-color: #222 !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #fff !important;
+}
+
+.select2-container--default .select2-selection--multiple {
+    background-color: #222 !important;
+    border: 1px solid #222 !important;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border: 1px solid #222 !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #222 !important;
+}
+
+textarea {
+    color: #fff;
+}
+
+.select2-container--default .select2-results__option--selected {
+    color: white !important;
+    background-color: #222 !important;
+}
+
+button > span {
+    color: #d2cece;
+}
+
+/* spreadsheet mode */
+.jexcel {
+    background-color: transparent;
+    border-right: transparent;
+    border-bottom: transparent;
+}
+
+.jexcel td {
+    background-color: #303030 !important;
+    border: 1px solid #444 !important;
+}
+
+.jexcel > div > table {
+    border: none !important;
+}
+
+.editmode-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.jexcel .highlight-bottom.highlight-right {
+    border-bottom: 1px solid #739ac2 !important;
+    box-shadow: 1px 1px #375a7f40 !important;
+    -webkit-box-shadow: 1px 1px #375a7f40 !important;
+    -moz-box-shadow: 1px 1px #375a7f40 !important;
+}
+
+.jexcel .highlight-bottom {
+    border-bottom: 1px solid #739ac2 !important;
+    box-shadow: 0px 1px #375a7f40 !important;
+    -webkit-box-shadow: 0px 1px #375a7f40 !important;
+    -moz-box-shadow: 0px 1px #375a7f40 !important;
+}
+
+.jexcel .highlight-right {
+    border-right: 1px solid #739ac2 !important;
+    box-shadow: 1px 0px #375a7f40 !important;
+    -webkit-box-shadow: 1px 0px #375a7f40 !important;
+    -moz-box-shadow: 1px 0px #375a7f40 !important;
+}
+
+.jexcel .highlight-left {
+    border-left: 1px solid #739ac2 !important;
+}
+
+.jexcel .highlight-top {
+    border-top: 1px solid #739ac2 !important;
+}
+
+.jexcel .highlight {
+    background-color: #3c3c3c !important;
+}
+
+.editor input {
+    color: white !important;
+}
+
+.jexcel > div > table > thead > tr > td {
+    font-size: 16px;
+}
+
+thead.resizable {
+    font-weight: bold;
+}
+
+.table-main.hide,
+.editmode-container.hide {
+    display: none;
+}
+
+/*
+ *  Scrollbar darkstyle
+ */
+.editmode-container::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #444;
+}
+
+.editmode-container::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: #444;
+}
+
+.editmode-container::-webkit-scrollbar-thumb {
+    width: 100px;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: #222222;
+}
+
+.configRegister, #visualConfigRegister {
+    margin-left: 10px;
+}
+
+.select2-search__field {
+    background-color: #222222 !important;
+}
+
+.changeMode {
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+}
+
+.jexcel {
+    background-color: #444 !important;
+    border-right: 1px solid #444 !important;
+    border-bottom: 1px solid #444 !important;
+}
+
+.jexcel tbody td {
+    vertical-align: middle !important;
+}
+
+.jexcel thead td {
+    vertical-align: middle !important;
+    text-align: center !important;
+    font-weight: bolder;
+}
+.collapse-box {
+    margin: 10px 10px;
+}
+#mainContent h3, h5, table {
+    color: white !important;
+}
+#sidebar {
+    z-index: 9999;
+}

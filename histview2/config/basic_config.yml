@@ -1,0 +1,12 @@
+!!omap
+- info: !!omap
+    - version: '1'
+    - port-no: 6868
+    - hide-setting-page: false
+    - r-path:
+    - auto-backup-universal: false
+- bridge_station: !!omap
+    - host: localhost
+    - port: 8000
+    - bridge_data: true
+    - reps_id: 20000

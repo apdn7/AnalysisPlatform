@@ -1,0 +1,73 @@
+.drag-area{
+    border: 2px dashed #444444;
+    /*height: 500px;*/
+    /*width: 700px;*/
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 10px 0;
+}
+.drag-area.active{
+    border: 2px solid #fff;
+}
+.drag-area .icon{
+    font-size: 50px;
+    color: #fff;
+}
+.drag-area header{
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+.drag-area span{
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+}
+.drag-area button{
+    margin-bottom: 10px;
+    padding: 7px 25px;
+    font-weight: 500;
+    border: none;
+    outline: none;
+    background: #ced4da;
+    color: #000000;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.drag-area img{
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+.box {
+    position: relative;
+}
+.box.has-advanced-upload {
+    outline: 2px dashed #444444;
+    outline-offset: -10px;
+    -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+    transition: outline-offset .15s ease-in-out, background-color .15s linear;
+}
+.box.is-dragover {
+    outline-offset: -15px;
+    outline-color: #dee2e6;
+}
+.box__input {
+    display: contents;
+}
+.box__input .hide {
+    display: none;
+}
+.box__success {
+    margin-bottom: 10px;
+    display: none;
+}
+

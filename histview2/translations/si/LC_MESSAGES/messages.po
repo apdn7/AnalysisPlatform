@@ -1,0 +1,3153 @@
+# シンハラ語 Sinhalese translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "si_シンハラ語_Sinhalese"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:14+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: si\n"
+"Language-Team: si\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "බේරුණා"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "දෝෂයක් සිදුවී ඇත"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "යෙදුම් වින්යාසය"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "පිටුව හමු නොවීය"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "දෝෂයක් සිදුවී ඇත"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "දත්ත මාලාව සහ විශ්ලේෂණ යෙදුම"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "භාෂාවක් තෝරන්න"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "ප්රධාන තිරය"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "මෙහෙයුම් සත්යාපනය"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "මෙහෙයුම් සත්යාපනය"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "මූලික වින්යාසය"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "ලියාපදිංචි වන්න"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "රීලෝඩ් කරන්න"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "පූර්ණ සංඛ්යා"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "සැබෑ (පාවෙන)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "දිනය වෙලාව"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "නූල්"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "ශීර්ෂය"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "ශාකය"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "කර්මාන්ත ශාලාව"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "රේඛාව"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "කරුණාකර තහවුරු කරන්න."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "දත්ත සුරකින්න සහ ක්රියාවලි සැකසුම් පිටුවේ ඇති අන්තර්ගතයන් සමඟ දත්ත සමඟ දත්ත ආයාත කිරීම ආරම්භ කරන්න?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "හරි"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "අවලංගු කරන්න"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "දත්ත සමුදා වින්යාසය"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "දත්ත සමුදායේ නම"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "දත්ත සමුදා වර්ගය"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "වින්යාසය"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "අදහස් දැක්වීම"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "එකතු කරන්න"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "දත්ත සමුදා ගොනුවක් තෝරන්න."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "ගොනුවේ නම"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "තෝරන්න"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "ඔබට මෙම වාර්තාව මකා දැමීමට අවශ්යද?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "මකන්න"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "අනාවරක දැක්වීම"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "අනාවරක ප්රස්ථාරය"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "පරීක්ෂා කිරීම"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "පරීක්ෂණ ආරම්භ කරන්න"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "ආරම්භක වේලාව"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "කාලය අවසන්"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "යන්ත්ර හැඳුනුම්පත (බහු තේරීම් බහු)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "රේඛාව"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "කොටස් අංකය"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "දත්ත සම්බන්ධක වින්යාසය"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "භාෂාවක් තෝරන්න"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "ජපන්"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "ඉංග්රීසි"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "නෝඩ්"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "නෝඩ් ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "ලේබලය"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "ප්රධාන නම"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "දත්ත සමුදාය"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "ආනයන"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "අපනයන"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "ධාරක නාමය"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "වරාය අංකය"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "පරිශීලක නාමය"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "මුරපදය"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "යෝජනා ක්රම"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; මම සාර්ථක වුණා."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; අසමත් විය."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "ක්රියාවලි වින්යාසය"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "ක්රියාවලිය"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "ක්රියාවෙහි නම"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "වගුවේ නම"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "විස්තර"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "පෙරදසුන"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "පළමු වාර්තා පහ"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "අන්තර්ගතය සැකසීම"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "තීරුවේ නම"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "ඉංග්රීසි නම"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "ප්රදර්ශන නාමය"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "සංගුණකය"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "ක්රියාකරු"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "0 හැර වෙනත් අගයක් ඇතුළත් කරන්න"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "ආදාන ක්රියාකරු."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "ආදාන සංගුණකය."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "ආදාන ඉංග්රීසි නම."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "ආදාන දර්ශන නාමය."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "ඉංග්රීසි නම අනුපිටපත් කර ඇත."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "දර්ශන නාමය අනුපිටපත් කර ඇත."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "සියලුම \"දර්ශන නම්\" සඳහා ආදානය අවශ්ය වේ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "හිස් \"ඉංග්රීසි නාම\" සහිත ක්ෂේත්ර ස්වයංක්රීයව පුරවා ඇත."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "සියල්ල තෝරන්න"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "දත්ත ආයාත කරන්න"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "දත්ත ආනයනය කිරීමට ඔබට විශ්වාසද?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "ඔබ OK බොත්තම එබූ විට, ඔබ වත්මන් වේලාවෙන් මාසයකට පෙර දත්ත ආනයනය කරනු ඇත."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "පෙර දත්ත ස්වයංක්රීයව ස්වයංක්රීයව ආනයනය කරනු ලැබේ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "ඔබට වත්මන් කාලයෙන් පසුව දත්ත ආනයනය කිරීමට අවශ්ය නම්, දත්ත කියවීමේ බොත්තම නැවත ඔබන්න, නැතහොත් දත්ත සමුදාය ඔබන්න, නැතහොත් කියවීමේ සැකසුම් පිටුවේ සැකසුම් සැකසීම."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "දත්ත සමුදාය / CSV කියවීමේ සැකසුම හි \"දත්ත සමුදාය / CSV චක්රය\" සකසා ඇති විට, වත්මන් කාලය සැකසූ පසු දත්ත ස්වයංක්රීයව ආනයනය කෙරේ."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "තොරතුරු සොයා ගන්න"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "දත්ත සොයා ගන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "ප්රවේශ විය නොහැක"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "එය නිවැරදි කිරීම සඳහා මෙහි ක්ලික් කරන්න."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "සංස්කරණය දාරය"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "පෙර ක්රියාවලිය"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "පෙර තීරුව"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "පශ්චාත් ක්රියාවලිය"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "පෝස්ට් තීරුව"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "දිනය ටයිම් ලෙස"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "අනුක්රමික ලෙස"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "සබැඳිය ලෙස ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "දැනටමත් ලියාපදිංචි වී ඇත"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "කරුණාකර ක්රියාවල නම ඇතුළත් කරන්න"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "පෙරහන් / ප්රස්ථාර"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "ප්රස්ථාර වින්යාසය"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "රේඛා පෙරහන් වින්යාසය"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "රේඛීය තීරුව"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "වටිනාකම"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "මැෂින් පෙරහන් වින්යාසය"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "යන්ත්රය ID තීරුව"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "පෙරහන් වින්යාසයක් නැත"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "කොටසක් නැත තීරුවක්"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "පෙරහන් නම"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "පෙරහන් තත්වය"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "අනෙක් ඒවා වින්යාසය පෙරීම"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "ඉලක්ක තීරුව"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "දෘශ්යකරණ වින්යාසය"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "පහළ එළිපත්ත"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "ඉහළ එළිපත්ත"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "පහළ ක්රියාදාම සීමාව"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "ඉහළ ක්රියාවලිය සීමාව"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y- අක්ෂ පරාසය: අවම"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y- අක්ෂ පරාසය: උපරිම"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "කොටස නැත"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "අවසන්"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "සමඟ ආරම්භ කරන්න"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like සෙවීම)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "එකඟ වන්න"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "නිත්ය ප්රකාශන"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "ප්රස්ථාරය ප්රදර්ශනය කරන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV අපනයනය"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "ක්රියාවලිය අවශ්ය වේ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "තීරුවේ නම අවශ්යයි"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "රේඛාව අවශ්ය වේ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "දර්ශන නාමය අවශ්ය වේ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "දර්ශන නාමය අනුපිටපත් කර ඇත."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "යන්ත්ර අගය අවශ්ය වේ"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "අනුපිටපත් යන්ත්රය ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "සාර්ථකව සුරකින්න"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "සුරැකීමට අපොහොසත් විය"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "කොටසක් නැත තීරුවක් අවශ්ය නොවේ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "ඉලක්ක තීරුව අවශ්යයි"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "පෙරහන් නම අවශ්යයි"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "තත්වය අවශ්ය වේ"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "පෙරහන් නම අනුපිටපත් කර ඇත."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "කොන්දේසි අනුපිටපත් කර ඇත."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "පෙරනිමි"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "ක්රියාවෙහි නම"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "වෙනත් පෙරහන් එකතු කරන ලදි"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV ආනයනය කරන්න"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "මූලාශ්රය"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "අලුත් කිරීමේ චක්රය"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "සම්බන්ධ කරන්න"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "පැයකට වරක්"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "දිනකට වරක්"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "දත්ත තහවුරු කිරීම"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "ෆෝල්ඩරයක් නැත."
+
+msgid "File does not exist"
+msgstr "ගොනුවක් නොමැත."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "ඔබට සම්බන්ධ විය හැකිය."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "කරුණාකර අගය පුරවන්න."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "සැකසීමේ සැකසුම් නොමැත."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "සැකසුම් අනුපිටපත් කර ඇත."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "දත්ත සමුදා සැකසුම් සුරකින ලදි."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "දත්ත සමුදා සැකසුම් සුරැකීමට අපොහොසත් විය."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "මූලික සැකසුම් සුරකින ලදි."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "මූලික සැකසුම් සුරැකීමට අපොහොසත් විය."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "පරීක්ෂණ සම්බන්ධතාවය"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "ආරම්භක ස්ථානය"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "දිනය පරාසය"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "නවතම"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "ස්වයංක්රීය යාවත්කාලීන කිරීම"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "මිනිත්තුව"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "මිනිත්තු"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "පැය"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "පැය"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "ඉලක්ක විචල්යය"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "පෙරහන"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X අක්ෂය"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "කාලරාමු"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "දර්ශකය"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "විචල්යයන් ස්ථරීකරණය කරන්න"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "පෙරහන්"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "දත්ත සමුදාය / CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "විශ්ලේෂණය කරන්න"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "සංවර්ධනය යටතේ"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "විශ්ලේෂණය කරන්න:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "දිය ඇල්ල කුමන්ත්රණය"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "චිත්රක LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "හිස්ටෝග්රැම්"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "ස්ථර බිම්"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "පූර්ණ ලකුණු කුමන්ත්රණය"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "දත්ත දෘශ්යකරණය"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "දෘශ්යකරණය"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "දුවන්න"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "දත්ත සමුදා නාමයට ඇතුළු වන්න."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "දත්ත ප්රභවයේ නම ඇතුළත් කරන්න."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "දත්ත වර්ගයක් නොමැති තීරු ආනයනය නොකෙරේ."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "අවම වශයෙන් එක් ඩේටා ටයිම් තීරුවක් අවශ්ය වේ."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "දෘශ්යකරණය සඳහා, X- අක්ෂය සඳහා '{col}' භාවිතා කරන්න."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "ඔබට විශ්වාසද?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "මේස නරඹන්නා"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "වගුව"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "වර්ග කරන්න"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "දත්ත ගණන"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "බැසයාම"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "නැගීම"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "පරිපුර්ණ ගැළපීම"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "අර්ධ ගැලපීම"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "අවලංගු ඉලක්කම් තේරීම"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "සම්බන්ධ කිරීම සඳහා භාවිතා කරන චරිතයේ දිග වෙනස් වේ."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "පෙරනයක් නැත"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "සියලුම රේඛා"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "තත්ත්වය"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "රැකියා ලැයිස්තුව"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "සියලුම"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "ආනයනය සම්පූර්ණයි."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "ආනයනය කිරීම"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "ආනයනය අසමත් විය"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "පටවන ලද දත්ත මකා දැමෙනු ඇත. ඒක හරිද? (ලියාපදිංචි බොත්තම එබූ තුරු කිසිදු වෙනසක් පිළිබිඹු නොවේ)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "රැකියා ලැයිස්තුව"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "රැකියා හැඳුනුම්පත"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "රැකියා නම"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "සම්බන්ධිත ID පරම්පරාව"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Link ID හි උත්පාදන රැකියාවක් පෙන්වන්න"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "ක්රියාවලි තොරතුරු මකා දැමීම"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "කර්මාන්තශාලා දත්ත ආනයනය කරන්න"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "අතීත කර්මාන්තශාලා දත්ත ආනයනය කරන්න"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "අතීත කර්මාන්තශාලා දත්තවල ආනයනය ආනයනය කරන්න"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV ආනයන දත්ත"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "පැරණි දත්ත මකන්න"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "ආරම්භක වේලාව"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "ගත වූ කාලය"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "දත්ත සමුදාය / CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "ප්රගතිය"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "ක්රියාවලිය"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "හිස්ටෝග්රෑම් ලැයිස්තුව"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "පුපුරා යාමේ වටිනාකමක් ලෙස ලියාපදිංචි වන්න"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "ලියාපදිංචිකරු අභිමතය පරිදි"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "පිටස්තරයන් සඟවන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "පිටස්තරයින් පෙන්වන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "පිටස්තරයින් පරීක්ෂා කරන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "හිස්ටෝග්රෑම් ලැයිස්තුව පෙන්වන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "අවසන් යාවත්කාලීන කාලය"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "අභිබවා යාම ලියාපදිංචි කිරීම අවලංගු කර ඇත."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "පිටස්තරයෙකු ලෙස ලියාපදිංචි වී ඇත"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "පිටස්තරයා"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "එක් වරක් පමණි"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "රැකියා විස්තර"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "ක්ලිප් පුවරුවට පිටපත් කරන්න"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "බහු විසිරී ඇති බිම් කොටස"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "විසිරීම බිම් කොටස"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "වර්ගීකරණ විචල්ය දෘශ්යමාන කිරීම"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "විචල්යයන් මගින් ස්ථරීකරණය කරන්න"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "විචල්යය"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "යන්ත්ර නැත"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "ඉලක්කගත කාලය"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "සංඛ්යාතය (ගණන් කරන්න)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Dens නත්ව තක්සේරුව"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "වර්ගීකරණ විචල්යය"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "වාරය අනුව (සෘජු)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "ඉලක්ක විචල්යයන් අටක් හෝ වැඩි ගණනක් ඔබට තෝරා ගත නොහැක. ඉලක්ක විචල්යය තෝරන්න."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "විෂමතා හඳුනාගැනීම"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "මූලධර්ම සංරචක විශ්ලේෂණය"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. දත්ත පරීක්ෂා කිරීමේ ප්රධාන සංරචක ලකුණු"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. පුහුණු දත්තවල ප්රධාන සංරචක ලකුණු"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. T2 සංඛ්යාලේඛන පිළිබඳ ශ්රේණි සටහන"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Q සංඛ්යාලේඛනවල ශ්රේණි සටහන"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. T2 සංඛ්යාලේඛනවල දායකත්වය"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Q සංඛ්යාලේඛනවල දායකත්වය"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "පිටස්තරයා ඉවත් කරන්න"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "පුහුණු දත්ත"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "දත්ත පරීක්ෂා කිරීම"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "ඔව්"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "නැත"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "දත්ත වර්ගය"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "උදාහරණයක්"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "දෝෂයකි"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "අවවාදයයි"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "සියලුම පේළි වලන අගය සැකසුම් (NA ඉවත් කිරීම) මගින් මකා දමා ඇති බැවින්, විශ්ලේෂණය කිරීමට දත්ත නොමැත. NA ඇතුළු හිස් අගය තෝරා නොගන්නා බවට වග බලා ගන්න."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "එය විශ්ලේෂණය කළ නොහැක එහි සංඛ්යා හැර වෙනත් දත්ත අඩංගු බැවින්. ඔබ නූල් හෝ කාණ්ඩයේ වටිනාකමක් අඩංගු තීරුවක් තෝරාගෙන ඇති බවට වග බලා ගන්න."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "විශ්ලේෂණය කළ නොහැක 0 හි විචල්යතාවයක් සහිත දත්ත අඩංගු වන නිසා එය එක් අගය තීරුවක් පමණක් තෝරා නොගනී."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "ප්රවර්ග දත්ත සහ අපේක්ෂිත පූර්ණ සංඛ්යා අගය හමු විය. මෙම නිඛිල වටිනාකම ඇණවුම් පරිමාණයක් නොවේ නම්, අන්තර් පරිමාණය හෝ අනුපාතයේ පරිමාණය, විශ්ලේෂණ ප්රති results ල, විශ්ලේෂණ ප්රති results ල අහිතකර ලෙස බලපායි."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "විශ්ලේෂණය ඉදිරියට ගෙන යන බව ඔබට විශ්වාසද?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "සොයන්න"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "මධ්යන්යය සාමාන්ය සංඛ්යාලේඛන වලින් එකකි. එය අවසන් වූ අනුපිළිවෙලට සීමිත දත්ත සකස් කර ඇති විට එය මධ්යයේ පිහිටා ඇති අගයකි. නිදසුනක් වශයෙන්, පස්දෙනෙකු සම්බන්ධයෙන් ගත් කල, යුගයේ මධ්යන්ය වයස වයස අනුව තුන්වන යුගය වේ. දත්ත ගණන පවා තිබේ නම්, මධ්යම නීත්යානුකූලව අංකනයෙහි සාමාන්යය භාවිතා වේ."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "මැක්ස්"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "බෙදා හැරීමේ සාරාංශය"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N අංකය"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "සාමාන්යය"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "මධ්යන්යය යනු කුමක්ද ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "සමස්ත"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "නිතර"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "අවසන් ස්ථානය"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "ඉලක්ක ක්රියාවලිය"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "කාල මාලාව"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "කෑලි"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "දත්ත සබැඳිය ගණන"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "තත්පර"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "ප්රතිචාර කාලය"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "සංස්කරණය කරන්න"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "ආපසු"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "නෝඩ් එක් කරන්න"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "දාරය එක් කරන්න"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "නෝඩ් සංස්කරණය කරන්න"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "නව නෝඩයක් තැබීමට හිස් අවකාශය මත ක්ලික් කරන්න."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "නෝඩය ක්ලික් කරන්න, දාරය වෙනත් නෝඩයකට ඇදගෙන ඒවා සම්බන්ධ කරන්න."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "පාලක ලක්ෂ්යය ක්ලික් කරන්න, එය නෝඩයට ඇදගෙන යන්න."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "දාරය එකතු කළ නොහැක."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "පොකුරු මකා දැමිය නොහැක."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "පොකුරු සංස්කරණය කළ නොහැක."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "දර්ශන නාමය හෝ අගය අනුපිටපත් කර ඇත."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "දර්ශන නාමය සහ අගය ඇතුළත් කරන්න."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "රේඛීය තීරුව ඇතුළත් කරන්න."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "පැය"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "දත්ත තොරතුරු"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "දින"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "සතිය"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "පැටවීම"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "සුරකින්න"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "නැවත ලියන්න"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "සැකසුම"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "මාතෘකාව වෙනස් කරන්න එකම මාතෘකාව සකසා ඇති නිසා."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "සැකසුම සුරකින්න"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "තිර රුවක් සාදන්න"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "බාගත"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "ප්රස්ථාරය පෙන්විය නොහැකි වීමට හේතු පහත පරිදි වේ. BREAK_LINE තත්වය පරීක්ෂා කරන්න. BREAK_LINE・ දත්ත ආනයනය නොකළ හෝ ආනයනය මැද. BREAK_LINE・ දත්ත සම්බන්ධ වී නැත, නැතහොත් ගැටගැසීමේ මැද. BREAK_LINE・ ප්රස්ථාරයේ පසුබිම නුසුදුසු ය."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "අවවාදයයි"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "දින දත්ත තීරුවේ අවලංගු දත්ත අඩංගු වාර්තා ආනයනය නොකෙරේ."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "ආනයනය කළ නොහැකි දත්ත සඳහා පහත දැක්වෙන ෆෝල්ඩරයේ ඇති ගොනු වෙත ඔබට යොමු කළ හැකිය."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "භාවිතයේ තත්වය උඩුගත කළ නොහැක එය අන්තර්ජාලයට සම්බන්ධ නැති නිසා."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "කරුණාකර ජාල සම්බන්ධතාවය පරීක්ෂා කරන්න."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "දත්ත නැවත සම්බන්ධ කිරීමට බොහෝ කාලයක් ගතවනු ඇත."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "දත්ත නැවත සම්බන්ධ කිරීමට ඔබට විශ්වාසද?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "ගබ්සා කරන්න"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "ක්රියාත්මක කරන්න"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "කලින් ලියාපදිංචි කළ දත්ත සබැඳි සැකසුම් නැවත පූරණය කිරීමට ඔබට විශ්වාසද?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "දත්ත ආනයනය කිරීම ආරම්භ කිරීම."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "පහත සබැඳියෙන් ආනයනයේ ප්රගතිය ඔබට පරීක්ෂා කළ හැකිය."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "දෝෂ තත්වයක් සඳහා රැකියා ලැයිස්තු පිටුව බලන්න."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "දත්ත සම්බන්ධ කිරීම ආරම්භ කිරීම."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "සෑම මිනිත්තු 3 කට වරක්"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "සෑම මිනිත්තු 5 කට වරක්"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "සෑම විනාඩි 10 කට වරක්"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "විකල්ප ශ්රිතය"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "ගොනු වර්ගය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV අපනයනය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "තෝරාගත් වාර්තා විශාල සංඛ්යාවක් සහ ප්රස්ථාරය ප්රදර්ශනය කිරීමට ගතවන කාලය නිසා, ප්රස්ථාරයක වාර්තා ගණන 50,000 කට සීමා කර ඇත."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "කාල ශ්රේණියේ සටහන"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "ප්රවර්ග වටිනාකම"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "නිශ්චිත කාල සීමාව තුළ වාර්තා ගණන 5,000 ට වඩා 5,000, BREAK_LINE සබැඳිය නිශ්චිත කාල සීමාව තුළ දින 14 ක් තුළ බැඳී සිටී. ඔබට සම්බන්ධක පරාසය සීමා කිරීමට අවශ්ය නැතිනම්, BREAK_LINE හි වාර්තා ගණන අඩු කිරීම සඳහා කාල සීමාව සකස් කරන්න."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "පරිමාණය සැකසීම"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "පොදු පරිමාණය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "එළිපත්ත රේඛාව"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "ස්වයංක්රීය පරිමාණය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "භාවිතයේ පරිමාණය වීම"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn ක්රියාවලියේ"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "මැක්ස්"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "මිනි"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "කිසිවක් නැත"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "සාරාංශය"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "ගණන් කරන්න"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "මූලික සංඛ්යාලේඛන"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "පරාමිතික නොවන"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "දත්තවල ගුණාත්මකභාවය"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "නරඹන්නාට"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "දත්ත ආයාත කරන්න"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "වත්මන් වින්යාසය මත පදනම්ව දත්ත සම්බන්ධ කිරීමේ ක්රියාවලිය ආරම්භ වේ."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "සබැඳිය සඳහා දත්ත විශාල ප්රමාණයක් තිබේ නම් කාලය ගතවනු ඇත. ආරම්භ කිරීම හරිද?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* ස්වයංක්රීයව හා වරින් වර ආනයනය කරන දත්ත සඳහා, ID සබැඳිය ස්වයංක්රීයව ජනනය වේ."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "දත්ත ප්රභවයේ නම"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "දත්ත ප්රභව වර්ගය"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "වෙනස්කම් සුරැකීමට ඔබට විශ්වාසද?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "කාලීන කලාප සැකසුම් සඳහා බලහත්කාරයෙන් මෙහෙයුම් පද්ධතිය."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "උසස් පසුබිම"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "දත්ත සමුදාය / CSV දත්ත ආනයනය කිරීමේ ගොනුව සඳහා සැකසුම් සුරකිනු ඇත. සැකසුම් පිටුවට යන්න, දත්ත ආනයනය කිරීම සඳහා ආනයන දත්ත තීරු තබන්න."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "මූලද්රව්ය දත්තවල අවශ්ය ලක්ෂණයක් නොමැත."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "මූලද්රව්ය දත්ත සඳහා අවශ්ය ආරෝපණ අගයක් නොමැත."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "පීසීඒ විසින් අසාමාන්ය ලෙස හඳුනා ගැනීමකට අවම වශයෙන් විචල්ය දෙකක් අවශ්ය වේ. විචල්යයන් දෙකක් හෝ වැඩි ගණනක් තෝරන්න."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "අවම වශයෙන් එක් තීරුවක්වත් තෝරන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "කොටුවේ පළල අඩු කරන කාණ්ඩ විචල්යයන් දර්ශනය නොවේ."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "ඉලක්කම් ආරම්භ කිරීම"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "රිඩාලයින් කුමන්ත්රණය"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "අයදුම්පත නවත්වන්න (දාර සේවාදායකය). ඔබ නැවැත්වීමෙන් නම්, වෙනත් ඕනෑම පරිශීලකයෙකුට ද භාවිතා කිරීමට නොහැකි වනු ඇත, එබැවින් කරුණාකර පරිපාලක අමතන්න. <br> සාමාන්ය අවසානයකදී, මෙහි අවලංගු කර බ්රව්සරය වසා දමන්න."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "සියලුම රැකියාව නතර කර ඇත. ඔබේ බ්රව්සරය සහ කොන්සෝලය ආරක්ෂිතව වසා දැමිය හැකිය."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "දත්ත ප්රභව වින්යාසය"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "දත්ත ප්රභව ආනයන වින්යාසය"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": තීරු අක්ෂර තීරු කිහිපයක් හමු විය. සංඛ්යාත්මක වර්ගයේ තීරුව ආදිය වැරදි ලෙස හඳුනාගත හැකි බව පරීක්ෂා කරන්න."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "පෙරහන් අයිතමය"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "පෙරහන් අගය"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "කල් ඉකුත් වීමේ දිනය (ආරම්භය)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "කල් ඉකුත් වීමේ දිනය (අවසානය)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "තීරුවේ දත්ත වර්ග වින්යාස වැරදීම් හේතුවෙන් දත්ත ආනයනය කළ නොහැක. දත්ත ප්රභවයේ නම __param__ CSV/TSV කියවීමේ සැකසුම් පිටුවේ දත්ත පෙරදසුනෙහි දත්ත වර්ග සැකසුම් පරීක්ෂා කරන්න. ආනයනය කළ නොහැකි සහ සැකසුම් සැකසීමට නොහැකි වන පියවර සැකසුම් මකන්න."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "දත්ත නොමැතිව ගොනුවක් තිබුණි. ගොනුවේ අන්තර්ගතය පරීක්ෂා කරන්න. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "වලංගු කාල සීමාවේ සිට අවම වශයෙන් එක් වටිනාකමක් හෝ දක්වා වත් කරන්න."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "කාණ්ඩයෙන් බෙදන්න"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "වාරය අනුව බෙදීම (චක්රීය)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "වාරය අනුව බෙදීම (සෘජු)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "ඇතුළත් කළ පරතරයෙහි වටිනාකම අවලංගුය. 0.1 හෝ ඊට වැඩි, 720 හෝ ඊට අඩු හෝ අඩු හෝ -720 හෝ ඊට වැඩි ගණනක් ඇතුළත් කරන්න, සහ -0.1 හෝ ඊට අඩු."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "ආදාන රිංගලයින් සංඛ්යාව අවලංගුය. 1 හෝ ඊට වැඩි සංඛ්යාවක් සහ 150 හෝ ඊට අඩු නිඛිලයක් ඇතුළත් කරන්න. (100 ක් පමණ භාවිතා කිරීමට කැමැත්තක් දක්වන්න)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "දත්ත සහ වේලාව ආරම්භ කරන්න"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "කාල පරතරය"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "කවුළු දිග"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "අයිතමය පාලනය කරන්න"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "වර්ගය"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "නම"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "එක් කාණ්ඩයක දත්ත ලකුණු ගණන 50 ට අඩු නම්, ප්රස්ථාරයේ නිරවද්යතාවය අඩු විය හැකි බව සලකන්න."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "හරස් හිසකෙස් කර්සරය පෙන්වන්න (ක්ලික් කරන්න)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "බහු තරණය කිරීමේ කර්සරය පෙන්වන්න (දෙවරක් ක්ලික් කරන්න)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "හිස්ටෝග්රෑම් ලැයිස්තුව පෙන්වන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "අවලංගු කිරීම අවලංගු කරන්න"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "නිශ්චිතව දක්වා ඇති `දත්ත ප්රභවයේ නම` දැනටමත් පවතී."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "දත්ත ආනයනය සහිත ගොනුවක් දත්ත ප්රභවයේ තිබී ඇති ගොනුවක් නිසා දත්ත ආනයනය අසාර්ථක විය. ගොනුවේ අන්තර්ගතය පරීක්ෂා කර දත්ත ප්රභව ආනයන සැකසුම් නැවත සකසන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "සම්බන්ධ කළ යුතු වාර්තා ගණන"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "සාම්පල ගණන"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "සම්බන්ධ කළ යුතු වාර්තා ගණන"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "මුළු වාර්තා ගණන"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "කරුණාකර CSV/TSV ලිපිගොනු \"yyyymmdd\" වැනි ෆෝල්ඩරය නම් කරන්න"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "පුරෝකථනය"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "පෙරහන් වින්යාසය"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "මාස්ටර් වින්යාසය"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "පෙරහන් වින්යාසයේ සිට"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "සියල්ල පෙන්වන්න"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "යතුරක් ලෙස (විකල්පය)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "REMOVED_COUNT හිඟකම, අසාමාන්ය අගය සහ TOTAL_COUNT වෙතින් දළ වශයෙන් TOTAL_COUNT මකා දමන ලදි."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP ලිපිනය"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "දත්ත බෙදා හැරීම හිස්ටෝග්රෑම් හා dens නත්ව තක්සේරුව සමඟ සසඳා බලන්න. ප්රස්ථාරය ස්ථර විචල්යය මගින් බෙදී ඇත. එය මුහුණත මගින් ද බෙදී යයි."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "අක්ෂයේ හෝ ID අක්ෂය මත ඇති සියලුම දත්ත ගණන සැලසුම් කරන්න."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "විසිරී යන බිම්දේට් අනුකෘතිය පෙන්වන්න. ඔබට ඉලක්කගත විචල්යයන් 2 සිට 7 දක්වා භාවිතා කළ හැකිය."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "ප්රධාන සංරචක විශ්ලේෂණයෙන්, \"වෙනස්\" දෘශ්යකරණය සහ එහි සාධක විශ්ලේෂණයන් දෘශ්යකරණය. ගුරු දත්තයක් ලෙස සාමාන්ය දත්ත ගුරු දත්තයක් ලෙස ඇතුළත් කර වත්මන් දත්ත එහි සාමාන්ය දත්ත (T2 / Q) ලෙස සමාන තත්වයක් තිබේද යන්න දෘශ්යමාන කරන්න. ඔබට වෙනස් තත්වයක් තිබේ නම්, දායකත්වයේ බිම් කොටසෙහි ප්රධාන සාධක පරීක්ෂා කළ හැකිය."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "බෙදා හැරීම මෙම විචල්යයෙන් බහු ප්රස්ථාරවලට බෙදා ඇත. කොටස් හා දුම්රිය ස්ථාන වැනි කාණ්ඩ විචල්යයන් (ගුණාත්මක විචල්යයන්) තෝරන්න."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "ස්ට්රේට් වර්ගීකරණ කාණ්ඩ පෙරණය: දත්ත උප කුලකයකට පෙන්විය යුතු සීමාවන්. (වර්ගය: කොටස් අංකය, ස්ටේෂන් අංකය ආදිය)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "වෙනස්වන ස්ථාන සොයා ගැනීම සඳහා කුඩු මුදුනේ ඇති ලේබල් ලෙස දැක්වෙන කාණ්ඩයේ විචල්යයන් (කොටස් අංකය, ස්ටේෂන් අංකය ආදිය) වැනි)."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "ප්රස්ථාර පෙරණය: උප කුලකයකට දත්ත පෙන්වීම සීමා කරයි."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "ඉගෙනීමේ දත්ත සාමාන්ය තත්වයක් ලෙස අර්ථ නිරූපණය කරන්න. NG දත්ත අඩංගු නොවන දත්ත අංශය සකසන්න. ඇතුළත් කර ඇත්නම්, NG දත්ත වලට ආසන්නව සිටින ඒවා සාමාන්ය දත්ත ලෙස ද විනිශ්චය කරනු ලැබේ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "විනිශ්චය කළ යුතු පරීක්ෂණ දත්ත විනිශ්චය කළ යුතුය."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "අයිතම පෙරණය: උප කුලකයකට පෙන්වීම සඳහා දත්ත සීමා කිරීම (විශ්ලේෂණය කර ප්රදර්ශනය කිරීම)."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "එය ගුණන ලාභ සත්යාපන දත්ත දෙකේ ද්විමාන සමස්ථ සංදර්ශක (ප්රධාන සංරචකවල ත්රිමාන සම්පීඩනය). දත්ත මධ්යයේ තිබේ නම්, එය සාමාන්ය ආසන්න වශයෙන් අර්ථ නිරූපණය කළ හැකිය."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "එය බහු ජීවීන්ගේ ඉගෙනුම් දත්තවල ද්විමාන සමස්ථ සංදර්ශක (ප්රධාන සංරචකවල ත්රිමාන සම්පීඩනය) වේ. කේන්ද්රීය ඉලක්කය තීරණය වන්නේ ඉගෙනීමේ දත්ත අනුව ය, එබැවින් බොහෝ ඉගෙනුම් දත්ත ඉලක්කයේ තිබිය යුතුය."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "මෙම දත්තවල ප්රධාන සංරචකයේ විෂමතා අධිරාජ්යවාදීන් අධීක්ෂණය කරන T2 සංඛ්යාලේඛනයේ කුමන්ත්රණයක්. ඉගෙනීමේ දත්ත සුදු පැහැයෙන් හා negative ණ X කොටසෙහි සැලසුම් කර ඇත. කහ කුමන්ත්රණය වලංගු කිරීමේ දත්ත වේ. වලංගු කිරීමේ දත්ත වැඩි වන තරමට සුදු දත්ත හා සසඳන විට, තත්වය අපගමනය වීමට වැඩි ඉඩක් ඇත. තත්වය ඇති වන මූලද්රව්ය මොනවාද යන්න පිළිබඳ දායකත්වය බැලීමට දත්ත යොමු කරන්න."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Q සංඛ්යාලේඛනයේ කුමන්ත්රණයක් (මෙම දත්තවල සුළු කොටසේ විෂමතා සඳහා අධීක්ෂණය කිරීම, අවශේෂ). ඉගෙනීමේ දත්ත සුදු පැහැයෙන් හා negative ණ X කොටසෙහි සැලසුම් කර ඇත. කහ කුමන්ත්රණය වලංගු කිරීමේ දත්ත වේ. වලංගු කිරීමේ දත්ත වැඩි වන තරමට සුදු දත්ත හා සසඳන විට, තත්වය අපගමනය වීමට වැඩි ඉඩක් ඇත. තත්වය ඇති වන මූලද්රව්ය මොනවාද යන්න පිළිබඳ දායකත්වය බැලීමට දත්ත යොමු කරන්න."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "T2 සංඛ්යාලේඛන කුමන්ත්රණයේ තෝරාගත් අවස්ථාවේදී විචල්යයන් තත්වයට දායක වන විචල්යයන්ගේ අනුපිළිවෙල. දිග දිගු, හේතුව වැඩි වේ."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Q සංඛ්යාලේඛන කුමන්ත්රණයේ තෝරාගත් ස්ථානයේ ඇති වන අවස්ථාවෙහිදී විචල්යයන් තත්වයට දායක වන විචල්යයන්ගේ අනුපිළිවෙල. දිග දිගු, හේතුව වැඩි වේ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Q1 - 4.5 * IQR ට වඩා අඩු හෝ සමාන වටිනාකමක් ඇති දත්ත ලක්ෂ්ය ගණන"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Q3 + 4.5 * IQR ට වඩා වැඩි හෝ සමාන වටිනාකමක් ඇති දත්ත ලක්ෂ්ය ගණන"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "NA (ලබා ගත නොහැක), NaN (ලබා ගත නොහැක), NaN (අංකයක් නොවේ) සහ තෝරාගත් කාල පරිච්ඡේදයේ Inf± (අනන්තය)."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: තෝරාගත් කාල පරිච්ඡේදයේ ඉහළ සහ පහළ සීමාවෙන් පිටත දත්තවල ප්රතිශතය"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: තෝරාගත් කාල පරිච්ඡේදයේ ඉහළ සහ පහළ සීම සීමාවෙන් පිටත දත්තවල ප්රතිශතය"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "තෝරාගත් කාල පරිච්ඡේදයේ NA (ලබා ගත නොහැක) ප්රතිශතය (ගණන් කිරීම)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "තෝරාගත් කාල පරිච්ඡේදයේ NaN (අංකයක් නොවේ) ප්රතිශතය (ගණන් කරන්න)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "තෝරාගත් කාල පරිච්ඡේදයේ Inf+ (ප්ලස් අනන්තය) හි ප්රතිශතය (ගණන් කරන්න)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "තෝරාගත් කාල පරිච්ඡේදයේ Inf- (us ණ අනන්තය) ප්රතිශතය (ගණන් කිරීම)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "එළිපත්ත වටිනාකමෙන් පිටත දත්තවල මුළු ප්රතිශතය, NA (ලබා ගත නොහැක), NaN (අංකයක් නොවේ) සහ තෝරාගත් කාල පරිච්ඡේදයේ Inf± (අනන්තය)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "NA (ලබා ගත නොහැක), NaN (අංකයක් නැත) සහ තෝරාගත් කාල පරිච්ඡේදයේ NaN (අංකයක් නොවේ) සහ Inf± (අනන්තය)."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95 වන ප්රතිශතය"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75 වන ප්රතිශත (තෙවන කාර්තුමය)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25 වන ප්රතිශතය (පළමු කාර්තුව)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5 වන ප්රතිශතය"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "අන්තර් පල්ලියේ පරාසය (බෙදාහැරීමේ විචල්යතාවයේ නියෝජිත වටිනාකම: IRQ = Q3 - Q1 ≒ 1.349 @ @ සාමාන්ය බෙදා හැරීම)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "මධ්ය (50 වන ප්රතිශතය)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "පැය / පැය"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "මිනිත්තු / මිනිත්තුව"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "චක්රීය කාලය [S]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "අංශ අංකය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "දර්ශන චක්රය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "සංදර්ශක පරතරය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "දිනපතා තාප සිතියම"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "ඉලක්ක විචල්යයන් MAX_NUM_SENSOR හෝ ඊට වැඩි මගින් තෝරා ගත නොහැක. ඉලක්ක විචල්යය තෝරන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "පිටස්තරයා ඉවත් කිරීමේ ඉලක්ක Max, Mean, Min, σ සහ Range වේ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "තාත්වික සංඛ්යා හැර"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "එක් එක් වර්ගදායී විචල්යය (ගුණාත්මක විචල්යයන්, කැබලි අක්ෂර, ආදිය) හෝ දිනයා ටයිම් සඳහා ගණනය කිරීමෙන් බෙදාහැරීම දෘශ්යමාන කළ හැකිය. හරස් කණ්ඩායම් විශ්ලේෂණයට ඉඩ සලසන දෘශ්යකරණ ක්රමයක් (කැබලි අක්ෂර, දින, මාරුවීම් අතර සංසන්දනය) විවික්ත ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "එළිපත්ත ප්රස්තාංක මත ඇඳීමට සකසන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "විසිරීම ක්රියාත්මක නම්, ඔබට විසිරී ඇති කුමන්ත්රණය ඒ සමඟ පෙන්විය හැකිය. වත්මන් අයිතමය සහ ඊළඟ පේළි අයිතමය අතර විසිරී ඇති ස්කාර්ටර් කුමන්ත්රණය. විසිරී ඇති කුමන්ත්රණයේ X- අක්ෂය සහ Y- අක්ෂය මාරු කිරීම සඳහා අදාළ කුමන්ත්රණවල බිම් පත්ර අදින්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "දත්ත බෙදා හැරීම නිර්මාණය කරන දත්ත අයිතමයක් (සංඛ්යාත්මක විචල්යයක් හෝ මිනුම් වටිනාකමක් වැනි). මෙම දත්ත කුමන්ත්රණය මත සැලසුම් කර ඇත. අයිතම 20 ක් දක්වා තෝරා ගත හැකිය."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "මෙම ස්ථරීකරණය කරන ලද විචල්යය බෙදා හැරීම බහු බිම් කොටස් වලට බෙදී ඒවා පැත්තෙන් පෙන්වයි. කැබලි අංක හෝ කණ්ඩායම් අංකයක් වැනි වර්ගීකරණ විචල්යයක් තෝරන්න"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "එක් එක් tiate ටයිම් සඳහා රිඩාලයින් කුමන්ත්රණයක් පෙන්වීම සඳහා ආරම්භක දිනය ටයිම් ආදානය කරන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "එක් එක් tiate ටයිම් සඳහා රිඩාලයින් කුමන්ත්රණයක් පෙන්වීම සඳහා සෘජුව කාල සීමාව කෙලින්ම ආදානය කරන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "දත්ත ව්යුහයන් පරිවර්තනය කිරීම වැනි විශේෂ හැසිරවීම අවශ්ය වන CSV/TSV ගොනුවෙන් දත්ත ආයාත කිරීමට ඔබට විකල්ප තෝරා ගත හැකිය."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "පහත පෙරදසුන බොත්තම එබීමෙන් ගොනුවේ දත්තවල යම් කොටසක් ගොනුවේ යම් කොටසක් පෙන්වනු ඇති බැවින් ඔබට එහි අන්තර්ගතය පරීක්ෂා කළ හැකිය."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "දත්ත සම්බන්ධ කිරීම සඳහා කොන්දේසිය ලෙස භාවිතා කිරීමට ID සබැඳිය තෝරන්න. ඔබට බහු අයිතම ද තෝරා ගත හැකිය."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "ඔබගේ යෙදුම වරින් වර දත්ත ආනයනය කරන විට, ඔබට දත්ත වේලාවේ යතුර ලෙස මනාප ලෙස භාවිතා කරන ඩේමිටි ටයිම් තීරුවක් තෝරා ගත හැකිය."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "ඔබ ක්රියාකරුවෙකු තෝරාගෙන 'සාධකය' යටතේ අංකයක් ඇතුළත් කළහොත්, ප්රස්ථාරයේ වටිනාකම නිශ්චිත ක්රියාකරු සහ සාධකය භාවිතා කරමින් ගණනය කෙරේ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "ඔබ ක්රියාකරුවෙකු තෝරාගෙන 'සාධකය' යටතේ අංකයක් ඇතුළත් කළහොත්, ප්රස්ථාරයේ වටිනාකම නිශ්චිත ක්රියාකරු සහ සාධකය භාවිතා කරමින් ගණනය කෙරේ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "දැනට ඇති කට්ටල සම්බන්ධක තත්වයන් මගින් කොපමණ දත්ත සම්බන්ධ වේද යන්න අනාවැකි කිව හැකිය."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "දැනට තබා ඇති දත්ත සම්බන්ධ කිරීමේ තත්ත්වය සහ කලින් ලියාපදිංචි කළ තත්වය සපුරාලයි."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "STET සම්බන්ධක තත්වයන් සමඟ දත්ත සම්බන්ධ කර ගැනීම සඳහා ID අභ්යන්තරව ජනනය කරනු ලැබේ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "ප්රස්ථාර සැකසුම් භාවිතා කරමින් ගුණාත්මක පාලනය හෝ උපකරණ පාලන අයිතම තෝරන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "කරුණාකර කොටස් අංකය සහ උපකරණ වැනි කළමනාකරණ ඉලක්කය තෝරන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "කරුණාකර කොටස් ගණන සහ උපකරණවල වටිනාකම වැනි කළමනාකරණ ඉලක්කය තෝරන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "ප්රස්ථාර සැකසුම් සඳහා ආරම්භක දිනය ටයිම් සකසන්න. (අවශ්යයි)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "ප්රස්ථාර සැකසුම් සඳහා අවසාන දිනය කාලය සකසන්න. (අත්යවශ්ය නොවේ)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "සුරකින ලද වින්යාසය කියවන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "ඔබ ඇතුළත් කළ නවතම වින්යාසය සුරකින්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "තිරය ​​PNG ගොනුවක් ලෙස සුරකින්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "මෙම සැකසුම මකා දැමීමට ඔබට අවශ්යද?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "ඉලක්ක විචල්යය (තාත්වික අංකය)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "ඉලක්ක විචල්යය (කාණ්ඩය)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "දර්ශක ඇණවුම් කිරීම"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "තීරුව"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "නියෝග"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "ප්රමුඛතාවය"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "ඇණවුම් කිරීම"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "විචල්යයන්"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "තාත්වික හා වර්ගීකරණය පමණි"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "නියමයි"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "වර්ගීකරණය පමණි"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "කට්ටල අනුපිළිවෙලින්"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "ක්රියාවලි නියෝගයේදී"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "සහසම්බන්ධතා COEF හි. නියෝග"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "සහසම්බන්ධතා එළිපත්ත (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "වෛෂයික විචල්යය සඳහා තෝරන්න"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "වෛෂයික විචල්යය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "පැහැදිලි කිරීමේ විචල්යය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "ලබා ගත හැකි අනුපාතය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "සැන්කි රූප සටහන"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "තරගය (පරිපූර්ණ ගැලපීම)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR සෙවීම"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND සෙවීම"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "සමාන්තර සම්බන්ධීකරණ කුමන්ත්රණයට සැබෑ සංඛ්යා ප්රතිකාර කළ නොහැක, තාත්වික සංඛ්යා දත්ත ඉවත් කර ඇත."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr "General Search Options&#013;"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "නැවත ලියාපදිංචි කිරීම"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "දර්ශන නාමය වැනි සංස්කරණය කළ තොරතුරු ලියාපදිංචි කරන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "වෙනස් කරන ලද අන්තර්ගතයන් සමඟ ලියාපදිංචි වීමට ඔබට අවශ්යද?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "ඔබ සබැඳිය වෙනස් කරන්නේ නම් ID, කරුණාකර දත්ත ලින්ක් වින්යාසය නැවත සකසන්න."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "සම-සිදුවීම් ප්රස්ථාර"
+
+# co-occurrence
+msgid "Data file"
+msgstr "දත්ත ගොනුව"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "විසින් එකතු කරනු ලැබේ"
+
+# co-occurrence
+msgid "Hour"
+msgstr "පැය"
+
+# co-occurrence
+msgid "Day"
+msgstr "දින"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "සංස්කරණ මාදිලිය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "සැකසුම් මාදිලිය"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "රතු පැහැය ඉස්මතු කළ අවලංගු දත්ත මකා දැමෙනු ඇත. ඔබ ප්රකාරය සැකසීමට ඔබට විශ්වාසද?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "ප්රමුඛතාවය"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "අනුපිටපතක් ඉංග්රීසි නමක් අනාවරණය වී ඇති බැවින් අනුක්රමික අංකය ස්වයංක්රීයව එකතු කරන ලදි. තීරු නම් පරීක්ෂා කරන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "සමුච්චිත ඒකක"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "පළමු තීරුව දිනය ටයිම් වන අතර දෙවන තීරුවේ සහ පසුකාලීන තීරුවල අනතුරු ඇඟවීමේ කොඩි / සිදුවීම් ගණන (0,1,2 ...) වේ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "පැය / දිනෙන් දින සමස්ථ සම-සිදුවීම සබඳතා."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "සංදර්ශකය වසා දමන්න"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "ඔබ 100%% ට වඩා අඩු අගයක් තෝරා ගන්නේ නම්, ඔබ කුඩා සම-චාරිකා සම්බන්ධතාවයක් සඟවනු ඇත. (පෙරනිමිය: එක් වරක් පවා තිබේ නම් රේඛාවක් අඳින්න)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "ඉලක්ක විචල්යයට සෘජුව හෝ වක්රව සහසම්බන්ධිත විචල්යයන් හඳුනාගෙන දෘශ්යමාන කරන්න."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "මෙහි දක්වා ඇති විචල්යයන් අතර සහසම්බන්ධය දෘශ්යමාන කරන්න. අයිතම 60 ක් දක්වා තෝරා ගත හැකිය."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "වෛෂයික විචල්යයන් සමඟ සම්බන්ධ වන අපේක්ෂක විචල්යයන්."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "සමාන්තර සම්බන්ධීකරණ කුමන්ත්රණය"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "සියලුම දාරවල"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "පිරිසැලසුම"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "රවුම"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "ස්වයංක්රීය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "කාර්යක්ෂමතාව"
+
+msgid "Set threshold"
+msgstr "Control Line: සම්මත රේඛා වැනි කළමනාකරණ මට්ටම් ඇඳීමේදී පරීක්ෂා කරන්න"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "විශ්ලේෂණ වේදිකාව"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "පැරේටෝ වගුව"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "සිදුවීම ගණන"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "සමුච්චිත අනුපාතය [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "ක්රියාවන්, සතියේ දින, මාරුවීම් ආදිය තුළ වාර්ෂික විචක්ෂණ වැනි දීර් period කාලයක් තුළ දත්ත සමඟ වෙනස් කළ හැකි පරාමිතීන් දෘශ්යමාන කරන්න."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "ඉලක්ක විචල්යය සම්බන්ධයෙන් විචල්යයන් විශාල සංඛ්යාවක් අතර සහසම්බන්ධය දෘශ්යමාන කරන්න."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "දෝෂ, අනතුරු ඇඟවීම්, සිදුවීම් සහ යනාදිය සම-සිදුවීම දෘශ්යමාන කිරීම (එක් සංසිද්ධියක එකවර සිදුවීමේ වාර ගණන සහ තවත් අවස්ථාවක වාර ගණන කෙරෙහි සම්බන්ධතාවය විෂබීජහරණය කිරීම)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "හිස්"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: දත්ත සිතියම්ගත කිරීම, දෘශ්යකරණය, සංඛ්යාන විශ්ලේෂණය සහ යන්ත්ර ඉගෙනීම සඳහා සරල මෙවලමක්."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "මෙහි ඇති දත්ත කට්ටලය දත්ත සම්බන්ධ කිරීම සහ කුමන්ත්රණය සඳහා යොමු කිරීමක් ලෙස භාවිතා කරයි. සැකසුම් කුමන්ත්රණයේ තිරස් අක්ෂය තුළ භාවිතා වේ. ඊට අමතරව, මූලාරම්භය බිම් කොටස ලා නිල් රාමුවක් සමඟ දර්ශනය වේ."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "දත්ත (උදාහරණයක් ලෙස, සංඛ්යාත්මක විචල්යයන් සඳහා) කුමන්ත්රණය සඳහා නියම කරයි. කුමන්ත්රණය මත සැලසුම් කළ යුතු ක්රියාවලි සහ අයිතම තෝරන්න. අයිතම 20 ක් දක්වා තෝරා ගත හැකිය."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "දත්ත (උදාහරණයක් ලෙස, සංඛ්යාත්මක විචල්යයන් සඳහා) කුමන්ත්රණය සඳහා නියම කරයි. කුමන්ත්රණය මත සැලසුම් කළ යුතු ක්රියාවලි සහ අයිතම තෝරන්න. අයිතම 8 ක් දක්වා තෝරා ගත හැකිය."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "හිස්"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "මෙම ස්ථර විචල්යය විසින් විවිධ බිම් කැබලිවලට දෘශ්යමාන කර ඒවා දෙපැත්තෙන්ම ප්රදර්ශනය කිරීමට රටාව බෙදී යයි. කොටස් 100 ක් දක්වා කොටස් අංකය සහ ස්ථාන දුම්රිය ස්ථානය වැනි වර්ගීකරණ විචල්යයන් තෝරා ගත හැකිය."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "විචල්යයන් (ප්රමාණාත්මක විචල්යයන්: මිනුම් සාරධර්ම ආදිය අතර සහසම්බන්ධතා දෘශ්යමාන දත්තවල අයිතමය. මෙම දත්ත ප්රස්ථාරයේ සැලසුම් කර ඇත. පරාමිති 2 සිට 7 දක්වා තෝරා ගත හැකිය."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "විචල්යයන් අතර සහසම්බන්ධය දෘශ්යමාන කිරීමට අයිතමය තෝරන්න. අයිතම 60 ක් දක්වා තෝරා ගත හැකිය."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "විචල්යයන් අතර සහසම්බන්ධය දෘශ්යමාන කිරීම සඳහා කාණ්ඩයේ විචල්යයන් (කොටස් අංක වැනි) අයිතම."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "කාඩ්පත උපරිම කරන්න"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "කාඩ්පත අවම කරන්න"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "මෙම සැකසුම වෙනස් කර ඇත්නම්, දත්ත සම්බන්ධක සැකසුම් නැවත සකසා ගැනීම අවශ්ය වේ."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "ස්වයංක්රීයව තෝරන්න"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "සියල්ල දකුණට තෝරන්න"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "සියල්ල නිවැරදි ලෙස තෝරා නොගන්න"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "මෙතැන් සිට ඇති සියලුම සැබෑ (පාවෙන)"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "මෙතන සිට සියලු නිඛිල"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "මෙතනින් සියලුම නූල්"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "තෝරාගත් වාර්තා විශාල සංඛ්යාවක් සහ කුමන්ත්රණයක් ප්රදර්ශනය කිරීමට ගතවන කාලය නිසා, එක් කුමන්ත්රණය සඳහා සෛල ගණන 10,000 කට සීමා විය. BREAK_LINE ඉලක්කගත කාලය සඳහා සියලු දත්ත බැලීමට ඔබට අවශ්ය නම්, දර්ශන පරතරය වැඩි කරන්න හෝ සෛල ගණන අඩු කිරීම සඳහා ඉලක්කගත කාලය අඩු කරන්න."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "අනුක්රමික"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "කුමන්ත්රණයේ දකුණු-ක්ලික් කිරීම මගින් කුමන්ත්රණයේ පරිමාණය සකස් කළ හැකිය."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "ප්රස්ථාර පරිමාණය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "සැකසුම් මාදිලිය"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "සම්බන්ධ කළ නොහැකි දත්ත අයිතම ගණන"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "විසිරීම බිම් කොටස"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "සමෝච්ඡයෙන්"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "ඉතිරි කිරීම"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "හිස්"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "පැටවුම් සැකසුම"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "බෙදාගන්න / පුද්ගලික"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "විස්තර"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "නිර්මාණය කළේ"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "භාවිතය / පැටවීම"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "පැටවීම"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "ආරම්භක ලක්ෂ්ය ක්රියාවලියට සම්බන්ධ කළ නොහැකි දත්ත ගණන (සම්බන්ධකයේ ප්රතිශතය)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "ටයිම් ටයිම් සුරකින්න"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "කොටස් බෙදා ගන්න"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "සුරකින්න"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "ඉලක්කගත විචල්යයන් 2 සිට 7 දක්වා ඔබට තෝරා ගත හැකිය. ඉලක්ක විචල්යයන් ගණන පරීක්ෂා කර සැකසුම් නිවැරදි කරන්න."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "ගොනු ප්රමාණයේ සීමාව 10 MB වේ. ගොනු ප්රමාණය අඩු කර නැවත උත්සාහ කරන්න."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "පරීක්ෂා කර ඇත්නම්, නිශ්චිත වේලාළු තුමා ද බේරී ඇත."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "මෙම සැකසුම බෙදා ගැනීමට පරීක්ෂා කරන්න."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "සැකසුම් සුරකින්න."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "සැකසුම් නැවත ලිවීමට ඔබට විශ්වාසද?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "බෙදාගන්න"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "පුද්ගලික"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "නිර්මාණය කරන ලද්දේ"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "වසන්න"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "ඇණවුම් කට්ටලය"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "ආරම්භක වේලාව ආරම්භ කරන්න"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "අවසාන දිනය ටයිම්"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "X- අක්ෂීය ලේබල් පෙන්වන්න"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "දිනය ටයිම් පරාසය"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "ගොනුව මෙතැනට ඇදගෙන යන්න"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "හෝ"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "ගොනු තෝරන්න"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "පෙන්විය නොහැක"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "දත්ත විශාල ප්රමාණයක් සහ දිගු සැකසුම් කාලය නිසා සැකසීම බාධා ඇති විය. ටයිඩයිම් සැකසුම් සමාලෝචනය කර ප්ලේට් නැවත ප්රදර්ශනය කරන්න."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "CSV ගොනුව ප්රතිදානය කිරීම. ගොනුව බාගත කිරීම් අතරතුර කරුණාකර රැඳී සිටින්න."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "TSV ගොනුව ප්රතිදානය කිරීම. ගොනුව බාගත කිරීම් අතරතුර කරුණාකර රැඳී සිටින්න."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "ස්වයංක්රීය පරාසය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "සම්පූර්ණ පරාසය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "දර්ශක ඇණවුම් සැකසුම"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "විවෘත"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "මකන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "ප්රස්ථාරයකට දත්ත ලකුණු සංඛ්යාව 12,000 ඉක්මවා ඇති බැවින්, දත්ත ස්ථාන ගණන උපරිම 12,000 ට සීමා විය. ඔබට සම්පූර්ණ දත්ත බැලීමට අවශ්ය නම්, කෙටි ඉලක්ක කාල සීමාව සකසන්න."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "වාරය අනුව (චක්රීය)"
+
+#: component.js
+msgid "Facet"
+msgstr "මුහුණත"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "තෝරාගත් අයිතමය සමඟ කාණ්ඩය බෙදීම සිදු කරයි."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "ව්යතිරේක තක්සේරුව"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "සාමාන්යකරණය කළ අතුරු කොටස් පරාසය (IQR සාමාන්ය බෙදා හැරීම සමඟ IQR සම්බන්ධිත දර්ශකය, NiQR = 0.7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "මාදිලිය බොහෝ විට නිතර සිදුවන වටිනාකමයි."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "පිටස්තරයින් සමඟ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "පිටස්තරයින් නොමැතිව"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "අභිරුචි"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "අද"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "ඊයේ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "පසුගිය දින 7"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "පසුගිය දින 30 යි"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "මේ මාසයේ"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 මාසය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 මාස"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "අයදුම් කරන්න"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "සතිය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "දින 7 කට පෙර"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "දින 30 කට පෙර"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "මේ මාසයේ හස්ත දිනය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "මේ මාසයේ අවසාන දිනය"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 මාස"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "යාවත්කාලීන කරන ලදි"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "දත්ත ලකුණු වේගවත් මාදිලිය සමඟ සාරාංශ කොට ඇත. ඔබට දත්ත මග හැරීමකින් තොරව කුමන්ත්රණයක් ලබා ගැනීමට අවශ්ය නම්, ඉලක්කගත කාලය කෙටි කරන්න."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Y අක්ෂයේ පරාසය"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "පිටස්තරයා"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "හිස්"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "ක්රියාවලි සෙවීම"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "පිටු සලකුණ"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "එක් කුමන්ත්රණයකට දත්ත ලකුණු ගණන 10,000 කට වඩා වැඩි බැවින් dens නත්ව කුමන්ත්රණය අදින්න. විසිරී ඇති කුමන්ත්රණ සමඟ සියලුම දත්ත ලකුණු ප්රදර්ශනය කිරීමට ඔබට අවශ්ය නම්, ඉලක්කගත කාලය කෙටි කරන්න."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "හිස්"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "චක්රීය කාලය"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "තාත්වික අංකය"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "වෛෂයික විචල්යය"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "සහසම්බන්ධතා සංගුණකය ගණනය කරනු ලබන්නේ ඉලක්ක විචල්යය ලෙස මෙම විචල්යය භාවිතා කරමිනි. මෙහි දක්වා ඇති ඉලක්ක විචල්යය කුමන්ත්රණයේ දකුණු පැත්තේ වර්ණ බාර් එකක් සමඟ ද දර්ශනය වේ. ඔබට කුමන්ත්රණයේ ඉලක්ක විචල්යයන් වෙනස් කිරීමට අවශ්ය නම්, එක් එක් විචල්ය නාමයේ දකුණු-ක්ලික් කිරීම මඟින් ඔබට ඒවා අතර මාරු විය හැකිය."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "වැඩි කාණ්ඩ ඇති නිසා දත්ත දියේ ගිලී නැත. BREAK_LINE චෙක්පත් සහ අවශ්ය නම්, ඉලක්කගත කාලය කෙටි කිරීම."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "පෙරහන් සැකසුම"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "ලේබලය (කාණ්ඩයේ විචල්යයන්)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "පිටපත් කරන ලදි"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "අලවා ඇත"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "වින්යාසය පිටපත් කරන්න"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "වින්යාසය"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "ප්රභව සැකසුමකින් තොරව, පළමු ඉලක්කය මූලාරම්භය ලෙස තෝරා ගනු ලැබේ."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "දත්ත අපනයනය කරන්න"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "භාවිතා නොකිරීම"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "වැඩි කාණ්ඩ ඇති නිසා දත්ත අඳින්නේ නැත."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "පරීක්ෂා කිරීම සහ අවශ්ය නම්, ඉලක්කගත කාල පරිච්ඡේදයේ සැකසුම් සංශෝධනය කරන්න."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "දත්ත ගණන අනුව (චක්රීය)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "දත්ත ගණන"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "හිස්"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "හිස්"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "අරමුණු විචල්යය තෝරන්න."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "හිස්"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "දිරාපත්වීම / කාණ්ඩ දිරාපත්වීම"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "විසිරීම බිම් කොටස"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "X හෝ Y දත්ත වර්ගය නූල් නම්, වර්ණ සැකසුම සඳහා නූල් නොවන විචල්යයන් භාවිතා කළ නොහැක."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "අවසර ලත් පරාසයෙන් පිටත වටිනාකම අනාවරණය විය, එබැවින් අවම හෝ උපරිම වලංගු පරාසය ස්වයංක්රීයව තීරණය විය. අවශ්ය පරිදි සැකසුම් වෙනස් කරන්න."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "දකුණු ක්ලික් කරන්න: දත්ත සබැඳි සැකසුම / සංස්කරණය / මකන්න"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "ගත වූ කාලය"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "කාල නියෝගය"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "දත්ත අනුපිළිවෙල සැකසීම"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "කරුණාකර අනවශ්ය දත්ත මකා දමන්න __SERVER_INFO__ හි දෘ disk තැටියේ ධාරිතාව __SERVER_INFO__ %% වෙත ළඟා වී ඇති නිසා."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "`__SERVER_INFO__` හි දෘඩ තැටියේ ධාරිතාව __SERVER_INFO__ %% හි ධාරිතාව ඇති නිසා දත්ත වරාය නතර විය. අනවශ්ය දත්ත මකා දමා හිස් ධාරිතාව වැඩි වුවහොත්, දත්ත නැවත ආරම්භ කෙරේ."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "පෙන්විය යුතු බෙදාහැරීම් ගණන (කොට් of ාශ ගණන). 2 හෝ 150 හෝ ඊට අඩු නිඛිලයක් ඇතුළත් කරන්න."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "පෙන්විය යුතු බෙදාහැරීම් ගණන (කොට් of ාශ ගණන). 3 හෝ ඊට අඩු 1 හෝ ඊට අඩු නිඛිලයක් ඇතුළත් කරන්න."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "හිස්"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "හිස්"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "හිස්"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "හිස්"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "කුමන්ත්රණයක් සඳහා වයලීනයන් ඕනෑවට වඩා වැඩියි, එබැවින් එය ස්වයංක්රීයව සීමිත විය."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "තෝරාගත් වාර්තා විශාල සංඛ්යාවක් නිසා, බිම් කැබලි ගණන පැරණිතම දිනයෙන් සීමිත ප්රමාණයට සීමා වේ."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "මම පිළිගන්නවා"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "පහත වැටීම"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "ආපස්සට"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "තීරුවේ බිම් කැබැල්ල ගණන"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "කුමන්ත්රණ මුදුනේ ඇති ලේබල්වල උඩ ලද ලේබල් ලෙස වර්ගීකරණ විචල්යයන් (කොටස් අංකය, ස්ටේෂන් හෝ ආදිය) ප්රදර්ශනය කිරීම ගුණාත්මක විචල්යයන්ගේ වෙනස් කිරීමේ ලක්ෂ්ය (කොටස් මාරුවීම ආදිය) දෘශ්යමාන කිරීමට යොදා ගනී."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "විශ්ලේෂණය කළ යුතු අයිතම තෝරන්න (ප්රමාණාත්මක විචල්යයන්: මිනුම් අගය ආදිය). අයිතම 60 ක් දක්වා තෝරා ගත හැකිය."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "දත්ත වර්ග කිරීම සඳහා අයිතම තෝරන්න. ඔබට බහු අයිතම ද තෝරා ගත හැකිය."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "පැරණි දත්ත පිටාර ගැලීම පෙන්වන්නේ නැත, මන්ද දත්ත මස දර්ශන සීමාව සහිත නවතම දත්ත වලින් ගණන් කරන බැවිනි."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "කුමන්ත්රණයේ සංඛ්යාව NUMBER ට සීමා විය. ඔබට සියල්ල ප්රදර්ශනය කිරීමට අවශ්ය නම්, සැකසුම් පුනරාවර්තනය කරන්න."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "තනි පටිත්තක බිම් කොටස NUMBER ට සීමා විය. ඔබට සියල්ල ප්රදර්ශනය කිරීමට අවශ්ය නම්, සැකසුම් පුනරාවර්තනය කරන්න."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "තේරීම සඳහා ඉලක්කගත විචල්යයන් සංඛ්යාව අවම අවම හා උපරිම උපරිම වේ. ඉලක්ක විචල්යයන් ගණන පරීක්ෂා කර සැකසුම් නිවැරදි කරන්න."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "තෝරා ගත යුතු ඉලක්ක විචල්යයන්ගේ සංඛ්යාව උපරිම උපරිම දක්වා වේ. ඉලක්ක විචල්යයන් ගණන පරීක්ෂා කර සැකසුම් නිවැරදි කරන්න."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

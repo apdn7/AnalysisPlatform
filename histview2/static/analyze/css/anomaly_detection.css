@@ -1,0 +1,218 @@
+#plot-cards {
+    background-color: #222;
+    border: none;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+#plot-cards .row {
+    margin: 0;
+}
+#plot-cards .col {
+    padding: 2px;
+}
+
+.plot-boxs .plotbox-header {
+    border-bottom: 1px solid #444;
+}
+
+#plot-cards .plot-boxs {
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+
+.plotbox-header h5 {
+    line-height: 35px;
+    margin: 0 0 0 5px;
+    display: inline-block;
+}
+
+.plot-tabs {
+    height: 4vh;
+}
+
+div#scatter-plot {
+    padding: 0;
+}
+
+.nav-right {
+    float: right;
+}
+
+.nav-item {
+    font-size: 1vw;
+}
+
+.plot-tabs .nav-link {
+    padding: 0.5rem 0.5rem !important;
+    height: 4.1vh;  /* 0.1 to make borders ovelapped */
+}
+
+.table-dark th, .table-dark td {
+    padding: 0.1rem 0.25rem !important;
+    background-color: #222;
+    border-top: none;
+    border-bottom: 1px solid #444;
+    border-right: 1px solid #444;
+    vertical-align: middle;
+}
+/* , .dataTables_scrollBody */
+#dp-tbl {
+    overflow: scroll !important;
+    height: 20vw;
+}
+.dataTables_scrollBody::-webkit-scrollbar-track,
+#dp-tbl::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #444;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar,
+#dp-tbl::-webkit-scrollbar {
+    width: 15px;
+    height: 15px;
+    background-color: #444;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb,
+#dp-tbl::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #222222;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-corner,
+#dp-tbl::-webkit-scrollbar-corner {
+    background-color: #444;
+}
+
+.dataTables_scroll {
+    border: solid 0.5px #444;
+}
+
+table.dataTable thead th{
+    border: 0.5px solid #444 !important;
+}
+
+.search-box {
+    padding: 0 !important;
+}
+
+#dp-body tr td:nth-child(2) {
+    text-align: right;
+}
+
+.plot-container .plotly {
+    width: 100%;
+}
+
+.plot-responsive {
+    max-width: 30vw !important;
+    height: 20vw !important;
+}
+
+#plot-cards .col-sm-4 {
+    padding: 5px;
+}
+
+.spliter {
+    margin-bottom: 0 !important;
+}
+
+.fcard {
+    border: 1px solid #444;
+    background-color: #303030;
+    background-clip: border-box;
+    border-radius: 0.25rem;
+}
+
+.fcard .card-body {
+    border-bottom: 2px dotted #444;
+}
+
+.fcard .sensor-list {
+    border: none !important;
+}
+
+table.dataTable tbody tr,
+table.dataTable.stripe tbody tr.odd,
+table.dataTable.display tbody tr.odd,
+table.dataTable.display tbody .sorting_1 {
+    background-color: #222222 !important;
+}
+
+table.dataTable.hover tbody tr:hover,
+table.dataTable.display tbody tr:hover {
+    background-color: #303030 !important;
+}
+
+table.dataTable.row-border tbody th,
+table.dataTable.row-border tbody td,
+table.dataTable.display tbody th,
+table.dataTable.display tbody td,
+table.dataTable.cell-border tbody th,
+table.dataTable.cell-border tbody td {
+    border-top: none !important;
+    border-bottom: 1px solid #303030 !important;
+    white-space: nowrap;
+}
+
+/* centralize checkbox */
+.checkbox-col {
+    text-align: center !important;
+}
+
+#pcaConditionTbl tr td:nth-child(5){
+    text-align: left !important;
+    font-family: 'Consolas', 'Courier New', 'Courier', 'Monaco', 'monospace';
+}
+
+.cond-proc {
+    padding: 1rem !important;
+    border: 1px solid #444;
+    position: relative;
+}
+
+.confirm-btn {
+    margin-right: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.tooltip-pca {
+    position: relative;
+}
+
+.tooltip-pca .tooltip-pca-text {
+    visibility: hidden;
+    width: 150px;
+    background-color: rgba(8, 8, 8, .8);
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    border: 2px solid #444444;
+    padding: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Position the tooltip */
+    position: fixed;
+    z-index: 9999;
+    top: 10%;
+    left: 82%;
+
+}
+
+.tooltip-pca:hover .tooltip-pca-text {
+    visibility: visible;
+}
+
+/* hide search bar */
+.dataTables_filter{
+    display: none;
+}
+
+h6 {
+    margin: 0.3rem;
+}

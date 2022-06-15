@@ -1,0 +1,170 @@
+<div class="card graph-navi" id="data_link">
+    <div class="card-body">
+        <form id="trace-config-form" class="position-relative">
+            <div class="form-header">
+                <h3 class="header-left hint-text" style="float: left !important;"
+                    title="{{ _('Right drag & drop: data link setting') }}">{{ _("Data Link Config") }}</h3>
+                <button id="btn-trace-config-register" class="btn btn-primary btn-right btn-green" type="button"
+                        title="{{ _('Register Trace Config Hover') }}"><i class="far fa-save"></i>
+                    {{ _("Register") }}
+                </button>
+                <button id="btn-trace-config-sync" class="btn btn-secondary btn-right" type="button"
+                        style="margin-left: 1.5rem; margin-right: 1.5rem;" title="{{ _('Reload Hover') }}"><i
+                        class="fas fa-sync-alt"></i>
+                    {{ _("Reload") }}
+                </button>
+                <button id="btnTraceSimulation" class="btn btn-primary btn-right" type="button"
+                        title="{{ _('Prediction Hover') }}"><i class="fa fa-link"></i>
+                    {{ _("Prediction") }}
+                </button>
+            </div>
+            <div class="modal fade" id="modal-edge-popup" tabindex="-1" role="dialog" data-backdrop="static"
+                 data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">{{ _("Edit Edge") }}</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" name="modal-body-input form-inline">
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                    <div id="alertMsgCheckSubStr" class="alert alert-dismissible fade"
+                                         style="display: none;" role="alert">
+                                        <strong id="alertMsgCheckSubStr-content"></strong>
+                                        <button type="button" class="close"
+                                                onclick="$('#alertMsgCheckSubStr').css('display','none');"
+                                                aria-label="Close">
+                                            <span aria-hidden="true">×</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm-6">
+                                    <h5>{{ _("Prev Process") }}</h5>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h5>{{ _("Post Process") }}</h5>
+                                </div>
+                            </div>
+                            <div class="form-row align-items-center">
+                                <div class="col-sm-6">
+                                    {{ macros.single_selectbox('edgeBackProc', '', procs) }}
+                                    <span id="edgeBackProc-error-msg" class="error text-danger"
+                                          style="display: none; text-align: left; font-size: smaller;">{{ _("Already registered") }}</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    {{ macros.single_selectbox('edgeForwardProc', '', procs) }}
+                                    <span id="edgeForwardProc-error-msg" class="error text-danger"
+                                          style="display: none; text-align: left; font-size: smaller;">{{ _("Already registered") }}</span>
+                                </div>
+                            </div>
+                            <div class="form-row col-title">
+                                <div class="col-sm-6">
+                                    <label for="edgeBackCol" class="col-form-label">
+                                        <h5>{{ _("Prev Column") }}:</h5>
+                                    </label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="edgeBackCol" class="col-form-label">
+                                        <h5>{{ _("Post Column") }}:</h5>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="traceInfoModal"></div>
+                            <button id="btnAddNewTraceKey" class="btn btn-success"><i class="fas fa-plus-circle"></i>
+                            </button>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button id="btnSaveEditEdge" type="button" onclick="saveEditEdge();" class="btn btn-primary"
+                                    data-item-id="">{{ _("OK") }}
+                            </button>
+                            <button id="btnCancelEditEdge" type="button" onclick="cancelEditEdge();"
+                                    class="btn btn-secondary"
+                                    data-dismiss="modal">{{ _("Cancel") }}
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+
+            <div id="trace-network"></div>
+            <select id="traceNetworkLayout" class="form-control" name="traceNetworkLayout">
+                <option value="Star">Normal</option>
+                <option value="UD">Up-Down</option>
+                <option value="DU">Down-Up</option>
+                <option value="LR">Left-Right</option>
+                <option value="RL">Right-Left</option>
+            </select>
+
+        </form>
+
+
+        <div id="regenerate-confirm-modal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-confirm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ _("Warning") }}</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body" style="word-break: keep-all;">
+                        <p class="modal-inform">{{
+						_("Based on the set config information, generating the ID for linking the data will be started.") }}
+						</p>
+                        <p class="modal-inform">{{
+						_("It may take time if there is a lot of data to link, but is it okay to start the process?") }}</p>
+                        <p class="modal-inform">{{
+						_("(For data that is automatically and regularly imported, the ID for linking is automatically generated.)") }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-abort" class="btn btn-primary" data-dismiss="modal">{{ _("Abort") }}</button>
+                        <button id="btn-proceed" class="btn btn-secondary"
+                                data-dismiss="modal">{{ _("Proceed") }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmReloadModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-confirm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="modal-inform modal-msg">{{ _("Confirm to return to the linking settings you registered
+                            the last time") }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <div>
+                            <button id="confirmReloadBtn" class="btn btn-primary confirm-btn">{{ _("OK") }}</button>
+                            <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div>
+    <ul id="contextMenuTraceCfg" name="contextMenu" class="context-menu" style="display:none;">
+        <li class="menu-item" onclick="addEdgesFromNode(this)" data-node-id>紐付けを追加</li>
+        <li class="menu-item edge-item" onclick="editSelectedEdge(this)" data-node-id>紐付けを編集</li>
+        <li class="menu-item edge-item" onclick="removeSelectedEdge(this)" data-node-id>削除</li>
+    </ul>
+</div>
+<script type="text/javascript" language="javascript">
+    window.onload = function () {
+        init();
+    };
+</script>

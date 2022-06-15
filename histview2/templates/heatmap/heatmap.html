@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+    <link href="{{ url_for('heatmap.static', filename = 'css/heat_map.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
+          rel="stylesheet">
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"/>
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='CHM', title=_('Calendar Heat Map'), hint=_('Visualize long-term data such as annual variations in processes and parameters that can vary depending on days of the week or shifts, etc.'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+    <div class="card">
+        <form id="traceDataForm">
+            {{ macros.heatmap_end_proc(title=_('Enter target item of data (quantitative variable like measurement value and category variable like part number) to visualize pattern. This data is plotted on the graph. It can be selected up to ten items.')) }}
+            {{ macros.heatmap_target_period() }}
+            {{ macros.cond_proc([],'', width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
+            <br class="graph-navi graph-navi-top-down">
+            <div class="row">
+                <div class="col-sm-2">
+                </div>
+                <div class="col-sm-10">
+                    <div class="d-flex">
+                        {{ macros.remove_outlier(cl='mr-3') }}
+                        {{ macros.exception_est() }}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
+                <button id="showGraphBtn" type="button" value="{{ _('Display graph') }}"
+                        onClick="showHeatMap();" class="btn btn-primary show-graph"><i
+                        class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+            </div>
+            <br>
+        </form>
+    </div>
+
+    <div class="result-section" id="scaleOption" style="display: none;">
+        <div class="y-scale-group tooltip-parent" id="yScaleGroup">
+            <div class="custom-control custom-radio y-scale">
+                <input type="radio" name="heatmapScale" class="custom-control-input" id="heatmapScale2"
+                       value="common">
+                <label class="custom-control-label label-left" for="heatmapScale2">
+                    <span class="sub-label">{{ _('Common scale') }}</span>
+                </label>
+            </div>
+            <div class="custom-control custom-radio y-scale">
+                <input type="radio" name="heatmapScale" class="custom-control-input" id="heatmapScale1"
+                       value="auto" checked="checked">
+                <label class="custom-control-label label-left" for="heatmapScale1">
+                    <span class="sub-label">{{ _('Auto range') }}</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="heatmapCard" class="card result-section" style="display: none;">
+        <div class="justify-content-center card cate-plot-cards clearfix" id="plot-cards"></div>
+    </div>
+
+    <div>
+        <ul id="contextMenuHeatmap" class="context-menu" style="display:none;" name="contextMenu">
+            <li class="menu-item" onclick="selectHeatmapMenu('auto')">{{ _('Auto range') }}</li>
+            <li class="menu-item" onclick="selectHeatmapMenu('common')">{{ _('Common scale') }}</li>
+        </ul>
+    </div>
+
+    <div class=" loading"></div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+    <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+       target="_blank">{{ _("Click here to fix") }}</a>
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <script src="{{ url_for('heatmap.static', filename = 'js/heatmap.js') }}"></script>
+    <script src="{{ url_for('heatmap.static', filename = 'js/heatmap_plotly.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+<link href="{{ url_for('sankey_plot.static', filename = 'css/sankey_plot.css')}}" rel="stylesheet">
+<link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css')}}"
+    rel="stylesheet">
+<script
+    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js')}}"></script>
+<script
+    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='SkD', title=_('Sankey Diagram'), hint=_('Identify and visualize directly/indirectly correlated variables of objective(s)'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+<div class="card">
+    <form id="traceDataForm">
+        {{ macros.end_proc(procs, width=2, label_i18n_key='Show value', multiple_proc=true, showStartProc=true, title=_('Identify the explanatory variables that are correlated with the variable(s) specified here.')) }}
+        {{macros.start_proc(showAutoUpdate=false)}}
+		{{ macros.cond_proc(width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true)}}
+        <br class="graph-navi graph-navi-top-down">
+        <div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-10">
+                <div class="d-flex">
+                     {{ macros.exception_est() }}
+                </div>
+            </div>
+        </div>
+        <div class="show-graph-div" style="text-align: center;">
+            <button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
+                onClick="sankeyTraceData();" class="btn btn-primary show-graph"><i
+                    class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+        </div>
+        <br>
+    </form>
+</div>
+
+<div class="card" id="plot-card" style="margin-top: 1rem; display: none;">
+    <div class="">
+        <div class="row">
+            <div class="col-4">
+                <div>
+                    <div id="barContainer" class="graph-container"></div>
+                </div>
+            </div>
+            <div class="col-8">
+                <div>
+                    <div id="graphContainer" class="graph-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class=" loading"></div>
+<div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+<a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+    target="_blank">{{ _("Click here to fix") }}</a>
+{{optdata}}
+{% endblock %}
+
+{% block js %}
+<script>
+    const procJsons = {{ list_procs | safe }};
+    const hasGraphCfgsFilterDetails= {{ graph_filter_detail_ids | safe }};
+    const procConfigs = {};
+    for (let procJson of procJsons){
+        const cfgProcess = new CfgProcess(procJson);
+        procConfigs[cfgProcess.id] = cfgProcess;
+    }
+</script>
+<script src="{{ url_for('sankey_plot.static', filename = 'js/sankey_plot.js')}}"></script>
+{% endblock %}

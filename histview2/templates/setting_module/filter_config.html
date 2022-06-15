@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+<!-- Common CSS -->
+<script src="{{ url_for('static', filename = 'common/js/jexcel.js') }}"></script>
+<script src="{{ url_for('static', filename = 'common/js/jsuites.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jexcel.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jsuites.css') }}">
+
+<!-- Visualization CSS -->
+<link rel="stylesheet" type="text/css"
+    href="{{ url_for('setting_module.static', filename = 'css/filter_visualization.css')}}">
+
+<script>
+    gtag('config', 'UA-156244372-2', {
+        'page_title' : '{{ _("Filter/Graph") }} {{ _("Config") }}',
+    });
+</script>
+{% endblock %}
+
+{% block header %}
+<div class="page-title graph-navi">
+    <h2>{{ _("Filter Config") }}</h2>
+</div>
+{% endblock %}
+
+{% block midbody %}
+<!-- Header -->
+<div class="card card-xl graph-navi">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="header-left">{{ _("Process name") }}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <select name="type" id="processList" class="form-control select2-selection--single">
+                    <option value="" selected>---</option>
+                    {% for proc in procs %}
+                    <option value="{{ proc.id }}">{{ proc.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-4 text-center">
+                <button id="btnShowAllFilterSettings" class="btn btn-secondary">{{ _("Show") }}</button>
+            </div>
+		</div>
+	</div>
+</div>
+<div class="loading" style="display: none;"></div>
+
+<div id="detailCards" style="display: none">
+{% include '_filter_line.html' %}
+{% include '_filter_machine.html' %}
+{% include '_filter_partno.html' %}
+{% include '_filter_others.html' %}
+
+{% include 'filter_config_modals.html' %}
+</div>
+{{optdata}}
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('setting_module.static', filename = 'js/cfg_filter_main.js')}}"></script>
+<script src="{{ url_for('setting_module.static', filename = 'js/cfg_filter_funcs.js')}}"></script>
+{% endblock %}

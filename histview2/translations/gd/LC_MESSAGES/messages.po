@@ -1,0 +1,3155 @@
+# ゲール語 Gaelic translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "gd_ゲール語_Gaelic"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: gd\n"
+"Language-Team: gd\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Air a shàbhaladh"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Tha mearachd air tachairt"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Rèiteachadh tagraidh"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Duilleag air a lorg"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Tha mearachd air tachairt"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "App datatalink & mion-sgrùdadh"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Tagh cànan"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Prìomh sgrion"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Dearbhadh Obrachaidh"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Dearbhadh Obrachaidh"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Config bunaiteach"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Clàraich"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Ath-luchdachadh"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Integer"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Fìor (float)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Ùine ceann-latha"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Sreang"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Tiotal"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Plannt"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Factaraidh"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Loidhne"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Feuch an dearbhaich thu."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Sàbhail an dàta agus tòisich a 'toirt a-steach dàta leis na tha a' suidheachadh air an roinn a 'phròiseas?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Ceart gu leòr"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Sguir dheth"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Config stòr-dàta"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Ainm stòr-dàta"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Seòrsa stòr-dàta"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Config"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Thoir beachd air"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Cuir ris"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Tagh faidhle stòr-dàta."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Ainm faidhle"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Tagh"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "A bheil thu airson an clàr seo a dhubhadh às?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "Thoir às"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Lorg lorg"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Graf traciùltach"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Deuchainn lorg"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Deuchainn tòiseachaidh"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Ùine tòiseachaidh"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Ùine crìochnachaidh"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID inneal (ioma-thaghadh)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Loidhne"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Àireamh pàirt"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Contrig ceangal dàta"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Tagh cànan"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Iapanach"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Sasannach"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Nód"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Nód ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Leubail"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Prìomh ainm"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Stòr-dàta"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Import"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Às-mhalairt"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Ainm aoigheachd"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Àireamh Port"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Ainm neach-cleachdaidh"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Facal-faire"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Sgeama"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Shoirbhich leam."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; Dh'fhàillig."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Config pròiseas"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Pròiseas"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Ainm a 'phròiseas"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Ainm Clàr"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Mion-fhiosrachadh"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Ro-shealladh"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "A 'chiad còig clàr"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Suidheachadh susbaint"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Ainm colbh"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Ainm Beurla"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Ainm taisbeanaidh"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "Co-èifeachd"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Gnìomhaiche"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Cuir a-steach luach a bharrachd air 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Gnìomhaiche inntrigidh."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Cuir a-steach co-èifeachd."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Cuir a-steach ainm Beurla."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Ainm taisbeanaidh cuir a-steach."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Tha an t-ainm Beurla air a dhùblachadh."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Tha an t-ainm taisbeanaidh air a dhùblachadh."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Feumaidh a h-uile \"ainm taisbeanaidh\" a chuir a-steach."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Thathas a 'lìonadh achaidhean le bàn \"ainm Beurla\"."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Tagh a h-uile càil"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Dàta in-mhalairt"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "A bheil thu cinnteach gun cuir thu a-steach dàta?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Nuair a bhrùthas tu am putan OK, bheir thu a-steach dàta bhon àm làithreach gu aon mhìos roimhe."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Tha an dàta roimhe air a thoirt a-steach gu fèin-ghluasadach beag le glè bheag."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Ma tha thu airson an dàta a thoirt a-steach às deidh an ùine a th 'ann an-dràsta, brùth air a' phutan Leughaidh Dàta a-rithist, no brùth air an stòr-dàta CSV A 'stèidheachadh nan roghainnean air an duilleag suidheachaidh leugh."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Nuair a bhios \"ùrachadh Cearcall\" de \"Stòr-dàta / CSV Suidheachadh Leughaidh\" air a shuidheachadh, thèid a thoirt a-steach gu fèin-ghluasadach anns an ùine nuair a thèid an dàta às deidh an àm seo a shuidheachadh."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Fiosrachadh trac"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Dàta lorg"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Cha b 'urrainn faighinn a-steach"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Cliog an seo gus a chàradh."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Deasaich iomall"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Pròiseas Prev"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Colbh Prev"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Pròiseas post"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Colbh post"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Mar cheann-latha ceann-latha"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Mar sherial"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Mar cheangal ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Mu thràth clàraichte"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Cuir a-steach ainm a 'phròiseas"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filter / graf"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Contig graf"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Config filter loidhne"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Colbh loidhne"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Luach"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Contig filter inneal"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Inneal ID colbh"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Pàirt No Filter Config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Pàirt No Colbh"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Ainm sìoltachain"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Suidheachadh sìoltachain"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Bidh cuid eile a 'falbh config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Colbh targaid"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Contig fradharc"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Stairsneach as ìsle"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Stairsneach àrd"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Stairsneach pròiseas nas ìsle"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Stairsneach pròiseas àrd"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Tha W-Axes ann an raon: MIN"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Tha W-Axes Rap: Max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Pàirt no"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "deireadh le"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Tòiseachadh le"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like sgrùdadh)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Aontachadh"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Abairtean cunbhalach"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Seall an graf"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV às-mhalairt"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Pròiseas riatanach"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Tha feum air ainm colbh"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Tha feum air loidhne"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Feumar ainm taisbeanaidh"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Tha an t-ainm taisbeanaidh air a dhùblachadh."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Feumar luach inneal"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Inneal dùblaichte ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Sàbhail gu soirbheachail"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Dh'fhàillig sàbhaladh"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Tha feum air Pàirt no Colbh"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Tha feum air colbh targaid"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Feumar ainm sìoltachain"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Tha feum air suidheachadh"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Tha an t-ainm sìoltachain air a dhùblachadh."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Tha na suidheachaidhean air an dùblachadh."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Bunaiteach"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Ainm a 'phròiseas"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Chuir thu sìoltachain eile ris"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV infig in-mhalairt"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Stòr"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Cearcall ùrachadh"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Ceangail"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Aon uair san uair"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Aon uair san latha"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Dearbhadh Dàta"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Chan eil pasgan ann."
+
+msgid "File does not exist"
+msgstr "Chan eil faidhle ann."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Faodaidh tu ceangal a dhèanamh."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Feuch an lìon thu an luach."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Chan eil susbaint suidheachadh ann."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Tha na roghainnean air an dùblachadh."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Suidhichidhean stòr-dàta air an sàbhaladh."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Dh'fhàillig a shàbhaladh roghainnean stòr-dàta."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Roghainnean bunaiteach air a shàbhaladh."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Dh'fhàillig sàbhaladh roghainnean bunaiteach."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Ceangal deuchainn"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Puing tòiseachaidh"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Raon ceann-latha"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "As ùire"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Ùrachadh Auto"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "mionaid"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "mionaidean"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "uair"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "uairean"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Caochladair targaid"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Filter"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X Axis"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Timesmpap"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Clàr-amais"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Caochlaideach caochlaideach"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Sìoltachain"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Stòr-dàta / CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Dèan mion-sgrùdadh"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Fo leasachadh"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Anailis:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Cuilbheart uisge"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Grafaigeach LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Hisktorram"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Cuilbheart stratified"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Cuilbheart làn-phuingean"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Lèirmheas dàta"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Rèisteas"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Ruith"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Cuir a-steach ainm an stòr-dàta."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Cuir a-steach ainm stòr dàta."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Chan eil colbhan aig nach eil seòrsa dàta air an toirt a-steach."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Feumar co-dhiù aon cholbh latha ceann-latha."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Airson sealladh, cleachd '{col}' airson an x-axis."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "A bheil thu cinnteach gun lean thu?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Swiewer bùird"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Clàr"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Deasaich"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Àireamh de dhàta"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "A 'teàrnadh"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "A 'dìreadh"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Maids foirfe"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Maids pàirt"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Taghadh digit neo-dhligheach"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Tha fad a 'charactar a thathas a' cleachdadh airson an ceangal eadar-dhealaichte."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Gun chriathrag"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "A h-uile loidhne"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "suidheachadh"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Liosta obrach"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Uile"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "In-mhalairt crìochnaichte."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Cureachadh"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Air a thoirt a-steach a dh 'fhàillig"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Thèid an dàta luchdaichte a dhubhadh às. A bheil e ceart gu leòr? (Chan eil atharrachadh sam bith air a nochdadh gus am bi am putan Clàraidh air a bhrùthadh)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Liosta obrach"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "ID obrach"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Ainm obrach"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Ginealach de cheangal a cheangalID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Iob ginealach taisbeanaidh de cheangal ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Thoir às fiosrachadh a 'phròiseasadh"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Dàta factaraidh in-mhalairt"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Cuir a-steach dàta factaraidh a chaidh a-steach"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Seall obair a thoirt a-steach do dhàta factaraidh a chaidh seachad"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV dàta in-mhalairt"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Cuir às do sheann dàta"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Ùine tòiseachaidh"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "ùine a bharrachd"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Stòr-dàta / CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Adhartas"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Pròiseas"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Liosta histogram"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Clàraich mar luach a-muigh"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Outlier neo-chinnteach"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Cuir am falach outliers"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Seall outliers"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Thoir sùil air oirean"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Liosta bhidio taisbeanaidh"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Ùine Ùrachadh mu dheireadh"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Chaidh clàradh a-mach a chuir dheth."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Clàraichte mar outlier"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Outlier"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Dìreach aon uair"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Mion-fhiosrachadh obrach"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Dèan lethbhreac gu clipboard"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Cuilbheart ioma-sgeul"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Cuilbheart sgapte"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Gus caochladair daingeann fhaicinn"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratify le caochladairean"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Caochlaideach"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Inneal no"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Ùine targaid"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Tricead (cunntadh)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Taisbeanadh dùmhlachd"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Caochladair seòrsachaidh"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify a rèir teirm (dìreach)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Chan urrainn dhut ochdnar no barrachd chaochladairean targaid a thaghadh. Tagh an caochladair targaid."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Lorg neo-riaghailteach"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Prionnsapal mion-sgrùdadh co-phàirteach"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Prìomh sgòr a 'co-phàirt de dhàta deuchainn"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Prìomh sgòr den dàta trèanaidh"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Clàr sreath de staitistig T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Clàr nan sreath de staitistig q"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Cuilbheart tabhartais de staitistig T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Plot tabhartais de staitistig q"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Thoir air falbh outlier"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Dàta trèanaidh"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Deuchainn Deuchainn"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Tha"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Chan eil"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Seòrsa dàta"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Eisimpleir"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Mearachd"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Rabhadh"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Leis gun deach a h-uile togalach a dhubhadh às le giullachd luach èiginn (NA toirt air falbh), chan eil dàta ann airson sgrùdadh a dhèanamh. Dèan cinnteach gu bheil an luach falamh, a 'toirt a-steach NA, air a thaghadh."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Cha ghabh a sgrùdadh gu bheil e a 'toirt a-steach dàta a bharrachd air àireamhan. Dèan cinnteach gu bheil thu air colbh a thaghadh anns a bheil sreang no luach roinn-seòrsa."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Chan urrainn dha mion-sgrùdadh a dhèanamh oir tha dàta ann le eadar-dhealachadh de 0. Dèan cinnteach nach eil ach colbh luach air a thaghadh."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Lorg dàta roinn-seòrsa agus luach integer ris a bheil dùil. Mura h-eil an luach integer seo na sgèile òrdaich, sgèile eadar amannan, no sgèile co-mheas, faodaidh toradh co-mheas a bhith air an sgrùdadh a dhaingneachadh."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "A bheil thu cinnteach gun tèid thu air adhart a 'dol air adhart a' dol air adhart?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Rannsaich"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Tha a 'mheadhan aon de na staitistig àbhaisteach. Tha e na luach a tha suidhichte sa mheadhan nuair a thèid an dàta crìochnaichte a chuir air dòigh anns an òrdugh dìreadh. Mar eisimpleir, ann an cùis còignear, is e linn meadhan na h-aois an treas aois ann an òrdugh aois. Ma tha an àireamh de dhàta eadhon, thathas a 'cleachdadh cuibheasachd an àireamhachd sa mhearachd sa mheadhan."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Geàrr-chunntas an sgaoileadh"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N àireamh"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Cuibheasach"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Dè tha am meadhan ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Iomlan"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Netquence"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Puing crìochnachaidh"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Pròiseas targaid"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Sreath ùine"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Pìosan"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Àireamh de cheangal dàta"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Diogan"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Ùine freagairt"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "deasaich"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Air ais"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Cuir nód"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Cuir iomall"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Deasaich nód"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Cliog air an àite falamh gus nód ùr a chuir."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Cliog air an nód, slaod an oir gu nód eile agus ceangal riutha."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Cliog air an àite smachd, slaod e chun nód agus ceangal."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Cha ghabh an sgaradh a chur ris."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Chan urrainnear an cruinneachadh a dhubhadh às."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Chan urrainnear an cruinneachadh a dheasachadh."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Tha an t-ainm taisbeanaidh no an luach a chaidh a dhùblachadh."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Cuir a-steach ainm agus luach an taisbeanaidh."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Cuir a-steach an colbh loidhne."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Uairean"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Fiosrachadh dàta"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Latha"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Seachdain"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Luchdaich"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Sàbhail"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Thairis air"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Suidheachadh"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Atharraich an tiotal oir tha an aon tiotal air a shuidheachadh."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Sàbhail suidheachadh"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Cruthaich Glacadh-sgrìn"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "Luchdaich sìos"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Na h-adhbharan nach urrainn don ghraf a thaisbeanadh mar a leanas. BREAK_LINE Thoir sùil air an t-suidheachadh. Chan eil dàta BREAK_LINE・ air a thoirt a-steach, no ann am meadhan in-mhalairt. BREAK_LINE・ Chan eil dàta sam bith ceangailte, no ann am meadhan ceangal. BREAK_LINE・ Tha suidheachadh a 'ghraf neo-iomchaidh."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Rabhadh"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Chan eilear a 'toirt a-steach dàta neo-dhligheach anns a' cholbh dàta ceann-latha."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Faodaidh tu iomradh a thoirt air na faidhlichean anns a 'phasgan gu h-ìosal airson dàta nach gabhadh a thoirt a-steach."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Chan urrainnear an inbhe cleachdaidh a luchdachadh suas leis nach eil e ceangailte ris an eadar-lìn."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Feuch an toir thu sùil air an ceangal lìonra."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Bheir e ùine mhòr gus dàta a cheangal a-rithist."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "A bheil thu cinnteach gun cuir thu ath-cheangal an dàta?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Sguab"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Cuir an gnìomh"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "A bheil thu cinnteach gun tug thu na roghainnean ceangail dàta clàraichte roimhe?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Thòisich e a 'toirt a-steach dàta."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Faodaidh tu sgrùdadh a dhèanamh air adhartas an in-mhalairt bhon cheangal gu h-ìosal."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Faic an duilleag liosta obrach airson inbhe mearachd."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Thòisich e a 'ceangal dàta."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Aon uair gach 3 mionaidean"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Aon uair gach 5 mionaidean"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Aon uair gach 10 mionaidean"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Gnìomh roghainneil"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Seòrsa faidhle"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV às-mhalairt"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Air sgàth an àireamh mhòr de chlàran taghte agus an ùine a dh 'fheumar gus an graf a thaisbeanadh, bha an àireamh de chlàran gach graf air a chuingealachadh ri 50,000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Clàr sreath ùine"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Luach roinn-seòrsa"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Leis gu bheil an àireamh de chlàran anns an ùine ainmichte nas motha na 5,000, tha e ceangailte taobh a-staigh ± 14 latha den ùine ainmichte. Mura h-eil thu airson an raon ceangail a chuingealachadh, atharraich an ùine gus an àireamh de chlàran de BREAK_LINE atharrachadh."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "A 'suidheachadh sgèile"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Sgèile cumanta"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Loidhne stairsneach"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Sgèile fèin-ghluasadach"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "A bhith a 'cleachdadh sgèile"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn den phròiseas"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Mion"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Chan eil gin"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Geàrr-chunntas"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Cunnt"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Staitistig bunaiteach"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Neo-pharametric"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Càileachd Dàta"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Seallawer"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Dàta in-mhalairt"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Tòisichidh pròiseas ceangail dàta stèidhichte air rèiteachadh làithreach."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Dh 'fhaodadh gun toir e ùine ma tha tòrr dàta ri cheangal. A bheil e ceart gu leòr tòiseachadh?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Airson dàta a tha a 'cur a-steach gu fèin-ghluasadach agus bho àm gu àm, thèid ceangal ID a chruthachadh gu fèin-ghluasadach."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Ainm stòr dàta"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Seòrsa stòr dàta"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "A bheil thu cinnteach gun sàbhail thu atharrachaidhean?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "FIOSRACHADH OS AIR A DHÈANAMH GU COMHAIRLE Sòn Ùine."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Suidheachadh adhartach"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Tha roghainnean air an sàbhaladh airson an stòr-dàta / ____ faidhle de dhàta a tha a 'toirt a-steach. Rach don duilleag suidheachaidh, cuir na colbhan de dàta in-mhalairt gus an dàta a thoirt a-steach."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Chan eil feart riatanach ann an dàta na h-eileamaid."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Chan eil luach feart ann a tha a dhìth air dàta eileamaid."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Feumaidh lorgaidh anabarrach le PCA co-dhiù dà chaochladair. Tagh dà chaochladair no barrachd."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Tagh co-dhiù aon cholbh"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Chan eil caochladairean roinn-seòrsa a tha a 'lughdachadh leud a' bhogsa air an taisbeanadh."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "A 'tòiseachadh digit"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Cuilbheart Ridgeline"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Cuir stad air an tagradh (frithealaiche iomall). Ma stadas tu, cha bhith e comasach do neach-cleachdaidh sam bith eile a chleachdadh cuideachd, mar sin cuir fios chun Rianadair. <br> A thaobh deireadh àbhaisteach, Sguir dheth an seo agus dìreach a 'dùnadh a' bhrobhsair."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Chaidh stad a chuir air a h-uile obair. Faodaidh tu do bhrobhsair agus an consol a dhùnadh gu sàbhailte."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Contig stòr dàta"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Config stòr dàta dàta"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Colbhan lorg mòran de cholbhan caractar. Dèan cinnteach gum bi an colbh seòrsa àireamhach msaa air a mhì-mhisneachadh."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Sìoltachain nì"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Luach sìoltachain"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Ceann-latha crìochnachaidh (tòiseachadh)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Ceann-latha crìochnachaidh (deireadh)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Cha b 'urrainnear dàta a thoirt a-steach air sgàth mearachdan rèiteachaidh seòrsa de cholbh. Ainm Stòr Dàta __param__ CSV/TSV Thoir sùil air roghainnean an seòrsa dàta ann an ro-shealladh dàta den duilleag suidheachaidh a chaidh a leughadh. Thoir às na roghainnean ceum nach gabhadh a thoirt a-steach agus na roghainnean a shuidheachadh."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Bha faidhle às aonais dàta. Thoir sùil air susbaint an fhaidhle. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Cuir a-steach co-dhiù aon luach na h-ùine dligheachd bho no gu."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Roinn a rèir roinn"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Roinn a rèir Teirm (Cynclic)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Roinn a rèir teirm (dìreach)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Tha luach an eadar-ama a chaidh a-steach neo-dhligheach. Cuir a-steach grunn 0.1 no barrachd, 720 no nas lugha, no -720 no barrachd, agus nas lugha no nas lugha."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Tha faid uinneig figear `uinneig neo-dhligheach. Feumaidh luach a bhith eadar 0.1 agus 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Tha an àireamh de ridgeline cuir a-steach neo-dhligheach. Cuir a-steach integer de 1 no barrachd agus 150 no nas lugha. (is fheàrr leam a bhith a 'cleachdadh timcheall air 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Tòisich dàta & ùine"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Eadar-ama"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Fad uinneig"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Nì smachd"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Seòrsa"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Ainm"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Thoir fa-near, ma tha an àireamh de phuingean dàta ann an aon roinn fo aois 50, faodaidh cruinneas a 'ghraf a lughdachadh."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Seall cursor Cross Falt (cliog)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Seall a 'chrim croursor de fhuilt ro iomaga (cliog dùbailte)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Seall liosta de hokmage"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Cuir dheth sgrùdadh a-muigh"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Sònraichte Ainm Dàta air `Tha ainm stòr dàta ann mu thràth."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Dh'fhàillig a-steach dàta a dh 'fhàillig leis gun deach faidhle le colbh eadar-dhealaichte a lorg anns an stòr dàta. Thoir sùil air susbaint an fhaidhle agus shuidhich na roghainnean in-mhalairt stòr an dàta a-rithist."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "An dùil àireamh de chlàran airson a bhith ceangailte"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Àireamh de shamhlaichean"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Àireamh de chlàran airson a bhith ceangailte"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Àireamh de chlàran iomlan"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Feuch an toir thu ainm ris a 'phasgan anns a bheil CSV/TSV faidhle air an sàbhaladh mar \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Ro-innse"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Contraig filter"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Prìomh chroit"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Bho config sìoltach"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Seall a h-uile càil"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Mar iuchair (roghainn)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Air a dhubhadh às do REMOVED_COUNT de luach easbhaidh, luach neo-àbhaisteach, agus luach a-muigh bho TOTAL_COUNT anns an dreach tùsail."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Seòladh IP"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Dèan coimeas eadar sgaoileadh dàta le tuairmsean cliù agus dùmhlachd. Tha an graf air a roinn leis an caochlaideach caoltach. Tha e cuideachd air a roinn le taobh."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Cuilbheart gu h-iomlan an àireamh de dhàta air an àm Axis no ID Axis."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Taisbeanadh plota sgapaidh sgapaidh. Faodaidh tu a chleachdadh bho 2 gu 7 chaochladairean targaid."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Le bhith a rèir prìomh sgrùdadh co-phàirteach, thathas a 'coileanadh fradharc \"eadar-dhealachadh\" agus an sgrùdadh bàillidh. Cuir a-steach dàta àbhaisteach mar dhàta tidseir agus lèirsinn a bheil an dàta làithreach den aon shuidheachadh ris an dàta àbhaisteach aige (T2 / Q). Ma tha suidheachadh eadar-dhealaichte agad, faodaidh tu sgrùdadh a dhèanamh air na prìomh nithean anns a 'chuilbheart tabhartais."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Tha an sgaoileadh air a roinn na ioma sheòrsa leis an caochlaideach seo. Tagh caochladairean roinneil (caochladairean càileachdail) leithid àireamhan agus stèiseanan pàirt."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Filter Roinnean Stratachaidh: a 'crìochnachadh dàta ri thaisbeanadh gu fo-ghnè. (Roinn-seòrsa: Àireamh Pàirt, stèisean Chan eil, msaa)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Caochlaidhean roinn-seòrsa (leithid àireamh Pàirt, stèisean Chan eil, msaa) air a thaisbeanadh mar bhileagan aig mullach plotaichean gus puingean ag atharrachadh a lorg."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Filter Graf: a 'cuingealachadh dàta ri thaisbeanadh gu fo-ghnè."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Suidhich an dàta ionnsachaidh air a mhìneachadh mar shuidheachadh àbhaisteach. Suidhich an roinn dàta aig nach eil dàta NG. Ma thèid a thoirt a-steach, tha an fheadhainn a tha faisg air dàta NG a 'bhreithneachadh a dhèanamh air an dàta NG cuideachd mar dàta àbhaisteach."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Suidhich dàta deuchainn ri breithneachadh."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Filter Patter: A 'chrìochan dàta (mion-sgrùdadh & Taisbeanadh) Ri fhaicinn do fo-sheata."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Tha e na thaisbeanadh gu tur dà-mhìnich (teannachadh taobhan le prìomh phàirtean) de dhàta dearbhaidh ioma-mheadhain. Ma tha an dàta sa mheadhan, faodar a mhìneachadh mar faisg air àbhaisteach."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Tha e na thaisbeanadh dà-mhìnich dà-thaobhach (teannachadh taobh a-muigh le prionnsapalan) de dhàta ionnsachaidh ioma-mheadhain. Tha am prìomh thargaid air a dhearbhadh leis an dàta ionnsachaidh, agus mar sin bu chòir a 'mhòr-chuid den dàta ionnsachaidh a bhith san targaid."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Cus den staitistig T2, a bhios a 'cumail sùil air neo-riaghailteach anns a' phrìomh phàirt den dàta seo. Tha an dàta ionnsachaidh air a chuilbheart ann an geal agus ann an cuibhreann X àicheil. Is e an cuilbheart buidhe an dàta dearbhaidh. Mar as àirde tha an dàta dearbhaidh an coimeas ris an dàta gheal, is dòcha gu bheil an suidheachadh as coltaiche a bhith a 'gluasad. Cliog air Puing Dàta gus an clàr tabhartais de na thaeamaidean a dhèanamh suas an suidheachadh."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Cus den q Statististististististidh (sgrùdadh airson neo-riaghailteachdan anns a 'phàirt seo den dàta seo, fuigheall). Tha an dàta ionnsachaidh air a chuilbheart ann an geal agus ann an cuibhreann X àicheil. Is e an cuilbheart buidhe an dàta dearbhaidh. Mar as àirde tha an dàta dearbhaidh an coimeas ris an dàta gheal, is dòcha gu bheil an suidheachadh as coltaiche a bhith a 'gluasad. Cliog air Puing Dàta gus an clàr tabhartais de na thaeamaidean a dhèanamh suas an suidheachadh."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Tha òrdugh a chuireas caochladairean a 'cur ris an t-suidheachadh aig an ìre a chaidh a thaghadh ann an cuilbheart stalc T2. Mar as fhaide air an fhaid, is dòcha gur e an adhbhar as coltaiche ris an adhbhar."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Tha òrdugh dè an caochladairean a tha a 'cur ris an t-suidheachadh aig an ìre a chaidh a thaghadh anns a' chuilbheart stat as statistig. Mar as fhaide air an fhaid, is dòcha gur e an adhbhar as coltaiche ris an adhbhar."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Àireamh de phuingean dàta le luach nas lugha na no co-ionann ri Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Àireamh de phuingean dàta le luach nas motha na no co-ionann ri Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Àireamh iomlan de dhàta a 'toirt a-steach NA (chan eil e ri fhaighinn), NaN (chan e àireamh) agus Inf± (Infinity) anns an ùine a thagh."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Àireamh sa cheud de dhàta taobh a-muigh stairsneach àrd is ìosal (cunntadh) san ùine a thagh"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Àireamh sa cheud de dh 'dàta taobh a-muigh na cruinne as àirde agus as ìsle (cunntadh) anns an ùine taghte"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Àireamh sa cheud de NA (chan eil e ri fhaighinn) anns an ùine taghte (cunntadh)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Àireamh sa cheud de NaN (chan e àireamh) anns an ùine a thagh (cunntadh)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Àireamh sa cheud de Inf+ (a bharrachd air Infinity) anns an ùine taghte (cunntadh)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Àireamh sa cheud de Inf- (infinity minus) anns an ùine taghte (cunntadh)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "An ceudad iomlan de dhàta taobh a-muigh luach an stairsnich, NA (chan eil e ri fhaighinn), NaN (Infinity) anns an ùine taghte (cunntadh)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Àireamh de dhàta a tha a 'dùnadh a-mach NA (chan eil e ri fhaighinn), NaN (chan e àireamh) agus Inf± (Infinity) san ùine a thagh."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95mh sa cheud"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75mh sa cheud (an treas cairteal)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25mh de cheud sa cheud (ciad chairteal)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5mh sa cheud"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Raon eadar-ghnìomhach (luach riochdachaidh caochlachadh cuairteachaidh: IRQ = Q3 - Q1 ≒ 1.349σ @ sgaoileadh àbhaisteach)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Meadhan (50mh sa cheud)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "A 'cunntadh / uair a thìde"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Cunntadh / mionaid"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Àm air baidhsagal [S]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Àireamh na roinne"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Cearcall taisbeanaidh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Eadar-ama taisbeanaidh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Mapa teas calenda"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Chan urrainnear caochladairean targaid a thaghadh le MAX_NUM_SENSOR no barrachd. Tagh an caochladair targaid."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Is e na targaidean airson a-mach luchd-opeliers Max, Mean, Min, __ *__ agus Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Ach a-mhàin àireamhan fìor"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Faodaidh an sgaoileadh a bhith air am beachd le bhith a 'tomhas gach caochladair gnèitheil (caochladairean càileachdail, lot àireamh, msaa) no ceann-latha, agus a' taisbeanadh an àm seo, agus a 'taisbeanadh an ama seo. Modh fradhairc a leigeas le mion-sgrùdadh thar-bhuidheann (coimeas eadar lotaichean, làithean, gluasadan agus msaa) gun fhios ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Suidhich an stairsnich a tha air a tharraing air grafaichean."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Ma tha sgapadh air adhart, faodaidh tu an cuilbheart sgapte a nochdadh leis. An cuilbheart sgapte eadar an rud làithreach agus an ath rud sreath. Slaod agus leig às na cairtean cuilbheart de na plotaichean fa leth leis an luchag gus an X-Axis agus Y-axis a 'chuilbheart sgapaidh atharrachadh."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Nì de dhàta (leithid luach àireamhach no tomhais àireamhach) a tha a 'cruthachadh cuairteachadh de dhàta. Tha an dàta seo air a chuilbheart air a 'chuilbheart. Faodar suas ri 20 rud a thaghadh."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Bidh an caochladair sin a 'roinn an sgaoileadh gu grunn phlotaichean agus a' taisbeanadh iad taobh ri taobh. Tagh caochladair daing-chruthach, leithid tòrr no baidse Àireamh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Cuir a-steach an ceann-latha tòiseachaidh an ceann-latha tòiseachaidh gus cuilbheart Ridgeline a thaisbeanadh airson gach àm ceann-latha."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Cuir a-steach gu dìreach an ùine gus cuilbheart Ridgeline a thaisbeanadh airson gach àm ceann-latha."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Faodaidh tu roghainnean a thaghadh gus dàta a thoirt a-steach bho CSV/TSV faidhle a dh 'fheumas làimhseachadh sònraichte, leithid structaran dàta."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Bidh putadh air a 'phutan ro-shealladh gu h-ìosal a' sealltainn beagan den dàta san fhaidhle gus an urrainn dhut sgrùdadh a dhèanamh air na tha ann."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Tagh ceangal ID airson a chleachdadh mar chumha airson a bhith a 'ceangal dàta. Faodaidh tu cuideachd grunn rudan a thaghadh."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Nuair a bhios an app agad a 'faighinn a-steach dàta a tha air an cleachdadh bho àm gu àm, faodaidh tu colbh ceann-latha a thaghadh a tha air a chleachdadh gu fàbharach mar phrìomh àm an ceann-latha."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Ma thaghas tu gnìomhaiche agus cuir a-steach àireamh fo 'factar', thèid an luach sa ghraf a thomhas a 'cleachdadh an gnìomhaiche agus am bàillidh ainmichte."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Ma thaghas tu gnìomhaiche agus cuir a-steach àireamh fo 'factar', thèid an luach sa ghraf a thomhas a 'cleachdadh an gnìomhaiche agus am bàillidh ainmichte."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Tha e comasach ro-innse dè an suidheachadh dàta a bhios air a shallachadh an-dràsta."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Cuir às do dh 'ainm an àite a tha a' suidheachadh an-dràsta agus a 'gairm air a' chumha clàraichte roimhe."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "Tha ID air a ghineadh taobh a-staigh gus dàta a cho-cheangal ris na suidheachaidhean a tha a 'dol suas."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Tagh na stuthan smachd càileachd no uidheamachd uidheamachd a 'cleachdadh ann an suidheachaidhean graf."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Tagh an seòrsa targaid riaghlaidh leithid àireamh pàirt agus uidheamachd."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Tagh an targaid riaghlaidh mar luach àireamh a 'phàirt agus luach an Uidheam."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Suidhich an ceann-latha tòiseachaidh agad airson roghainnean graf. (Riatanach)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Suidhich an ceann-latha deireannach airson roghainnean graf. (Roghainneil)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Leugh an rèiteachadh a chaidh a shàbhaladh."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Sàbhail an rèiteachaidh as ùire a chuir thu a-steach."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Sàbhail an scrion mar fhaidhle PNG."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "A bheil thu airson an suidheachadh seo a dhubhadh às?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Caochladair targaid (àireamh fìor)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Caochladair targaid (roinn)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Òrdachadh clàr-amais"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Colbh"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Òrdugh"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Prìomhachas"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Òrdachadh"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Caochladairean"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Fìor & seòrsachadh a-mhàin"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Fìor a-mhàin"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Seggorical a-mhàin"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Ann an òrdugh suidhichte"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Ann an òrdugh pròiseasaidh"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Ann an coef co-dhàimh. Òrdugh"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Tàs Co-dhàimh (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Tagh gu caochladair amas"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Caochladair amas"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Caochladh Mìneachaidh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Co-mheas ri fhaighinn"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Diagram Sanky"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Maids (maids foirfe)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Lorg"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Rannsachadh"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Bhon nach urrainn do chuilbheart co-òrdanachaidh co-òrdanachaidh a bhith a 'làimhseachadh àireamhan fìor, chaidh dàta fìor-ùine a thoirt air falbh."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Ath-rianachd"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Clàraich an fhiosrachadh deasaichte leithid ainm taisbeanaidh."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "A bheil thu airson clàradh leis an t-susbaint atharraichte?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Ma dh 'atharraicheas tu ceangal ID, feuch an ath-shuidhich rèiteachadh ceangail dàta."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Graf co-thachair"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Faidhle dàta"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Air a mhilleadh le"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Uair"
+
+# co-occurrence
+msgid "Day"
+msgstr "Latha"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Deasaich modh deasachaidh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Modh suidheachadh"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Thèid an dàta neo-dhligheach a chaidh a shoilleireachadh dearg a dhubhadh às. A bheil thu cinnteach gu bheil thu a 'tionndadh gu modh a shuidheachadh?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "Prìomhachas"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Chaidh ainm Beurla dùblaichte a lorg, agus mar sin chaidh an àireamh sreathach a chuir ris gu fèin-ghluasadach. Thoir sùil air ainmean colbh."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Aonadan cruinneachaidh"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Is e a 'chiad cholbh san àm seo, agus is e luach / prìomh cholbhan an dàrna cruinne a th' ann an an dàrna colbh agus na colbhan às deidh sin cunntachail (0,1,2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Dàimhean co-tòiseachaidh co-thachdail tron ​​uair / latha."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Stairsneach taisbeanaidh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Ma thaghas tu luach nas lugha na 100%%, cuiridh tu fòcas air dàimh Co -occurrce beag. (Àbhaisteach: tarraing loidhne ma tha eadhon aon uair)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Aithneachadh agus lèirsinneach caochladairean a tha air an co-cheangal gu dìreach no gu neo-dhìreach ris an caochlaideach targaid."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Lèirsinn an co-dhàimh eadar na caochladairean a tha air a chomharrachadh an seo. Faodar suas ri 60 nithean a thaghadh."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Caochladairean tagraiche a tha ceangailte ri caochladairean amas."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Plot co-òrdanachaidh co-shìnte"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "de na h-oirean"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Cruth"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Cearcall"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Fèin-ghluasadach"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Èifeachdas"
+
+msgid "Set threshold"
+msgstr "Control Line: Thoir sùil air cuin a bhios ìrean riaghlaidh a tha a 'tarraing leithid loidhnichean àbhaisteach"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Àrd-ùrlar Mion-sgrùdaidh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Cairt pareto"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Àireamh tachartais"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Co-mheas teilidh [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Lèirsinn paramadairean a dh 'fhaodadh atharrachadh le dàta thar ùine mhòr, leithid atharrachaidhean bliadhnail ann am pròiseasan, làithean na seachdain, gluasadan, msaa."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Adharc air an co-cheangal eadar àireamh mhòr de chaochladairean le urram don chaochlaidean targaid."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Lèirsinneach Co-thàrt de sgàinidhean, innealan-rabhaidh, tachartasan agus msaa (dàimh a tha ag amas air tricead de dh 'aon ìre agus fear eile)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Falamh"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Inneal sìmplidh airson mapadh, molladh dàta, sgrùdadh staitistigeil, agus ionnsachadh innealan."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Tha an seata dàta an seo air a chleachdadh mar iomradh airson a bhith a 'ceangal dàta agus a' dealbhadh. Tha na roghainnean air an cleachdadh ann an axis còmhnard a 'chuilbheart. A bharrachd air an sin, tha an cuilbheart tùs air a thaisbeanadh le frèam gorm aotrom."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Sònraich an dàta (mar eisimpleir, caochladairean àireamhach: luach tomhais) airson a 'chuilbheart. Tagh na pròiseasan agus na stuthan a thèid a chuilbheart air a 'chuilbheart. Faodar suas ri 20 rud a thaghadh."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Sònraich an dàta (mar eisimpleir, caochladairean àireamhach: luach tomhais) airson a 'chuilbheart. Tagh na pròiseasan agus na stuthan a thèid a chuilbheart air a 'chuilbheart. Faodar suas ri 8 nithean a thaghadh."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Falamh"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Tha an stratificat seo caochlaideach a 'roinn a' phàtran gus am pàtran a thoirt a-steach do iomadh plota agus a 'taisbeanadh iad taobh ri taobh. Tagh caochladairean seòrsaichean mar àireamh Pàirt is stèisean Chan urrainnear suas ri 100 rud a thaghadh."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "An rud de dhàta a tha a 'sealltainn an co-cheangal eadar caochladairean (caochladairean caochlaideach: luachan tomhais, msaa). Tha an dàta seo air a chuilbheart air a 'chairt. Bho 2 gu 7 paramadairean faodar a thaghadh."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Tagh an rud gus an co-dhàimh a thoirt seachad eadar caochladairean. Faodar suas ri 60 nithean a thaghadh."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Nithean de chaochladairean roinneil (leithid àireamhan pàirt) gus an co-dhàimh a thoirt seachad eadar caochladairean."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Meudaich cairt"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "A 'lughdachadh cairt"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Ma thèid an suidheachadh seo atharrachadh, feumar na roghainnean ceangail dàta ath-shuidheachadh."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Gluasad fèin-ghluasadach"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Tagh a h-uile càil air an taobh cheart"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Neo-chiontach air an taobh cheart"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Uile fìor (float) às an seo"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "A h-uile integer às an seo"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Gach sreang às an seo"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Mar thoradh air an àireamh mhòr de chlàran a chaidh a thaghadh agus an ùine a dh 'fheumar gus dealbhadh a thaisbeanadh, chaidh an àireamh de cheallan gach cuilbheart a chuingealachadh ri 10,000. Ma tha thu airson gum faic thu an dàta gu lèir airson an ùine targaid BREAK_LINE, àrdaich an ùine taisbeanaidh no lughdaich an ùine taisbeanaidh gus an àireamh de cheallan a lughdachadh."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Sreathach"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Faodaidh tu sgèile a 'chuilbheart atharrachadh le bhith a' briogadh deas air a 'chuilbheart."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Sgèile Graf"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Modh suidheachadh"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Àireamh de nithean dàta nach gabh ceangal a dhèanamh"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Cuilbheart sgapte"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "le contour"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Sàbhaladh"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Falamh"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Suidheachadh luchd"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Co-roinn / prìobhaideach"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Tuairisgeul"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Air a chruthachadh le"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Cleachdadh / luchdan"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Luchdaich"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Àireamh de dhàta nach gabhadh a bhith ceangailte ris a 'phròiseas tòiseachaidh tòiseachaidh (ceudad de cheangal)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Sàbhail àm ceann-latha"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Sgaoil Roghainnean"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "Sàbhail"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Faodaidh tu taghadh bho 2 gu 7 chaochladairean targaid. Thoir sùil air an àireamh de chaochladairean targaid agus ceartaich na roghainnean."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Is e crìoch meud an fhaidhle 10 MB. Lùghdaich meud an fhaidhle agus feuch ris a-rithist."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Ma thèid a sgrùdadh, thèid an ceann-latha ainmichte a shàbhaladh cuideachd."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Thoir sùil air an suidheachadh seo a cho-roinn."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Sàbhail na roghainnean."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "A bheil thu cinnteach gun cuir thu thairis air roghainnean?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "Co-roinn"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Prìobhaideach"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Air a chruthachadh aig"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Dùin"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Òrdugh air a shuidheachadh"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Ceann-latha tòiseachaidh àm do cheann-latha"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Ceann-latha crìochnachaidh"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Seall bileagan x-axis"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Raon-latha raon-latha"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Slaod agus leig às faidhle an seo"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "No"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Tagh Faidhlichean"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Cha ghabh a thaisbeanadh"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Chaidh stad a chuir air giullachd air sgàth an ìre mhòr de dhàta agus an ùine giollachd fhada. Dèan lèirmheas air na roghainnean tron ​​latha agus a 'taisbeanadh a' chuilbheart a-rithist."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Faidhle CSV. Fuirich ort fhad 's a tha thu a' luchdachadh sìos an fhaidhle."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Faidhle TSV faidhle. Fuirich ort fhad 's a tha thu a' luchdachadh sìos an fhaidhle."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Raon auto"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Raon iomlan"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Suidheachadh òrdugh clàr-amais"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Fosgailte"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Thoir às"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Leis gu bheil an àireamh de phuingean dàta gach graf còrr is 12,000, bha an àireamh de phuingean dàta cuingealaichte ri Max 12,000. Ma tha thu airson an dàta gu lèir fhaicinn, suidhich ùine targaid nas giorra."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratify a rèir teirm (coyclic)"
+
+#: component.js
+msgid "Facet"
+msgstr "Fact"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Roinn a 'coileanadh roinn a' roinneadh leis an rud taghte."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Deireadh eisgeachd"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Raon Internaration àbhaisteach (clàr-amais a 'ceangal IQr ris an sgaoileadh àbhaisteach, NIQR = 0.7413 × IQr)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Is e am modh an luach as trice a bu trice."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "le outlier"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "Às aonais outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Custom"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "An-diugh"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "An-dè"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Na 7 latha mu dheireadh"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Na h-30 latha mu dheireadh"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Air a 'mhìos seo"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 mìos"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 mìosan"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Cuir a-steach"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Seachdain"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 latha air ais"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 latha air ais"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Latha Fist den mhìos seo"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "An latha mu dheireadh den mhìos seo"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 mìosan"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Air ùrachadh aig"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Tha geàrr-chunntas air puingean dàta le modh luath. Ma tha thu airson cuilbheart fhaighinn gun a bhith a 'fàgail dàta air falbh, atharraich an ùine targaid nas giorra."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Raon de y Axis"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Outlier"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Falamh"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Rannsachadh Pròiseas"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Comharra-leabhair"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Bhon aon àireamh de phuingean dàta tha còrr air 10,000, cuilbheart dùmhlachd a tharraing. Ma tha thu airson a h-uile puing dàta a thaisbeanadh le cuilbheart sgapaidh, suidhich an ùine targaid nas giorra."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Falamh"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Ùine baidhsagal"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Fìor àireamh"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Caochladair amas"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Tha an leithid de cho-èifeachdas co-cheangal a 'tomhas a' chaochlair seo mar an caochlaideach targaid. Tha an caochladair targaid a chaidh a shònrachadh an seo cuideachd air a thaisbeanadh còmhla ri bàr dath air taobh fìor cheart a 'chuilbheart. Ma tha thu airson na caochladairean targaid atharrachadh air a 'chuilbheart, faodaidh tu gluasad eadar iad le bhith a' briogadh deas air gach ainm caochlaideach."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Cha deach dàta a bhàthadh leis gu bheil cus roinnean ann. BREAK_LINE Thoir sùil agus, ma tha sin riatanach, ath-sgrùdadh, ath-sgrùdaich an ùine targaid nas giorra."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Suidheachadh sìoltachain"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Leubail (caochladairean roinneil)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Copaidh"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Pasted"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Dèan lethbhreac de config"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Cuir a-steach config"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Às aonais suidheachadh tùsail, thèid a 'chiad targaid a thaghadh mar an tùs."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Dàta às-mhalairt"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Gun a bhith a 'cleachdadh"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Chan eil dàta air a tharraing leis gu bheil cus roinnean ann."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Thoir sùil air agus, ma tha feum air, ath-sgrùdadh, ath-sgrùdadh air suidheachaidhean an ùine targaid."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Roinn le cunntadh dàta (Cynclic)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Àireamh de dhàta"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Falamh"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Falamh"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Tagh caochladair an adhbhair."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Falamh"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Chan eil lobhadh lobhadh / roinn-seòrsa"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Cuilbheart sgapte"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Ma tha an dàrna cuid an dàrna cuid x no y sreang dàta sreang, chan urrainn dhut caochladairean nach eil ring a chleachdadh airson suidheachadh dath."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Chaidh luach taobh a-muigh an raon ceadaichte a lorg, agus mar sin chaidh an raon dligheach as ìsle no as motha a cho-dhùnadh gu fèin-ghluasadach. Atharraich na roghainnean mar a dh 'fheumar."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Cliog deas: suidheachadh ceangail dàta / deasachaidh / cuir às"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Ùine a bharrachd"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Òrdugh Ùine"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "A 'suidheachadh òrdugh dàta"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Feuch an cuir thu às do dhàta neo-riatanach oir tha comas diosc chruaidh `__522__\" air __SERVER_INFO__ %% a ruighinn."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Chaidh stad a chuir air a 'phort dàta oir chaidh comas diosc chruaidh `PNG 52__SERVER_INFO__ %% a ruighinn. Mura h-eil dàta neo-riatanach a thoirt às agus àrdachadh comas falamh, thèid an dàta ath-thòiseachadh."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Cuir a-steach an àireamh de sgaoilidhean ri thaisbeanadh (àireamh nan roinnean). Cuir a-steach integer de 2 no 150 no nas lugha."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Cuir a-steach an àireamh de sgaoilidhean ri thaisbeanadh (àireamh nan roinnean). Cuir a-steach integer de 1 no barrachd 32 no nas lugha."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Falamh"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Falamh"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Falamh"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Falamh"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Tha cus fidheachan a 'dol seachad den chuilbheart, agus mar sin cha robh e cuibhrichte gu tur."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Air sgàth an àireamh mhòr de chlàran a chaidh a thaghadh, tha an àireamh de phlotaichean cuibhrichte bhon cheann-latha as sine chun chunntas as sine."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Tha mi a 'gabhail ris"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Crìonadh"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Air ais"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Àireamh de chuilbheart air colbh"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Thathas a 'cleachdadh na caochladairean gnèitheach (àireamh pàirt, stèisean Chan eil, msaa) mar a tha bileagan aig mullach a' chuilbheart air an cleachdadh gus na puingean atharrachaidh a thoirt seachad (atharrachadh àireamh, msaa) de na caochladairean càileachdail."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Tagh Nithean ri sgrùdadh (caochladairean caochlaideach: luach tomhais, msaa). Faodar suas ri 60 nithean a thaghadh."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Tagh nithean gus dàta a sheòrsachadh. Faodaidh tu cuideachd grunn rudan a thaghadh."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Chan eil seann dàta a 'cur thairis air a bhith air a thaisbeanadh leis nach eil an ceann-latha a' cunntadh an ceann-latha bhon dàta as ùire le crìoch taisbeanaidh."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Bha an àireamh de phlota air a chuingealachadh ri NUMBER. Ma tha thu airson a bhith a 'taisbeanadh na h-uile, ag ath-sgrùdadh nan roghainnean."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Bha an àireamh de phlota air aon taba singilte air a chuingealachadh ri NUMBER. Ma tha thu airson a bhith a 'taisbeanadh na h-uile, ag ath-sgrùdadh nan roghainnean."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Is e an àireamh de chaochladairean targaid gus taghadh as ìsle a thaghadh. Thoir sùil air an àireamh de chaochladairean targaid agus ceartaich na roghainnean."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Tha an àireamh de chaochladairean targaid ri thaghadh suas ris a 'char as àirde as àirde. Thoir sùil air an àireamh de chaochladairean targaid agus ceartaich na roghainnean."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

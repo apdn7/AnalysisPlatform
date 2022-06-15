@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+<link href="{{ url_for('static', filename = 'common/css/fSelect.css')}}" rel="stylesheet">
+<link href="{{ url_for('parallel_plot.static', filename = 'css/parallel_plot.css')}}" rel="stylesheet">
+<link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css')}}"
+    rel="stylesheet">
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+<script src="{{ url_for('static', filename = 'common/js/fSelect.js')}}"></script>
+<script
+    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js')}}"></script>
+<script
+    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js')}}"></script>
+
+<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
+
+<script type="text/javascript" src="/static/common/js/Chart.bundle.min.js"></script>
+<script type="text/javascript" src="/static/common/js/js.cookie.min.js"></script>
+<script src="{{ url_for('parallel_plot.static', filename = 'js/parallel_chart.js')}}"></script>
+<style>
+	text{
+		text-shadow: none !important;
+	}
+</style>
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='PCP', title=_('Parallel Plot'), hint=_('Visualize the correlation between a large number of variables with respect to target variable.'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+<div class="card">
+    <form id="traceDataForm">
+        {{macros.end_proc_paracords_real(procs,title=_('Enter target item of quantitative variable (like measurement value) in data to visualize the correlation between variables. This data is plotted on the graph.'))}}
+		{{macros.start_proc(showAutoUpdate=false)}}
+		{{macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true)}}
+        <br class="graph-navi graph-navi-top-down">
+		<div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-10">
+                <div class="d-flex">
+                     {{ macros.exception_est() }}
+                </div>
+            </div>
+        </div>
+        <div class="show-graph-div" style="text-align: center;">
+            <button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
+                onClick="parallelTraceDataWithDBChecking('TRACE-DATA');" class="btn btn-primary show-graph"><i
+                    class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+        </div>
+        <br>
+    </form>
+</div>
+<div class="card graph-navi" id="sctr-card">
+	<div class="d-flex flex-row-reverse" id="paracord-options" style="margin: 10px 30px;">
+		<div id="updateParacords" class="loader hide"></div>
+		<div class="">
+			<button id="" class="btn btn-primary" onclick="showParacordWithSettings();">{{ _('Display graph') }}</button>
+		</div>
+		<div class="col-2">
+			<div class="form-inline" style="margin-right: 5px">
+				<div class="form-group">
+                    {{ macros.sub_label(_("Remove outlier")) }}
+					<select class="form-control" id="isRemoveOutlier" name="isRemoveOutlier">
+						<option value="1">{{ _('Yes') }}</option>
+						<option selected="selected" value="0">{{ _('No') }}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="col-2">
+			<div class="paracord-options-bar" target="paracord-sort-menu">
+				<button id="" class="btn btn-primary btn-sm">...</button>
+				<span class="text-option sub-label">{{ _('Ordering') }}</span>
+			</div>
+		</div>
+		<div class="col-2">
+			<div class="paracord-options-bar" target="paracord-showvar-menu">
+				<button id="" class="btn btn-primary btn-sm">...</button>
+				<span class="text-option sub-label">{{ _('Variables') }}</span>
+			</div>
+		</div>
+	</div>
+	<div class="" id="paracord-plot" style="display: none; overflow-x: scroll;"></div>
+</div>
+
+<div>
+    <ul id="contextMenuParallelPlot" class="context-menu" style="display:none;">
+        <li class="menu-item" onclick="handleSelectMenuItem(this)" data-target-dim="">{{ _("Response variable") }}</li>
+    </ul>
+</div>
+<div id="dimFullName" class="custom-tooltip"></div>
+<div class="paracord-options-menu" id="paracord-sort-menu">
+	<div class="form-check">
+		<label class="form-check-label" for="sort-by-setting">
+			<input class="form-check-input" id="sort-by-setting" type="radio" name="sort_by" value="setting" checked="">
+			<span>{{ _('In set order') }}</span>
+		</label>
+	</div>
+	<div class="form-check">
+		<label class="form-check-label" for="sort-by-proc">
+			<input class="form-check-input" id="sort-by-proc" type="radio" name="sort_by" value="process">
+			<span>{{ _('In process order') }}</span>
+		</label>
+	</div>
+	<div class="form-check">
+		<label class="form-check-label" for="sort-by-corr">
+			<input class="form-check-input" id="sort-by-corr" type="radio" name="sort_by" value="correlation">
+			<span>{{ _('In order of corr.') }}</span>
+		</label>
+		<!-- 閾値 -->
+		<div class="sort-corr-setting">
+			<span class="text">{{ _('Corr threshold (abs)') }}</span>
+			<input type="number" class="form-control" name="corr_value" value="0.7">
+		</div>
+	</div>
+</div>
+<div class="paracord-options-menu" id="paracord-showvar-menu">
+	<div class="form-check">
+		<label class="form-check-label" for="option-all">
+			<input class="form-check-input" id="option-all" type="radio"
+				   name="show-var" onchange="showCategoryVarOnly('all');" value="all" checked="">
+			<span>{{ _('Real(Float) and categorical') }}</span>
+		</label>
+	</div>
+	<div class="form-check">
+		<label class="form-check-label" for="option-real">
+			<input class="form-check-input" id="option-real" type="radio"
+				   name="show-var" onchange="showCategoryVarOnly('real');" value="real">
+			<span>{{ _('Real(Float) only') }}</span>
+		</label>
+	</div>
+	<div class="form-check">
+		<label class="form-check-label" for="option-category">
+			<input class="form-check-input" id="option-category" type="radio"
+				   name="show-var" onchange="showCategoryVarOnly('category');" value="category">
+			<span>{{ _('Categorical only') }}</span>
+		</label>
+	</div>
+</div>
+<div class=" loading"></div>
+<div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+<a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+    target="_blank">{{ _("Click here to fix") }}</a>
+{{optdata}}
+{% endblock %}
+
+{% block js %}
+<script>
+    {#var getParam = {{ get_param| safe }};#}
+    const procJsons = {{ list_procs | safe }};
+    const hasGraphCfgsFilterDetails= {{ graph_filter_detail_ids | safe }};
+    const procConfigs = {};
+    for (let procJson of procJsons){
+        const cfgProcess = new CfgProcess(procJson);
+        procConfigs[cfgProcess.id] = cfgProcess;
+    }
+</script>
+<script src="{{ url_for('parallel_plot.static', filename = 'js/parallel_plot.js')}}"></script>
+{% endblock %}

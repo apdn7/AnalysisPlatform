@@ -1,0 +1,3154 @@
+# アイスランド語 Icelandic translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "is_アイスランド語_Icelandic"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: is\n"
+"Language-Team: is\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Vistað"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Villa hefur komið upp"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Stillingar umsóknar"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Síða ekki fundin"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Villa hefur komið upp"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Datalink & Analysis app"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Veldu tungumál"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Aðalskjár"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Staðfesting á aðgerð"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Staðfesting á aðgerð"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Basic config"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Skráðu þig"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Endurhlaðið"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Heiltala"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Alvöru (fljóta)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "DateTime"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Strengur"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Titill"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Planta"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Verksmiðja"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Lína"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Vinsamlega staðfestið."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Vistaðu gögnin og byrjaðu að flytja inn gögn með innihaldi sem sett er á síðu stillingarinnar?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Ok"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Hætta við"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Gagnagrunnur config"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Gagnagrunnsheiti"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Tegund gagnagrunns"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Config"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Athugasemd"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Bæta við"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Veldu gagnagrunnsskrá."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Skráarnafn"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Veldu"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Viltu eyða þessari skrá?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "eyða"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Rekjanleika"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Rekjahæfni línurit"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Rekja próf"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Byrjaðu að prófa"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Byrjunartími"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Lokatími"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Vélarauðkenni (margvísleg val)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Lína"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Hlutanúmer"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Gagnatengill config"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Veldu tungumál"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Japanska"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Enska"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Hnútur"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Hnútur ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Merkimiða"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Meistaranafn"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Gagnagrunnur"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Flytja inn"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Flytja út"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Gestgjafanafn"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Hafnarnúmer"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Notandanafn"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Lykilorð"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Stef"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Mér tókst."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; mistókst."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Ferli config"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Ferli"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Ferli nafn"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Töfluheiti"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Smáatriði"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Forsýning"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Fyrstu fimm plöturnar"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Stilla innihald"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Dálkaheiti"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Enska nafnið"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Sýna nafn"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "Stuðull"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Rekstraraðili"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Sláðu inn annað gildi en 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Inntaksrekstraraðili."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Inntakstuðull."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Inntak ensku nafnsins."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Nafn innsláttarskjás."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Enska nafnið er afritað."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Skjáheitið er afritað."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Öll „skjánöfn“ þurfa inntak."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Reitir með autt „Enska nafn“ eru sjálfkrafa fylltir."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Velja allt"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Flytja inn gögn"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Ertu viss um að flytja inn gögn?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Þegar þú ýtir á OK hnappinn muntu flytja gögn frá núverandi tíma til einum mánuði áður."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Fyrri gögn eru sjálfkrafa flutt inn smám saman."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Ef þú vilt flytja gögnin eftir núverandi tíma skaltu ýta á gagnalestrarhnappinn aftur eða ýta á gagnagrunninn CSV að setja upp stillingarnar á lestrarstillingarsíðunni."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Þegar „Update Cycle“ á „Database / CSV lestrarstillingu“ er stillt verður það sjálfkrafa flutt inn á tímabilið þegar gögnin eftir núverandi tíma eru stillt."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Rekja upplýsingar"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Rekja gögn"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Gat ekki nálgast"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Smelltu hér til að laga það."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Edit Edge"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Prev ferli"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Fyrri dálkur"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Eftir ferli"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Settu dálkur"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Sem datetime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Sem raðnúmer"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Sem hlekkur ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Nú þegar skráð"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Vinsamlegast sláðu inn heiti ferlisins"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Sía/línurit"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Línurit config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Línu síu config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Línu dálkur"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Gildi"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Vélasía config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Vél ID dálkur"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Hluti No Filter config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Hluti enginn dálkur"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Síuheiti"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Síuástand"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Aðrir sía config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Miða dálk"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Sjónræn stilling"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Lægri þröskuldur"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Efri þröskuldur"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Lægri ferliþröskuldur"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Efri ferli þröskuldur"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y-Axes svið: mín"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y-Axes svið: Max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Hluti nr"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "enda með"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Byrja með"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like leit)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Sammála"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Regluleg tjáning"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Sýna línuritið"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Útflutningur"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Ferli er krafist"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Nafn dálka er krafist"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Lína er krafist"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Skjáheiti er krafist"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Skjáheitið er afritað."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Vélagildi er krafist"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Tvítekna vél ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Sparaðu með góðum árangri"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Mistókst að spara"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Hluti enginn dálkur er krafist"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Markdálkur er krafist"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Nafn síu er krafist"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Skilyrði er krafist"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Síuheitið er afritað."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Skilyrðin eru afrituð."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Sjálfgefið"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Ferli nafn"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Bætt við öðrum síum"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Innflutningsstefna"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Uppspretta"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Endurnýjunarferli"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Tengdu"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Einu sinni á klukkustund"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Einu sinni á dag"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Staðfesting gagna"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Það er engin mappa."
+
+msgid "File does not exist"
+msgstr "Það er engin skrá."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Þú getur tengst."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Vinsamlegast fylltu út gildið."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Það er ekkert stillingarefni."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Stillingarnar eru tvíteknar."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Stillingar gagnagrunns vistaðar."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Ekki tókst að vista gagnagrunnsstillingar."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Grunnstillingar vistaðar."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Ekki tókst að vista grunnstillingar."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Prófstenging"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Upphafspunktur"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Dagsetning svið"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Síðast"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Sjálfvirk uppfærsla"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "mínúta"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "mínútur"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "klukkutíma"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "klukkustundir"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Miða breytu"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Sía"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X ás"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Tímamerki"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Vísitala"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Lagskipta breytur"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Síur"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Gagnagrunnur/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Greina"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Í þróun"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Greina:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Söguþráður fossa"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Myndræn LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Súlurit"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Lagskipt söguþræði"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Lóð í fullum punktum"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Gagnasjón"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Sjón"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Hlaupa"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Sláðu inn heiti gagnagrunnsins."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Sláðu inn nafn gagnaheimildarinnar."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Dálkar sem hafa enga gagnategund eru ekki fluttir inn."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Nauðsynlegt er að minnsta kosti einn dálki datetime."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Notaðu '{col}' fyrir X-Axis til að sjá."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Ertu viss um að halda áfram?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Borðáhorfandi"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Borð"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Raða"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Fjöldi gagna"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Lækkandi"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Stígandi"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Fullkomin samsvörun"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Að hluta samsvörun"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Ógilt val á tölustöfum"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Lengd persónunnar sem notuð er við tengslin er önnur."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Engin sía"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Allar línur"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "ástand"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Starfslisti"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Allt"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Innflutningur lokið."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Innflutningur"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Mistókst innflutningur"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Hlaðnu gögnum verður eytt. Er það í lagi? (Engin breyting endurspeglast fyrr en ýtt er á skráningarhnappinn)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Starfslisti"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Starfsauðkenni"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Atvinnuheiti"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Kynslóð LinkedID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Sýna kynslóðarstarf um hlekk ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Eyðingu upplýsinga um ferli"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Flytja inn verksmiðjugögn"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Flytja inn fyrri verksmiðjugögn"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Sýna innflutningsstarf fyrri verksmiðjugagna"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Innflutningsgögn"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Eyða gömlum gögnum"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Byrjunartími"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "liðinn tími"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Gagnagrunnur/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Framfarir"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Ferli"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Súluritalisti"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Skráðu þig sem útbrotsgildi"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Óskráður útrásarvíkingur"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Fela útrásarmenn"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Sýna útrásarmenn"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Athugaðu útrásarmenn"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Sýna súluritalista"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Síðasti uppfærslutími"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Hætt hefur verið við útlæga skráningu."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Skráður sem útrásarvíkingur"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Útlægari"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Bara einu sinni"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Upplýsingar um starf"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Afritaðu á klemmuspjald"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Multi Discatter söguþræði"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Dreifa samsæri"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Til að sjá flokkunarbreytu"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Lagskipt með breytum"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Breytu"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Vél nr"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Marktímabil"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Tíðni (telja)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Mat á þéttleika"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Flokka breytu"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Lagskipt eftir hugtaki (beint)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Þú getur ekki valið átta eða fleiri markstærðir. Veldu miða breytu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Frávik uppgötvun"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Meginþáttagreining"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Helstu stig stig prófunargagna"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Helstu stig stig þjálfunargagna"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Series mynd yfir T2 tölfræði"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Series mynd yfir Q tölfræði"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Framlagsrit T2 tölfræði"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Framlags lóð Q tölfræði"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Fjarlægðu útlæga"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Þjálfunargögn"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Prófunargögn"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Já"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Nei"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Gagnategund"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Dæmi"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Villa"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Viðvörun"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Þar sem öllum línum hefur verið eytt með vinnslu á halla (NA flutningur) eru engin gögn til að greina. Gakktu úr skugga um að tómt gildi, þar með talið NA, sé ekki valið."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Það er ekki hægt að greina það vegna þess að það inniheldur önnur gögn en tölur. Gakktu úr skugga um að þú hafir valið dálk sem inniheldur streng eða flokks gildi."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Get ekki greint vegna þess að það inniheldur gögn með dreifni 0. Gakktu úr skugga um að aðeins einn gildi dálkur sé ekki valinn."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Fundin flokksgögn og væntanlegt heiltala gildi. Ef þetta heiltala gildi er ekki pöntunarmælikvarði, bilskala eða hlutfallskala, geta greiningarniðurstöður haft slæm áhrif."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Ertu viss um að halda áfram greiningu?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Leitaðu"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Miðgildi er ein af dæmigerðum tölfræði. Það er gildi sem staðsett er í miðjunni þegar endanlegu gögnum er raðað í hækkandi röð. Til dæmis, þegar um er að ræða fimm, er miðgildi aldurs þriðja aldur í aldri. Ef fjöldi gagna er jafnvel er meðaltal miðlægs blandanlegt tölfræði notað."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Yfirlit yfir dreifingu"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N númer"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Meðaltal"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Hvað er miðgildi ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Alls"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Tíðni"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Lokapunktur"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Markmiðferli"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Tímaröð"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Stykki"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Fjöldi gagnatengla"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Sekúndur"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Viðbragðstími"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "EDIT"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Aftur"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Bættu við hnút"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Bæta við brún"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Breyta hnút"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Smelltu á tóma rýmið til að setja nýjan hnút."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Smelltu á hnútinn, dragðu brúnina í annan hnút og tengdu þá."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Smelltu á stjórnunarpunktinn, dragðu það að hnútnum og tengdu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Ekki er hægt að bæta við brún."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Ekki er hægt að eyða þyrpingunni."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Ekki er hægt að breyta þyrpingunni."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Skjáheiti eða gildi er afritað."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Sláðu inn skjánafn og gildi."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Sláðu inn lína dálkinn."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Klukkustundir"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Upplýsingar um gögn"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Dagur"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Vika"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Hlaða"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Vista"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Skrifa yfir"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Stilling"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Breyttu titlinum vegna þess að sami titill er stilltur."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Vista stillingu"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Búðu til skjámynd"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "Sækja"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Ástæðurnar fyrir því að ekki er hægt að birta línuritið er eftirfarandi. BREAK_LINE Athugaðu ástandið. BREAK_LINE・ Gögn eru ekki flutt inn eða í miðjum innflutningi. BREAK_LINE・ Engin gögn eru tengd eða í miðri bindingu. BREAK_LINE・ Stilling línuritsins er óviðeigandi."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Viðvörun"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Skrár sem innihalda ógild gögn í dagsgagnasúlunni eru ekki fluttar inn."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Þú getur vísað til skrárnar í möppunni hér að neðan fyrir gögn sem ekki var hægt að flytja inn."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Ekki er hægt að hlaða notkunarstöðu vegna þess að hún er ekki tengd internetinu."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Vinsamlegast athugaðu nettengingu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Það mun taka langan tíma að tengja gögn aftur."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Ertu viss um að tengja gögnin aftur?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Fóstureyðingu"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Framkvæma"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Ertu viss um að endurhlaða áður skráða gagnastillingar?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Byrjaði að flytja inn gögn."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Þú getur athugað framvindu innflutningsins frá hlekknum hér að neðan."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Sjá síðu starfslista fyrir villustöðu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Byrjaði að tengja gögn."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Einu sinni á 3 mínútna fresti"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Einu sinni á 5 mínútna fresti"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Einu sinni á 10 mínútna fresti"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Valfrjáls aðgerð"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Skráartegund"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Útflutningur"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Vegna mikils fjölda valda gagna og tíminn sem þarf til að birta línuritið var fjöldi skrár á hvert línurit takmarkað við 50.000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Tímaröðartöflu"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Flokkagildi"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Þar sem fjöldi skráa á tilteknu tímabili er meira en 5.000, er BREAK_LINE hlekkur bundinn innan ± 14 daga frá tilteknu tímabili. Ef þú vilt ekki takmarka tengibúnaðinn skaltu stilla tímalengdina til að fækka skrám BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Stilling mælikvarða"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Sameiginlegur mælikvarði"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Þröskuldalína"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Sjálfvirk mælikvarði"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Að vera notaður mælikvarði"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn ferli"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Mín"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Enginn"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Yfirlit"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Telja"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Grunn tölfræði"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Ekki parametric"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Gagnagæði"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Áhorfandi"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Flytja inn gögn"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Ferli gagnatengla mun hefjast út frá núverandi stillingum."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Það getur tekið tíma ef það eru mikið af gögnum til að tengja. Er það í lagi að byrja?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Fyrir gögn sem eru sjálfkrafa og reglulega flutt inn er hlekkur ID búinn til sjálfkrafa."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Nafn gagna"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Gagnheimild"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Ertu viss um að vista breytingar?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Þvingaðar upplýsingar um stýrikerfi til stillinga á tímabelti."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Ítarleg stilling"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Stillingar eru vistaðar fyrir gagnagrunninn /CSV skrá yfir innflutningsgögn. Farðu á stillingarsíðuna, stilltu dálka innflutningsgagna til að flytja inn gögnin."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Það er enginn nauðsynlegur eiginleiki í frumefnisgögnum."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Það er ekkert eigindagildi sem krafist er fyrir gögnum um frumefni."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Óeðlileg uppgötvun PCA þarf að minnsta kosti tvær breytur. Veldu tvær eða fleiri breytur."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Veldu að minnsta kosti einn dálk"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Flokksbreytur sem draga úr breidd kassans birtast ekki."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Byrja tölustaf"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline söguþræði"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Hættu forritinu (Edge Server). Ef þú hættir mun einhver annar notandi ekki geta notað líka, svo vinsamlegast hafðu samband við stjórnandann. <br> Ef um er að ræða venjulegan enda, hætta við hér og lokaðu bara vafranum."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Allt starf hefur verið stöðvað. Þú getur örugglega lokað vafranum og leikjatölvunni."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Gagnaheimild config"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Gagnaheimild"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Súlur fundu fáa stafasúlur. Gakktu úr skugga um að talnagerð dálkur o.s.frv. MÁ að vera þekkt."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Sía hlut"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Síu gildi"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Gildistími (byrjun)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Gildistími (lok)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Ekki var hægt að flytja inn gögn vegna uppstillingar mistaka dálka. Gagnaheimild heiti __param__ CSV/TSV Athugaðu stillingar gagnategundarinnar í forsýningu gagna á lestrarstillingarsíðunni. Eyða skrefastillingunum sem ekki var hægt að flytja inn og stilla stillingarnar."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Það var skrá án gagna. Athugaðu innihald skráarinnar. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Settu inn að minnsta kosti eitt gildi gildistímabilsins frá eða til."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Skiptu eftir flokkum"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Skiptu eftir hugtaki (hringlaga)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Skiptu eftir hugtaki (beint)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Gildi slegið bil er ógilt. Sláðu inn fjölda 0,1 eða meira, 720 eða minna, eða -720 eða meira, og -0,1 eða minna."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Το καθορισμένο \"μήκος παραθύρου\" είναι άκυρο. Η τιμή πρέπει να είναι μεταξύ 0,1 και 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Fjöldi innsláttar ridgeline er ógildur. Sláðu inn heiltölu 1 eða meira og 150 eða minna. (kjósa að nota um 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Byrjaðu gögn og tíma"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Bil"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Gluggalengd"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Stjórnaratriði"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Tegund"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Nafn"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Athugaðu að ef fjöldi gagnapunkta í einum flokki er undir 50 ára getur nákvæmni línuritsins fækkað."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Sýna krosshárbendilinn (smelltu)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Sýna margra kross hárbendilinn (tvísmelli)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Sýna lista yfir súlurit"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Hætta við útlægari athugun"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Tilgreint „Gagnaheimild“ er þegar til."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Gagnainnflutningur mistókst vegna þess að skrá með öðru dálksheiti fannst í gagnaheimildinni. Athugaðu innihald skráarinnar og stilltu stillingar gagnaheimildarinnar aftur."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Spáð fjöldi skráa sem á að tengja"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Fjöldi sýna"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Fjöldi skráa sem á að tengja"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Fjöldi heildarskrár"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Vinsamlegast nefndu möppuna þar sem CSV/TSV skrár eru vistaðar eins og \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Spá"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Sía config"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master config"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Úr síu config"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Sýna allt"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Sem lykill (valkostur)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Eytt REMOVED_COUNT af hallaverðmæti, óeðlilegt gildi og útlæga gildi frá TOTAL_COUNT í upprunalegu."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP -tölu"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Berðu saman dreifingu gagna við súlurit og mat á þéttleika. Grafinu er deilt með lagskiptu breytu. Það er einnig deilt með hlið."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Settu saman allan fjölda gagna á tímaás eða ID ás."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Sýna dreifingu samsæri. Þú getur notað frá 2 til 7 markstærðum."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Með greiningu á aðalhlutum er sjón á „mismunandi“ og þáttagreining þess gerð. Sláðu inn venjuleg gögn sem kennara gögn og sjón hvort núverandi gögn séu sömu aðstæður og venjuleg gögn (T2/Q). Ef þú ert með mismunandi aðstæður geturðu athugað helstu þætti í framlagsspili."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Dreifingu er skipt í margar línurit með þessari breytu. Veldu flokksbreytur (eigindlegar breytur) svo sem hlutanúmer og stöðvar."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Stratified flokkasía: takmarkar gögn sem verða sýnd við undirmengi. (Flokkur: hlutanúmer, stöð nr. Osfrv.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Flokksbreytur (svo sem hlutanúmer, stöð nr osfrv.) Sýndar sem merkimiðar efst á lóðum til að finna breytt stig."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Graf sía: takmarkar gögn sem verða birt við undirmót."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Stilltu námsgögnin túlkuð sem eðlilegar aðstæður. Stilltu gagnahlutann sem inniheldur engin NG gögn. Ef þeir eru með eru þeir sem eru nálægt NG gögnum einnig dæmdir sem venjuleg gögn."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Stilltu prófgögn sem á að dæma."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Atriðasía: Takmarkar gögn (greiningu og birt) sem verða birt í undirmengi."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Það er tvívídd samanlagð skjár (víddarþjöppun með aðalhlutum) af fjölvíddar sannprófunargögnum. Ef gögnin eru í miðjunni er hægt að túlka þau sem eðlilega."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Það er tvívídd samanlagð skjár (víddarþjöppun með meginþáttum) fjölvíddar námsgagna. Aðalmarkmiðið ræðst af námsgögnum, þannig að flest námsgögn ættu að vera í markmiðinu."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Söguþráður T2 tölfræðinnar, sem fylgist með frávikum í meginþætti þessara gagna. Námsgögnin eru samsærð í hvítu og í neikvæðum X hlutanum. Gula söguþráðurinn er staðfestingargögn. Því hærri sem staðfestingargögn eru borin saman við hvít gögn, því líklegra er að ástandið er að víkja. Smelltu á gagnapunkta til að sjá framlagsrit þess sem þættir mynda ástandið."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Söguþráður Q tölfræði (eftirlit með frávikum í minnihluta þessara gagna, leifar). Námsgögnin eru samsærð í hvítu og í neikvæðum X hlutanum. Gula söguþráðurinn er staðfestingargögn. Því hærri sem staðfestingargögn eru borin saman við hvít gögn, því líklegra er að ástandið er að víkja. Smelltu á gagnapunkta til að sjá framlagsrit þess sem þættir mynda ástandið."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Röðin sem breytur stuðla að aðstæðum á þeim stað sem valinn er í T2 tölfræðilóðinni. Því lengur sem lengd er, því líklegra er að orsökin er."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Röðin sem breytur stuðla að aðstæðum á þeim stað sem valinn er í Q tölfræðilega söguþræði. Því lengur sem lengd er, því líklegra er að orsökin er."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Fjöldi gagnapunkta með gildi minna en eða jafnt og Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Fjöldi gagnapunkta með gildi sem er meira en eða jafnt og Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Heildarfjöldi gagna þar á meðal NA (ekki tiltækt), NaN (ekki fjöldi) og Inf± (óendanleikinn) á völdum tímabili."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Hlutfall gagna utan efri og neðri þröskulds (telja) á völdum tímabili"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Hlutfall gagna utan efri og neðri mörk"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Hlutfall NA (ekki fáanlegt) á völdum tímabili (telja)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Hlutfall NaN (ekki fjöldi) á völdum tímabili (telja)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Hlutfall af Inf+ (auk óendanleika) á völdum tímabili (telja)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Hlutfall af Inf- (mínus óendanleika) á völdum tímabili (telja)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Heildarhlutfall gagna utan þröskuldsgildisins, NA (ekki tiltækt), NaN (ekki fjöldi) og Inf± (óendanleikinn) á völdum tíma (telja)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Fjöldi gagna að undanskildum NA (ekki tiltækt), NaN (ekki fjöldi) og Inf± (óendanleikinn) á völdum tímabili."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95. hundraðshluti"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75. hundraðshluti (þriðji fjórðungur)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25. hundraðshluti (fyrsti fjórðungur)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5. prósentil"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Interquartile svið (dæmigert gildi dreifingarbreytileika: IRQ = Q3 - Q1 ≒ 1.349σ@ Venjuleg dreifing)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Miðgildi (50. prósentil)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Telur/klukkustund"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Telur/mínútu"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Hjólreiðatími [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Skiptisnúmer"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Sýna hringrás"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Sýna bil"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Calenda hita kort"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Ekki er hægt að velja markstærðir með MAX_NUM_SENSOR eða meira. Veldu miða breytu."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Markmiðin um að fjarlægja útrásarvíking eru Max, Mean, Min, σ og Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Aðrar en rauntölur"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Hægt er að sjá dreifingu með því að reikna út fyrir hverja flokkalaga breytu (eigindlegar breytur, lóðanúmer osfrv.) Eða DateTime og sýna þær hlið við hlið. Sjónræn aðferð sem gerir kleift að greina krosshóp (samanburður á milli lóða, daga, vaktir og osfrv.) Gagna án stakra ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Stilltu þröskuldinn sem á að draga á myndrit."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Ef dreifing er á geturðu sýnt dreifingarlóðina með því. Dreifingin samsæri milli núverandi hlutar og næsta röð. Dragðu og slepptu lóðkortum viðkomandi lóða með músinni til að skipta um x-ás og y-ás dreifingarlóðarinnar."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Gagnaefni (svo sem tölulegt breytu eða mælingargildi) sem skapar dreifingu gagna. Þessi gögn eru samsærð á söguþræði. Hægt er að velja allt að 20 hluti."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Þessi lagskipta breytu skiptir dreifingunni í margar lóðir og birtir þær hlið við hlið. Veldu flokkalaga breytu, svo sem Lot No eða lotu nr."
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Sláðu inn Start DateTime til að sýna ridgeline lóð fyrir hvern dateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Settu beint inn tímabilið til að birta ridgeline lóð fyrir hvern dateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Þú getur valið valkosti til að flytja inn gögn úr CSV/TSV skrá sem krefst sérstakrar meðhöndlunar, svo sem að umbreyta gagnaskipulagi."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Með því að ýta á forsýningarhnappinn hér að neðan sýnir einhvern hluta gagna í skránni svo þú getir athugað innihald þess."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Veldu hlekk ID sem á að nota sem skilyrði fyrir tengsl gagnanna. Þú getur líka valið marga hluti."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Þegar forritið þitt flytur reglulega inn gögn geturðu valið dálkdálk sem er helst notaður sem lykill DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Ef þú velur rekstraraðila og slærð inn númer undir 'Factor' verður gildið í línuritinu reiknað með því að nota tilgreindan rekstraraðila og þátt."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Ef þú velur rekstraraðila og slærð inn númer undir 'Factor' verður gildið í línuritinu reiknað með því að nota tilgreindan rekstraraðila og þátt."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Það er mögulegt að spá fyrir um hve mikið af gögnum verður tengt við stillingarskilyrði sem nú eru stillt."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Fleygðu skilyrðinu sem nú er stillt á gagnatengingu og hringir í áður skráða ástand."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID er búið til innbyrðis til að tengja gögn við stillingarskilyrði."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Veldu gæðaeftirlit eða búnaðarstýringarhluta með því að nota línurit."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Vinsamlegast veldu gerð stjórnunarmarkmiðs eins og hlutanúmer og búnað."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Vinsamlegast veldu stjórnunarmarkmið svo sem gildi hlutanúmersins og gildi búnaðarins."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Stilltu Start DateTime fyrir línuritstillingar. (Krafist)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Stilltu lokatíma fyrir línurit. (Valfrjálst)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Lestu vistaða stillingar."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Vistaðu nýjustu stillingarnar sem þú slóst inn."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Vistaðu skjáinn sem PNG skrá."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Viltu eyða þessari stillingu?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Markmið breytu (raunveruleg tala)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Markbreytni (flokkur)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Röðun vísitölu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Súlan"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Pöntun"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Forgang"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Panta"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Breytur"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "EINNIG FYRIR FYRIR"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Alvöru aðeins"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Aðeins flokkalegt"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Í ákveðinni röð"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Í vinnslupöntun"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Í fylgni Coef. Pöntun"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Fylgniþröskuldur (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Veldu í hlutlæga breytu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Hlutlæg breytu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Útskýrandi breytu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Fáanlegt hlutfall"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Sanky skýringarmynd"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Passa (fullkominn samsvörun)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR leit"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND leit"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Þar sem samhliða hnitaslóð getur ekki meðhöndlað rauntölur hafa rauntölu gögn verið fjarlægð."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "REGISTRATION"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Skráðu breyttar upplýsingar eins og skjáheiti."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Viltu skrá þig með breyttu efni?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Ef þú breytir hlekk ID, vinsamlegast endurstilltu gagnatengilinn."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Samhliða myndriti"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Gagnaskrá"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Samanlagt af"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Klukkutíma"
+
+# co-occurrence
+msgid "Day"
+msgstr "Dagur"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Breyta stillingu"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Stillingarstilling"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Ógild gögn, sem auðkennd er, verður eytt. Ertu viss um að skipta yfir í stillingarstillingu?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "forgang"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Tvítekið enskt nafn fannst, þannig að raðnúmerið var sjálfkrafa bætt við. Athugaðu nöfn dálka."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Einingar af samsöfnun"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Fyrsti dálkur er dateTime og seinni dálkurinn og síðari dálkar eru gildi eins og tilkynningarfánar viðvörunar/talning (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Samanlagð sambönd samhliða tíma eftir klukkutíma/dag."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Sýna þröskuld"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Ef þú velur gildi minna en 100%%, muntu fela lítið sambandi samskipta. (Sjálfgefið: Teiknaðu línu ef það er jafnvel einu sinni)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Þekkja og sjáðu breytur sem eru beint eða óbeint í tengslum við markbreytan."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Sjónaðu fylgni milli breytanna sem tilgreindar eru hér. Hægt er að velja allt að 60 hluti."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Frambjóðandi breytur sem eru í tengslum við hlutlægar breytur."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Samhliða hnitaslóð"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "af öllum brúnum"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Skipulag"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Hringur"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Sjálfvirkt"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Skilvirkni"
+
+msgid "Set threshold"
+msgstr "Control Line: Athugaðu hvenær teiknaðu stjórnunarstig eins og venjulegar línur"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Greiningarpallur"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Pareto mynd"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Fjöldi viðburða"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Uppsafnað hlutfall [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Sjónaðu breytur sem geta verið mismunandi eftir gögnum yfir langan tíma, svo sem árleg tilbrigði í ferlum, vikudaga, vaktir osfrv."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Sjónaðu fylgni milli mikils fjölda breytna með tilliti til markbreytunnar."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Sjónaðu samkomu galla, viðvarana, atburða og osfrv. (Samband með áherslu á tíðni samtímis eins fyrirbæri og annað)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Tómt"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Einfalt tæki til að kortleggja gagna, sjón, tölfræðigreiningu og vélanám."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Gagnasettið hér er notað sem tilvísun til að tengja og samsæri gagna. Stillingarnar eru notaðar á lárétta ás lóðarinnar. Að auki er upprunaplottið sýnt með ljósbláum ramma."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Tilgreinir gögnin (til dæmis tölulegar breytur: mælingargildi) fyrir lóðina. Veldu ferla og hluti sem á að samsæri á lóðinni. Hægt er að velja allt að 20 hluti."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Tilgreinir gögnin (til dæmis tölulegar breytur: mælingargildi) fyrir lóðina. Veldu ferla og hluti sem á að samsæri á lóðinni. Hægt er að velja allt að 8 hluti."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Tómt"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Þessi lagskiptisbreytu skiptir mynstrinu til að sjá í margar lóðir og birtir þær hlið við hlið. Veldu flokkalegar breytur eins og hlutanúmer og stöð nr. Hægt er að velja allt að 100 hluti."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Gagnagreinin sem myndar fylgni milli breytna (megindlegar breytur: mælingargildi osfrv.). Þessi gögn eru samsærð á töflunni. Hægt er að velja frá 2 til 7 breytum."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Veldu hlutinn til að sjá fylgni milli breytna. Hægt er að velja allt að 60 hluti."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Atriði í flokksbreytum (svo sem hlutanúmer) til að sjá fylgni milli breytna."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Hámarka kort"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Lágmarka kort"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Ef þessari stillingu er breytt er nauðsynlegt að núllstilla stillingar gagnatengisins."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Sjálfvirk val"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Veldu allt til hægri"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Óseljið allt til hægri"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Allt raunverulegt (flot) héðan"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Öll heiltala héðan"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Allur strengur héðan"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Vegna mikils fjölda skráa sem valdar voru og tíminn sem þarf til að sýna lóð var fjöldi frumna á hverja lóð takmarkaður við 10.000. Ef þú vilt sjá öll gögnin fyrir BREAK_LINE miðunartímabilið skaltu auka skjábilið eða draga úr marktímabilinu til að fækka frumum."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Rað"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Þú getur aðlagað umfang lóðarinnar með því að hægrismella á lóðina."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Grafskala"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Stillingarstilling"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Fjöldi gagnahluta sem ekki er hægt að tengja"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Dreifa samsæri"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "með útlínur"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Sparnaður"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Tómt"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Hleðslustilling"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Deila/einkaaðila"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Lýsing"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Búið til af"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Notaðu/álag"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Hlaða"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Fjöldi gagna sem ekki var hægt að tengja við upphafspunktinn (hlutfall tengingar)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Vista DateTime"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Deildu stillingum"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "Vista"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Þú getur valið frá 2 til 7 miða breytum. Athugaðu fjölda markstærða og leiðréttu stillingarnar."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Stærðarmörk skráarinnar eru 10 MB. Draga úr skráarstærðinni og reyndu aftur."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Ef það er athugað er einnig vistað tilgreind datetime."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Athugaðu til að deila þessari stillingu."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Vistaðu stillingarnar."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Ertu viss um að skrifa yfir stillingar?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "deila"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Einkamál"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Búið til kl"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Lokaðu"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Pöntun sett"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Byrjaðu DateTime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Lok DateTime"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Sýna X-ás merkimiða"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "DateTime svið"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Dragðu og slepptu hér"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Eða"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Veldu skrár"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Er ekki hægt að sýna"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Vinnsla var rofin vegna mikils magns gagna og langs vinnslutíma. Skoðaðu stillingar DateTime og birtu söguþræði aftur."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Útgáfa CSV skrá. Vinsamlegast bíddu meðan skráin niðurhal."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Útgáfa TSV skrá. Vinsamlegast bíddu meðan skráin niðurhal."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Sjálfvirk svið"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Fullt svið"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Stilling vísitölu"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Opið"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Eyða"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Þar sem fjöldi gagnapunkta á línurit er yfir 12.000 var fjöldi gagnapunkta takmarkaður við hámark 12.000. Ef þú vilt skoða öll gögnin skaltu setja styttri marktímabil."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Lagskipt eftir hugtaki (hringlaga)"
+
+#: component.js
+msgid "Facet"
+msgstr "Hlið"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Framkvæmir flokk sem skiptir með völdum hlut."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Undantekningarmat"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Normalized interquartile svið (vísitölutenging IQR við venjulega dreifingu, niqr = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Mode er oftast gildi."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "með útlægari"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "án útlægra"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Sérsniðin"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Í dag"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Í gær"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Síðustu 7 dagar"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Síðustu 30 dagar"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Í þessum mánuði"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 mánuður"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 mánuðir"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Notaðu"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Vika"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Fyrir 7 dögum"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Fyrir 30 dögum"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Hnefadagur þessa mánaðar"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Síðasti dagur þessa mánaðar"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 mánuðir"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Uppfært kl"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Gagnapunktar eru teknir saman með hratt stillingu. Ef þú vilt fá samsæri án þess að sleppa gögnum skaltu stilla miðunartímabilið styttra."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Svið y -ás"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Útlægari"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Tómt"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Vinna leit"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Bókamerki"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Þar sem fjöldi gagnapunkta á hverja lóð er yfir 10.000 var þéttleiki samsæri dreginn. Ef þú vilt birta alla gagnapunkta með dreifilínu, stilltu miðunartímabilið styttra."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Tómt"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Hjólreiðatími"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Raunveruleg tala"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Hlutlæg breytu"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Fylgnistuðullinn er reiknaður með þessari breytu sem markbreytu. Markbreytan sem tilgreind er hér birtist einnig ásamt litabar lengst til hægri hliðarlóðarinnar. Ef þú vilt breyta markstærðum á lóðinni geturðu skipt á milli þeirra með því að hægrismella á hvert breytuheiti."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Gögn voru ekki drukknað vegna þess að það eru of margir flokkar. BREAK_LINE Athugaðu og, ef nauðsyn krefur, endurskoðuðu markmiðstímabilið styttra."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Síustilling"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Merkimiða (Flokksbreytur)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Afritað"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Límt"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Afritaðu config"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Límdu config"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Án uppruna er fyrsta markmiðið valið sem uppruni."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Flytja út gögn"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Ekki nota"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Gögn eru ekki teiknuð vegna þess að það eru of margir flokkar."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Athugaðu og, ef nauðsyn krefur, endurskoðuðu stillingar marktímabilsins."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Skiptu með gagnatölum (hringlaga)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Fjöldi gagna"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Tómt"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Tómt"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Veldu tilgangsbreytuna."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Tómt"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Engin niðurbrot / niðurbrot í flokki"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Dreifa samsæri"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Ef annað hvort x eða y gagnategund er strengur geturðu ekki notað breytur sem ekki eru strengir til að stilla lit."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Gildi utan leyfilegs sviðs fannst, þannig að lágmarks- eða hámarks gilt svið var sjálfkrafa ákveðið. Breyttu stillingum eftir þörfum."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Hægri smelltu: Stilling/EDIT gagnatengill"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Liðinn tími"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Tímapöntun"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Setja gagnapöntun"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Vinsamlegast eytt óþarfa gögnum vegna þess að afkastageta harða disksins `__SERVER_INFO__` er kominn í __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Gagnagáttin var stöðvuð vegna þess að afkastageta harða disksins `__SERVER_INFO__` náði __SERVER_INFO__ %%. Ef óþarfa gögnum er eytt og tóm afkastageta eykst verða gögnin hafin á ný."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Sláðu inn fjölda dreifinga sem á að birta (fjöldi deilda). Sláðu inn heiltölu 2 eða 150 eða minna."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Sláðu inn fjölda dreifinga sem á að birta (fjöldi deilda). Sláðu inn heiltölu 1 eða fleiri 32 eða minna."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Tómt"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Tómt"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Tómt"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Tómt"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Það eru of mörg fiðlur á hverja lóð, svo það var sjálfkrafa takmarkað."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Vegna mikils fjölda skráa sem valdar eru er fjöldi lóða takmarkaður frá elsta dagsetningu til takmarkana."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Ég samþykki"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Hneigðu þig"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Aftur á bak"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Fjöldi samsæri á dálki"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Flokkunarbreyturnar (hlutanúmer, stöð nr. Osfrv.) Sem sýnd eru sem merkimiðar efst á lóðinni eru notaðar til að sjá breytingarpunkta (skiptingu hlutanúmer osfrv.) Eigindlegra breytna."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Veldu atriði sem á að greina (megindlegar breytur: Mælingargildi osfrv.). Hægt er að velja allt að 60 hluti."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Veldu hluti til að flokka gögn. Þú getur líka valið marga hluti."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Yfirfull gömul gögn birtast ekki vegna þess að datetime telur úr nýjustu gögnum með skjámörkum."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Fjöldi samsæri var takmarkaður við NUMBER. Ef þú vilt sýna alla skaltu taka stillingarnar."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Fjöldi samsæri á einum flipa var takmarkaður við NUMBER. Ef þú vilt sýna alla skaltu taka stillingarnar."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Fjöldi markstærða til að velja er lágmarks mín og hámarkshámark. Athugaðu fjölda markstærða og leiðréttu stillingarnar."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Fjöldi markstærða til að velja er allt að hámarks hámark. Athugaðu fjölda markstærða og leiðréttu stillingarnar."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

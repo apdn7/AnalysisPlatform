@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <meta http-equiv="content-type" charset="utf-8">
+    <title>{{ title }}</title>
+    <script src="{{ url_for('static', filename = 'common/js/jquery.js')}}"></script>
+    <link href="{{ url_for('static', filename = 'common/custom-jquery/jquery-ui.css')}}" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="ui-widget" style="text-align:center;">
+      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+        <p><span class="ui-icon ui-icon-alert" style="margin-right: .3em;"></span>{{ message }}</p>
+        <p>{{ action }}<a href="{{ url }}">{{ url }}</a></p>
+      </div>
+    </div>
+  </body>
+</html>

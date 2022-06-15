@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+    <link href="{{ url_for('co_occurrence.static', filename = 'css/co_occurrence_csv.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'common/css/dragndrop.css') }}" rel="stylesheet"/>
+    <script src="{{ url_for('static',filename='modules/sigmajs/build/sigma.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.renderers.edgeLabels.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.plugins.dragNodes.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.layout.forceAtlas2.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.plugins.animate.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.layout.noverlap.min.js') }}"></script>
+
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='COG', title=_('Co-occurrence Graph'), hint=_('Visualize co-occurrence (relationships that focus on how often one phenomenon and another occur at the same time) of faults/alarms.'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+    <div class="card">
+        <div class="card-body">
+            <form id="coOccurrenceCsv" onsubmit="return false;">
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <div id="alertMsgCheckFile" class="alert alert-dismissible fade" style="display: none;"
+                             role="alert">
+                            <strong id="alertMsgCheckFile-content"></strong>
+                            <button type="button" class="close" onclick="$('#alertMsgCheckFile').css('display','none');"
+                                    aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        {{ macros.alert_message("alert-msg-csvDbname") }}
+                    </div>
+                </div>
+                <!-- CSV -->
+                <div class="form-group row">
+                    <div class="col-sm-3">
+                        <div class="d-flex justify-content-between">
+                            {{ macros.label(_("Data file"), name="fileUrl", title=_("Data file with datetime on first column, and flags/number of occurrence (0, 1, 2...) of alarms on subsequent column(s).")) }}
+                            {{ macros.paste_btn() }}
+                        </div>
+                    </div>
+                    <div class="col-sm-6 align-with-label">
+                        <div class="form-group">
+                            <div class="card card-body drag-card">
+                                <div class="drag-area co-occurrence-drag-area box has-advanced-upload">
+                                    <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                                    <div class="box__input">
+                                        <header>{{ _('Drag and drop file here') }}</header>
+                                        <span>{{ _('Or') }}</span>
+                                    </div>
+                                    <div class="box__success"><span></span></div>
+                                    <button id="selectFileBtn" class="btn btn-light">{{ _('Choose a file') }}</button>
+                                    <input type="file" hidden id="selectFileInput"
+                                           accept=".csv, .tsv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-3">
+                        <div class="d-flex justify-content-between">
+                            {{ macros.label(_("File type")) }}
+                            {{ macros.paste_btn() }}
+                        </div>
+                    </div>
+                    <div class="col-sm-6 align-with-label">
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="fileTypeCSV" name="fileType"
+                                   value="CSV"
+                                   checked>
+                            <label class="custom-control-label" for="fileTypeCSV">CSV</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="fileTypeTSV" name="fileType"
+                                   value="TSV">
+                            <label class="custom-control-label" for="fileTypeTSV">TSV</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="fileTypeSMC" name="fileType"
+                                   value="SMC">
+                            <label class="custom-control-label" for="fileTypeSMC">Semicolon(;)SV</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-sm-3">
+                        <div class="d-flex justify-content-between">
+                            {{ macros.label(_("Aggregate by"), title=_("Aggregate co-occurrence relationships by hour/day.")) }}
+                            {{ macros.paste_btn() }}
+                        </div>
+                    </div>
+                    <div class="col-sm-6 align-with-label">
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="aggregateByHour" name="aggregateBy"
+                                   value="Hour"
+                                   checked>
+                            <label class="custom-control-label" for="aggregateByHour">{{ _("Hour") }}</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="aggregateByDay" name="aggregateBy"
+                                   value="Day">
+                            <label class="custom-control-label" for="aggregateByDay">{{ _("Day") }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-3">
+                        <div class="d-flex justify-content-between">
+                            {{ macros.label(_("Threshold"), title=_("Threshold description")) }}
+                            {{ macros.paste_btn() }}
+                        </div>
+                    </div>
+                    <div class="col-sm-6 align-with-label">
+                        <div class="">
+                            <div class="">
+                                <input type="range" class="custom-range" name="threshold" id="threshold" value="100"
+                                       min="0" max="100">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 align-with-label">
+                        <span id="thresholdValue" class="font-weight-bold text-primary">100</span>
+                        <span class="font-weight-bold text-primary">%</span>
+                        <span class="font-weight-bold text-primary">({{ _('of all edges') }})</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-3">
+                        <div class="d-flex justify-content-between">
+                            {{ macros.label(_("Layout")) }}
+                            {{ macros.paste_btn() }}
+                        </div>
+                    </div>
+                    <div class="col-sm-6 align-with-label">
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="layoutCircle" name="layout"
+                                   value="CIRCLE" checked>
+                            <label class="custom-control-label" for="layoutCircle">{{ _("Circle") }}</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" id="layoutAuto" name="layout"
+                                   value="FORCE_ATLAS_2">
+                            <label class="custom-control-label" for="layoutAuto">{{ _("Auto") }}</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                    </div>
+                </div>
+                <div style="text-align: center;" class="graph-navi graph-navi-top-down">
+                    <button id="showGraphBtn" type="button" value="{{ _('Display graph') }}" class="btn btn-primary">
+                        <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card" id="plotCard" style="margin-top: 1rem;">
+        <div class="">
+            <div class="row">
+                <div class="col-8">
+                    <div class="">
+                        <div class="">
+                            <div class="btn-control" style="">
+                        <span id="restoreZoom" style="cursor: pointer; color: grey"><i
+                                class="fas fa-expand-arrows-alt fa-2x"></i></span>
+                            </div>
+                        </div>
+                        <div class=""></div>
+                    </div>
+                    <div id="plot-card" class="coo"></div>
+                </div>
+                <div class="col-4">
+                    <div id="plotCardPareto" class="coo"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <a class="edge-hover">
+        <span id="tooltip-span">value</span>
+    </a>
+    <div class=" loading"></div>
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <script src="{{ url_for('co_occurrence.static', filename = 'js/pareto_plot.js') }}"></script>
+    <script src="{{ url_for('co_occurrence.static', filename = 'js/co_occurrence_csv.js') }}"></script>
+{% endblock %}

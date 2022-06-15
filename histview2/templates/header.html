@@ -1,0 +1,91 @@
+<div class="w-100" id="baseHeader">
+    <div class="d-flex align-items-center flex-wrap">
+        <div class="d-flex align-items-center py-1">
+            <a class="btn tile-menus header-btn mr-2" data-tile="#dn7"
+                href="{{ url_for('tile_interface.tile_interface', tile_type='dn7') }}"
+                title="{{ _('Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as tools to support QC activities suitable for the digital native era.') }}">DN7
+            </a>
+            <a class="btn tile-menus header-btn" data-tile="#analysis_platform"
+                href="{{ url_for('tile_interface.tile_interface', tile_type='analysis_platform') }}"
+                title="{{ _('Analysis Platform : That makes it easy to data link, visualize, statistical analysis, and machine learning.') }}">
+                Analysis Platform
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center ml-auto py-1 flex-wrap">
+            <div class="dropdown mr-2 load-setting-common">
+                  <button class="btn btn-setting bookmark-button dropdown-toggle" type="button" id="Bookmark" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   <span id="bookmark-title">{{ _('Bookmark') }}</span>
+                   <span title="" class="sub-label bookmarked-label" id="currentLoadSettingLbl"></span>
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="Bookmark">
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#loadUserSettingModal" onclick="loadAllUserSetting()">{{ _('Load Setting Info') }}</a>
+                    <a class="dropdown-item" href="#" onclick="showOverwriteConfirmModel()" id="overwriteSaveSettingBtn" style="display: none">{{ _('Overwrite Save Setting Info') }}</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#saveUserSettingModal" onclick="autoFillUserSetting()">{{ _('Save Setting Info') }}</a>
+                  </div>
+            </div>
+            <button type="button" id="loadSettingBtn"
+                        class="btn header-btn btn-setting mx-1 load-setting-tile-page"
+                        title="{{ _('Load Setting') }}"
+                        data-toggle="modal" data-target="#loadUserSettingModal"
+                        onclick="loadAllUserSetting()" style="display: none">
+                    {{ _('Load Setting Info') }}
+            </button>
+            <div class="ml-auto d-flex align-items-center">
+                <select id="select-language" class="mdb-select md-form form-control ls-control header-btn">
+                    <option bootstrap-locale="ja-JP" value="" disabled selected>{{ _('Choose language') }}</option>
+                    <option bootstrap-locale="ja-JP" value="ja">日本語 - JA</option>
+                    <option bootstrap-locale="en-US" value="en">English - EN</option>
+                    <option bootstrap-locale="it-IT" value="it">Italiano - IT</option>
+                    <option bootstrap-locale="es-ES" value="es">Español - ES</option>
+                    <option bootstrap-locale="vi-VN" value="vi">Tiếng Việt - VI</option>
+                    <option bootstrap-locale="ja-JP" value="pt">Português - PT</option>
+                    <option bootstrap-locale="ja-JP" value="hi">हिन्दी, हिंदी - HI</option>
+                    <option bootstrap-locale="ja-JP" value="th">ไทย - TH</option>
+                    <option bootstrap-locale="zh-CN" value="zh_CN">中国語(簡体) - zh-CN</option>
+                    <option bootstrap-locale="zh-TW" value="zh_TW">中国語(繁体) - zh-TW</option>
+                    <option bootstrap-locale="ja-JP" value="ar">العربية - AR</option>
+                    <option bootstrap-locale="ja-JP" value="bg">български - BG</option>
+                    <option bootstrap-locale="ja-JP" value="ca">Català - CA</option>
+                    <option bootstrap-locale="ja-JP" value="cs">Čeština - CS</option>
+                    <option bootstrap-locale="ja-JP" value="cy">Cymraeg - CY</option>
+                    <option bootstrap-locale="ja-JP" value="de">Deutsch - DE</option>
+                    <option bootstrap-locale="ja-JP" value="el">Ελληνικά - EL</option>
+                    <option bootstrap-locale="ja-JP" value="fa">فارسی - FA</option>
+                    <option bootstrap-locale="ja-JP" value="fi">Suomi - FI</option>
+                    <option bootstrap-locale="fr-FR" value="fr">Français - FR</option>
+                    <option bootstrap-locale="ja-JP" value="gd">Gàidhlig - GD</option>
+                    <option bootstrap-locale="ja-JP" value="he">עברית - HE</option>
+                    <option bootstrap-locale="ja-JP" value="hr">Hrvatski - HR</option>
+                    <option bootstrap-locale="ja-JP" value="hu">Magyar - HU</option>
+                    <option bootstrap-locale="ja-JP" value="id">Bahasa Indonesia - ID</option>
+                    <option bootstrap-locale="ja-JP" value="is">Íslenska - IS</option>
+                    <option bootstrap-locale="ja-JP" value="km">ភាសាខ្មែរ - KM</option>
+                    <option bootstrap-locale="ja-JP" value="ko">한국어 - KO</option>
+                    <option bootstrap-locale="ja-JP" value="lb">Lëtzebuergesch - LB</option>
+                    <option bootstrap-locale="ja-JP" value="mi">Māori - MI</option>
+                    <option bootstrap-locale="ja-JP" value="mk">Македонски - MK</option>
+                    <option bootstrap-locale="ja-JP" value="mn">Монгол - MN</option>
+                    <option bootstrap-locale="ja-JP" value="ms">Bahasa Melayu - MS</option>
+                    <option bootstrap-locale="ja-JP" value="my">မြန်မာဘာသာစကား - MY</option>
+                    <option bootstrap-locale="ja-JP" value="ne">नेपाली - NE</option>
+                    <option bootstrap-locale="ja-JP" value="nl">Nederlands - NL</option>
+                    <option bootstrap-locale="ja-JP" value="no">Norsk - NO</option>
+                    <option bootstrap-locale="ja-JP" value="pa">ਪੰਜਾਬੀ - PA</option>
+                    <option bootstrap-locale="ja-JP" value="pl">Polski - PL</option>
+                    <option bootstrap-locale="ja-JP" value="pt">Português - PT</option>
+                    <option bootstrap-locale="ja-JP" value="ro">Română - RO</option>
+                    <option bootstrap-locale="ja-JP" value="ru">Русский - RU</option>
+                    <option bootstrap-locale="ja-JP" value="sd">سنڌي - SD</option>
+                    <option bootstrap-locale="ja-JP" value="si">සිංහල - SI</option>
+                    <option bootstrap-locale="ja-JP" value="sk">Slovenčina - SK</option>
+                    <option bootstrap-locale="ja-JP" value="sq">shqip - SQ</option>
+                    <option bootstrap-locale="ja-JP" value="sv">Svenska - SV</option>
+                    <option bootstrap-locale="ja-JP" value="te">తెలుగు - TE</option>
+                    <option bootstrap-locale="ja-JP" value="tl">Tagalog - TL</option>
+                    <option bootstrap-locale="ja-JP" value="tr">Türkçe - TR</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

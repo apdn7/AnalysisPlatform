@@ -1,0 +1,3153 @@
+# ブルガリア語 Bulgarian translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "bg_ブルガリア語_Bulgarian"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: bg\n"
+"Language-Team: bg\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Запазени"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Възникна грешка"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Конфигурация на приложението"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Страницата не е намерена"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Възникна грешка"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Приложение за Datalink & Analysis"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Изберете език"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Начален екран"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Проверка на операцията"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Проверка на операцията"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Основна конфигурация"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Регистрирам"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Презареди"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Цяло число"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Истински (поплавък)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Време за среща"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Низ"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Заглавие"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Растение"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Фабрика"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Линия"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Моля потвърди."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Запазете данните и започнете да импортирате данни със съдържанието, зададено на страницата за настройка на процеса?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Добре"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Отказ"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Конфигурация на базата данни"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Име на базата данни"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Тип база данни"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Config"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Коментар"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Добавяне"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Изберете файл с база данни."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Име на файл"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Изберете"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Искате ли да изтриете този запис?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "Изтрий"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Проследяване"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Графика за проследяване"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Тестване на следи"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Стартирайте тестване"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Начален час"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Крайно време"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Идентификационен номер на машината (множество селекции)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Линия"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Номер на частта"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Конфигурация на връзката с данни"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Изберете език"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Японски"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Английски"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Възел"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Възел ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Етикет"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Главно име"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "База данни"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Импортиране"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Експорт"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Име на хост"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Номер на пристанище"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Потребителско име"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Парола"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Схема"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; успях."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; се провали."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Процес конфигурация"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Процес"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Име на процеса"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Име на таблицата"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Подробности"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Визуализация"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Първи пет записа"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Задаване на съдържание"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Име на колоната"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Английско име"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Име на дисплея"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "коефициент"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Оператор"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Въведете стойност, различна от 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Оператор на въвеждане."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Коефициент на вход."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Въвеждане на английски име."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Име на дисплея вход."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Английското име се дублира."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Името на дисплея се дублира."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Всички „имена на дисплеи“ изискват въвеждане."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Полетата с празно „Английско име“ се попълват автоматично."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Избери всички"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Данни за импортиране"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Сигурни ли сте, че импортирате данни?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Когато натиснете бутона OK, ще импортирате данни от текущото време до един месец преди това."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Предишните данни автоматично се импортират малко по малко."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Ако искате да импортирате данните след текущото време, натиснете отново бутона за четене на данни или натиснете базата данни CSV Настройване на настройките на страницата за настройване на четене."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Когато е зададена „цикъл на актуализиране“ на „Настройка за четене на базата данни / CSV“, тя ще бъде автоматично импортирана в периода, когато данните след текущото време са зададени."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Информация за проследяване"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Данни за проследяване"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Не може да има достъп"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Щракнете тук, за да го поправите."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Редактиране на ръба"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Prev Process"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "PREV колона"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "След процес"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Публикувано колона"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Като DateTime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Като сериен"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Като връзка ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Вече е регистриран"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Моля, въведете името на процеса"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Филтър/графика"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Графична конфигурация"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Конфигурация на линейния филтър"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Линейна колона"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Стойност"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Конфигурация на машинен филтър"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Машина ID колона"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Част няма конфигурация на филтъра"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Част няма колона"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Име на филтъра"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Състояние на филтъра"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Други филтрират конфигурация"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Целева колона"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Конфигурация на визуализацията"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Долен праг"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Горен праг"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "По -нисък праг на процеса"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Праг на горния процес"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y-оси диапазон: min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y-оси диапазон: макс"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Част №"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "завършват с"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Започни с"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like Търсене)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Съгласен"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Редовни изрази"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Показване на графиката"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Експорт"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Е необходим процес"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Името на колоната се изисква"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Се изисква линията"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Името на дисплея се изисква"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Името на дисплея се дублира."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Изисква се стойността на машината"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Дублирана машина ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Запазете успешно"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Не успя да запази"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Част не се изисква колона"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Необходима е целевата колона"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Името на филтъра се изисква"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Условие се изисква"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Името на филтъра се дублира."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Условията се дублират."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "По подразбиране"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Име на процеса"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Добавени други филтри"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Конфигурация на импортиране"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Източник"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Цикъл на подновяване"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Свързване"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Веднъж на час"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Веднъж на ден"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Потвърждение на данните"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Няма папка."
+
+msgid "File does not exist"
+msgstr "Няма файл."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Можете да се свържете."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Моля, попълнете стойността."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Няма съдържание на настройка."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Настройките се дублират."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Запазени настройки на базата данни."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Неуспешно запазване на настройките на базата данни."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Запазени основни настройки."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Неуспешно запазване на основните настройки."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Тестова връзка"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Начална точка"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Период от време"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Последен"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Автоматична актуализация"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "минута"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "минути"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "час"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "часа"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Целева променлива"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Филтър"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X ос"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Времева марка"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Индекс"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Стратифициране на променливи"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Филтри"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "База данни/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Анализирам"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "В процес на разработка"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Анализирам:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "График на водопад"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Графика LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Хистограма"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Стратифициран сюжет"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Сюжет на пълни точки"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Визуализация на данните"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Визуализация"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Изпълнете"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Въведете името на базата данни."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Въведете името на източника на данни."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Колоните, които нямат тип данни, не се импортират."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Необходима е поне една колона DateTime."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "За визуализация използвайте '{col}' за оста x."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Сигурни ли сте?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Viewer Table"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Таблица"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Вид"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Брой данни"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Низходящ"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Възходящ"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Перфектно съвпадение"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Частично съвпадение"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Невалидна цифрена селекция"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Дължината на характера, използван за свързване, е различна."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Без филтър"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Всички линии"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "ситуация"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Списък на работата"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "всичко"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Внос завършено."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Импортиране"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Неуспешно импортиране"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Заредените данни ще бъдат изтрити. Добре ли е? (Не се отразява промяна, докато бутонът за регистрация не бъде натиснат)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Списък на работата"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Идентификационен номер на работа"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Име на работа"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Генериране на свързани ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Показване на генериране на работа на връзка ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Изтриване на информацията за процеса"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Импортирайте фабрични данни"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Импортирайте минали фабрични данни"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Показване на импортиране на работа на минали фабрични данни"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Импортиране на данни"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Изтриване на стари данни"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Начален час"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "изминалото време"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "База данни/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Напредък"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Процес"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Списък с хистограма"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Регистрирайте се като стойност на огнището"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Нерегистърски външно"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Скрийте отшелници"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Покажете отшелници"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Вижте Outliers"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Показване на списъка с хистограма"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Последно актуализиране"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Регистрацията на външни е отменена."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Регистриран като външен човек"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Външен"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Само веднъж"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Подробности за работата"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Копиране в клипборда"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Мулти разпръснат график"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Разпръснат сюжет"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "За визуализиране на категорична променлива"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Стратифицирайте по променливи"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Променлива"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Машина №"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Целев период"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Честота (брой)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Оценка на плътността"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Категорична променлива"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Стратифициране по срок (директно)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Не можете да изберете осем или повече целеви променливи. Изберете целевата променлива."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Откриване на аномалия"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Анализ на принципния компонент"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Основен компонент оценка на данните за тестване"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Основен компонент оценка на данните за обучение"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Серия диаграма на статистиката на T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Серийна диаграма на Q статистиката"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. График на принос на статистиката на T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. График на принос на Q статистиката"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Премахнете външната страна"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Данни за обучение"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Данни за тестване"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Да"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Не"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Тип данни"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Пример"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Грешка"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Внимание"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Тъй като всички редове са изтрити чрез обработка на стойността на дефицита (NA премахване), няма данни за анализ. Уверете се, че празната стойност, включително NA, не е избрана."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Тя не може да бъде анализирана, тъй като съдържа данни, различни от числа. Уверете се, че сте избрали колона, съдържаща стойност на низ или категория."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Не може да анализира, тъй като съдържа данни с отклонение от 0. Уверете се, че не е избрана само една колона с стойност."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Намерени данни от категорията и очакваната стойност на цяло число. Ако тази цялостна стойност не е скала на поръчка, интервална скала или скала на съотношението, резултатите от анализа могат да бъдат повлияни неблагоприятно."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Сигурни ли сте, че ще продължите анализа?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Търсене"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Медианата е една от типичните статистически данни. Това е стойност, разположена в центъра, когато крайните данни са подредени във възходящия ред. Например, в случай на пет, средната възраст на епохата е третата възраст в ред на възрастта. Ако броят на данните е равномерно, се използва средната стойност на централната аритметика на Brevitable."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Макс"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Обобщение на разпределението"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N номер"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Средно аритметично"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Каква е средната ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Обща сума"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Честота"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Крайна точка"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Целев процес"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Времеви серии"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Парчета"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Брой връзка с данни"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Секунди"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Време за реакция"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "редактиране"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "обратно"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Добавете възел"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Добавете ръба"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Редактиране на възел"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Кликнете върху празното пространство, за да поставите нов възел."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Щракнете върху възела, плъзнете ръба към друг възел и ги свържете."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Щракнете върху контролната точка, плъзнете я към възела и свържете."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Ръбът не може да бъде добавен."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Клъстерът не може да бъде изтрит."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Клъстерът не може да бъде редактиран."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Името или стойността на дисплея се дублира."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Въведете името и стойността на дисплея."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Въведете линията колона."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Часа"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Информация за данните"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Ден"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Седмица"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Зареждане"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Запазете"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Презаписване"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Настройка"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Променете заглавието, защото е зададено същото заглавие."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Запазване на настройка"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Създайте екранна снимка"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "Изтегли"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Причините, поради които графиката не може да бъде показана, са следните. BREAK_LINE Проверете ситуацията. BREAK_LINE・ Данните не се импортират или в средата на вноса. BREAK_LINE・ Не са свързани данни или в средата на обвързването. BREAK_LINE・ Настройката на графиката е неподходяща."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Внимание"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Записите, които съдържат невалидни данни в колоната с данни за дата, не се импортират."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Можете да се обърнете към файловете в папката по -долу за данни, които не могат да бъдат импортирани."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Състоянието на използване не може да бъде качено, тъй като не е свързано с Интернет."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Моля, проверете мрежовата връзка."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Ще отнеме много време, за да свържете данните отново."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Сигурни ли сте, че ще свържете отново данните?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Аборт"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Изпълни"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Сигурни ли сте, че ще презаредите по -рано регистрираните настройки на връзката за данни?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Започна да импортиране на данни."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Можете да проверите напредъка на импортирането от връзката по -долу."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Вижте страницата на списъка с задачи за състояние на грешка."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Започна да свързва данни."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Веднъж на всеки 3 минути"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Веднъж на всеки 5 минути"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Веднъж на всеки 10 минути"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Незадължителна функция"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Тип файл"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Експорт"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Поради големия брой избрани записи и времето, необходимо за показване на графиката, броят на записите на графика е ограничен до 50 000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Част от времеви серии"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Стойност на категорията"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Тъй като броят на записите в определения период е повече от 5000, BREAK_LINE връзката е обвързана в рамките на ± 14 дни от определения период. Ако не искате да ограничите обхвата на свързване, коригирайте продължителността, за да намалите броя на записите на BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Задаване на скала"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Обща скала"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Прагова линия"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Автоматична скала"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Да се ​​използва мащаб"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn от процеса"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Макс"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Мин"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Нито един"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Резюме"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Броя"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Основна статистика"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Неагретричен"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Качество на данните"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Зрител"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Данни за импортиране"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Процесът на връзка с данни ще започне въз основа на текущата конфигурация."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Може да отнеме време, ако има много данни за свързване. Добре ли е да започнете?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* За данни, които автоматично и периодично се импортират, Link ID се генерира автоматично."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Име на източника на данни"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Тип източник на данни"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Сигурни ли сте, че спестявате промени?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Информация за принудителна ОС в настройките на часовата зона."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Разширена настройка"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Настройките се запазват за базата данни /CSV файл на импортиране на данни. Отидете на страницата за настройка, задайте колоните от данни за импортиране, за да импортирате данните."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "В данните на елемента няма необходим атрибут."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "За данните на елементите не е необходима стойност на атрибута."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Ненормалното откриване от PCA изисква поне две променливи. Изберете две или повече променливи."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Изберете поне една колона"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Не се показват променливи на категорията, които намаляват ширината на кутията."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Начална цифра"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline Plot"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Спрете приложението (Edge Server). Ако спрете, всеки друг потребител няма да може да използва също, така че, моля, свържете се с администратора. <br> В случай на нормален край, отменете тук и просто затворете браузъра."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Цялата работа е спряна. Можете спокойно да затворите браузъра и конзолата си."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Източник на данни Конфигурация"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Конфигурация за импортиране на източници на данни"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Колони намериха няколко колони за символи. Проверете дали колоната с цифров тип и т.н. може да бъде разпозната погрешно."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Филтър елемент"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Стойност на филтъра"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Дата на изтичане (Старт)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Дата на изтичане (край)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Данните не могат да бъдат импортирани поради грешки в конфигурацията на типа на данните на колоните. Име на източника на данни __param__ CSV/TSV Проверете настройките на типа данни в визуализацията на данните на страницата за настройка за четене. Изтрийте настройките на стъпката, които не могат да бъдат импортирани, и задайте настройките."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Имаше файл без данни. Проверете съдържанието на файла. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Въведете поне една стойност от периода на валидност от или до."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Разделете по категория"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Разделете по срок (циклично)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Разделете по срок (директно)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Стойността на въведения интервал е невалидна. Въведете брой от 0,1 или повече, 720 или по -малко, или -720 или повече и -0,1 или по -малко."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Посочената дължина на прозореца 'е невалидна. Стойността трябва да бъде между 0,1 и 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Броят на входната Ridgeline е невалиден. Въведете цяло число от 1 или повече и 150 или по -малко. (предпочитайте да използвате около 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Стартиране на данни и време"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Интервал"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Дължина на прозореца"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Контролен елемент"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Тип"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Име"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Обърнете внимание, че ако броят на точките от данни в една категория е под 50, точността на графиката може да намалее."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Покажете курсора на кръстосана коса (щракнете)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Показване на мулти кръстосана курсор за коса (двойно щракване)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Показване на списъка с хистограми"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Отказ отстъпка за проверка"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Посочено `Име на източника на данни вече съществува."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Импортирането на данни не е успешно, тъй като в източника на данни е намерен файл с различно име на колона. Проверете съдържанието на файла и отново задайте настройките за импортиране на източника на данни."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Прогнозиран брой записи, които трябва да бъдат свързани"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Брой проби"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Брой записи, които трябва да бъдат свързани"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Брой общи записи"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Моля, посочете папката, в която CSV/TSV файловете се запазват като \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Прогнозиране"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Филтър конфигурация"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master Config"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "От филтърна конфигурация"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Покажи всички"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Като ключ (опция)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Изтрита REMOVED_COUNT стойност на дефицит, ненормална стойност и външна стойност от TOTAL_COUNT в оригинал."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP адрес"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Сравнете разпределението на данните с оценката на хистограмата и плътността. Графиката е разделена на стратифицираната променлива. Той също е разделен на фасета."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Начертайте всички броя данни по осите на време или ID ос."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Матрица на графиката на разсейване. Можете да използвате от 2 до 7 целеви променливи."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Чрез анализ на основните компоненти се извършва визуализацията на „различни“ и неговия фактор анализ. Въведете нормални данни като данни на учителя и визуализирайте дали текущите данни са същата ситуация като нормалните му данни (T2/Q). Ако имате различна ситуация, можете да проверите основните фактори в сюжета на приноса."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Разпределението е разделено на множество графики на тази променлива. Изберете променливи категория (качествени променливи), като номера на части и станции."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Стратифициран филтър за категория: ограничава данните, които трябва да се показват в подмножество. (Категория: Номер на част, станция № и т.н.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Категория променливи (като номер на част, станция № и т.н.), показвани като етикети в горната част на парцелите, за да се намерят променящи се точки."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Графичен филтър: Ограничава данните, които трябва да се показват на подмножество."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Задайте данните за обучението, интерпретирани като нормална ситуация. Задайте раздела с данни, който не съдържа NG данни. Ако са включени, тези, които са близки до данните NG, също се преценяват като нормални данни."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Задайте тестови данни, които да бъдат оценени."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Филтър за артикули: Ограничава данните (анализ и дисплей), които трябва да се показват на подмножество."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Това е двуизмерен агрегиран дисплей (размерен компресия от основни компоненти) на многоизмерни данни за проверка. Ако данните са в центъра, тя може да се тълкува като близо до нормалното."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Това е двуизмерен агрегиран дисплей (размерен компресия от основни компоненти) на многоизмерни данни за обучение. Централната цел се определя от данните за обучение, така че повечето от данните за обучение трябва да бъдат в целта."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "График на статистиката T2, който следи аномалиите в основния компонент на тези данни. Данните за обучение са представени в бяло и в отрицателната X част. Жълтият график е данните за валидиране. Колкото по -високи данни за валидиране се сравняват с белите данни, толкова по -голяма е вероятността ситуацията да се отклони. Щракнете върху точка от данни, за да видите сюжета на приноса на това, което елементите съставляват ситуацията."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "График на Q статистиката (мониторинг на аномалии в второстепенната част на тези данни, остатъчни). Данните за обучение са представени в бяло и в отрицателната X част. Жълтият график е данните за валидиране. Колкото по -високи данни за валидиране се сравняват с белите данни, толкова по -голяма е вероятността ситуацията да се отклони. Щракнете върху точка от данни, за да видите сюжета на приноса на това, което елементите съставляват ситуацията."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Редът на който променливите допринасят за ситуацията в точката, избрана в статистическия график на T2. Колкото по -дълга е дължината, толкова по -голяма е причината."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Редът на който променливите допринасят за ситуацията в точката, избрана в Q статистическия график. Колкото по -дълга е дължината, толкова по -голяма е причината."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Брой точки от данни със стойност по -малка или равна на Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Брой точки от данни със стойност, по -голяма или равна на Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Общ брой данни, включително NA (не са налични), NaN (не число) и Inf± (безкрайност) в избрания период."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Процент данни извън горния и долния праг (брой) в избрания период"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Процент данни извън горния и долния граничен праг (брой) в избрания период"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Процент от NA (не е наличен) в избрания период (брой)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Процент от NaN (не число) в избрания период (брой)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Процент от Inf+ (плюс безкрайност) в избрания период (брой)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Процент от Inf- (минус безкрайност) в избрания период (брой)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Общият процент на данните извън праговата стойност, NA (не е наличен), NaN (не число) и Inf± (безкрайност) в избрания период (брой)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Брой данни, изключващи NA (не са налични), NaN (не число) и Inf± (безкрайност) в избрания период."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95 -ти перцентил"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75 -ти перцентил (трети квартил)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25 -ти перцентил (първи квартил)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5 -ти перцентил"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Интерквартилен диапазон (представителна стойност на променливостта на разпределението: IRQ = Q3 - Q1 ≒ 1.349σ@ Нормално разпределение)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Медиана (50 -ти перцентил)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Брой/час"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Брой/минута"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Време за цикъл [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Номер на разделението"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Цикъл на показване"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Интервал на дисплея"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Календа на топлинната карта на календа"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Целевите променливи не могат да бъдат избрани от MAX_NUM_SENSOR или повече. Изберете целевата променлива."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Целите на премахването на външните хора са Max, Mean, Min, σ и Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Различни от реални числа"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Разпределението може да бъде визуализирано чрез изчисляване на всяка категорична променлива (качествени променливи, номер на партида и т.н.) или DateTime и да ги показва един до друг. Метод за визуализация, който позволява анализ на напречната група (сравнение между партиди, дни, смени и т.н.) на данни без дискретни ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Задайте прага, който да бъде нарисуван на графики."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Ако разпръснато е включено, можете да покажете сюжета за разпръскване с него. Графиката на разсейването между текущия елемент и следващия ред. Плъзнете и пуснете сюжетните карти на съответните парцели с мишката, за да превключвате X-ос и Y-ос на графиката за разсейване."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Елемент от данни (като числова променлива или стойност на измерване), който създава разпределение на данните. Тези данни са начертани на сюжета. Могат да бъдат избрани до 20 елемента."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Тази стратифицирана променлива разделя разпределението на множество участъци и ги показва един до друг. Изберете категорична променлива, като партида не или партида №"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Въведете началния DateTime, за да покажете графика на Ridgeline за всеки DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Въведете директно периода за показване на графика на Ridgeline за всеки DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Можете да изберете опции за импортиране на данни от CSV/TSV файл, който изисква специално обработка, като конвертиране на структури от данни."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Натискането на бутона за визуализация по -долу ще покаже част от данните във файла, за да можете да проверите съдържанието на него."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Изберете връзка ID, за да се използва като условие за свързване на данни. Можете също да изберете няколко елемента."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Когато приложението ви периодично импортира данни, можете да изберете колона DateTime, която се използва за предпочитане като ключ на DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Ако изберете оператор и въведете число под „Фактор“, стойността в графиката ще бъде изчислена с помощта на посочения оператор и фактор."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Ако изберете оператор и въведете число под „Фактор“, стойността в графиката ще бъде изчислена с помощта на посочения оператор и фактор."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Възможно е да се предвиди колко данни ще бъдат свързани с зададените в момента условия за свързване."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Изхвърля текущо зададените условия за свързване на данни и извиква предварително регистрираното условие."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID се генерира вътрешно за свързване на данни с условията за свързване на зададените."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Изберете елементите за контрол на качеството или контрол на оборудването, използвайки в графичните настройки."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Моля, изберете типа на целта за управление, като номер на част и оборудване."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Моля, изберете целта за управление, като стойността на номера на частта и стойността на оборудването."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Задайте началния DateTime за настройките на графиката. (Задължително)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Задайте крайния DateTime за графични настройки. (Незадължително)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Прочетете запазената конфигурация."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Запазете най -новата конфигурация, която сте въвели."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Запазете екрана като PNG файл."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Искате ли да изтриете тази настройка?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Целева променлива (реално число)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Целева променлива (категория)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Поръчка на индекс"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Колона"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Поръчка"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Приоритет"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Поръчка"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Променливи"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Истински и категорични само"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "ИСТИНСКИ САМО"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Само категорични"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "В зададен ред"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "В ред на процеса"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "В корелационния коефициент. поръчка"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Праг на корелация (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Изберете за обективна променлива"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Цел променлива"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Обяснителна променлива"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Налично съотношение"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Санки диаграма"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Мач (перфектен мач)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Търсене"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Търсене"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Тъй като паралелната координатна графика не може да лекува реални числа, данните за реалните числа са премахнати."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Ререгистрация"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Регистрирайте редактираната информация като име на дисплей."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Искате ли да се регистрирате с модифицираното съдържание?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Ако промените връзката ID, моля, нулирайте конфигурацията на връзката за данни."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Графика за съвместно възникване"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Файл с данни"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Агрегирано от"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Час"
+
+# co-occurrence
+msgid "Day"
+msgstr "Ден"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Режим на редактиране"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Режим на настройка"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Невалидните данни, подчертани червено, ще бъдат изтрити. Сигурни ли сте, че преминавате към режим на настройка?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "Приоритет"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Беше открито дублирано английски име, така че серийният номер се добавя автоматично. Проверете имената на колоните."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Единици на агрегация"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Първата колона е DateTime, а втората колона и следващите колони са стойност като флагове за известие за аларма/брой на появата (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Агрегирани връзки за съвместно събиране по час/ден."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Праг на показване"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Ако изберете стойност, по -малка от 100%%, ще скриете малка връзка на съвместната връзка. (По подразбиране: Начертайте ред, ако има дори веднъж)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Идентифицирайте и визуализирайте променливи, които са пряко или косвено свързани с целевата променлива."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Визуализирайте корелацията между променливите, посочени тук. Могат да бъдат избрани до 60 елемента."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Кандидатски променливи, които са свързани с обективни променливи."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Паралелна координатна графика"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "от всички ръбове"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Оформление"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Кръг"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Автоматично"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Ефективност"
+
+msgid "Set threshold"
+msgstr "Control Line: Проверете кога рисуване на нива на управление като стандартни линии"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Платформа за анализ"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Парето диаграма"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Брой възникване"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Кумулативно съотношение [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Визуализирайте параметрите, които могат да варират в зависимост от данните за дълъг период от време, като годишни вариации в процесите, дни от седмицата, смени и т.н."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Визуализирайте корелацията между голям брой променливи по отношение на целевата променлива."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Визуализирайте съвместното възникване на неизправности, аларми, събития и др. (Връзка се фокусира върху честотата на едновременно поява на едно явление и друго)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Прост инструмент за картографиране на данни, визуализация, статистически анализ и машинно обучение."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Наборът от данни тук се използва като ориентир за свързване и начертаване на данни. Настройките се използват в хоризонталната ос на парцела. В допълнение, графиката за произход се показва със светлосиня рамка."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Посочва данните (например числени променливи: стойност на измерване) за графиката. Изберете процесите и елементите, които ще бъдат начертани на сюжета. Могат да бъдат избрани до 20 елемента."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Посочва данните (например числени променливи: стойност на измерване) за графиката. Изберете процесите и елементите, които ще бъдат начертани на сюжета. Могат да бъдат избрани до 8 елемента."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Празен"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Тази променлива стратификация разделя модела, за да визуализира на множество сюжети и ги показва един до друг. Изберете категорични променливи като номер на част и № на станцията до 100 елемента могат да бъдат избрани."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Елементът от данни, който визуализира корелацията между променливите (количествени променливи: стойности на измерване и т.н.). Тези данни са начертани на диаграмата. От 2 до 7 параметри могат да бъдат избрани."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Изберете елемента, за да визуализирате корелацията между променливите. Могат да бъдат избрани до 60 елемента."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Елементи от променливи от категорията (като номера на части) за визуализиране на корелацията между променливите."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Максимизиране на картата"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Минимизиране на картата"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Ако тази настройка е променена, е необходимо да нулирате настройките на връзката на данните."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Автоматичен избор"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Изберете всичко надясно"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Изберете всички вдясно"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Всички истински (плаващи) от тук"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Всички цяло число от тук"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Всички низ от тук"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Поради големия брой избрани записи и времето, необходимо за показване на парцел, броят на клетките на парцел е ограничен до 10 000. Ако искате да видите всички данни за целевия период BREAK_LINE, увеличете интервала на дисплея или намалете целевия период, за да намалите броя на клетките."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Сериен"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Можете да коригирате мащаба на сюжета, като щракнете с десния бутон върху сюжета."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Графична скала"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Режим на настройка"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Брой елементи от данни, които не могат да бъдат свързани"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Разпръснат сюжет"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "с контур"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Спестяване"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Празен"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Настройка на зареждане"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Споделяне/частен"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Описание"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Създадено от"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Използване/натоварване"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Зареждане"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Брой данни, които не могат да бъдат свързани с процеса на началната точка (процент на връзка)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Запазване на DateTime"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Сподели настройки"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "Запазете"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Можете да изберете от 2 до 7 целеви променливи. Проверете броя на целевите променливи и коригирайте настройките."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Ограничението на размера на файла е 10 MB. Намалете размера на файла и опитайте отново."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Ако се провери, посоченият DateTime също се запазва."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Проверете, за да споделите тази настройка."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Запазете настройките."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Сигурни ли сте да презапишете настройките?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "дял"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Частен"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Създаден на"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Близо"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Комплект поръчки"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Стартиране на DateTime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Краен дата"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Покажете етикети X-ос"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Диапазон на DateTime"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Плъзнете и пуснете файл тук"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Или"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Изберете файлове"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Не може да бъде показан"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Обработката е прекъсната поради голямото количество данни и дългото време на обработка. Прегледайте настройките на DateTime и отново покажете сюжета."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Изход CSV файл. Моля, изчакайте, докато файлът се изтегля."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Изход TSV файл. Моля, изчакайте, докато файлът се изтегля."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Автоматичен обхват"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Пълен обхват"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Настройка на поръчката на индекс"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Отворен"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Изтрий"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Тъй като броят на точките от данни на графика е над 12 000, броят на точките от данни е бил ограничен до 12 000 максимум. Ако искате да видите всички данни, задайте по -кратък целеви период."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Стратифициране по срок (циклично)"
+
+#: component.js
+msgid "Facet"
+msgstr "Фасета"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Извършва категория, разделяща с избрания елемент."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Оценка на изключенията"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Нормализиран интерквартилен диапазон (индекс, свързващ IQR с нормално разпределение, NIQR = 0.7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Режимът е най -често срещащата се стойност."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "с външно"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "без външен вид"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Персонализиран"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Днес"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Вчера"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Последните 7 дни"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Последните 30 дни"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Този месец"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 месец"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 месеца"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Приложи"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Седмица"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Преди 7 дни"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Преди 30 дни"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Денят на юмрука на този месец"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Последен ден от този месец"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 месеца"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Актуализирано на"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Точките от данни са обобщени с бърз режим. Ако искате да получите сюжет, без да пропускате данни, коригирайте целевия период по -кратък."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Обхват на y ос"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Външен"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Празен"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Търсене на процес"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Отметка"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Тъй като броят на точките от данни на парцел е над 10 000, графиката на плътността е изтеглена. Ако искате да покажете всички точки от данни с разпръснат график, задайте целевия период по -кратък."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Празен"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Време за цикъл"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Реално число"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Цел променлива"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Коефициентът на корелация се изчислява, като се използва тази променлива като целева променлива. Целевата променлива, посочена тук, също е показана заедно с цветна лента от крайната дясна страна на сюжета. Ако искате да промените целевите променливи на сюжета, можете да превключвате между тях, като щракнете с десния бутон върху всяко име на променлива."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Данните не бяха удавени, защото има твърде много категории. BREAK_LINE Проверете и, ако е необходимо, преразгледайте целевия период по -кратък."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Настройка на филтъра"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Етикет (променливи категории)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Копиран"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Поставени"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Copy Config"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Паста конфигурация"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Без настройка на произход, първата цел е избрана като произход."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Данни за експортиране"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Не използвай"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Данните не се изготвят, защото има твърде много категории."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Проверете и, ако е необходимо, преразгледайте настройките на целевия период."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Разделете по броя на данните (Cyclic)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Брой данни"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Празен"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Празен"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Изберете променливата за цел."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Празен"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Без разлагане / разлагане на категория"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Разпръснат сюжет"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Ако или типът на данните от X или Y е низ, не можете да използвате променливи, които не са струни за настройката на цветовете."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Стойността извън разрешения диапазон беше открита, така че минималният или максималният валиден диапазон автоматично беше решен. Променете настройките, ако е необходимо."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Кликнете с десния бутон: Настройка на връзката към данните/Редактиране/Изтриване"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Изминалото време"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Поръчка във времето"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Задаване на поръчка за данни"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Моля, изтрийте ненужните данни, тъй като капацитетът на твърдия диск на `__SERVER_INFO__` е достигнал __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Портът на данни беше спрян, тъй като капацитетът на твърдия диск от `__SERVER_INFO__` достигна __SERVER_INFO__ %%. Ако ненужните данни се изтрият и се увеличава празен капацитет, данните ще бъдат възобновени."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Въведете броя на разпределенията, които ще бъдат показани (брой разделения). Въведете цяло число от 2 или 150 или по -малко."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Въведете броя на разпределенията, които ще бъдат показани (брой разделения). Въведете цяло число от 1 или повече 32 или по -малко."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Празен"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Празен"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Празен"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Празен"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Има твърде много цигулки на парцел, така че той беше автоматично ограничен."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Поради големия брой избрани записи, броят на парцелите е ограничен от най -старата дата до броя на лимита."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Приемам"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Упадък"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Наопаки"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Брой парцел на колона"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Категоричните променливи (номер на частта, станция № и т.н.), показани като етикети в горната част на графиката, се използват за визуализиране на точките за промяна (превключване на номера на част и т.н.) на качествените променливи."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Изберете елементи, които ще бъдат анализирани (Количествени променливи: Стойност на измерването и т.н.). Могат да бъдат избрани до 60 елемента."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Изберете елементи за сортиране на данни. Можете също да изберете няколко елемента."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Преливащите стари данни не се показват, тъй като DateTime се брои от най -новите данни с лимит на дисплея."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Броят на сюжета беше ограничен до NUMBER. Ако искате да покажете всички, преосмислете настройките."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Броят на сюжета в един раздел беше ограничен до NUMBER. Ако искате да покажете всички, преосмислете настройките."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Броят на целевите променливи, които трябва да изберете, е минимален мин и максимален макс. Проверете броя на целевите променливи и коригирайте настройките."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Броят на целевите променливи, които трябва да изберете, е до максимален макс. Проверете броя на целевите променливи и коригирайте настройките."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

@@ -1,0 +1,80 @@
+#plot-card {
+    margin-top: 20px;
+    display: table;
+    border-collapse: collapse;
+    /*height: 80vh;*/
+    width: inherit
+}
+
+.graph-container {
+    height: 80vh;
+}
+
+.svg-container {
+    margin: 0 auto !important;
+}
+
+.node-label-text-path {
+    fill: #65c5f1 !important;
+    text-shadow: none !important;
+    font-size: 16px;
+    font-family: Calibri Light;
+}
+
+.coef-item {
+    border: 1px solid #444444;
+}
+
+.sc-row {
+    display: table-row;
+}
+
+.sc-col {
+    display: table-cell;
+    border: 1px solid #4e4e4e;
+    width: auto;
+    padding: 10px;
+}
+
+.sc-col span {
+    color: #60b5dd;
+}
+
+canvas {
+    /*max-width: 95%;*/
+    margin: 0 auto;
+}
+
+.chart-column {
+    float: left;
+    border: 1px solid #4e4e4e;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+/* Clear floats after the columns */
+.chart-row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.center {
+    margin: 0;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.card.end-proc.py-sm-3 {
+    min-height: 70px;
+}

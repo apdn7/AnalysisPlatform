@@ -1,0 +1,3154 @@
+# フィンランド語 Finnish translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "fi_フィンランド語_Finnish"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:13+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fi\n"
+"Language-Team: fi\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Pelastettu"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Tapahtui virhe"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Sovelluskokoonpano"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Sivua ei löydetty"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Tapahtui virhe"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "DataLink & Analysis App"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Valitse kieli"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Päänäyttö"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Toiminnan varmennus"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Toiminnan varmennus"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Peruskonfigurointi"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Rekisteröidä"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Ladata uudelleen"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Kokonaisluku"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Todellinen (kelluva)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Treffiaika"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Naru"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Otsikko"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Tehdas"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Tehdas"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Linja"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "ole hyvä ja vahvista."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Tallenna tiedot ja aloita tietojen tuonti prosessin asetussivulla asetetulla sisältöllä?"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Hyvä"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Peruuttaa"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Tietokannan kokoonpano"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Tietokannan nimi"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Tietokantatyyppi"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Konfigurointi"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Kommentti"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Lisätä"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Valitse tietokantatiedosto."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Tiedoston nimi"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Valita"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Haluatko poistaa tämän tietueen?"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "poistaa"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Jäljitettävyys"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Jäljitettävyyskaavio"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Hivenaine"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Aloittaa testaus"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Aloitusaika"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Loppu aika"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Konetunnus (useita valintoja)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Linja"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Osa numero"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Data -linkin kokoonpano"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Valitse kieli"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "japanilainen"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Englanti"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Solmu"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Solmu ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Merkitä"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Päämiehen nimi"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Tietokanta"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Tuonti"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Viedä"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Isäntänimi"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Porttinumero"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Käyttäjänimi"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Salasana"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Kaavio"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; onnistuin."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; epäonnistui."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Prosessi-"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Prosessi"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Prosessinimi"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Taulukon nimi"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Yksityiskohta"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Esikatselu"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Ensimmäiset viisi levyä"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Sisällön asettaminen"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Sarakkeen nimi"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Englantilainen nimi"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Näyttönimi"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "kerroin"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Operaattori"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Kirjoita muu arvo kuin 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Syöttöoperaattori."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Tulokerroin."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Syötä englanninkielinen nimi."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Syöttönäytön nimi."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Englanninkielinen nimi on kopioitu."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Näytön nimi on kopioitu."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Kaikki \"näytönimet\" vaativat syöttöä."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Kentät, joissa on tyhjä \"englanninkielinen nimi\", täytetään automaattisesti."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Valitse kaikki"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Tuontitiedot"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Oletko varma, että tuot tietoja?"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Kun painat OK -painiketta, tuodaan tiedot nykyisestä ajasta kuukauteen ennen."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Aikaisemmat tiedot tuovat vähitellen automaattisesti."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Jos haluat tuoda tiedot nykyisen ajan jälkeen, paina datan lukemispainiketta uudelleen tai paina tietokantaa CSV Asetukset Read -asetussivulla."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Kun \"tietokannan / CSV -lukuasetusten\" päivitysjakso \"asetetaan, se tuotetaan automaattisesti ajanjaksolla, jolloin tiedot nykyisen ajan asettamisen jälkeen."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Jäljitystiedot"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Jäljitystiedot"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Ei päässyt"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Napsauta tätä korjataksesi sen."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Muokata reunaa"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Edellinen prosessi"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Pylväs"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Jälkikäsittely"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Pylväspylväs"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Kuin DateTime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Sarjaksi"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Link ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Jo rekisteröity"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Anna prosessin nimi"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Suodatin/kaavio"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Kaaviokokoonpano"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Linjasuodattimen kokoonpano"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Linjapylväs"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "Arvo"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Konekonfigurointi"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Kone ID sarake"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Osan Ei suodatinmääritys"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Osassa Ei saraketta"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Suodattimen nimi"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Suodatintila"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Muut suodata config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Kohdepylväs"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Visualisointikonfigurointi"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Alempi kynnysarvo"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Ylempi kynnysarvo"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Alempi prosessikynnys"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Ylempi prosessikynnys"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y-Axes-alue: Min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y-AXES-alue: Max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Nro"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "päätyä"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Aloita"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like Haku)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Olla samaa mieltä"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Säännölliset ilmaisut"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Näytä kaavio"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Vie"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Prosessi vaaditaan"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Sarakkeen nimi vaaditaan"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Vaaditaan linja"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Näytön nimi vaaditaan"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Näytön nimi on kopioitu."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Koneen arvo vaaditaan"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Kopioitu kone ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Tallenna onnistuneesti"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Säästäminen epäonnistui"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Osa NO -sarake vaaditaan"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Kohdepylväs vaaditaan"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Suodattimen nimi vaaditaan"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Edellytys vaaditaan"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Suodattimen nimi on kopioitu."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Edellytykset ovat kopioita."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Laiminlyönti"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Prosessinimi"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Lisäsi muita suodattimia"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Tuo kokoonpano"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Lähde"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Uusimisjakso"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Kytkeä"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Tunnissa"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Kerran päivässä"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Tietojen vahvistus"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Kansiota ei ole."
+
+msgid "File does not exist"
+msgstr "Tiedostoa ei ole."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Voit muodostaa yhteyden."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Täytä arvo."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Sisältöä ei ole."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Asetukset on kopioitu."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Tallennetut tietokanta -asetukset."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Tietokanta -asetusten tallentaminen epäonnistui."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Perusasetukset tallennetaan."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Perusasetusten tallentaminen epäonnistui."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "Testiyhteys"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Lähtöpiste"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Ajanjakso"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Viimeisin"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Automaattinen päivitys"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "minuutti"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "pöytäkirja"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "tunnin"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "tuntia"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Tavoitemuuttuja"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Suodattaa"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X -akseli"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Aikaleima"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Indeksi"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Stratifioida muuttujat"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Suodattimet"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Tietokanta/csv"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Analysoida"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Kehitteillä"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Analysoida:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Vesiputous"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Graafinen LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogrammi"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Kerrostuma kuvaaja"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Koko pisteen juoni"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Tietojen visualisointi"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Visualisointi"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Juosta"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Kirjoita tietokannan nimi."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Kirjoita tietolähteen nimi."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Sarakkeita, joissa ei ole tietotyyppiä, ei tuodata."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Vaaditaan vähintään yksi DateTime -sarake."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Visualisointia varten käytä '{col}' x-akselille."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Oletko varma, että jatkat?"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Taulukon katselu"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Pöytä"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Järjestellä"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Tietojen lukumäärä"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Laskeva"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Nouseva"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Täydellinen pari"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Osittainen ottelu"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Virheellinen numeron valinta"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Yhdistämisessä käytetyn merkin pituus on erilainen."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Ei filtteriä"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Kaikki linjat"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "tilanne"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Työluettelo"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Kaikki"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Tuonti valmis."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Tuonti"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Epäonnistunut tuonti"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Ladattu tieto poistetaan. Onko se okei? (Muutosta ei heijastua, ennen kuin rekisteröintipainiketta on painettu)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Työluettelo"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Työtunnus"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Työn nimi"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Sukupolvi linkitetylläID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Näytä linkin sukupolven työ ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Prosessitietojen poistaminen"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Tuo tehdastiedot"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Tuo aiemmat tehdastiedot"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Näytä aiempien tehdastietojen tuonti"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Tuo tietoja"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Poista vanhat tiedot"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Aloitusaika"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "kulunut aika"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Tietokanta/csv"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Edistyminen"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Prosessi"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Histogrammiluettelo"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Rekisteröidy puhkeamisarvoksi"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Rekisteröinnin ulkopuolinen"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Piiloutua"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Näytä poikkeamat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Tutustu ulkopuolisiin"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Näytä histogrammiluettelo"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Viimeinen päivitysaika"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Ulkopuolinen rekisteröinti on peruutettu."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Rekisteröity ulkopuoliseksi"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Poikkeama"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Vain kerran"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Työtiedot"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Kopioi leikepöydälle"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Monisiraston kuvaaja"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Hajottaa"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Kategorisen muuttujan visualisointi"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratifioida muuttujien mukaan"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Muuttuja"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Kone"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Tavoitejakso"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Taajuus (luku)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Tiheysarvio"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Kategorinen muuttuja"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify termillä (suora)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Et voi valita kahdeksan tai enemmän kohdemuuttujaa. Valitse kohdemuuttuja."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Poikkeavuuden havaitseminen"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Periaatekomponenttianalyysi"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Testaustietojen pääkomponenttipiste"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Pääkomponentti -pisteet harjoitustietojen pistemäärä"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Sarjakaavio T2 -tilastoista"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Q -tilastojen sarjan kaavio"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. T2 -tilastojen maksu -kaavio"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Q -tilastojen maksumaa kuvaaja"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Poistoa"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Koulutustiedot"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Testaustiedot"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Joo"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Ei"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Tietotyyppi"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Esimerkki"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Virhe"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Varoitus"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Koska kaikki rivit on poistettu alijäämän arvonkäsittelyllä (NA poisto), analysoitavissa ei ole tietoa. Varmista, että tyhjää arvoa, mukaan lukien NA, ei ole valittu."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Sitä ei voida analysoida, koska se sisältää muita tietoja kuin numeroita. Varmista, että olet valinnut sarake, joka sisältää merkkijonon tai luokan arvon."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Ei voi analysoida, koska se sisältää tietoja varianssilla 0. Varmista, että vain yhtä arvosarakketta ei ole valittu."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Löydetty luokkatiedot ja odotettu kokonaislukuarvo. Jos tämä kokonaislukuarvo ei ole tilausasteikko, aikaväli -asteikko tai suhdeasteikko, analyysituloksiin voi vaikuttaa haitallisesti."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Oletko varma, että jatkat analyysiä?"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Hae"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Mediaani on yksi tyypillisistä tilastoista. Se on keskustassa sijaitseva arvo, kun äärellinen data on järjestetty nousevaan järjestykseen. Esimerkiksi viiden tapauksessa ikän mediaani -ikä on kolmas ikä ikäjärjestyksessä. Jos tietojen lukumäärä on tasainen, käytetään keskimääräisen breveable -aritmeettisen aritmeettisen keskiarvon."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Yhteenveto jakautumisesta"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N numero"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Keskiverto"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Mikä on mediaani ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Kaikki yhteensä"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Tiheä"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Päätepiste"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Kohdeprosessi"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Aikasarja"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Palas"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Tietolinkki"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Sekunti"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Vasteaika"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "muokata"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Takaisin"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Lisää solmu"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Lisätä"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Muokata solmua"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Napsauta tyhjää tilaa sijoittaaksesi uuden solmun."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Napsauta solmua, vedä reuna toiseen solmuun ja kytke ne."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Napsauta ohjauspistettä, vedä se solmuun ja muodosta yhteys."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Reunaa ei voida lisätä."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Klusteria ei voida poistaa."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Klusteria ei voida muokata."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Näytön nimi tai arvo on kopioitu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Kirjoita näytön nimi ja arvo."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Kirjoita rivi -sarake."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Tuntia"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Datatiedot"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Päivä"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Viikko"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Ladata"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Tallentaa"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Korvata"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Asetus"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Vaihda otsikko, koska sama otsikko on asetettu."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Tallenna asetus"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Luo kuvakaappaus"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "ladata"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Syyt siihen, miksi kuvaajaa ei voida näyttää, ovat seuraavat. BREAK_LINE Tarkista tilanne. BREAK_LINE・ Tietoja ei tuoda tai tuonnin keskellä. BREAK_LINE・ Tietoja ei ole linkitetty tai sitomisen keskellä. BREAK_LINE・ Kaavion asetus on sopimaton."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Varoitus"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Tietueita, jotka sisältävät virheellisiä tietoja päivämäärätieto -sarakkeessa, ei tuota."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Voit viitata alla olevan kansiossa oleviin tiedostoihin saadaksesi tietoja, joita ei voitu tuoda."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Käyttötilaa ei voida ladata, koska sitä ei ole kytketty Internetiin."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Tarkista verkkoyhteys."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Tietojen yhdistäminen vie kauan."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Oletko varma, että yhdistät tiedot uudelleen?"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Keskeyttää"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Suorittaa"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Aiotko varmasti ladata aiemmin rekisteröidyt tietolinkki -asetukset?"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Alkoi tuoda tietoja."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Voit tarkistaa tuonnin etenemisen alla olevasta linkistä."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Katso virhetilasta työluettelonsivu."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Alkoi linkittää tietoja."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Kerran 3 minuutissa"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Kerran 5 minuutin välein"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Kerran 10 minuutin välein"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Valinnainen toiminto"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Tiedostotyyppi"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Vienti"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Valittujen tietueiden suuren määrän ja kuvaajan näyttämiseen vaadittavan ajan vuoksi tietueiden lukumäärä kuvaajaa kohti oli 50 000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Aikasarjakaavio"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Luokkaarvo"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Koska tietueiden lukumäärä tietyllä ajanjaksolla on yli 5000, BREAK_LINE -linkki on sitoutunut ± 14 päivän kuluessa määritellystä ajanjaksosta. Jos et halua rajoittaa linkitysaluetta, säädä kestoa vähentääksesi BREAK_LINE -rekisterien lukumäärää."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Asetusasteikko"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Yhteinen asteikko"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Kynnyslinja"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Automaattinen asteikko"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Käytetään asteikko"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn prosessia"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Mini"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Ei mitään"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Yhteenveto"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "Kreivi"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Perustilastot"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Ei -parametrinen"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Tietojen laatu"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Katsoja"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Tuontitiedot"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Tietolinkkiprosessi käynnistyy nykyisen kokoonpanon perusteella."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Se voi viedä aikaa, jos linkittävä tieto on paljon. Onko OK aloittaa?"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Tietojen osalta, jotka tuotetaan automaattisesti ja säännöllisesti, linkki ID luodaan automaattisesti."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Tietolähteen nimi"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Tietolähdetyyppi"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Tallennatko muutokset?"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Pakotetut käyttöjärjestelmän tiedot aikavyöhykkeen asetuksiin."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Edistynyt asetus"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Asetukset tallennetaan tietokannalle /CSV -tiedostoon tuontitietojen perusteella. Siirry asetussivulle, aseta tuontitietojen sarakkeet tietojen tuontiin."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Elementtitiedoissa ei ole vaadittu ominaisuus."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Elementtitietoihin ei vaadita attribuuttiarvoa."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "PCA: n epänormaali havaitseminen vaatii vähintään kaksi muuttujaa. Valitse kaksi tai useampia muuttujia."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Valitse vähintään yksi sarake"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Luokkamuuttujia, jotka vähentävät laatikon leveyttä, ei näytetä."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Aloitus numero"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Reuna -juoni"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Pysäytä sovellus (Edge Server). Jos lopetat, jokin muu käyttäjä ei voi käyttää myös, joten ota yhteyttä järjestelmänvalvojaan. <br> normaalin lopun tapauksessa peruuta täällä ja sulje selain."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Kaikki työ on lopetettu. Voit sulkea selaimen ja konsolin turvallisesti."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Tietolähteen kokoonpano"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Tietolähteen tuonti konfigurointi"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Sarakkeet löysivät muutamia merkkisarakkeita. Tarkista, että numeerinen sarake jne. Voidaan tunnistaa väärin."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Suodatin"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Suodatinarvo"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Vanhenemispäivä (aloita)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Päättymispäivä (loppu)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Tietoja ei voitu tuoda sarakkeiden tietotyypin määritysvirheiden takia. Tietolähteen nimi __param__ CSV/TSV Tarkista tietotyypin asetukset READ -asetussivun tietojen esikatselusta. Poista askel -asetukset, joita ei voitu tuoda, ja asettaa asetukset."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Siellä oli tiedosto ilman tietoja. Tarkista tiedoston sisältö. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Syötä vähintään yksi voimassaoloajan arvo tai."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Jakaa luokan mukaan"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Jaa termillä (syklinen)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Jaa termillä (suora)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Syötetyn aikavälin arvo on virheellinen. Kirjoita useita 0,1 tai enemmän, 720 tai vähemmän tai -720 tai enemmän ja -0,1 tai vähemmän."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Määritetty \"ikkunan pituus\" on virheellinen. Arvon on oltava välillä 0,1 - 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Syöttörideline -lukumäärä on virheellinen. Syötä kokonaisluku, joka on vähintään 1 ja 150 tai vähemmän. (mieluummin käyttää noin 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Aloita tiedot ja aika"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Aika"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Ikkunan pituus"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Ohjauskohta"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Tyyppi"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Nimi"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Huomaa, että jos datapisteiden lukumäärä yhdessä luokassa on alle 50, kuvaajan tarkkuus voi vähentyä."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Näytä Cross Hius -kohdistin (napsauta)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Näytä Multi Cross Hiussorsor (kaksoisnapsauta)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Näytä luettelo histogrammeista"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Peruuta ulkoinen tarkistus"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Määritetty \"tietolähteen nimi\" on jo olemassa."
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Tietojen tuonti epäonnistui, koska tietolähteestä löytyi tiedosto, jolla oli erilainen sarakkeen nimi. Tarkista tiedoston sisältö ja aseta tietolähteen tuontiasetukset uudelleen."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Ennustettu lukumäärä linkitettäviä tietueita"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Näytteiden lukumäärä"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Linkitettävien tietueiden lukumäärä"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Kokonaistietueiden lukumäärä"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Nimeä kansio, jossa CSV/TSV tiedostot tallennetaan kuten \"YyyyMmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Ennuste"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Suodatinmääritys"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Pääkonfigurointi"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Suodatinmäärityksestä"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Näytä kaikki"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Avaimena (vaihtoehto)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Poistettu REMOVED_COUNT alijäämäarvo, epänormaali arvo ja ulkoinen arvo TOTAL_COUNT: sta alkuperäisessä."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP-osoite"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Vertaa tietojen jakautumista histogrammilla ja tiheysarviointia. Kaavio on jaettu kerrostuneella muuttujalla. Se on jaettu myös puolella."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Piirrä kaikki tietojen lukumäärän aika -akselilla tai ID akselilla."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Näytä sirontakaavio Matriisi. Voit käyttää 2 - 7 kohdemuutosta."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Pääkomponenttianalyysillä suoritetaan \"erilaisen\" ja sen tekijäanalyysin visualisointi. Syötä normaalit tiedot opettajatietoina ja visualisoi, onko nykyiset tiedot sama tilanne kuin sen normaali tieto (T2/Q). Jos sinulla on erilainen tilanne, voit tarkistaa panoskaavion tärkeimmät tekijät."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Jakauma on jaettu useisiin kaavioihin tällä muuttujalla. Valitse luokkimuuttujat (laadulliset muuttujat), kuten osanumerot ja asemat."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Stratifioitu luokan suodatin: Rajoittaa näytettäviä tietoja alajoukkoon. (Luokka: Oonumero, asema nro jne.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Luokkamuuttujat (kuten osanumero, asema nro jne.), Näytetään levyjen yläosassa tarroina vaihtavien pisteiden löytämiseksi."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Kaaviosuodatin: Rajoittaa näytettäviä tietoja alajoukkoon."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Aseta oppimistiedot tulkittu normaaliksi tilanteeksi. Aseta data -osa, joka ei sisällä NG -tietoja. Jos sisällytetään, ne, jotka ovat lähellä NG -tietoja, arvioidaan myös normaalina tiedoina."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Aseta arvioitavat testitiedot."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Kohteen suodatin: Rajoittaa tietoja (analysoi ja näyttö), joka näytetään alajoukkoon."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Se on moniulotteisen aggregaatin näyttö (pääkomponenttien ulottuvuuskompressio) moniulotteisten tarkistustietojen kanssa. Jos tiedot ovat keskustassa, sitä voidaan tulkita normaalin lähellä."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Se on moniulotteinen aggregaatin näyttö (pääkomponenttien ulottuvuuskompressio) moniulotteisten oppimistietojen kanssa. Keskeinen tavoite määritetään oppimistietoilla, joten suurimman osan oppimistiedoista tulisi olla tavoitteessa."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "T2 -tilastotiedot, jotka tarkkailevat poikkeavuuksia näiden tietojen pääkomponentissa. Oppimistiedot on piirretty valkoisella ja negatiivisella X -osalla. Keltainen kuvaaja on validointitiedot. Mitä korkeammat validointitiedot verrataan valkoisiin tietoihin, sitä todennäköisemmin tilanne on poikkeaa. Napsauta datapistettä nähdäksesi panoskaavion siitä, mitkä elementit muodostavat tilanteen."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Kuvio Q -tilastoista (poikkeavuuksien seuranta näiden tietojen alaosassa, jäännös). Oppimistiedot on piirretty valkoisella ja negatiivisella X -osalla. Keltainen kuvaaja on validointitiedot. Mitä korkeammat validointitiedot verrataan valkoisiin tietoihin, sitä todennäköisemmin tilanne on poikkeaa. Napsauta datapistettä nähdäksesi panoskaavion siitä, mitkä elementit muodostavat tilanteen."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Järjestys, jonka muuttujat edistävät tilannetta T2 -tilastossa valittuun pisteeseen. Mitä pidempi pituus, sitä todennäköisemmin syy."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Järjestys, jonka muuttujat edistävät tilannetta Q -tilastollisessa kuvaajassa valitussa kohdassa. Mitä pidempi pituus, sitä todennäköisemmin syy."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Tietopisteiden lukumäärä, jonka arvo on pienempi tai yhtä suuri kuin Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Tietopisteiden lukumäärä, jonka arvo on suurempi tai yhtä suuri kuin Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Tietojen kokonaismäärä, mukaan lukien NA (ei saatavilla), NaN (ei numero) ja Inf± (äärettömyys) valitulla ajanjaksolla."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Prosenttiosuus ylemmän ja alemman kynnyksen (lukumäärä) ulkopuolella valitulla ajanjaksolla"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Prosenttiosuus ylemmän ja alarajan kynnyksen (lukumäärä) ulkopuolella valitulla ajanjaksolla"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Prosenttiosuus NA (ei saatavilla) valitulla ajanjaksolla (lukumäärä)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Prosenttiosuus NaN (ei lukumäärä) valitulla ajanjaksolla (lukumäärä)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Prosenttiosuus Inf+ (plus ääretön) valitulla ajanjaksolla (luku)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Prosenttiosuus Inf- (miinus äärettömyys) valitulla ajanjaksolla (lukumäärä)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Tietojen kokonaisprosentti kynnysarvon ulkopuolella, NA (ei käytettävissä), NaN (ei luku) ja Inf± (ääretön) valitulla ajanjaksolla (lukumäärä)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Tietojen lukumäärä, jossa ei ole NA (ei käytettävissä), NaN (ei lukumäärä) ja Inf± (ääretön) valitulla ajanjaksolla."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95. prosenttipiste"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75. prosenttipiste (kolmas kvartiili)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25. prosenttipiste (ensimmäinen kvartiili)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5. prosenttipiste"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Kvartiilien välinen alue (jakauman vaihtelun edustava arvo: IRQ = Q3 - Q1 ≒ 1.349σ@ normaali jakauma)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Mediaani (50. prosenttipiste)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Laske/tunti"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Laske/minuutti"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Syklin aika [s]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Divisioonanumero"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Näyttöjakso"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Näyttöväli"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Kalenda -lämpökartta"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Kohdemuuttujia ei voida valita MAX_NUM_SENSOR tai enemmän. Valitse kohdemuuttuja."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Ulkopuolisten poistamisen tavoitteet ovat Max, Mean, Min, σ ja Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Muu kuin todelliset numerot"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Jakelu voidaan visualisoida laskemalla jokaiselle kategoriselle muuttujalle (kvalitatiiviset muuttujat, eränumero jne.) Tai DateTime ja näyttämällä ne vierekkäin. Visualisointimenetelmä, joka mahdollistaa ryhmien välisen analyysin (vertailun eräpäivien, vuorojen ja jne.) Tietoja ilman erillistä ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Aseta kaavioihin piirrettävä kynnys."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Jos sironta on päällä, voit näyttää sirontakaavion sen kanssa. Hajontakaavio nykyisen tuotteen ja seuraavan rivin välisen kohteen välillä. Vedä ja pudota vastaavien kuvaajien juonikortit hiiren kanssa vaihtamaan sirontakaavion x-akseli ja y-akseli."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Tietokohta (kuten numeerinen muuttuja tai mittausarvo), joka luo datan jakauman. Nämä tiedot on piirretty kuvaajaan. Enintään 20 tuotetta voidaan valita."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Tämä kerrostettu muuttuja jakaa jakauman useisiin kuvaajiin ja näyttää ne vierekkäin. Valitse kategorinen muuttuja, kuten erä tai erä nro"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Syötä aloita datetime näyttääksesi Ridgeline -kuvaajan jokaiselle DateTimelle."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Syötä suoraan ajanjakso Ridgeline -kuvaajan näyttämiseksi jokaiselle päiväajalle."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Voit valita vaihtoehtoja tuoda tietoja CSV/TSV -tiedostosta, joka vaatii erityistä käsittelyä, kuten tietorakenteiden muuntaminen."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Alla olevan esikatselupainikkeen painaminen näyttää osan tiedoston tiedosta, jotta voit tarkistaa sen sisällön."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Valitse linkki ID, joita käytetään tietojen linkittämisen ehtona. Voit myös valita useita kohteita."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Kun sovelluksesi tuo säännöllisesti tietoja, voit valita DateTime -sarakkeen, jota käytetään mieluummin DateTime -avaimena."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Jos valitset operaattorin ja kirjoitat numeron 'Kerroin', kaavion arvo lasketaan määritetyn operaattorin ja tekijän avulla."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Jos valitset operaattorin ja kirjoitat numeron 'Kerroin', kaavion arvo lasketaan määritetyn operaattorin ja tekijän avulla."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "On mahdollista ennustaa, kuinka paljon tietoja linkitetään tällä hetkellä asetetulla linkitysolosuhteilla."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Hylkää tällä hetkellä asetetut tiedot, jotka yhdistävät ehdon ja kutsuu aiemmin rekisteröidyn ehdon."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID luodaan sisäisesti tietojen yhdistämiseksi asetetun linkitysolosuhteiden kanssa."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Valitse laadunvalvonta- tai laitteiden ohjauskohteet käyttämällä kuvaaja -asetuksia."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Valitse hallintatavoitetyyppi, kuten osanumero ja laitteet."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Valitse hallintatavoite, kuten osanumeron arvo ja laitteen arvo."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Aseta DATTIME Graaf -asetukset. (Vaaditaan)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Aseta DATTIME -tiedosto kuvaaja -asetuksille. (Valinnainen)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Lue tallennettu kokoonpano."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Tallenna uusin kirjoittamasi kokoonpano."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Tallenna näyttö PNG -tiedostona."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Haluatko poistaa tämän asetuksen?"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Tavoitemuuttuja (reaaliluku)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Tavoitemuuttuja (luokka)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Hakemistotilaus"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Pylväs"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Tilaus"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Prioriteetti"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Tilaus"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Muuttujat"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Vain kategorinen"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Vain todellinen"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Vain kategorinen"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Asetetussa järjestyksessä"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Prosessin järjestyksessä"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Korrelaatiokerroksessa. Tilaus"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Korrelaatiokynnys (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Valitse objektiivinen muuttuja"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Objektiivimuuttuja"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Selittävä muuttuja"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Käytettävissä oleva suhde"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Kaavio"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Ottelu (täydellinen ottelu)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Haku"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Hae"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Koska rinnakkaiskoordinaatti -kuvaaja ei pysty käsittelemään reaalilukuja, reaalilukutiedot on poistettu."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Uudelleensijoittaminen"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Rekisteröi muokatut tiedot, kuten näytönimi."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Haluatko rekisteröityä muokattuun sisältöön?"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Jos muutat linkkiä ID, nollaa data -linkin konfigurointi."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Samanaikaisesti"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Tiedosto"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Aggregoituna jstk"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Tunnin"
+
+# co-occurrence
+msgid "Day"
+msgstr "Päivä"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Muokkausmoodi"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Asetustila"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Punainen korostettu virheelliset tiedot poistetaan. Oletko varma, että siirrät asetustilaan?"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "prioriteetti"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Kopioitiin englanninkielinen nimi havaittiin, joten sarjanumero lisättiin automaattisesti. Tarkista sarakkeiden nimet."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Aggregaatioyksiköt"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Ensimmäinen sarake on DateTime, ja toinen sarake ja sitä seuraavat sarakkeet ovat arvoa, kuten hälytysilmoitusliput/esiintymismäärä (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Aggregaatti samanaikaisesti esiintymissuhteet tunti/päivä."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Näyttökynnys"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Jos valitset alle 100%% -arvon, piilotat pienen yhteistyösuhteen. (Oletus: Piirrä viiva, jos niitä on jopa kerran)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Tunnista ja visualisoi muuttujat, jotka korreloivat suoraan tai epäsuorasti kohdemuuttujaan."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Visualisoi korrelaatio tässä määritettyjen muuttujien välillä. Enintään 60 tuotetta voidaan valita."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Ehdokasmuuttujat, jotka korreloivat objektiivisten muuttujien kanssa."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Rinnakkaiskoordinaattikaavio"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "kaikista reunoista"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Layout"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Ympyrä"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Automaattinen"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Tehokkuus"
+
+msgid "Set threshold"
+msgstr "Control Line: Tarkista, kun piirrät hallintatasot, kuten vakioviivat"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Analyysialusta"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Pareto -kaavio"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Esiintymisen lukumäärä"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Kumulatiivinen suhde [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Visualisoi parametrit, jotka voivat vaihdella datan mukaan pitkän ajanjakson ajan, kuten prosessien vuosittaiset vaihtelut, viikonpäivät, muutokset jne."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Visualisoi korrelaatio suuren määrän muuttujien välillä kohdemuuttujan suhteen."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Visualisoi vikojen, hälytysten, tapahtumien ja jne. Samanaikainen esiintyminen (suhde keskittyen yhden ilmiön ja toisen samanaikaisen esiintymisen taajuuteen)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Tyhjä"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Yksinkertainen työkalu tietojen kartoittamiseen, visualisointiin, tilastolliseen analyysiin ja koneoppimiseen."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Tässä olevaa tietojoukkoa käytetään viitteenä tietojen linkittämiseen ja piirtämiseen. Asetuksia käytetään kuvaajan vaaka -akselilla. Lisäksi alkuperäkaavio näkyy vaaleansinisellä kehyksellä."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Määrittää tiedot (esimerkiksi numeeriset muuttujat: mittausarvo) kuvaajalle. Valitse kuvaavat prosessit ja kohteet. Enintään 20 tuotetta voidaan valita."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Määrittää tiedot (esimerkiksi numeeriset muuttujat: mittausarvo) kuvaajalle. Valitse kuvaavat prosessit ja kohteet. Enintään 8 tuotetta voidaan valita."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Tyhjä"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Tämä stratifiointimuuttuja jakaa kuvion visualisoidakseen useiksi kuvaajiksi ja näyttää ne vierekkäin. Valitse kategoriset muuttujat, kuten osanumero ja aseman nro, jopa 100 kohdetta voidaan valita."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Tietokohta, joka visualisoi muuttujien välisen korrelaation (kvantitatiiviset muuttujat: mittausarvot jne.). Nämä tiedot on piirretty kaavioon. 2 - 7 parametria voidaan valita."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Valitse kohde visualisoidaksesi muuttujien välisen korrelaation. Enintään 60 tuotetta voidaan valita."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Luokkamuuttujien kohteet (kuten osanumerot) muuttujien välisen korrelaation visualisoimiseksi."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Maksimoida kortti"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Minimoida kortti"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Jos tätä asetusta muutetaan, on tarpeen palauttaa datalinkki -asetukset."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Automaattinen valinta"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Valitse kaikki oikealla"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Valitse kaikki oikealle"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Kaikki oikeat (kelluvat) täältä"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Kaikki kokonaisluku täältä"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Kaikki merkkijono täältä"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Valittujen tietueiden ja kuvaajan näyttämiseen tarvittavan ajan vuoksi solujen lukumäärä kuvaajaa oli rajoitettu 10 000: een. Jos haluat nähdä kaikki BREAK_LINE -ajan tiedot, lisää näyttöväliä tai vähentää tavoitejaksoa solujen lukumäärän vähentämiseksi."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Sarja"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Voit säätää tontin mittakaavaa napsauttamalla hiiren kakkospainikkeella."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Kaavio -asteikko"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Asetustila"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Tietokohteiden lukumäärä, joita ei voida linkittää"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Hajottaa"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "ääriviivalla"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Tallentaa"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Tyhjä"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Kuormitusasetus"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Jaa/yksityinen"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Kuvaus"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Luonut"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Käyttää/kuormittaa"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Ladata"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Tietojen lukumäärä, joita ei voitu linkittää lähtöprosessiin (kytkentäprosentti)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Tallenna DateTime"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Jaa asetukset"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "Tallentaa"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Voit valita kohdasta 2 - 7 kohdemuuttujaa. Tarkista kohdemuuttujien lukumäärä ja korjaa asetukset."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Tiedoston koko on 10 Mt. Pienennä tiedoston kokoa ja yritä uudelleen."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Jos myös tarkistetaan, määritetty päiväaika tallennetaan."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Tarkista jakaa tämä asetus."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Tallenna asetukset."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Oletko varma, että korvaa asetukset?"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "Jaa"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Yksityinen"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Luotu jhk"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "kiinni"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Tilausjoukko"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Aloita DateTime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Päätymatka"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Näytä x-akselin etiketit"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Datetime -alue"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Vedä ja pudota tiedosto täältä"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Tai"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Valitse tiedostot"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Ei voida näyttää"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Käsittely keskeytettiin suuren määrän datan ja pitkän käsittelyajan takia. Tarkista DateTime -asetukset ja näytä juoni uudelleen."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Tulostus CSV tiedosto. Odota, kun tiedosto lataa."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Tulostus TSV tiedosto. Odota, kun tiedosto lataa."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Autoalue"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Täydennys"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Hakemistotilausasetus"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Avata"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Poistaa"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Koska datapisteiden lukumäärä kuvaajaa kohti on yli 12 000, datapisteiden lukumäärä oli enintään 12 000. Jos haluat tarkastella koko tietoa, aseta lyhyempi kohdeaika."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratify termillä (syklinen)"
+
+#: component.js
+msgid "Facet"
+msgstr "Pinta -ala"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Suorittaa luokan jakamalla valitun kohteen kanssa."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Poikkeusarvio"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Normalisoitu kvartiilien välinen alue (IQR: n indeksi normaalijakaumaan, Niqr = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Tila on yleisimmin esiintyvä arvo."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "ulospäin"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "ilman ulkopuolista"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Mukautettu"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Tänään"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Eilen"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Viimeiset 7 päivää"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Viimeiset 30 päivää"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Tässä kuussa"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 kuukausi"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 kuukautta"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Käytä"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Viikko"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 päivää sitten"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 päivää sitten"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Tämän kuukauden nyrkkipäivä"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Tämän kuukauden viimeinen päivä"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 kuukautta"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Päivittynyt"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Tietopisteet on tiivistetty nopealla tilalla. Jos haluat saada kuvaajan jättämättä dataa, säädä kohdeaika lyhyempi."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Y -akselin alue"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Poikkeama"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Tyhjä"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Käsitellä haku"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Kirjanmerkki"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Koska datapisteiden lukumäärä kuvaajaa kohti on yli 10 000, tiheyskaavio vedettiin. Jos haluat näyttää kaikki datapisteet sirontakaaviolla, aseta kohdeaika lyhyemmäksi."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Tyhjä"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Syklin aika"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Oikea numero"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Objektiivimuuttuja"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Korrelaatiokerroin lasketaan käyttämällä tätä muuttujaa kohdemuuttujana. Tässä määritetty kohdemuuttuja näkyy myös tontin oikealla puolella olevalla väripalkilla. Jos haluat muuttaa tontin kohdemuuttujia, voit vaihtaa niiden välillä napsauttamalla hiiren kakkospainikkeella kutakin muuttujan nimeä."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Tietoja ei hukkua, koska luokkia on liian paljon. BREAK_LINE Tarkista ja tarkista tarvittaessa tavoiteaika lyhyempi."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Suodatinasetus"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Tarra (luokan muuttujat)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Kopioitu"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Liitetty"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Kopioida kokoonpano"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Liitä kokoonpano"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Ilman alkuperää, ensimmäinen kohde valitaan alkuperään."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Vientitiedot"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Ei käyttää"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Tietoja ei laadita, koska luokkia on liian paljon."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Tarkista ja tarkista tarvittaessa tavoitejakson asetukset."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Jaa dataluku (syklinen)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Tietojen lukumäärä"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Tyhjä"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Tyhjä"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Valitse tarkoituksen muuttuja."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Tyhjä"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Ei hajoamista / luokan hajoamista"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Hajottaa"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Jos joko X- tai Y-tietotyyppi on merkkijono, et voi käyttää ei-jousmuuttujia väri-asettamiseen."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Arvon ulkopuolella havaittiin, joten minimi- tai enimmäisvalikoima päätettiin automaattisesti. Vaihda asetukset tarvittaessa."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Napsauta hiiren kakkospainikkeella: Data Link Asetus/Muokkaa/Poista"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Kulunut aika"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Aikajärjestys"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Tietojärjestyksen asettaminen"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Poista tarpeettomat tiedot, koska __SERVER_INFO__` -levyn kapasiteetti on saavuttanut __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Tietoportti pysäytettiin, koska __SERVER_INFO__` -levyn kapasiteetti saavutti __SERVER_INFO__ %%. Jos tarpeettomia tietoja poistetaan ja tyhjä kapasiteetti kasvaa, tietoja jatketaan."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Syötä näytettävien jakaumien lukumäärä (divisioonien lukumäärä). Syötä kokonaisluku 2 tai 150 tai vähemmän."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Syötä näytettävien jakaumien lukumäärä (divisioonien lukumäärä). Syötä kokonaisluku, joka on vähintään 32 tai vähemmän."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Tyhjä"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Tyhjä"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Tyhjä"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Tyhjä"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Viulua kohti on liian paljon, joten se oli automaattisesti rajoitettu."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Valittujen tietueiden suuren määrän vuoksi tonttien lukumäärä on rajoitettu vanhimmasta päivämäärästä rajamäärään."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Hyväksyn"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Laskea"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Taaksepäin"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Sarakkeen kaavion lukumäärä"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Kaavion yläreunassa näkyviä kategorisia muuttujia (osanumero, asema nro jne.) Käytetään laadullisten muuttujien muutospisteiden (osanumeron kytkentä jne.) Visualisointiin."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Valitse analysoitavat kohteet (kvantitatiiviset muuttujat: mittausarvo jne.). Enintään 60 tuotetta voidaan valita."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Valitse kohteet lajittelemaan tietoja. Voit myös valita useita kohteita."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Vanhan tiedon ylivuotoa ei näytetä, koska viimeisimmistä tiedoista näyttörajalla on viimeisimmät tiedot."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Tontin lukumäärä oli rajoitettu NUMBER: een. Jos haluat näyttää kaikki, kierrä asetukset."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Yhden välilehden tontin lukumäärä oli rajoitettu NUMBER: een. Jos haluat näyttää kaikki, kierrä asetukset."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Valitettavien kohdemuuttujien lukumäärä on vähintään min ja enimmäismäärän. Tarkista kohdemuuttujien lukumäärä ja korjaa asetukset."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Valitettavien kohdemuuttujien lukumäärä on enimmäismäärän enimmäismäärä. Tarkista kohdemuuttujien lukumäärä ja korjaa asetukset."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

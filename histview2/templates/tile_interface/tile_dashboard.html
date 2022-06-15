@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+{% block asset %}
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('tile_interface.static', filename = 'css/tile_interface.css') }}">
+{% endblock %}
+
+{% block midbody %}
+    <div class="tile-wrapper">
+        {% for section in sections %}
+            <div class="tile-interface active graph-navi">
+                <div class="section-title">
+                    <h3>{{ _(section.title) }}</h3>
+                </div>
+                <div class="section-content">
+                    {% for row in section.tiles %}
+                        <div class="row" style="margin-left: 0;">
+                            {% for tile in row %}
+                                <div class="tile-item" data-x="{{ tile.row }}" data-y="{{ tile.column }}"
+                                     title="{{ tile.hover|replace('"', "&quot;")|safe }}">
+                                    {% if tile != None %}
+                                        <div class="tile-content" onclick="return redirectPage(this);">
+                                            <i class="fa fa-external-link-alt ghost-button" onclick="setOpenTab();"></i>
+                                            <div class="tile-thumb"><img src="{{ tile.png_path }}"></div>
+                                            <div class="tile-title">
+                                                <h5><a class="link-address"
+                                                       href="{{ tile.link_address }}">{{ tile.title }}</a></h5>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{{ url_for('tile_interface.static', filename = 'js/tile_interface.js') }}"></script>
+{% endblock %}

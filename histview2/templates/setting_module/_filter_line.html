@@ -1,0 +1,117 @@
+<div class="card graph-navi" id="line">
+    <div class="card-body">
+        <div class="panel-group" id="accordionLine" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+                <form id="lineFilterForm" onSubmit="return false;">
+                    <div class="panel-heading" role="tab" id="headingLine">
+                        <div class="row form-header">
+                            <div class="col-5">
+                                <div class="collapse-box header-left">
+                                    <a class="header-left" role="button" data-toggle="collapse"
+                                       data-parent="#accordionLine"
+                                       href="#collapseLine" aria-expanded="true" aria-controls="collapseLine">
+                                        <i class="more-less fas fa-window-minimize"></i>
+                                    </a>
+                                    <h3 class="header-left" style="margin-left: 10px">{{ _("Line Filter Config") }}</h3>
+                                </div>
+                            </div>
+                            <div class="col-7 d-flex align-items-center justify-content-end">
+                                <input type="search" id="searchLineFilter" class="form-control common-search-input mr-3" placeholder="{{_('Search')}}...">
+                                <button name="configRegister" class="btn btn-primary btn-right" type="button"><i
+                                        class="far fa-save"></i> {{ _("Register") }}</button>
+                                <button id="sModeLine" class="changeMode btn btn-primary btn-right" type="button"
+                                        data-sm="lineSM"><i
+                                        class="far fa-file-excel"></i> <span>{{ _("Edit Mode") }}</span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="collapseLine" class="panel-collapse collapse show" role="tabpanel"
+                         aria-labelledby="headingLine">
+                        {{ macros.alert_message("alertMsgSetting") }}
+                        <div class="row">
+                            <div class="col-6 form-group">
+                                <h5>
+                                    {{ _("Line Column") }}
+                                </h5>
+                                <input type="hidden" name="filterId" disabled>
+                                <select id="lineColumnName" name="columnName"
+                                        class="form-control select2-selection--single select-n-columns">
+                                    <option value="---">---</option>
+                                </select>
+                            </div>
+                        </div>
+                        <table id="tblConfigline" class="table table-bordered table-main">
+                            <thead>
+                            <tr>
+                                <th class="col-number">{{ _("No.") }}</th>
+                                <th class="filter-name text-center">{{ _("Filter Name") }}</th>
+                                <th colspan="2" class="filter-condition text-center" title="{{ _("Search Options") }}">
+                                    <span class="hint-text">{{ _("Filter Condition") }}</span>
+                                </th>
+                                <th class="filter-start-digit text-center">{{ _("Starting Digit") }}</th>
+                                <th class="filter-btn text-center"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <div class="editmode-container hide">
+                            <div id="lineSM" name="jexcel" class=""></div>
+                        </div>
+                        <div class="row" style="padding-top: 5px;">
+                            <div class="col-2">
+                                <button name="addConfig" type="button" class="btn btn-success">
+                                    <i class="fas fa-plus-circle"></i></button>
+                            </div>
+                            <div class="col-8"></div>
+                            <div class="col-2"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="filterConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-inform">{{ _("Do you want to save changes?") }}</p>
+                </div>
+                <div class="modal-footer">
+                    <a id="confirmRegister" class="btn btn-primary" data-item-id=""
+                       data-dismiss="modal">{{ _("OK") }}</a>
+                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="" class="modal fade in" name="filterConfirmSwitchModal" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _("Please confirm") }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-inform">{{ _("The error data highlighed in red will be lost. Do you want to continue?") }}</p>
+                </div>
+                <div class="modal-footer">
+                    <a id="" class="btn btn-primary" name="confirmSwitch" data-item-id=""
+                       data-dismiss="modal">{{ _("OK") }}</a>
+                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <ul name="contextMenu" class="context-menu" style="display:none;">
+            <li class="menu-item" onclick="maximizeCard('collapseLine')">{{ _("Maximize card") }}</li>
+            <li class="menu-item" onclick="minimizeCard('collapseLine')">{{ _("Minimize card") }}</li>
+        </ul>
+    </div>
+</div>

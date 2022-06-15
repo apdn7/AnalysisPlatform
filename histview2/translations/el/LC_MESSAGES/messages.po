@@ -1,0 +1,3154 @@
+# ギリシア語 Greek translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "el_ギリシア語_Greek"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:14+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: el\n"
+"Language-Team: el\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Αποθηκευμένος"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Παρουσιάστηκε σφάλμα"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Διαμόρφωση εφαρμογής"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "Η σελίδα δεν βρέθηκε"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Παρουσιάστηκε σφάλμα"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Εφαρμογή Datalink & Analysis"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "Επιλέξτε μια γλώσσα"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "Κύρια οθόνη"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "Επαλήθευση λειτουργίας"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Επαλήθευση λειτουργίας"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Βασική διαμόρφωση"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Κανω ΕΓΓΡΑΦΗ"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Φορτώνω πάλι"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Ακέραιος αριθμός"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Πραγματικό (float)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Ημερομηνία ώρα"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Σειρά"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Τίτλος"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Φυτό"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Εργοστάσιο"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Γραμμή"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Παρακαλώ Επιβεβαιώστε."
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "Αποθηκεύστε τα δεδομένα και ξεκινήστε την εισαγωγή δεδομένων με τα περιεχόμενα που ορίζονται στη σελίδα ρύθμισης της διαδικασίας;"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Εντάξει"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Ματαίωση"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Διαμόρφωση βάσης δεδομένων"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Ονομα βάσης δεδομένων"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Τύπος βάσης δεδομένων"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Παραμέτρων"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Σχόλιο"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Προσθήκη"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Επιλέξτε ένα αρχείο βάσης δεδομένων."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Ονομα αρχείου"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Επιλέγω"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Θέλετε να διαγράψετε αυτήν την εγγραφή;"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "διαγράφω"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Ιχνηλατότης"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Γραφικό γράφημα ιχνηθέτησης"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Δοκιμή ιχνοστοιχείων"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Ξεκινήστε τις δοκιμές"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Ωρα έναρξης"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Τέλος χρόνου"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Αναγνωριστικό μηχανής (πολλαπλές επιλογές)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Γραμμή"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Αριθμός μέρους"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Διαμόρφωση σύνδεσης δεδομένων"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Επιλέξτε μια γλώσσα"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Ιαπωνικά"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Αγγλικά"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Κόμβος"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Κόμβος ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Επιγραφή"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Ονόμα"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Βάση δεδομένων"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Εισαγωγή"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Εξαγωγή"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Όνομα κεντρικού υπολογιστή"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Αριθμός θύρας"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Ονομα χρήστη"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Κωδικός πρόσβασης"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Σχήμα"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Κατάφερα."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; απέτυχε."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Διαμόρφωση διαδικασίας"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Επεξεργάζομαι, διαδικασία"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Όνομα διαδικασίας"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Όνομα πίνακα"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Λεπτομέρεια"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Προεπισκόπηση"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Πρώτα πέντε αρχεία"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Ρύθμιση περιεχομένου"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Όνομα στήλης"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Αγγλικό όνομα"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Όνομα εμφάνισης"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "συντελεστής"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Χειριστής"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Εισαγάγετε τιμή διαφορετική από 0"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Χειριστής εισόδου."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Συντελεστής εισόδου."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Εισαγάγετε το αγγλικό όνομα."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Όνομα εμφάνισης εισόδου."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Το αγγλικό όνομα είναι αντίγραφο."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Το όνομα της οθόνης είναι αντίγραφο."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Όλα τα \"ονόματα οθόνης\" απαιτούν είσοδο."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Τα πεδία με κενό \"αγγλικό όνομα\" γεμίζουν αυτόματα."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Επιλογή όλων"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Εισαγωγή δεδομένων"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Είστε σίγουροι ότι θα εισαγάγετε δεδομένα;"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "Όταν πατήσετε το κουμπί OK, θα εισαγάγετε δεδομένα από την τρέχουσα ώρα σε ένα μήνα πριν."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Τα προηγούμενα δεδομένα εισάγονται αυτόματα σιγά -σιγά."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "Εάν θέλετε να εισαγάγετε τα δεδομένα μετά την τρέχουσα ώρα, πατήστε ξανά το κουμπί ανάγνωσης δεδομένων ή πατήστε τη βάση δεδομένων CSV Ρύθμιση των ρυθμίσεων στη σελίδα ρύθμισης ανάγνωσης."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr "Όταν ο κύκλος ενημέρωσης \"της\" βάσης δεδομένων \" / CSV ρύθμιση ανάγνωσης\" έχει οριστεί, θα εισαχθεί αυτόματα κατά την περίοδο κατά την οποία έχει οριστεί τα δεδομένα μετά την τρέχουσα ώρα."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Εντοπισμός πληροφοριών"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Ιχνοστοιχεία"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Δεν ήταν δυνατή η πρόσβαση"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Κάντε κλικ εδώ για να το διορθώσετε."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Επεξεργασία άκρου"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Διαδικασία προώθησης"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Στήλη προηγούμενου"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Μετά τη διαδικασία"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Ταχυδρομική στήλη"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Ως ημερομηνία"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Ως σειριακός"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Ως σύνδεσμος ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "Εχουν ήδη καταχωρηθεί"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "Εισαγάγετε το όνομα της διαδικασίας"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Φίλτρο/γράφημα"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Διαμόρφωση γραφήματος"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Διαμόρφωση φίλτρου γραμμής"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Στήλη γραμμής"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "αξία"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Διαμόρφωση φίλτρου μηχανής"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Μηχανή ID Στήλη"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "ΜΕΡΟΣ ΧΡΗΣΙΜΟΠΟΙΗΣΗ ΦΙΛΤΗΣ"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Μέρος χωρίς στήλη"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Όνομα φίλτρου"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Κατάσταση φίλτρου"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Άλλοι Config Filter Config"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Στήλη στόχου"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Διαμόρφωση οπτικοποίησης"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Χαμηλότερο όριο"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Επάνω κατώφλι"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Χαμηλότερο όριο διεργασίας"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Ανώτερο όριο διεργασίας"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Εύρος y-axes: min"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Εύρος άξονα y: max"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Μέρος όχι"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "τερματίζω"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Αρχισε με"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like αναζήτηση)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Συμφωνώ"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Κανονικές εκφράσεις"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Εμφάνιση του γραφήματος"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV εξαγωγή"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Απαιτείται διαδικασία"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Το όνομα της στήλης απαιτείται"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Απαιτείται γραμμή"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Απαιτείται όνομα εμφάνισης"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Το όνομα της οθόνης είναι αντίγραφο."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Απαιτείται τιμή μηχανής"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Διπλή μηχανή ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Επιτυχής αποθήκευση"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Αποτυχία αποθήκευσης"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Μέρος δεν απαιτείται στήλη"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Απαιτείται στήλη στόχου"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Το όνομα φίλτρου απαιτείται"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Απαιτείται κατάσταση"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Το όνομα του φίλτρου είναι διπλό."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Οι συνθήκες είναι διπλές."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Προκαθορισμένο"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Όνομα διαδικασίας"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Προστέθηκαν άλλα φίλτρα"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Εισαγωγή config"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Πηγή"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Κύκλος ανανέωσης"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Συνδέω-συωδεομαι"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Μία φορά ανά ώρα"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Μία φορά την ημέρα"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Επιβεβαίωση δεδομένων"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Δεν υπάρχει φάκελος."
+
+msgid "File does not exist"
+msgstr "Δεν υπάρχει αρχείο."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Μπορείτε να συνδεθείτε."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Συμπληρώστε την τιμή."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Δεν υπάρχει περιεχόμενο ρύθμισης."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Οι ρυθμίσεις είναι διπλές."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Οι ρυθμίσεις βάσης δεδομένων αποθηκεύονται."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Αποτυχία αποθήκευσης ρυθμίσεων βάσης δεδομένων."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Οι βασικές ρυθμίσεις αποθηκεύονται."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Αποτυχία αποθήκευσης βασικών ρυθμίσεων."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "ΔΟΚΙΜΗ ΣΥΝΔΕΣΗΣ"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "Σημείο εκκίνησης"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "Εύρος ημερομηνιών"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "Αργότερο"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "Αυτόματη ενημέρωση"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "λεπτό"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "λεπτά"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "ώρα"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "ώρες"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "Μεταβλητή στόχου"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "Φίλτρο"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "X άξονας"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "Χρονική σήμανση"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "Δείκτης"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Διαστρωματώστε τις μεταβλητές"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Φίλτρα"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Βάση δεδομένων/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "Αναλύει"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "Υπό ανάπτυξη"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Αναλύει:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Καταρράκτης"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Γραφικό LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "Ιστόγραμμα"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Στρωματοποιημένο οικόπεδο"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Οικόπεδο πλήρους σημείου"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Απεικόνιση δεδομένων"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "Οραματισμός"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Τρέξιμο"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Εισαγάγετε το όνομα της βάσης δεδομένων."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Εισαγάγετε το όνομα πηγής δεδομένων."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Οι στήλες που δεν έχουν τύπο δεδομένων δεν εισάγονται."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Απαιτείται τουλάχιστον μία στήλη DateTime."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Για απεικόνιση, χρησιμοποιήστε '{col}' για τον άξονα x."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Είστε σίγουροι ότι θα συνεχίσετε;"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Επιτραπέζιος θεατής"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Τραπέζι"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Είδος"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Αριθμός δεδομένων"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Φθίνων"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Ανερχόμενος"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Τέλειο ταίρι"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Μερικός αγώνας"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Μη έγκυρη επιλογή ψηφίου"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Το μήκος του χαρακτήρα που χρησιμοποιείται για τη σύνδεση είναι διαφορετικό."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Χωρίς φίλτρο"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Όλες οι γραμμές"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "κατάσταση"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Λίστα εργασίας"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Ολα"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Ολοκληρώθηκε η εισαγωγή."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Εισαγωγή"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Αποτυχημένη εισαγωγή"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "Τα φορτωμένα δεδομένα θα διαγραφούν. Είναι εντάξει? (Καμία αλλαγή δεν αντικατοπτρίζεται μέχρι να πατηθεί το κουμπί εγγραφής)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "Λίστα εργασίας"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Δελτίο εργασίας"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Όνομα εργασίας"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Δημιουργία LinkedID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Εμφάνιση εργασίας γενιάς σύνδεσης ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Διαγραφή πληροφοριών διαδικασίας"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Εισαγωγή εργοστασιακών δεδομένων"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Εισαγωγή προηγούμενων εργοστασιακών δεδομένων"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Εμφάνιση εργασίας εισαγωγής προηγούμενων εργοστασιακών δεδομένων"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Εισαγωγή δεδομένων"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Διαγραφή παλαιών δεδομένων"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Ωρα έναρξης"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "χρόνος που παρήλθε"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Βάση δεδομένων/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Πρόοδος"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Επεξεργάζομαι, διαδικασία"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Λίστα ιστόγραμμα"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Εγγραφείτε ως τιμή επιδημίας"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Καταργήστε το Outlier"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Απόκρυψη υπερβολών"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Εμφάνιση υπερβολών"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Ελέγξτε τα υπερβολικά"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Εμφάνιση λίστας ιστόγραμμα"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Τελευταία ώρα ενημέρωσης"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Η καταχώριση της εξωραϊσμού έχει ακυρωθεί."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Εγγεγραμμένος ως απόκλιση"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Αποπροσανατολισμός"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Μόνο μία φορά"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Λεπτομέρειες εργασίας"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Αντιγραφή στο πρόχειρο"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Οικόπεδο πολλαπλών διασκορπισμού"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Διάγραμμα διασποράς"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Για να απεικονίσετε την κατηγορική μεταβλητή"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Διαστρωματώστε με μεταβλητές"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Μεταβλητός"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Μηχάνημα αριθ."
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Περίοδος στόχου"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Συχνότητα (Count)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Εκτίμηση πυκνότητας"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Κατηγορηματική μεταβλητή"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Διαστρωμάτωση ανά όρο (άμεση)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "Δεν μπορείτε να επιλέξετε οκτώ ή περισσότερες μεταβλητές στόχου. Επιλέξτε τη μεταβλητή προορισμού."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Ανίχνευση ανωμαλιών"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "Ανάλυση βασικών στοιχείων"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Κύρια βαθμολογία στοιχείων των δεδομένων δοκιμών"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Κύρια βαθμολογία στοιχείων των δεδομένων εκπαίδευσης"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Σειρά Στατιστικής T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Σειρά Στατιστικών Στατιστικών Q"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Σχέδιο συμβολής των στατιστικών T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Συμβολή Στατιστικής Q στατιστικά στοιχεία"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Αφαιρέστε το Outlier"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Δεδομένα κατάρτισης"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Δεδομένα δοκιμών"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Ναί"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Οχι"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Τύπος δεδομένων"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Παράδειγμα"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Λάθος"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Προειδοποίηση"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "Δεδομένου ότι όλες οι σειρές έχουν διαγραφεί με επεξεργασία τιμής ελλείμματος (NA αφαίρεση), δεν υπάρχουν δεδομένα για ανάλυση. Βεβαιωθείτε ότι η κενή τιμή, συμπεριλαμβανομένου του NA, δεν έχει επιλεγεί."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "Δεν μπορεί να αναλυθεί επειδή περιέχει δεδομένα εκτός από τους αριθμούς. Βεβαιωθείτε ότι έχετε επιλέξει μια στήλη που περιέχει μια τιμή συμβολοσειράς ή κατηγορίας."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "Δεν είναι δυνατή η ανάλυση επειδή περιέχει δεδομένα με διακύμανση 0. Βεβαιωθείτε ότι δεν έχει επιλεγεί μόνο μία στήλη τιμής."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "Βρέθηκαν δεδομένα κατηγορίας και αναμενόμενη ακέραια τιμή. Εάν αυτή η ακέραια τιμή δεν είναι κλίμακα παραγγελίας, κλίμακα διαστήματος ή κλίμακα αναλογίας, τα αποτελέσματα ανάλυσης ενδέχεται να επηρεαστούν αρνητικά."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Είστε σίγουροι ότι θα προχωρήσετε στην ανάλυση;"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Αναζήτηση"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "Το διάμεσο είναι ένα από τα τυπικά στατιστικά στοιχεία. Είναι μια τιμή που βρίσκεται στο κέντρο όταν τα πεπερασμένα δεδομένα είναι διατεταγμένα με την ανερχόμενη σειρά. Για παράδειγμα, στην περίπτωση των πέντε, η μέση ηλικία της εποχής είναι η τρίτη ηλικία κατά την ηλικία. Εάν ο αριθμός των δεδομένων είναι ομοιόμορφος, χρησιμοποιείται ο μέσος όρος της κεντρικής αρχιτεκτονικής αριθμητικής."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Μέγιστη"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Περίληψη της διανομής"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N αριθμός"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Μέση τιμή"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Τι είναι το διάμεσο ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Σύνολο"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Συχνότητα"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Τελικό σημείο"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Διαδικασία στόχου"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Χρονική σειρά"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Κομμάτια"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Αριθμός συνδέσμου δεδομένων"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Δευτερόλεπτα"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Χρόνος απόκρισης"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "επεξεργασία"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Πίσω"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Προσθήκη κόμβου"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Προσθέστε άκρη"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Επεξεργασία κόμβου"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Κάντε κλικ στο κενό χώρο για να τοποθετήσετε έναν νέο κόμβο."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Κάντε κλικ στον κόμβο, σύρετε την άκρη σε έναν άλλο κόμβο και συνδέστε τα."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Κάντε κλικ στο σημείο ελέγχου, σύρετε το στον κόμβο και συνδεθείτε."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Η άκρη δεν μπορεί να προστεθεί."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Το σύμπλεγμα δεν μπορεί να διαγραφεί."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Το σύμπλεγμα δεν μπορεί να επεξεργαστεί."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Το όνομα ή η τιμή οθόνης είναι αντίγραφο."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Εισαγάγετε το όνομα και την τιμή οθόνης."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Εισαγάγετε τη στήλη γραμμής."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Ωρες"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Πληροφορίες δεδομένων"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Ημέρα"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Εβδομάδα"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "Φορτώνω"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "Αποθηκεύσετε"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Αντικαθιστώ"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "Σύνθεση"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Αλλάξτε τον τίτλο επειδή ο ίδιος τίτλος έχει οριστεί."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "Αποθήκευση ρύθμισης"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "Δημιουργία στιγμιότυπου οθόνης"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "Κατεβάστε"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "Οι λόγοι για τους οποίους το γράφημα δεν μπορεί να εμφανιστεί έχει ως εξής. BREAK_LINE Ελέγξτε την κατάσταση. BREAK_LINE・ Τα δεδομένα δεν εισάγονται ή στη μέση της εισαγωγής. BREAK_LINE・ Δεν συνδέονται τα δεδομένα ή στη μέση της σύνδεσης. BREAK_LINE・ Η ρύθμιση του γραφήματος είναι ακατάλληλη."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Προειδοποίηση"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Τα αρχεία που περιέχουν μη έγκυρα δεδομένα στη στήλη δεδομένων ημερομηνίας δεν εισάγονται."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "Μπορείτε να ανατρέξετε στα αρχεία του παρακάτω φακέλου για δεδομένα που δεν μπορούσαν να εισαχθούν."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Η κατάσταση χρήσης δεν μπορεί να μεταφορτωθεί επειδή δεν είναι συνδεδεμένη στο Διαδίκτυο."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Ελέγξτε τη σύνδεση δικτύου."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Θα χρειαστεί πολύς χρόνος για να συνδέσετε ξανά τα δεδομένα."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Είστε σίγουροι ότι θα επανασυνδέσετε τα δεδομένα;"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Κάνω αποβολή"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Εκτέλεση"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Είστε σίγουροι ότι θα επαναφορτώσετε τις ρυθμίσεις συνδέσμου δεδομένων που έχουν καταχωρηθεί προηγουμένως;"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Άρχισε να εισάγει δεδομένα."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Μπορείτε να ελέγξετε την πρόοδο της εισαγωγής από τον παρακάτω σύνδεσμο."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Δείτε τη σελίδα λίστας εργασίας για μια κατάσταση σφάλματος."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Άρχισε να συνδέει τα δεδομένα."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Μία φορά κάθε 3 λεπτά"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Μία φορά κάθε 5 λεπτά"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Μία φορά κάθε 10 λεπτά"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Προαιρετική λειτουργία"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Τύπος αρχείου"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV εξαγωγή"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "Λόγω του μεγάλου αριθμού επιλεγμένων εγγραφών και του χρόνου που απαιτείται για την εμφάνιση του γραφήματος, ο αριθμός των εγγραφών ανά γράφημα περιοριζόταν σε 50.000."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Διάγραμμα χρονοσειρών"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Αξία κατηγορίας"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "Δεδομένου ότι ο αριθμός των εγγραφών στην καθορισμένη περίοδο είναι μεγαλύτερος από 5.000, ο σύνδεσμος BREAK_LINE δεσμεύεται εντός ± 14 ημερών από την καθορισμένη περίοδο. Εάν δεν θέλετε να περιορίσετε το εύρος σύνδεσης, ρυθμίστε τη διάρκεια για να μειώσετε τον αριθμό των αρχείων BREAK_LINE."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Κλίμακα ρύθμισης"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Κοινή κλίμακα"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Γραμμή κατωφλίου"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Αυτόματη κλίμακα"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Χρησιμοποιείται κλίμακα"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn της διαδικασίας"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "Μέγιστη"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "Λεπτό"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "Κανένας"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "Περίληψη"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "μετρώ"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "Βασικά στατιστικά στοιχεία"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "Μη παραμετρικό"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "Ποιότητα δεδομένων"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Θεατής"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Εισαγωγή δεδομένων"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Η διαδικασία σύνδεσης δεδομένων θα ξεκινήσει με βάση την τρέχουσα διαμόρφωση."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Μπορεί να χρειαστεί χρόνος εάν υπάρχουν πολλά δεδομένα για σύνδεση. Είναι εντάξει να ξεκινήσετε;"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Για τα δεδομένα που εισάγονται αυτόματα και περιοδικά, δημιουργείται αυτόματα σύνδεση ID."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Όνομα πηγής δεδομένων"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Τύπος πηγής δεδομένων"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Είστε σίγουροι ότι θα εξοικονομήσετε αλλαγές;"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Αναγκασμένες πληροφορίες OS στις ρυθμίσεις ζώνης ώρας."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Προχωρημένη ρύθμιση"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "Οι ρυθμίσεις αποθηκεύονται για το αρχείο βάσης δεδομένων /CSV των δεδομένων εισαγωγής. Μεταβείτε στη σελίδα ρύθμισης, ορίστε τις στήλες των δεδομένων εισαγωγής για να εισαγάγετε τα δεδομένα."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Δεν υπάρχει απαραίτητο χαρακτηριστικό στα δεδομένα στοιχείων."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Δεν υπάρχει τιμή χαρακτηριστικού που απαιτείται για τα δεδομένα στοιχείων."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "Μια μη φυσιολογική ανίχνευση από το PCA απαιτεί τουλάχιστον δύο μεταβλητές. Επιλέξτε δύο ή περισσότερες μεταβλητές."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Επιλέξτε τουλάχιστον μία στήλη"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Οι μεταβλητές κατηγορίας που μειώνουν το πλάτος του πλαισίου δεν εμφανίζονται."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Εκκίνηση ψηφίου"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Οικόπεδο Ridgeline"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "Σταματήστε την εφαρμογή (διακομιστής Edge). Εάν σταματήσετε, οποιοσδήποτε άλλος χρήστης δεν θα είναι σε θέση να χρησιμοποιήσει επίσης, οπότε παρακαλούμε επικοινωνήστε με τον διαχειριστή. <br> Στην περίπτωση του κανονικού άκρου, ακυρώστε εδώ και απλά κλείστε το πρόγραμμα περιήγησης."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "Όλη η δουλειά έχει σταματήσει. Μπορείτε να κλείσετε με ασφάλεια το πρόγραμμα περιήγησής σας και την κονσόλα."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Διαμόρφωση προέλευσης δεδομένων"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Διαμόρφωση εισαγωγής πηγής δεδομένων"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": Οι στήλες βρήκαν λίγες στήλες χαρακτήρων. Ελέγξτε ότι η στήλη αριθμητικού τύπου κ.λπ. μπορεί να αναγνωριστεί εσφαλμένα."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Αντικείμενο φίλτρου"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Τιμή φίλτρου"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Ημερομηνία λήξης (έναρξη)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Ημερομηνία λήξης (τέλος)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "Τα δεδομένα δεν μπορούσαν να εισαχθούν λόγω των λαθών διαμόρφωσης τύπου δεδομένων στη στήλη. Όνομα πηγής δεδομένων __param__ CSV/TSV Ελέγξτε τις ρυθμίσεις τύπου δεδομένων στην προεπισκόπηση δεδομένων της σελίδας ρύθμισης ανάγνωσης. Διαγράψτε τις ρυθμίσεις βημάτων που δεν μπορούσαν να εισαχθούν και να ορίσετε τις ρυθμίσεις."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Υπήρχε ένα αρχείο χωρίς δεδομένα. Ελέγξτε τα περιεχόμενα του αρχείου. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Εισάγετε τουλάχιστον μία τιμή της περιόδου εγκυρότητας από ή προς."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Διαιρέστε ανά κατηγορία"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Διαιρέστε ανά όρο (κυκλικό)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Διαιρέστε ανά όρο (άμεση)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "Η τιμή του εισερχόμενου διαστήματος είναι άκυρη. Εισαγάγετε έναν αριθμό 0,1 ή περισσότερο, 720 ή λιγότερο, ή -720 ή περισσότερο, και -0,1 ή λιγότερο."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Вказана `довжина вікна 'недійсна. Значення повинно бути від 0,1 до 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "Ο αριθμός της εισόδου ridgeline δεν είναι έγκυρος. Εισαγάγετε έναν ακέραιο 1 ή περισσότερο και 150 ή λιγότερο. (προτιμάτε να χρησιμοποιείτε περίπου 100)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Ξεκινήστε τα δεδομένα και το χρόνο"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Διάστημα"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Μήκος παραθύρου"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Στοιχείο ελέγχου"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Τύπος"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Ονομα"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "Σημειώστε ότι εάν ο αριθμός των σημείων δεδομένων σε μία κατηγορία είναι κάτω των 50 ετών, η ακρίβεια του γραφήματος μπορεί να μειωθεί."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Εμφάνιση σταυροειδούς δρομέα (κλικ)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Εμφάνιση Multi Cross Hair Cursor (διπλό κλικ)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Εμφάνιση λίστας ιστογραμμάτων"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Ακύρωση ελέγχου εξωφρενικού"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Το συγκεκριμένο όνομα πηγής δεδομένων \"υπάρχει ήδη.\"
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "Η εισαγωγή δεδομένων απέτυχε επειδή ένα αρχείο με διαφορετικό όνομα στήλης βρέθηκε στην πηγή δεδομένων. Ελέγξτε τα περιεχόμενα του αρχείου και ορίστε ξανά τις ρυθμίσεις εισαγωγής πηγής δεδομένων."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Προβλεπόμενος αριθμός εγγραφών που θα συνδεθούν"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Αριθμός δειγμάτων"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Αριθμός εγγραφών που θα συνδεθούν"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Αριθμός συνολικών αρχείων"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Αναφέρετε το φάκελο στον οποίο τα αρχεία CSV/TSV αποθηκεύονται όπως \"yyyymmdd\"
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Προφητεία"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Διαμόρφωση φίλτρου"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master config"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Από το φίλτρο config"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Προβολή όλων"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Ως κλειδί (επιλογή)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "Διαγράφηκε REMOVED_COUNT της τιμής ελλείμματος, της μη φυσιολογικής αξίας και της εξωτερικής τιμής από το TOTAL_COUNT στο πρωτότυπο."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Διεύθυνση IP"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "Συγκρίνετε τη διανομή δεδομένων με ιστόγραμμα και εκτίμηση πυκνότητας. Το γράφημα διαιρείται με τη στρωματοποιημένη μεταβλητή. Διαιρείται επίσης με πτυχή."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Σχεδιάστε όλους τους αριθμούς δεδομένων στον άξονα του χρόνου ή τον άξονα ID."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Εμφάνιση της μήτρας διάσπασης διασκορπισμού. Μπορείτε να χρησιμοποιήσετε από 2 έως 7 μεταβλητές στόχου."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr "Με την ανάλυση κύριας συνιστώσας, εκτελείται η απεικόνιση των \"διαφορετικών\" και της ανάλυσης του παράγοντα. Εισαγάγετε τα κανονικά δεδομένα ως δεδομένα των εκπαιδευτικών και απεικονίστε εάν τα τρέχοντα δεδομένα είναι η ίδια κατάσταση με τα κανονικά δεδομένα (T2/Q). Εάν έχετε διαφορετική κατάσταση, μπορείτε να ελέγξετε τους κύριους παράγοντες στην οικόπεδο συμβολής."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "Η κατανομή χωρίζεται σε πολλαπλά γραφήματα με αυτή τη μεταβλητή. Επιλέξτε μεταβλητές κατηγορίας (ποιοτικές μεταβλητές), όπως αριθμοί και σταθμοί."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "Στρατιωμένο φίλτρο κατηγορίας: Περιορίσει τα δεδομένα που πρέπει να εμφανίζονται σε ένα υποσύνολο. (Κατηγορία: Αριθμός εξαρτήματος, Αρ. Σταθμός κ.λπ.)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "Οι μεταβλητές κατηγορίας (όπως ο αριθμός εξαρτήματος, ο σταθμός αριθ. Κλπ.) Εμφανίζονται ως ετικέτες στην κορυφή των οικόπεδων για να βρουν μεταβαλλόμενα σημεία."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Φίλτρο γραφημάτων: Περιορίσει τα δεδομένα που πρέπει να εμφανίζονται σε ένα υποσύνολο."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "Ορίστε τα δεδομένα μάθησης που ερμηνεύονται ως κανονική κατάσταση. Ορίστε την ενότητα δεδομένων που δεν περιέχει δεδομένα NG. Εάν συμπεριληφθούν, αυτά που βρίσκονται κοντά στα δεδομένα NG κρίνονται επίσης ως κανονικά δεδομένα."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Ορίστε τα δεδομένα δοκιμών που θα κριθούν."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Στοιχείο φίλτρου: Περιορίσει τα δεδομένα (ανάλυση και οθόνη) που θα εμφανίζονται σε ένα υποσύνολο."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "Πρόκειται για μια δισδιάστατη οθόνη συσσωματωμάτων (διαστάσεων συμπίεση ανά κύριο συστατικά) των πολυδιάστατων δεδομένων επαλήθευσης. Εάν τα δεδομένα βρίσκονται στο κέντρο, μπορεί να ερμηνευτεί όσο πιο κοντά στο φυσιολογικό."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "Πρόκειται για μια δισδιάστατη οθόνη συσσωματωμάτων (συμπίεση διαστάσεων από τα κύρια συστατικά) των δεδομένων πολυδιάστατης μάθησης. Ο κεντρικός στόχος καθορίζεται από τα δεδομένα μάθησης, οπότε τα περισσότερα από τα δεδομένα μάθησης πρέπει να είναι στο στόχο."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "Μια πλοκή του στατιστικού T2, η οποία παρακολουθεί τις ανωμαλίες στο κύριο στοιχείο αυτών των δεδομένων. Τα δεδομένα μάθησης απεικονίζονται σε λευκό και στο αρνητικό τμήμα x. Το κίτρινο οικόπεδο είναι τα δεδομένα επικύρωσης. Όσο υψηλότερα είναι τα δεδομένα επικύρωσης συγκρίνονται με τα λευκά δεδομένα, τόσο πιο πιθανό είναι να αποκλίνει η κατάσταση. Κάντε κλικ στο σημείο δεδομένων για να δείτε την γραφική παράσταση των συνεισφορών για τα στοιχεία που συνθέτουν την κατάσταση."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "Μια πλοκή του στατιστικού q (παρακολούθηση ανωμαλιών στο δευτερεύον τμήμα αυτών των δεδομένων, υπολειμματικά). Τα δεδομένα μάθησης απεικονίζονται σε λευκό και στο αρνητικό τμήμα x. Το κίτρινο οικόπεδο είναι τα δεδομένα επικύρωσης. Όσο υψηλότερα είναι τα δεδομένα επικύρωσης συγκρίνονται με τα λευκά δεδομένα, τόσο πιο πιθανό είναι να αποκλίνει η κατάσταση. Κάντε κλικ στο σημείο δεδομένων για να δείτε την γραφική παράσταση των συνεισφορών για τα στοιχεία που συνθέτουν την κατάσταση."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "Η σειρά των οποίων οι μεταβλητές συμβάλλουν στην κατάσταση στο σημείο που επιλέχθηκε στο στατιστικό οικόπεδο T2. Όσο περισσότερο είναι το μήκος, τόσο πιο πιθανό είναι η αιτία."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "Η σειρά των οποίων οι μεταβλητές συμβάλλουν στην κατάσταση στο σημείο που επιλέχθηκε στο στατιστικό οικόπεδο Q. Όσο περισσότερο είναι το μήκος, τόσο πιο πιθανό είναι η αιτία."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Αριθμός σημείων δεδομένων με τιμή μικρότερη ή ίση με Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Αριθμός σημείων δεδομένων με τιμή μεγαλύτερη ή ίση με Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "Ο συνολικός αριθμός των δεδομένων που περιλαμβάνουν NA (δεν είναι διαθέσιμο), NaN (όχι αριθμός) και Inf± (άπειρο) στην επιλεγμένη περίοδο."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Ποσοστό δεδομένων εκτός του ανώτερου και κατώτερου κατωφλίου (αρίθμηση) στην επιλεγμένη περίοδο"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Ποσοστό δεδομένων εκτός του κατωφλίου άνω και κατώτερου ορίου (Count) στην επιλεγμένη περίοδο"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Ποσοστό NA (δεν είναι διαθέσιμο) στην επιλεγμένη περίοδο (Count)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Ποσοστό NaN (όχι αριθμός) στην επιλεγμένη περίοδο (Count)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Ποσοστό του Inf+ (συν το άπειρο) στην επιλεγμένη περίοδο (Count)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Ποσοστό Inf- (μείον άπειρο) στην επιλεγμένη περίοδο (Count)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "Το συνολικό ποσοστό των δεδομένων εκτός της τιμής κατωφλίου, NA (δεν είναι διαθέσιμο), NaN (όχι αριθμός) και Inf± (Infinity) στην επιλεγμένη περίοδο (Count)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "Αριθμός δεδομένων που αποκλείουν NA (δεν είναι διαθέσιμα), NaN (όχι αριθμός) και Inf± (άπειρο) στην επιλεγμένη περίοδο."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "95ο εκατοστημόριο"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75ο εκατοστημόριο (τρίτο τεταρτημόριο)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25ο εκατοστημόριο (πρώτο τεταρτημόριο)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "5ο εκατοστημόριο"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "Εύρος μεταξύ τεταρτημορίων (αντιπροσωπευτική τιμή μεταβλητότητας διανομής: IRQ = Q3 - Q1 ≒ 1.349σ@ κανονική κατανομή)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "Μέση (50η εκατοστημόριο)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Μετρήσεις/ώρα"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Μετράει/λεπτό"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Χρόνος κύκλου [S]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Αριθμός διαίρεσης"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Κύκλος εμφάνισης"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "Διάστημα εμφάνισης"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Χάρτης θερμότητας Calenda"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "Οι μεταβλητές στόχου δεν μπορούν να επιλεγούν με MAX_NUM_SENSOR ή περισσότερο. Επιλέξτε τη μεταβλητή προορισμού."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Οι στόχοι της αφαίρεσης του Outlier είναι Max, Mean, Min, σ και Range."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Εκτός από τους πραγματικούς αριθμούς"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "Η κατανομή μπορεί να απεικονιστεί με τον υπολογισμό για κάθε κατηγορική μεταβλητή (ποιοτικές μεταβλητές, αριθμό παρτίδας κ.λπ.) ή DateTime και την εμφάνισή τους δίπλα -δίπλα. Μια μέθοδος απεικόνισης που επιτρέπει ανάλυση μεταξύ ομάδων (σύγκριση μεταξύ παρτίδων, ημερών, μετατοπίσεων κ.λπ.) δεδομένων χωρίς διακριτή ID."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Ρυθμίστε το όριο που πρέπει να τραβηχτεί σε γραφήματα."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "Εάν η διασπορά είναι ενεργοποιημένη, μπορείτε να δείξετε το οικόπεδο Scatter με αυτό. Η γραφική παράσταση διασκορπισμού μεταξύ του τρέχοντος στοιχείου και του επόμενου στοιχείου σειράς. Σύρετε και ρίξτε τις κάρτες γραφικών των αντίστοιχων διαγραμμάτων με το ποντίκι για να αλλάξετε τον άξονα x και τον άξονα y του οικόπεδο διασποράς."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "Ένα στοιχείο δεδομένων (όπως μια αριθμητική μεταβλητή ή τιμή μέτρησης) που δημιουργεί μια κατανομή δεδομένων. Αυτά τα δεδομένα απεικονίζονται γραφικά στην πλοκή. Μπορούν να επιλεγούν έως και 20 στοιχεία."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "Αυτή η στρωματοποιημένη μεταβλητή διαιρεί τη διανομή σε πολλαπλά οικόπεδα και τους εμφανίζει δίπλα -δίπλα. Επιλέξτε μια κατηγορική μεταβλητή, όπως παρτίδα όχι ή παρτίδα Αρ."
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Εισαγάγετε το DateTime START για να εμφανίσετε την γραφική παράσταση Ridgeline για κάθε ημερομηνία."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Εισάγετε απευθείας την περίοδο για να εμφανίσετε το διάγραμμα Ridgeline για κάθε ημερομηνία."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "Μπορείτε να επιλέξετε επιλογές για την εισαγωγή δεδομένων από το αρχείο CSV/TSV που απαιτεί ειδικό χειρισμό, όπως η μετατροπή των δομών δεδομένων."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "Πατώντας το κουμπί προεπισκόπησης παρακάτω θα εμφανιστεί κάποιο μέρος των δεδομένων στο αρχείο, ώστε να μπορείτε να ελέγξετε τα περιεχόμενα του."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "Επιλέξτε το σύνδεσμο ID που θα χρησιμοποιηθεί ως προϋπόθεση για τη σύνδεση δεδομένων. Μπορείτε επίσης να επιλέξετε πολλά στοιχεία."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "Όταν η εφαρμογή σας εισάγει περιοδικά δεδομένα, μπορείτε να επιλέξετε μια στήλη DateTime που χρησιμοποιείται κατά προτίμηση ως το κλειδί του DateTime."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr "Εάν επιλέξετε έναν χειριστή και εισαγάγετε έναν αριθμό κάτω από τον «παράγοντα», η τιμή στο γράφημα θα υπολογιστεί χρησιμοποιώντας τον καθορισμένο χειριστή και τον παράγοντα."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr "Εάν επιλέξετε έναν χειριστή και εισαγάγετε έναν αριθμό κάτω από τον «παράγοντα», η τιμή στο γράφημα θα υπολογιστεί χρησιμοποιώντας τον καθορισμένο χειριστή και τον παράγοντα."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "Είναι δυνατόν να προβλεφθεί πόσα δεδομένα θα συνδεθούν με τις συνθήκες σύνδεσης που έχουν οριστεί τρέχοντα."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "Απορρίπτει την κατάσταση σύνδεσης δεδομένων που έχει οριστεί τρέχοντα δεδομένα και καλεί την προαναφερθείσα κατάσταση."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID δημιουργείται εσωτερικά για να συσχετίσει δεδομένα με τις συνθήκες σύνδεσης."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Επιλέξτε τα στοιχεία ελέγχου ποιότητας ή εξοπλισμού που χρησιμοποιούν στις ρυθμίσεις γραφημάτων."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Επιλέξτε τον τύπο στόχου διαχείρισης, όπως ο αριθμός εξαρτήματος και ο εξοπλισμός."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Επιλέξτε το στόχο διαχείρισης, όπως η τιμή του αριθμού εξαρτήματος και η τιμή του εξοπλισμού."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Ρυθμίστε την ημερομηνία εκκίνησης για τις ρυθμίσεις γραφημάτων. (Απαιτείται)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Ρυθμίστε το τελικό ημερομηνία για τις ρυθμίσεις γραφημάτων. (Προαιρετικός)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Διαβάστε την αποθηκευμένη διαμόρφωση."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Αποθηκεύστε την τελευταία διαμόρφωση που εισαγάγατε."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Αποθηκεύστε την οθόνη ως αρχείο PNG."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Θέλετε να διαγράψετε αυτήν τη ρύθμιση;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Μεταβλητή στόχου (πραγματικός αριθμός)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Μεταβλητή στόχου (κατηγορία)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Παραγγελία ευρετηρίου"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "Στήλη"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "Σειρά"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Προτεραιότητα"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Παραγγελία"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Μεταβλητές"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Πραγματικά και κατηγορηματικά μόνο"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Μόνο πραγματικό"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Μόνο κατηγορηματικό"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Σε σειρά"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Σε σειρά διαδικασίας"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Στον συσχετισμό COEF. Σειρά"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Όριο συσχέτισης (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Επιλέξτε σε αντικειμενική μεταβλητή"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Αντικειμενική μεταβλητή"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Επεξηγηματική μεταβλητή"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Διαθέσιμος λόγος"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Διαγυμνεσία"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Αγώνας (τέλειος αγώνας)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Αναζήτηση"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Αναζήτηση"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "Δεδομένου ότι ο παράλληλος οικόπεδο συντονισμού δεν μπορεί να θεραπεύσει πραγματικούς αριθμούς, έχουν αφαιρεθεί πραγματικοί αριθμοί."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Αναδημοσίευση"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Καταχωρήστε τις επεξεργασμένες πληροφορίες, όπως το όνομα εμφάνισης."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Θέλετε να εγγραφείτε στο τροποποιημένο περιεχόμενο;"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Εάν αλλάξετε τον σύνδεσμο ID, επαναφέρετε το Config Link Data."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Γράφημα συνύπαρξης"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Φάκελος δεδομένων"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Συγκεντρωμένος από"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Ωρα"
+
+# co-occurrence
+msgid "Day"
+msgstr "Ημέρα"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Κατάσταση επεξεργασίας"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Λειτουργία ρύθμισης"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "Τα μη έγκυρα δεδομένα που επισημαίνονται κόκκινα θα διαγραφούν. Είστε σίγουροι ότι θα μεταβείτε στη λειτουργία ρύθμισης;"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "προτεραιότητα"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "Ανιχνεύθηκε ένα διπλό αγγλικό όνομα, οπότε προστέθηκε αυτόματα ο σειριακός αριθμός. Ελέγξτε τα ονόματα στηλών."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Μονάδες συσσωμάτωσης"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "Η πρώτη στήλη είναι ημερομηνία και η δεύτερη στήλη και οι επόμενες στήλες είναι τιμή όπως σημαίες ειδοποίησης συναγερμού/αριθμός εμφάνισης (0,1,2 ...)."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Συγκεντρωτικές σχέσεις συν-εμφάνισης ανά ώρα/ημέρα."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Όριο εμφάνισης"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "Εάν επιλέξετε μια τιμή μικρότερη από 100%%, θα αποκρύψετε μια μικρή σχέση συνεργασίας. (Προεπιλογή: Σχεδιάστε μια γραμμή εάν υπάρχει ακόμη και μία φορά)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "Προσδιορίστε και απεικονίστε τις μεταβλητές που συσχετίζονται άμεσα ή έμμεσα με τη μεταβλητή στόχου."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "Οπτικοποιήστε τη συσχέτιση μεταξύ των μεταβλητών που καθορίζονται εδώ. Μπορούν να επιλεγούν έως και 60 στοιχεία."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Οι υποψήφιες μεταβλητές που συσχετίζονται με αντικειμενικές μεταβλητές."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "Παράλληλη οικόπεδο συντεταγμένων"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "όλων των άκρων"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Διάταξη"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Κύκλος"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Αυτόματο"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Αποδοτικότητα"
+
+msgid "Set threshold"
+msgstr "Control Line: Ελέγξτε όταν τα επίπεδα διαχείρισης σχεδίασης όπως οι τυπικές γραμμές"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Πλατφόρμα ανάλυσης"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Διάγραμμα Pareto"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Αριθμός εμφάνισης"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Αθροιστική αναλογία [%]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "Οπτικοποιήστε τις παραμέτρους που μπορούν να ποικίλουν ανάλογα με τα δεδομένα για μεγάλο χρονικό διάστημα, όπως ετήσιες παραλλαγές στις διαδικασίες, ημέρες της εβδομάδας, μετατοπίσεις κ.λπ."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Οπτικοποιήστε τη συσχέτιση μεταξύ ενός μεγάλου αριθμού μεταβλητών σε σχέση με τη μεταβλητή στόχου."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Απεικονίστε τη συνύπαρξη των σφαλμάτων, των συναγερμών, των συμβάντων κ.λπ. (η σχέση επικεντρώνεται στη συχνότητα της ταυτόχρονης εμφάνισης ενός φαινομένου και άλλης)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "Αδειάζω"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: Ένα απλό εργαλείο για τη χαρτογράφηση δεδομένων, την απεικόνιση, τη στατιστική ανάλυση και τη μηχανική μάθηση."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "Το σύνολο δεδομένων εδώ χρησιμοποιείται ως αναφορά για τη σύνδεση δεδομένων και τη σχεδίαση. Οι ρυθμίσεις χρησιμοποιούνται στον οριζόντιο άξονα της πλοκής. Επιπλέον, η γραφική παράσταση εμφανίζεται με ένα γαλάζιο πλαίσιο."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "Καθορίζει τα δεδομένα (για παράδειγμα, αριθμητικές μεταβλητές: τιμή μέτρησης) για το οικόπεδο. Επιλέξτε τις διαδικασίες και τα αντικείμενα που πρέπει να γραφτούν στην πλοκή. Μπορούν να επιλεγούν έως και 20 στοιχεία."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "Καθορίζει τα δεδομένα (για παράδειγμα, αριθμητικές μεταβλητές: τιμή μέτρησης) για το οικόπεδο. Επιλέξτε τις διαδικασίες και τα αντικείμενα που πρέπει να γραφτούν στην πλοκή. Μπορούν να επιλεγούν έως και 8 στοιχεία."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "Αδειάζω"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "Αυτή η μεταβλητή διαστρωμάτωσης διαιρεί το μοτίβο για να απεικονιστεί σε πολλαπλά οικόπεδα και να τα εμφανίζει δίπλα -δίπλα. Επιλέξτε κατηγορικές μεταβλητές, όπως ο αριθμός εξαρτήματος και ο σταθμός Αρ. Έως 100 αντικείμενα μπορούν να επιλεγούν."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "Το στοιχείο των δεδομένων που απεικονίζουν τη συσχέτιση μεταξύ των μεταβλητών (ποσοτικές μεταβλητές: τιμές μέτρησης κ.λπ.). Αυτά τα δεδομένα σχεδιάζονται στο διάγραμμα. Από 2 έως 7 παράμετροι μπορούν να επιλεγούν."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "Επιλέξτε το στοιχείο για να απεικονίσετε τη συσχέτιση μεταξύ των μεταβλητών. Μπορούν να επιλεγούν έως και 60 στοιχεία."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "Στοιχεία μεταβλητών κατηγορίας (όπως αριθμοί εξαρτημάτων) για την απεικόνιση της συσχέτισης μεταξύ των μεταβλητών."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Μεγιστοποιήστε την κάρτα"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Ελαχιστοποιήστε την κάρτα"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "Εάν αλλάξει αυτή η ρύθμιση, είναι απαραίτητο να επαναφέρετε τις ρυθμίσεις σύνδεσης δεδομένων."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Αυτόματη επιλογή"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Επιλέξτε όλα στα δεξιά"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Αποσυνδέστε όλα στα δεξιά"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Όλα τα πραγματικά (float) από εδώ"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Όλοι οι ακέραιοι από εδώ"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Όλη η συμβολοσειρά από εδώ"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "Λόγω του μεγάλου αριθμού των επιλεγμένων αρχείων και του χρόνου που απαιτείται για την εμφάνιση του σχεδίου, ο αριθμός των κυττάρων ανά γραφική παράσταση περιοριζόταν σε 10.000. Εάν θέλετε να δείτε όλα τα δεδομένα για την περίοδο στόχου BREAK_LINE, αυξήστε το διάστημα εμφάνισης ή μείωση της περιόδου προορισμού για να μειώσετε τον αριθμό των κυττάρων."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Κατα συρροη"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Μπορείτε να ρυθμίσετε την κλίμακα της πλοκής κάνοντας δεξί κλικ στην πλοκή."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Κλίμακα γραφικών"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Λειτουργία ρύθμισης"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Αριθμός στοιχείων δεδομένων που δεν μπορούν να συνδεθούν"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Διάγραμμα διασποράς"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "με περιγράμματα"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Οικονομία"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "Αδειάζω"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "Ρύθμιση φόρτωσης"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "Κοινόχρηστος/ιδιωτικός"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "Περιγραφή"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "Δημιουργήθηκε από"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "Χρήση/φόρτωση"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "Φορτώνω"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Αριθμός δεδομένων που δεν μπορούσαν να συνδεθούν με τη διαδικασία εκκίνησης (ποσοστό σύνδεσης)"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Αποθήκευση ημερομηνίας"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "Ρυθμίσεις κοινής χρήσης"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "αποθηκεύσετε"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "Μπορείτε να επιλέξετε από 2 έως 7 μεταβλητές στόχου. Ελέγξτε τον αριθμό των μεταβλητών στόχου και διορθώστε τις ρυθμίσεις."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "Το όριο μεγέθους αρχείου είναι 10 MB. Μειώστε το μέγεθος του αρχείου και δοκιμάστε ξανά."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Εάν ελέγχεται, αποθηκεύεται επίσης η καθορισμένη ημερομηνία."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Ελέγξτε για να μοιραστείτε αυτήν τη ρύθμιση."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Αποθηκεύστε τις ρυθμίσεις."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Είστε σίγουροι ότι θα αντικαταστήσετε τις ρυθμίσεις;"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "μερίδιο"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "Ιδιωτικός"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "Δημιουργήθηκε στο"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "Κλείσε"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "Παραγγελία"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "Ξεκινήστε το DateTime"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "Ημερομηνία λήξης"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Εμφάνιση ετικετών άξονα x"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Φάσμα ημερομηνίας"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Σύρετε και ρίξτε το αρχείο εδώ"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Ή"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Επιλέξτε αρχεία"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Δεν μπορεί να εμφανιστεί"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "Η επεξεργασία διακόπηκε λόγω του μεγάλου ποσού των δεδομένων και του μεγάλου χρόνου επεξεργασίας. Ελέγξτε τις ρυθμίσεις DateTime και εμφανίστε ξανά το οικόπεδο."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Αρχείο CSV. Περιμένετε ενώ οι λήψεις του αρχείου."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Αρχείο TSV. Περιμένετε ενώ οι λήψεις του αρχείου."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Αυτόματο εύρος"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Πλήρης εμβέλεια"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Ρύθμιση παραγγελίας ευρετηρίου"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "Ανοιξε"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "Διαγράφω"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "Δεδομένου ότι ο αριθμός των σημείων δεδομένων ανά γράφημα είναι πάνω από 12.000, ο αριθμός των σημείων δεδομένων περιοριζόταν σε Max 12.000. Εάν θέλετε να δείτε ολόκληρα τα δεδομένα, ρυθμίστε τη μικρότερη περίοδο στόχου."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Διαστρωμάτωση ανά όρο (κυκλικό)"
+
+#: component.js
+msgid "Facet"
+msgstr "Οψη"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Εκτελεί την κατηγορία που διαιρεί με το επιλεγμένο στοιχείο."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Εκτίμηση εξαίρεσης"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "Κανονικοποιημένη εμβέλεια μεταξύ τεταρτημορίων (δείκτη συσχέτιση IQR με κανονική κατανομή, NIQR = 0,7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Η λειτουργία είναι η πιο συχνά εμφανής τιμή."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "με εξωφρενικό"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "χωρίς υπερβολικό"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Εθιμο"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Σήμερα"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Εχθές"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Τελευταίες 7 ημέρες"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Τελευταίες 30 ημέρες"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Αυτο το μηνα"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 μήνα"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 μήνες"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Ισχύουν"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Εβδομάδα"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Πριν από 7 ημέρες"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Πριν από 30 ημέρες"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Ημέρα γροθιάς αυτού του μήνα"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Τελευταία ημέρα αυτού του μήνα"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 μήνες"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Ενημερώθηκε στο"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "Τα σημεία δεδομένων συνοψίζονται με γρήγορη λειτουργία. Εάν θέλετε να πάρετε οικόπεδο χωρίς να παραλείψετε δεδομένα, προσαρμόστε τη βραχύτερη περίοδο στόχου."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Εύρος άξονα y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Αποπροσανατολισμός"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "Αδειάζω"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "Αναζήτηση διαδικασιών"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "Σελιδοδείκρος"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "Δεδομένου ότι ο αριθμός των σημείων δεδομένων ανά οικόπεδο είναι πάνω από 10.000, σχεδιάστηκε οικόπεδο πυκνότητας. Εάν θέλετε να εμφανίσετε όλα τα σημεία δεδομένων με οικόπεδο διασποράς, ορίστε την περίοδο στόχου μικρότερη."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "Αδειάζω"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "Χρόνος κύκλου"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "Πραγματικός αριθμός"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "Αντικειμενική μεταβλητή"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "Ο συντελεστής συσχέτισης υπολογίζεται χρησιμοποιώντας αυτή τη μεταβλητή ως μεταβλητή στόχου. Η μεταβλητή στόχου που καθορίζεται εδώ εμφανίζεται επίσης μαζί με μια έγχρωμη ράβδο στην άκρα δεξιά πλευρά της πλοκής. Εάν θέλετε να αλλάξετε τις μεταβλητές στόχου στην πλοκή, μπορείτε να αλλάξετε μεταξύ τους κάνοντας δεξί κλικ σε κάθε όνομα μεταβλητής."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "Τα δεδομένα δεν πνίγηκαν επειδή υπάρχουν πάρα πολλές κατηγορίες. BREAK_LINE Ελέγξτε και, εάν είναι απαραίτητο, αναθεωρήστε την περίοδο στόχου μικρότερη."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "Ρύθμιση φίλτρου"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Ετικέτα (μεταβλητές κατηγορίας)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "Αντιγραφεί"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "Χυδαία"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "Αντιγραφή"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "Paste Config"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Χωρίς ρύθμιση προέλευσης, ο πρώτος στόχος επιλέγεται ως προέλευση."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "Εξαγωγικά δεδομένα"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "Μην χρησιμοποιείς"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "Τα δεδομένα δεν σχεδιάζονται επειδή υπάρχουν πάρα πολλές κατηγορίες."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "Ελέγξτε και, εάν είναι απαραίτητο, αναθεωρήστε τις ρυθμίσεις της περιόδου προορισμού."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Διαχωρίστε με τον αριθμό δεδομένων (κυκλικό)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "Αριθμός δεδομένων"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "Αδειάζω"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "Αδειάζω"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Επιλέξτε τη μεταβλητή σκοπού."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "Αδειάζω"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Χωρίς αποσύνθεση / αποσύνθεση κατηγορίας"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Διάγραμμα διασποράς"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "Εάν είτε ο τύπος δεδομένων X ή Y είναι συμβολοσειρά, δεν μπορείτε να χρησιμοποιήσετε μεταβλητές μη string για ρύθμιση χρώματος."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "Η τιμή εκτός της επιτρεπόμενης εμβέλειας ανιχνεύθηκε, οπότε αποφασίστηκε αυτόματα το ελάχιστο ή μέγιστο έγκυρο εύρος. Αλλάξτε τις ρυθμίσεις ανάλογα με τις ανάγκες."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Κάντε δεξί κλικ: Ρύθμιση σύνδεσης δεδομένων/Επεξεργασία/διαγραφή"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Χρόνος που παρήλθε"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "Χρονική σειρά"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "Ρύθμιση παραγγελίας δεδομένων"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "Διαγράψτε τα περιττά δεδομένα επειδή η χωρητικότητα του σκληρού δίσκου του __SERVER_INFO__` έχει φτάσει __SERVER_INFO__ %%."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "Η θύρα δεδομένων σταμάτησε επειδή η χωρητικότητα του σκληρού δίσκου του `__SERVER_INFO__ 'έφτασε __SERVER_INFO__ %%. Εάν τα περιττά δεδομένα διαγραφούν και αυξάνονται η κενή χωρητικότητα, τα δεδομένα θα επαναληφθούν."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "Εισαγάγετε τον αριθμό των κατανομών που θα εμφανιστούν (αριθμός τμημάτων). Εισαγάγετε έναν ακέραιο 2 ή 150 ή λιγότερο."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "Εισαγάγετε τον αριθμό των κατανομών που θα εμφανιστούν (αριθμός τμημάτων). Εισαγάγετε έναν ακέραιο 1 ή περισσότερα 32 ή λιγότερο."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "Αδειάζω"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "Αδειάζω"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "Αδειάζω"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "Αδειάζω"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Υπάρχουν πάρα πολλά βιολιά ανά οικόπεδο, οπότε ήταν αυτόματα περιορισμένη."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "Λόγω του μεγάλου αριθμού των επιλεγμένων εγγραφών, ο αριθμός των οικόπεδων περιορίζεται από την παλαιότερη ημερομηνία στον αριθμό των ορίων."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Δέχομαι"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "Πτώση"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Προς τα πίσω"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Αριθμός οικόπεδο στη στήλη"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "Οι κατηγορικές μεταβλητές (αριθμός εξαρτήματος, Αρ. Σταθμός κ.λπ.) που εμφανίζονται ως ετικέτες στο επάνω μέρος της γραφικής παράστασης χρησιμοποιούνται για την απεικόνιση των σημείων αλλαγής (διακόπτης αριθμού εξαρτήματος κ.λπ.) των ποιοτικών μεταβλητών."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "Επιλέξτε αντικείμενα που πρόκειται να αναλυθούν (ποσοτικές μεταβλητές: τιμή μέτρησης κ.λπ.). Μπορούν να επιλεγούν έως και 60 στοιχεία."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "Επιλέξτε στοιχεία για ταξινόμηση δεδομένων. Μπορείτε επίσης να επιλέξετε πολλά στοιχεία."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "Η υπερχείλιση των παλαιών δεδομένων δεν εμφανίζεται επειδή η ημερομηνία μετρήσεων από τα τελευταία δεδομένα με όριο εμφάνισης."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "Ο αριθμός των οικόπεδο περιοριζόταν σε NUMBER. Αν θέλετε να εμφανίσετε όλα, ανανεώστε τις ρυθμίσεις."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "Ο αριθμός των οικόπεδο σε μία μόνο καρτέλα περιοριζόταν στο NUMBER. Αν θέλετε να εμφανίσετε όλα, ανανεώστε τις ρυθμίσεις."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "Ο αριθμός των μεταβλητών στόχου που πρέπει να επιλέξετε είναι το ελάχιστο ελάχιστο και το μέγιστο μέγιστο. Ελέγξτε τον αριθμό των μεταβλητών στόχου και διορθώστε τις ρυθμίσεις."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "Ο αριθμός των μεταβλητών στόχου για επιλογή είναι μέχρι το μέγιστο μέγιστο. Ελέγξτε τον αριθμό των μεταβλητών στόχου και διορθώστε τις ρυθμίσεις."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

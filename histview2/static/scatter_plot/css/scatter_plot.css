@@ -1,0 +1,285 @@
+#sctr-card {
+    margin-top: 20px;
+    display: table;
+    border-collapse: collapse;
+    background-color: #222222;
+}
+
+.coef-item {
+    border: 1px solid #444444;
+}
+
+.sc-row {
+    display: table-row;
+}
+
+.sc-col {
+    display: table-cell;
+    border: 1px solid #4e4e4e;
+    width: auto;
+    padding: 10px;
+}
+
+.sc-col span {
+    color: #60b5dd;
+}
+
+canvas {
+    max-width: 95%;
+    margin: 0 auto;
+}
+
+.chart-column {
+    float: left;
+    border: 1px solid #4e4e4e;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+/* Clear floats after the columns */
+.chart-row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.center {
+    margin: 0;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.coef-text {
+    font-size: 18pt;
+    text-align: center;
+}
+
+.chart-title {
+    text-align: center;
+    color: #65c5f1;
+}
+
+.scatter-canvas {
+    margin: 20px 0px;
+}
+
+/* for SCP */
+#scpchart-xtitle {
+    color: #65c5f1;
+    text-align: center;
+    width: 100%;
+    display: inherit;
+    font-size: 16px;
+    border-bottom: 5px;
+    bottom: -10px;
+}
+
+#scpchart-ytitle {
+    transform-origin: center;
+    color: #65c5f1;
+    text-align: center;
+    font-size: 16px;
+    left: -50px;
+
+    /* 3 dots */
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}
+
+#scpchart-content {
+    /*float: right;*/
+    /*margin-left: 30px;*/
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    padding: 5px 0px 35px 35px;
+}
+
+#scpChartGrp {
+    z-index: 1;
+    background-color: #222222;
+    width: calc(100% - 30px);
+}
+
+.scpchart-wrapper {
+    width: 100%;
+    height: 100vh;
+}
+
+.sctr-item {
+    margin: 3px;
+    padding-top: 0px;
+}
+
+.scp-tr-item {
+    width: 100%;
+    height: calc(100% - 20px);
+}
+
+.colorbar {
+    flex-basis: 150px;
+    vertical-align: middle;
+    margin: auto 0;
+    margin-left: -30px;
+}
+
+.colorbar .plot-container.plotly {
+    margin-left: 20px;
+}
+
+.colorbar.none-margin .plot-container.plotly {
+    margin-left: unset;
+}
+
+.colorbar .js-plotly-plot .plotly .main-svg {
+    background-color: transparent!important;
+}
+
+.colorbar .legend .bg {
+    fill: transparent!important;
+    z-index: 9999;
+}
+
+#coloScaleBar .draglayer.cursor-crosshair,
+#coloScaleBar .layer-below,
+#coloScaleBar .cartesianlayer {
+    display: none;
+}
+
+.matrix-level {
+    right: 100%;
+    width: auto;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-90deg);
+}
+
+.matrix-level span {
+    color: white;
+    font-size: 13px;
+    display: block;
+    text-decoration: underline;
+}
+
+.hovertext path {
+    opacity: 0.8;
+    position: absolute;
+    z-index: 9999;
+}
+
+.scp-hover-info {
+    background-color: rgba(34, 34, 34, 0.5);
+    padding: 5px;
+    font-size: 12px;
+    border: 1px solid #4e4e4e;
+    z-index: 1;
+}
+
+.sctr-item .label-h {
+    font-size: 12px;
+    position: relative;
+    top: 0px;
+}
+
+.col-setting {
+    border: 1px solid;
+    height: 30px;
+    max-width: 80px;
+    margin-right: 5px;
+}
+
+.col-setting-label {
+    margin-bottom: 0 !important;
+    min-width: 200px;
+}
+.navigation-btn {
+    background-color: #222222;
+    border: 0;
+}
+#navigation-bar .modebar-group {
+    float: left;
+    display: inline-block;
+    box-sizing: border-box;
+    padding-left: 8px;
+    position: relative;
+    vertical-align: middle;
+    white-space: nowrap;
+    top: 20px;
+}
+#navigation-bar .modebar {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    margin-right: 15px;
+}
+#navigation-bar .modebar-btn {
+    margin: 0 3px;
+}
+#navigation-bar .modebar-btn:hover {
+    cursor: pointer;
+}
+#navigation-bar .modebar-btn .icon path {
+    fill: rgba(255, 255, 255, 0.3);
+}
+#navigation-bar .modebar-btn:hover .icon path {
+    fill: rgba(255, 255, 255, 0.7);
+}
+#navigation-bar .modebar-btn svg {
+    position: relative;
+    top: 2px;
+}
+#navigation-bar [data-title]:hover::before,
+#navigation-bar [data-title]:hover::after {
+    display: block;
+    opacity: 1;
+}
+#navigation-bar [data-title]::before,
+#navigation-bar [data-title]::after {
+    position: absolute;
+    transform: translate3d(0px, 0px, 0px);
+    display: none;
+    opacity: 0;
+    z-index: 1001;
+    pointer-events: none;
+    top: 110%;
+    right: 50%;
+}
+#navigation-bar [data-title]::before {
+    content: "";
+    position: absolute;
+    background: transparent;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent rgb(105, 115, 138);
+    border-image: initial;
+    z-index: 1002;
+    margin-top: -12px;
+    margin-right: -6px;
+}
+#navigation-bar [data-title]::after {
+    content: attr(data-title);
+    background: rgb(105, 115, 138);
+    color: rgb(255, 255, 255);
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 12px;
+    white-space: nowrap;
+    margin-right: -18px;
+    border-radius: 2px;
+}

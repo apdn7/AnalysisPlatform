@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+    <link href="{{ url_for('analyze.static', filename = 'css/anomaly_detection.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename = 'common/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/dom-text.js') }}"></script>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename = 'modules/js-datatables/lib/jquery.dataTables.min.css') }}">
+    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
+          rel="stylesheet">
+    <script src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
+
+{% endblock %}
+
+{% block header %}
+   {{ macros.page_title(key='PCA', title=page_title, hint=_('This function visualizes “unusual” and analyzes its factors by Principal Component Analysis.'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+    <div class="card">
+        <form id="traceDataForm">
+            <!-- end proc -->
+            <div class="card-body table-bordered graph-navi table-bordered">
+                <div class="row">
+                    <div class="col-sm-2 d-flex flex-column">
+                    	<div class="d-flex justify-content-between">
+							{{ macros.label(_('Show value'), title=_('PCA Target Variable Explain')) }}
+							{{ macros.paste_btn() }}
+						</div>
+						<div class="mt-auto pl-3 pt-3">
+							<!-- start proc  -->
+							{{ macros.start_proc_select(procs) }}
+						</div>
+					</div>
+                    <div class="col-sm-10">
+                         <div class="row" id="end-proc-row">
+                             <div class="col-12 col-lg-6 col-sm-12 p-1">
+                                 <button id="btn-add-end-proc" name="btnAddEndProc"
+                                         type="button" class="btn simple-btn"><i class="fas fa-plus-circle"></i>
+                                 </button>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+            <!-- target period -->
+            <div class="card-body table-bordered graph-navi table-bordered">
+                <div class="row">
+                    <div class="col-sm-2">
+                        {{ macros.label(_('Target period')) }}
+                    </div>
+                    <div class="col-sm-10">
+                        <div class="row">
+                            <div class="col-12 col-lg-6 col-sm-12 p-1">
+                                <div class="mb-4 d-flex flex-column">
+                                    {{ macros.label(_("Training data"), title=_('Set training data to be regarded as normal situation.')) }}
+                                    {{ macros.start_proc_interval(showAutoUpdate=false, prefix='train', disableLatest=true, name='trainTraceTime') }}
+                                </div>
+                                <div class="d-flex flex-column">
+                                    {{ macros.label(_("Testing data"), title=_('Set test data to be judged.')) }}
+                                    {{ macros.start_proc_interval(showAutoUpdate=false, prefix='test', name='testTraceTime') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- cond prod -->
+            {{ macros.cond_proc([],'',title=_('Item Filter: Limits data (analyse & display) to be displayed to a subset.')) }}
+            <!-- Form action -->
+            <br class="graph-navi graph-navi-top-down">
+            <div class="row">
+                <div class="col-sm-2">
+                </div>
+                <div class="col-sm-10">
+                    <div class="d-flex">
+                        {{ macros.remove_outlier(id='isRemoveOutlier', name='isRemoveOutlier', cl='mr-3', showHintText=false) }}
+                        {{ macros.exception_est() }}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
+                <button type="button" value="{{ _('Display graph') }}" onclick="getPCAPlots();"
+                        class="btn btn-primary show-graph"><i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+            </div>
+            <br>
+        </form>
+    </div>
+    <div class="card graph-navi" id="plot-cards" style="display: none;">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="plot-boxs">
+                    <div class="plotbox-header"><h6
+                            title="{{ _('This is aggregate 2-dimensional plot (dimensional compression by principal components) of multidimensional test data.') }}">
+                        <span class="hint-text">{{ _("Principal Component Score of Testing Data") }}</span></h6></div>
+                    <div class="plotbox-content">
+                        <div id='xTest' class="plot-responsive">
+                            <!-- Plotly chart will be drawn inside this DIV -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="plot-boxs">
+                    <div class="plotbox-header"><h6
+                            title="{{ _('This is T2 statistic plot (monitor essential part [principal component] of this data).') }}">
+                        <span class="hint-text">{{ _("Series Chart of T2 Statistics") }}</span></h6></div>
+                    <div class="plotbox-content">
+                        <div id="timeSeriesT2" class="plot-responsive"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="plot-boxs">
+                    <div class="plotbox-header"><h6
+                            title="{{ _('This is an ordered barplot of variables that contribute to the state at the point selected in T2 statistic plot.') }}">
+                        <span class="hint-text">{{ _("Contribution Plot of T2 Statistics") }}</span></h6></div>
+                    <div class="plotbox-content">
+                        <div id="t2ContributionChart" class="plot-responsive"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="plot-tabs">
+                    <ul class="nav nav-tabs nav-right">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab"
+                               href="#scatter-plot">{{ _("Multi Scatter Plot") }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#bi-plot">{{ _("Bi Plot") }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#table-info">{{ _("Data Information") }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="plot-boxs">
+                    <div class="tab-content" style="font-size: 1vw;">
+                        <div class="tab-pane active" id="scatter-plot">
+                            <div class="plotbox-header"><h6
+                                    title="{{ _('This is aggregate 2-dimensional plot (dimensional compression by principal components) of multidimensional training data.') }}">
+                                <span class="hint-text">{{ _("Principal Component Score of Training Data") }}</span>
+                            </h6></div>
+                            <div class="plotbox-content">
+                                <div id='xTrain' class="plot-responsive">
+                                    <!-- Plotly chart will be drawn inside this DIV -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="bi-plot">
+                            <div class="plotbox-header"><h6>Bi Plot</h6></div>
+                            <div class="plotbox-content">
+                                <div id="pcaBiplotChart" class="plot-responsive"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="table-info">
+                            <div class="plotbox-header"><h6>{{ _("Data Information") }} (XTest): <span id="spID"></span>
+                            </h6></div>
+                            <div class="plotbox-content" id="dp-tbl" class="plot-responsive">
+                                <table class="table table-hover table-dark">
+                                    <tbody id="dp-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="plot-tabs"></div>
+                <div class="plot-boxs">
+                    <div class="plotbox-header"><h6
+                            title="{{ _('This is Q statistic plot (ｍonitor non-essential parts [residual] of this data).') }}">
+                        <span class="hint-text">{{ _("Series Chart of Q Statistics") }}</span></h6></div>
+                    <div class="plotbox-content">
+                        <div id="timeSeriesQ" class="plot-responsive"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="plot-tabs"></div>
+                <div class="plot-boxs">
+                    <div class="plotbox-header"><h6
+                            title="{{ _('This is an ordered barplot of variables that contribute to the state at the point selected in Q statistic plot.') }}">
+                        <span class="hint-text">{{ _("Contribution Plot of Q Statistics") }}</span></h6></div>
+                    <div class="plotbox-content">
+                        <div id="qContributionChart" class="plot-responsive"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+    <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+       target="_blank">{{ _("Click here to fix") }}</a>
+    <div class="loading hide"></div>
+    <div id="msgModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" style="text-decoration: underline;">{{ _("WARNING") }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <p id="msgContent" class="modal-inform" style="white-space: pre-line"></p>
+                </div>
+                <div class="modal-footer">
+                    <div style="margin: auto;">
+                        <button id="msgConfirmBtn" class="btn btn-primary confirm-btn"
+                                data-item-id="">{{ _("OK") }}</button>
+                        <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <script src="{{ url_for('analyze.static', filename = 'js/pca_toastr.js') }}"></script>
+    <script src="{{ url_for('analyze.static', filename = 'js/generateJson.js') }}"></script>
+    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_common.js') }}"></script>
+    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_timeseries.js') }}"></script>
+    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_scatters.js') }}"></script>
+    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_biplot.js') }}"></script>
+    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_q_contribution.js') }}"></script>
+    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_t2_contribution.js') }}"></script>
+    <script src="{{ url_for('analyze.static', filename = 'js/pca.js') }}"></script>
+{% endblock %}

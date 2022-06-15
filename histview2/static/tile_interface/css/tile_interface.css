@@ -1,0 +1,63 @@
+.tile-interface {
+    margin-top: 2rem;
+}
+
+.tile-item {
+    width: calc(25vw - 46px);
+}
+
+.tile-content {
+    position: relative;
+    background-color: #0f3b69;
+    margin: 5px 5px 5px 0;
+    padding: 10px;
+    border: 1px solid #0f3b69;
+}
+
+.tile-content:hover {
+    border: 1px solid white;
+    cursor: pointer;
+}
+
+.tile-content:hover .ghost-button {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.tile-thumb img {
+    width: 100%;
+    /*height: 250px;*/
+}
+
+.tile-title {
+    text-align: center;
+    margin: 7px 0 0 0;
+}
+
+.tile-title h5 {
+    margin-bottom: 0;
+}
+
+a.link-address {
+    font-size: 24px;
+    font-size: 1vw; /* flexible by tile card's width */
+}
+
+.ghost-button {
+    position: absolute;
+    right: 10px;
+    display: none;
+    /*display: inline-block;*/
+    /*border: 2px solid #fff;*/
+    color: white;
+    /*width: 50px;*/
+    font-size: 50px;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    transition: all .3s;
+}
+
+.ghost-button:hover {
+    box-shadow: 0 0 45px rgba(255, 255, 255, .6);
+}

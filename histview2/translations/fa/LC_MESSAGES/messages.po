@@ -1,0 +1,3169 @@
+# ペルシア語 Persian translations for PROJECT Analysis Platform.
+# Copyright (C) 2019-2022 DENSO Corporation Team F-IoT DSC and Rainbow 7 & Bridge 7
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr "fa_ペルシア語_Persian"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-07-09 17:15+0900\n"
+"PO-Revision-Date: 2022-06-08 19:14+0900\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fa\n"
+"Language-Team: fa\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: histview2/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "ذخیره"
+
+#: histview2/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "خطایی رخ داده است"
+
+#: histview2/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "پیکربندی کاربرد"
+
+#: histview2/templates/404.html:3
+msgid "Page not found"
+msgstr "صفحه یافت نشد"
+
+#: histview2/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "خطایی رخ داده است"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "برنامه Datalink & Analysis"
+
+#: histview2/templates/footer.html:6
+msgid "Choose language"
+msgstr "یک زبان را انتخاب کنید"
+
+#: histview2/templates/navbar.html:8
+msgid "Home"
+msgstr "صفحه اصلی"
+
+#: histview2/templates/navbar.html:13
+msgid "Setting"
+msgstr "تأیید عملیات"
+
+#: histview2/templates/navbar.html:13
+#: histview2/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "تأیید عملیات"
+
+#: histview2/templates/setting_module/basic_config.html:7
+#: histview2/templates/sidebar.html
+msgid "Basic Config"
+msgstr "پیکربندی اصلی"
+
+#: histview2/templates/setting_module/basic_config.html:9
+#: histview2/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "ثبت نام"
+
+#: histview2/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "بارگیری مجدد"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "عدد صحیح"
+
+#: histview2/templates/setting_module/db_config.html
+#: histview2/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "واقعی (شناور)"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "وقت قرار"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "String"
+msgstr "رشته"
+
+#: histview2/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "عنوان"
+
+#: histview2/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "گیاه"
+
+#: histview2/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "کارخانه"
+
+#: histview2/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "خط"
+
+#: histview2/templates/setting_module/config.html:39
+#: histview2/templates/setting_module/db_config.html:144
+#: histview2/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "لطفا تأیید کنید"
+
+#: histview2/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "داده ها را ذخیره کرده و واردات داده ها را با محتویات تنظیم شده در صفحه تنظیم فرآیند شروع کنید؟"
+
+#: histview2/templates/setting_module/config.html:46
+#: histview2/templates/setting_module/db_config.html:133
+#: histview2/templates/setting_module/db_config.html:181
+#: histview2/templates/setting_module/db_config.html:215
+#: histview2/templates/setting_module/trace_config.html:32
+#: histview2/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "خوب"
+
+#: histview2/templates/setting_module/config.html:47
+#: histview2/templates/setting_module/db_config.html:134
+#: histview2/templates/setting_module/db_config.html:153
+#: histview2/templates/setting_module/db_config.html:182
+#: histview2/templates/setting_module/db_config.html:216
+#: histview2/templates/setting_module/trace_config.html:33
+#: histview2/templates/setting_module/trace_config.html:62
+#: histview2/templates/setting_module/trace_config.html:89
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "لغو کردن"
+
+#: histview2/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "پیکربندی پایگاه داده"
+
+#: histview2/templates/setting_module/db_config.html:15
+#: histview2/templates/setting_module/db_config.html:72
+#: histview2/templates/setting_module/db_config.html:174
+#: histview2/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "نام پایگاه داده"
+
+#: histview2/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "نوع پایگاه داده"
+
+#: histview2/templates/setting_module/db_config.html:17
+#: histview2/templates/setting_module/db_config.html:87
+#: histview2/templates/setting_module/db_config.html:111
+#: histview2/templates/setting_module/db_config.html:164
+#: histview2/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "پیکربندی"
+
+#: histview2/templates/setting_module/db_config.html:18
+#: histview2/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "اظهار نظر"
+
+#: histview2/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "اضافه کردن"
+
+#: histview2/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "یک فایل پایگاه داده را انتخاب کنید."
+
+#: histview2/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "نام فایل"
+
+#: histview2/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "انتخاب کنید"
+
+#: histview2/templates/setting_module/db_config.html:148
+#: histview2/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "آیا می خواهید این رکورد را حذف کنید؟"
+
+#: histview2/templates/setting_module/db_config.html:152
+#: histview2/templates/setting_module/trace_config.html:72
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "حذف"
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "قابلیت ردیابی"
+
+#: histview2/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "نمودار قابلیت ردیابی"
+
+#: histview2/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "تست ردیابی"
+
+#: histview2/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "آزمایش را شروع کنید"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "زمان شروع"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "زمان پایان"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "شناسه ماشین (انتخاب های چندگانه)"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "خط"
+
+#: histview2/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "شماره قطعه"
+
+#: histview2/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "پیکربندی پیوند داده"
+
+#: histview2/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "یک زبان را انتخاب کنید"
+
+#: histview2/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "وابسته به ژاپنی"
+
+#: histview2/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "انگلیسی"
+
+#: histview2/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "گره"
+
+#: histview2/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "گره ID"
+
+#: histview2/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "برچسب"
+
+#: histview2/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "نام مستعار"
+
+#: histview2/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "بخش پایگاه داده"
+
+#: histview2/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "وارد كردن"
+
+#: histview2/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "صادر کردن"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "نام میزبان"
+
+#: histview2/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "شماره بندر"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "نام کاربری"
+
+#: histview2/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "کلمه عبور"
+
+#: histview2/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "طرح"
+
+#: histview2/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; موفق شدم."
+
+#: histview2/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; شکست خورد."
+
+#: histview2/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "پیکربندی"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Process"
+msgstr "روند"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "نام فرایند"
+
+#: histview2/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "نام جدول"
+
+# histview2/templates/setting_module/background_process.html
+#: histview2/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "شرح"
+
+#: histview2/templates/setting_module/db_config_modals.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "پیش نمایش"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "پنج رکورد اول"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "تنظیم محتوا"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "نام ستون"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "نام انگلیسی"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "نام نمایش"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "ضریب"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "اپراتور"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "مقدار دیگری غیر از 0 وارد کنید"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "اپراتور ورودی."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "ضریب ورودی."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "نام انگلیسی را وارد کنید."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "نام صفحه نمایش ورودی."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "نام انگلیسی کپی شده است."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "نام نمایش کپی شده است."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "یک نام نمایش داده شده وجود دارد که وارد نشده است."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "نام انگلیسی را به صورت خودکار برای آیتم های بی نظیر وارد کنید."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "انتخاب همه"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "داده های واردات"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "آیا مطمئناً داده ها را وارد می کنید؟"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "هنگامی که دکمه OK را فشار می دهید ، داده ها را از زمان فعلی تا یک ماه قبل وارد می کنید."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "داده های قبلی به طور خودکار کم اندک وارد می شوند."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr "اگر می خواهید داده ها را بعد از زمان فعلی وارد کنید ، دوباره دکمه خواندن داده را فشار دهید ، یا پایگاه داده CSV تنظیم تنظیمات را در صفحه تنظیم خواندن فشار دهید."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"هنگامی که \"به روز رسانی چرخه\" از \"پایگاه داده / CSV خواندن تنظیمات\" "
+"تنظیم شده است، داده ها از زمان فعلی به طور خودکار در چرخه تنظیم وارد می "
+"شود."
+
+#: histview2/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "اطلاعات ردیابی"
+
+#: histview2/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "داده های ردیابی"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "دسترسی پیدا نکرد"
+
+#: histview2/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "برای رفع آن اینجا را کلیک کنید."
+
+#: histview2/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "لبه ویرایش"
+
+#: histview2/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "پیش روند"
+
+#: histview2/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "ستون"
+
+#: histview2/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "مراحل پست"
+
+#: histview2/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "ستون پست"
+
+#: histview2/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "به عنوان dateTime"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "به عنوان سریال"
+
+#: histview2/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "به عنوان پیوند ID"
+
+#: histview2/templates/macros.html
+msgid "Already registered"
+msgstr "قبلاً ثبت شده است"
+
+#: histview2/templates/macros.html
+msgid "Fill in process name"
+msgstr "لطفاً نام فرایند را وارد کنید"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "فیلتر/نمودار"
+
+#: histview2/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "پیکربندی نمودار"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "پیکربندی فیلتر خط"
+
+#: histview2/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "ستون خط"
+
+#: histview2/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: histview2/templates/filter_visualization.html
+msgid "Value"
+msgstr "ارزش"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "پیکربندی فیلتر ماشین"
+
+#: histview2/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "ستون ماشین ID"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "قسمت پیکربندی فیلتر"
+
+#: histview2/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "قسمت بدون ستون"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "نام فیلتر"
+
+#: histview2/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "وضعیت فیلتر"
+
+#: histview2/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "تنظیمات دیگر پیکربندی فیلتر"
+
+#: histview2/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "ستون هدف"
+
+#: histview2/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "پیکربندی تجسم"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "آستانه پایین"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "آستانه بالایی"
+
+#: histview2/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "آستانه فرآیند پایین"
+
+#: histview2/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "آستانه فرآیند بالایی"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "محدوده محورهای Y: حداقل"
+
+#: histview2/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "محدوده محورهای Y: حداکثر"
+
+#: histview2/templates/filter_visualization.html
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "قسمت شماره"
+
+# histview2/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "پایان یافتن با"
+
+# histview2/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "شروع کن با"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like جستجو)"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "موافق"
+
+# histview2/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "عبارات با قاعده"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "نمودار را نمایش دهید"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV صادرات"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "روند لازم است"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "نام ستون مورد نیاز است"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+#: histview2/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "خط مورد نیاز است"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "نام نمایش مورد نیاز است"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "نام نمایش کپی شده است."
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "مقدار دستگاه مورد نیاز است"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "دستگاه تکراری ID"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "با موفقیت پس انداز کنید"
+
+#: histview2/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "پس انداز نشد"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "قسمت NO ستون لازم نیست"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "ستون هدف مورد نیاز است"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "نام فیلتر مورد نیاز است"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "شرط لازم است"
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "نام فیلتر تکثیر شده است."
+
+#: histview2/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "شرایط کپی شده است."
+
+#: histview2/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "پیش فرض"
+
+#: histview2/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "نام فرایند"
+
+#: histview2/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "فیلترهای دیگر اضافه شده است"
+
+#: histview2/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV پیکربندی واردات"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "منبع"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "چرخه تجدید"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "وصل کردن"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "یک بار در ساعت"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "روزی یک دفعه"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "تأیید داده ها"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "هیچ پوشه ای وجود ندارد."
+
+msgid "File does not exist"
+msgstr "هیچ پرونده ای وجود ندارد."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "می توانید متصل شوید."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "لطفا مقدار را پر کنید."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "هیچ محتوای تنظیم وجود ندارد."
+
+#: histview2/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "تنظیمات تکثیر می شوند."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "تنظیمات پایگاه داده ذخیره شده است."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "در ذخیره تنظیمات پایگاه داده انجام نشد."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "تنظیمات اساسی ذخیره شده است."
+
+#: histview2/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "در ذخیره تنظیمات اساسی انجام نشد."
+
+#: histview2/templates/macros.html
+msgid "Test connection"
+msgstr "اتصال آزمایشی"
+
+#: histview2/templates/macros.html
+msgid "Start point"
+msgstr "نقطه شروع"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+#: histview2/templates/macros.html
+msgid "Date range"
+msgstr "محدوده زمانی"
+
+#: histview2/templates/macros.html
+msgid "Latest"
+msgstr "آخرین"
+
+#: histview2/templates/macros.html
+msgid "Auto Update"
+msgstr "به روز رسانی خودکار"
+
+#: histview2/templates/macros.html
+msgid "minute"
+msgstr "دقیقه"
+
+#: histview2/templates/macros.html
+msgid "minutes"
+msgstr "دقایق"
+
+#: histview2/templates/macros.html
+msgid "hour"
+msgstr "یک ساعت"
+
+#: histview2/templates/macros.html
+msgid "hours"
+msgstr "ساعت ها"
+
+#: histview2/templates/macros.html
+msgid "Show value"
+msgstr "متغیر هدف"
+
+#: histview2/templates/macros.html
+msgid "Filter"
+msgstr "فیلتر کردن"
+
+#: histview2/templates/macros.html
+msgid "X axis"
+msgstr "محور ایکس"
+
+#: histview2/templates/macros.html
+msgid "Timestamp"
+msgstr "زمان سنج"
+
+#: histview2/templates/macros.html
+msgid "Index"
+msgstr "فهرست مطالب"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "متغیرها"
+
+#: histview2/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "فیلترها"
+
+#: histview2/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "پایگاه داده/CSV"
+
+#: histview2/templates/sidebar.html
+msgid "Analyze"
+msgstr "تجزیه و تحلیل"
+
+#: histview2/templates/sidebar.html
+msgid "Under development"
+msgstr "در حال توسعه"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "تجزیه و تحلیل:"
+
+#: histview2/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "نقشه آبشار"
+
+#: histview2/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "گرافیکی LASSO"
+
+#: histview2/templates/sidebar.html
+msgid "Histogram"
+msgstr "بافت نگار"
+
+#: histview2/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "طرح طبقه بندی شده"
+
+#: histview2/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "طرح تمام نقاط"
+
+#: histview2/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "تجسم داده ها"
+
+#: histview2/templates/sidebar.html
+msgid "Visualization"
+msgstr "تجسم"
+
+#: histview2/templates/analyze/analyze.html
+msgid "Run"
+msgstr "اجرا کن"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "نام پایگاه داده را وارد کنید."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "نام منبع داده را وارد کنید."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "ستون هایی که هیچ نوع داده ای ندارند وارد نمی شوند."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "حداقل یک ستون DateTime لازم است."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "برای تجسم ، از '{col}' برای محور x استفاده کنید."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "آیا مطمئناً ادامه خواهید داد؟"
+
+#: histview2/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "بیننده"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Table"
+msgstr "جدول"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "مرتب سازی"
+
+#: histview2/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "تعداد داده ها"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "نزولی"
+
+#: histview2/templates/i18n.html histview2/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "صعودی"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "بهترین همسان"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "مسابقه جزئی"
+
+#: trace_config.js
+msgid "th character"
+msgstr "ویژگی"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "انتخاب رقم نامعتبر"
+
+# histview2/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "طول شخصیت مورد استفاده برای پیوند متفاوت است."
+
+# histview2/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "بدون فیلتر"
+
+# histview2/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "همه خطوط"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "وضعیت"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "لیست شغلی"
+
+# histview2/templates/setting_module/db_config.html
+msgid "All"
+msgstr "همه"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "واردات کامل شد."
+
+# histview2/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "وارد کننده"
+
+# histview2/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "واردات ناموفق"
+
+# histview2/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr "داده های بارگذاری شده حذف می شوند. خوبه؟ (تا زمانی که دکمه ثبت نام فشرده نشود ، هیچ تغییری منعکس نمی شود)"
+
+# histview2/setting_module/controllers.py
+msgid "Job List"
+msgstr "لیست شغلی"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "شناسه کار"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "اسم شغل"
+
+# histview2/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "تولید LinkedID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "نمایش کار تولید لینک ID"
+
+# histview2/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "حذف اطلاعات فرآیند"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "داده های کارخانه را وارد کنید"
+
+# histview2/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "داده های کارخانه گذشته را وارد کنید"
+
+# histview2/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "وارد کردن شغل داده های کارخانه گذشته را نشان دهید"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV داده های واردات"
+
+# histview2/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "داده های قدیمی را حذف کنید"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "زمان شروع"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "زمان سپری شده"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "پایگاه داده/CSV"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "پیش رفتن"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "روند"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "لیست هیستوگرام"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "به عنوان یک مقدار شیوع ثبت نام کنید"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "دور بیرونی"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "پنهان کردن دور"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "نمایشگاه های دور"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "دور را بررسی کنید"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "لیست هیستوگرام را نشان دهید"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "آخرین زمان به روزرسانی"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "ثبت نام خارج از کشور لغو شده است."
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "به عنوان یک دور افتاده ثبت شده است"
+
+# histview2/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "دادههای خارج از محدوده"
+
+# histview2/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "فقط یک بار"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "جزئیات شغلی"
+
+# histview2/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "کپی به کلیپ بورد"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "طرح چند پراکندگی"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "طرح پراکنده"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "برای تجسم متغیر طبقه بندی شده"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "طبقه بندی شده توسط متغیرها"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "متغیر"
+
+#: histview2/templates/trace_data/categorical_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "دستگاه"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "دوره هدف"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "فرکانس (تعداد)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "تخمین تراکم"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "متغیر طبقه بندی"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "طبقه بندی بر اساس اصطلاح (مستقیم)"
+
+#: histview2/templates/trace_data/categorical_plot.html
+msgid "Too many value selected"
+msgstr "شما نمی توانید هشت یا بیشتر متغیر هدف را انتخاب کنید. متغیر هدف را انتخاب کنید."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "تشخیص ناهنجاری"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principle Component Analysis"
+msgstr "تجزیه و تحلیل مؤلفه اصلی"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. نمره مؤلفه اصلی داده های آزمایش"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. نمره مؤلفه اصلی داده های آموزش"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. نمودار سری آمار T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. نمودار سری آمار q"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. طرح مشارکت آمار T2"
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. طرح مشارکت آمار q"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "دور کردن"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "داده های آموزش"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "داده های آزمایش"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "آره"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "هیچ"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "نوع داده"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "مثال"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "خطا"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "هشدار"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr "از آنجا که تمام ردیف ها با پردازش ارزش کسری (حذف NA) حذف شده اند ، هیچ داده ای برای تجزیه و تحلیل وجود ندارد. اطمینان حاصل کنید که مقدار خالی از جمله NA انتخاب نشده است."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr "نمی توان آن را مورد تجزیه و تحلیل قرار داد زیرا حاوی داده های غیر از اعداد است. اطمینان حاصل کنید که ستون حاوی یک رشته یا مقوله را انتخاب کرده اید."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr "نمی تواند تجزیه و تحلیل کند زیرا حاوی داده هایی با واریانس 0 است. اطمینان حاصل کنید که فقط یک ستون ارزش انتخاب نشده است."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr "داده های دسته بندی و مقدار عدد صحیح مورد انتظار. اگر این مقدار عدد صحیح یک مقیاس سفارش ، مقیاس فاصله یا مقیاس نسبت نباشد ، نتایج تجزیه و تحلیل ممکن است تحت تأثیر منفی قرار گیرد."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "آیا مطمئناً تجزیه و تحلیل را انجام می دهید؟"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "جستجو کردن"
+
+#: histview2/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr "میانه یکی از آمارهای معمولی است. این مقدار در مرکز قرار دارد که داده های محدود به ترتیب صعودی ترتیب داده می شود. به عنوان مثال ، در مورد پنج ، سن متوسط ​​سن سومین سن به ترتیب سن است. اگر تعداد داده ها یکنواخت باشد ، از میانگین حسابی قابل حمل مرکزی استفاده می شود."
+
+#: histview2/template/categorical_plot/categorical_plot_by_term.html
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "حداکثر"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "خلاصه توزیع"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "شماره n"
+
+#: histview2/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "میانگین"
+
+#: histview2/template/base.html
+#: histview2/template/categorical_plot/categorical_plot_main.html
+#: histview2/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "میانه چیست ..."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "جمع"
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "فرکانس"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "نقطه پایانی"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "روند هدف"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "سری زمانی"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "قطعات"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "تعداد پیوند داده"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "ثانیه"
+
+#: histview2/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "زمان پاسخ"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "ویرایش کردن"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "بازگشت"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "گره را اضافه کنید"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "لبه اضافه کردن"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "گره"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "برای قرار دادن یک گره جدید روی فضای خالی کلیک کنید."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "روی گره کلیک کنید ، لبه را به یک گره دیگر بکشید و آنها را وصل کنید."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "روی نقطه کنترل کلیک کنید ، آن را به گره بکشید و اتصال دهید."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "لبه نمی تواند اضافه شود."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "خوشه را نمی توان حذف کرد."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "خوشه قابل ویرایش نیست."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "نام یا مقدار نمایشگر کپی شده است."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "نام و مقدار نمایش را وارد کنید."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "ستون خط را وارد کنید."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "ساعت ها"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "اطلاعات داده"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "روز"
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "هفته"
+
+#: histview2/template/base.html
+msgid "Load Setting Info"
+msgstr "بار"
+
+#: histview2/template/base.html
+msgid "Save Setting Info"
+msgstr "صرفه جویی"
+
+#: histview2/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "زیاد نوشتن"
+
+#: histview2/template/base.html
+msgid "Label Setting"
+msgstr "تنظیمات"
+
+#: histview2/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "عنوان را تغییر دهید زیرا همان عنوان تنظیم شده است."
+
+#: histview2/template/base.html
+msgid "Save Setting"
+msgstr "تنظیمات را ذخیره کنید"
+
+#: histview2/template/base.html
+msgid "Create Screenshot"
+msgstr "تصویر تصویر ایجاد کنید"
+
+#: histview2/template/base.html
+msgid "Download"
+msgstr "دانلود"
+
+#: histview2/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr "دلایل نمایش نمودار به شرح زیر است. BREAK_LINE وضعیت را بررسی کنید. BREAK_LINE・ داده ها وارد نمی شوند ، یا در وسط واردات. BREAK_LINE・ هیچ داده ای در ارتباط نیست ، یا در وسط اتصال قرار دارد. BREAK_LINE・ تنظیم نمودار نامناسب است."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "هشدار"
+
+#: histview2/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "سوابق حاوی داده های نامعتبر در ستون داده تاریخ وارد نمی شوند."
+
+#: histview2/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "برای داده هایی که نمی توانند وارد شوند ، می توانید به پرونده های موجود در پوشه زیر مراجعه کنید."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "وضعیت استفاده نمی تواند بارگذاری شود زیرا به اینترنت وصل نشده است."
+
+#: histview2/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "لطفا اتصال شبکه را بررسی کنید."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "پیوند دوباره داده ها زمان زیادی طول خواهد کشید."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "آیا مطمئناً داده ها را دوباره وصل می کنید؟"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "سقط کردن"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "اجرا کردن"
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "آیا حتماً تنظیمات لینک داده قبلاً ثبت شده را بارگیری می کنید؟"
+
+#: histview2/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "شروع به وارد کردن داده ها."
+
+#: histview2/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "می توانید پیشرفت واردات را از لینک زیر بررسی کنید."
+
+#: histview2/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "برای وضعیت خطا به صفحه لیست کار مراجعه کنید."
+
+#: histview2/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "شروع به پیوند داده ها."
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "هر 3 دقیقه یک بار"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "هر 5 دقیقه یک بار"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "هر 10 دقیقه یک بار"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "تابع اختیاری"
+
+#: histview2/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "نوع فایل"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV صادرات"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr "با توجه به تعداد زیادی از سوابق منتخب و زمان مورد نیاز برای نمایش نمودار ، تعداد سوابق در هر نمودار به 50،000 محدود می شد."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "نمودار سری زمانی"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "مقدار رده"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr "از آنجا که تعداد سوابق موجود در دوره مشخص بیش از 5000 است ، پیوند BREAK_LINE در مدت 14 روز از دوره مشخص شده محدود می شود. اگر نمی خواهید محدوده پیوند را محدود کنید ، مدت زمان را تنظیم کنید تا تعداد سوابق BREAK_LINE کاهش یابد."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "تنظیم مقیاس"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "مقیاس مشترک"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "خط آستانه"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "مقیاس خودی"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "مقیاس استفاده شده"
+
+#: histview2/template/base.html
+msgid "Pn_proc"
+msgstr "Pn فرآیند"
+
+#: histview2/template/base.html
+msgid "P_proc"
+msgstr "P_Proc"
+
+#: histview2/template/base.html
+msgid "maxValue"
+msgstr "حداکثر"
+
+#: histview2/template/base.html
+msgid "minValue"
+msgstr "حداقل"
+
+#: histview2/template/base.html
+msgid "None"
+msgstr "هیچ یک"
+
+#: histview2/template/base.html
+msgid "Summary"
+msgstr "خلاصه"
+
+#: histview2/template/base.html
+msgid "Count"
+msgstr "شمردن"
+
+#: histview2/template/base.html
+msgid "Basic statistics"
+msgstr "آمار اساسی"
+
+#: histview2/template/base.html
+msgid "Non parametric"
+msgstr "غیر پارامتری"
+
+#: histview2/template/base.html
+msgid "Quality of Data"
+msgstr "کیفیت داده"
+
+#: histview2/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "بیننده"
+
+# histview2/template/setting_module/config.html
+msgid "ImportData"
+msgstr "داده های واردات"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "فرآیند پیوند داده بر اساس پیکربندی فعلی آغاز می شود."
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "اگر داده های زیادی برای پیوند وجود داشته باشد ممکن است زمان لازم باشد. آیا شروع خوب است؟"
+
+# histview2/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* برای داده هایی که به صورت خودکار و دوره ای وارد می شوند ، پیوند ID به طور خودکار تولید می شود."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "نام منبع داده"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "نوع منبع داده"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "آیا مطمئناً تغییرات را ذخیره می کنید؟"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "اطلاعات مربوط به سیستم عامل را به تنظیمات منطقه زمانی."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "تنظیمات پیشرفته"
+
+#: histview2/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr "تنظیمات برای پرونده داده های وارد کننده /CSV ذخیره می شوند. به صفحه تنظیم بروید ، ستون های داده های واردات را برای وارد کردن داده ها تنظیم کنید."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "در داده های عنصر هیچ ویژگی لازم وجود ندارد."
+
+# histview2/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "هیچ مقدار ویژگی مورد نیاز برای داده های عنصر وجود ندارد."
+
+#: histview2/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "تشخیص غیر طبیعی توسط PCA حداقل به دو متغیر نیاز دارد. دو یا چند متغیر را انتخاب کنید."
+
+#: histview2/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "حداقل یک ستون را انتخاب کنید"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "متغیرهای دسته بندی که باعث کاهش عرض جعبه می شوند نمایش داده نمی شوند."
+
+#: histview2/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "شروع رقم"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "طرح"
+
+#: histview2/template/base.html
+msgid "Confirm Shutdown App"
+msgstr "برنامه (سرور Edge) را متوقف کنید. اگر متوقف شوید ، هر کاربر دیگری قادر به استفاده از آن نخواهد بود ، بنابراین لطفاً با مدیر تماس بگیرید. <br> در مورد پایان عادی ، در اینجا لغو کنید و فقط مرورگر را ببندید."
+
+#: histview2/template/base.html
+msgid "Jobs Stopped"
+msgstr "تمام کار متوقف شده است. می توانید با خیال راحت مرورگر و کنسول خود را ببندید."
+
+#: histview2/template/setting_module/db_config_modals.html
+#: histview2/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "پیکربندی منبع داده"
+
+#: histview2/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "پیکربندی واردات منبع داده"
+
+# histview2/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ": ستون ها چند ستون کاراکتر یافتند. بررسی کنید که ستون نوع عددی و غیره ممکن است به رسمیت شناخته شود."
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "مورد فیلتر"
+
+# histview2/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "مقدار فیلتر"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "تاریخ انقضا (شروع)"
+
+# histview2/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "تاریخ انقضا (پایان)"
+
+#: histview2/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: histview2/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr "به دلیل اشتباهات پیکربندی نوع داده ها ، داده ها نمی توانند وارد شوند. نام منبع داده __param__ CSV/TSV تنظیمات نوع داده را در پیش نمایش داده های صفحه تنظیم خوانده بررسی کنید. تنظیمات مرحله ای را که نمی توان وارد کرد حذف کنید و تنظیمات را تنظیم کنید."
+
+#: histview2/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "پرونده ای بدون داده وجود داشت. محتوای پرونده را بررسی کنید. <br>: __param__"
+
+#: histview2/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "حداقل یک مقدار از دوره اعتبار از یا به."
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "تقسیم بر اساس"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "تقسیم بر اساس (چرخه ای)"
+
+#: histview2/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "تقسیم بر اساس (مستقیم)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr "مقدار فاصله وارد شده نامعتبر است. تعدادی از 0.1 یا بیشتر ، 720 یا کمتر ، یا -720 یا بیشتر و -0.1 یا کمتر را وارد کنید."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Chỉ định `chiều dài cửa sổ 'không hợp lệ. Giá trị phải nằm trong khoảng từ 0,1 đến 48."
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr "تعداد Ridgeline ورودی نامعتبر است. یک عدد صحیح 1 یا بیشتر و 150 یا کمتر را وارد کنید. (ترجیح می دهید از حدود 100 استفاده کنید)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "داده ها و زمان را شروع کنید"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "فاصله"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "طول پنجره"
+
+# histview2/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "مورد کنترل"
+
+# histview2/template/setting_module/master_config.html
+msgid "Type"
+msgstr "نوع"
+
+# histview2/template/setting_module/master_config.html
+msgid "Name"
+msgstr "نام"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr "توجه داشته باشید که اگر تعداد نقاط داده در یک گروه زیر 50 باشد ، ممکن است دقت نمودار کاهش یابد."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "نمایش مکان نما متقاطع (کلیک)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "نمایش مکان نما چند متقاطع (دوبار کلیک)"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "لیست هیستوگرام ها را نشان دهید"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "چک های خارج از کشور را لغو کنید"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "نام پایگاه داده ورودی وجود دارد"
+
+#: histview2/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr "واردات داده ها به دلیل یافتن پرونده ای با نام ستون متفاوت در منبع داده انجام نشد. محتوای پرونده را بررسی کرده و تنظیمات واردات منبع داده را دوباره تنظیم کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "تعداد سوابق مربوط به پیوند"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "تعداد نمونه ها"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "تعداد سوابق مورد نظر"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "تعداد کل سوابق"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: histview2/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr ""
+"نام پوشه را برای ذخیره فایل CSV/TSV به عنوان یک تاریخ مانند \"YYYYMMDD\" "
+"ایجاد کنید."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "پیش بینی"
+
+#: histview2/templates/sidebar.html
+msgid "Filter Config"
+msgstr "پیکربندی فیلتر"
+
+#: histview2/templates/sidebar.html
+msgid "Master Config"
+msgstr "پیکربندی"
+
+# histview2/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "از پیکربندی فیلتر"
+
+# histview2/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "نشان دادن همه"
+
+#: histview2/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "به عنوان یک کلید (گزینه)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr "حذف شده REMOVED_COUNT از ارزش کسری ، ارزش غیر طبیعی و ارزش دورتر از TOTAL_COUNT در اصل."
+
+#: histview2/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "آدرس آی پی"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr "توزیع داده ها را با تخمین هیستوگرام و چگالی مقایسه کنید. نمودار توسط متغیر طبقه بندی شده تقسیم می شود. همچنین توسط Facet تقسیم می شود."
+
+#: histview2/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "تمام تعداد داده ها را در محور زمان یا محور ID ترسیم کنید."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "نمایش ماتریس طرح پراکندگی. می توانید از 2 تا 7 متغیر هدف استفاده کنید."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"با تجزیه و تحلیل مولفه اصلی، تجسم \"متفاوت از معمول\" و تجزیه و تحلیل "
+"عامل آن انجام می شود. داده های عادی را به عنوان داده های معلم وارد کنید و"
+" تصدیق کنید که آیا داده های فعلی همان داده های نرمال آن (t2 / q) است. اگر"
+" موقعیت های مختلف، شما می توانید علل اصلی در نمودار کمک را بررسی کنید."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr "توزیع توسط این متغیر به چندین نمودار تقسیم می شود. متغیرهای دسته (متغیرهای کیفی) مانند شماره ها و ایستگاه ها را انتخاب کنید."
+
+# histview2/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr "فیلتر طبقه بندی طبقه بندی شده: داده ها را محدود می کند تا به یک زیر مجموعه نمایش داده شود. (دسته: شماره قسمت ، ایستگاه شماره و غیره)"
+
+# histview2/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr "متغیرهای دسته بندی (مانند شماره قسمت ، ایستگاه شماره و غیره) به عنوان برچسب در بالای توطئه ها برای یافتن نقاط در حال تغییر نمایش داده می شوند."
+
+# histview2/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "فیلتر نمودار: داده ها را محدود می کند تا به یک زیر مجموعه نمایش داده شود."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr "داده های یادگیری را به عنوان یک وضعیت عادی تعبیر کنید. بخش داده هایی را که حاوی داده های NG نیست تنظیم کنید. در صورت شامل ، مواردی که نزدیک به داده های NG هستند نیز به عنوان داده های عادی مورد قضاوت قرار می گیرند."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "داده های آزمون را برای قضاوت تنظیم کنید."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "فیلتر مورد: داده ها را محدود می کند (تجزیه و تحلیل و نمایش) به یک زیر مجموعه نمایش داده می شود."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr "این یک نمایشگر کل دو بعدی (فشرده سازی بعدی توسط اجزای اصلی) از داده های تأیید چند بعدی است. اگر داده ها در مرکز باشد ، می توان آن را به طور نزدیک به حالت عادی تفسیر کرد."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr "این یک نمایشگر کل دو بعدی (فشرده سازی بعدی توسط مؤلفه های اصلی) از داده های یادگیری چند بعدی است. هدف اصلی توسط داده های یادگیری تعیین می شود ، بنابراین بیشتر داده های یادگیری باید در هدف باشند."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr "یک طرح از آمار T2 ، که بر ناهنجاری ها در مؤلفه اصلی این داده ها نظارت می کند. داده های یادگیری به رنگ سفید و در قسمت X منفی ترسیم شده است. طرح زرد داده های اعتبار سنجی است. هرچه داده های اعتبار سنجی بالاتر با داده های سفید مقایسه شود ، احتمال انحراف اوضاع بیشتر است. برای دیدن طرح مشارکت در مورد عناصر وضعیت ، روی Data Point کلیک کنید."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr "یک طرح از آمار q (نظارت بر ناهنجاری ها در قسمت جزئی این داده ها ، باقیمانده). داده های یادگیری به رنگ سفید و در قسمت X منفی ترسیم شده است. طرح زرد داده های اعتبار سنجی است. هرچه داده های اعتبار سنجی بالاتر با داده های سفید مقایسه شود ، احتمال انحراف اوضاع بیشتر است. برای دیدن طرح مشارکت در مورد عناصر وضعیت ، روی Data Point کلیک کنید."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr "ترتیب این متغیرها در نقطه ای که در طرح آماری T2 انتخاب شده است به وضعیت کمک می کند. هرچه طول طولانی تر باشد ، علت آن بیشتر خواهد بود."
+
+# histview2/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr "ترتیب متغیرها در نقطه ای که در طرح آماری Q انتخاب شده است به وضعیت کمک می کند. هرچه طول طولانی تر باشد ، علت آن بیشتر خواهد بود."
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "تعداد نقاط داده با مقدار کمتر یا مساوی با Q1 - 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "تعداد نقاط داده با مقدار بیشتر یا مساوی با Q3 + 4.5 * IQR"
+
+#: histview2/templates/templates/i18n.html
+msgid "NTotal"
+msgstr "تعداد کل داده ها از جمله NA (در دسترس نیست) ، NaN (نه یک عدد) و Inf± (بی نهایت) در دوره انتخاب شده."
+
+#: histview2/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: درصد داده های خارج از آستانه بالا و پایین (تعداد) در دوره انتخاب شده"
+
+#: histview2/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: درصد داده های خارج از آستانه حد بالا و پایین (تعداد) در دوره انتخاب شده"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNA"
+msgstr "درصد NA (در دسترس نیست) در دوره انتخاب شده (تعداد)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "درصد NaN (نه یک شماره) در دوره انتخاب شده (تعداد)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "درصد Inf+ (به علاوه بی نهایت) در دوره انتخاب شده (تعداد)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "درصد Inf- (منهای بی نهایت) در دوره انتخاب شده (تعداد)"
+
+#: histview2/templates/templates/i18n.html
+msgid "PTotal"
+msgstr "درصد کل داده های خارج از مقدار آستانه ، NA (در دسترس نیست) ، NaN (نه یک عدد) و Inf± (بی نهایت) در دوره انتخاب شده (تعداد)"
+
+#: histview2/templates/templates/i18n.html
+msgid "N"
+msgstr "تعداد داده های به استثنای NA (در دسترس نیست) ، NaN (نه یک شماره) و Inf± (بی نهایت) در دوره انتخاب شده."
+
+#: histview2/templates/templates/i18n.html
+msgid "P95"
+msgstr "صدک 95"
+
+#: histview2/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "صدک 75 (کوارتیل سوم)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "صدک 25 (کوارتیل اول)"
+
+#: histview2/templates/templates/i18n.html
+msgid "P5"
+msgstr "صدک 5"
+
+#: histview2/templates/templates/i18n.html
+msgid "IQR"
+msgstr "دامنه interquartile (مقدار نماینده تنوع توزیع: IRQ = Q3 - Q1 ≒ 1.349σ@ توزیع عادی)"
+
+#: histview2/template/base.html
+msgid "HoverMedian"
+msgstr "متوسط ​​(صدک 50)"
+
+#: histview2/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: histview2/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: histview2/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: histview2/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: histview2/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: histview2/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: histview2/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "شمارش/ساعت"
+
+#: histview2/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "شمارش/دقیقه"
+
+#: histview2/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "زمان چرخه [S]"
+
+#: histview2/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: histview2/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "شماره تقسیم"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "چرخه نمایش"
+
+#: histview2/templates/templates/i18n.html
+msgid "Step"
+msgstr "فاصله نمایش"
+
+#: histview2/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "نقشه حرارت تقویم"
+
+#: histview2/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "متغیرهای هدف را نمی توان با MAX_NUM_SENSOR یا بیشتر انتخاب کرد. متغیر هدف را انتخاب کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "اهداف از بین بردن دورتر Max ، Mean ، Min ، σ و Range است."
+
+#: histview2/templates/templates/i18n.html
+msgid "Cat."
+msgstr "غیر از اعداد واقعی"
+
+#: histview2/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr "توزیع را می توان با محاسبه برای هر متغیر طبقه بندی شده (متغیرهای کیفی ، تعداد لوط و غیره) یا DateTime و نمایش آنها در کنار هم مشاهده کرد. یک روش تجسم که امکان تجزیه و تحلیل متقابل گروه (مقایسه بین تعداد زیادی ، روزها ، شیفت ها و غیره) داده ها بدون گسسته ID را فراهم می کند."
+
+#: histview2/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "آستانه را تنظیم کنید تا روی نمودارها ترسیم شود."
+
+#: histview2/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr "اگر پراکندگی روشن است ، می توانید طرح پراکندگی را با آن نشان دهید. طرح پراکندگی بین مورد فعلی و مورد ردیف بعدی. کارتهای نقشه توطئه های مربوطه را با ماوس بکشید و رها کنید تا محور x و محور Y طرح پراکندگی را تغییر دهید."
+
+#: histview2/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr "موردی از داده ها (مانند یک متغیر عددی یا مقدار اندازه گیری) که توزیع داده ها را ایجاد می کند. این داده ها در طرح ترسیم شده است. حداکثر 20 مورد را می توان انتخاب کرد."
+
+#: histview2/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr "این متغیر طبقه بندی شده توزیع را به چندین قطعه تقسیم می کند و آنها را در کنار هم نمایش می دهد. یک متغیر طبقه بندی شده ، مانند تعداد زیادی شماره یا شماره دسته را انتخاب کنید"
+
+#: histview2/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "برای نمایش طرح Ridgeline برای هر DateTime ، DateTime Start را وارد کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "به طور مستقیم دوره را برای نمایش طرح Ridgeline برای هر DateTime وارد کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr "می توانید گزینه هایی را برای وارد کردن داده ها از پرونده CSV/TSV انتخاب کنید که نیاز به کنترل ویژه دارد ، مانند تبدیل ساختارهای داده."
+
+#: histview2/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr "با فشار دادن دکمه پیش نمایش در زیر ، بخشی از داده های موجود در پرونده را نشان می دهد تا بتوانید محتوای آن را بررسی کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "پیوند ID را انتخاب کنید تا به عنوان شرط پیوند داده استفاده شود. همچنین می توانید چندین مورد را انتخاب کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr "هنگامی که برنامه شما بطور دوره ای داده ها را وارد می کند ، می توانید یک ستون DateTime را انتخاب کنید که ترجیحاً به عنوان کلید DateTime مورد استفاده قرار می گیرد."
+
+#: histview2/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"اگر یک اپراتور را انتخاب کرده و هر شماره را در مورد ضریب وارد کنید، مقدار"
+" برای نمایش در نمودار با استفاده از اپراتور مشخص شده و ضریب محاسبه می "
+"شود."
+
+#: histview2/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"اگر یک اپراتور را انتخاب کرده و هر شماره را در مورد ضریب وارد کنید، مقدار"
+" برای نمایش در نمودار با استفاده از اپراتور مشخص شده و ضریب محاسبه می "
+"شود."
+
+#: histview2/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "می توان پیش بینی کرد که چه میزان داده ها با شرایط پیوند موجود در حال اتصال هستند."
+
+#: histview2/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "وضعیت پیوند داده های موجود را در حال حاضر کنار می گذارد و شرایط قبلی را ثبت کرده است."
+
+#: histview2/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID برای مرتبط کردن داده ها با شرایط پیوند تنظیم داخلی تولید می شود."
+
+#: histview2/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "موارد کنترل کیفیت یا کنترل تجهیزات را با استفاده از تنظیمات نمودار انتخاب کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "لطفاً نوع هدف مدیریت مانند شماره و تجهیزات را انتخاب کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "لطفاً هدف مدیریت مانند مقدار شماره قسمت و مقدار تجهیزات را انتخاب کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "شروع DateTime را برای تنظیمات نمودار تنظیم کنید. (ضروری)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "DateTime End را برای تنظیمات نمودار تنظیم کنید. (اختیاری)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "پیکربندی ذخیره شده را بخوانید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "آخرین پیکربندی را که وارد کرده اید ذخیره کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "صفحه را به عنوان یک فایل PNG ذخیره کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "آیا می خواهید این تنظیمات را حذف کنید؟"
+
+#: histview2/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "متغیر هدف (شماره واقعی)"
+
+#: histview2/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "متغیر هدف (دسته)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "سفارش فهرست"
+
+#: histview2/templates/templates/i18n.html
+msgid "Column"
+msgstr "ستون"
+
+#: histview2/templates/i18n.html
+msgid "Order"
+msgstr "سفارش"
+
+#: histview2/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "اولویت"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "مرتب سازی"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "متغیرها"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "فقط واقعی و طبقه بندی"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "فقط واقعی"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "فقط"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "به ترتیب"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "در دستور فرآیند"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "در همبستگی همبستگی. سفارش"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "آستانه همبستگی (ABS)"
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "متغیر عینی را انتخاب کنید"
+
+#: histview2/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "متغیر عینی"
+
+#: histview2/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "متغیر توضیحی"
+
+#: histview2/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "نسبت موجود"
+
+#: histview2/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "نمودار"
+
+#: histview2/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "مسابقه (مسابقه کامل)"
+
+#: histview2/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR جستجو"
+
+#: histview2/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND جستجو"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr "از آنجا که طرح مختصات موازی نمی تواند شماره های واقعی را درمان کند ، داده های شماره واقعی حذف شده است."
+
+#: histview2/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013"
+"・AND Search (including multiple words [delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;"
+"・OR  Search (including multiple words [delimiter:blank])        ex.A B → A,B,Ac,cB,A B,AB,AcB,…&#013;"
+"・Partial Match (with start digit) ex, 34 from dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;"
+"・Perfect Match ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;"
+"・Start with    ex.A → A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;"
+"・End   with    ex.A → A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;"
+"Regular Expression: Specify the format, such as serial, in detail&#013;"
+"　\d{10} :10-digit number                 ex.1234567890,0987654321&#013;"
+"　7\d{9} :10-digit number starting with 7 ex.7123456789&#013;"
+"　\d{3,5}:3-5 digit number                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;"
+"　\w{5}  :5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as letter)&#013;"
+"　\w{3}-\d{4}:3-digit letter + hyphen + 4-digit number                  ex.AB3-1234&#013;"
+"　JP\d{10}    :12-digit number starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;"
+"　(JP|EN)\d{2}:4-digit character starting with JP or EN                  ex.JP12,EN34&#013;"
+
+#: histview2/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "تجویز مجدد"
+
+#: histview2/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "اطلاعات ویرایش شده مانند نام نمایش را ثبت کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "آیا می خواهید با محتوای اصلاح شده ثبت نام کنید؟"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "اگر پیوند ID را تغییر دادید ، لطفاً پیکربندی پیوند داده را مجدداً تنظیم کنید."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "نمودار وقوع همزمان"
+
+# co-occurrence
+msgid "Data file"
+msgstr "فایل اطلاعات"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "جمع شده توسط"
+
+# co-occurrence
+msgid "Hour"
+msgstr "یک ساعت"
+
+# co-occurrence
+msgid "Day"
+msgstr "روز"
+
+#: histview2/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "حالت ویرایش"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "حالت تنظیم"
+
+#: histview2/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "داده های نامعتبر برجسته قرمز حذف می شوند. آیا مطمئناً به حالت تنظیم تغییر می کنید؟"
+
+#: histview2/templates/i18n.html
+msgid "Priority"
+msgstr "اولویت"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "یک نام انگلیسی تکراری شناسایی شد ، بنابراین شماره سریال به طور خودکار اضافه شد. نام ستون را بررسی کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "واحدهای تجمع"
+
+#: histview2/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr "ستون اول DateTime است ، و ستون دوم و ستون های بعدی مقداری مانند پرچم های اعلان هشدار/تعداد وقوع (0،1،2 ...) است."
+
+#: histview2/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "روابط همزمان جمع بر اساس ساعت/روز."
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "آستانه نمایش"
+
+#: histview2/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr "اگر مقدار کمتر از 100%% را انتخاب کنید ، یک رابطه کوچک همزمان را پنهان خواهید کرد. (پیش فرض: اگر حتی یک بار وجود داشته باشد ، خط بکشید)"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "متغیرهایی را که مستقیم یا غیرمستقیم با متغیر هدف همبستگی دارند ، شناسایی و تجسم کنید."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "همبستگی بین متغیرهای مشخص شده در اینجا را تجسم کنید. حداکثر 60 مورد را می توان انتخاب کرد."
+
+#: histview2/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "متغیرهای کاندیدایی که با متغیرهای هدف همبستگی دارند."
+
+#: histview2/templates/templates/i18n.html
+msgid "Parallel Plot"
+msgstr "طرح مختصات موازی"
+
+#: histview2/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "از همه لبه ها"
+
+#: histview2/templates/templates/i18n.html
+msgid "Layout"
+msgstr "چیدمان"
+
+#: histview2/templates/templates/i18n.html
+msgid "Circle"
+msgstr "دایره"
+
+#: histview2/templates/templates/i18n.html
+msgid "Auto"
+msgstr "خودکار"
+
+#: histview2/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "بهره وری"
+
+msgid "Set threshold"
+msgstr "Control Line: هنگام ترسیم سطح مدیریت مانند خطوط استاندارد ، بررسی کنید"
+
+#: histview2/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "بستر تحلیلی"
+
+#: histview2/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "نمودار پارتو"
+
+#: histview2/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "تعداد وقوع"
+
+#: histview2/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "نسبت تجمعی [٪]"
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr "پارامترهایی را که می تواند با داده ها در مدت زمان طولانی متفاوت باشد ، مانند تغییرات سالانه در فرآیندهای ، روزهای هفته ، شیفت و غیره تجسم کنید."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "همبستگی بین تعداد زیادی از متغیرها را با توجه به متغیر هدف تجسم کنید."
+
+#: histview2/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "تجسم همزمان گسلها ، هشدارها ، وقایع و غیره (رابطه با تمرکز بر فراوانی وقوع همزمان یک پدیده و دیگری)."
+
+#: histview2/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr "خالی"
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: histview2/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr "Analysis Platform: ابزاری ساده برای نقشه برداری داده ها ، تجسم ، تجزیه و تحلیل آماری و یادگیری ماشین."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr "مجموعه داده در اینجا به عنوان مرجع پیوند داده و نقشه برداری استفاده می شود. تنظیمات در محور افقی طرح استفاده می شود. علاوه بر این ، طرح مبدا با یک قاب آبی روشن نمایش داده می شود."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr "داده ها (به عنوان مثال ، متغیرهای عددی: مقدار اندازه گیری) را برای طرح مشخص می کند. فرآیندها و مواردی را که باید در طرح ترسیم کنید انتخاب کنید. حداکثر 20 مورد را می توان انتخاب کرد."
+
+#: histview2/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr "داده ها (به عنوان مثال ، متغیرهای عددی: مقدار اندازه گیری) را برای طرح مشخص می کند. فرآیندها و مواردی را که باید در طرح ترسیم کنید انتخاب کنید. حداکثر 8 مورد را می توان انتخاب کرد."
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr "خالی"
+"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: histview2/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr "این متغیر طبقه بندی الگوی را برای تجسم در چندین قطعه تقسیم می کند و آنها را در کنار هم نمایش می دهد. متغیرهای طبقه بندی شده مانند شماره قسمت و ایستگاه شماره را تا 100 مورد انتخاب کنید."
+
+#: histview2/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr "مورد داده هایی که همبستگی بین متغیرها را تجسم می کند (متغیرهای کمی: مقادیر اندازه گیری و غیره). این داده ها در نمودار ترسیم شده است. از 2 تا 7 پارامتر می توان انتخاب کرد."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "برای تجسم همبستگی بین متغیرها ، مورد را انتخاب کنید. حداکثر 60 مورد را می توان انتخاب کرد."
+
+#: histview2/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "موارد متغیرهای دسته (مانند شماره های قسمت) برای تجسم همبستگی بین متغیرها."
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "حداکثر کارت"
+
+#: histview2/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "کارت را به حداقل برسانید"
+
+#: histview2/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "در صورت تغییر این تنظیم ، تنظیم مجدد تنظیمات پیوند داده لازم است."
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "انتخاب خودکار"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "همه را در سمت راست انتخاب کنید"
+
+#: histview2/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "انتخاب همه در سمت راست"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "همه واقعی (شناور) از اینجا"
+
+#: histview2/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "همه عدد صحیح از اینجا"
+
+#: histview2/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "همه رشته ها از اینجا"
+
+#: histview2/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr "با توجه به تعداد زیادی از سوابق انتخاب شده و زمان مورد نیاز برای نمایش نقشه ، تعداد سلول ها در هر طرح به 10،000 محدود می شد. اگر می خواهید تمام داده های مربوط به دوره هدف BREAK_LINE را مشاهده کنید ، فاصله نمایش را افزایش دهید یا مدت زمان هدف را کاهش دهید تا تعداد سلول ها کاهش یابد."
+
+#: histview2/templates/templates/i18n.html
+msgid "Serial"
+msgstr "سریال"
+
+#: histview2/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "می توانید مقیاس طرح را با کلیک راست بر روی طرح تنظیم کنید."
+
+#: histview2/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "مقیاس نمودار"
+
+#: histview2/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "حالت تنظیم"
+
+#: histview2/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "تعداد موارد داده ای که نمی توانند مرتبط شوند"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "طرح پراکنده"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "با کانتور"
+
+#: histview2/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "صرفه جویی در"
+
+#: histview2/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr "خالی"
+"ファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: histview2/templates/modals.html
+msgid "Load Setting"
+msgstr "تنظیم بار"
+
+#: histview2/templates/modals.html
+msgid "Share/Private"
+msgstr "به اشتراک گذاری/خصوصی"
+
+#: histview2/templates/modals.html
+msgid "Description"
+msgstr "شرح"
+
+#: histview2/templates/modals.html
+msgid "Created by"
+msgstr "خلق شده توسط"
+
+#: histview2/templates/modals.html
+msgid "Use/Load"
+msgstr "استفاده/بارگذاری"
+
+#: histview2/templates/modals.html
+msgid "Load"
+msgstr "بار"
+
+#: histview2/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "تعداد داده هایی که نمی توانند به فرآیند نقطه شروع (درصد پیوند) مرتبط باشند"
+
+#: histview2/templates/modals.html
+msgid "Save Date & Time"
+msgstr "DateTime را ذخیره کنید"
+
+#: histview2/templates/modals.html
+msgid "Share information"
+msgstr "تنظیمات اشتراک"
+
+#: histview2/templates/modals.html
+msgid "Save"
+msgstr "صرفه جویی"
+
+#: histview2/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr "می توانید از بین 2 تا 7 متغیر هدف را انتخاب کنید. تعداد متغیرهای هدف را بررسی کرده و تنظیمات را اصلاح کنید."
+
+#: histview2/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "حد اندازه پرونده 10 مگابایت است. اندازه پرونده را کاهش داده و دوباره امتحان کنید."
+
+#: histview2/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "در صورت بررسی ، DateTime مشخص شده نیز ذخیره می شود."
+
+#: histview2/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "بررسی کنید تا این تنظیم را به اشتراک بگذارید."
+
+#: histview2/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "تنظیمات را ذخیره کنید."
+
+#: histview2/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "آیا مطمئناً تنظیمات را بازنویسی می کنید؟"
+
+# histview2/templates/modals.html
+#: histview2/templates/modals.html
+msgid "Shared"
+msgstr "اشتراک گذاری"
+
+#: histview2/templates/modals.html
+msgid "Private"
+msgstr "خصوصی"
+
+#: histview2/templates/modals.html
+msgid "Created at"
+msgstr "ایجاد شده در"
+
+#: histview2/templates/modals.html
+msgid "Close"
+msgstr "نزدیک"
+
+#: histview2/templates/i18n.html
+msgid "Order set"
+msgstr "ترتیب"
+
+#: histview2/templates/i18n.html
+msgid "From"
+msgstr "DateTime را شروع کنید"
+
+#: histview2/templates/i18n.html
+msgid "To"
+msgstr "DateTime پایان"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_category.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: histview2/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "برچسب های محور x را نشان دهید"
+
+#: histview2/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "دامنه"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "پرونده را در اینجا بکشید و رها کنید"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "یا"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "پرونده ها را انتخاب کنید"
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "نمایش داده نمی شود"
+
+#: histview2/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr "پردازش به دلیل مقدار زیادی از داده ها و زمان طولانی پردازش قطع شد. تنظیمات DateTime را مرور کنید و دوباره طرح را نمایش دهید."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "خروجی فایل CSV. لطفاً در حالی که پرونده بارگیری می شود صبر کنید."
+
+#: histview2/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "خروجی فایل TSV. لطفاً در حالی که پرونده بارگیری می شود صبر کنید."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "محدوده خودرو"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "محدوده کامل"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "تنظیم سفارش فهرست"
+
+#: histview2/templates/i18n.html
+msgid "Open"
+msgstr "باز کن"
+
+#: histview2/templates/modal.html
+msgid "Del"
+msgstr "حذف"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr "از آنجا که تعداد نقاط داده در هر نمودار بیش از 12000 است ، تعداد نقاط داده به حداکثر 12000 محدود شده است. اگر می خواهید کل داده ها را مشاهده کنید ، دوره هدف کوتاه تر را تنظیم کنید."
+
+#: histview2/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "طبقه بندی براساس ترم (چرخه ای)"
+
+#: component.js
+msgid "Facet"
+msgstr "جبهه"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "تقسیم بندی را با مورد انتخاب شده انجام می دهد."
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "تخمین استثناء"
+
+#: histview2/templates/templates/i18n.html
+msgid "NIQR"
+msgstr "دامنه بین قشر نرمال (IQR مرتبط با IQR با توزیع عادی ، NIQR = 0.7413 × IQR)"
+
+#: histview2/templates/templates/i18n.html
+msgid "Mode"
+msgstr "حالت بیشترین مقدار وجود دارد."
+
+#: histview2/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "با دورتر"
+
+#: histview2/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "بدون دور"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "سفارشی"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "امروز"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "دیروز"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "7 روز گذشته"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "30 روز گذشته"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "این ماه"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 ماه"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 ماه"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "درخواست دادن"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "هفته"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 روز پیش"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 روز پیش"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "مشت روز این ماه"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "آخرین روز این ماه"
+
+#: histview2/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 ماه"
+
+#: histview2/templates/templates/modal.html
+msgid "Updated at"
+msgstr "به روز شده در"
+
+#: histview2/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: histview2/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr "نقاط داده با حالت سریع خلاصه می شوند. اگر می خواهید بدون حذف داده ها نقشه بگیرید ، دوره هدف را کوتاه تر تنظیم کنید."
+
+#: histview2/templates/macros.html
+msgid "Range of Y axis"
+msgstr "دامنه محور y"
+
+#: histview2/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "دادههای خارج از محدوده"
+
+#: histview2/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr "خالی"
+"'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: histview2/templates/i18n.html
+msgid "Search process name"
+msgstr "جستجوی فرآیند"
+
+#: histview2/tenplates/header.html
+msgid "Bookmark"
+msgstr "علامت"
+
+#: histview2/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr "از آنجا که تعداد نقاط داده در هر طرح بیش از 10،000 است ، طرح چگالی ترسیم شده است. اگر می خواهید تمام نقاط داده را با طرح پراکندگی نمایش دهید ، دوره هدف را کوتاه تر تنظیم کنید."
+
+#: histview2/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr "خالی"
+"以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: histview2/templates/i18n.html
+msgid "Cycle time"
+msgstr "زمان چرخه"
+
+#: histview2/templates/i18n.html
+msgid "Float"
+msgstr "عدد واقعی"
+
+#: histview2/templates/i18n.html
+msgid "Objective"
+msgstr "متغیر عینی"
+
+#: histview2/templates/i18n.html
+msgid "Objective Explain"
+msgstr "ضریب همبستگی با استفاده از این متغیر به عنوان متغیر هدف محاسبه می شود. متغیر هدف مشخص شده در اینجا همچنین به همراه یک نوار رنگی در سمت راست راست نقشه نمایش داده می شود. اگر می خواهید متغیرهای هدف را در طرح تغییر دهید ، می توانید با کلیک راست بر روی هر نام متغیر ، بین آنها تغییر دهید."
+
+#: histview2/templates/i18n.html
+msgid "Category limited MSG"
+msgstr "داده ها غرق نشده اند زیرا دسته بندی های زیادی وجود دارد. BREAK_LINE بررسی کنید و در صورت لزوم دوره هدف را کوتاه تر کنید."
+
+#: histview2/templates/macros.html
+msgid "Filter Setting"
+msgstr "تنظیم فیلتر"
+
+#: histview2/templates/macros.html
+msgid "Label (Category value)"
+msgstr "برچسب (متغیرهای دسته بندی)"
+
+#: histview2/templates/i18n.html
+msgid "Copied"
+msgstr "کپی شده"
+
+#: histview2/templates/i18n.html
+msgid "Pasted"
+msgstr "چسبانده"
+
+#: histview2/templates/i18n.html
+msgid "Copy config"
+msgstr "پیکربندی کپی کردن"
+
+#: histview2/templates/i18n.html
+msgid "Paste config"
+msgstr "پیکربندی خمیر"
+
+#: histview2/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "بدون تنظیم مبدا ، اولین هدف به عنوان مبدا انتخاب می شود."
+
+#: histview2/templates/macros.html
+msgid "Export data"
+msgstr "داده های صادراتی"
+
+#: histview2/templates/i18n.html
+msgid "Not use"
+msgstr "استفاده نمی"
+
+#: histview2/templates/i18n.html
+msgid "Not use warning"
+msgstr "داده ها ترسیم نمی شوند زیرا دسته بندی های زیادی وجود دارد."
+
+#: histview2/templates/i18n.html
+msgid "Not use request"
+msgstr "بررسی و در صورت لزوم ، تنظیمات دوره هدف را تجدید نظر کنید."
+
+#: histview2/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "تقسیم بر اساس تعداد داده ها (چرخه ای)"
+
+#: histview2/templates/macros.html
+msgid "Number of data"
+msgstr "تعداد داده ها"
+
+#: histview2/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: histview2/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr "خالی"
+"FacetのDivをクリアしますか?\n"
+"OKの場合、Divをクリアします。\n"
+"Cancelの場合、自動で【分解なし / カテゴリ分解】 が選択されます。"
+
+#: histview2/templates/i18n.html
+msgid "Color explanation"
+msgstr "خالی"
+"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: histview2/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "متغیر هدف را انتخاب کنید."
+
+#: histview2/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr "خالی"
+"【XXX】をクリアしますか?\n"
+"OKの場合、【XXX】をクリアし、自動で 【分解なし / カテゴリ分解】 が選択されます。\n"
+"Cancelの場合、自動でDivがクリアされます。"
+
+#: histview2/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "تجزیه / تجزیه مقوله"
+
+# histview2/templates/scatter_plot/scatter_plot.html
+#: histview2/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "طرح پراکنده"
+
+#: histview2/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr "اگر نوع داده X یا Y رشته ای باشد ، شما نمی توانید از متغیرهای غیر رشته ای برای تنظیم رنگ استفاده کنید."
+
+#: histview2/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr "مقدار خارج از محدوده مجاز تشخیص داده شد ، بنابراین حداقل یا حداکثر دامنه معتبر به طور خودکار تصمیم گرفته شد. تنظیمات را در صورت لزوم تغییر دهید."
+
+#: histview2/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "کلیک راست: تنظیم پیوند داده/ویرایش/حذف"
+
+#: histview2/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "زمان سپری شده"
+
+#: histview2/templates/i18n.html
+msgid "Time"
+msgstr "ترتیب زمانی"
+
+#: histview2/templates/i18n.html
+msgid "Setting Order"
+msgstr "تنظیم سفارش داده"
+
+#: histview2/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "لطفاً داده های غیر ضروری را حذف کنید زیرا ظرفیت دیسک سخت `__SERVER_INFO__` به __SERVER_INFO__ %% رسیده است."
+
+#: histview2/templates/i18n.html
+msgid "Error Full Disk"
+msgstr "درگاه داده متوقف شد زیرا ظرفیت دیسک سخت `__SERVER_INFO__` به __SERVER_INFO__ %% رسید. اگر داده های غیر ضروری حذف شود و ظرفیت خالی افزایش یابد ، داده ها از سر گرفته می شوند."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "تعداد توزیع های نمایش داده شده را وارد کنید (تعداد بخش ها). یک عدد صحیح از 2 یا 150 یا کمتر وارد کنید."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover StP"
+msgstr "تعداد توزیع های نمایش داده شده را وارد کنید (تعداد بخش ها). یک عدد صحیح 1 یا بیشتر 32 یا کمتر را وارد کنید."
+
+#: histview2/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "خالی"
+"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: histview2/templates/macros.html
+msgid "Interval Hover"
+msgstr "خالی"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover"
+msgstr "خالی"
+"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: histview2/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr "خالی"
+"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "در هر نقشه ویولن های زیادی وجود دارد ، بنابراین به طور خودکار محدود بود."
+
+#: histview2/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr "با توجه به تعداد زیادی از سوابق انتخاب شده ، تعداد توطئه ها از قدیمی ترین تاریخ تا تعداد حد محدود است."
+
+#: histview2/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "قبول میکنم"
+
+#: histview2/templates/i18n.html
+msgid "Decline"
+msgstr "کاهش می یابد"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "به عقب"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "تعداد طرح در ستون"
+
+#: histview2/templates/i18n.html
+msgid "Label Variable Description"
+msgstr "متغیرهای طبقه بندی شده (شماره قسمت ، ایستگاه شماره و غیره) که به عنوان برچسب در بالای طرح نمایش داده می شوند ، برای تجسم نقاط تغییر (سوئیچینگ شماره و غیره) از متغیرهای کیفی استفاده می شوند."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr "مواردی را برای تجزیه و تحلیل انتخاب کنید (متغیرهای کمی: مقدار اندازه گیری و غیره). حداکثر 60 مورد را می توان انتخاب کرد."
+
+#: histview2/templates/i18n.html
+msgid "Order set explain"
+msgstr "برای مرتب کردن داده ها موارد را انتخاب کنید. همچنین می توانید چندین مورد را انتخاب کنید."
+
+#: histview2/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr "سرریز داده های قدیمی نمایش داده نمی شود زیرا DateTime از آخرین داده ها با حد نمایش حساب می شود."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "تعداد طرح محدود به NUMBER بود. اگر می خواهید همه را نمایش دهید ، تنظیمات را تجدید نظر کنید."
+
+#: histview2/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr "تعداد طرح در یک برگه واحد محدود به NUMBER بود. اگر می خواهید همه را نمایش دهید ، تنظیمات را تجدید نظر کنید."
+
+#: histview2/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr "تعداد متغیرهای هدف برای انتخاب حداقل حداقل و حداکثر حداکثر است. تعداد متغیرهای هدف را بررسی کرده و تنظیمات را اصلاح کنید."
+
+#: histview2/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr "تعداد متغیرهای هدف برای انتخاب حداکثر حداکثر است. تعداد متغیرهای هدف را بررسی کرده و تنظیمات را اصلاح کنید."
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA"
+"変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: histview2/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr "NA"
+"変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" charset="utf-8">
+    <title>Analysis Platform + DN7</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- https://stackoverflow.com/questions/31075893/im-getting-favicon-ico-error -->
+    <link rel="icon" href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}" type="image/x-icon"/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}"
+          type="image/x-icon"/>
+
+    <!-- JQuery CSS -->
+    <link href="{{ url_for('static', filename = 'common/custom-jquery/jquery-ui.css') }}" rel="stylesheet"/>
+
+    <!-- Select 2 -->
+    <link href="{{ url_for('static', filename = 'common/css/select2.min.css') }}" rel="stylesheet"/>
+
+    <!-- https://qiita.com/tonkotsuboy_com/items/15a914f073c8f9bb1344 -->
+    <!--Bootstrap４に必要なCSSとJavaScriptを読み込み-->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/bootstrap.min.css') }}">
+    <!-- Fontawesome CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/all.min.css') }}">
+    <!-- Custom Common CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/main.css') }}">
+    <!-- Components CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/dragndrop.css') }}">
+
+
+    <!-- JQuery -->
+    <script src="{{ url_for('static', filename = 'common/js/jquery.js') }}"></script>
+    <!-- https://stackoverflow.com/questions/45356723/jquery-ui-cannot-read-property-step-of-undefined -->
+    <script src="{{ url_for('static', filename = 'common/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/datepicker.js') }}"></script>
+    <!-- Popper Sidebar -->
+    <script src="{{ url_for('static', filename = 'modules/popper/umd/popper.min.js') }}"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="{{ url_for('static', filename = 'common/js/bootstrap.min.js') }}"></script>
+    <!-- Fontawesom -->
+    <script src="{{ url_for('static', filename = 'common/js/all.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/jquery.ui.datepicker-ja.min.js') }}"></script>
+    <!-- Custom Common JS -->
+    <script src="{{ url_for('static', filename = 'common/js/moment-with-locales.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/loadingoverlay.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename = 'common/js/lodash.min.js') }}"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script src="{{ url_for('static', filename = 'common/js/gtag.js') }}"></script>
+
+    <script src="{{ url_for('static', filename = 'common/js/clipboard.min.js') }}"></script>
+
+    <!-- To calculate size of object -->
+    <script src="{{ url_for('static', filename = 'common/js/config_data_interface.js') }}"></script>
+
+    <!-- Bootstrap table -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/bootstrap-table.min.css') }}">
+    <script src="{{ url_for('static', filename = 'common/js/bootstrap-table.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/bootstrap-table-filter-control.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/bootstrap-table-locale-all.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/html2canvas.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/take_screenshot.js') }}"></script>
+    {#    <script src="{{ url_for('static', filename = 'common/js/plotly-latest.min.js') }}"></script>#}
+    <script src="{{ url_for('static', filename = 'common/js/plotly.min.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'common/css/toastr.css') }}">
+    <script type="text/javascript" src="/static/common/js/toastr.min.js"></script>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename = 'modules/js-datatables/lib/jquery.dataTables.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/user-setting-table.css') }}">
+    <script src="{{ url_for('static', filename = 'modules/js-datatables/lib/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/dataTables.fixedHeader.min.js') }}"></script>
+
+    <!-- Select 2 -->
+    <script src="{{ url_for('static', filename = 'common/js/select2.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename = 'common/js/terms_of_use.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/base.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/components.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/save_load_user_input.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/validation.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/clipboard_utils.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/dragndrop.js') }}"></script>
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'UA-156244372-2', {
+            'link_attribution': {
+                'cookie_name': '_gaela',
+                'cookie_expires': 60,
+                'levels': 4,
+            },
+            'linker': {
+                'accept_incoming': true,
+                'domains': ['127.0.0.1', 'localhost:6868', '192.168.1.69:6868'],
+            },
+        });
+
+        //Dictionaryを生成する。
+        let objTitle = {
+            '/histview2/stp': {
+                'title': 'StP',
+                'icon': 'StP.ico',
+            },
+            '/histview2/rlp': {
+                'title': 'RLP',
+                'icon': 'RLP.ico',
+            },
+            '/histview2/fpp': {
+                'title': 'FPP',
+                'icon': 'FPP.ico',
+            },
+            '/histview2/scp': {
+                'title': 'ScP',
+                'icon': 'ScP.ico',
+            },
+            '/histview2/msp': {
+                'title': 'MSP',
+                'icon': 'MSP.ico',
+            },
+            '/histview2/chm': {
+                'title': 'CHM',
+                'icon': 'CHM.ico',
+            },
+            '/histview2/analyze/anomaly_detection/pca': {
+                'title': 'PCA',
+                'icon': 'PCA.ico',
+            },
+            '/histview2/table_viewer': {
+                'title': 'TView',
+                'icon': 'TView.ico',
+            },
+            '/histview2/config/filter_visualization': {
+                'title': 'Filter',
+                'icon': 'Filter.ico',
+            },
+            '/histview2/config/filter': {
+                'title': 'Filter',
+                'icon': 'Filter.ico',
+            },
+            '/histview2/config/master': {
+                'title': 'Master',
+                'icon': 'Master.ico',
+            },
+            '/histview2/config/job': {
+                'title': 'Job',
+                'icon': 'Job.ico',
+            },
+            '/histview2/about': {
+                'title': 'About',
+                'icon': 'favicon.ico',
+            },
+            '/histview2/config': {
+                'title': 'Config',
+                'icon': 'Config.ico',
+            },
+            '/histview2/cog': {
+                'title': 'COG',
+                'icon': 'COG.ico',
+            },
+            '/histview2/skd': {
+                'title': 'SkD',
+                'icon': 'SkD.ico',
+            },
+            '/histview2/pcp': {
+                'title': 'PCP',
+                'icon': 'PCP.ico',
+            },
+        };
+
+        //現在Urlを取得する。
+        const currentUrl = $(location)
+            .attr('pathname');
+
+        //現在UrlとDictionaryを比較して、一致すれば、Dictionaryの設定データを取得する。
+        const getSetting = objTitle[currentUrl];
+        if (getSetting) {
+            $('title')
+                .html(getSetting.title);
+            $('link[rel*=\'icon\']')
+                .prop('href', '/static/common/icons/' + getSetting.icon + '');
+        }
+
+    </script>
+
+    {% block asset %}
+    {% endblock %}
+</head>
+
+<body>
+<div class="wrapper">
+    {% include 'i18n.html' %}
+    {% include 'sidebar.html' %}
+    {% block body %}
+        <div id="content">
+            <header class="navbar-expand-lg navbar-dark bg-primary graph-navi graph-navi-top-down">
+                {% include 'header.html' %}
+            </header>
+            {% include 'messages.html' %}
+            <div class="row" id="mainContent">
+                <div class="col-lg-12">
+                    {% block header %}{% endblock %}
+                    {% block midbody %}
+                    {% endblock %}
+                </div>
+                <div class="col-lg-3 rounded">
+                </div>
+            </div>
+            {% include 'graph_nav.html' %}
+
+            <div id="screenshot" style="display: none;"></div>
+            {% include 'modal.html' %}
+
+            {% include 'footer.html' %}
+        </div>
+    {% endblock %}
+    <div>
+        <script type="text/javascript">
+            // hide setting page
+            const hideSettingPage = docCookies.getItem('hide_setting_page');
+            if (hideSettingPage === 'True') {
+                $('#settingPageMenu')
+                    .css('display', 'none');
+            }
+
+            // app version
+            const version = docCookies.getItem('app_version');
+            $('#appVersion')
+                .text(version);
+
+            // app Location
+            const appLocation = docCookies.getItem('app_location');
+            if (appLocation) {
+                $('#appLocation').text(appLocation);
+            }
+
+            // collapse sidebar when loading page
+            sidebarCollapse();
+        </script>
+        <div class="cross v left">
+            <div class="cross h left"></div>
+        </div>
+        <div class="cross v right">
+            <div class="cross h right"></div>
+        </div>
+
+</body>
+{% block js %}
+{% endblock %}
+</html>

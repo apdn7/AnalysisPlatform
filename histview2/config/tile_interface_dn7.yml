@@ -1,0 +1,69 @@
+!!omap
+- sections:
+  - title_en: 'DN7 Digital Native QC 7 Tools'
+    title_ja: 'DN7 Digital Native QC 7 Tools'
+    tiles:
+      - row: 1
+        column: 1
+        title_en: 'FPP Full Points Plot'
+        title_ja: 'FPP 全数プロット'
+        png_path: 'FPP.png'
+        hover_en: 'This is "Time Series Full-point Plot" or "ID Series Full-point Plot" used as an alternative to the X-R plot in Big Data analysis (Average or Range becomes less useful as a statistic when there is too much data). It is used to see trends in data and to check anomalies and outliers.\n
+                   It can also be used as a data downloader that extract and/or integrates data from a database.\n
+                   There is a function called label plot (Blue labels at the top of the graph), and you can grasp relationship between the variable fluctuation and the timing of the change of the collection such as magazine, lot and part number. There is also the ability to view a list of relevant data about the work  or the product by selecting [Right Click]→[Plot View] on any plot.'
+        hover_ja: 'Big Data分析において、X-Rプロットの代替(平均値やレンジはデータ数が多くなりすぎると統計値としての有効性が薄れます)として用いる全数データの時系列もしくはワーク・製品ID系列のプロットです。データのトレンド変化や異常値・外れ値の可視化に使用します。\n
+                   データベースからデータ取得・紐付け統合したデータのダウンローダとしても使用できます。\n
+                   ラベルプロットという機能(グラフ上部にある青いラベル群)があり、マガジン・ロット・品種といった纏まりの切り替わりタイミングと変数の変動との関係を把握することができます。\nまた、任意のプロットで[右クリック]→[Plot View]を選択すると、そのワークや製品に関する関連するデータを一覧として参照できる機能もあります。'
+        link_address: '/histview2/fpp'
+      - row: 1
+        column: 2
+        title_en: 'RLP Ridgeline Plot'
+        title_ja: 'RLP リッジラインプロット'
+        png_path: 'RLP.png'
+        hover_en: 'In Big Data analysis, there are so many plotting points and it is often a non-normal distribution, but it is difficult to grasp the distribution fluctuation even though outliers can be grasped in FPP (Full-points Plot). You can visualize process variations by drawing density plots for each set of data and aligning it along the time or ID series.\n
+                  The graph plotted by points shows the increasing or decreasing trend of the distribution, indicating whether the distribution is moving downward (transitioning toward a lower value as a whole) or upward (transitioning toward a higher value). If it is straight, it means that there is little process variation. In case of continuous shift, there is a characteristic drift. And if it fluctuates rapidly, it means that it is a changing point in production line.'
+        hover_ja: 'Big Data分析においては打点が多く、非正規分布であることが多いため、全数プロットFPPだけでは外れ値などは把握できるものの分布変動を把握することが難しいです。\nいくつかのデータ群毎に密度曲線(Density Plot)を描画し系列に沿って並べることで、工程の変動を把握することができます。\n
+                   点でプロットされているグラフは、分布の増加・減少傾向を示しており、分布が下方向(全体として値が小さくなる方向に遷移)に動いているか、上方向に動いているか(値が大きくなる方向に遷移)しているか、が分かります。まっすぐな場合は工程変動があまりないということを意味しています。\n継続してずれていく場合は特性のドリフトがある、また、急激に変動した場合は何らかの工程の変化点であることを示唆します。'
+        link_address: '/histview2/rlp'
+      - row: 1
+        column: 3
+        title_en: 'CHM Calendar Heat Map'
+        title_ja: 'CHM カレンダヒートマップ'
+        png_path: 'CHM.png'
+        hover_en: 'It visualizes long-term data such as annual variations in processes and parameters that can vary depending on days of the week or shifts, etc. For example, it is possible to visualize the rate of defects or changes in production volume over a long period of time. It is possible to understand changes in specific patterns, such as a high rate of defects at the beginning of the week, or the occurrence of specific alarms soon after the lunch breaks, and so on.'
+        hover_ja: '工程での年間変動など長期間のデータや曜日・シフトなどで変動しうるパラメータを可視化します。\n例えば不良率や生産量の推移などを長期にわたって可視化することができ、例えば週明けが不良率が高いとか、昼休み空けに特定のアラームが発生しやすいといった、特定のパターンの変動などを把握することが可能です。'
+        link_address: '/histview2/chm'
+      - row: 2
+        column: 1
+        title_en: 'MSP Multi Scatter Plot'
+        title_ja: 'MSP 相関行列プロット'
+        png_path: 'MSP.png'
+        hover_en: 'You can check the correlation between multiple variables. You can display up to four variables in this software. If you want to understand the correlation between more variables, use PCP (Parallel Coordinate Plot) as below.'
+        hover_ja: '複数変数間の相関関係を確認できます。\n4変数までの表示に対応できますが、それ以上の変数間の相関を把握するには、平行座標プロットPCPをご活用ください。'
+        link_address: '/histview2/msp'
+      - row: 2
+        column: 2
+        title_en: 'PCP Parallel Cordinate Plot'
+        title_ja: 'PCP 平行座標プロット'
+        png_path: 'PCP.png'
+        hover_en: 'You can see the correlation between a large number of variables for a given target variable. Determine that the axes are color-separated on each axis (Each axis is parallel to the left and right), and that there is a variable to watch out for, or some correlation (In particular, if they are arranged in order of correlation coefficients, you can see the axis where the color-separation of interest are located at both ends. You can think of the axis with mixed colors as having a low correlation.).\n
+                  A linear correlation is observed for axes that are well-balanced iridescent (the same color arrangement as the color bar [positive correlation] or inverted color arrangement [negative correlation]). If the colors are separated, but there is a biased color distribution, there may be a nonlinear relationship, so you need to perform some function conversion or clustering for stratification (In this case, it is a good idea to check the relationship directly between the separated variables and the target variables using scatter plot).'
+        hover_ja: '目的の変数に関して、大量の変数間の相関関係を確認できます。\nそれぞれの軸(各軸が左右に平行に配置されています)で色が分かれている軸が注意すべき変数、すなわち何らかの相関がある軸と判断してください(特に相関係数順に並べている場合は両端に着目すべき色が分かれた軸が見えます。色が混ざっている軸は相関が低いと考えて結構です)。\n
+                  バランスよく虹色になっている軸では線形の相関(カラーバーと同じ色配置[正の相関]もしくは反転した色配置[負の相関])が認められます。色が分離しているものの偏った色配置になっている場合は非線形の関係が考えられますので、何らかの関数変換を行なったり、クラスタリングし層別する必要があります(分離している変数と目的変数で散布図を用いて関係を確認することをお勧めします)。'
+        link_address: '/histview2/pcp'
+      - row: 2
+        column: 3
+        title_en: 'SkD Sankey Diagram'
+        title_ja: 'SkD サンキーダイアグラム'
+        png_path: 'SkD.png'
+        hover_en: 'Extracts highly correlated variables with respect to the target variable and plots the relationship with the strength of the correlation. The important parts of fish bones are extracted and the importance (strength of correlation is expressed by thickness) is visualized. They are calculated based on data (data-driven calculations), so you can visualize correlations without having to write fish bones by yourself.'
+        hover_ja: '目的の変数に関して相関の高い変数を抽出して、相関関係の強さと共にその関係をプロットします。\n魚の骨の重要な部分を抜き出して、重要度(相関の強さを太さで表現)を可視化します。データに基づいて算出(データドリブンでの算出)しますので、魚の骨を書く技術がなくても相関関係を可視化することができます。'
+        link_address: '/histview2/skd'
+      - row: 2
+        column: 4
+        title_en: 'COG Co-occurrence Graph'
+        title_ja: 'COG 共起グラフ'
+        png_path: 'COG.png'
+        hover_en: 'You can visualize co-occurrence relationships (relationships that focus on how often one phenomenon and another occur at the same time). You can visualize relationships such as simultaneous alarms that occur when certain alarms occur, or events that occur when certain conditions occur, and so on.'
+        hover_ja: '共起関係(ある現象と別の現象が同時に出現する頻度に着目した関係)を可視化できます。\nあるアラームが発生した際に同時に発生するアラーム、ある状態が発生した際に発生するイベントなどの関係を可視化できます。'
+        link_address: '/histview2/cog'
