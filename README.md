@@ -61,13 +61,25 @@ git clone https://github.com/apdn7/AnalysisPlatform.git
 cd AnalysisPlatform
 ```
 
-or you can download zip file and unzip it.
+or you can download zip file and unzip it.  
+For detailed instruction, you can refer below documents (currently written in JP):
+
+- [Setup manual (JP)](https://github.com/apdn7/AnalysisPlatform/files/9256466/AP%2BDN7_setup_manual_JP_v1.0.pdf)
+- [FAQ (JP)](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf)
 
 ### For users: Run Analysis Platform with Windows embeddable package
 
 If you use Windows machine, you can use Windows
 embeddable package to run Analysis Platform 
 without installing python.
+
+```
+Note:
+Avoid placing Analysis Platform in the folder where synchronized with OneDrive.
+Analysis Platform generates buffer database/files, thus the synchronization 
+might hinder the performance or can overload the network.
+```
+
 To download necessary packages and activate Analysis Platform,
 you can run "`oss_start_app.bat`" (beforehand, read [Terms of Use](/about/terms_of_use_en.md) carefully).
 
