@@ -62,10 +62,11 @@ cd AnalysisPlatform
 ```
 
 or you can download zip file and unzip it.  
-For detailed instruction, you can refer below documents (currently written in JP):
+For detailed instruction, you can refer below documents:
 
-- [Setup manual (JP)](https://github.com/apdn7/AnalysisPlatform/files/9256466/AP%2BDN7_setup_manual_JP_v1.0.pdf)
-- [FAQ (JP)](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf)
+- EN: [Setup manual](https://github.com/apdn7/AnalysisPlatform/files/9314730/AP%2BDN7_setup_manual_EN_v1.0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
+- JP: [Setup manual](https://github.com/apdn7/AnalysisPlatform/files/9256466/AP%2BDN7_setup_manual_JP_v1.0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
+
 
 ### For users: Run Analysis Platform with Windows embeddable package
 
