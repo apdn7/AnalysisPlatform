@@ -64,8 +64,8 @@ cd AnalysisPlatform
 or you can download zip file and unzip it.  
 For detailed instruction, you can refer below documents:
 
-- EN: [Setup manual](https://github.com/apdn7/AnalysisPlatform/files/9314730/AP%2BDN7_setup_manual_EN_v1.0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
-- JP: [Setup manual](https://github.com/apdn7/AnalysisPlatform/files/9256466/AP%2BDN7_setup_manual_JP_v1.0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
+- EN: [Setup Manual](https://github.com/apdn7/AnalysisPlatform/files/9314730/AP%2BDN7_setup_manual_EN_v1.0.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/9806411/AP%2BDN7_Setting_Manual_En0.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806413/AP%2BDN7_User_Manual_FPP_En.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
+- JP: [Setup Manual](https://github.com/apdn7/AnalysisPlatform/files/9256466/AP%2BDN7_setup_manual_JP_v1.0.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/9806412/AP%2BDN7_Setting_Manual_Ver1.0_Jp.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806414/AP-DN7_FPP_Jp0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
 
 
 ### For users: Run Analysis Platform with Windows embeddable package
