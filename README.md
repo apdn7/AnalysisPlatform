@@ -190,3 +190,7 @@ or you can just remove each data source setting from GUI.
 
 Analysis Platform is released under MIT License.  
 See our [LICENSE](LICENSE.md) for more detail.
+
+## Updates
+
+You can check [release notes](RELEASE.md) for new features and bugfixes.
