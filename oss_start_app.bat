@@ -11,20 +11,31 @@ REM =========================================
 REM check exist
 :CHECK_EXIST
 IF NOT EXIST "..\python_embedded" GOTO PYTHON_EMBEDDED
-IF NOT EXIST "..\get-pip.py" GOTO PIP_INSTALL_FILE
+IF NOT EXIST "..\get-pip.py" GOTO PIP_DOWNLOAD
 IF NOT EXIST "..\Oracle-Portable" GOTO ORACLE_INSTANCE
 
-:UPGRADE_PIP
-..\python_embedded\python.exe -m pip install --upgrade pip
-
-REM set python env
-REM set PY_PIP=..\python_embedded\Scripts
-REM set PY_LIBS=..\python_embedded\Lib\site-packages
+REM check changed (folder + version updated)
+:CHECK_STATUS
+IF NOT EXIST "__STATUS__" echo > __STATUS__
+cd > __TEMP__
+for %%a in (VERSION) do echo %%~ta >> __TEMP__
+fc __TEMP__ __STATUS__
+if %ErrorLevel% equ 0 (GOTO START_APP)
 
 REM install packages
-..\python_embedded\Scripts\pip install --no-warn-script-location -r requirements\oss_prod.txt
+:UPGRADE_PIP
+..\python_embedded\python.exe ..\get-pip.py "pip < 22.3"
+REM ..\python_embedded\python.exe -m pip install --upgrade pip
+..\python_embedded\Scripts\pip install --no-cache-dir --no-warn-script-location -r requirements\oss_prod.txt
+
 
 if [%1]==[SKIP_RUN_MAIN] GOTO FINISH
+
+:START_APP
+REM log application status
+IF EXIST "__TEMP__" DEL __TEMP__
+cd > __STATUS__
+for %%a in (VERSION) do echo %%~ta >> __STATUS__
 
 REM run application
 ECHO Starting Up Analysis Platform ...
