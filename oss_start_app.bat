@@ -44,6 +44,7 @@ set FLASK_DEBUG=false
 set UPDATE_R=0
 set UNLOCK_DB=0
 ..\python_embedded\python.exe main.py
+
 :FINISH
 EXIT /b 0
 
@@ -55,10 +56,10 @@ powershell -Command "Expand-Archive -Path ..\python_embedded.zip -DestinationPat
 rename ..\python_embedded\python37._pth python37._pth.renamed
 GOTO CHECK_EXIST
 
-:PIP_INSTALL_FILE
-REM install pip
+:PIP_DOWNLOAD
+REM download pip
 curl "https://bootstrap.pypa.io/get-pip.py" --output ..\get-pip.py
-..\python_embedded\python.exe ..\get-pip.py
+echo > __STATUS__
 GOTO CHECK_EXIST
 
 :ORACLE_INSTANCE
