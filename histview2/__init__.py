@@ -97,7 +97,7 @@ def close_sessions():
 
 def create_app(object_name=None):
     """Create and configure an instance of the Flask application."""
-
+    from flask import request
     from .api import create_module as api_create_module
     from .tile_interface import create_module as tile_interface_create_module
     from .setting_module import create_module as setting_create_module
@@ -113,7 +113,7 @@ def create_app(object_name=None):
     from .co_occurrence import create_module as co_occurrence_create_module
     from .multiple_scatter_plot import create_module as multiple_scatter_create_module
     from .common.logger import bind_user_info
-    from flask import request
+    from .script.convert_user_setting import convert_user_setting_url
 
     app = Flask(__name__)
     app.config.from_object(object_name)
@@ -216,6 +216,12 @@ def create_app(object_name=None):
         app_location = str(app_location).strip('\n')
         app_location = app_location if app_location != '' else 'DN'
 
+    # Universal DB init
+    init_db(app)
+
+    # convert_user_setting()
+    convert_user_setting_url()
+
     # start scheduler (Notice: start scheduler at the end , because it may run job before above setting info was set)
     if scheduler.state != STATE_STOPPED:
         scheduler.shutdown(wait=False)
@@ -224,8 +230,8 @@ def create_app(object_name=None):
     scheduler.start()
 
     # Shut down the scheduler when exiting the app
-    atexit.register(lambda: scheduler.shutdown() if scheduler.state !=
-                                                    STATE_STOPPED else print('Scheduler is already shutdown'))
+    atexit.register(
+        lambda: scheduler.shutdown() if scheduler.state != STATE_STOPPED else print('Scheduler is already shutdown'))
 
     @app.before_request
     def before_request_callback():

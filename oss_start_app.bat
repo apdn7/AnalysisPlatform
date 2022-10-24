@@ -19,7 +19,7 @@ REM check changed (folder + version updated)
 IF NOT EXIST "__STATUS__" echo > __STATUS__
 cd > __TEMP__
 for %%a in (VERSION) do echo %%~ta >> __TEMP__
-fc __TEMP__ __STATUS__
+fc __TEMP__ __STATUS__ 1> nul
 if %ErrorLevel% equ 0 (GOTO START_APP)
 
 REM install packages
