@@ -1,6 +1,6 @@
 import os
 
-from histview2 import create_app, init_db
+from histview2 import create_app
 from histview2.common.memoize import clear_cache
 
 env = os.environ.get('ANALYSIS_INTERFACE_ENV', 'dev')
@@ -17,9 +17,6 @@ if __name__ == '__main__':
     basic_config_yaml = BasicConfigYaml()
     port = basic_config_yaml.dic_config['info'].get('port-no') or app.config.get('PORT')
     check_available_port(port)
-
-    # Universal DB init
-    init_db(app)
 
     # unlock db
     true_values = [True, 'true', '1', 1]
@@ -77,11 +74,5 @@ if __name__ == '__main__':
 
     # clear cache
     clear_cache()
-
-    # convert user setting
-    from histview2.script.convert_user_setting import convert_user_setting_url
-
-    # convert_user_setting()
-    convert_user_setting_url()
 
     app.run(host="0.0.0.0", port=port, threaded=True, debug=is_debug)
