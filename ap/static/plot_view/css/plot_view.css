@@ -1,0 +1,51 @@
+.table th, .table td {
+    padding: 0.1rem !important;
+    vertical-align: middle;
+    border: 1px solid #444;
+    min-width: 60px;
+    font-weight: normal !important;
+}
+
+.table-wrapper {
+	overflow-x: auto !important;
+  	white-space: nowrap;
+    margin-bottom: 2rem;
+}
+
+.table {
+    border: 1px solid #444444;
+}
+
+#statTable tbody tr:nth-child(1) {
+    color: #729e44 !important;
+}
+
+#listTable tbody td:nth-child(3n + 1),
+#fullLinkTable tbody td:nth-child(3n + 1) {
+    color: #729e44;
+}
+
+tbody tr:nth-child(odd) {
+    background: #333333;
+}
+
+tbody tr {
+    color: #d4d5d6;
+}
+
+tbody {
+    font-size: 0.8vw;
+}
+
+thead {
+    color: #3385b7;;
+    font-family: Calibri Light;
+    font-size: 0.9vw;
+}
+
+.plot-view-label {
+    color: #3385b7;
+    font-family: Calibri Light;
+    font-size: 0.9vw;
+    font-weight: bold;
+}

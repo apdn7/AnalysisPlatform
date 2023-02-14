@@ -1,0 +1,3946 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "ကယ်တင်ခြင်း"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "အမှားတစ်ခုဖြစ်ပွားခဲ့သည်"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "လျှောက်လွှာပြင်ဆင်မှု"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "စာမျက်နှာမတွေ့ပါ"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "အမှားတစ်ခုဖြစ်ပွားခဲ့သည်"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Datalink & Analysis app"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "ဘာသာစကားတစ်ခုကိုရွေးချယ်ပါ"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "ပင်မမျက်နှာပြင်"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "စစ်ဆင်ရေးအတည်ပြု"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "စစ်ဆင်ရေးအတည်ပြု"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "အခြေခံ config"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "စာရင်း"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "ပြန်တင်"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "ကိန်း"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "အစစ်အမှန် (float)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "ဒက်"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "ကြိုး"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "ခေါင်းစဥ်"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "စက်တန်းဆာကိရိယာ"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "အလုပ်ရုံ"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "မျဉ်းကေြာင်း"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "ကျေးဇူးပြု. အတည်ပြုပါ"
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"ဒေတာများကိုသိမ်းဆည်းပြီး Process Prompting "
+"စာမျက်နှာရှိအကြောင်းအရာများဖြင့်အချက်အလက်များကိုတင်သွင်းပါ။"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "အဆင်ပြေလား"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "ပျက်စေ"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "ဒေတာဘေ့စ် config"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "ဒေတာဘေ့စ်အမည်"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "ဒေတာဘေ့စ်အမျိုးအစား"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "ပြုပြင်ခြင်း"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "commentီကာ"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "ပေါင်း"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "ဒေတာဘေ့စ်ဖိုင်တစ်ခုကိုရွေးချယ်ပါ။"
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "ဖိုင်နာမည်"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "ရေွးထား"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "ဒီမှတ်တမ်းကိုသင်ဖျက်ချင်ပါသလား။"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "ဖျက်"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "လက်ရာခြင်း"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Tracereability ဂရပ်"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "စမ်းသပ်ခြင်းစမ်းသပ်ခြင်း"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "စတင်စမ်းသပ်ပါ"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "စတင်ချိန်"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "အချိန်ကုန်ဆုံး"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "စက် ID (အမျိုးမျိုးသောရွေးချယ်မှု)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "မျဉ်းကေြာင်း"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "အပိုင်းနံပါတ်"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "ဒေတာ link config config"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "ဘာသာစကားတစ်ခုကိုရွေးချယ်ပါ"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "ဂျပန်"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "အင်္ဂလိပ်"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "node"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "node ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "ကပ်တံဆိပ်"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "မာစတာနာမည်"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "ဒေတာဘေ့စ်"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "တင်သွင်း"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "ထုတ်ကုန်"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Host အမည်"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "port နံပါတ်"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "အသုံးပြုသူအမည်"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "လှျို့ဝှက်စကား"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "schema"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; ငါအောင်မြင်ခဲ့တယ်။"
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; မအောင်မြင်ပါ"
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "လုပ်ငန်းစဉ် config"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "လုပ်ကိုင်"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Process Name"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "ဇယားနာ"
+
+# ap/templates/setting_module/background_process.html
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "အသေးစိတ်"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "တင်ကူးသိမြင်"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "ပထမငါးမှတ်တမ်းများ"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "အကြောင်းအရာ setting"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "ကော်လံအမည်"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "အင်္ဂလိပ်အမည်"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "ဖော်ပြမည့်အမည်"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "မြှောက်ဖော်တံ့သော"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "တယ်လီဖုန်းဆက်သွယ်ပေးသူအမျိုးသမီး"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "0 ထက်အခြားတန်ဖိုးကိုရိုက်ထည့်ပါ"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "input ကိုအော်ပရေတာ။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "input ကိုကိန်း။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "input အင်္ဂလိပ်အမည်။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "input ကို display name ။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "အင်္ဂလိပ်အမည်ကိုပုံတူကူးသည်။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "display name ကိုပုံတူပွားသည်။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "အားလုံး \"display names\" ကို input ကိုလိုအပ်သည်။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "အင်္ဂလိပ်အမည် နှင့်အတူကွက်လပ်များအလိုအလျှောက်ပြည့်ဝ၏။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "အားလုံးရွေးချယ်ပါ"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "တင်သွင်းဒေတာ"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "ဒေတာတင်သွင်းဖို့သေချာပါသလား"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"OK ခလုတ်ကိုနှိပ်သောအခါ, "
+"သင်သည်လက်ရှိအချိန်တွင်ဒေတာများကိုယခင်တစ်လမှတင်သွင်းလိမ့်မည်။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "ယခင်ဒေတာများကိုနည်းနည်းလေးဖြင့်အလိုအလျောက်တင်သွင်းသည်။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"အကယ်. "
+"သင်လက်ရှိအချိန်ပြီးနောက်ဒေတာများကိုတင်သွင်းလိုပါကဒေတာဖတ်ရှုခြင်းခလုတ်ကိုထပ်မံ"
+" နှိပ်. စာဖတ်ခြင်းခလုတ်ကို နှိပ်. ဒေတာဘေ့စ် CSV ကိုနှိပ်ပါ။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Database / CSV14 CSV14 __ စာဖတ်ခြင်းချိန်ညှိခြင်း ၏ \"Update Cycle\" "
+"ကိုသတ်မှတ်သောအခါလက်ရှိအခြေအနေအပြီးအချက်အလက်များကိုအလိုအလျောက်တင်သွင်းလိမ့်မည်။"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "သတင်းအချက်အလက်များကိုခြေရာကောက်"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "အချက်အလက်များကိုသဲလွန်စ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "မ 0 င်နိုင်ဘူး"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "အဲဒါကိုဖြေရှင်းဖို့ဒီနေရာကိုနှိပ်ပါ။"
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Edit ကို Edit"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Prev လုပ်ငန်းစဉ်"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Prev ကော်လံ"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Post Post"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "တိုင်ကော်လံ"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "dateTime အဖြစ်"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "အမှတ်စဉ်အဖြစ်"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "link ကို ID အဖြစ်"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "ပြီးသားမှတ်ပုံတင်"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "ကျေးဇူးပြု. လုပ်ငန်းစဉ်အမည်ကိုရိုက်ထည့်ပါ"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "filter / graj"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "ဂရပ်ဖစ် config"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "လိုင်း filter config"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "လိုင်းကော်လံ"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "အဘိုး"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "စက် filter config"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "စက် ID ကော်လံ"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "အပိုင်းအဘယ်သူမျှမ filter config"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "တစ်စိတ်တစ်ပိုင်းအဘယ်သူမျှမကော်လံ"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Filter Name"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "အခွအေနေစစ်"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "အခြားသူများက config ကို filter"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "ပစ်မှတ်ကော်လံ"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "visualization config"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "အောက်ပိုင်းတံခါးခုံ"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "အထက်တံခါးခုံ"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "အနိမ့်လုပ်ငန်းစဉ်တံခါးခုံ"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "အထက်ပိုင်းဖြစ်စဉ်တံခါးခုံ"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "y-axes range: min"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y- ပုဆိန်အကွာအဝေး: မက်စ်"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "အပိုင်းမဟုတ်ပါ"
+
+# ap/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "အဆုံးသတ်"
+
+# ap/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "စတင်ပါ"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like ရှာဖွေခြင်း)"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "သဘောတူ"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "ပုံမှန်အသုံးအနှုန်းများ"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "ဂရပ်ကိုပြပါ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV ပို့ကုန်"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "လုပ်ငန်းစဉ်လိုအပ်သည်"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "ကော်လံအမည်လိုအပ်သည်"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "လိုင်းလိုအပ်သည်"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "display name ကိုလိုအပ်ပါသည်"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "display name ကိုပုံတူပွားသည်။"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "စက်တန်ဖိုးလိုအပ်သည်"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "ပုံတူကူးစက် ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "အောင်မြင်စွာသိမ်းဆည်းပါ"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "ကယ်တင်ရန်မအောင်မြင်ပါ"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "အစိတ်အပိုင်းတစ်ခုအဘယ်သူမျှမကော်လံလိုအပ်သည်"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "ပစ်မှတ်ကော်လံလိုအပ်သည်"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Filter Name လိုအပ်သည်"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "အခွအေနေလိုအပ်သည်"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Filter Name ကိုပုံတူပွားသည်။"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "အခြေအနေများကိုပုံတူကူးထားသည်။"
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "ပျက်ကွက်ခြင်း"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Process Name"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "အခြား filter များကဆက်ပြောသည်"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV သွင်းကုန် config"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "အရင်းအမြစ်"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "သက်တမ်းတိုးစက်"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "ဆက်"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "တစ်နာရီလျှင်တစ်ကြိမ်"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "တစ်ရက်လျှင်တစ်ကြိမ်"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "ဒေတာအတည်ပြုချက်"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "ဖိုင်တွဲမရှိပါ။"
+
+msgid "File does not exist"
+msgstr "ဖိုင်မရှိပါ။"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "သင်ဆက်သွယ်နိုင်သည်"
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "ကျေးဇူးပြုပြီးတန်ဖိုးကိုဖြည့်ပါ။"
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "အဘယ်သူမျှမ setting အကြောင်းအရာရှိပါတယ်။"
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "ဆက်တင်များကိုပုံတူကူးထားသည်။"
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "ဒေတာဘေ့စ် settings သိမ်းဆည်းထားသော။"
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "ဒေတာဘေ့စ်ချိန်ညှိချက်များကိုသိမ်းဆည်းရန်မအောင်မြင်ပါ။"
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Saved အခြေခံချိန်ညှိချက်များ။"
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "အခြေခံချိန်ညှိချက်များကိုသိမ်းဆည်းရန်ပျက်ကွက်ခဲ့သည်။"
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "စစ်ဆေးမှုဆက်သွယ်မှု"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "စတင်ပါ"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "နေ့စွဲအကွာအဝေး"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "နောက်ဆုံး"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "အော်တိုမွမ်းမံ"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "မိနစ်"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "မိနစ်များ"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "နာရီ"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "နာရီ"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "ပစ်မှတ် variable ကို"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "စိမ့်ထွက်"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "x ဝင်ရိုး"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "အချစ်"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "ညွှန်ပြသောအရာ"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "variable တွေကို stratify"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "စစ်ထုတ်ခြင်း"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "ဒေတာဘေ့စ် / CSV"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "သုံးသပ်ကြည့်ရှု"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "ဖွံ့ဖြိုးမှုအောက်မှာ"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "ခွဲခြမ်းစိတ်ဖြာ:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "ရေတံခွန်ကြံစည်မှု"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "ဂရပ်ဖစ် LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "histogram"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "stratified ကြံစည်မှု"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "အပြည့်အဝအချက်များ"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "ဒေတာမြင်ကွင်း"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "ကေြာြသတ်"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "ပေြးသွားခြင်း"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "ဒေတာဘေ့စ်အမည်ကိုရိုက်ထည့်ပါ။"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "ဒေတာအရင်းအမြစ်နာမည်ရိုက်ထည့်ပါ။"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "ဒေတာအမျိုးအစားမရှိသောကော်လံများကိုမတင်သွင်းပါ။"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "အနည်းဆုံး dateTime ကော်လံလိုအပ်ပါသည်။"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "visualization အတွက် X-Axis အတွက် '{col}' ကိုသုံးပါ။"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "ဆက်လုပ်ဖို့သေချာလား"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "စားပွဲတင်ကြည့်ရှုသူ"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "စားပှဲ"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "ရေွးချယ်"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "ဒေတာအရေအတွက်"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "ဆင်း"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "တက်"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "ပြီးပြည့်စုံသောပွဲစဉ်"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "တစ်စိတ်တစ်ပိုင်းပွဲ"
+
+#: trace_config.js
+msgid "th character"
+msgstr "ဇာတ်ကောင်ဇာတ်ကောင်"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "မမှန်ကန်သောဂဏန်းရွေးချယ်ခြင်း"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "ချိတ်ဆက်မှုအတွက်အသုံးပြုသောဇာတ်ကောင်၏အရှည်သည်ကွဲပြားခြားနားသည်။"
+
+# ap/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "filter မရှိပါ"
+
+# ap/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "အားလုံးလိုင်းများ"
+
+# ap/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "အခေြအနေ"
+
+# ap/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "အလုပ်စာရင်း"
+
+# ap/templates/setting_module/db_config.html
+msgid "All"
+msgstr "အားလုံး"
+
+# ap/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "သွင်းကုန်ပြီးစီးခဲ့သည်။"
+
+# ap/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "တင်သွင်းခြင်း"
+
+# ap/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "ပျက်ကွက်တင်သွင်းမှု"
+
+# ap/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"အဆိုပါ loaded ဒေတာဖျက်ပစ်လိမ့်မည်။ အဆင်ပြေလား? "
+"(မှတ်ပုံတင်ခြင်းခလုတ်ကိုနှိပ်သည်အထိပြောင်းလဲမှုမရှိပါ)"
+
+# ap/setting_module/controllers.py
+msgid "Job List"
+msgstr "အလုပ်စာရင်း"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "အလုပ် ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "ယောဘအမည်"
+
+# ap/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "linkedID ၏မျိုးဆက်"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "link တစ်ခု link ကို display ကို display ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "လုပ်ငန်းစဉ်အချက်အလက်ကိုဖျက်ခြင်း"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "သွင်းကုန်စက်ရုံဒေတာ"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "အတိတ်စက်ရုံဒေတာကိုတင်သွင်းပါ"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "အတိတ်စက်ရုံဒေတာ၏တင်သွင်းမှုအလုပ်ကိုပြသပါ"
+
+# ap/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV တင်သွင်းမှုအချက်အလက်များကိုတင်သွင်းပါ"
+
+# ap/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "ဒေတာအဟောင်းကိုဖျက်ပါ"
+
+# ap/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "စတင်ချိန်"
+
+# ap/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "အချိန်ကုန်လွန်"
+
+# ap/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "ဒေတာဘေ့စ် / CSV"
+
+# ap/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "တိုးတက်ခြင်း"
+
+# ap/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "လုပ်ကိုင်"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Histogram စာရင်း"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "တစ် ဦး ကူးစက်တန်ဖိုးအဖြစ်မှတ်ပုံတင်ပါ"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "မှတ်ပုံတင်မရှိတော့ပါ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "ဘေးထွက်များဝှက်ထားပါ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "outlier ကိုပြပါ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "ဘေးထွက်ရှာဖွေသူကိုစစ်ဆေးပါ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "histogram စာရင်းကိုပြပါ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "နောက်ဆုံး update ကိုအချိန်"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "ဘေးထွက်မှတ်ပုံတင်ခြင်းကိုဖျက်သိမ်းလိုက်သည်။"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "တစ် ဦး dexlier အဖြစ်မှတ်ပုံတင်"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "နောက်ပိုင်း"
+
+# ap/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "တစ်ကြိမ်သာ"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "အလုပ်အကိုင်အသေးစိတ်"
+
+# ap/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "clipboard သို့ကူးယူပါ"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Multi Scatter Plot"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "ကြဲဖြန့်"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "အမျိုးအစား variable ကိုမြင်ယောင်ဖို့"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "variable တွေကိုအားဖြင့် stratify"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "ပေြာင်းလဲတတ်သော"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "စက်မဟုတ်ဘူး"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "ပစ်မှတ်ကာလ"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "ကြိမ်နှုန်း (ရေတွက်)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "သိပ်သည်းဆခန့်မှန်းချက်"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "အမျိုးအစား variable ကို"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "သက်တမ်း (တိုက်ရိုက်) အားဖြင့် stratify"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "တစ် ဦး anomaly ရှာဖွေတွေ့ရှိ"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. စမ်းသပ်ခြင်းအချက်အလက်များ၏အဓိကအစိတ်အပိုင်းရမှတ်"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. လေ့ကျင့်ရေးအချက်အလက်များ၏အဓိကအစိတ်အပိုင်းရမှတ်"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "T2 စာရင်းအင်းများ 3 စီးရီးဇယား"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "Q စာရင်းအင်းများ၏ 4. စီးရီးဇယား"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "t2 စာရင်းအင်း၏ 5. ၏ပံ့ပိုးမှုကြံစည်မှု"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "Q စာရင်းအင်းများ၏ 6. ပံ့ပိုးမှု"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Outlier ဖယ်ရှားပါ"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "လေ့ကျင့်ရေးဒေတာ"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "ဒေတာကိုစမ်းသပ်ခြင်း"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "ဟုတ်ကဲ့"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "မဟုတ်"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "ဒေတာအမျိုးအစား"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "နမူနာ"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "အမှား"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "အသိပေးချက်"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"RIP အားလုံးကိုလိုငွေပြမှုတန်ဖိုးအပြောင်းအလဲနဲ့ (NA ဖယ်ရှားခြင်း) "
+"ဖြင့်ဖျက်ပစ်လိုက်ခြင်းကြောင့်ခွဲခြမ်းစိတ်ဖြာရန်အချက်အလက်မရှိပါ။ NA အပါအ 0"
+" င်အချည်းနှီးသောတန်ဖိုးကိုမရွေးကြောင်းသေချာပါစေ။"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"၎င်းတွင်နံပါတ်များ မှလွဲ. အခြားအချက်အလက်များပါ 0 "
+"င်သောကြောင့်၎င်းကိုခွဲခြမ်းစိတ်ဖြာ။ မရပါ။ "
+"ကြိုးသို့မဟုတ်အမျိုးအစားတန်ဖိုးပါသောကော်လံတစ်ခုကိုသင်ရွေးချယ်ထားကြောင်းသေချာပါစေ။"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"ခွဲခြမ်းစိတ်ဖြာခြင်းသည် 0 0 တွင်ကှဲလှဲနှင့်အတူဒေတာများပါရှိသည်။ "
+"အဘယ်ကြောင့်ဆိုသော် 0. ကှဲလှဲပါရှိသည်။"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"တွေ့ရှိခဲ့အမျိုးအစားဒေတာနှင့်မျှော်လင့်ထားသည့်ကိန်းတန်ဖိုး။ အကယ်. "
+"ဤကိန်းဂဏန်းတန်ဖိုးသည်အမှာစာပမာဏမဟုတ်, ကြားကာလအတိုင်းအတာ,"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "ဆန်းစစ်လေ့လာရန်သေချာပါသလား"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "ရှာဖေွခြင်း"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"ပျမ်းမျှပျမ်းမျှစာရင်းဇယားများထဲမှတစ်ခုဖြစ်သည်။ "
+"ကန့်သတ်ထားသည့်အမှာစာတွင်ကန့်သတ်ထားသောအချက်အလက်များကိုစီစဉ်သောအခါဗဟိုတွင်တည်ရှိသောတန်ဖိုးဖြစ်သည်။"
+" "
+"ဥပမာအားဖြင့်ငါးခုတွင်အသက်အရွယ်၏ပျမ်းမျှအသက်မှာအသက်အရွယ်အလိုက်တတိယခေတ်ဖြစ်သည်။"
+" ဒေတာအရေအတွက်ပင်လျှင်ပင်လျှင်ဗဟို brevility ဂဏန်းသင်္ချာကိုအသုံးပြုသည်။"
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "မက်စငွေ"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "ဖြန့်ဖြူး၏အကျဉ်းချုပ်"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "n နံပါတ်"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "ပျမ်းမှျမှု"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "ပျမ်းမျှကဘာလဲ ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "လုံးဝသော"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "ကြိမ်းလာ"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "အဆုံးမှတ်"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "ပစ်မှတ်လုပ်ငန်းစဉ်"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "အချိန်စီးရီး"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "အပိုင်းပိုင်း"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "ဒေတာလင့်ခ်နံပါတ်"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "စက္ကန့်"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "တုံ့ပြန်မှုအချိန်"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "ပုံနှိပ်ရန်ပြင်ဆင်ရေးသား"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "ပြန်."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "node ကိုထည့်ပါ"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "အစွန်း add"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "node ကိုတည်းဖြတ်ပါ"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "node အသစ်တစ်ခုတင်ရန်နေရာလွတ်ကိုနှိပ်ပါ။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "node ကိုကလစ်နှိပ်ပါ, အစွန်းကိုအခြား node တစ်ခုသို့ဆွဲယူ။ ဆက်သွယ်ပါ။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Control Point ကိုနှိပ်ပြီး node ကိုဆွဲယူပါ။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "အစွန်းထည့်လို့မရပါဘူး"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "အဆိုပါစပျစ်သီးပြွတ်ကို ဖျက်. မရပါ။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "အဆိုပါစပျစ်သီးပြွတ်ကိုတည်းဖြတ်လို့မရပါဘူး။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Display Name သို့မဟုတ်တန်ဖိုးကိုပုံတူပွားသည်။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Display Name နှင့်တန်ဖိုးကိုရိုက်ထည့်ပါ။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "လိုင်းကော်လံရိုက်ထည့်ပါ။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "နာရီ"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "ဒေတာအချက်အလက်"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "နေ့"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "ရက်သတ္တပတ်"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "ဝန်တင်"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "ကယ်ဆယ်"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "ရေးကူး"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "နေထွက်ခြင်း"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "တူညီသောခေါင်းစဉ်သတ်မှတ်ထားလို့ခေါင်းစဉ်ကိုပြောင်းပါ။"
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "setting ကိုသိမ်းပါ"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "စခရင်ရိုက်ကူးပါ"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "ဒေါက်ဒေါင်း"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"ဂရပ်ကိုပြသခြင်းမပြုနိုင်သည့်အကြောင်းရင်းများမှာအောက်ပါအတိုင်းဖြစ်သည်။ "
+"BREAK_LINE အခြေအနေကိုစစ်ဆေးပါ။ BREAK_LINE・ "
+"ဒေတာများကိုတင်သွင်းခြင်းသို့မဟုတ်သွင်းကုန်အလယ်၌မရှိပါ။ BREAK_LINE・ "
+"အချက်အလက်များမချိတ်ဆက်ပါ။ BREAK_LINE・ ဂရပ်ဖစ်၏ setting ကိုမသင့်လျော်ပါ။"
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "အသိပေးချက်"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr ""
+"အချက်အလက်ကော်လံတွင်မမှန်ကန်သောအချက်အလက်များပါ 0 "
+"င်သောမှတ်တမ်းများကိုတင်သွင်းခြင်းမရှိပါ။"
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "တင်သွင်းသောဒေတာများအတွက်အောက်ပါဖိုင်တွဲရှိဖိုင်များကိုသင်ရည်ညွှန်းနိုင်သည်။"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr ""
+"အသုံးပြုမှုအခြေအနေကို upload "
+"မလုပ်နိုင်ပါကအင်တာနက်နှင့်ချိတ်ဆက်ထားခြင်းမရှိသောကြောင့်ဖြစ်သည်။"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "ကျေးဇူးပြု. ကွန်ယက်ချိတ်ဆက်မှုကိုစစ်ဆေးပါ။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "ဒေတာများကိုထပ်မံချိတ်ဆက်ရန်အချိန်များစွာကြာလိမ့်မည်။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "ဒေတာကိုပြန်လည်ချိတ်ဆက်ရန်သင်သေချာပါသလား။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "ခွဲထား"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "သတ်"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "ယခင်ကမှတ်ပုံတင်ထားသောဒေတာလင့်ခ် settings ကိုပြန်ဖွင့်ရန်သေချာပါသလား။"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "ဒေတာတင်သွင်းစတင်ခဲ့သည်။"
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "အောက်ဖော်ပြပါလင့်ခ်မှတင်သွင်းမှု၏တိုးတက်မှုကိုသင်စစ်ဆေးနိုင်သည်။"
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "အမှားအယွင်းတစ်ခုအတွက်အလုပ်စာရင်းစာမျက်နှာကိုကြည့်ပါ။"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "ဒေတာချိတ်ဆက်စတင်ခဲ့သည်။"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "တစ်ကြိမ်လျှင် 3 မိနစ်"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "5 မိနစ်တိုင်း"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "10 မိနစ်တိုင်း"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "optional function ကို"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "ဖိုင်အမျိုးအစား"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV တင်ပို့မှု"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"ရွေးချယ်ထားသောမှတ်တမ်းအမြောက်အမြားနှင့်ဂရပ်ကိုပြသရန်လိုအပ်သောအချိန်များကြောင့်ဂရပ်ကိုပြသရန်လိုအပ်သောအချိန်မှာဂရပ်ဖစ်နှုန်းမှတ်တမ်းများကို"
+" 50,000 သာကန့်သတ်ထားသည်။"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "အချိန်စီးရီးဇယား"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "အမျိုးအစားတန်ဖိုး"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"သတ်မှတ်ထားသောကာလအတွင်းမှတ်တမ်းအရေအတွက်သည် 5,000 ကျော်ပြီးကတည်းက "
+"BREAK_LINE link ကိုသတ်မှတ်ထားသောကာလ၏ 14 ရက်အတွင်းတွင်ချည်နှောင်ထားသည်။ "
+"ချိတ်ဆက်မှုအကွာအဝေးကိုကန့်သတ်ရန်သင်မလိုချင်ပါက BREAK_LINE "
+"မှတ်တမ်းများကိုလျှော့ချရန်ကြာချိန်ကိုချိန်ညှိပါ။"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "setting စကေး"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "ဘုံစကေး"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "တံခါးခုံလိုင်း"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "အော်တိုစကေး"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "အသုံးပြုသောစကေးကိုခံရ"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn လုပ်ငန်းစဉ်၏"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "p_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "မက်စငွေ"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "မိနစ်"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "ဘာမှျ"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "အကျဉ်းချုပ်"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "ရေတွက်"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "အခြေခံစာရင်းအင်းများ"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "Non Non Non Parametric"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "ဒေတာအရည်အသွေး"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "ကြည့်ရှုသူ"
+
+# ap/template/setting_module/config.html
+msgid "ImportData"
+msgstr "တင်သွင်းဒေတာ"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "ဒေတာလင့်ခ်လုပ်ငန်းစဉ်သည်လက်ရှိပြင်ဆင်မှုအပေါ် အခြေခံ. စတင်မည်။"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr ""
+"ချိတ်ဆက်ရန်အချက်အလက်များစွာရှိလျှင်၎င်းသည်အချိန်ယူနိုင်သည်။ "
+"စဖို့အဆင်ပြေလား"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr ""
+"* အလိုအလျောက်နှင့်အခါအားလျော်စွာတင်သွင်းသောဒေတာများအတွက် link ID "
+"အလိုအလျောက်ထုတ်လုပ်သည်။"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "ဒေတာအရင်းအမြစ်အမည်"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "ဒေတာအရင်းအမြစ်အမျိုးအစား"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "ပြောင်းလဲမှုများကိုသိမ်းဆည်းရန်သင်သေချာပါသလား"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "အချိန်ဇုန်ချိန်ညှိချက်များမှအတင်းအဓမ္မ OS သတင်းအချက်အလက်။"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "အထူးအပြင်အဆင်"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"ဒေတာတင်သွင်းမှု၏ဒေတာဘေ့စ် / __ ဖိုင် 14__ "
+"ဖိုင်အတွက်ချိန်ညှိချက်များကိုသိမ်းဆည်းထားသည်။ "
+"ချိန်ညှိချက်စာမျက်နှာသို့သွားပါ, "
+"အချက်အလက်တင်သွင်းရန်တင်သွင်းသောအချက်အလက်များ၏ကော်လံများကိုသတ်မှတ်ပါ။"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Element Data တွင်လိုအပ်သော attribute မရှိပါ။"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Element Data Data အတွက်လိုအပ်သော attribute တန်ဖိုးမရှိပါ။"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"PCA မှပုံမှန်မဟုတ်သောရှာဖွေတွေ့ရှိမှုမှာအနည်းဆုံး variable "
+"နှစ်ခုလိုအပ်သည်။ နှစ်ခုသို့မဟုတ်နှစ်ခုထက်ပိုသော variable "
+"တွေကိုရွေးချယ်ပါ။"
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "အနည်းဆုံးကော်လံတစ်ခုရွေးပါ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "အမျိုးအစားကိုလျှော့ချသောအမျိုးအစား variable တွေကိုမပြပါ။"
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "ဂဏန်းစတင်"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "ridgeline ကြံစည်မှု"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"လျှောက်လွှာကိုရပ်တန့် (အစွန်းဆာဗာ) ကိုရပ်ပါ။ "
+"သင်ရပ်တန့်ပါကအခြားမည်သည့်အသုံးပြုသူသည်မသုံးနိုင်ပါ။ "
+"၎င်းကိုစီမံခန့်ခွဲသူနှင့်ဆက်သွယ်ပါ။ <br> "
+"ပုံမှန်အဆုံးတွင်ဤနေရာကိုပယ်ဖျက်ပြီး browser ကိုပိတ်လိုက်ပါ။"
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr ""
+"အလုပ်အားလုံးကိုရပ်တန့်လိုက်ပြီ သင်၏ browser နှင့် console "
+"ကိုလုံခြုံစွာပိတ်နိုင်သည်။"
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "ဒေတာအရင်းအမြစ် config"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "ဒေတာအရင်းအမြစ်တင်သွင်း config"
+
+# ap/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+"- ကော်လံအနည်းငယ်ဇာတ်ကောင်ကော်လံအနည်းငယ်တွေ့ရှိခဲ့ပါတယ်။ "
+"ဂဏန်းအမျိုးအစားကော်လံစသည်ဖြင့်စစ်ဆေးပါ။"
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "item filter ကို"
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Filter Value"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "သက်တမ်းကုန်ဆုံးမည့်ရက် (Start)"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "သက်တမ်းကုန်ဆုံးမည့်နေ့ (အဆုံး)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"ကော်လံဒေတာအမျိုးအစား configuration အမှားများကြောင့်အချက်အလက်များကို "
+"တင်သွင်း. မရပါ။ ဒေတာအရင်းအမြစ်အမည် __param__ CSV/TSV "
+"ကိုဖတ်ရန်စာမျက်နှာ၏ဒေတာ preview တွင်ဒေတာအမျိုးအစားဆက်တင်များကိုစစ်ဆေးပါ။ "
+"တင်သွင်းခြင်းနှင့်ချိန်ညှိချက်များကိုမတင်နိုင်သည့်အဆင့်သတ်မှတ်ချက်များကိုဖျက်ပါ။"
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "ဒေတာမပါဘဲဖိုင်တစ်ခုရှိခဲ့သည်။ ဖိုင်၏ contents ကိုစစ်ဆေးပါ။ <br>: __param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "မှလွဲ. (သို့) သို့တရားဝင်ကာလ၏အနည်းဆုံးတန်ဖိုးကိုထည့်သွင်းပါ။"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "အမျိုးအစားအလိုက်ခွဲ"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "သက်တမ်း (CyClC) ဖြင့်စားပါ။"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "သက်တမ်း (တိုက်ရိုက်) အားဖြင့်စားပါ။"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"ဝင်သောကြားကာလ၏တန်ဖိုးမမှန်ကန်ပါ။ 0.1 သို့မဟုတ်ထိုထက်မက 720 "
+"သို့မဟုတ်ထိုထက်နည်းသောသို့မဟုတ် -720 သို့မဟုတ်ထိုထက်မကသို့ 0 င်ပါ။"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+"သတ်မှတ်ထားသော `0 င်းဒိုးအရှည်သည်မမှန်ကန်ပါ။ တန်ဖိုးသည် 0.1 နှင့် 48 "
+"အကြားဖြစ်ရမည်။"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"input ကို risgeline ၏နံပါတ်သည်မမှန်ကန်ပါ။ 1 "
+"သို့မဟုတ်ထိုထက်ပိုသောကိန်းတစ်ခုနှင့် 150 "
+"သို့မဟုတ်ထိုထက်နည်းသောကိန်းတစ်ခုထည့်ပါ။ (100 ဝန်းကျင်ကိုသုံးချင်သည်)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "ဒေတာနှင့်အချိန်စတင်ပါ"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "အကြား"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "ပြတင်းပေါက်အရှည်"
+
+# ap/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "ထိန်းချုပ်မှုကို item"
+
+# ap/template/setting_module/master_config.html
+msgid "Type"
+msgstr "ပုံနှိပ်စာ"
+
+# ap/template/setting_module/master_config.html
+msgid "Name"
+msgstr "နံမယ်"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"သတိပြုရန်မှာအမျိုးအစားတစ်ခုမှဒေတာအမှတ်အရေအတွက်သည် 50 "
+"အောက်ရှိဖြစ်လျှင်ဂရပ်၏တိကျမှုလျော့နည်းလာနိုင်သည်ကိုသတိပြုပါ။"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "လက်ဝါးကပ်တိုင်ဆံပင် cursor ကိုပြပါ (ကလစ်နှိပ်ပါ)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Multi Cross ဆံကေသာဆံပင် cursor (နှစ်ချက်နှိပ်ပါ)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "histograms စာရင်းပြပါ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Outlier Check ကိုပယ်ဖျက်ပါ"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "သတ်မှတ်ထားသော `ဒေတာအရင်းအမြစ်အမည်အမည်ရှိပြီးသားဖြစ်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"ဒေတာတင်သွင်းမှုသည်မအောင်မြင်သောကော်လံအမည်ရှိဖိုင်ကိုဒေတာအရင်းအမြစ်တွင်တွေ့ရသည်။"
+" ဖိုင်၏ contents "
+"များကိုစစ်ဆေးပြီးဒေတာအရင်းအမြစ်တင်သွင်းမှုဆက်တင်များကိုထပ်မံသတ်မှတ်ပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "ချိတ်ဆက်ခံရဖို့မှတ်တမ်းများခန့်မှန်းအရေအတွက်"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "နမူနာအရေအတွက်"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "ချိတ်ဆက်ခံရဖို့မှတ်တမ်းများအရေအတွက်"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "စုစုပေါင်းမှတ်တမ်းအရေအတွက်"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "ကျေးဇူးပြု. CSV/TSV ဖိုင်များအား 0 မ်းမြောက်ခြင်းဟုအမည်ပေးပါ။"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "ကျူးလွန်သူ"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "filter config"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master Config"
+
+# ap/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "filter config ကိုမှ"
+
+# ap/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "အားလုံးကိုပြပါ"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "သော့တစ်ခုအနေဖြင့် (option)"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"TOTAL_COUNT မှ __433 မှလိုငွေပြမှုတန်ဖိုး, "
+"ပုံမှန်မဟုတ်သောတန်ဖိုးနှင့်ပြင်ပမှတန်ဖိုးများကိုဖျက်ပစ်လိုက်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "အိုင်ပီလိပ်စာ"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"ဒေတာဖြန့်ဖြူးမှုကို histogram "
+"နှင့်သိပ်သည်းဆခန့်မှန်းချက်များနှင့်နှိုင်းယှဉ်ပါ။ အဆိုပါဂရပ်ကို "
+"stratified variable ကိုအားဖြင့်ကွဲပြားနေသည်။ "
+"၎င်းကိုအသွင်အပြင်ဖြင့်ခွဲထားသည်။"
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr ""
+"အချိန်ဝင်ရိုးသို့မဟုတ် ID 0 "
+"င်ရိုးပေါ်ရှိအချက်အလက်အရေအတွက်အားလုံးကိုကြံစည်မှု။"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr ""
+"Scatter Vot Matrix ကိုပြပါ။ သင် 2 မှ 7 ပစ်မှတ် variable "
+"တွေကိုသုံးနိုင်သည်။"
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"အဓိကအစိတ်အပိုင်းခွဲခြမ်းစိတ်ဖြာခြင်းအားဖြင့် \"ကွဲပြားခြားနားသော\" "
+"နှင့်၎င်း၏အချက်ခွဲခြမ်းစိတ်ဖြာခြင်းကိုမြင်ယောင်ကြည့်ပါ။ "
+"သာမန်အချက်အလက်များကိုဆရာ၏အချက်အလက်များအနေနှင့်ထည့်ပါ။ "
+"လက်ရှိဒေတာသည်ပုံမှန်အချက်အလက်များ (T2 / Q) "
+"သည်တူညီသောအခြေအနေနှင့်တူသည်ကိုမြင်ယောင်ကြည့်ပါ။ "
+"သင့်တွင်ကွဲပြားခြားနားသောအခြေအနေမျိုးရှိပါကသင်သည်အဓိကအချက်များကိုပံ့ပိုးမှုပုံစံတွင်စစ်ဆေးနိုင်သည်။"
+
+# ap/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"ဖြန့်ဖြူးခြင်းကိုဤ variable ကိုအားဖြင့်မျိုးစုံဂရပ်များသို့ခွဲခြားထားသည်။"
+" ထိုကဲ့သို့သောအပိုင်းကိန်းနှင့်ဘူတာများကဲ့သို့သောအမျိုးအစား variable "
+"တွေကို (အရည်အသွေး variable တွေကို) ကိုရွေးချယ်ပါ။"
+
+# ap/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"stratified အမျိုးအစား filter: subset ကိုပြသခံရဖို့ဒေတာကိုကန့်သတ်။ "
+"(အမျိုးအစား: တစ်စိတ်တစ်ပိုင်းနံပါတ်, ဘူတာမစသည်။ )"
+
+# ap/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"အမျိုးအစား variable များ (ဥပမာ, တစ်စိတ်တစ်ပိုင်းနံပါတ်, "
+"ဘူတာမစသည့်အတိုင်း) "
+"ပြောင်းလဲနေသောအချက်များကိုရှာဖွေရန်မြေကွက်များ၏ထိပ်ရှိတံဆိပ်များအဖြစ်ပြသသည်။"
+
+# ap/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Graph filter: subset ကိုပြသမည့်ဒေတာများကိုကန့်သတ်ထားသည်။"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"ပုံမှန်အခြေအနေအဖြစ်အဓိပ္ပာယ်ကောက်ယူသောလေ့လာမှုအချက်အလက်များကိုသတ်မှတ်ပါ။ "
+"NG ဒေတာမပါ 0 င်သောဒေတာအပိုင်းကိုသတ်မှတ်ပါ။ ထည့်သွင်းပါက NG "
+"၏အချက်အလက်များနှင့်နီးစပ်သူများကိုပုံမှန်အချက်အလက်များအဖြစ်သတ်မှတ်ခံရသည်။"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "စာမေးပွဲဆိုင်ရာအချက်အလက်များကိုသတ်မှတ်ရန်သတ်မှတ်ထားပါ။"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr ""
+"ပစ္စည်း filter: subset မှပြသရန်ဒေတာ (ခွဲခြမ်းစိတ်ဖြာခြင်း) "
+"ကိုကန့်သတ်ထားသည်။"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"၎င်းသည် multidimensional scrification data "
+"များ၏နှစ်ဖက်အမျိုးတည်းသောအစိတ်အပိုင်းများ "
+"(အဓိကအစိတ်အပိုင်းများဖြင့်ရှုထောင့်ချုံ့ခြင်း) ဖြစ်သည်။ "
+"ဒေတာစင်တာတွင်ရှိပါက၎င်းကိုပုံမှန်နှင့်နီးစပ်သောအဓိပ္ပာယ်ကောက်ယူနိုင်သည်။"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"၎င်းသည်နှစ်နိုင်ငံလုံးအတိုင်းအတာဖြင့်စုစုပေါင်း display "
+"(အဓိကအစိတ်အပိုင်းများအားဖြင့်ရှုထောင့်ချုံ့ခြင်း) ကို Multidimensional "
+"Learning Data ၏အချက်အလက်များဖြစ်သည်။ "
+"ဗဟိုရည်မှန်းချက်ကိုသင်ယူမှုအချက်အလက်များကဆုံးဖြတ်သည်, "
+"ထို့ကြောင့်သင်ကြားမှုအချက်အလက်အများစုသည်ပစ်မှတ်တွင်ရှိသင့်သည်။"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"ဤအချက်အလက်များ၏အဓိကအစိတ်အပိုင်းတွင်ကွဲလွဲချက်များကိုစောင့်ကြည့်လေ့လာသည့် "
+"T2 စာရင်းအင်းတစ်ခု၏ကြံစည်မှု။ သင်ယူမှုဒေတာကိုအဖြူနှင့်အနှုတ် x "
+"အဘို့ကိုအတွက်စီစဉ်ထားသည်။ အဝါရောင်ကြံစည်မှုသည် validation data ဖြစ်သည်။ "
+"အတည်ပြု data "
+"ကိုအဖြူဒေတာနှင့်နှိုင်းယှဉ်ပါကအခြေအနေကိုသွေဖည်ရန်ပိုမိုများပြားလာလေလေဖြစ်သည်။"
+" အခြေအနေကိုဖွင့်ထားသည့်အရာ၏အလှူငွေအစီအစဉ်ကိုကြည့်ရန်ဒေတာအမှတ်ကိုနှိပ်ပါ။"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"Q စာရင်းကိုင်တစ်ခု၏ကြံစည်မှု "
+"(ဤအချက်အလက်များ၏သေးငယ်သောအစိတ်အပိုင်းများတွင်ကွဲလွဲချက်များကိုစောင့်ကြည့်လေ့လာခြင်း)"
+" ။ သင်ယူမှုဒေတာကိုအဖြူနှင့်အနှုတ် x အဘို့ကိုအတွက်စီစဉ်ထားသည်။ "
+"အဝါရောင်ကြံစည်မှုသည် validation data ဖြစ်သည်။ အတည်ပြု data "
+"ကိုအဖြူဒေတာနှင့်နှိုင်းယှဉ်ပါကအခြေအနေကိုသွေဖည်ရန်ပိုမိုများပြားလာလေလေဖြစ်သည်။"
+" အခြေအနေကိုဖွင့်ထားသည့်အရာ၏အလှူငွေအစီအစဉ်ကိုကြည့်ရန်ဒေတာအမှတ်ကိုနှိပ်ပါ။"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Variades သည် T2 "
+"စာရင်းဇယားကွက်တွင်ရွေးချယ်ထားသောအချက်မှာအခြေအနေကိုဖြစ်ပေါ်စေသောအခြေအနေကိုအထောက်အကူပြုသည်။"
+" ကြာကြာအရှည်,"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"အဆိုပါ q စာရင်းဇယားကွက်လပ်တွင်ရွေးချယ်ထားသည့်အချက်မှာ variable တွေကို "
+"variable တွေကိုအခွအေနေအထောက်အကူပြုသောအမိန့်။ ကြာကြာအရှည်,"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr ""
+"Q1 - 4.5 * IQR "
+"ထက်နည်းသောသို့မဟုတ်ညီမျှသောတန်ဖိုးနှင့်ညီမျှသောအချက်အလက်များနှင့်အတူဒေတာအချက်များအရေအတွက်"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr ""
+"Q3 + 4.5 * IQR "
+"နှင့်ညီမျှသောတန်ဖိုးတစ်ခုနှင့်ညီမျှသောတန်ဖိုးရှိဒေတာအချက်များအရေအတွက်"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"NA (မရရှိနိုင်ပါ), NaN (နံပါတ်မဟုတ်ပါ) နှင့် Inf± (အသင်္ချေ) နှင့် Inf± "
+"(အသင်္ချေ) အပါအဝင်အချက်အလက်စုစုပေါင်းအရေအတွက်။"
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"__255__ - ရွေးချယ်ထားသောကာလအတွင်းအထက်နှင့်အောက်ပိုင်းတံခါးခုံ (ရေတွက်) "
+"အပြင်ဘက်တွင်အချက်အလက်ရာခိုင်နှုန်း"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: ရွေးချယ်ထားသောကာလတွင်အထက်နှင့်အောက်ပိုင်းကန့်သတ်ချက် "
+"(ရေတွက်) အပြင်ဘက်တွင်အချက်အလက်ရာခိုင်နှုန်း"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr "ရွေးချယ်ထားသောကာလတွင် NA (မရနိုင်ပါ) ရာခိုင်နှုန်း (ရေတွက်)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "ရွေးချယ်ထားသောကာလတွင် NaN (နံပါတ်မဟုတ်ပါ) ရာခိုင်နှုန်း (ရေတွက်)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "ရွေးချယ်ထားသောကာလတွင် Inf+ (အသင်္ချေ) ရာခိုင်နှုန်း (ရေတွက်)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "ရွေးချယ်ထားသောကာလတွင် Inf- (အနုတ်လက္ခဏာ) ရာခိုင်နှုန်း (ရေတွက်)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"သတ်မှတ်ထားသည့်ကာလ၏အပြင်ဘက်တွင်ဖော်ပြထားသော data စုစုပေါင်းရာခိုင်နှုန်း, "
+"NaN (နံပါတ်မဟုတ်ပါ) နှင့် Inf± (နံပါတ်မဟုတ်ပါ) နှင့် Inf± (Infinity) "
+"နှင့် Inf± (Infinity)"
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"NA (မရရှိနိုင်ပါ), NaN (နံပါတ်မဟုတ်) နှင့် Inf± (အသင်္ချေ) နှင့် Inf± "
+"(အသင်္ချေ) နှင့် Inf± (Infinity) မှပါ 0 င်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "95th ရာခိုင်နှုန်း"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75 ရာခိုင်နှုန်း (တတိယ quartile)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25 ရာခိုင်နှုန်း (ပထမ ဦး ဆုံး quartile)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "5th ရာခိုင်နှုန်း"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Interquartile Range (ဖြန့်ဖြူးခြင်းပြောင်းလဲခြင်း၏ကိုယ်စားလှယ်တန်ဖိုး - "
+"IRQ = Q3 - Q1 ≒1.349σ @ ပုံမှန်ဖြန့်ဖြူးခြင်း)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "ပျမ်းမျှ (50 ရာခိုင်နှုန်း)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "ရေတွက် / တစ်နာရီ"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "ရေတွက် / တစ်မိနစ်"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "သံသရာအချိန် [s]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "ဌာနခွဲနံပါတ်"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "သံသရာပြပါ"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "display"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Calenda Heat Map"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"ပစ်မှတ် variable တွေကို MAX_NUM_SENSOR "
+"သို့မဟုတ်ထိုထက်ပိုကရွေးချယ်လို့မရပါဘူး။ ပစ်မှတ် variable ကိုရွေးပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr ""
+"ဘေးဖယ်ဖယ်ရှားခြင်း၏ပစ်မှတ်များသည် Max, Mean, Min, Range နှင့် Range "
+"တို့ဖြစ်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "အစစ်အမှန်နံပါတ်များထက်အခြား"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"ခွဲခြားသတ်မှတ်ခြင်း (အရည်အသွေး variable "
+"များကိုအရည်အသွေးအမျိုးမျိုးဖြင့်တွက်ချက်ခြင်း (အရည်အသွေး variable များ, "
+"lot နံပါတ်စသည်) သို့မဟုတ် datetime သို့မဟုတ် datetime "
+"ကိုတွက်ချက်ခြင်းဖြင့်မြင်ယောင်ကြည့်နိုင်သည်။ discrete ID "
+"မပါဘဲအချက်အလက်များအကြားအုပ်စုလိုက်ခွဲခြမ်းစိတ်ဖြာမှုကိုခွင့်ပြုသည့် "
+"visualization method ကို (ID မပါ 0 င်ပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "ဂရပ်များပေါ်တွင်ရေးဆွဲခံရဖို့တံခါးခုံကိုသတ်မှတ်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"ကြဲဖြန့်ခြင်းအပေါ်သို့ရောက်လျှင်, လက်ရှိပစ္စည်းနှင့်လာမည့်အတန်းကို item "
+"အကြားကွဲပြားမှုပရိယာယ်။ X-Axis နှင့် Y-Axis ၏ Y-axis ကိုပြောင်းရန် Mouse "
+"နှင့်အတူကြံစည်မှုကဒ်များကိုမောက်စ်ဖြင့်ဆွဲယူပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"ဒေတာများကိုဖြန့်ဖြူးခြင်းကိုဖန်တီးပေးသောဒေတာ (ဥပမာ variable variable) "
+"ကဲ့သို့သောအချက်အလက်များ။ ဤအချက်အလက်သည်ကြံစည်မှုအပေါ်ကြံစည်သည်။ ပစ္စည်း 20"
+" အထိရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"ဤ stratified variable "
+"ကိုအများအပြားကွက်အဖြစ်ဖြန့်ဝေခြင်းနှင့်သူတို့ကိုဘေးချင်းယှဉ်ဖော်ပြထားပါတယ်။"
+" ကွဲပြားမှုမရှိသောအမျိုးအစားကိုရွေးချယ်ပါ,"
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr ""
+"datetime တစ်ခုချင်းစီအတွက် Risegeline ကြံစည်မှုပြသရန်စတင်ရန် Datetime ကို"
+" input လုပ်ပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr ""
+"datetime တစ်ခုချင်းစီအတွက် Risegeline "
+"ကြံစည်မှုပြသရန်ကာလကိုတိုက်ရိုက်ထည့်သွင်းပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"ဒေတာအဆောက်အအုံများပြောင်းလဲခြင်းကဲ့သို့သောအထူးကိုင်တွယ်ရန်လိုအပ်သော "
+"CSV/TSV "
+"ဖိုင်မှအချက်အလက်များကိုတင်သွင်းရန်ရွေးချယ်စရာများကိုသင်ရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"အောက်ဖော်ပြပါ Preview ခလုတ်ကို နှိပ်. "
+"ဖိုင်ရှိအချက်အလက်အချို့ကိုသင်ပြသနိုင်သည့်အတွက်၎င်းပါ 0 "
+"င်သောအကြောင်းအရာများကိုစစ်ဆေးနိုင်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"ဒေတာချိတ်ဆက်မှုအတွက်အခြေအနေအဖြစ်အသုံးပြုရန် link ID ကိုရွေးချယ်ပါ။ "
+"သင်အမျိုးမျိုးသောပစ္စည်းများကိုလည်းရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"သင်၏အက်ပလီကေးရှင်းသည်ဒေတာများကိုအခါအားလျော်စွာတင်သွင်းသည့်အခါ, သင် "
+"datetime ၏သော့အဖြစ်အသုံးပြုသော dateTime ကော်လံကိုရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"အကယ်. သင်သည်အော်ပရေတာတစ်ခုရွေးပြီးနံပါတ်တစ်ခုကိုထည့်ပါက 'factor' "
+"အောက်ရှိနံပါတ်ကိုရိုက်ထည့်ပါကဂရပ်တွင်ရှိသောတန်ဖိုးကိုသတ်မှတ်ထားသောအော်ပရေတာနှင့်အချက်များကို"
+" အသုံးပြု. တွက်ချက်လိမ့်မည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"အကယ်. သင်သည်အော်ပရေတာတစ်ခုရွေးပြီးနံပါတ်တစ်ခုကိုထည့်ပါက 'factor' "
+"အောက်ရှိနံပါတ်ကိုရိုက်ထည့်ပါကဂရပ်တွင်ရှိသောတန်ဖိုးကိုသတ်မှတ်ထားသောအော်ပရေတာနှင့်အချက်များကို"
+" အသုံးပြု. တွက်ချက်လိမ့်မည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "လက်ရှိချိတ်ဆက်မှုအခြေအနေများနှင့်ချိတ်ဆက်ထားသည့်အချက်အလက်မည်မျှဆက်စပ်မည်ကိုကြိုတင်ခန့်မှန်းနိုင်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "လက်ရှိသတ်မှတ်ထားသောအချက်အလက်များကိုချိတ်ဆက်ထားသည့်အခြေအနေကိုစွန့်ပစ်ပြီးယခင်ကမှတ်ပုံတင်ထားသောအခြေအနေကိုခေါ်ဆိုပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr ""
+"ID "
+"သည်ဒေတာများကိုအချိတ်အဆက်နှင့်ချိတ်ဆက်မှုအခြေအနေများနှင့်ဆက်စပ်ရန်ပြည်တွင်း၌ပြုလုပ်ခဲ့သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr ""
+"ဂရပ်ဖစ်ချိန်ညှိချက်များတွင် သုံး. "
+"အရည်အသွေးထိန်းချုပ်မှုသို့မဟုတ်ပစ္စည်းကိရိယာထိန်းချုပ်ပစ္စည်းများကိုရွေးချယ်ပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr ""
+"ကျေးဇူးပြု. "
+"အပိုင်းနှင့်ပစ္စည်းကိရိယာများကဲ့သို့သောစီမံခန့်ခွဲမှုပုံစံကိုရွေးချယ်ပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "ကျေးဇူးပြုပြီးအပိုင်းနံပါတ်နှင့်ပစ္စည်းများ၏တန်ဖိုးကဲ့သို့သောစီမံခန့်ခွဲမှုရည်မှန်းချက်ကိုရွေးချယ်ပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Graph Settings အတွက် Start DateTime ကိုသတ်မှတ်ပါ။ (လိုအပ်သည်)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "ဂရပ်ဆက်တင်များအတွက်အဆုံး datetime ထားပါ။ (optional ကို)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "သိမ်းဆည်းထားသော configuration ကိုဖတ်ပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "သင်ရိုက်ထည့်လိုက်သောနောက်ဆုံးပေါ်ပြင်ဆင်မှုကိုသိမ်းဆည်းပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "မျက်နှာပြင်ကို PNG ဖိုင်အဖြစ်သိမ်းဆည်းပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "ဒီ setting ကိုဖျက်ချင်ပါသလား။"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "ပစ်မှတ် variable ကို (အစစ်အမှန်နံပါတ်)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "ပစ်မှတ် variable ကို (အမျိုးအစား)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "အညွှန်းကိန်းအမိန့်"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "ကေျာက်တိုင်"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "အမိန့်"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "ရေှးဉီးကျမှု"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "မှာသော"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "ကိန်းရှင်များ"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "အစစ်အမှန် & အမျိုးအစားသာ"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "အစစ်အမှန်"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "အမျိုးအစားသာ"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Set မှာယူရန်အတွက်"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "လုပ်ငန်းစဉ်အမိန့်၌တည်၏"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "ဆက်စပ်မှုက coef ၌တည်၏။ အမိန့်"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "ဆက်စပ်မှုတံခါးခုံ (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "ရည်မှန်းချက် variable ကိုရွေးချယ်ပါ"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "ရည်ရွယ်ချက် variable ကို variable ကို"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "ရှင်းလင်းချက် variable ကို"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "ရရှိနိုင်အချိုးအစား"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Sanky ပုံရိပ်"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "ပွဲစဉ် (ပြီးပြည့်စုံသောပွဲစဉ်)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Search"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Search"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Parallel "
+"ညှိနှိုင်းမှုကြံစည်မှုသည်အမှန်တကယ်နံပါတ်များကိုမဆက်ဆံနိုင်သည့်အတွက်အမှန်တကယ်နံပါတ်အချက်အလက်များကိုဖယ်ရှားလိုက်ပြီဖြစ်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013;・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "ကေြမည်"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "အချက်အလက်များကဲ့သို့သောတည်းဖြတ်ထားသောသတင်းအချက်အလက်များကိုမှတ်ပုံတင်ပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "ပြုပြင်ထားသောအကြောင်းအရာနှင့်သင်မှတ်ပုံတင်လိုပါသလား။"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Link ID ကိုပြောင်းလိုက်ရင် Data link config ကိုပြန်လည်စတင်ပါ။"
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "ပူးတွဲဖြစ်ပျက်မှုဂရပ်"
+
+# co-occurrence
+msgid "Data file"
+msgstr "ဒေတာဖိုင်"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "အားဖြင့်စုစည်း"
+
+# co-occurrence
+msgid "Hour"
+msgstr "နာရီ"
+
+# co-occurrence
+msgid "Day"
+msgstr "နေ့"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "ပြင်ဆင်ရန် mode ကို"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "setting mode ကို"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"အနီရောင်အချက်အလက်များကိုမီးမောင်းထိုးပြပါလိမ့်မည်။ setting mode "
+"သို့ပြောင်းရန်သေချာပါသလား"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "ရေှးဉီးကျမှု"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"မိတ္တူပွားအင်္ဂလိပ်အမည်ကိုရှာဖွေတွေ့ရှိခဲ့သည်။ "
+"ထို့ကြောင့်အမှတ်စဉ်နံပါတ်ကိုအလိုအလျောက်ထည့်သွင်းခဲ့သည်။ "
+"ကော်လံအမည်များကိုစစ်ဆေးပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "စုစည်းရေး၏ယူနစ်"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"ပထမကော်လံသည် dateTime ဖြစ်ပြီးဒုတိယကော်လံနှင့်နောက်ဆက်တွဲကော်လံများသည် "
+"Alarm Notification Flags / Autication Flags / Accrution More (0,1,2 ... )"
+" ကဲ့သို့သောတန်ဖိုးများဖြစ်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "တစ်နာရီ / တစ်နာရီကြာစုစုပေါင်းပူးတွဲပူးတွဲမှုဆက်ဆံရေး။"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "တံခါးခုံကိုပြပါ"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"အကယ်. သင်သည် 100%% ထက်နည်းသောတန်ဖိုးကိုရွေးချယ်ပါက, (ပုံမှန် - "
+"တစ်ချိန်ကရှိလျှင်လိုင်းဆွဲပါ)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"တိုက်ရိုက်သို့မဟုတ်သွယ်ဝိုက်သောပစ်မှတ် variable "
+"ကိုတိုက်ရိုက်သို့မဟုတ်သွယ်ဝိုက်ဆက်စပ်နေသော variable "
+"တွေကိုဖော်ထုတ်နှင့်မြင်ယောင်။"
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"ဒီမှာဖော်ပြထားသော variable တွေကိုအကြားဆက်စပ်မှုကိုမြင်ယောင်ကြည့်ပါ။ "
+"ပစ္စည်း 60 အထိရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr ""
+"ရည်မှန်းချက် variable တွေကိုနှင့်ဆက်စပ်သောကိုယ်စားလှယ်လောင်း variable "
+"တွေကို။"
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "အားလုံးအနား၏"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "စီမန်ကိန်း"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "အဝိုင်း"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "အလိုအလေျာက်သွားလာသော"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "ထိရောက်မှု"
+
+msgid "Set threshold"
+msgstr ""
+"Control Line: "
+"စံလိုင်းများကဲ့သို့သောစီမံခန့်ခွဲမှုအဆင့်များကိုဆွဲသည့်အခါစစ်ဆေးပါ"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "ခွဲခြမ်းစိတ်ဖြာခြင်းပလက်ဖောင်း"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Pareto ဇယား"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "ဖြစ်ပျက်မှုအရေအတွက်"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "တဖြည်းဖြည်းတိုးပွားလာအချိုး [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"ဖြစ်စဉ်များ, ရက်သတ္တပတ်၏နေ့ရက်များ, ဆိုင်း, "
+"ဆိုင်းများစသဖြင့်အချိန်ကြာမြင့်စွာကွဲပြားခြားနားသောအချိန်ကာလတစ်ခုအတွင်းကွဲပြားသောအချက်အလက်များနှင့်ကွဲပြားနိုင်သောအချက်အလက်များနှင့်ကွဲပြားနိုင်သည့်"
+" parameters များကိုမြင်ယောင်ကြည့်ပါ။"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr ""
+"ပစ်မှတ် variable ကိုလေးစားမှုနှင့်အတူ variable "
+"တွေကိုအများအပြားအကြားဆက်စပ်မှုကိုမြင်ယောင်ကြည့်ပါ။"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "အမှားများ, နှိုးစက်များ, ဖြစ်ရပ်များနှင့်စသည်တို့ကို) တွေ့နိုင်သည်။"
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"ဗလာDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: ဒေတာမြေပုံရေးဆွဲခြင်း, မြင်ယောင်ခြင်း, "
+"စာရင်းအင်းဆိုင်ရာခွဲခြမ်းစိတ်ဖြာခြင်းနှင့်စက်သင်ယူခြင်းအတွက်ရိုးရှင်းသောကိရိယာတစ်ခု။"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"ဤနေရာတွင်သတ်မှတ်ထားသည့်ဒေတာများကို data linking "
+"နှင့်ကြံစည်မှုများအတွက်ရည်ညွှန်းအဖြစ်အသုံးပြုသည်။ အဆိုပါ setting "
+"ကိုကြံစည်မှု၏အလျားလိုက်ဝင်ရိုး၌အသုံးပြုကြသည်။ "
+"ထို့အပြင်မူရင်းကြံစည်မှုကိုအပြာဘောင်ဖြင့်ပြသသည်။"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"ကွက်ကွက်ကွင်းကွင်းအတွက် (ဥပမာ, ကိန်းဂဏန်း variable တွေကို: "
+"တိုင်းတာခြင်းတန်ဖိုး) ကိုသတ်မှတ်သည်။ "
+"ကြံစည်မှုအပေါ်ကြံစည်မှုခံရဖို့ဖြစ်စဉ်များနှင့်ပစ္စည်းများကိုရွေးချယ်ပါ။ "
+"ပစ္စည်း 20 အထိရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"ကွက်ကွက်ကွင်းကွင်းအတွက် (ဥပမာ, ကိန်းဂဏန်း variable တွေကို: "
+"တိုင်းတာခြင်းတန်ဖိုး) ကိုသတ်မှတ်သည်။ "
+"ကြံစည်မှုအပေါ်ကြံစည်မှုခံရဖို့ဖြစ်စဉ်များနှင့်ပစ္စည်းများကိုရွေးချယ်ပါ။ "
+"ပစ္စည်း 8 ခုအထိရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"ဗလာ可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"ဤ stratification variable ကို variable "
+"ကိုကွက်ကွက်ကွင်းကွင်းသို့မြင်ယောင်ရန်နှင့်သူတို့ကိုဘေးချင်းယှဉ်ဖော်ပြရန်ပုံစံကိုကွဲပြားစေသည်။"
+" အပိုင်းအရေအတွက်ကိုရွေးချယ်ရန်အပိုင်း (100) အထိအမျိုးအစား variable "
+"များကိုရွေးချယ်ပါ။ ရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"Variables (အရေအတွက် variable တွေကို (အရေအတွက် variable တွေကို - "
+"တိုင်းတာခြင်းတန်ဖိုးများစသဖြင့်) "
+"အကြားဆက်စပ်မှုကိုမြင်ယောင်ကြည့်ရှုစေသောအချက်အလက်များ၏ပစ္စည်း။ "
+"ဤအချက်အလက်သည်ဇယားပေါ်တွင်ကြံစည်သည်။ 2 မှ 7 parameters "
+"တွေကိုရွေးချယ်နိုင်ပါတယ်။"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"variable တွေကိုအကြားဆက်စပ်မှုကိုမြင်ယောင်ကြည့်ရှုရန်ပစ္စည်းကိုရွေးချယ်ပါ။"
+" ပစ္စည်း 60 အထိရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"variable တွေကိုအကြားဆက်စပ်မှုကိုမြင်ယောင်ဖို့အမျိုးအစားအမျိုးအစား "
+"variable တွေကို (ဥပမာနံပါတ်များ) အမျိုးအစားများ။"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "ကဒ်တိုးမြှင့်"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "ကဒ်ကိုလျှော့ချပါ"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr ""
+"အကယ်. ဤချိန်ညှိမှုကိုပြောင်းလဲလိုက်ပါက Data link settings "
+"ကိုပြန်လည်သတ်မှတ်ရန်လိုအပ်သည်။"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "အလိုအလျောက်ရွေးချယ်ပါ"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "အားလုံးညာဘက်ကိုရွေးပါ"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "အားလုံးလက်ျာဘက် unsect"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "ဤနေရာမှတကယ့်ကို (float) အားလုံး"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "ဒီမှာမှကိန်းဂဏန်းများ"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "အားလုံးဒီကနေ string ကို"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"ရွေးချယ်ထားသောမှတ်တမ်းအမြောက်အများကြောင့်ကြံစည်ရန်လိုအပ်သောအချိန်ကြောင့်ကြံစည်မှုတစ်ခုပါဆဲလ်အရေအတွက်ကို"
+" 10,000 သာကန့်သတ်ထားသည်။ အကယ်. သင်သည် BREAK_LINE "
+"ပစ်မှတ်ကာလအတွက်အချက်အလက်အားလုံးကိုကြည့်လိုပါကမျက်နှာပြင်ကိုတိုးမြှင့်ခြင်းသို့မဟုတ်ဆဲလ်အရေအတွက်ကိုလျှော့ချရန်ရည်မှန်းချက်ကာလကိုလျှော့ချပါ။"
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "လက်ရှိဖြစ်သော"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "သင်ကြံစည်မှုအပေါ်ညာဖက်နှိပ်ခြင်းဖြင့်ကြံစည်မှု၏စကေးကိုချိန်ညှိနိုင်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "ဂရပ်စကေး"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "setting mode ကို"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "ချိတ်ဆက်မရနိုင်သောဒေတာပစ္စည်းများအရေအတွက်"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "ကြဲဖြန့်"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "ပုံနှင့်အတူ"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "သိမ်းဆည်းခြင်း"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"ဗလာファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "setting ကိုတင်"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "မျှဝေ / ပုဂ္ဂလိက"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "ဖေါ်ပြချက်"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "မှဖန်တီးသည်"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "အသုံးပြု / ဝန်"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "ဝန်တင်"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr ""
+"စတင်ခြင်းလုပ်ငန်းစဉ်နှင့်ဆက်နွှယ်နိုင်သည့်ဒေတာအရေအတွက် "
+"(ချိတ်ဆက်မှုရာခိုင်နှုန်း)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "datetime ကယ်တင်ပါ"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "Settings ကိုမျှဝေပါ"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "ကယ်ဆယ်"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"သငျသညျ 2 မှ 7 ပစ်မှတ် variable တွေကိုမှ select နိုင်ပါတယ်။ ပစ်မှတ် "
+"variable တွေကိုနံပါတ်ကိုစစ်ဆေးပြီးချိန်ညှိချက်များကိုပြင်ပါ။"
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr ""
+"ဖိုင်အရွယ်အစားကန့်သတ်ချက်သည် 10 MB ဖြစ်သည်။ "
+"ဖိုင်အရွယ်အစားကိုလျှော့ချပြီးထပ်ကြိုးစားပါ။"
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "စစ်ဆေးပြီးပါကသတ်မှတ်ထားသော datetime ကိုလည်းသိမ်းဆည်းထားသည်။"
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "ဒီ setting ကိုမျှဝေရန်စစ်ဆေးပါ။"
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "ချိန်ညှိချက်များကိုသိမ်းဆည်းပါ။"
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "ချိန်ညှိချက်များကိုကျော်လွှားရန်သေချာပါသလား။"
+
+# ap/templates/modals.html
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "ခဲွဝေ"
+
+# ap/templates/modals.html
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "ကိုယ်ပိုင်"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "ဖန်တီးခဲ့တယ်"
+
+# ap/templates/modals.html
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "ပိတ်ထားသော"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "အမိန့်သတ်မှတ်"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "DateTime ကိုစတင်ပါ"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "dateTime အဆုံးသတ်"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "X-Axis တံဆိပ်များပြပါ"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "datetime အကွာအဝေး"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "drag နှင့် drop ဖိုင်ကိုဒီမှာ"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "သို့မဟုတ်"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "ဖိုင်များကိုရွေးချယ်ပါ"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "ပြသမရနိုင်ပါ"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"အချက်အလက်အမြောက်အများနှင့်ရှည်လျားသောအပြောင်းအလဲနဲ့အချိန်များကြောင့်အပြောင်းအလဲနဲ့အနှောင့်အယှက်ပေးခဲ့ပါတယ်။"
+" datetime settings ကိုပြန်လည်သုံးသပ်ပြီးကြံစည်မှုကိုထပ်မံပြပါ။"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "CSV ဖိုင် outputting ။ ဖိုင်ကူးယူနေစဉ်ခဏစောင့်ပါ။"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "TSV ဖိုင် outputting ။ ဖိုင်ကူးယူနေစဉ်ခဏစောင့်ပါ။"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "အော်တိုအကွာအဝေး"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "အပြည့်အဝအကွာအဝေး"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "အမိန့်အမိန့် setting ကို"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "ဖွင့်လှစ်"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "ဖျက်"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"ဂရပ်တစ်ပုံလျှင်ဒေတာမှတ်အရေအတွက်မှာ 12000 "
+"ကျော်ကတည်းကအချက်အလက်များအရေအတွက်သည် Max 12000 သာကန့်သတ်ထားသည်။ "
+"ဒေတာတစ်ခုလုံးကိုသင်ကြည့်လိုပါကတိုတောင်းသောပစ်မှတ်ကာလကိုသတ်မှတ်ပါ။"
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "သက်တမ်း (CNCLCIC) အားဖြင့် stratify"
+
+#: component.js
+msgid "Facet"
+msgstr "မျက်နှာအသွင်"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "ရွေးချယ်ထားသည့်ပစ္စည်းနှင့်ကွဲပြားခြားနားသောလုပ်ဆောင်သည်။"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "ခြွင်းချက်ခန့်မှန်းချက်"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"ပုံမှန် interquartile range "
+"(အညွှန်းကိန်းကိုပုံမှန်ဖြန့်ဖြူးခြင်းနှင့်ပေါင်းသင်းခြင်း, Niqr = 0.7413 "
+"× IQR)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Mode သည်မကြာခဏဖြစ်ပေါ်သောတန်ဖိုးဖြစ်သည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "ဘေးထွက်နှင့်အတူ"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "ပြင်ပမရှိဘဲ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "ထုံးစံဓလေ့"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "ယနေ့တွင်"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "မနေ့က"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "နောက်ဆုံး 7 ရက်"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "ရက်ပေါင်း 30 ရက်"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "ဤလတွင်"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 လ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 လ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "လေှျာက်တောင်း"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "ရက်သတ္တပတ်"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "လွန်ခဲ့သော 7 ရက်က"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "ရက်ပေါင်း 30 အကြာ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "ဒီလ၏လက်သီး"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "ဒီလရဲ့နောက်ဆုံးနေ့"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 လ"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "မှာ updated"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"ဒေတာအချက်များအစာရှောင်ခြင်းဖြင့်အတိုချုပ်ဖော်ပြထားသည်။ "
+"သငျသညျဒေတာချန်လှပ်ခြင်းမရှိဘဲကြံစည်မှုရချင်တယ်ဆိုရင်, "
+"ပစ်မှတ်ကာလတိုတောင်းပါ။"
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "y ၏ဝင်ရိုး၏အကွာအဝေး"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "နောက်ပိုင်း"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"ဗလာ'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "လုပ်ငန်းစဉ်ရှာဖွေရေး"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "ပြုခဲ့သည်"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"ဗလာ以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "နာရီစက်ဝန်း"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "အစစ်အမှန်"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "ရည်ရွယ်ချက် variable ကို variable ကို"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"ဆက်စပ်မှုကိန်းကိုဒီ variable ကို tark variable ကိုသုံးပြီးတွက်ချက်သည်။ "
+"ဤနေရာတွင်သတ်မှတ်ထားသောပစ်မှတ် variable ကိုသည်လည်း far plot "
+"၏ညာဘက်အခြမ်းတွင်အရောင်ဘားနှင့်အတူပြသခဲ့သည်။ သင်ကြံစည်မှုတွင်ပစ်မှတ် "
+"variable များကိုပြောင်းလဲလိုပါက variable name "
+"တစ်ခုချင်းစီကိုညာဖက်နှိပ်ခြင်းဖြင့်သူတို့ကိုပြောင်းနိုင်သည်။"
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"အမျိုးအစားများလွန်းသောကြောင့်ဒေတာရေနစ်သေဆုံးခဲ့သည်။ BREAK_LINE စစ်ဆေးပါ, "
+"လိုအပ်ပါကပစ်မှတ်ထားသောအချိန်ကာလကိုပြန်လည်ပြင်ဆင်ပါ။"
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "filter setting ကို"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "တံဆိပ် (အမျိုးအစား variable တွေကို)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "ကူးယူ"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "ခေါက်ပြုလုပ်"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "copig ကိုကူးယူပါ"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "config ကို paste"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "မူရင်း setting ကိုမပါ 0 င်ပါကပထမ ဦး ဆုံးပစ်မှတ်ကိုမူရင်းအဖြစ်ရွေးချယ်သည်။"
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "ဒေတာပို့ကုန်"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "မသုံးပါ"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "အမျိုးအစားများလွန်းသောကြောင့်ဒေတာများကိုရေးဆွဲခြင်းမရှိပါ။"
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr "စစ်ဆေးပြီးလိုအပ်ပါကပစ်မှတ်ကာလ၏ချိန်ညှိချက်များကိုပြန်လည်ပြင်ဆင်ပါ။"
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "ဒေတာရေတွက်ခြင်းဖြင့်ခွဲဝေခြင်း (CNCLCIC)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "ဒေတာအရေအတွက်"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"ဗလာグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "ရည်ရွယ်ချက် variable ကိုရွေးချယ်ပါ။"
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "အဘယ်သူမျှမပြိုကွဲ / အမျိုးအစားပြိုကွဲ"
+
+# ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "ကြဲဖြန့်"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"အကယ်. x (သို့) Y data type သည် string ကိုဖြစ်စေ, "
+"အရောင်ချိန်ညှိရန်အတွက်ကြိုးမဟုတ်သော variable များကိုမသုံးနိုင်ပါ။"
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"ခွင့်ပြုထားသောအကွာအဝေးအပြင်ဘက်တွင်တန်ဖိုးကိုရှာဖွေတွေ့ရှိခဲ့သည်။ "
+"ထို့ကြောင့်အနည်းဆုံးသို့မဟုတ်အများဆုံးတရားဝင်အကွာအဝေးကိုအလိုအလျောက်ဆုံးဖြတ်ခဲ့သည်။"
+" လိုအပ်သောအဖြစ်ချိန်ညှိချက်များကိုပြောင်းလဲပါ။"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Right Click: Data Link Setting / Edit / Delete"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "အချိန်ကုန်လွန်"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "အချိန်အမိန့်"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "ဒေတာအမိန့် setting"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr "ကျေးဇူးပြု. မလိုအပ်သောအချက်အလက်များကိုဖျက်ပါ။"
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"Hard disk ၏ __SERVER_INFO__` ၏စွမ်းရည်သည် __SERVER_INFO__ %% "
+"သို့ရောက်ရှိနေသောကြောင့်ဒေတာဆိပ်ကမ်းကိုရပ်တန့်ခဲ့သည်။ "
+"မလိုအပ်သောအချက်အလက်များကိုပယ်ဖျက်ပြီးအချည်းနှီးသောစွမ်းရည်များတိုးပွားလာပါကအချက်အလက်များကိုပြန်လည်စတင်လိမ့်မည်။"
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"ပြသရန်ဖြန့်ဝေမှုအရေအတွက် (ကွဲပြားခြင်းအရေအတွက်) ကိုရိုက်ထည့်ပါ။ 2 "
+"သို့မဟုတ် 150 သို့မဟုတ်ထိုထက်နည်းသောကိန်းတစ်ခုထည့်ပါ။"
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"ပြသရန်ဖြန့်ဝေမှုအရေအတွက် (ကွဲပြားခြင်းအရေအတွက်) ကိုရိုက်ထည့်ပါ။ 1 "
+"သို့မဟုတ်ထိုထက်ပို 32 သို့မဟုတ်ထိုထက်နည်း၏ကိန်းတစ်ခုထည့်ပါ။"
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"ဗလာ表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"ဗလာプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"ဗလာ1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"ဗလာ1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "ကြံစည်မှုတစ်ခုလျှင်တယောများလွန်းသောကြောင့်၎င်းသည်အလိုအလျောက်ကန့်သတ်ထားသည်။"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"ရွေးချယ်ထားသည့်မှတ်တမ်းအမြောက်အများကြောင့်မြေကွက်အရေအတွက်သည်သက်တမ်းအရင့်ဆုံးသော"
+" နေ့မှစ. ကန့်သတ်ချက်ရှိသည်။"
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "ကျွန်တော်လက်ခံသည်"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "ြငင်းဆို"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "နောက်ဘက်သို့"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "ကော်လံပေါ်တွင်ကြံစည်မှုအရေအတွက်"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"အမျိုးအစားကိန်းဂဏန်းများ (အပိုင်း, ဘူတာရုံနံပါတ်များစသည်တို့) "
+"သည်ကြံစည်မှုများကိုပြောင်းလဲခြင်းအချက်များ "
+"(အခန်းကြီးပြောင်းခြင်းစသည်တို့) ၏ထိပ်ရှိတံဆိပ်များအဖြစ်အသုံးပြုသည်။"
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"ခွဲခြမ်းစိတ်ဖြာရန် (အရေအတွက် variable တွေကို - တိုင်းတာခြင်းတန်ဖိုး, "
+"စသည်တို့) ကိုရွေးချယ်ရန်ရွေးချယ်ပါ။ ပစ္စည်း 60 အထိရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr ""
+"ဒေတာများကိုစီရန်ပစ္စည်းများကိုရွေးချယ်ပါ။ "
+"သင်အမျိုးမျိုးသောပစ္စည်းများကိုလည်းရွေးချယ်နိုင်သည်။"
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"DatesTime သည်နောက်ဆုံးပေါ်ဒေတာများမှ Data Limit "
+"ဖြင့်နောက်ဆုံးပေါ်ဒေတာများမှရေတွက်သောကြောင့်အဟောင်းဒေတာဟောင်းများကိုမပြပါ။"
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"ကြံစည်မှုအရေအတွက် NUMBER ကန့်သတ်ထားသည်။ "
+"သင်အားလုံးကိုပြသလိုပါကချိန်ညှိချက်များကိုပြန်လည်ရယူပါ။"
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"တစ်ခုတည်း tab ပေါ်တွင်ကြံစည်မှုအရေအတွက် NUMBER သာကန့်သတ်ထားသည်။ "
+"သင်အားလုံးကိုပြသလိုပါကချိန်ညှိချက်များကိုပြန်လည်ရယူပါ။"
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"ရွေးချယ်ရန်ပစ်မှတ် variable အရေအတွက်အရေအတွက်သည်အနည်းဆုံး min "
+"နှင့်အများဆုံး max ဖြစ်သည်။ ပစ်မှတ် variable "
+"တွေကိုနံပါတ်ကိုစစ်ဆေးပြီးချိန်ညှိချက်များကိုပြင်ပါ။"
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"ရွေးချယ်ရန်ပစ်မှတ် variable "
+"တွေကိုအရေအတွက်အများဆုံးအများဆုံးအထိအထိဖြစ်ပါတယ်။ ပစ်မှတ် variable "
+"တွေကိုနံပါတ်ကိုစစ်ဆေးပြီးချိန်ညှိချက်များကိုပြင်ပါ။"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+# ap/templates/trace_data/list_of_histograms.html
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "နောက်ပိုင်း"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "မိနစ်"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "အသိပေးချက်"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "ကျူးလွန်သူ"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "ဖေါ်ပြချက်"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"အကယ်. သင်သည် 100%% ထက်နည်းသောတန်ဖိုးကိုရွေးချယ်ပါက, (ပုံမှန် - "
+"တစ်ချိန်ကရှိလျှင်လိုင်းဆွဲပါ)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"အကယ်. သင်သည် 100%% ထက်နည်းသောတန်ဖိုးကိုရွေးချယ်ပါက, (ပုံမှန် - "
+"တစ်ချိန်ကရှိလျှင်လိုင်းဆွဲပါ)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"အကယ်. သင်သည် 100%% ထက်နည်းသောတန်ဖိုးကိုရွေးချယ်ပါက, (ပုံမှန် - "
+"တစ်ချိန်ကရှိလျှင်လိုင်းဆွဲပါ)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "ဖေါ်ပြချက်"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+# ap/templates/modals.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "ပိတ်ထားသော"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "သက်တမ်းကုန်ဆုံးမည့်နေ့ (အဆုံး)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "သက်တမ်းကုန်ဆုံးမည့်ရက် (Start)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "သက်တမ်းကုန်ဆုံးမည့်နေ့ (အဆုံး)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+

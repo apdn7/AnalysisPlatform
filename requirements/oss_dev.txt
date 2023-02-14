@@ -1,0 +1,7 @@
+-r common.txt
+pytest-cov==2.8.1
+selenium==3.141.0
+slackclient==2.5.0
+setuptools==44.0.0
+requests==2.22.0
+pytest~=5.3.5

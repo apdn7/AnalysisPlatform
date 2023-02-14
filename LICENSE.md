@@ -1661,7 +1661,7 @@ as follows:
 
 ### marshmallow-sqlalchemy
 
-* Version: 0.28.0
+* Version: 0.28.1
 * Copyright 2015-2022 Steven Loria and contributors
 
 > licensed under the <a href="http://opensource.org/licenses/MIT">MIT License</a>
@@ -2332,6 +2332,46 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+### waitress
+
+* Version: 2.1.2
+* Copyright (c) Zope Foundation and Contributors
+* Zope Public License (ZPL) Version 2.1
+* * Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* * Redistributions in source code must retain the accompanying copyright
+notice, this list of conditions, and the following disclaimer.
+
+* * Redistributions in binary form must reproduce the accompanying copyright
+notice, this list of conditions, and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+* * Names of the copyright holders must not be used to endorse or promote
+products derived from this software without prior written permission from the
+copyright holders.
+
+* * The right to distribute this software or to use it for any purpose does not
+give you the right to use Servicemarks (sm) or Trademarks (tm) of the
+copyright
+holders. Use of them is covered by separate agreement with the copyright
+holders.
+
+* * If any files are modified, you must cause the modified files to carry
+prominent notices stating that you changed the files and the date of any
+change.
+
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY EXPRESSED
+OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ### win32-setctime
 

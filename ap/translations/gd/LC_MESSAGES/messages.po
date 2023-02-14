@@ -1,0 +1,3921 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Air a shàbhaladh"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Tha mearachd air tachairt"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Rèiteachadh tagraidh"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "Duilleag air a lorg"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Tha mearachd air tachairt"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "App datatalink & mion-sgrùdadh"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "Tagh cànan"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "Prìomh sgrion"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "Dearbhadh Obrachaidh"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Dearbhadh Obrachaidh"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Config bunaiteach"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Clàraich"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Ath-luchdachadh"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Integer"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Fìor (float)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Ùine ceann-latha"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Sreang"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Tiotal"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Plannt"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Factaraidh"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Loidhne"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Feuch an dearbhaich thu."
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"Sàbhail an dàta agus tòisich a 'toirt a-steach dàta leis na tha a' "
+"suidheachadh air an roinn a 'phròiseas?"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Ceart gu leòr"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Sguir dheth"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Config stòr-dàta"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Ainm stòr-dàta"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Seòrsa stòr-dàta"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Config"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Thoir beachd air"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Cuir ris"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Tagh faidhle stòr-dàta."
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Ainm faidhle"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Tagh"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "A bheil thu airson an clàr seo a dhubhadh às?"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "Thoir às"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Lorg lorg"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Graf traciùltach"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Deuchainn lorg"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Deuchainn tòiseachaidh"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Ùine tòiseachaidh"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Ùine crìochnachaidh"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID inneal (ioma-thaghadh)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Loidhne"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Àireamh pàirt"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Contrig ceangal dàta"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Tagh cànan"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Iapanach"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Sasannach"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Nód"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Nód ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Leubail"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Prìomh ainm"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Stòr-dàta"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Import"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Às-mhalairt"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Ainm aoigheachd"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Àireamh Port"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Ainm neach-cleachdaidh"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Facal-faire"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Sgeama"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Shoirbhich leam."
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; Dh'fhàillig."
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Config pròiseas"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Pròiseas"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Ainm a 'phròiseas"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Ainm Clàr"
+
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Mion-fhiosrachadh"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Ro-shealladh"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "A 'chiad còig clàr"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Suidheachadh susbaint"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Ainm colbh"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Ainm Beurla"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Ainm taisbeanaidh"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "Co-èifeachd"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Gnìomhaiche"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Cuir a-steach luach a bharrachd air 0"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Gnìomhaiche inntrigidh."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Cuir a-steach co-èifeachd."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Cuir a-steach ainm Beurla."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Ainm taisbeanaidh cuir a-steach."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Tha an t-ainm Beurla air a dhùblachadh."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Tha an t-ainm taisbeanaidh air a dhùblachadh."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Feumaidh a h-uile \"ainm taisbeanaidh\" a chuir a-steach."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Thathas a 'lìonadh achaidhean le bàn \"ainm Beurla\"."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Tagh a h-uile càil"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Dàta in-mhalairt"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "A bheil thu cinnteach gun cuir thu a-steach dàta?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"Nuair a bhrùthas tu am putan OK, bheir thu a-steach dàta bhon àm "
+"làithreach gu aon mhìos roimhe."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr ""
+"Tha an dàta roimhe air a thoirt a-steach gu fèin-ghluasadach beag le glè "
+"bheag."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"Ma tha thu airson an dàta a thoirt a-steach às deidh an ùine a th 'ann "
+"an-dràsta, brùth air a' phutan Leughaidh Dàta a-rithist, no brùth air an "
+"stòr-dàta CSV A 'stèidheachadh nan roghainnean air an duilleag "
+"suidheachaidh leugh."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Nuair a bhios \"ùrachadh Cearcall\" de \"Stòr-dàta / CSV Suidheachadh "
+"Leughaidh\" air a shuidheachadh, thèid a thoirt a-steach gu fèin-"
+"ghluasadach anns an ùine nuair a thèid an dàta às deidh an àm seo a "
+"shuidheachadh."
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Fiosrachadh trac"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Dàta lorg"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Cha b 'urrainn faighinn a-steach"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Cliog an seo gus a chàradh."
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Deasaich iomall"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Pròiseas Prev"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Colbh Prev"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Pròiseas post"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Colbh post"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Mar cheann-latha ceann-latha"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Mar sherial"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Mar cheangal ID"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "Mu thràth clàraichte"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "Cuir a-steach ainm a 'phròiseas"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filter / graf"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Contig graf"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Config filter loidhne"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Colbh loidhne"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "Luach"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Contig filter inneal"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Inneal ID colbh"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Pàirt No Filter Config"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Pàirt No Colbh"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Ainm sìoltachain"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Suidheachadh sìoltachain"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Bidh cuid eile a 'falbh config"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Colbh targaid"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Contig fradharc"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Stairsneach as ìsle"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Stairsneach àrd"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Stairsneach pròiseas nas ìsle"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Stairsneach pròiseas àrd"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Tha W-Axes ann an raon: MIN"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Tha W-Axes Rap: Max"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Pàirt no"
+
+msgid "Ends With"
+msgstr "deireadh le"
+
+msgid "Starts With"
+msgstr "Tòiseachadh le"
+
+msgid "Contains"
+msgstr "(Like sgrùdadh)"
+
+msgid "Matches"
+msgstr "Aontachadh"
+
+msgid "Regular expressions"
+msgstr "Abairtean cunbhalach"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Seall an graf"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV às-mhalairt"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Pròiseas riatanach"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Tha feum air ainm colbh"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Tha feum air loidhne"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Feumar ainm taisbeanaidh"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Tha an t-ainm taisbeanaidh air a dhùblachadh."
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Feumar luach inneal"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Inneal dùblaichte ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Sàbhail gu soirbheachail"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Dh'fhàillig sàbhaladh"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Tha feum air Pàirt no Colbh"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Tha feum air colbh targaid"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Feumar ainm sìoltachain"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Tha feum air suidheachadh"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Tha an t-ainm sìoltachain air a dhùblachadh."
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Tha na suidheachaidhean air an dùblachadh."
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Bunaiteach"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Ainm a 'phròiseas"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Chuir thu sìoltachain eile ris"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV infig in-mhalairt"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Stòr"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Cearcall ùrachadh"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Ceangail"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Aon uair san uair"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Aon uair san latha"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Dearbhadh Dàta"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Chan eil pasgan ann."
+
+msgid "File does not exist"
+msgstr "Chan eil faidhle ann."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Faodaidh tu ceangal a dhèanamh."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Feuch an lìon thu an luach."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Chan eil susbaint suidheachadh ann."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Tha na roghainnean air an dùblachadh."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Suidhichidhean stòr-dàta air an sàbhaladh."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Dh'fhàillig a shàbhaladh roghainnean stòr-dàta."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Roghainnean bunaiteach air a shàbhaladh."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Dh'fhàillig sàbhaladh roghainnean bunaiteach."
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "Ceangal deuchainn"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "Puing tòiseachaidh"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "Raon ceann-latha"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "As ùire"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "Ùrachadh Auto"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "mionaid"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "mionaidean"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "uair"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "uairean"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "Caochladair targaid"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "Filter"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "X Axis"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "Timesmpap"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "Clàr-amais"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Caochlaideach caochlaideach"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Sìoltachain"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Stòr-dàta / CSV"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "Dèan mion-sgrùdadh"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "Fo leasachadh"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Anailis:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Cuilbheart uisge"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Grafaigeach LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "Hisktorram"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Cuilbheart stratified"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Cuilbheart làn-phuingean"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Lèirmheas dàta"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "Rèisteas"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Ruith"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Cuir a-steach ainm an stòr-dàta."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Cuir a-steach ainm stòr dàta."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Chan eil colbhan aig nach eil seòrsa dàta air an toirt a-steach."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Feumar co-dhiù aon cholbh latha ceann-latha."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Airson sealladh, cleachd '{col}' airson an x-axis."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "A bheil thu cinnteach gun lean thu?"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Swiewer bùird"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Clàr"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Deasaich"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Àireamh de dhàta"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "A 'teàrnadh"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "A 'dìreadh"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Maids foirfe"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Maids pàirt"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+msgid "Invalid digit selection"
+msgstr "Taghadh digit neo-dhligheach"
+
+msgid "Character length for tracing is different"
+msgstr ""
+"Tha fad a 'charactar a thathas a' cleachdadh airson an ceangal eadar-"
+"dhealaichte."
+
+msgid "No filter"
+msgstr "Gun chriathrag"
+
+msgid "All line"
+msgstr "A h-uile loidhne"
+
+msgid "Status"
+msgstr "suidheachadh"
+
+msgid "Job list"
+msgstr "Liosta obrach"
+
+msgid "All"
+msgstr "Uile"
+
+msgid "Finished Importing"
+msgstr "In-mhalairt crìochnaichte."
+
+msgid "Importing"
+msgstr "Cureachadh"
+
+msgid "Failed Importing"
+msgstr "Air a thoirt a-steach a dh 'fhàillig"
+
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"Thèid an dàta luchdaichte a dhubhadh às. A bheil e ceart gu leòr? (Chan "
+"eil atharrachadh sam bith air a nochdadh gus am bi am putan Clàraidh air "
+"a bhrùthadh)"
+
+msgid "Job List"
+msgstr "Liosta obrach"
+
+msgid "Job ID"
+msgstr "ID obrach"
+
+msgid "Job Name"
+msgstr "Ainm obrach"
+
+msgid "GEN_GLOBAL"
+msgstr "Ginealach de cheangal a cheangalID"
+
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Iob ginealach taisbeanaidh de cheangal ID"
+
+msgid "DEL_PROCESS"
+msgstr "Thoir às fiosrachadh a 'phròiseasadh"
+
+msgid "FACTORY_IMPORT"
+msgstr "Dàta factaraidh in-mhalairt"
+
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Cuir a-steach dàta factaraidh a chaidh a-steach"
+
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Seall obair a thoirt a-steach do dhàta factaraidh a chaidh seachad"
+
+msgid "CSV_IMPORT"
+msgstr "CSV dàta in-mhalairt"
+
+msgid "CLEAN_DATA"
+msgstr "Cuir às do sheann dàta"
+
+msgid "Started"
+msgstr "Ùine tòiseachaidh"
+
+msgid "Duration"
+msgstr "ùine a bharrachd"
+
+msgid "Database/CSV "
+msgstr "Stòr-dàta / CSV"
+
+msgid "Succeed/Total"
+msgstr "Adhartas"
+
+msgid "Process "
+msgstr "Pròiseas"
+
+msgid "List of Histograms"
+msgstr "Liosta histogram"
+
+msgid "Register as an outlier"
+msgstr "Clàraich mar luach a-muigh"
+
+msgid "Remove outlier flag"
+msgstr "Outlier neo-chinnteach"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Cuir am falach outliers"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Seall outliers"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Thoir sùil air oirean"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Liosta bhidio taisbeanaidh"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Ùine Ùrachadh mu dheireadh"
+
+msgid "Removed outlier flag"
+msgstr "Chaidh clàradh a-mach a chuir dheth."
+
+msgid "Registered as an outlier"
+msgstr "Clàraichte mar outlier"
+
+msgid "Abnormal data point"
+msgstr "Outlier"
+
+msgid "Only once"
+msgstr "Dìreach aon uair"
+
+msgid "Job Details"
+msgstr "Mion-fhiosrachadh obrach"
+
+msgid "Copy to clipboard"
+msgstr "Dèan lethbhreac gu clipboard"
+
+msgid "Multi Scatter Plot"
+msgstr "Cuilbheart ioma-sgeul"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Cuilbheart sgapte"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Gus caochladair daingeann fhaicinn"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratify le caochladairean"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Caochlaideach"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Inneal no"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Ùine targaid"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Tricead (cunntadh)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Taisbeanadh dùmhlachd"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Caochladair seòrsachaidh"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify a rèir teirm (dìreach)"
+
+msgid "Anomaly Detection"
+msgstr "Lorg neo-riaghailteach"
+
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Prìomh sgòr a 'co-phàirt de dhàta deuchainn"
+
+msgid "Principal Component Score of Training Data"
+msgstr "2. Prìomh sgòr den dàta trèanaidh"
+
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Clàr sreath de staitistig T2"
+
+msgid "Series Chart of Q Statistics"
+msgstr "4. Clàr nan sreath de staitistig q"
+
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Cuilbheart tabhartais de staitistig T2"
+
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Plot tabhartais de staitistig q"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Thoir air falbh outlier"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Dàta trèanaidh"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Deuchainn Deuchainn"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Tha"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Chan eil"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Seòrsa dàta"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Eisimpleir"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Mearachd"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Rabhadh"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"Leis gun deach a h-uile togalach a dhubhadh às le giullachd luach èiginn "
+"(NA toirt air falbh), chan eil dàta ann airson sgrùdadh a dhèanamh. Dèan "
+"cinnteach gu bheil an luach falamh, a 'toirt a-steach NA, air a thaghadh."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"Cha ghabh a sgrùdadh gu bheil e a 'toirt a-steach dàta a bharrachd air "
+"àireamhan. Dèan cinnteach gu bheil thu air colbh a thaghadh anns a bheil "
+"sreang no luach roinn-seòrsa."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"Chan urrainn dha mion-sgrùdadh a dhèanamh oir tha dàta ann le eadar-"
+"dhealachadh de 0. Dèan cinnteach nach eil ach colbh luach air a thaghadh."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"Lorg dàta roinn-seòrsa agus luach integer ris a bheil dùil. Mura h-eil an"
+" luach integer seo na sgèile òrdaich, sgèile eadar amannan, no sgèile co-"
+"mheas, faodaidh toradh co-mheas a bhith air an sgrùdadh a dhaingneachadh."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr ""
+"A bheil thu cinnteach gun tèid thu air adhart a 'dol air adhart a' dol "
+"air adhart?"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Rannsaich"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"Tha a 'mheadhan aon de na staitistig àbhaisteach. Tha e na luach a tha "
+"suidhichte sa mheadhan nuair a thèid an dàta crìochnaichte a chuir air "
+"dòigh anns an òrdugh dìreadh. Mar eisimpleir, ann an cùis còignear, is e "
+"linn meadhan na h-aois an treas aois ann an òrdugh aois. Ma tha an "
+"àireamh de dhàta eadhon, thathas a 'cleachdadh cuibheasachd an "
+"àireamhachd sa mhearachd sa mheadhan."
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Geàrr-chunntas an sgaoileadh"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N àireamh"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Cuibheasach"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Dè tha am meadhan ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Iomlan"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Netquence"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Puing crìochnachaidh"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Pròiseas targaid"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Sreath ùine"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Pìosan"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Àireamh de cheangal dàta"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Diogan"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Ùine freagairt"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "deasaich"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Air ais"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Cuir nód"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Cuir iomall"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Deasaich nód"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Cliog air an àite falamh gus nód ùr a chuir."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Cliog air an nód, slaod an oir gu nód eile agus ceangal riutha."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Cliog air an àite smachd, slaod e chun nód agus ceangal."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Cha ghabh an sgaradh a chur ris."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Chan urrainnear an cruinneachadh a dhubhadh às."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Chan urrainnear an cruinneachadh a dheasachadh."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Tha an t-ainm taisbeanaidh no an luach a chaidh a dhùblachadh."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Cuir a-steach ainm agus luach an taisbeanaidh."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Cuir a-steach an colbh loidhne."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Uairean"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Fiosrachadh dàta"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Latha"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Seachdain"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "Luchdaich"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "Sàbhail"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Thairis air"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "Suidheachadh"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Atharraich an tiotal oir tha an aon tiotal air a shuidheachadh."
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "Sàbhail suidheachadh"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "Cruthaich Glacadh-sgrìn"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "Luchdaich sìos"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"Na h-adhbharan nach urrainn don ghraf a thaisbeanadh mar a leanas. "
+"BREAK_LINE Thoir sùil air an t-suidheachadh. Chan eil dàta BREAK_LINE・ "
+"air a thoirt a-steach, no ann am meadhan in-mhalairt. BREAK_LINE・ Chan "
+"eil dàta sam bith ceangailte, no ann am meadhan ceangal. BREAK_LINE・ Tha "
+"suidheachadh a 'ghraf neo-iomchaidh."
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Rabhadh"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr ""
+"Chan eilear a 'toirt a-steach dàta neo-dhligheach anns a' cholbh dàta "
+"ceann-latha."
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr ""
+"Faodaidh tu iomradh a thoirt air na faidhlichean anns a 'phasgan gu "
+"h-ìosal airson dàta nach gabhadh a thoirt a-steach."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr ""
+"Chan urrainnear an inbhe cleachdaidh a luchdachadh suas leis nach eil e "
+"ceangailte ris an eadar-lìn."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Feuch an toir thu sùil air an ceangal lìonra."
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Bheir e ùine mhòr gus dàta a cheangal a-rithist."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "A bheil thu cinnteach gun cuir thu ath-cheangal an dàta?"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Sguab"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Cuir an gnìomh"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr ""
+"A bheil thu cinnteach gun tug thu na roghainnean ceangail dàta clàraichte"
+" roimhe?"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Thòisich e a 'toirt a-steach dàta."
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr ""
+"Faodaidh tu sgrùdadh a dhèanamh air adhartas an in-mhalairt bhon cheangal"
+" gu h-ìosal."
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Faic an duilleag liosta obrach airson inbhe mearachd."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Thòisich e a 'ceangal dàta."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Aon uair gach 3 mionaidean"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Aon uair gach 5 mionaidean"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Aon uair gach 10 mionaidean"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Gnìomh roghainneil"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Seòrsa faidhle"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV às-mhalairt"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"Air sgàth an àireamh mhòr de chlàran taghte agus an ùine a dh 'fheumar "
+"gus an graf a thaisbeanadh, bha an àireamh de chlàran gach graf air a "
+"chuingealachadh ri 50,000."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Clàr sreath ùine"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Luach roinn-seòrsa"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"Leis gu bheil an àireamh de chlàran anns an ùine ainmichte nas motha na "
+"5,000, tha e ceangailte taobh a-staigh ± 14 latha den ùine ainmichte. "
+"Mura h-eil thu airson an raon ceangail a chuingealachadh, atharraich an "
+"ùine gus an àireamh de chlàran de BREAK_LINE atharrachadh."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "A 'suidheachadh sgèile"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Sgèile cumanta"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Loidhne stairsneach"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Sgèile fèin-ghluasadach"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "A bhith a 'cleachdadh sgèile"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn den phròiseas"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "Mion"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "Chan eil gin"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "Geàrr-chunntas"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "Cunnt"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "Staitistig bunaiteach"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "Neo-pharametric"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "Càileachd Dàta"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Seallawer"
+
+msgid "ImportData"
+msgstr "Dàta in-mhalairt"
+
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Tòisichidh pròiseas ceangail dàta stèidhichte air rèiteachadh làithreach."
+
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr ""
+"Dh 'fhaodadh gun toir e ùine ma tha tòrr dàta ri cheangal. A bheil e "
+"ceart gu leòr tòiseachadh?"
+
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr ""
+"* Airson dàta a tha a 'cur a-steach gu fèin-ghluasadach agus bho àm gu "
+"àm, thèid ceangal ID a chruthachadh gu fèin-ghluasadach."
+
+msgid "Data Source Name"
+msgstr "Ainm stòr dàta"
+
+msgid "Data Source Type"
+msgstr "Seòrsa stòr dàta"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "A bheil thu cinnteach gun sàbhail thu atharrachaidhean?"
+
+msgid "Force to OS locale time zone."
+msgstr "FIOSRACHADH OS AIR A DHÈANAMH GU COMHAIRLE Sòn Ùine."
+
+msgid "Advanced Setting"
+msgstr "Suidheachadh adhartach"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"Tha roghainnean air an sàbhaladh airson an stòr-dàta / ____ faidhle de "
+"dhàta a tha a 'toirt a-steach. Rach don duilleag suidheachaidh, cuir na "
+"colbhan de dàta in-mhalairt gus an dàta a thoirt a-steach."
+
+msgid "Element data is missing required attribute."
+msgstr "Chan eil feart riatanach ann an dàta na h-eileamaid."
+
+msgid "Element data is missing required attribute value."
+msgstr "Chan eil luach feart ann a tha a dhìth air dàta eileamaid."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"Feumaidh lorgaidh anabarrach le PCA co-dhiù dà chaochladair. Tagh dà "
+"chaochladair no barrachd."
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Tagh co-dhiù aon cholbh"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr ""
+"Chan eil caochladairean roinn-seòrsa a tha a 'lughdachadh leud a' bhogsa "
+"air an taisbeanadh."
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "A 'tòiseachadh digit"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Cuilbheart Ridgeline"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"Cuir stad air an tagradh (frithealaiche iomall). Ma stadas tu, cha bhith "
+"e comasach do neach-cleachdaidh sam bith eile a chleachdadh cuideachd, "
+"mar sin cuir fios chun Rianadair. <br> A thaobh deireadh àbhaisteach, "
+"Sguir dheth an seo agus dìreach a 'dùnadh a' bhrobhsair."
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr ""
+"Chaidh stad a chuir air a h-uile obair. Faodaidh tu do bhrobhsair agus an"
+" consol a dhùnadh gu sàbhailte."
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Contig stòr dàta"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Config stòr dàta dàta"
+
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": Colbhan lorg mòran de cholbhan caractar. Dèan cinnteach gum bi an colbh"
+" seòrsa àireamhach msaa air a mhì-mhisneachadh."
+
+msgid "Filter Item"
+msgstr "Sìoltachain nì"
+
+msgid "Filter Value"
+msgstr "Luach sìoltachain"
+
+msgid "Valid from"
+msgstr "Ceann-latha crìochnachaidh (tòiseachadh)"
+
+msgid "Valid to"
+msgstr "Ceann-latha crìochnachaidh (deireadh)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"Cha b 'urrainnear dàta a thoirt a-steach air sgàth mearachdan "
+"rèiteachaidh seòrsa de cholbh. Ainm Stòr Dàta __param__ CSV/TSV Thoir "
+"sùil air roghainnean an seòrsa dàta ann an ro-shealladh dàta den duilleag"
+" suidheachaidh a chaidh a leughadh. Thoir às na roghainnean ceum nach "
+"gabhadh a thoirt a-steach agus na roghainnean a shuidheachadh."
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr ""
+"Bha faidhle às aonais dàta. Thoir sùil air susbaint an fhaidhle. <br>: "
+"__param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Cuir a-steach co-dhiù aon luach na h-ùine dligheachd bho no gu."
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Roinn a rèir roinn"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Roinn a rèir Teirm (Cynclic)"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Roinn a rèir teirm (dìreach)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"Tha luach an eadar-ama a chaidh a-steach neo-dhligheach. Cuir a-steach "
+"grunn 0.1 no barrachd, 720 no nas lugha, no -720 no barrachd, agus nas "
+"lugha no nas lugha."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+"Tha faid uinneig figear `uinneig neo-dhligheach. Feumaidh luach a bhith "
+"eadar 0.1 agus 48."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"Tha an àireamh de ridgeline cuir a-steach neo-dhligheach. Cuir a-steach "
+"integer de 1 no barrachd agus 150 no nas lugha. (is fheàrr leam a bhith a"
+" 'cleachdadh timcheall air 100)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Tòisich dàta & ùine"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Eadar-ama"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Fad uinneig"
+
+msgid "Control item"
+msgstr "Nì smachd"
+
+msgid "Type"
+msgstr "Seòrsa"
+
+msgid "Name"
+msgstr "Ainm"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"Thoir fa-near, ma tha an àireamh de phuingean dàta ann an aon roinn fo "
+"aois 50, faodaidh cruinneas a 'ghraf a lughdachadh."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Seall cursor Cross Falt (cliog)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Seall a 'chrim croursor de fhuilt ro iomaga (cliog dùbailte)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Seall liosta de hokmage"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Cuir dheth sgrùdadh a-muigh"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Sònraichte Ainm Dàta air `Tha ainm stòr dàta ann mu thràth."
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"Dh'fhàillig a-steach dàta a dh 'fhàillig leis gun deach faidhle le colbh "
+"eadar-dhealaichte a lorg anns an stòr dàta. Thoir sùil air susbaint an "
+"fhaidhle agus shuidhich na roghainnean in-mhalairt stòr an dàta "
+"a-rithist."
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "An dùil àireamh de chlàran airson a bhith ceangailte"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Àireamh de shamhlaichean"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Àireamh de chlàran airson a bhith ceangailte"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Àireamh de chlàran iomlan"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr ""
+"Feuch an toir thu ainm ris a 'phasgan anns a bheil CSV/TSV faidhle air an"
+" sàbhaladh mar \"yyyymmdd\\"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Ro-innse"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Contraig filter"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "Prìomh chroit"
+
+msgid "From Filter Config"
+msgstr "Bho config sìoltach"
+
+msgid "Show all"
+msgstr "Seall a h-uile càil"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Mar iuchair (roghainn)"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"Air a dhubhadh às do REMOVED_COUNT de luach easbhaidh, luach neo-"
+"àbhaisteach, agus luach a-muigh bho TOTAL_COUNT anns an dreach tùsail."
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Seòladh IP"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"Dèan coimeas eadar sgaoileadh dàta le tuairmsean cliù agus dùmhlachd. Tha"
+" an graf air a roinn leis an caochlaideach caoltach. Tha e cuideachd air "
+"a roinn le taobh."
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Cuilbheart gu h-iomlan an àireamh de dhàta air an àm Axis no ID Axis."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr ""
+"Taisbeanadh plota sgapaidh sgapaidh. Faodaidh tu a chleachdadh bho 2 gu 7"
+" chaochladairean targaid."
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"Le bhith a rèir prìomh sgrùdadh co-phàirteach, thathas a 'coileanadh "
+"fradharc \"eadar-dhealachadh\" agus an sgrùdadh bàillidh. Cuir a-steach "
+"dàta àbhaisteach mar dhàta tidseir agus lèirsinn a bheil an dàta "
+"làithreach den aon shuidheachadh ris an dàta àbhaisteach aige (T2 / Q). "
+"Ma tha suidheachadh eadar-dhealaichte agad, faodaidh tu sgrùdadh a "
+"dhèanamh air na prìomh nithean anns a 'chuilbheart tabhartais."
+
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"Tha an sgaoileadh air a roinn na ioma sheòrsa leis an caochlaideach seo. "
+"Tagh caochladairean roinneil (caochladairean càileachdail) leithid "
+"àireamhan agus stèiseanan pàirt."
+
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Filter Roinnean Stratachaidh: a 'crìochnachadh dàta ri thaisbeanadh gu "
+"fo-ghnè. (Roinn-seòrsa: Àireamh Pàirt, stèisean Chan eil, msaa)"
+
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"Caochlaidhean roinn-seòrsa (leithid àireamh Pàirt, stèisean Chan eil, "
+"msaa) air a thaisbeanadh mar bhileagan aig mullach plotaichean gus "
+"puingean ag atharrachadh a lorg."
+
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Filter Graf: a 'cuingealachadh dàta ri thaisbeanadh gu fo-ghnè."
+
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"Suidhich an dàta ionnsachaidh air a mhìneachadh mar shuidheachadh "
+"àbhaisteach. Suidhich an roinn dàta aig nach eil dàta NG. Ma thèid a "
+"thoirt a-steach, tha an fheadhainn a tha faisg air dàta NG a "
+"'bhreithneachadh a dhèanamh air an dàta NG cuideachd mar dàta "
+"àbhaisteach."
+
+msgid "Set test data to be judged."
+msgstr "Suidhich dàta deuchainn ri breithneachadh."
+
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr ""
+"Filter Patter: A 'chrìochan dàta (mion-sgrùdadh & Taisbeanadh) Ri "
+"fhaicinn do fo-sheata."
+
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"Tha e na thaisbeanadh gu tur dà-mhìnich (teannachadh taobhan le prìomh "
+"phàirtean) de dhàta dearbhaidh ioma-mheadhain. Ma tha an dàta sa "
+"mheadhan, faodar a mhìneachadh mar faisg air àbhaisteach."
+
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"Tha e na thaisbeanadh dà-mhìnich dà-thaobhach (teannachadh taobh a-muigh "
+"le prionnsapalan) de dhàta ionnsachaidh ioma-mheadhain. Tha am prìomh "
+"thargaid air a dhearbhadh leis an dàta ionnsachaidh, agus mar sin bu "
+"chòir a 'mhòr-chuid den dàta ionnsachaidh a bhith san targaid."
+
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"Cus den staitistig T2, a bhios a 'cumail sùil air neo-riaghailteach anns "
+"a' phrìomh phàirt den dàta seo. Tha an dàta ionnsachaidh air a "
+"chuilbheart ann an geal agus ann an cuibhreann X àicheil. Is e an "
+"cuilbheart buidhe an dàta dearbhaidh. Mar as àirde tha an dàta dearbhaidh"
+" an coimeas ris an dàta gheal, is dòcha gu bheil an suidheachadh as "
+"coltaiche a bhith a 'gluasad. Cliog air Puing Dàta gus an clàr tabhartais"
+" de na thaeamaidean a dhèanamh suas an suidheachadh."
+
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"Cus den q Statististististististidh (sgrùdadh airson neo-riaghailteachdan"
+" anns a 'phàirt seo den dàta seo, fuigheall). Tha an dàta ionnsachaidh "
+"air a chuilbheart ann an geal agus ann an cuibhreann X àicheil. Is e an "
+"cuilbheart buidhe an dàta dearbhaidh. Mar as àirde tha an dàta dearbhaidh"
+" an coimeas ris an dàta gheal, is dòcha gu bheil an suidheachadh as "
+"coltaiche a bhith a 'gluasad. Cliog air Puing Dàta gus an clàr tabhartais"
+" de na thaeamaidean a dhèanamh suas an suidheachadh."
+
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Tha òrdugh a chuireas caochladairean a 'cur ris an t-suidheachadh aig an "
+"ìre a chaidh a thaghadh ann an cuilbheart stalc T2. Mar as fhaide air an "
+"fhaid, is dòcha gur e an adhbhar as coltaiche ris an adhbhar."
+
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"Tha òrdugh dè an caochladairean a tha a 'cur ris an t-suidheachadh aig an"
+" ìre a chaidh a thaghadh anns a' chuilbheart stat as statistig. Mar as "
+"fhaide air an fhaid, is dòcha gur e an adhbhar as coltaiche ris an "
+"adhbhar."
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr ""
+"Àireamh de phuingean dàta le luach nas lugha na no co-ionann ri Q1 - 4.5 "
+"* IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr ""
+"Àireamh de phuingean dàta le luach nas motha na no co-ionann ri Q3 + 4.5 "
+"* IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"Àireamh iomlan de dhàta a 'toirt a-steach NA (chan eil e ri fhaighinn), "
+"NaN (chan e àireamh) agus Inf± (Infinity) anns an ùine a thagh."
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"Out of Control Line: Àireamh sa cheud de dhàta taobh a-muigh stairsneach "
+"àrd is ìosal (cunntadh) san ùine a thagh"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: Àireamh sa cheud de dh 'dàta taobh a-muigh na cruinne"
+" as àirde agus as ìsle (cunntadh) anns an ùine taghte"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr ""
+"Àireamh sa cheud de NA (chan eil e ri fhaighinn) anns an ùine taghte "
+"(cunntadh)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Àireamh sa cheud de NaN (chan e àireamh) anns an ùine a thagh (cunntadh)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr ""
+"Àireamh sa cheud de Inf+ (a bharrachd air Infinity) anns an ùine taghte "
+"(cunntadh)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Àireamh sa cheud de Inf- (infinity minus) anns an ùine taghte (cunntadh)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"An ceudad iomlan de dhàta taobh a-muigh luach an stairsnich, NA (chan eil"
+" e ri fhaighinn), NaN (Infinity) anns an ùine taghte (cunntadh)"
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"Àireamh de dhàta a tha a 'dùnadh a-mach NA (chan eil e ri fhaighinn), NaN"
+" (chan e àireamh) agus Inf± (Infinity) san ùine a thagh."
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "95mh sa cheud"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75mh sa cheud (an treas cairteal)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25mh de cheud sa cheud (ciad chairteal)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "5mh sa cheud"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Raon eadar-ghnìomhach (luach riochdachaidh caochlachadh cuairteachaidh: "
+"IRQ = Q3 - Q1 ≒ 1.349σ @ sgaoileadh àbhaisteach)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "Meadhan (50mh sa cheud)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "A 'cunntadh / uair a thìde"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Cunntadh / mionaid"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Àm air baidhsagal [S]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Àireamh na roinne"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Cearcall taisbeanaidh"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "Eadar-ama taisbeanaidh"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Mapa teas calenda"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"Chan urrainnear caochladairean targaid a thaghadh le MAX_NUM_SENSOR no "
+"barrachd. Tagh an caochladair targaid."
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr ""
+"Is e na targaidean airson a-mach luchd-opeliers Max, Mean, Min, __ *__ "
+"agus Range."
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Ach a-mhàin àireamhan fìor"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"Faodaidh an sgaoileadh a bhith air am beachd le bhith a 'tomhas gach "
+"caochladair gnèitheil (caochladairean càileachdail, lot àireamh, msaa) no"
+" ceann-latha, agus a' taisbeanadh an àm seo, agus a 'taisbeanadh an ama "
+"seo. Modh fradhairc a leigeas le mion-sgrùdadh thar-bhuidheann (coimeas "
+"eadar lotaichean, làithean, gluasadan agus msaa) gun fhios ID."
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Suidhich an stairsnich a tha air a tharraing air grafaichean."
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"Ma tha sgapadh air adhart, faodaidh tu an cuilbheart sgapte a nochdadh "
+"leis. An cuilbheart sgapte eadar an rud làithreach agus an ath rud "
+"sreath. Slaod agus leig às na cairtean cuilbheart de na plotaichean fa "
+"leth leis an luchag gus an X-Axis agus Y-axis a 'chuilbheart sgapaidh "
+"atharrachadh."
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"Nì de dhàta (leithid luach àireamhach no tomhais àireamhach) a tha a "
+"'cruthachadh cuairteachadh de dhàta. Tha an dàta seo air a chuilbheart "
+"air a 'chuilbheart. Faodar suas ri 20 rud a thaghadh."
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"Bidh an caochladair sin a 'roinn an sgaoileadh gu grunn phlotaichean agus"
+" a' taisbeanadh iad taobh ri taobh. Tagh caochladair daing-chruthach, "
+"leithid tòrr no baidse Àireamh"
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr ""
+"Cuir a-steach an ceann-latha tòiseachaidh an ceann-latha tòiseachaidh gus"
+" cuilbheart Ridgeline a thaisbeanadh airson gach àm ceann-latha."
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr ""
+"Cuir a-steach gu dìreach an ùine gus cuilbheart Ridgeline a thaisbeanadh "
+"airson gach àm ceann-latha."
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"Faodaidh tu roghainnean a thaghadh gus dàta a thoirt a-steach bho CSV/TSV"
+" faidhle a dh 'fheumas làimhseachadh sònraichte, leithid structaran dàta."
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"Bidh putadh air a 'phutan ro-shealladh gu h-ìosal a' sealltainn beagan "
+"den dàta san fhaidhle gus an urrainn dhut sgrùdadh a dhèanamh air na tha "
+"ann."
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"Tagh ceangal ID airson a chleachdadh mar chumha airson a bhith a 'ceangal"
+" dàta. Faodaidh tu cuideachd grunn rudan a thaghadh."
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"Nuair a bhios an app agad a 'faighinn a-steach dàta a tha air an "
+"cleachdadh bho àm gu àm, faodaidh tu colbh ceann-latha a thaghadh a tha "
+"air a chleachdadh gu fàbharach mar phrìomh àm an ceann-latha."
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"Ma thaghas tu gnìomhaiche agus cuir a-steach àireamh fo 'factar', thèid "
+"an luach sa ghraf a thomhas a 'cleachdadh an gnìomhaiche agus am bàillidh"
+" ainmichte."
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"Ma thaghas tu gnìomhaiche agus cuir a-steach àireamh fo 'factar', thèid "
+"an luach sa ghraf a thomhas a 'cleachdadh an gnìomhaiche agus am bàillidh"
+" ainmichte."
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr ""
+"Tha e comasach ro-innse dè an suidheachadh dàta a bhios air a shallachadh"
+" an-dràsta."
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr ""
+"Cuir às do dh 'ainm an àite a tha a' suidheachadh an-dràsta agus a 'gairm"
+" air a' chumha clàraichte roimhe."
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr ""
+"Tha ID air a ghineadh taobh a-staigh gus dàta a cho-cheangal ris na "
+"suidheachaidhean a tha a 'dol suas."
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr ""
+"Tagh na stuthan smachd càileachd no uidheamachd uidheamachd a 'cleachdadh"
+" ann an suidheachaidhean graf."
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Tagh an seòrsa targaid riaghlaidh leithid àireamh pàirt agus uidheamachd."
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr ""
+"Tagh an targaid riaghlaidh mar luach àireamh a 'phàirt agus luach an "
+"Uidheam."
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr ""
+"Suidhich an ceann-latha tòiseachaidh agad airson roghainnean graf. "
+"(Riatanach)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Suidhich an ceann-latha deireannach airson roghainnean graf. (Roghainneil)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Leugh an rèiteachadh a chaidh a shàbhaladh."
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Sàbhail an rèiteachaidh as ùire a chuir thu a-steach."
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Sàbhail an scrion mar fhaidhle PNG."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "A bheil thu airson an suidheachadh seo a dhubhadh às?"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Caochladair targaid (àireamh fìor)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Caochladair targaid (roinn)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Òrdachadh clàr-amais"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "Colbh"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "Òrdugh"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Prìomhachas"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Òrdachadh"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Caochladairean"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Fìor & seòrsachadh a-mhàin"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Fìor a-mhàin"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Seggorical a-mhàin"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Ann an òrdugh suidhichte"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Ann an òrdugh pròiseasaidh"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Ann an coef co-dhàimh. Òrdugh"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Tàs Co-dhàimh (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Tagh gu caochladair amas"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Caochladair amas"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Caochladh Mìneachaidh"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Co-mheas ri fhaighinn"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Diagram Sanky"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Maids (maids foirfe)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Lorg"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Rannsachadh"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Bhon nach urrainn do chuilbheart co-òrdanachaidh co-òrdanachaidh a bhith "
+"a 'làimhseachadh àireamhan fìor, chaidh dàta fìor-ùine a thoirt air "
+"falbh."
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Ath-rianachd"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Clàraich an fhiosrachadh deasaichte leithid ainm taisbeanaidh."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "A bheil thu airson clàradh leis an t-susbaint atharraichte?"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr ""
+"Ma dh 'atharraicheas tu ceangal ID, feuch an ath-shuidhich rèiteachadh "
+"ceangail dàta."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Graf co-thachair"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Faidhle dàta"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Air a mhilleadh le"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Uair"
+
+# co-occurrence
+msgid "Day"
+msgstr "Latha"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Deasaich modh deasachaidh"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Modh suidheachadh"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"Thèid an dàta neo-dhligheach a chaidh a shoilleireachadh dearg a dhubhadh"
+" às. A bheil thu cinnteach gu bheil thu a 'tionndadh gu modh a "
+"shuidheachadh?"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "Prìomhachas"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"Chaidh ainm Beurla dùblaichte a lorg, agus mar sin chaidh an àireamh "
+"sreathach a chuir ris gu fèin-ghluasadach. Thoir sùil air ainmean colbh."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Aonadan cruinneachaidh"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"Is e a 'chiad cholbh san àm seo, agus is e luach / prìomh cholbhan an "
+"dàrna cruinne a th' ann an an dàrna colbh agus na colbhan às deidh sin "
+"cunntachail (0,1,2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2"
+" ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 "
+"...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 "
+"...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 "
+"...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 "
+"...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 ...2 "
+"...2 ...2 ...)."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Dàimhean co-tòiseachaidh co-thachdail tron ​​uair / latha."
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Stairsneach taisbeanaidh"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"Ma thaghas tu luach nas lugha na 100%%, cuiridh tu fòcas air dàimh Co "
+"-occurrce beag. (Àbhaisteach: tarraing loidhne ma tha eadhon aon uair)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"Aithneachadh agus lèirsinneach caochladairean a tha air an co-cheangal gu"
+" dìreach no gu neo-dhìreach ris an caochlaideach targaid."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"Lèirsinn an co-dhàimh eadar na caochladairean a tha air a chomharrachadh "
+"an seo. Faodar suas ri 60 nithean a thaghadh."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Caochladairean tagraiche a tha ceangailte ri caochladairean amas."
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "de na h-oirean"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Cruth"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Cearcall"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Fèin-ghluasadach"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Èifeachdas"
+
+msgid "Set threshold"
+msgstr ""
+"Control Line: Thoir sùil air cuin a bhios ìrean riaghlaidh a tha a "
+"'tarraing leithid loidhnichean àbhaisteach"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Àrd-ùrlar Mion-sgrùdaidh"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Cairt pareto"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Àireamh tachartais"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Co-mheas teilidh [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"Lèirsinn paramadairean a dh 'fhaodadh atharrachadh le dàta thar ùine "
+"mhòr, leithid atharrachaidhean bliadhnail ann am pròiseasan, làithean na "
+"seachdain, gluasadan, msaa."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr ""
+"Adharc air an co-cheangal eadar àireamh mhòr de chaochladairean le urram "
+"don chaochlaidean targaid."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr ""
+"Lèirsinneach Co-thàrt de sgàinidhean, innealan-rabhaidh, tachartasan agus"
+" msaa (dàimh a tha ag amas air tricead de dh 'aon ìre agus fear eile)."
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"FalamhDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: Inneal sìmplidh airson mapadh, molladh dàta, sgrùdadh "
+"staitistigeil, agus ionnsachadh innealan."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"Tha an seata dàta an seo air a chleachdadh mar iomradh airson a bhith a "
+"'ceangal dàta agus a' dealbhadh. Tha na roghainnean air an cleachdadh ann"
+" an axis còmhnard a 'chuilbheart. A bharrachd air an sin, tha an "
+"cuilbheart tùs air a thaisbeanadh le frèam gorm aotrom."
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"Sònraich an dàta (mar eisimpleir, caochladairean àireamhach: luach "
+"tomhais) airson a 'chuilbheart. Tagh na pròiseasan agus na stuthan a "
+"thèid a chuilbheart air a 'chuilbheart. Faodar suas ri 20 rud a thaghadh."
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"Sònraich an dàta (mar eisimpleir, caochladairean àireamhach: luach "
+"tomhais) airson a 'chuilbheart. Tagh na pròiseasan agus na stuthan a "
+"thèid a chuilbheart air a 'chuilbheart. Faodar suas ri 8 nithean a "
+"thaghadh."
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"Falamh可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"Tha an stratificat seo caochlaideach a 'roinn a' phàtran gus am pàtran a "
+"thoirt a-steach do iomadh plota agus a 'taisbeanadh iad taobh ri taobh. "
+"Tagh caochladairean seòrsaichean mar àireamh Pàirt is stèisean Chan "
+"urrainnear suas ri 100 rud a thaghadh."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"An rud de dhàta a tha a 'sealltainn an co-cheangal eadar caochladairean "
+"(caochladairean caochlaideach: luachan tomhais, msaa). Tha an dàta seo "
+"air a chuilbheart air a 'chairt. Bho 2 gu 7 paramadairean faodar a "
+"thaghadh."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"Tagh an rud gus an co-dhàimh a thoirt seachad eadar caochladairean. "
+"Faodar suas ri 60 nithean a thaghadh."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"Nithean de chaochladairean roinneil (leithid àireamhan pàirt) gus an co-"
+"dhàimh a thoirt seachad eadar caochladairean."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Meudaich cairt"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "A 'lughdachadh cairt"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr ""
+"Ma thèid an suidheachadh seo atharrachadh, feumar na roghainnean ceangail"
+" dàta ath-shuidheachadh."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Gluasad fèin-ghluasadach"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Tagh a h-uile càil air an taobh cheart"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Neo-chiontach air an taobh cheart"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Uile fìor (float) às an seo"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "A h-uile integer às an seo"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Gach sreang às an seo"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"Mar thoradh air an àireamh mhòr de chlàran a chaidh a thaghadh agus an "
+"ùine a dh 'fheumar gus dealbhadh a thaisbeanadh, chaidh an àireamh de "
+"cheallan gach cuilbheart a chuingealachadh ri 10,000. Ma tha thu airson "
+"gum faic thu an dàta gu lèir airson an ùine targaid BREAK_LINE, àrdaich "
+"an ùine taisbeanaidh no lughdaich an ùine taisbeanaidh gus an àireamh de "
+"cheallan a lughdachadh."
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Sreathach"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr ""
+"Faodaidh tu sgèile a 'chuilbheart atharrachadh le bhith a' briogadh deas "
+"air a 'chuilbheart."
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Sgèile Graf"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Modh suidheachadh"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Àireamh de nithean dàta nach gabh ceangal a dhèanamh"
+
+msgid "Only scatter plot"
+msgstr "Cuilbheart sgapte"
+
+msgid "with shading"
+msgstr "le contour"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Sàbhaladh"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"Falamhファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "Suidheachadh luchd"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "Co-roinn / prìobhaideach"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "Tuairisgeul"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "Air a chruthachadh le"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "Cleachdadh / luchdan"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "Luchdaich"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr ""
+"Àireamh de dhàta nach gabhadh a bhith ceangailte ris a 'phròiseas "
+"tòiseachaidh tòiseachaidh (ceudad de cheangal)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Sàbhail àm ceann-latha"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "Sgaoil Roghainnean"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "Sàbhail"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"Faodaidh tu taghadh bho 2 gu 7 chaochladairean targaid. Thoir sùil air an"
+" àireamh de chaochladairean targaid agus ceartaich na roghainnean."
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr ""
+"Is e crìoch meud an fhaidhle 10 MB. Lùghdaich meud an fhaidhle agus feuch"
+" ris a-rithist."
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr ""
+"Ma thèid a sgrùdadh, thèid an ceann-latha ainmichte a shàbhaladh "
+"cuideachd."
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Thoir sùil air an suidheachadh seo a cho-roinn."
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Sàbhail na roghainnean."
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "A bheil thu cinnteach gun cuir thu thairis air roghainnean?"
+
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "Co-roinn"
+
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "Prìobhaideach"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "Air a chruthachadh aig"
+
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "Dùin"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "Òrdugh air a shuidheachadh"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "Ceann-latha tòiseachaidh àm do cheann-latha"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "Ceann-latha crìochnachaidh"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Seall bileagan x-axis"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Raon-latha raon-latha"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Slaod agus leig às faidhle an seo"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "No"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Tagh Faidhlichean"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Cha ghabh a thaisbeanadh"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"Chaidh stad a chuir air giullachd air sgàth an ìre mhòr de dhàta agus an "
+"ùine giollachd fhada. Dèan lèirmheas air na roghainnean tron ​​latha agus"
+" a 'taisbeanadh a' chuilbheart a-rithist."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr ""
+"Faidhle CSV. Fuirich ort fhad 's a tha thu a' luchdachadh sìos an "
+"fhaidhle."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr ""
+"Faidhle TSV faidhle. Fuirich ort fhad 's a tha thu a' luchdachadh sìos an"
+" fhaidhle."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Raon auto"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Raon iomlan"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Suidheachadh òrdugh clàr-amais"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "Fosgailte"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "Thoir às"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"Leis gu bheil an àireamh de phuingean dàta gach graf còrr is 12,000, bha "
+"an àireamh de phuingean dàta cuingealaichte ri Max 12,000. Ma tha thu "
+"airson an dàta gu lèir fhaicinn, suidhich ùine targaid nas giorra."
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratify a rèir teirm (coyclic)"
+
+#: component.js
+msgid "Facet"
+msgstr "Fact"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Roinn a 'coileanadh roinn a' roinneadh leis an rud taghte."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Deireadh eisgeachd"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"Raon Internaration àbhaisteach (clàr-amais a 'ceangal IQr ris an "
+"sgaoileadh àbhaisteach, NIQR = 0.7413 × IQr)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Is e am modh an luach as trice a bu trice."
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "le outlier"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "Às aonais outlier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Custom"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "An-diugh"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "An-dè"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Na 7 latha mu dheireadh"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Na h-30 latha mu dheireadh"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Air a 'mhìos seo"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 mìos"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 mìosan"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Cuir a-steach"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Seachdain"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 latha air ais"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 latha air ais"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Latha Fist den mhìos seo"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "An latha mu dheireadh den mhìos seo"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 mìosan"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Air ùrachadh aig"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"Tha geàrr-chunntas air puingean dàta le modh luath. Ma tha thu airson "
+"cuilbheart fhaighinn gun a bhith a 'fàgail dàta air falbh, atharraich an "
+"ùine targaid nas giorra."
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Raon de y Axis"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Outlier"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"Falamh'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "Rannsachadh Pròiseas"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "Comharra-leabhair"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"Falamh以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "Ùine baidhsagal"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "Fìor àireamh"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "Caochladair amas"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"Tha an leithid de cho-èifeachdas co-cheangal a 'tomhas a' chaochlair seo "
+"mar an caochlaideach targaid. Tha an caochladair targaid a chaidh a "
+"shònrachadh an seo cuideachd air a thaisbeanadh còmhla ri bàr dath air "
+"taobh fìor cheart a 'chuilbheart. Ma tha thu airson na caochladairean "
+"targaid atharrachadh air a 'chuilbheart, faodaidh tu gluasad eadar iad le"
+" bhith a' briogadh deas air gach ainm caochlaideach."
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"Cha deach dàta a bhàthadh leis gu bheil cus roinnean ann. BREAK_LINE "
+"Thoir sùil agus, ma tha sin riatanach, ath-sgrùdadh, ath-sgrùdaich an "
+"ùine targaid nas giorra."
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "Suidheachadh sìoltachain"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Leubail (caochladairean roinneil)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "Copaidh"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "Pasted"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "Dèan lethbhreac de config"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "Cuir a-steach config"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr ""
+"Às aonais suidheachadh tùsail, thèid a 'chiad targaid a thaghadh mar an "
+"tùs."
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "Dàta às-mhalairt"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "Gun a bhith a 'cleachdadh"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "Chan eil dàta air a tharraing leis gu bheil cus roinnean ann."
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr ""
+"Thoir sùil air agus, ma tha feum air, ath-sgrùdadh, ath-sgrùdadh air "
+"suidheachaidhean an ùine targaid."
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Roinn le cunntadh dàta (Cynclic)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "Àireamh de dhàta"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"Falamhグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Tagh caochladair an adhbhair."
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Chan eil lobhadh lobhadh / roinn-seòrsa"
+
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Cuilbheart sgapte"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"Ma tha an dàrna cuid an dàrna cuid x no y sreang dàta sreang, chan "
+"urrainn dhut caochladairean nach eil ring a chleachdadh airson "
+"suidheachadh dath."
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"Chaidh luach taobh a-muigh an raon ceadaichte a lorg, agus mar sin chaidh"
+" an raon dligheach as ìsle no as motha a cho-dhùnadh gu fèin-ghluasadach."
+" Atharraich na roghainnean mar a dh 'fheumar."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Cliog deas: suidheachadh ceangail dàta / deasachaidh / cuir às"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Ùine a bharrachd"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "Òrdugh Ùine"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "A 'suidheachadh òrdugh dàta"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"Feuch an cuir thu às do dhàta neo-riatanach oir tha comas diosc chruaidh "
+"`__522__\" air __SERVER_INFO__ %% a ruighinn."
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"Chaidh stad a chuir air a 'phort dàta oir chaidh comas diosc chruaidh "
+"`PNG 52__SERVER_INFO__ %% a ruighinn. Mura h-eil dàta neo-riatanach a "
+"thoirt às agus àrdachadh comas falamh, thèid an dàta ath-thòiseachadh."
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"Cuir a-steach an àireamh de sgaoilidhean ri thaisbeanadh (àireamh nan "
+"roinnean). Cuir a-steach integer de 2 no 150 no nas lugha."
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"Cuir a-steach an àireamh de sgaoilidhean ri thaisbeanadh (àireamh nan "
+"roinnean). Cuir a-steach integer de 1 no barrachd 32 no nas lugha."
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Falamh表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Falamhプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Falamh1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Falamh1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr ""
+"Tha cus fidheachan a 'dol seachad den chuilbheart, agus mar sin cha robh "
+"e cuibhrichte gu tur."
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"Air sgàth an àireamh mhòr de chlàran a chaidh a thaghadh, tha an àireamh "
+"de phlotaichean cuibhrichte bhon cheann-latha as sine chun chunntas as "
+"sine."
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Tha mi a 'gabhail ris"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "Crìonadh"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Air ais"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Àireamh de chuilbheart air colbh"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"Thathas a 'cleachdadh na caochladairean gnèitheach (àireamh pàirt, "
+"stèisean Chan eil, msaa) mar a tha bileagan aig mullach a' chuilbheart "
+"air an cleachdadh gus na puingean atharrachaidh a thoirt seachad "
+"(atharrachadh àireamh, msaa) de na caochladairean càileachdail."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"Tagh Nithean ri sgrùdadh (caochladairean caochlaideach: luach tomhais, "
+"msaa). Faodar suas ri 60 nithean a thaghadh."
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr ""
+"Tagh nithean gus dàta a sheòrsachadh. Faodaidh tu cuideachd grunn rudan a"
+" thaghadh."
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"Chan eil seann dàta a 'cur thairis air a bhith air a thaisbeanadh leis "
+"nach eil an ceann-latha a' cunntadh an ceann-latha bhon dàta as ùire le "
+"crìoch taisbeanaidh."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"Bha an àireamh de phlota air a chuingealachadh ri NUMBER. Ma tha thu "
+"airson a bhith a 'taisbeanadh na h-uile, ag ath-sgrùdadh nan roghainnean."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"Bha an àireamh de phlota air aon taba singilte air a chuingealachadh ri "
+"NUMBER. Ma tha thu airson a bhith a 'taisbeanadh na h-uile, ag ath-"
+"sgrùdadh nan roghainnean."
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"Is e an àireamh de chaochladairean targaid gus taghadh as ìsle a "
+"thaghadh. Thoir sùil air an àireamh de chaochladairean targaid agus "
+"ceartaich na roghainnean."
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"Tha an àireamh de chaochladairean targaid ri thaghadh suas ris a 'char as"
+" àirde as àirde. Thoir sùil air an àireamh de chaochladairean targaid "
+"agus ceartaich na roghainnean."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "Outlier"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "Mion"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "Rabhadh"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "Ro-innse"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "Tuairisgeul"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"Ma thaghas tu luach nas lugha na 100%%, cuiridh tu fòcas air dàimh Co "
+"-occurrce beag. (Àbhaisteach: tarraing loidhne ma tha eadhon aon uair)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"Ma thaghas tu luach nas lugha na 100%%, cuiridh tu fòcas air dàimh Co "
+"-occurrce beag. (Àbhaisteach: tarraing loidhne ma tha eadhon aon uair)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"Ma thaghas tu luach nas lugha na 100%%, cuiridh tu fòcas air dàimh Co "
+"-occurrce beag. (Àbhaisteach: tarraing loidhne ma tha eadhon aon uair)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "Tuairisgeul"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "Dùin"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "Ceann-latha crìochnachaidh (deireadh)"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "Ceann-latha crìochnachaidh (tòiseachadh)"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "Ceann-latha crìochnachaidh (deireadh)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+

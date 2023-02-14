@@ -1,0 +1,3797 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Uložené"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Došlo k chybě"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Konfigurace aplikace"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "Stránka nenalezena"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Došlo k chybě"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Aplikace DataLink & Analysis"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "Vyberte jazyk"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "Úvodní obrazovka"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "Ověření operace"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Ověření operace"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Základní konfigurace"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Registrovat"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Znovu načíst"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Celé číslo"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Real (float)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Čas schůzky"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Tětiva"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Titul"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Rostlina"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Továrna"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Čára"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "prosím potvrďte."
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"Uložte data a spusťte import dat s obsahem nastaveným na stránce "
+"nastavení procesu?"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "OK"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "zrušení"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Konfigurace databáze"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Jméno databáze"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Typ databáze"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Konfigurace"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Komentář"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Přidat"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Vyberte soubor databáze."
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Název souboru"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Vybrat"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Chcete tento záznam odstranit?"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "vymazat"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Sledovatelnost"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Graf sledovatelnosti"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Testování stopování"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Začněte testování"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Doba spuštění"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Ukončený čas"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID stroje (více výběrů)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Čára"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Číslo dílu"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Konfigurace datového odkazu"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Vyberte jazyk"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "japonský"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Angličtina"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Uzel"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Uzel ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Označení"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Hlavní jméno"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Databáze"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Import"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Vývozní"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Název hostitele"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Číslo portu"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Uživatelské jméno"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Heslo"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Schéma"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Uspěl jsem."
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; selhal."
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Procesní konfigurace"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Proces"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Název procesu"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Název tabulky"
+
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Detail"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Náhled"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Prvních pět záznamů"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Nastavení obsahu"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Název sloupce"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Anglické jméno"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Zobrazit název"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "součinitel"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Operátor"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Zadejte jinou hodnotu než 0"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Vstupní operátor."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Vstupní koeficient."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Vstup angličtiny."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Vstupní zobrazovací název."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Anglické jméno je duplikováno."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Název zobrazení je duplikován."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Všechna „zobrazovací jména“ vyžadují vstup."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Pole s prázdným „anglickým jménem“ jsou automaticky vyplněna."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Vybrat vše"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Import dat"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Určitě importujete data?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"Když stisknete tlačítko OK, importujete data z aktuálního času do jednoho"
+" měsíce."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Předchozí data jsou automaticky importována po kousku."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"Pokud chcete data importovat po aktuálním čase, stiskněte znovu tlačítko "
+"pro čtení dat nebo stiskněte databázi CSV Nastavení nastavení na stránce "
+"nastavení čtení."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Pokud bude nastaven „Aktualizovací cyklus“ „Nastavení čtení“ databáze / "
+"CSV, bude automaticky importován v období, kdy jsou data po aktuálním "
+"čase nastavena."
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Stopové informace"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Sledovací data"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Nemohl přístup"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Kliknutím sem to opravte."
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Upravit okraj"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Předchozí proces"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Předchozí sloupec"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Po procesu"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Sloupec příspěvku"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Jako datetime"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Jako sériové"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Jako odkaz ID"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "Již zaregistrované"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "Zadejte název procesu"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filtr/graf"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Graf Config"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Konfigurace filtru řádku"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Sloupec řádku"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "Hodnota"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Konfigurace filtru stroje"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Stroj ID sloupec"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Část bez filtru konfigurace"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Část bez sloupce"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Název filtru"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Podmínka filtru"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Ostatní filtr konfigurace"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Cílový sloupec"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Vizualizační konfigurace"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Spodní práh"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Horní prahová hodnota"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Nižší prahová hodnota procesu"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Horní prahová hodnota procesu"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Rozsah y-osí: min"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Rozsah y-osí: max"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Část č"
+
+msgid "Ends With"
+msgstr "Konec s"
+
+msgid "Starts With"
+msgstr "Začít s"
+
+msgid "Contains"
+msgstr "(Like vyhledávání)"
+
+msgid "Matches"
+msgstr "Souhlasit"
+
+msgid "Regular expressions"
+msgstr "Regulární výrazy"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Zobrazit graf"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Export"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Je vyžadován proces"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Je vyžadován název sloupce"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Je vyžadována linka"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Je vyžadován název zobrazení"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Název zobrazení je duplikován."
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Je vyžadována hodnota stroje"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Duplikovaný stroj ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Úspěšně uloženo"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Nepodařilo se to ušetřit"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Část není vyžadována sloupec"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Je vyžadován cílový sloupec"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Je vyžadován název filtru"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Je vyžadován stav"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Název filtru je duplikován."
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Podmínky jsou duplikovány."
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Výchozí"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Název procesu"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Přidány další filtry"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Import config"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Zdroj"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Cyklus obnovení"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Připojit"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Jednou za hodinu"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Jednou za den"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Potvrzení dat"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Neexistuje žádná složka."
+
+msgid "File does not exist"
+msgstr "Neexistuje žádný soubor."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Můžete se připojit."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Vyplňte prosím hodnotu."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Neexistuje žádný nastavení obsahu."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Nastavení jsou duplikována."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Uložená nastavení databáze."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Nepodařilo se uložit nastavení databáze."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Uložená základní nastavení."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Nepodařilo se uložit základní nastavení."
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "Testovací připojení"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "Startovní bod"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "Časové období"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "Nejnovější"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "Automatická aktualizace"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "minuta"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "minut"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "hodina"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "hodiny"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "Cílová proměnná"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "Filtr"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "X osa"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "Časová razítko"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "Index"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Stratifikovat proměnné"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Filtry"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Databáze/csv"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "Analyzovat"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "Ve vývoji"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Analyzovat:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Vodopádní pozemek"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Graphical LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogram"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Stratifikovaný spiknutí"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Plot celého bodu"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Vizualizace dat"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "Vizualizace"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Běh"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Zadejte název databáze."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Zadejte název zdroje dat."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Sloupce, které nemají žádný datový typ, nejsou importovány."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Je vyžadován alespoň jeden sloupec DateTime."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Pro vizualizaci použijte '{col}' pro osu x."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Určitě budete pokračovat?"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Prohlížeč tabulky"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Stůl"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Třídění"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Počet dat"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Klesající"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Vzestupné"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Dokonalá shoda"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Částečný zápas"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+msgid "Invalid digit selection"
+msgstr "Neplatný výběr číslice"
+
+msgid "Character length for tracing is different"
+msgstr "Délka znaku použitého pro propojení je jiná."
+
+msgid "No filter"
+msgstr "Žádný filtr"
+
+msgid "All line"
+msgstr "Všechny řádky"
+
+msgid "Status"
+msgstr "situace"
+
+msgid "Job list"
+msgstr "Seznam úloh"
+
+msgid "All"
+msgstr "Všechno"
+
+msgid "Finished Importing"
+msgstr "Import dokončen."
+
+msgid "Importing"
+msgstr "Import"
+
+msgid "Failed Importing"
+msgstr "Nepodařilo se importovat"
+
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"Načtená data budou odstraněna. Je to v pořádku? (Žádná změna se neodráží,"
+" dokud není tlačítko registrace stisknuto)"
+
+msgid "Job List"
+msgstr "Seznam úloh"
+
+msgid "Job ID"
+msgstr "ID práce"
+
+msgid "Job Name"
+msgstr "Název povolání"
+
+msgid "GEN_GLOBAL"
+msgstr "Generace propojenýchID"
+
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Úloha generování zobrazení odkazu ID"
+
+msgid "DEL_PROCESS"
+msgstr "Vymazání informací o procesu"
+
+msgid "FACTORY_IMPORT"
+msgstr "Import tovární data"
+
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Importovat minulá tovární data"
+
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Zobrazit import úlohy minulých továrních dat"
+
+msgid "CSV_IMPORT"
+msgstr "CSV Import dat"
+
+msgid "CLEAN_DATA"
+msgstr "Odstranit stará data"
+
+msgid "Started"
+msgstr "Doba spuštění"
+
+msgid "Duration"
+msgstr "uplynulý čas"
+
+msgid "Database/CSV "
+msgstr "Databáze/csv"
+
+msgid "Succeed/Total"
+msgstr "Pokrok"
+
+msgid "Process "
+msgstr "Proces"
+
+msgid "List of Histograms"
+msgstr "Seznam histogramů"
+
+msgid "Register as an outlier"
+msgstr "Zaregistrujte se jako hodnota ohniska"
+
+msgid "Remove outlier flag"
+msgstr "Unregister Outlier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Skrýt odlehlé hodnoty"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Zobrazit odlehlé hodnoty"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Zkontrolujte odlehlé hodnoty"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Zobrazit seznam histogramů"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Poslední čas aktualizace"
+
+msgid "Removed outlier flag"
+msgstr "Registrace Outlier byla zrušena."
+
+msgid "Registered as an outlier"
+msgstr "Registrováno jako odlehlé"
+
+msgid "Abnormal data point"
+msgstr "Odlehlé"
+
+msgid "Only once"
+msgstr "Pouze jednou"
+
+msgid "Job Details"
+msgstr "Podrobnosti o práci"
+
+msgid "Copy to clipboard"
+msgstr "Zkopírovat do schránky"
+
+msgid "Multi Scatter Plot"
+msgstr "Multi rozptylový graf"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Bodový diagram"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Vizualizovat kategorickou proměnnou"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratify podle proměnných"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Proměnná"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Stroj č"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Cílové období"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Frekvence (počet)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Odhad hustoty"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Kategorická proměnná"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify podle termínu (přímý)"
+
+msgid "Anomaly Detection"
+msgstr "Detekce anomálie"
+
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Hlavní skóre komponent testovacích dat"
+
+msgid "Principal Component Score of Training Data"
+msgstr "2. Hlavní skóre složek dat tréninku"
+
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Graf série statistik T2"
+
+msgid "Series Chart of Q Statistics"
+msgstr "4. Graf série statistik Q"
+
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Příspěvek spiknutí statistik T2"
+
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Příspěvek Plot Q Statistics"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Odstraňte odlehlé"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Tréninková data"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Testování dat"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Ano"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Ne"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Datový typ"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Příklad"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Chyba"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Varování"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"Vzhledem k tomu, že všechny řádky byly odstraněny zpracováním hodnoty "
+"deficitu (NA odstranění), neexistují žádná data analyzovat. Ujistěte se, "
+"že prázdná hodnota, včetně NA, není vybrána."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"Nelze jej analyzovat, protože obsahuje jiná data než čísla. Ujistěte se, "
+"že jste vybrali sloupec obsahující hodnotu řetězce nebo kategorie."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"Nelze analyzovat, protože obsahuje data s rozptylem 0. Ujistěte se, že "
+"není vybrán pouze jeden sloupec hodnoty."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"Nalezena data kategorie a očekávaná celočíselná hodnota. Pokud tato "
+"celočíselná hodnota není měřítkem objednávky, měřítko intervalového nebo "
+"měřítka poměru, mohou být výsledky analýzy nepříznivě ovlivněny."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Určitě budete pokračovat analýzou?"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Vyhledávání"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"Medián je jednou z typických statistik. Je to hodnota umístěná ve středu,"
+" když jsou konečná data uspořádána ve vzestupném pořadí. Například v "
+"případě pěti je střední věk věku třetím věkem ve věku. Pokud je počet dat"
+" sudý, použije se průměr centrální stručné aritmetiky."
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Shrnutí distribuce"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N číslo"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Průměrný"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Co je medián ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Celkový"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Frekvence"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Koncový bod"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Cílový proces"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Časové řady"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Kousky"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Počet datových odkazů"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Sekundy"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Doba odezvy"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "Upravit"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Zadní"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Přidat uzel"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Přidejte hranu"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Upravit uzel"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Kliknutím na prázdný prostor umístíte nový uzel."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Klikněte na uzel, přetáhněte okraj do jiného uzlu a připojte je."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Klikněte na ovládací bod, přetáhněte jej do uzlu a připojte."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Edge nelze přidat."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Cluster nelze odstranit."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Cluster nelze upravit."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Název nebo hodnota zobrazení je duplikováno."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Zadejte název a hodnotu zobrazení."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Zadejte sloupec řádku."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Hodiny"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Informace o datech"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Den"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Týden"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "Zatížení"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "Uložit"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Přepsat"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "Nastavení"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Změňte název, protože je nastaven stejný název."
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "Uložit nastavení"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "Vytvořte snímek obrazovky"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "stažení"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"Důvody, proč nelze graf zobrazit, jsou následující. BREAK_LINE "
+"Zkontrolujte situaci. BREAK_LINE・ data nejsou importována ani uprostřed "
+"importu. BREAK_LINE・ Žádná data nejsou propojena nebo uprostřed vázání. "
+"BREAK_LINE・ Nastavení grafu je nevhodné."
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Varování"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr ""
+"Záznamy, které obsahují neplatná data ve sloupci data data, nejsou "
+"importovány."
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr ""
+"Data, která nemohla být importována, můžete odkazovat na soubory ve "
+"složce níže."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Stav použití nelze nahrávat, protože není připojen k internetu."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Zkontrolujte prosím síťové připojení."
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Opětovné propojení dat bude trvat dlouho."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Určitě data znovu připojíte?"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Přerušit"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Vykonat"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Určitě znovu načtěte dříve registrované nastavení datového odkazu?"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Začalo importovat data."
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Pokrok importu můžete zkontrolovat z níže uvedeného odkazu."
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Stav chyby naleznete na stránce seznamu úloh."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Začalo propojit data."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Jednou za 3 minuty"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Jednou za 5 minut"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Jednou za 10 minut"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Volitelná funkce"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Typ souboru"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Export"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"Vzhledem k velkému počtu vybraných záznamů a času potřebným k zobrazení "
+"grafu byl počet záznamů na graf omezen na 50 000."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Graf časových řad"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Hodnota kategorie"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"Protože počet záznamů ve stanoveném období je více než 5 000, BREAK_LINE "
+"odkaz je vázán do ± 14 dnů od zadaného období. Pokud nechcete omezit "
+"rozsah propojení, upravte dobu trvání a zredukujte počet záznamů "
+"BREAK_LINE."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Nastavení měřítka"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Společné měřítko"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Prahová čára"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Automatické měřítko"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Být použitý měřítko"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn procesu"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "Min"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "Žádný"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "souhrn"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "Počet"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "Základní statistiky"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "Ne parametrické"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "Kvalita dat"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Divák"
+
+msgid "ImportData"
+msgstr "Import dat"
+
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Proces datového spojení se spustí na základě aktuální konfigurace."
+
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "Může trvat čas, pokud existuje mnoho dat k propojení. Je v pořádku začít?"
+
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr ""
+"* Pro data, která jsou automaticky a periodicky importována, se "
+"automaticky generuje odkaz ID."
+
+msgid "Data Source Name"
+msgstr "Název zdroje dat"
+
+msgid "Data Source Type"
+msgstr "Typ zdroje dat"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Určitě ušetříte změny?"
+
+msgid "Force to OS locale time zone."
+msgstr "Informace o nuceném OS do nastavení časového pásma."
+
+msgid "Advanced Setting"
+msgstr "Pokročilé nastavení"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"Nastavení se ukládá do souboru databáze /CSV importů dat. Přejděte na "
+"stránku Nastavení a nastavte sloupce importních dat pro import dat."
+
+msgid "Element data is missing required attribute."
+msgstr "V datech prvků není nutný žádný atribut."
+
+msgid "Element data is missing required attribute value."
+msgstr "Pro data prvků není nutná žádná hodnota atributu."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"Abnormální detekce pomocí PCA vyžaduje alespoň dvě proměnné. Vyberte dvě "
+"nebo více proměnných."
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Vyberte alespoň jeden sloupec"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Proměnné kategorie, které zmenšují šířku krabice, nejsou zobrazeny."
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Počáteční číslice"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline Plot"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"Zastavte aplikaci (Edge Server). Pokud zastavíte, žádný jiný uživatel "
+"nebude moci také používat, kontaktujte prosím správce. <br> V případě "
+"normálního konce zrušte zde a zavřete prohlížeč."
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr "Veškerá práce byla zastavena. Můžete bezpečně zavřít prohlížeč a konzolu."
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Konfigurace zdroje dat"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Konfigurace importu zdroje dat"
+
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": Sloupce našly několik sloupců znaků. Zkontrolujte, zda sloupec "
+"číselného typu atd."
+
+msgid "Filter Item"
+msgstr "Filtr položka"
+
+msgid "Filter Value"
+msgstr "Hodnota filtru"
+
+msgid "Valid from"
+msgstr "Datum vypršení platnosti (start)"
+
+msgid "Valid to"
+msgstr "Datum vypršení platnosti (konec)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"Data nemohla být importována kvůli chybám konfigurace dat sloupce. Název "
+"zdroje dat __param__ CSV/TSV Zkontrolujte nastavení typu dat v náhledu "
+"dat na stránce nastavení čtení. Odstraňte nastavení kroku, které nemohlo "
+"být importováno, a nastavení nastavení."
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Byl tam soubor bez dat. Zkontrolujte obsah souboru. <br>: __param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Zadejte alespoň jednu hodnotu období platnosti od nebo do."
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Rozdělte podle kategorie"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Rozdělte termínem (cyklický)"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Rozdělte termínem (přímý)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"Hodnota zadaného intervalu je neplatná. Zadejte počet 0,1 nebo více, 720 "
+"nebo méně, nebo -720 nebo více a -0,1 nebo méně."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Zadaná „délka okna“ je neplatná. Hodnota musí být mezi 0,1 a 48."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"Číslo vstupní ridgeline je neplatné. Zadejte celé číslo 1 nebo více a 150"
+" nebo méně. (dávejte přednost použití přibližně 100)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Spusťte data a čas"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Časový úsek"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Délka okna"
+
+msgid "Control item"
+msgstr "Kontrolní položka"
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Name"
+msgstr "název"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"Všimněte si, že pokud je počet datových bodů v jedné kategorii pod 50, "
+"může se přesnost grafu snížit."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Zobrazit Cross Hair Cursor (klikněte)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Zobrazit více křížový vlasů (dvojité kliknutí)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Zobrazit seznam histogramů"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Zrušit kontrolu odlehlého"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Zadáno již existuje název zdroje dat."
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"Import dat selhal, protože soubor s jiným názvem sloupce byl nalezen ve "
+"zdroji dat. Zkontrolujte obsah souboru a znovu nastavte nastavení importu"
+" zdroje dat."
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Předpokládaný počet záznamů, které mají být propojeny"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Počet vzorků"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Počet záznamů, které mají být propojeny"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Počet celkových záznamů"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Pojmenujte složku, ve které jsou soubory CSV/TSV uloženy jako \"yyyymmdd\\"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Předpověď"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Konfigurace filtru"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master Config"
+
+msgid "From Filter Config"
+msgstr "Z konfigurace filtru"
+
+msgid "Show all"
+msgstr "Ukázat vše"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Jako klíč (možnost)"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"Smazáno REMOVED_COUNT hodnoty deficitu, abnormální hodnota a odlehlé "
+"hodnoty z TOTAL_COUNT v originále."
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP adresa"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"Porovnejte rozdělení dat s odhadem histogramu a hustoty. Graf je dělen "
+"stratifikovanou proměnnou. Je také rozdělena fazetou."
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Vykreslete všechny počty dat na osy časové osy nebo ID osy."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr ""
+"Matice rozptylu zobrazení rozptylu. Můžete použít od 2 do 7 cílových "
+"proměnných."
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"Podle analýzy hlavních složek se provádí vizualizace „různých“ a její "
+"faktorové analýzy. Zadejte normální data jako data učitele a "
+"vizualizujte, zda jsou aktuální data stejná jako její normální data "
+"(T2/Q). Pokud máte jinou situaci, můžete zkontrolovat hlavní faktory v "
+"grafu příspěvků."
+
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"Distribuce je touto proměnnou rozdělena do více grafů. Vyberte proměnné "
+"kategorie (kvalitativní proměnné), jako jsou čísla dílů a stanice."
+
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Filtr stratifikované kategorie: omezuje data, která se mají zobrazit do "
+"podmnožiny. (Kategorie: Číslo dílu, stanice ne atd.)"
+
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"Proměnné kategorie (například číslo dílu, NO, atd.) Zobrazené jako štítky"
+" v horní části grafů pro nalezení měnících se bodů."
+
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Filtr grafu: Omezí data, která se mají zobrazit do podmnožiny."
+
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"Nastavte údaje o učení interpretované jako normální situaci. Nastavte "
+"sekci dat, která neobsahuje žádná NG data. Pokud jsou zahrnuty, jsou ty, "
+"které jsou blízké datům NG, také posouzeny jako normální data."
+
+msgid "Set test data to be judged."
+msgstr "Nastavte testovací data, která mají být posouzena."
+
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr ""
+"Filtr položky: Omezí data (analyzovat a zobrazovat), která se mají "
+"zobrazit na podmnožině."
+
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"Jedná se o dvourozměrný agregovaný displej (rozměrová komprese podle "
+"hlavních složek) vícerozměrných ověřovacích dat. Pokud jsou data ve "
+"středu, lze je interpretovat tak blízko normálu."
+
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"Jedná se o dvourozměrný agregovaný displej (rozměrová komprese podle "
+"hlavních složek) vícerozměrných údajů o učení. Centrální cíl je určen "
+"údaji o učení, takže většina údajů o učení by měla být v cíli."
+
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"Graf statistiky T2, který monitoruje anomálie v hlavní složce těchto dat."
+" Údaje o učení jsou vyneseny bílou a v negativní části x. Žlutý graf jsou"
+" údaje o validaci. Čím vyšší jsou údaje o validaci porovnány s bílými "
+"údaji, tím je pravděpodobnější, že se situace odchyluje. Kliknutím na "
+"datový bod zobrazíte graf příspěvku toho, jaké prvky tvoří situaci."
+
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"Graf statistiky Q (monitorování anomálií v menší části těchto dat, "
+"zbytek). Údaje o učení jsou vyneseny bílou a v negativní části x. Žlutý "
+"graf jsou údaje o validaci. Čím vyšší jsou údaje o validaci porovnány s "
+"bílými údaji, tím je pravděpodobnější, že se situace odchyluje. Kliknutím"
+" na datový bod zobrazíte graf příspěvku toho, jaké prvky tvoří situaci."
+
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Pořadí, které proměnné přispívají k situaci v bodě vybraném ve "
+"statistickém grafu T2. Čím delší je délka, tím je pravděpodobnější "
+"příčinu."
+
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"Pořadí, které proměnné přispívají k situaci v bodě vybraném ve "
+"statistickém grafu Q. Čím delší je délka, tím je pravděpodobnější "
+"příčinu."
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Počet datových bodů s hodnotou menší nebo roven Q1 - 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Počet datových bodů s hodnotou větší nebo roven Q3 + 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"Celkový počet dat včetně NA (není k dispozici), NaN (ne číslo) a Inf± "
+"(nekonečno) ve vybraném období."
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"Out of Control Line: Procento údajů mimo horní a dolní prahovou hodnotu "
+"(počet) ve vybraném období"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: Procento dat mimo prahovou hodnotu horní a dolní "
+"limity (počet) ve vybraném období"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Procento NA (není k dispozici) ve vybraném období (počet)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Procento NaN (nikoli číslo) ve vybraném období (počet)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Procento Inf+ (plus nekonečno) ve vybraném období (počet)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Procento Inf- (mínus nekonečno) ve vybraném období (počet)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"Celkové procento dat mimo prahovou hodnotu, NA (není k dispozici), NaN "
+"(ne číslo) a Inf± (nekonečno) ve vybraném období (počet)"
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"Počet dat s výjimkou NA (není k dispozici), NaN (ne číslo) a Inf± "
+"(nekonečno) ve vybraném období."
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "95. percentil"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75. percentil (třetí kvartil)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25. percentil (první kvartil)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "5. percentil"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Mezikvartilní rozsah (reprezentativní hodnota variability distribuce: IRQ"
+" = Q3 - Q1 ≒ 1,349σ@ Normální distribuce)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "Medián (50. percentil)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Počítá/hodinu"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Počty/minuta"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Doba cyklu [s]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Číslo divize"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Displej cyklus"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "Interval zobrazení"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Mapa tepla kalendy"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"Cílové proměnné nelze vybrat MAX_NUM_SENSOR nebo více. Vyberte cílovou "
+"proměnnou."
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Cíle odstraňování odlehlé hodnoty jsou Max, Mean, Min, σ a Range."
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Jiné než skutečná čísla"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"Distribuce lze vizualizovat výpočtem pro každou kategorickou proměnnou "
+"(kvalitativní proměnné, číslo šarže atd.) Nebo DateTime a zobrazením "
+"vedle sebe. Vizualizační metoda, která umožňuje analýzu křížových skupin "
+"(porovnání šarží, dnů, posunů atd.) Data bez diskrétního ID."
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Nastavte prahovou hodnotu, která má být nakreslena na grafech."
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"Pokud je rozptyl zapnutý, můžete s ním zobrazit rozptyl. Rozptyl graf "
+"mezi aktuální položkou a další položkou řádku. Přetáhněte karty spiknutí "
+"příslušných grafů myší a přepněte osu x a osu Y rozptylu."
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"Položka dat (jako je numerická proměnná nebo hodnota měření), která "
+"vytváří distribuci dat. Tato data jsou vynesena na grafu. Lze vybrat až "
+"20 položek."
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"Tato stratifikovaná proměnná rozděluje distribuci na více grafů a "
+"zobrazuje je vedle sebe. Vyberte kategorickou proměnnou, jako je šarže ne"
+" nebo dávka č."
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Zadejte start datetime pro zobrazení grafu Ridgeline pro každý datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Zadejte přímo období pro zobrazení grafu Ridgeline pro každý datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"Můžete vybrat možnosti importovat data ze souboru CSV/TSV, který vyžaduje"
+" speciální zpracování, například převod datových struktur."
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"Stisknutím tlačítka náhledu níže zobrazí část dat v souboru, abyste mohli"
+" zkontrolovat jeho obsah."
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"Vyberte odkaz ID, které se chcete použít jako podmínka pro propojení dat."
+" Můžete také vybrat více položek."
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"Když vaše aplikace pravidelně importuje data, můžete vybrat sloupec "
+"DateTime, který je přednostně použit jako klíč DateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"Pokud vyberete operátora a zadáte číslo pod „faktorem“, hodnota v grafu "
+"bude vypočtena pomocí zadaného operátora a faktoru."
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"Pokud vyberete operátora a zadáte číslo pod „faktorem“, hodnota v grafu "
+"bude vypočtena pomocí zadaného operátora a faktoru."
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr ""
+"Je možné předpovídat, kolik údajů bude propojeno aktuálně nastavené "
+"podmínky propojení."
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr ""
+"Zhodí podmínku propojení aktuálně nastavených dat a vyvolává dříve "
+"registrovanou podmínku."
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID je generován interně pro přidružení dat s podmínkami propojení."
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "V nastavení grafu vyberte položky ovládání kvality nebo ovládání zařízení."
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Vyberte prosím typ cíle správy, jako je číslo dílu a vybavení."
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Vyberte prosím cíl správy, jako je hodnota čísla dílu a hodnota zařízení."
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Nastavte start datetime pro nastavení grafu. (Požadované)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Nastavte end datetime pro nastavení grafu. (Volitelný)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Přečtěte si uloženou konfiguraci."
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Uložte nejnovější konfiguraci, kterou jste zadali."
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Uložte obrazovku jako soubor PNG."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Chcete toto nastavení odstranit?"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Cílová proměnná (reálné číslo)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Cílová proměnná (kategorie)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Order indexu"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "Sloupec"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "Objednat"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Přednost"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Objednávání"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Proměnné"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Pouze skutečné a kategorické"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Jen skutečné"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Pouze kategorické"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "V nastaveném pořadí"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "V pořadí procesu"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "V korelační koef. objednat"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Korelační práh (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Vyberte pro proměnnou objektivu"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Objektivní proměnná"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Vysvětlující proměnná"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Dostupný poměr"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Pokapaný diagram"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Match (Perfect Match)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Hledání"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Hledání"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Vzhledem k tomu, že graf paralelní souřadnice nemůže léčit reálná čísla, "
+"byla odstraněna data skutečného čísla."
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Rereregistrace"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Zaregistrujte upravené informace, jako je název zobrazení."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Chcete se zaregistrovat u upraveného obsahu?"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Pokud změníte odkaz ID, resetujte prosím konfiguraci datového odkazu."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Graf ko-výskytu"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Datový soubor"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Agregováno"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Hodina"
+
+# co-occurrence
+msgid "Day"
+msgstr "Den"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Režim úprav"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Režim nastavení"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"Neplatná data zvýrazněná červená budou odstraněna. Určitě přepnete do "
+"režimu nastavení?"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "přednost"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"Byl detekován duplicitní anglický název, takže bylo automaticky přidáno "
+"sériové číslo. Zkontrolujte názvy sloupců."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Jednotky agregace"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"První sloupec je DateTime a druhý sloupec a následující sloupce jsou "
+"hodnota, jako jsou příznaky oznámení o alarmu/počet výskytu (0,1,2 ...)."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Agregované vztahy s soužití po hodině/den."
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Prahová hodnota zobrazení"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"Pokud vyberete hodnotu menší než 100%%, zakrýváte malý vztah Co "
+"-Coucrence. (Výchozí: Nakreslete čáru, pokud je dokonce jednou)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"Identifikujte a vizualizujte proměnné, které jsou přímo nebo nepřímo "
+"korelovány s cílovou proměnnou."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"Vizualizujte korelaci mezi zde uvedenými proměnnými. Lze vybrat až 60 "
+"položek."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Kandidátské proměnné, které korelují s objektivními proměnnými."
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "všech hran"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Rozvržení"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Kruh"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Automatický"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Účinnost"
+
+msgid "Set threshold"
+msgstr ""
+"Control Line: Zkontrolujte při kreslení úrovní správy, jako jsou "
+"standardní linky"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Analytická platforma"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Pareto graf"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Počet výskytu"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Kumulativní poměr [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"Vizualizujte parametry, které se mohou lišit podle dat po dlouhou dobu, "
+"jako jsou roční změny procesů, dny v týdnu, posuny atd."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr ""
+"Vizualizujte korelaci mezi velkým počtem proměnných s ohledem na cílovou "
+"proměnnou."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr ""
+"Vizualizujte společnou výskyt poruch, alarmů, událostí atd. (Vztah "
+"zaměřený na frekvenci současného výskytu jednoho jevu a druhého)."
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"PrázdnýDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: Jednoduchý nástroj pro mapování dat, vizualizaci, "
+"statistickou analýzu a strojové učení."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"Soubor dat se zde používá jako reference pro propojení a vykreslování "
+"dat. Nastavení se používá ve vodorovné ose grafu. Kromě toho je počáteční"
+" graf zobrazen se světle modrým rámcem."
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"Určuje data (například numerické proměnné: hodnota měření) pro graf. "
+"Vyberte procesy a položky, které mají být vykresleny na grafu. Lze vybrat"
+" až 20 položek."
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"Určuje data (například numerické proměnné: hodnota měření) pro graf. "
+"Vyberte procesy a položky, které mají být vykresleny na grafu. Lze vybrat"
+" až 8 položek."
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"Prázdný可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"Tato proměnná stratifikace dělí vzor pro vizualizaci na více grafů a "
+"zobrazuje je vedle sebe. Můžete vybrat vybrat kategorické proměnné, jako "
+"je číslo dílu a č. Stanice až do 100 položek."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"Položka dat, která vizualizuje korelaci mezi proměnnými (kvantitativní "
+"proměnné: hodnoty měření atd.). Tato data jsou vynesena do grafu. Od 2 do"
+" 7 parametrů lze vybrat."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"Vyberte položku pro vizualizaci korelace mezi proměnnými. Lze vybrat až "
+"60 položek."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"Položky proměnných kategorií (jako jsou čísla dílů) pro vizualizaci "
+"korelace mezi proměnnými."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Maximalizovat kartu"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Minimalizovat kartu"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr ""
+"Pokud se toto nastavení změní, je nutné resetovat nastavení datového "
+"odkazu."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Automatický výběr"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Vyberte vše vpravo"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "UNECT VŠECHNO VŠECHNY Vpravo"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Všechny skutečné (plave) odtud"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Celé celé číslo odtud"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Veškerý řetězec odtud"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"Vzhledem k velkému počtu vybraných záznamů a času potřebným k zobrazení "
+"grafu byl počet buněk na graf omezen na 10 000. Pokud chcete vidět "
+"všechna data pro cílovou dobu BREAK_LINE, zvýšte interval displeje nebo "
+"zmenší cílovou dobu, aby se snížil počet buněk."
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Seriál"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Měřítko pozemku můžete upravit klepnutím pravým tlačítkem myši na graf."
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Měřítko grafu"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Režim nastavení"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Počet datových položek, které nelze propojit"
+
+msgid "Only scatter plot"
+msgstr "Bodový diagram"
+
+msgid "with shading"
+msgstr "s obrysem"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Úspora"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"Prázdnýファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "Nastavení zátěže"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "Sdílet/soukromý"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "Popis"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "Vytvořil"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "Použití/načítání"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "Zatížení"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr ""
+"Počet dat, která nemohla být spojena s procesem výchozího bodu (procento "
+"propojení)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Uložit datetime"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "Nastavení sdílení"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "Uložit"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"Můžete si vybrat od 2 do 7 cílových proměnných. Zkontrolujte počet "
+"cílových proměnných a opravte nastavení."
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr ""
+"Limit velikosti souboru je 10 MB. Snižte velikost souboru a zkuste to "
+"znovu."
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Při zaškrtnutí se také uloží zadaná datetime."
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Zkontrolujte, zda toto nastavení sdílejte."
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Uložit nastavení."
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Určitě přepíšete nastavení?"
+
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "podíl"
+
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "Soukromé"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "Vytvořeno na"
+
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "Zavřít"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "Nastavení objednávky"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "Spusťte datetime"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "End datetime"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Zobrazit štítky osy x"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Řada datetime"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Soubor přetažení"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Nebo"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Vyberte soubory"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Nelze zobrazit"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"Zpracování bylo přerušeno kvůli velkému množství dat a dlouhé době "
+"zpracování. Zkontrolujte nastavení DateTime a znovu zobrazte graf."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Výstup CSV Soubor. Počkejte prosím, když soubor stahuje."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Výstup TSV Soubor. Počkejte prosím, když soubor stahuje."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Automatické rozsah"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Plný rozsah"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Nastavení objednávky indexu"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "OTEVŘENO"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "Vymazat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"Protože počet datových bodů na graf je více než 12 000, počet datových "
+"bodů byl omezen na maximální 12 000. Pokud si chcete prohlédnout celé "
+"data, nastavte kratší cílové období."
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratify podle termínu (cyklický)"
+
+#: component.js
+msgid "Facet"
+msgstr "Aspekt"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Provádí kategorii dělení s vybranou položkou."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Odhad výjimek"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"Normalizovaný rozsah mezikvartilu (index spojuje IQR s normálním "
+"rozdělením, niqr = 0,7413 × IQR)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Režim je nejčastěji se vyskytující hodnota."
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "s odlehlým"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "bez odlehlého"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Zvyk"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Dnes"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Včera"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Posledních 7 dní"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Posledních 30 dní"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Tento měsíc"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 měsíc"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 měsíce"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Aplikovat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Týden"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Před 7 dny"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Před 30 dny"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Pěst den tohoto měsíce"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Poslední den tohoto měsíce"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 měsíce"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Aktualizováno na"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"Datové body jsou shrnuty pomocí rychlého režimu. Pokud chcete získat graf"
+" bez vynechání dat, upravte cílovou dobu kratší."
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Rozsah osy y"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Odlehlé"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"Prázdný'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "Vyhledávání procesů"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "Záložka do knihy"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"Prázdný以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "Doba cyklu"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "Reálné číslo"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "Objektivní proměnná"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"Korelační koeficient se vypočítá pomocí této proměnné jako cílové "
+"proměnné. Zde uvedená cílová proměnná je také zobrazena spolu s barevnou "
+"lištou na pravé pravé straně grafu. Pokud chcete změnit cílové proměnné "
+"na grafu, můžete mezi nimi přepínat klepnutím pravým tlačítkem myši na "
+"každý název proměnné."
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"Data nebyla utopena, protože existuje příliš mnoho kategorií. BREAK_LINE "
+"Zkontrolujte a v případě potřeby revidujte cílovou dobu kratší."
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "Nastavení filtru"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Štítek (proměnné kategorie)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "Zkopírováno"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "Vložený"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "Kopírovat konfiguraci"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "Vložit konfiguraci"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Bez nastavení původu je první cíl vybrán jako původ."
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "Exportní data"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "Nepoužívat"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "Data nejsou nakreslena, protože existuje příliš mnoho kategorií."
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr "Zkontrolujte a v případě potřeby revidujte nastavení cílového období."
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Rozdělte počet dat (cyklický)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "Počet dat"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"Prázdnýグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Vyberte účelovou proměnnou."
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Rozklad bez rozkladu / kategorie"
+
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Bodový diagram"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"Pokud je řetězec datu X nebo Y, nemůžete pro nastavení barev použít "
+"proměnné bez řetězce."
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"Byla detekována hodnota mimo povolený rozsah, takže bylo automaticky "
+"rozhodnuto o minimálním nebo maximálním platném rozsahu. Podle potřeby "
+"změnit nastavení."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Kliknutím pravým tlačítkem: Nastavení datového odkazu/Upravit/smazat"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Uplynulý čas"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "Časová objednávka"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "Nastavení pořadí dat"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"Odstraňte zbytečné údaje, protože kapacita pevného disku "
+"`__SERVER_INFO__` dosáhla __SERVER_INFO__ %%."
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"Datový port byl zastaven, protože kapacita pevného disku "
+"`__SERVER_INFO__` dosáhla __SERVER_INFO__ %%. Pokud jsou zbytečná data "
+"odstraněna a zvýší se prázdná kapacita, budou data obnovena."
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"Zadejte počet distribucí, které mají být zobrazeny (počet divizí). "
+"Zadejte celé číslo 2 nebo 150 nebo méně."
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"Zadejte počet distribucí, které mají být zobrazeny (počet divizí). "
+"Zadejte celé číslo 1 nebo více 32 nebo méně."
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Prázdný表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Prázdnýプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Prázdný1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Prázdný1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Na pozemku je příliš mnoho houslí, takže bylo automaticky omezené."
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"Vzhledem k velkému počtu vybraných záznamů je počet grafů omezen od "
+"nejstaršího data k počtu limitu."
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Přijímám"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "Pokles"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Dozadu"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Počet spiknutí na sloupci"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"Kategorické proměnné (číslo dílu, ne stanice č. Atd.) Zobrazené jako "
+"štítky v horní části grafu se používají k vizualizaci bodů změny "
+"(přepínání čísel dílu atd.) Kvalitativních proměnných."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"Vyberte položky, které mají být analyzovány (kvantitativní proměnné: "
+"hodnota měření atd.). Lze vybrat až 60 položek."
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr "Vyberte položky pro třídění dat. Můžete také vybrat více položek."
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"Přetékající stará data se nezobrazí, protože DateTime se počítá z "
+"nejnovějších dat s limitem zobrazení."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"Počet spiknutí byl omezen na NUMBER. Pokud chcete zobrazit vše, Revidujte"
+" nastavení."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"Počet grafu na jedné kartě byl omezen na NUMBER. Pokud chcete zobrazit "
+"vše, Revidujte nastavení."
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"Počet cílových proměnných pro výběr je minimální min a maximální max. "
+"Zkontrolujte počet cílových proměnných a opravte nastavení."
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"Počet cílových proměnných, které lze vybrat, je až na maximální maximum. "
+"Zkontrolujte počet cílových proměnných a opravte nastavení."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "Odlehlé"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "Varování"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "Předpověď"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "Popis"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"Pokud vyberete hodnotu menší než 100%%, zakrýváte malý vztah Co "
+"-Coucrence. (Výchozí: Nakreslete čáru, pokud je dokonce jednou)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"Pokud vyberete hodnotu menší než 100%%, zakrýváte malý vztah Co "
+"-Coucrence. (Výchozí: Nakreslete čáru, pokud je dokonce jednou)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"Pokud vyberete hodnotu menší než 100%%, zakrýváte malý vztah Co "
+"-Coucrence. (Výchozí: Nakreslete čáru, pokud je dokonce jednou)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "Popis"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "Zavřít"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "Datum vypršení platnosti (konec)"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "Datum vypršení platnosti (start)"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "Datum vypršení platnosti (konec)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+    <link href="{{ url_for('heatmap.static', filename = 'css/heat_map.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
+          rel="stylesheet">
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"/>
+    <script src="{{ url_for('static', filename = 'common/js/libs/pagination.min.js') }}"></script>
+    <link href="{{ url_for('static', filename = 'common/css/pagination.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='CHM', title=_('Calendar Heat Map'), hint=_('Visualize long-term data such as annual variations in processes and parameters that can vary depending on days of the week or shifts, etc.'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+    <div class="card">
+        <form id="traceDataForm">
+            {{ macros.heatmap_end_proc(title=_('Enter target item of data (quantitative variable like measurement value and category variable like part number) to visualize pattern. This data is plotted on the graph. It can be selected up to ten items.'), procs=procs, no_link_data=true) }}
+            {{ macros.data_finder_card() }}
+            {{ macros.heatmap_target_period() }}
+            {{ macros.cond_proc([],'', width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
+            <br class="graph-navi graph-navi-top-down">
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
+                {{ macros.preprocess_options(chmTitle=_('The targets of removing outlier are Max, Mean Min, σ, and Range.')) }}
+                <button id="showGraphBtn" type="button" value="{{ _('Display graph') }}"
+                        onClick="showHeatMap();" class="btn btn-primary show-graph ml-3"><i
+					class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+				{{ macros.export_gui() }}
+			</div>
+			<br>
+		</form>
+		{{ macros.cat_label_filter_modal() }}
+	</div>
+
+	<div class="result-section" id="scaleOption" style="display: none;">
+		<div class="y-scale-group tooltip-parent align-items-center mt-3 mb-2" id="graph-settings-area">
+			{{ macros.info_i_mark() }}
+			{{ macros.on_demand_filter() }}
+			<div class="d-flex align-items-center ml-4">
+				<span class="mr-2">Color</span>
+				<select class="form-control border-white scale-dropdown" name="heatmapScale">
+					<option value="common">{{ _('Common scale') }}</option>
+					<option value="auto" selected>{{ _('Auto range') }}</option>
+				</select>
+			</div>
+		</div>
+	</div>
+
+	<div id="heatmapCard" class="card result-section plot-content" style="display: none;">
+        <div class="justify-content-center card chart-wrapper chart-margin clearfix" id="plot-cards"></div>
+    </div>
+    <div id="stContentTab">
+        <div class="setting-inform-content"></div>
+    </div>
+
+    <div>
+        <ul id="contextMenuHeatmap" class="context-menu" style="display:none;" name="contextMenu">
+            <li class="menu-item" onclick="selectHeatmapMenu('auto')">{{ _('Auto range') }}</li>
+            <li class="menu-item" onclick="selectHeatmapMenu('common')">{{ _('Common scale') }}</li>
+        </ul>
+    </div>
+
+    <div class=" loading"></div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+    <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+       target="_blank">{{ _("Click here to fix") }}</a>
+	{{ macros.data_point_info() }}
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <script src="{{ url_for('heatmap.static', filename = 'js/heatmap.js') }}"></script>
+    <script src="{{ url_for('heatmap.static', filename = 'js/heatmap_plotly.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/cat_facet_label_filter_modal.js') }}"></script>
+{% endblock %}

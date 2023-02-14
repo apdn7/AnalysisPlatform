@@ -1,0 +1,3909 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Ургагдсан"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Алдаа гарсан байна"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Програмын тохиргоо"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "Хуудас олдсонгүй"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Алдаа гарсан байна"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "DATALINK ба Анимлагын програм"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "Хэл сонгоно уу"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "Гол дэлгэц"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "Үйл ажиллагааны баталгаажуулалт"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Үйл ажиллагааны баталгаажуулалт"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Үндсэн тохиргоо"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Бүртгүүлэх"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Дүүргэх"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Ittendition ЦАГ"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Бодит (хөвөх)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Он сар өдөр цаг"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Чавхдас"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Гарчиг"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Ургамал"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Үйлдвэр"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Шугам"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "баталгаажуулна уу."
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"Мэдээллийг хадгалаад өгөгдлийг ашиглан өгөгдлийг Process Contring хуудас "
+"дээр оруулсан агуулгыг импортлох уу?"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "БОЛЖ БАЙНА УУ"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Цуаах"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Мэдээллийн сангийн тохиргоо"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Мэдээллийн сангийн нэр"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Өгөгдлийн сангийн төрөл"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Нарийн дээдо"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Сэтгэгдэл"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Нэмэх"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Өгөгдлийн сангийн файлыг сонгоно уу."
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Хөдөлгөөний нэр"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Шилэх"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Та энэ бичлэгийг устгахыг хүсч байна уу?"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "эдгээх"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Трацын байдал"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "TraceApeAsce график"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Трейзийн туршилт"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Туршилт эхлэх"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Эхлэх цаг"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Дуусгах цаг"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Машины ID (олон сонголт)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Шугам"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Хэсгийн дугаар"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Мэдээллийн холбоосын тохиргоо"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Хэл сонгоно уу"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Япон"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Англи хэл"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Хувь зэлт"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Зангилаа ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Шошго"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Тайбсарын нэр"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Мэдээллийн сан"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Импортлох"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Гадаадад гаргах"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Хуудшлагын нэр"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Порт дугаар"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Скэдхэн нэр"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Нууц үг"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Схем"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Би амжилтанд хүрсэн."
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; амжилтгүй болсон."
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Prive тохиргоог боловсруулах"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Боловсруулах"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Даалгагийн нэр"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Хэлэлцэх тоглоом"
+
+# ap/templates/setting_module/background_process.html
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Нарийн учир"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Киноны урөдчилсан үзлэг"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Эхний таван бичлэг"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Агуй тогтоох"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Багийн нэр"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Англи нэр"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Харагдах нэр"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "коэффициент"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Жижүүр операторч"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "0-ээс бусад утгыг оруулна уу"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Оролтын оператор."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Оролтын коэффициент."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "ОРОЛЦОГЧ АНГЛИ."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Оруулсан дэлгэцийн нэр."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Английн нэрийг хуулбарласан байна."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Дэлгэцийн нэрийг хуулбарласан байна."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Бүх \"Дэлгэцийн нэрс\" нь оролтыг шаарддаг."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Хоосон \"Англи нэр\" -тэй талбарууд автоматаар дүүргэдэг."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Бүгдийг сонгох"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Мэдээлэлийг импорт оруулах"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Мэдээлэл импортлоход итгэлтэй байна уу?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"Та OK товчийг дарахад та өгөгдлийг одоогийн цагаас нэг сарын өмнө "
+"импортлох болно."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Өмнөх өгөгдөл нь автоматаар бага зэрэг импортолж өгдөг."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"Хэрэв та одоогийн цагаар өгөгдлийг импортлохыг хүсч байвал өгөгдлийн "
+"унших товчийг дахин дарна уу, эсвэл мэдээллийн санг унших хуудасны "
+"хуудсыг товшино уу."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Өгөгдлийн сан / __140 унших \"-г\" шинэчлэх мөчлөг \"-ийг уншихад\" "
+"Одоогийн цагийг тохируулсны дараа өгөгдөл нь автоматаар орж ирнэ."
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Ул мөрийг хянах"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Шат мөр"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Нэвтрэх боломжгүй байна"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Үүнийг засахын тулд энд дарна уу."
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Edit Edit"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Урьдчилсан явц"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Урьдчилан хос багана"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Шуудангийн үйл явц"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Дараах багана"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Dateime шиг"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Сериал шиг"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Холбоос ID"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "Аль хэдийн бүртгэгдсэн"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "Процессийн нэрийг оруулна уу"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Шүүлтүүр / график"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "График тохиргоо"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Шугам шүүлтүүрийн тохиргоо"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Шугамны багана"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "Үнэлэх"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Машин шүүлтүүрийн тохиргоо"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Машин ID багана"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Хэсэг нь шүүлтүүрийн тохиргоо байхгүй байна"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Хэсэг багана байхгүй"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Шууд шүүлтүүр нэр"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Шүүлтүүр"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Бусад нь шүүлтүүрийг тохируулна"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Зорилтооны багана"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Visualization Config"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Доод босго"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Дээд босго"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Багаалтын доод босго"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Дээд үйл явцын босго"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y-тэнхлэгийн хүрээ: мин"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y-AXES-ийн хүрээ: Макс"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Үгүй"
+
+# ap/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "төгс төгөлдөр төгс"
+
+# ap/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Эхлэх"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like Хайлт)"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Зөвшөөрөх"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Тогтмол илэрхийлэл"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Графикийг харуул"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV экспортлох"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Үйл явц шаардлагатай"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Баганын нэр шаардлагатай байна"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Шугам шаардлагатай байна"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Дэлгэцийн нэр шаардлагатай байна"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Дэлгэцийн нэрийг хуулбарласан байна."
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Машины утга шаардлагатай"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Давхардсан машин ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Амжилттай хадгалах"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Хадгалах боломжгүй байна"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Хэсэг нь баганыг оруулах шаардлагагүй"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Зорилтот багана шаардлагатай байна"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Шүүлтүүрийн нэр шаардлагатай"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Нөхцөл шаардлагатай"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Шүүлтүүрийн нэрийг хуулбарласан байна."
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Нөхцөл нь давхардсан байна."
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Үл хүрэлцэх"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Даалгагийн нэр"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Бусад шүүлтүүрийг нэмсэн"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV импортын тохиргоо"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Язгуур"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "ХӨДӨЛМӨРИЙН ЦАГ"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Холбох"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Нэг цагт нэг удаа"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Өдөрт нэг удаа"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Өгөгдөл дамжуулах"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Фолдер байхгүй байна."
+
+msgid "File does not exist"
+msgstr "Файл байхгүй байна."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Та холбогдож болно."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Утга нь бөглөнө үү."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Тохируулах агуулга байхгүй байна."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Тохиргоог давхардсан байна."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Мэдээллийн сангийн тохиргоог хадгалсан."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Мэдээллийн сангийн тохиргоог хадгалж чадсангүй."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Хадгалсан үндсэн тохиргоо."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Үндсэн тохиргоог хадгалж чадсангүй."
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "Талт шалгалтын холболт"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "Эн эхлэх цэг"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "Огноо цар"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "Хамгийн сүүлчийн"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "Автомат шинэчлэлт"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "моч / минут"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "хоёр хоног"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "аг"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "цаг"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "Зорилтот хувьсагч"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "Шүүх"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "X тэнхлэг"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "Хугацаагаар"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "Индекс"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Stratify хувьсагчууд"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Шүүгч"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Өгөгдлийн сан / CSV"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "Шинжлэх"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "Боловсруулж байгаа"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Дүн шинжилгээ:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Хүрхрээ талбай"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "График LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "Гиститт"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Давхардсан хуйвалдаан"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Бүрэн онооны талбай"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Мэдээллийн дүрслэл"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "Дүрээх чадвар"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Урсгал"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Өгөгдлийн сангийн нэрийг оруулна уу."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Мэдээллийн эх сурвалжийн нэрийг оруулна уу."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Мэдээллийн төрлийг оруулаагүй багана импортлохгүй байна."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Дор хаяж нэг DateTime багана шаардлагатай."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Visualation-ийн хувьд x-тэнхлэгт '{col}' ашиглана уу."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Үргэлжлүүлэхээ больж байна уу?"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Хүслэн хамт үзэх"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Ширээ"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Ангилах"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Мэдээлэлийн тоо"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Урсгал"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Эхлэх"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Төгс тохирох"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Хэсэг яриа"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "ЭНД ДАРЖ БИЧЛЭГИЙН СУРГАЛТ"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Холбоотой байхад ашигласан тэмдэгтүүдийн урт нь өөр юм."
+
+# ap/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Шүүлтүүргүй"
+
+# ap/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Бүх загвар"
+
+# ap/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "байрлал"
+
+# ap/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Ажлын жагсаалт"
+
+# ap/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Бүгд"
+
+# ap/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Импорт дууссан."
+
+# ap/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Импорт оруулах"
+
+# ap/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Импорт амжилтгүй боллоо"
+
+# ap/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"Ачаалагдсан өгөгдлийг устгах болно. Энэ зүгээр үү? (Бүртгэлийн товчлуур "
+"дарагдах хүртэл ямар ч өөрчлөлт гарахгүй)"
+
+# ap/setting_module/controllers.py
+msgid "Job List"
+msgstr "Ажлын жагсаалт"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Ажлын дугаар"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Онлын нэр"
+
+# ap/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Linked ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "PERSERER MORRENTON LINK ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Боловсруулалтын мэдээллийг устгах"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Импорт өгөгдлийнж"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Өнгөрсөн үйлдвэрийн өгөгдлийг импортлох"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Өнгөрсөн үйлдвэрийн мэдээллийн өгөгдлийн ажлын импорт"
+
+# ap/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "Inf+ импортын өгөгдөл"
+
+# ap/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Хуучин мэдээллийг устгах"
+
+# ap/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Эхлэх цаг"
+
+# ap/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "зарцуулсан цаг хугацаа"
+
+# ap/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Өгөгдлийн сан / CSV"
+
+# ap/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Дэвшил"
+
+# ap/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Боловсруулах"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Гистограмын жагсаалт"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Дэгдэлт утга болгон бүртгүүлнэ үү"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Бүртгэлгүй худалдагч"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Нүүрнүүдээ нуу"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Гадуур тоглогчдыг харуул"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Тоглогчдыг шалгана уу"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Гистограмын жагсаалтыг харуул"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Сүүлийн шинэчлэлтийн цаг"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Гаднах бүртгэлийг цуцаллаа."
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Нүүрнүүдээр бүртгэгдсэн"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Исгэгч"
+
+# ap/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Зөвхөн нэг удаа"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Ажлын мэдээлэл"
+
+# ap/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Clipboard уруу хуулах"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Олон тархины хуйвалдаан"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Тараах хуйвалдаан"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Ангилалын хувьсагчийг төсөөлөхийн тулд"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Хувьсагчаар стратеги"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Хувөсах"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Машинаа"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Зорилт зая хуваарь"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Давтамж (тоолох)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Нягтралын тооцоо"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Категорийн хувьсагч"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Нэр томъёогоор давхаргах (шууд)"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Anomaly-ийг илрүүлэх"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Туршилтын өгөгдлийн үндсэн бүрэлдэхүүн хэсэг"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Сургалтын үндсэн мэдээллийн үндсэн оноо"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. T2 статистикийн цуврал график"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Q Статистикийн цуврал график"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. T2 статистикийн хувь нэмэр"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Q Статистикийн хувь нэмэр"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "OUTLIER-ийг устгах"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Сургалтын мэдээлэл"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Шалгалтын мэдээлэл"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Мон"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "#NAME?"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Мэдээллийн төрөл"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Жишээ"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Алдаа"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Анхааруулга"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"Бүх мөрийг алдагдал боловсруулалтаар устгасан (NA ______ арилгах), дүн "
+"шинжилгээ хийхэд ямар ч өгөгдөл байхгүй болно. Хоосон утга, NA NA үүнд "
+"сонгоогүй эсэхийг шалгаарай."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"Энэ нь тооноос бусад өгөгдөл агуулсан тул дүн шинжилгээ хийх боломжгүй "
+"юм. Та мөр эсвэл категорийн утгыг агуулсан баганыг сонгосон эсэхийг "
+"шалгаарай."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"0-ийн хэлбэлзэлтэй өгөгдөл агуулсан өгөгдөл нь 0-ийн хэлбэлзэлтэй өгөгдөл"
+" агуулж болохгүй."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"Дата өгөгдөл, хүлээгдэж буй бүхэл тоо. Хэрэв энэ бүхэл тоо нь захиалгын "
+"хэмжээ, интервалын хэмжээ биш бол, эсвэл харьцааны хэмжээ, харьцааны үр "
+"дүнг сөргөөр нөлөөлж болзошгүй юм."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Та шинжилгээг үргэлжлүүлэхдээ итгэлтэй байна уу?"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "эрэл хайгуул хийх"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"Медиан бол ердийн статистикийн нэг юм. Энэ нь эцсийн өгөгдлийг дээшлүүлэх"
+" дарааллаар зохион байгуулалттай байх үед төвд байрладаг утга юм. "
+"Жишээлбэл, тав нь таван настай тохиолдолд наснаасаа гурав дахь нас бол "
+"наснаас гурав дахь нас юм. Хэрэв өгөгдлийн тоо нь ч байтугай ерөнхийдөө "
+"төвийн товчлолыг ашигладаг."
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Нарийн дээд биш"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Тархалтын хураангуй"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N дугаар"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Дундаж тоо"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Медиан гэж юу вэ ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Нийт"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Илүү даваа"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Эцсийн цэг"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Зорилт з тавих явц"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Цаг цувдал"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Жижиг хэрэгсэл"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Мэдээллийн холбоосын тоо"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Хоёр цаг"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Хариу цаг"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "хянан засварлах / хэвлэлд бэлтгэх"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Буцах"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Зангилаа нэмэх"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Ирмэг нэмэх"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Зогсолтыг засах"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Шинэ зангилаа байрлуулахын тулд хоосон зай дээр дарна уу."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Зангилаа товшоод, ирмэгийг өөр зангилаа чирээд тэдгээрийг холбоно уу."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Хяналтын цэг дээр дарна уу, зангилаа руу чирээд холбогдоорой."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Ирмэгийг нэмж болохгүй."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Кластерыг устгах боломжгүй байна."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Кластерыг засварлах боломжгүй байна."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Дэлгэцийн нэр эсвэл утгыг давхардсан байна."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Дэлгэцийн нэр, утгыг оруулна уу."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Шугамын баганыг оруулна уу."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Цаг"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Өгөгдлийн мэдээлэл"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Өдөр"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Долоо хоног"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "Ачих"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "Аврах"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Хугацаа баталгаажуулах"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "Тэмдэг"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Ижил гарчиг тохируулсан тул гарчгийг өөрчил."
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "Тохиргоог хадгалах"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "Дэлгэцийн хөрөнг засах"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "татаж авах"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"График үзүүлэх боломжгүй шалтгаан нь дараах байдалтай байна. BREAK_LINE "
+"Нөхцөл байдлыг шалгана уу. BREAK_LINE・ Мэдээлэл импортлохгүй, эсвэл "
+"импортын дундуур. BREAK_LINE・ Дата холбоогүй, эсвэл уях дундуур нь. "
+"BREAK_LINE・ Графикийн тохиргоо нь зохисгүй юм."
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Анхааруулга"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Өгөгдлийн баганад буруу өгөгдөл агуулсан бичлэгийг оруулаагүй болно."
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr ""
+"Та дараахь хавтсанд байгаа файл дээрх файлд орж ирж чадахгүй байгаа "
+"өгөгдлийг хэлж болно."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "Хэрэглээний статусыг интернетэд холбоогүй тул байршуулах боломжгүй."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Сүлжээний холболтыг шалгана уу."
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Датаг холболтыг дахин холбоход их хугацаа шаардагдана."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Мэдээллийг дахин холбож өгөх итгэлтэй байна уу?"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Таргасан"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Цаазлах"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Өмнө нь бүртгэгдсэн өгөгдлийн холбоосын тохиргоог дахин ачаалж байна уу?"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Өгөгдлийг импортолж эхлэв."
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Та доорхи линкээс импортын явцыг шалгаж болно."
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Алдааны статусын жагсаалтад зориулсан ажлын жагсаалтын хуудсыг үзнэ үү."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Өгөгдлийг холбож эхлэв."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "3 минут тутамд нэг удаа"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "5 минут тутамд нэг удаа"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "10 минут тутамд нэг удаа"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Нэмэлт чиглүүлнэ"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Файлын төрөл"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV экспорт"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"Сонгосон олон тооны бүртгэлээс болж, графикийг харуулахад шаардлагатай "
+"цаг хугацаа, график бүрт нэг график хязгаарлагдмал байсан."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Цагийн цуврал"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Жамшлэл"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"Тодорхойлсон бичлэгийн тоо нь 5000 гаруй, BREAK_LINE холбоос нь заасан "
+"хугацаанд ± 14 хоногийн дотор холбогдсон байна. Хэрэв та холболтын "
+"хязгаарыг хязгаарлахыг хүсэхгүй бол BREAK_LINE-ийн бүртгэлийн тоог "
+"багасгахын тулд үргэлжлэх хугацааг тохируулна уу."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Хэмжээг тохируулах"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Нийтлэгийн хэмжээ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Босго шугам"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Автомат цэмжих"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Ашигласан масштабтай"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn үйл явцын"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "Нарийн дээд биш"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "Агнээ"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "Хэн ч"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "Товч утга"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "Тоолох"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "Үндсэн статистик"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "Параттгүй"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "Мэдээллийглэх чанар"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Үзөөдөгч"
+
+# ap/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Мэдээлэлийг импорт оруулах"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Мэдээллийн холбоосын процесс нь одоогийн тохиргоонд үндэслэн эхлэх болно."
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr ""
+"Холбоос хийхэд маш их мэдээлэл байгаа бол цаг хугацаа шаардагдана. Эхлэх "
+"нь зүгээр үү?"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* Автомат, үе үе импортолсон өгөгдлийн хувьд ID автоматаар үүсгэдэг."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Мэдээллийн эх сурвалжийн нэр"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Мэдээллийн эх үүсвэрийн төрөл"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Та өөрчлөлтийг хэмнэхэд итгэлтэй байна уу?"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Цагийн бүсийн Тохиргоонд албадан os мэдээлэл."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Дэвшилтэт тохиргоо"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"Тохиргоог өгөгдлийн сан / CSV-р өгөгдлийг импортлоход хүргэдэг. "
+"Тохиргооны хуудас руу очоод, импортын өгөгдлийг өгөгдлийг импортлохын "
+"тулд багана тохируулна уу."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Элементийн өгөгдөлд шаардлагатай шинж чанар байхгүй байна."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Элемент өгөгдөлд оруулах шинж чанарын утга байхгүй."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"PCA-ийн хэвийн бус илрүүлэлт нь дор хаяж хоёр хувьсагчийг шаарддаг. Хоёр "
+"ба түүнээс дээш хувьсагчийг сонгоно уу."
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Дор хаяж нэг баганыг сонгоно уу"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Хайрцагны өргөнийг бууруулдаг категорийн хувьсагчууд харагдахгүй байна."
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Оруулж байна"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline хуйвалдаан"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"Програмыг зогсоох (Edge Server Server). Хэрэв зөвхөн санал бол бол өөр "
+"юу, адмазнаар шүүгээгээ даяал, шаардлагатай бөгөөд илгээнд орж болохгүй. "
+"<br> Энгийн эцэст хэвийн болсон тохиолдолд эндийг нь цуцалж, зүгээр л "
+"хөтөчийг хаа."
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr "Бүх ажлыг зогсоосон байна. Та хөтөч, консолыг аюулгүй хаах боломжтой."
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Мэдээллийн эх үүсвэр"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Мэдээллийн эх сурвалж импортлох тохиргоо"
+
+# ap/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": Багана нь цөөн тооны тэмдэгт багана олдсон. Тоон төрлийн баганын текст "
+"гэх мэт эсэхийг шалгана уу."
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Шүүлтүүрийн зүйл"
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Хэрэгжүүлэх өрөө Ниплүүлэх"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Хугацаа дуусах огноо (Эхлэх)"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Хугацаа дуусах огноо (төгсгөл)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"Баганын мэдээллийн хэлбэрийн тохируулгын алдаанаас болж өгөгдлийг оруулах"
+" боломжгүй. Өгөгдлийн эх сурвалжийн нэр __param__ CSV/TSV унших хуудасны "
+"тохиргоог унших хуудасны тохиргоог шалгана уу. Тохиргоог импортолж, "
+"тохируулж болох алхамуудын тохиргоог устгана уу."
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Мэдээлэлгүйгээр файл байсан. Файлын агуулгыг шалгана уу. <br>: __param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr ""
+"Хүчинтэй хугацаа, эсвэл хүчинтэй байх хугацааг дор хаяж нэг утга оруулна "
+"уу."
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Ангилалаар хуваана"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Нэр томруулах (цикл)"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Нэр томруулах замаар (шууд) хуваана"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"Оруулсан интервалын үнэ буруу байна. 0.1 ба түүнээс дээш тооны 0.1 ба "
+"түүнээс дээш, 720 ба түүнээс бага, эсвэл -720 ба түүнээс дээш, -0.1 ба "
+"түүнээс бага хэмжээг оруулна уу."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr "Zadané „Dĺžka okna“ je neplatná. Hodnota musí byť medzi 0,1 a 48."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"Оролтын урсгалын тоо буруу байна. 1 ба түүнээс дээш, 150 ба түүнээс бага "
+"бүхэл тоо оруулна уу. (100 орчим ашиглахыг илүүд үздэг)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Өгөгдөл, цагийг эхлүүлэх"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Завсарлага"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Цонхны урт"
+
+# ap/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Хяналт тавих"
+
+# ap/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Маяг"
+
+# ap/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Нэр"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"Нэг категорийн мэдээллийн тоо 50-аас доош настай бол графикийн нарийвчлал"
+" буурч магадгүй юм."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Хөндлөн үсний курсорыг үзүүлээрэй (дарна уу)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Олон хөндлөн үсний курсорыг үзүүлэх (давхар товшилт)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Гистограмын жагсаалтыг харуул"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Гадаадын шалгалтыг цуцлах"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Заасан `Мэдээллийн эх сурвалжийн нэрийг аль хэдийн байна."
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"Мэдээллийн импортын өөр баганын нэрийг өгөгдлийн эх үүсвэрээс олдсон "
+"файлыг олсон. Файлын агуулгыг шалгаж, мэдээллийн эх сурвалжийн эх "
+"сурвалжийн импортын тохиргоог дахин тохируулаарай."
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Холбогдох бичлэгийн тоог урьдчилан таамаглаж байсан"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Дээжийн тоо"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Холбогдох бичлэгийн тоо"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Нийт бүртгэлүүдийн тоо"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "CSV/TSV файлыг CSV/TSV файлын файлыг нэрлэнэ үү."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Түүх"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Шүүлтүүрийн тохиргоо"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "Мастер тохируулагч"
+
+# ap/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Шүүлтүүрийн тохиргооноос"
+
+# ap/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Бүгдийг харуул"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Түлхүүр (сонголт) болгон"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"Deficit утга, хэвийн бус үнэ цэнэ, хэвийн бус үнэ цэнэ, TOTAL_COUNT-ээс "
+"TOTAL_COUNT"
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP хаяг"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"Мэдээллийн тархалтыг гистограм ба нягтралын тооцоотой харьцуулах. График "
+"нь давхардсан хувьсагчаар хуваагддаг. Энэ нь бас нүүрэн дээр хуваагддаг."
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr ""
+"Тодорхой цагийн тэнхлэг эсвэл ID тэнхлэгийн талаархи бүх өгөгдлийг "
+"хуйвалдана."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr ""
+"Тархины хуйвалдааны матрицыг харуулах. Та 2-оос 7 зорилтот хувьсагчдыг "
+"ашиглаж болно."
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"Үндсэн бүрэлдэхүүн хэсгийн шинжилгээгээр, \"өөр\" гэсэн дүрслэлээр "
+"дүрслэх, түүний хүчин зүйлийн дүн шинжилгээ хийгддэг. Энгийн өгөгдлийг "
+"багшийн өгөгдлийг багшийн өгөгдөл болгон оруулаад одоогийн өгөгдөл нь "
+"ижил мэдээлэлтэй ижил нөхцөл байдал (T2 / q). Хэрэв танд өөр нөхцөл "
+"байдал байгаа бол та хувь нэмрийн талбайн үндсэн хүчин зүйлүүдийг шалгаж "
+"болно."
+
+# ap/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"Түгээлт нь энэ хувьсагчаар олон график руу хуваагддаг. Хэсэг ба станц гэх"
+" мэт ангиллын хувьсагчдыг (чанарын хувьсагч) сонгоно уу."
+
+# ap/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Давхардсан категорийн шүүлтүүр: Дэд хэсгүүдийг дэд зүйл болгон харуулах "
+"хязгаарлалт. (Ангилал: Хэсгийн дугаар, станц, Станцын дугаар.)"
+
+# ap/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"Ангилал хувьсагч (хэсэг, станц гэх мэт) өөрчлөгдөх цэгүүдийг олохын тулд "
+"цэгүүдийн дээд хэсэгт байрлах шошго болгон харуулсан."
+
+# ap/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "График шүүлтүүр: Дэд хэсгээс дэд зүйл рүү үзүүлэх хязгаарыг хязгаарлана."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"Сургалтын өгөгдлийг ердийн нөхцөл байдал гэж тодорхойлсон. NG өгөгдлийг "
+"агуулаагүй өгөгдлийн хэсгийг тохируулна уу. Хэрэв оруулсан бол NG Дата нь"
+" ердийн мэдээлэл гэж нэрлэгддэг."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Туршилтын өгөгдлийг шүүхэд тохируулах."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Зүйлийн шүүлтүүр: Дэд хэсгүүдэд мэдэгдэхүйц (дүн шинжилгээ, дэлгэц)."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"Энэ нь олон тооны хэмжээст агрегатын дэлгэц (үндсэн бүрэлдэхүүн "
+"хэсгүүдийн бүрэлдэхүүн хэсгүүд) олон талт баталгаажуулах мэдээллийн "
+"өгөгдлийг (үндсэн бүрэлдэхүүн хэсгүүд) юм. Хэрэв өгөгдөл нь төвд байгаа "
+"бол энэ нь ердийнхөөс ойрхон тайлбарлаж болно."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"Энэ нь олон тооны хэмжээст ангийн дэлгэц (үндсэн бүрэлдэхүүн хэсгүүдийн "
+"бүрэлдэхүүн хэсгүүд) олон талт сургалтын өгөгдлийн өгөгдлийг агуулдаг. "
+"Төв зорилтот түвшинг сургалтын өгөгдлийг тодорхойлно, тиймээс ихэнх "
+"сургалтын өгөгдөл нь зорилтот түвшинд байх ёстой."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"Энэ мэдээллийн үндсэн бүрэлдэхүүн хэсэгт мониторын аномалиатыг мониторын "
+"талбай, энэ мэдээллийн үндсэн бүрэлдэхүүн хэсэг. Сургалтын өгөгдлийг "
+"цагаан, сөрөг X хэсэгт байрлуулна. Шар хуйвалдаан бол баталгаажуулалтын "
+"өгөгдөл юм. Баталгаажуулалтын өгөгдөл нь цагаан өгөгдлийг цагаан "
+"өгөгдлийг харьцуулахад нөхцөл байдалтай байна. Нөхцөл байдлыг бий "
+"болгохын тулд өгөгдлийн цэгийг харахын тулд Дата цэгийг товшино уу."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"Q статистикийн талбай (энэ өгөгдөл, үлдэгдэл, үлдэгдэл). Сургалтын "
+"өгөгдлийг цагаан, сөрөг X хэсэгт байрлуулна. Шар хуйвалдаан бол "
+"баталгаажуулалтын өгөгдөл юм. Баталгаажуулалтын өгөгдөл нь цагаан "
+"өгөгдлийг цагаан өгөгдлийг харьцуулахад нөхцөл байдалтай байна. Нөхцөл "
+"байдлыг бий болгохын тулд өгөгдлийн цэгийг харахын тулд Дата цэгийг "
+"товшино уу."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Хувьсагч нь T2 статистик талбайд сонгосон цэг дээр хувь нэмэр оруулдаг. "
+"Урт урт нь илүү их магадлалтай."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"Q статистикийн талбайд сонгосон цэг дэх хувьсагчдад хувьсагчдад хувь "
+"нэмэр оруулдаг. Урт урт нь илүү их магадлалтай."
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Q1 - 4.5 * IQR-ээс бага буюу тэнцүү утгатай өгөгдлийн цэгүүдийн тоо"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Q3 + 4.5 * IQR-ээс их буюу тэнцүү утгатай өгөгдлийн цэгийн тоо"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"Нийт NA (боломжгүй), __- байхгүй байна), NaN (тоо биш) ба Inf± "
+"(хязгааргүй), сонгосон хугацаанд Inf± (хязгааргүй) ба Inf± (хязгааргүй)."
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr "Out of Control Line: Сонгосон хугацаанд дээд ба доод босго (тоолох) хувь"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: Сонгосон хугацаанд дээд ба доод хязгаараас гадуур "
+"байгаа мэдээллийн хувь"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Сонгосон хугацаанд NA (боломжгүй) хувь (байхгүй)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Сонгосон хугацаанд NaN (тоо биш) хувь (тоо биш)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Сонгосон хугацаанд Inf+ (нэмэх хязгааргүй) хувь (тоолох)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Сонгосон хугацаанд Inf- (хасах хязгааргүй хязгааргүй) хувь (тоо)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"Босго хэмжээнээс гадуур өгөгдлийн нийт хувь, NA (боломжгүй), NaN (тоо "
+"биш), NaN."
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"NA NA (боломжгүй), NaN (тоо биш), NaN (хязгааргүй), Inf± (хязгааргүй) ба "
+"Inf± (хязгааргүй), Inf± (хязгааргүй), сонгосон хугацаанд Inf± "
+"(хязгааргүй) ба Inf± (хязгааргүй)."
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "95-р хувь"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75-р хувь (гурав дахь дөрөвний нэг)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25-р хувь (эхний дөрвөлжин)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "5-р хувь"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Хөндлөн огтилох хүрээ (түгээлтийн хувьсах эрхийн үнэ: IRQ = Q3 - Q1 ≒ "
+"1.349σ @349σ @ хэвийн хуваарилалт)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "Медиан (50-р хувь)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Тоолох / цаг"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Тоолох / минут"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Циклийн цаг [S]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Хуваагдлын тоо"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Дэлгэцийн мөчлөг"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "Дэлгэцийн интервал"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Календара дулааны газрын зураг"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"Зорилтот хувьсагчдыг MAX_NUM_SENSOR эсвэл түүнээс дээш хуваах боломжгүй. "
+"Зорилтот хувьсагчийг сонгоно уу."
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Гаднах хэрэгслийг арилгах зорилт нь Max, Max, Min, Min, σ, σ, σ ба Range."
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Бодит тооноос бусад"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"Түгээлт нь категорийн хувьсагч бүрийг тооцож, эсвэл маш их хэмжээгээр "
+"төсөөлөх замаар дүрслэн харуулж болно. Хөндлөн бүлгийн шинжилгээ хийх "
+"боломжийг олгодог дүрслэл (олон, өдөр, өдөр, ажлын хооронд) өгөгдөл "
+"(өдөр, өдөр, өдөр, ажлын хоорондох харьцуулалт) ID;"
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Босгоыг график дээр зурна уу."
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"Хэрэв та тараах юм бол та тараах хуйвалдааныг харуулж болно. Одоогийн "
+"зүйл болон дараагийн мөрүүдийн хоорондох тараалтын талбай. Тархины "
+"хуйвалдааны x-тэнхлэг, y-тэнхлэгийг солихын тулд хулганаа чирж, "
+"хуйвалдааны кардлуудыг чирнэ үү."
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"Өгөгдлийг хуваарилахад хүргэдэг өгөгдөл (хэмжигдэхүүн эсвэл хэмжилтийн "
+"утга). Энэ өгөгдлийг хуйвалдаанд хуйвалдана. 20 хүртэлх зүйлийг сонгож "
+"болно."
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"Энэхүү давхардсан хувьсагч нь тархалтыг олон газар дээр хувааж, хажуу "
+"тийш нь харуулна. НЭГДҮГЭЭР ЭНД ДАРЖ ҮГҮЙ, БАРИМТ, ҮНЭГҮЙ ҮНЭГҮЙ сонгоно "
+"уу."
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr ""
+"DateLime бүрт Ridgeline Clay-ийг харуулахын тулд эхлүүлэх DateTime-ийг "
+"оруулна уу."
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Дата бүрт Ridgeline хуйвалдааныг харуулах үеийг шууд оруулаарай."
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"Мэдээллийн бүтцийг хөрвүүлэх шаардлагатай тусгай харьцуулалтыг оруулах "
+"шаардлагатай CSV/TSV файлыг оруулах сонголтыг сонгож болно."
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"Урьдчилан харах товчийг дарж доор дарахад өгөгдлийг файлын зарим хэсгийг "
+"харуулна. Та үүний агуулгыг шалгаж болно."
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"Дата холболтын нөхцөл болгон ашиглахын тулд LINK ID-ийг сонгоно уу. Та "
+"бас олон зүйлийг сонгож болно."
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"Таны програм үе үе өгөгдлийг тогтмол импортлох үед та DateTime түлхүүр "
+"болгон ашиглахыг илүүд үздэг DateTime баганыг сонгож болно."
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"Хэрэв та операторыг сонгоод \"Factor\" -ын дугаарыг оруулаад 'Factor'-д "
+"дугаарыг оруулаарай."
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"Хэрэв та операторыг сонгоод \"Factor\" -ын дугаарыг оруулаад 'Factor'-д "
+"дугаарыг оруулаарай."
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr ""
+"Одоогийн байдлаар тохируулах нөхцөлийг одоогийн байдлаар хэр их холбосон "
+"болохыг урьдчилан таамаглах боломжтой."
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr ""
+"Одоогоор тохируулсан өгөгдлийг холбож, өмнө нь бүртгүүлсэн нөхцөлийг "
+"дуудаж, залгасан."
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID Датаг тохируулах нөхцлийг холбосон нөхцлөөр холбодог."
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr ""
+"График тохиргоонд ашиглан чанарын хяналт эсвэл тоног төхөөрөмжийн "
+"хяналтын хэрэгслийг сонгоно уу."
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Хэсгийн дугаар, тоног төхөөрөмж гэх мэт менежментийн зорилтыг сонгоно уу."
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr ""
+"Хэсгийн дугаар ба тоног төхөөрөмжийн үнэ цэнэ гэх мэт менежментийн "
+"зорилгыг сонгоно уу."
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "График тохиргоонд эхлэх DateTime-г тохируулна уу. (Шаардлагатай)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "График Тохиргоонд зориулж төгсгөлийн DateTime тохируул. (Заавал биш)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Хадгалсан тохиргоог уншина уу."
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Таны оруулсан хамгийн сүүлийн тохиргоог хадгал."
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Дэлгэцийг PNG файл болгон хадгалах."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Та энэ тохиргоог устгахыг хүсч байна уу?"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Зорилтот хувьсагч (бодит тоо)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Зорилтот хувьсагч (ангилал)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Индекс захиалах"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "Багана"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "Захиалга"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Ахлах"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Урьдчлэх"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Хувьслах"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "ЗӨВХӨН, ЗӨВХӨН ЗӨВЛӨГӨӨ"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Зөвхөн шүү дээ"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Ангиллын зөвхөн ангилал"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Тогтоосон дарааллаар"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Процессын дарааллаар"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Корреляци хийхэд. захиалга"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Корреляцийн босго (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Зорилтот хувьсагчийг сонгоно уу"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "ЗОРИУЛСАН ТУХАЙ"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Тайлбарлах хувьсагч"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Боломжтой харьцаа"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Хиа диаграмм"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Тоглолт (төгс тохирох)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Хайлт"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Хайлт"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Хяналтын координатын координатын талбайнууд бодит тоонуудыг эмчилж "
+"чадахгүй, бодит тоон мэдээлэл хасагдсан."
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013;・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Босгоход"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Дэлгэцийн нэр гэх мэт засварласан мэдээллийг бүртгүүлнэ үү."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Өөрчлөгдсөн агуулгыг бүртгүүлэхийг хүсч байна уу?"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr ""
+"Хэрэв та холбоосыг сольж байгаа бол ID ID Дата холбоосын тохиргоог дахин "
+"тохируулна уу."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Хамтран ажиллагсдын график"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Мэдээллийн файл"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Нэгтгэсэн"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Аг"
+
+# co-occurrence
+msgid "Day"
+msgstr "Өдөр"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Засах горим"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Тохиргоо горим"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"Буруу өгөгдөл нь тодруулсан улааныг устгана. Тохируулах горим руу шилжсэн"
+" үү?"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "ахлах"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"Давхардсан англи хэл дээр илрүүлсэн тул серийн дугаарыг автоматаар "
+"нэмсэн. Баганын нэрийг шалгана уу."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Нэгтгэх нэгж"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"Эхний багана нь DATETIME, хоёр дахь багана, хоёр дахь багана нь дохиоллын"
+" тэмдэглэгээ / үзлийн туг / үзэгдэл гэх мэт утга юм (0,1,2 ...)."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Дүүргэгчийн харилцааг нэг цаг / өдөрт нэгтгэх."
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Босго дэлгэц"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"Хэрэв та 100.510.10-аас бага утгыг сонговол та жижиг CO -cururence "
+"харилцааг нуух болно. (Анхдагч: Нэг удаа ч гэсэн мөрийг зурах)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"Зорилтот хувьсагч руу шууд эсвэл шууд бус хамааралтай хувьсагчдыг "
+"тодорхойлж, төсөөлөх."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"Энд заасан хувьсагчдын хоорондын хамаарлыг төсөөл. 60 хүртэлх зүйлийг "
+"сонгож болно."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Объектив хувьсагчтай харьцуулсан нэр дэвшигчийн хувьсагчууд."
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "бүх ирмэг"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Төлөвлөгөө"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Дүгуй"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Автоматжүүлал"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Бүтээмж"
+
+msgid "Set threshold"
+msgstr ""
+"Control Line: Стандарт шугамууд гэх мэт удирдлагын түвшинг зурах үед "
+"шалгана уу"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Хэмжилдолцооны платол хий"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Тавлал зурах"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Тохиолдлын тоо"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Хуримтлагдсан харьцаа [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"Долоо хоногийн үйл явц, өдөр тутмын үйл явц, өдөр тутмын өөрчлөлтүүд гэх "
+"мэт олон жилийн туршид мэдээлэл, цаг хугацаа, жишээ нь"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr ""
+"Зорилтот хувьсагчтай холбоотой олон тооны хувьсагчийн хоорондын хамаарлыг"
+" төсөөлөх."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr "Алдаа, дохиолол, үйл явдлууд, үйл явдлууд, гэх мэт."
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"ХоосонDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: Мэдээллийн зураглал, харааны зураглал, статистик, "
+"Статистик дүн шинжилгээ хийх энгийн хэрэгсэл."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"Энд байгаа өгөгдлийн багцыг өгөгдлийг холбох, хуйвалдааны лавлагаа болгон"
+" ашигладаг. Тохиргоо нь хуйвалдааны хэвтээ тэнхлэгт ашиглагддаг. Нэмж "
+"хэлэхэд, гарал үүслийн талбайг хөнгөн цэнхэр хүрээтэй харуулна."
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"Мэдээллийг зааж өг (жишээ нь, тоон хувьсагчдад: Хэмжилтийг хэмжих үнэ). "
+"Талбай дээр хуйвалдах үйл явц, зүйлийг сонгоно уу. 20 хүртэлх зүйлийг "
+"сонгож болно."
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"Мэдээллийг зааж өг (жишээ нь, тоон хувьсагчдад: Хэмжилтийг хэмжих үнэ). "
+"Талбай дээр хуйвалдах үйл явц, зүйлийг сонгоно уу. 8 хүртэлх зүйлийг "
+"сонгож болно."
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"Хоосон可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"Энэхүү давхаргын хувьсагч нь хэв маягийг олон тооны талбайд дүрсэлж, "
+"тэдгээрийг хажуу тийш нь харуулна. Хэсэг, станцын дугаар, станцын дугаар,"
+" станц гэх мэт категорийн хувьсагчдыг сонгож болно. 100 хүртэлх зүйлийг "
+"сонгож болно."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"Хувьсагчийн хоорондох хамаарал (тоон хувьсагч) хоорондын хамаарлыг "
+"дүрсэлсэн өгөгдлийн зүйл: Хэмжилт. Хэмжилтийн утга, гэх мэт). Энэ "
+"өгөгдлийг диаграм дээр хуйвалдана. 2-оос 7 параметрээс сонгож болно."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"Хувьсагчдын хоорондох хамаарлыг төсөөлөхийн тулд зүйлийг сонгоно уу. 60 "
+"хүртэлх зүйлийг сонгож болно."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"Ангиллын хувьсагч (хэсэг хэсгийн тоо гэх мэт) хувьсагчдын хоорондох "
+"хамаарлыг дүрслэх."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Картыг хамгийн их байлгах"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Картыг багасгах"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr ""
+"Хэрэв энэ тохиргоо өөрчлөгдсөн бол өгөгдлийн холбоосын тохиргоог дахин "
+"тохируулах шаардлагатай байна."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Авто сонгох"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Бүгдийг баруун тийш нь сонгоно уу"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Бүгдийг нь зөв биш"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Бүгдийг нь жинхэнэ (хөвөх) эндээс"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Эндээс бүх бүхэл тоо"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Эндээс бүх мөр"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"Сонгосон олон тооны бүртгэлээс болж, хуйвалдааныг харуулах цаг хугацаа, "
+"төслийг харуулах цаг хугацаа, нэг хуйвалдааны тоо 10,000-ыг хязгаарласан."
+" Хэрэв та BREAK_LINE зорилтот хугацааны туршид бүх өгөгдлийг харахыг хүсч"
+" байвал дэлгэцийн интервалыг нэмэгдүүлэх эсвэл зорилтот хугацааг "
+"багасгахын тулд зорилтот хугацааг багасгахыг хүсч байна."
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Цувгаа"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Та хуйвалдаан дээр дарж хуйвалдааны хэмжээг зөв товшиж тохируулж болно."
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Граф талбай"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Тохиргоо горим"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Холбогдох боломжгүй өгөгдлийн зүйлсийн тоо"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Тараах хуйвалдаан"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "Контуртай"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Хэмнэлт"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"Хоосонファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "Ачаалах тохиргоо"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "Хуваалцах / хувийн"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "Тодорхойлолт / төрөл анги"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "Бүтээсэн байгуулсан зохион бүтээсэн"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "Ашиглах / ачаалах"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "Ачих"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "Эхлэх цэгийн процесстой холбоогүй өгөгдлийн тоо (холбоосын хувь)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Өгөгдлийг хадгалах"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "Хуваалцаа хадгалах"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "аврах"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"Та 2-оос 7 зорилтот хувьсагчдыг сонгож болно. Зорилтот хувьсагчдын тоог "
+"шалгаж, тохиргоогоо засна уу."
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr ""
+"Файлын хэмжээ хязгаар нь 10 MB юм. Файлын хэмжээг багасгах, дахин "
+"оролдоно уу."
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Хэрэв шалгагдсан бол заасан өгөгдөл бас хадгалагдана."
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Энэ тохиргоог хуваалцахыг шалгана уу."
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Тохиргоог хадгал."
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Тохиргоог дарж бичихдээ итгэлтэй байна уу?"
+
+# ap/templates/modals.html
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "хуваах"
+
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "Хувийн"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "Бүтэмж дээр бүтсэн"
+
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "Ойр дөхөм"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "Захиалгын газар"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "DateTime эхлэх"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "Төгсгөлийн Dateyime"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "X-тэнхлэгийн шошгыг харуул"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Datetime муж"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Файлыг энд чирч, буулгана уу"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Эсвэл"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Файлуудыг сонгоно уу"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Үзүүлэх боломжгүй"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"Их хэмжээний өгөгдөл, урт хугацааны боловсруулалтаас болж боловсруулалт "
+"тасалдсан. DateTime тохиргоог хянаж, талбайг дахин харуул."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "CSV файлыг гаргана. Файл татаж авах явцдаа хүлээнэ үү."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "__115__ файлыг гаргана. Файл татаж авах явцдаа хүлээнэ үү."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Автоматаар хүрээ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Бүрэн хүрээ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Индексийн захиалгын тохиргоо"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "Нээлттэй"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "Эдгээх"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"График тутамд өгөгдлийн цэгүүдийн тоо 12,000 гаруй байдаг тул мэдээллийн "
+"цэгийн тоо хамгийн ихдээ 12,000-той хязгаарлагдсан. Хэрэв та өгөгдлийг "
+"бүхэлд нь үзэхийг хүсч байвал богино зорилтот хугацааг тохируулна уу."
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Нэр томъёоны дагуу (цикл)"
+
+#: component.js
+msgid "Facet"
+msgstr "Аср Гадаан Нүүр"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Сонгосон зүйлээр хуваах категорийг гүйцэтгэдэг."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Үл хамаарах тооцоо"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"Хэвийн бус интервалтай хүрээ (IQR-ийг хэвийн хуваарилах IQR-ийг хэвийн "
+"хуваарилалт, niqr = 0.7413 × IQR)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Горим нь хамгийн олон удаа тохиолддог утга юм."
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "гаднагчтай"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "НЭМЭЛТГҮЙ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Ес заншил"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Оноо"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Өчигдөр"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Сүүлийн 7 өдөр"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "СУРГУУЛИЙН 30 30"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Энэ сар"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 сар"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 сар"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Хандах"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Долоо хоног"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 хоногийн өмнө"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 хоногийн өмнө"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Энэ сарын нударга өдөр"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Энэ сарын сүүлийн өдөр"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 сар"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Шинэчлэгдсэн"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"Мэдээллийн цэгүүдийг хурдан горимоор нэгтгэсэн. Хэрэв та өгөгдөл "
+"оруулахгүйгээр хуйвалдаан авахыг хүсч байвал зорилтот хугацааг "
+"богиносгана."
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Y тэнхлэгийн хүрээ"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Исгэгч"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"Хоосон'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "Явцын хайлт"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "Pgititйл"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"Хоосон以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "Цөхуу цаг"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "Reiит дугаар"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "ЗОРИУЛСАН ТУХАЙ"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"Корреляцийн коэффициентийг энэ хувьсагчийг зорилтот хувьсагч болгон "
+"ашиглан тооцоолно. Энд заасан зорилтот хувьсагч нь хуйвалдааны баруун "
+"талд байгаа өнгөт баартай хамт гарч ирнэ. Хэрэв та зорилтот хувьсагчийг "
+"хуйвалдаан дээр өөрчлөхийг хүсч байвал та тэдгээрийн хоорондох товчийг "
+"дарж, хувьсах нэр дээр баруун товшиж шилжиж болно."
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"Хэт олон ангилал байгаа тул өгөгдлийг живүүлээгүй. BREAK_LINE・ "
+"Шаардлагатай бол шалгах, хэрэв шаардлагатай бол зорилтот хугацааг "
+"богиносгох."
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "Шүүлтүүрийн тохиргоо"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Шошго (Ангилалын хувьсагч)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "Хуулсан"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "Богагсан"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "Хуулах тохиргоог хуулах"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "Paste тохиргоо"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr ""
+"Гаралтгүй тохируулга хийхгүйгээр эхний зорилтыг гарал үүсэл байдлаар "
+"сонгоно."
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "Өгөх мэдээлэл"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "Хэрэглэх хэрэггүй"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "Хэт олон ангилал байгаа тул өгөгдөл зураагүй байна."
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr ""
+"Шаардлагатай бол, шаардлагатай бол зорилтот хугацааны тохиргоог шалгана "
+"уу."
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Мэдээллийн тоог хуваана (мөчлөг)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "Мэдээлэлийн тоо"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"Хоосонグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Заавал хувьсагчийг сонгоно уу."
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Ялзрах / ангиллын ялгааг задалдаггүй"
+
+# ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Тараах хуйвалдаан"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"Хэрэв x эсвэл y өгөгдлийн төрөл нь String дээр байвал та өнгөт бус "
+"хувьсагчийг ашиглах боломжгүй."
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"Зөвшөөрөгдсөн хүрээний гадна талын утга илэрсэн тул хамгийн багадаа эсвэл"
+" хамгийн их хязгаарыг автоматаар шийдсэн. Шаардлагатай бол тохиргоог "
+"өөрчлөх."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Баруун товшилт: өгөгдлийн холбоос тохируулах / засварлах / устгах"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Зарцуулсан цаг хугацаа"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "Цаг хугацааны захиалга"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "Өгөгдлийн захиалга тохируулах"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"Шаардлагагүй өгөгдлийг устгах `__SERVER_INFO__ __SERVER_INFO__ __52 %% "
+"хүрсэн тул` __SERVER_INFO__ %% хүрч байгаа тул __SERVER_INFO__ %%."
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"`__SERVER_INFO__ __SERVER_INFO__52 __52 %%51 %%52 %% багтсан тул "
+"өгөгдлийн порт зогссон. Хэрэв шаардлагагүй өгөгдөл устгагдаж, хоосон "
+"хүчин чадал нэмэгдэж байгаа бол өгөгдлийг үргэлжлүүлнэ."
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"Үзэхийн тулд тархалтын тоог оруулна уу (хэлтсийн тоо). 2 эсвэл 150 ба "
+"түүнээс бага бүхэл тоо оруулна уу."
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"Үзэхийн тулд тархалтын тоог оруулна уу (хэлтсийн тоо). 1 ба түүнээс дээш "
+"32 ба түүнээс бага бүхэл тоо оруулна уу."
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Хоосон表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Хоосонプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Хоосон1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Хоосон1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Хэт олон тооны хиймэл гаралт байдаг тул автоматаар хязгаарлагдмал байсан."
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"Сонгосон олон тооны бичлэгээс болж сонгогдсонтой холбоотой, талбайгийн "
+"тоог хязгаарлагдмал байдлаар хязгаарладаг."
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Би зөвшөөрч байна"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "Доройтол"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Хойноо"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Багана дээрх хуйвалдааны тоо"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"Категорийн хувьсагч (хэсэг, станц, Station гэх мэт) Шошгоны дээд хэсэгт "
+"байрлах шошго (хэсэг."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"Шинжилгээтэй байх зүйлсийг сонгоно уу (тоон хувьсагч: хэмжих үнэ цэнэ, "
+"гэх мэт). 60 хүртэлх зүйлийг сонгож болно."
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr ""
+"Мэдээллийг эрэмбэлэх зүйлсийг сонгоно уу. Та бас олон зүйлийг сонгож "
+"болно."
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"Хэт их өгөгдөл нь дэлгэцийн хязгаарлалт бүхий хамгийн сүүлийн үеийн "
+"мэдээллийг тоолохгүй байгаа тул хуучин мэдээллийг харуулахгүй."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"Талбайн тоог NUMBER хязгаарласан. Хэрэв та бүгдийг нь харуулахыг хүсч "
+"байвал тохиргоогоо дахин оруулна уу."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"Нэг таб дээрх хуйвалдааны тоо NUMBER-тэй хязгаарлагдсан. Хэрэв та бүгдийг"
+" нь харуулахыг хүсч байвал тохиргоогоо дахин оруулна уу."
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"Зорилтот хувьсагчдын тоо хамгийн багадаа хамгийн бага ба хамгийн ихдээ "
+"хамгийн ихдээ. Зорилтот хувьсагчдын тоог шалгаж, тохиргоогоо засна уу."
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"Зорилтот хувьсагчдын тоо хамгийн ихдээ хамгийн дээд хэмжээнд хүртэл "
+"байна. Зорилтот хувьсагчдын тоог шалгаж, тохиргоогоо засна уу."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+# ap/templates/trace_data/list_of_histograms.html
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "Исгэгч"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "Агнээ"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "Анхааруулга"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "Түүх"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "Тодорхойлолт / төрөл анги"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"Хэрэв та 100.510.10-аас бага утгыг сонговол та жижиг CO -cururence "
+"харилцааг нуух болно. (Анхдагч: Нэг удаа ч гэсэн мөрийг зурах)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"Хэрэв та 100.510.10-аас бага утгыг сонговол та жижиг CO -cururence "
+"харилцааг нуух болно. (Анхдагч: Нэг удаа ч гэсэн мөрийг зурах)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"Хэрэв та 100.510.10-аас бага утгыг сонговол та жижиг CO -cururence "
+"харилцааг нуух болно. (Анхдагч: Нэг удаа ч гэсэн мөрийг зурах)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "Тодорхойлолт / төрөл анги"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "Ойр дөхөм"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "Хугацаа дуусах огноо (төгсгөл)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "Хугацаа дуусах огноо (Эхлэх)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "Хугацаа дуусах огноо (төгсгөл)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+

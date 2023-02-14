@@ -1,0 +1,86 @@
+.card-table {
+    margin-top: 10px;
+}
+
+table.dataTable thead {
+    background-color: #222222;
+    color: white;
+    text-align: center;
+}
+
+table.dataTable .even {
+    background-color: #3f3f3f !important;
+}
+
+table.dataTable .odd {
+    background-color: #303030 !important;
+}
+
+table.dataTable .odd:hover, table.dataTable .even:hover {
+    background-color: rgba(0,0,0,0.075) !important;
+}
+
+table.dataTable tbody th, table.dataTable tbody td {
+    vertical-align: middle !important;
+}
+
+table.dataTable thead th, table.dataTable thead td, table.dataTable.no-footer {
+    border-bottom: none !important;
+    /* padding-left: 10px !important; */
+}
+
+table.dataTable tbody tr td:first-child {
+    text-align: center !important;
+}
+
+#backgroundJosTbl td {
+    vertical-align: middle !important;
+    border: 1px solid #444;
+    text-align: left;
+}
+
+#backgroundJosTbl td.job-duration {
+    max-width: 125px;
+}
+#backgroundJosTbl td:first-child {
+    text-align: center;
+}
+
+table#jobErrorDetailTable thead tr th {
+    border: 1px solid #444;
+    vertical-align: middle !important;
+    text-align: center;
+    min-width: 100px;
+}
+
+.job-id,
+.job-detail,
+.job-status {
+    text-align: center;
+}
+
+#jobDataTable {
+    overflow-x: hidden;
+}
+
+#jobErrorDetailTable pre {
+    white-space: pre-wrap;
+}
+
+.bootstrap-table .fixed-table-container .fixed-table-body {
+    overflow-y: unset !important;
+    overflow-x: unset !important;
+}
+
+button.dropdown-toggle{
+    /*width: 70px;*/
+    text-align: left;
+}
+
+span.btn-group.dropdown {
+    margin: 0 10px;
+}
+
+.th-inner.sortable.both {
+    text-align: center;
+}
