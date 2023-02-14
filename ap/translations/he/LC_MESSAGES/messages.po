@@ -1,0 +1,3824 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "שמור"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "אירעה שגיאה"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "תצורת יישום"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "הדף לא נמצא"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "אירעה שגיאה"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "אפליקציית Datalink & ניתוח"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "בחר שפה"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "מסך ראשי"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "אימות פעולה"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "אימות פעולה"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "תצורה בסיסית"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "הירשם"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "לִטעוֹן מִחָדָשׁ"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "מספר שלם"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "אמיתי (צף)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "תאריך שעה"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "חוּט"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "כותרת"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "צמח"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "מפעל"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "קַו"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "אנא אשר."
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr "שמור את הנתונים והתחל לייבא נתונים עם התוכן שנקבע בדף הגדרת התהליך?"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "בסדר"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "לְבַטֵל"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "תצורת מסד נתונים"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "שם בסיס הנתונים"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "סוג מסד נתונים"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Config"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "תגובה"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "לְהוֹסִיף"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "בחר קובץ מסד נתונים."
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "שם קובץ"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "בחר"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "האם אתה רוצה למחוק את הרשומה הזו?"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "לִמְחוֹק"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "עקיבות"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "גרף עקיבות"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "בדיקת עקבות"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "התחל לבדוק"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "שעת התחלה"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "זמן סיום"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "מזהה מכונה (בחירות מרובות)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "קַו"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "מספר חלק"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "תצורת קישור נתונים"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "בחר שפה"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "יַפָּנִית"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "אנגלית"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "צוֹמֶת"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "צומת ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "תווית"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "שם אב"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "מאגר מידע"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "יְבוּא"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "יְצוּא"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "שם מארח"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "מספר יציאה"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "שם משתמש"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "סיסמה"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "סכֵימָה"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; הצלחתי."
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; נכשל."
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "תצורת תהליך"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "תהליך"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "שם התהליך"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "שם שולחן"
+
+# ap/templates/setting_module/background_process.html
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "פרט"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "תצוגה מקדימה"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "חמשת הרשומות הראשונות"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "קביעת תוכן"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "שם העמודה"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "שם אנגלי"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "הצג שם"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "מְקַדֵם"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "מַפעִיל"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "הזן ערך שאינו 0"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "מפעיל קלט."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "מקדם קלט."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "קלט שם אנגלי."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "שם תצוגת קלט."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "השם האנגלי משוכפל."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "שם התצוגה משוכפל."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "יש \"שם תצוגה\" שלא הוזן."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "הזן \"שם אנגלית\" אוטומטית עבור פריטים ללא תחרות."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "בחר הכל"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "יבוא נתונים"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "האם אתה בטוח ייבא נתונים?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr "כשתלחץ על כפתור OK, תייבא נתונים מהזמן הנוכחי לחודש לפני כן."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "הנתונים הקודמים מיובאים אוטומטית לאט לאט."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"אם ברצונך לייבא את הנתונים לאחר השעה הנוכחית, לחץ שוב על כפתור קריאת "
+"הנתונים, או לחץ על מסד הנתונים CSV הגדרת ההגדרות בדף ההגדרה הקריאה."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"כאשר \"עדכון מחזור\" של \"מסד נתונים / CSV קרא הגדרות\" מוגדר, הנתונים "
+"מהזמן הנוכחי מיובאים באופן אוטומטי במחזור הגדר."
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "מידע על עקבות"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "עקוב אחר נתוני"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "לא יכול היה לגשת"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "לחץ כאן כדי לתקן את זה."
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "ערוך Edge"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "תהליך PREV"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "עמודה קודמת"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "תהליך פוסט"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "עמודה לאחר מכן"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "כ- DateTime"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "כסידרה"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "כקישור ID"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "כבר רשום"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "אנא הזן את שם התהליך"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "פילטר/גרף"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "תצורת גרף"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "סינון קו תצורת"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "עמודת קו"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "ערך"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "תצורת מסנן מכונה"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "מכונה ID עמודה"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "חלק ללא תצורת פילטר"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "חלק ללא עמודה"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "שם סנן"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "מצב סינון"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "אחרים מסננים את התצורה"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "עמודת יעד"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "תצורת ויזואליזציה"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "סף תחתון"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "סף עליון"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "סף תהליכים נמוך יותר"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "סף תהליכים עליון"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "טווח y-Axes: Min"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "טווח y-Axes: מקס"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "חלק לא"
+
+# ap/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "להסתיים עם"
+
+# ap/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "להתחיל עם"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like חיפוש)"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "לְהַסכִּים"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "ביטויים רגילים"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "להציג את הגרף"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV ייצוא"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "נדרש תהליך"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "שם העמודה נדרש"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "נדרש קו"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "שם התצוגה נדרש"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "שם התצוגה משוכפל."
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "נדרש ערך מכונה"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "מכונה משוכפלת ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "נשמר בהצלחה"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "הצילתי נכשל"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "חלק לא נדרש עמודה"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "נדרשת עמודת יעד"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "שם המסנן נדרש"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "נדרש מצב"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "שם המסנן משוכפל."
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "התנאים משוכפלים."
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "בְּרִירַת מֶחדָל"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "שם התהליך"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "הוסיפו פילטרים אחרים"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV יבוא תצורה"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "מָקוֹר"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "מחזור התחדשות"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "לְחַבֵּר"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "פעם לשעה"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "פעם ביום"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "אישור נתונים"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "אין תיקיה."
+
+msgid "File does not exist"
+msgstr "אין קובץ."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "אתה יכול להתחבר."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "אנא מלא את הערך."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "אין תוכן הגדרת."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "ההגדרות משוכפלות."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "הגדרות מסד נתונים נשמרו."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "שמירת הגדרות מסד נתונים נכשלה."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "הגדרות בסיסיות שנשמרו."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "שמירת הגדרות בסיסיות נכשלה."
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "חיבור מבחן"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "נקודת התחלה"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "טווח תאריכים"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "הכי מאוחר"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "עדכון אוטומטי"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "דַקָה"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "דקות"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "שָׁעָה"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "שעה (ות"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "משתנה יעד"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "לְסַנֵן"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "X ציר"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "חותמת זמן"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "אינדקס"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "משתנים מרובדים"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "פילטרים"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "מסד נתונים/CSV"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "לְנַתֵחַ"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "בפיתוח"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "לְנַתֵחַ:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "עלילת מפל"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "גרפי LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "היסטוגרמה"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "עלילה מרובדת"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "עלילה של נקודות מלאות"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "נתונים להדמיה"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "רְאִיָה"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "לָרוּץ"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "הזן את שם בסיס הנתונים."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "הזן את שם מקור הנתונים."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "עמודות שאין להן סוג נתונים אינן מיובאות."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "נדרשת לפחות עמודה אחת של DateTime."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "לצורך הדמיה, השתמש '{col}' עבור ציר ה- X."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "האם אתה בטוח להמשיך?"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "מציג טבלה"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "שולחן"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "סוג"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "מספר הנתונים"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "יורד"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "עולה"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "התאמה מושלמת"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "משחק חלקי"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "בחירת ספרות לא חוקית"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "אורך הדמות המשמשת לקישור שונה."
+
+# ap/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "ללא מסנן"
+
+# ap/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "כל השורות"
+
+# ap/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "מַצָב"
+
+# ap/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "רשימת עבודה"
+
+# ap/templates/setting_module/db_config.html
+msgid "All"
+msgstr "את כל"
+
+# ap/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "יבוא הושלם."
+
+# ap/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "יבוא"
+
+# ap/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "ייבוא ​​נכשל"
+
+# ap/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"הנתונים העמוסים יימחקו. זה בסדר? (שום שינוי לא משתקף עד לחיצה על כפתור "
+"ההרשמה)"
+
+# ap/setting_module/controllers.py
+msgid "Job List"
+msgstr "רשימת עבודה"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "מזהה עבודה"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "שם העבודה"
+
+# ap/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "דור של קישור ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "עבודת הדור תצוגה של קישור ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "מחיקת מידע תהליכים"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "ייבא נתוני מפעל"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "ייבא נתוני מפעל עבר"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "הצג ייבוא ​​עבודה של נתוני מפעל בעבר"
+
+# ap/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV ייבוא ​​נתונים"
+
+# ap/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "מחק נתונים ישנים"
+
+# ap/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "שעת התחלה"
+
+# ap/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "זמן שחלף"
+
+# ap/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "מסד נתונים/CSV"
+
+# ap/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "התקדמות"
+
+# ap/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "תהליך"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "רשימת היסטוגרמה"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "הירשם כערך התפרצות"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Unrectire Profession"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "להסתיר מחיקים"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "להראות מחיצות"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "בדוק מחיצים"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "הצג רשימת היסטוגרמה"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "זמן עדכון אחרון"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "הרשמה מתקדמת בוטלה."
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "רשום כמתאריך"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "מתארים יותר"
+
+# ap/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "רק פעם אחת"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "פרטי עבודה"
+
+# ap/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "העתק ללוח"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "עלילה רב -פיזור"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "גרף פיזור"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "כדי לדמיין משתנה קטגורי"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "מרובדים על ידי משתנים"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "מִשְׁתַנֶה"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "מכונה מספר"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "תקופת יעד"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "תדר (ספירה)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "הערכת צפיפות"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "משתנה קטגורי"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify לפי מונח (ישיר)"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "גילוי אנומליה"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. ציון הרכיב העיקרי של נתוני הבדיקה"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. ציון רכיב עיקרי של נתוני אימונים"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. תרשים סדרות של סטטיסטיקות T2"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. תרשים סדרות של סטטיסטיקות Q"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. עלילת תרומה של סטטיסטיקות T2"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. עלילת תרומה של סטטיסטיקות Q"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "הסר את המתווה"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "נתוני אימונים"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "בדיקת נתוני"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "כן"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "לא"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "סוג מידע"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "דוגמא"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "שְׁגִיאָה"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "אַזהָרָה"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"מכיוון שכל השורות נמחקו על ידי עיבוד ערך הגירעון (הסרת NA), אין נתונים "
+"לניתוח. וודא שהערך הריק, כולל NA, לא נבחר."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"לא ניתן לנתח אותו מכיוון שהוא מכיל נתונים שאינם מספרים. וודא שבחרת בעמודה"
+" המכילה מחרוזת או ערך קטגוריה."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"לא ניתן לנתח מכיוון שהוא מכיל נתונים עם שונות של 0. וודא כי רק עמודת ערך "
+"אחת לא נבחרה."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"מצאו נתוני קטגוריה וערך מספר שלם צפוי. אם ערך מספר שלם זה אינו סולם "
+"הזמנה, סולם מרווח או סולם יחס, תוצאות הניתוח עשויות להיות מושפעות לרעה."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "האם אתה בטוח להמשיך בניתוח?"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "לחפש"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"החציון הוא אחד הסטטיסטיקה האופיינית. זהו ערך הממוקם במרכז כאשר הנתונים "
+"הסופיים מסודרים בסדר העולה. לדוגמה, במקרה של חמישה, הגיל החציוני בגיל הוא"
+" הגיל השלישי לפי הגיל. אם מספר הנתונים הוא שווה, משתמשים בממוצע של החשבון"
+" המרכזי ברזל."
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "מקס"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "סיכום ההפצה"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N מספר"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "מְמוּצָע"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "מה החציון ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "סך הכל"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "תכופות"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "נקודת סיום"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "תהליך יעד"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "סדרת זמן"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "חתיכות"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "מספר קישור הנתונים"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "שניות"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "זמן תגובה"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "לַעֲרוֹך"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "חזור"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "הוסף צומת"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "הוסף קצה"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "ערוך צומת"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "לחץ על החלל הריק כדי למקם צומת חדש."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "לחץ על הצומת, גרור את הקצה לצומת אחר וחבר אותם."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "לחץ על נקודת הבקרה, גרור אותה לצומת והתחבר."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "לא ניתן להוסיף קצה."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "לא ניתן למחוק את האשכול."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "לא ניתן לערוך את האשכול."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "שם התצוגה או הערך משוכפלים."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "הזן את שם התצוגה והערך."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "הזן את עמודת השורה."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "שעה (ות"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "מידע על נתונים"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "יְוֹם"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "שָׁבוּעַ"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "לִטעוֹן"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "להציל"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "להחליף"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "הגדרה"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "שנה את הכותרת מכיוון שאותו כותרת מוגדרת."
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "שמור הגדרה"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "צור צילום מסך"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "הורד"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"הסיבות לכך שלא ניתן להציג את הגרף הן כדלקמן. BREAK_LINE בדוק את המצב. "
+"BREAK_LINE・ הנתונים אינם מיובאים או באמצע הייבוא. BREAK_LINE・ לא מקושרים "
+"נתונים או באמצע הקשירה. BREAK_LINE・ הגדרת הגרף אינה הולמת."
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "אַזהָרָה"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "רשומות המכילות נתונים לא חוקיים בעמודת נתוני התאריך אינם מיובאים."
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr "אתה יכול להתייחס לקבצים בתיקיה שלהלן לנתונים שלא ניתן לייבא."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr "לא ניתן להעלות את מצב השימוש מכיוון שהוא אינו מחובר לאינטרנט."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "אנא בדוק את חיבור הרשת."
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "ייקח זמן רב לקשר נתונים שוב."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "האם אתה בטוח לחבר מחדש את הנתונים?"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "לְהַפִּיל"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "לבצע"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "האם אתה בטוח לטעון מחדש את הגדרות קישור הנתונים הרשומות בעבר?"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "החל לייבא נתונים."
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "אתה יכול לבדוק את התקדמות הייבוא ​​מהקישור למטה."
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "עיין בדף רשימת העבודה למצב שגיאה."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "התחיל לקשר נתונים."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "אחת לשלוש דקות"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "אחת לחמש דקות"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "אחת לעשר דקות"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "פונקציה אופציונלית"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "סוג קובץ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV ייצוא"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"בשל המספר הגדול של הרשומות שנבחרו והזמן הנדרש להצגת הגרף, מספר הרשומות "
+"לכל גרף היה מוגבל ל 50,000."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "תרשים סדרות זמן"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "ערך קטגוריה"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"מכיוון שמספר הרשומות בתקופה שצוינה הוא יותר מ- 5,000, קישור BREAK_LINE "
+"קשור תוך 14 יום מהתקופה שצוינה. אם אינך רוצה להגביל את טווח הקישור, התאם "
+"את משך הזמן כדי להפחית את מספר הרשומות של BREAK_LINE."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "סולם הגדרה"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "סולם נפוץ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "קו סף"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "סולם אוטומטי"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "בשימוש בקנה מידה"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn של תהליך"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "מקס"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "דקה"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "אף אחד"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "סיכום"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "לספור"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "נתונים סטטיסטיים בסיסיים"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "לא פרמטרי"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "איכות מידע"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "צוֹפֶה"
+
+# ap/template/setting_module/config.html
+msgid "ImportData"
+msgstr "יבוא נתונים"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "תהליך קישור הנתונים יתחיל על סמך התצורה הנוכחית."
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr "זה עשוי לקחת זמן אם יש הרבה נתונים לקישור. האם זה בסדר להתחיל?"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr "* לנתונים המיובאים באופן אוטומטי ותקופתי, קישור ID נוצר אוטומטית."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "שם מקור הנתונים"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "סוג מקור נתונים"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "האם אתה בטוח לשמור שינויים?"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "מידע על מערכת הפעלה מאולצת להגדרות אזור הזמן."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "הגדרות מתקדמות"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"ההגדרות נשמרות עבור מסד הנתונים /CSV קובץ ייבוא ​​נתונים. עבור לדף "
+"ההגדרה, קבע את העמודות של נתוני ייבוא ​​לייבוא ​​הנתונים."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "אין תכונה חובה בנתוני האלמנטים."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "אין ערך תכונה נדרש לנתוני אלמנטים."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr "גילוי לא תקין על ידי PCA דורש לפחות שני משתנים. בחר שני משתנים או יותר."
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "בחר לפחות עמודה אחת"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "משתני קטגוריה המצמצמים את רוחב התיבה אינם מוצגים."
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "התחלת ספרה"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "עלילת רידג'ליין"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"עצור את היישום (שרת Edge). אם תעצור, כל משתמש אחר לא יוכל להשתמש גם כן, "
+"אז אנא צור קשר עם מנהל המערכת. <br> במקרה של סוף רגיל, בטל כאן ופשוט סגור"
+" את הדפדפן."
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr "כל העבודה הופסקה. אתה יכול לסגור בבטחה את הדפדפן והקונסולה שלך."
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "תצורת מקור נתונים"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "תצורת ייבוא ​​מקור נתונים"
+
+# ap/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": עמודות מצאו מעט עמודות תווים. בדוק כי העמודה של הסוג המספרי וכו 'עשויה "
+"להיות מוכרת לא נכון."
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "פריט סנן"
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "ערך סינון"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "תאריך תפוגה (התחלה)"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "תאריך תפוגה (סוף)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"לא ניתן היה לייבא נתונים בגלל טעויות תצורת סוג עמודות. שם מקור נתונים "
+"__param__ CSV/TSV בדוק את הגדרות סוג הנתונים בתצוגה מקדימה של הנתונים של "
+"דף הגדרת הקריאה. מחק את הגדרות הצעד שלא ניתן לייבא ולהגדיר את ההגדרות."
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "היה קובץ ללא נתונים. בדוק את תוכן הקובץ. <br>: __param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "הזן ערך אחד לפחות של תקופת התוקף מ- או אל."
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "לחלק לפי קטגוריה"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "חלוק לפי מונח (מחזורי)"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "לחלק לפי מונח (ישיר)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"הערך של המרווח שהוזן אינו חוקי. הזן מספר 0.1 ומעלה, 720 או פחות, או -720 "
+"ומעלה, ו- -0.1 או פחות."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+"אורך חלון 'שצוין אינו חוקי. הערך חייב להיות בין 0.1 ל- 48.\tTilgreind "
+"„gluggalengd“ er ógild. Gildi verður að vera á milli 0,1 og 48.\t"
+"Spezifizéiert `Fenster Längt 'ass ongëlteg. Wäert muss tëscht 0,1 an 48 "
+"sinn.\tНаведената „Должина на прозорецот“ е неважечка. Вредноста мора да "
+"биде помеѓу 0,1 и 48.\tKua tohua te 'matapihi matapihi' he muhu. Ko te "
+"uara me waenga i te 0.1 me te 48.\tЗаасан `Цонхны урт` хүчингүй байна. "
+"Утга нь 0.1 ба 48 хооронд байх ёстой.\tनिर्दिष्ट `विन्डो लम्बाई` अमान्य "
+"छ। मान 0.1 र between 48 बीचमा हुनुपर्दछ।\tSpesifisert `vinduslengde` er "
+"ugyldig. Verdien må være mellom 0,1 og 48.\t`ਵਿੰਡੋ ਦੀ ਲੰਬਾਈ ਨਿਰਧਾਰਤ ਕੀਤੀ "
+"ਗਈ ਹੈ. ਮੁੱਲ 0.1 ਅਤੇ 48 ਦੇ ਵਿਚਕਾਰ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ.\tمشخص شده طول پنجره\"\" "
+"نامعتبر است. مقدار باید بین 0.1 تا 48 باشد."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"מספר ה- Ridgeline הקלט אינו חוקי. הזן מספר שלם של 1 או יותר ו -150 ומטה. "
+"(מעדיף להשתמש בסביבות 100)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "התחל נתונים וזמן"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "הַפסָקָה"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "אורך חלון"
+
+# ap/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "פריט שליטה"
+
+# ap/template/setting_module/master_config.html
+msgid "Type"
+msgstr "סוּג"
+
+# ap/template/setting_module/master_config.html
+msgid "Name"
+msgstr "שֵׁם"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"שים לב שאם מספר נקודות הנתונים בקטגוריה אחת הוא מתחת ל 50, הדיוק של הגרף "
+"עשוי לרדת."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "הצג סמן שיער צולב (לחץ)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "הצג סמן שיער רב -צלב (לחיצה כפולה)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "הצג רשימת היסטוגרמות"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "בטל את בדיקת החוץ"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "כבר קיים 'שם מקור נתונים'."
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"ייבוא ​​נתונים נכשל מכיוון שקובץ עם שם עמודה שונה נמצא במקור הנתונים. "
+"בדוק את תוכן הקובץ והגדר שוב את הגדרות ייבוא ​​מקור הנתונים."
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "מספר הרשומות החזוי שיש לקשר"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "מספר הדגימות"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "מספר הרשומות שיש לקשר"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "מספר הרשומות הכוללות"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "אנא שם את התיקיה בה נשמרים קבצים CSV/TSV כמו \"yyyymmdd\\"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "נְבוּאָה"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "סנן תצורת"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master CONFIG"
+
+# ap/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "מתצורת המסנן"
+
+# ap/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "תראה הכול"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "כמפתח (אפשרות)"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"נמחק REMOVED_COUNT בערך הגירעון, ערך לא תקין וערך מתקדם מ- TOTAL_COUNT "
+"במקור."
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "כתובת ה - IP"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"השווה את חלוקת הנתונים עם היסטוגרמה ואומדן צפיפות. הגרף מחולק על ידי "
+"המשתנה המרובד. זה מחולק גם לפי פנים."
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "תכנן את כל מספר הנתונים על ציר הזמן או ציר ID."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "הצגת מטריצת עלילת פיזור. אתה יכול להשתמש בין 2 עד 7 משתני יעד."
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"על ידי ניתוח רכיבים עיקרי, ההדמיה של \"שונה מהרגיל\" וניתוח הגורמים שלו "
+"מבוצעים. הזן נתונים רגילים כנתוני מורים והדמיין אם הנתונים הנוכחיים הם "
+"אותם מצב כמו הנתונים הרגילים שלהם (T2/Q). אם יש לך מצב אחר, אתה יכול "
+"לבדוק את הגורמים העיקריים בעלילת התרומה."
+
+# ap/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"ההפצה מחולקת לתרשימים מרובים על ידי משתנה זה. בחר משתנים בקטגוריה (משתנים"
+" איכותיים) כגון מספרי חלקים ותחנות."
+
+# ap/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"מסנן קטגוריה מרובד: מגביל את הנתונים שיוצגו לקבוצת משנה. (קטגוריה: מספר "
+"חלק, תחנה לא וכו ')"
+
+# ap/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"משתני קטגוריה (כגון מספר חלק, תחנה לא וכו ') המוצגים כתוויות בראש החלקות "
+"כדי למצוא נקודות משתנות."
+
+# ap/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "מסנן גרף: מגביל נתונים שיוצגו לקבוצת משנה."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"קבעו את נתוני הלמידה המתפרשים כמצב רגיל. הגדר את קטע הנתונים שאינו מכיל "
+"נתונים NG. אם כלולים, אלה שקרובים לנתוני NG נשפטים גם הם כנתונים רגילים."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "הגדר את נתוני הבדיקה שיש לשפוט."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "מסנן פריט: מגביל נתונים (ניתוח ותצוגה) שיוצגו לקבוצת משנה."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"זוהי תצוגה מצטברת דו ממדית (דחיסה ממדית על ידי רכיבים עיקריים) של נתוני "
+"אימות רב ממדיים. אם הנתונים נמצאים במרכז, ניתן לפרש אותם קרוב לשגרה."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"זוהי תצוגה מצטברת דו ממדית (דחיסה ממדית על ידי רכיבים עיקריים) של נתוני "
+"למידה רב ממדיים. היעד המרכזי נקבע על ידי נתוני הלמידה, כך שרוב נתוני "
+"הלמידה צריכים להיות ביעד."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"עלילה של נתון T2, המפקח על חריגות במרכיב העיקרי של נתונים אלה. נתוני "
+"הלמידה מתוארים בלבן ובחלק ה- X השלילי. העלילה הצהובה היא נתוני האימות. "
+"ככל שנתוני האימות משווים יותר לנתונים הלבנים, כך סביר יותר שהמצב לסטות. "
+"לחץ על נקודת נתונים כדי לראות את עלילת התרומה של אלמנטים מהווים את המצב."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"עלילה של נתון Q (ניטור לחריגות בחלק הקטין של נתונים אלה, שיורית). נתוני "
+"הלמידה מתוארים בלבן ובחלק ה- X השלילי. העלילה הצהובה היא נתוני האימות. "
+"ככל שנתוני האימות משווים יותר לנתונים הלבנים, כך סביר יותר שהמצב לסטות. "
+"לחץ על נקודת נתונים כדי לראות את עלילת התרומה של אלמנטים מהווים את המצב."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"הסדר אשר משתנים תורמים למצב בנקודה שנבחרה בעלילה הסטטיסטית T2. ככל שהאורך"
+" ארוך יותר, סביר להניח שהסיבה."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"הסדר של המשתנים תורמים למצב בנקודה שנבחרה בעלילה הסטטיסטית של Q. ככל "
+"שהאורך ארוך יותר, סביר להניח שהסיבה."
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "מספר נקודות הנתונים עם ערך פחות או שווה ל- Q1 - 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "מספר נקודות הנתונים עם ערך גדול או שווה ל- Q3 + 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"המספר הכולל של הנתונים כולל NA (לא זמין), NaN (לא מספר) ו- Inf± (אינסוף) "
+"בתקופה שנבחרה."
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"Out of Control Line: אחוז הנתונים מחוץ לסף העליון והתחתון (ספירה) בתקופה "
+"שנבחרה"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: אחוז הנתונים מחוץ לסף הגבול העליון והתחתון (ספירה) "
+"בתקופה שנבחרה"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr "אחוז NA (לא זמין) בתקופה שנבחרה (ספירה)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "אחוז NaN (לא מספר) בתקופה שנבחרה (ספירה)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "אחוז Inf+ (פלוס אינסוף) בתקופה שנבחרה (ספירה)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "אחוז Inf- (מינוס אינסוף) בתקופה שנבחרה (ספירה)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"האחוז הכולל של הנתונים מחוץ לערך הסף, NA (לא זמין), NaN (לא מספר) ו- Inf±"
+" (אינסוף) בתקופה שנבחרה (ספירה)"
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"מספר הנתונים למעט NA (לא זמין), NaN (לא מספר) ו- Inf± (אינסוף) בתקופה "
+"שנבחרה."
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "אחוזון 95"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "אחוזון 75 (רבעון שלישי)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "אחוזון 25 (הרבעון הראשון)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "האחוזון החמישי"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"טווח בין -רבעוני (ערך ייצוגי של השתנות התפלגות: IRQ = Q3 - Q1 ≒ 1.349σ@ "
+"חלוקה נורמלית)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "חציון (אחוזון 50)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "ספירת שעה"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "ספירת/דקה"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "זמן מחזור [ים]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "מספר חלוקה"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "מחזור תצוגה"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "מרווח תצוגה"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "מפת חום קלנדה"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr "לא ניתן לבחור משתני יעד על ידי MAX_NUM_SENSOR ומעלה. בחר את משתנה היעד."
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "היעדים של הסרת החוץ הם Max, Mean, Min, σ ו- Range."
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "מלבד מספרים אמיתיים"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"ניתן לדמיין את התפוצה על ידי חישוב עבור כל משתנה קטגורי (משתנים איכותיים,"
+" מספר מגרש וכו ') או DateTime, והצגתם זה לצד זה. שיטת הדמיה המאפשרת ניתוח"
+" חוצה קבוצות (השוואה בין מגרשים, ימים, משמרות וכו ') של נתונים ללא "
+"דיסקרטיות ID."
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "הגדר את הסף שיימשך על גרפים."
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"אם הפיזור פועל, אתה יכול להראות את עלילת הפיזור איתו. עלילת הפיזור בין "
+"הפריט הנוכחי לפריט השורה הבאה. גרור ושחרר את כרטיסי העלילה של החלקות "
+"המתאימות עם העכבר כדי להחליף את ציר ה- X וציר ה- Y של עלילת הפיזור."
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"פריט נתונים (כגון משתנה מספרי או ערך מדידה) שיוצר חלוקת נתונים. נתונים "
+"אלה מתוארים בעלילה. ניתן לבחור עד 20 פריטים."
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"משתנה מרובד זה מחלק את ההתפלגות לחלקות מרובות ומציג אותם זה לצד זה. בחר "
+"משתנה קטגורי, כגון מספר לא או אצווה לא."
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "הזן את תקופת ההתחלה כדי להציג את עלילת Ridgeline עבור כל תקופת DateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "הזן ישירות את התקופה להצגת עלילת רידג'ליין עבור כל תקופת תאריך."
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"באפשרותך לבחור אפשרויות לייבוא ​​נתונים מקובץ CSV/TSV הדורש טיפול מיוחד, "
+"כגון המרת מבני נתונים."
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"לחיצה על כפתור התצוגה המקדימה למטה תציג חלק מהנתונים בקובץ, כך שתוכל "
+"לבדוק את תוכןו."
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr "בחר קישור ID שישמש כתנאי לקישור נתונים. אתה יכול גם לבחור מספר פריטים."
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"כאשר האפליקציה שלך מייבאת מעת לעת נתונים, אתה יכול לבחור עמודה של "
+"DateTime המשמשת באופן עדיף כמפתח DateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"אם תבחר מפעיל ותזן מספר תחת 'גורם', הערך בתרשים יחושב באמצעות המפעיל "
+"והגורם שצוין."
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"אם תבחר מפעיל ותזן מספר תחת 'גורם', הערך בתרשים יחושב באמצעות המפעיל "
+"והגורם שצוין."
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr "אפשר לחזות כמה נתונים יקושרו על ידי תנאי הקישור שנקבעו כיום."
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr "השלכת את מצב קישור הנתונים שנקבעו כעת ומתקשר למצב הרשום בעבר."
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID נוצר באופן פנימי כדי לשייך נתונים לתנאי הקישור."
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "בחר את פריטי בקרת האיכות או בקרת הציוד באמצעות הגדרות גרף."
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "אנא בחר את סוג יעד הניהול כגון מספר חלק וציוד."
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "אנא בחר את יעד הניהול כגון ערך מספר החלק וערך הציוד."
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "הגדר את תקופת ההתחלה להגדרות גרף. (נדרש)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "הגדר את תקופת הקצה להגדרות גרף. (אופציונאלי)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "קרא את התצורה השמורה."
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "שמור את התצורה האחרונה שהזנת."
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "שמור את המסך כקובץ PNG."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "האם אתה רוצה למחוק את ההגדרה הזו?"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "משתנה יעד (מספר אמיתי)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "משתנה יעד (קטגוריה)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "הזמנת אינדקס"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "טור"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "להזמין"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "עדיפות"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "הזמנה"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "משתנים"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "אמיתי וקטגורי בלבד"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "אמיתי בלבד"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "קטגורי בלבד"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "בסדר הגדרה"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "בסדר תהליך"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "בקורלציה של מתאם. להזמין"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "סף מתאם (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "בחר למשתנה אובייקטיבי"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "משתנה אובייקטיבי"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "משתנה מסביר"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "יחס זמין"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "תרשים סנקי"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "התאמה (התאמה מושלמת)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR חיפוש"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND חיפוש"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"מכיוון שעלילת קואורדינטות מקבילות אינה יכולה להתייחס למספרים אמיתיים, "
+"נתוני המספר האמיתי הוסרו."
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "רישום מחדש"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "רשום את המידע הערוך כגון שם תצוגה."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "האם אתה רוצה להירשם לתוכן שהשתנה?"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "אם תשנה קישור ID, אנא אפס את תצורת קישור הנתונים."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "גרף משותף להתרחשות"
+
+# co-occurrence
+msgid "Data file"
+msgstr "קובץ מידע"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "מצטבר על ידי"
+
+# co-occurrence
+msgid "Hour"
+msgstr "שָׁעָה"
+
+# co-occurrence
+msgid "Day"
+msgstr "יְוֹם"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "מצב עריכה"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "מצב הגדרה"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr "הנתונים הלא חוקיים שהודגשו האדומים יימחקו. האם אתה בטוח לעבור למצב הגדרה?"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "עדיפות"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr "התגלה שם אנגלי כפול, ולכן המספר הסידורי התווסף אוטומטית. בדוק שמות עמודות."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "יחידות צבירה"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"העמודה הראשונה היא Time Time, והעמודה השנייה והעמודות הבאות הם ערך כמו "
+"דגלי התראה על אזעקה/ספירת התרחשות (0,1,2 ...)."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "מערכות יחסים בין התרחשות משותפת בשעה/יום."
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "סף תצוגה"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"אם תבחר ערך פחות מ- 100%%, תסתיר יחסי שיתוף פעולה קטנים. (ברירת מחדל: "
+"צייר קו אם יש אפילו פעם אחת)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr "זהה והדמיין משתנים המתואמים באופן ישיר או עקיף למשתנה היעד."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr "דמיינו את המתאם בין המשתנים שצוינו כאן. ניתן לבחור עד 60 פריטים."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "משתני מועמדים המתואמים עם משתנים אובייקטיביים."
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "מכל הקצוות"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "מַעֲרָך"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "מעגל"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "אוֹטוֹמָטִי"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "יְעִילוּת"
+
+msgid "Set threshold"
+msgstr "Control Line: בדוק מתי ציור רמות ניהול כמו קווים סטנדרטיים"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "פלטפורמת ניתוח"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "תרשים פארטו"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "מספר התרחשות"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "יחס מצטבר [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"דמיינו פרמטרים שיכולים להשתנות עם נתונים לאורך תקופה ארוכה, כגון וריאציות"
+" שנתיות בתהליכים, ימי השבוע, משמרות וכו '."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "דמיינו את המתאם בין מספר גדול של משתנים ביחס למשתנה היעד."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr ""
+"דמיינו התרחשות משותפת של תקלות, אזעקות, אירועים וכו '(מערכת יחסים המתמקדת"
+" בתדירות של התרחשות סימולטנית של תופעה אחת ואחרת)."
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"ריקDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: כלי פשוט למיפוי נתונים, הדמיה, ניתוח סטטיסטי ולמידה "
+"מכונה."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"מערך הנתונים כאן משמש כהפניה לקישור נתונים ותכנון. ההגדרות משמשות בציר "
+"האופקי של העלילה. בנוסף, עלילת המקור מוצגת עם מסגרת כחולה בהיר."
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"מציין את הנתונים (לדוגמה, משתנים מספריים: ערך מדידה) עבור העלילה. בחר את "
+"התהליכים והפריטים שיש לתאר על העלילה. ניתן לבחור עד 20 פריטים."
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"מציין את הנתונים (לדוגמה, משתנים מספריים: ערך מדידה) עבור העלילה. בחר את "
+"התהליכים והפריטים שיש לתאר על העלילה. ניתן לבחור עד 8 פריטים."
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"ריק可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"משתנה ריבוד זה מחלק את התבנית כדי לדמיין למספר חלקות ומציג אותם זה לצד "
+"זה. בחר משתנים קטגוריים כגון מספר חלק ותחנה מס 'עד 100 פריטים ניתן לבחור."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"פריט הנתונים המדמיין את המתאם בין משתנים (משתנים כמותיים: ערכי מדידה וכו "
+"'). נתונים אלה מתוארים בתרשים. ניתן לבחור בין 2 ל 7 פרמטרים."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr "בחר את הפריט כדי לדמיין את המתאם בין משתנים. ניתן לבחור עד 60 פריטים."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr "פריטים של משתני קטגוריה (כגון מספרי חלק) כדי לדמיין את המתאם בין משתנים."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "למקסם את הכרטיס"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "צמצם את הכרטיס"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr "אם הגדרה זו משתנה, יש צורך לאפס את הגדרות קישור הנתונים."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "בחירה אוטומטית"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "בחר הכל מימין"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "בטל את כל הבטלה ימינה"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "הכל אמיתי (צף) מכאן"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "הכל שלם מכאן"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "כל המיתר מכאן"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"בשל המספר הגדול של הרשומות שנבחרו והזמן הנדרש להצגת העלילה, מספר התאים "
+"לכל חלקה הוגבל ל 10,000. אם ברצונך לראות את כל הנתונים לתקופת היעד "
+"BREAK_LINE, הגדל את מרווח התצוגה או צמצם את תקופת היעד כדי להפחית את מספר"
+" התאים."
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "סידורי"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "אתה יכול להתאים את סולם העלילה על ידי לחיצה ימנית על העלילה."
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "סולם גרפים"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "מצב הגדרה"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "מספר פריטי הנתונים שלא ניתן לקשר"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "גרף פיזור"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "עם קווי מתאר"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "חִסָכוֹן"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"ריקファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "הגדרת עומס"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "שיתוף/פרטי"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "תיאור"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "נוצר על ידי"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "השתמש/עומס"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "לִטעוֹן"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr "מספר הנתונים שלא ניתן היה לקשר לתהליך נקודת ההתחלה (אחוז ההצמדה)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "שמור את DateTime"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "שתף הגדרות"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "לשמור"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"אתה יכול לבחור בין 2 עד 7 משתני יעד. בדוק את מספר משתני היעד ותקן את "
+"ההגדרות."
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr "מגבלת גודל הקובץ היא 10 מגה בייט. צמצם את גודל הקובץ ונסה שוב."
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "אם נבדק, גם ה- DateTime שצוין נשמר."
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "בדוק כדי לשתף הגדרה זו."
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "שמור את ההגדרות."
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "האם אתה בטוח להחליף את ההגדרות?"
+
+# ap/templates/modals.html
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "לַחֲלוֹק"
+
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "פְּרָטִי"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "נוצר ב"
+
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "סגור"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "מערך הזמנה"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "התחל את DateTime"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "סיום DateTime"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "הצג תוויות ציר X."
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "טווח DateTime"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "גרור ושחרר קובץ כאן"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "אוֹ"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "בחר קבצים"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "לא ניתן להציג"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"העיבוד הופסק בגלל כמות הנתונים הגדולה וזמן העיבוד הארוך. עיין בהגדרות "
+"DateTime והצג שוב את העלילה."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "פלט קובץ CSV. אנא המתן בזמן שהקובץ הורד."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "פלט קובץ TSV. אנא המתן בזמן שהקובץ הורד."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "טווח רכב"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "טווח מלא"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "הגדרת הזמנת אינדקס"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "לִפְתוֹחַ"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "לִמְחוֹק"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"מכיוון שמספר נקודות הנתונים לכל גרף הוא מעל 12,000, מספר נקודות הנתונים "
+"היה מוגבל ל 12,000 מקסימום. אם ברצונך להציג את כל הנתונים, קבע את תקופת "
+"היעד הקצרה יותר."
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "מרובד לפי מונח (מחזורי)"
+
+#: component.js
+msgid "Facet"
+msgstr "פָּן"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "מבצע חלוקת קטגוריות עם הפריט שנבחר."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "הערכת חריגה"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"טווח בין -רבעוני מנורמל (אינדקס מקשר IQR עם התפלגות נורמלית, NiQR = "
+"0.7413 × IQR)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "מצב הוא הערך המתרחש בתדירות הגבוהה ביותר."
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "עם מתארים יותר"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "בלי מתאר"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "המותאם אישית"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "היום"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "אתמול"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "7 הימים האחרונים"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "30 הימים האחרונים"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "החודש"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 חודש"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 חודשים"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "להגיש מועמדות"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "שָׁבוּעַ"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "לפני 7 ימים"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "לפני 30 יום"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "יום האגרוף של החודש הזה"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "היום האחרון של החודש הזה"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 חודשים"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "עודכן ב"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"נקודות נתונים מסוכמות במצב מהיר. אם אתה רוצה לקבל עלילה מבלי להשמיט "
+"נתונים, התאם את תקופת היעד הקצרה יותר."
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "טווח ציר Y"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "מתארים יותר"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"ריק'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "חיפוש תהליכים"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "סימניה"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"ריק以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "זמן מחזור"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "מספר ממשי"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "משתנה אובייקטיבי"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"מקדם המתאם מחושב באמצעות משתנה זה כמשתנה היעד. משתנה היעד שצוין כאן מוצג "
+"גם יחד עם סרגל צבע בצד ימין הקיצוני של העלילה. אם אתה רוצה לשנות את משתני"
+" היעד בעלילה, אתה יכול לעבור ביניהם על ידי לחיצה ימנית על כל שם משתנה."
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"הנתונים לא טבעו מכיוון שיש יותר מדי קטגוריות. BREAK_LINE בדוק ובמידת "
+"הצורך, לשנות את תקופת היעד הקצרה יותר."
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "הגדרת סינון"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "תווית (משתני קטגוריה)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "מוּעֲתָק"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "מודבק"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "העתק תצורה"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "הדבק תצורה"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "ללא הגדרת מקור, היעד הראשון נבחר כמקור."
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "ייצוא נתוני"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "לא בשימוש"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "הנתונים לא נמשכים מכיוון שיש יותר מדי קטגוריות."
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr "בדוק ובמידת הצורך, לשנות את ההגדרות של תקופת היעד."
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "לחלק לפי ספירת נתונים (מחזורי)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "מספר הנתונים"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"ריקグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "בחר את משתנה המטרה."
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "אין פירוק / קטגוריה פירוק"
+
+# ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "גרף פיזור"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"אם סוג נתוני X או Y הוא מחרוזת, אינך יכול להשתמש במשתנים שאינם מיתרים "
+"להגדרת צבע."
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"הערך מחוץ לטווח המותר התגלה, כך שהוחלט אוטומטית הטווח המינימלי או "
+"המקסימלי התקף. שנה את ההגדרות לפי הצורך."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "לחץ באמצעות לחצן העכבר הימני: הגדרת קישור נתונים/ערוך/מחק"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "זמן שחלף"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "הזמנת זמן"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "קביעת הזמנת נתונים"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"אנא מחק נתונים מיותרים מכיוון שקיבולת הדיסק הקשיח של '__SERVER_INFO__' "
+"הגיעה ל- __SERVER_INFO__ %%."
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"יציאת הנתונים הופסקה מכיוון שהיכולת של הדיסק הקשיח של '__SERVER_INFO__' "
+"הגיעה ל- __SERVER_INFO__ %%. אם נתונים מיותרים יימחקו ויכולת ריקה גדלה, "
+"הנתונים יחזרו."
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr "הזן את מספר ההפצות שיוצגו (מספר החטיבות). הזן מספר שלם של 2 או 150 ומטה."
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"הזן את מספר ההפצות שיוצגו (מספר החטיבות). הזן מספר שלם של 1 או יותר 32 או"
+" פחות."
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"ריק表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"ריקプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"ריק1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"ריק1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "יש יותר מדי כינורות לכל עלילה, כך שזה היה מוגבל אוטומטית."
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"בשל המספר הגדול של הרשומות שנבחרו, מספר החלקות מוגבל מהתאריך העתיק ביותר "
+"לספירת המגבלות."
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "אני מקבל"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "יְרִידָה"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "אֲחוֹרָה"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "מספר העלילה בעמודה"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"המשתנים הקטגוריים (מספר חלק, תחנה לא וכו ') המוצגים כתוויות בראש העלילה "
+"משמשים להמחשת נקודות השינוי (מיתוג מספר חלק וכו') של המשתנים האיכותיים."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"בחר פריטים שיש לנתח (משתנים כמותיים: ערך מדידה וכו '). ניתן לבחור עד 60 "
+"פריטים."
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr "בחר פריטים למיון נתונים. אתה יכול גם לבחור מספר פריטים."
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"נתונים ישנים שופכים לא מוצגים מכיוון ש- DateTime נחשב מהנתונים האחרונים "
+"עם מגבלת התצוגה."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr "מספר העלילה היה מוגבל ל- NUMBER. אם ברצונך להציג את הכל, ערוך את ההגדרות."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"מספר העלילה בכרטיסייה יחידה היה מוגבל ל- NUMBER. אם ברצונך להציג את הכל, "
+"ערוך את ההגדרות."
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"מספר משתני היעד לבחירה הוא מינימלי דקה ומקסימום מקסימלי. בדוק את מספר "
+"משתני היעד ותקן את ההגדרות."
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"מספר משתני היעד לבחירה הוא עד מקסימום מקסימום. בדוק את מספר משתני היעד "
+"ותקן את ההגדרות."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+# ap/templates/trace_data/list_of_histograms.html
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "מתארים יותר"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "דקה"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "אַזהָרָה"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "נְבוּאָה"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "תיאור"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"אם תבחר ערך פחות מ- 100%%, תסתיר יחסי שיתוף פעולה קטנים. (ברירת מחדל: "
+"צייר קו אם יש אפילו פעם אחת)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"אם תבחר ערך פחות מ- 100%%, תסתיר יחסי שיתוף פעולה קטנים. (ברירת מחדל: "
+"צייר קו אם יש אפילו פעם אחת)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"אם תבחר ערך פחות מ- 100%%, תסתיר יחסי שיתוף פעולה קטנים. (ברירת מחדל: "
+"צייר קו אם יש אפילו פעם אחת)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "תיאור"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "סגור"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "תאריך תפוגה (סוף)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "תאריך תפוגה (התחלה)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "תאריך תפוגה (סוף)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+

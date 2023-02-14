@@ -1,0 +1,136 @@
+#sctr-card {
+    margin-top: 20px;
+    display: none;
+    border-collapse: collapse;
+}
+
+.coef-item {
+    border: 1px solid #444444;
+}
+
+.sc-row {
+    display: table-row;
+}
+
+.sc-col {
+    display: table-cell;
+    border: 1px solid #4e4e4e;
+    width: auto;
+    padding: 10px;
+}
+
+.sc-col span {
+    color: #60b5dd;
+}
+
+canvas {
+    /*max-width: 95%;*/
+    margin: 0 auto;
+}
+
+.chart-column {
+    float: left;
+    border: 1px solid #4e4e4e;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+.chart-column-border {
+    float: left;
+    border: 1px solid #65c5f1;
+}
+
+/* Clear floats after the columns */
+.chart-row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.center {
+    margin: 0;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.coef-text{
+    font-size: 18pt;
+    text-align: center;
+}
+
+#paracord-options .col-2 {
+    max-width: 280px;
+}
+
+.paracord-options-bar {
+    background-color: #222222;
+    padding: 5px;
+    border-radius: 3px;
+
+}
+
+.sort-corr-setting input{
+    background-color: #353535;
+    width: 150px;
+    float: right;
+}
+
+/*context menu paracords*/
+.context-menu {
+    position: fixed;
+    border: 1px solid #444;
+    background: rgba(14, 12, 12, 0.8);
+    list-style: none;
+    border-radius: 3px;
+    padding: 0 ;
+}
+.menu-item {
+    font-size: smaller;
+    line-height: 24px;
+    padding: 0.25rem 0.5rem;
+    color: white;
+}
+.menu-item:hover {
+    background: #375a7f;
+    text-decoration: underline;
+    cursor: pointer;
+}
+span.text-option {
+    vertical-align: middle;
+}
+.option-label {
+    height: 0px;
+    vertical-align: middle;
+    line-height: 10px;
+}
+#isRemoveOutlier {
+    height: 39px;
+    margin-left: 1rem;
+}
+.custom-tooltip {
+    position: fixed;
+    background-color: white;
+    color: black;
+    padding: 2px 10px;
+    font-size: 13px;
+    display: none;
+}
+
+.plot-container.plotly {
+    background-color: #222;
+}
+
+.main-svg {
+    background: unset !important;
+}
+
+#ordering-content {
+    min-width: 220px;
+    left: 0px;
+}

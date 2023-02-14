@@ -81,7 +81,7 @@
 |Software GUI translation into various languages||Support members|
 |English en 英語||Tran Ngoc Tinh　チャン ゴク ティン　Trần Ngọc Tình　FPT Software Japan|
 |Japanese ja 日本語||Le Sy Khanh Duy　レイシー カイン ユイ　Lê Sỹ Khánh Duy　FPT Software Japan|
-|Vietnamese vi ベトナム語||Ho Hoang Tung　ホ ホアン トゥン　Hồ Hoàng Tùng　FPT Software Japan|
+|Vietnamese vi ベトナム語||Tran Thi Kim Tuyen　チャン ティ キム トゥエン　Trần Thị Kim Tuyền　FPT Software Japan|
 |Italian it イタリア語|||
 |Spanish es スペイン語|||
 |Czech cs チェコ語|||
@@ -156,10 +156,10 @@
 |--:|:-:|:--|
 |Developer Leader & Bridge SE of Rainbow7 & Bridge7||Le Sy Khanh Duy　レイシー カイン ユイ　Lê Sỹ Khánh Duy　FPT Software Japan|
 |Developer of Rainbow7 & Bridge7||Tran Ngoc Tinh　チャン ゴク ティン　Trần Ngọc Tình　FPT Software Japan|
-|||Nguyen van Hoai　グエン ヴァン ホアイ　Nguyễn Văn Hoài　FPT Software Japan|
-|||Ho Hoang Tung　ホ ホアン トゥン　Hồ Hoàng Tùng　FPT Software Japan|
+|||Pham Minh Hoang　ファム ミン ホアン　Phạm Minh Hoàng　FPT Software Japan|
 |||Tran Thi Kim Tuyen　チャン ティ キム トゥエン　Trần Thị Kim Tuyền　FPT Software Japan|
-|||Nguyen van Hoai　グエン ヴァン ホアイ　Nguyễn Văn Hoài|
+|||Nguyen Huu Tuan　グエン フー トゥアン　Nguyễn Hữu Tuấn　FPT Software Japan|
+|||Nguyen Van Hoai　グエン ヴァン ホアイ　Nguyễn Văn Hoài|
 |Technology Leader of Rainbow7||Masato Yasuda　安田 真人　DNJP　Monozukuri DX Promotion Div.|
 |Agile Master of Rainbow7 & Bridge7||Yasutomo Kawashima　川島 恭朋　DNJP　Monozukuri DX Promotion Div.|
 <br>

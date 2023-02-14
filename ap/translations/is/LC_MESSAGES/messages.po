@@ -1,0 +1,3894 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Vistað"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Villa hefur komið upp"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Stillingar umsóknar"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "Síða ekki fundin"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Villa hefur komið upp"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Datalink & Analysis app"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "Veldu tungumál"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "Aðalskjár"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "Staðfesting á aðgerð"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Staðfesting á aðgerð"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Basic config"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Skráðu þig"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Endurhlaðið"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Heiltala"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Alvöru (fljóta)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "DateTime"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Strengur"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Titill"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Planta"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Verksmiðja"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Lína"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Vinsamlega staðfestið."
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"Vistaðu gögnin og byrjaðu að flytja inn gögn með innihaldi sem sett er á "
+"síðu stillingarinnar?"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Ok"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Hætta við"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Gagnagrunnur config"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Gagnagrunnsheiti"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Tegund gagnagrunns"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Config"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Athugasemd"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Bæta við"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Veldu gagnagrunnsskrá."
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Skráarnafn"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Veldu"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Viltu eyða þessari skrá?"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "eyða"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Rekjanleika"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Rekjahæfni línurit"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Rekja próf"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Byrjaðu að prófa"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Byrjunartími"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Lokatími"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Vélarauðkenni (margvísleg val)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Lína"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Hlutanúmer"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Gagnatengill config"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Veldu tungumál"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Japanska"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Enska"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Hnútur"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Hnútur ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Merkimiða"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Meistaranafn"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Gagnagrunnur"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Flytja inn"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Flytja út"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Gestgjafanafn"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Hafnarnúmer"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Notandanafn"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Lykilorð"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Stef"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Mér tókst."
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; mistókst."
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Ferli config"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Ferli"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Ferli nafn"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Töfluheiti"
+
+# ap/templates/setting_module/background_process.html
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Smáatriði"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Forsýning"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Fyrstu fimm plöturnar"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Stilla innihald"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Dálkaheiti"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Enska nafnið"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Sýna nafn"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "Stuðull"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Rekstraraðili"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Sláðu inn annað gildi en 0"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Inntaksrekstraraðili."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Inntakstuðull."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Inntak ensku nafnsins."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Nafn innsláttarskjás."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Enska nafnið er afritað."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Skjáheitið er afritað."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Öll „skjánöfn“ þurfa inntak."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Reitir með autt „Enska nafn“ eru sjálfkrafa fylltir."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Velja allt"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Flytja inn gögn"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Ertu viss um að flytja inn gögn?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"Þegar þú ýtir á OK hnappinn muntu flytja gögn frá núverandi tíma til "
+"einum mánuði áður."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Fyrri gögn eru sjálfkrafa flutt inn smám saman."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"Ef þú vilt flytja gögnin eftir núverandi tíma skaltu ýta á "
+"gagnalestrarhnappinn aftur eða ýta á gagnagrunninn CSV að setja upp "
+"stillingarnar á lestrarstillingarsíðunni."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Þegar „Update Cycle“ á „Database / CSV lestrarstillingu“ er stillt verður"
+" það sjálfkrafa flutt inn á tímabilið þegar gögnin eftir núverandi tíma "
+"eru stillt."
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Rekja upplýsingar"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Rekja gögn"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Gat ekki nálgast"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Smelltu hér til að laga það."
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Edit Edge"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Prev ferli"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Fyrri dálkur"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Eftir ferli"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Settu dálkur"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Sem datetime"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Sem raðnúmer"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Sem hlekkur ID"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "Nú þegar skráð"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "Vinsamlegast sláðu inn heiti ferlisins"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Sía/línurit"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Línurit config"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Línu síu config"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Línu dálkur"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "Gildi"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Vélasía config"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Vél ID dálkur"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Hluti No Filter config"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Hluti enginn dálkur"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Síuheiti"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Síuástand"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Aðrir sía config"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Miða dálk"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Sjónræn stilling"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Lægri þröskuldur"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Efri þröskuldur"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Lægri ferliþröskuldur"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Efri ferli þröskuldur"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y-Axes svið: mín"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y-Axes svið: Max"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Hluti nr"
+
+# ap/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "enda með"
+
+# ap/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Byrja með"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like leit)"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Sammála"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Regluleg tjáning"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Sýna línuritið"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Útflutningur"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Ferli er krafist"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Nafn dálka er krafist"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Lína er krafist"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Skjáheiti er krafist"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Skjáheitið er afritað."
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Vélagildi er krafist"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Tvítekna vél ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Sparaðu með góðum árangri"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Mistókst að spara"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Hluti enginn dálkur er krafist"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Markdálkur er krafist"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Nafn síu er krafist"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Skilyrði er krafist"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Síuheitið er afritað."
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Skilyrðin eru afrituð."
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Sjálfgefið"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Ferli nafn"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Bætt við öðrum síum"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Innflutningsstefna"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Uppspretta"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Endurnýjunarferli"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Tengdu"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Einu sinni á klukkustund"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Einu sinni á dag"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Staðfesting gagna"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Það er engin mappa."
+
+msgid "File does not exist"
+msgstr "Það er engin skrá."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Þú getur tengst."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Vinsamlegast fylltu út gildið."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Það er ekkert stillingarefni."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Stillingarnar eru tvíteknar."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Stillingar gagnagrunns vistaðar."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Ekki tókst að vista gagnagrunnsstillingar."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Grunnstillingar vistaðar."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Ekki tókst að vista grunnstillingar."
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "Prófstenging"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "Upphafspunktur"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "Dagsetning svið"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "Síðast"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "Sjálfvirk uppfærsla"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "mínúta"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "mínútur"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "klukkutíma"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "klukkustundir"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "Miða breytu"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "Sía"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "X ás"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "Tímamerki"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "Vísitala"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Lagskipta breytur"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Síur"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Gagnagrunnur/CSV"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "Greina"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "Í þróun"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Greina:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Söguþráður fossa"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Myndræn LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "Súlurit"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Lagskipt söguþræði"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Lóð í fullum punktum"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Gagnasjón"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "Sjón"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Hlaupa"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Sláðu inn heiti gagnagrunnsins."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Sláðu inn nafn gagnaheimildarinnar."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Dálkar sem hafa enga gagnategund eru ekki fluttir inn."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Nauðsynlegt er að minnsta kosti einn dálki datetime."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Notaðu '{col}' fyrir X-Axis til að sjá."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Ertu viss um að halda áfram?"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Borðáhorfandi"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Borð"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Raða"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Fjöldi gagna"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Lækkandi"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Stígandi"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Fullkomin samsvörun"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Að hluta samsvörun"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Ógilt val á tölustöfum"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Lengd persónunnar sem notuð er við tengslin er önnur."
+
+# ap/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Engin sía"
+
+# ap/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Allar línur"
+
+# ap/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "ástand"
+
+# ap/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Starfslisti"
+
+# ap/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Allt"
+
+# ap/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Innflutningur lokið."
+
+# ap/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Innflutningur"
+
+# ap/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Mistókst innflutningur"
+
+# ap/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"Hlaðnu gögnum verður eytt. Er það í lagi? (Engin breyting endurspeglast "
+"fyrr en ýtt er á skráningarhnappinn)"
+
+# ap/setting_module/controllers.py
+msgid "Job List"
+msgstr "Starfslisti"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Starfsauðkenni"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Atvinnuheiti"
+
+# ap/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Kynslóð LinkedID"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Sýna kynslóðarstarf um hlekk ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Eyðingu upplýsinga um ferli"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Flytja inn verksmiðjugögn"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Flytja inn fyrri verksmiðjugögn"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Sýna innflutningsstarf fyrri verksmiðjugagna"
+
+# ap/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Innflutningsgögn"
+
+# ap/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Eyða gömlum gögnum"
+
+# ap/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Byrjunartími"
+
+# ap/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "liðinn tími"
+
+# ap/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Gagnagrunnur/CSV"
+
+# ap/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Framfarir"
+
+# ap/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Ferli"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Súluritalisti"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Skráðu þig sem útbrotsgildi"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Óskráður útrásarvíkingur"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Fela útrásarmenn"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Sýna útrásarmenn"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Athugaðu útrásarmenn"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Sýna súluritalista"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Síðasti uppfærslutími"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Hætt hefur verið við útlæga skráningu."
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Skráður sem útrásarvíkingur"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Útlægari"
+
+# ap/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Bara einu sinni"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Upplýsingar um starf"
+
+# ap/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Afritaðu á klemmuspjald"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Multi Discatter söguþræði"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Dreifa samsæri"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Til að sjá flokkunarbreytu"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Lagskipt með breytum"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Breytu"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Vél nr"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Marktímabil"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Tíðni (telja)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Mat á þéttleika"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Flokka breytu"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Lagskipt eftir hugtaki (beint)"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Frávik uppgötvun"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Helstu stig stig prófunargagna"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Helstu stig stig þjálfunargagna"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Series mynd yfir T2 tölfræði"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Series mynd yfir Q tölfræði"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Framlagsrit T2 tölfræði"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Framlags lóð Q tölfræði"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Fjarlægðu útlæga"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Þjálfunargögn"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Prófunargögn"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Já"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Nei"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Gagnategund"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Dæmi"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Villa"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Viðvörun"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"Þar sem öllum línum hefur verið eytt með vinnslu á halla (NA flutningur) "
+"eru engin gögn til að greina. Gakktu úr skugga um að tómt gildi, þar með "
+"talið NA, sé ekki valið."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"Það er ekki hægt að greina það vegna þess að það inniheldur önnur gögn en"
+" tölur. Gakktu úr skugga um að þú hafir valið dálk sem inniheldur streng "
+"eða flokks gildi."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"Get ekki greint vegna þess að það inniheldur gögn með dreifni 0. Gakktu "
+"úr skugga um að aðeins einn gildi dálkur sé ekki valinn."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"Fundin flokksgögn og væntanlegt heiltala gildi. Ef þetta heiltala gildi "
+"er ekki pöntunarmælikvarði, bilskala eða hlutfallskala, geta "
+"greiningarniðurstöður haft slæm áhrif."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Ertu viss um að halda áfram greiningu?"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Leitaðu"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"Miðgildi er ein af dæmigerðum tölfræði. Það er gildi sem staðsett er í "
+"miðjunni þegar endanlegu gögnum er raðað í hækkandi röð. Til dæmis, þegar"
+" um er að ræða fimm, er miðgildi aldurs þriðja aldur í aldri. Ef fjöldi "
+"gagna er jafnvel er meðaltal miðlægs blandanlegt tölfræði notað."
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Yfirlit yfir dreifingu"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N númer"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Meðaltal"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Hvað er miðgildi ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Alls"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Tíðni"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Lokapunktur"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Markmiðferli"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Tímaröð"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Stykki"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Fjöldi gagnatengla"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Sekúndur"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Viðbragðstími"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "EDIT"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Aftur"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Bættu við hnút"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Bæta við brún"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Breyta hnút"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Smelltu á tóma rýmið til að setja nýjan hnút."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Smelltu á hnútinn, dragðu brúnina í annan hnút og tengdu þá."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Smelltu á stjórnunarpunktinn, dragðu það að hnútnum og tengdu."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Ekki er hægt að bæta við brún."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Ekki er hægt að eyða þyrpingunni."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Ekki er hægt að breyta þyrpingunni."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Skjáheiti eða gildi er afritað."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Sláðu inn skjánafn og gildi."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Sláðu inn lína dálkinn."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Klukkustundir"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Upplýsingar um gögn"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Dagur"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Vika"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "Hlaða"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "Vista"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Skrifa yfir"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "Stilling"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Breyttu titlinum vegna þess að sami titill er stilltur."
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "Vista stillingu"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "Búðu til skjámynd"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "Sækja"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"Ástæðurnar fyrir því að ekki er hægt að birta línuritið er eftirfarandi. "
+"BREAK_LINE Athugaðu ástandið. BREAK_LINE・ Gögn eru ekki flutt inn eða í "
+"miðjum innflutningi. BREAK_LINE・ Engin gögn eru tengd eða í miðri "
+"bindingu. BREAK_LINE・ Stilling línuritsins er óviðeigandi."
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Viðvörun"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr "Skrár sem innihalda ógild gögn í dagsgagnasúlunni eru ekki fluttar inn."
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr ""
+"Þú getur vísað til skrárnar í möppunni hér að neðan fyrir gögn sem ekki "
+"var hægt að flytja inn."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr ""
+"Ekki er hægt að hlaða notkunarstöðu vegna þess að hún er ekki tengd "
+"internetinu."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Vinsamlegast athugaðu nettengingu."
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Það mun taka langan tíma að tengja gögn aftur."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Ertu viss um að tengja gögnin aftur?"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Fóstureyðingu"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Framkvæma"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr "Ertu viss um að endurhlaða áður skráða gagnastillingar?"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Byrjaði að flytja inn gögn."
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Þú getur athugað framvindu innflutningsins frá hlekknum hér að neðan."
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Sjá síðu starfslista fyrir villustöðu."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Byrjaði að tengja gögn."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Einu sinni á 3 mínútna fresti"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Einu sinni á 5 mínútna fresti"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Einu sinni á 10 mínútna fresti"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Valfrjáls aðgerð"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Skráartegund"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Útflutningur"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"Vegna mikils fjölda valda gagna og tíminn sem þarf til að birta línuritið"
+" var fjöldi skrár á hvert línurit takmarkað við 50.000."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Tímaröðartöflu"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Flokkagildi"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"Þar sem fjöldi skráa á tilteknu tímabili er meira en 5.000, er BREAK_LINE"
+" hlekkur bundinn innan ± 14 daga frá tilteknu tímabili. Ef þú vilt ekki "
+"takmarka tengibúnaðinn skaltu stilla tímalengdina til að fækka skrám "
+"BREAK_LINE."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Stilling mælikvarða"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Sameiginlegur mælikvarði"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Þröskuldalína"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Sjálfvirk mælikvarði"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Að vera notaður mælikvarði"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn ferli"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "Mín"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "Enginn"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "Yfirlit"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "Telja"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "Grunn tölfræði"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "Ekki parametric"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "Gagnagæði"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Áhorfandi"
+
+# ap/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Flytja inn gögn"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Ferli gagnatengla mun hefjast út frá núverandi stillingum."
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr ""
+"Það getur tekið tíma ef það eru mikið af gögnum til að tengja. Er það í "
+"lagi að byrja?"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr ""
+"* Fyrir gögn sem eru sjálfkrafa og reglulega flutt inn er hlekkur ID "
+"búinn til sjálfkrafa."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Nafn gagna"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Gagnheimild"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Ertu viss um að vista breytingar?"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Þvingaðar upplýsingar um stýrikerfi til stillinga á tímabelti."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Ítarleg stilling"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"Stillingar eru vistaðar fyrir gagnagrunninn /CSV skrá yfir "
+"innflutningsgögn. Farðu á stillingarsíðuna, stilltu dálka "
+"innflutningsgagna til að flytja inn gögnin."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Það er enginn nauðsynlegur eiginleiki í frumefnisgögnum."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Það er ekkert eigindagildi sem krafist er fyrir gögnum um frumefni."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"Óeðlileg uppgötvun PCA þarf að minnsta kosti tvær breytur. Veldu tvær eða"
+" fleiri breytur."
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Veldu að minnsta kosti einn dálk"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Flokksbreytur sem draga úr breidd kassans birtast ekki."
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Byrja tölustaf"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline söguþræði"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"Hættu forritinu (Edge Server). Ef þú hættir mun einhver annar notandi "
+"ekki geta notað líka, svo vinsamlegast hafðu samband við stjórnandann. "
+"<br> Ef um er að ræða venjulegan enda, hætta við hér og lokaðu bara "
+"vafranum."
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr ""
+"Allt starf hefur verið stöðvað. Þú getur örugglega lokað vafranum og "
+"leikjatölvunni."
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Gagnaheimild config"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Gagnaheimild"
+
+# ap/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": Súlur fundu fáa stafasúlur. Gakktu úr skugga um að talnagerð dálkur "
+"o.s.frv. MÁ að vera þekkt."
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Sía hlut"
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Síu gildi"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Gildistími (byrjun)"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Gildistími (lok)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"Ekki var hægt að flytja inn gögn vegna uppstillingar mistaka dálka. "
+"Gagnaheimild heiti __param__ CSV/TSV Athugaðu stillingar "
+"gagnategundarinnar í forsýningu gagna á lestrarstillingarsíðunni. Eyða "
+"skrefastillingunum sem ekki var hægt að flytja inn og stilla "
+"stillingarnar."
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Það var skrá án gagna. Athugaðu innihald skráarinnar. <br>: __param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Settu inn að minnsta kosti eitt gildi gildistímabilsins frá eða til."
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Skiptu eftir flokkum"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Skiptu eftir hugtaki (hringlaga)"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Skiptu eftir hugtaki (beint)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"Gildi slegið bil er ógilt. Sláðu inn fjölda 0,1 eða meira, 720 eða minna,"
+" eða -720 eða meira, og -0,1 eða minna."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+"Το καθορισμένο \"μήκος παραθύρου\" είναι άκυρο. Η τιμή πρέπει να είναι "
+"μεταξύ 0,1 και 48."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"Fjöldi innsláttar ridgeline er ógildur. Sláðu inn heiltölu 1 eða meira og"
+" 150 eða minna. (kjósa að nota um 100)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Byrjaðu gögn og tíma"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Bil"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Gluggalengd"
+
+# ap/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Stjórnaratriði"
+
+# ap/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Tegund"
+
+# ap/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Nafn"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"Athugaðu að ef fjöldi gagnapunkta í einum flokki er undir 50 ára getur "
+"nákvæmni línuritsins fækkað."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Sýna krosshárbendilinn (smelltu)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Sýna margra kross hárbendilinn (tvísmelli)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Sýna lista yfir súlurit"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Hætta við útlægari athugun"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Tilgreint „Gagnaheimild“ er þegar til."
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"Gagnainnflutningur mistókst vegna þess að skrá með öðru dálksheiti fannst"
+" í gagnaheimildinni. Athugaðu innihald skráarinnar og stilltu stillingar "
+"gagnaheimildarinnar aftur."
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Spáð fjöldi skráa sem á að tengja"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Fjöldi sýna"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Fjöldi skráa sem á að tengja"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Fjöldi heildarskrár"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr ""
+"Vinsamlegast nefndu möppuna þar sem CSV/TSV skrár eru vistaðar eins og "
+"\"yyyymmdd\\"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Spá"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Sía config"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master config"
+
+# ap/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Úr síu config"
+
+# ap/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Sýna allt"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Sem lykill (valkostur)"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"Eytt REMOVED_COUNT af hallaverðmæti, óeðlilegt gildi og útlæga gildi frá "
+"TOTAL_COUNT í upprunalegu."
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP -tölu"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"Berðu saman dreifingu gagna við súlurit og mat á þéttleika. Grafinu er "
+"deilt með lagskiptu breytu. Það er einnig deilt með hlið."
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Settu saman allan fjölda gagna á tímaás eða ID ás."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Sýna dreifingu samsæri. Þú getur notað frá 2 til 7 markstærðum."
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"Með greiningu á aðalhlutum er sjón á „mismunandi“ og þáttagreining þess "
+"gerð. Sláðu inn venjuleg gögn sem kennara gögn og sjón hvort núverandi "
+"gögn séu sömu aðstæður og venjuleg gögn (T2/Q). Ef þú ert með mismunandi "
+"aðstæður geturðu athugað helstu þætti í framlagsspili."
+
+# ap/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"Dreifingu er skipt í margar línurit með þessari breytu. Veldu "
+"flokksbreytur (eigindlegar breytur) svo sem hlutanúmer og stöðvar."
+
+# ap/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Stratified flokkasía: takmarkar gögn sem verða sýnd við undirmengi. "
+"(Flokkur: hlutanúmer, stöð nr. Osfrv.)"
+
+# ap/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"Flokksbreytur (svo sem hlutanúmer, stöð nr osfrv.) Sýndar sem merkimiðar "
+"efst á lóðum til að finna breytt stig."
+
+# ap/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Graf sía: takmarkar gögn sem verða birt við undirmót."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"Stilltu námsgögnin túlkuð sem eðlilegar aðstæður. Stilltu gagnahlutann "
+"sem inniheldur engin NG gögn. Ef þeir eru með eru þeir sem eru nálægt NG "
+"gögnum einnig dæmdir sem venjuleg gögn."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Stilltu prófgögn sem á að dæma."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Atriðasía: Takmarkar gögn (greiningu og birt) sem verða birt í undirmengi."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"Það er tvívídd samanlagð skjár (víddarþjöppun með aðalhlutum) af "
+"fjölvíddar sannprófunargögnum. Ef gögnin eru í miðjunni er hægt að túlka "
+"þau sem eðlilega."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"Það er tvívídd samanlagð skjár (víddarþjöppun með meginþáttum) fjölvíddar"
+" námsgagna. Aðalmarkmiðið ræðst af námsgögnum, þannig að flest námsgögn "
+"ættu að vera í markmiðinu."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"Söguþráður T2 tölfræðinnar, sem fylgist með frávikum í meginþætti þessara"
+" gagna. Námsgögnin eru samsærð í hvítu og í neikvæðum X hlutanum. Gula "
+"söguþráðurinn er staðfestingargögn. Því hærri sem staðfestingargögn eru "
+"borin saman við hvít gögn, því líklegra er að ástandið er að víkja. "
+"Smelltu á gagnapunkta til að sjá framlagsrit þess sem þættir mynda "
+"ástandið."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"Söguþráður Q tölfræði (eftirlit með frávikum í minnihluta þessara gagna, "
+"leifar). Námsgögnin eru samsærð í hvítu og í neikvæðum X hlutanum. Gula "
+"söguþráðurinn er staðfestingargögn. Því hærri sem staðfestingargögn eru "
+"borin saman við hvít gögn, því líklegra er að ástandið er að víkja. "
+"Smelltu á gagnapunkta til að sjá framlagsrit þess sem þættir mynda "
+"ástandið."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Röðin sem breytur stuðla að aðstæðum á þeim stað sem valinn er í T2 "
+"tölfræðilóðinni. Því lengur sem lengd er, því líklegra er að orsökin er."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"Röðin sem breytur stuðla að aðstæðum á þeim stað sem valinn er í Q "
+"tölfræðilega söguþræði. Því lengur sem lengd er, því líklegra er að "
+"orsökin er."
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Fjöldi gagnapunkta með gildi minna en eða jafnt og Q1 - 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Fjöldi gagnapunkta með gildi sem er meira en eða jafnt og Q3 + 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"Heildarfjöldi gagna þar á meðal NA (ekki tiltækt), NaN (ekki fjöldi) og "
+"Inf± (óendanleikinn) á völdum tímabili."
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"Out of Control Line: Hlutfall gagna utan efri og neðri þröskulds (telja) "
+"á völdum tímabili"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr "Out of Action Line: Hlutfall gagna utan efri og neðri mörk"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Hlutfall NA (ekki fáanlegt) á völdum tímabili (telja)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Hlutfall NaN (ekki fjöldi) á völdum tímabili (telja)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Hlutfall af Inf+ (auk óendanleika) á völdum tímabili (telja)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Hlutfall af Inf- (mínus óendanleika) á völdum tímabili (telja)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"Heildarhlutfall gagna utan þröskuldsgildisins, NA (ekki tiltækt), NaN "
+"(ekki fjöldi) og Inf± (óendanleikinn) á völdum tíma (telja)"
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"Fjöldi gagna að undanskildum NA (ekki tiltækt), NaN (ekki fjöldi) og Inf±"
+" (óendanleikinn) á völdum tímabili."
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "95. hundraðshluti"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75. hundraðshluti (þriðji fjórðungur)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25. hundraðshluti (fyrsti fjórðungur)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "5. prósentil"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Interquartile svið (dæmigert gildi dreifingarbreytileika: IRQ = Q3 - Q1 ≒"
+" 1.349σ@ Venjuleg dreifing)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "Miðgildi (50. prósentil)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Telur/klukkustund"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Telur/mínútu"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Hjólreiðatími [s]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Skiptisnúmer"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Sýna hringrás"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "Sýna bil"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Calenda hita kort"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"Ekki er hægt að velja markstærðir með MAX_NUM_SENSOR eða meira. Veldu "
+"miða breytu."
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Markmiðin um að fjarlægja útrásarvíking eru Max, Mean, Min, σ og Range."
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Aðrar en rauntölur"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"Hægt er að sjá dreifingu með því að reikna út fyrir hverja flokkalaga "
+"breytu (eigindlegar breytur, lóðanúmer osfrv.) Eða DateTime og sýna þær "
+"hlið við hlið. Sjónræn aðferð sem gerir kleift að greina krosshóp "
+"(samanburður á milli lóða, daga, vaktir og osfrv.) Gagna án stakra ID."
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Stilltu þröskuldinn sem á að draga á myndrit."
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"Ef dreifing er á geturðu sýnt dreifingarlóðina með því. Dreifingin "
+"samsæri milli núverandi hlutar og næsta röð. Dragðu og slepptu lóðkortum "
+"viðkomandi lóða með músinni til að skipta um x-ás og y-ás "
+"dreifingarlóðarinnar."
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"Gagnaefni (svo sem tölulegt breytu eða mælingargildi) sem skapar "
+"dreifingu gagna. Þessi gögn eru samsærð á söguþræði. Hægt er að velja "
+"allt að 20 hluti."
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"Þessi lagskipta breytu skiptir dreifingunni í margar lóðir og birtir þær "
+"hlið við hlið. Veldu flokkalaga breytu, svo sem Lot No eða lotu nr."
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Sláðu inn Start DateTime til að sýna ridgeline lóð fyrir hvern dateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr "Settu beint inn tímabilið til að birta ridgeline lóð fyrir hvern dateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"Þú getur valið valkosti til að flytja inn gögn úr CSV/TSV skrá sem krefst"
+" sérstakrar meðhöndlunar, svo sem að umbreyta gagnaskipulagi."
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"Með því að ýta á forsýningarhnappinn hér að neðan sýnir einhvern hluta "
+"gagna í skránni svo þú getir athugað innihald þess."
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"Veldu hlekk ID sem á að nota sem skilyrði fyrir tengsl gagnanna. Þú getur"
+" líka valið marga hluti."
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"Þegar forritið þitt flytur reglulega inn gögn geturðu valið dálkdálk sem "
+"er helst notaður sem lykill DateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"Ef þú velur rekstraraðila og slærð inn númer undir 'Factor' verður gildið"
+" í línuritinu reiknað með því að nota tilgreindan rekstraraðila og þátt."
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"Ef þú velur rekstraraðila og slærð inn númer undir 'Factor' verður gildið"
+" í línuritinu reiknað með því að nota tilgreindan rekstraraðila og þátt."
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr ""
+"Það er mögulegt að spá fyrir um hve mikið af gögnum verður tengt við "
+"stillingarskilyrði sem nú eru stillt."
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr ""
+"Fleygðu skilyrðinu sem nú er stillt á gagnatengingu og hringir í áður "
+"skráða ástand."
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "ID er búið til innbyrðis til að tengja gögn við stillingarskilyrði."
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr "Veldu gæðaeftirlit eða búnaðarstýringarhluta með því að nota línurit."
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Vinsamlegast veldu gerð stjórnunarmarkmiðs eins og hlutanúmer og búnað."
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr ""
+"Vinsamlegast veldu stjórnunarmarkmið svo sem gildi hlutanúmersins og "
+"gildi búnaðarins."
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Stilltu Start DateTime fyrir línuritstillingar. (Krafist)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Stilltu lokatíma fyrir línurit. (Valfrjálst)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Lestu vistaða stillingar."
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Vistaðu nýjustu stillingarnar sem þú slóst inn."
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Vistaðu skjáinn sem PNG skrá."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Viltu eyða þessari stillingu?"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Markmið breytu (raunveruleg tala)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Markbreytni (flokkur)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Röðun vísitölu"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "Súlan"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "Pöntun"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Forgang"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Panta"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Breytur"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "EINNIG FYRIR FYRIR"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Alvöru aðeins"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Aðeins flokkalegt"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Í ákveðinni röð"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Í vinnslupöntun"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Í fylgni Coef. Pöntun"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Fylgniþröskuldur (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Veldu í hlutlæga breytu"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Hlutlæg breytu"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Útskýrandi breytu"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Fáanlegt hlutfall"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Sanky skýringarmynd"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Passa (fullkominn samsvörun)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR leit"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND leit"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Þar sem samhliða hnitaslóð getur ekki meðhöndlað rauntölur hafa rauntölu "
+"gögn verið fjarlægð."
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "REGISTRATION"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Skráðu breyttar upplýsingar eins og skjáheiti."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Viltu skrá þig með breyttu efni?"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Ef þú breytir hlekk ID, vinsamlegast endurstilltu gagnatengilinn."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Samhliða myndriti"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Gagnaskrá"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Samanlagt af"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Klukkutíma"
+
+# co-occurrence
+msgid "Day"
+msgstr "Dagur"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Breyta stillingu"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Stillingarstilling"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"Ógild gögn, sem auðkennd er, verður eytt. Ertu viss um að skipta yfir í "
+"stillingarstillingu?"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "forgang"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"Tvítekið enskt nafn fannst, þannig að raðnúmerið var sjálfkrafa bætt við."
+" Athugaðu nöfn dálka."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Einingar af samsöfnun"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"Fyrsti dálkur er dateTime og seinni dálkurinn og síðari dálkar eru gildi "
+"eins og tilkynningarfánar viðvörunar/talning (0,1,2 ...)."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Samanlagð sambönd samhliða tíma eftir klukkutíma/dag."
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Sýna þröskuld"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"Ef þú velur gildi minna en 100%%, muntu fela lítið sambandi samskipta. "
+"(Sjálfgefið: Teiknaðu línu ef það er jafnvel einu sinni)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"Þekkja og sjáðu breytur sem eru beint eða óbeint í tengslum við "
+"markbreytan."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"Sjónaðu fylgni milli breytanna sem tilgreindar eru hér. Hægt er að velja "
+"allt að 60 hluti."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Frambjóðandi breytur sem eru í tengslum við hlutlægar breytur."
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "af öllum brúnum"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Skipulag"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Hringur"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Sjálfvirkt"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Skilvirkni"
+
+msgid "Set threshold"
+msgstr ""
+"Control Line: Athugaðu hvenær teiknaðu stjórnunarstig eins og venjulegar "
+"línur"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Greiningarpallur"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Pareto mynd"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Fjöldi viðburða"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Uppsafnað hlutfall [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"Sjónaðu breytur sem geta verið mismunandi eftir gögnum yfir langan tíma, "
+"svo sem árleg tilbrigði í ferlum, vikudaga, vaktir osfrv."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr "Sjónaðu fylgni milli mikils fjölda breytna með tilliti til markbreytunnar."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr ""
+"Sjónaðu samkomu galla, viðvarana, atburða og osfrv. (Samband með áherslu "
+"á tíðni samtímis eins fyrirbæri og annað)."
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"TómtDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: Einfalt tæki til að kortleggja gagna, sjón, "
+"tölfræðigreiningu og vélanám."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"Gagnasettið hér er notað sem tilvísun til að tengja og samsæri gagna. "
+"Stillingarnar eru notaðar á lárétta ás lóðarinnar. Að auki er "
+"upprunaplottið sýnt með ljósbláum ramma."
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"Tilgreinir gögnin (til dæmis tölulegar breytur: mælingargildi) fyrir "
+"lóðina. Veldu ferla og hluti sem á að samsæri á lóðinni. Hægt er að velja"
+" allt að 20 hluti."
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"Tilgreinir gögnin (til dæmis tölulegar breytur: mælingargildi) fyrir "
+"lóðina. Veldu ferla og hluti sem á að samsæri á lóðinni. Hægt er að velja"
+" allt að 8 hluti."
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"Tómt可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"Þessi lagskiptisbreytu skiptir mynstrinu til að sjá í margar lóðir og "
+"birtir þær hlið við hlið. Veldu flokkalegar breytur eins og hlutanúmer og"
+" stöð nr. Hægt er að velja allt að 100 hluti."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"Gagnagreinin sem myndar fylgni milli breytna (megindlegar breytur: "
+"mælingargildi osfrv.). Þessi gögn eru samsærð á töflunni. Hægt er að "
+"velja frá 2 til 7 breytum."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"Veldu hlutinn til að sjá fylgni milli breytna. Hægt er að velja allt að "
+"60 hluti."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"Atriði í flokksbreytum (svo sem hlutanúmer) til að sjá fylgni milli "
+"breytna."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Hámarka kort"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Lágmarka kort"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr ""
+"Ef þessari stillingu er breytt er nauðsynlegt að núllstilla stillingar "
+"gagnatengisins."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Sjálfvirk val"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Veldu allt til hægri"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Óseljið allt til hægri"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Allt raunverulegt (flot) héðan"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Öll heiltala héðan"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Allur strengur héðan"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"Vegna mikils fjölda skráa sem valdar voru og tíminn sem þarf til að sýna "
+"lóð var fjöldi frumna á hverja lóð takmarkaður við 10.000. Ef þú vilt sjá"
+" öll gögnin fyrir BREAK_LINE miðunartímabilið skaltu auka skjábilið eða "
+"draga úr marktímabilinu til að fækka frumum."
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Rað"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Þú getur aðlagað umfang lóðarinnar með því að hægrismella á lóðina."
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Grafskala"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Stillingarstilling"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Fjöldi gagnahluta sem ekki er hægt að tengja"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Dreifa samsæri"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "með útlínur"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Sparnaður"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"Tómtファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "Hleðslustilling"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "Deila/einkaaðila"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "Lýsing"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "Búið til af"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "Notaðu/álag"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "Hlaða"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr ""
+"Fjöldi gagna sem ekki var hægt að tengja við upphafspunktinn (hlutfall "
+"tengingar)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Vista DateTime"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "Deildu stillingum"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "Vista"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"Þú getur valið frá 2 til 7 miða breytum. Athugaðu fjölda markstærða og "
+"leiðréttu stillingarnar."
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr ""
+"Stærðarmörk skráarinnar eru 10 MB. Draga úr skráarstærðinni og reyndu "
+"aftur."
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Ef það er athugað er einnig vistað tilgreind datetime."
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Athugaðu til að deila þessari stillingu."
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Vistaðu stillingarnar."
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Ertu viss um að skrifa yfir stillingar?"
+
+# ap/templates/modals.html
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "deila"
+
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "Einkamál"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "Búið til kl"
+
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "Lokaðu"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "Pöntun sett"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "Byrjaðu DateTime"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "Lok DateTime"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Sýna X-ás merkimiða"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "DateTime svið"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Dragðu og slepptu hér"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Eða"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Veldu skrár"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Er ekki hægt að sýna"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"Vinnsla var rofin vegna mikils magns gagna og langs vinnslutíma. Skoðaðu "
+"stillingar DateTime og birtu söguþræði aftur."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Útgáfa CSV skrá. Vinsamlegast bíddu meðan skráin niðurhal."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Útgáfa TSV skrá. Vinsamlegast bíddu meðan skráin niðurhal."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Sjálfvirk svið"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Fullt svið"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Stilling vísitölu"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "Opið"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "Eyða"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"Þar sem fjöldi gagnapunkta á línurit er yfir 12.000 var fjöldi "
+"gagnapunkta takmarkaður við hámark 12.000. Ef þú vilt skoða öll gögnin "
+"skaltu setja styttri marktímabil."
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Lagskipt eftir hugtaki (hringlaga)"
+
+#: component.js
+msgid "Facet"
+msgstr "Hlið"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Framkvæmir flokk sem skiptir með völdum hlut."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Undantekningarmat"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"Normalized interquartile svið (vísitölutenging IQR við venjulega "
+"dreifingu, niqr = 0,7413 × IQR)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Mode er oftast gildi."
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "með útlægari"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "án útlægra"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Sérsniðin"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Í dag"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Í gær"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Síðustu 7 dagar"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Síðustu 30 dagar"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Í þessum mánuði"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 mánuður"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 mánuðir"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Notaðu"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Vika"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Fyrir 7 dögum"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Fyrir 30 dögum"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Hnefadagur þessa mánaðar"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Síðasti dagur þessa mánaðar"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 mánuðir"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Uppfært kl"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"Gagnapunktar eru teknir saman með hratt stillingu. Ef þú vilt fá samsæri "
+"án þess að sleppa gögnum skaltu stilla miðunartímabilið styttra."
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Svið y -ás"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Útlægari"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"Tómt'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "Vinna leit"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "Bókamerki"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"Tómt以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "Hjólreiðatími"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "Raunveruleg tala"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "Hlutlæg breytu"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"Fylgnistuðullinn er reiknaður með þessari breytu sem markbreytu. "
+"Markbreytan sem tilgreind er hér birtist einnig ásamt litabar lengst til "
+"hægri hliðarlóðarinnar. Ef þú vilt breyta markstærðum á lóðinni geturðu "
+"skipt á milli þeirra með því að hægrismella á hvert breytuheiti."
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"Gögn voru ekki drukknað vegna þess að það eru of margir flokkar. "
+"BREAK_LINE Athugaðu og, ef nauðsyn krefur, endurskoðuðu markmiðstímabilið"
+" styttra."
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "Síustilling"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Merkimiða (Flokksbreytur)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "Afritað"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "Límt"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "Afritaðu config"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "Límdu config"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Án uppruna er fyrsta markmiðið valið sem uppruni."
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "Flytja út gögn"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "Ekki nota"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "Gögn eru ekki teiknuð vegna þess að það eru of margir flokkar."
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr "Athugaðu og, ef nauðsyn krefur, endurskoðuðu stillingar marktímabilsins."
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Skiptu með gagnatölum (hringlaga)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "Fjöldi gagna"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"Tómtグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Veldu tilgangsbreytuna."
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Engin niðurbrot / niðurbrot í flokki"
+
+# ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Dreifa samsæri"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"Ef annað hvort x eða y gagnategund er strengur geturðu ekki notað breytur"
+" sem ekki eru strengir til að stilla lit."
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"Gildi utan leyfilegs sviðs fannst, þannig að lágmarks- eða hámarks gilt "
+"svið var sjálfkrafa ákveðið. Breyttu stillingum eftir þörfum."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Hægri smelltu: Stilling/EDIT gagnatengill"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Liðinn tími"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "Tímapöntun"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "Setja gagnapöntun"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"Vinsamlegast eytt óþarfa gögnum vegna þess að afkastageta harða disksins "
+"`__SERVER_INFO__` er kominn í __SERVER_INFO__ %%."
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"Gagnagáttin var stöðvuð vegna þess að afkastageta harða disksins "
+"`__SERVER_INFO__` náði __SERVER_INFO__ %%. Ef óþarfa gögnum er eytt og "
+"tóm afkastageta eykst verða gögnin hafin á ný."
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"Sláðu inn fjölda dreifinga sem á að birta (fjöldi deilda). Sláðu inn "
+"heiltölu 2 eða 150 eða minna."
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"Sláðu inn fjölda dreifinga sem á að birta (fjöldi deilda). Sláðu inn "
+"heiltölu 1 eða fleiri 32 eða minna."
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Tómt表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Tómtプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Tómt1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Tómt1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Það eru of mörg fiðlur á hverja lóð, svo það var sjálfkrafa takmarkað."
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"Vegna mikils fjölda skráa sem valdar eru er fjöldi lóða takmarkaður frá "
+"elsta dagsetningu til takmarkana."
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Ég samþykki"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "Hneigðu þig"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Aftur á bak"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Fjöldi samsæri á dálki"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"Flokkunarbreyturnar (hlutanúmer, stöð nr. Osfrv.) Sem sýnd eru sem "
+"merkimiðar efst á lóðinni eru notaðar til að sjá breytingarpunkta "
+"(skiptingu hlutanúmer osfrv.) Eigindlegra breytna."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"Veldu atriði sem á að greina (megindlegar breytur: Mælingargildi osfrv.)."
+" Hægt er að velja allt að 60 hluti."
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr "Veldu hluti til að flokka gögn. Þú getur líka valið marga hluti."
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"Yfirfull gömul gögn birtast ekki vegna þess að datetime telur úr nýjustu "
+"gögnum með skjámörkum."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"Fjöldi samsæri var takmarkaður við NUMBER. Ef þú vilt sýna alla skaltu "
+"taka stillingarnar."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"Fjöldi samsæri á einum flipa var takmarkaður við NUMBER. Ef þú vilt sýna "
+"alla skaltu taka stillingarnar."
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"Fjöldi markstærða til að velja er lágmarks mín og hámarkshámark. Athugaðu"
+" fjölda markstærða og leiðréttu stillingarnar."
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"Fjöldi markstærða til að velja er allt að hámarks hámark. Athugaðu fjölda"
+" markstærða og leiðréttu stillingarnar."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+# ap/templates/trace_data/list_of_histograms.html
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "Útlægari"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "Mín"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "Viðvörun"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "Spá"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "Lýsing"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"Ef þú velur gildi minna en 100%%, muntu fela lítið sambandi samskipta. "
+"(Sjálfgefið: Teiknaðu línu ef það er jafnvel einu sinni)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"Ef þú velur gildi minna en 100%%, muntu fela lítið sambandi samskipta. "
+"(Sjálfgefið: Teiknaðu línu ef það er jafnvel einu sinni)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"Ef þú velur gildi minna en 100%%, muntu fela lítið sambandi samskipta. "
+"(Sjálfgefið: Teiknaðu línu ef það er jafnvel einu sinni)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "Lýsing"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "Lokaðu"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "Gildistími (lok)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "Gildistími (byrjun)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "Gildistími (lok)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+

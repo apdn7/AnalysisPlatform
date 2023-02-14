@@ -6,14 +6,14 @@ Let's try data-driven process improvement by utilizing the data sleeping in the 
 
 <table border="0">
 <tr>
-<td><img src="histview2/config/image/FPP.png" alt="FPP" width="200"></td>
-<td><img src="histview2/config/image/RLP.png" alt="FPP" width="200"></td>
-<td><img src="histview2/config/image/PCP.png" alt="PCP" width="200"></td>
+<td><img src="ap/config/image/FPP.png" alt="FPP" width="200"></td>
+<td><img src="ap/config/image/RLP.png" alt="FPP" width="200"></td>
+<td><img src="ap/config/image/PCP.png" alt="PCP" width="200"></td>
 </tr>
 <tr>
-<td><img src="histview2/config/image/CHM.png" alt="CHM" width="200"></td>
-<td><img src="histview2/config/image/MSP.png" alt="MSP" width="200"></td>
-<td><img src="histview2/config/image/StP.png" alt="PCP" width="200"></td>
+<td><img src="ap/config/image/CHM.png" alt="CHM" width="200"></td>
+<td><img src="ap/config/image/MSP.png" alt="MSP" width="200"></td>
+<td><img src="ap/config/image/StP.png" alt="PCP" width="200"></td>
 </tr>
 </table>
 
@@ -147,7 +147,7 @@ or you can press `Ctrl + C` on your console.
 ## Basic Settings
 
 Basic settings of Analysis Platform is defined in 
-`info` field of `histview2/config/basic_config.yml`.
+`info` field of `ap/config/basic_config.yml`.
 You can open the file with any text editor and set:
 
 * `port-no`: Port number that Analysis Platform use (default: 6868)
@@ -155,7 +155,7 @@ You can open the file with any text editor and set:
 See language selectbox on upper right corner of GUI for abbreviations of each language (default: empty)
 * `hide-setting-page`: If True, hides link to config page (default: False)
 
-If you want to initialize the application, remove `instance` folder and `histview2/config/basic_config.yml`.  
+If you want to initialize the application, remove `instance` folder and `ap/config/basic_config.yml`.  
 These files are generated on the next activation.
 
 ## Is there any sample data that we can use?

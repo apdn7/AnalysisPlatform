@@ -1,9 +1,9 @@
 import os
 
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
-from loguru import logger
+from ap.common.logger import logger
 
-from histview2.common.common_utils import resource_path
+from ap.common.common_utils import resource_path
 
 basedir = os.getcwd()
 
@@ -13,7 +13,7 @@ class Config(object):
     POSTS_PER_PAGE = 10
     PORT = 80
     parent_dir = os.path.dirname(basedir)
-    os.environ['FLASK_ENV'] = os.environ.get('FLASK_ENV', 'development')
+    os.environ['FLASK_ENV'] = os.environ.get('FLASK_ENV', 'production')
     R_PORTABLE = os.environ.get('R-PORTABLE')
     if not R_PORTABLE:
         R_PORTABLE = os.path.join(parent_dir, 'R-Portable', 'bin')
@@ -33,19 +33,15 @@ class Config(object):
 
     BABEL_DEFAULT_LOCALE = "en"
 
-    # yaml config files name
-    YAML_CONFIG_BASIC = 'basic_config.yml'
-    YAML_CONFIG_DB = 'db_config.yml'
-    YAML_CONFIG_PROC = 'proc_config.yml'
-    YAML_CONFIG_HISTVIEW2 = 'histview2_config.yml'
-    YAML_TILE_INTERFACE_DN7 = 'tile_interface_dn7.yml'
-    YAML_TILE_INTERFACE_AP = 'tile_interface_analysis_platform.yml'
-
-    # run `python histview2/script/generate_db_secret_key.py` to generate DB_SECRET_KEY
+    # run `python ap/script/generate_db_secret_key.py` to generate DB_SECRET_KEY
     DB_SECRET_KEY = "4hlAxWLWt8Tyqi5i1zansLPEXvckXR2zrl_pDkxVa-A="
 
+    # CREATE_ENGINE_PARAMS = {'timeout': 180, 'isolation_level': 'IMMEDIATE'}
+    CREATE_ENGINE_PARAMS = {'timeout': 60 * 5}
     # timeout
-    SQLALCHEMY_ENGINE_OPTIONS = {'connect_args': {'timeout': 30}}
+    SQLALCHEMY_ENGINE_OPTIONS = {'connect_args': CREATE_ENGINE_PARAMS}
+    # SQLALCHEMY_POOL_SIZE = 20
+    # SQLALCHEMY_MAX_OVERFLOW = 0
 
     # APScheduler
     SCHEDULER_EXECUTORS = {
@@ -75,6 +71,11 @@ class Config(object):
     COMPRESS_LEVEL = 6
     COMPRESS_MIN_SIZE = 500
 
+    INIT_CONFIG_DIR = os.path.join(basedir, 'init')
+    INIT_LOG_DIR = os.path.join(basedir, 'log')
+    INIT_APP_DB_FILE = os.path.join(INIT_CONFIG_DIR, 'app.sqlite3')
+    INIT_BASIC_CFG_FILE = os.path.join(INIT_CONFIG_DIR, 'basic_config.yml')
+
 
 class ProdConfig(Config):
     DEBUG = False
@@ -91,7 +92,7 @@ class ProdConfig(Config):
     # SCHEDULER_JOBSTORES = {
     #     'default': SQLAlchemyJobStore(url='sqlite:///' + os.path.join(basedir, 'instance', 'app.sqlite3'))
     # }
-    YAML_CONFIG_DIR = os.path.join(basedir, 'histview2', 'config')
+    YAML_CONFIG_DIR = os.path.join(basedir, 'ap', 'config')
 
 
 class DevConfig(Config):
@@ -109,7 +110,7 @@ class DevConfig(Config):
     # SCHEDULER_JOBSTORES = {
     #     'default': SQLAlchemyJobStore(url='sqlite:///' + os.path.join(basedir, 'instance', 'app.sqlite3'))
     # }
-    YAML_CONFIG_DIR = os.path.join(basedir, 'histview2', 'config')
+    YAML_CONFIG_DIR = os.path.join(basedir, 'ap', 'config')
 
 
 class TestingConfig(Config):
@@ -128,5 +129,5 @@ class TestingConfig(Config):
     # SCHEDULER_JOBSTORES = {
     #     'default': SQLAlchemyJobStore(url='sqlite:///' + os.path.join(basedir, 'tests', 'instances', 'app.sqlite3'))
     # }
-    YAML_CONFIG_DIR = os.path.join(basedir, 'tests', 'histview2', 'config')
+    YAML_CONFIG_DIR = os.path.join(basedir, 'tests', 'ap', 'config')
     PARTITION_NUMBER = 2

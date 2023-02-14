@@ -1,0 +1,4001 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Nai -save"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "may nangyaring pagakamali"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Pag -configure ng Application"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "Hindi natagpuan ang pahina"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "may nangyaring pagakamali"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "DATALINK & ANALISIS APP"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "Pumili ng isang wika"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "Pangunahing screen"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "Pagpapatunay ng operasyon"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Pagpapatunay ng operasyon"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Pangunahing config"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Magrehistro"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Reload"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Integer"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Totoong (float)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "DateTime"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "String"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Pamagat"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Halaman"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Pabrika"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Linya"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Pakikumpirma."
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"I -save ang data at simulan ang pag -import ng data gamit ang mga "
+"nilalaman na nakatakda sa pahina ng setting ng proseso?"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "OK"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Kanselahin"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Database config"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Pangalan ng Database"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Uri ng database"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Config"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Komento"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Idagdag"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Pumili ng isang file ng database."
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Pangalan ng file"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Piliin"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Nais mo bang tanggalin ang talaang ito?"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "tanggalin"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Traceability"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Graph ng traceability"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Pagsubok sa bakas"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Simulan ang pagsubok"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Oras ng umpisa"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Oras ng pagtatapos"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Machine ID (maraming mga pagpipilian)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Linya"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Bahagi ng bahagi"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Data Link Config"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Pumili ng isang wika"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Hapon"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Ingles"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Node"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Node ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Label"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Pangalan ng Master"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Database"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Angkat"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "I -export"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Pangalan ng host"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Numero ng port"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Pangalan ng gumagamit"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Password"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Schema"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Nagtagumpay ako."
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "Nabigo ang &#10005;."
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Proseso ng config"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Proseso"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Pangalan ng Proseso"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Pangalan ng Talahanayan"
+
+# ap/templates/setting_module/background_process.html
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Detalye"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Preview"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Unang limang tala"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Pagtatakda ng Nilalaman"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Pangalan ng haligi"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Pangalan ng Ingles"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Ipakita ang pangalan"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "koepisyent"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Operator"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Magpasok ng isang halaga maliban sa 0"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Input operator."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Koepisyent ng pag -input."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Input ang pangalan ng Ingles."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Pangalan ng display ng input."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Ang pangalan ng Ingles ay doble."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Ang pangalan ng display ay doble."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr ""
+"Ang lahat ng \"mga pangalan ng pagpapakita\" ay nangangailangan ng pag "
+"-input."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr ""
+"Ang mga patlang na may blangkong \"pangalan ng Ingles\" ay awtomatikong "
+"napuno."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Piliin lahat"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Mag -import ng data"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Sigurado ka bang mag -import ng data?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"Kapag pinindot mo ang pindutan ng OK, mag -import ka ng data mula sa "
+"kasalukuyang oras hanggang isang buwan bago."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Ang nakaraang data ay awtomatikong na -import nang kaunti."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"Kung nais mong i -import ang data pagkatapos ng kasalukuyang oras, "
+"pindutin muli ang pindutan ng pagbabasa ng data, o pindutin ang database "
+"CSV na pag -set up ng mga setting sa pahina ng setting ng Basahin."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Kapag ang \"Update Cycle\" ng \"database / CSV setting ng pagbabasa\" ay "
+"nakatakda, awtomatikong mai -import ito sa panahon kung kailan nakatakda "
+"ang kasalukuyang oras."
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Bakas ang impormasyon"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Bakas data"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Hindi ma -access"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Mag -click dito upang ayusin ito."
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "I -edit ang gilid"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "PREV PROSESO"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Nakaraan na haligi"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Proseso ng pag -post"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Mag -post ng haligi"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Bilang Datteime"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Bilang serial"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Bilang link ID"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "Nakarehistro na"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "Mangyaring ipasok ang pangalan ng proseso"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filter/Graph"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Graph config"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Line Filter Config"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Linya ng linya"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "Halaga"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Machine Filter Config"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Haligi ng makina ID"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Bahagi walang filter config"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Bahagi walang haligi"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Pangalan ng filter"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Kondisyon ng filter"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Ang iba ay nag -filter ng config"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Target na haligi"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Visualization config"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Mas mababang threshold"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Mataas na threshold"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Mas mababang proseso ng threshold"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Itaas na proseso ng threshold"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Saklaw ng Y-Axes: Min"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Saklaw ng Y-Axes: Max"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Bahagi no"
+
+# ap/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "magtapos sa"
+
+# ap/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Magsimula sa"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like Paghahanap)"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "Sumang -ayon"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Regular na expression"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Ipakita ang graph"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV I -export"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Kinakailangan ang proseso"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Kinakailangan ang pangalan ng haligi"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Kinakailangan ang linya"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Kinakailangan ang pangalan ng pagpapakita"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Ang pangalan ng display ay doble."
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Kinakailangan ang halaga ng makina"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Dobleng makina ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Matagumpay na makatipid"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Nabigong makatipid"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Bahagi Walang haligi ay kinakailangan"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Kinakailangan ang target na haligi"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Kinakailangan ang pangalan ng filter"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Kinakailangan ang kondisyon"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Ang pangalan ng filter ay doble."
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Ang mga kondisyon ay doble."
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Default"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Pangalan ng Proseso"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Nagdagdag ng iba pang mga filter"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV I -import ang config"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Pinagmulan"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "RENEWAL CYCLE"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Kumonekta"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Isang beses bawat oras"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Minsan bawat araw"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Pagkumpirma ng data"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Walang folder."
+
+msgid "File does not exist"
+msgstr "Walang file."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Maaari kang kumonekta."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Mangyaring punan ang halaga."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Walang nilalaman ng setting."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Ang mga setting ay doble."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Nai -save ang mga setting ng database."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Nabigong i -save ang mga setting ng database."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Nai -save ang mga pangunahing setting."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Nabigong makatipid ng mga pangunahing setting."
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "Test Connection"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "Start Point"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "Saklaw ng petsa"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "Pinakabagong"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "Auto Update"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "Minuto"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "minuto"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "oras"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "oras"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "Target variable"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "Filter"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "X axis"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "Timestamp"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "INDEX"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Stratify variable"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Mga Filter"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Database/CSV"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "Pag -aralan"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "Sa ilalim ng pag-unlad"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Pag -aralan:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Plot ng talon"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Graphical LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogram"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Stratified plot"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Full-point plot"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Visualization ng data"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "Visualization"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Tumakbo"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Ipasok ang pangalan ng database."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Ipasok ang pangalan ng mapagkukunan ng data."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Ang mga haligi na walang uri ng data ay hindi na -import."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Hindi bababa sa isang haligi ng datetime ang kinakailangan."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Para sa paggunita, gumamit ng '{col}' para sa x-axis."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Sigurado ka bang magpapatuloy?"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Talahanayan ng Talahanayan"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Mesa"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Pagsunud -sunurin"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Bilang ng data"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Pababang"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Umakyat"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Perpektong tugma"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Bahagyang tugma"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Hindi wastong pagpili ng digit"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Ang haba ng character na ginamit para sa pag -link ay naiiba."
+
+# ap/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Walang filter"
+
+# ap/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Lahat ng mga linya"
+
+# ap/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "sitwasyon"
+
+# ap/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Listahan ng Trabaho"
+
+# ap/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Lahat"
+
+# ap/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "I -import ang nakumpleto."
+
+# ap/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Pag -import"
+
+# ap/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Nabigo ang pag -import"
+
+# ap/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"Tatanggalin ang naka -load na data. Ayos lang ba? (Walang pagbabago na "
+"makikita hanggang sa pindutin ang pindutan ng pagrehistro)"
+
+# ap/setting_module/controllers.py
+msgid "Job List"
+msgstr "Listahan ng Trabaho"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "Job ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Pangalan ng trabaho"
+
+# ap/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Henerasyon ng naka -linkID"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Ipakita ang henerasyon na trabaho ng link ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Pagtanggal ng impormasyon sa proseso"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "I -import ang data ng pabrika"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Mag -import ng nakaraang data ng pabrika"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Ipakita ang pag -import ng trabaho ng nakaraang data ng pabrika"
+
+# ap/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Mag -import ng data"
+
+# ap/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Tanggalin ang lumang data"
+
+# ap/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Oras ng umpisa"
+
+# ap/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "lumipas na oras"
+
+# ap/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Database/CSV"
+
+# ap/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Pag -unlad"
+
+# ap/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Proseso"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Listahan ng Histogram"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Magrehistro bilang isang halaga ng pagsiklab"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Unregister outlier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Itago ang mga outlier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Ipakita ang mga outlier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Suriin ang mga outlier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Ipakita ang listahan ng histogram"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Huling oras ng pag -update"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Nakansela ang pagpaparehistro ng outlier."
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Nakarehistro bilang isang outlier"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Mas malabo"
+
+# ap/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Minsan lang"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Mga detalye ng trabaho"
+
+# ap/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Kopyahin sa clipboard"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Maraming plot ng pagkakalat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Scatter Plot"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Upang mailarawan ang variable na variable"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratify ng mga variable"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Variable"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Machine no"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Target na panahon"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Kadalasan (Bilang)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Pagtantya ng Density"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Kategoryang variable"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify sa pamamagitan ng term (direkta)"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Anomaly detection"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Pangunahing sangkap na marka ng data ng pagsubok"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Pangunahing sangkap na marka ng data ng pagsasanay"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Serye ng tsart ng istatistika ng T2"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Serye ng Tsart ng Q Statistics"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Ang plot ng kontribusyon ng mga istatistika ng T2"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Plano ng kontribusyon ng mga istatistika ng Q."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Alisin ang mas malabo"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Data ng pagsasanay"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Data ng Pagsubok"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Oo"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Hindi"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Uri ng datos"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Halimbawa"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Error"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Babala"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"Dahil ang lahat ng mga hilera ay tinanggal sa pamamagitan ng pagproseso "
+"ng halaga ng halaga (NA pag -alis), walang data upang pag -aralan. "
+"Siguraduhin na ang walang laman na halaga, kabilang ang NA, ay hindi "
+"napili."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"Hindi ito masuri dahil naglalaman ito ng data maliban sa mga numero. "
+"Tiyaking napili mo ang isang haligi na naglalaman ng isang string o "
+"halaga ng kategorya."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"Hindi masuri dahil naglalaman ito ng data na may pagkakaiba -iba ng 0. "
+"Siguraduhin na ang isang haligi ng halaga lamang ang hindi napili."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"Natagpuan ang data ng kategorya at inaasahang halaga ng integer. Kung ang"
+" halaga ng integer na ito ay hindi isang scale scale, agwat ng agwat, o "
+"scale ng ratio, ang mga resulta ng pagsusuri ay maaaring apektado."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Sigurado ka bang magpatuloy sa pagsusuri?"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "maghanap"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"Ang median ay isa sa mga karaniwang istatistika. Ito ay isang halaga na "
+"matatagpuan sa gitna kapag ang may hangganan na data ay nakaayos sa "
+"pataas na pagkakasunud -sunod. Halimbawa, sa kaso ng lima, ang panggitna "
+"edad ng edad ay ang pangatlong edad sa pagkakasunud -sunod ng edad. Kung "
+"ang bilang ng data ay kahit na, ang average ng gitnang brevitable "
+"aritmetika ay ginagamit."
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Buod ng Pamamahagi"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N Bilang"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Average"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Ano ang panggitna ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Kabuuan"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Kadalasan"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "End point"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Target na proseso"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Serye ng oras"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Mga piraso"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Bilang ng Data Link"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Segundo"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Oras ng pagtugon"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "I -edit"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Balik"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Magdagdag ng node"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Magdagdag ng gilid"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "I -edit ang node"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Mag -click sa walang laman na puwang upang maglagay ng isang bagong node."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr ""
+"I -click ang node, i -drag ang gilid sa isa pang node at ikonekta ang mga"
+" ito."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "I -click ang control point, i -drag ito sa node at kumonekta."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Hindi maidagdag si Edge."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Hindi matanggal ang kumpol."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Hindi ma -edit ang kumpol."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Ang pangalan ng display o halaga ay doble."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Ipasok ang pangalan ng display at halaga."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Ipasok ang haligi ng linya."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Oras"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Impormasyon ng data"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Araw"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Linggo"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "Mag -load"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "I -save"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Overwrite"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "Setting"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Baguhin ang pamagat dahil ang parehong pamagat ay nakatakda."
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "I -save ang setting"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "Lumikha ng screenshot"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "I -download"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"Ang mga kadahilanan kung bakit hindi maipakita ang graph ay ang mga "
+"sumusunod. BREAK_LINE Suriin ang sitwasyon. BREAK_LINE・ Ang data ay hindi"
+" na -import, o sa gitna ng pag -import. BREAK_LINE・ Walang data na naka "
+"-link, o sa gitna ng pagtali. BREAK_LINE・ Ang setting ng graph ay hindi "
+"naaangkop."
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Babala"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr ""
+"Ang mga rekord na naglalaman ng hindi wastong data sa haligi ng data ng "
+"petsa ay hindi na -import."
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr ""
+"Maaari kang sumangguni sa mga file sa folder sa ibaba para sa data na "
+"hindi mai -import."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr ""
+"Ang katayuan ng paggamit ay hindi mai -upload dahil hindi ito konektado "
+"sa internet."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Mangyaring suriin ang koneksyon sa network."
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Aabutin ng mahabang panahon upang mai -link muli ang data."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Sigurado ka bang muling kumonekta ang data?"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Pagpapalaglag"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Isagawa"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr ""
+"Sigurado ka bang i -reload ang dating mga rehistradong setting ng link ng"
+" data?"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Nagsimulang mag -import ng data."
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Maaari mong suriin ang pag -unlad ng pag -import mula sa link sa ibaba."
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Tingnan ang pahina ng listahan ng trabaho para sa isang katayuan ng error."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Nagsimulang mag -link ng data."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Minsan bawat 3 minuto"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Minsan bawat 5 minuto"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Minsan bawat 10 minuto"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Opsyonal na pag -andar"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Uri ng file"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV I -export"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"Dahil sa malaking bilang ng mga napiling talaan at oras na kinakailangan "
+"upang ipakita ang graph, ang bilang ng mga talaan bawat graph ay limitado"
+" sa 50,000."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Tsart ng serye ng oras"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Halaga ng kategorya"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"Dahil ang bilang ng mga talaan sa tinukoy na panahon ay higit sa 5,000, "
+"ang link na BREAK_LINE ay nakasalalay sa loob ng ± 14 na araw ng tinukoy "
+"na panahon. Kung hindi mo nais na limitahan ang saklaw ng pag -link, "
+"ayusin ang tagal upang mabawasan ang bilang ng mga talaan ng BREAK_LINE."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Setting scale"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Karaniwang sukat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Linya ng threshold"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Auto Scale"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Ginagamit scale"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn ng proseso"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "Min"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "Wala"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "Buod"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "Bilangin"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "Pangunahing istatistika"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "Hindi parametric"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "Kalidad ng data"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Manonood"
+
+# ap/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Mag -import ng data"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr ""
+"Ang proseso ng link ng data ay magsisimula batay sa kasalukuyang "
+"pagsasaayos."
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr ""
+"Maaaring tumagal ng oras kung maraming data ang mai -link. Ok lang bang "
+"magsimula?"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr ""
+"* Para sa data na awtomatiko at pana -panahong na -import, ang Link ID ay"
+" awtomatikong nabuo."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Pangalan ng mapagkukunan ng data"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Uri ng mapagkukunan ng data"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Sigurado ka bang makatipid ng mga pagbabago?"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Pinilit na impormasyon ng OS sa mga setting ng time zone."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Advanced na setting"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"Ang mga setting ay nai -save para sa database /CSV file ng pag -import ng"
+" data. Pumunta sa pahina ng setting, itakda ang mga haligi ng data ng pag"
+" -import upang mai -import ang data."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Walang kinakailangang katangian sa data ng elemento."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Walang halaga ng katangian na kinakailangan para sa data ng elemento."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"Ang isang hindi normal na pagtuklas ng PCA ay nangangailangan ng hindi "
+"bababa sa dalawang variable. Pumili ng dalawa o higit pang mga variable."
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Pumili ng hindi bababa sa isang haligi"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr ""
+"Ang mga variable na kategorya na nagbabawas sa lapad ng kahon ay hindi "
+"ipinapakita."
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Simula ng Digit"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Plot ng Ridgeline"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"Itigil ang application (Edge Server). Kung titigil ka, ang anumang iba "
+"pang gumagamit ay hindi magagamit din, kaya mangyaring makipag -ugnay sa "
+"administrator. <br> Sa kaso ng normal na pagtatapos, kanselahin dito at "
+"isara lamang ang browser."
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr ""
+"Ang lahat ng trabaho ay tumigil. Maaari mong ligtas na isara ang iyong "
+"browser at console."
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Data Source Config"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Data Source import config"
+
+# ap/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": Natagpuan ang mga haligi ng ilang mga haligi ng character. Suriin na "
+"ang haligi ng uri ng numero atbp ay maaaring makilala."
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Filter item"
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Halaga ng Filter"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Petsa ng Pag -expire (Simula)"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Petsa ng Pag -expire (pagtatapos)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"Ang data ay hindi mai -import dahil sa mga pagkakamali sa pagsasaayos ng "
+"uri ng data. Pangalan ng Pinagmulan ng Data __param__ CSV/TSV Suriin ang "
+"mga setting ng uri ng data sa preview ng data ng pahina ng setting ng "
+"Basahin. Tanggalin ang mga setting ng hakbang na hindi mai -import at "
+"itakda ang mga setting."
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr ""
+"Mayroong isang file na walang data. Suriin ang mga nilalaman ng file. "
+"<br>: __param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr ""
+"Pag -input ng hindi bababa sa isang halaga ng panahon ng bisa mula o "
+"hanggang."
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Hatiin ayon sa kategorya"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Hatiin sa pamamagitan ng term (cyclic)"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Hatiin sa pamamagitan ng term (direkta)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"Ang halaga ng naipasok na agwat ay hindi wasto. Magpasok ng isang bilang "
+"ng 0.1 o higit pa, 720 o mas kaunti, o -720 o higit pa, at -0.1 o mas "
+"kaunti."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+"Ang tinukoy na haba ng window 'ay hindi wasto. Ang halaga ay dapat na "
+"nasa pagitan ng 0.1 at 48."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"Ang bilang ng input ridgeline ay hindi wasto. Magpasok ng isang integer "
+"ng 1 o higit pa at 150 o mas kaunti. (mas gusto na gamitin sa paligid ng "
+"100)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Simulan ang data at oras"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Agwat"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Haba ng bintana"
+
+# ap/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Kontrolin ang item"
+
+# ap/template/setting_module/master_config.html
+msgid "Type"
+msgstr "I -type"
+
+# ap/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Pangalan"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"Tandaan na kung ang bilang ng mga puntos ng data sa isang kategorya ay "
+"nasa ilalim ng 50, maaaring bumaba ang kawastuhan ng graph."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Ipakita ang Cross Hair Cursor (i -click)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Ipakita ang multi cross hair cursor (dobleng pag -click)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Ipakita ang listahan ng mga histograms"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Kanselahin ang Outlier Check"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Ang tinukoy na 'pangalan ng mapagkukunan ng data' ay mayroon na."
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"Nabigo ang pag -import ng data dahil ang isang file na may ibang pangalan"
+" ng haligi ay natagpuan sa mapagkukunan ng data. Suriin ang mga nilalaman"
+" ng file at itakda muli ang mga setting ng pag -import ng mapagkukunan ng"
+" data."
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Hinulaang bilang ng mga talaan na maiugnay"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Bilang ng mga sample"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Bilang ng mga talaan na maiugnay"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Bilang ng kabuuang mga tala"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr ""
+"Mangyaring pangalanan ang folder kung saan ang CSV/TSV mga file ay nai "
+"-save tulad ng \"yyyymmdd\\"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Hula"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Filter config"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master Config"
+
+# ap/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Mula sa filter config"
+
+# ap/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Ipakita lahat"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Bilang isang susi (pagpipilian)"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"Tinanggal ang REMOVED_COUNT ng halaga ng kakulangan, hindi normal na "
+"halaga, at higit na halaga mula sa TOTAL_COUNT sa orihinal."
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP address"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"Paghambingin ang pamamahagi ng data sa pagtatantya ng histogram at "
+"density. Ang graph ay nahahati sa stratified variable. Nahahati din ito "
+"ng facet."
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "I -plot ang lahat ng bilang ng data sa axis ng oras o ID axis."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr ""
+"Ipakita ang pagkakalat ng plot matrix. Maaari mong gamitin mula 2 "
+"hanggang 7 na mga variable na target."
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"Sa pamamagitan ng pangunahing pagsusuri ng sangkap, ang paggunita ng "
+"\"magkakaibang\" at ang pagsusuri ng kadahilanan nito ay isinasagawa. "
+"Ipasok ang normal na data bilang isang data ng guro at mailarawan kung "
+"ang kasalukuyang data ay ang parehong sitwasyon tulad ng normal na data "
+"nito (T2/Q). Kung mayroon kang ibang sitwasyon, maaari mong suriin ang "
+"pangunahing mga kadahilanan sa plot ng kontribusyon."
+
+# ap/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"Ang pamamahagi ay nahahati sa maraming mga graph ng variable na ito. "
+"Piliin ang mga variable na kategorya (mga variable na husay) tulad ng mga"
+" numero ng bahagi at istasyon."
+
+# ap/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Stratified Category Filter: Mga Limitasyon Ang data na maipakita sa isang"
+" subset. (Kategorya: numero ng bahagi, istasyon no, atbp.)"
+
+# ap/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"Ang mga variable na kategorya (tulad ng numero ng bahagi, istasyon ng "
+"hindi, atbp.) Ipinakita bilang mga label sa tuktok ng mga plot upang "
+"makahanap ng mga pagbabago sa puntos."
+
+# ap/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Graph Filter: Limitahan ang data na maipakita sa isang subset."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"Itakda ang data ng pag -aaral na binibigyang kahulugan bilang isang "
+"normal na sitwasyon. Itakda ang seksyon ng data na hindi naglalaman ng "
+"anumang data ng NG. Kung kasama, ang mga malapit sa data ng NG ay "
+"hinuhusgahan din bilang normal na data."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Itakda ang data ng pagsubok upang hatulan."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr ""
+"Item Filter: Limitasyon ang data (pag -aralan at pagpapakita) na "
+"maipakita sa isang subset."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"Ito ay isang two-dimensional na pinagsama-samang display (dimensional "
+"compression ng mga pangunahing sangkap) ng data ng multidimensional na "
+"pag-verify. Kung ang data ay nasa gitna, maaari itong ma -kahulugan nang "
+"malapit sa normal."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"Ito ay isang two-dimensional na pinagsama-samang display (dimensional "
+"compression ng mga pangunahing sangkap) ng data ng pag-aaral ng "
+"multidimensional. Ang gitnang target ay natutukoy ng data ng pag -aaral, "
+"kaya ang karamihan sa data ng pag -aaral ay dapat na nasa target."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"Isang balangkas ng istatistika ng T2, na sinusubaybayan ang mga anomalya "
+"sa pangunahing sangkap ng data na ito. Ang data ng pag -aaral ay naka "
+"-plot sa puti at sa negatibong bahagi ng x. Ang dilaw na balangkas ay ang"
+" data ng pagpapatunay. Ang mas mataas na data ng pagpapatunay ay "
+"inihambing sa puting data, mas malamang na ang sitwasyon ay upang "
+"lumihis. I -click ang Data Point upang makita ang balangkas ng "
+"kontribusyon ng kung anong mga elemento ang bumubuo sa sitwasyon."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"Isang balangkas ng istatistika ng Q (pagsubaybay para sa mga anomalya sa "
+"menor de edad na bahagi ng data na ito, tira). Ang data ng pag -aaral ay "
+"naka -plot sa puti at sa negatibong bahagi ng x. Ang dilaw na balangkas "
+"ay ang data ng pagpapatunay. Ang mas mataas na data ng pagpapatunay ay "
+"inihambing sa puting data, mas malamang na ang sitwasyon ay upang "
+"lumihis. I -click ang Data Point upang makita ang balangkas ng "
+"kontribusyon ng kung anong mga elemento ang bumubuo sa sitwasyon."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Ang pagkakasunud -sunod ng kung saan ang mga variable ay nag -aambag sa "
+"sitwasyon sa puntong napili sa plot ng istatistika ng T2. Ang mas mahaba "
+"ang haba, mas malamang ang sanhi."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"Ang pagkakasunud -sunod ng kung saan ang mga variable ay nag -aambag sa "
+"sitwasyon sa puntong napili sa plot ng istatistika ng Q. Ang mas mahaba "
+"ang haba, mas malamang ang sanhi."
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr ""
+"Bilang ng mga puntos ng data na may halaga na mas mababa sa o katumbas ng"
+" Q1 - 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr ""
+"Bilang ng mga puntos ng data na may halaga na mas malaki kaysa o katumbas"
+" ng Q3 + 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"Kabuuang bilang ng data kabilang ang NA (hindi magagamit), NaN (hindi "
+"isang numero) at Inf± (kawalang -hanggan) sa napiling panahon."
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"Out of Control Line: Porsyento ng data sa labas ng itaas at mas mababang "
+"threshold (bilang) sa napiling panahon"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: Porsyento ng data sa labas ng itaas at mas mababang "
+"limitasyon ng threshold (bilang) sa napiling panahon"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Porsyento ng NA (hindi magagamit) sa napiling panahon (Bilangin)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Porsyento ng NaN (hindi isang numero) sa napiling panahon (Bilangin)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr ""
+"Porsyento ng Inf+ (kasama ang kawalang -hanggan) sa napiling panahon "
+"(bilang)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Porsyento ng Inf- (minus infinity) sa napiling panahon (Bilang)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"Ang kabuuang porsyento ng data sa labas ng halaga ng threshold, NA (hindi"
+" magagamit), NaN (hindi isang numero) at Inf± (kawalang -hanggan) sa "
+"napiling panahon (bilang)"
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"Bilang ng data na hindi kasama ang NA (hindi magagamit), NaN (hindi isang"
+" numero) at Inf± (kawalang -hanggan) sa napiling panahon."
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "95th Percentile"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "Ika -75 Porsyento (Pangatlong Quartile)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "Ika -25 Porsyento (Unang Quartile)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "Ika -5 Porsyento"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Saklaw ng Interquartile (Halaga ng Representative ng Variable ng "
+"Pamamahagi: IRQ = Q3 - Q1 ≒ 1.349σ@ normal na pamamahagi)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "Median (ika -50 porsyento)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Mga bilang/oras"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Binibilang/minuto"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Oras ng pag -ikot [s]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Numero ng dibisyon"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Display cycle"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "Display Interval"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Calenda Heat Map"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"Ang mga variable na target ay hindi maaaring mapili ng MAX_NUM_SENSOR o "
+"higit pa. Piliin ang variable na target."
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Ang mga target ng pag -alis ng outlier ay Max, Mean, Min, σ at Range."
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Maliban sa mga tunay na numero"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"Ang pamamahagi ay maaaring mailarawan sa pamamagitan ng pagkalkula para "
+"sa bawat variable na variable (mga variable na husay, numero ng lot, "
+"atbp.) O DateTime, at pagpapakita ng mga ito nang magkatabi. Ang isang "
+"paraan ng paggunita na nagbibigay-daan sa pagsusuri ng cross-group "
+"(paghahambing sa pagitan ng maraming, araw, paglilipat at iba pa) ng data"
+" nang walang discrete ID."
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Itakda ang threshold na iguguhit sa mga graph."
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"Kung ang pagkakalat, maaari mong ipakita ang plot ng pagkakalat dito. Ang"
+" plot ng pagkakalat sa pagitan ng kasalukuyang item at ang susunod na "
+"item ng hilera. I-drag at i-drop ang mga plot card ng kani-kanilang mga "
+"plot na may mouse upang ilipat ang x-axis at y-axis ng plot ng "
+"pagkakalat."
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"Isang item ng data (tulad ng isang variable na variable o halaga ng "
+"pagsukat) na lumilikha ng isang pamamahagi ng data. Ang data na ito ay "
+"naka -plot sa balangkas. Hanggang sa 20 mga item ay maaaring mapili."
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"Ang stratified variable na ito ay naghahati sa pamamahagi sa maraming mga"
+" plots at ipinapakita ang mga ito nang magkatabi. Pumili ng isang "
+"variable na variable, tulad ng Lot No o Batch No."
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr ""
+"I -input ang Start DateTime upang ipakita ang plot ng ridgeline para sa "
+"bawat datteime."
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr ""
+"Direkta ang pag -input ng panahon upang ipakita ang plot ng ridgeline "
+"para sa bawat datteime."
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"Maaari kang pumili ng mga pagpipilian upang mag -import ng data mula sa "
+"CSV/TSV file na nangangailangan ng espesyal na paghawak, tulad ng pag "
+"-convert ng mga istruktura ng data."
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"Ang pagpindot sa pindutan ng Preview sa ibaba ay magpapakita ng ilang "
+"bahagi ng data sa file upang masuri mo ang mga nilalaman nito."
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"Piliin ang Link ID upang magamit bilang kondisyon para sa pag -link ng "
+"data. Maaari ka ring pumili ng maraming mga item."
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"Kapag ang iyong app ay pana -panahong nag -import ng data, maaari kang "
+"pumili ng isang haligi ng dateTime na mas gusto na ginagamit bilang susi "
+"ng datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"Kung pumili ka ng isang operator at magpasok ng isang numero sa ilalim ng"
+" 'factor', ang halaga sa graph ay kinakalkula gamit ang tinukoy na "
+"operator at kadahilanan."
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"Kung pumili ka ng isang operator at magpasok ng isang numero sa ilalim ng"
+" 'factor', ang halaga sa graph ay kinakalkula gamit ang tinukoy na "
+"operator at kadahilanan."
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr ""
+"Posible na hulaan kung magkano ang data ay maiugnay sa kasalukuyang "
+"itinakda na mga kondisyon ng pag -uugnay."
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr ""
+"Itinapon ang kasalukuyang itinakda na kondisyon ng pag -uugnay ng data at"
+" tinawag ang dating nakarehistrong kondisyon."
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr ""
+"Ang ID ay nabuo sa loob upang iugnay ang data sa mga set na naka -link na"
+" kondisyon."
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr ""
+"Piliin ang kalidad ng control o mga item sa control control na gumagamit "
+"ng mga setting ng graph."
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr ""
+"Mangyaring piliin ang uri ng target na pamamahala tulad ng bahagi ng "
+"numero at kagamitan."
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr ""
+"Mangyaring piliin ang target na pamamahala tulad ng halaga ng numero ng "
+"bahagi at ang halaga ng kagamitan."
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Itakda ang Start DateTime para sa mga setting ng graph. (Kailangan)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Itakda ang pagtatapos ng mga setting ng graph. (Opsyonal)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Basahin ang nai -save na pagsasaayos."
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "I -save ang pinakabagong pagsasaayos na iyong ipinasok."
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "I -save ang screen bilang isang PNG file."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Nais mo bang tanggalin ang setting na ito?"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Target variable (totoong numero)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Target variable (kategorya)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Pag -order ng index"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "Haligi"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "Order"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Priyoridad"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Pag -order"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Variable"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Tunay at kategorya lamang"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Tunay lamang"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Kategorya lamang"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Sa itinakdang pagkakasunud -sunod"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Sa pagkakasunud -sunod ng proseso"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Sa correlation coef. order"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Correlation Threshold (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Piliin ang variable na layunin"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Layunin variable"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Variable na paliwanag"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Magagamit na ratio"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Sanky diagram"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Tugma (perpektong tugma)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Paghahanap"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Paghahanap"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Dahil ang kahanay na coordinate plot ay hindi maaaring gamutin ang mga "
+"tunay na numero, tinanggal ang totoong numero ng data."
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013;・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Reregmission"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Irehistro ang na -edit na impormasyon tulad ng pangalan ng pagpapakita."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Nais mo bang magparehistro sa binagong nilalaman?"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Kung binago mo ang Link ID, mangyaring i -reset ang Data Link Config."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Co-pangyayari graph"
+
+# co-occurrence
+msgid "Data file"
+msgstr "File ng data"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Pinagsama -sama ng"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Oras"
+
+# co-occurrence
+msgid "Day"
+msgstr "Araw"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "I -edit ang mode"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Pagtatakda ng mode"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"Ang hindi wastong data na naka -highlight na pula ay tatanggalin. "
+"Sigurado ka bang lumipat sa mode ng setting?"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "priyoridad"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"Ang isang dobleng pangalan ng Ingles ay napansin, kaya awtomatikong "
+"idinagdag ang serial number. Suriin ang mga pangalan ng haligi."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Mga yunit ng pagsasama -sama"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"Ang unang haligi ay ang DateTime, at ang pangalawang haligi at kasunod na"
+" mga haligi ay halaga tulad ng mga watawat ng abiso sa alarma/bilang ng "
+"pangyayari (0,1,2 ...)."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr ""
+"Pinagsama-samang mga relasyon sa co-pangyayari sa pamamagitan ng "
+"oras/araw."
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Ipakita ang threshold"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"Kung pumili ka ng isang halaga na mas mababa sa 100%%, itatago mo ang "
+"isang maliit na relasyon sa co -occurrence. (Default: Gumuhit ng isang "
+"linya kung kahit isang beses)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"Kilalanin at mailarawan ang mga variable na direkta o hindi direktang "
+"nakakaugnay sa variable na target."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"I -visualize ang ugnayan sa pagitan ng mga variable na tinukoy dito. "
+"Hanggang sa 60 mga item ay maaaring mapili."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Ang mga variable na kandidato na nakakaugnay sa mga variable na layunin."
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "ng lahat ng mga gilid"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Layout"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Bilog"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Awtomatiko"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Kahusayan"
+
+msgid "Set threshold"
+msgstr ""
+"Control Line: Suriin kapag ang pagguhit ng mga antas ng pamamahala tulad "
+"ng mga karaniwang linya"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Platform ng pagtatasa"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Tsart ng Pareto"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Bilang ng paglitaw"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Cululative Ratio [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"I -visualize ang mga parameter na maaaring mag -iba sa data sa loob ng "
+"mahabang panahon, tulad ng taunang pagkakaiba -iba sa mga proseso, araw "
+"ng linggo, paglilipat, atbp."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr ""
+"I -visualize ang ugnayan sa pagitan ng isang malaking bilang ng mga "
+"variable na may paggalang sa variable na target."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr ""
+"Mailarawan ang co-pangyayari ng mga pagkakamali, alarma, mga kaganapan at"
+" iba pa (ang relasyon na nakatuon sa dalas ng sabay-sabay na paglitaw ng "
+"isang kababalaghan at isa pa)."
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"Walang lamanDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: Isang simpleng tool para sa pagma -map ng data, "
+"paggunita, pagsusuri sa istatistika, at pag -aaral ng makina."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"Ang set ng data dito ay ginagamit bilang isang sanggunian para sa pag "
+"-link at pag -plot ng data. Ang mga setting ay ginagamit sa pahalang na "
+"axis ng balangkas. Bilang karagdagan, ang pinagmulan plot ay ipinapakita "
+"na may isang light blue frame."
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"Tinutukoy ang data (halimbawa, mga variable na numero: halaga ng "
+"pagsukat) para sa balangkas. Piliin ang mga proseso at item na mai -plot "
+"sa balangkas. Hanggang sa 20 mga item ay maaaring mapili."
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"Tinutukoy ang data (halimbawa, mga variable na numero: halaga ng "
+"pagsukat) para sa balangkas. Piliin ang mga proseso at item na mai -plot "
+"sa balangkas. Hanggang sa 8 mga item ay maaaring mapili."
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"Walang laman可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"Ang variable na stratification na ito ay naghahati sa pattern upang "
+"mailarawan sa maraming mga plot at ipinapakita ang mga ito sa magkatabi. "
+"Piliin ang mga variable na variable tulad ng bahagi number at istasyon "
+"No. hanggang sa 100 mga item ay maaaring mapili."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"Ang item ng data na nagpapakita ng ugnayan sa pagitan ng mga variable "
+"(dami ng mga variable: mga halaga ng pagsukat, atbp.). Ang data na ito ay"
+" naka -plot sa tsart. Mula sa 2 hanggang 7 na mga parameter ay maaaring "
+"mapili."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"Piliin ang item upang mailarawan ang ugnayan sa pagitan ng mga variable. "
+"Hanggang sa 60 mga item ay maaaring mapili."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"Mga item ng mga variable na kategorya (tulad ng mga numero ng bahagi) "
+"upang mailarawan ang ugnayan sa pagitan ng mga variable."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "I -maximize ang card"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "I -minimize ang card"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr ""
+"Kung nabago ang setting na ito, kinakailangan upang i -reset ang mga "
+"setting ng link ng data."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Auto piliin"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Piliin ang lahat sa kanan"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Hindi mapapansin ang lahat sa kanan"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Lahat ng tunay (float) mula rito"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Lahat ng integer mula rito"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Lahat ng string mula rito"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"Dahil sa malaking bilang ng mga talaan na napili at ang oras na "
+"kinakailangan upang ipakita ang balangkas, ang bilang ng mga cell bawat "
+"balangkas ay limitado sa 10,000. Kung nais mong makita ang lahat ng data "
+"para sa panahon ng target na BREAK_LINE, dagdagan ang agwat ng "
+"pagpapakita o bawasan ang panahon ng target upang mabawasan ang bilang ng"
+" mga cell."
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Serial"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr ""
+"Maaari mong ayusin ang sukat ng balangkas sa pamamagitan ng pag-click sa "
+"balangkas."
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Scale ng grapiko"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Pagtatakda ng mode"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Bilang ng mga item ng data na hindi maiugnay"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Scatter Plot"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "may tabas"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Pag -save"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"Walang "
+"lamanファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "Setting ng pag -load"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "Ibahagi/pribado"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "Paglalarawan"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "Ginawa ni"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "Gumamit/Mag -load"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "Mag -load"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr ""
+"Bilang ng data na hindi maiugnay sa proseso ng panimulang punto "
+"(porsyento ng pag -link)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "I -save ang DateTime"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "Ibahagi ang mga setting"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "i -save"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"Maaari kang pumili mula 2 hanggang 7 na mga variable na target. Suriin "
+"ang bilang ng mga variable na target at iwasto ang mga setting."
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr ""
+"Ang limitasyon ng laki ng file ay 10 MB. Bawasan ang laki ng file at "
+"subukang muli."
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Kung naka -check, ang tinukoy na datetime ay nai -save din."
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Suriin upang ibahagi ang setting na ito."
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "I -save ang mga setting."
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Sigurado ka bang mag -overwrite ng mga setting?"
+
+# ap/templates/modals.html
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "ibahagi"
+
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "Pribado"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "Nilikha sa"
+
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "Malapit"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "Set ng order"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "Simulan ang Datetime"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "Tapusin ang Datteime"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Ipakita ang mga label ng x-axis"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Saklaw ng DateTime"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "I -drag at i -drop ang file dito"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "O"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Piliin ang mga file"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Hindi maipakita"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"Ang pagproseso ay nagambala dahil sa malaking halaga ng data at ang "
+"mahabang oras ng pagproseso. Suriin ang mga setting ng DateTime at "
+"ipakita muli ang balangkas."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr ""
+"Pag -output ng CSV file. Mangyaring maghintay habang nag -download ang "
+"file."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr ""
+"Pag -output ng TSV file. Mangyaring maghintay habang nag -download ang "
+"file."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Saklaw ng Auto"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Buong saklaw"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Setting ng order ng index"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "Buksan"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "Tanggalin"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"Dahil ang bilang ng mga puntos ng data bawat graph ay higit sa 12,000, "
+"ang bilang ng mga puntos ng data ay limitado sa max 12,000. Kung nais "
+"mong tingnan ang buong data, itakda ang mas maikling panahon ng target."
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratify sa pamamagitan ng term (cyclic)"
+
+#: component.js
+msgid "Facet"
+msgstr "Facet"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Nagsasagawa ng kategorya na naghahati sa napiling item."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Pagtantya ng Pagbubukod"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"Normalized Interquartile Range (Index Associating IQR na may Normal na "
+"Pamamahagi, Niqr = 0.7413 × IQR)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Ang mode ay ang madalas na nagaganap na halaga."
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "Sa Outlier"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "nang walang outlier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Pasadya"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Ngayon"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Kahapon"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Huling 7 araw"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Huling 30 araw"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Sa buwang ito"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 buwan"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 buwan"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Mag -apply"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Linggo"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 araw na ang nakakaraan"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 araw na ang nakakaraan"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Fist day ng buwang ito"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Huling araw ng buwang ito"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 buwan"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Nai -update sa"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"Ang mga puntos ng data ay buod na may mabilis na mode. Kung nais mong "
+"makakuha ng balangkas nang hindi tinanggal ang data, ayusin ang target na"
+" panahon na mas maikli."
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Saklaw ng y axis"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Mas malabo"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"Walang laman'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "Proseso ng Paghahanap"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "Bookmark"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"Walang laman以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "Oras ng pag -ikot"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "Totoong numero"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "Layunin variable"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"Ang koepisyent ng ugnayan ay kinakalkula gamit ang variable na ito bilang"
+" target variable. Ang target na variable na tinukoy dito ay ipinapakita "
+"din kasama ang isang kulay bar sa malayong kanang bahagi ng balangkas. "
+"Kung nais mong baguhin ang mga variable na target sa balangkas, maaari "
+"kang lumipat sa pagitan ng mga ito sa pamamagitan ng pag-click sa bawat "
+"variable na pangalan."
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"Ang data ay hindi nalunod dahil napakaraming kategorya. BREAK_LINE Suriin"
+" at, kung kinakailangan, baguhin ang panahon ng target na mas maikli."
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "Setting ng filter"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Label (Mga variable na kategorya)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "Kinopya"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "Pasted"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "Kopyahin ang config"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "I -paste ang config"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr ""
+"Kung walang setting ng pinagmulan, ang unang target ay napili bilang "
+"pinagmulan."
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "Data ng pag -export"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "Hindi ginagamit"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "Ang data ay hindi iginuhit dahil napakaraming mga kategorya."
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr ""
+"Suriin at, kung kinakailangan, baguhin ang mga setting ng panahon ng "
+"target."
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Hatiin sa pamamagitan ng Data Count (Cyclic)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "Bilang ng data"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"Walang lamanグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Piliin ang variable na layunin."
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Walang agnas / pagkabulok ng kategorya"
+
+# ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Scatter Plot"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"Kung ang uri ng data ng X o Y ay string, hindi ka maaaring gumamit ng mga"
+" variable na hindi string para sa setting ng kulay."
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"Ang halaga sa labas ng pinapayagan na saklaw ay napansin, kaya ang "
+"minimum o maximum na wastong saklaw ay awtomatikong napagpasyahan. "
+"Baguhin ang mga setting kung kinakailangan."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Right Click: Data Link Setting/I -edit/Tanggalin"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Lumipas na oras"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "Oras ng order"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "Pagtatakda ng Order ng Data"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"Mangyaring tanggalin ang hindi kinakailangang data dahil ang kapasidad ng"
+" hard disk ng `__SERVER_INFO__` ay umabot sa __SERVER_INFO__ %%."
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"Napatigil ang data port dahil ang kapasidad ng hard disk ng "
+"`__SERVER_INFO__` ay umabot sa __SERVER_INFO__ %%. Kung ang hindi "
+"kinakailangang data ay tinanggal at walang laman na pagtaas ng kapasidad,"
+" ang data ay maipagpapatuloy."
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"Ipasok ang bilang ng mga pamamahagi na maipakita (bilang ng mga "
+"dibisyon). Magpasok ng isang integer ng 2 o 150 o mas kaunti."
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"Ipasok ang bilang ng mga pamamahagi na maipakita (bilang ng mga "
+"dibisyon). Magpasok ng isang integer ng 1 o higit pang 32 o mas kaunti."
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Walang laman表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Walang "
+"lamanプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Walang "
+"laman1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Walang laman1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Napakaraming mga violin bawat balangkas, kaya awtomatikong limitado ito."
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"Dahil sa malaking bilang ng mga talaan na napili, ang bilang ng mga plot "
+"ay limitado mula sa pinakalumang petsa hanggang sa bilang ng limitasyon."
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Tinatanggap ko"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "Tanggihan"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Paurong"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Bilang ng balangkas sa haligi"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"Ang mga variable na variable (bahagi number, istasyon no, atbp.) "
+"Ipinapakita bilang mga label sa tuktok ng balangkas ay ginagamit upang "
+"mailarawan ang mga puntos ng pagbabago (bahagi ng paglipat, atbp.) Ng mga"
+" variable na husay."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"Piliin ang mga item na masuri (dami ng mga variable: halaga ng pagsukat, "
+"atbp.). Hanggang sa 60 mga item ay maaaring mapili."
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr ""
+"Piliin ang mga item upang pag -uri -uriin ang data. Maaari ka ring pumili"
+" ng maraming mga item."
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"Ang umaapaw na lumang data ay hindi ipinapakita dahil ang bilang ng mga "
+"dateTime mula sa pinakabagong data na may limitasyon ng pagpapakita."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"Ang bilang ng balangkas ay limitado sa NUMBER. Kung nais mong ipakita ang"
+" lahat, i -revice ang mga setting."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"Ang bilang ng balangkas sa isang solong tab ay limitado sa NUMBER. Kung "
+"nais mong ipakita ang lahat, i -revice ang mga setting."
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"Ang bilang ng mga variable na target na pipiliin ay minimum na min at "
+"maximum na max. Suriin ang bilang ng mga variable na target at iwasto ang"
+" mga setting."
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"Ang bilang ng mga target na variable na pipiliin ay hanggang sa maximum "
+"na max. Suriin ang bilang ng mga variable na target at iwasto ang mga "
+"setting."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+# ap/templates/trace_data/list_of_histograms.html
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "Mas malabo"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "Babala"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "Hula"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "Paglalarawan"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"Kung pumili ka ng isang halaga na mas mababa sa 100%%, itatago mo ang "
+"isang maliit na relasyon sa co -occurrence. (Default: Gumuhit ng isang "
+"linya kung kahit isang beses)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"Kung pumili ka ng isang halaga na mas mababa sa 100%%, itatago mo ang "
+"isang maliit na relasyon sa co -occurrence. (Default: Gumuhit ng isang "
+"linya kung kahit isang beses)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"Kung pumili ka ng isang halaga na mas mababa sa 100%%, itatago mo ang "
+"isang maliit na relasyon sa co -occurrence. (Default: Gumuhit ng isang "
+"linya kung kahit isang beses)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "Paglalarawan"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "Malapit"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "Petsa ng Pag -expire (pagtatapos)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "Petsa ng Pag -expire (Simula)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "Petsa ng Pag -expire (pagtatapos)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+

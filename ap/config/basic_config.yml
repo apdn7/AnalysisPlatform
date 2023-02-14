@@ -1,0 +1,11 @@
+!!omap
+- info: !!omap
+    - version: '1'
+    - port-no: 7770
+    - hide-setting-page: false
+    - r-path:
+    - auto-backup-universal: false
+    - language: en
+    - proxy: 
+    - log_level: INFO
+

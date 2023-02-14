@@ -1,0 +1,129 @@
+#RLPCardCategory {
+    width: 100%;
+    border: 0;
+    display: none;
+    padding: 5px;
+    margin-top: 20px;
+}
+
+#rlp-compare-tabs {
+    border-bottom: none;
+}
+
+#rlp-compare-tabs .nav-item {
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    margin-left: 1px;
+    width: 225px;
+    text-align: center;
+}
+
+#rlp-compare-tabs .nav-item .active {
+    background-color: #303030;
+}
+
+.cate-plot-cards {
+    border: none;
+}
+
+.no-top-border {
+    border-top: none;
+}
+
+.ridgeLineCard {
+    display: inline-table;
+    float: left;
+    width: 29vw;
+    height: 100vh;
+}
+
+.ridgeLineCard-org {
+    display: inline-table;
+    float: left;
+    width: 100%;
+}
+
+.ridgeLineCard-full {
+	/*border: 1px solid red;*/
+	/*margin-bottom: 10px;*/
+	margin-left: 50px;
+	width: calc(100% - 80px);
+	/*margin-top: -35px;*/
+}
+
+.cyclic-term-target-period {
+    padding-left: 1rem;
+    border: 2px solid #444444;
+    border-radius: 3px;
+    padding-right: 1rem;
+}
+
+.ridgeLineItem {
+	border: 1px solid #434343;
+	border-radius: 4px;
+	margin-bottom: 15px;
+	padding-top: 5px;
+	position: relative;
+	background-color: #222222;
+}
+
+.ridgeLineItem:last-child {
+    margin-bottom: 0;
+}
+
+.chart-title {
+    /*transform: rotate(-90deg) translateY(-7vw) translateX(-10vw);*/
+    transform-origin: center;
+    color: #65c5f1;
+    text-align: center;
+    font-size: 0.8vw;
+    width: 18vw;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    position: absolute;
+}
+
+.showLabel {
+    line-height: 28px;
+    float: right;
+    margin-left: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.showOutlier {
+    margin-bottom: 10px;
+}
+
+.showOutlier button {
+    float: right;
+}
+
+.pin-chart {
+    color: #757575;
+    position: absolute;
+    top: 1px;
+    right: 3px;
+}
+
+.pin-chart .pin {
+    color: white;
+    cursor: pointer;
+}
+
+.pinChart {
+    position: fixed;
+    top: 0;
+    z-index: 100;
+}
+
+span.btn-anchor.pin, span.btn-anchor:hover {
+    color: white;
+}
+
+span.btn-anchor {
+    color: gray;
+    cursor: pointer;
+    z-index: 100;
+}

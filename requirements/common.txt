@@ -24,7 +24,7 @@ pandas==1.2.5
 scipy==1.4.1
 alembic==1.4.0
 flask-marshmallow==0.14.0
-marshmallow-sqlalchemy==0.28.0
+marshmallow-sqlalchemy==0.28.1
 marshmallow==3.9.1
 WTForms==2.3.3
 Flask-WTF==0.14.3
@@ -39,4 +39,5 @@ mecab-python3==1.0.5
 unidic-lite==1.0.8
 fugashi==1.1.2
 cutlet==0.1.19
+waitress==2.1.2
 

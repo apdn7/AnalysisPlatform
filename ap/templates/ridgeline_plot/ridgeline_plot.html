@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block asset %}
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
+          rel="stylesheet">
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
+    <script
+            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
+
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('ridgeline_plot.static', filename = 'css/ridgeline.css') }}"/>
+
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"/>
+    <script src="{{ url_for('static', filename = 'common/js/libs/pagination.min.js') }}"></script>
+    <link href="{{ url_for('static', filename = 'common/css/pagination.css') }}" rel="stylesheet">
+
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='RLP', title=_('Ridgeline Plot'), hint=_('RidgeLine Plot Hover'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+    <div id="categoryTab" class="card no-top-border">
+        <form id="RLPForm" class="no-top-border">
+            <!-- Process + sensor -->
+            <div class="card-body table-bordered graph-navi no-top-border">
+                <div class="row">
+                    <div class="col-xl-2 col-3 d-flex flex-column">
+                        <div class="d-flex justify-content-between">
+                            {{ macros.label(_("Show value"), title=_('RLP Show value Hover')) }}
+                            {{ macros.paste_btn() }}
+                        </div>
+                        <div class="mt-auto pl-3 pt-3">
+                             {{ macros.start_proc_select(procs, no_link_data=true) }}
+                        </div>
+                    </div>
+                    <div class="col-xl-10 col-9">
+                        <div class="row" id="end-proc-row">
+                             <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+                            <button id="btn-add-end-proc" name="btnAddEndProc" type="button"
+                                    class="btn simple-btn">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date range -->
+            <div class="card-body table-bordered graph-navi" id="categorySrtPrc">
+                <div class="row">
+                    <div class="col-xl-2 col-3">
+                        <div class="d-flex justify-content-between">
+                            {{ macros.label(_("Target period")) }}
+                            {{ macros.paste_btn() }}
+                        </div>
+                    </div>
+                    <div class="col-xl-10 col-9">
+                        <div class="row">
+                            {{ macros.multiple_target_period(rlp=True, DivisionNumberHover=_('Division number Hover RLP')) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{ macros.cond_proc([],'', prefix='category', title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
+            <br class="graph-navi graph-navi-top-down">
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
+                {{ macros.emd_select(cl='mr-3') }}
+                {{ macros.preprocess_options() }}
+                <button type="button" value="{{ _('Display graph') }}" onClick="showGraph()"
+                        class="btn btn-primary show-graph ml-3" data-with-tab="true"><i
+                        class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+                {{ macros.export_gui()}}
+            </div>
+            <br>
+        </form>
+        {{ macros.cat_label_filter_modal() }}
+    </div>
+    <br>
+    <div id="CatePlotCards" style="display: none">
+        <div class="row showOutlier">
+            <div class="col-12 d-flex align-items-center" id="graph-settings-area">
+                <div>
+                    {{ macros.info_i_mark() }}
+                </div>
+				{{ macros.on_demand_filter() }}
+				{{ macros.scale_option(name='yScaleOption', className='ml-4', onChange='changeRLPScale()') }}
+                {{ macros.switch_button(id='showXAxis', label=_('Show x-axis labels'), cl='ml-4', onChange='showXAxisLabel(this)')}}
+<!--                {{ macros.emd_select(name='filterEmd', cl='ml-4', selectCl='border-white scale-dropdown') }}-->
+            </div>
+        </div>
+        <div class="card cate-plot-cards chart-wrapper clearfix ui-sortable plot-content" id="RLPCard"></div>
+        <div id="stContentTab">
+            <div class="setting-inform-content"></div>
+        </div>
+    </div>
+
+
+    <div class="loading"></div>
+    <div style="display: none;">
+        <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+        <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+           target="_blank">{{ _('Click here to fix') }}</a>
+    </div>
+	{{ macros.data_point_info() }}
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <script src="{{ url_for('ridgeline_plot.static', filename = 'js/rlp_template.js') }}"></script>
+    <script src="{{ url_for('ridgeline_plot.static', filename = 'js/ridgeline_plot_utils.js') }}"></script>
+    <script src="{{ url_for('ridgeline_plot.static', filename = 'js/ridgeline_plot.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/cat_facet_label_filter_modal.js') }}"></script>
+
+{% endblock %}

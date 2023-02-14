@@ -1,0 +1,3863 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Запазени"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Възникна грешка"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Конфигурация на приложението"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "Страницата не е намерена"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Възникна грешка"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Приложение за Datalink & Analysis"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "Изберете език"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "Начален екран"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "Проверка на операцията"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Проверка на операцията"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Основна конфигурация"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Регистрирам"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Презареди"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Цяло число"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Истински (поплавък)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "Време за среща"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Низ"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Заглавие"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Растение"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Фабрика"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Линия"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Моля потвърди."
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"Запазете данните и започнете да импортирате данни със съдържанието, "
+"зададено на страницата за настройка на процеса?"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "Добре"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Отказ"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Конфигурация на базата данни"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Име на базата данни"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Тип база данни"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Config"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Коментар"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Добавяне"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Изберете файл с база данни."
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Име на файл"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Изберете"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Искате ли да изтриете този запис?"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "Изтрий"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Проследяване"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Графика за проследяване"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Тестване на следи"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Стартирайте тестване"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Начален час"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Крайно време"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "Идентификационен номер на машината (множество селекции)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Линия"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Номер на частта"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Конфигурация на връзката с данни"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Изберете език"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Японски"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Английски"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Възел"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Възел ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Етикет"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Главно име"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "База данни"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Импортиране"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Експорт"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Име на хост"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Номер на пристанище"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Потребителско име"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Парола"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Схема"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; успях."
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; се провали."
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Процес конфигурация"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Процес"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Име на процеса"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Име на таблицата"
+
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Подробности"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Визуализация"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Първи пет записа"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Задаване на съдържание"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Име на колоната"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Английско име"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Име на дисплея"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "коефициент"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Оператор"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Въведете стойност, различна от 0"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Оператор на въвеждане."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Коефициент на вход."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Въвеждане на английски име."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Име на дисплея вход."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Английското име се дублира."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Името на дисплея се дублира."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Всички „имена на дисплеи“ изискват въвеждане."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Полетата с празно „Английско име“ се попълват автоматично."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Избери всички"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Данни за импортиране"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Сигурни ли сте, че импортирате данни?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"Когато натиснете бутона OK, ще импортирате данни от текущото време до "
+"един месец преди това."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Предишните данни автоматично се импортират малко по малко."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"Ако искате да импортирате данните след текущото време, натиснете отново "
+"бутона за четене на данни или натиснете базата данни CSV Настройване на "
+"настройките на страницата за настройване на четене."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Когато е зададена „цикъл на актуализиране“ на „Настройка за четене на "
+"базата данни / CSV“, тя ще бъде автоматично импортирана в периода, когато"
+" данните след текущото време са зададени."
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Информация за проследяване"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Данни за проследяване"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Не може да има достъп"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Щракнете тук, за да го поправите."
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Редактиране на ръба"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Prev Process"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "PREV колона"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "След процес"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Публикувано колона"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Като DateTime"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Като сериен"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Като връзка ID"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "Вече е регистриран"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "Моля, въведете името на процеса"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Филтър/графика"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Графична конфигурация"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Конфигурация на линейния филтър"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Линейна колона"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "Стойност"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Конфигурация на машинен филтър"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Машина ID колона"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Част няма конфигурация на филтъра"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Част няма колона"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Име на филтъра"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Състояние на филтъра"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Други филтрират конфигурация"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Целева колона"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Конфигурация на визуализацията"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Долен праг"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Горен праг"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "По -нисък праг на процеса"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Праг на горния процес"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Y-оси диапазон: min"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Y-оси диапазон: макс"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Част №"
+
+msgid "Ends With"
+msgstr "завършват с"
+
+msgid "Starts With"
+msgstr "Започни с"
+
+msgid "Contains"
+msgstr "(Like Търсене)"
+
+msgid "Matches"
+msgstr "Съгласен"
+
+msgid "Regular expressions"
+msgstr "Редовни изрази"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Показване на графиката"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Експорт"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Е необходим процес"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Името на колоната се изисква"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Се изисква линията"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Името на дисплея се изисква"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Името на дисплея се дублира."
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Изисква се стойността на машината"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Дублирана машина ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Запазете успешно"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Не успя да запази"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Част не се изисква колона"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Необходима е целевата колона"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Името на филтъра се изисква"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Условие се изисква"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Името на филтъра се дублира."
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Условията се дублират."
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "По подразбиране"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Име на процеса"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Добавени други филтри"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Конфигурация на импортиране"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Източник"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Цикъл на подновяване"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Свързване"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Веднъж на час"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Веднъж на ден"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Потвърждение на данните"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Няма папка."
+
+msgid "File does not exist"
+msgstr "Няма файл."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Можете да се свържете."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Моля, попълнете стойността."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Няма съдържание на настройка."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Настройките се дублират."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Запазени настройки на базата данни."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Неуспешно запазване на настройките на базата данни."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Запазени основни настройки."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Неуспешно запазване на основните настройки."
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "Тестова връзка"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "Начална точка"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "Период от време"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "Последен"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "Автоматична актуализация"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "минута"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "минути"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "час"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "часа"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "Целева променлива"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "Филтър"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "X ос"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "Времева марка"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "Индекс"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Стратифициране на променливи"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Филтри"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "База данни/CSV"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "Анализирам"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "В процес на разработка"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Анализирам:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "График на водопад"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Графика LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "Хистограма"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Стратифициран сюжет"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Сюжет на пълни точки"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Визуализация на данните"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "Визуализация"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Изпълнете"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Въведете името на базата данни."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Въведете името на източника на данни."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Колоните, които нямат тип данни, не се импортират."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Необходима е поне една колона DateTime."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "За визуализация използвайте '{col}' за оста x."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Сигурни ли сте?"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Viewer Table"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Таблица"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Вид"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Брой данни"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Низходящ"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Възходящ"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Перфектно съвпадение"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Частично съвпадение"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+msgid "Invalid digit selection"
+msgstr "Невалидна цифрена селекция"
+
+msgid "Character length for tracing is different"
+msgstr "Дължината на характера, използван за свързване, е различна."
+
+msgid "No filter"
+msgstr "Без филтър"
+
+msgid "All line"
+msgstr "Всички линии"
+
+msgid "Status"
+msgstr "ситуация"
+
+msgid "Job list"
+msgstr "Списък на работата"
+
+msgid "All"
+msgstr "всичко"
+
+msgid "Finished Importing"
+msgstr "Внос завършено."
+
+msgid "Importing"
+msgstr "Импортиране"
+
+msgid "Failed Importing"
+msgstr "Неуспешно импортиране"
+
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"Заредените данни ще бъдат изтрити. Добре ли е? (Не се отразява промяна, "
+"докато бутонът за регистрация не бъде натиснат)"
+
+msgid "Job List"
+msgstr "Списък на работата"
+
+msgid "Job ID"
+msgstr "Идентификационен номер на работа"
+
+msgid "Job Name"
+msgstr "Име на работа"
+
+msgid "GEN_GLOBAL"
+msgstr "Генериране на свързани ID"
+
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Показване на генериране на работа на връзка ID"
+
+msgid "DEL_PROCESS"
+msgstr "Изтриване на информацията за процеса"
+
+msgid "FACTORY_IMPORT"
+msgstr "Импортирайте фабрични данни"
+
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Импортирайте минали фабрични данни"
+
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Показване на импортиране на работа на минали фабрични данни"
+
+msgid "CSV_IMPORT"
+msgstr "CSV Импортиране на данни"
+
+msgid "CLEAN_DATA"
+msgstr "Изтриване на стари данни"
+
+msgid "Started"
+msgstr "Начален час"
+
+msgid "Duration"
+msgstr "изминалото време"
+
+msgid "Database/CSV "
+msgstr "База данни/CSV"
+
+msgid "Succeed/Total"
+msgstr "Напредък"
+
+msgid "Process "
+msgstr "Процес"
+
+msgid "List of Histograms"
+msgstr "Списък с хистограма"
+
+msgid "Register as an outlier"
+msgstr "Регистрирайте се като стойност на огнището"
+
+msgid "Remove outlier flag"
+msgstr "Нерегистърски външно"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Скрийте отшелници"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Покажете отшелници"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Вижте Outliers"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Показване на списъка с хистограма"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Последно актуализиране"
+
+msgid "Removed outlier flag"
+msgstr "Регистрацията на външни е отменена."
+
+msgid "Registered as an outlier"
+msgstr "Регистриран като външен човек"
+
+msgid "Abnormal data point"
+msgstr "Външен"
+
+msgid "Only once"
+msgstr "Само веднъж"
+
+msgid "Job Details"
+msgstr "Подробности за работата"
+
+msgid "Copy to clipboard"
+msgstr "Копиране в клипборда"
+
+msgid "Multi Scatter Plot"
+msgstr "Мулти разпръснат график"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Разпръснат сюжет"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "За визуализиране на категорична променлива"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Стратифицирайте по променливи"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Променлива"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Машина №"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Целев период"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Честота (брой)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Оценка на плътността"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Категорична променлива"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Стратифициране по срок (директно)"
+
+msgid "Anomaly Detection"
+msgstr "Откриване на аномалия"
+
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Основен компонент оценка на данните за тестване"
+
+msgid "Principal Component Score of Training Data"
+msgstr "2. Основен компонент оценка на данните за обучение"
+
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Серия диаграма на статистиката на T2"
+
+msgid "Series Chart of Q Statistics"
+msgstr "4. Серийна диаграма на Q статистиката"
+
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. График на принос на статистиката на T2"
+
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. График на принос на Q статистиката"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Премахнете външната страна"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Данни за обучение"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Данни за тестване"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Да"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Не"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Тип данни"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Пример"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Грешка"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Внимание"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"Тъй като всички редове са изтрити чрез обработка на стойността на "
+"дефицита (NA премахване), няма данни за анализ. Уверете се, че празната "
+"стойност, включително NA, не е избрана."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"Тя не може да бъде анализирана, тъй като съдържа данни, различни от "
+"числа. Уверете се, че сте избрали колона, съдържаща стойност на низ или "
+"категория."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"Не може да анализира, тъй като съдържа данни с отклонение от 0. Уверете "
+"се, че не е избрана само една колона с стойност."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"Намерени данни от категорията и очакваната стойност на цяло число. Ако "
+"тази цялостна стойност не е скала на поръчка, интервална скала или скала "
+"на съотношението, резултатите от анализа могат да бъдат повлияни "
+"неблагоприятно."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Сигурни ли сте, че ще продължите анализа?"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "Търсене"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"Медианата е една от типичните статистически данни. Това е стойност, "
+"разположена в центъра, когато крайните данни са подредени във възходящия "
+"ред. Например, в случай на пет, средната възраст на епохата е третата "
+"възраст в ред на възрастта. Ако броят на данните е равномерно, се "
+"използва средната стойност на централната аритметика на Brevitable."
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Макс"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Обобщение на разпределението"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N номер"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Средно аритметично"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Каква е средната ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Обща сума"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Честота"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Крайна точка"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Целев процес"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Времеви серии"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Парчета"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Брой връзка с данни"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Секунди"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Време за реакция"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "редактиране"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "обратно"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Добавете възел"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Добавете ръба"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Редактиране на възел"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Кликнете върху празното пространство, за да поставите нов възел."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Щракнете върху възела, плъзнете ръба към друг възел и ги свържете."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Щракнете върху контролната точка, плъзнете я към възела и свържете."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Ръбът не може да бъде добавен."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Клъстерът не може да бъде изтрит."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Клъстерът не може да бъде редактиран."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Името или стойността на дисплея се дублира."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Въведете името и стойността на дисплея."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Въведете линията колона."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Часа"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Информация за данните"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Ден"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Седмица"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "Зареждане"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "Запазете"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Презаписване"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "Настройка"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Променете заглавието, защото е зададено същото заглавие."
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "Запазване на настройка"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "Създайте екранна снимка"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "Изтегли"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"Причините, поради които графиката не може да бъде показана, са следните. "
+"BREAK_LINE Проверете ситуацията. BREAK_LINE・ Данните не се импортират или"
+" в средата на вноса. BREAK_LINE・ Не са свързани данни или в средата на "
+"обвързването. BREAK_LINE・ Настройката на графиката е неподходяща."
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Внимание"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr ""
+"Записите, които съдържат невалидни данни в колоната с данни за дата, не "
+"се импортират."
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr ""
+"Можете да се обърнете към файловете в папката по -долу за данни, които не"
+" могат да бъдат импортирани."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr ""
+"Състоянието на използване не може да бъде качено, тъй като не е свързано "
+"с Интернет."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Моля, проверете мрежовата връзка."
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Ще отнеме много време, за да свържете данните отново."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Сигурни ли сте, че ще свържете отново данните?"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Аборт"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Изпълни"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr ""
+"Сигурни ли сте, че ще презаредите по -рано регистрираните настройки на "
+"връзката за данни?"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Започна да импортиране на данни."
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Можете да проверите напредъка на импортирането от връзката по -долу."
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Вижте страницата на списъка с задачи за състояние на грешка."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Започна да свързва данни."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Веднъж на всеки 3 минути"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Веднъж на всеки 5 минути"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Веднъж на всеки 10 минути"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Незадължителна функция"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Тип файл"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Експорт"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"Поради големия брой избрани записи и времето, необходимо за показване на "
+"графиката, броят на записите на графика е ограничен до 50 000."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Част от времеви серии"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Стойност на категорията"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"Тъй като броят на записите в определения период е повече от 5000, "
+"BREAK_LINE връзката е обвързана в рамките на ± 14 дни от определения "
+"период. Ако не искате да ограничите обхвата на свързване, коригирайте "
+"продължителността, за да намалите броя на записите на BREAK_LINE."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Задаване на скала"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Обща скала"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Прагова линия"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Автоматична скала"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Да се ​​използва мащаб"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn от процеса"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "Макс"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "Мин"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "Нито един"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "Резюме"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "Броя"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "Основна статистика"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "Неагретричен"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "Качество на данните"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Зрител"
+
+msgid "ImportData"
+msgstr "Данни за импортиране"
+
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Процесът на връзка с данни ще започне въз основа на текущата конфигурация."
+
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr ""
+"Може да отнеме време, ако има много данни за свързване. Добре ли е да "
+"започнете?"
+
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr ""
+"* За данни, които автоматично и периодично се импортират, Link ID се "
+"генерира автоматично."
+
+msgid "Data Source Name"
+msgstr "Име на източника на данни"
+
+msgid "Data Source Type"
+msgstr "Тип източник на данни"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Сигурни ли сте, че спестявате промени?"
+
+msgid "Force to OS locale time zone."
+msgstr "Информация за принудителна ОС в настройките на часовата зона."
+
+msgid "Advanced Setting"
+msgstr "Разширена настройка"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"Настройките се запазват за базата данни /CSV файл на импортиране на "
+"данни. Отидете на страницата за настройка, задайте колоните от данни за "
+"импортиране, за да импортирате данните."
+
+msgid "Element data is missing required attribute."
+msgstr "В данните на елемента няма необходим атрибут."
+
+msgid "Element data is missing required attribute value."
+msgstr "За данните на елементите не е необходима стойност на атрибута."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"Ненормалното откриване от PCA изисква поне две променливи. Изберете две "
+"или повече променливи."
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Изберете поне една колона"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr ""
+"Не се показват променливи на категорията, които намаляват ширината на "
+"кутията."
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Начална цифра"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Ridgeline Plot"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"Спрете приложението (Edge Server). Ако спрете, всеки друг потребител няма"
+" да може да използва също, така че, моля, свържете се с администратора. "
+"<br> В случай на нормален край, отменете тук и просто затворете браузъра."
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr ""
+"Цялата работа е спряна. Можете спокойно да затворите браузъра и конзолата"
+" си."
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Източник на данни Конфигурация"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Конфигурация за импортиране на източници на данни"
+
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": Колони намериха няколко колони за символи. Проверете дали колоната с "
+"цифров тип и т.н. може да бъде разпозната погрешно."
+
+msgid "Filter Item"
+msgstr "Филтър елемент"
+
+msgid "Filter Value"
+msgstr "Стойност на филтъра"
+
+msgid "Valid from"
+msgstr "Дата на изтичане (Старт)"
+
+msgid "Valid to"
+msgstr "Дата на изтичане (край)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"Данните не могат да бъдат импортирани поради грешки в конфигурацията на "
+"типа на данните на колоните. Име на източника на данни __param__ CSV/TSV "
+"Проверете настройките на типа данни в визуализацията на данните на "
+"страницата за настройка за четене. Изтрийте настройките на стъпката, "
+"които не могат да бъдат импортирани, и задайте настройките."
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Имаше файл без данни. Проверете съдържанието на файла. <br>: __param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Въведете поне една стойност от периода на валидност от или до."
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Разделете по категория"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Разделете по срок (циклично)"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Разделете по срок (директно)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"Стойността на въведения интервал е невалидна. Въведете брой от 0,1 или "
+"повече, 720 или по -малко, или -720 или повече и -0,1 или по -малко."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+"Посочената дължина на прозореца 'е невалидна. Стойността трябва да бъде "
+"между 0,1 и 48."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"Броят на входната Ridgeline е невалиден. Въведете цяло число от 1 или "
+"повече и 150 или по -малко. (предпочитайте да използвате около 100)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Стартиране на данни и време"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Интервал"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Дължина на прозореца"
+
+msgid "Control item"
+msgstr "Контролен елемент"
+
+msgid "Type"
+msgstr "Тип"
+
+msgid "Name"
+msgstr "Име"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"Обърнете внимание, че ако броят на точките от данни в една категория е "
+"под 50, точността на графиката може да намалее."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Покажете курсора на кръстосана коса (щракнете)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Показване на мулти кръстосана курсор за коса (двойно щракване)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Показване на списъка с хистограми"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Отказ отстъпка за проверка"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Посочено `Име на източника на данни вече съществува."
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"Импортирането на данни не е успешно, тъй като в източника на данни е "
+"намерен файл с различно име на колона. Проверете съдържанието на файла и "
+"отново задайте настройките за импортиране на източника на данни."
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Прогнозиран брой записи, които трябва да бъдат свързани"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Брой проби"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Брой записи, които трябва да бъдат свързани"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Брой общи записи"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr ""
+"Моля, посочете папката, в която CSV/TSV файловете се запазват като "
+"\"yyyymmdd\\"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Прогнозиране"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Филтър конфигурация"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "Master Config"
+
+msgid "From Filter Config"
+msgstr "От филтърна конфигурация"
+
+msgid "Show all"
+msgstr "Покажи всички"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Като ключ (опция)"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"Изтрита REMOVED_COUNT стойност на дефицит, ненормална стойност и външна "
+"стойност от TOTAL_COUNT в оригинал."
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "IP адрес"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"Сравнете разпределението на данните с оценката на хистограмата и "
+"плътността. Графиката е разделена на стратифицираната променлива. Той "
+"също е разделен на фасета."
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Начертайте всички броя данни по осите на време или ID ос."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr ""
+"Матрица на графиката на разсейване. Можете да използвате от 2 до 7 целеви"
+" променливи."
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"Чрез анализ на основните компоненти се извършва визуализацията на "
+"„различни“ и неговия фактор анализ. Въведете нормални данни като данни на"
+" учителя и визуализирайте дали текущите данни са същата ситуация като "
+"нормалните му данни (T2/Q). Ако имате различна ситуация, можете да "
+"проверите основните фактори в сюжета на приноса."
+
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"Разпределението е разделено на множество графики на тази променлива. "
+"Изберете променливи категория (качествени променливи), като номера на "
+"части и станции."
+
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Стратифициран филтър за категория: ограничава данните, които трябва да се"
+" показват в подмножество. (Категория: Номер на част, станция № и т.н.)"
+
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"Категория променливи (като номер на част, станция № и т.н.), показвани "
+"като етикети в горната част на парцелите, за да се намерят променящи се "
+"точки."
+
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Графичен филтър: Ограничава данните, които трябва да се показват на "
+"подмножество."
+
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"Задайте данните за обучението, интерпретирани като нормална ситуация. "
+"Задайте раздела с данни, който не съдържа NG данни. Ако са включени, "
+"тези, които са близки до данните NG, също се преценяват като нормални "
+"данни."
+
+msgid "Set test data to be judged."
+msgstr "Задайте тестови данни, които да бъдат оценени."
+
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr ""
+"Филтър за артикули: Ограничава данните (анализ и дисплей), които трябва "
+"да се показват на подмножество."
+
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"Това е двуизмерен агрегиран дисплей (размерен компресия от основни "
+"компоненти) на многоизмерни данни за проверка. Ако данните са в центъра, "
+"тя може да се тълкува като близо до нормалното."
+
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"Това е двуизмерен агрегиран дисплей (размерен компресия от основни "
+"компоненти) на многоизмерни данни за обучение. Централната цел се "
+"определя от данните за обучение, така че повечето от данните за обучение "
+"трябва да бъдат в целта."
+
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"График на статистиката T2, който следи аномалиите в основния компонент на"
+" тези данни. Данните за обучение са представени в бяло и в отрицателната "
+"X част. Жълтият график е данните за валидиране. Колкото по -високи данни "
+"за валидиране се сравняват с белите данни, толкова по -голяма е "
+"вероятността ситуацията да се отклони. Щракнете върху точка от данни, за "
+"да видите сюжета на приноса на това, което елементите съставляват "
+"ситуацията."
+
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"График на Q статистиката (мониторинг на аномалии в второстепенната част "
+"на тези данни, остатъчни). Данните за обучение са представени в бяло и в "
+"отрицателната X част. Жълтият график е данните за валидиране. Колкото по "
+"-високи данни за валидиране се сравняват с белите данни, толкова по "
+"-голяма е вероятността ситуацията да се отклони. Щракнете върху точка от "
+"данни, за да видите сюжета на приноса на това, което елементите "
+"съставляват ситуацията."
+
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Редът на който променливите допринасят за ситуацията в точката, избрана в"
+" статистическия график на T2. Колкото по -дълга е дължината, толкова по "
+"-голяма е причината."
+
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"Редът на който променливите допринасят за ситуацията в точката, избрана в"
+" Q статистическия график. Колкото по -дълга е дължината, толкова по "
+"-голяма е причината."
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr "Брой точки от данни със стойност по -малка или равна на Q1 - 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Брой точки от данни със стойност, по -голяма или равна на Q3 + 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"Общ брой данни, включително NA (не са налични), NaN (не число) и Inf± "
+"(безкрайност) в избрания период."
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"Out of Control Line: Процент данни извън горния и долния праг (брой) в "
+"избрания период"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: Процент данни извън горния и долния граничен праг "
+"(брой) в избрания период"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Процент от NA (не е наличен) в избрания период (брой)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Процент от NaN (не число) в избрания период (брой)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Процент от Inf+ (плюс безкрайност) в избрания период (брой)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Процент от Inf- (минус безкрайност) в избрания период (брой)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"Общият процент на данните извън праговата стойност, NA (не е наличен), "
+"NaN (не число) и Inf± (безкрайност) в избрания период (брой)"
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"Брой данни, изключващи NA (не са налични), NaN (не число) и Inf± "
+"(безкрайност) в избрания период."
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "95 -ти перцентил"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75 -ти перцентил (трети квартил)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25 -ти перцентил (първи квартил)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "5 -ти перцентил"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Интерквартилен диапазон (представителна стойност на променливостта на "
+"разпределението: IRQ = Q3 - Q1 ≒ 1.349σ@ Нормално разпределение)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "Медиана (50 -ти перцентил)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Брой/час"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Брой/минута"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Време за цикъл [s]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Номер на разделението"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Цикъл на показване"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "Интервал на дисплея"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Календа на топлинната карта на календа"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"Целевите променливи не могат да бъдат избрани от MAX_NUM_SENSOR или "
+"повече. Изберете целевата променлива."
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Целите на премахването на външните хора са Max, Mean, Min, σ и Range."
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Различни от реални числа"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"Разпределението може да бъде визуализирано чрез изчисляване на всяка "
+"категорична променлива (качествени променливи, номер на партида и т.н.) "
+"или DateTime и да ги показва един до друг. Метод за визуализация, който "
+"позволява анализ на напречната група (сравнение между партиди, дни, смени"
+" и т.н.) на данни без дискретни ID."
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Задайте прага, който да бъде нарисуван на графики."
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"Ако разпръснато е включено, можете да покажете сюжета за разпръскване с "
+"него. Графиката на разсейването между текущия елемент и следващия ред. "
+"Плъзнете и пуснете сюжетните карти на съответните парцели с мишката, за "
+"да превключвате X-ос и Y-ос на графиката за разсейване."
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"Елемент от данни (като числова променлива или стойност на измерване), "
+"който създава разпределение на данните. Тези данни са начертани на "
+"сюжета. Могат да бъдат избрани до 20 елемента."
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"Тази стратифицирана променлива разделя разпределението на множество "
+"участъци и ги показва един до друг. Изберете категорична променлива, като"
+" партида не или партида №"
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr ""
+"Въведете началния DateTime, за да покажете графика на Ridgeline за всеки "
+"DateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr ""
+"Въведете директно периода за показване на графика на Ridgeline за всеки "
+"DateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"Можете да изберете опции за импортиране на данни от CSV/TSV файл, който "
+"изисква специално обработка, като конвертиране на структури от данни."
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"Натискането на бутона за визуализация по -долу ще покаже част от данните "
+"във файла, за да можете да проверите съдържанието на него."
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"Изберете връзка ID, за да се използва като условие за свързване на данни."
+" Можете също да изберете няколко елемента."
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"Когато приложението ви периодично импортира данни, можете да изберете "
+"колона DateTime, която се използва за предпочитане като ключ на DateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"Ако изберете оператор и въведете число под „Фактор“, стойността в "
+"графиката ще бъде изчислена с помощта на посочения оператор и фактор."
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"Ако изберете оператор и въведете число под „Фактор“, стойността в "
+"графиката ще бъде изчислена с помощта на посочения оператор и фактор."
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr ""
+"Възможно е да се предвиди колко данни ще бъдат свързани с зададените в "
+"момента условия за свързване."
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr ""
+"Изхвърля текущо зададените условия за свързване на данни и извиква "
+"предварително регистрираното условие."
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr ""
+"ID се генерира вътрешно за свързване на данни с условията за свързване на"
+" зададените."
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr ""
+"Изберете елементите за контрол на качеството или контрол на оборудването,"
+" използвайки в графичните настройки."
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr ""
+"Моля, изберете типа на целта за управление, като номер на част и "
+"оборудване."
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr ""
+"Моля, изберете целта за управление, като стойността на номера на частта и"
+" стойността на оборудването."
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Задайте началния DateTime за настройките на графиката. (Задължително)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Задайте крайния DateTime за графични настройки. (Незадължително)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Прочетете запазената конфигурация."
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Запазете най -новата конфигурация, която сте въвели."
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Запазете екрана като PNG файл."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Искате ли да изтриете тази настройка?"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Целева променлива (реално число)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Целева променлива (категория)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Поръчка на индекс"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "Колона"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "Поръчка"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Приоритет"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Поръчка"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Променливи"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Истински и категорични само"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "ИСТИНСКИ САМО"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Само категорични"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "В зададен ред"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "В ред на процеса"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "В корелационния коефициент. поръчка"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Праг на корелация (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Изберете за обективна променлива"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Цел променлива"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Обяснителна променлива"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Налично съотношение"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Санки диаграма"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Мач (перфектен мач)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Търсене"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Търсене"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Тъй като паралелната координатна графика не може да лекува реални числа, "
+"данните за реалните числа са премахнати."
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Ререгистрация"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Регистрирайте редактираната информация като име на дисплей."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Искате ли да се регистрирате с модифицираното съдържание?"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr ""
+"Ако промените връзката ID, моля, нулирайте конфигурацията на връзката за "
+"данни."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Графика за съвместно възникване"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Файл с данни"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Агрегирано от"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Час"
+
+# co-occurrence
+msgid "Day"
+msgstr "Ден"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Режим на редактиране"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Режим на настройка"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"Невалидните данни, подчертани червено, ще бъдат изтрити. Сигурни ли сте, "
+"че преминавате към режим на настройка?"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "Приоритет"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"Беше открито дублирано английски име, така че серийният номер се добавя "
+"автоматично. Проверете имената на колоните."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Единици на агрегация"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"Първата колона е DateTime, а втората колона и следващите колони са "
+"стойност като флагове за известие за аларма/брой на появата (0,1,2 ...)."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Агрегирани връзки за съвместно събиране по час/ден."
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Праг на показване"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"Ако изберете стойност, по -малка от 100%%, ще скриете малка връзка на "
+"съвместната връзка. (По подразбиране: Начертайте ред, ако има дори "
+"веднъж)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"Идентифицирайте и визуализирайте променливи, които са пряко или косвено "
+"свързани с целевата променлива."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"Визуализирайте корелацията между променливите, посочени тук. Могат да "
+"бъдат избрани до 60 елемента."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Кандидатски променливи, които са свързани с обективни променливи."
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "от всички ръбове"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Оформление"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Кръг"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Автоматично"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Ефективност"
+
+msgid "Set threshold"
+msgstr ""
+"Control Line: Проверете кога рисуване на нива на управление като "
+"стандартни линии"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Платформа за анализ"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Парето диаграма"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Брой възникване"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Кумулативно съотношение [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"Визуализирайте параметрите, които могат да варират в зависимост от "
+"данните за дълъг период от време, като годишни вариации в процесите, дни "
+"от седмицата, смени и т.н."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr ""
+"Визуализирайте корелацията между голям брой променливи по отношение на "
+"целевата променлива."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr ""
+"Визуализирайте съвместното възникване на неизправности, аларми, събития и"
+" др. (Връзка се фокусира върху честотата на едновременно поява на едно "
+"явление и друго)."
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"Digital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: Прост инструмент за картографиране на данни, "
+"визуализация, статистически анализ и машинно обучение."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"Наборът от данни тук се използва като ориентир за свързване и начертаване"
+" на данни. Настройките се използват в хоризонталната ос на парцела. В "
+"допълнение, графиката за произход се показва със светлосиня рамка."
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"Посочва данните (например числени променливи: стойност на измерване) за "
+"графиката. Изберете процесите и елементите, които ще бъдат начертани на "
+"сюжета. Могат да бъдат избрани до 20 елемента."
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"Посочва данните (например числени променливи: стойност на измерване) за "
+"графиката. Изберете процесите и елементите, които ще бъдат начертани на "
+"сюжета. Могат да бъдат избрани до 8 елемента."
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"Празен可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"Тази променлива стратификация разделя модела, за да визуализира на "
+"множество сюжети и ги показва един до друг. Изберете категорични "
+"променливи като номер на част и № на станцията до 100 елемента могат да "
+"бъдат избрани."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"Елементът от данни, който визуализира корелацията между променливите "
+"(количествени променливи: стойности на измерване и т.н.). Тези данни са "
+"начертани на диаграмата. От 2 до 7 параметри могат да бъдат избрани."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"Изберете елемента, за да визуализирате корелацията между променливите. "
+"Могат да бъдат избрани до 60 елемента."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"Елементи от променливи от категорията (като номера на части) за "
+"визуализиране на корелацията между променливите."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Максимизиране на картата"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Минимизиране на картата"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr ""
+"Ако тази настройка е променена, е необходимо да нулирате настройките на "
+"връзката на данните."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Автоматичен избор"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Изберете всичко надясно"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Изберете всички вдясно"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Всички истински (плаващи) от тук"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Всички цяло число от тук"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Всички низ от тук"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"Поради големия брой избрани записи и времето, необходимо за показване на "
+"парцел, броят на клетките на парцел е ограничен до 10 000. Ако искате да "
+"видите всички данни за целевия период BREAK_LINE, увеличете интервала на "
+"дисплея или намалете целевия период, за да намалите броя на клетките."
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Сериен"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr ""
+"Можете да коригирате мащаба на сюжета, като щракнете с десния бутон върху"
+" сюжета."
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Графична скала"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Режим на настройка"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Брой елементи от данни, които не могат да бъдат свързани"
+
+msgid "Only scatter plot"
+msgstr "Разпръснат сюжет"
+
+msgid "with shading"
+msgstr "с контур"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Спестяване"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"Празенファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "Настройка на зареждане"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "Споделяне/частен"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "Описание"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "Създадено от"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "Използване/натоварване"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "Зареждане"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr ""
+"Брой данни, които не могат да бъдат свързани с процеса на началната точка"
+" (процент на връзка)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Запазване на DateTime"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "Сподели настройки"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "Запазете"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"Можете да изберете от 2 до 7 целеви променливи. Проверете броя на "
+"целевите променливи и коригирайте настройките."
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr ""
+"Ограничението на размера на файла е 10 MB. Намалете размера на файла и "
+"опитайте отново."
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Ако се провери, посоченият DateTime също се запазва."
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Проверете, за да споделите тази настройка."
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Запазете настройките."
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Сигурни ли сте да презапишете настройките?"
+
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "дял"
+
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "Частен"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "Създаден на"
+
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "Близо"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "Комплект поръчки"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "Стартиране на DateTime"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "Краен дата"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Покажете етикети X-ос"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Диапазон на DateTime"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Плъзнете и пуснете файл тук"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Или"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Изберете файлове"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Не може да бъде показан"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"Обработката е прекъсната поради голямото количество данни и дългото време"
+" на обработка. Прегледайте настройките на DateTime и отново покажете "
+"сюжета."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Изход CSV файл. Моля, изчакайте, докато файлът се изтегля."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Изход TSV файл. Моля, изчакайте, докато файлът се изтегля."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Автоматичен обхват"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Пълен обхват"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Настройка на поръчката на индекс"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "Отворен"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "Изтрий"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"Тъй като броят на точките от данни на графика е над 12 000, броят на "
+"точките от данни е бил ограничен до 12 000 максимум. Ако искате да видите"
+" всички данни, задайте по -кратък целеви период."
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Стратифициране по срок (циклично)"
+
+#: component.js
+msgid "Facet"
+msgstr "Фасета"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Извършва категория, разделяща с избрания елемент."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Оценка на изключенията"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"Нормализиран интерквартилен диапазон (индекс, свързващ IQR с нормално "
+"разпределение, NIQR = 0.7413 × IQR)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Режимът е най -често срещащата се стойност."
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "с външно"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "без външен вид"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Персонализиран"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Днес"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Вчера"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Последните 7 дни"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Последните 30 дни"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Този месец"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 месец"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 месеца"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Приложи"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Седмица"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Преди 7 дни"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Преди 30 дни"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Денят на юмрука на този месец"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Последен ден от този месец"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 месеца"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Актуализирано на"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"Точките от данни са обобщени с бърз режим. Ако искате да получите сюжет, "
+"без да пропускате данни, коригирайте целевия период по -кратък."
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Обхват на y ос"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Външен"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"Празен'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "Търсене на процес"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "Отметка"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"Празен以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "Време за цикъл"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "Реално число"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "Цел променлива"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"Коефициентът на корелация се изчислява, като се използва тази променлива "
+"като целева променлива. Целевата променлива, посочена тук, също е "
+"показана заедно с цветна лента от крайната дясна страна на сюжета. Ако "
+"искате да промените целевите променливи на сюжета, можете да превключвате"
+" между тях, като щракнете с десния бутон върху всяко име на променлива."
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"Данните не бяха удавени, защото има твърде много категории. BREAK_LINE "
+"Проверете и, ако е необходимо, преразгледайте целевия период по -кратък."
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "Настройка на филтъра"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Етикет (променливи категории)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "Копиран"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "Поставени"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "Copy Config"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "Паста конфигурация"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Без настройка на произход, първата цел е избрана като произход."
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "Данни за експортиране"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "Не използвай"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "Данните не се изготвят, защото има твърде много категории."
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr ""
+"Проверете и, ако е необходимо, преразгледайте настройките на целевия "
+"период."
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Разделете по броя на данните (Cyclic)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "Брой данни"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"Празенグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Изберете променливата за цел."
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Без разлагане / разлагане на категория"
+
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Разпръснат сюжет"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"Ако или типът на данните от X или Y е низ, не можете да използвате "
+"променливи, които не са струни за настройката на цветовете."
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"Стойността извън разрешения диапазон беше открита, така че минималният "
+"или максималният валиден диапазон автоматично беше решен. Променете "
+"настройките, ако е необходимо."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr ""
+"Кликнете с десния бутон: Настройка на връзката към "
+"данните/Редактиране/Изтриване"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Изминалото време"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "Поръчка във времето"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "Задаване на поръчка за данни"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"Моля, изтрийте ненужните данни, тъй като капацитетът на твърдия диск на "
+"`__SERVER_INFO__` е достигнал __SERVER_INFO__ %%."
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"Портът на данни беше спрян, тъй като капацитетът на твърдия диск от "
+"`__SERVER_INFO__` достигна __SERVER_INFO__ %%. Ако ненужните данни се "
+"изтрият и се увеличава празен капацитет, данните ще бъдат възобновени."
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"Въведете броя на разпределенията, които ще бъдат показани (брой "
+"разделения). Въведете цяло число от 2 или 150 или по -малко."
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"Въведете броя на разпределенията, които ще бъдат показани (брой "
+"разделения). Въведете цяло число от 1 или повече 32 или по -малко."
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Празен表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Празенプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Празен1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Празен1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr ""
+"Има твърде много цигулки на парцел, така че той беше автоматично "
+"ограничен."
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"Поради големия брой избрани записи, броят на парцелите е ограничен от най"
+" -старата дата до броя на лимита."
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Приемам"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "Упадък"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Наопаки"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Брой парцел на колона"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"Категоричните променливи (номер на частта, станция № и т.н.), показани "
+"като етикети в горната част на графиката, се използват за визуализиране "
+"на точките за промяна (превключване на номера на част и т.н.) на "
+"качествените променливи."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"Изберете елементи, които ще бъдат анализирани (Количествени променливи: "
+"Стойност на измерването и т.н.). Могат да бъдат избрани до 60 елемента."
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr ""
+"Изберете елементи за сортиране на данни. Можете също да изберете няколко "
+"елемента."
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"Преливащите стари данни не се показват, тъй като DateTime се брои от най "
+"-новите данни с лимит на дисплея."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"Броят на сюжета беше ограничен до NUMBER. Ако искате да покажете всички, "
+"преосмислете настройките."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"Броят на сюжета в един раздел беше ограничен до NUMBER. Ако искате да "
+"покажете всички, преосмислете настройките."
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"Броят на целевите променливи, които трябва да изберете, е минимален мин и"
+" максимален макс. Проверете броя на целевите променливи и коригирайте "
+"настройките."
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"Броят на целевите променливи, които трябва да изберете, е до максимален "
+"макс. Проверете броя на целевите променливи и коригирайте настройките."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "Външен"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "Мин"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "Внимание"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "Прогнозиране"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "Описание"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"Ако изберете стойност, по -малка от 100%%, ще скриете малка връзка на "
+"съвместната връзка. (По подразбиране: Начертайте ред, ако има дори "
+"веднъж)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"Ако изберете стойност, по -малка от 100%%, ще скриете малка връзка на "
+"съвместната връзка. (По подразбиране: Начертайте ред, ако има дори "
+"веднъж)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"Ако изберете стойност, по -малка от 100%%, ще скриете малка връзка на "
+"съвместната връзка. (По подразбиране: Начертайте ред, ако има дори "
+"веднъж)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "Описание"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "Близо"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "Дата на изтичане (край)"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "Дата на изтичане (Старт)"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "Дата на изтичане (край)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+

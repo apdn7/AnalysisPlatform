@@ -1,0 +1,3831 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Harbed"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "Mae gwall wedi digwydd"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Cyfluniad Cais"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "Tudalen heb ei darganfod"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "Mae gwall wedi digwydd"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Ap DATALINK A DADANSODDI"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "Dewiswch Iaith"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "Prif sgrin"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "Gwirio Gweithredol"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Gwirio Gweithredol"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Ffurfwedd Sylfaenol"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Gofrestrent"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Hail -lwythet"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Gyfanrif"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Go iawn (arnofio)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "DateTime"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Moch"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Teitl"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Plannem"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Ffatri"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Leinith"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Cadarnhewch."
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"Cadwch y data a dechrau mewnforio data gyda'r cynnwys a osodir ar y "
+"dudalen Gosod Proses?"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "iawn"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Chansliff"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Config Cronfa Ddata"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Enw'r Gronfa Ddata"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Math o gronfa ddata"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Ffurfwedden"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "Sylwadau"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Gyfrifon"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Dewiswch ffeil cronfa ddata."
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Enw Ffeil"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Ddetholem"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Ydych chi am ddileu'r cofnod hwn?"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "croeswn"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Olrhain"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Graff olrhain"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Profi olrhain"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Dechreuwch brofi"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Amser Cychwyn"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Amser Diwedd"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID Peiriant (Detholiadau Lluosog)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Leinith"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Rhan"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Ffurfweddu Cyswllt Data"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "Dewiswch Iaith"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "Japaneaidd"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Saesneg"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Nodau"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Nod ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Labelith"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Meistr"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Gronfa ddata"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Mewnforied"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Hallforion"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Enw gwesteiwr"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Rhif porthladd"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Enw Defnyddiwr"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Gyfrinair"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Sgema"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Llwyddais."
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; Wedi methu."
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Cyfluniad proses"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Phrosesu"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Enw Proses"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Enw'r Tabl"
+
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Manylai"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "Rhagolwg"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Pum cofnod cyntaf"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Gosod cynnwys"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Enw colofn"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Enw Saesneg"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Enw Arddangos"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "cyfernod"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Gweithredwr"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Rhowch werth heblaw 0"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Gweithredwr mewnbwn."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Cyfernod mewnbwn."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "Mewnbwn Enw Saesneg."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Enw Arddangos Mewnbwn."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Mae'r enw Saesneg wedi'i ddyblygu."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Mae'r enw arddangos wedi'i ddyblygu."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Mae angen mewnbwn ar bob \"enwau arddangos\"."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Mae caeau ag \"enw Saesneg\" gwag yn cael eu llenwi'n awtomatig."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Dewiswch Bawb"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Mewnforio data"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Ydych chi'n sicr o fewnforio data?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"Pan wasgwch y botwm OK, byddwch yn mewnforio data o'r amser cyfredol i "
+"fis o'r blaen."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Mae'r data blaenorol yn cael ei fewnforio yn awtomatig fesul tipyn."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"Os ydych chi am fewnforio'r data ar ôl yr amser cyfredol, pwyswch y botwm"
+" darllen data eto, neu pwyswch y gronfa ddata CSV gan sefydlu'r "
+"gosodiadau ar y dudalen Gosod Darllen."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Pan fydd \"Cylch Diweddaru\" o \"gronfa ddata / CSV yn gosod gosodiad\" "
+"wedi'i osod, bydd yn cael ei fewnforio yn awtomatig yn y cyfnod pan fydd "
+"y data ar ôl yr amser cyfredol wedi'i osod."
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Olrhain gwybodaeth"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Olrhain Data"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Ni allai gael mynediad"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Cliciwch yma i'w drwsio."
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Golygu Edge"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Proses Blaenorol"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Colofn Blaenorol"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Proses Post"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Post Colofn"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Fel DateTime"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Fel cyfresol"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Fel cyswllt ID"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "Eisoes wedi cofrestru"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "Rhowch enw'r broses"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Hidlo/graff"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Config graff"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Ffurfwedd Hidlo Llinell"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Colofn Llinell"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "Gwerthfawrogwch"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Ffurfwedd Hidlo Peiriant"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Peiriant ID colofn"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Rhan dim ffurfwedd hidlydd"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Rhan dim colofn"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Enw Hidlo"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Cyflwr Hidlo"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Mae eraill yn hidlo ffurfwedd"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Colofn darged"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Ffurfweddiad Delweddu"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Trothwy is"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Trothwy Uchaf"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Trothwy proses is"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Trothwy proses uchaf"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Ystod Y-Exes: Min"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Ystod Y-Exes: Max"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Rhan Na"
+
+msgid "Ends With"
+msgstr "gorffen gyda"
+
+msgid "Starts With"
+msgstr "Dechreuwch gyda"
+
+msgid "Contains"
+msgstr "(Like Chwilio)"
+
+msgid "Matches"
+msgstr "Chydwela ’"
+
+msgid "Regular expressions"
+msgstr "Mynegiadau rheolaidd"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Arddangos y Graff"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Allforio"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Mae angen y broses"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Mae angen enw'r golofn"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Mae angen llinell"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Mae angen enw arddangos"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Mae'r enw arddangos wedi'i ddyblygu."
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Mae angen gwerth peiriant"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Peiriant wedi'i ddyblygu ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Arbed yn llwyddiannus"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Wedi methu ag arbed"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Rhan Dim Colofn Mae angen Colofn"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Mae angen y golofn darged"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Mae angen enw hidlo"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Mae angen cyflwr"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Mae enw'r hidlo wedi'i ddyblygu."
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Mae'r amodau'n cael eu dyblygu."
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Diofyn"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Enw Proses"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "Ychwanegu hidlwyr eraill"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Ffurfwedd mewnforio"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Ffynhonnell"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Cylch adnewyddu"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Chysyllta ’"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "Unwaith yr Awr"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Unwaith y dydd"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Cadarnhad Data"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Nid oes ffolder."
+
+msgid "File does not exist"
+msgstr "Nid oes ffeil."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Gallwch gysylltu."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Llenwch y gwerth."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Nid oes unrhyw gynnwys gosod."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Mae'r gosodiadau wedi'u dyblygu."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Gosodiadau cronfa ddata wedi'u cadw."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Wedi methu ag arbed gosodiadau cronfa ddata."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Gosodiadau Sylfaenol wedi'u Cadw."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Wedi methu ag arbed gosodiadau sylfaenol."
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "Prawf Cysylltiad"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "Cychwyniadau"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "Ystod Dyddiad"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "Diweddaraf"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "Diweddariad Auto"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "munud"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "munudau"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "awr"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "oriau"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "Newidyn targed"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "Hidlech"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "X echel"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "Amserlenni"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "Mynegeion"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Newidynnau Stratify"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Hidlwyr"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Cronfa Ddata/CSV"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "Ddadelfennith"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "Ar ôl datblygu"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "Dadansoddi:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Plot Rhaeadr"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Graffigol LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogram"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Plot wedi'i haenu"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Plot pwyntiau llawn"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Delweddu Data"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "Delweddiadau"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Redych"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Rhowch enw'r gronfa ddata."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Rhowch enw'r ffynhonnell ddata."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Nid yw colofnau nad oes ganddynt fath o ddata yn cael eu mewnforio."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Mae angen o leiaf un golofn amser."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Ar gyfer delweddu, defnyddiwch '{col}' ar gyfer yr echelin-x."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Ydych chi'n sicr o barhau?"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Gwyliwr bwrdd"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Bwrdd"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Didolwch"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Nifer y data"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Disgynyddion"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Esgynnol"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Cydweddiad perffaith"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Gêm Rannol"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+msgid "Invalid digit selection"
+msgstr "Dewis digid annilys"
+
+msgid "Character length for tracing is different"
+msgstr "Mae hyd y cymeriad a ddefnyddir ar gyfer y cysylltiad yn wahanol."
+
+msgid "No filter"
+msgstr "Dim hidlydd"
+
+msgid "All line"
+msgstr "Pob llinell"
+
+msgid "Status"
+msgstr "sefyllfa"
+
+msgid "Job list"
+msgstr "Restr"
+
+msgid "All"
+msgstr "I gyd"
+
+msgid "Finished Importing"
+msgstr "Mewnforio wedi'i gwblhau."
+
+msgid "Importing"
+msgstr "Mewnforio"
+
+msgid "Failed Importing"
+msgstr "Methwyd mewnforio"
+
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"Bydd y data wedi'i lwytho yn cael ei ddileu. Ydy hi'n iawn? (Ni "
+"adlewyrchir unrhyw newid nes bod y botwm cofrestru yn cael ei wasgu)"
+
+msgid "Job List"
+msgstr "Restr"
+
+msgid "Job ID"
+msgstr "ID Swydd"
+
+msgid "Job Name"
+msgstr "Enw Swydd"
+
+msgid "GEN_GLOBAL"
+msgstr "Cenhedlaeth o gysylltiadID"
+
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Arddangos swydd cynhyrchu cyswllt ID"
+
+msgid "DEL_PROCESS"
+msgstr "Dileu gwybodaeth broses"
+
+msgid "FACTORY_IMPORT"
+msgstr "Mewnforio data ffatri"
+
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Mewnforio data ffatri yn y gorffennol"
+
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Dangos swydd mewnforio data ffatri yn y gorffennol"
+
+msgid "CSV_IMPORT"
+msgstr "CSV Data mewnforio"
+
+msgid "CLEAN_DATA"
+msgstr "Dileu hen ddata"
+
+msgid "Started"
+msgstr "Amser Cychwyn"
+
+msgid "Duration"
+msgstr "amser a aeth heibio"
+
+msgid "Database/CSV "
+msgstr "Cronfa Ddata/CSV"
+
+msgid "Succeed/Total"
+msgstr "Symudon"
+
+msgid "Process "
+msgstr "Phrosesu"
+
+msgid "List of Histograms"
+msgstr "Rhestr Histogram"
+
+msgid "Register as an outlier"
+msgstr "Cofrestrwch fel gwerth achos"
+
+msgid "Remove outlier flag"
+msgstr "Ungof Outlier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Cuddio allgleifion"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Dangos allgleifion"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Gwirio allgleifion"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Dangos Rhestr Histogram"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Amser Diweddaru Diwethaf"
+
+msgid "Removed outlier flag"
+msgstr "Mae cofrestru allanol wedi'i ganslo."
+
+msgid "Registered as an outlier"
+msgstr "Wedi'i gofrestru fel allgleiwr"
+
+msgid "Abnormal data point"
+msgstr "Allanol"
+
+msgid "Only once"
+msgstr "Dim ond unwaith"
+
+msgid "Job Details"
+msgstr "Manylion Swydd"
+
+msgid "Copy to clipboard"
+msgstr "Copïo I'r clipfwrdd"
+
+msgid "Multi Scatter Plot"
+msgstr "Plot Aml -wasgariad"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Plot gwasgariad"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "I ddelweddu newidyn categori"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratify yn ôl newidynnau"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Newidyn"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Peiriant Na"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Cyfnod targed"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Amledd)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Amcangyfrif Dwysedd"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Newidyn categori"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratify yn ôl tymor (uniongyrchol)"
+
+msgid "Anomaly Detection"
+msgstr "Canfod anghysondebau"
+
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Prif sgôr cydran y data profi"
+
+msgid "Principal Component Score of Training Data"
+msgstr "2. Prif sgôr cydran y data hyfforddi"
+
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Siart Cyfres o Ystadegau T2"
+
+msgid "Series Chart of Q Statistics"
+msgstr "4. Siart Cyfres o Ystadegau Q"
+
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. Plot cyfraniad o ystadegau T2"
+
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Plot Cyfraniad o Ystadegau Q"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Tynnwch y tu allan"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Data Hyfforddi"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Profi Data"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "Ie"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Na"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Math o ddata"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Hesiamol"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Gwallau"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Rhybuddion"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"Gan fod yr holl resi wedi'u dileu gan brosesu gwerth diffyg (tynnu NA), "
+"nid oes unrhyw ddata i'w ddadansoddi. Sicrhewch nad yw'r gwerth gwag, gan"
+" gynnwys NA, yn cael ei ddewis."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"Ni ellir ei ddadansoddi oherwydd ei fod yn cynnwys data heblaw rhifau. "
+"Sicrhewch eich bod wedi dewis colofn sy'n cynnwys llinyn neu werth "
+"categori."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"Ni all ddadansoddi oherwydd ei fod yn cynnwys data gydag amrywiant o 0. "
+"Sicrhewch mai dim ond un golofn gwerth na chaiff ei dewis."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"Canfuwyd data categori a gwerth cyfanrif disgwyliedig. Os nad yw'r gwerth"
+" cyfanrif hwn yn raddfa archeb, graddfa egwyl, neu raddfa gymhareb, "
+"gellir effeithio'n andwyol ar ganlyniadau'r dadansoddiad."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Ydych chi'n sicr o fynd ymlaen â dadansoddiad?"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "chwiloon"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"Mae'r canolrif yn un o'r ystadegau nodweddiadol. Mae'n werth sydd wedi'i "
+"leoli yn y canol pan drefnir y data cyfyngedig yn y drefn esgynnol. Er "
+"enghraifft, yn achos pump, canolrif oedran yr oedran yw'r drydedd oedran "
+"yn nhrefn oedran. Os yw nifer y data hyd yn oed, defnyddir cyfartaledd y "
+"rhifyddeg brevitable canolog."
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Crynodeb o'r dosbarthiad"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N RHIF"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "Chyfartaleddwch"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Beth yw'r canolrif ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Gyfanswm"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Ryfedd"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Derfynol"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Proses darged"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Cyfres Amser"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Mapiau"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Nifer y Cyswllt Data"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Eiliadau"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Amser ymateb"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "golygwch"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Baciwn"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Ychwanegu nod"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Ychwanegu ymyl"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "NODE Golygu"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Cliciwch ar y lle gwag i osod nod newydd."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Cliciwch y nod, llusgwch yr ymyl i nod arall a'u cysylltu."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Cliciwch y pwynt rheoli, ei lusgo i'r nod a chysylltu."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Ni ellir ychwanegu ymyl."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Ni ellir dileu'r clwstwr."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Ni ellir golygu'r clwstwr."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Mae'r enw neu'r gwerth arddangos wedi'i ddyblygu."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Rhowch enw a gwerth yr arddangosfa."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Rhowch y golofn llinell."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Oriau"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Gwybodaeth Data"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Dydd"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Wythnosau"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "Lwythet"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "Hiachasit"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Orysgrifen"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "Gosodiad"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Newid y teitl oherwydd bod yr un teitl wedi'i osod."
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "Cadw lleoliad"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "Creu screenshot"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "lawrlwythwch"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"Mae'r rhesymau pam na ellir arddangos y graff fel a ganlyn. BREAK_LINE "
+"Gwiriwch y sefyllfa. Nid yw data BREAK_LINE・ yn cael ei fewnforio, nac "
+"yng nghanol y mewnforio. BREAK_LINE・ Nid oes unrhyw ddata wedi'i "
+"gysylltu, nac yng nghanol clymu. BREAK_LINE・ Mae gosodiad y graff yn "
+"amhriodol."
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Rhybuddion"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr ""
+"Nid yw cofnodion sy'n cynnwys data annilys yn y golofn ddata dyddiad yn "
+"cael eu mewnforio."
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr ""
+"Gallwch gyfeirio at y ffeiliau yn y ffolder isod ar gyfer data na ellid "
+"eu mewnforio."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr ""
+"Ni ellir uwchlwytho statws defnyddio oherwydd nad yw wedi'i gysylltu â'r "
+"Rhyngrwyd."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Gwiriwch gysylltiad rhwydwaith."
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Bydd yn cymryd amser hir i gysylltu data eto."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Ydych chi'n sicr o ailgysylltu'r data?"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Herthygl"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "Dienyddiant"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr ""
+"Ydych chi'n sicr o ail -lwytho'r gosodiadau cyswllt data a gofrestrwyd yn"
+" flaenorol?"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "Wedi dechrau mewnforio data."
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Gallwch wirio cynnydd y mewnforio o'r ddolen isod."
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Gweler y dudalen rhestr swyddi am statws gwall."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "Wedi dechrau cysylltu data."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "Unwaith bob 3 munud"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "Unwaith bob 5 munud"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "Unwaith bob 10 munud"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Swyddogaeth ddewisol"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Math o Ffeil"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Allforio"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"Oherwydd y nifer fawr o gofnodion dethol a'r amser sy'n ofynnol i "
+"arddangos y graff, roedd nifer y cofnodion fesul graff wedi'i gyfyngu i "
+"50,000."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Siart Cyfres Amser"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Gwerth Categori"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"Gan fod nifer y cofnodion yn y cyfnod penodedig yn fwy na 5,000, mae "
+"cyswllt BREAK_LINE wedi'i rwymo o fewn ± 14 diwrnod i'r cyfnod penodedig."
+" Os nad ydych am gyfyngu'r ystod gyswllt, addaswch hyd i leihau nifer y "
+"cofnodion o BREAK_LINE."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Graddfa Gosod"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Raddfa gyffredin"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Nhrothwy"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Graddfa Auto"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Graddfa gael ei defnyddio"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn o'r broses"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "Mini"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "Neb"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "Nghrynodeb"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "Gyfrifon"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "Ystadegau Sylfaenol"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "Nad yw'n baramedrig"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "Ansawdd data"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Ngwylwyr"
+
+msgid "ImportData"
+msgstr "Mewnforio data"
+
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr ""
+"Bydd y broses cyswllt data yn cychwyn yn seiliedig ar y cyfluniad "
+"cyfredol."
+
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr ""
+"Efallai y bydd yn cymryd amser os oes llawer o ddata i'w gysylltu. A yw'n"
+" iawn cychwyn?"
+
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr ""
+"* Ar gyfer data sy'n cael ei fewnforio yn awtomatig ac o bryd i'w gilydd,"
+" cynhyrchir Link ID yn awtomatig."
+
+msgid "Data Source Name"
+msgstr "Enw Ffynhonnell Data"
+
+msgid "Data Source Type"
+msgstr "Math o Ffynhonnell Data"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Ydych chi'n sicr o arbed newidiadau?"
+
+msgid "Force to OS locale time zone."
+msgstr "Gwybodaeth OS Gorfodol i Gosodiadau Parth Amser."
+
+msgid "Advanced Setting"
+msgstr "Lleoliad Uwch"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"Mae gosodiadau'n cael eu cadw ar gyfer y gronfa ddata /CSV ffeil o ddata "
+"mewnforio. Ewch i'r dudalen Gosod, gosodwch y colofnau o ddata mewnforio "
+"i fewnforio'r data."
+
+msgid "Element data is missing required attribute."
+msgstr "Nid oes unrhyw briodoledd ofynnol yn y data elfen."
+
+msgid "Element data is missing required attribute value."
+msgstr "Nid oes angen gwerth priodoledd ar gyfer data elfen."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"Mae angen o leiaf ddau newidyn ar ganfod annormal gan PCA. Dewiswch ddau "
+"neu fwy o newidynnau."
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Dewiswch o leiaf un golofn"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr ""
+"Nid yw newidynnau categori sy'n lleihau lled y blwch yn cael eu "
+"harddangos."
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Dechrau digid"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Plot Ridgeline"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"Stopiwch y cais (Edge Server). Os byddwch chi'n stopio, ni fydd unrhyw "
+"ddefnyddiwr arall yn gallu defnyddio hefyd, felly cysylltwch â'r "
+"gweinyddwr. <br> Yn achos diwedd arferol, canslo yma a chau'r porwr yn "
+"unig."
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr ""
+"Mae'r holl swydd wedi'i stopio. Gallwch chi gau eich porwr a'ch consol yn"
+" ddiogel."
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Ffynhonnell Ffynhonnell Data"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Ffynhonnell Ffynhonnell Data Ffurfweddu"
+
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": Ychydig o golofnau cymeriad a ganfu colofnau. Gwiriwch y gellir cam "
+"-gydnabod y golofn math rhifol ac ati."
+
+msgid "Filter Item"
+msgstr "Hidlo eitem"
+
+msgid "Filter Value"
+msgstr "Gwerth Hidlo"
+
+msgid "Valid from"
+msgstr "Dyddiad dod i ben (cychwyn)"
+
+msgid "Valid to"
+msgstr "Dyddiad dod i ben (diwedd)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"Ni ellid mewnforio data oherwydd camgymeriadau cyfluniad math data "
+"colofn. Enw Ffynhonnell Data __param__ CSV/TSV Gwiriwch y gosodiadau math"
+" o ddata yn rhagolwg data'r dudalen Gosod Darllen. Dileu'r gosodiadau cam"
+" na ellid eu mewnforio a gosod y gosodiadau."
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr "Roedd ffeil heb ddata. Gwiriwch gynnwys y ffeil. <br>: __param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Mewnbwn o leiaf un gwerth o'r cyfnod dilysrwydd o neu i."
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Rhannwch yn ôl categori"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Rhannwch yn ôl term (cylchol)"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Rhannwch yn ôl term (uniongyrchol)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"Mae gwerth yr egwyl a gofnodwyd yn annilys. Rhowch nifer o 0.1 neu fwy, "
+"720 neu lai, neu -720 neu fwy, a -0.1 neu lai."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"Mae nifer y Ridgeline Mewnbwn yn annilys. Rhowch gyfanrif o 1 neu fwy a "
+"150 neu lai. (mae'n well ganddyn nhw ddefnyddio tua 100)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Cychwyn data ac amser"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Egwyl"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Hyd ffenestri"
+
+msgid "Control item"
+msgstr "Eitem reoli"
+
+msgid "Type"
+msgstr "Theipia ’"
+
+msgid "Name"
+msgstr "Henwem"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"Sylwch, os yw nifer y pwyntiau data mewn un categori o dan 50 oed, gall "
+"cywirdeb y graff leihau."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Dangos cyrchwr gwallt traws (cliciwch)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Dangos cyrchwr gwallt aml -groes (clic dwbl)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Dangos rhestr o histogramau"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Canslo gwiriad allanol"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Mae `Enw Ffynhonnell Data 'penodedig eisoes yn bodoli."
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"Methodd mewnforio data oherwydd canfuwyd ffeil ag enw colofn wahanol yn y"
+" ffynhonnell ddata. Gwiriwch gynnwys y ffeil a gosodwch y gosodiadau "
+"mewnforio ffynhonnell ddata eto."
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Nifer a ragwelir o gofnodion i'w cysylltu"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Nifer y samplau"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Nifer y cofnodion i'w cysylltu"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Nifer y cyfanswm cofnodion"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr "Enwch y ffolder lle mae ffeiliau CSV/TSV yn cael eu cadw fel \"yyyymmdd\\"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Rhagfynegiad"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Config hidlo"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "Meistr Config"
+
+msgid "From Filter Config"
+msgstr "O hidlydd config"
+
+msgid "Show all"
+msgstr "Dangos popeth"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Fel allwedd (opsiwn)"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"Wedi'i ddileu REMOVED_COUNT o werth diffyg, gwerth annormal, a gwerth "
+"allanol o TOTAL_COUNT yn y gwreiddiol."
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Cyfeiriad IP"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"Cymharwch ddosbarthiad data ag amcangyfrif histogram ac dwysedd. Rhennir "
+"y graff gan y newidyn haenedig. Mae hefyd wedi'i rannu yn ôl agwedd."
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Plotiwch bob nifer o ddata ar yr echel amser neu'r echel ID."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr ""
+"Matrics plot gwasgariad arddangos. Gallwch ddefnyddio o 2 i 7 newidyn "
+"targed."
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"Yn ôl dadansoddiad prif gydran, perfformir delweddu \"gwahanol\" a'i "
+"ddadansoddiad ffactor. Rhowch ddata arferol fel data athrawon a "
+"delweddwch a yw'r data cyfredol yr un sefyllfa â'i ddata arferol (T2/Q). "
+"Os oes gennych sefyllfa wahanol, gallwch wirio'r prif ffactorau yn y plot"
+" cyfraniadau."
+
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"Rhennir y dosbarthiad yn graffiau lluosog gan y newidyn hwn. Dewiswch "
+"newidynnau categori (newidynnau ansoddol) fel rhifau rhan a gorsafoedd."
+
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Hidlo Categori Haenedig: Yn cyfyngu ar ddata i'w arddangos i is -set. "
+"(Categori: Rhif Rhan, Rhif Gorsaf, ac ati)"
+
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"Mae newidynnau categori (megis Rhan Rhif, Rhif Gorsaf, ac ati) yn cael eu"
+" harddangos fel labeli ar frig lleiniau i ddod o hyd i bwyntiau newid."
+
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Hidlo Graff: Yn cyfyngu ar ddata i'w arddangos i is -set."
+
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"Gosodwch y data dysgu a ddehonglir fel sefyllfa arferol. Gosodwch yr "
+"adran ddata nad yw'n cynnwys unrhyw ddata NG. Os cânt eu cynnwys, mae'r "
+"rhai sy'n agos at y data NG hefyd yn cael eu barnu fel data arferol."
+
+msgid "Set test data to be judged."
+msgstr "Gosod data prawf i'w farnu."
+
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr ""
+"Hidlo Eitem: Yn cyfyngu ar ddata (dadansoddi ac arddangos) i'w arddangos "
+"i is -set."
+
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"Mae'n arddangosfa agregau dau ddimensiwn (cywasgiad dimensiwn gan brif "
+"gydrannau) o ddata gwirio amlddimensiwn. Os yw'r data yn y canol, gellir "
+"ei ddehongli mor agos at normal."
+
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"Mae'n arddangosfa agregau dau ddimensiwn (cywasgiad dimensiwn gan brif "
+"gydrannau) o ddata dysgu amlddimensiwn. Mae'r targed canolog yn cael ei "
+"bennu gan y data dysgu, felly dylai'r rhan fwyaf o'r data dysgu fod yn y "
+"targed."
+
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"Llain o ystadegyn T2, sy'n monitro anghysonderau ym mhrif gydran y data "
+"hwn. Mae'r data dysgu yn cael ei blotio mewn gwyn ac yn y gyfran X "
+"negyddol. Y plot melyn yw'r data dilysu. Po uchaf yw'r data dilysu yn "
+"cael ei gymharu â'r data gwyn, y mwyaf tebygol yw'r sefyllfa o wyro. "
+"Cliciwch Pwynt Data i weld y plot cyfraniad o ba elfennau sy'n ffurfio'r "
+"sefyllfa."
+
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"Llain o'r ystadegyn Q (monitro am anghysonderau yn rhan fach y data hwn, "
+"gweddilliol). Mae'r data dysgu yn cael ei blotio mewn gwyn ac yn y gyfran"
+" X negyddol. Y plot melyn yw'r data dilysu. Po uchaf yw'r data dilysu yn "
+"cael ei gymharu â'r data gwyn, y mwyaf tebygol yw'r sefyllfa o wyro. "
+"Cliciwch Pwynt Data i weld y plot cyfraniad o ba elfennau sy'n ffurfio'r "
+"sefyllfa."
+
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Ei drefn y mae newidynnau yn cyfrannu at y sefyllfa ar y pwynt a ddewisir"
+" yn y plot ystadegyn T2. Po hiraf y hyd, y mwyaf tebygol yw'r achos."
+
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"Ei drefn y mae newidynnau yn cyfrannu at y sefyllfa ar y pwynt a ddewisir"
+" yn y plot ystadegyn Q. Po hiraf y hyd, y mwyaf tebygol yw'r achos."
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr ""
+"Nifer y pwyntiau data sydd â gwerth yn llai na neu'n hafal i Q1 - 4.5 * "
+"IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr ""
+"Nifer y pwyntiau data sydd â gwerth sy'n fwy na neu'n hafal i Q3 + 4.5 * "
+"IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"Cyfanswm nifer y data gan gynnwys NA (ddim ar gael), NaN (nid rhif) a "
+"Inf± (anfeidredd) yn y cyfnod a ddewiswyd."
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"Out of Control Line: Canran y data y tu allan i'r trothwy uchaf ac isaf "
+"(cyfrif) yn y cyfnod a ddewiswyd"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: Canran y data y tu allan i'r trothwy terfyn uchaf ac "
+"isaf (cyfrif) yn y cyfnod a ddewiswyd"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Canran o NA (ddim ar gael) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Canran o NaN (nid rhif) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Canran o Inf+ (ynghyd ag anfeidredd) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Canran o Inf- (minws anfeidredd) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"Cyfanswm canran y data y tu allan i'r gwerth trothwy, NA (ddim ar gael), "
+"NaN (nid rhif) a Inf± (anfeidredd) yn y cyfnod a ddewiswyd (cyfrif)"
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"Nifer y data ac eithrio NA (ddim ar gael), NaN (nid rhif) a Inf± "
+"(anfeidredd) yn y cyfnod a ddewiswyd."
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "95ain ganradd"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75ain ganradd (trydydd chwartel)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "25ain ganradd (chwartel gyntaf)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "5ed ganradd"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Ystod rhyngchwartel (gwerth cynrychioliadol amrywioldeb dosbarthu: IRQ = "
+"Q3 - Q1 ≒ 1.349σ@ dosbarthiad arferol)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "Canolrif)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Cyfrif/awr"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Cyfrif/munud"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Amser Beicio [au]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Rhaniad"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Cylch arddangos"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "Arddangos cyfwng"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Map Gwres Calenda"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"Ni ellir dewis newidynnau targed gan MAX_NUM_SENSOR neu fwy. Dewiswch y "
+"newidyn targed."
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Y targedau o gael gwared ar y tu allan yw Max, Mean, Min, σ a Range."
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Heblaw am rifau real"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"Gellir delweddu'r dosbarthiad trwy gyfrifo ar gyfer pob newidyn categori "
+"(newidynnau ansoddol, rhif lot, ac ati) neu amser dyddiad, a'u harddangos"
+" ochr yn ochr. Dull delweddu sy'n caniatáu dadansoddiad traws-grŵp "
+"(cymhariaeth rhwng llawer, dyddiau, sifftiau ac ati) o ddata heb "
+"arwahanol ID."
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Gosodwch y trothwy i'w dynnu ar graffiau."
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"Os yw gwasgariad ymlaen, gallwch ddangos y plot gwasgariad ag ef. Y plot "
+"gwasgariad rhwng yr eitem gyfredol a'r eitem rhes nesaf. Llusgwch a "
+"gollwng cardiau plot y lleiniau priodol gyda'r llygoden i newid echelin-x"
+" ac echelin y plot gwasgariad."
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"Eitem o ddata (fel newidyn rhifiadol neu werth mesur) sy'n creu "
+"dosbarthiad o ddata. Mae'r data hwn yn cael ei blotio ar y plot. Gellir "
+"dewis hyd at 20 eitem."
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"Mae'r newidyn haenedig hwn yn rhannu'r dosbarthiad yn lleiniau lluosog ac"
+" yn eu harddangos ochr yn ochr. Dewiswch newidyn categori, fel Lot No neu"
+" Swp Rhif"
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr "Mewnbwn y dyddiad cychwyn i arddangos plot Ridgeline ar gyfer pob dyddiad."
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr ""
+"Mewnbwn yn uniongyrchol y cyfnod i arddangos plot Ridgeline ar gyfer pob "
+"dyddiad."
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"Gallwch ddewis opsiynau i fewnforio data o ffeil CSV/TSV sy'n gofyn am "
+"drin arbennig, megis trosi strwythurau data."
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"Bydd pwyso'r botwm Rhagolwg isod yn dangos rhywfaint o ran o'r data yn y "
+"ffeil fel y gallwch wirio ei gynnwys."
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"Dewiswch ddolen ID i'w defnyddio fel yr amod ar gyfer cysylltu data. "
+"Gallwch hefyd ddewis eitemau lluosog."
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"Pan fydd eich ap yn mewnforio data o bryd i'w gilydd, gallwch ddewis "
+"colofn DateTime a ddefnyddir yn ffafriol fel allwedd amser dyddiad."
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"Os dewiswch weithredwr a nodwch rif o dan 'ffactor', bydd y gwerth yn y "
+"graff yn cael ei gyfrif gan ddefnyddio'r gweithredwr a'r ffactor "
+"penodedig."
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"Os dewiswch weithredwr a nodwch rif o dan 'ffactor', bydd y gwerth yn y "
+"graff yn cael ei gyfrif gan ddefnyddio'r gweithredwr a'r ffactor "
+"penodedig."
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr ""
+"Mae'n bosibl rhagweld faint o ddata fydd yn cael ei gysylltu gan yr "
+"amodau cysylltu sydd wedi'u gosod ar hyn o bryd."
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr ""
+"Yn taflu'r amod cysylltu data a osodir ar hyn o bryd ac yn galw'r cyflwr "
+"a gofrestrwyd yn flaenorol."
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr "Cynhyrchir ID yn fewnol i gysylltu data â'r amodau cysylltu set."
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr ""
+"Dewiswch yr eitemau rheoli ansawdd neu reoli offer gan ddefnyddio mewn "
+"gosodiadau graff."
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr "Dewiswch y math o darged rheoli fel rhan rhif ac offer."
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr "Dewiswch y targed rheoli fel gwerth y rhif rhan a gwerth yr offer."
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Gosodwch y dyddiad cychwyn ar gyfer gosodiadau graff. (Yn ofynnol)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Gosodwch y dyddiad diwedd ar gyfer gosodiadau graff. (Dewisol)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Darllenwch y cyfluniad a arbedwyd."
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Arbedwch y cyfluniad diweddaraf y gwnaethoch chi ei nodi."
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Cadwch y sgrin fel ffeil PNG."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Ydych chi am ddileu'r gosodiad hwn?"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Newidyn targed (rhif real)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Newidyn targed (categori)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Archebu Mynegai"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "Golofnau"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "Harchebon"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Blaenoriaeth"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Nhrefniadau"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Newidynnau"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Go iawn a chategoreiddiol yn unig"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Go iawn yn unig"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Categori yn unig"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "Mewn trefn benodol"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "Mewn trefn broses"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "Mewn cydberthynas coef. harchebon"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Trothwy Cydberthynas (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Dewiswch i newidyn gwrthrychol"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Newidyn gwrthrychol"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Newidyn esboniadol"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Cymhareb ar gael"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Diagram Sanky"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Match (Match Perffaith)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Chwilio"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Chwilio"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Gan na all plot cyfesuryn cyfochrog drin rhifau real, mae data rhifau "
+"real wedi'i ddileu."
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Ailgofrestriadau"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Cofrestrwch y wybodaeth wedi'i golygu fel enw arddangos."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Ydych chi am gofrestru gyda'r cynnwys wedi'i addasu?"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr "Os ydych chi'n newid dolen ID, ailosodwch y cyswllt data."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Graff cyd-ddigwydd"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Ffeil Data"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Agregu gan"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Awr"
+
+# co-occurrence
+msgid "Day"
+msgstr "Dydd"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Golygu Modd"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Modd gosod"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"Bydd y data annilys a amlygir yn goch yn cael ei ddileu. Ydych chi'n sicr"
+" o newid i'r modd gosod?"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "blaenoriaeth"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"Canfuwyd enw Saesneg dyblyg, felly ychwanegwyd y rhif cyfresol yn "
+"awtomatig. Gwiriwch enwau colofnau."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Unedau agregu"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"Y golofn gyntaf yw amser dyddiad, ac mae'r ail golofn a'r colofnau "
+"dilynol yn werth fel baneri hysbysu larwm/cyfrif digwyddiadau (0,1,2 "
+"...)."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Perthnasoedd cyd-ddigwydd agregau yn ôl awr/dydd."
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Trothwy arddangos"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"Os dewiswch werth llai na 100%%, byddwch yn cuddio perthynas gyd "
+"-ddigwyddiad bach. (Diofyn: lluniwch linell os oes unwaith hyd yn oed)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"Nodi a delweddu newidynnau sydd â chydberthynas uniongyrchol neu'n "
+"anuniongyrchol â'r newidyn targed."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"Delweddwch y gydberthynas rhwng y newidynnau a bennir yma. Gellir dewis "
+"hyd at 60 o eitemau."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Newidynnau ymgeisydd sy'n gysylltiedig â newidynnau gwrthrychol."
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "o'r holl ymylon"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Gynllun"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Cylchred"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Awtomatig"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Effeithlonrwydd"
+
+msgid "Set threshold"
+msgstr "Control Line: Gwiriwch wrth dynnu lefelau rheoli fel llinellau safonol"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Platfform dadansoddi"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Siart Pareto"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Nifer y digwyddiad"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Cymhareb gronnus [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"Delweddu paramedrau a all amrywio yn ôl data dros gyfnod hir o amser, "
+"megis amrywiadau blynyddol mewn prosesau, dyddiau'r wythnos, sifftiau, ac"
+" ati."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr ""
+"Delweddwch y gydberthynas rhwng nifer fawr o newidynnau mewn perthynas "
+"â'r newidyn targed."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr ""
+"Delweddu cyd-ddigwydd o ddiffygion, larymau, digwyddiadau ac ati "
+"(perthynas sy'n canolbwyntio ar amlder digwyddiadau un ffenomen ac un "
+"arall ar yr un pryd)."
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"WacochDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: Offeryn syml ar gyfer mapio data, delweddu, "
+"dadansoddiad ystadegol, a dysgu â pheiriant."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"Defnyddir y set ddata yma fel cyfeiriad ar gyfer cysylltu a chynllwynio "
+"data. Defnyddir y gosodiadau yn echel lorweddol y plot. Yn ogystal, mae'r"
+" plot tarddiad yn cael ei arddangos gyda ffrâm las golau."
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"Yn nodi'r data (er enghraifft, newidynnau rhifiadol: gwerth mesur) ar "
+"gyfer y plot. Dewiswch y prosesau a'r eitemau i'w plotio ar y plot. "
+"Gellir dewis hyd at 20 eitem."
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"Yn nodi'r data (er enghraifft, newidynnau rhifiadol: gwerth mesur) ar "
+"gyfer y plot. Dewiswch y prosesau a'r eitemau i'w plotio ar y plot. "
+"Gellir dewis hyd at 8 eitem."
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"Wacoch可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"Mae'r newidyn haenu hwn yn rhannu'r patrwm i'w ddelweddu yn lleiniau "
+"lluosog ac yn eu harddangos ochr yn ochr. Dewiswch newidynnau categori "
+"fel Rhan Rhif a Rhif Gorsaf Gellir dewis hyd at 100 o eitemau."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"Yr eitem o ddata sy'n delweddu'r gydberthynas rhwng newidynnau "
+"(newidynnau meintiol: gwerthoedd mesur, ac ati). Mae'r data hwn yn cael "
+"ei blotio ar y siart. O 2 i 7 gellir dewis paramedr."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"Dewiswch yr eitem i ddelweddu'r gydberthynas rhwng newidynnau. Gellir "
+"dewis hyd at 60 o eitemau."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"Eitemau newidynnau categori (megis rhifau rhan) i ddelweddu'r "
+"gydberthynas rhwng newidynnau."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Cerdyn mwyaf posibl"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Lleihau cerdyn"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr ""
+"Os yw'r gosodiad hwn yn cael ei newid, mae angen ailosod y gosodiadau "
+"cyswllt data."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Dewis auto"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Dewiswch Bawb i'r Dde"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Dad -ddewis popeth i'r dde"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Pob go iawn (arnofio) o'r fan hon"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Pob cyfanrif o'r fan hon"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Pob llinyn o'r fan hon"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"Oherwydd y nifer fawr o gofnodion a ddewiswyd a'r amser sy'n ofynnol i "
+"arddangos plot, roedd nifer y celloedd fesul llain wedi'i gyfyngu i "
+"10,000. Os ydych chi am weld yr holl ddata ar gyfer y cyfnod targed "
+"BREAK_LINE, cynyddwch yr egwyl arddangos neu leihau'r cyfnod targed i "
+"leihau nifer y celloedd."
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Cyfresi"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Gallwch chi addasu graddfa'r plot trwy dde-glicio ar y llain."
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Graddfa Graff"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Modd gosod"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Nifer yr eitemau data na ellir eu cysylltu"
+
+msgid "Only scatter plot"
+msgstr "Plot gwasgariad"
+
+msgid "with shading"
+msgstr "gyda chyfuchlin"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Harbed"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"Wacochファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "Llwytho Llwyth"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "Rhannu/preifat"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "Disgrifiadau"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "A grëwyd gan"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "Defnyddio/llwytho"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "Lwythet"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr ""
+"Nifer y data na ellid eu cysylltu â'r broses man cychwyn (canran y "
+"cyswllt)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Arbed amser dyddiad"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "Rhannu Gosodiadau"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "hiachasit"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"Gallwch ddewis o 2 i 7 newidyn targed. Gwiriwch nifer y newidynnau targed"
+" a chywirwch y gosodiadau."
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr ""
+"Terfyn maint y ffeil yw 10 MB. Lleihau maint y ffeil a rhoi cynnig arall "
+"arni."
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr "Os cânt eu gwirio, mae'r dyddiad penodedig hefyd yn cael eu cadw."
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Gwiriwch i rannu'r gosodiad hwn."
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Arbedwch y gosodiadau."
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Ydych chi'n sicr o drosysgrifo gosodiadau?"
+
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "ranna ’"
+
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "Preifat"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "Wedi'i greu yn"
+
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "Chaewch"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "Gosod Gorchymyn"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "Cychwyn amser dyddiad"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "Diwedd Amser"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Dangos labeli echelin-x"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "Ystod DateTime"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Llusgo a gollwng ffeil yma"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Neu"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Dewiswch Ffeiliau"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Ni ellir ei arddangos"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"Amharwyd ar brosesu oherwydd y swm mawr o ddata a'r amser prosesu hir. "
+"Adolygwch y gosodiadau amser ac arddangos y plot eto."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Allbynnu ffeil CSV. Arhoswch wrth i'r ffeil lawrlwytho."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Allbynnu ffeil TSV. Arhoswch wrth i'r ffeil lawrlwytho."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Ystod awto"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Ystod lawn"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Gosod Gorchymyn Mynegai"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "Ymagorant"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "Croeswn"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"Gan fod nifer y pwyntiau data fesul graff dros 12,000, roedd nifer y "
+"pwyntiau data wedi'i gyfyngu i uchafswm o 12,000. Os ydych chi am weld y "
+"data cyfan, gosodwch y cyfnod targed byrrach."
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratify yn ôl tymor (cylchol)"
+
+#: component.js
+msgid "Facet"
+msgstr "Agwedd"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Yn perfformio rhannu categori gyda'r eitem a ddewiswyd."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Amcangyfrif Eithriad"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"Ystod rhyngchwartel wedi'i normaleiddio (mynegai yn cysylltu IQR â "
+"dosbarthiad arferol, Niqr = 0.7413 × IQR)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Modd yw'r gwerth sy'n digwydd amlaf."
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "gydag allgleiwr"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "Heb Outlier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Arferol"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Heddiw"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Ddoe"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "7 diwrnod diwethaf"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "30 diwrnod diwethaf"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Y mis yma"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 mis"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 mis"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "Gynigiwch"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Wythnosau"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "7 diwrnod yn ôl"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "30 diwrnod yn ôl"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Diwrnod dwrn y mis hwn"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Diwrnod olaf y mis hwn"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 mis"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Wedi'i ddiweddaru yn"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"Crynhoir pwyntiau data gyda'r modd cyflym. Os ydych chi am gael plot heb "
+"hepgor data, addaswch y cyfnod targed yn fyrrach."
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Ystod o echel y"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Allanol"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"Wacoch'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "Chwilio proses"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "Lyfrnodau"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"Wacoch以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "Amser Beicio"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "Realiti"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "Newidyn gwrthrychol"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"Cyfrifir y cyfernod cydberthynas gan ddefnyddio'r newidyn hwn fel y "
+"newidyn targed. Mae'r newidyn targed a bennir yma hefyd yn cael ei "
+"arddangos ynghyd â bar lliw ar ochr dde eithaf y plot. Os ydych chi am "
+"newid y newidynnau targed ar y plot, gallwch chi newid rhyngddynt trwy "
+"glicio ar y dde ar bob enw newidiol."
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"Ni chafodd data ei foddi oherwydd bod gormod o gategorïau. BREAK_LINE "
+"Gwiriwch ac, os oes angen, adolygwch y cyfnod targed yn fyrrach."
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "Gosodiad hidlo"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Label (newidynnau categori)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "Chopïedig"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "Pasted"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "Copi config"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "Pastio config"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Heb osod tarddiad, dewisir y targed cyntaf fel y tarddiad."
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "Allforio Data"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "Ddim yn defnyddio"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "Nid yw data'n cael ei dynnu oherwydd bod gormod o gategorïau."
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr "Gwiriwch ac, os oes angen, adolygu gosodiadau'r cyfnod targed."
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Rhannwch yn ôl cyfrif data (cylchol)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "Nifer y data"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"Wacochグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Dewiswch y newidyn pwrpas."
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Dim dadelfennu / dadelfennu categori"
+
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Plot gwasgariad"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"Os yw naill ai math data X neu Y yn llinyn, ni allwch ddefnyddio "
+"newidynnau nad ydynt yn llinyn ar gyfer gosod lliw."
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"Canfuwyd gwerth y tu allan i'r ystod a ganiateir, felly penderfynwyd yn "
+"awtomatig ar yr isafswm neu uchafswm yr ystod ddilys. Newid y gosodiadau "
+"yn ôl yr angen."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Cliciwch ar y dde: Gosod/golygu/dileu cyswllt data"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Amser a aeth heibio"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "Gorchymyn Amser"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "Gosod Gorchymyn Data"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"Dileu data diangen oherwydd bod capasiti'r ddisg galed o "
+"`__SERVER_INFO__` wedi cyrraedd __SERVER_INFO__ %%."
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"Stopiwyd y porthladd data oherwydd bod capasiti'r ddisg galed o "
+"`__SERVER_INFO__` wedi cyrraedd __SERVER_INFO__ %%. Os caiff data diangen"
+" ei ddileu a bod capasiti gwag yn cynyddu, bydd y data'n cael ei "
+"ailddechrau."
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"Nodwch nifer y dosraniadau sydd i'w harddangos (nifer yr is -adrannau). "
+"Rhowch gyfanrif o 2 neu 150 neu lai."
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"Nodwch nifer y dosraniadau sydd i'w harddangos (nifer yr is -adrannau). "
+"Rhowch gyfanrif o 1 neu fwy 32 neu lai."
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Wacoch表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Wacochプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Wacoch1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Wacoch1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Mae gormod o ffidil i bob llain, felly roedd yn gyfyngedig yn awtomatig."
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"Oherwydd y nifer fawr o gofnodion a ddewiswyd, mae nifer y lleiniau yn "
+"gyfyngedig o'r dyddiad hynaf i'r cyfrif terfyn."
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Rwy'n derbyn"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "Ddirywiad"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Tuag"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Nifer y plot ar golofn"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"Defnyddir y newidynnau categori (Rhan Rhif, Rhif Gorsaf, ac ati) a "
+"ddangosir fel labeli ar frig y plot i ddelweddu'r pwyntiau newid (newid "
+"rhifau rhan, ac ati) y newidynnau ansoddol."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"Dewiswch eitemau i'w dadansoddi (newidynnau meintiol: gwerth mesur, ac "
+"ati). Gellir dewis hyd at 60 o eitemau."
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr "Dewiswch eitemau i ddidoli data. Gallwch hefyd ddewis eitemau lluosog."
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"Nid yw hen ddata sy'n gorlifo yn cael ei arddangos oherwydd bod y "
+"DateTime yn cyfrif o'r data diweddaraf gyda'r terfyn arddangos."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"Roedd nifer y plot wedi'i gyfyngu i NUMBER. Os ydych chi am arddangos y "
+"cyfan, ailedrych ar y gosodiadau."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"Roedd nifer y plot ar un tab wedi'i gyfyngu i NUMBER. Os ydych chi am "
+"arddangos y cyfan, ailedrych ar y gosodiadau."
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"Nifer y newidynnau targed i'w dewis yw lleiafswm min a'r uchafswm "
+"uchafswm. Gwiriwch nifer y newidynnau targed a chywirwch y gosodiadau."
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"Mae nifer y newidynnau targed i'w dewis hyd at y mwyafswm ar y mwyaf. "
+"Gwiriwch nifer y newidynnau targed a chywirwch y gosodiadau."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "Allanol"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "Mini"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "Rhybuddion"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "Rhagfynegiad"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "Disgrifiadau"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"Os dewiswch werth llai na 100%%, byddwch yn cuddio perthynas gyd "
+"-ddigwyddiad bach. (Diofyn: lluniwch linell os oes unwaith hyd yn oed)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"Os dewiswch werth llai na 100%%, byddwch yn cuddio perthynas gyd "
+"-ddigwyddiad bach. (Diofyn: lluniwch linell os oes unwaith hyd yn oed)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"Os dewiswch werth llai na 100%%, byddwch yn cuddio perthynas gyd "
+"-ddigwyddiad bach. (Diofyn: lluniwch linell os oes unwaith hyd yn oed)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "Disgrifiadau"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "Chaewch"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "Dyddiad dod i ben (diwedd)"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "Dyddiad dod i ben (cychwyn)"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "Dyddiad dod i ben (diwedd)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+

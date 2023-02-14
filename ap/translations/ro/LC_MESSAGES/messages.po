@@ -1,0 +1,3947 @@
+#: ap/setting_module/controllers.py:120
+msgid "Saved"
+msgstr "Salvat"
+
+#: ap/setting_module/controllers.py:122
+msgid "Error has been occurred"
+msgstr "a avut loc o eroare"
+
+#: ap/setting_module/controllers.py:129
+msgid "Application Configuration"
+msgstr "Configurarea aplicației"
+
+#: ap/templates/404.html:3
+msgid "Page not found"
+msgstr "Pagina nu a fost gasita"
+
+#: ap/templates/500.html
+msgid "Sorry, something went wrong"
+msgstr "a avut loc o eroare"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Interface Application"
+msgstr "Aplicație Datalink & Analysis"
+
+#: ap/templates/footer.html:6
+msgid "Choose language"
+msgstr "selectați o limbă"
+
+#: ap/templates/navbar.html:8
+msgid "Home"
+msgstr "Ecranul principal"
+
+#: ap/templates/navbar.html:13
+msgid "Setting"
+msgstr "Verificarea operației"
+
+#: ap/templates/navbar.html:13
+#: ap/templates/setting_module/performance_check.html
+msgid "Performance Check"
+msgstr "Verificarea operației"
+
+#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
+msgid "Basic Config"
+msgstr "Configurare de bază"
+
+#: ap/templates/setting_module/basic_config.html:9
+#: ap/templates/setting_module/db_config.html:7
+msgid "Register"
+msgstr "Inregistreaza-te"
+
+#: ap/templates/setting_module/db_config.html:9
+msgid "Reload"
+msgstr "Reîncarcă"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Integer"
+msgstr "Întreg"
+
+#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
+msgid "Real(Float)"
+msgstr "Real (float)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Datetime"
+msgstr "DateTime"
+
+#: ap/templates/setting_module/db_config.html
+msgid "String"
+msgstr "Şir"
+
+#: ap/templates/setting_module/basic_config.html:20
+msgid "Title"
+msgstr "Titlu"
+
+#: ap/templates/setting_module/basic_config.html:23
+msgid "Plant"
+msgstr "Plantă"
+
+#: ap/templates/setting_module/basic_config.html:26
+msgid "Factory"
+msgstr "Fabrică"
+
+#: ap/templates/setting_module/basic_config.html:29
+msgid "Line Group"
+msgstr "Linia"
+
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Please confirm"
+msgstr "Vă rugăm să confirmați."
+
+#: ap/templates/setting_module/config.html:43
+msgid ""
+"Do you want to save changes and start to import data with configure at "
+"Process Config page?"
+msgstr ""
+"Salvați datele și începeți să importați date cu conținutul setat în "
+"pagina de setare a procesului?"
+
+#: ap/templates/setting_module/config.html:46
+#: ap/templates/setting_module/db_config.html:133
+#: ap/templates/setting_module/db_config.html:181
+#: ap/templates/setting_module/db_config.html:215
+#: ap/templates/setting_module/trace_config.html:32
+#: ap/templates/setting_module/trace_config.html:61
+msgid "OK"
+msgstr "O.K"
+
+#: ap/templates/setting_module/config.html:47
+#: ap/templates/setting_module/db_config.html:134
+#: ap/templates/setting_module/db_config.html:153
+#: ap/templates/setting_module/db_config.html:182
+#: ap/templates/setting_module/db_config.html:216
+#: ap/templates/setting_module/trace_config.html:33
+#: ap/templates/setting_module/trace_config.html:62
+#: ap/templates/setting_module/trace_config.html:89
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel"
+msgstr "Anulare"
+
+#: ap/templates/setting_module/db_config.html:5
+msgid "Database Config"
+msgstr "Configurarea bazei de date"
+
+#: ap/templates/setting_module/db_config.html:15
+#: ap/templates/setting_module/db_config.html:72
+#: ap/templates/setting_module/db_config.html:174
+#: ap/templates/setting_module/db_config.html:204
+msgid "Database Name"
+msgstr "Numele bazei de date"
+
+#: ap/templates/setting_module/db_config.html:16
+msgid "Database Type"
+msgstr "Tip de bază de date"
+
+#: ap/templates/setting_module/db_config.html:17
+#: ap/templates/setting_module/db_config.html:87
+#: ap/templates/setting_module/db_config.html:111
+#: ap/templates/setting_module/db_config.html:164
+#: ap/templates/setting_module/db_config.html:194
+msgid "Config"
+msgstr "Configurare"
+
+#: ap/templates/setting_module/db_config.html:18
+#: ap/templates/setting_module/proc_config.html
+msgid "Comment"
+msgstr "cometariu"
+
+#: ap/templates/setting_module/db_config.html:104
+msgid "Add"
+msgstr "Adăuga"
+
+#: ap/templates/setting_module/db_config.html:118
+msgid "Please choose database file"
+msgstr "Selectați un fișier de bază de date."
+
+#: ap/templates/setting_module/db_config.html:121
+msgid "File name"
+msgstr "Nume de fișier"
+
+#: ap/templates/setting_module/db_config.html:124
+msgid "Select"
+msgstr "Selectați"
+
+#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/setting_module/trace_config.html:85
+msgid "Do you want to delete this record?"
+msgstr "Doriți să ștergeți această înregistrare?"
+
+#: ap/templates/setting_module/db_config.html:152
+#: ap/templates/setting_module/trace_config.html:72
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Delete"
+msgstr "șterge"
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Traceability"
+msgstr "Trasabilitate"
+
+#: ap/templates/setting_module/performance_check.html:19
+msgid "Traceability Graph"
+msgstr "Grafic de trasabilitate"
+
+#: ap/templates/setting_module/performance_check.html:26
+msgid "Trace Testing"
+msgstr "Testarea urmelor"
+
+#: ap/templates/setting_module/performance_check.html:43
+msgid "Start testing"
+msgstr "Începeți testarea"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Start Time"
+msgstr "Timpul de începere"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "End Time"
+msgstr "Sfârșitul timpului"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Machine Id"
+msgstr "ID -ul mașinii (mai multe selecții)"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/setting_module/performance_check.html
+msgid "Line"
+msgstr "Linia"
+
+#: ap/templates/setting_module/performance_check.html
+msgid "Part Number"
+msgstr "Numărul piesei"
+
+#: ap/templates/setting_module/trace_config.html:3
+msgid "Data Link Config"
+msgstr "Configurarea legăturii de date"
+
+#: ap/templates/setting_module/trace_config.html:5
+msgid "Please select a language"
+msgstr "selectați o limbă"
+
+#: ap/templates/setting_module/trace_config.html:7
+msgid "Japanese"
+msgstr "japonez"
+
+#: ap/templates/setting_module/trace_config.html:8
+msgid "English"
+msgstr "Engleză"
+
+#: ap/templates/setting_module/trace_config.html:13
+msgid "Node"
+msgstr "Nodul"
+
+#: ap/templates/setting_module/trace_config.html:16
+msgid "Node ID"
+msgstr "Nod ID"
+
+#: ap/templates/setting_module/trace_config.html:20
+msgid "Label"
+msgstr "Eticheta"
+
+#: ap/templates/setting_module/trace_config.html:24
+msgid "Master name"
+msgstr "Numele principal"
+
+#: ap/templates/setting_module/trace_config.html:28
+msgid "Database"
+msgstr "Bază de date"
+
+#: ap/templates/setting_module/trace_config.html:70
+msgid "Import"
+msgstr "Import"
+
+#: ap/templates/setting_module/trace_config.html:71
+msgid "Export"
+msgstr "Export"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Host name"
+msgstr "Numele gazdei"
+
+#: ap/templates/setting_module/db_config.html:172
+msgid "Port number"
+msgstr "Numarul portului"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "User name"
+msgstr "Nume de utilizator"
+
+#: ap/templates/setting_module/db_config.html:170
+msgid "Password"
+msgstr "Parola"
+
+#: ap/templates/setting_module/db_config.html:206
+msgid "Schema"
+msgstr "Schemă"
+
+#: ap/api/setting_module/controllers.py:111
+msgid "Connected"
+msgstr "&#10003; Am reușit."
+
+#: ap/api/setting_module/controllers.py:113
+msgid "Failed to connect"
+msgstr "&#10005; nu a reușit."
+
+#: ap/templates/setting_module/proc_config.html:5
+msgid "Process Config"
+msgstr "Procesați configurare"
+
+#: ap/templates/templates/sidebar.html
+msgid "Process"
+msgstr "Proces"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config.html:15
+msgid "Process Name"
+msgstr "Numele procesului"
+
+#: ap/templates/setting_module/proc_config.html:17
+msgid "Table Name"
+msgstr "Numele tabelului"
+
+# ap/templates/setting_module/background_process.html
+#: ap/templates/setting_module/proc_config_modals.html:23
+msgid "Detail"
+msgstr "Detaliu"
+
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Show"
+msgstr "previzualizare"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Last Records"
+msgstr "Primele cinci înregistrări"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Setting Content"
+msgstr "Setarea conținutului"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Column Name"
+msgstr "Numele coloanei"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English Name"
+msgstr "Nume englezesc"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Shown Name"
+msgstr "Numele de afișare"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef"
+msgstr "coeficient"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator"
+msgstr "Operator"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Zero is not allowed"
+msgstr "Introduceți o altă valoare decât 0"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Operator is needed when input coef"
+msgstr "Operator de intrare."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Coef is needed when specify operator"
+msgstr "Coeficient de intrare."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in English name textbox"
+msgstr "INPUT NUMELE ENGLEZĂ."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Please fill in Master name textbox"
+msgstr "Numele afișajului de intrare."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "English name is duplicated"
+msgstr "Numele englezesc este duplicat."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Master name is duplicated"
+msgstr "Numele afișajului este duplicat."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Empty shown name"
+msgstr "Toate „numele de afișare” necesită intrare."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Use English name"
+msgstr "Câmpurile cu „nume de engleză” necompletat sunt completate automat."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select All"
+msgstr "Selectează tot"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Import Data"
+msgstr "Import date"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Do you want to import data"
+msgstr "Sunteți sigur că importați date?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 1"
+msgstr ""
+"Când apăsați butonul OK, veți importa date de la ora curentă până la o "
+"lună înainte."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 2"
+msgstr "Datele anterioare sunt importate automat puțin câte puțin."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 3"
+msgstr ""
+"Dacă doriți să importați datele după ora curentă, apăsați din nou butonul"
+" de citire a datelor sau apăsați baza de date CSV Configurarea setărilor "
+"din pagina de setare citită."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm import data message 4"
+msgstr ""
+"Când este setat „Actualizare ciclu” al „Bazei de date / CSV Setarea de "
+"citire”, acesta va fi importat automat în perioada în care datele după "
+"ora curentă sunt setate."
+
+#: ap/templates/setting_module/performance_check.html:13
+msgid "Trace Information"
+msgstr "Urmăriți informații"
+
+#: ap/templates/trace_data/trace_data.html:14
+msgid "Trace Data"
+msgstr "Urmăriți datele"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Could not access"
+msgstr "Nu a putut accesa"
+
+#: ap/templates/trace_data/trace_data.html:50
+msgid "Click here to fix"
+msgstr "Faceți clic aici pentru a -l repara."
+
+#: ap/templates/setting_module/trace_config.html:67
+msgid "Edit Edge"
+msgstr "Editați marginea"
+
+#: ap/templates/setting_module/trace_config.html:73
+msgid "Prev Process"
+msgstr "Proces precedent"
+
+#: ap/templates/setting_module/trace_config.html:77
+msgid "Prev Column"
+msgstr "Coloană anterioară"
+
+#: ap/templates/setting_module/trace_config.html:84
+msgid "Post Process"
+msgstr "Post proces"
+
+#: ap/templates/setting_module/trace_config.html:88
+msgid "Post Column"
+msgstr "Coloana post"
+
+#: ap/templates/setting_module/proc_config_modals.html:69
+msgid "As Datetime"
+msgstr "Ca datetime"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Serial"
+msgstr "Ca serie"
+
+#: ap/templates/setting_module/proc_config_modals.html:70
+msgid "As Link ID"
+msgstr "Ca link ID"
+
+#: ap/templates/macros.html
+msgid "Already registered"
+msgstr "Deja înregistrat"
+
+#: ap/templates/macros.html
+msgid "Fill in process name"
+msgstr "Vă rugăm să introduceți numele procesului"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter/Graph"
+msgstr "Filtru/grafic"
+
+#: ap/templates/filter_visualization.html
+msgid "Graph Config"
+msgstr "Config grafic"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Filter Config"
+msgstr "Configurare filtru de linie"
+
+#: ap/templates/filter_visualization.html
+msgid "Line Column"
+msgstr "Coloana de linie"
+
+#: ap/templates/filter_visualization.html
+msgid "N/A"
+msgstr "N/A"
+
+#: ap/templates/filter_visualization.html
+msgid "Value"
+msgstr "Valoare"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine Filter Config"
+msgstr "Configurarea filtrului de mașini"
+
+#: ap/templates/filter_visualization.html
+msgid "Machine ID Column"
+msgstr "Mașină ID coloană"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Filter Config"
+msgstr "Partea fără configurare a filtrului"
+
+#: ap/templates/filter_visualization.html
+msgid "Part No Column"
+msgstr "Partea fără coloană"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Name"
+msgstr "Numele filtrului"
+
+#: ap/templates/filter_visualization.html
+msgid "Filter Condition"
+msgstr "Starea filtrului"
+
+#: ap/templates/filter_visualization.html
+msgid "Others Filter Config"
+msgstr "Alții filtrează configurarea"
+
+#: ap/templates/filter_visualization.html
+msgid "Target Column"
+msgstr "Coloana țintă"
+
+#: ap/templates/filter_visualization.html
+msgid "Visualization Config"
+msgstr "Configurare de vizualizare"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower threshold"
+msgstr "Prag inferior"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper threshold"
+msgstr "Prag superior"
+
+#: ap/templates/filter_visualization.html
+msgid "Lower process threshold"
+msgstr "Prag de proces inferior"
+
+#: ap/templates/filter_visualization.html
+msgid "Upper process threshold"
+msgstr "Prag de proces superior"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: min"
+msgstr "Gama de axe Y: min"
+
+#: ap/templates/filter_visualization.html
+msgid "y-axes range: max"
+msgstr "Gama de axe Y: Max"
+
+#: ap/templates/filter_visualization.html
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Part No"
+msgstr "Partea nr"
+
+# ap/templates/setting_module/_filter_partno.html:46
+msgid "Ends With"
+msgstr "se termina cu"
+
+# ap/templates/setting_module/_filter_partno.html:47
+msgid "Starts With"
+msgstr "Începe cu"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Contains"
+msgstr "(Like Căutare)"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Matches"
+msgstr "De acord"
+
+# ap/templates/setting_module/_filter_partno.html:48
+msgid "Regular expressions"
+msgstr "Expresii obisnuite"
+
+#: ap/template/analyze/hotelling_tsquare.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Display graph"
+msgstr "Afișați graficul"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "CSV Export"
+msgstr "CSV Export"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Process is required"
+msgstr "Procesul este necesar"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Column name is required"
+msgstr "Numele coloanei este necesar"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+#: ap/templates/templates/i18n.html
+msgid "Line is required"
+msgstr "Linia este necesară"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Master name is required"
+msgstr "Numele afișajului este necesar"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated master name"
+msgstr "Numele afișajului este duplicat."
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Machine value is required"
+msgstr "Valoarea mașinii este necesară"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Duplicated machine value"
+msgstr "Mașină duplicată ID"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Save successfully"
+msgstr "Salvare reușită"
+
+#: ap/templates/setting_module/_filter_machine.html:48
+msgid "Failed to save"
+msgstr "Nu a reușit să salveze"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Part No column is required"
+msgstr "Partea nu este necesară coloana"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Target column is required"
+msgstr "Coloana țintă este necesară"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Filter name is required"
+msgstr "Numele filtrului este necesar"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Condition is required"
+msgstr "Condiția este necesară"
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated filter name"
+msgstr "Numele filtrului este duplicat."
+
+#: ap/templates/setting_module/_filter_partno.html:48
+msgid "Duplicated condition"
+msgstr "Condițiile sunt duplicate."
+
+#: ap/templates/setting_module/_filter_partno.html
+msgid "Default"
+msgstr "Mod implicit"
+
+#: ap/templates/setting_module/filter_visualization.html
+msgid "Process name"
+msgstr "Numele procesului"
+
+#: ap/templates/setting_module/_filter_others.html
+msgid "Add other filter"
+msgstr "A adăugat alte filtre"
+
+#: ap/templates/setting_module/db_config_modals.html:5
+msgid "CSV Import Config"
+msgstr "CSV/TSV Importați configurare"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Source"
+msgstr "Sursă"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Polling Frequency"
+msgstr "Ciclul de reînnoire"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Connect"
+msgstr "Conectați"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per hour"
+msgstr "O dată pe oră"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per day"
+msgstr "Odata pe zi"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Specify datatype of columns"
+msgstr "Confirmarea datelor"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Folder does not exist"
+msgstr "Nu există folder."
+
+msgid "File does not exist"
+msgstr "Nu există niciun fișier."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Exists"
+msgstr "Te poți conecta."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Visualization value is required"
+msgstr "Vă rugăm să completați valoarea."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "At least one setting value is required"
+msgstr "Nu există conținut de setare."
+
+#: ap/templates/setting_module/_visualization.html
+msgid "Setting is duplicated"
+msgstr "Setările sunt duplicate."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting saved."
+msgstr "Setări ale bazei de date salvate."
+
+#: ap/api/setting_module/controllers.py
+msgid "Database Setting failed to save"
+msgstr "Nu a reușit să salveze setările bazei de date."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config saved"
+msgstr "Setări de bază salvate."
+
+#: ap/api/setting_module/controllers.py
+msgid "Basic Config failed to save"
+msgstr "Nu a reușit să salveze setările de bază."
+
+#: ap/templates/macros.html
+msgid "Test connection"
+msgstr "Test de conexiune"
+
+#: ap/templates/macros.html
+msgid "Start point"
+msgstr "Punctul de inceput"
+
+#: ap/template/analyze/hotelling_tsquare.html ap/templates/macros.html
+msgid "Date range"
+msgstr "Interval de date"
+
+#: ap/templates/macros.html
+msgid "Latest"
+msgstr "Cele mai recente"
+
+#: ap/templates/macros.html
+msgid "Auto Update"
+msgstr "Actualizare automată"
+
+#: ap/templates/macros.html
+msgid "minute"
+msgstr "minut"
+
+#: ap/templates/macros.html
+msgid "minutes"
+msgstr "minute"
+
+#: ap/templates/macros.html
+msgid "hour"
+msgstr "ora"
+
+#: ap/templates/macros.html
+msgid "hours"
+msgstr "ore"
+
+#: ap/templates/macros.html
+msgid "Show value"
+msgstr "Variabilă țintă"
+
+#: ap/templates/macros.html
+msgid "Filter"
+msgstr "Filtru"
+
+#: ap/templates/macros.html
+msgid "X axis"
+msgstr "Axa x"
+
+#: ap/templates/macros.html
+msgid "Timestamp"
+msgstr "Timestamp-ul"
+
+#: ap/templates/macros.html
+msgid "Index"
+msgstr "Index"
+
+#: ap/templates/categorical_plot/categorical_plot_by_var.html
+msgid "Stratify Variables"
+msgstr "Stratificarea variabilelor"
+
+#: ap/templates/categorical_plot/categorical_plot_by_term.html
+msgid "Filters"
+msgstr "Filtre"
+
+#: ap/templates/sidebar.html
+msgid "Database/CSV"
+msgstr "Baza de date/CSV"
+
+#: ap/templates/sidebar.html
+msgid "Analyze"
+msgstr "A analiza"
+
+#: ap/templates/sidebar.html
+msgid "Under development"
+msgstr "In dezvoltare"
+
+#: ap/templates/analyze/analyze.html
+msgid "Analyze: "
+msgstr "A analiza:"
+
+#: ap/templates/sidebar.html
+msgid "Waterfall Plot"
+msgstr "Parcela de cascadă"
+
+#: ap/templates/sidebar.html
+msgid "Graphical LASSO"
+msgstr "Grafic LASSO"
+
+#: ap/templates/sidebar.html
+msgid "Histogram"
+msgstr "Histogramă"
+
+#: ap/templates/sidebar.html
+msgid "Stratified Plot"
+msgstr "Complot stratificat"
+
+#: ap/templates/sidebar.html
+msgid "Full-points Plot"
+msgstr "Complot cu puncte complete"
+
+#: ap/templates/sidebar.html
+msgid "Data Visualization"
+msgstr "Vizualizarea datelor"
+
+#: ap/templates/sidebar.html
+msgid "Visualization"
+msgstr "Vizualizare"
+
+#: ap/templates/analyze/analyze.html
+msgid "Run"
+msgstr "Alerga"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill database name"
+msgstr "Introduceți numele bazei de date."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill data source name"
+msgstr "Introduceți numele sursei de date."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Columns whose datatypes are not specified will not be imported."
+msgstr "Coloanele care nu au tip de date nu sunt importate."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "At least one datetime column is required."
+msgstr "Este necesară cel puțin o coloană DateTime."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "'{col}' is used for x-axis on charts."
+msgstr "Pentru vizualizare, utilizați '{col}' pentru axa x."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Continue?"
+msgstr "Ești sigur că vei continua?"
+
+#: ap/templates/sidebar.html
+msgid "Table Viewer"
+msgstr "Vizualizator de tabel"
+
+#: ap/templates/table_viewer/index.html
+msgid "Table"
+msgstr "Masa"
+
+#: ap/templates/table_viewer/index.html
+msgid "Sort"
+msgstr "Fel"
+
+#: ap/templates/table_viewer/index.html
+msgid "Number of Data"
+msgstr "Numărul de date"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Descending"
+msgstr "Descendentă"
+
+#: ap/templates/i18n.html ap/templates/table_viewer/index.html
+msgid "Ascending"
+msgstr "Ascendent"
+
+#: trace_config.js
+msgid "All digits"
+msgstr "Potrivire perfecta"
+
+#: trace_config.js
+msgid "Partial match"
+msgstr "Meci parțial"
+
+#: trace_config.js
+msgid "th character"
+msgstr "#NAME?"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Invalid digit selection"
+msgstr "Selecție de cifre nevalide"
+
+# ap/templates/setting_module/trace_config.html
+msgid "Character length for tracing is different"
+msgstr "Lungimea personajului utilizat pentru legătură este diferită."
+
+# ap/templates/trace_data/trace_data.html
+msgid "No filter"
+msgstr "Fără filtru"
+
+# ap/templates/trace_data/trace_data.html
+msgid "All line"
+msgstr "Toate liniile"
+
+# ap/templates/setting_module/db_config.html
+msgid "Status"
+msgstr "situatie"
+
+# ap/templates/setting_module/db_config.html
+msgid "Job list"
+msgstr "Lista de locuri de muncă"
+
+# ap/templates/setting_module/db_config.html
+msgid "All"
+msgstr "Toate"
+
+# ap/templates/setting_module/db_config.html
+msgid "Finished Importing"
+msgstr "Import finalizat."
+
+# ap/templates/setting_module/db_config.html
+msgid "Importing"
+msgstr "Import"
+
+# ap/templates/setting_module/db_config.html
+msgid "Failed Importing"
+msgstr "Importul eșuat"
+
+# ap/templates/setting_module/db_config.html
+msgid ""
+"Imported data will be deleted. (Data will not be deleted until register "
+"button is clicked)"
+msgstr ""
+"Datele încărcate vor fi șterse. Este bine? (Nu se reflectă nicio "
+"modificare până la apăsarea butonului de înregistrare)"
+
+# ap/setting_module/controllers.py
+msgid "Job List"
+msgstr "Lista de locuri de muncă"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job ID"
+msgstr "ID de job"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Name"
+msgstr "Numele locului de munca"
+
+# ap/templates/setting_module/background_process.html
+msgid "GEN_GLOBAL"
+msgstr "Generarea de LinkedID"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_GEN_GLOBAL"
+msgstr "Afișează lucrarea de generare a link -ului ID"
+
+# ap/templates/setting_module/background_process.html
+msgid "DEL_PROCESS"
+msgstr "Ștergerea informațiilor despre proces"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_IMPORT"
+msgstr "Import date din fabrică"
+
+# ap/templates/setting_module/background_process.html
+msgid "FACTORY_PAST_IMPORT"
+msgstr "Importați datele din fabrică din trecut"
+
+# ap/templates/setting_module/background_process.html
+msgid "SHOW_FACTORY_PAST_IMPORT"
+msgstr "Afișează importul de muncă al datelor din fabrică din trecut"
+
+# ap/templates/setting_module/background_process.html
+msgid "CSV_IMPORT"
+msgstr "CSV Import date"
+
+# ap/templates/setting_module/background_process.html
+msgid "CLEAN_DATA"
+msgstr "Ștergeți datele vechi"
+
+# ap/templates/setting_module/background_process.html
+msgid "Started"
+msgstr "Timpul de începere"
+
+# ap/templates/setting_module/background_process.html
+msgid "Duration"
+msgstr "timpul scurs"
+
+# ap/templates/setting_module/background_process.html
+msgid "Database/CSV "
+msgstr "Baza de date/CSV"
+
+# ap/templates/setting_module/background_process.html
+msgid "Succeed/Total"
+msgstr "Progres"
+
+# ap/templates/setting_module/background_process.html
+msgid "Process "
+msgstr "Proces"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "List of Histograms"
+msgstr "Lista de histogramă"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Register as an outlier"
+msgstr "Înregistrați -vă ca valoare de focar"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Remove outlier flag"
+msgstr "Negrăjiți -vă mai departe"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Hide outliers"
+msgstr "Ascunde valorile"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Show outliers"
+msgstr "Arată exterior"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Check as an outlier"
+msgstr "Verificați valorile"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "List of Histograms appear"
+msgstr "Afișați lista de histogramă"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last update time"
+msgstr "Ultima timp de actualizare"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Removed outlier flag"
+msgstr "Înregistrarea anterioară a fost anulată."
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Registered as an outlier"
+msgstr "Înregistrat ca un anterior"
+
+# ap/templates/trace_data/list_of_histograms.html
+msgid "Abnormal data point"
+msgstr "Mai mult"
+
+# ap/templates/setting_module/db_config_modals.html
+msgid "Only once"
+msgstr "Doar o data"
+
+# ap/templates/setting_module/background_process.html
+msgid "Job Details"
+msgstr "Detalii despre post"
+
+# ap/templates/setting_module/background_process.html
+msgid "Copy to clipboard"
+msgstr "Copiați în clipboard"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Multi Scatter Plot"
+msgstr "Complot multi dispersie"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Scatter Plot display"
+msgstr "Distript complot"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "To visualize categorical variable"
+msgstr "Pentru a vizualiza variabila categorică"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by variables"
+msgstr "Stratificați prin variabile"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Variable"
+msgstr "Variabil"
+
+#: ap/templates/trace_data/categorical_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Machine No"
+msgstr "Mașina nr"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Target period"
+msgstr "Perioada țintă"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Frequency"
+msgstr "Frecvență (număr)"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Density Estimation"
+msgstr "Estimarea densității"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Categorical variable"
+msgstr "Variabilă categorică"
+
+#: ap/templates/trace_data/categorical_plot.html
+msgid "Stratify by term"
+msgstr "Stratificați după termen (direct)"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Anomaly Detection"
+msgstr "Detectarea anomaliei"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Hotelling&rsquo;s T&sup2;"
+msgstr "T&sup2;"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Analysis"
+msgstr "Principal Component Analysis"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Testing Data"
+msgstr "1. Scorul principal al componentelor datelor de testare"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Principal Component Score of Training Data"
+msgstr "2. Scorul principal al componentelor datelor de instruire"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of T2 Statistics"
+msgstr "3. Graficul seriei de statistici T2"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Series Chart of Q Statistics"
+msgstr "4. Graficul seriei de statistici Q"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of T2 Statistics"
+msgstr "5. complotul de contribuție al statisticilor T2"
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Contribution Plot of Q Statistics"
+msgstr "6. Complotul de contribuție al statisticilor Q"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Remove outlier"
+msgstr "Eliminați mai vechi"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Training data"
+msgstr "Date de instruire"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Testing data"
+msgstr "Testarea datelor"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Yes"
+msgstr "da"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "No"
+msgstr "Nu"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Type"
+msgstr "Tip de date"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Example"
+msgstr "Exemplu"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ERROR"
+msgstr "Eroare"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "WARNING"
+msgstr "Avertizare"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "AllNA"
+msgstr ""
+"Deoarece toate rândurile au fost șterse prin procesarea valorii "
+"deficitului (NA îndepărtare), nu există date de analizat. Asigurați -vă "
+"că valoarea goală, inclusiv NA, nu este selectată."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "NoneNumeric"
+msgstr ""
+"Nu poate fi analizat deoarece conține alte date decât numere. Asigurați "
+"-vă că ați selectat o coloană care conține o valoare șir sau categorie."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ZeroVariance"
+msgstr ""
+"Nu se poate analiza deoarece conține date cu o variație de 0. Asigurați "
+"-vă că nu este selectată o singură coloană de valoare."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "IntegerData"
+msgstr ""
+"A găsit date de categorie și valoarea întreagă preconizată. Dacă această "
+"valoare întreagă nu este o scară de comandă, o scară de intervale sau o "
+"scară a raportului, rezultatele analizei pot fi afectate negativ."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "ConfirmQuestion"
+msgstr "Sunteți sigur că veți continua analiza?"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Search"
+msgstr "căutare"
+
+#: ap/template/base.html
+msgid "MedianLabel"
+msgstr "Median"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Median_mean"
+msgstr ""
+"Mediana este una dintre statisticile tipice. Este o valoare situată în "
+"centru atunci când datele finite sunt aranjate în ordinea ascendentă. De "
+"exemplu, în cazul a cinci, vârsta medie a vârstei este a treia vârstă în "
+"ordinea vârstei. Dacă numărul de date este egal, se folosește media "
+"aritmeticului brevitabil central."
+
+#: ap/template/categorical_plot/categorical_plot_by_term.html
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Max"
+msgstr "Max"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Summary of Distribution"
+msgstr "Rezumatul distribuției"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "N Number"
+msgstr "N număr"
+
+#: ap/template/categorical_plot/categorical_plot_main.html
+msgid "Average"
+msgstr "In medie"
+
+#: ap/template/base.html
+#: ap/template/categorical_plot/categorical_plot_main.html
+#: ap/templates/trace_data/trace_data.html
+msgid "Median"
+msgstr "Care este mediana ..."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Total"
+msgstr "Total"
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Frequence"
+msgstr "Frecvență"
+
+#: ap/template/setting_module/performance_check.html
+msgid "End point"
+msgstr "Punct final"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show process"
+msgstr "Proces țintă"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Time Series"
+msgstr "Seria de timp"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Pieces"
+msgstr "Bucăți"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Show number hits"
+msgstr "Numărul de legături de date"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Seconds"
+msgstr "Secunde"
+
+#: ap/template/setting_module/performance_check.html
+msgid "Response Time"
+msgstr "Timp de raspuns"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit"
+msgstr "Editați | ×"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Back"
+msgstr "Înapoi"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Node"
+msgstr "Adăugați nod"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Edge"
+msgstr "Adăugați margine"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Node"
+msgstr "Editați nodul"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Add Description"
+msgstr "Faceți clic pe spațiul gol pentru a plasa un nod nou."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edge Description"
+msgstr "Faceți clic pe nod, trageți marginea la un alt nod și conectați -le."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Edge Description"
+msgstr "Faceți clic pe punctul de control, trageți -l pe nod și conectați -vă."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Create Edge Error"
+msgstr "Marginea nu poate fi adăugată."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Delete Cluster Error"
+msgstr "Clusterul nu poate fi șters."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Edit Cluster Error"
+msgstr "Clusterul nu poate fi editat."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Master name or value is duplicate!"
+msgstr "Numele sau valoarea afișajului este duplicat."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Input is required, please fill them try again!"
+msgstr "Introduceți numele și valoarea afișajului."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Line is required to save!"
+msgstr "Introduceți coloana de linie."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Hour(s)"
+msgstr "Ore"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "Data Information"
+msgstr "Informații despre date"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "day"
+msgstr "Zi"
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "week"
+msgstr "Săptămână"
+
+#: ap/template/base.html
+msgid "Load Setting Info"
+msgstr "Sarcină"
+
+#: ap/template/base.html
+msgid "Save Setting Info"
+msgstr "Salvați"
+
+#: ap/template/base.html
+msgid "Overwrite Save Setting Info"
+msgstr "Suprascrie"
+
+#: ap/template/base.html
+msgid "Label Setting"
+msgstr "Setare"
+
+#: ap/template/base.html
+msgid "Since there is the same title setting, please change the title."
+msgstr "Schimbați titlul deoarece același titlu este setat."
+
+#: ap/template/base.html
+msgid "Save Setting"
+msgstr "Salveaza setarea"
+
+#: ap/template/base.html
+msgid "Create Screenshot"
+msgstr "Creați captură de ecran"
+
+#: ap/template/base.html
+msgid "Download"
+msgstr "Descarca"
+
+#: ap/template/base.html
+msgid "AbnormalGraphShowMsg"
+msgstr ""
+"Motivele pentru care graficul nu poate fi afișat este următorul. "
+"BREAK_LINE Verificați situația. BREAK_LINE・ Datele nu sunt importate sau "
+"în mijlocul importului. BREAK_LINE・ Nu sunt legate date sau în mijlocul "
+"legării. BREAK_LINE・ Setarea graficului este inadecvată."
+
+#: ap/template/setting_module/db-config.html
+msgid "Warning"
+msgstr "Avertizare"
+
+#: ap/template/setting_module/db-config.html
+msgid "Invalid data in datetime column"
+msgstr ""
+"Înregistrările care conțin date nevalide în coloana de date data nu sunt "
+"importate."
+
+#: ap/template/setting_module/db-config.html
+msgid "Refer data file"
+msgstr ""
+"Vă puteți referi la fișierele din folderul de mai jos pentru date care nu"
+" au putut fi importate."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "The Application do not connect internet and unable to upload usage."
+msgstr ""
+"Starea de utilizare nu poate fi încărcată, deoarece nu este conectată la "
+"internet."
+
+#: ap/template/scatter_plot/scatter_plot.html
+msgid "Please check the settings of network connection."
+msgstr "Vă rugăm să verificați conexiunea la rețea."
+
+#: ap/template/setting_module/trace_config.html
+msgid "If you link the data again, it takes a long time."
+msgstr "Va dura mult timp pentru a conecta din nou datele."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Are you sure that you want to re-link the data?"
+msgstr "Sunteți sigur că reconectați datele?"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Abort"
+msgstr "Avort"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Proceed"
+msgstr "A executa"
+
+#: ap/template/setting_module/trace_config.html
+msgid "Confirm to return to the linking settings you registered the last time"
+msgstr ""
+"Sunteți sigur că reîncărcați setările de legătură de date înregistrate "
+"anterior?"
+
+#: ap/template/setting_module/db_config.html
+msgid "Importing data was started."
+msgstr "A început să importe date."
+
+#: ap/template/setting_module/db_config.html
+msgid "You can check the progress from the link below."
+msgstr "Puteți verifica progresul importului din linkul de mai jos."
+
+#: ap/template/setting_module/db_config.html
+msgid "CheckErrorJob"
+msgstr "Consultați pagina Listă de joburi pentru o stare de eroare."
+
+#: ap/template/setting_module/trace_config.html
+msgid "Linking data was started."
+msgstr "A început să conecteze datele."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 3 minutes"
+msgstr "O dată la 3 minute"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 5 minutes"
+msgstr "O dată la 5 minute"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Once per 10 minutes"
+msgstr "O dată la 10 minute"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Optional function"
+msgstr "Funcție opțională"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File type"
+msgstr "Tip fișier"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TSV Export"
+msgstr "TSV Export"
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Because of the large number of selected records, graphs are displayed "
+"with limitation of number of records per one graph to 50,000."
+msgstr ""
+"Datorită numărului mare de înregistrări selectate și a timpului necesar "
+"pentru afișarea graficului, numărul de înregistrări pe grafic a fost "
+"limitat la 50.000."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Time series chart"
+msgstr "Diagrama seriei de timp"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value"
+msgstr "Valoarea categoriei"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "TraceResultLimited"
+msgstr ""
+"Deoarece numărul de înregistrări din perioada specificată este mai mare "
+"de 5.000, BREAK_LINE legătura este legată în ± 14 zile de la perioada "
+"specificată. Dacă nu doriți să limitați intervalul de legătură, ajustați "
+"durata pentru a reduce numărul de înregistrări de BREAK_LINE."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Setting scale"
+msgstr "Scara de setare"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Common scale"
+msgstr "Scară comună"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Threshold line"
+msgstr "Linia de prag"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto scale"
+msgstr "Scară automată"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Being used scale"
+msgstr "Fiind utilizat la scară"
+
+#: ap/template/base.html
+msgid "Pn_proc"
+msgstr "Pn de proces"
+
+#: ap/template/base.html
+msgid "P_proc"
+msgstr "P_proc"
+
+#: ap/template/base.html
+msgid "maxValue"
+msgstr "Max"
+
+#: ap/template/base.html
+msgid "minValue"
+msgstr "Min"
+
+#: ap/template/base.html
+msgid "None"
+msgstr "Nici unul"
+
+#: ap/template/base.html
+msgid "Summary"
+msgstr "rezumat"
+
+#: ap/template/base.html
+msgid "Count"
+msgstr "Numara"
+
+#: ap/template/base.html
+msgid "Basic statistics"
+msgstr "Statistici de bază"
+
+#: ap/template/base.html
+msgid "Non parametric"
+msgstr "Non parametric"
+
+#: ap/template/base.html
+msgid "Quality of Data"
+msgstr "Calitatea datelor"
+
+#: ap/template/categorical_plot/categorical_plot_by_var.html
+msgid "Viewer"
+msgstr "Vizualizator"
+
+# ap/template/setting_module/config.html
+msgid "ImportData"
+msgstr "Import date"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"Based on the set config information, generating the ID for linking the "
+"data will be started."
+msgstr "Procesul de legătură de date va începe pe baza configurației curente."
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"It may take time if there is a lot of data to link, but is it okay to "
+"start the process?"
+msgstr ""
+"Poate dura timp dacă există o mulțime de date pentru a face legătura. "
+"Este ok să începi?"
+
+# ap/template/setting_module/trace_config.html
+msgid ""
+"(For data that is automatically and regularly imported, the ID for "
+"linking is automatically generated.)"
+msgstr ""
+"* Pentru datele care sunt importate automat și periodic, linkul ID este "
+"generat automat."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Name"
+msgstr "Numele sursei de date"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Source Type"
+msgstr "Tipul sursei de date"
+
+#: ap/templates/setting_module/config.html:43
+msgid "Do you want to save changes?"
+msgstr "Ești sigur că salvezi modificările?"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Force to OS locale time zone."
+msgstr "Informații privind sistemul de operare forțat la setările fusului orar."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Advanced Setting"
+msgstr "Setări avansate"
+
+#: ap/templates/setting_module/config.html:43
+msgid "ProceedToProcessConfig"
+msgstr ""
+"Setările sunt salvate pentru baza de date /CSV de importare a datelor. "
+"Accesați pagina de setare, setați coloanele de date de import pentru a "
+"importa datele."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute."
+msgstr "Nu există un atribut necesar în datele elementului."
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Element data is missing required attribute value."
+msgstr "Nu este necesară o valoare de atribut pentru datele elementelor."
+
+#: ap/template/analyze/hotelling_tsquare.html
+msgid "2 or more variables should be selected for PCA"
+msgstr ""
+"O detectare anormală de PCA necesită cel puțin două variabile. Selectați "
+"două sau mai multe variabile."
+
+#: ap/templates/setting_module/trace_config.html:43
+msgid "Please choose at least one column"
+msgstr "Selectați cel puțin o coloană"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Category value with narrow width of box is not shown."
+msgstr "Nu sunt afișate variabilele de categorie care reduc lățimea cutiei."
+
+#: ap/templates/filter_visualization.html
+msgid "Starting Digit"
+msgstr "Cifra de pornire"
+
+#: ap/templates/templates/sidebar.html
+msgid "Ridgeline Plot"
+msgstr "Plot Ridgeline"
+
+#: ap/template/base.html
+msgid "Confirm Shutdown App"
+msgstr ""
+"Opriți aplicația (Edge Server). Dacă vă opriți, orice alt utilizator nu "
+"va putea folosi și el, așa că vă rugăm să contactați administratorul. "
+"<br> În cazul finalului normal, anulați aici și închideți doar browserul."
+
+#: ap/template/base.html
+msgid "Jobs Stopped"
+msgstr ""
+"Toate joburile au fost oprite. Puteți închide în siguranță browserul și "
+"consola."
+
+#: ap/template/setting_module/db_config_modals.html
+#: ap/templates/templates/sidebar.html
+msgid "Data Source Config"
+msgstr "Configurare sursă de date"
+
+#: ap/template/setting_module/db_config_modals.html
+msgid "Data Source Import Config"
+msgstr "Data sursă de import configurare"
+
+# ap/template/setting_module/db_config_modals.html
+msgid ""
+"string columns are detected. There is a possibility that numeric columns "
+"are mis-estimated. Please check data type."
+msgstr ""
+": Coloanele au găsit puține coloane de caractere. Verificați dacă coloana"
+" de tip numeric etc. poate fi recunoscută greșit."
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Item"
+msgstr "Elementul de filtrare"
+
+# ap/template/setting_module/master_config.html
+msgid "Filter Value"
+msgstr "Valoarea filtrului"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid from"
+msgstr "Data de expirare (pornire)"
+
+# ap/template/setting_module/master_config.html
+msgid "Valid to"
+msgstr "Data de expirare (sfârșit)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Master"
+msgstr "Master"
+
+#: ap/templates/templates/base.html
+msgid "Data Type Error Warning"
+msgstr ""
+"Datele nu au putut fi importate din cauza greșelilor de configurare a "
+"tipului de date ale coloanei. Nume sursă de date __param__ CSV/TSV "
+"Verificați setările tipului de date în previzualizarea datelor din pagina"
+" de setare citită. Ștergeți setările de pas care nu au putut fi importate"
+" și setați setările."
+
+#: ap/templates/templates/base.html
+msgid "Import Empty File Warning"
+msgstr ""
+"A existat un fișier fără date. Verificați conținutul fișierului. <br>: "
+"__param__"
+
+#: ap/template/setting_module/master_config.html
+msgid "Data have to be input in Act from or Act to."
+msgstr "Introduceți cel puțin o valoare a perioadei de validitate de la sau la."
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by category"
+msgstr "Împărțiți după categorie"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Cyclic)"
+msgstr "Împărțiți după termen (ciclic)"
+
+#: ap/template/ridgeline_plot/ridgeline_plot.html
+msgid "Divide by term (Direct)"
+msgstr "Împărțiți după termen (direct)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Interval"
+msgstr ""
+"Valoarea intervalului introdus este nevalidă. Introduceți un număr de 0,1"
+" sau mai mult, 720 sau mai puțin sau -720 sau mai mult și -0,1 sau mai "
+"puțin."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Window Length"
+msgstr ""
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Invalid Cyclic Term Number of Ridge Lines"
+msgstr ""
+"Numărul Ridgeline de intrare este nevalid. Introduceți un număr întreg de"
+" 1 sau mai mult și 150 sau mai puțin. (preferă să folosești în jur de "
+"100)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Start data & time"
+msgstr "Începeți date și timp"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Interval"
+msgstr "Interval"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Window length"
+msgstr "Lungimea ferestrei"
+
+# ap/template/setting_module/master_config.html
+msgid "Control item"
+msgstr "Elementul de control"
+
+# ap/template/setting_module/master_config.html
+msgid "Type"
+msgstr "Tip"
+
+# ap/template/setting_module/master_config.html
+msgid "Name"
+msgstr "Nume"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Few data point in a category in RLP"
+msgstr ""
+"Rețineți că, dacă numărul de puncte de date dintr -o categorie este sub "
+"50 de ani, precizia graficului poate scădea."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Cross hair cursor (Click)"
+msgstr "Afișați cursorul de păr încrucișat (faceți clic)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display Multi cross hair cursor (Double click)"
+msgstr "Afișați cursorul de păr multi -încrucișat (dublu clic)"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Display list of histograms"
+msgstr "Afișați lista de histograme"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Cancel checked outlier"
+msgstr "Anulați verificarea anterioară"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Please fill another data source name"
+msgstr "Există deja „numele sursei de date”."
+
+#: ap/templates/templates/i18n.html
+msgid "CSV Template is error when import"
+msgstr ""
+"Importul de date a eșuat, deoarece un fișier cu un nume de coloană "
+"diferit a fost găsit în sursa de date. Verificați conținutul fișierului "
+"și setați din nou setările de import a sursei de date."
+
+#: ap/templates/templates/i18n.html
+msgid "Predicted number of records to be linked"
+msgstr "Numărul prevăzut de înregistrări care urmează să fie legate"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of samples"
+msgstr "Numărul de probe"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of records to be linked"
+msgstr "Numărul de înregistrări care trebuie legate"
+
+#: ap/templates/templates/i18n.html
+msgid "Number of total records"
+msgstr "Numărul de înregistrări totale"
+
+msgid "MSP Corr"
+msgstr "Corr"
+
+#: ap/templates/templates/i18n.html
+msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
+msgstr ""
+"Vă rugăm să numiți folderul în care sunt salvate fișierele CSV/TSV ca "
+"\"yyyymmdd\\"
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Prediction"
+msgstr "Predicție"
+
+#: ap/templates/sidebar.html
+msgid "Filter Config"
+msgstr "Filtru configurare"
+
+#: ap/templates/sidebar.html
+msgid "Master Config"
+msgstr "MASTER CONFIG"
+
+# ap/template/setting_module/master_config.html
+msgid "From Filter Config"
+msgstr "Din Filtru Config"
+
+# ap/template/setting_module/master_config.html
+msgid "Show all"
+msgstr "Arata tot"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "As Key (Option)"
+msgstr "Ca cheie (opțiune)"
+
+#: ap/templates/templates/i18n.html
+msgid "PCA delete NA"
+msgstr ""
+"Șters REMOVED_COUNT de valoare deficit, valoare anormală și valoare "
+"anterioară de la TOTAL_COUNT în original."
+
+#: ap/templates/templates/i18n.html
+msgid "IP Address"
+msgstr "Adresa IP"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Compare data distribution with histograms and estimated density lines. "
+"Split the graph with  stratified variables."
+msgstr ""
+"Comparați distribuția datelor cu histograma și estimarea densității. "
+"Graficul este împărțit la variabila stratificată. De asemenea, este "
+"împărțit pe față."
+
+#: ap/templates/sidebar.html
+msgid "Plot all data points with time axis or ID axis."
+msgstr "Transmiteți tot numărul de date pe axa timpului sau ID axa."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Displays a scatter chart matrix. You can create a matrix between up to "
+"four target variables."
+msgstr "Afișați matricea de complot. Puteți utiliza de la 2 la 7 variabile țintă."
+
+#: ap/templates/sidebar.html
+msgid ""
+"This function visualizes “unusual” and analyzes its factors by Principal "
+"Component Analysis."
+msgstr ""
+"Prin analiza componentelor principale, se efectuează vizualizarea "
+"„diferită” și analiza factorului acesteia. Introduceți date normale ca "
+"date profesor și vizualizați dacă datele curente sunt aceeași situație ca"
+" și datele normale (T2/Q). Dacă aveți o situație diferită, puteți "
+"verifica principalii factori din complotul de contribuție."
+
+# ap/template/setting_module/categorical_plot.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs."
+msgstr ""
+"Distribuția este împărțită în mai multe grafice prin această variabilă. "
+"Selectați variabile de categorie (variabile calitative), cum ar fi "
+"numerele de piese și stațiile."
+
+# ap/template/setting_module/categorical_plot.html
+msgid "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Filtru de categorie stratificată: limitează datele care trebuie afișate "
+"într -un subset. (Categorie: numărul piesei, stația nr, etc.)"
+
+# ap/template/setting_module/trace_data.html
+msgid "Category variables that appears as a label at the head of graphs."
+msgstr ""
+"Variabile de categorie (cum ar fi numărul piesei, stația nr, etc.) "
+"afișate ca etichete în partea de sus a parcelelor pentru a găsi puncte de"
+" schimbare."
+
+# ap/template/setting_module/trace_data.html
+msgid "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Filtru grafic: limitează datele care trebuie afișate într -un subset."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set training data to be regarded as normal situation."
+msgstr ""
+"Setați datele de învățare interpretate ca o situație normală. Setați "
+"secțiunea de date care nu conține date NG. Dacă sunt incluse, cele care "
+"sunt apropiate de datele NG sunt, de asemenea, considerate ca date "
+"normale."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Set test data to be judged."
+msgstr "Setați datele de testare pentru a fi judecate."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr ""
+"Filtru element: limitează datele (analizează și afișează) care trebuie "
+"afișate într -un subset."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional test data."
+msgstr ""
+"Este un afișaj agregat bidimensional (compresie dimensională de către "
+"componente principale) a datelor de verificare multidimensionale. Dacă "
+"datele sunt în centru, acestea pot fi interpretate ca fiind aproape de "
+"normal."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is aggregate 2-dimensional plot (dimensional compression by "
+"principal components) of multidimensional training data."
+msgstr ""
+"Este un afișaj agregat bidimensional (compresie dimensională de către "
+"componente principale) a datelor de învățare multidimensionale. Ținta "
+"centrală este determinată de datele de învățare, astfel încât cea mai "
+"mare parte a datelor de învățare ar trebui să fie în țintă."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is T2 statistic plot (monitor essential part [principal component] "
+"of this data)."
+msgstr ""
+"Un complot al statisticii T2, care monitorizează anomaliile în componenta"
+" principală a acestor date. Datele de învățare sunt reprezentate în alb "
+"și în porțiunea X negativă. Graficul galben este datele de validare. Cu "
+"cât datele de validare sunt mai mari cu datele albe, cu atât situația "
+"este mai probabil să se abată. Faceți clic pe punctul de date pentru a "
+"vedea complotul de contribuție a elementelor care alcătuiesc situația."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
+"data)."
+msgstr ""
+"Un complot al statisticii Q (monitorizare pentru anomalii în partea "
+"minoră a acestor date, reziduale). Datele de învățare sunt reprezentate "
+"în alb și în porțiunea X negativă. Graficul galben este datele de "
+"validare. Cu cât datele de validare sunt mai mari cu datele albe, cu atât"
+" situația este mai probabil să se abată. Faceți clic pe punctul de date "
+"pentru a vedea complotul de contribuție a elementelor care alcătuiesc "
+"situația."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in T2 statistic plot."
+msgstr ""
+"Ordinea căreia variabilele contribuie la situația din punctul selectat în"
+" complotul statistic T2. Cu cât lungimea este mai lungă, cu atât este mai"
+" probabil ca cauza."
+
+# ap/template/analyze/hotelling_tsquare.html
+msgid ""
+"This is an ordered barplot of variables that contribute to the state at "
+"the point selected in Q statistic plot."
+msgstr ""
+"Ordinea căreia variabilele contribuie la situația din punctul selectat în"
+" graficul statistic Q. Cu cât lungimea este mai lungă, cu atât este mai "
+"probabil ca cauza."
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Lower"
+msgstr ""
+"Numărul de puncte de date cu o valoare mai mică sau egală cu Q1 - 4.5 * "
+"IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "Overflow Upper"
+msgstr "Numărul de puncte de date cu o valoare mai mare sau egal cu Q3 + 4.5 * IQR"
+
+#: ap/templates/templates/i18n.html
+msgid "NTotal"
+msgstr ""
+"Numărul total de date, inclusiv NA (nu este disponibil), NaN (nu este un "
+"număr) și Inf± (infinit) în perioada selectată."
+
+#: ap/templates/templates/i18n.html
+msgid "OutCL"
+msgstr ""
+"Out of Control Line: Procentul de date în afara pragului superior și "
+"inferior (număr) în perioada selectată"
+
+#: ap/templates/templates/i18n.html
+msgid "OutAL"
+msgstr ""
+"Out of Action Line: Procentul de date în afara pragului limită superioară"
+" și inferioară (număr) în perioada selectată"
+
+#: ap/templates/templates/i18n.html
+msgid "PNA"
+msgstr "Procentul de NA (nu este disponibil) în perioada selectată (număr)"
+
+#: ap/templates/templates/i18n.html
+msgid "PNaN"
+msgstr "Procent de NaN (nu un număr) în perioada selectată (numărare)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfPlus"
+msgstr "Procentul de Inf+ (plus infinit) în perioada selectată (număr)"
+
+#: ap/templates/templates/i18n.html
+msgid "PInfMinus"
+msgstr "Procentul de Inf- (minus infinit) în perioada selectată (număr)"
+
+#: ap/templates/templates/i18n.html
+msgid "PTotal"
+msgstr ""
+"Procentul total de date în afara valorii pragului, NA (nu este "
+"disponibil), NaN (nu este un număr) și Inf± (infinit) în perioada "
+"selectată (număr)"
+
+#: ap/templates/templates/i18n.html
+msgid "N"
+msgstr ""
+"Numărul de date cu excludere NA (nu este disponibil), NaN (nu este un "
+"număr) și Inf± (infinit) în perioada selectată."
+
+#: ap/templates/templates/i18n.html
+msgid "P95"
+msgstr "95 de procente"
+
+#: ap/templates/templates/i18n.html
+msgid "P75 Q3"
+msgstr "75 de procente (al treilea quartile)"
+
+#: ap/templates/templates/i18n.html
+msgid "P25 Q1"
+msgstr "Al 25 -lea percentilă (primul quartile)"
+
+#: ap/templates/templates/i18n.html
+msgid "P5"
+msgstr "Al cincilea percentil"
+
+#: ap/templates/templates/i18n.html
+msgid "IQR"
+msgstr ""
+"Intervalul interquartil (valoarea reprezentativă a variabilității "
+"distribuției: IRQ = Q3 - Q1 ≒ 1.349σ@ distribuție normală)"
+
+#: ap/template/base.html
+msgid "HoverMedian"
+msgstr "Media (a 50 -a percentilă)"
+
+#: ap/templates/macros.html
+msgid "CHMMax"
+msgstr "Max"
+
+#: ap/templates/macros.html
+msgid "CHMMin"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid "CHMMean"
+msgstr "Mean"
+
+#: ap/templates/macros.html
+msgid "CHMStd"
+msgstr "σ"
+
+#: ap/templates/macros.html
+msgid "CHMRange"
+msgstr "Range (max-min)"
+
+#: ap/templates/macros.html
+msgid "CHMCount"
+msgstr "Count"
+
+#: ap/templates/macros.html
+msgid "CHMMedian"
+msgstr "Median"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerHour"
+msgstr "Număr/oră"
+
+#: ap/templates/macros.html
+msgid "CHMCountPerMin"
+msgstr "Număr/minut"
+
+#: ap/templates/macros.html
+msgid "CHMTimePerCount"
+msgstr "Timpul ciclului [s]"
+
+#: ap/templates/macros.html
+msgid "CHMIqr"
+msgstr "IQR (Q3-Q1)"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Division number"
+msgstr "Numărul diviziei"
+
+#: ap/templates/templates/i18n.html
+msgid "Cycle"
+msgstr "Ciclu de afișare"
+
+#: ap/templates/templates/i18n.html
+msgid "Step"
+msgstr "Interval de afișare"
+
+#: ap/templates/templates/i18n.html
+msgid "Calendar Heat Map"
+msgstr "Harta de căldură Calenda"
+
+#: ap/templates/templates/i18n.html
+msgid "Too Many Sensors"
+msgstr ""
+"Variabilele țintă nu pot fi selectate de MAX_NUM_SENSOR sau mai mult. "
+"Selectați variabila țintă."
+
+#: ap/templates/templates/i18n.html
+msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+msgstr "Obiectivele de eliminare a eliminării sunt Max, Mean, Min, σ și Range."
+
+#: ap/templates/templates/i18n.html
+msgid "Cat."
+msgstr "Altele decât numerele reale"
+
+#: ap/templates/templates/i18n.html
+msgid "RidgeLine Plot Hover"
+msgstr ""
+"Distribuția poate fi vizualizată prin calcularea pentru fiecare variabilă"
+" categorică (variabile calitative, număr de lot etc.) sau DateTime și "
+"afișându -le unul lângă altul. O metodă de vizualizare care permite "
+"analiza grupului transversal (comparație între loturi, zile, schimburi și"
+" etc.) a datelor fără discrete ID."
+
+#: ap/templates/templates/i18n.html
+msgid "Master Config Hover"
+msgstr "Setați pragul pentru a fi desenat pe grafice."
+
+#: ap/templates/templates/i18n.html
+msgid "Scatter Plot display Hover"
+msgstr ""
+"Dacă împrăștierea este pornită, puteți arăta complotul de împrăștiere cu "
+"acesta. Graficul de împrăștiere între elementul curent și elementul "
+"următor. Trageți și aruncați cărțile de complot ale parcelelor respective"
+" cu mouse-ul pentru a comuta axa X și axa Y a parcelei de împrăștiere."
+
+#: ap/templates/templates/i18n.html
+msgid "RLP Show value Hover"
+msgstr ""
+"Un element de date (cum ar fi o variabilă numerică sau o valoare de "
+"măsurare) care creează o distribuție a datelor. Aceste date sunt "
+"reprezentate pe complot. Se pot selecta până la 20 de articole."
+
+#: ap/templates/templates/i18n.html
+msgid "Stratify Variables Hover"
+msgstr ""
+"Această variabilă stratificată împarte distribuția în mai multe parcele "
+"și le afișează una lângă alta. Selectați o variabilă categorică, cum ar "
+"fi lotul nu sau lotul nr."
+
+#: ap/templates/templates/i18n.html
+msgid "Start data & time Hover"
+msgstr ""
+"Introduceți Start DateTime pentru a afișa complotul Ridgeline pentru "
+"fiecare datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "Target period Hover"
+msgstr ""
+"Introduceți direct perioada pentru a afișa complotul Ridgeline pentru "
+"fiecare date."
+
+#: ap/templates/templates/i18n.html
+msgid "Optional function Hover"
+msgstr ""
+"Puteți selecta opțiuni pentru a importa date din fișierul CSV/TSV care "
+"necesită o manipulare specială, cum ar fi convertirea structurilor de "
+"date."
+
+#: ap/templates/templates/i18n.html
+msgid "Specify datatype of columns Hover"
+msgstr ""
+"Apăsarea butonului de previzualizare de mai jos va afișa o parte din "
+"datele din fișier, astfel încât să puteți verifica conținutul acestuia."
+
+#: ap/templates/templates/i18n.html
+msgid "As Link ID Hover"
+msgstr ""
+"Selectați linkul ID pentru a fi utilizat ca condiție pentru conectarea "
+"datelor. De asemenea, puteți selecta mai multe articole."
+
+#: ap/templates/templates/i18n.html
+msgid "As Key (Option) Hover"
+msgstr ""
+"Când aplicația dvs. importă periodic date, puteți selecta o coloană "
+"DateTime care este utilizată în mod preferențial ca cheie a DateTime."
+
+#: ap/templates/templates/i18n.html
+msgid "Operator Hover"
+msgstr ""
+"Dacă selectați un operator și introduceți un număr sub „factor”, valoarea"
+" din grafic va fi calculată folosind operatorul și factorul specificat."
+
+#: ap/templates/templates/i18n.html
+msgid "Coef Hover"
+msgstr ""
+"Dacă selectați un operator și introduceți un număr sub „factor”, valoarea"
+" din grafic va fi calculată folosind operatorul și factorul specificat."
+
+#: ap/templates/templates/i18n.html
+msgid "Prediction Hover"
+msgstr ""
+"Este posibil să prezicem cât de multe date vor fi conectate de condițiile"
+" de conectare setate în prezent."
+
+#: ap/templates/templates/i18n.html
+msgid "Reload Hover"
+msgstr ""
+"Întoarce în prezent starea de conectare a datelor setate și apelează la "
+"condiția înregistrată anterior."
+
+#: ap/templates/templates/i18n.html
+msgid "Register Trace Config Hover"
+msgstr ""
+"ID este generat intern pentru a asocia datele cu condițiile de legătură "
+"setate."
+
+#: ap/templates/templates/i18n.html
+msgid "Control item Hover"
+msgstr ""
+"Selectați controlul calității sau elementele de control al echipamentului"
+" utilizând în setările graficului."
+
+#: ap/templates/templates/i18n.html
+msgid "Type Hover"
+msgstr ""
+"Vă rugăm să selectați tipul de țintă de management, cum ar fi numărul "
+"piesei și echipamentele."
+
+#: ap/templates/templates/i18n.html
+msgid "Name MCF Hover"
+msgstr ""
+"Vă rugăm să selectați ținta de gestionare, cum ar fi valoarea numărului "
+"de piesă și valoarea echipamentului."
+
+#: ap/templates/templates/i18n.html
+msgid "Action from Hover"
+msgstr "Setați Start DateTime pentru setările graficului. (Necesar)"
+
+#: ap/templates/templates/i18n.html
+msgid "Action to Hover"
+msgstr "Setați End DateTime pentru setările graficului. (Opțional)"
+
+#: ap/templates/templates/i18n.html
+msgid "Load Setting Info Hover"
+msgstr "Citiți configurația salvată."
+
+#: ap/templates/templates/i18n.html
+msgid "Save Setting Info Hover"
+msgstr "Salvați cea mai recentă configurație pe care ați introdus -o."
+
+#: ap/templates/templates/i18n.html
+msgid "Create Screenshot Hover"
+msgstr "Salvați ecranul ca fișier PNG."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to delete this setting?"
+msgstr "Doriți să ștergeți această setare?"
+
+#: ap/templates/templates/i18n.html
+msgid "Min"
+msgstr "Min"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Real/Float)"
+msgstr "Variabila țintă (număr real)"
+
+#: ap/templates/templates/macros.html
+msgid "Show value (Category)"
+msgstr "Variabila țintă (categorie)"
+
+#: ap/templates/templates/i18n.html
+msgid "Index ordering"
+msgstr "Comanda indexului"
+
+#: ap/templates/templates/i18n.html
+msgid "Column"
+msgstr "Coloană"
+
+#: ap/templates/i18n.html
+msgid "Order"
+msgstr "Ordin"
+
+#: ap/templates/i18n.html
+msgid "Priority PRIORITY"
+msgstr "Prioritate"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Ordering"
+msgstr "Comanda"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Variables"
+msgstr "Variabile"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) and categorical"
+msgstr "Numai real și categoric"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Real(Float) only"
+msgstr "Doar real"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorical only"
+msgstr "Numai categoric"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In set order"
+msgstr "În ordinea setată"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In process order"
+msgstr "În ordine de proces"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "In order of corr."
+msgstr "În corelație Coef. Ordin"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Corr threshold (abs)"
+msgstr "Prag de corelație (ABS)"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Response variable"
+msgstr "Selectați la Variabila Obiectivă"
+
+#: ap/templates/templates/i18n.html
+msgid "Objective variable"
+msgstr "Variabilă obiectivă"
+
+#: ap/templates/templates/i18n.html
+msgid "Explanatory variable"
+msgstr "Variabile explicative"
+
+#: ap/templates/templates/i18n.html
+msgid "Non-NA ratio"
+msgstr "Raport disponibil"
+
+#: ap/templates/templates/i18n.html
+msgid "Sankey Diagram"
+msgstr "Diagrama Sanky"
+
+#: ap/templates/templates/i18n.html
+msgid "Exact match"
+msgstr "Potrivire (potrivire perfectă)"
+
+#: ap/templates/templates/i18n.html
+msgid "OR search"
+msgstr "OR Căutare"
+
+#: ap/templates/templates/i18n.html
+msgid "AND search"
+msgstr "AND Căutare"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Real numbers have been removed because real numbers cannot be entered in "
+"parallel coordination for categorical data."
+msgstr ""
+"Deoarece graficul de coordonate paralele nu poate trata numerele reale, "
+"datele despre numărul real au fost eliminate."
+
+#: ap/templates/templates/i18n.html
+msgid "Search Options"
+msgstr ""
+"General Search Options&#013;・AND Search (including multiple words "
+"[delimiter:blank] at the same time) ex.A B → A B,AB,AcB,…&#013;・OR  "
+"Search (including multiple words [delimiter:blank])        ex.A B → "
+"A,B,Ac,cB,A B,AB,AcB,…&#013;・Partial Match (with start digit) ex, 34 from"
+" dig.5: JP1234,112234 / 123 from dig.3: JP1234,001234&#013;・Perfect Match"
+" ex.AB → AB only (×: aB, 0AB, ABAB,…)&#013;・Start with    ex.A → "
+"A,AB,AcB,A000,A12,A_0,… (×:aAB,0AB,_AB,…)&#013;・End   with    ex.A → "
+"A,BA,BcA,000A,12A,0_A,… (×:aAB,B0A,A_B,…)&#013;&#013;Regular Expression: "
+"Specify the format, such as serial, in detail&#013;　\\d{10} :10-digit "
+"number                 ex.1234567890,0987654321&#013;　7\\d{9} :10-digit "
+"number starting with 7 ex.7123456789&#013;　\\d{3,5}:3-5 digit number"
+"                ex.123,4567,89012,… (×:12,ABC,123456,…)&#013;　\\w{5}  "
+":5-digit alphabet/_/number[a-zA-Z_0-9](hereinafter referred to as "
+"letter)&#013;　\\w{3}-\\d{4}:3-digit letter + hyphen + 4-digit number"
+"                  ex.AB3-1234&#013;　JP\\d{10}    :12-digit number "
+"starting with JP (DNJP part number, etc.) ex.JP1234567890&#013;　"
+"(JP|EN)\\d{2}:4-digit character starting with JP or EN                  "
+"ex.JP12,EN34&#013;"
+
+#: ap/templates/templates/i18n.html
+msgid "Re-register"
+msgstr "Rereglație"
+
+#: ap/templates/templates/i18n.html
+msgid "Register the corrected contents such as Shown Name."
+msgstr "Înregistrați informațiile editate, cum ar fi numele afișajului."
+
+#: ap/templates/templates/i18n.html
+msgid "Do you want to register with the modified contents?"
+msgstr "Doriți să vă înregistrați la conținutul modificat?"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change Link ID, please reset Data Link Config."
+msgstr ""
+"Dacă schimbați linkul ID, vă rugăm să resetați configurația link -ului de"
+" date."
+
+# co-occurrence
+msgid "Co-occurrence Graph"
+msgstr "Grafic de coincidență"
+
+# co-occurrence
+msgid "Data file"
+msgstr "Fișier de date"
+
+# co-occurrence
+msgid "Aggregated by"
+msgstr "Agregat de"
+
+# co-occurrence
+msgid "Hour"
+msgstr "Ora"
+
+# co-occurrence
+msgid "Day"
+msgstr "Zi"
+
+#: ap/templates/templates/i18n.html
+msgid "Edit Mode"
+msgstr "Mod de editare"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting Mode"
+msgstr "Mod de setare"
+
+#: ap/templates/templates/i18n.html
+msgid "The error data highlighed in red will be lost. Do you want to continue?"
+msgstr ""
+"Datele nevalide evidențiate Red vor fi șterse. Sunteți sigur că treceți "
+"la modul de setare?"
+
+#: ap/templates/i18n.html
+msgid "Priority"
+msgstr "prioritate"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"A same column name was found in the English name column and was handled "
+"automatically. Please check the column names."
+msgstr ""
+"A fost detectat un nume de engleză duplicat, astfel încât numărul de "
+"serie a fost adăugat automat. Verificați numele coloanelor."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate by"
+msgstr "Unități de agregare"
+
+#: ap/templates/templates/i18n.html
+msgid ""
+"Data file with datetime on first column, and flags/number of occurrence "
+"(0, 1, 2...) of alarms on subsequent column(s)."
+msgstr ""
+"Prima coloană este DateTime, iar a doua coloană și coloanele ulterioare "
+"sunt o valoare, cum ar fi steagurile de notificare/numărul de apariție "
+"(0,1,2 ...)."
+
+#: ap/templates/templates/i18n.html
+msgid "Aggregate co-occurrence relationships by hour/day."
+msgstr "Relații agregate de coincidență la oră/zi."
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold"
+msgstr "Pragul de afișare"
+
+#: ap/templates/templates/i18n.html
+msgid "Threshold description"
+msgstr ""
+"Dacă selectați o valoare mai mică de 100%%, veți ascunde o mică relație "
+"de co -caz. (Implicit: trageți o linie dacă există chiar o dată)"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Identify and visualize directly/indirectly correlated variables of "
+"objective(s)"
+msgstr ""
+"Identificați și vizualizați variabilele care sunt corelate direct sau "
+"indirect cu variabila țintă."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid ""
+"Identify the explanatory variables that are correlated with the "
+"variable(s) specified here."
+msgstr ""
+"Vizualizați corelația dintre variabilele specificate aici. Se pot selecta"
+" până la 60 de articole."
+
+#: ap/templates/templates/sankey_plot/sankey_plot.html
+msgid "Candidate variables that are correlated with objective variable(s)."
+msgstr "Variabile candidate care sunt corelate cu variabilele obiective."
+
+#: ap/templates/templates/i18n.html
+msgid "of all edges"
+msgstr "din toate marginile"
+
+#: ap/templates/templates/i18n.html
+msgid "Layout"
+msgstr "Aspect"
+
+#: ap/templates/templates/i18n.html
+msgid "Circle"
+msgstr "Cerc"
+
+#: ap/templates/templates/i18n.html
+msgid "Auto"
+msgstr "Automat"
+
+#: ap/templates/templates/i18n.html
+msgid "Available ratio"
+msgstr "Eficienţă"
+
+msgid "Set threshold"
+msgstr ""
+"Control Line: Verificați la desenarea nivelurilor de gestionare a "
+"desenului, cum ar fi liniile standard"
+
+#: ap/templates/footer.html:3
+msgid "Analysis Platform"
+msgstr "Platforma de analiză"
+
+#: ap/templates/templates/i18n.html
+msgid "Pareto Chart"
+msgstr "Pareto grafic"
+
+#: ap/templates/templates/i18n.html
+msgid "Total Occurrences"
+msgstr "Numărul de apariție"
+
+#: ap/templates/templates/i18n.html
+msgid "Cumulative Ratio [%]"
+msgstr "Raport cumulativ [%]"
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize long-term data such as annual variations in processes and "
+"parameters that can vary depending on days of the week or shifts, etc."
+msgstr ""
+"Vizualizați parametrii care pot varia cu datele pe o perioadă lungă de "
+"timp, cum ar fi variațiile anuale în procese, zilele săptămânii, "
+"schimburi etc."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize the correlation between a large number of variables with "
+"respect to target variable."
+msgstr ""
+"Vizualizați corelația dintre un număr mare de variabile în raport cu "
+"variabila țintă."
+
+#: ap/templates/sidebar.html
+msgid ""
+"Visualize co-occurrence (relationships that focus on how often one "
+"phenomenon and another occur at the same time) of faults/alarms."
+msgstr ""
+"Vizualizați coincidența defecțiunilor, alarmelor, evenimentelor etc. "
+"(relația concentrându-se pe frecvența apariției simultane a unui fenomen "
+"și a altul)."
+
+#: ap/templates/header.html
+msgid ""
+"Digital Native QC 7 Tools: 7 QC tools compatible with DX developed as "
+"tools to support QC activities suitable for the digital native era."
+msgstr ""
+"GolDigital Native QC 7 Tools : "
+"デジタルネイティブ時代にふさわしいQC活動を支えるツールとして開発された、DXに対応したQC7つ道具。"
+
+#: ap/templates/header.html
+msgid ""
+"Analysis Platform : That makes it easy to data link, visualize, "
+"statistical analysis, and machine learning."
+msgstr ""
+"Analysis Platform: Un instrument simplu pentru maparea datelor, "
+"vizualizarea, analiza statistică și învățarea automată."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph "
+"surrounded by a light blue frame."
+msgstr ""
+"Setul de date aici este utilizat ca referință pentru conectarea și "
+"complotarea datelor. Setările sunt utilizate în axa orizontală a "
+"parcelei. În plus, graficul de origine este afișat cu un cadru albastru "
+"deschis."
+
+#: ap/templates/trace_data/trace_data.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+msgstr ""
+"Specifică datele (de exemplu, variabile numerice: valoare de măsurare) "
+"pentru complot. Selectați procesele și elementele care urmează să fie "
+"reprezentate pe complot. Se pot selecta până la 20 de articole."
+
+#: ap/templates/categorical_plot/categorical_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to create data distributions. This data is plotted on the graph."
+msgstr ""
+"Specifică datele (de exemplu, variabile numerice: valoare de măsurare) "
+"pentru complot. Selectați procesele și elementele care urmează să fie "
+"reprezentate pe complot. Se pot selecta până la 8 articole."
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value "
+"and category variable like part number) to visualize pattern. This data "
+"is plotted on the graph. It can be selected up to ten items."
+msgstr ""
+"Gol可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
+"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid ""
+"This stratification variable divides the distribution into multiple "
+"graphs and displays them side by side. Enter category variable "
+"(qualitative variable) such as part number, station number, etc. It can "
+"be selected up to 100 items."
+msgstr ""
+"Această variabilă de stratificare împarte modelul pentru a vizualiza în "
+"mai multe parcele și le afișează una lângă alta. Selectați variabile "
+"categorice, cum ar fi numărul piesei și stația nr. Până la 100 de "
+"articole pot fi selectate."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to visualize the correlation between variables. This data is plotted on "
+"the graph. It can be selected up to four items."
+msgstr ""
+"Elementul de date care vizualizează corelația dintre variabile (variabile"
+" cantitative: valori de măsurare etc.). Aceste date sunt reprezentate pe "
+"grafic. De la 2 la 7 parametri pot fi selectați."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of quantitative variable (like measurement value) in "
+"data to visualize the correlation between variables. This data is plotted"
+" on the graph."
+msgstr ""
+"Selectați elementul pentru a vizualiza corelația dintre variabile. Se pot"
+" selecta până la 60 de articole."
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid ""
+"Enter target item of category variable (like part number) in data to "
+"visualize the correlation between variables. This data is plotted on the "
+"graph."
+msgstr ""
+"Elementele variabilelor de categorie (cum ar fi numerele de piese) pentru"
+" a vizualiza corelația dintre variabile."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Maximize card"
+msgstr "Maximizați cardul"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Minimize card"
+msgstr "Minimizați cardul"
+
+#: ap/templates/templates/i18n.html
+msgid "If you change this setting, you must reset Data Link Config."
+msgstr ""
+"Dacă această setare este modificată, este necesar să se reseteze setările"
+" legăturii de date."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Auto Select"
+msgstr "Selectare automată"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Select all to the right"
+msgstr "Selectați totul din dreapta"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Unselect all to the right"
+msgstr "Deconectați totul la dreapta"
+
+#: ap/templates/templates/i18n.html
+msgid "All Real(Float) from here"
+msgstr "Toate reale (plutitor) de aici"
+
+#: ap/templates/templates/i18n.html
+msgid "All Integer from here"
+msgstr "Toate întregi de aici"
+
+#: ap/templates/templates/i18n.html
+msgid "All String from here"
+msgstr "Toate șirul de aici"
+
+#: ap/templates/templates/i18n.html
+msgid "LimitedHeatMap"
+msgstr ""
+"Datorită numărului mare de înregistrări selectate și a timpului necesar "
+"pentru afișarea parcelei, numărul de celule pe parcelă a fost limitat la "
+"10.000. Dacă doriți să vedeți toate datele pentru perioada țintă "
+"BREAK_LINE, creșteți intervalul de afișare sau reduceți perioada țintă "
+"pentru a reduce numărul de celule."
+
+#: ap/templates/templates/i18n.html
+msgid "Serial"
+msgstr "Serial"
+
+#: ap/templates/templates/i18n.html
+msgid "You can adjust the scale of the graph by right clicking on the graph."
+msgstr "Puteți regla scala complotului făcând clic dreapta pe complot."
+
+#: ap/templates/templates/i18n.html
+msgid "Graph scale"
+msgstr "Scara graficului"
+
+#: ap/templates/templates/i18n.html
+msgid "Setting View"
+msgstr "Mod de setare"
+
+#: ap/templates/templates/i18n.html
+msgid "Number_of_data_that_are_not_linked"
+msgstr "Numărul de elemente de date care nu pot fi legate"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "Only scatter plot"
+msgstr "Distript complot"
+
+# ap/templates/scatter_plot/scatter_plot.html
+msgid "with shading"
+msgstr "cu contur"
+
+#: ap/templates/setting_module/master_cfg.html
+msgid "Saving"
+msgstr "Economisire"
+
+#: ap/templates/templates/i18n.html
+msgid "The application could not read file and preview data."
+msgstr ""
+"Golファイルの読み取りができず、データのプレビューができませんでした。ファイルのヘッダなどのフォーマットに問題がないか確認をしてください。BREAK_LINEファイル名"
+" : FILE_NAME BREAK_LINEフォルダ : FOLDER"
+
+#: ap/templates/modals.html
+msgid "Load Setting"
+msgstr "Setarea încărcăturii"
+
+#: ap/templates/modals.html
+msgid "Share/Private"
+msgstr "Share/Private"
+
+#: ap/templates/modals.html
+msgid "Description"
+msgstr "Descriere"
+
+#: ap/templates/modals.html
+msgid "Created by"
+msgstr "Creat de"
+
+#: ap/templates/modals.html
+msgid "Use/Load"
+msgstr "Utilizare/încărcare"
+
+#: ap/templates/modals.html
+msgid "Load"
+msgstr "Sarcină"
+
+#: ap/templates/templates/i18n.html
+msgid "Ratio of availability of data link"
+msgstr ""
+"Numărul de date care nu au putut fi legate de procesul punctului de "
+"plecare (procentul de legătură)"
+
+#: ap/templates/modals.html
+msgid "Save Date & Time"
+msgstr "Salvați dateTime"
+
+#: ap/templates/modals.html
+msgid "Share information"
+msgstr "Opțiuni de distribuire"
+
+#: ap/templates/modals.html
+msgid "Save"
+msgstr "Salvați"
+
+#: ap/templates/i18n.html
+msgid ""
+"Available to select maximumn 4 sensors at time. Please check and retry "
+"again."
+msgstr ""
+"Puteți selecta dintre 2 la 7 variabile țintă. Verificați numărul de "
+"variabile țintă și corectați setările."
+
+#: ap/templates/i18n.html
+msgid ""
+"The maximum file size is 10MB. Please reduce the file size and retry "
+"again."
+msgstr ""
+"Limita de dimensiune a fișierului este de 10 MB. Reduceți dimensiunea "
+"fișierului și încercați din nou."
+
+#: ap/templates/modals.html
+msgid "If checked, the set date & time will also be saved."
+msgstr ""
+"Dacă este verificat, datele de date specificate sunt, de asemenea, "
+"salvate."
+
+#: ap/templates/modals.html
+msgid "If checked, the settings can be shared."
+msgstr "Verificați pentru a partaja această setare."
+
+#: ap/templates/modals.html
+msgid "Confirm to save your setting."
+msgstr "Salvați setările."
+
+#: ap/templates/modals.html
+msgid "Do you want to overwrite the setting?"
+msgstr "Sunteți sigur că suprascrieți setările?"
+
+# ap/templates/modals.html
+#: ap/templates/modals.html
+msgid "Shared"
+msgstr "acțiune"
+
+#: ap/templates/modals.html
+msgid "Private"
+msgstr "Privat"
+
+#: ap/templates/modals.html
+msgid "Created at"
+msgstr "Creat la"
+
+#: ap/templates/modals.html
+msgid "Close"
+msgstr "Închide"
+
+#: ap/templates/i18n.html
+msgid "Order set"
+msgstr "Set de comandă"
+
+#: ap/templates/i18n.html
+msgid "From"
+msgstr "Porniți dateTime"
+
+#: ap/templates/i18n.html
+msgid "To"
+msgstr "Încheiați dateTime"
+
+#: ap/templates/ridgeline_plot/ridgeline_by_category.html
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+#: ap/templates/ridgeline_plot/ridgeline_by_direct_term.html
+msgid "Show x-axis labels"
+msgstr "Afișați etichete axe X."
+
+#: ap/templates/ridgeline_plot/ridgeline_by_cyclic_term.html
+msgid "Datetime Range"
+msgstr "DateTime Range"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Drag and drop file here"
+msgstr "Trageți și drop fișierul aici"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Or"
+msgstr "Sau"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Choose a file"
+msgstr "Selectati fisierele"
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "Value cannot be displayed"
+msgstr "Nu poate fi afișat"
+
+#: ap/templates/i18n.html
+msgid ""
+"The processing was interrupted due to the large amount of data and the "
+"processing time. Please review the date and time settings, etc., and then"
+" display the graph again."
+msgstr ""
+"Prelucrarea a fost întreruptă din cauza cantității mari de date și a "
+"timpului lung de procesare. Examinați setările dateTime și afișați din "
+"nou complotul."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "CSV file output has started. Please wait until the file is downloaded."
+msgstr "Ieșire CSV fișier. Vă rugăm să așteptați în timp ce fișierele descărcați."
+
+#: ap/templates/co_occurrence/co_occurrence_csv.html
+msgid "TSV file output has started. Please wait until the file is downloaded."
+msgstr "Ieșire TSV fișier. Vă rugăm să așteptați în timp ce fișierele descărcați."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Auto range"
+msgstr "Gama automată"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Full range"
+msgstr "Gamă completă"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Index Ordering Setting"
+msgstr "Setarea comenzii index"
+
+#: ap/templates/i18n.html
+msgid "Open"
+msgstr "Deschis"
+
+#: ap/templates/modal.html
+msgid "Del"
+msgstr "Șterge"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Thin data shown"
+msgstr ""
+"Deoarece numărul de puncte de date pe grafic este de peste 12.000, "
+"numărul de puncte de date a fost limitat la maxim 12.000. Dacă doriți să "
+"vizualizați toate datele, setați o perioadă mai scurtă de țintă."
+
+#: ap/templates/categorical_plot/categorical_plot_main.html
+msgid "Stratify by term (Cyclic)"
+msgstr "Stratificați după termen (ciclic)"
+
+#: component.js
+msgid "Facet"
+msgstr "Faţetă"
+
+#: component.js
+msgid ""
+"Category expansion is performed to divide the graph using the data of the"
+" selected item."
+msgstr "Efectuează categoria împărțirea cu elementul selectat."
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Exception Estimation"
+msgstr "Estimarea excepției"
+
+#: ap/templates/templates/i18n.html
+msgid "NIQR"
+msgstr ""
+"Intervalul interquartil normalizat (index asociat IQR cu distribuție "
+"normală, NIQR = 0,7413 × IQR)"
+
+#: ap/templates/templates/i18n.html
+msgid "Mode"
+msgstr "Modul este valoarea cea mai frecventă."
+
+#: ap/templates/templates/i18n.html
+msgid "With outlier"
+msgstr "cu outier"
+
+#: ap/templates/templates/i18n.html
+msgid "Without outlier"
+msgstr "Fără mai vechi"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MedianVal"
+msgstr "Median"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MaxVal"
+msgstr "Max"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "MinVal"
+msgstr "Min"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Custom"
+msgstr "Personalizat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Today"
+msgstr "Astăzi"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Yesterday"
+msgstr "Ieri"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 7 Days"
+msgstr "Ultimele 7 zile"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Last 30 Days"
+msgstr "Ultimele 30 de zile"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "This Month"
+msgstr "Luna aceasta"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-1 Month"
+msgstr "-1 lună"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "+3 Months"
+msgstr "+3 luni"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Apply"
+msgstr "aplica"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "Week No"
+msgstr "Săptămână"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "monthNames"
+msgstr "01_02_03_04_05_06_07_08_09_10_11_12"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "dayNames"
+msgstr "Sun_Mon_Tue_Wed_Thu_Fri_Sat"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf7DaysAgo"
+msgstr "Acum 7 zile"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "DayOf30DaysAgo"
+msgstr "Acum 30 de zile"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "FirstDayOfThisMonth"
+msgstr "Ziua pumnului din această lună"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "LastDayOfThisMonth"
+msgstr "Ultima zi a acestei luni"
+
+#: ap/templates/trace_data/trace_data.html
+msgid "-3 Months"
+msgstr "-3 luni"
+
+#: ap/templates/templates/modal.html
+msgid "Updated at"
+msgstr "Actualizat la"
+
+#: ap/templates/i18n.html
+msgid "Partial Corr"
+msgstr "Partial Corr"
+
+#: ap/templates/i18n.html
+msgid "Since it is visualized in high-speed mode, the data points are omitted."
+msgstr ""
+"Punctele de date sunt rezumate cu modul rapid. Dacă doriți să obțineți "
+"complot fără să omitem date, ajustați perioada țintă mai scurtă."
+
+#: ap/templates/macros.html
+msgid "Range of Y axis"
+msgstr "Gama de axe y"
+
+#: ap/tenplates/i18n.html
+msgid "OutlierVal"
+msgstr "Mai mult"
+
+#: ap/templates/macros.html
+msgid "Exception Estimation Explanation"
+msgstr ""
+"Gol'99999', '-9.9999', '2222222'のような値をinf, -inf, "
+"NAのような例外値として扱いたい場合、チェックを入れてください。\n"
+"    ・実数の'99999', '9.99999'など => inf\n"
+"    ・実数の'-99999', '-9.99999'など => -inf\n"
+"    ・整数, 文字列の'99999', '9.99999', '222222'など => NA"
+
+#: ap/templates/i18n.html
+msgid "Search process name"
+msgstr "Căutare proces"
+
+#: ap/tenplates/header.html
+msgid "Bookmark"
+msgstr "Marcaj"
+
+#: ap/templates/i18n.html
+msgid "Sensor Type Explanation"
+msgstr ""
+"Gol以下のデータ型を示します。\n"
+"    ・CT [sec] : サイクルタイム\n"
+"    ・Real : 実数(Floatと同じ意味)\n"
+"    ・Int : 整数(Integer)\n"
+"    ・Str : 文字列(String)\n"
+
+#: ap/templates/i18n.html
+msgid "Cycle time"
+msgstr "Durata ciclului"
+
+#: ap/templates/i18n.html
+msgid "Float"
+msgstr "Numar real"
+
+#: ap/templates/i18n.html
+msgid "Objective"
+msgstr "Variabilă obiectivă"
+
+#: ap/templates/i18n.html
+msgid "Objective Explain"
+msgstr ""
+"Coeficientul de corelație este calculat folosind această variabilă ca "
+"variabilă țintă. Variabila țintă specificată aici este de asemenea "
+"afișată împreună cu o bară de culori pe partea extremă dreaptă a "
+"parcelei. Dacă doriți să schimbați variabilele țintă de pe complot, "
+"puteți comuta între ele făcând clic dreapta pe fiecare nume variabil."
+
+#: ap/templates/i18n.html
+msgid "Category limited MSG"
+msgstr ""
+"Datele nu au fost înecate, deoarece există prea multe categorii. "
+"BREAK_LINE Verificați și, dacă este necesar, revizuiți perioada țintă mai"
+" scurtă."
+
+#: ap/templates/macros.html
+msgid "Filter Setting"
+msgstr "Setare filtru"
+
+#: ap/templates/macros.html
+msgid "Label (Category value)"
+msgstr "Etichetă (variabile de categorie)"
+
+#: ap/templates/i18n.html
+msgid "Copied"
+msgstr "Copiat"
+
+#: ap/templates/i18n.html
+msgid "Pasted"
+msgstr "Lipit"
+
+#: ap/templates/i18n.html
+msgid "Copy config"
+msgstr "Copiați configurarea"
+
+#: ap/templates/i18n.html
+msgid "Paste config"
+msgstr "Lipiți configurare"
+
+#: ap/templates/macros.html
+msgid ""
+"If you do not select start process, the process of the first target "
+"variable will be start process."
+msgstr "Fără setarea originii, prima țintă este selectată ca origine."
+
+#: ap/templates/macros.html
+msgid "Export data"
+msgstr "Export de date"
+
+#: ap/templates/i18n.html
+msgid "Not use"
+msgstr "Nu folosește"
+
+#: ap/templates/i18n.html
+msgid "Not use warning"
+msgstr "Datele nu sunt desenate, deoarece există prea multe categorii."
+
+#: ap/templates/i18n.html
+msgid "Not use request"
+msgstr "Verificați și, dacă este necesar, revizuiți setările perioadei țintă."
+
+#: ap/templates/macros.html
+msgid "Divide by data number (Cyclic)"
+msgstr "Împărțiți după numărul de date (ciclic)"
+
+#: ap/templates/macros.html
+msgid "Number of data"
+msgstr "Numărul de date"
+
+#: ap/templates/i18n.html
+msgid "Div"
+msgstr "Div"
+
+#: ap/templates/i18n.html
+msgid "Color explanation"
+msgstr ""
+"Golグラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
+"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
+"(ii)ｘとy両方のデータタイプが文字列の場合"
+
+#: ap/templates/i18n.html
+msgid "Objective variable is NOT selected."
+msgstr "Selectați variabila scop."
+
+#: ap/templates/macros.html
+msgid "Non-Divided / Divide by Category"
+msgstr "Fără descompunere / descompunere a categoriei"
+
+# ap/templates/scatter_plot/scatter_plot.html
+#: ap/templates/scatter_plot.html
+msgid "Scatter Plot"
+msgstr "Distript complot"
+
+#: ap/templates/i18n.html
+msgid "SCP choose color variable warning message"
+msgstr ""
+"Dacă fie tipul de date X sau Y este String, nu puteți utiliza variabile "
+"care nu sunt strâmte pentru setarea culorilor."
+
+#: ap/templates/i18n.html
+msgid "Changed to the max number division automatically."
+msgstr ""
+"Valoarea în afara intervalului permis a fost detectată, astfel încât "
+"intervalul valabil minim sau maxim a fost decisă automat. Schimbați "
+"setările după cum este necesar."
+
+#: ap/templates/setting_module/trace_config.html
+msgid "Right drag & drop: data link setting"
+msgstr "Faceți clic dreapta: setarea link -ului de date/editare/ștergere"
+
+#: ap/templates/i18n.html
+msgid "Elapsed Time"
+msgstr "Timpul scurs"
+
+#: ap/templates/i18n.html
+msgid "Time"
+msgstr "Comandă de timp"
+
+#: ap/templates/i18n.html
+msgid "Setting Order"
+msgstr "Setarea comenzii de date"
+
+#: ap/templates/i18n.html
+msgid "Warning Full Disk"
+msgstr ""
+"Vă rugăm să ștergeți datele inutile, deoarece capacitatea hard disk -ului"
+" de `__SERVER_INFO__` a ajuns la __SERVER_INFO__ %%."
+
+#: ap/templates/i18n.html
+msgid "Error Full Disk"
+msgstr ""
+"Portul de date a fost oprit deoarece capacitatea hard disk -ului de "
+"`__SERVER_INFO__` a ajuns la __SERVER_INFO__ %%. Dacă datele inutile sunt"
+" șterse și crește capacitatea goală, datele vor fi reluate."
+
+#: ap/templates/macros.html
+msgid "Division number Hover RLP"
+msgstr ""
+"Introduceți numărul de distribuții care trebuie afișate (numărul de "
+"divizii). Introduceți un număr întreg de 2 sau 150 sau mai puțin."
+
+#: ap/templates/macros.html
+msgid "Division number Hover StP"
+msgstr ""
+"Introduceți numărul de distribuții care trebuie afișate (numărul de "
+"divizii). Introduceți un număr întreg de 1 sau mai mult 32 sau mai puțin."
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Gol表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Golプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Gol1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Gol1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/i18n.html
+msgid "Reduce number of violin messenger"
+msgstr "Există prea multe viori pe complot, deci a fost limitată automat."
+
+#: ap/templates/i18n.html
+msgid "Reduce number of data per graph messenger"
+msgstr ""
+"Datorită numărului mare de înregistrări selectate, numărul de parcele "
+"este limitat de la cea mai veche dată la numărul limită."
+
+#: ap/templates/templates/i18n.html
+msgid "I Accept"
+msgstr "Accept"
+
+#: ap/templates/i18n.html
+msgid "Decline"
+msgstr "Declin"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Backwards"
+msgstr "Înapoi"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Forwards"
+msgstr "Forwards"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Number of graph on column"
+msgstr "Numărul de complot pe coloană"
+
+#: ap/templates/i18n.html
+msgid "Label Variable Description"
+msgstr ""
+"Variabilele categorice (numărul piesei, stația nr, etc.) afișate ca "
+"etichete în partea de sus a parcelei sunt utilizate pentru a vizualiza "
+"punctele de schimbare (comutarea numărului de piese etc.) ale "
+"variabilelor calitative."
+
+#: hisview2/templates/analyze/hotelling_tsquare.html
+msgid "PCA Target Variable Explain"
+msgstr ""
+"Selectați elementele de analizat (variabile cantitative: valoare de "
+"măsurare etc.). Se pot selecta până la 60 de articole."
+
+#: ap/templates/i18n.html
+msgid "Order set explain"
+msgstr ""
+"Selectați elemente pentru a sorta datele. De asemenea, puteți selecta mai"
+" multe articole."
+
+#: ap/templates/i18n.html
+msgid "SCP choose latest in case division by data number"
+msgstr ""
+"Revărsarea datelor vechi nu este afișată, deoarece datele de date "
+"contează din cele mai recente date cu limită de afișare."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs"
+msgstr ""
+"Numărul de complot a fost limitat la NUMBER. Dacă doriți să afișați "
+"toate, reînviați setările."
+
+#: ap/templates/i18n.html
+msgid "Limit number of graphs displayed in one tab"
+msgstr ""
+"Numărul de complot dintr -o singură filă a fost limitat la NUMBER. Dacă "
+"doriți să afișați toate, reînviați setările."
+
+#: ap/templates/i18n.html
+msgid "Available to select min and max sensors at time"
+msgstr ""
+"Numărul de variabile țintă de selectat este minim minim și maxim maxim. "
+"Verificați numărul de variabile țintă și corectați setările."
+
+#: ap/templates/i18n.html
+msgid "Available to select max sensors at time"
+msgstr ""
+"Numărul de variabile țintă de selectat este până la maxim maxim. "
+"Verificați numărul de variabile țintă și corectați setările."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP Page title description"
+msgstr "NA変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "SCP show value description"
+msgstr ""
+"NA変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
+"選択したデータのTypeによって描写方法が変わります。\n"
+"x, y両変数ともInt or Real              → 散布図\n"
+"x, yの一方がInt or Real、もう一方がStr   → バイオリンプロット\n"
+"x, y両変数ともStr                      → カレンダーヒートマップ "
+
+#: ap/template/header.html
+msgid "New"
+msgstr "New"
+
+#: ap/templates/modal.html
+msgid "Do you want to save settings changes?"
+msgstr "Do you want to save changes?"
+
+#: ap/templates/modal.html
+msgid "Do not save"
+msgstr "Don't save"
+
+#: ap/templates/i18n.html
+msgid "Violins with a large amount of data are drawn by thinning out the data."
+msgstr "Violins with a large amount of data are drawn by thinning out the data."
+
+#: ap/templates/i18n.html
+msgid "Front end process timeout message"
+msgstr ""
+"The process is taking a long time. Please wait as it is, or abort the "
+"process by closing the tab on the web page."
+
+#: ap/templates/i18n.html
+msgid "Please select one Facet at lease for Stratified by variables mode!"
+msgstr "Please select one Facet at lease for Stratified by variables mode!"
+
+#: ap/templates/i18n.html
+msgid "User Setting Open Explaining"
+msgstr "Move to the corresponding page and draw the graph with the saved settings."
+
+#: ap/templates/i18n.html
+msgid "User Setting Read Explaining"
+msgstr "Reads the settings saved on the current page."
+
+#: ap/templates/i18n.html
+msgid "User Setting Edit Explaining"
+msgstr "Edit the title, priority, description, etc. of the saved settings."
+
+#: ap/templates/i18n.html
+msgid "Unselect Facet In Variable Division StP"
+msgstr ""
+"If you select \"Facet\" item in pull-down menu of show value, you can "
+"stratify the graph using the selected item."
+
+#: ap/templates/i18n.html
+msgid "Daterangepicker ranges hover message"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/i18n.html
+msgid "Not applicable"
+msgstr "Not applicable"
+
+#: ap/templates/modal.html
+msgid "Do you want to abort the process?"
+msgstr "Do you want to abort the process?"
+
+#: ap/templates/i18n.html
+msgid "Copy to the clipboard was successful"
+msgstr "Copy to the clipboard was successful."
+
+#: ap/templates/i18n.html
+msgid "Failed to copy to clipboard"
+msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Target variable"
+msgstr "Target variable"
+
+#: ap/templates/sankey_plot.html
+msgid "Mean absolute error"
+msgstr "Mean absolute error"
+
+#: ap/templates/sankey_plot.html
+msgid "Adjusted R2"
+msgstr "Adjusted R2"
+
+#: ap/templates/i18n.html
+msgid "Fitted"
+msgstr "Fitted"
+
+#: ap/templates/i18n.html
+msgid "Actual"
+msgstr "Actual"
+
+#: ap/templates/i18n.html
+msgid "Residuals"
+msgstr "Residuals"
+
+#: ap/templates/i18n.html
+msgid "Actual vs Fitted Values"
+msgstr "Actual vs Fitted Values"
+
+#: ap/templates/i18n.html
+msgid "K sep: Real"
+msgstr "K sep: Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: Int"
+msgstr "K sep: Int"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU Real"
+msgstr "K sep: EU Real"
+
+#: ap/templates/i18n.html
+msgid "K sep: EU int"
+msgstr "K sep: EU int"
+
+#: ap/templates/templates/i18n.html
+msgid "Copy to all right column"
+msgstr "Copy to all right column"
+
+#: ap/templates/i18n.html
+msgid "Edit user setting confirm"
+msgstr ""
+"_TITLE_ already exists.\n"
+"Do you want to overwrite?"
+
+#: ap/templates/i18n.html
+msgid "MAEInfo"
+msgstr ""
+"Mean absolute error (MAE) is an average of absolute value of the "
+"residuals. Small MAE indicates that the model is well fitted to the "
+"training data"
+
+#: ap/templates/i18n.html
+msgid "R2Info"
+msgstr ""
+"Adjusted R2 takes value from 0 to 1, and high value indicates that the "
+"model is well fitted to the training data.\n"
+"Generally, ordinal R2 improves by just adding new explanatory variables. "
+"Adjusted R2 is adjusted by the number of explanatory variables."
+
+# ap/templates/trace_data/list_of_histograms.html
+#: ap/templates/macros.html
+#, fuzzy
+msgid "No data link"
+msgstr "Mai mult"
+
+#: ap/templates/filter_config.html
+msgid "Filter Type"
+msgstr "Filter Type"
+
+#: ap/templates/filter_config.html
+msgid "Please enter a character string for the filter condition."
+msgstr "Please enter a character string for the filter condition."
+
+#: ap/templates/parallel_plot.html
+msgid "Real(Float) and Integer"
+msgstr "Real(Float) and Integer"
+
+#: ap/templates/i18n.html
+msgid "Change divide confirm message"
+msgstr ""
+"Clear Div in Facet box?\n"
+"When click OK, clear Div.\n"
+"When click Cancel, 'CATEGORY_DIVIDE_OPTION' is selected automatically."
+
+#: ap/templates/i18n.html
+msgid "Clear Div in Facet"
+msgstr ""
+"Clear CURRENT_DIVIDE_OPTION?\n"
+"When click OK, clear CURRENT_DIVIDE_OPTION and select "
+"'CATEGORY_DIVIDE_OPTION' automatically. \n"
+"When click Cancel, clear Div in Facet automatically."
+
+#: ap/templates/templates/i18n.html
+msgid "Parallel Coordinates Plot"
+msgstr "Parallel Coordinates Plot"
+
+#: ap/templates/i18n.html
+msgid ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/templates/i18n.html
+msgid ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+msgstr ""
+"Since there is no datetime column, the application generates a dummy data"
+" for datetime."
+
+#: ap/templates/templates/i18n.html
+msgid "K sep type notification"
+msgstr ""
+"The data type of real number or integer column including thousands "
+"separator is presumed to be character string, so change it to the correct"
+" data type"
+
+#: ap/templates/i18n.html
+msgid "Preview same value message"
+msgstr ""
+"There are columns with the same values in the previewed data. Please "
+"check whether it is set as the target column to import data."
+
+#: ap/templates/i18n.html
+msgid "Preview null value message"
+msgstr ""
+"There are columns with no values in the previewed data. If you want to "
+"set the target column to import data, please check and specify the "
+"appropriate data type."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Dummy Datetime Generate On DS Confirm Message"
+msgstr ""
+"The target file does not have a datetime column.\n"
+"The system requires datetime, so are you sure to generate dummy "
+"datetime(DatetimeDummy) and continue setting?\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Dummy Datetime Generate On Proc Confirm Message"
+msgstr ""
+"Dummy datetime (DatetimeDummy) was generated because there is no datetime"
+" column in the target file.\n"
+"\n"
+"Please check the generated dummy datetime and import it with \"As "
+"Datetime\" checked.\n"
+"\n"
+"Dummy datetime is generated as follows.\n"
+"* Generate initial datetime on the first record of the target file which "
+"is 00:00 on the 1st day of this month.\n"
+"* Recursively add 10 seconds by records.\n"
+"* For the next file, initialize by 00:00 on the next day of latest "
+"datetime, and recursively add 10 seconds by records.\n"
+
+#: ap/templates/modal.html
+msgid "Anchor cursor"
+msgstr "Anchor cursor"
+
+#: ap/templates/modal.html
+msgid "Show  cursor from all labels"
+msgstr "Show  cursor from all labels"
+
+#: ap/templates/modal.html
+msgid "Hide cursor"
+msgstr "Hide cursor"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid ""
+"The target file does not have a datetime column. Please prepare a "
+"datetime column or consider using dummy datetime (DatetimeDummy)."
+msgstr ""
+"There is no datetime column. If there is no datetime column, the "
+"application generates a dummy data for datetime."
+
+#: ap/tenplates/i18n.html
+msgid "MSP Hide Contour MSG"
+msgstr ""
+"Since the number of data points drawn on one graph is large, a high-speed"
+" mode scatter plot with contour is drawn.If you want to plot all data "
+"points, please change the target period to reduce the number of data "
+"points."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "InfCastValue"
+msgstr "Min"
+
+#: ap/templates/macros.html
+msgid ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+msgstr ""
+"Values those have pulsed number of occurrences compared to the neighbors:"
+" Replace to NA"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Cleansing"
+msgstr "Avertizare"
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap"
+msgstr "Heatmap"
+
+#: ap/templates/i18n.html
+msgid "Data Count"
+msgstr "Data Count"
+
+#: ap/templates/i18n.html
+msgid "Confusion Matrix"
+msgstr "Confusion Matrix"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Accuracy"
+msgstr "Accuracy"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision"
+msgstr "Predicție"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "Recall"
+msgstr "Recall"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "ROC-AUC"
+msgstr "ROC-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+msgid "PR-AUC"
+msgstr "PR-AUC"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Accuracy description"
+msgstr "Descriere"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Precision description"
+msgstr ""
+"Dacă selectați o valoare mai mică de 100%%, veți ascunde o mică relație "
+"de co -caz. (Implicit: trageți o linie dacă există chiar o dată)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "Recall description"
+msgstr ""
+"Dacă selectați o valoare mai mică de 100%%, veți ascunde o mică relație "
+"de co -caz. (Implicit: trageți o linie dacă există chiar o dată)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "ROC-AUC description"
+msgstr ""
+"Dacă selectați o valoare mai mică de 100%%, veți ascunde o mică relație "
+"de co -caz. (Implicit: trageți o linie dacă există chiar o dată)"
+
+#: ap/templates/sankey_plot/sankey_plot.html
+#, fuzzy
+msgid "PR-AUC description"
+msgstr "Descriere"
+
+#: ap/templates/macros.html
+msgid "Serial series"
+msgstr "Serial series"
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Mode hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Drift hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Diff hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/ridgeline_plot/ridgeline_plot.html
+msgid "Both hover msg"
+msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Contour hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
+msgid "Heatmap hover msg"
+msgstr ""
+"The background color is changed according to the magnitude of the "
+"correlation coefficient. Among the selected variables, combinations of "
+"variables with larger absolute values of correlation coefficients are "
+"displayed in brighter colors."
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "XY axis"
+msgstr "X-Y axis"
+
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Col num hover msg"
+msgstr "Set the number of columns in the split graph."
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr "Top and bottom 5%%: Replace to NA"
+
+#: ap/templates/macros.html
+msgid "If checked, the config on graph area will also be saved."
+msgstr "If checked, the config on graph area will also be saved."
+
+#: ap/templates/macros.html
+msgid "Graph Setting"
+msgstr "Graph Setting"
+
+#: ap/templates/macros.html
+msgid "Also save the settings of the graph area (or clear)"
+msgstr "Also save the settings of the graph area (or clear)"
+
+#: ap/templates/i18n.html
+msgid "Attribute"
+msgstr "Attribute"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Lower"
+msgstr "Închide"
+
+#: ap/templates/i18n.html
+msgid "Upper"
+msgstr "Upper"
+
+#: ap/templates/i18n.html
+msgid "Limit"
+msgstr "Limit"
+
+#: ap/templates/i18n.html
+msgid "Proc. limit"
+msgstr "Proc. limit"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "Valid"
+msgstr "Data de expirare (sfârșit)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidFrom"
+msgstr "Data de expirare (pornire)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "ValidTo"
+msgstr "Data de expirare (sfârșit)"
+
+#: ap/templates/modal.html
+msgid ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+msgstr ""
+"Because duplicate column names exist, a numeric suffix  added to the "
+"duplicate column names."
+
+#: ap/templates/i18n.html
+msgid "Error Msg Common"
+msgstr "Error is occurring!!"
+
+#: ap/templates/i18n.html
+msgid "Filter search box hover msg"
+msgstr ""
+"General Search Options\n"
+"    ・OR Search: Including multiple words(spaces are treated as "
+"characters) separated by '|'.  (ex. A|B C → AX, B CX, AXB C)\n"
+"    ・Range Search: Including numbers in the range specified by '[-]'. "
+"(ex. [98-101] → X098, X099, X100)\n"
+"Regular Expression: Specify the format of serial etc. in detail."
+
+#: ap/templates/i18n.html
+msgid "First"
+msgstr "First"
+
+#: ap/templates/i18n.html
+msgid "Last"
+msgstr "Last"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial"
+msgstr "Duplicate serial"
+
+#: ap/templates/i18n.html
+msgid "Duplicate serial hover message"
+msgstr ""
+"You can select the record to display when there are duplicate records in "
+"the item set for 'As Link ID' on the process setting page.\n"
+"When data linking between several processes, duplicate serials are "
+"forcibly linked with the latest date & time record."
+
+#: ap/templates/i18n.html
+msgid "Remove duplicated records message"
+msgstr "Excluded `x` duplicate records."
+
+#: ap/templates/i18n.html
+msgid "P duplicate hover message"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/i18n.html
+msgid "All 2"
+msgstr "All"
+
+#: ap/templates/i18n.html
+msgid "You can filter categorical data used for graph drawing."
+msgstr "You can filter categorical data used for graph drawing."
+
+#~ msgid ""
+#~ "\"Inf\"/\"-Inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+#~ msgstr ""
+#~ "\"Inf\"/\"-inf\" and their estimated values"
+#~ " are displayed on the graph as "
+#~ "\"NA\"."
+
+#~ msgid "Top and bottom 5%: Replace to NA"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+
