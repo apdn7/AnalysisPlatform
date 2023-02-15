@@ -1,9 +1,13 @@
 # Releases
 
+## v4.1.1
+
+This version fixes an issue: the Analysis Platform checks disk usage at an unexpected frequency in a specific condition.
+
 ## v4.1.0
 
 This version is a major update including many new functionalities and bugfixes.  
-See Upgrade Manual (pdf) ([EN](https://github.com/apdn7/AnalysisPlatform/files/10728738/AP%2BDN7_upgrade_manual_En.pdf)/[JP](https://github.com/apdn7/AnalysisPlatform/files/10728739/AP%2BDN7_upgrade_manual_Jp.pdf)) if you are currently using the Analysis Platform v4.0.1 or v4.0.0.
+See Upgrade Manual (pdf) if you are currently using the Analysis Platform v4.0.1 or v4.0.0.
 
 Core changes
 
@@ -11,7 +15,7 @@ Core changes
   * Improved error tracing during the activation.
   * Automatically opens web browser and generate shortcuts.
   * Now shows "Port No./Language used/Path of application folder" on the title of the console screen. (Users those activate multiple applications can now distinguish the applications by looking at the title of the console screen)
-  * See Getting Started (pdf) ([EN](https://github.com/apdn7/AnalysisPlatform/files/10728733/AP%2BDN7_getting_started_En.pdf)/[JP](https://github.com/apdn7/AnalysisPlatform/files/10728735/AP%2BDN7_getting_started_Jp.pdf)) for details.
+  * See Getting Started (pdf) for details.
 * Default port number is changed to 7770.
 
 New functionalities
