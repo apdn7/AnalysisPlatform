@@ -20,13 +20,12 @@ USE_EXPIRED_CACHE_PARAM_NAME = '_use_expired_cache'
 
 
 def is_obsolete(entry, duration=None):
+    if duration:
+        return time.time() - entry['time'] > duration
+
     if entry.get('expired'):
         return True
-
-    if duration is None:
-        return False
-
-    return time.time() - entry['time'] > duration
+    return False
 
 
 # def filter_r_obj(params):
@@ -74,7 +73,7 @@ def clear_cache_files():
         pass
 
 
-def memoize(is_save_file=False, duration=30 * 24 * 60 * 60):
+def memoize(is_save_file=False, duration=None):
     def memoize1(fn):
         @wraps(fn)
         def memoize2(*args, **kwargs):
@@ -86,6 +85,7 @@ def memoize(is_save_file=False, duration=30 * 24 * 60 * 60):
             key = compute_key(fn, args, kwargs)
 
             is_stop_using_cache = get_cache_attr(MemoizeKey.STOP_USING_CACHE)
+            print(fn.__name__)
             if not is_stop_using_cache and key in cache and (is_use_expired or not is_obsolete(cache[key], duration)):
                 print('used cache')
                 if is_save_file:
@@ -95,6 +95,7 @@ def memoize(is_save_file=False, duration=30 * 24 * 60 * 60):
                 else:
                     return cache[key]['value']
 
+            print('not used cache')
             result = fn(*args, **kwargs)
 
             if is_save_file:
@@ -127,8 +128,6 @@ def clear_cache():
 
 def set_all_cache_expired():
     for dic_val in cache.values():
-        if dic_val.get('duration', 0) > 0:
-            continue
         dic_val['expired'] = True
 
     print('CACHE EXPIRED')

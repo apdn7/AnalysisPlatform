@@ -98,15 +98,23 @@ def gen_graph_plot_view(dic_form):
     dic_param = build_dic_param_plot_view(dic_form, start_proc_local_time)
     graph_param, dic_proc_cfgs = build_graph_param(dic_param, full_link=True)
     full_target_serial_cols = get_serial_cols(dic_proc_cfgs)
-    _df_full, _, _ = get_data_from_db(graph_param, is_get_end_proc_serials=True)
+    df_full, _, _ = get_data_from_db(graph_param, is_get_end_proc_serials=True)
+    _df_full = df_full.copy()
+    # use df when df_full is None
+    use_df = False
+    if df_full is None or not len(df_full):
+        df_full = df
+        use_df = True
 
-    df_full: pd.DataFrame = extract_cycle(_df_full, cycle_id)
+    df_full: pd.DataFrame = extract_cycle(df_full, cycle_id)
     if df_full.empty:
         df_full: pd.DataFrame = extract_serial(_df_full, full_target_serial_cols, serial_value)
+        use_df = df_full.empty
 
-    if df_full.empty:
-        df_full = gen_blank_df_end_cols(graph_param.array_formval)
-        df_full[df.columns] = df[df.columns].to_numpy()
+    if use_df:
+        df_blank = gen_blank_df_end_cols(graph_param.array_formval)
+        df_blank[df.columns] = df[df.columns].to_numpy()
+        df_full = df.merge(df_blank)
 
     full_link_tbl_header, full_link_tbl_rows = gen_list_table(dic_proc_cfgs, graph_param, df_full, client_timezone)
 
