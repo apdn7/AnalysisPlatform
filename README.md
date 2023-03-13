@@ -59,15 +59,15 @@ Windows embeddable package, running the batch file is regarded as you agreed to 
 
 For detailed instruction, please refer below documents (PDF):
 
-* EN: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/10739958/AP%2BDN7_getting_started_En_v4.1.1.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/9806411/AP%2BDN7_Setting_Manual_En0.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806413/AP%2BDN7_User_Manual_FPP_En.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
-* JP: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/10739960/AP%2BDN7_getting_started_Jp_v4.1.1.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/9806412/AP%2BDN7_Setting_Manual_Ver1.0_Jp.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806414/AP-DN7_FPP_Jp0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
+* EN: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/10956476/AP%2BDN7_getting_started_En_v4.1.1.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/9806411/AP%2BDN7_Setting_Manual_En0.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806413/AP%2BDN7_User_Manual_FPP_En.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
+* JP: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/10956479/AP%2BDN7_getting_started_Jp_v4.1.1.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/9806412/AP%2BDN7_Setting_Manual_Ver1.0_Jp.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806414/AP-DN7_FPP_Jp0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
 
 ### For users: Run the Analysis Platform with Windows embeddable package
 
 If you use Windows machine, you can use Windows
 embeddable package to run the Analysis Platform
 without installing python.
-(See Getting Started ([EN](), [JP]()) for details)
+(See the document "Getting Started" for details)
 
 You only have to download, unzip the file, and double click the batch file `start_ap.bat`.  
 The batch file will automatically download:
@@ -176,3 +176,10 @@ See our [LICENSE](LICENSE.md) for more detail.
 ## Updates
 
 You can check [release notes](RELEASE.md) for new features and bugfixes.
+
+## Troubleshooting
+
+* The Analysis Platforms fails to activate with an error message:  
+ImportError: DLL load failed: The specified module could not be found.
+  * You might need to install the "Microsoft Visual C++ runtime library".
+  * Documents: [EN](https://github.com/apdn7/AnalysisPlatform/files/10956076/AP%2BDN7_troubleshooting_ImportError_DLL_load_failed_En.pdf) / [JP](https://github.com/apdn7/AnalysisPlatform/files/10956075/AP%2BDN7_troubleshooting_ImportError_DLL_load_failed_Jp.pdf)
