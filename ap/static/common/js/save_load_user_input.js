@@ -10,8 +10,11 @@ let mainFormSettings = null;
 let currentLoadSetting = null;
 let currentFromDataFromLoadSetting = null;
 let isSettingChanged = false;
+let isSettingLoading = false;
 const INVALID_FILTER_DETAIL_IDS = 'invalid_filter_detail_ids';
 const SHARED_USER_SETTING = 'shared_user_setting';
+let lastUsedFormData = null;
+let latestIndexOrder = []
 
 const settingModals = {
     common: '#saveUserSettingModal',
@@ -866,8 +869,8 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                 }, 100);
                 setTimeout(() => {
                     $($(`select[name=${column.name}]`)[i]).val(column.value).trigger('change');
-                    $($(`select[name=${order.name}]`)[i]).val(order.value).trigger('change');
-                }, 200);
+                    $($(`select[name=${order.name}]`)[i]).val(order.value)
+                }, 300);
             });
         }, 1000);
     };
@@ -936,6 +939,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                     const form = $(currentFormID);
                     currentFromDataFromLoadSetting = new FormData(form[0]);
                     resetChangeSettingMark();
+                    isSettingLoading = false;
                 }
             },3500);
         } else if (isSaveToLocalStorage) {
@@ -1077,30 +1081,6 @@ const settingDataTableInit = () => {
     sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 9, 10], '100%');
 };
 
-const initDataTable = (tblID) => {
-    $(`#${tblID}`).DataTable({
-        retrieve: true,
-        orderCellsTop: true,
-        fixedHeader: true,
-        paging: false,
-        searching: false,
-        info: false,
-        scrollX: false,
-        initComplete() {
-            $(`#${tblID} .filterCol`).on('keyup change clear search', function () {
-                const colIdx = $(this).data('col-idx');
-                const value = $(this).val().toLowerCase();
-                $(`#${tblID} tbody tr`).filter(function f() {
-                    const cellDOM = $(this).find(`td:eq(${colIdx})`);
-                    const selection = $(cellDOM).find('select')[0];
-                    const colVal = selection ? $(selection).val() : $(cellDOM).text();
-                    $(this).toggle(colVal.toLowerCase().indexOf(value) > -1);
-                });
-            });
-        },
-    });
-};
-
 const scrollToBottom = (id) => {
     const element = document.getElementById(id);
     if (!element) return;
@@ -1225,6 +1205,7 @@ const handleGoToSettingPage = (e, userSettingId, settingPage) => {
 const useUserSetting = (userSettingId = null, sharedSetting = null, onlyLoad = null, isLoadNew = true, fromPaste = false) => {
     const reqHeaders = new Headers();
     reqHeaders.append('Content-Type', 'application/json');
+    isSettingLoading = true;
 
     fetch('/ap/api/setting/load_user_setting', {
         method: 'POST',
@@ -1590,6 +1571,12 @@ const getSettingCommonInfo = () => {
             temp_cat_procs: lastUsedFormData ? JSON.parse(lastUsedFormData.get('temp_cat_procs')) : '',
         };
 
+        const isIndexOder = hasIndexOrderInGraphSetting(graphSettings);
+
+        if (isIndexOder) {
+            formSettingDat['indexOrder'] = latestIndexOrder;
+        }
+
         formSettingDat['graphSetting'] = graphSettings;
         formSettingDat['filter'] = filterData;
 
@@ -1600,6 +1587,12 @@ const getSettingCommonInfo = () => {
 
     return settingCommonInfo;
 };
+
+
+const hasIndexOrderInGraphSetting = (graphSettings = []) => {
+    const isIndexOrder = graphSettings.filter(graph => graph.name === 'XAxisOrder' && graph.value === CONST.XOPT_INDEX).length > 0;
+    return isIndexOrder;
+}
 
 const convertDatetimePickerSeparator = (value) => {
     const temp = value;
@@ -1755,6 +1748,7 @@ $(document).ready(() => {
                 compareSettingChange();
             });
         }
+        isSettingLoading = false;
     }, 3500);
 
     $('.go-to-page').on('click', (e) => {
@@ -1888,6 +1882,13 @@ const getGraphSettings = () => {
         return a.order > b.order ? -1 : 1;
     }) : null;
 };
+
+const getIndexOrder = () => {
+    if (!currentLoadSetting) return null;
+    const settings = JSON.parse(currentLoadSetting.settings);
+
+    return settings.indexOrder || [];
+}
 
 const setFitlerIntoFormData = (formData) => {
     if (!isSaveGraphSetting()) return formData;

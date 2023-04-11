@@ -1679,7 +1679,7 @@ msgstr "入力した間隔の値が無効です。0.1以上、720以下の数字
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Invalid Cyclic Term Window Length"
-msgstr "入力した時間窓幅の値が無効です。0.1以上、48以下の数字を入力してください。"
+msgstr "入力した時間窓幅の値が無効です。0.01以上、48以下の数字を入力してください。"
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Invalid Cyclic Term Number of Ridge Lines"
@@ -3017,21 +3017,21 @@ msgstr ""
 #: ap/templates/macros.html
 msgid "Interval Hover"
 msgstr ""
-"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.01以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
 "\n"
 "e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
 
 #: ap/templates/macros.html
 msgid "Window length Hover"
 msgstr ""
-"1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より小さい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より大きい場合はデータの重なりが発生します。"
+"1つの分布を計算する際の時間の幅を入力します。0.01以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より小さい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より大きい場合はデータの重なりが発生します。"
 "\n"
 "e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
 
 #: ap/templates/macros.html
 msgid "Window length Hover ScP"
 msgstr ""
-"1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"1つのグラフの時間の幅を入力します。0.01以上、20,000(=833日)以下の数値を入力してください。\n"
 "e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
 
 #: ap/templates/i18n.html
@@ -3540,13 +3540,134 @@ msgid "P duplicate hover message"
 msgstr "重複シリアル数(その割合)"
 
 #: ap/templates/i18n.html
-msgid "All 2"
-msgstr "全て"
-
-#: ap/templates/i18n.html
 msgid "You can filter categorical data used for graph drawing."
 msgstr "グラフ描画に用いたカテゴリデータのフィルタを行います。"
 
-#~ msgid "Top and bottom 5%: Replace to NA"
-#~ msgstr "外れ値: 上下位5%%=> NAに置換"
+#: ap/templates/i18n.html
+msgid "TourSelectTargetVar"
+msgstr "工程を選択し、その中からグラフ化したい変数をいくつか選択しましょう。右上の+ボタンを押すことで、複数の工程を選択することができます。BREAK_LINEBREAK_LINEラベルプロット、ファセット分割を行う変数も選択できます。BREAK_LINE"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetVarDesc"
+msgstr "BREAK_LINEこのように下線が引かれている文字は、マウスカーソルを当てて少し待つことで、それらの意味を表示することができます。"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetPeriod"
+msgstr ""
+"「日時」が選択されている場合 "
+"(デフォルト)、開始日時/終了日時で描画するデータの期間を指定します。BREAK_LINEBREAK_LINE「最新」を選択すると、現時刻から指定した時間遡った日時までのデータ"
+" (24時間前までなど) を可視化します。さらに「自動更新」を選択すると、自動的ににグラフを更新させることができます。"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetPeriodDatePicker"
+msgstr "日時が表示されているテキストボックスをクリックすると、日時を選択するための画面が表示されます。この画面を利用して日時範囲を指定できるほか、キーボードで直接テキストボックスに入力することもできます。"
+
+#: ap/templates/i18n.html
+msgid "TourFindData"
+msgstr "問題ありません。「Data Finder」ボタンをクリックすると、データが格納されている期間を確認できる画面が表示されます。"
+
+#: ap/templates/i18n.html
+msgid "TourWithDatafinder"
+msgstr "この画面から、いつのデータがどのくらい読み込まれているかを見ながら、日時範囲を選択することができます。BREAK_LINEBREAK_LINEデータが存在する場合は該当のセルが青く表示され、データ量が多いほど明るい青になります。このデータの有無は、「ターゲット変数を選択」ステップではじめに選択された工程、または「SPAN_TAG起点SPAN_END_TAG」に指定された工程のデータを参照します。"
+
+#: ap/templates/i18n.html
+msgid "TourUseFilter"
+msgstr ""
+"「A_TAGフィルタ設定A_END_TAG」ページで設定を行っていた場合、ここで事前に可視化するデータを絞り込むことができます (例: "
+"品番、テスト品フラグなど)。BREAK_LINEBREAK_LINEまた、「オンデマンドフィルタ」機能を利用して、可視化後にデータを絞り込むことができます。こちらは設定不要です。可視化を実行後、フィルタボタン"
+" FILTER_ICON をクリックすることで利用できます。"
+
+#: ap/templates/i18n.html
+msgid "TourCleansing"
+msgstr "用意されているデータクレンジング方法から、適用したいものを選択してください。(複数選択可能)BREAK_LINEBREAK_LINE"
+
+#: ap/templates/i18n.html
+msgid "TourShowGraph"
+msgstr "基本的な設定はこれで完了です。このツアーで操作した設定は、ほとんどの可視化のページで共通しています。BREAK_LINEBREAK_LINE最後に「グラフ表示」ボタンを押し、しばらく待つとグラフが描画されます。"
+
+#: ap/templates/i18n.html
+msgid "TourFinish"
+msgstr "このツアーはこれで完了です。BREAK_LINEBREAK_LINE可視化後の画面にもオンデマンドフィルタをはじめ、多くの便利な機能が実装されています。グラフ上の操作でデータを破壊することはありませんので、グラフを自由に操作し、様々な角度からデータを分析していきましょう。"
+
+#: ap/templates/i18n.html
+msgid "GoBack"
+msgstr "前"
+
+#: ap/templates/i18n.html
+msgid "GoNext"
+msgstr "次"
+
+#: ap/templates/i18n.html
+msgid "GoFinish"
+msgstr "完了"
+
+#: ap/templates/i18n.html
+msgid "GoNextToDataFinder"
+msgstr "データが存在する期間が分かりません"
+
+#: ap/templates/i18n.html
+msgid "TourWelcomeTitle"
+msgstr "分析プラットホームへようこそ"
+
+#: ap/templates/i18n.html
+msgid "TourWelcome"
+msgstr "このツアーでは、データを可視化するための基本的な操作を学びます。どの可視化機能も、同じような使い方で操作できます。"
+
+#: ap/templates/i18n.html
+msgid "TourWelcomeQuit"
+msgstr "ツアーを終了"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetVarTitle"
+msgstr "ターゲット変数 (可視化したい変数) を選択"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetPeriodTitle"
+msgstr "データの日時範囲の指定"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetPeriodDatePickerTitle"
+msgstr "データの日時範囲の指定 (日時選択画面)"
+
+#: ap/templates/i18n.html
+msgid "TourFindDataTitle"
+msgstr "Data Finder でデータを探す"
+
+#: ap/templates/i18n.html
+msgid "TourWithDatafinderTitle"
+msgstr "Data Finder でデータを探す"
+
+#: ap/templates/i18n.html
+msgid "TourUseFilterTitle"
+msgstr "予め設定されたフィルタの指定"
+
+#: ap/templates/i18n.html
+msgid "TourCleansingTitle"
+msgstr "適用するデータクレンジング処理を指定"
+
+#: ap/templates/i18n.html
+msgid "TourShowGraphTitle"
+msgstr "可視化を実行"
+
+#: ap/templates/i18n.html
+msgid "TourFinishTitle"
+msgstr "完了: 基本的な可視化の操作"
+
+#: ap/templates/i18n.html
+msgid "Learn how to visualize data"
+msgstr "データを可視化する基本操作を学ぶ"
+
+#: ap/templates/i18n.html
+msgid "Support site (JP)"
+msgstr "サポートサイト"
+
+#: ap/templates/macros.html
+msgid "Dup check message"
+msgstr ""
+"紐付IDに指定した項目の重複数を、\n"
+"Auto: データ点数が 12,000 以下の場合のみ取得、\n"
+"Check: データ点数に関わらず取得、\n"
+"Skip: データ点数に関わらず取得しません。\n"
+"重複数はグラフ描画後、ページ左下に表示されます。\n"
+"この処理はデータ点数が多いほど時間がかかることにご注意ください。"
 

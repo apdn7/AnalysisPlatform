@@ -3,7 +3,7 @@ from typing import List, Dict
 
 from ap.common.logger import logger
 
-from ap.common.constants import NO_FILTER, SELECT_ALL, DuplicateSerialShow
+from ap.common.constants import NO_FILTER, SELECT_ALL, DuplicateSerialShow, DuplicateSerialCount
 from ap.setting_module.models import CfgFilterDetail, CfgProcessColumn, CfgProcess
 
 
@@ -180,6 +180,8 @@ class CommonParam:
     remove_outlier_explanatory_var: bool
     abnormal_count: bool
     sensor_cols: List[int]
+    is_export_mode: bool
+    duplicated_serials_count: str
 
     def __init__(self, start_proc=None, start_date=None, start_time=None, end_date=None,
                  end_time=None, cond_procs=None, cate_procs=None,
@@ -191,7 +193,8 @@ class CommonParam:
                  color_var=None, div_by_data_number=None, div_by_cat=None,
                  cyclic_div_num=None, cyclic_window_len=None, cyclic_interval=None, cyclic_terms=(), compare_type=None,
                  is_remove_outlier=0, remove_outlier_objective_var=0, remove_outlier_explanatory_var=0,
-                 abnormal_count=0, sensor_cols=[], duplicate_serial_show=None):
+                 abnormal_count=0, sensor_cols=[], duplicate_serial_show=None, is_export_mode=False,
+                 duplicated_serials_count=None):
         self.start_proc = int(start_proc) if str(start_proc).isnumeric() else None
         self.start_date = start_date
         self.start_time = start_time
@@ -241,6 +244,8 @@ class CommonParam:
             self.duplicate_serial_show = DuplicateSerialShow.SHOW_BOTH
         else:
             self.duplicate_serial_show = DuplicateSerialShow(duplicate_serial_show)
+        self.is_export_mode = bool(int(is_export_mode))
+        self.duplicated_serials_count = DuplicateSerialCount(duplicated_serials_count)
 
 
 class DicParam:
@@ -300,9 +305,10 @@ class DicParam:
 
     def add_cond_procs_to_array_formval(self):
         for proc in self.common.cond_procs:
-            col_ids = list(proc.dic_col_id_filters)
-            if col_ids:
-                self.add_proc_to_array_formval(proc.proc_id, col_ids)
+            self.add_proc_to_array_formval(proc.proc_id, [])
+            # col_ids = list(proc.dic_col_id_filters)
+            # if col_ids:
+            #     self.add_proc_to_array_formval(proc.proc_id, col_ids)
 
     def add_cat_exp_to_array_formval(self):
         if self.common.cat_exp:

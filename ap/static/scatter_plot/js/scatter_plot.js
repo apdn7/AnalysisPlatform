@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
-const REQUEST_TIMEOUT = setRequestTimeOut(60000); // 1 minutes
+const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_END_PROC = 2;
 let tabID = null;
 const graphStore = new GraphStore();
@@ -305,6 +305,7 @@ $(() => {
     setTimeout(() => {
         // add validations for target period
         validateTargetPeriodInput();
+        validateNumericInput($('#dataNumber'));
         onChangeTraceTimeDivisionByNumber();
         keepValueEachDivision();
     }, 2000);
@@ -316,6 +317,7 @@ $(() => {
 const loading = $('.loading');
 
 const scpTracing = () => {
+    requestStartedAt = performance.now();
     const isValid = checkValidations({ min: MAX_END_PROC, max: MAX_END_PROC });
     updateStyleOfInvalidElements();
 
@@ -868,6 +870,8 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
             makeScatterHoverInfoBox(dataScp, option, key, pageX, pageY);
         }, 100);
     });
+
+    unHoverHandler(graphDiv);
     
     // const chartDOM = document.getElementById(canvasID);
     // window.removeEventListener('click', () => {
@@ -1501,6 +1505,8 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
                 }, 200);
             });
 
+            unHoverHandler(graphDiv);
+
             graphDiv.addEventListener('mouseleave', () => {
                 $('.scp-hover-info')
                     .remove();
@@ -1618,6 +1624,8 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
                     makeHoverInfoBox(dataScp, key, option, pageX, pageY);
                 }, 10);
             });
+
+            unHoverHandler(graphDiv);
 
             graphDiv.addEventListener('mouseleave', () => {
                 $('.scp-hover-info')
@@ -1991,7 +1999,7 @@ const setDateTimeToForm = (dateTime, formData) => {
     return formData;
 };
 
-const handleExportData = (type) => {
+const dumpData = (type) => {
     let formData = lastUsedFormData || transformFormdata(true);
     const currentDivision = $(`select[name=${els.divideOption}]`).val();
     if (currentDivision === 'cyclicTerm') {
@@ -2002,4 +2010,7 @@ const handleExportData = (type) => {
         formData = setDateTimeToForm(newDateTime, formData);
     }
     handleExportDataCommon(type, formData);
+};
+const handleExportData = (type) => {
+    showGraphAndDumpData(type, dumpData);
 };

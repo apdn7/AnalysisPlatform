@@ -64,6 +64,8 @@ const drawXTrainScatter = (json, chartConfig = {}, sizeOfData = null) => {
         }
     });
 
+    unHoverHandler(pcaXTrainPlot)
+
     // send plotting time
     const endTime = performance.now();
     gtag('event', 'PCA_et', {
@@ -160,6 +162,8 @@ const drawXTestScatter = (json, chartConfig = {}, sizeOfData = null, arrayPlotda
             $('#dp-info-content').hide();
         }
     });
+
+    unHoverHandler(xTestElement);
     showCustomContextMenu(xTestElement);
 
     // send plotting time

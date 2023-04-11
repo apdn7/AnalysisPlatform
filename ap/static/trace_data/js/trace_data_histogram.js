@@ -89,11 +89,11 @@ function YasuHistogram($, paramObj) {
         yValue = applySignificantDigit(yValue);
         // hover information table position
         const canvasOffset = $(`#${chart.canvas.id}`).offset();
-        const leftPosition = canvasOffset.left + positionX + tooltip.caretX - 192;
+        const leftPosition = canvasOffset.left + positionX + tooltip.caretX;
         const topPosition = canvasOffset.top + positionY + tooltip.caretY;
         genDataPointHoverTable(
             genDataTable(yValue, histVal),
-            {x: leftPosition, y: topPosition},
+            {x: leftPosition - 192, y: topPosition},
             125,
             true,
             chart.canvas.id,

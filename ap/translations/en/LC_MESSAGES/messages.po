@@ -1740,12 +1740,12 @@ msgstr "Divide by term (Direct)"
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Invalid Cyclic Term Interval"
 msgstr ""
-"Specified `Interval` is invalid. Value must be between 0.1 and 720, or "
-"between -720 and -0.1."
+"Specified `Interval` is invalid. Value must be between 0.01 and 720, or "
+"between -720 and -0.01."
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Invalid Cyclic Term Window Length"
-msgstr "Specified `Window length` is invalid. Value must be between 0.1 and 48."
+msgstr "Specified `Window length` is invalid. Value must be between 0.01 and 48."
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Invalid Cyclic Term Number of Ridge Lines"
@@ -3306,8 +3306,8 @@ msgstr ""
 #: ap/templates/macros.html
 msgid "Interval Hover"
 msgstr ""
-"Enter the time interval for displaying the plot. Enter a real value (0.1 "
-"≦ real ≦ 720 {=30 days}). You can enter a negative value to set the "
+"Enter the time interval for displaying the plot. Enter a real value (0.01"
+" ≦ real ≦ 720 {=30 days}). You can enter a negative value to set the "
 "period back in time.\n"
 "e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
 
@@ -3315,7 +3315,7 @@ msgstr ""
 msgid "Window length Hover"
 msgstr ""
 "Enter the length of time to calculate one distribution. Enter a real "
-"value (0.1 ≦ real ≦ 20,000 (= 833 days)). If it is equal to the time "
+"value (0.01 ≦ real ≦ 20,000 (= 833 days)). If it is equal to the time "
 "interval, all data will be evaluated without overlap, and if it is "
 "smaller than the interval, there will be no data overlap and some data "
 "will not be evaluated. If it is larger than the interval, data overlap "
@@ -3325,7 +3325,8 @@ msgstr ""
 #: ap/templates/macros.html
 msgid "Window length Hover ScP"
 msgstr ""
-"Enter the length of time for one plot (0.1 ≦ real ≦ 20,000 (= 833 days))\n"
+"Enter the length of time for one plot (0.01 ≦ real ≦ 20,000 (= 833 days))"
+"\n"
 "e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
 
 #: ap/templates/i18n.html
@@ -3853,7 +3854,6 @@ msgstr "Attribute"
 
 # ap/templates/modals.html
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "Lower"
 msgstr "Close"
 
@@ -3935,13 +3935,172 @@ msgid "P duplicate hover message"
 msgstr "Number of duplicate serials (percentage)"
 
 #: ap/templates/i18n.html
-msgid "All 2"
-msgstr "All"
-
-#: ap/templates/i18n.html
 msgid "You can filter categorical data used for graph drawing."
 msgstr "You can filter categorical data used for graph drawing."
 
-#~ msgid "Top and bottom 5%: Replace to NA"
-#~ msgstr "Top and bottom 5%%: Replace to NA"
+#: ap/templates/i18n.html
+msgid "TourSelectTargetVar"
+msgstr ""
+"Select a process and then select some variables that you would like to "
+"visualize. You can select additional process by clicking the + button on "
+"the upper right.BREAK_LINEBREAK_LINEYou can also set variables for label "
+"plots and facets.BREAK_LINE"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetVarDesc"
+msgstr ""
+"BREAK_LINEYou can show the description of the words with underlines by "
+"pointing the words with mouse pointer for a second."
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetPeriod"
+msgstr ""
+"If \"Date range\" is selected (default), you can specify the datetime "
+"range of the data with start/end datetime.BREAK_LINEYou can select "
+"\"Latest\" to visualize data from the current time up to a specified time"
+" in the past (e.g. past 24H). In addition, selecting \"Auto Update\" will"
+" refresh the graph periodically."
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetPeriodDatePicker"
+msgstr ""
+"Clicking on the textbox will show datetime selector. You can specify the "
+"datetime range with this selector, or by typing directly with the "
+"keyboard."
+
+#: ap/templates/i18n.html
+msgid "TourFindData"
+msgstr ""
+"No problem. Clicking the \"Data Finder\" button, you can access data "
+"finder, which you can find the time range of the stored data."
+
+#: ap/templates/i18n.html
+msgid "TourWithDatafinder"
+msgstr ""
+"With the data finder, you can select a datetime range while seeing when "
+"and how much data is being imported.BREAK_LINEBREAK_LINEIf data are "
+"exist, the corresponding cell is displayed in blue; the greater the "
+"amount of data, the brighter the blue. The existence of this data refers "
+"to the data for the process selected first in the step \"Select target "
+"variable\" or the process specified as theSPAN_TAG\"Start "
+"point\"SPAN_END_TAG"
+
+#: ap/templates/i18n.html
+msgid "TourUseFilter"
+msgstr ""
+"If you had already configured a filter setting in A_TAG\"Filter "
+"Config\"A_END_TAG page, you can specify those filters here (e.g. part no,"
+" test  lag, etc.). BREAK_LINEBREAK_LINEThe Analysis Platform also has a "
+"function \"On demand filter\", which you can filter the data after the "
+"visualization. The on demand filter do not require prior configuration. "
+"Press Filter button FILTER_ICON after you had visualized the data."
+
+#: ap/templates/i18n.html
+msgid "TourCleansing"
+msgstr ""
+"Please select the data cleansing methods you wish to apply. (multiple "
+"selection is possible) BREAK_LINEBREAK_LINE"
+
+#: ap/templates/i18n.html
+msgid "TourShowGraph"
+msgstr ""
+"The basic setup is finished. Most of the settings done in this tour are "
+"common among most of the visualization. BREAK_LINEBREAK_LINEFinally, "
+"press the \"Display Graph\" button and wait a few moments for the graph "
+"to be drawn."
+
+#: ap/templates/i18n.html
+msgid "TourFinish"
+msgstr ""
+"Thank you for completing this tour. BREAK_LINEBREAK_LINEMany useful "
+"functions, including on-demand filters, are also implemented on the "
+"screen after visualization. Manipulations on the graph will never destroy"
+" the imported data, so lets start manipulating the graph and analyze the "
+"data from various angles."
+
+#: ap/templates/i18n.html
+msgid "GoBack"
+msgstr "Back"
+
+#: ap/templates/i18n.html
+msgid "GoNext"
+msgstr "Next"
+
+#: ap/templates/i18n.html
+msgid "GoFinish"
+msgstr "Finish"
+
+#: ap/templates/i18n.html
+msgid "GoNextToDataFinder"
+msgstr "I don't know the timeragne of the data"
+
+#: ap/templates/i18n.html
+msgid "TourWelcomeTitle"
+msgstr "Welcome to the Analysis Platform"
+
+#: ap/templates/i18n.html
+msgid "TourWelcome"
+msgstr ""
+"In this tour, we are going to walk through the basics of how to run the "
+"visualizations. All visualizations can be used in the similar manner."
+
+#: ap/templates/i18n.html
+msgid "TourWelcomeQuit"
+msgstr "Quit tour"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetVarTitle"
+msgstr "Select target variables"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetPeriodTitle"
+msgstr "Specify target period"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetPeriodDatePickerTitle"
+msgstr "Specify target period (datetime picker)"
+
+#: ap/templates/i18n.html
+msgid "TourFindDataTitle"
+msgstr "Find data with Data Finder"
+
+#: ap/templates/i18n.html
+msgid "TourWithDatafinderTitle"
+msgstr "Find data with Data Finder"
+
+#: ap/templates/i18n.html
+msgid "TourUseFilterTitle"
+msgstr "Set user specified filters"
+
+#: ap/templates/i18n.html
+msgid "TourCleansingTitle"
+msgstr "Specify data cleansing algorithms"
+
+#: ap/templates/i18n.html
+msgid "TourShowGraphTitle"
+msgstr "Run visualization"
+
+#: ap/templates/i18n.html
+msgid "TourFinishTitle"
+msgstr "Finished: How to run the visualization"
+
+#: ap/templates/i18n.html
+msgid "Learn how to visualize data"
+msgstr "Learn how to visualize data"
+
+#: ap/templates/i18n.html
+msgid "Support site (JP)"
+msgstr "Support site (JP)"
+
+#: ap/templates/macros.html
+msgid "Dup check message"
+msgstr ""
+"Calculate duplicate counts of the variable which selected as the 'As Link"
+" ID'.\n"
+"Auto: calculate when the number of data points is 12,000 or less.\n"
+"Check: Always activate the calculation.\n"
+"Skip: Always do not activate the calculation.\n"
+"Calculated duplicate counts is shown on the bottom left corner of the "
+"page after clicking the 'Display graph' button.\n"
+"This calculation may take time on large amount of data."
 

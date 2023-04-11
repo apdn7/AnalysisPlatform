@@ -202,9 +202,7 @@ const updateHistogramWhenChaneScale = (currentTraceData, scaleOption = scaleOpti
     }
 };
 
-const handleExportData = (exportType) => {
-    // hide export menu
-    const dataSrc = getExportDataSrc();
+const dumpData = (exportType, dataSrc) => {
     const formData = lastUsedFormData || collectFormDataFromGUI(true);
     formData.set('export_from', dataSrc);
     if (exportType === EXPORT_TYPE.TSV_CLIPBOARD) {
@@ -216,4 +214,7 @@ const handleExportData = (exportType) => {
             formData,
         );
     }
+};
+const handleExportData = (exportType) => {
+    showGraphAndDumpData(exportType, dumpData);
 };

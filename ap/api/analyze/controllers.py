@@ -1,12 +1,18 @@
+import io
+import json
 import timeit
+from zipfile import ZipFile
 
 import simplejson
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 
 from ap.analyze.services.sensor_list import get_sensors_incrementally
 from ap.api.analyze.services.pca import run_pca, calculate_data_size
+from ap.api.trace_data.services.csv_export import split_graph_params, gen_csv_data, make_graph_param, to_csv
+from ap.api.trace_data.services.time_series_chart import get_data_from_db, filter_df
 from ap.common.constants import *
-from ap.common.services.form_env import parse_multi_filter_into_one
+from ap.common.services import csv_content
+from ap.common.services.form_env import parse_multi_filter_into_one, parse_request_params
 from ap.common.services.http_content import json_serial
 from ap.common.services.import_export_config_n_data import get_dic_form_from_debug_info, \
     set_export_dataset_id_to_dic_param
@@ -57,6 +63,13 @@ def pca_modelling():
     data_point_info = dic_data[DATAPOINT_INFO]
     output_dict = plotly_jsons
 
+    unique_serial_test = dic_data.get(UNIQUE_SERIAL_TEST)
+    unique_serial_train = dic_data.get(UNIQUE_SERIAL_TRAIN)
+    if unique_serial_train is None or unique_serial_test is None:
+        unique_serial = None
+    else:
+        unique_serial = unique_serial_test + unique_serial_train
+
     output_dict.update({
         DATAPOINT_INFO: data_point_info,
         SHORT_NAMES: dic_data.get(SHORT_NAMES),
@@ -65,7 +78,7 @@ def pca_modelling():
         ACTUAL_RECORD_NUMBER_TRAIN: dic_data.get(ACTUAL_RECORD_NUMBER_TRAIN),
         ACTUAL_RECORD_NUMBER_TEST: dic_data.get(ACTUAL_RECORD_NUMBER_TEST),
         ACTUAL_RECORD_NUMBER: dic_data.get(ACTUAL_RECORD_NUMBER_TRAIN, 0) + dic_data.get(ACTUAL_RECORD_NUMBER_TEST, 0),
-        UNIQUE_SERIAL: dic_data.get(UNIQUE_SERIAL_TRAIN, 0) + dic_data.get(UNIQUE_SERIAL_TEST, 0),
+        UNIQUE_SERIAL: unique_serial,
         REMOVED_OUTLIER_NAN_TRAIN: dic_data.get(REMOVED_OUTLIER_NAN_TRAIN),
         REMOVED_OUTLIER_NAN_TEST: dic_data.get(REMOVED_OUTLIER_NAN_TEST),
         ARRAY_PLOTDATA: dic_data.get(ARRAY_PLOTDATA),
@@ -96,3 +109,56 @@ def pca():
     get_sensors_incrementally()
     output_dict = simplejson.dumps({}, ensure_ascii=False, default=json_serial, ignore_nan=True)
     return output_dict, 200
+
+
+@api_analyze_module_blueprint.route('/csv_export', methods=['GET'])
+def csv_export():
+    """csv export
+
+    Returns:
+        [type] -- [description]
+    """
+    dic_form = parse_request_params(request)
+    dic_params = parse_multi_filter_into_one(dic_form)
+
+    dic_params = split_graph_params(dic_params)
+
+    csv_data = []
+    csv_list_name = []
+    for i, dic_param in enumerate(dic_params):
+        graph_param, dic_proc_cfgs, client_timezone = make_graph_param(dic_param)
+        # get data from database
+        df, *_ = get_data_from_db(graph_param)
+        # if export_type = plot -> use filter
+        if dic_param[COMMON]['export_from'] == 'plot':
+            dic_cat_filters = json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {})) if isinstance(
+                dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str) else dic_param[COMMON].get(DIC_CAT_FILTERS, {})
+            df = filter_df(df, dic_cat_filters)
+        csv_name = 'train_data' if not i else 'test_data'
+        csv_list_name.append('{}.{}'.format(csv_name, 'csv'))
+        client_tz = dic_param[COMMON][CLIENT_TIMEZONE]
+        csv_df = to_csv(df, dic_proc_cfgs, graph_param, client_timezone=client_timezone)
+        csv_data.append(csv_df)
+
+    if len(csv_data) == 1:
+        csv_data = csv_data[0]
+        csv_filename = csv_content.gen_csv_fname()
+        response = Response(csv_data.encode("utf-8-sig"), mimetype="text/csv",
+                            headers={
+                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
+                            })
+    else:
+        csv_filename = csv_content.gen_csv_fname('zip')
+        outfile = io.BytesIO()
+        with ZipFile(outfile, 'w') as zf:
+            for name, data in zip(csv_list_name, csv_data):
+                zf.writestr(name, data)
+
+        zip_dat = outfile.getvalue()
+        response = Response(zip_dat, mimetype="application/octet-stream",
+                            headers={
+                                "Content-Type": "application/octet-stream",
+                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
+                            })
+    response.charset = "utf-8-sig"
+    return response

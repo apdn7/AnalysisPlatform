@@ -28,8 +28,11 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
             color: COLOR.GREEN,
             size: 6,
         },
-        text: props.text,
-        hoverinfo: 'text',
+        hoverinfo: 'none',
+        customdata: {
+            datetime: props.datetime,
+            serials: props.serials,
+        }
     }];
 
     if (showLine) {
@@ -111,8 +114,47 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
         useResizeHandler: true, // responsive histogram
         style: {width: '100%', height: '100%'},
     };
+
+    const scpPLot = document.getElementById(canvasID);
     
-    Plotly.newPlot(canvasID, data, layout, config);
+    Plotly.react(canvasID, data, layout, config);
+    scpPLot.on('plotly_hover', (data) => {
+        const dpIndex = getDataPointIndex(data);
+        const dataPoint = data.points[0];
+        const xValue = applySignificantDigit(dataPoint.data.x[dpIndex]);
+        const yValue = applySignificantDigit(dataPoint.data.y[dpIndex]);
+        const datetime = formatDateTime(dataPoint.data.customdata.datetime[dpIndex]);
+        const serials = getSerialsText(dpIndex, dataPoint.data.customdata.serials);
+        const isHideX = props.hideX;
+        const hoverData = []
+        if (!isHideX) {
+            hoverData.push([props.titleX, applySignificantDigit(xValue, props.xFmt)])
+        }
+        hoverData.push([props.hoverTitleY, applySignificantDigit(yValue, props.yFmt)])
+        hoverData.push(['Datetime', datetime]);
+        hoverData.push(...serials);
+        const tableData = genHoverDataTable(hoverData);
+        const offset = {
+                    x: data.event.pageX - 120,
+                    y: data.event.pageY,
+                };
+        genDataPointHoverTable(tableData, offset, null, true, canvasID);
+    });
+
+    unHoverHandler(scpPLot);
+
+
+
+     const getSerialsText = (idx, serials) => {
+        const hasSerial = serials && Object.keys(serials).length > 0;
+        let serialText = [];
+        if (hasSerial) {
+            for (const key of Object.keys(serials)) {
+                serialText.push([key, serials[key][idx]])
+            }
+        }
+        return serialText;
+    };
 };
 
 const updateInformationTable = (dicScp) => {
@@ -293,25 +335,6 @@ const showScatterPlot = (dicScp) => {
     
     const commonRange = [Math.min(minX, minY), Math.max(maxX, maxY)];
 
-    const text1 = [];
-    const text2 = [];
-
-    const getSerialsText = (idx) => {
-        const hasSerial = serials && Object.keys(serials).length > 0;
-        let serialText = '';
-        if (hasSerial) {
-            for (const key of Object.keys(serials)) {
-                serialText += `${key}: ${serials[key][idx]}<br>`;
-            }
-        }
-        return serialText;
-    };
-
-    for (const i in times) {
-        text1.push(`Datetime: ${formatDateTime(times[i])}<br>${getSerialsText(i)}${i18nText.i18nActual}: ${applySignificantDigit(actual[i], 4, actual_fmt)}<br>${i18nText.i18nFitted}: ${applySignificantDigit(fitted[i], 4, fitted_fmt)}`);
-        text2.push(`Datetime: ${formatDateTime(times[i])}<br>${getSerialsText(i)}${i18nText.i18nResiduals}: ${applySignificantDigit(residuals[i], 4, residuals_fmt)}`);
-    }
-
     const actualFittedProps = {
         x: actual,
         y: fitted,
@@ -320,9 +343,11 @@ const showScatterPlot = (dicScp) => {
         rangeY: commonRange,
         titleX: i18nText.i18nActual,
         titleY: i18nText.i18nFitted,
-        text: text1,
         xFmt: actual_fmt,
         yFmt: fitted_fmt,
+        datetime: times,
+        serials: serials,
+        hoverTitleY: i18nText.i18nFitted,
     };
     
     const indexResidualsProps = {
@@ -331,9 +356,12 @@ const showScatterPlot = (dicScp) => {
         title: `${i18nText.i18nIndex} vs ${i18nText.i18nResiduals}`,
         titleX: i18nText.i18nIndex,
         titleY: `${i18nText.i18nResiduals} (${i18nText.i18nActual} - ${i18nText.i18nFitted})`,
-        text: text2,
         yFmt: residuals_fmt,
         xFmt: '',
+        datetime: times,
+        serials: serials,
+        hideX: true,
+        hoverTitleY: i18nText.i18nResiduals,
     };
     
     updateInformationTable(dicScp);

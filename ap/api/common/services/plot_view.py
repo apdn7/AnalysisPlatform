@@ -43,7 +43,7 @@ def gen_graph_plot_view(dic_form):
     graph_param, dic_proc_cfgs = build_graph_param(dic_param)
 
     # get data from database
-    df, _, _ = get_data_from_db(graph_param, is_get_end_proc_serials=True)
+    df, _, _ = get_data_from_db(graph_param)
     target_serial_cols = get_serial_cols(dic_proc_cfgs)
 
     # create output data
@@ -56,7 +56,7 @@ def gen_graph_plot_view(dic_form):
     # get chart infos
     chart_infos, original_graph_configs = get_chart_infos(orig_graph_param, dic_data, times)
 
-    dic_param[ARRAY_FORMVAL], dic_param[ARRAY_PLOTDATA] \
+    _, dic_param[ARRAY_PLOTDATA] \
         = gen_plotdata(orig_graph_param, dic_data, chart_infos, original_graph_configs)
 
     # calculate_summaries
@@ -98,7 +98,7 @@ def gen_graph_plot_view(dic_form):
     dic_param = build_dic_param_plot_view(dic_form, start_proc_local_time)
     graph_param, dic_proc_cfgs = build_graph_param(dic_param, full_link=True)
     full_target_serial_cols = get_serial_cols(dic_proc_cfgs)
-    df_full, _, _ = get_data_from_db(graph_param, is_get_end_proc_serials=True)
+    df_full, _, _ = get_data_from_db(graph_param)
     _df_full = df_full.copy()
     # use df when df_full is None
     use_df = False
@@ -178,6 +178,8 @@ def gen_stats_table(dic_proc_cfgs, graph_param, df, dic_param, chart_infos, clie
         serial_vals = []
         for serial in serial_col_cfgs:
             serial_label = gen_sql_label(serial.id, serial.column_name)
+            if serial_label not in df.columns or df.empty:
+                continue
             serial_ids.append(serial.id)
             serial_vals.append(df.loc[0][serial_label])
 
@@ -190,7 +192,7 @@ def gen_stats_table(dic_proc_cfgs, graph_param, df, dic_param, chart_infos, clie
         # Datetime
         time_col_name = str(Cycle.time.key) + create_rsuffix(proc_id)
         time_val = ''
-        if time_col_name in df.columns:
+        if time_col_name in df.columns and not df.empty:
             time_val = df.loc[0][time_col_name]
             if not pd.isna(time_val) and not isinstance(time_val, datetime) and len(time_val) > 0:
                 dt_obj = parser.parse(time_val)
@@ -225,7 +227,7 @@ def gen_stats_table(dic_proc_cfgs, graph_param, df, dic_param, chart_infos, clie
 
             # Value
             col_label = gen_sql_label(col_id, col_name)
-            col_val = df.loc[0][col_label]
+            col_val = df.loc[0][col_label] if not df.empty else ''
             row.append(col_val)
 
             # Datetime
@@ -281,7 +283,8 @@ def get_latest_threshold(col_thresholds, point_time, client_timezone):
         return create_graph_config()[0], None
 
     if point_time:
-        point_time = parser.parse(point_time)
+        if isinstance(point_time, str):
+            point_time = parser.parse(point_time)
         if point_time.tzinfo is None:
             point_time = client_timezone.localize(point_time)
         latest_act_to = parser.parse('1970-01-01T00:00:00.000Z')
@@ -290,6 +293,11 @@ def get_latest_threshold(col_thresholds, point_time, client_timezone):
         for idx, th in enumerate(col_thresholds):
             act_from = parser.parse(th.get(ACT_FROM) or '1970-01-01T00:00:00.000Z')
             act_to = parser.parse(th.get(ACT_TO) or '9999-01-01T00:00:00.000Z')
+            # standardization act_from and atc_to to same timezone before compare
+            if act_from and act_from.tzinfo is None:
+                act_from = client_timezone.localize(act_from)
+            if act_to and act_to.tzinfo is None:
+                act_to = client_timezone.localize(act_to)
             if act_from <= point_time <= act_to:
                 if latest_act_to < act_to:
                     latest_threshold = th
@@ -357,6 +365,8 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
         proc_rows = []
         for serial in serial_col_cfgs:
             serial_label = gen_sql_label(serial.id, serial.column_name)
+            if serial_label not in df.columns or df.empty:
+                continue
             serial_ids.append(serial.id)
             serial_val = df.loc[0][serial_label]
             serial_vals.append(serial_val)
@@ -366,7 +376,7 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
         # Datetime
         time_col_name = str(Cycle.time.key) + create_rsuffix(proc_id)
         time_val = ''
-        if time_col_name in df.columns:
+        if time_col_name in df.columns and not df.empty:
             time_val = df[time_col_name][0]
             if not pd.isna(time_val) and bool(time_val):
                 time_val = convert_and_format(time_val, client_timezone, DATE_FORMAT_STR_CSV)
@@ -407,7 +417,7 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
 
             # Value
             col_label = gen_sql_label(cfg_col.id, cfg_col.column_name)
-            col_val = df.loc[0][col_label]
+            col_val = df.loc[0][col_label] if not df.empty else ''
             if cfg_col.is_get_date and not pd.isna(time_val) and time_val:
                 time_val = convert_and_format(time_val, client_timezone, DATE_FORMAT_STR_CSV)
             else:
@@ -433,17 +443,18 @@ def get_sensor_idx(dic_param, proc_id, col_id):
 
 
 def build_dic_param_plot_view(dic_form, start_proc_local_time):
-    start_proc_local_time = get_datetime_from_str(start_proc_local_time)
-    start_dt = start_proc_local_time - timedelta(minutes=2)
-    start_date = start_dt.strftime(DATE_FORMAT)
-    start_time = start_dt.strftime(TIME_FORMAT)
-    end_dt = start_proc_local_time + timedelta(minutes=2)
-    end_date = end_dt.strftime(DATE_FORMAT)
-    end_time = end_dt.strftime(TIME_FORMAT)
-    dic_form['START_DATE'] = start_date
-    dic_form['END_DATE'] = end_date
-    dic_form['START_TIME'] = start_time
-    dic_form['END_TIME'] = end_time
+    if start_proc_local_time:
+        start_proc_local_time = get_datetime_from_str(start_proc_local_time)
+        start_dt = start_proc_local_time - timedelta(minutes=2)
+        start_date = start_dt.strftime(DATE_FORMAT)
+        start_time = start_dt.strftime(TIME_FORMAT)
+        end_dt = start_proc_local_time + timedelta(minutes=2)
+        end_date = end_dt.strftime(DATE_FORMAT)
+        end_time = end_dt.strftime(TIME_FORMAT)
+        dic_form['START_DATE'] = start_date
+        dic_form['END_DATE'] = end_date
+        dic_form['START_TIME'] = start_time
+        dic_form['END_TIME'] = end_time
 
     dic_param = parse_multi_filter_into_one(dic_form)
 

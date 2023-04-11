@@ -114,6 +114,7 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         name: '',
         opacity: 1,
         type: 'bar',
+        hoverinfo: 'none',
         // hovertemplate: '%{x}',
         barmode: 'relative',
     };
@@ -283,5 +284,6 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         .on('plotly_unhover', (data) => {
             drawShapes(null, null, false);
             // $('#dp-info-content').hide();
+            clearHoverTimeOut();
         });
 };

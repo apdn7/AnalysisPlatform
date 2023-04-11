@@ -33,6 +33,9 @@
         gtag('config', 'UA-156244372-2', {
             'page_title': '{{ _("Full-points Plot") }}',
         });
+        gtag('config', 'G-9DJ9TV72B5', {
+            'page_title': '{{ _("Full-points Plot") }}',
+        });
 
         $(document).ready(function () {
             $("#tabs a").click(function (e) {
@@ -87,7 +90,7 @@
             </div>
             <!--indexOrderSwitch for FPP tab-->
             <div class="for-tab for-timeSeriestab">
-                {{ macros.graph_select_box(id='XAxisOrder', name='XAxisOrder', label=_('X axis'), values=['TIME', 'INDEX'], texts=[_("Timestamp"), _('Serial series')], cl='ml-4') }}
+                {{ macros.graph_select_box(id='XAxisOrder', name='XAxisOrder', label=_('X axis'), values=['TIME', 'INDEX'], texts=[_("Timestamp"), _('Serial series')], cl='ml-4', customSelect=True) }}
             </div>
                 <!--FPP and Histogram use common-->
             {{ macros.scale_option(name='yScaleOption', className='ml-4') }}

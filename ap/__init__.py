@@ -20,7 +20,8 @@ from ap.common.common_utils import check_exist, make_dir, find_babel_locale, NoD
 from ap.common.common_utils import set_sqlite_params, init_config
 from ap.common.constants import FlaskGKey, SQLITE_CONFIG_DIR, PARTITION_NUMBER, UNIVERSAL_DB_FILE, APP_DB_FILE, \
     TESTING, YAML_CONFIG_VERSION, YAML_CONFIG_BASIC, YAML_CONFIG_DB, YAML_CONFIG_PROC, YAML_CONFIG_AP, \
-    INIT_APP_DB_FILE, INIT_BASIC_CFG_FILE, REQUEST_THREAD_ID, YAML_START_UP, LOG_LEVEL, AP_LOG_LEVEL
+    INIT_APP_DB_FILE, INIT_BASIC_CFG_FILE, REQUEST_THREAD_ID, YAML_START_UP, LOG_LEVEL, AP_LOG_LEVEL, AppGroup, \
+    AppSource
 from ap.common.logger import log_execution
 from ap.common.services.request_time_out_handler import RequestTimeOutAPI, set_request_g_dict
 from ap.common.trace_data_log import get_log_attr, TraceErrKey
@@ -234,9 +235,13 @@ def create_app(object_name=None):
 
         dic_yaml_config_file[YAML_CONFIG_VERSION] = rows[1] if len(rows) > 1 else '0'
 
-        app_location = rows[2] if len(rows) > 2 else 'DN'
-        app_location = str(app_location).strip('\n')
-        app_location = app_location if app_location != '' else 'DN'
+        app_source = rows[2] if len(rows) > 2 else ''
+        app_source = str(app_source).strip('\n')
+
+        user_group = os.environ.get('group', AppGroup.Ext.value)
+        user_group = get_app_group(app_source, user_group)
+
+        app_source = app_source if app_source != '' else AppSource.DN.value
 
     # Universal DB init
     init_db(app)
@@ -302,6 +307,7 @@ def create_app(object_name=None):
             if not request.cookies.get('locale'):
                 response.set_cookie('locale', lang)
             response.set_cookie('sub_title', sub_title)
+            response.set_cookie('user_group', user_group)
 
         # close app db session
         close_sessions()
@@ -328,7 +334,7 @@ def create_app(object_name=None):
             response.set_cookie('log_level', str(is_default_log_level))
             response.set_cookie('hide_setting_page', str(hide_setting_page))
             response.set_cookie('app_version', str(app_ver).strip('\n'))
-            response.set_cookie('app_location', str(app_location).strip('\n'))
+            response.set_cookie('app_location', str(app_source).strip('\n'))
 
         return response
 
@@ -430,3 +436,20 @@ def get_basic_yaml_obj():
 @log_execution()
 def get_start_up_yaml_obj():
     return dic_yaml_config_instance[YAML_START_UP]
+
+
+def get_app_group(app_source, user_group):
+    if user_group and user_group.lower() == AppGroup.Dev.value.lower():
+        user_group = AppGroup.Dev.value
+    else:
+        if app_source:
+            if app_source == AppSource.DN.value:
+                user_group = AppGroup.DN.value
+            elif user_group.lower() == AppGroup.DN.value.lower():
+                user_group = AppGroup.DN.value
+            else:
+                user_group = AppGroup.Ext.value
+        else:
+            user_group = AppGroup.Dev.value
+
+    return user_group

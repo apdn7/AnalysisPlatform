@@ -66,43 +66,35 @@ const copyImageToClipboard = async (isFullPage = false) => {
 const handleTakeScreenShot = () => {
     const exportFrom = getExportDataSrc();
     const isFullPage = exportFrom === 'all';
-    if (isFullPage) {
-        takeScreenShot(true);
+    // check co graph hay khong
+    if (isGraphShown) {
+        takeScreenShot(isFullPage);
     } else {
-        // check co graph hay khong
-        if (isGraphShown) {
-            takeScreenShot(false);
-        } else {
-            // click show graph button
-            $(currentFormID).find('button.show-graph').trigger('click');
-            checkShownGraphInterval = setInterval(() => {
-                if (isGraphShown) {
-                    takeScreenShot(false);
-                    clearInterval(checkShownGraphInterval);
-                }
-            }, 500);
-        }
+        // click show graph button
+        $(currentFormID).find('button.show-graph').trigger('click');
+        checkShownGraphInterval = setInterval(() => {
+            if (isGraphShown) {
+                takeScreenShot(isFullPage);
+                clearInterval(checkShownGraphInterval);
+            }
+        }, 500);
     }
 };
 
 const handleCopyImageToClipboard = () => {
     const exportFrom = getExportDataSrc();
     const isFullPage = exportFrom === 'all';
-    if (isFullPage) {
-        copyImageToClipboard(true);
+    if (isGraphShown) {
+        copyImageToClipboard(isFullPage);
     } else {
-        if (isGraphShown) {
-            copyImageToClipboard(false);
-        } else {
-            // click show graph button
-            $(currentFormID).find('button.show-graph').trigger('click');
-            checkShownGraphInterval = setInterval(() => {
-                if (isGraphShown) {
-                    copyImageToClipboard(false);
-                    clearInterval(checkShownGraphInterval);
-                }
-            }, 500);
-        }
+        // click show graph button
+        $(currentFormID).find('button.show-graph').trigger('click');
+        checkShownGraphInterval = setInterval(() => {
+            if (isGraphShown) {
+                copyImageToClipboard(isFullPage);
+                clearInterval(checkShownGraphInterval);
+            }
+        }, 500);
     }
 };
 

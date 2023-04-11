@@ -7,21 +7,9 @@ const getColName = (procId, colId) => {
 const genScatterOutlierTrace = (sctData, isShowContour = false,
                                 procName = null, cycleIDs = [],
                                 options) => {
-    let colNameX = getColName(sctData.proc_id_x, sctData.col_id_x);
-    // colNameX = shortenName(colNameX);
-    let colNameY = getColName(sctData.proc_id_y, sctData.col_id_y);
-    // colNameY = shortenName(colNameY);
-    if (procName && sctData.proc_id_x !== sctData.proc_id_y) {
-        colNameX = `${colNameX}@${procName[sctData.proc_id_x]}`;
-        colNameY = `${colNameY}@${procName[sctData.proc_id_y]}`;
-    }
     let suffixLabel = '';
     suffixLabel = ` @${options.start_proc_name}`;
-    // if (![sctData.proc_id_x, sctData.proc_id_y].includes(options.start_proc_id)) {
-    //     suffixLabel = ` @${options.start_proc_name}`;
-    // }
     const scatterData = sctData.scatter_data;
-    const {x_fmt, y_fmt} = scatterData;
     const scatterTrace = {
         mode: 'markers',
         type: 'scatter',
@@ -35,7 +23,6 @@ const genScatterOutlierTrace = (sctData, isShowContour = false,
             bgcolor: '#444',
         },
         hoverinfo: 'none',
-        // hovertemplate: `${colNameX}: %{x:${x_fmt}}<br>${colNameY}: %{y:${y_fmt}}<extra></extra>`,
         customdata: {
             cycle_ids: cycleIDs,
             proc_id_x: sctData.proc_id_x,
@@ -50,20 +37,11 @@ const genScatterOutlierTrace = (sctData, isShowContour = false,
 };
 
 const genContourTrace = (sctData, options) => {
-    let colNameX = getColName(sctData.proc_id_x, sctData.col_id_x);
-    colNameX = shortenName(colNameX);
-    let colNameY = getColName(sctData.proc_id_y, sctData.col_id_y);
-    colNameY = shortenName(colNameY);
-    
     let suffixLabel = '';
     suffixLabel = ` @${options.start_proc_name}`;
-    // if (![sctData.proc_id_x, sctData.proc_id_y].includes(options.start_proc_id)) {
-    //     suffixLabel = ` @${options.start_proc_name}`;
-    // }
     
     const contourData = sctData.contour_data;
-    
-    const {x_fmt, y_fmt, z_fmt} = contourData;
+
     const contourTrace = {
         contours: {
             coloring: 'heatmap',
@@ -76,7 +54,6 @@ const genContourTrace = (sctData, options) => {
         y: contourData.y,
         z: contourData.z,
         hoverinfo: 'none',
-        // hovertemplate: `${colNameX}: %{x:${x_fmt}}<br>${colNameY}: %{y:${y_fmt}}<br>Density: %{z:${z_fmt}}<extra></extra>`,
         ncontours: 25,
         showscale: false,
         colorbar: {

@@ -26,7 +26,6 @@ const drawPCABiplotChart = (json, chartConfig = {}, sizeOfData = null) => {
                 return '';
             });
         }
-        // console.log(dat);
     });
     figure.layout.legend = {
         bgcolor: 'transparent',

@@ -9,7 +9,8 @@ import pandas as pd
 from flask import make_response
 
 from ap.api.trace_data.services.time_series_chart import get_proc_ids_in_dic_param
-from ap.common.common_utils import get_basename, resource_path, get_export_path, read_pickle_file, set_debug_data
+from ap.common.common_utils import get_basename, resource_path, get_export_path, read_pickle_file, set_debug_data, \
+    delete_file
 from ap.common.constants import AbsPath, DIC_FORM_NAME, CONFIG_DB_NAME, DF_NAME, DebugKey, CsvDelimiter, \
     COMMON, IS_EXPORT_MODE, IS_IMPORT_MODE, MemoizeKey, USER_SETTING_NAME
 from ap.common.memoize import set_cache_attr
@@ -49,6 +50,11 @@ def export_debug_info(dataset_id, user_setting_id):
     response = download_zip_file('export_file', [file_dic_form, file_df, config_buffer, user_setting_buffer],
                                  [f'{DIC_FORM_NAME}.pickle', f'{DF_NAME}.tsv', f'{CONFIG_DB_NAME}.pickle',
                                   f'{USER_SETTING_NAME}.pickle'])
+
+    # remove target file
+    delete_file(file_dic_form)
+    delete_file(file_df)
+
     return response
 
     # output_file = create_export_file_path('FPP')

@@ -2,10 +2,11 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
-const REQUEST_TIMEOUT = setRequestTimeOut(180000); // 3 minutes
+const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 20;
 const MAX_END_PROC = 20;
 let valueInfo = null;
+const graphStore = new GraphStore();
 const dicTabs = { '#byCategory': 'category', '#byCyclicTerm': 'cyclicTerm', '#byDirectTerm': 'directTerm' };
 let resData = null;
 const rlpCardSize = {
@@ -242,10 +243,10 @@ const createEMDTrace = (emdGroup, emdData, emdColors) => ({
 
 const createEMDByLine = (emdGroup, emdData, emdColors) => {
     let sortedEmd = [...emdData].sort();
-    const start = Math.floor(sortedEmd.length + 0.05);
+    const start = Math.floor(sortedEmd.length * 0.05);
     const end = sortedEmd.length - start;
     sortedEmd = sortedEmd.slice(start, end);
-    const fmt = emdGroup.length > 0 ? significantDigitFmt(Math.max(...sortedEmd)) : '';
+    const fmt = sortedEmd.length > 0 ? significantDigitFmt(Math.max(...sortedEmd)) : '';
     const res = {
         line: { width: 1, color: '#444444' },
         marker: {
@@ -352,15 +353,18 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
 
     const fromStartProcClass = String(startProc) === String(sensorData.end_proc_id) ? ' card-active' : '';
     const facetLabel = catExpBox && catExpBox !== 'None' ? catExpBox : '';
-    const facetDetailHTML = facetLabel ? `<span class="show-detail cat-exp-box" title="${catExpBox}">${facetLabel}</span><br>` : '';
+    const facetDetailHTML = facetLabel ? `<span class="show-detail cat-exp-box" title="${catExpBox}">${facetLabel}</span>` : '';
+    const titleStyle = facetLabel && emdType ? 'width: 80px' : (facetLabel && !emdType || !facetLabel && emdType) ? 'width: 65px' : '';
     rlpCard.append(`<div class="ridgeLineItem graph-navi${fromStartProcClass}" id="${rlpCardGroupID}">
-            <div class="chart-title" style="transform: rotate(-90deg) translateY(-7vw) translateX(-${titleMaxHeight}vh); line-height: 1.2;">
-               <span title="${sensorData.proc_name}">${sensorData.proc_name}</span><br>
-               <span title="${sensorData.sensor_name}">${sensorData.sensor_name}</span><br>
-               ${facetDetailHTML}
-               <span title="${emdType}">${emdType}</span>
-           </div>
-           <div class="ridgeLineCard-full" id="${ridgelineCardID}" style="height: ${rlpItemHeight};padding-left: 15px;"></div>
+             <div class="tschart-title-parent" style="${titleStyle}">
+                <div class="tschart-title" style="width: ${rlpItemHeight};">
+                   <span title="${sensorData.proc_name}">${sensorData.proc_name}</span>
+                   <span title="${sensorData.sensor_name}">${sensorData.sensor_name}</span>
+                   ${facetDetailHTML}
+                   <span title="${emdType}">${emdType}</span>
+               </div>
+              </div>
+           <div class="ridgeLineCard-full" id="${ridgelineCardID}" style="height: ${rlpItemHeight};"></div>
            <div class="pin-chart">
                <span class="btn-anchor"
                     data-pinned="false"
@@ -426,7 +430,7 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
     for (let k = 0; k <= rlpLengh; k++) {
         if (sensorData.ridgelines[k].trans_kde.length > -1) {
             const histLabels = sensorData.ridgelines[k].kde_data.hist_labels;
-            const histCounts = sensorData.ridgelines[k].kde_data.hist_counts;
+            const ntotal = sensorData.ridgelines[k].data_counts;
             const transKDE = sensorData.ridgelines[k].trans_kde;
             const lineColor = (sensorData.ridgelines[k].data_counts >= 8) ? transRLPColors[k] : '#808080';
             const rlpLabel = datetimeCategory.length ? datetimeCategory[k] : categories[k];
@@ -435,7 +439,7 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
                 transKDE,
                 lineColor,
                 rlpLabel,
-                histCounts,
+                ntotal,
             );
             rlpData.push(rlpInst);
 
@@ -502,7 +506,7 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
                 textValue = String(data.points[0].data.text);
             }
             const label = textValue.split(' – ');
-            const yValue = data.points[0].data.customdata.count[dpIndex] || 0;
+            const yValue = data.points[0].data.customdata.count || 0;
             const dataTable = genDataTable(label[0], label[1], yValue);
             genDataPointHoverTable(
                 dataTable,
@@ -518,6 +522,8 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
     hdPlot.on('plotly_hover', (data) => {
         rlpDataTable(data);
     });
+
+    unHoverHandler(hdPlot);
     // report progress
     loadingUpdate(loadingProgressBackend + emdIdx * ((100 - loadingProgressBackend) / (numGraphs || 1)));
 };
@@ -554,6 +560,7 @@ const collectRLPFormData = (clearOnFlyFilter, eleIdPrefix) => {
 };
 
 const showGraph = (clearOnFlyFilter = true) => {
+    requestStartedAt = performance.now();
     const eleIdPrefix = $('select[name=compareType]').val();
     // reset show x axis switch
     $('#categoryShowOutlier').prop('checked', false);
@@ -563,7 +570,7 @@ const showGraph = (clearOnFlyFilter = true) => {
     if (!isValid) return;
 
     // close sidebar
-    beforeShowGraphCommon();
+    beforeShowGraphCommon(clearOnFlyFilter);
 
     if (clearOnFlyFilter) {
         resetCheckedCats();
@@ -587,7 +594,7 @@ const showGraph = (clearOnFlyFilter = true) => {
 
     showGraphCallApi('/ap/api/rlp/index', formData, REQUEST_TIMEOUT, async (res) => {
         resData = res;
-
+        graphStore.setTraceData(_.cloneDeep(res));
         // Sprint73_#18.1 : array_xのlengthをチェックする
         if (isRLPHasFewDataPoint(res)) {
             showToastrMsg(i18n.FewDataPointInRLP);
@@ -793,6 +800,24 @@ const changeRLPScale = () => {
     });
 };
 
+const dumpData = (type, exportFrom) => {
+    const eleIdPrefix = $('select[name=compareType]').val();
+    const formData = lastUsedFormData || collectRLPFormData(true, eleIdPrefix);
+    formData.set('export_from', exportFrom);
+
+    if (type === EXPORT_TYPE.CSV) {
+        exportData('/ap/api/rlp/csv_export', 'csv', formData);
+    }
+
+    if (type === EXPORT_TYPE.TSV) {
+        exportData('/ap/api/rlp/tsv_export', 'tsv', formData);
+    }
+
+    if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
+        tsvClipBoard('/ap/api/rlp/tsv_export', formData);
+    }
+};
+
 const handleExportData = (type) => {
     const eleIdPrefix = $('select[name=compareType]').val();
     const formData = lastUsedFormData || collectRLPFormData(true, eleIdPrefix);
@@ -810,18 +835,5 @@ const handleExportData = (type) => {
         return;
     }
 
-    const exportFrom = getExportDataSrc();
-    formData.set('export_from', exportFrom);
-
-    if (type === EXPORT_TYPE.CSV) {
-        exportData('/ap/api/rlp/csv_export', 'csv', formData);
-    }
-
-    if (type === EXPORT_TYPE.TSV) {
-        exportData('/ap/api/rlp/tsv_export', 'tsv', formData);
-    }
-
-    if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
-        tsvClipBoard('/ap/api/rlp/tsv_export', formData);
-    }
+    showGraphAndDumpData(type, dumpData);
 };

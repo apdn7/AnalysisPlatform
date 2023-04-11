@@ -277,7 +277,10 @@
     bottom: -10px;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1330px) {
+    #data-finder-modal {
+        flex-direction: column;
+    }
     .week-calendar th,
     .week-calendar td {
         min-width: auto;
@@ -359,5 +362,5 @@
 }
 
 button.for-data-finder {
-    width: 100%;
+    min-width: 55px;
 }

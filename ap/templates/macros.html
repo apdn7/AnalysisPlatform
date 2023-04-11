@@ -86,7 +86,7 @@
 				{% endif %}
 				<option value="">---</option>
 				{% for item in items %}
-					<option value="{{ item.0 }}" title="{{ item.2 }}">{{ item.1 }}</option>
+					<option value="{{ item[0] }}" title={{ item[2] }}>{{ item[1] }}</option>
 				{% endfor %}
 			</select>
 		</div>
@@ -217,7 +217,7 @@
 
 <!-- end proc -->
 {% macro end_proc(procs, selected, label_i18n_key='Show value', title='', width=2, multiple_proc=true, traceData=false, dom_prefix='', showStartProc=false) %}
-    <div class="card-body table-bordered graph-navi">
+    <div class="card-body table-bordered graph-navi"  id="endPrc">
         <div class="row">
             <div class="col-xl-{{ width }} col-3 d-flex flex-column">
                 <div class="d-flex justify-content-between">
@@ -228,7 +228,7 @@
                     <div class="mt-auto pl-3 pt-3">
 						{% if traceData %}
 							<div class="custom-control custom-checkbox custom-control-inline grp-height-align mb-2">
-								<input type="checkbox" name="showScatterPlotSelect" value="1" class="custom-control-input already-convert-hankaku" id="showScatterPlotSelect">
+								<input type="checkbox" name="showScatterPlotSelect" value="1" class="custom-control-input" id="showScatterPlotSelect">
 								<label class="custom-control-label" for="showScatterPlotSelect">{{_('Scatter Plot display')}}</label>
 							</div>
 						{% endif %}
@@ -323,7 +323,7 @@
 
 <!-- condition proc -->
 {% macro cond_proc(procs, selected, prefix='', title='', width=2, pysm=4, is_optional=false) %}
-    <div class="card-body table-bordered graph-navi">
+    <div class="card-body table-bordered graph-navi" id="cndPrc">
         <div class="row">
             <div class="col-xl-{{ width }} col-3">
                 <div class="d-flex justify-content-between">
@@ -540,7 +540,7 @@
 <!-- Exception Estimation  -->
 {% macro exception_est(checkId='isValidateData') %}
     <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
-        <input type="checkbox" name="isValidateData" class="custom-control-input already-convert-hankaku" id="{{ checkId }}" checked>
+        <input type="checkbox" name="isValidateData" class="custom-control-input" id="{{ checkId }}" checked>
         <label class="custom-control-label" for="{{ checkId }}">
             <span title="{{ _('Exception Estimation Explanation') }}">
                     <span class="hint-text">{{ _("Exception Estimation") }}</span>
@@ -699,7 +699,7 @@
                        data-date-format="yyyy-mm-dd" name="END_DATE" type="text" hidden>
                 <input name="END_TIME" class="form-control" id="{{prefix}}endTime" type="text" hidden>
                 {% if showDataFinder %}
-                    <button onclick="showDataFinderModal(this)" id="dataFinderBtn" style="position: absolute; top: 3px; right: 4px; display: none" class="btn btn-sm btn-primary">Data finder</button>
+                    <button type="button" onclick="showDataFinderModal(this)" id="dataFinderBtn" style="position: absolute; top: 3px; right: 4px; display: none" class="btn btn-sm btn-primary">Data finder</button>
                 {% endif %}
             </div>
             <div id="for-recent-{{prefix}}" style="display: none">
@@ -717,7 +717,7 @@
                     {% if showAutoUpdate %}
                         <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
                             <input type="checkbox" name="autoUpdateInterval" value="1"
-                                   class="custom-control-input already-convert-hankaku"
+                                   class="custom-control-input"
                                    id="{{prefix}}autoUpdateInterval" {{ 'disabled' if disableLatest else '' }}>
                             <label class="custom-control-label" for="{{prefix}}autoUpdateInterval">{{_('Auto Update')}}</label>
                         </div>
@@ -731,10 +731,12 @@
 <!-- X index -->
 {% macro x_index() %}
     <div class="d-flex align-items-center mr-3">
-        <select class="form-control" id="xOption" name="xOption" style="width: 140px">
-            <option value="TIME">{{ _("Timestamp") }}</option>
-            <option value="INDEX">{{ _('Serial series') }}</option>
-        </select>
+        <div class="dn-custom-select">
+             <select class="form-control" id="xOption" name="xOption">
+                <option value="TIME">{{ _("Timestamp") }}</option>
+                <option value="INDEX">{{ _('Serial series') }}</option>
+            </select>
+        </div>
         <div class="index-inform-modal" style="width: 35px">
             <div class="index-inform btn-primary">
                 <span><i class="fas fa-info-circle"></i></span>
@@ -847,7 +849,7 @@
                         </div>
                         <div id="for-cyclicCecent" style="display: none">
                             <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
-                                <input type="checkbox" name="autoUpdateInterval" value="1" class="custom-control-input already-convert-hankaku" id="CyclicAutoUpdateInterval">
+                                <input type="checkbox" name="autoUpdateInterval" value="1" class="custom-control-input" id="CyclicAutoUpdateInterval">
                                 <label class="custom-control-label" for="CyclicAutoUpdateInterval">{{_('Auto Update')}}</label>
                             </div>
                         </div>
@@ -1048,6 +1050,7 @@
 	{% endif %}
     {% if dup %}
         {% set t = cleansing_option.append("Da") %}
+        {% set t = cleansing_option.append("a") %}
     {% endif %}
 	{% if cleansing_option|length %}
 		{% set cleansing_option = ['['] + cleansing_option + [']'] %}
@@ -1108,16 +1111,26 @@
 				</label>
 			</div>
             {% if dup %}
-                <div class="custom-control d-flex mt-1">
+                <div class="custom-control d-flex justify-content-between mt-1">
                     <label class="mr-2 hint-text">
                         <span title="{{ _('Duplicate serial hover message') }}">Dup</span>
                     </label>
                     <select onchange="updateCleansing(this)" class="form-control border-white" name="duplicated_serial" style="width: 80px; height: 30px; padding: 3px">
-                        <option selected value="all" show-value="Da">{{ _('All 2') }}</option>
-                        <option value="first" show-value="Df">{{ _('First') }}</option>
-                        <option value="last" show-value="Dl">{{ _('Last') }}</option>
+                        <option selected value="all" show-value="Da">All</option>
+                        <option value="first" show-value="Df">First</option>
+                        <option value="last" show-value="Dl">Last</option>
                     </select>
                 </div>
+                <div class="custom-control d-flex justify-content-between mt-1">
+                        <label class="mr-2 hint-text">
+                            <span title="{{ _('Dup check message') }}">Dup check</span>
+                        </label>
+                        <select onchange="updateCleansing(this)" class="form-control border-white" name="dup_check" style="width: 80px; height: 30px; padding: 3px">
+                            <option selected value="auto" show-value="a">Auto</option>
+                            <option value="check" show-value="c">Check</option>
+                            <option value="silent" show-value="s">Skip</option>
+                        </select>
+                    </div>
             {% endif %}
 		</div>
 	</div>
@@ -1160,16 +1173,22 @@
     </div>
 {% endmacro %}
 
-{% macro graph_select_box(id='', name='', label='', values=[], texts=[], selectedIndex=1, cl='', onChange='', defaultValue='') %}
+{% macro graph_select_box(id='', name='', label='', values=[], texts=[], selectedIndex=1, cl='', onChange='', defaultValue='', customSelect=False) %}
     <div class="d-flex align-items-center {{ cl }}">
         <span class="mr-2">
             {{label}}
         </span>
+        {% if customSelect %}
+            <div class="dn-custom-select">
+        {% endif %}
         <select name="{{ name }}" default-value="{{defaultValue}}" id="{{id}}" onchange="{{onChange}}" class="form-control border-white w-auto scale-dropdown">
             {% for value in values %}
                 <option value="{{value}}" {{ 'selected' if selectedIndex==i else '' }}>{{ texts[loop.index0] }}</option>
             {% endfor %}
         </select>
+         {% if customSelect %}
+            </div>
+        {% endif %}
     </div>
 {% endmacro %}
 
@@ -1246,38 +1265,14 @@
 {% macro data_point_info() %}
 	<div id="dp-info">
 		<div id="dp-info-content">
-			<button class="btn clipboard" id="dp-info-table-copy" style="float:right;"
-					data-clipboard-target="#dp-info-table" title="Copy to Clipboard">
+			<button class="btn" id="dp-info-table-copy" style="float:right;"
+					data-clipboard-target="#dp-info-table" title="Copy to Clipboard"
+                    onclick="copyDataPointInfo(this);" data-copy-from="dp-info-table">
 				<i class="fa fa-copy" aria-hidden="true"></i>
 			</button>
 			<div class="table-content">
 				<table class="table table-borderless" id="dp-info-table">
-					<tbody>
-					<tr>
-						<td colspan="1"></td>
-						<td colspan="2"></td>
-					</tr>
-					<tr>
-						<td colspan="3"></td>
-					</tr>
-					<tr>
-						<td colspan="1"></td>
-						<td colspan="1"></td>
-						<td colspan="1"></td>
-					</tr>
-					<tr>
-						<td colspan="1"></td>
-						<td colspan="1"></td>
-						<td colspan="1"></td>
-					</tr>
-					<tr>
-						<td colspan="3"></td>
-					</tr>
-					<tr>
-						<td colspan="1"></td>
-						<td colspan="2"></td>
-					</tr>
-					</tbody>
+					<tbody></tbody>
 				</table>
 			</div>
 		</div>
@@ -1298,7 +1293,7 @@
 
 
 {% macro data_finder_modal() %}
-<div id="data-finder-modal" class="data-finder flex-xl-row flex-lg-column flex-md-column flex-sm-column flex-column position-relative">
+<div id="data-finder-modal" class="data-finder position-relative">
     <span class="data-finder-close" onclick="closeCalenderModal()"><i class="fa fa-times"></i></span>
     <div class="data-finder-calendar">
         <div id="data-finder-year" class="calender-box year-calendar" style="display: none">
@@ -1327,10 +1322,10 @@
                 <div class="action-button-group">
                     <button type="button" onclick="closeCalenderModal()" class="btn btn-sm btn-secondary">Cancel</button>
                 </div>
-                <div class="action-button-group">
-                    <button type="button" onclick="handleGoToCalender('month')" class="btn btn-sm btn-primary for-data-finder for-data-finder-year">Month</button>
-                    <button type="button" onclick="handleGoToCalender('week')" class="btn btn-sm btn-primary for-data-finder for-data-finder-month">Week</button>
-                    <button type="button" onclick="handleSetValueToDateRangePicker()" class="btn btn-sm btn-primary for-data-finder for-data-finder-week">Set</button>
+                <div class="action-button-group d-flex">
+                    <button type="button" onclick="handleGoToCalender('month')" style="margin-right: 8px" class="btn btn-sm btn-primary for-data-finder for-data-finder-year">Month</button>
+                    <button type="button" onclick="handleGoToCalender('week')" style="margin-right: 8px" class="btn btn-sm btn-primary for-data-finder for-data-finder-month">Week</button>
+                    <button type="button" onclick="handleSetValueToDateRangePicker()" class="btn btn-sm btn-primary for-data-finder for-data-finder-week for-data-finder-month for-data-finder-year">Set</button>
                 </div>
             </div>
             </div>

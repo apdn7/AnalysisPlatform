@@ -32,7 +32,7 @@ from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import abort_process_handler
+from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress
 from ap.common.services.statistics import calc_summaries_cate_var, calc_summaries
 from ap.common.trace_data_log import EventType, trace_log, TraceErrKey, EventAction, Target
@@ -58,6 +58,10 @@ def gen_graph_param(dic_param, with_ct_col=False):
     # add cat exp
     graph_param.add_cat_exp_to_array_formval()
 
+    # add div and color
+    graph_param.add_column_to_array_formval(
+        [col for col in [graph_param.common.color_var, graph_param.common.div_by_cat] if col])
+
     # must get dic_proc_cfgs after above add proc to array_formval
     dic_proc_cfgs = get_procs_in_dic_param(graph_param)
     proc_cfg = dic_proc_cfgs[graph_param.common.start_proc]
@@ -78,7 +82,8 @@ def gen_graph_param(dic_param, with_ct_col=False):
             proc.add_cols(get_date, append_first=True)
 
         serial_ids = [serial.id for serial in proc_cfg.get_serials(column_name_only=False)]
-        proc.add_cols(serial_ids + non_sensor_cols)
+        proc.add_cols(serial_ids, True)
+        proc.add_cols(non_sensor_cols)
         # if len(proc_sensor_ids) != len(proc_col_ids):
         #     proc.add_sensor_col_ids(proc_col_ids)
 
@@ -86,6 +91,7 @@ def gen_graph_param(dic_param, with_ct_col=False):
 
 
 @abort_process_handler()
+@request_timeout_handling()
 @log_execution_time()
 @notify_progress(50)
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
@@ -102,7 +108,8 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
     graph_param, dic_proc_cfgs = gen_graph_param(dic_param)
 
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param, _use_expired_cache=use_expired_cache)
+    df, actual_record_number, unique_serial = get_data_from_db(graph_param, dic_cat_filters,
+                                                               use_expired_cache=use_expired_cache)
 
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
 
@@ -192,6 +199,8 @@ def add_threshold_configs(dic_param, orig_graph_param):
 
 
 @abort_process_handler()
+@log_execution_time()
+@request_timeout_handling()
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
            (EventType.STP, EventAction.PLOT, Target.GRAPH), send_ga=True)
 @memoize(is_save_file=True)
@@ -249,6 +258,7 @@ def gen_dic_param_terms(dic_param):
 
 @log_execution_time()
 @abort_process_handler()
+@request_timeout_handling()
 @notify_progress(75)
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
            (EventType.STP, EventAction.PLOT, Target.GRAPH), send_ga=True)
@@ -264,6 +274,7 @@ def gen_trace_data_by_term(dic_param, max_graph=None):
     dic_param[UNMATCHED_FILTER_IDS] = []
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = []
     dic_param[ACTUAL_RECORD_NUMBER] = 0
+    dic_param[UNIQUE_SERIAL] = 0
 
     if max_graph and len(terms) > max_graph:
         terms = terms[:max_graph]
@@ -296,7 +307,12 @@ def gen_trace_data_by_term(dic_param, max_graph=None):
         dic_param[UNMATCHED_FILTER_IDS] += term_result.get(UNMATCHED_FILTER_IDS, [])
         dic_param[NOT_EXACT_MATCH_FILTER_IDS] += term_result.get(NOT_EXACT_MATCH_FILTER_IDS, [])
         dic_param[ACTUAL_RECORD_NUMBER] += term_result.get(ACTUAL_RECORD_NUMBER, 0)
-        # dic_param[CAT_EXP_BOX] = term_result.get(CAT_EXP_BOX, [])
+
+        unique_serial = term_result.get(UNIQUE_SERIAL)
+        if unique_serial is None:
+            dic_param[UNIQUE_SERIAL] = None
+        if dic_param[UNIQUE_SERIAL] is not None:
+            dic_param[UNIQUE_SERIAL] += term_result.get(UNIQUE_SERIAL)
 
         # update term data to original dic_param
         dic_param[ARRAY_PLOTDATA].extend(term_result.get(ARRAY_PLOTDATA))
@@ -425,6 +441,9 @@ def split_data_by_condition(dic_data, graph_param, max_graph=None):
     if graph_param.common.div_by_cat:
         cat_exp_cols.append(graph_param.common.div_by_cat)
 
+    if max_graph and max_graph < len(graph_param.common.sensor_cols):
+        max_graph = True
+
     for proc in graph_param.array_formval:
         group_names = []
         proc_id = proc.proc_id
@@ -448,10 +467,14 @@ def split_data_by_condition(dic_data, graph_param, max_graph=None):
 
         df = df.convert_dtypes()
 
+        limit_cols = end_cols
+        if max_graph and max_graph < len(end_cols):
+            limit_cols = end_cols[:max_graph]
+
         if group_by_cols:
-            dic_col, is_graph_limited, group_names = gen_plotdata_with_group_by(df, end_cols, group_by_cols, max_graph)
+            dic_col, group_names = gen_plotdata_with_group_by(df, limit_cols, group_by_cols)
         else:
-            dic_col = gen_plotdata_without_group_by(df, end_cols)
+            dic_col = gen_plotdata_without_group_by(df, limit_cols)
 
         dic_output.update(dic_col)
 
@@ -498,15 +521,11 @@ def gen_plotdata_without_group_by(df, end_cols):
     return dic_output
 
 
-def gen_plotdata_with_group_by(df, end_cols, group_by_cols, max_graph=None):
-    is_graph_limit = False
+def gen_plotdata_with_group_by(df, end_cols, group_by_cols):
     dic_output = {}
     df_group = df.groupby(group_by_cols)
     limit_cols = end_cols
     group_names = []
-    if max_graph and max_graph < len(end_cols):
-        is_graph_limit = True
-        limit_cols = end_cols[:max_graph]
 
     for end_col in limit_cols:
         dic_cate = defaultdict(dict)
@@ -525,7 +544,7 @@ def gen_plotdata_with_group_by(df, end_cols, group_by_cols, max_graph=None):
                 group_names.append(div_group)
             dic_cate[group_name] = {ARRAY_X: df.loc[idxs, Cycle.time.key].to_list(), ARRAY_Y: rows.to_list()}
 
-    return dic_output, is_graph_limit, group_names
+    return dic_output, group_names
 
 
 def gen_plotdata_for_var(dic_data, cat_exp_box_cols):
@@ -670,8 +689,9 @@ def gen_graph_cyclic(dic_param, terms, max_graph=None):
     #     proc.add_cols(serial_ids)
 
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param,
-                                                               _use_expired_cache=use_expired_cache)
+    get_df_graph_param, _ = gen_graph_param(dic_param, with_ct_col=True)
+    df, actual_record_number, unique_serial = get_data_from_db(get_df_graph_param, dic_cat_filters,
+                                                               use_expired_cache=use_expired_cache)
 
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
 
@@ -779,8 +799,8 @@ def gen_graph_term(dic_param, max_graph=None):
     #     proc.add_cols(serial_ids)
 
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param,
-                                                               _use_expired_cache=use_expired_cache)
+    df, actual_record_number, unique_serial = get_data_from_db(graph_param, dic_cat_filters,
+                                                               use_expired_cache=use_expired_cache)
 
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
 

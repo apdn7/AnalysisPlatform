@@ -21,6 +21,7 @@ from ap.setting_module.models import CfgDataSource, CfgProcessColumn, CfgVisuali
     make_session, CfgProcess, crud_config
 from ap.setting_module.schemas import VisualizationSchema
 from ap.trace_data.models import Sensor, find_sensor_class
+import pandas as pd
 
 
 def get_latest_records(data_source_id, table_name, limit):
@@ -77,13 +78,16 @@ def get_latest_records(data_source_id, table_name, limit):
             }
         })
         cols.insert(dummy_datetime_idx, DATETIME_DUMMY)
-        if not df_rows.empty:
+        if is_valid_list(df_rows):
             df_rows = gen_dummy_datetime(df_rows)
 
     if DATETIME_DUMMY in cols or DataType.DATETIME.value not in data_types:
         dummy_datetime_idx = 0
         has_ct_col = False
-    rows = transform_df_to_rows(cols, df_rows, limit)
+
+    rows = []
+    if is_valid_list(df_rows):
+        rows = transform_df_to_rows(cols, df_rows, limit)
     return cols_with_types, rows, cols_duplicated, previewed_files, has_ct_col, dummy_datetime_idx
 
 
@@ -457,3 +461,8 @@ def gen_colsname_for_duplicated(cols_name):
     org_cols_name = cols_name.copy()
     cols_name, dup_cols = chw.add_suffix_if_duplicated(cols_name, True, True)
     return org_cols_name, cols_name, dup_cols
+
+
+def is_valid_list(df_rows):
+    return (isinstance(df_rows, list) and len(df_rows)) \
+            or (isinstance(df_rows, pd.DataFrame) and not df_rows.empty)

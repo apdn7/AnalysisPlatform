@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
-const REQUEST_TIMEOUT = setRequestTimeOut(60000); // 1 minutes
+const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_END_PROC = 60;
 let tabID = null;
 const formElements = {
@@ -129,6 +129,7 @@ const endProcExplanatoryOnChange = async (count) => {
 };
 
 const sankeyTraceData = () => {
+    requestStartedAt = performance.now();
     const isValid = checkValidations({ max: MAX_END_PROC });
     updateStyleOfInvalidElements();
 
@@ -571,7 +572,11 @@ const showErrorToastr = (errors) => {
     });
 };
 
-const handleExportData = (type) => {
+const dumpData = (type) => {
     const formData = collectFormDataSkD();
     handleExportDataCommon(type, formData);
+};
+
+const handleExportData = (type) => {
+    showGraphAndDumpData(type, dumpData);
 };

@@ -5,7 +5,6 @@ from pandas import Series
 from ap.common.common_utils import DATE_FORMAT_STR, reformat_dt_str, calc_overflow_boundary
 from ap.common.constants import *
 from ap.common.logger import log_execution_time
-from ap.common.services.request_time_out_handler import request_timeout_handling
 from ap.common.sigificant_digit import signify_digit
 
 
@@ -327,7 +326,6 @@ def calc_summary_elements(plot):
 
 
 @log_execution_time()
-@request_timeout_handling()
 def calc_summaries(dic_param):
     for plot in dic_param.get(ARRAY_PLOTDATA, []):
         try:

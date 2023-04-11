@@ -23,7 +23,7 @@ from ap.common.constants import ARRAY_FORMVAL, ARRAY_PLOTDATA, ACTUAL_RECORD_NUM
 from ap.common.memoize import memoize
 from ap.common.services.ana_inf_data import calculate_kde, calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import abort_process_handler
+from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress
 from ap.common.sigificant_digit import signify_digit, get_fmt_from_array
 from ap.common.trace_data_log import *
@@ -31,6 +31,7 @@ from ap.trace_data.models import Cycle
 
 
 @log_execution_time('[MULTI SCATTER PLOT]')
+@request_timeout_handling()
 @abort_process_handler()
 @notify_progress(60)
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
@@ -165,13 +166,21 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
     max_num_points = 1000  # maximum number of points for scatter plot
     max_num_points_kde = 10000  # maximum number of points for kde
 
-    df = pd.DataFrame({'array_y1': array_y1, 'array_y2': array_y2,
-                       DATETIME: dic_param[DATETIME], SERIALS: dic_param[SERIALS][0], CYCLE_IDS: dic_param[CYCLE_IDS]})
+    data = {'array_y1': array_y1,
+            'array_y2': array_y2,
+            DATETIME: dic_param[DATETIME],
+            CYCLE_IDS: dic_param[CYCLE_IDS]
+            }
+
+    if len(dic_param[SERIALS]) > 0:
+        data[SERIALS] = dic_param[SERIALS][0]
+
+    df = pd.DataFrame(data)
     df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna()
     array_y1 = df['array_y1'].to_numpy()
     array_y2 = df['array_y2'].to_numpy()
     datetime = df[DATETIME].to_numpy()
-    serials = df[SERIALS].to_numpy()
+    serials = df[SERIALS].to_numpy() if SERIALS in df.columns else []
     cycle_ids = df[CYCLE_IDS].to_numpy()
 
     contour_data = {

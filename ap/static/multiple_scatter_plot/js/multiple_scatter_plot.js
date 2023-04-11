@@ -3,11 +3,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
-const REQUEST_TIMEOUT = setRequestTimeOut(60000); // 1 minutes
+const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_END_PROC = 7;
 const MIN_END_PROC = 2;
 let tabID = null;
-let lastUsedFormData = null;
 let resultData = null;
 const graphStore = new GraphStore();
 let xScaleOption = scaleOptionConst.SETTING;
@@ -164,6 +163,7 @@ const collectFormDataMSP = () => {
 };
 
 const mspTracing = () => {
+    requestStartedAt = performance.now();
     const isValid = checkValidations({ min: MIN_END_PROC, max: MAX_END_PROC });
     updateStyleOfInvalidElements();
     if (isValid) {
@@ -312,6 +312,7 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
         histPlot.on('plotly_hover', (data) => {
             showInforTbl(data, false, hisChartID);
         });
+        unHoverHandler(histPlot);
     });
 
     // Correlation COEF
@@ -421,6 +422,8 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
                 sctChartID,
             );
         });
+
+        unHoverHandler(sctPlot);
         showCustomContextMenu(sctPlot);
     });
 
@@ -601,7 +604,10 @@ const handleChangeScaleOption = (type = 'x', e) => {
     }
 };
 
-const handleExportData = (type) => {
+const dumpData = (type) => {
     const formData = collectFormDataMSP();
     handleExportDataCommon(type, formData);
+};
+const handleExportData = (type) => {
+    showGraphAndDumpData(type, dumpData);
 };

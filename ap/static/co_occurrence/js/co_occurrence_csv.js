@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-const REQUEST_TIMEOUT = setRequestTimeOut(60000); // 1 minutes
+const REQUEST_TIMEOUT = setRequestTimeOut();
 let settingFile = false;
 const coOccElements = {
     apiCheckFileUrl: '/ap/api/cog/check_file',
@@ -190,6 +190,7 @@ const useUploadFile = () => {
 };
 
 const showGraph = () => {
+    requestStartedAt = performance.now();
 
     // close sidebar
     beforeShowGraphCommon();

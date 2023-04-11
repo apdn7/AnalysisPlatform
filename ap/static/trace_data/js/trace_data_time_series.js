@@ -31,8 +31,6 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
     const unlinkedIdxs = setParam('unlinkedIdxs', []);
     const infIdxs = setParam('infIdxs', []);
     const negInfIdxs = setParam('negInfIdxs', []);
-    const outlierIdxs = setParam('outlierIdxs', []);
-    const negOutlierIdxs = setParam('negOutlierIdxs', []);
 
     const isCatLimited = setParam('isCatLimited', false);
 
@@ -89,7 +87,8 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
 
     const genXTicks = (isThin) => {
         const ticks = [1];
-        const maxTick = isThin ? THIN_DATA_COUNT : plotData.length;
+        // const maxTick = isThin ? THIN_DATA_COUNT : plotData.length;
+        const maxTick = plotData.length;
         const tickCount = 8;
         if (maxTick < tickCount) {
             for (let i = 2; i <= maxTick; i++) {
@@ -143,12 +142,12 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
             tooltipEl.style.background = 'rgba(0, 0, 0, 0.7)';
             tooltipEl.style.borderRadius = '3px';
             tooltipEl.style.color = 'white';
-            tooltipEl.style.opacity = 1;
+            tooltipEl.style.opacity = '1';
             tooltipEl.style.pointerEvents = 'none';
             tooltipEl.style.position = 'absolute';
             tooltipEl.style.transform = 'translate(-50%, 0)';
             tooltipEl.style.transition = 'all .1s ease';
-            tooltipEl.style.zIndex = 999999;
+            tooltipEl.style.zIndex = '999999';
             tooltipEl.style.fontSize = 'smaller';
 
             const table = document.createElement('table');
@@ -173,7 +172,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
         if (!tooltip.dataPoints) return;
         // Hide if no tooltip
         if (tooltip.opacity === 0) {
-            tooltipEl.style.opacity = 0;
+            tooltipEl.style.opacity = '0';
             return;
         }
 
@@ -183,8 +182,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
         // get datapoint value
         const getDatYVal = (dataPoint, dicRankLabels = null, outlierDict) => {
             const datasetIndex = dataPoint.datasetIndex;
-            const hoverIdx = dataPoint.dataIndex;
-            let dataIndex = hoverIdx;
+            const dataIndex = dataPoint.dataIndex;
             if (datasetIndex === CONST.IRREGULAR_DATASET) {
                 if (infIdxs.includes(dataIndex)) {
                     return 'inf';
@@ -251,7 +249,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                 : null;
             const [chartInfos, chartInfosOrg] = getChartInfo(plotData, 'TIME', filterCond);
             const clickedVal = currentTraceData.array_plotdata[dataIndex].array_x[dataPoint.dataIndex];
-            const [latestChartInfo, latestIndex] = chooseLatestThresholds(chartInfos, chartInfosOrg, clickedVal);
+            const [latestChartInfo,] = chooseLatestThresholds(chartInfos, chartInfosOrg, clickedVal);
             const threshHigh = latestChartInfo['thresh-high'] || '';
             const threshLow = latestChartInfo['thresh-low'] || '';
             const prcMax = latestChartInfo['prc-max'] || '';
@@ -287,8 +285,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                 return [{name: '', value: ''}];
             }
 
-            const hoverIdx = dataPoint.dataIndex;
-            let dataIndex = hoverIdx;
+            const dataIndex = dataPoint.dataIndex;
             let serials;
             const canvasId = graphStore.getSelectedCanvas();
             const canvasIdx = parseInt(canvasId.substring(5, 8)) - 1; // canvasId = 'chart03' -> canvasIdx = 2
@@ -316,18 +313,22 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
             serialVal.push({name: '', value: ''})
             return serialVal;
         };
+
+        const checkNA = (val) => {
+            return checkTrue(val) ? val : COMMON_CONSTANT.NA;
+        };
         const genDataTable = (dataPoint, outlierDict, currentThreshold) => {
             let thresholdTr = '';
             const medVal = getDatYVal(dataPoint, beforeRankValues, outlierDict);
             if (plotDataMin.length || plotDataMax.length) {
                 const [minVal, _medVal, maxVal] = getDatYMinMaxVal(dataPoint, plotDataMin, plotDataMax);
                 if (isOutlierValue(dataPoint.dataIndex, outlierDict)) {
-                    thresholdTr += genTRItems(i18n.outlierVal, medVal);
+                    thresholdTr += genTRItems(i18n.outlierVal, checkNA(medVal));
                 } else {
-                    thresholdTr += genTRItems(i18n.medianVal, medVal);
+                    thresholdTr += genTRItems(i18n.medianVal, checkNA(medVal));
                 }
-                thresholdTr += genTRItems(i18n.maxVal, maxVal);
-                thresholdTr += genTRItems(i18n.minVal, minVal);
+                thresholdTr += genTRItems(i18n.maxVal, checkNA(maxVal));
+                thresholdTr += genTRItems(i18n.minVal, checkNA(minVal));
             } else {
                 if (isOutlierValue(dataPoint.dataIndex, outlierDict)) {
                     thresholdTr += genTRItems(i18n.outlierVal, medVal);
@@ -366,11 +367,11 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
         tooltipEl.style.opacity = 0;
         // hover information table position
         const canvasOffset = $(`#${chart.canvas.id}`).offset();
-        const leftPosition = canvasOffset.left + positionX + tooltip.caretX - 192;
+        const leftPosition = canvasOffset.left + positionX + tooltip.caretX;
         const topPosition = canvasOffset.top + positionY + tooltip.caretY;
         genDataPointHoverTable(
             genDataTable(dataPoint, outlierDict, currentThreshold),
-            {x: leftPosition, y: topPosition},
+            {x: leftPosition - 192, y: topPosition},
             0,
             true,
             chart.canvas.id,
@@ -427,7 +428,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                         scale.ticks = ticks;
                         return;
                     }, ticks: {
-                        callback: function (value, index) {
+                        callback: function (value) {
                             if (xaxis === 'INDEX') {
                                 const label = this.getLabelForValue(value);
                                 if (xTicks.includes(label)) {
@@ -456,7 +457,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                         font: {
                             family: 'Calibri Light', size: 12,
                         }, maxRotation: tickConfig.rotation, minRotation: tickConfig.rotation, // sampleSize: 8,
-                        color: CONST.TICK, align: 'end', // autoSkip: true,
+                        color: CONST.TICK, align: 'center', //autoSkip: false,
                         // maxtickslimit: 10,
                     }, grid: {
                         color: CONST.GRID, drawTicks: false, drawBorder: false,
@@ -522,7 +523,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                         scaleInstance.width = 60; // sets the width to 100px
                     }, ticks: {
                         labelOffset: beforeRankValues ? -10 : 0,
-                        mirror: beforeRankValues ? true : false,
+                        mirror: !!beforeRankValues,
                         padding: beforeRankValues ? -37 : 5,
                         maxRotation: 0,
                         minRotation: 0,
@@ -531,7 +532,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                         maxTicksLimit: 9,
                         // count: 9, // show max 8 tick labels
                         // show text before ranked instead of ranked value
-                        callback: function (value, index, values) {
+                        callback: function (value) {
                             if (isCatLimited) return '';
 
                             // String Ranked label
@@ -589,7 +590,8 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
         xTicks = genXTicks(isThinData);
         xLabels = tsData.map((e, i) => i + 1);
         config.options.scales.x.min = 1;
-        config.options.scales.x.max = isThinData ? THIN_DATA_COUNT : tsData.length;
+        // config.options.scales.x.max = isThinData ? THIN_DATA_COUNT : tsData.length;
+        config.options.scales.x.max = tsData.length;
     } else {
         xLabels = tsData;
         // xTicks = xTicks.map((e) => xLabels[e - 1])
@@ -615,7 +617,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
             backgroundColor: pointColor, // ts chart dot color
             borderColor: pointColor, // link between dot color
             borderWidth: 0.5,
-            showLine: beforeRankValues ? false : ((isThinData || plotData.length >= 1000) ? false : true),
+            showLine: beforeRankValues ? false : !(isThinData || plotData.length >= 1000),
             pointRadius: beforeRankValues ? 1 : plotData.length < 1000 ? 1.5 : 1,
             order: 0,
             pointBackgroundColor: new Array(plotData.length).fill(pointColor), // stepped: !!beforeRankValues,
@@ -719,7 +721,6 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
             type: 'label', content: [...i18n.catLimitMsg], color: '#65c5f1'
         };
     }
-    // console.log(config.options.plugins.annotation.annotations);
 
     config.options.onClick = function f(evt, a, cht) {
         timeSeriesOnClick(cht, evt);
@@ -730,7 +731,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
     canvas.addEventListener('contextmenu', rightClickHandler, false);
     canvas.addEventListener('mousedown', handleMouseDown, false);
 
-    function handleMouseDown(e) { // later, not just mouse down, + mouseout of menu
+    function handleMouseDown() { // later, not just mouse down, + mouseout of menu
         hideFPPContextMenu();
     }
 
@@ -1069,12 +1070,6 @@ const updateGraphScale = (scaleOption = '1') => {
         const infIdxs = plotData.inf_idxs;
         const negInfIdxs = plotData.neg_inf_idxs;
 
-        // const setYMax = scaleOption === scaleOptionConst.FULL_RANGE ? plotData['y_max_org'] : plotData['y-max'];
-        // const setYMin = scaleOption === scaleOptionConst.FULL_RANGE ? plotData['y_min_org'] : plotData['y-min'];
-        const convertedChartInfos = plotData.chart_infos;
-        const [latestChartInfo, latestIndex] = chooseLatestThresholds(convertedChartInfos) || {};
-        const corrSummary = plotData.summaries[latestIndex] || {};
-
         const scaleInfo = getScaleInfo(plotData, scaleOption);
 
         const [minY, maxY] = calMinMaxYScale(scaleInfo['y-min'], scaleInfo['y-max'], scaleOption);
@@ -1135,12 +1130,21 @@ const hideFPPContextMenu = () => {
     $('.context-menu-2nd').css({display: 'none'});
 };
 
-const deleteThisRow = (self, tableId = formElements.serialTable) => {
+const deleteThisRow = (self, isGraphArea) => {
+    const tableId = isGraphArea ? formElements.serialTable2 : formElements.serialTable;
     $(self).closest('tr').remove();
-    updatePriorityAndDisableSelected(tableId);
+
+
+    if (isGraphArea) {
+        initSelect()
+        disableUnselectedOption(selectedSerials, name.serial);
+        disableUnselectedOption(selectedProcess, name.process);
+    } else {
+        updatePriorityAndDisableSelected(tableId);
+    }
 };
 
-const htmlOrderColRowTemplate = (priority, processSelectHTML, serialSelectHTML, orderSelectHTML) => `<tr>
+const htmlOrderColRowTemplate = (priority, processSelectHTML, serialSelectHTML, orderSelectHTML, isGraphArea) => `<tr>
         <td ${dragDropRowInTable.DATA_ORDER_ATTR}>${priority}</td>
         <td>
             ${processSelectHTML}
@@ -1152,7 +1156,7 @@ const htmlOrderColRowTemplate = (priority, processSelectHTML, serialSelectHTML, 
             ${orderSelectHTML}
         </td>
         <td>
-            <button onclick="deleteThisRow(this)" type="button" class="btn btn-secondary icon-btn btn-right">
+            <button onclick="deleteThisRow(this, ${isGraphArea})" type="button" class="btn btn-secondary icon-btn btn-right">
                 <i class="fas fa-trash-alt icon-secondary"></i>
             </button>
         </td>
@@ -1173,7 +1177,7 @@ const buildProcessColumnHTML = (selectedProcId, name = 'serialProcess') => {
         </select>`;
 };
 
-const buildColumnHTML = (serialCols, tableId = formElements.serialTable, name = 'serialColumn', selectedCol = null, selectedOrder = null) => {
+const buildColumnHTML = (serialCols, tableId = formElements.serialTable, name = 'serialColumn', selectedCol = null) => {
     const defaultOption = '<option value="" selected>---</option>';
     const optionHTMLs = [defaultOption];
     const selectedOrderCols = getSelectedOrderCols(tableId, name);
@@ -1183,7 +1187,7 @@ const buildColumnHTML = (serialCols, tableId = formElements.serialTable, name = 
         let optionHTML = `<option value="${col.id}" title="${col.english_name}">${col.name}</option>`; // TODO no need, order alphabet
         if (selectedCol) {
             if (col.id === selectedCol) {
-                optionHTML = `<option value="${col.id}" title="${col.english_name}">${col.name}</option>`;
+                optionHTML = `<option value="${col.id}" title="${col.english_name}" selected>${col.name}</option>`;
                 alreadySet = true;
             }
         } else if (!alreadySet && !selectedOrderCols.has(`${col.id}`)) {
@@ -1211,7 +1215,7 @@ const buildOrderHTML = (orderName, selectedOrder = null) => {
 
 };
 
-const createOrderColRowHTML = async (selectedProcId, tableId = formElements.serialTable, processName = 'serialProcess', serialName = 'serialColumn', orderName = 'serialOrder', selectedCol = null, selectedOrder = null, priority = null) => {
+const createOrderColRowHTML = async (selectedProcId, tableId = formElements.serialTable, processName = 'serialProcess', serialName = 'serialColumn', orderName = 'serialOrder', selectedCol = null, selectedOrder = null, priority = null, isGraphArea = false) => {
     const calcPriority = () => $(`${tableId} tbody tr`).length + 1;
 
     // get serial
@@ -1225,9 +1229,9 @@ const createOrderColRowHTML = async (selectedProcId, tableId = formElements.seri
         }
     }
     const processSelectHTML = buildProcessColumnHTML(selectedProcId, processName);
-    const columnSelectHTML = buildColumnHTML(orderCols, tableId, serialName, selectedCol, selectedOrder);
+    const columnSelectHTML = buildColumnHTML(orderCols, tableId, serialName, selectedCol);
     const orderSelectHTML = buildOrderHTML(orderName, selectedOrder);
-    return htmlOrderColRowTemplate(priority || calcPriority(), processSelectHTML, columnSelectHTML, orderSelectHTML);
+    return htmlOrderColRowTemplate(priority || calcPriority(), processSelectHTML, columnSelectHTML, orderSelectHTML, isGraphArea);
 };
 
 const updatePriority = (tableID) => {
@@ -1288,7 +1292,12 @@ const bindChangeProcessEvent = (tableId = formElements.serialTable, processName 
                 if (isEmpty(selectedProcId)) {
                     // empty proc -> empty column
                     orderColElement.empty().select2({
-                        placeholder: `${i18nCommon.search}...`, allowClear: true, width: '100%',
+                        placeholder: `${i18nCommon.search}...`, allowClear: true, width: 'auto',
+                        language: {
+                            noResults: function () {
+                              return i18nCommon.notApplicable;
+                            }
+                        }
                     });
                     return;
                 }
@@ -1304,7 +1313,7 @@ const bindChangeProcessEvent = (tableId = formElements.serialTable, processName 
                 const orderCols = [{id: '', text: '---', selected: true}];
                 for (const col of columns) {
                     if (col.order || col.is_serial_no) {
-                        const orderObject = {id: col.id, text: col.name};
+                        const orderObject = {id: col.id, text: col.name, title: col.english_name};
 
                         const isColSelectedOnSameElement = `${selectedVal}` === `${col.id}`;
                         const isColSelected = selectedSerials.has(col.id) || selectedSerials.has(`${col.id}`);
@@ -1320,8 +1329,15 @@ const bindChangeProcessEvent = (tableId = formElements.serialTable, processName 
                 }
 
                 orderColElement.empty().select2({
-                    placeholder: `${i18nCommon.search}...`, allowClear: true, width: '100%', data: orderCols,
+                    placeholder: `${i18nCommon.search}...`, allowClear: true, width: 'auto', data: orderCols,
+                    language: {
+                        noResults: function () {
+                          return i18nCommon.notApplicable;
+                        }
+                    }
                 });
+
+                setSelect2Selection(tableId);
 
                 if (defaultOrderCol) {
                     orderColElement.val(defaultOrderCol).trigger('change');
@@ -1350,6 +1366,10 @@ const showIndexOrderingSetting = async (tableId = formElements.serialTable, proc
     serialTableBody.empty();
     const serialOrderRowHTML = await createOrderColRowHTML(startProc, tableId, processName, serialName, orderName);
     serialTableBody.html(serialOrderRowHTML);
+
+    // set value of serialColumn is first value
+    $(`select[name=${serialName}]`).val($(`select[name=${serialName}] option:nth-child(2)`).val())
+
     setSelect2Selection();
     bindChangeProcessEvent(tableId, processName, serialName);
     bindChangeOrderColEvent(tableId, serialName);
@@ -1367,10 +1387,10 @@ const bindDragNDrop = (serialTableBody, tableId = formElements.serialTable, seri
     });
 };
 
-const addSerialOrderRow = async (tableId = formElements.serialTable, processName = 'serialProcess', serialName = 'serialColumn', orderName = 'serialOrder', selectedProc = null, selectedCol = null, selectedOrder = null, priority = null) => {
+const addSerialOrderRow = async (tableId = formElements.serialTable, processName = 'serialProcess', serialName = 'serialColumn', orderName = 'serialOrder', selectedProc = null, selectedCol = null, selectedOrder = null, priority = null, isGraphArea = false) => {
     const startProc = selectedProc ? selectedProc : getFirstSelectedProc();
     const serialTableBody = $(`${tableId} tbody`);
-    const serialOrderRowHTML = await createOrderColRowHTML(startProc, tableId, processName, serialName, orderName, selectedCol, selectedOrder, priority);
+    const serialOrderRowHTML = await createOrderColRowHTML(startProc, tableId, processName, serialName, orderName, selectedCol, selectedOrder, priority, isGraphArea);
     serialTableBody.append(serialOrderRowHTML);
     setSelect2Selection(tableId);
     bindDragNDrop(serialTableBody, tableId, serialName);
@@ -1386,7 +1406,7 @@ const checkAndShowModal = (tableId = formElements.serialTable) => {
     const numRows = serialTableBody.find('tr').length;
 
     if (!numRows) {
-        showIndexOrderingSetting().then((res) => {
+        showIndexOrderingSetting().then(() => {
             showSerialModal();
         });
     } else {
@@ -1395,39 +1415,14 @@ const checkAndShowModal = (tableId = formElements.serialTable) => {
     }
 };
 
-let isTriggeredManually = false;
 const bindXAxisEvents = () => {
     // change x-axis for timeseries chart
-    $(formElements.xOption).on('change', function f() { // TODO better
-        const now = new Date();
-        if ($(this).val() === 'INDEX' && isTriggeredManually) {
+    $(formElements.xOption).on('change', function f() {
+        if ($(this).val() === CONST.XOPT_INDEX && !isSettingLoading) {
             checkAndShowModal();
         }
         showIndexInforBox();
         compareSettingChange();
-    });
-
-    $(formElements.xOption).on('mouseover', function f() {
-        isTriggeredManually = true;
-    });
-
-    $(formElements.xOption).on('mouseout', function f() {
-        setTimeout(() => {
-            isTriggeredManually = false;
-        }, 500);
-    });
-
-    // re-select
-    $(formElements.xOption).mouseup(function () {
-        const open = $(this).data('isopen');
-        if (open) {
-            if ($(this).val() === 'INDEX') {
-                setTimeout(() => {
-                    checkAndShowModal();
-                }, 300);
-            }
-        }
-        $(this).data('isopen', !open);
     });
 
     $(formElements.btnAddSerial).off('click').on('click', () => {
@@ -1453,14 +1448,15 @@ const genStepLineAnnotation = (plotData, xLabels, pointColor) => {
         let nextVal = (i < plotData.length - 1) ? plotData[i + 1] : null;
         let prevVal = (i > 0) ? plotData[i - 1] : null;
 
+        const pointPosition = Number(xLabels[i]) ? i : xLabels[i];
         // start if prev != val and next == val
         // end if prev == val and next != val
         if (val && nextVal === val && prevVal !== val) {
-            startPoints.push([plotData[i], xLabels[i]]);
+            startPoints.push([plotData[i], pointPosition]);
             // startPoints.push(Number(i));
         }
         if (val && prevVal === val && nextVal !== val) {
-            endPoints.push([plotData[i], xLabels[i]]);
+            endPoints.push([plotData[i], pointPosition]);
             // endPoints.push(Number(i));
         }
     }
@@ -1471,7 +1467,7 @@ const genStepLineAnnotation = (plotData, xLabels, pointColor) => {
             annotations[annoID] = {
                 type: 'line',
                 yMin: startPoints[i][0],
-                yMax: startPoints[i][0],
+                yMax: endPoints[i][0],
                 xMin: startPoints[i][1],
                 xMax: endPoints[i][1],
                 borderColor: pointColor,

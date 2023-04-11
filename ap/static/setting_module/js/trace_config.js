@@ -930,12 +930,18 @@ const updateProcessEditModal = (procs = []) => {
     tracingElements.edgeBackProc.empty();
     procs.map((proc) => {
         const option = new Option(proc.name, proc.id, false, false);
+        if (proc.en_name) {
+            option.setAttribute('title', proc.en_name);
+        }
         tracingElements.edgeBackProc.append(option).trigger('change');
     });
 
     tracingElements.edgeForwardProc.empty();
     procs.map((proc) => {
         const option = new Option(proc.name, proc.id, false, false);
+        if (proc.en_name) {
+            option.setAttribute('title', proc.en_name);
+        }
         tracingElements.edgeForwardProc.append(option).trigger('change');
     });
 };

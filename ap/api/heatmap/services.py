@@ -11,18 +11,17 @@ from scipy.stats import iqr
 
 from ap.api.categorical_plot.services import gen_graph_param
 from ap.api.trace_data.services.time_series_chart import main_check_filter_detail_match_graph_data, \
-    customize_dic_param_for_reuse_cache, filter_cat_dict_common, get_data_from_db, \
-    gen_cat_data_for_ondemand
+    customize_dic_param_for_reuse_cache, filter_cat_dict_common, get_data_from_db
 from ap.common.common_utils import start_of_minute, end_of_minute, DATE_FORMAT_QUERY, gen_sql_label, \
     reformat_dt_str
 from ap.common.constants import TIME_COL, CELL_SUFFIX, AGG_COL, ARRAY_PLOTDATA, HMFunction, DataType, \
     MATCHED_FILTER_IDS, UNMATCHED_FILTER_IDS, NOT_EXACT_MATCH_FILTER_IDS, ACTUAL_RECORD_NUMBER, \
     UNIQUE_SERIAL, \
     AGG_FUNC, CATE_VAL, END_COL, X_TICKTEXT, X_TICKVAL, Y_TICKTEXT, Y_TICKVAL, ACT_CELLS, MAX_TICKS, NA_STR, \
-    COMMON, MAX_GRAPHS, CAT_EXP_BOX, UNIQUE_CATEGORIES, DATA_SIZE, END_PROC
+    COMMON, MAX_GRAPHS, CAT_EXP_BOX, UNIQUE_CATEGORIES, DATA_SIZE
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
-from ap.common.services.request_time_out_handler import abort_process_handler
+from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress, background_announcer, AnnounceEvent
 from ap.common.sigificant_digit import signify_digit, get_fmt_from_array
 from ap.common.trace_data_log import TraceErrKey, EventType, EventAction, Target, trace_log
@@ -32,7 +31,9 @@ from ap.common.common_utils import DATE_FORMAT_STR, DATE_FORMAT_STR_CSV
 
 CHM_AGG_FUNC = [HMFunction.median.name, HMFunction.mean.name, HMFunction.std.name]
 
+
 @log_execution_time()
+@request_timeout_handling()
 @abort_process_handler()
 @notify_progress(75)
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
@@ -403,7 +404,6 @@ def build_dic_col_func(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicPar
 
 # @log_execution_time()
 # @abort_process_handler()
-# @memoize(is_save_file=True)
 # def get_batch_data(proc_cfg: CfgProcess, graph_param: DicParam, start_tm, end_tm,
 #                    sql_limit=None, _use_expired_cache=False) -> pd.DataFrame:
 #     """ Query data for each batch. """
@@ -682,7 +682,7 @@ def gen_heatmap_data_as_dict(graph_param, dic_param, dic_proc_cfgs, dic_cat_filt
         var_agg_cols = [gen_sql_label(cfg_col.id, cfg_col.column_name) for cfg_col in cfg_facet_cols]
 
     # get sensor data from db
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param, _use_expired_cache=use_expired_cache)
+    df, actual_record_number, unique_serial = get_data_from_db(graph_param, dic_cat_filters, use_expired_cache=use_expired_cache)
 
     # filter by cat
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param, True)
@@ -752,9 +752,9 @@ def gen_plot_df(df, transform_target_sensor_name, transform_facets_name=None):
         export_columns += list(transform_facets_name.keys())
         transform_cols.update(transform_facets_name)
 
-        sub_df = df[export_columns]
-        sub_df.rename(columns=transform_cols, inplace=True)
-        return sub_df
+    sub_df = df[export_columns]
+    sub_df.rename(columns=transform_cols, inplace=True)
+    return sub_df
 
 
 def gen_sub_df_from_heatmap(heatmap_data, dic_params, dic_proc_cfgs, dic_col_func, delimiter, client_timezone):
@@ -770,34 +770,20 @@ def gen_sub_df_from_heatmap(heatmap_data, dic_params, dic_proc_cfgs, dic_col_fun
         transform_facets_name[facet_label] = export_facet_name
         facet_ids.append(facet['column_id'])
 
-        for proc_id, proc_dat in heatmap_data.items():
-            proc_name = dic_proc_cfgs[proc_id].name
-            for sensor_id, sensor_dat in proc_dat.items():
-                if sensor_id not in facet_ids:
-                    # target sensor only
-                    sensor_obj = dic_proc_cfgs[proc_id].get_cols([sensor_id])
-                    aggregate_func = dic_col_func[proc_id][sensor_id].name
-                    export_name = '{}|{}|{}'.format(proc_name, sensor_obj[0].column_name, aggregate_func)
-                    transform_target_sensor_name = {sensor_id: export_name}
-                    if isinstance(sensor_dat, dict) or len(facet_ids) != 0:
-                        # has facets
-                        for group, plot_dat in sensor_dat.items():
-                            sub_df_dat = gen_plot_df(plot_dat, transform_target_sensor_name, transform_facets_name)
+    for proc_id, proc_dat in heatmap_data.items():
+        proc_name = dic_proc_cfgs[proc_id].name
+        for sensor_id, sensor_dat in proc_dat.items():
+            if sensor_id not in facet_ids:
+                # target sensor only
+                sensor_obj = dic_proc_cfgs[proc_id].get_cols([sensor_id])
+                aggregate_func = dic_col_func[proc_id][sensor_id].name
+                export_name = '{}|{}|{}'.format(proc_name, sensor_obj[0].column_name, aggregate_func)
+                transform_target_sensor_name = {sensor_id: export_name}
+                if isinstance(sensor_dat, dict) or len(facet_ids) != 0:
+                    # has facets
+                    for group, plot_dat in sensor_dat.items():
+                        sub_df_dat = gen_plot_df(plot_dat, transform_target_sensor_name, transform_facets_name)
 
-                            if client_timezone:
-                                sub_df_dat['From'] = pd.to_datetime(sub_df_dat['From'], format=DATE_FORMAT_STR, utc=True) \
-                                    .dt.tz_convert(client_timezone).dt.strftime(DATE_FORMAT_STR_CSV)
-                                sub_df_dat['To'] = pd.to_datetime(sub_df_dat['To'], format=DATE_FORMAT_STR, utc=True) \
-                                    .dt.tz_convert(client_timezone).dt.strftime(DATE_FORMAT_STR_CSV)
-                            sub_df_dat = sub_df_dat.to_csv(sep=delimiter, index=False)
-                            csv_dat.append(sub_df_dat)
-
-                            group_name = '_'.join(group) if isinstance(group, tuple) else group
-                            file_name = '{}_{}_{}.{}'.format(proc_name, sensor_obj[0].column_name, group_name, file_type)
-                            csv_list_name.append(file_name)
-                    else:
-                        # no facet
-                        sub_df_dat = gen_plot_df(plot_dat, transform_target_sensor_name)
                         if client_timezone:
                             sub_df_dat['From'] = pd.to_datetime(sub_df_dat['From'], format=DATE_FORMAT_STR, utc=True) \
                                 .dt.tz_convert(client_timezone).dt.strftime(DATE_FORMAT_STR_CSV)
@@ -806,8 +792,23 @@ def gen_sub_df_from_heatmap(heatmap_data, dic_params, dic_proc_cfgs, dic_col_fun
                         sub_df_dat = sub_df_dat.to_csv(sep=delimiter, index=False)
                         csv_dat.append(sub_df_dat)
 
-                        file_name = '{}_{}.{}'.format(proc_name, sensor_obj[0].column_name, file_type)
+                        group_name = '_'.join(group) if isinstance(group, tuple) else group
+                        file_name = '{}_{}_{}.{}'.format(proc_name, sensor_obj[0].column_name, group_name, file_type)
                         csv_list_name.append(file_name)
+                else:
+                    # no facet
+                    sub_df_dat = gen_plot_df(sensor_dat, transform_target_sensor_name)
+                    if client_timezone:
+                        sub_df_dat['From'] = pd.to_datetime(sub_df_dat['From'], format=DATE_FORMAT_STR, utc=True) \
+                            .dt.tz_convert(client_timezone).dt.strftime(DATE_FORMAT_STR_CSV)
+                        sub_df_dat['To'] = pd.to_datetime(sub_df_dat['To'], format=DATE_FORMAT_STR, utc=True) \
+                            .dt.tz_convert(client_timezone).dt.strftime(DATE_FORMAT_STR_CSV)
+                    sub_df_dat = sub_df_dat.to_csv(sep=delimiter, index=False)
+                    csv_dat.append(sub_df_dat)
+
+                    file_name = '{}_{}.{}'.format(proc_name, sensor_obj[0].column_name, file_type)
+                    csv_list_name.append(file_name)
+
     return csv_dat, csv_list_name
 
 

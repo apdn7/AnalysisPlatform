@@ -153,7 +153,10 @@ const createHeatMap = (prop) => {
                 0,
                 true,
                 prop.canvasId,
+                1
             );
         }
     });
+
+    unHoverHandler(hdPlot);
 };

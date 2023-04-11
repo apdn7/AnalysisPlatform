@@ -106,7 +106,7 @@ class Sensor(db.Model):
     created_at = db.Column(db.Text(), default=get_current_timestamp)
 
     @classmethod
-    def get_sensors_by_id(cls, sensor_id):
+    def get_sensor_by_id(cls, sensor_id):
         sensor = Sensor.query.filter(Sensor.id == sensor_id).first()
         return sensor
 

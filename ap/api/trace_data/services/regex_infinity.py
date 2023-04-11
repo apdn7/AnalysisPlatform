@@ -145,18 +145,18 @@ def validate_data_with_regex(df):
 
     # integer cols
     int_cols = df.select_dtypes(include='integer').columns.tolist()
-    return_vals = [pd.NA, pd.NA]
+    return_vals = [np.nan, np.nan]
     for col in int_cols:
         if not check_validate_target_column(col):
             continue
 
         df = validate_numeric_minus(df, col, return_vals)
-        df = validate_numeric_plus(df, col, return_vals + [pd.NA])
+        df = validate_numeric_plus(df, col, return_vals + [np.nan])
 
     # float
     float_cols = df.select_dtypes(include='float').columns.tolist()
     return_neg_vals = [float('-inf'), float('-inf')]
-    return_pos_vals = [float('inf'), float('inf'), np.NAN]
+    return_pos_vals = [float('inf'), float('inf'), np.nan]
     for col in float_cols:
         if not check_validate_target_column(col):
             continue

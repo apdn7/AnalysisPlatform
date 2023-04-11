@@ -12,7 +12,8 @@ from logging.handlers import TimedRotatingFileHandler
 from ap.common.constants import LOG_LEVEL, AP_LOG_LEVEL
 
 
-LOG_FORMAT = '%(asctime)s %(levelname)s: %(message)s'
+tz = time.strftime('%z')
+LOG_FORMAT = '%(asctime)s' + tz + ' %(levelname)s: %(message)s'
 # LOG_FORMAT = '%(count)s %(asctime)s %(levelname)s: %(message)s'
 # buffer (records) to write log file
 WRITE_BY_BUFFER = 1000

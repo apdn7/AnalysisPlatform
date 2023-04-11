@@ -157,8 +157,9 @@ Data is stored as TSV file under the subdirectories in [/sample_data](/sample_da
     * 20220311.tsv
   * /3_finishing
     * 20220311.tsv
-* /alarm_signal_cog: Daily occurence of machine alarms
-  * 20200401.tsv
+* /COG_sample_data: Occurence of machine alarms
+  * alarm_every_15minutes.tsv
+  * alarm_daily
 
 Above data will be automatically imported after activation.  
 You can call each sample visualization from 'Load' or 'Bookmark' on upper right corner of GUI.

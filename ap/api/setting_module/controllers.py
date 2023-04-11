@@ -394,6 +394,9 @@ def get_trace_configs():
     """
     try:
         procs = get_all_processes_traces_info()
+        # generate english name for process
+        for proc_data in procs:
+            proc_data['en_name'] = to_romaji(proc_data['name'])
         return {'trace_config': json.dumps({'procs': procs})}, 200
     except Exception:
         traceback.print_exc()

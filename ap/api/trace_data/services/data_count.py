@@ -60,7 +60,7 @@ def gen_full_data_by_time(df, start_date, end_date, query_type):
 
 @log_execution_time()
 @memoize(is_save_file=False)
-def get_data_count_by_time_range(proc_id, start_date, end_date, query_type, local_tz, _use_expired_cache=True):
+def get_data_count_by_time_range(proc_id, start_date, end_date, query_type, local_tz):
     data = None
     min_val = None
     max_val = None

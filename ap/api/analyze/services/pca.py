@@ -13,7 +13,7 @@ from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.pysize import get_size
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import abort_process_handler
+from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress
 from ap.common.trace_data_log import set_log_attr, TraceErrKey, save_trace_log_db, trace_log, \
     EventAction, EventType, Target
@@ -23,6 +23,7 @@ from ap.trace_data.schemas import DicParam
 
 
 @log_execution_time('[PCA]')
+@request_timeout_handling()
 @abort_process_handler()
 @notify_progress(75)
 def run_pca(dic_param, sample_no=0):
@@ -37,9 +38,9 @@ def run_pca(dic_param, sample_no=0):
         return None, errors
 
     # get sample no info
-    graph_param, dic_proc_cfgs, dic_serials = pca_bind_dic_param_to_class(dic_param)
+    graph_param, dic_proc_cfgs, dic_serials, dic_get_dates = pca_bind_dic_param_to_class(dic_param)
     data_point_info, meta_data = get_data_point_info(sample_no, dic_output.get('df'), graph_param, dic_proc_cfgs,
-                                                     dic_serials)
+                                                     dic_serials, dic_get_dates)
     array_plotdata = [{
         'array_x': dic_output.get('df').time,
         # 'array_x': plotly_jsons.get('json_pca_score_test').get('scatter').get('x'),
@@ -228,7 +229,7 @@ def get_trace_data(dic_proc_cfgs, graph_param):
         [type] -- data join from start to end by global_id
     """
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param, is_get_end_proc_serials=True)
+    df, actual_record_number, unique_serial = get_data_from_db(graph_param)
 
     return df, actual_record_number, unique_serial
 
@@ -253,7 +254,7 @@ def change_path(file_path):
 
 @log_execution_time()
 @abort_process_handler()
-def get_data_point_info(sample_no, df: DataFrame, graph_param: DicParam, dic_proc_cfgs, dic_serials):
+def get_data_point_info(sample_no, df: DataFrame, graph_param: DicParam, dic_proc_cfgs, dic_serials, dic_get_dates):
     meta_data = {
         'proc_id_x': None,
         'sensor_id_x': None,
@@ -271,9 +272,10 @@ def get_data_point_info(sample_no, df: DataFrame, graph_param: DicParam, dic_pro
 
             if col_name in dic_serials.values():
                 order = f'{proc_cnt:03}_1'
-            # elif col_name in dic_get_date.values():
-            elif str(col_name).startswith('time'):
+            elif col_name in dic_get_dates.values():
                 order = f'{proc_cnt:03}_2'
+            # elif str(col_name).startswith('time'):
+            #     order = f'{proc_cnt:03}_2'
             else:
                 order = f'{proc_cnt:03}_3'
                 if proc_cnt == 0:
@@ -332,20 +334,20 @@ def pca_bind_dic_param_to_class(dic_param, dic_proc_cfgs: List[CfgProcess] = Non
 
     # get serials and get_date
     dic_serials = {}
-    # dic_get_dates = {}
+    dic_get_dates = {}
     for proc in graph_param.array_formval:
         proc_cfg = dic_proc_cfgs[proc.proc_id]
         serials = proc_cfg.get_serials(column_name_only=False)
-        # serial_ids = [serial.id for serial in serials]
-        # get_date = proc_cfg.get_date_col(column_name_only=False)
-        # get_date_id = get_date.id
+        serial_ids = [serial.id for serial in serials]
+        get_date = proc_cfg.get_date_col(column_name_only=False)
+        get_date_id = get_date.id
         text_cols = [col.id for col in proc_cfg.get_cols_by_data_type(DataType.TEXT, column_name_only=False)]
         proc.add_cols(text_cols, append_first=True)
-        # proc.add_cols(get_date_id, append_first=True)
-        # proc.add_cols(serial_ids, append_first=True)
+        proc.add_cols(get_date_id, append_first=True)
+        proc.add_cols(serial_ids, append_first=True)
 
         dic_serials.update({col.id: gen_sql_label(col.id, col.column_name) for col in serials})
-        # dic_get_dates[get_date_id] = gen_sql_label(get_date.id, get_date.column_name)
+        dic_get_dates[get_date_id] = gen_sql_label(get_date.id, get_date.column_name)
 
     if is_train_data:
         time_idx = 0
@@ -357,7 +359,7 @@ def pca_bind_dic_param_to_class(dic_param, dic_proc_cfgs: List[CfgProcess] = Non
     graph_param.common.end_date = graph_param.common.end_date[time_idx]
     graph_param.common.end_time = graph_param.common.end_time[time_idx]
 
-    return graph_param, dic_proc_cfgs, dic_serials
+    return graph_param, dic_proc_cfgs, dic_serials, dic_get_dates
 
 
 def gen_sensor_headers(orig_graph_param):

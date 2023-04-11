@@ -1,5 +1,23 @@
 # Releases
 
+## v4.1.2
+
+New features and improvements
+
+* Tour: You can activate a tour to learn the basic usage of the visualization, by clicking "(?)" button on the right of the navigation bar.
+* Now shows elapsed time \[sec\] of the visualization, and the timeout to abort the visualization is extended to 10 minutes.
+* Improved Data Finder to let user set the datetime range from Year/Month Calender.
+* Added search box on the language dropdown list.
+* (FPP) You can now control the priority of the columns to sort the data points, by changing the column order on the on-demand filter window.
+* (StP/RLP/ScP) Changed minimum value of "Window length" and "Interval" from 0.1 to 0.01.
+
+Bugfixes
+
+* Fixed a bug of duplicate serial detection, where the result change depending on whether filter/on-demand filter is used or not.
+  * The Analysis Platform will extract "All", "First" (oldest datetime), or "Last" (latest datetime) record for data points with duplicate serials.
+* Fixed a bug that a chattering occur when entering full width number to a halfwidth number textbox.
+* (SkD) Fixed a bug that an error could occur on large number of data points (>10,000)
+
 ## v4.1.1
 
 This version fixes an issue: the Analysis Platform checks disk usage at an unexpected frequency in a specific condition.

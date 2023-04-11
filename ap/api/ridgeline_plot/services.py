@@ -23,11 +23,11 @@ from ap.api.trace_data.services.time_series_chart import (get_data_from_db, gen_
                                                           calc_auto_scale_y, calc_setting_scale_y,
                                                           calc_threshold_scale_y, detect_abnormal_data,
                                                           extend_min_max, gen_cat_label_unique)
-from ap.common.common_utils import (start_of_minute, end_of_minute)
+from ap.common.common_utils import (start_of_minute, end_of_minute, gen_sql_label)
 from ap.common.constants import *
 from ap.common.memoize import memoize
 from ap.common.services.ana_inf_data import get_bound, get_grid_points, calculate_kde_for_ridgeline
-from ap.common.services.request_time_out_handler import abort_process_handler
+from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress
 from ap.common.sigificant_digit import get_fmt_from_array
 from ap.common.timezone_utils import convert_dt_str_to_timezone, from_utc_to_localtime
@@ -38,6 +38,7 @@ from ap.trace_data.schemas import DicParam
 
 
 @log_execution_time()
+@request_timeout_handling()
 @abort_process_handler()
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
            (EventType.RLP, EventAction.PLOT, Target.GRAPH), send_ga=True)
@@ -64,6 +65,7 @@ def gen_trace_data_by_cyclic(dic_param, max_graph=None):
 
 
 @log_execution_time()
+@request_timeout_handling()
 @abort_process_handler()
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
            (EventType.RLP, EventAction.PLOT, Target.GRAPH), send_ga=True)
@@ -77,15 +79,15 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
     dic_param, cat_exp, cat_procs, dic_cat_filters, use_expired_cache, *_ = customize_dic_param_for_reuse_cache(
         dic_param)
     # gen graph_param
-    graph_param, dic_proc_cfgs = gen_graph_param(dic_param)
+    graph_param, dic_proc_cfgs = gen_graph_param(dic_param, with_ct_col=True)
 
     cat_div_id = graph_param.common.div_by_cat
     if cat_div_id:
         graph_param.add_column_to_array_formval([graph_param.common.div_by_cat])
 
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param,
-                                                               _use_expired_cache=use_expired_cache)
+    df, actual_record_number, unique_serial = get_data_from_db(graph_param, dic_cat_filters,
+                                                               use_expired_cache=use_expired_cache)
 
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
 
@@ -100,7 +102,7 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = not_exact_match_filter_ids
 
     # gen dic_data
-    dic_data = gen_dic_data_from_df(df, graph_param)
+    dic_data = gen_dic_data_from_df(df, graph_param, calculate_cycle_time=False)
 
     # flag to show that trace result was limited
     dic_param[UNIQUE_SERIAL] = unique_serial
@@ -115,15 +117,14 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
     if cat_div_id:
         dic_data = split_data_by_div(dic_data, div_names)
 
-    dic_param[IS_GRAPH_LIMITED] = is_graph_limited
-
     end_cols = []
     for param in orig_graph_param.array_formval:
         end_cols += param.col_ids
 
-    dic_param[ARRAY_PLOTDATA] = gen_custom_plotdata(dic_data, end_cols, cat_div_id)
+    dic_param[ARRAY_PLOTDATA], is_graph_limited = gen_custom_plotdata(dic_data, end_cols, cat_div_id, max_graph)
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
     dic_param[TIMES] = df[Cycle.time.key].tolist()
+    dic_param[IS_GRAPH_LIMITED] = is_graph_limited
 
     # get visualization setting
     add_threshold_configs(dic_param, orig_graph_param)
@@ -140,6 +141,7 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
 
 
 @log_execution_time()
+@request_timeout_handling()
 @abort_process_handler()
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
            (EventType.RLP, EventAction.PLOT, Target.GRAPH), send_ga=True)
@@ -156,6 +158,7 @@ def gen_rlp_data_by_term(dic_param, max_graph=None):
     dic_param[UNMATCHED_FILTER_IDS] = []
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = []
     dic_param[ACTUAL_RECORD_NUMBER] = 0
+    dic_param[UNIQUE_SERIAL] = 0
 
     term_results = []
     export_dfs = []
@@ -182,7 +185,12 @@ def gen_rlp_data_by_term(dic_param, max_graph=None):
         dic_param[UNMATCHED_FILTER_IDS] += term_result.get(UNMATCHED_FILTER_IDS, [])
         dic_param[NOT_EXACT_MATCH_FILTER_IDS] += term_result.get(NOT_EXACT_MATCH_FILTER_IDS, [])
         dic_param[ACTUAL_RECORD_NUMBER] = term_result.get(ACTUAL_RECORD_NUMBER, 0)
-        # dic_param[CAT_EXP_BOX] = term_result.get(CAT_EXP_BOX, [])
+
+        unique_serial = term_result.get(UNIQUE_SERIAL)
+        if unique_serial is None:
+            dic_param[UNIQUE_SERIAL] = None
+        if dic_param[UNIQUE_SERIAL] is not None:
+            dic_param[UNIQUE_SERIAL] += term_result.get(UNIQUE_SERIAL)
 
         term_results.append(term_result)
         export_dfs.append(export_df)
@@ -204,7 +212,7 @@ def gen_rlp_data_by_term(dic_param, max_graph=None):
     cal_emd_data(dic_param)
     gen_rlp_kde(dic_param, term_groups)
 
-    return dic_param, export_dfs
+    return dic_param, df
 
 
 @log_execution_time()
@@ -629,12 +637,16 @@ def gen_cyclic_term_plotdata(dic_data, dic_param, max_graph=None):
 
 
 @log_execution_time()
-def gen_custom_plotdata(dic_data, sensors, cat_div_id):
+def gen_custom_plotdata(dic_data, sensors, cat_div_id, max_graph):
+    is_graph_limited = False
     plotdatas = []
     if not dic_data:
-        return plotdatas
+        return plotdatas, is_graph_limited
     dic_procs, dic_cols = get_cfg_proc_col_info(sensors)
     for sensor_id in sensors:
+        if max_graph and len(plotdatas) >= max_graph:
+            is_graph_limited = True
+            break
         cfg_col: CfgProcessColumn = dic_cols[sensor_id]
         cfg_proc: CfgProcess = dic_procs[cfg_col.process_id]
 
@@ -651,6 +663,9 @@ def gen_custom_plotdata(dic_data, sensors, cat_div_id):
             plotdatas.append(plotdata)
         else:
             for cate_name, dic_plot in dic_data[sensor_id].items():
+                if max_graph and len(plotdatas) >= max_graph:
+                    is_graph_limited = True
+                    break
                 plotdata = gen_blank_rlp_plot(proc_name=cfg_proc.name, proc_id=cfg_proc.id, sensor_id=sensor_id,
                                               sensor_name=cfg_col.name, group_name=cate_name)
                 plotdata['facet_groups'] = cate_name
@@ -662,7 +677,7 @@ def gen_custom_plotdata(dic_data, sensors, cat_div_id):
                     plotdata[RL_RIDGELINES].append(rlpdata)
 
                 plotdatas.append(plotdata)
-    return plotdatas
+    return plotdatas, is_graph_limited
 
 
 def get_checked_cols(trace, dic_param):
@@ -1085,16 +1100,40 @@ def calc_rlp_scale_info(array_plotdata, min_max_list, all_graph_min,
     return True
 
 
-def gen_emd_df(rlp_data, div_name, term_sep, client_tz='Asia/Tokyo'):
+def gen_emd_df(rlp_data, div_name, term_sep, client_tz='Asia/Tokyo', has_facet=False, file_extension='csv'):
+    csv_data = []
+    csv_name = []
     rlp_emd = {}
-    for i, rlp in enumerate(rlp_data['array_plotdata']):
+    if has_facet:
+        for rlp in rlp_data[ARRAY_PLOTDATA]:
+            file_name = '{}_{}_{}.{}'.format(rlp[PROC_NAME], rlp[RL_SENSOR_NAME], rlp[CAT_EXP_BOX], file_extension)
+            csv_name.append(file_name)
+    for i, rlp in enumerate(rlp_data[ARRAY_PLOTDATA]):
+        if has_facet:
+            rlp_emd = {}
+        repaired_emd = []
+        index = 0
+        for rl in rlp[RL_RIDGELINES]:
+            if rl[RL_DATA_COUNTS] < 8 or len(rl[RL_KDE][RL_HIST_LABELS]) == 0:
+                repaired_emd.append(None)
+            else:
+                repaired_emd.append(rlp_data[RL_EMD][i][index])
+                index += 1
+
         if div_name:
-            rlp_emd[div_name] = [ridge['cate_name'] for ridge in rlp['ridgelines'] if ridge['data_counts'] > 0]
+            rlp_emd[div_name] = [ridge[RL_CATE_NAME] for ridge in rlp[RL_RIDGELINES]]
         elif term_sep:
-            rlp_emd['From'] = [from_utc_to_localtime(ridge['cate_name'].split(' | ')[0], client_tz, False) for ridge in rlp['ridgelines'] if \
-                               ridge['data_counts'] > 0 and ridge['cate_name']]
-            rlp_emd['To'] = [from_utc_to_localtime(ridge['cate_name'].split(' | ')[1], client_tz, False) for ridge in rlp['ridgelines'] if \
-                               ridge['data_counts'] > 0 and ridge['cate_name']]
-        col_name = '__{}__{}'.format(rlp['sensor_id'], rlp['sensor_name'])
-        rlp_emd[col_name] = rlp_data['emd'][i]
-    return pandas.DataFrame(rlp_emd)
+            rlp_emd['From'] = [from_utc_to_localtime(ridge[RL_CATE_NAME].split(' | ')[0], client_tz, False) for ridge
+                               in rlp[RL_RIDGELINES] if ridge[RL_CATE_NAME]]
+            rlp_emd['To'] = [from_utc_to_localtime(ridge[RL_CATE_NAME].split(' | ')[1], client_tz, False) for ridge
+                             in rlp[RL_RIDGELINES] if ridge[RL_CATE_NAME]]
+
+        col = CfgProcessColumn.get_by_ids([rlp[SENSOR_ID]])[0]
+        col_name = gen_sql_label(col.id, col.column_name)
+        rlp_emd[col_name] = repaired_emd
+        if has_facet:
+            csv_data.append(pandas.DataFrame(rlp_emd))
+
+    if not has_facet:
+        csv_data.append(pandas.DataFrame(rlp_emd))
+    return csv_data, csv_name
