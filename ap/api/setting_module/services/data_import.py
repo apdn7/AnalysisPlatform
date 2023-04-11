@@ -979,15 +979,18 @@ def get_object_cols(df: DataFrame):
 
 @log_execution_time('[CONVERT DATE TIME TO UTC')
 def convert_df_col_to_utc(df, get_date_col, is_tz_inside, utc_time_offset):
-    if is_tz_inside:
-        return df[get_date_col].dt.tz_convert('UTC')
+    if DATETIME not in df[get_date_col].dtype.name:
+        df[get_date_col] = pd.to_datetime(df[get_date_col], errors='coerce')
 
-    return df[get_date_col] - utc_time_offset
+    if is_tz_inside:
+        return df[df[get_date_col].notnull()][get_date_col].dt.tz_convert('UTC')
+
+    return df[df[get_date_col].notnull()][get_date_col] - utc_time_offset
 
 
 @log_execution_time()
 def convert_df_datetime_to_str(df: DataFrame, get_date_col):
-    return df[get_date_col].dt.strftime(DATE_FORMAT_STR)
+    return df[df[get_date_col].notnull()][get_date_col].dt.strftime(DATE_FORMAT_STR)
 
 
 @log_execution_time()

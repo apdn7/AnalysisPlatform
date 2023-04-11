@@ -432,7 +432,6 @@ const drawCrossHairOnDoubleClick = (clickPosition, selectedCanvasId) => {
 };
 
 const drawCrosshairSingleClick = (clickPosition, xValue, yValue, selectedCanvasId) => {
-    console.log('drawCrosshairSingleClick');
     removeAllCrossHair(false, true, true);
 
     // find histogram and scatter plot at the same row

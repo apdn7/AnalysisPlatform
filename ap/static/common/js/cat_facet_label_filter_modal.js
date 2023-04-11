@@ -7,7 +7,6 @@ object-curly-newline,
 no-use-before-define,
 prefer-arrow-callback,
 no-restricted-syntax */
-let lastUsedFormData;
 
 let catFilter = {};
 let globalTypingCount = 0;
@@ -21,6 +20,7 @@ let dicConfirmed = {};
 let dicEnter = {};
 let currentRegexVal = '';
 let groupDic = {};
+let catOnDemandChanged = false;
 
 const modalEls = {
     okBtn: $('#catFilterSubmit'),
@@ -40,6 +40,58 @@ const modalEls = {
     colorBox: $('#colorBox'),
     colorBoxTitle: $('#colorTitle'),
     sortBtn: $('#filterSortBtn'),
+};
+const orderColumn = (processID, columnID, orderType) => {
+    return {
+        serialProcess: Number(processID),
+        serialColumn: Number(columnID),
+        serialOrder: Number(orderType),
+    };
+};
+const bindCategorySort = () => {
+    const currentTrace = graphStore.traceDataResult;
+    // get category order from on-demand filter
+    const categoryBox = modalEls.categoriesBox;
+    const catOnDemand = categoryBox.find('.column-datas');
+    const catOrderIds = catOnDemand.map((i, el) => String($(el).data('id'))).get();
+    const catOrderProcIds = catOnDemand.map((i, el) => String($(el).data('proc-id'))).get();
+
+    let _serialCols = currentTrace.COMMON.serialColumn;
+    if (!Array.isArray(_serialCols)) {
+        _serialCols = [_serialCols];
+    }
+    const serialCols = _serialCols.map(i => String(i));
+    let xOption = currentTrace.COMMON.xOption || 'TIME';
+    if (catOnDemandChanged && xOption === 'INDEX') {
+        updateOrderCols = [];
+        catOrderIds.forEach((col, idx) => {
+            // find in serial series list
+            let colIdx = serialCols.map(col_id => String(col_id)).indexOf(String(col));
+            const processId = catOrderProcIds[idx];
+            let orderType = 1; // default as asc, 0 for desc
+            if (colIdx >= 0) {
+                orderType = currentTrace.COMMON.serialOrder[colIdx];
+            }
+            // set temp order to formData
+            updateOrderCols.push(orderColumn(processId, col, orderType));
+        });
+        // assign unlabel cols
+        serialCols.forEach((col, idx) => {
+             if (!catOrderIds.includes(col)) {
+                 updateOrderCols.push(orderColumn(
+                     currentTrace.COMMON.serialProcess[idx],
+                     col,
+                     currentTrace.COMMON.serialOrder[idx]
+                 ));
+             }
+        });
+
+        if (updateOrderCols.length) {
+            // update index modal content
+            lastSelectedOrder = updateOrderCols;
+            renderTableContent();
+        }
+    }
 };
 
 function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, callback) {
@@ -61,6 +113,8 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
     modalEls.okBtn.on('click', () => {
         modalEls.modal.modal('toggle');
         dicConfirmed = copyDict(dicChecked);
+        // update category sort
+        bindCategorySort();
         callback();
     });
 
@@ -77,7 +131,7 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
             event.preventDefault();
         } else {
             setTimeout(() => {
-                currentRegexVal = this.value;
+                currentRegexVal = stringNormalization(this.value);
                 currentRegexVal = makeRegexForSearchCondition(currentRegexVal);
                 searchRegEx(currentRegexVal, currentTypingCount);
                 filterPaging(dicCheckboxes);
@@ -87,6 +141,7 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
                     sortCheckboxes();
                     checkboxOnChange();
                     onChangeAllOption();
+                    onDemandFilterInputCheck();
                 }, 500);
             }, 500);
         }
@@ -114,6 +169,7 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
             sortCheckboxes();
             checkboxOnChange();
             onChangeAllOption();
+            onDemandFilterInputCheck();
         }, 500);
     });
 
@@ -134,6 +190,7 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
                     sortCheckboxes();
                     checkboxOnChange();
                     onChangeAllOption();
+                    onDemandFilterInputCheck();
                 }, 500);
             }, 2000);
         }
@@ -168,6 +225,7 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
             sortCheckboxes();
             checkboxOnChange();
             onChangeAllOption();
+            onDemandFilterInputCheck();
         }, 500);
     });
 
@@ -190,6 +248,9 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
 
         modalEls.categoriesBox.sortable({
             axis: 'x',
+            change: function() {
+                catOnDemandChanged = true;
+            }
         });
     }
 
@@ -244,6 +305,21 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
     }
 }
 
+const onDemandFilterInputCheck = () => {
+    $(`.column-datas div`).unbind('click').bind('click', (e) => {
+        let target = $(e.target);
+        if ($(e.target).data('check-all')) {
+            const allSelection = $(e.target).find('input');
+            const allStatus = allSelection.prop('checked');
+            allSelection.prop('checked', !allStatus).change();
+        } else {
+            target.find('input').each((idx, item) => {
+                const currenStatus = $(item).prop('checked');
+                $(item).prop('checked', !currenStatus);
+            });
+        }
+    });
+};
 function moveCheckedLabelsToTop() {
     $('.column-datas').mouseleave(function () {
         const ischanged = sortHtmlElements($(this), true);
@@ -415,10 +491,10 @@ const pagination = (columnId, dataSource) => {
     const container = $(`#${pagingIdPrefix}${columnId}`);
     const dataContainerId = `#${dataContainIdPrefix}${columnId}`;
     const dataContainer = $(dataContainerId);
-    const allCheckbox = `<div class="p-1">
+    const allCheckbox = `<div class="p-1" data-check-all="true">
                             <div class="custom-control custom-checkbox custom-control-inline mr-0">
                                 <input type="checkbox" name="cat_filter_all" value="all" data-column="${columnId}"
-                                    class="custom-control-input already-convert-hankaku" id="cat-filter-${columnId}">
+                                    class="custom-control-input" id="cat-filter-${columnId}">
                                     <label class="custom-control-label" for="cat-filter-${columnId}"> All </label>
                             </div>
                          </div>`;
@@ -453,6 +529,7 @@ const pagination = (columnId, dataSource) => {
             sortCheckboxes();
             checkboxOnChange();
             onChangeAllOption();
+            onDemandFilterInputCheck();
         },
     });
 };
@@ -523,6 +600,7 @@ const regexEnter = (typingCount) => {
         sortCheckboxes();
         checkboxOnChange();
         onChangeAllOption();
+        onDemandFilterInputCheck();
     }, 500);
 };
 
@@ -616,6 +694,7 @@ const filterAvailableLabels = () => {
         sortCheckboxes();
         checkboxOnChange();
         onChangeAllOption();
+        onDemandFilterInputCheck();
     }, 500);
 };
 

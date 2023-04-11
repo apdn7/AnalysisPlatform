@@ -15,6 +15,7 @@ from ap.common.services.form_env import parse_request_params, parse_multi_filter
 from ap.common.services.import_export_config_n_data import export_debug_info, set_export_dataset_id_to_dic_param, \
     get_dic_form_from_debug_info, import_user_setting_db, \
     import_config_db, get_zip_full_path
+from ap.common.services.request_time_out_handler import request_timeout_handling
 from ap.common.timezone_utils import get_date_from_type
 from ap.common.trace_data_log import save_input_data_to_file, EventType, save_draw_graph_trace, trace_log_params
 
@@ -27,6 +28,7 @@ api_trace_data_blueprint = Blueprint(
 FPP_MAX_GRAPH = 20
 
 
+@request_timeout_handling()
 @api_trace_data_blueprint.route('/index', methods=['POST'])
 def trace_data():
     """

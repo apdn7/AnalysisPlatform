@@ -16,6 +16,7 @@ let userEditedProcName = false;
 let userEditedDSName = false;
 let setDatetimeSelected = false;
 let prcPreviewData;
+let isClickPreview = false;
 
 const procModalElements = {
     procModal: $('#procSettingModal'),
@@ -149,6 +150,11 @@ const setProcessName = (dataRowID = null) => {
         const combineProcName = firstTableName ? `${dsNameSelection}_${firstTableName}` : dsNameSelection;
         procModalElements.proc.val(combineProcName);
     }
+
+    if (isClickPreview) {
+        procModalElements.showRecordsBtn.click();
+        isClickPreview = false;
+    }
 };
 
 // reload tables after change
@@ -167,14 +173,8 @@ const loadTables = (databaseId, dataRowID = null, selectedTbl = null) => {
         method: 'GET',
         cache: false,
     }).done((res) => {
-        // TODO: use const for data type
-        if (res.ds_type === 'csv') {
-            procModalElements.tables.append(
-                $('<option/>', {
-                    value: '',
-                    text: '---',
-                }),
-            );
+        if (res.ds_type.toLowerCase() === 'csv') {
+            procModalElements.tables.empty();
             procModalElements.tables.prop('disabled', true);
         } else if (res.tables) {
             res.tables.forEach((tbl) => {
@@ -405,6 +405,8 @@ const genColumnWithCheckbox = (cols, rows, dummyDatetimeIdx) => {
 };
 
 const showConfirmSameAndNullValueInColumn = (cols) => {
+    if (currentProcItem.data('proc-id')) return;
+
     let isSame = false;
     let isNull = false;
     cols.forEach((col, i) => {
@@ -533,7 +535,7 @@ const showResetDataLink = (boxElement) => {
 
 const validateAllCoefs = () => {
     $(`#selectedColumnsTable tr input[name="${procModalElements.coef}"]:not('.text')`).each(function validate() {
-        validateCoefOnInput($(this));
+        validateNumericInput($(this));
     });
 };
 
@@ -1410,7 +1412,6 @@ const checkExcelDataValid = (verticalData, validationColNames, dataTypes) => {
         let invalidRowIds = validationFunc(columnData, dataTypes);
         const invalidCells = invalidRowIds.map(rowIdx => `${convertIdxToExcelCol(colIdx)}${parseInt(rowIdx) + 1}`);
 
-        console.log(validationCol, ': ', invalidCells);
         if (['dateTime', 'serial', 'auto_increment'].includes(validationCol)) {
             errorCheckboxCells = errorCheckboxCells.concat(invalidCells);
         } else {
@@ -1431,7 +1432,6 @@ const checkExcelDataValid = (verticalData, validationColNames, dataTypes) => {
             const invalidSerialCell = `${convertIdxToExcelCol(asSerialIdx)}${parseInt(rowIdx) + 1}`;
             errorCheckboxCells.push(invalidDtCell);
             errorCheckboxCells.push(invalidSerialCell);
-            console.log([invalidDtCell, invalidSerialCell]);
         }
     }
 
@@ -1705,11 +1705,15 @@ $(() => {
 
     // Databases onchange
     procModalElements.databases.change(() => {
+        hideAlertMessages();
+        isClickPreview = true;
         const dsSelected = procModalElements.databases.find(':selected').val();
         loadTables(dsSelected);
     });
     // Tables onchange
     procModalElements.tables.change(() => {
+        hideAlertMessages();
+        isClickPreview = true;
         setProcessName();
     });
     procModalElements.proc.on('mouseup', () => {

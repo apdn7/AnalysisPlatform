@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
-const REQUEST_TIMEOUT = setRequestTimeOut(180000); // 3 minutes
+const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 32;
 const MAX_END_PROC = 8;
 // eslint-disable-next-line prefer-const
@@ -11,6 +11,7 @@ let currentTraceDataVar;
 let currentTraceDataTerm;
 let currentTraceDataCyclicTerm;
 const scaleOptions = {};
+const graphStore = new GraphStore();
 
 const eles = {
     varTabPrefix: 'var',
@@ -255,11 +256,10 @@ const onChangeHistSummaryEventHandler = (eleIdPrefix = '') => {
 const onChangeHistScale = (prefix) => {
     $(`select[name=${prefix}HistScale]`).unbind('change');
     $(`select[name=${prefix}HistScale]`).on('change', function f() {
-        // reset summary option
-        resetSummaryOption(`${prefix}${eles.summaryOption}`);
         const scaleOption = $(this).children('option:selected').val() || '1';
         const freOption = $(`select[name=${prefix}${eles.frequencyScale}]`).val();
         rerenderHistogram(prefix, scaleOption, freOption);
+        checkSummaryOption(`${prefix}${eles.summaryOption}`);
     });
 
     $(`select[name=${prefix}${eles.frequencyScale}]`).unbind('change');
@@ -267,6 +267,7 @@ const onChangeHistScale = (prefix) => {
         const freOption = e.currentTarget.value;
         const scaleOption = $(`select[name=${prefix}${eles.histScale}]`).val();
         rerenderHistogram(prefix, scaleOption, freOption);
+        checkSummaryOption(`${prefix}${eles.summaryOption}`);
     });
 };
 
@@ -605,6 +606,7 @@ const collectFormDataFromGUI = (clearOnFlyFilter) => {
 };
 
 const showGraph = (clearOnFlyFilter = true) => {
+    requestStartedAt = performance.now();
     const eleIdPrefix = $('select[name=compareType]').val();
     
     const isValid = checkValidations({max: MAX_END_PROC});
@@ -612,7 +614,7 @@ const showGraph = (clearOnFlyFilter = true) => {
     if (!isValid) return;
     
     // close sidebar
-    beforeShowGraphCommon();
+    beforeShowGraphCommon(clearOnFlyFilter);
 
     // reset sumary option
     resetSetting(eleIdPrefix);
@@ -626,6 +628,7 @@ const showGraph = (clearOnFlyFilter = true) => {
         resetSetting(eleIdPrefix);
 
         if (!_.isEmpty(res.array_plotdata)) {
+            graphStore.setTraceData(_.cloneDeep(res));
             if (eleIdPrefix === eles.varTabPrefix) {
                 currentTraceDataVar = res;
                 showMessageIfFacetNotSelected(res);

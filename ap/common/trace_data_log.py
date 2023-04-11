@@ -9,7 +9,7 @@ from flask import current_app, g
 from pandas import DataFrame
 
 from ap.common.common_utils import create_file_path, write_to_pickle
-from ap.common.constants import MPS, FlaskGKey, CsvDelimiter
+from ap.common.constants import MPS, FlaskGKey, CsvDelimiter, IS_EXPORT_MODE
 from ap.common.logger import log_execution_time
 
 # some environment can not access to google analytics ,
@@ -313,6 +313,12 @@ def send_google_analytic():
 def save_input_data_to_file(input_form, prefix=None):
     if prefix:
         set_log_attr(TraceErrKey.TYPE, prefix)
+    if IS_EXPORT_MODE not in input_form:
+        return ''
+
+    # remove isExportMode key
+    copy_dict = dict.copy(input_form)
+    copy_dict.pop(IS_EXPORT_MODE)
 
     event_type = get_log_attr(TraceErrKey.TYPE) or ''
     file_path = create_file_path('input_' + event_type, suffix='.pickle')

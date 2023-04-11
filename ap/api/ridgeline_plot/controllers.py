@@ -2,22 +2,19 @@ import io
 import simplejson
 import timeit
 from copy import deepcopy
-from zipfile import ZipFile
 
-import pandas as pd
 
-from flask import Blueprint, request, Response
+from flask import Blueprint, request
 
 from ap.api.ridgeline_plot.services import (gen_trace_data_by_categorical_var,
-                                            customize_dict_param, gen_rlp_data_by_term, gen_csv_data,
-                                            csv_export_dispatch, save_input_data_to_file,
-                                            merge_multiple_dic_params, convert_list_to_dict_multiple_data_proc,
+                                            customize_dict_param, gen_rlp_data_by_term,
+                                            save_input_data_to_file,
                                             gen_trace_data_by_cyclic, gen_emd_df)
-from ap.common.common_utils import gen_sql_label
-from ap.common.services import http_content, csv_content
+from ap.common.logger import log_execution_time
+from ap.common.services import http_content
+from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (parse_multi_filter_into_one,
                                          parse_request_params,
-                                         bind_multiple_end_proc_rlp,
                                          get_end_procs_param,
                                          update_data_from_multiple_dic_params,
                                          update_rlp_data_from_multiple_dic_params)
@@ -25,9 +22,7 @@ from ap.common.services.import_export_config_n_data import get_dic_form_from_deb
     set_export_dataset_id_to_dic_param
 from ap.common.trace_data_log import EventType, save_draw_graph_trace, trace_log_params
 from ap.common.yaml_utils import *
-from ap.api.categorical_plot.services import gen_graph_param
-from ap.api.trace_data.services.csv_export import to_csv
-
+from ap.api.trace_data.services.csv_export import to_csv, make_graph_param
 
 api_ridgeline_plot_blueprint = Blueprint(
     'api_ridgeline_plot',
@@ -61,7 +56,7 @@ def trace_data():
 
     for single_dic_param in dic_params:
         if compare_type == RL_CATEGORY:
-            rlp_dat, _ = gen_trace_data_by_categorical_var(single_dic_param)
+            rlp_dat, _ = gen_trace_data_by_categorical_var(single_dic_param, RLP_MAX_GRAPH)
         if compare_type == RL_CYCLIC_TERM:
             rlp_dat, _ = gen_trace_data_by_cyclic(single_dic_param, RLP_MAX_GRAPH)
         elif compare_type == RL_DIRECT_TERM:
@@ -93,77 +88,9 @@ def csv_export():
         [type] -- [description]
     """
     dic_form = parse_request_params(request)
-    dic_param = parse_multi_filter_into_one(dic_form)
 
-    # check if we run debug mode (import mode)
-    dic_param = get_dic_form_from_debug_info(dic_param)
+    return export_file(dic_form)
 
-    customize_dict_param(dic_param)
-
-    compare_type = dic_param.get(COMMON).get(COMPARE_TYPE)
-
-    dic_params = get_end_procs_param(dic_param)
-
-    csv_data = []
-    csv_list_name = []
-    for single_dic_param in dic_params:
-        emd_data = None
-        graph_param, dic_proc_cfgs = gen_graph_param(dic_param, with_ct_col=True)
-        if compare_type == RL_CATEGORY:
-            rlp_dat, csv_df = gen_trace_data_by_categorical_var(single_dic_param)
-        if compare_type == RL_CYCLIC_TERM:
-            rlp_dat, csv_df = gen_trace_data_by_cyclic(single_dic_param, RLP_MAX_GRAPH)
-        elif compare_type == RL_DIRECT_TERM:
-            rlp_dat, csv_df = gen_rlp_data_by_term(single_dic_param, RLP_MAX_GRAPH)
-
-        end_proc_id = int(rlp_dat[ARRAY_FORMVAL][0][END_PROC])
-        proc_name = dic_proc_cfgs[end_proc_id].name
-        csv_list_name.append('{}.{}'.format(proc_name, 'csv'))
-
-        if dic_param[COMMON]['export_from'] == 'plot':
-            # find DIV, as string
-            div_id = dic_param[COMMON][DIV_BY_CAT] if DIV_BY_CAT in dic_param[COMMON] else None
-            div_name = None
-            if div_id and len(rlp_dat[CAT_EXP_BOX]):
-                div_var = [var for var in rlp_dat[CAT_EXP_BOX] if str(var[COL_ID]) == div_id]
-                div_var = div_var[0] if div_var else None
-                if div_var:
-                    div_name = '{}|{}'.format(div_var[PROC_MASTER_NAME], div_var[COL_MASTER_NAME])
-
-            term_sep = False
-            if not div_name and dic_param[COMMON][COMPARE_TYPE] != RL_CATEGORY:
-                term_sep = True
-
-            client_tz = dic_param[COMMON][CLIENT_TIMEZONE]
-            csv_df = gen_emd_df(rlp_dat, div_name, term_sep, client_tz)
-            emd_type = single_dic_param[COMMON][EMD_TYPE]
-            csv_df = to_csv(csv_df, dic_proc_cfgs, graph_param, emd_type=emd_type, div_col=div_name)
-        else:
-            csv_df = to_csv(csv_df, dic_proc_cfgs, graph_param)
-        csv_data.append(csv_df)
-
-    if len(csv_data) == 1:
-        csv_data = csv_data[0]
-        csv_filename = csv_content.gen_csv_fname()
-        response = Response(csv_data.encode("utf-8-sig"), mimetype="text/csv",
-                            headers={
-                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                            })
-    else:
-        csv_filename = csv_content.gen_csv_fname('zip')
-        outfile = io.BytesIO()
-        with ZipFile(outfile, 'w') as zf:
-            for name, data in zip(csv_list_name, csv_data):
-                zf.writestr(name, data)
-
-        zip_dat = outfile.getvalue()
-        response = Response(zip_dat, mimetype="application/octet-stream",
-                            headers={
-                                "Content-Type": "application/octet-stream",
-                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                            })
-    response.charset = "utf-8-sig"
-    return response
 
 @api_ridgeline_plot_blueprint.route('/tsv_export', methods=['GET'])
 def tsv_export():
@@ -173,6 +100,12 @@ def tsv_export():
         [type] -- [description]
     """
     dic_form = parse_request_params(request)
+
+    return export_file(dic_form, 'tsv')
+
+
+@log_execution_time()
+def export_file(dic_form, export_type='csv'):
     dic_param = parse_multi_filter_into_one(dic_form)
 
     # check if we run debug mode (import mode)
@@ -184,12 +117,14 @@ def tsv_export():
 
     dic_params = get_end_procs_param(dic_param)
 
+    delimiter = ',' if export_type == 'csv' else '\t'
+
     csv_data = []
     csv_list_name = []
     for single_dic_param in dic_params:
-        graph_param, dic_proc_cfgs = gen_graph_param(dic_param, with_ct_col=True)
+        graph_param, dic_proc_cfgs, client_timezone = make_graph_param(single_dic_param)
         if compare_type == RL_CATEGORY:
-            rlp_dat, csv_df = gen_trace_data_by_categorical_var(single_dic_param)
+            rlp_dat, csv_df = gen_trace_data_by_categorical_var(single_dic_param, RLP_MAX_GRAPH)
         if compare_type == RL_CYCLIC_TERM:
             rlp_dat, csv_df = gen_trace_data_by_cyclic(single_dic_param, RLP_MAX_GRAPH)
         elif compare_type == RL_DIRECT_TERM:
@@ -197,10 +132,11 @@ def tsv_export():
 
         end_proc_id = int(rlp_dat[ARRAY_FORMVAL][0][END_PROC])
         proc_name = dic_proc_cfgs[end_proc_id].name
-        csv_list_name.append('{}.{}'.format(proc_name, 'tsv'))
+        csv_list_name.append('{}.{}'.format(proc_name, export_type))
 
         if dic_param[COMMON]['export_from'] == 'plot':
             # find DIV, as string
+            has_facet = graph_param.common.cat_exp and len(graph_param.common.cat_exp) > 0
             div_id = dic_param[COMMON][DIV_BY_CAT] if DIV_BY_CAT in dic_param[COMMON] else None
             div_name = None
             if div_id and len(rlp_dat[CAT_EXP_BOX]):
@@ -214,32 +150,19 @@ def tsv_export():
                 term_sep = True
 
             client_tz = dic_param[COMMON][CLIENT_TIMEZONE]
-            csv_df = gen_emd_df(rlp_dat, div_name, term_sep, client_tz)
+            csv_dfs, csv_file_name = gen_emd_df(rlp_dat, div_name, term_sep, client_tz, has_facet, export_type)
             emd_type = single_dic_param[COMMON][EMD_TYPE]
-            csv_df = to_csv(csv_df, dic_proc_cfgs, graph_param, emd_type=emd_type, div_col=div_name)
+            for csv_df in csv_dfs:
+                csv_df = to_csv(csv_df, dic_proc_cfgs, graph_param, emd_type=emd_type, div_col=div_name,
+                                client_timezone=client_timezone, delimiter=delimiter)
+                csv_data.append(csv_df)
+            if len(csv_file_name) > 0:
+                csv_list_name = csv_file_name
         else:
-            csv_df = to_csv(csv_df, dic_proc_cfgs, graph_param, delimiter='\t')
-        csv_data.append(csv_df)
+            csv_df = to_csv(csv_df, dic_proc_cfgs, graph_param, client_timezone=client_timezone, delimiter=delimiter)
+            csv_data.append(csv_df)
 
-    if len(csv_data) == 1:
-        csv_data = csv_data[0]
-        csv_filename = csv_content.gen_csv_fname()
-        response = Response(csv_data.encode("utf-8-sig"), mimetype="text/tsv",
-                            headers={
-                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                            })
-    else:
-        csv_filename = csv_content.gen_csv_fname('zip')
-        outfile = io.BytesIO()
-        with ZipFile(outfile, 'w') as zf:
-            for name, data in zip(csv_list_name, csv_data):
-                zf.writestr(name, data)
-
-        zip_dat = outfile.getvalue()
-        response = Response(zip_dat, mimetype="application/octet-stream",
-                            headers={
-                                "Content-Type": "application/octet-stream",
-                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                            })
+    response = zip_file_to_response(csv_data, csv_list_name)
     response.charset = "utf-8-sig"
     return response
+

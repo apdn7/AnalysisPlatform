@@ -92,7 +92,7 @@ def preprocess_skdpage(X,
         if is_binary:
             _, X, _, y, _, idx = train_test_split(X, y, idx, test_size=max_datapoints, stratify=y)
         else:
-            _, X, _, y, _, idx = train_test_split(X, y, test_size=max_datapoints)
+            _, X, _, y, _, idx = train_test_split(X, y, idx, test_size=max_datapoints)
         if verbose:
             print("Number of data points exceeded {}. Data is automatically resampled. ".format(max_datapoints))
     y = y.reshape(-1, 1)

@@ -738,3 +738,69 @@ span.btn-anchor.pin, span.btn-anchor:hover {
     font-size: 10px;
     padding: 0 5px 0 24px;
 }
+
+.dn-custom-select--select {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dn-custom-select {
+    position: relative;
+    width: 140px;
+}
+.dn-custom-select > select {
+    display: none;
+}
+
+.dn-custom-select--select:after{
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+    border-top: 6px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 0px;
+    border-left: 3px solid transparent;
+  /*border: 6px 3px 0 3px solid transparent;*/
+  border-color: #fff transparent transparent transparent;
+}
+
+
+.dn-custom-select--select--list div {
+    line-height: 1;
+    padding: 2px 4px!important;
+}
+
+.dn-custom-select--select--list div, .dn-custom-select--select {
+    color: #ffffff;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+    cursor: pointer;
+    user-select: none;
+}
+
+.dn-custom-select--select--list div:hover {
+    background-color: dodgerblue;
+}
+
+.dn-custom-select--select--list {
+    position: absolute;
+    background-color: #222222;
+    border: 1px solid #444444;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+}
+
+.selected-item {
+    background-color: dodgerblue;
+}
+
+.select-hide {
+    display: none;
+}

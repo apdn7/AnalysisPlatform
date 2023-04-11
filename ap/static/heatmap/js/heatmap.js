@@ -3,11 +3,12 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
-const REQUEST_TIMEOUT = setRequestTimeOut(300000); // 5 minutes
+const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 18;
 const MAX_END_PROC = 18;
 tabID = null;
 let currentData = null;
+const graphStore = new GraphStore();
 
 const eles = {
     endProcSelectedItem: '#end-proc-row select',
@@ -358,11 +359,12 @@ const addStratifiedVarBox = (values, displayNames) => {
 };
 
 const showHeatMap = (clearOnFlyFilter = true) => {
+    requestStartedAt = performance.now();
     const isValid = checkValidations({ max: MAX_END_PROC });
     updateStyleOfInvalidElements();
     if (isValid) {
         // close sidebar
-        beforeShowGraphCommon();
+        beforeShowGraphCommon(clearOnFlyFilter);
 
         beforeShowCHM(clearOnFlyFilter);
 
@@ -434,6 +436,7 @@ const queryDataAndShowHeatMap = (clearOnFlyFilter = true) => {
         afterShowCHM();
 
         currentData = res;
+        graphStore.setTraceData(_.cloneDeep(res));
 
         const getHeatmapScale = heatmapScale().get();
         formElements.heatmapScale.val(getHeatmapScale);
@@ -750,14 +753,11 @@ const endProcOnChange = (async (event) => {
     });
 });
 
-const handleExportData = (exportType) => {
-    // hide export menu
-    $(EXPORT_DOM.DROPDOWN_ID).removeClass('show');
-    const dataSrc = getExportDataSrc();
+const dumpData = (exportType, dataSrc) => {
     const formData = lastUsedFormData || collectFormDataFromGUI(true);
     formData.set('export_from', dataSrc);
     if (exportType === EXPORT_TYPE.TSV_CLIPBOARD) {
-        tsvClipBoard(STP_EXPORT_URL.TSV.url, formData);
+        tsvClipBoard(CHM_EXPORT_URL.TSV.url, formData);
     } else {
         exportData(
             CHM_EXPORT_URL[exportType].url,
@@ -765,4 +765,10 @@ const handleExportData = (exportType) => {
             formData,
         );
     }
+};
+
+const handleExportData = (exportType) => {
+    // hide export menu
+    $(EXPORT_DOM.DROPDOWN_ID).removeClass('show');
+    showGraphAndDumpData(exportType, dumpData);
 };

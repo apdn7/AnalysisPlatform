@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-unused-vars */
-let lastUsedFormData = null;
 const graphStore = new GraphStore();
 
 // dont rename. must use formElements because some common functions
@@ -185,6 +184,9 @@ const updateRecordInfo = (dataInfos = {}, sampleNo = 0) => {
         }
         if (reGetDate.test(col_attr)) {
             col_val = moment(col_val).format(DATE_FORMAT_WITHOUT_TZ);
+        }
+        if (bgColorStyle == '') {
+            col_val = applySignificantDigit(col_val);
         }
         content += `
             < tr >

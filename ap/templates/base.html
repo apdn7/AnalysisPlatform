@@ -90,6 +90,13 @@
     <script src="{{ url_for('static', filename = 'common/js/clipboard_utils.js') }}"></script>
     <script src="{{ url_for('static', filename = 'common/js/libs/dragndrop.js') }}"></script>
     <script src="{{ url_for('static', filename = 'common/js/libs/d3-format.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/dn-custom-select.js') }}"></script>
+
+    <!-- Shepherd: Tour -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'common/css/shepherd.css') }}">
+    <script src="{{ url_for('static', filename = 'common/js/libs/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/libs/shepherd.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='common/js/ap_tour.js') }}"></script>
 
 	<script>
 		window.dataLayer = window.dataLayer || [];
@@ -101,6 +108,18 @@
         gtag('js', new Date());
 
         gtag('config', 'UA-156244372-2', {
+            'link_attribution': {
+                'cookie_name': '_gaela',
+                'cookie_expires': 60,
+                'levels': 4,
+            },
+            'linker': {
+                'accept_incoming': true,
+                'domains': ['127.0.0.1', 'localhost:6868', '192.168.1.69:6868'],
+            },
+        });
+
+        gtag('config', 'G-9DJ9TV72B5', {
             'link_attribution': {
                 'cookie_name': '_gaela',
                 'cookie_expires': 60,
@@ -202,18 +221,44 @@
         }
 
     </script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9DJ9TV72B5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9DJ9TV72B5');
+
+      const user_group = docCookies.getItem('user_group');
+      const app_source = docCookies.getItem('app_location');
+      let app_version = docCookies.getItem('app_version');
+      app_version = app_version.split('.').slice(0,-1).join('.');
+
+      gtag('event', 'Version', {
+          dn_app_version: app_version
+      });
+
+      gtag('event', 'Source', {
+          dn_app_source: app_source
+      });
+
+      gtag('event', 'Group', {
+          dn_app_group: user_group
+      });
+    </script>
 
     {% block asset %}
     {% endblock %}
 </head>
 
-<body>
+<body style="overflow-x: hidden">
 <div class="wrapper">
     {% include 'i18n.html' %}
     {% include 'sidebar.html' %}
     {% block body %}
         <div id="content">
-            <header class="navbar-expand-lg navbar-dark bg-primary graph-navi graph-navi-top-down">
+            <header class="main-header navbar-expand-lg navbar-dark bg-primary graph-navi graph-navi-top-down">
                 {% include 'header.html' %}
             </header>
             {% include 'messages.html' %}
@@ -242,9 +287,9 @@
 			$('#settingPageMenu')
 				.css('display', 'none');
 		}
-        $('header').removeClass('green-header');
+        $('header.main-header').removeClass('green-header');
         if (useDefaultLogLevel === 'False') {
-            $('header').addClass('green-header');
+            $('header.main-header').addClass('green-header');
         }
 
 		// app version

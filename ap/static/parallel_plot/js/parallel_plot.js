@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
-const REQUEST_TIMEOUT = setRequestTimeOut(60000); // 1 minutes
+const REQUEST_TIMEOUT = setRequestTimeOut();
 let tabID = null;
 
 // save paracords tracing data
@@ -266,6 +266,7 @@ const endProcOnChange = async (count, sensorType, isRequired) => {
 
 
 const parallelTraceDataWithDBChecking = (action = 'TRACE-DATA', clearOnFlyFilter = false) => {
+    requestStartedAt = performance.now();
     if (clearOnFlyFilter) {
         const isValid = checkValidations({ max: MAX_END_PROC });
         updateStyleOfInvalidElements();
@@ -344,7 +345,7 @@ const mergeTargetProc = (formData) => {
 
 const resetSetting = () => {
     // reset setting variables
-    $("input[name='show-var'][value='all']").prop('checked', true);
+    $("select[name='show-var']").val('all');
     $("input[name='sort_by'][value='setting']").prop('checked', true);
 };
 
@@ -402,7 +403,9 @@ const showParallelGraph = (clearOnFlyFilter = false) => {
         clearTargetTmp();
 
         // reset setting variables
-        resetSetting();
+        if (clearOnFlyFilter) {
+            resetSetting();
+        }
 
         const sensorTypes = getSensorTypes(res.array_plotdata);
         showParacords(res, sensorTypes, clearOnFlyFilter);
@@ -736,6 +739,7 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false, showOrder
     const objectVarID = objective || dat.COMMON.objectiveVar[0] || null;
     const plotDat = dat.array_plotdata;
     const startProcID = dat.COMMON.start_proc;
+    const totalRecord = dat.actual_record_number;
     let data = {};
     const dPVar = [];
     const dNames = [];
@@ -1093,7 +1097,6 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false, showOrder
                     // showscale: true,
                 },
                 hoveron: 'color',
-                // hoverinfo: 'count+probability',
                 hoverinfo: 'none',
                 labelfont: {size: 10.5},
                 arrangement: 'freeform',
@@ -1202,7 +1205,20 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false, showOrder
     });
     
     paralellPlot.on('plotly_hover', (data) => {
+        if (!data.points) return;
+        const count = data.points.length;
+        const offset = {
+            x: data.event.pageX - 120,
+            y: data.event.pageY,
+        }
+        const ratio = applySignificantDigit(count / totalRecord * 100);
+        const tbl = genHoverDataTable([['N', applySignificantDigit(count)], ['Ratio', `${ratio}%`]]);
+
+        genDataPointHoverTable(tbl, offset, 100, true, 'paracord-plot')
     });
+
+    unHoverHandler(paralellPlot);
+
     $('.axis-title').each((i, el) => {
         const isCategory = $(el).attr('data-unformatted').toString().includes('is-category');
         if (isCategory) {
@@ -1253,7 +1269,14 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false, showOrder
     setTimeout(() => {
         loadingHide();
         $('#paracord-plot').scrollLeft(1000);
-        updateGlobalDict(dat.category_data);
+        const fullFilterList = []
+        if (dat.category_data && dat.category_data.length) {
+            fullFilterList.push(...dat.category_data)
+        }
+        if (dat.cat_on_demand && dat.cat_on_demand.length) {
+            fullFilterList.push(...dat.cat_on_demand)
+        }
+        updateGlobalDict(fullFilterList);
         fillDataToFilterModal([], dat.category_data, dat.cat_on_demand, [], [], () => {
             showParacordWithSettings(true);
         });
@@ -1351,7 +1374,11 @@ const orderingEventHandler = () => {
     });
 };
 
-const handleExportData = (type) => {
+const dumpData = (type) => {
     const formData = lastUsedFormData || collectFormDataPCP(true);
     handleExportDataCommon(type, formData);
+};
+
+const handleExportData = (type) => {
+    showGraphAndDumpData(type, dumpData);
 };

@@ -98,10 +98,10 @@ const drawTimeSeriesT2Chart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfDa
 
     // Add hover event for t2 & q plots
     timeSeriesT2Element.on('plotly_hover', (data) => {
-        console.log(data);
         drawShapes(data.points[0].x);
     }).on('plotly_unhover', (data) => {
         drawShapes(null, false);
+        clearHoverTimeOut();
     });
     
     showCustomContextMenu(timeSeriesT2Element, true);
@@ -193,6 +193,7 @@ const drawTimeSeriesQChart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfDat
         drawShapes(data.points[0].x);
     }).on('plotly_unhover', (data) => {
         drawShapes(null, false);
+        clearHoverTimeOut();
     });
     
     showCustomContextMenu(timeSeriesQElement, true);
@@ -425,6 +426,7 @@ const drawTimeSeriesT2ChartFromObj = (objData, jsonDtTest = {}, chartConfig = {}
         showDataTablePCA(data, 'timeseries', 'timeSeriesT2');
     }).on('plotly_unhover', (data) => {
         drawShapes(null, false);
+        clearHoverTimeOut();
     });
     
     showCustomContextMenu(timeSeriesT2Element, true);
@@ -626,6 +628,7 @@ const drawTimeSeriesQChartFromObj = (objData, jsonDtTest = {}, chartConfig = {},
         showDataTablePCA(data, 'timeseries', 'timeSeriesQ');
     }).on('plotly_unhover', (data) => {
         drawShapes(null, false);
+        clearHoverTimeOut();
     });
     
     showCustomContextMenu(timeSeriesQElement, true);

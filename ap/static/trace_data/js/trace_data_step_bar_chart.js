@@ -67,6 +67,35 @@ const StepBarChart = ($, paramObj) => {
         ],
     };
 
+    const genDataTable = (catName, nTotal, ratio) => {
+        const valueLabel = $('#i18nValue').text();
+        let tblContent = '<tr>';
+        tblContent += genTRItems(valueLabel, catName);
+        tblContent += genTRItems('N', applySignificantDigit(nTotal));
+        tblContent += genTRItems('Ratio', ratio + '%');
+        tblContent += '</tr>';
+        return tblContent;
+    };
+
+     const externalTooltipHandler = (context) => {
+        const {chart, tooltip} = context;
+        if (!tooltip.dataPoints) return;
+        const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas;
+        const canvasOffset = $(`#${chart.canvas.id}`).offset();
+        const leftPosition = canvasOffset.left + positionX + tooltip.caretX;
+        const topPosition = canvasOffset.top + positionY + tooltip.caretY;
+        const dataIndex = tooltip.dataPoints[0].dataIndex;
+        const plotData = graphStore.getArrayPlotData(chart.canvas.id);
+        const [cateName, count, ratio] = getStepChartHoverInfo(dataIndex, plotData)
+        genDataPointHoverTable(
+            genDataTable(cateName, count, ratio),
+            {x: leftPosition - 192, y: topPosition},
+            125,
+            true,
+            chart.canvas.id,
+        );
+    }
+
     const config = {
         type: 'bar',
         data,
@@ -87,20 +116,8 @@ const StepBarChart = ($, paramObj) => {
                     annotations: {},
                 },
                 tooltip: {
-                    callbacks: {
-                        label: function changeValue() {
-                            return '';
-                        },
-                        title(tooltipItems) {
-                            const tooltipData = tooltipItems[0];
-                            const labelIndex = tooltipData.dataIndex;
-                            const currentPlotDat = graphStore.getArrayPlotData(tooltipData.chart.canvas.id);
-                            return buildStepChartHovering(labelIndex, currentPlotDat);
-                        },
-                    },
-                    yAlign: 'top',
-                    titleAlign: 'center',
-                    bodyAlign: 'center',
+                    enabled: false,
+                    external: externalTooltipHandler,
                 },
                 chartAreaBorder: {
                     borderColor: CONST.COLOR_FRAME_BORDER,
@@ -210,8 +227,8 @@ const StepBarChart = ($, paramObj) => {
     };
 };
 
-const buildStepChartHovering = (categoryIndex, plotDat) => {
-    let categoryInfor = '';
+const getStepChartHoverInfo = (categoryIndex, plotDat) => {
+    let count, categoryName, ratio = '';
     if (plotDat.category_distributed) {
         const beforeRankVals = [...plotDat.before_rank_values[0]];
         // because current we draw items from bot -> top,
@@ -219,11 +236,10 @@ const buildStepChartHovering = (categoryIndex, plotDat) => {
         const rankedValueSorted = beforeRankVals.sort().reverse();
         const itemID = rankedValueSorted[categoryIndex];
         const rankedID = plotDat.before_rank_values[0].lastIndexOf(itemID);
-        const categoryName = plotDat.before_rank_values[1][rankedID];
-        const cateLabel = plotDat.category_distributed[categoryName].counts || '';
-        if (cateLabel) {
-            categoryInfor = `${categoryName}\n\r${cateLabel}`;
-        }
+        categoryName = plotDat.before_rank_values[1][rankedID];
+        const currentCate = plotDat.category_distributed[categoryName];
+        count = currentCate.counts_org || '';
+        ratio = currentCate.pctg || '';
     }
-    return categoryInfor;
+    return [categoryName, count, ratio];
 };

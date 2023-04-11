@@ -18,6 +18,7 @@ from ap.setting_module.models import CfgProcess
 from ap.trace_data.schemas import DicParam
 from ap.api.categorical_plot.services import gen_graph_param
 from ap.common.memoize import memoize
+import copy
 
 
 @log_execution_time()
@@ -35,6 +36,8 @@ def gen_csv_data(dic_param, delimiter=None, with_terms=False, by_cells=False):  
         else:
             produce_cyclic_terms(dic_param)
             terms = gen_dic_param_terms(dic_param)
+
+    dic_param = split_graph_params(dic_param)
 
     graph_param, dic_proc_cfgs, client_timezone = make_graph_param(dic_param)
     if by_cells:
@@ -64,15 +67,14 @@ def gen_csv_data(dic_param, delimiter=None, with_terms=False, by_cells=False):  
                              terms=terms)
         return csv_data, None
 
-    # get data from database
-    df, *_ = get_data_from_db(graph_param, is_get_end_proc_serials=True)
-
     # if export_type = plot -> use filter
+    dic_cat_filters = {}
     if dic_param[COMMON]['export_from'] == 'plot':
         dic_cat_filters = json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {})) if isinstance(
             dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str) else dic_param[COMMON].get(DIC_CAT_FILTERS, {})
-        df = filter_df(df, dic_cat_filters)
-        df = df
+
+        # get data from database
+    df, *_ = get_data_from_db(graph_param, dic_cat_filters)
     # client_timezone = tz.gettz(client_timezone or None) or tz.tzlocal()
 
     if delimiter:
@@ -230,3 +232,16 @@ def gen_term_cols(df, col_name, start_proc_term_from, start_proc_term_to, terms)
     df[start_proc_term_from] = df[start_proc_term_from].apply(find_term, args=(terms, True))
     df[start_proc_term_to] = df[start_proc_term_to].apply(find_term, args=(terms, False))
     return df
+
+def split_graph_params(dic_param):
+    if isinstance(dic_param[COMMON][START_DATE], list) and len(dic_param[COMMON][START_DATE]) > 1:
+        # clone_dp = copy.deepcopy(dic_param)
+        dic_params = [copy.deepcopy(dic_param) for _ in dic_param[COMMON][START_DATE]]
+        for i, time_range in enumerate(dic_param[COMMON][START_DATE]):
+            dic_params[i][COMMON][START_DATE] = dic_param[COMMON][START_DATE][i]
+            dic_params[i][COMMON][START_TM] = dic_param[COMMON][START_TM][i]
+            dic_params[i][COMMON][END_DATE] = dic_param[COMMON][END_DATE][i]
+            dic_params[i][COMMON][END_TM] = dic_param[COMMON][END_TM][i]
+        return dic_params
+    else:
+        return dic_param

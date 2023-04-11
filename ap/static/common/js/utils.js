@@ -14,6 +14,7 @@ let xhr = null;
 const SQL_LIMIT = 50000;
 let dataSetID = null;
 let $closeAllToast = null;
+let showElapsedTime = null;
 
 const localeConst = {
     JP: 'ja',
@@ -71,10 +72,10 @@ const CYCLIC_TERM = {
     INTERVAL_MIN_MAX: {
         MIN: -720,
         MAX: 720,
-        DEFAULT: 0.1,
+        DEFAULT: 0.01,
     },
     WINDOW_LENGTH_MIN_MAX: {
-        MIN: 0.1,
+        MIN: 0.01,
         MAX: 20000,
         DEFAULT: 1,
     },
@@ -332,7 +333,7 @@ $(() => {
     // show selected locale for pages
     const locale = docCookies.getItem('locale') || 'ja';
     // console.log(locale);
-    $('#select-language').val(locale);
+    $('#select-language').val(locale).trigger('change');
     
     // change locale and reload current page
     $('#select-language').change(function changeLocal() {
@@ -362,120 +363,29 @@ $(() => {
     });
 });
 
-// validate number
-const validateNumber = (element) => {
-    const setInputFilter = (textbox, inputFilter, afterOKCheckFn = null) => {
-        ['input', 'keydown', 'keyup', 'mousedown', 'mouseup', 'select', 'contextmenu', 'drop'].forEach((eventStr) => {
-            textbox.on(eventStr, (event) => {
-                const replaceVal = /[０-９]/g;
-                event.currentTarget.value = event.currentTarget.value.replace('．', '.');
-                event.currentTarget.value = event.currentTarget.value.replace(replaceVal,
-                    s => String.fromCharCode(s.charCodeAt(0) - 65248)); // replace ０-９ to 0-9
-                // 全角英数の文字コードから65248個前が半角英数の文字コード
-
-                if (inputFilter(event.currentTarget.value)) { // set new value input
-                    event.currentTarget.oldValue = event.currentTarget.value;
-                    event.currentTarget.oldSelectionStart = event.currentTarget.selectionStart;
-                    event.currentTarget.oldSelectionEnd = event.currentTarget.selectionEnd;
-
-                    // チェックOKの場合は、Callbackを呼び出す。
-                    if (afterOKCheckFn != null) {
-                        afterOKCheckFn();
-                    }
-                    // eslint-disable-next-line no-prototype-builtins
-                } else if (event.currentTarget.hasOwnProperty('oldValue')) { // keep old value input
-                    event.currentTarget.value = event.currentTarget.oldValue;
-                    event.currentTarget.setSelectionRange(event.currentTarget.oldSelectionStart,
-                        event.currentTarget.oldSelectionEnd);
-                } else {
-                    event.currentTarget.value = '';
-                }
-            });
-        });
-    };
-    setInputFilter(element, value => /^\d*\d*$/.test(value));
-};
-
-const validatCyclicRealOnInput = (element) => {
-    // allow one decimal point only
-    validateNumericInput(element);
-};
-
 const validateNumericInput = (textbox) => {
-    textbox.on('input', (event) => {
-        let { value } = event.currentTarget;
-        const replaceVal = /[０-９]/gi;
-        value = value.replaceAll(replaceVal,
-            s => String.fromCharCode(s.charCodeAt(0) - 65248));
-        value = value.replace(/[^(0-9.\+\-)]+/gi, '');
-        event.currentTarget.value = value;
-
-        if (!/^-?\d*\.?(\d)*$/.test(value)) {
-            event.currentTarget.value = value.slice(0, -1);
-        }
+    textbox.on('input', (eve) => {
+         let { value } = eve.currentTarget;
+        value = value.replace(/[^((0-9)|(０-９).\+\-)]+/gi, '');
+        eve.currentTarget.value = value
     });
-};
-
-const setInputFilter = (textbox, inputFilter, afterOKCheckFn = null) => {
-    ['input', 'keydown', 'keyup', 'mousedown', 'mouseup', 'select', 'contextmenu', 'drop'].forEach((eventStr) => {
-        textbox.on(eventStr, (event) => {
-            const replaceVal = /[０-９]/g;
-            event.currentTarget.value = event.currentTarget.value.replace('．', '.');
-            event.currentTarget.value = event.currentTarget.value.replace(replaceVal,
-                s => String.fromCharCode(s.charCodeAt(0) - 65248)); // replace ０-９ to 0-9
-            // 全角英数の文字コードから65248個前が半角英数の文字コード
-
-            if (inputFilter(event.currentTarget.value)) { // set new value input
-                event.currentTarget.oldValue = event.currentTarget.value;
-                event.currentTarget.oldSelectionStart = event.currentTarget.selectionStart;
-                event.currentTarget.oldSelectionEnd = event.currentTarget.selectionEnd;
-
-                // チェックOKの場合は、Callbackを呼び出す。
-                if (afterOKCheckFn != null) {
-                    afterOKCheckFn();
-                }
-                // eslint-disable-next-line no-prototype-builtins
-            } else if (event.currentTarget.hasOwnProperty('oldValue')) { // keep old value input
-                event.currentTarget.value = event.currentTarget.oldValue;
-                event.currentTarget.setSelectionRange(event.currentTarget.oldSelectionStart,
-                    event.currentTarget.oldSelectionEnd);
-            } else {
-                event.currentTarget.value = '';
-            }
-        });
+    textbox.on('change', (eve) => {
+        let { value } = eve.currentTarget;
+        const replaceVal = /[０-９]/gi;
+        value = value.replaceAll(replaceVal, s => String.fromCharCode(s.charCodeAt(0) - 65248));
+        eve.currentTarget.value = value;
     });
 };
 
 const validateTargetPeriodInput = () => {
     // allow only integer for number of ridge lines
-    validateNumber($(`#${CYCLIC_TERM.DIV_NUM}`));
+    validateNumericInput($(`#${CYCLIC_TERM.DIV_NUM}`));
 
     // allow only real for window length
-    validatCyclicRealOnInput($(`#${CYCLIC_TERM.WINDOW_LENGTH}`));
+    validateNumericInput($(`#${CYCLIC_TERM.WINDOW_LENGTH}`));
 
     // allow only real for interval
-    validatCyclicRealOnInput($(`#${CYCLIC_TERM.INTERVAL}`));
-};
-
-// validate coef
-const validateCoefOnInput = (element) => {
-    setInputFilter(element, value => /^-?\d*\.?\d*$/.test(value) || value === '');
-};
-
-const validateRecentTimeInterval = (element) => {
-    // allow number only for latest time interval
-    validateCoefOnInput(element);
-
-    // allow value > 0 only for latest time interval
-    element.on('change', (event) => {
-        const newValue = event.target.value;
-        const { currentVal } = event.target.dataset;
-        if (newValue <= 0) {
-            event.target.value = currentVal || '';
-        } else {
-            event.target.dataset.currentVal = newValue;
-        }
-    });
+    validateNumericInput($(`#${CYCLIC_TERM.INTERVAL}`));
 };
 
 const stringNormalization = (val) => {
@@ -1797,10 +1707,6 @@ const initializeDateTime = (dtElements = {}, syncStartEnd = true) => {
     startTimeElement.on('change', (event) => {
         validateDateTime(event, TIME_FORMAT_VALIDATE);
     });
-
-
-    // allow number > 0 only for latest time interval
-    validateRecentTimeInterval($('input[name="recentTimeInterval"]'));
 };
 
 const validateDateTime = (event, dtFormat) => {
@@ -2287,7 +2193,17 @@ const loadingShow = (isContinue = false, showGraph = false) => {
         loadingProgressBackend = 0;
     };
 
-    const customElement = $("<button class='btn btn-sm btn-danger abort-button' onclick='handleShowAbortModal()'><i class='fa fa-times mr-2'></i><span>ABORT</span></button>");
+    const abortButtonHtml = `
+        <div class='abort-button-div'>
+            <button class='btn btn-sm btn-danger abort-button' onclick='handleShowAbortModal()'>
+                <i class='fa fa-times mr-2'></i>
+                <span>ABORT</span>
+            </button>
+            <span id="show-elapsed-time"></span>
+        </div>
+    `;
+
+    const customElement = $(abortButtonHtml);
 
     // init
     setTimeout(() => {
@@ -2295,7 +2211,6 @@ const loadingShow = (isContinue = false, showGraph = false) => {
             image: '',
             progress: true,
             progressFixedPosition: 'top',
-
             progressColor: 'rgba(170, 170, 170, 1)',
             size: showGraph ? 20 : 8,
             maxSize: 0,
@@ -2305,7 +2220,34 @@ const loadingShow = (isContinue = false, showGraph = false) => {
             fontawesomeResizeFactor: 2,
             custom: showGraph ? customElement : null,
         });
+
+        if (showGraph) {
+            $('.loadingoverlay_fa').addClass('position-absolute');
+            const elapsedTimeEl = $('#show-elapsed-time');
+            displayElapsedTime(elapsedTimeEl);
+            showElapsedTime = setInterval(() => {
+                if (!requestStartedAt) {
+                    clearInterval(showElapsedTime);
+                    return;
+                }
+                displayElapsedTime(elapsedTimeEl);
+            }, 1000);
+
+        }
     }, 0);
+
+    const displayElapsedTime = (elapsedTimeEl) => {
+        if (!requestStartedAt) return;
+
+        const t1 = performance.now();
+        const elapsedTime = (t1 - requestStartedAt);
+        const h = Math.floor(elapsedTime / (1000 * 60 * 60));
+        const m = Math.floor(elapsedTime / (1000 * 60)) - (h * 60);
+        const s = Math.round(elapsedTime / 1000) - (m * 60);
+        const time = `${h > 0 ? addZeroToNumber(h)+':' : ''}${addZeroToNumber(m)}:${addZeroToNumber(s)}`;
+        elapsedTimeEl.text(`Elapsed time: ${time}`)
+
+    }
 
     if (!isContinue) {
         resetProgress();
@@ -2314,9 +2256,10 @@ const loadingShow = (isContinue = false, showGraph = false) => {
 
 const sleep = (second) => new Promise(resolve => setTimeout(resolve, second * 1000))
 
-const removeAbortButon = (res) => {
+const removeAbortButton = (res) => {
     return new Promise( async (rs, rj) => {
         $('.abort-button').prop('disabled', true);
+        clearInterval(showElapsedTime);
         $('#confirmAbortProcessModal').modal('hide');
         afterReceiveResponseCommon(res);
         await sleep(0.3);
@@ -2349,6 +2292,7 @@ const errorHandling = (error, type = '') => {
 
     const timeout = error.statusText || error.message;
     if (timeout.toLowerCase().includes('timeout')) {
+        abortProcess();
         console.log('request timeout..');
         const i18nTexts = {
             abnormalGraphShow: type === 'front' ? $('#i18nFrontProcessTimeout').text() : $('#i18nRequestTimeout').text(),
@@ -2589,7 +2533,11 @@ const significantDigitFmt = (val, sigDigit = 4) => {
 
     const digit = Math.floor(Math.log10(Math.abs(val)));
     if (Number.isInteger(val)) {
-        fmt = ',d';
+        if ((val / 100000000) > 1) {
+            fmt = '';
+        } else {
+            fmt = ',d';
+        }
     } else if (digit < -3 || digit > 6) {
         fmt = `.${sigDigit - 1}e`;
     } else if (digit > (sigDigit - 3)) {
@@ -2605,7 +2553,8 @@ const applySignificantDigit = (val, sigDigit = 4, fmtStr = '') => {
     try {
         if (typeof val === 'string') return val;
         const fmt = fmtStr ? fmtStr : significantDigitFmt(val, sigDigit);
-        return d3.format(fmt)(val);
+        if (!fmt) return val.toString();
+        if (fmt) return d3.format(fmt)(val);
     } catch (e) {
         return val;
     }
@@ -2620,18 +2569,33 @@ const makeDictFrom2Arrays = (keys, vals) => {
 
 // draw processing time
 const drawProcessingTime = (t0, t1, backendTime, rowNumber, uniqueSerial = null) => {
-    const frontendTime = t1 - t0;
-    const totalTime = (frontendTime / 1000) + backendTime; // seconds
+    const frontendTime = (t1 - t0) / 1000;
+    const netTime = (t1 - (requestStartedAt || t0)) / 1000; // seconds
     const hasDuplicate = $('[name=duplicated_serial]').length > 0;
-    const duplicate = checkTrue(uniqueSerial) && hasDuplicate ? `, Duplicate: ${applySignificantDigit(rowNumber - uniqueSerial)}` : '';
-    let processTime = `Processing time: ${totalTime.toFixed(2)} sec, Number of queried data : ${applySignificantDigit(rowNumber)}${duplicate}`;
-    if (backendTime === undefined || rowNumber === undefined) {
-        processTime = '';
-    }
+    const duplicate = hasDuplicate ? `, Duplicate: ${uniqueSerial !== null ? applySignificantDigit(uniqueSerial) : ''}` : '';
+    let numberOfQueriedDat = rowNumber ? `, Number of queried data : ${
+        applySignificantDigit(rowNumber)
+    }${
+        duplicate
+    }` : '';
+    let processTime = `Net time: ${
+        applySignificantDigit(netTime)
+    } sec, Tb: ${
+        backendTime ? applySignificantDigit(backendTime) : 0
+    } sec, Tf: ${
+        applySignificantDigit(frontendTime)
+    } sec${
+        numberOfQueriedDat
+    }`;
+    // if (backendTime === undefined || rowNumber === undefined) {
+    //     processTime = '';
+    // }
     const lastUpdateTime = `Last update time: ${moment().format(DATETIME_FORMAT)}`;
     $('#lastUpdateTime').html(lastUpdateTime);
     $('#processingTime').html(processTime);
 
+    // reset start time
+    requestStartedAt = null;
     // common call backend to update exe time
     $.ajax({
         url: '/ap/api/common/draw_plot_excuted_time',
@@ -3191,6 +3155,21 @@ const genInfoTableBody = (traceDat) => {
     return settingDOM;
 };
 
+const copyDataPointInfo = (ele) => {
+    $('#dp-info-content').removeClass('dp-opacity').addClass('dp-opacity');
+    const clipboard = new ClipboardJS('#dp-info-table-copy');
+    clipboard.on('success', (e) => {
+        setTooltip(e.trigger, 'Copied!');
+    });
+
+    clipboard.on('error', (e) => {
+        setTooltip(e.trigger, 'Failed!');
+    });
+    setTimeout(() => {
+        $('#dp-info-content').removeClass('dp-opacity');
+    }, 500);
+};
+
 const clipboardInit = () => {
     $('.clipboard').tooltip({
         trigger: 'click',
@@ -3226,7 +3205,7 @@ const getLastNumberInString = (inputStr) => {
 };
 
 const zipExport = (datasetId) => {
-    const filename = $('#currentLoadSettingLbl').html();
+    const filename = $('#setting-name').text();
     const exportModeEle = $('[name=isExportMode]');
     const url = `/ap/api/fpp/zip_export?dataset_id=${datasetId}&user_setting_id=${exportModeEle.val()}`;
     downloadTextFile(url, `${filename}.zip`);
@@ -3251,10 +3230,13 @@ const zipImport = () => {
         .catch(console.error);
 };
 
+const exportMode = () => {
+   return  !!$('[name=isExportMode]').val();
+}
+
 const handleZipExport = (res) => {
-    const exportModeEle = $('[name=isExportMode]');
     // export mode
-    if (!exportModeEle.val()) {
+    if (!exportMode()) {
         return;
     }
 
@@ -3512,6 +3494,7 @@ const fetchData = async (url, data, method = 'GET', options = {}) => {
         data,
         type: method,
         headers: headers,
+        cache: false,
         ...options,
     };
 
@@ -3625,9 +3608,10 @@ const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBotto
 
 
 const handleSearchFilterInTable = (tableID) => {
+    convertTextH2Z('#' + tableID);
     $(`#${tableID} .filterCol`).on('keyup change clear search', function () {
         const colIdx = $(this).data('col-idx');
-        const value = $(this).val().toLowerCase();
+        const value = stringNormalization($(this).val().toLowerCase());
         let regex = makeRegexForSearchCondition(value);
         regex = new RegExp(regex, 'i');
         $(`#${tableID} tbody tr`).filter(function f() {
@@ -4132,4 +4116,26 @@ const makeRegexForSearchCondition = (searchStr) => {
     }
 
     return searchStr;
+};
+
+const showGraphAndDumpData = (exportType, callback) => {
+    const dataSrc = getExportDataSrc();
+    const isFullPage = dataSrc === 'all';
+    if (isFullPage) {
+        callback(exportType, dataSrc);
+    } else {
+        // check co graph hay khong
+        if (isGraphShown) {
+            callback(exportType, dataSrc);
+        } else {
+            // click show graph button
+            $(currentFormID).find('button.show-graph').trigger('click');
+            checkShownGraphInterval = setInterval(() => {
+                if (isGraphShown) {
+                    callback(exportType, dataSrc);
+                    clearInterval(checkShownGraphInterval);
+                }
+            }, 500);
+        }
+    }
 };

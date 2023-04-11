@@ -25,6 +25,7 @@ def is_obsolete(entry, duration=None):
 
     if entry.get('expired'):
         return True
+
     return False
 
 
@@ -85,7 +86,6 @@ def memoize(is_save_file=False, duration=None):
             key = compute_key(fn, args, kwargs)
 
             is_stop_using_cache = get_cache_attr(MemoizeKey.STOP_USING_CACHE)
-            print(fn.__name__)
             if not is_stop_using_cache and key in cache and (is_use_expired or not is_obsolete(cache[key], duration)):
                 print('used cache')
                 if is_save_file:
@@ -95,7 +95,6 @@ def memoize(is_save_file=False, duration=None):
                 else:
                     return cache[key]['value']
 
-            print('not used cache')
             result = fn(*args, **kwargs)
 
             if is_save_file:

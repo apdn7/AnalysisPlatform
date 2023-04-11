@@ -159,6 +159,35 @@ const graphNavUtil = (() => {
         return eles[currentIdx];
     };
 
+    const getNearbyItem = (eles, step) => {
+        const topPosition = $(window).scrollTop();
+        if (!step) {
+            // check page has no graph
+            const beforeFooterItem = eles[eles.length - 2];
+            const showGraphIdx = eles.map(ele => $(ele).attr('class').includes(TARGET_TOP_DOWN)).indexOf(true, 2);
+            const firstGraphIdx = showGraphIdx + 1;
+            if ($(beforeFooterItem).attr('class').includes(TARGET_TOP_DOWN) ||
+                $(eles[firstGraphIdx]).offset().top >= topPosition) {
+                // has no graph -> scroll to top of screen
+                return eles[0];
+            }
+            // scroll to first of graph
+            return eles[firstGraphIdx];
+        }
+        if (step > eles.length) {
+            return eles[eles.length - 1];
+        }
+        // get first item which over offset from screen
+        const currentItemIdx = eles.map(ele => $(ele).offset().top >= topPosition).indexOf(true);
+        const nextIDx = currentItemIdx + step;
+        const nextItem = eles[nextIDx];
+        if (!$(nextItem).is(':visible')) {
+            // in case of DOM is hidden, return next DOM
+            return getNearbyItem(eles, nextIDx + 1);
+        }
+        return nextItem;
+    };
+
     // scroll to element
     const moveToEle = (ele) => {
         if (ele === false) {
@@ -192,14 +221,22 @@ const graphNavUtil = (() => {
     // scroll to last
     const moveLast = () => {
         const eles = getGraphs();
-        const ele = getNextGraph(eles, 1, true);
+        const ele = getNextGraph(eles, eles.length, true);
         return !moveToEle(ele);
     };
+
+    // move screen by nearby position
+    const move = (step=1) => {
+        const eles = getGraphs();
+        const ele = getNearbyItem(eles, step);
+        return !moveToEle(ele);
+    }
 
     return {
         moveFirst,
         moveLast,
         moveByStep,
+        move,
         // custom_ele_classes,
     };
 })();

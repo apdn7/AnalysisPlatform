@@ -37,8 +37,31 @@
                         onclick="loadAllUserSetting()" style="display: none">
                    <span>&#x2606</span>
             </button>
-            <div class="ml-auto d-flex align-items-center">
-                <select id="select-language" class="mdb-select md-form form-control ls-control header-btn">
+            <div class="mr-2 tour-guide">
+				<button class="btn btn-setting bookmark-button dropdown-toggle" type="button" id="tour-btn"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<i class="far fa-question-circle"></i>
+				</button>
+				<div class="dropdown-menu" aria-labelledby="Tour">
+					<a class="dropdown-item" href="#" onclick="openTour()">
+                        <i class="fa fa-solid fa-person-walking-luggage"></i>
+                        {{ _('Learn how to visualize data') }}
+                        <i class="fa fa-external-link-alt"></i>
+                    </a>
+                    <a class="dropdown-item" href="https://sites.google.com/view/analysisplatform-dn7" target="_blank">
+                        <i class="fa fa-globe"></i>
+                        {{ _('Support site (JP)') }}
+                        <i class="fa fa-external-link-alt"></i>
+                    </a>
+                    <a class="dropdown-item" href="https://github.com/apdn7/AnalysisPlatform" target="_blank">
+                        <i class="fa-brands fa-github"></i>
+                        {{ _('Github') }}
+                        <i class="fa fa-external-link-alt"></i>
+                    </a>
+                  </div>
+            </div>
+            <div style="width: 180px" class="ml-auto d-flex align-items-center">
+                <select id="select-language" class="mdb-select md-form form-control ls-control header-btn select2-selection--single">
                     <option bootstrap-locale="ja-JP" value="" disabled selected>{{ _('Choose language') }}</option>
                     <option bootstrap-locale="ja-JP" value="ja">日本語 - JA</option>
                     <option bootstrap-locale="en-US" value="en">English - EN</option>

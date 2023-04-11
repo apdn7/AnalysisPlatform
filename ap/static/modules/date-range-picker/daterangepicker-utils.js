@@ -802,7 +802,9 @@ const handleShowDataCount = async (picker, callApi = true) => {
         `;
         setTimeout(() => {
             $('.daterangepicker-loading').remove();
-            overRightDateStyle(null, null);
+            if (isCalling) {
+                overRightDateStyle(null, null);
+            }
         }, timeShowLoading)
 
         $('.daterangepicker').append(loadingEl)

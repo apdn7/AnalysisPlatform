@@ -24,7 +24,7 @@ class RequestTimeOutAPI(Exception):
         return rv
 
 
-def request_timeout_handling(max_timeout=1):
+def request_timeout_handling(max_timeout=10):
     """ Decorator to log function run time
     Arguments:
         fn {function} -- [description]
@@ -38,7 +38,7 @@ def request_timeout_handling(max_timeout=1):
             result = fn(*args, **kwargs)
 
             current_env = os.environ.get('ANALYSIS_INTERFACE_ENV', appENV.PRODUCTION.value)
-            if (current_env == appENV.PRODUCTION.value):
+            if current_env == appENV.PRODUCTION.value:
                 start_func_time = time.time()
                 request_start_time = getattr(g, 'request_start_time', None)
                 if request_start_time:

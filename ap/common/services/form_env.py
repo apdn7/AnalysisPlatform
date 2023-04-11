@@ -6,7 +6,6 @@ from copy import deepcopy
 
 from ap.common.common_utils import as_list
 from ap.common.constants import *
-from ap.common.services.request_time_out_handler import request_timeout_handling
 from ap.setting_module.models import CfgProcessColumn
 from ap.setting_module.services.process_config import get_all_process_no_nested, get_all_visualizations
 from ap.trace_data.schemas import DicParam, CommonParam, ConditionProc, CategoryProc, EndProc, \
@@ -26,7 +25,7 @@ common_startwith_keys = ('start_proc', 'START_DATE', 'START_TIME', 'END_DATE', '
                          CYCLIC_DIV_NUM, CYCLIC_WINDOW_LEN, CYCLIC_INTERVAL, MATRIX_COL, COLOR_ORDER,
                          IS_EXPORT_MODE, IS_IMPORT_MODE, VAR_TRACE_TIME, TERM_TRACE_TIME, CYCLIC_TRACE_TIME, TRACE_TIME,
                          EMD_TYPE, ABNORMAL_COUNT, REMOVE_OUTLIER_OBJECTIVE_VAR, REMOVE_OUTLIER_EXPLANATORY_VAR,
-                         DUPLICATE_SERIAL_SHOW, EXPORT_FROM)
+                         DUPLICATE_SERIAL_SHOW, EXPORT_FROM, DUPLICATED_SERIALS_COUNT)
 
 conds_startwith_keys = ('filter-', 'cond_', 'machine_id_multi')
 
@@ -89,7 +88,6 @@ def parse(dic_form):
     return dic_parsed
 
 
-@request_timeout_handling()
 def parse_multi_filter_into_one(dic_form):
     # count select cols of endpoint
     num_tbls = len([key for key in dic_form if key.startswith('end_proc')])
@@ -387,7 +385,9 @@ def bind_dic_param_to_class(dic_param):
                          remove_outlier_explanatory_var=dic_common.get(REMOVE_OUTLIER_EXPLANATORY_VAR, 0),
                          abnormal_count=dic_common.get(ABNORMAL_COUNT, 0),
                          sensor_cols=sensor_cols,
-                         duplicate_serial_show=dic_common.get(DUPLICATE_SERIAL_SHOW, DuplicateSerialShow.SHOW_LAST)
+                         duplicate_serial_show=dic_common.get(DUPLICATE_SERIAL_SHOW, DuplicateSerialShow.SHOW_BOTH),
+                         is_export_mode=dic_common.get(IS_EXPORT_MODE, False),
+                         duplicated_serials_count=dic_common.get(DUPLICATED_SERIALS_COUNT, DuplicateSerialCount.AUTO.value)
                          )
 
     # use the first end proc as start proc

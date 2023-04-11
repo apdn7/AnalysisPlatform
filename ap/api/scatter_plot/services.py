@@ -14,11 +14,10 @@ from ap.api.trace_data.services.time_series_chart import (get_data_from_db,
                                                           main_check_filter_detail_match_graph_data,
                                                           calc_raw_common_scale_y,
                                                           calc_scale_info, get_procs_in_dic_param,
-                                                          gen_unique_data, filter_df,
+                                                          gen_unique_data,
                                                           customize_dic_param_for_reuse_cache,
                                                           get_chart_info_detail,
-                                                          get_serial_and_datetime_data, gen_group_filter_list,
-                                                          gen_cat_data_for_ondemand)
+                                                          get_serial_and_datetime_data, gen_group_filter_list)
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import ACTUAL_RECORD_NUMBER, \
     UNIQUE_SERIAL, ARRAY_Y, MATCHED_FILTER_IDS, UNMATCHED_FILTER_IDS, NOT_EXACT_MATCH_FILTER_IDS, ARRAY_X, \
@@ -30,7 +29,7 @@ from ap.common.constants import ACTUAL_RECORD_NUMBER, \
     TIME_NUMBERINGS, SORT_KEY, VAR_TRACE_TIME, IS_RESAMPLING, CYCLE_IDS, SERIALS, DATETIME, START_PROC
 from ap.common.memoize import memoize
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import abort_process_handler
+from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress
 from ap.common.services.statistics import calc_summary_elements
 from ap.common.sigificant_digit import get_fmt_from_array
@@ -48,6 +47,7 @@ TOTAL_VIOLIN_PLOT = 200
 
 
 @log_execution_time('[SCATTER PLOT]')
+@request_timeout_handling()
 @abort_process_handler()
 @notify_progress(60)
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
@@ -113,7 +113,7 @@ def gen_scatter_plot(dic_param):
         unmatched_filter_ids = []
         not_exact_match_filter_ids = []
         actual_record_number = 0
-        unique_serial = False
+        unique_serial = 0
 
         dic_dfs = {}
         terms = gen_time_conditions(dic_param)
@@ -128,7 +128,7 @@ def gen_scatter_plot(dic_param):
             h_keys = (term[START_DATE], term[START_TM], term[END_DATE], term[END_TM])
 
             # query data and gen df
-            df_term, graph_param, record_number, _is_res_limited = gen_df(term_dic_param,
+            df_term, graph_param, record_number, _is_res_limited = gen_df(term_dic_param, dic_cat_filters,
                                                                           _use_expired_cache=use_expired_cache)
 
             if df is None:
@@ -136,11 +136,10 @@ def gen_scatter_plot(dic_param):
             else:
                 df = pd.concat([df, df_term])
 
-            # filter list
-            df_term = filter_df(df_term, dic_cat_filters)
-
-            if _is_res_limited:
-                unique_serial = _is_res_limited
+            if _is_res_limited is None:
+                unique_serial = None
+            if unique_serial is not None:
+                unique_serial += _is_res_limited
 
             # check filter match or not ( for GUI show )
             filter_ids = main_check_filter_detail_match_graph_data(graph_param, df_term)
@@ -158,25 +157,22 @@ def gen_scatter_plot(dic_param):
                                                                  y_label, color_label, level_labels, chart_type)
     else:
         # query data and gen df
-        df, graph_param, actual_record_number, unique_serial = gen_df(dic_param,
+        df, graph_param, actual_record_number, unique_serial = gen_df(dic_param, dic_cat_filters,
                                                                       _use_expired_cache=use_expired_cache)
-
-        # filter list
-        df_sub = filter_df(df, dic_cat_filters)
 
         # check filter match or not ( for GUI show )
         matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids = \
-            main_check_filter_detail_match_graph_data(graph_param, df_sub)
+            main_check_filter_detail_match_graph_data(graph_param, df)
 
         if orig_graph_param.common.div_by_data_number:
-            output_graphs, output_times = gen_scatter_data_count(matrix_col, df_sub, x_proc_id, y_proc_id, x_label,
+            output_graphs, output_times = gen_scatter_data_count(matrix_col, df, x_proc_id, y_proc_id, x_label,
                                                                  y_label, orig_graph_param.common.div_by_data_number,
                                                                  color_label, level_labels, recent_flg, chart_type)
         elif orig_graph_param.common.cyclic_div_num:
-            output_graphs, output_times = gen_scatter_by_cyclic(matrix_col, df_sub, x_proc_id, y_proc_id, x_label,
+            output_graphs, output_times = gen_scatter_by_cyclic(matrix_col, df, x_proc_id, y_proc_id, x_label,
                                                                 y_label, terms, color_label, level_labels, chart_type)
         else:
-            output_graphs, output_times = gen_scatter_cat_div(matrix_col, df_sub, x_proc_id, y_proc_id, x_label,
+            output_graphs, output_times = gen_scatter_cat_div(matrix_col, df, x_proc_id, y_proc_id, x_label,
                                                               y_label, cat_div_label, color_label, level_labels,
                                                               chart_type)
 
@@ -556,8 +552,7 @@ def convert_series_to_list(graph):
 
 @log_execution_time()
 @abort_process_handler()
-@memoize(is_save_file=True)
-def gen_df(dic_param, _use_expired_cache=False):
+def gen_df(dic_param, dic_filter, _use_expired_cache=False):
     # bind dic_param
     graph_param = bind_dic_param_to_class(dic_param)
 
@@ -582,7 +577,7 @@ def gen_df(dic_param, _use_expired_cache=False):
     graph_param.add_datetime_col_to_start_proc()
 
     # get data from database
-    df, actual_record_number, is_res_limited = get_data_from_db(graph_param)
+    df, actual_record_number, is_res_limited = get_data_from_db(graph_param, dic_filter, use_expired_cache=_use_expired_cache)
     return df, graph_param, actual_record_number, is_res_limited
 
 

@@ -19,6 +19,7 @@ const yearSelectedValue = '';
 let currentDateRangeEl = null;
 let startDate = '';
 let endDate = '';
+let currentCalendarType = calenderTypes.month;
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const weekDays2 = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -147,7 +148,8 @@ const setDefaultValueOfCalender = (type) => {
         // set defaul from to input
         const [fromInput, toInput] = getFromToInputByType(calenderTypes.month);
         const defaultFromInput = `${fromInput} 00:00`;
-        const selectedTo = `${toInput} 23:59`;
+        // next day of 00:00
+        const selectedTo = `${moment(toInput).add(1, 'days').format(DATE_FMT)} 00:00`;
         const defaultToInput = moment().isBefore(selectedTo) ? moment().format(DATE_TIME_FMT) : selectedTo;
         let startOfLastWeek = moment(defaultToInput).subtract(6, 'days').format(DATE_FMT);
         const fromEndDate = moment(fromInput).add(6, 'days').format(DATE_FMT);
@@ -184,6 +186,7 @@ const switchCalender = (type) => {
 
     $('.for-data-finder').hide();
     $(`.for-data-finder-${type}`).show();
+    currentCalendarType = type;
 };
 
 const addZeroToNumber = (number) => {
@@ -287,7 +290,22 @@ const handleApplyYearInput = (from) => {
 
 const handleSetValueToDateRangePicker = () => {
     // const [from, to] = getFromToInputByType(calenderTypes.week);
-    const inputVal = $(dataFinderEls.inputFromTo).val();
+    let inputVal = $(dataFinderEls.inputFromTo).val();
+    if (currentCalendarType === calenderTypes.month) {
+        // add default start time -> 00:00
+        // add default end time -> next day of 00:00
+        const d = splitDateTimeRange(inputVal)
+        const nextEndDate = moment(d.endDate).add(1, 'days').format(DATE_FMT);
+        inputVal = `${d.startDate} 00:00 ${DATETIME_PICKER_SEPARATOR} ${nextEndDate} 00:00`;
+    }
+    if (currentCalendarType === calenderTypes.year) {
+        // add default start date time = first day of this month 00:00
+        // add default end date time = end day of this month 24:00
+        const d = splitDateTimeRange(inputVal)
+        const endDate = moment(`${d.endDate}-01`).endOf('month').format(DATE_FMT);
+        const nextEndDate = moment(endDate).add(1, 'days').format(DATE_FMT);
+        inputVal = `${d.startDate}-01 00:00 ${DATETIME_PICKER_SEPARATOR} ${nextEndDate} 00:00`
+    }
     currentDateRangeEl.val(inputVal).trigger('change');
     closeCalenderModal();
 };
@@ -751,6 +769,10 @@ const initYearSelectors = (tableEl, startYear) => {
 
 // Service
 const getDataByType = async (from, to, type = calenderTypes.year, timeout = null) => {
+    setProcessID();
+    if (!processId) {
+        return {};
+    }
     const url = '/ap/api/fpp/data_count';
 
     const data = {
@@ -907,6 +929,9 @@ const handleClickCell = (e, type) => {
             const temp = startDate;
             startDate = endDate;
             endDate = temp;
+        }
+        if (type === calenderTypes.week) {
+          endDate = moment(endDate).add(1, 'hours').format(DATE_TIME_FMT)
         }
         setValueFromToInput(startDate, endDate, type);
         return;

@@ -187,6 +187,16 @@ const inputCheckInlineEvents = (parentId) => {
         const isSecondaryCheckbox = ['thresholdBox', 'catExpBox', 'objectiveVar', 'colorVar'].includes(childInput.name)
             || childInput.name.includes('GET02_CATE_SELECT');
 
+        if (isSecondaryCheckbox) {
+            $(e.target).find('input').each((idx, item) => {
+                let inputStatus = true;
+                if (item.type === 'checkbox' || item.name == 'colorVar') {
+                    inputStatus = !childInput.checked;
+                }
+                $(item).prop('checked',inputStatus ).trigger('change');
+            });
+            return;
+        }
         if (childInputElems.length || !isSecondaryCheckbox) {
             // if (childInputElems.length) {
             $(e.currentTarget).find('input').each((idx, item) => {
@@ -277,8 +287,9 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
                     if (i === indexDic.dataType) {
                         // data type;
                         const title = $(`#${DataTypes[dataType].exp}`).text();
-                        const text = DataTypes[dataType].short === DataTypes.DATETIME.short ? DataTypes.STRING.short : DataTypes[dataType].short;
-                        const hiddenDataTypeInput = `<input id="dataType-${$(chkBox).val()}" value="${text}" hidden disabled>`;
+                        const text = DataTypes[dataType].short;
+                        const hiddenValue = DataTypes[dataType].short === DataTypes.DATETIME.short ? DataTypes.STRING.short : DataTypes[dataType].short;
+                        const hiddenDataTypeInput = `<input id="dataType-${$(chkBox).val()}" value="${hiddenValue}" hidden disabled>`;
                         html += `<div class="col data-type fit-item px-1 search-col" title="${title}">
                                       ${text}${hiddenDataTypeInput}
                                  </div>`;
@@ -368,7 +379,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
                 thresholdChkBoxId = `threshold-${chkBoxId}`;
                 threshold = `<input title="${i18nHoverText.threshold}" type="checkbox" name="thresholdBox"
                             class="custom-control-input check-item" value="${itemId}" id="${thresholdChkBoxId}">
-                            <label title="${i18nHoverText.threshold}" class="custom-control-label" for=""></label>`;
+                            <label title="${i18nHoverText.threshold}" class="custom-control-label" for="${thresholdChkBoxId}"></label>`;
             }
         }
 
@@ -397,7 +408,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
             objectiveSelectionDOM = `<input title="" type="radio" name="objectiveVar" onchange="compareSettingChange()"
                 class="custom-control-input ${isRequiredInput}" value="${itemId}"
                 id="${objectiveChkBoxId}" data-autoselect="false">
-                <label title="" class="custom-control-label" for=""></label>`;
+                <label title="" class="custom-control-label" for="${objectiveChkBoxId}"></label>`;
         }
 
         let categoryLabelDOM = null;
@@ -413,7 +424,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
                 categoryLabelDOM = `<input title="" onchange="compareSettingChange()" type="checkbox" name="GET02_CATE_SELECT${categoryGroupId}"
                     class="custom-control-input check-item" value="${itemId}"
                     id="${clChkBoxId}"${clSelection} data-autoselect="false">
-                    <label title="" class="custom-control-label single-check-box" for=""></label>`;
+                    <label title="" class="custom-control-label single-check-box" for="${clChkBoxId}"></label>`;
             }
         }
 
@@ -424,7 +435,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
                             <input type="radio" name="colorVar" onchange="compareSettingChange()"
                                   class="custom-control-input" value="${itemId}"
                                   id="${radioButtonColorId}">
-                            <label title="" class="custom-control-label uncheck-when-click single-check-box" for=""></label>
+                            <label title="" class="custom-control-label uncheck-when-click single-check-box" for="${radioButtonColorId}"></label>
                         </div>`;
         }
 
@@ -1221,6 +1232,10 @@ const resizeListOptionSelect2 = (select2El) => {
 const resetSummaryOption = (name) => {
     $(`input[name=${name}][value='none']`).prop('checked', true).trigger('change');
     $(`input[name=${name}]`).removeAttr('data-checked');
+};
+
+const checkSummaryOption = (name) => {
+    $(`input[name=${name}]:checked`).prop('checked', false).prop('checked', true).trigger('change');
 };
 
 const buildSummaryChartTitle = (catExpValue, catExpBoxCols, facetName, isShowDate, timeCond, isShowFilterModal = false) => {

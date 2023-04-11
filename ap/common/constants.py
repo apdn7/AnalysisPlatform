@@ -158,6 +158,7 @@ TIME_RANGE = 'time_range'
 TOTAL = 'total'
 EMD_TYPE = 'emdType'
 DUPLICATE_SERIAL_SHOW = 'duplicated_serial'
+DUPLICATED_SERIALS_COUNT = 'dup_check'
 
 UNLINKED_IDXS = 'unlinked_idxs'
 NONE_IDXS = 'none_idxs'
@@ -240,6 +241,7 @@ DF_ALL_PROCS = 'dfProcs'
 DF_ALL_COLUMNS = 'dfColumns'
 CHART_TYPE = 'chartType'
 EXPORT_FROM = 'export_from'
+AVAILABLE_ORDERS = 'available_ordering_columns'
 
 # CATEGORICAL PLOT
 CATE_VARIABLE = 'categoryVariable'
@@ -763,3 +765,20 @@ class DuplicateSerialShow(Enum):
     SHOW_BOTH = 'all'
     SHOW_FIRST = 'first'
     SHOW_LAST = 'last'
+
+
+class DuplicateSerialCount(Enum):
+    AUTO = 'auto'
+    CHECK = 'check'
+    SILENT = 'silent'
+
+
+class AppSource(Enum):
+    OSS = 'OSS'
+    DN = 'DN'
+
+
+class AppGroup(Enum):
+    DN = 'DN'
+    Dev = 'Dev'
+    Ext = 'Ext'

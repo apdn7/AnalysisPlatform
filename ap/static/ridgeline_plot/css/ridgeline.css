@@ -44,11 +44,8 @@
 }
 
 .ridgeLineCard-full {
-	/*border: 1px solid red;*/
-	/*margin-bottom: 10px;*/
-	margin-left: 50px;
-	width: calc(100% - 80px);
-	/*margin-top: -35px;*/
+    flex: 1;
+    margin-right: 24px;
 }
 
 .cyclic-term-target-period {
@@ -61,10 +58,11 @@
 .ridgeLineItem {
 	border: 1px solid #434343;
 	border-radius: 4px;
-	margin-bottom: 15px;
+	margin-bottom: 4px;
 	padding-top: 5px;
 	position: relative;
 	background-color: #222222;
+    display: flex;
 }
 
 .ridgeLineItem:last-child {
@@ -126,4 +124,27 @@ span.btn-anchor {
     color: gray;
     cursor: pointer;
     z-index: 100;
+}
+
+.tschart-title-parent {
+    width: 40px;
+    position: relative;
+    left: 0px;
+}
+
+.tschart-title {
+    transform: rotate(-90deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    transform-origin: center;
+    color: #65c5f1;
+    text-align: center;
+    font-size: 12px;
+    height: 100%;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    line-height: 1.5;
 }

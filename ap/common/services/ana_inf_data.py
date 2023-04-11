@@ -326,7 +326,6 @@ def detect_abnormal_count_values(x, nmax=2, threshold=50, min_uniques=10, max_sa
         rng = np.random.default_rng()
         x = rng.choice(x, max_sample_size, replace=False)
 
-    # count unique values
     uniq, count = np.unique(x, return_counts=True)
     if len(uniq) < min_uniques:
         if verbose:

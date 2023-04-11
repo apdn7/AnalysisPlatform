@@ -245,7 +245,7 @@ const createCateTableHTML = (cateBoxes, cateId, thinDataGroupCounts, indexOrderC
             widthPercent = Number(box.boxEndPos - box.boxStartPos).toFixed(5);
         }
 
-        let td = `<td class="cate-td box-no-data" style="width: ${widthPercent * 100}%;">${box.cateName}</td>`;
+        let td = `<td class="cate-td box-no-data keyboard-movement" style="width: ${widthPercent * 100}%;">${box.cateName}</td>`;
 
         let leftEdge = '';
         let rightEdge = '';
@@ -254,8 +254,8 @@ const createCateTableHTML = (cateBoxes, cateId, thinDataGroupCounts, indexOrderC
             rightEdge = `<span data-id="${cateBoxIdx}-right" class="cate-edge cate-edge-right">&nbsp;</span>`;
         }
 
-        if (box.count > 0) {
-            let colorClass = 'box-has-data'; // has data -> blue
+        if (box.count >= 0) {
+            let colorClass = box.count > 0 ? 'box-has-data' : 'box-no-data'; // has data -> blue
             let showLabelBox = box.cateName;
             let showLabelTooltip = box.cateName;
 
@@ -267,7 +267,7 @@ const createCateTableHTML = (cateBoxes, cateId, thinDataGroupCounts, indexOrderC
             // }
 
             // NA case (have data but it is unknown/undefined data)
-            if (box.cateName === '' || box.cateName === null) {
+            if ((box.cateName === '' || box.cateName === null) && box.count > 0) {
                 colorClass = 'box-is-na';
                 showLabelTooltip = COMMON_CONSTANT.NA;
                 showLabelBox = COMMON_CONSTANT.NA;
@@ -303,8 +303,8 @@ const createCateTableHTML = (cateBoxes, cateId, thinDataGroupCounts, indexOrderC
                     // console.log(val);
                     const [minVal, maxVal] = findMinMax(val);
                     hoverStr += `<br>${dicOrder['name']}:<br>`;
-                    hoverStr += `${i18n.minVal}: ${minVal}<br>`;
-                    hoverStr += `${i18n.maxVal}: ${maxVal}<br>`;
+                    hoverStr += `${i18n.minVal}: ${checkTrue(minVal) ? minVal : COMMON_CONSTANT.NA}<br>`;
+                    hoverStr += `${i18n.maxVal}: ${checkTrue(maxVal) ? maxVal : COMMON_CONSTANT.NA}<br>`;
                 }
 
             } else {
@@ -312,11 +312,13 @@ const createCateTableHTML = (cateBoxes, cateId, thinDataGroupCounts, indexOrderC
                              ${i18n.endTime}: ${new Date(box.endTime).toLocaleString()}<br>`;
             }
 
-
+            const boxInfo = box.count > 0
+                ? `<span class="cate-value">${showLabelBox} <span class="cate-tooltip"> ${hoverStr} </span> </span>`
+                : '';
             td = `<td style="width: ${widthPercent * 100}%;" class="cate-td ${colorClass} keyboard-movement">
                 <div id="${cateId}-${idx}" line="${cateId}" col="${idx}" class="cate-box">
                     ${leftEdge}
-                    <span class="cate-value">${showLabelBox} <span class="cate-tooltip"> ${hoverStr} </span> </span>
+                    ${boxInfo}
                     ${rightEdge}
                 </div>
             </td>`;
@@ -564,16 +566,9 @@ const nonNACalcuation = (cates) => {
     return [Number(100 * nonNACount / (total || 1)).toFixed(2), nonNACount, total];
 };
 
-const produceCategoricalTable = (traceData, options = {}) => {
-    // fix x-axis with datetime range
-    const startDt = traceData.COMMON[CONST.STARTDATE];
-    const startTm = traceData.COMMON[CONST.STARTTIME];
-    const endDt = traceData.COMMON[CONST.ENDDATE];
-    const endTm = traceData.COMMON[CONST.ENDTIME];
-    const fmt = 'YYYY/MM/DD HH:mm';
-    const uiStartTime = new Date(formatDateTime(`${startDt} ${startTm}`, fmt)).toISOString();
-    const uiEndTime = new Date(formatDateTime(`${endDt} ${endTm}`, fmt)).toISOString();
-    const {thinDataGroupCounts, indexOrderColumns, is_thin_data} = traceData;
+
+const orderCategoryWithOrderSeries = (traceData) => {
+    const { indexOrderColumns } = traceData;
     const indexOrderColID = indexOrderColumns.map(col => col.id);
     let categoryDataAfterOrdering = [];
     const notMatchedCat = [];
@@ -590,12 +585,26 @@ const produceCategoricalTable = (traceData, options = {}) => {
     categoryDataAfterOrdering = categoryDataAfterOrdering.filter(cat => cat !== null);
     // cat which not match in serial ordering: shoow at below of category box
     categoryDataAfterOrdering = categoryDataAfterOrdering.concat(notMatchedCat);
+    return categoryDataAfterOrdering;
+}
 
+
+const produceCategoricalTable = (traceData, options = {}, clearOnFlyFilter) => {
+    // fix x-axis with datetime range
+    const startDt = traceData.COMMON[CONST.STARTDATE];
+    const startTm = traceData.COMMON[CONST.STARTTIME];
+    const endDt = traceData.COMMON[CONST.ENDDATE];
+    const endTm = traceData.COMMON[CONST.ENDTIME];
+    const fmt = 'YYYY/MM/DD HH:mm';
+    const uiStartTime = new Date(formatDateTime(`${startDt} ${startTm}`, fmt)).toISOString();
+    const uiEndTime = new Date(formatDateTime(`${endDt} ${endTm}`, fmt)).toISOString();
+    const {thinDataGroupCounts, indexOrderColumns, is_thin_data} = traceData;
+    // const categoryDataAfterOrdering = clearOnFlyFilter ? orderCategoryWithOrderSeries(traceData) : traceData.category_data;
     // calculate categorical boxes: start/end position, count, etc
     const dicAllCateBoxes = {};
     const cateNameHTMLs = [];
 
-    if (categoryDataAfterOrdering.length) {
+    if (traceData.category_data.length) {
         cateNameHTMLs.push(`<table class="cate-table">
             <thead>
                 <tr class="cate-thead">
@@ -608,8 +617,8 @@ const produceCategoricalTable = (traceData, options = {}) => {
     }
 
     let isBoxCombined = false;
-    const xAxisOption = $(formElements.xOption).val();
-    categoryDataAfterOrdering.forEach((dicCate) => {
+    const xAxisOption = traceData.COMMON.xOption;
+    traceData.category_data.forEach((dicCate) => {
         let boxes = null;
         if (!dicCate.isOverUniqueLimit) {
             if (xAxisOption === 'INDEX') {
@@ -720,6 +729,7 @@ const name = {
     process: 'TermSerialProcess',
     serial: 'TermSerialColumn',
     order: 'TermSerialOrder',
+    xOption: 'TermXOption',
 }
 let xOption = '';
 let selectedSerials = null;
@@ -727,18 +737,15 @@ let selectedProcess = null;
 let currentTable = null;
 let currentXOption = '';
 let lastSelectedOrder = [];
-
+let oldXOption = '';
 const initIndexModal = () => {
     const xOptionSwitch = $(formElements.tsXScale);
 
     const setDefault = () => {
-        // if (currentXOption === CONST.XOPT_INDEX) {
-        //     xOptionSwitch.prop('checked', true);
-        // } else {
-        //     xOptionSwitch.prop('checked', false);
-        // }
         xOptionSwitch.val(currentXOption);
+        oldXOption = currentXOption;
         xOptionSwitch.attr(CONST.DEFAULT_VALUE, currentXOption);
+        resetCustomSelect(xOptionSwitch);
     }
 
     // set default checked switch
@@ -746,21 +753,28 @@ const initIndexModal = () => {
     $(formElements.tsXScale).off('change');
     $(formElements.tsXScale).on('change', function () {
         const option = $(this).val();
+        if (option === CONST.XOPT_TIME && oldXOption === CONST.XOPT_TIME) {
+            return;
+        }
         if (option === CONST.XOPT_INDEX) {
             showSerialModal(formElements.serialTableModal2);
             setSelect2Selection(formElements.serialTable2)
+            bindDragNDrop($(`${formElements.serialTable2} tbody`), formElements.serialTable2, name.serial);
 
             $(formElements.btnAddSerial2).unbind('click');
             $(formElements.btnAddSerial2).on('click', () => {
-                addSerialOrderRow(formElements.serialTable2, name.process, name.serial, name.order).then(() => {
+                addSerialOrderRow(formElements.serialTable2, name.process, name.serial, name.order, null, null, null, null, true).then(() => {
                     initSelect();
                     disableUnselectedOption(selectedSerials, name.serial);
                     disableUnselectedOption(selectedProcess, name.process);
                 });
             });
-        } else {
+        }
+
+        if (option === CONST.XOPT_TIME) {
             xOption = CONST.XOPT_TIME;
             currentXOption = xOption;
+            oldXOption = xOption;
             handleSubmit(false);
         }
     })
@@ -769,6 +783,10 @@ const initIndexModal = () => {
     $(formElements.cancelOrderIndexModal).on('click', function () {
         setDefault();
         renderTableContent();
+        if (currentXOption === CONST.XOPT_TIME) {
+            $(formElements.tsXScale).val(currentXOption);
+            resetCustomSelect($(formElements.tsXScale))
+        }
     })
 
     $(formElements.okOrderIndexModal).unbind('click');
@@ -778,11 +796,14 @@ const initIndexModal = () => {
         currentXOption = xOption;
         // reset xAxisShowSettings
         xAxisShowSettings = null;
+        isShowIndexInGraphArea = true;
+        oldXOption = xOption;
         handleSubmit(false);
     })
 }
 
 function disableUnselectedOption(selectedSerials, serialName) {
+    if (!selectedSerials) return;
     const serialSelects = $(`select[name=${serialName}]`);
 
     serialSelects.each(function () {
@@ -831,37 +852,59 @@ function getLastedSelectedValue(tableID, procName, columnName, orderName) {
             serialOrder: order,
         })
     })
+
+    latestIndexOrder = [...lastSelectedOrder]
 }
 
 function renderTableContent() {
     $(`${formElements.serialTable2} tbody`).html('');
-    lastSelectedOrder.forEach((row, i) => {
-        addSerialOrderRow(formElements.serialTable2, name.process, name.serial, name.order).then(() => {
-            const trs = $(`${formElements.serialTable2} tbody tr`);
-            const lastChild = trs[i]
-            $(lastChild).find(`[name=${name.process}]`).val(row.serialProcess)
-            $(lastChild).find(`[name=${name.serial}]`).val(row.serialColumn)
-            $(lastChild).find(`[name=${name.order}]`).val(row.serialOrder)
-            initSelect();
-        });
-    })
+    // get start proc
+    const startProc = getFirstSelectedProc();
+    const hasAvailableOrderColumn = availableOrderingSettings[startProc] && availableOrderingSettings[startProc].length > 0;
+    const noTableRow = lastSelectedOrder.length <= 0;
+    const isShowDefaultRow = hasAvailableOrderColumn && noTableRow;
+    if (isShowDefaultRow) {
+        addSerialOrderRow(formElements.serialTable2, name.process, name.serial, name.order, startProc, availableOrderingSettings[startProc][0], null, null, true);
+    } else {
+        lastSelectedOrder.forEach((row, i) => {
+            addSerialOrderRow(formElements.serialTable2, name.process, name.serial, name.order, row.serialProcess, row.serialColumn, row.serialOrder, null, true);
+        })
+    }
     setTimeout(() => {
-        selectedSerials = getSelectedOrderCols(formElements.serialTable2, name.serial);
-        selectedProcess = getSelectedOrderCols(formElements.serialTable2, name.process);
-        disableUnselectedOption(selectedSerials, name.serial);
-        disableUnselectedOption(selectedProcess, name.process);
-    }, 1000)
+        selectedSerials = getSelectedOrderCols();
+        selectedProcess = getSelectedOrderCols(formElements.serialTable, 'serialProcess');
+        const availableProcess = new Set(Object.keys(availableOrderingSettings));
+        let availableSerials = [];
+        Object.values(availableOrderingSettings).forEach(cols => availableSerials.push(...cols));
+        availableSerials = availableSerials.map(colID => String(colID));
+        selectedSerials = new Set([...selectedSerials, ...availableSerials]);
+        selectedProcess = new Set([...selectedProcess, ...availableProcess]);
+        // disableUnselectedOption(selectedSerials, name.serial);
+        // disableUnselectedOption(selectedProcess, name.process);
+        initSelect();
+    }, 2000)
 }
 
 function initTableValue() {
     currentXOption = lastUsedFormData.get('xOption');
-    getLastedSelectedValue(formElements.serialTable, 'serialProcess', 'serialColumn', 'serialOrder')
+    if (currentXOption === CONST.XOPT_INDEX) {
+        getLastedSelectedValue(formElements.serialTable, 'serialProcess', 'serialColumn', 'serialOrder')
+    }
+
+    if (isSaveGraphSetting() && hasIndexOrderInGraphSetting(getGraphSettings())) {
+        const indexOrder = getIndexOrder();
+        if (indexOrder.length > 0) {
+            lastSelectedOrder = indexOrder;
+            latestIndexOrder = lastSelectedOrder;
+        }
+    }
     renderTableContent();
 }
 
 function transformIndexOrderParams(formData) {
     if (xOption === CONST.XOPT_INDEX) {
-        const latestFormData = collectFormData();
+        removeUnusedFormParams(formData);
+        const latestFormData = collectFormData(formElements.formID);
         for (const item of latestFormData.entries()) {
             const key = item[0];
             const value = item[1];

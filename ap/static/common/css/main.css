@@ -15,6 +15,7 @@ header.green-header {
 
 p.modal-inform, label.modal-inform, .modal-confirm .modal-body {
     color: #999;
+    font-size: 1rem;
 }
 
 a,
@@ -247,6 +248,10 @@ a.article:hover {
 
 .ls-col-right {
     padding-right: 0;
+}
+
+#select-language + span.select2-container {
+    width: 100%!important;
 }
 
 .copyright {
@@ -1017,7 +1022,7 @@ table .col-number {
 }
 
 .setting-inform-content .clipboard,
-#dp-info-content .clipboard {
+#dp-info-content button {
     float: right;
     position: absolute;
     right: 0;
@@ -1277,6 +1282,9 @@ body {
     padding-right: 1.3rem;
 }
 
+.bookmark-button {
+    height: 36.5px;
+}
 .bookmark-button span {
     max-width: 200px;
     display: block;
@@ -1697,11 +1705,24 @@ input:disabled + .slider {
     border-bottom: 1px solid #cccccc;
 }
 
-.abort-button {
+#show-elapsed-time {
+    color: black;
+    margin-left: 8px;
+    padding: 3px;
+    border-radius: 3px;
+    background-color: rgba(170, 170, 170, 1);
+    color: black;
+    margin-left: 8px;
+}
+
+.abort-button-div {
     position: absolute;
     top: 8px;
     left: 24px;
     z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .summary-card-title {
@@ -1742,7 +1763,7 @@ input:disabled + .slider {
 
 .chart-wrapper {
     border: none;
-    padding: 7px;
+    padding: 5px 7px 5px 7px;
 }
 
 .dark-bg {
@@ -1767,6 +1788,9 @@ input:disabled + .slider {
     top: 7px;
     left: 30px;
     font-size: 14px;
+}
+.toast {
+    font-size: 1rem;
 }
 
 .button-column {
@@ -1909,7 +1933,7 @@ span.deleteicon input {
 .alert-top-fixed {
     z-index: 9999;
     position: fixed;
-    top: 100px;
+    top: 45px;
     left: 50%;
     width: calc(75% - 70px);
     transform: translateX(-50%);
@@ -1930,7 +1954,9 @@ span.deleteicon input {
     border-radius: 3px;
     position: absolute;
     z-index: 9999;
-    top: 30px;
+    top: 100%;
+    left: 0;
+    width: 110%;
     text-align: left;
 }
 
@@ -1939,7 +1965,7 @@ span.deleteicon input {
 }
 
 .custom-selection {
-    width: 175px;
+    width: 187px;
     background-color: #222;
     line-height: 29px;
     border: 1px solid #222;
@@ -2002,14 +2028,17 @@ span.deleteicon input {
 .group-input .form-check-input {
     margin-top: 9px;
 }
-
+.dp-opacity {
+    background-color: black !important;
+}
 #dp-info-content {
     display: none;
     min-width: 50px;
     position: absolute;
     padding-right: 25px;
-    background-color: black;
-    opacity: 0.85;
+    /*background-color: black;*/
+    background-color: rgba(0, 0, 0, 0.7);
+    /*opacity: 0.85;*/
 }
 
 #dp-info-content table {
@@ -2133,4 +2162,20 @@ table.table-hover-light {
 .paginationjs-first svg {
     font-size: 10px;
     color: #5b5b5b;
+}
+
+.blink_btn {
+    animation: blinker 3s linear infinite;
+}
+
+@keyframes blinker {
+    0% {
+        opacity: 1;
+    }
+    30% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 0.15;
+    }
 }

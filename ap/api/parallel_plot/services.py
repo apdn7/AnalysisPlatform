@@ -5,7 +5,6 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
-from ap.common.logger import logger
 from numpy import quantile
 from pandas import DataFrame
 from sqlalchemy import and_, or_
@@ -15,16 +14,16 @@ from ap.api.trace_data.services.regex_infinity import validate_numeric_minus, va
     validate_string
 from ap.api.trace_data.services.time_series_chart import main_check_filter_detail_match_graph_data, \
     get_data_from_db, get_procs_in_dic_param, gen_unique_data, customize_dic_param_for_reuse_cache, \
-    filter_cat_dict_common, get_fmt_str_from_dic_data, get_serial_and_datetime_data, \
-    gen_cat_data_for_ondemand
+    filter_cat_dict_common, get_fmt_str_from_dic_data, get_serial_and_datetime_data
 from ap.common.common_utils import convert_time, add_days, gen_sql_label, \
     gen_sql_like_value, chunks
 from ap.common.constants import *
 from ap.common.logger import log_execution_time
+from ap.common.logger import logger
 from ap.common.memoize import memoize
 from ap.common.scheduler import dic_running_job, JobType
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import abort_process_handler
+from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress
 from ap.common.trace_data_log import trace_log, TraceErrKey, EventAction, Target, EventType
 from ap.setting_module.models import CfgConstant, CfgProcess, CfgProcessColumn, CfgFilterDetail
@@ -35,6 +34,7 @@ MAX_INT_CAT_VALUE = 128
 
 
 @log_execution_time('[TRACE DATA]')
+@request_timeout_handling()
 @abort_process_handler()
 @notify_progress(60)
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
@@ -73,8 +73,8 @@ def gen_graph_paracords(dic_param):
     #     proc.add_cols(serial_ids)
 
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param,
-                                                               _use_expired_cache=use_expired_cache)
+    df, actual_record_number, unique_serial = get_data_from_db(graph_param, dic_cat_filters,
+                                                               use_expired_cache=use_expired_cache)
 
     # filter on-demand
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, None, None, graph_param)
@@ -114,7 +114,7 @@ def gen_graph_paracords(dic_param):
     dic_param[ARRAY_FORMVAL], dic_param[ARRAY_PLOTDATA], category_cols, cast_inf_vals \
         = gen_plotdata(orig_graph_param, dic_data, dic_proc_cfgs)
 
-    dic_unique_cate = gen_unique_data(df, dic_proc_cfgs, category_cols)
+    dic_unique_cate = gen_unique_data(df, dic_proc_cfgs, category_cols, True)
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
     dic_param[CATEGORY_DATA] = list(dic_unique_cate.values())
     dic_param[CAST_INF_VALS] = cast_inf_vals
@@ -411,13 +411,13 @@ def validate_data(df):
 
     # integer cols
     int_cols = df.select_dtypes(include='integer').columns.tolist()
-    return_vals = [pd.NA, pd.NA]
+    return_vals = [np.NAN, np.NAN]
     for col in int_cols:
         if col in exclude_cols:
             continue
 
         df = validate_numeric_minus(df, col, return_vals)
-        df = validate_numeric_plus(df, col, return_vals + [pd.NA])
+        df = validate_numeric_plus(df, col, return_vals + [np.NAN])
 
     # float
     float_cols = df.select_dtypes(include='float').columns.tolist()

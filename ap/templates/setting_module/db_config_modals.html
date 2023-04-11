@@ -32,7 +32,7 @@
                 <div class="form-group row">
                     <label for="folderUrl" class="col-sm-3 col-form-label"><h5>{{ _("Source") }}</h5></label>
                     <div class="col-sm-6">
-                        <input type="text" name="folderUrl" class="form-control already-convert-hankaku" id="folderUrl" placeholder="Z:\path\to\directory">
+                        <input type="text" name="folderUrl" class="form-control" id="folderUrl" placeholder="Z:\path\to\directory">
                     </div>
                     <div class="col-sm-3 text-left">
                         <button class="btn btn-primary" id="connectResourceBtn">{{ _("Connect") }}</button>
@@ -158,7 +158,7 @@
                         <div class="form-group row">
                             <label for="sqlite_dbname" class="col-sm-3 col-form-label"><h5>{{ _("File name") }}</h5></label>
                             <div class="col-sm-9">
-                                <input type="text" name="sqlite_dbname" class="form-control already-convert-hankaku" id="sqlite_dbname">
+                                <input type="text" name="sqlite_dbname" class="form-control" id="sqlite_dbname">
                             </div>
                         </div>
                         {{ macros.input_hidden("sqlite_use_os_timezone", "", "sqlite_use_os_timezone") }}

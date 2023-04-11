@@ -4,7 +4,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
-const REQUEST_TIMEOUT = setRequestTimeOut(60000); // 1 minute
+const REQUEST_TIMEOUT = setRequestTimeOut();
 
 const MAX_NUMBER_OF_GRAPH = 20;
 const MAX_END_PROC = 20;
@@ -12,6 +12,9 @@ let tabID = null;
 const graphStore = new GraphStore();
 let isValid = false;
 let xAxisShowSettings;
+let availableOrderingSettings = {};
+let isShowIndexInGraphArea = false;
+let updateOrderCols = false;
 
 const formElements = {
     formID: '#traceDataForm',
@@ -227,7 +230,10 @@ $(() => {
     initializeDateTimeRangePicker();
 
     startProcChangeEvents();
+    initCustomSelect();
 });
+
+
 
 const endProcCateOnChange = async (count) => {
     const selectedProc = $(`#end-proc-cate-process-${count}`).val();
@@ -603,7 +609,7 @@ const selectScatterXY = (plots) => {
 };
 
 
-const traceDataChart = (data, scaleOption = null) => {
+const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
     if (isEmpty(data)) return;
 
     const startTime = performance.now();
@@ -858,7 +864,7 @@ const traceDataChart = (data, scaleOption = null) => {
     }
 
     // produce categorical table
-    produceCategoricalTable(data, options = { chartCols });
+    produceCategoricalTable(data, options = { chartCols }, clearOnFlyFilter);
 
     // drag and drop timeseries card to save order + redraw scatter plot
     addTimeSeriesCardSortableEventHandler();
@@ -872,7 +878,7 @@ const traceDataChart = (data, scaleOption = null) => {
     drawHistogramsTab(data);
 
     // TODO add comment
-    sessionStorage.setItem(tabID, JSON.stringify(histObjs));
+    sessionStorage.setItem(tabID, 'JSON.stringify(histObjs)');
 
     // send plotting time
     sendGAEvent(startTime, sizeOfData);
@@ -997,6 +1003,7 @@ const drawHistogramsTab = (data, scaleOption = '1', isReset = true, frequencyOpt
     // Init filter modal
     const {catExpBox, category_data, cat_on_demand} = data;
     fillDataToFilterModal(catExpBox, category_data, cat_on_demand, [], [], handleSubmit);
+    checkSummaryOption(formElements.summaryOption);
 };
 
 // const updateHistogramWhenChaneScale = (scaleOption = '1') => {
@@ -1116,6 +1123,7 @@ const resetGraphSetting = () => {
 };
 
 const traceDataWithDBChecking = (action) => {
+    requestStartedAt = performance.now();
 
     // clear checked filter category
     resetCheckedCats();
@@ -1157,6 +1165,23 @@ const handleSubmit = (clearOnFlyFilter = false) => {
     });
 };
 
+const updateCategoryOrder = (formData) => {
+    if (updateOrderCols) {
+        const xOption = formData.get(name.xOption) || formData.get('xOption');
+        formData.delete(name.process);
+        formData.delete(name.serial);
+        formData.delete(name.order);
+
+        formData.set(name.xOption, xOption);
+        updateOrderCols.forEach(orderCol => {
+            formData.append(name.process, orderCol.serialProcess);
+            formData.append(name.serial, orderCol.serialColumn);
+            formData.append(name.order, orderCol.serialOrder);
+        });
+    }
+    updateOrderCols = false;
+};
+
 const collectFormDataTrace = (clearOnFlyFilter) => {
     let formData = null;
     if (clearOnFlyFilter) {
@@ -1178,6 +1203,8 @@ const collectFormDataTrace = (clearOnFlyFilter) => {
 
         // transform index order
         formData = transformIndexOrderParams(formData, formElements.formID);
+        // update category order in case of re-set from on-demand filter
+        updateCategoryOrder(formData);
     }
 
     return formData;
@@ -1205,7 +1232,9 @@ const traceData = (clearOnFlyFilter) => {
         graphStore.setTraceData(_.cloneDeep(res));
     
         const {catExpBox, category_data, cat_on_demand} = res;
-    
+
+        availableOrderingSettings = res.COMMON.available_ordering_columns;
+
         // TODO:  lay nhung column va process o res de disable chinh xac hon.
         if (clearOnFlyFilter) {
             const dfProcs = res.COMMON.dfProcs || [];
@@ -1219,15 +1248,20 @@ const traceData = (clearOnFlyFilter) => {
             initUniquePairList(res.dic_filter);
         }
 
+        const shouldOrderByIndexList = isShowIndexInGraphArea || clearOnFlyFilter;
+
+        const categoryData = shouldOrderByIndexList ? orderCategoryWithOrderSeries(res) : category_data;
+        res.category_data = categoryData;
+
         // draw + show data to graphs
-        traceDataChart(res);
+        traceDataChart(res, null, clearOnFlyFilter);
 
         loadGraphSetings(clearOnFlyFilter);
 
         showInfoTable(res);
 
         // render cat, category label filer modal
-        fillDataToFilterModal(catExpBox, category_data, cat_on_demand, [], [], handleSubmit);
+        fillDataToFilterModal(catExpBox, categoryData, cat_on_demand, [], [], handleSubmit);
 
         // Move screen to graph after pushing グラフ表示 button
         autoScrollToChart(500);
@@ -1263,6 +1297,7 @@ const traceData = (clearOnFlyFilter) => {
                         || isEmpty(res.category_data[0]))) {
             showToastrAnomalGraph();
         }
+        isShowIndexInGraphArea = false;
     });
 };
 
@@ -1289,20 +1324,6 @@ const buildMapIndex2OutlierYValue = (plotdata, scaleInfo) => {
         dictIdx2YValue[idx] = plotdata.array_y[idx];
     }
     return [dictIdx2YValue, arrayYTS];
-};
-
-// event listener for changing x-axis
-const changeXAxis = () => {
-    // retrieve trace data result
-    const data = _.cloneDeep(graphStore.getTraceData());
-
-    if (!isEmpty(data)) {
-        // re-draw charts
-        traceDataChart(data);
-
-        // auto scroll
-        autoScrollToChart(200);
-    }
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -1505,9 +1526,8 @@ const onChangeYScale = () => {
     });
 };
 
-const handleExportData = (type) => {
+const dumpData = (type, exportFrom) => {
     const formData = lastUsedFormData || collectFormDataTrace(true);
-    const exportFrom = getExportDataSrc();
     formData.set('export_from', exportFrom);
     if (type === EXPORT_TYPE.CSV) {
         exportData('/ap/api/fpp/csv_export', 'csv', formData);
@@ -1520,4 +1540,7 @@ const handleExportData = (type) => {
     if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
         tsvClipBoard('/ap/api/fpp/tsv_export', formData);
     }
+};
+const handleExportData = (type) => {
+    showGraphAndDumpData(type, dumpData);
 };

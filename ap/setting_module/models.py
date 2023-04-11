@@ -537,10 +537,13 @@ class CfgProcess(db.Model):
 
         return cols
 
-    def get_order_cols(self, column_name_only=True):
+    def get_order_cols(self, column_name_only=True, column_id_only=False):
         cols = [col for col in self.columns if col.order or col.is_serial_no]
         if column_name_only:
             cols = [col.column_name for col in cols]
+
+        if column_id_only:
+            cols = [col.id for col in cols]
 
         return cols
 
@@ -667,7 +670,8 @@ class CfgTrace(db.Model):
     created_at = db.Column(db.Text(), default=get_current_timestamp)
     updated_at = db.Column(db.Text(), default=get_current_timestamp)
 
-    trace_keys: List[CfgTraceKey] = db.relationship('CfgTraceKey', lazy='joined', backref="cfg_trace", cascade="all")
+    trace_keys: List[CfgTraceKey] = db.relationship('CfgTraceKey', lazy='joined', backref="cfg_trace", cascade="all",
+                                                    order_by='asc(CfgTraceKey.self_column_id)')
 
     self_process = db.relationship('CfgProcess', foreign_keys=[self_process_id], lazy='joined')
     target_process = db.relationship('CfgProcess', foreign_keys=[target_process_id], lazy='joined')

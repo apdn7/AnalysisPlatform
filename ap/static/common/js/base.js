@@ -12,6 +12,7 @@ const serverSentEventUrl = '/ap/api/setting/listen_background_job';
 
 let originalUserSettingInfo;
 let isGraphShown = false;
+let requestStartedAt;
 
 const serverSentEventType = {
     jobRun: 'JOB_RUN',
@@ -588,11 +589,12 @@ const onSearchTableContent = (inputID, tbID, inputElement = null) => {
     initCommonSearchInput(inputEl);
 
     inputEl.on('input', (e) => {
-        const {value} = e.currentTarget;
+        const value = stringNormalization(e.currentTarget.value);
         searchTableContent(tbID, value, false);
     });
 
     inputEl.on('change', (e) => {
+        handleInputTextZenToHanEvent(e);
         const {value} = e.currentTarget;
         searchTableContent(tbID, value, true);
     });
@@ -864,7 +866,8 @@ const SetAppEnv = () => {
     });
 };
 
-const setRequestTimeOut = (timeout = 60000) => {
+const setRequestTimeOut = (timeout = 600000) => {
+    // default 10m
     const env = localStorage.getItem('env');
     return env === 'prod' ? timeout : 60000000;
 };
@@ -1045,9 +1048,9 @@ const keepValueEachDivision = () => {
 const updateCleansing = (inputEle) => {
     const selectedLabel = $('#cleansing-selected');
     const cleansingValues = uniq([...$('#cleansing-content').find('input[type=checkbox]:is(:checked)')].map(el => $(el).attr('show-value')));
-    const dupValue = $('#cleansing-content').find('select option:selected').attr('show-value');
+    const dupValue = $('#cleansing-content').find('select option:selected').map((i, el) => $(el).attr('show-value'));
     if (dupValue) {
-        cleansingValues.push(dupValue);
+        cleansingValues.push(...dupValue);
     }
     const selectedValues = cleansingValues.length > 0 ? `[${cleansingValues.join('')}]` : '';
     selectedLabel.text(selectedValues);
@@ -1079,10 +1082,25 @@ const cleansingHandling = () => {
         if (!inOrderingContent && !inOrderingSelection) {
             $('#ordering-content').hide();
         }
+
+        if (!e.target.closest('.dn-custom-select')) {
+            $('.dn-custom-select--select--list').addClass('select-hide')
+        }
     });
 };
 
 const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {}) => {
+    if (!requestStartedAt) {
+        requestStartedAt = performance.now();
+    }
+
+    if (exportMode()) {
+        // set isExportMode to fromData
+        formData.set('isExportMode', 1);
+    } else {
+        formData.delete('isExportMode')
+    }
+
     const option = {
         url,
         data: formData,
@@ -1090,6 +1108,7 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
         type: 'POST',
         contentType: false,
         processData: false,
+        cache: false,
         timeout: timeOut,
         ...additionalOption,
     };
@@ -1101,19 +1120,15 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
         },
         success: async (res) => {
             try {
-                const t0 = performance.now();
-
+                const responsedAt = performance.now();
                 loadingShow(true);
 
-                await removeAbortButon(res);
+                await removeAbortButton(res);
 
                 await callback(res);
 
                 isGraphShown = true;
 
-                const t1 = performance.now();
-                // show processing time at bottom
-                drawProcessingTime(t0, t1, res.backend_time, res.actual_record_number, res.unique_serial);
                 // hide loading inside ajax
                 setTimeout(loadingHide, loadingHideDelayTime(res.actual_record_number));
 
@@ -1122,6 +1137,10 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
 
                 // export mode
                 handleZipExport(res);
+
+                const finishedAt = performance.now();
+                // show processing time at bottom
+                drawProcessingTime(responsedAt, finishedAt, res.backend_time, res.actual_record_number, res.unique_serial);
             } catch (e) {
                 console.error(e);
                 loadingHide();

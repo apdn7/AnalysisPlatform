@@ -15,10 +15,10 @@ from ap.common.constants import *
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import abort_process_handler
+from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.sigificant_digit import get_fmt_from_array
 from ap.common.trace_data_log import TraceErrKey, EventType, EventAction, Target, trace_log
-from ap.setting_module.models import CfgProcessColumn, CfgProcess
+from ap.setting_module.models import CfgProcessColumn
 from ap.trace_data.models import Cycle
 
 colors = [
@@ -101,6 +101,7 @@ def preprocess_for_sankey_glasso(X, idx_target, num_layers=2):
 
 
 @log_execution_time()
+@request_timeout_handling()
 @abort_process_handler()
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
            (EventType.SKD, EventAction.PLOT, Target.GRAPH), send_ga=True)
@@ -137,7 +138,7 @@ def gen_graph_sankey_group_lasso(dic_param):
         proc.add_cols(serial_ids)
 
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param, is_get_end_proc_serials=True)
+    df, actual_record_number, unique_serial = get_data_from_db(graph_param)
 
     # check filter match or not ( for GUI show )
     matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids = main_check_filter_detail_match_graph_data(

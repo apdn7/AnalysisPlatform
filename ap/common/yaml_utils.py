@@ -58,13 +58,13 @@ class YamlConfig:
 
         return data
 
-    def write_json_to_yml_file(self, dict_obj):
+    def write_json_to_yml_file(self, dict_obj, output_file: str = None):
         # get encoding
         encoding = detect_encoding(self.fname_config_yaml)
 
         try:
             dict_obj = convert_json_to_ordered_dict(dict_obj)
-            with open(self.fname_config_yaml, 'w', encoding=encoding) as outfile:
+            with open(self.fname_config_yaml if not output_file else output_file, 'w', encoding=encoding) as outfile:
                 yaml.dump(dict_obj, outfile, default_flow_style=False, allow_unicode=True)
 
             return True

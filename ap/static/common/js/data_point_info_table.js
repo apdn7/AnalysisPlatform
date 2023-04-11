@@ -1,3 +1,4 @@
+let isInHoverInfo = false;
 const dpInfoCons = {
     customdata: 'customdata',
     domID: 'dp-info-content',
@@ -30,7 +31,7 @@ const dpInfoCons = {
     validTo: $('#i18nHoverValidTo'),
     threshLow: $('#i18nLCL'),
     threshHigh: $('#i18nUCL'),
-    marginTop: 7, // margin top 5px from data point
+    marginTop: 5, // margin top 5px from data point
 };
 const genTRItems = (firstCol, secondCol, thirdCol = null) => {
     let trEle = '<tr>';
@@ -46,16 +47,21 @@ const genTRItems = (firstCol, secondCol, thirdCol = null) => {
     trEle += '</tr>';
     return trEle;
 };
+
+let hoverInfoTimeOut = null;
+
 const genDataPointHoverTable = (dataTable, offset, width, autoHide = true, chartID = null) => {
-    const dpInforID = dpInfoCons.domID;
-    $(`#${dpInforID} tbody`).html(dataTable);
-    $(`#${dpInforID}`)
-        .css('top', offset.y - 66 + dpInfoCons.marginTop)
-        .css('left', offset.x);
-    if (width) {
-        $(`#${dpInforID}`).css('min-width', width);
-    }
-    $(`#${dpInforID}`).css('display', 'block');
+    initHoverInfoHandler(() => {
+        const dpInforID = dpInfoCons.domID;
+        $(`#${dpInforID} tbody`).html(dataTable);
+        $(`#${dpInforID}`)
+            .css('top', offset.y - 66 + dpInfoCons.marginTop)
+            .css('left', offset.x);
+        if (width) {
+            $(`#${dpInforID}`).css('min-width', width);
+        }
+        $(`#${dpInforID}`).css('display', 'block');
+    });
 };
 const genLabels = (source = null) => {
     const sourceLabel = source ? `(${source})` : '';
@@ -84,6 +90,8 @@ const filterNameByLocale = (threholdInfo) => {
 };
 // eslint-disable-next-line no-unused-vars
 const showMSPDataTable = (data, offset, chartID) => {
+    const isContour = !!data.z;
+        if (isContour) return;
     const getFilterInfo = (chartInfo) => {
         const labels = genLabels();
         const filterCol = filterNameByLocale(chartInfo);
@@ -106,10 +114,14 @@ const showMSPDataTable = (data, offset, chartID) => {
             tblContent += genTRItems('Density', data.z);
         }
         tblContent += genTRItems('', '');
-        tblContent += genTRItems('Datetime', datetime);
+        if (data.datetime) {
+            tblContent += genTRItems('Datetime', datetime);
+        }
         data.serial.forEach((serial) => {
             const serialValue = serial + data.suffix_label;
-            tblContent += genTRItems('Serial', serialValue);
+            if (serial) {
+                tblContent += genTRItems('Serial', serialValue);
+            }
         });
         // if (data.thresholds) {
         // filter
@@ -170,6 +182,18 @@ const genSimpleDataTable = (yValue, nTotal) => {
     tblContent += '</tr>';
     return tblContent;
 };
+
+const genHoverDataTable = (data) => {
+     let tblContent = '<tr>';
+     for (const d of data) {
+         const key  = d[0];
+         const value = d[1];
+         tblContent += genTRItems(key, value);
+     }
+     tblContent += '</tr>';
+     return tblContent;
+}
+
 const getDataPointIndex = (data) => {
     if ('pointIndex' in data.points[0]) {
         return data.points[0].pointIndex;
@@ -266,13 +290,39 @@ const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
     );
 };
 
+const clearHoverTimeOut = () => {
+    if (hoverInfoTimeOut) {
+        window.clearTimeout(hoverInfoTimeOut);
+        hoverInfoTimeOut = null;
+    }
+}
+
+const initHoverInfoHandler = (callback) => {
+    if (!hoverInfoTimeOut) {
+         hoverInfoTimeOut = setTimeout(() => {
+             hoverInfoTimeOut = null;
+             if (isInHoverInfo) return;
+             isInHoverInfo = false;
+             callback();
+         }, 1000)
+    }
+};
+
+const unHoverHandler = (plot) => {
+    plot.on('plotly_unhover', clearHoverTimeOut)
+}
 $(() => {
     $(`#${dpInfoCons.domID}`).on('mouseleave', function() {
         $(this).hide();
+        isInHoverInfo = false;
+    });
+    $(`#${dpInfoCons.domID}`).on('mouseover', function() {
+        isInHoverInfo = true;
     });
     $(window).on('click', function (e){
         if (!e.target.closest(`#${dpInfoCons.domID}`) && $(`#${dpInfoCons.domID}`).css('display') === 'block') {
             $(`#${dpInfoCons.domID}`).hide();
+            isInHoverInfo = false;
         }
     });
 });

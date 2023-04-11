@@ -983,7 +983,7 @@ const rlpByLineTemplate = (title, groupName, xaxisValue, yaxisValue, nticks = 0,
     };
 };
 
-const rlpSingleLine = (yValue, xValue, lineColor, lineName, histCounts) => ({
+const rlpSingleLine = (yValue, xValue, lineColor, lineName, ntotal) => ({
     line: {
         color: lineColor,
         shape: 'spline',
@@ -999,7 +999,7 @@ const rlpSingleLine = (yValue, xValue, lineColor, lineName, histCounts) => ({
     hoverinfo: 'none',
     customdata: {
         isridgline: true,
-        count: histCounts,
+        count: ntotal,
     },
     // hovertemplate: '%{text:}',
 });

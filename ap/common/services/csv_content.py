@@ -1,6 +1,6 @@
 # CSVコンテンツを生成するService
 # read(dic_form, local_params)が外向けの関数
-
+import io
 import csv
 import decimal
 # https://stackoverrun.com/ja/q/6869533
@@ -9,6 +9,9 @@ import math
 import re
 from datetime import datetime, date, time
 from itertools import islice
+from zipfile import ZipFile
+
+from flask import Response
 
 from ap.api.efa.services.etl import detect_file_delimiter
 from ap.common.common_utils import detect_encoding
@@ -224,3 +227,29 @@ def is_normal_csv(f_name, delimiter=','):
             return False
 
     return True
+
+
+def zip_file_to_response(csv_data, file_names):
+    if len(csv_data) == 1:
+        csv_data = csv_data[0]
+        csv_filename = gen_csv_fname()
+        response = Response(csv_data.encode("utf-8-sig"), mimetype="text/csv",
+                            headers={
+                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
+                            })
+    else:
+        csv_filename = gen_csv_fname('zip')
+        outfile = io.BytesIO()
+        with ZipFile(outfile, 'w') as zf:
+            for name, data in zip(file_names, csv_data):
+                zf.writestr(name, data)
+
+        zip_dat = outfile.getvalue()
+        response = Response(zip_dat, mimetype="application/octet-stream",
+                            headers={
+                                "Content-Type": "application/octet-stream",
+                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
+                            })
+
+    return response
+

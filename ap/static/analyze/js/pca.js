@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable no-param-reassign */
-const REQUEST_TIMEOUT = setRequestTimeOut(60000); // 1 minutes
+const REQUEST_TIMEOUT = setRequestTimeOut();
 const i18n = {
     allSelection: $('#i18nAllSelection').text(),
     noFilter: $('#i18nNoFilter').text(),
@@ -295,6 +295,7 @@ const collectInputAsFormData = () => {
 };
 
 const getPCAPlots = () => {
+    requestStartedAt = performance.now();
     const isValid = checkValidations({ max: MAX_END_PROC });
     updateStyleOfInvalidElements();
 
@@ -459,9 +460,6 @@ $(() => {
         confirmWarningAndGetPCA();
     });
 
-    // allow number > 0 only for latest time interval
-    validateRecentTimeInterval($(eles.recentTimeIntervalInput));
-
     // bind choose sensors events
     bindCheckEvents();
 
@@ -475,18 +473,47 @@ $(() => {
     initValidation(eles.formID);
 });
 
-const handleExportData = (type) => {
-    const formData = collectInputAsFormData();
-    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].map(el => formData.delete(el));
-    const testDateTime = $('#for-default-test').find('[name=DATETIME_RANGE_PICKER]').val();
-    const splitDT = splitDateTimeRange(testDateTime);
+const extractAndConvertDT = (datetimeStr) => {
+  const splitDT = splitDateTimeRange(datetimeStr);
     // to uct
     const start = toUTCDateTime(splitDT.startDate, splitDT.startTime);
     const end = toUTCDateTime(splitDT.endDate, splitDT.endTime);
-    formData.set(CONST.STARTDATE, start.date);
-    formData.set(CONST.STARTTIME, start.time);
-    formData.set(CONST.ENDDATE, end.date);
-    formData.set(CONST.ENDTIME, end.time);
+    return { start, end }
+};
 
-    handleExportDataCommon(type, formData);
+const dumpData = (type) => {
+    const formData = collectInputAsFormData();
+    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].map(el => formData.delete(el));
+    const trainDateTime = $('#for-default-train').find('[name=DATETIME_RANGE_PICKER]').val();
+    const testDateTime = $('#for-default-test').find('[name=DATETIME_RANGE_PICKER]').val();
+    const trainDT = extractAndConvertDT(trainDateTime);
+    const testDT = extractAndConvertDT(testDateTime);
+    formData.set(CONST.STARTDATE, trainDT.start.date);
+    formData.set(CONST.STARTTIME, trainDT.start.time);
+    formData.set(CONST.ENDDATE, trainDT.end.date);
+    formData.set(CONST.ENDTIME, trainDT.end.time);
+
+    if (testDT) {
+        formData.append(CONST.STARTDATE, testDT.start.date);
+        formData.append(CONST.STARTTIME, testDT.start.time);
+        formData.append(CONST.ENDDATE, testDT.end.date);
+        formData.append(CONST.ENDTIME, testDT.end.time);
+    }
+
+    const exportFrom = getExportDataSrc();
+    formData.set('export_from', exportFrom);
+    if (type === EXPORT_TYPE.CSV) {
+        exportData('/ap/api/analyze/csv_export', 'csv', formData);
+    }
+
+    if (type === EXPORT_TYPE.TSV) {
+        exportData('/ap/api/analyze/tsv_export', 'tsv', formData);
+    }
+
+    if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
+        tsvClipBoard('/ap/api/analyze/tsv_export', formData);
+    }
+};
+const handleExportData = (type) => {
+    showGraphAndDumpData(type, dumpData);
 };

@@ -3884,12 +3884,209 @@ msgid "P duplicate hover message"
 msgstr "Number of duplicate serials (percentage)"
 
 #: ap/templates/i18n.html
-msgid "All 2"
-msgstr "All"
-
-#: ap/templates/i18n.html
 msgid "You can filter categorical data used for graph drawing."
 msgstr "You can filter categorical data used for graph drawing."
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetVar"
+msgstr ""
+"Select a process and then select some variables that you would like to "
+"visualize. You can select additional process by clicking the + button on "
+"the upper right.BREAK_LINEYou can also set variables for label plots and "
+"facets.BREAK_LINE"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetVarDesc"
+msgstr ""
+"You can show the description of the words with underlines by pointing the"
+" words with mouse pointer for a second."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourSelectTargetPeriod"
+msgstr "Cieľová doba"
+
+#: ap/templates/i18n.html
+msgid "TourSelectTargetPeriodDatePicker"
+msgstr ""
+"Clicking on the textbox will show datetime selector. You can specify the "
+"datetime range with this selector, or by typing directly with the "
+"keyboard."
+
+#: ap/templates/i18n.html
+msgid "TourFindData"
+msgstr ""
+"No problem. Clicking the \"Data Finder\" button, you can access data "
+"finder, which you can find the time range of the stored data."
+
+#: ap/templates/i18n.html
+msgid "TourWithDatafinder"
+msgstr ""
+"With the data finder, you can select a datetime range while seeing when "
+"and how much data is being imported.BREAK_LINEBREAK_LINEIf data are "
+"exist, the corresponding cell is displayed in blue; the greater the "
+"amount of data, the brighter the blue. The existence of this data refers "
+"to the data for the process selected first in the step \"Select target "
+"variable\" or the process specified as theSPAN_TAG\"Start "
+"point\"SPAN_END_TAG"
+
+# ap/templates/trace_data/trace_data.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourUseFilter"
+msgstr "Žiadny filter"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourCleansing"
+msgstr "POZOR"
+
+#: ap/templates/i18n.html
+msgid "TourShowGraph"
+msgstr ""
+"The basic setup is finished. Most of the settings done in this tour are "
+"common among most of the visualization. BREAK_LINEBREAK_LINEFinally, "
+"press the \"Display Graph\" button and wait a few moments for the graph "
+"to be drawn."
+
+#: ap/templates/i18n.html
+msgid "TourFinish"
+msgstr ""
+"Thank you for completing this tour. BREAK_LINEBREAK_LINEMany useful "
+"functions, including on-demand filters, are also implemented on the "
+"screen after visualization. Manipulations on the graph will never destroy"
+" the imported data, so lets start manipulating the graph and analyze the "
+"data from various angles."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "GoBack"
+msgstr "späť"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "GoNext"
+msgstr "Pripojiť"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "GoFinish"
+msgstr ""
+"Thank you for completing this tour. BREAK_LINEBREAK_LINEMany useful "
+"functions, including on-demand filters, are also implemented on the "
+"screen after visualization. Manipulations on the graph will never destroy"
+" the imported data, so lets start manipulating the graph and analyze the "
+"data from various angles."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "GoNextToDataFinder"
+msgstr ""
+"With the data finder, you can select a datetime range while seeing when "
+"and how much data is being imported.BREAK_LINEBREAK_LINEIf data are "
+"exist, the corresponding cell is displayed in blue; the greater the "
+"amount of data, the brighter the blue. The existence of this data refers "
+"to the data for the process selected first in the step \"Select target "
+"variable\" or the process specified as theSPAN_TAG\"Start "
+"point\"SPAN_END_TAG"
+
+#: ap/templates/i18n.html
+msgid "TourWelcomeTitle"
+msgstr "Welcome to the Analysis Platform"
+
+#: ap/templates/i18n.html
+msgid "TourWelcome"
+msgstr ""
+"In this tour, we are going to walk through the basics of how to run the "
+"visualizations. All visualizations can be used in the similar manner."
+
+#: ap/templates/i18n.html
+msgid "TourWelcomeQuit"
+msgstr "Quit tour"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourSelectTargetVarTitle"
+msgstr ""
+"Select a process and then select some variables that you would like to "
+"visualize. You can select additional process by clicking the + button on "
+"the upper right.BREAK_LINEYou can also set variables for label plots and "
+"facets.BREAK_LINE"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourSelectTargetPeriodTitle"
+msgstr "Cieľová doba"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourSelectTargetPeriodDatePickerTitle"
+msgstr ""
+"Clicking on the textbox will show datetime selector. You can specify the "
+"datetime range with this selector, or by typing directly with the "
+"keyboard."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourFindDataTitle"
+msgstr ""
+"No problem. Clicking the \"Data Finder\" button, you can access data "
+"finder, which you can find the time range of the stored data."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourWithDatafinderTitle"
+msgstr ""
+"With the data finder, you can select a datetime range while seeing when "
+"and how much data is being imported.BREAK_LINEBREAK_LINEIf data are "
+"exist, the corresponding cell is displayed in blue; the greater the "
+"amount of data, the brighter the blue. The existence of this data refers "
+"to the data for the process selected first in the step \"Select target "
+"variable\" or the process specified as theSPAN_TAG\"Start "
+"point\"SPAN_END_TAG"
+
+# ap/templates/trace_data/trace_data.html
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourUseFilterTitle"
+msgstr "Žiadny filter"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourCleansingTitle"
+msgstr "POZOR"
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourShowGraphTitle"
+msgstr ""
+"The basic setup is finished. Most of the settings done in this tour are "
+"common among most of the visualization. BREAK_LINEBREAK_LINEFinally, "
+"press the \"Display Graph\" button and wait a few moments for the graph "
+"to be drawn."
+
+#: ap/templates/i18n.html
+#, fuzzy
+msgid "TourFinishTitle"
+msgstr ""
+"Thank you for completing this tour. BREAK_LINEBREAK_LINEMany useful "
+"functions, including on-demand filters, are also implemented on the "
+"screen after visualization. Manipulations on the graph will never destroy"
+" the imported data, so lets start manipulating the graph and analyze the "
+"data from various angles."
+
+#: ap/templates/i18n.html
+msgid "Learn how to visualize data"
+msgstr "Learn how to visualize data"
+
+#: ap/templates/i18n.html
+msgid "Support site (JP)"
+msgstr "Support site (JP)"
+
+#: ap/templates/macros.html
+#, fuzzy
+msgid "Dup check message"
+msgstr "Number of duplicate serials (percentage)"
 
 #~ msgid ""
 #~ "\"Inf\"/\"-Inf\" and their estimated values"
@@ -3902,4 +4099,7 @@ msgstr "You can filter categorical data used for graph drawing."
 
 #~ msgid "Top and bottom 5%: Replace to NA"
 #~ msgstr "Top and bottom 5%%: Replace to NA"
+
+#~ msgid "All 2"
+#~ msgstr "All"
 
