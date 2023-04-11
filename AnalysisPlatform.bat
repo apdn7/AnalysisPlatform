@@ -108,6 +108,8 @@ if exist %path_python% if exist %path_getpip% if exist %path_oracle% (
   echo Installation seems to be completed.
   echo If you have some trouble launching AP, delete auto downloaded folders and try again.
   echo:
+  goto REMOVE_ZIPPED_FILES
+  echo:
   goto START_APP
 )
 
@@ -143,6 +145,15 @@ IF exist %path_R% (
 
 echo:
 echo Download components, libraries and installation is completed.
+echo:
+
+: -----------------------------------------------------------------------------
+: Remove Oracle and python_embedded after install application
+:REMOVE_ZIPPED_FILES
+IF exist %path_oracle_zip% del %path_oracle_zip%
+IF exist %path_python_zip% del %path_python_zip%
+echo:
+echo Removed Oracle and Python embedded zipped files.
 echo:
 
 : _____________________________________________________________________________
@@ -263,6 +274,8 @@ GOTO CHECK_EXIST
   set path_python=..\python_embedded
   set path_getpip=..\get-pip.py
   set path_oracle=..\Oracle-Portable
+  set path_python_zip=..\python_embedded.zip
+  set path_oracle_zip=..\Oracle-Portable.zip
 
   : Definition
   set error=0
