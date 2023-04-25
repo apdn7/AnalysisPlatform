@@ -110,8 +110,14 @@ $(() => {
     // add first end process
     const endProcs = genProcessDropdownData(procConfigs);
 
-    const varEndProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, true, true,
-        true, true, false, false, false, true, true);
+    const varEndProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
+        showDataType: true,
+        showStrColumn: true,
+        showCatExp: true,
+        isRequired: true,
+        hasDiv: true,
+        hideStrVariable: true,
+    });
     varEndProcItem(() => {
         onChangeDivInFacet();
     });
@@ -159,8 +165,6 @@ $(() => {
     }, 2000);
 
     // validate and change to default and max value cyclic term
-    validateInputByNameWithOnchange(CYCLIC_TERM.WINDOW_LENGTH, CYCLIC_TERM.WINDOW_LENGTH_MIN_MAX);
-    validateInputByNameWithOnchange(CYCLIC_TERM.INTERVAL, CYCLIC_TERM.INTERVAL_MIN_MAX);
     validateInputByNameWithOnchange(CYCLIC_TERM.DIV_NUM, { MAX: 150, MIN: 2, DEFAULT: 30 });
 
     onChangeDivideOption();
@@ -583,7 +587,7 @@ const showGraph = (clearOnFlyFilter = true) => {
     if (validateFlg === 4) {
         // did not select catExpBox as endProcCate
         loadingHide();
-        showToastrMsg(i18n.selectDivRequiredMessage, i18n.warningTitle);
+        showToastrMsg(i18n.selectDivRequiredMessage);
         return;
     }
     if (validateFlg !== 0) {
@@ -826,7 +830,7 @@ const handleExportData = (type) => {
     if (validateFlg === 4) {
         // did not select catExpBox as endProcCate
         loadingHide();
-        showToastrMsg(i18n.selectDivRequiredMessage, i18n.warningTitle);
+        showToastrMsg(i18n.selectDivRequiredMessage);
         return;
     }
     if (validateFlg !== 0) {

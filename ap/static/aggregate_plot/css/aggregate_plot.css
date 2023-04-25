@@ -1,0 +1,79 @@
+.cyclic-calender-select-option {
+    display: flex;
+}
+
+.cyclic-calender-option-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.cyclic-calender-option-example {
+    display: inline-block;
+    margin-left: 5px;
+    width: calc(50% - 15px);
+    text-align: left;
+}
+
+.cyclic-calender-option-list {
+    border: 1px solid white;
+    padding-left: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cyclic-calender-option-list:not(:last-child) {
+    /*margin-right: 8px;*/
+}
+.y-scale-group {
+    display: flex;
+}
+
+.for-recent-cyclicCalender {
+    display: flex;
+}
+
+#cyclicCalenderShowDiv {
+    display: inline-block;
+    margin-left: 6px;
+}
+
+.chart-row {
+    background-color: #222222;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    width: 100%;
+}
+
+.chart-row:not(:first-child) {
+    margin-top: 5px;
+}
+
+.tschart-title-parent {
+    width: 60px;
+    position: relative;
+}
+
+.tschart-title {
+    transform: rotate(-90deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    transform-origin: center;
+    color: #65c5f1;
+    text-align: center;
+    font-size: 12px;
+    height: 100%;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}
+
+.chart-area {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+}

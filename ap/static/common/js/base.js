@@ -49,6 +49,15 @@ const GRAPH_CONST = {
     histSummaryHeight: 'auto', // ~1/4 of histogram
 };
 
+const divideOptions = {
+    var: 'var',
+    category: 'category',
+    cyclicTerm: 'cyclicTerm',
+    directTerm: 'directTerm',
+    dataNumberTerm: 'dataNumberTerm',
+    cyclicCalender: 'cyclicCalender',
+}
+
 const openServerSentEvent = () => {
     if (serverSentEventCon === undefined || serverSentEventCon === null) {
         serverSentEventCon = new EventSource(serverSentEventUrl);
@@ -577,6 +586,11 @@ const initTargetPeriod = () => {
     addNewDatTimeRange();
     showDateTimeRangeValue();
 
+     // validate and change to default and max value cyclic term
+    validateInputByNameWithOnchange(CYCLIC_TERM.WINDOW_LENGTH, CYCLIC_TERM.WINDOW_LENGTH_MIN_MAX);
+    validateInputByNameWithOnchange(CYCLIC_TERM.INTERVAL, CYCLIC_TERM.INTERVAL_MIN_MAX);
+    validateInputByNameWithOnchange(CYCLIC_TERM.DIV_OFFSET, CYCLIC_TERM.DIV_OFFSET_MIN_MAX);
+
     setTimeout(() => {
         $('input[type=text]').trigger('change');
     }, 1000);
@@ -644,11 +658,21 @@ const handleChangeInterval = (e, to) => {
     if (e.checked) {
         if (to) {
             currentShower = $(`#for-${to}`);
+
         } else {
             currentShower = $(`#for-${e.value}`);
         }
         if (e.value === 'from' || e.value === 'to') {
             currentShower = $('#for-fromTo');
+        }
+        if (e.value === 'default') {
+            $('.for-recent-cyclicCalender').find('input').prop('disabled', true);
+            $('.for-recent-cyclicCalender').hide();
+
+        }
+        if (e.value === 'recent') {
+            $('.for-recent-cyclicCalender').find('input').prop('disabled', false);
+            $('.for-recent-cyclicCalender').show();
         }
 
         if (currentShower) {
@@ -678,6 +702,7 @@ const handleChangeDivideOption = (e) => {
 
     showDateTimeRangeValue();
     compareSettingChange();
+    setProcessID();
 };
 
 const toggleDisableAllInputOfNoneDisplayEl = (el, active = true) => {
@@ -727,7 +752,7 @@ const getDateTimeRangeValue = (tab = null, traceTimeName = 'varTraceTime', forDi
     const currentTab = tab || $('select[name=compareType]').val();
     let result = '';
 
-    if (currentTab === 'var' || currentTab === 'category' || currentTab === 'dataNumberTerm') {
+    if (['var', 'category', 'dataNumberTerm', 'cyclicCalender'].includes(currentTab)) {
         result = calDateTimeRangeForVar(currentTab, traceTimeName, forDivision);
         if (result.trim() === DATETIME_PICKER_SEPARATOR.trim()) {
             result = `${DEFAULT_START_DATETIME}${DATETIME_PICKER_SEPARATOR}${DEFAULT_END_DATETIME}`;
@@ -738,13 +763,29 @@ const getDateTimeRangeValue = (tab = null, traceTimeName = 'varTraceTime', forDi
         result = calDateTimeRangeForDirectTerm(currentTab);
     }
 
+    if (currentTab === 'cyclicCalender') {
+        const currentTargetDiv = forDivision ? $(`#for-${currentTab}`) : $('#target-period-wrapper');
+        // format by divide format
+        const isLatest = currentTargetDiv.find(`[name*=${traceTimeName}]:checked`).val() === TRACE_TIME_CONST.RECENT;
+        const currentDivFormat = $(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`).val();
+        if (currentDivFormat) {
+            const offset = $(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`).val();
+            const { from, to, div } = dividedByCalendar(result.split(DATETIME_PICKER_SEPARATOR)[0], result.split(DATETIME_PICKER_SEPARATOR)[1], currentDivFormat, isLatest, offset);
+            result = `${from}${DATETIME_PICKER_SEPARATOR}${to}`;
+            $('#cyclicCalenderShowDiv').text(`Div=${div}`);
+        }
+    } else {
+        $('#cyclicCalenderShowDiv').text('');
+    }
     $('#datetimeRangeShowValue').text(result);
     $(`#${currentTab}-daterange`).text(result);
+    generateCalenderExample(result.split(DATETIME_PICKER_SEPARATOR)[0])
     return result;
 };
 
 const showDateTimeRangeValue = () => {
     getDateTimeRangeValue();
+
     $('.to-update-time-range').on('change', (e) => {
         getDateTimeRangeValue();
         compareSettingChange();
@@ -760,12 +801,21 @@ const calDateTimeRangeForVar = (currentTab, traceTimeName = 'varTraceTime', forD
     const timeUnit = currentTargetDiv.find('[name=timeUnit]').val() || 60;
 
     if (traceOption === TRACE_TIME_CONST.RECENT) {
-        const timeDiffMinute = Number(recentTimeInterval) * Number(timeUnit);
-        const newStartDate = moment().add(-timeDiffMinute, 'minute').format(DATE_FORMAT);
-        const newStartTime = moment().add(-timeDiffMinute, 'minute').format(TIME_FORMAT);
-        const newEndDate = moment().format(DATE_FORMAT);
-        const newEndTime = moment().format(TIME_FORMAT);
-        return `${newStartDate} ${newStartTime}${DATETIME_PICKER_SEPARATOR}${newEndDate} ${newEndTime}`;
+        let timeDiffMinute, newStartDate, newEndDate, newStartTime, newEndTime;
+
+        if (['months', 'years'].includes(timeUnit)) {
+            newStartDate = moment().subtract(recentTimeInterval, timeUnit).format(DATE_FORMAT);
+            newStartTime = moment().subtract(recentTimeInterval, timeUnit).format(TIME_FORMAT);
+        } else {
+            timeDiffMinute = Number(recentTimeInterval) * Number(timeUnit);
+            newStartDate = moment().add(-timeDiffMinute, 'minute').format(DATE_FORMAT);
+            newStartTime = moment().add(-timeDiffMinute, 'minute').format(TIME_FORMAT);
+
+        }
+        newEndDate = moment().format(DATE_FORMAT);
+        newEndTime = moment().format(TIME_FORMAT);
+
+         return `${newStartDate} ${newStartTime}${DATETIME_PICKER_SEPARATOR}${newEndDate} ${newEndTime}`;
     }
     return `${startDate} ${startTime}${DATETIME_PICKER_SEPARATOR}${endDate} ${endTime}`;
 };
@@ -936,8 +986,7 @@ const genQueryStringFromFormData = (formDat = null) => {
     let formData = formDat || new FormData(traceForm[0]);
     formData.append('TBLS', $(formElements.endProcItems).length);
     // append client timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    formData.set('client_timezone', timezone);
+    formData.set('client_timezone', detectLocalTimezone());
 
     const query = new URLSearchParams(formData);
     const queryString = query.toString();
@@ -1068,13 +1117,6 @@ const cleansingHandling = () => {
         }
     });
     window.addEventListener('click', function (e) {
-        const cleansingContentDOM = document.getElementById('cleansing-content');
-        const cleansingSelectionDOM = document.getElementById('cleansing-selection');
-        const inCleansingContent = cleansingContentDOM ? cleansingContentDOM.contains(e.target) : false;
-        const inCleansingSelection = cleansingSelectionDOM ? cleansingSelectionDOM.contains(e.target) : false;
-        if (!inCleansingContent && !inCleansingSelection) {
-            $('#cleansing-content').hide();
-        }
         const orderingContentDOM = document.getElementById('ordering-content');
         const orderingSelectiontDOM = document.getElementById('ordering-selection');
         const inOrderingContent = orderingContentDOM ? orderingContentDOM.contains(e.target) : false;
@@ -1085,6 +1127,10 @@ const cleansingHandling = () => {
 
         if (!e.target.closest('.dn-custom-select')) {
             $('.dn-custom-select--select--list').addClass('select-hide')
+        }
+
+        if (!e.target.closest('.custom-selection-content') && !e.target.closest('.custom-selection')) {
+            $('.custom-selection-content').hide();
         }
     });
 };
@@ -1144,7 +1190,9 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
             } catch (e) {
                 console.error(e);
                 loadingHide();
-                showToastrAnomalGraph();
+                if (!isGraphShown) {
+                    showToastrAnomalGraph();
+                }
             }
         },
         error: (res) => {
@@ -1175,4 +1223,30 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
     }).then(() => {
         afterRequestAction();
     });
+};
+
+
+const generateCalenderExample = (targetDateTimeStr = moment().format(DATE_TIME_FMT)) => {
+    const calenderCyclicItems = $('.cyclic-calender-option-item');
+    for (let i = 0; i < calenderCyclicItems.length; i += 1) {
+       const calenderCyclicItem = $(calenderCyclicItems[i]);
+       let format = calenderCyclicItem.find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`).val();
+       if (!format) continue;
+       const [fmt, hasW] = transformFormat(format);
+       let example = moment(targetDateTimeStr).format(fmt);
+       if (hasW) {
+           example = 'W'+example;
+       }
+       calenderCyclicItem.find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`).attr('data-example', example);
+       calenderCyclicItem.find('.cyclic-calender-option-example').text(example);
+    }
+    changeFormatAndExample($(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`));
+};
+
+const changeFormatAndExample = (formatEl) => {
+    const currentTarget = $(formatEl);
+    if (!currentTarget.prop('checked')) return;
+    const formatValue = currentTarget.val();
+    const example = currentTarget.attr('data-example');
+    $('#cyclicCalender').text(`${formatValue} ${example}`);
 };

@@ -1,28 +1,5 @@
 {% extends "base.html" %}
 {% import 'macros.html' as macros %}
-
-{% block asset %}
-<link href="{{ url_for('scatter_plot.static', filename = 'css/scatter_plot.css')}}" rel="stylesheet">
-<link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css')}}"
-    rel="stylesheet">
-<link href="{{ url_for('static', filename = 'common/css/pagination.css') }}" rel="stylesheet">
-
-<script
-    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js')}}"></script>
-<script
-    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js')}}"></script>
-<script src="{{ url_for('static', filename = 'common/js/libs/pagination.min.js') }}"></script>
-
-<script type="text/javascript" src="/static/common/js/libs/Chart.bundle.min.js"></script>
-<script type="text/javascript" src="/static/common/js/libs/js.cookie.min.js"></script>
-<script src="{{ url_for('scatter_plot.static', filename = 'js/scatter_chart.js')}}"></script>
-<script type="text/javascript" src="{{ url_for('scatter_plot.static', filename='js/hist_with_density.js') }}"></script>
-
-<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
-{% endblock %}
-
 {% block header %}
     {{ macros.page_title(key='ScP', title=_('Scatter Plot'), hint=_('SCP Page title description'), hasAction=true) }}
 {% endblock %}
@@ -31,7 +8,8 @@
 <div class="card">
     <form id="traceDataForm">
         {{macros.scatter_end_proc(procs,'', title=_('SCP show value description'), isShowMinMax=false)}}
-         <!-- Date range -->
+        {{ macros.data_finder_card() }}
+        <!-- Date range -->
         <div class="card-body table-bordered graph-navi">
             <div class="row">
                 <div class="col-xl-2 col-3">
@@ -147,17 +125,19 @@
 {% endblock %}
 
 {% block js %}
-<script>
-    const procJsons = {{ list_procs | safe }};
-    const hasGraphCfgsFilterDetails= {{ graph_filter_detail_ids | safe }};
-    const procConfigs = {};
-    for (let procJson of procJsons){
-        const cfgProcess = new CfgProcess(procJson);
-        procConfigs[cfgProcess.id] = cfgProcess;
-    }
-</script>
-<script src="{{ url_for('scatter_plot.static', filename = 'js/scatter_plot.js')}}"></script>
-<script src="{{ url_for('scatter_plot.static', filename = 'js/scp_heatmap_plot.js')}}"></script>
-<script src="{{ url_for('scatter_plot.static', filename = 'js/scp_violin_plot.js')}}"></script>
-<script src="{{ url_for('static', filename = 'common/js/cat_facet_label_filter_modal.js') }}"></script>
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails= {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons){
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    {% assets "js_scp" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_scp" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 {% endblock %}

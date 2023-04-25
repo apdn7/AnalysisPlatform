@@ -248,7 +248,17 @@ $(() => {
     const endProcs = genProcessDropdownData(procConfigs);
 
     // add first end process
-    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, true, true, true, true, false, false, true, true);
+    const endProcItem = addEndProcMultiSelect(
+        endProcs.ids,
+        endProcs.names, {
+            showDataType: true,
+            showStrColumn: true,
+            showCatExp: true,
+            isRequired: true,
+            showColor: true,
+            hasDiv: true
+        }
+    );
     endProcItem(() => {
         // show confirm when select Div
         onChangeDivInFacet();
@@ -291,10 +301,6 @@ $(() => {
     onChangeDivisionNumber();
     onChangeDivideOption();
 
-    // validate and change to default and max value cyclic term
-    validateInputByNameWithOnchange(CYCLIC_TERM.WINDOW_LENGTH, CYCLIC_TERM.WINDOW_LENGTH_MIN_MAX);
-    validateInputByNameWithOnchange(CYCLIC_TERM.INTERVAL, CYCLIC_TERM.INTERVAL_MIN_MAX);
-
     // unactivate inputs
     initTargetPeriod();
     toggleDisableAllInputOfNoneDisplayEl($('#for-cyclicTerm'));
@@ -305,7 +311,6 @@ $(() => {
     setTimeout(() => {
         // add validations for target period
         validateTargetPeriodInput();
-        validateNumericInput($('#dataNumber'));
         onChangeTraceTimeDivisionByNumber();
         keepValueEachDivision();
     }, 2000);
@@ -1010,17 +1015,17 @@ const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName
     $('.scp-html-tag').remove();
 
     // gen x_name y_name;
-    // const XYHtml = `
-    //     <div class="position-absolute vertical-text scp-html-tag" id="scpchart-ytitle" style="left: 0px; color: white">
-    //        <span title="${yName}">${yName}</span>
-    //     </div>
-    //     <div id="scpchart-xtitle" class="position-absolute scp-html-tag" style="bottom: 20px; color: white">
-    //        <span title="${xName}">${xName}</span>
-    //     </div>
-    // `;
-    //
-    // $(`#${parentId}`)
-    //     .append(XYHtml);
+    const XYHtml = `
+        <div class="position-absolute vertical-text scp-html-tag" id="scpchart-ytitle" style="left: -20px">
+           <span title="${yName}">${yName}</span>
+        </div>
+        <div id="scpchart-xtitle" class="position-absolute scp-html-tag" style="bottom: 20px">
+           <span title="${xName}">${xName}</span>
+        </div>
+    `;
+
+    $(`#${parentId}`)
+        .append(XYHtml);
 
 
     if (!vLabels || vLabels.length === 0) {
@@ -1031,7 +1036,7 @@ const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName
     const spaceY = chartHeight * SCATTER_MARGIN.Y_NORMAL;
     vLabels.forEach((vLabel, i) => {
         const top = i === 0 ? spaceY + 30 : (i * step + spaceY);
-        vLabelHtml += `<div id="scp-vlabel-${i}" class="matrix-level position-absolute scp-html-tag" i="${i}" style="height: calc(100% / ${vLabels.length} - 100px);left: 60px; top: ${top}px;"><span class="show-detail" style="max-width: 70px; line-height: 1">${vLabel}</span></div>`;
+        vLabelHtml += `<div id="scp-vlabel-${i}" class="matrix-level cat-exp-box position-absolute scp-html-tag" i="${i}" style="height: calc(100% / ${vLabels.length} - 100px);left: 60px; top: ${top}px;"><span class="show-detail" style="max-width: 70px; line-height: 1">${vLabel}</span></div>`;
     });
 
     $(`#${parentId}`)
@@ -1169,11 +1174,12 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false) => {
 
                 $(window).on('resize', () => {
                     setTimeout(() => {
-                        [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
-                        genScatterPlots(scpMatrix, vLabels, hLabels, res, settings.colorScale, settings.colorOrdering, settings.chartScale);
-                        genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name, false);
-                        initFilterModal(res, false);
-                    }, 1500)
+                            [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
+                            genScatterPlots(scpMatrix, vLabels, hLabels, res, settings.colorScale, settings.colorOrdering, settings.chartScale);
+                            genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name);
+                            initFilterModal(res, false);
+                        },
+                        1500)
                 });
             }
             const divNumber = res.div_name && res.div_data_type === DataTypes.INTEGER.name;
@@ -1385,7 +1391,7 @@ const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH
 
         contentDOM += `
             <div style="width: 100%; height: ${height}; margin: 3px 0;" class="position-relative">
-                <div class="matrix-level"><span class="show-detail">${vLabel}</span></div>
+                <div class="matrix-level cat-exp-box"><span class="show-detail">${vLabel}</span></div>
                 ${column}
             </div>
         `;

@@ -128,17 +128,28 @@ canvas {
     max-width: 100% !important;
 }
 
-.chm-card-title {
+.chm-card-title-parent {
     width: 35px;
-    height: 100%;
+    position: relative;
+    left: 0px;
+}
+
+.chm-card-title {
+    transform: rotate(-90deg);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    transform: rotate(-90deg);
+    justify-content: flex-start;
+    transform-origin: center;
     color: #65c5f1;
+    text-align: center;
     font-size: 12px;
-    z-index: 0;
+    height: 100%;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    line-height: 1.5;
+    width: 32vh;
 }
 
 .chm-card-title span {

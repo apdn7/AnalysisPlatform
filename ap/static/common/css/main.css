@@ -1949,7 +1949,6 @@ span.deleteicon input {
     min-width: 165px;
     border: 1px solid #444;
     padding: 0.5rem;
-    font-size: smaller;
     background: #222222;
     border-radius: 3px;
     position: absolute;
@@ -2046,7 +2045,7 @@ span.deleteicon input {
 }
 
 #dp-info-content table td {
-    padding: 0px;
+    padding: 0px 2px;
     height: 10px;
 }
 
@@ -2166,6 +2165,13 @@ table.table-hover-light {
 
 .blink_btn {
     animation: blinker 3s linear infinite;
+}
+
+.tschart-title span, .chm-card-title span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    width: 90%;
 }
 
 @keyframes blinker {

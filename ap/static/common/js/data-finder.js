@@ -102,8 +102,9 @@ const getFromToInputByType = (type) => {
 
 const setDefaultValueOfCalender = (type) => {
     defaultDateTime = getDefaultDateTime();
+    const currentDatetimeRangeVal = typeof(currentDateRangeEl) == 'object' ? currentDateRangeEl.val() : currentDateRangeEl;
     if (type === calenderTypes.month) {
-        const currentSetDateRange = currentDateRangeEl.val();
+        const currentSetDateRange = currentDatetimeRangeVal;
         const { startDate, startTime, endDate, endTime } = splitDateTimeRange(currentSetDateRange)
         const [fromInput, toInput] = getFromToInputByType(calenderTypes.year);
         let startDateObj = null;
@@ -202,7 +203,7 @@ const getDateObject = (date, isCurrentMonth = false) => {
         dayOfMonth: date.date(),
         isCurrentMonth,
         dayOfWeeks: date.day(),
-        weekNo: date.week(),
+        weekNo: date.isoWeek(),
         month: date.month() + 1,
         year: date.year(),
     };
@@ -229,6 +230,9 @@ function getRandomInt(max) {
 // handling function START
 const showDataFinderModal = (e) => {
     currentDateRangeEl = $(e).parent().find('[name=DATETIME_RANGE_PICKER]');
+    if (!currentDateRangeEl.get().length) {
+        currentDateRangeEl = $('#datetimeRangeShowValue').text();
+    }
     defaultDateTime = getDefaultDateTime();
     switchCalender(calenderTypes.month);
     setDefaultValueOfCalender(calenderTypes.month);
@@ -306,7 +310,11 @@ const handleSetValueToDateRangePicker = () => {
         const nextEndDate = moment(endDate).add(1, 'days').format(DATE_FMT);
         inputVal = `${d.startDate}-01 00:00 ${DATETIME_PICKER_SEPARATOR} ${nextEndDate} 00:00`
     }
-    currentDateRangeEl.val(inputVal).trigger('change');
+    if (!(typeof(currentDateRangeEl) == 'object')) {
+        $('input[name=DATETIME_PICKER]').val(inputVal.split(` ${COMMON_CONSTANT.EN_DASH} `)[0]).trigger('change');
+    } else {
+        currentDateRangeEl.val(inputVal).trigger('change');
+    }
     closeCalenderModal();
 };
 // handling function END
@@ -787,17 +795,20 @@ const getDataByType = async (from, to, type = calenderTypes.year, timeout = null
     return JSON.parse(res);
 };
 
-const showDataFinderButton = (processId) => {
+const showDataFinderButton = (processId, btnParent) => {
+    const btn = btnParent ? btnParent.find(dataFinderEls.dataFinderBtn) : $(dataFinderEls.dataFinderBtn);
     if (processId) {
-        $(dataFinderEls.dataFinderBtn).show();
+        btn.show();
     } else {
-        $(dataFinderEls.dataFinderBtn).hide();
+        btn.hide();
     }
 };
 
 const setProcessID = () => {
+    const compareType = $('select[name=compareType]').val();
+    const btnParent = compareType ? $(`#for-${compareType}`) : null;
     processId = getFirstSelectedProc();
-    showDataFinderButton(processId);
+    showDataFinderButton(processId, btnParent);
 };
 
 const rangeCell = (type) => {

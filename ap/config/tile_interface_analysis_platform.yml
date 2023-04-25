@@ -46,6 +46,25 @@
         hover_en: 'It visualizes long-term data such as annual variations in processes and parameters that can vary depending on days of the week or shifts, etc. For example, it is possible to visualize the rate of defects or changes in production volume over a long period of time. It is possible to understand changes in specific patterns, such as a high rate of defects at the beginning of the week, or the occurrence of specific alarms soon after the lunch breaks, and so on.'
         hover_ja: '工程での年間変動など長期間のデータや曜日・シフトなどで変動しうるパラメータを可視化します。\n例えば不良率や生産量の推移などを長期にわたって可視化することができ、例えば週明けが不良率が高いとか、昼休み空けに特定のアラームが発生しやすいといった、特定のパターンの変動などを把握することが可能です。'
         link_address: '/ap/chm'
+  - title_en: 'Basic'
+    title_ja: 'ベーシック'
+    tiles:
+      - row: 1
+        column: 1
+        title_en: 'AgP Aggregation Plot'
+        title_ja: 'AgP 集計プロット'
+        png_path: 'AgP.png'
+        hover_en: 'You can visualize aggregate results such as production volume and number of defects in stacked bar graphs, and time-series changes in sensor data in line plots, and explore their relationships.'
+        hover_ja: '生産量、不良数などの集計結果を積み上げ棒グラフで、センサーデータの時系列変化は線分プロットで可視化し、それらの関係性を探索することができます。'
+        link_address: '/ap/agp'
+      - row: 1
+        column: 2
+        title_en: 'ScP Scatter Plot'
+        title_ja: 'ScP 散布図'
+        png_path: 'ScP.png'
+        hover_en: 'You can draw a scatter plot of the relationships between quantitative variables such as measurements. In addition, it can be decomposed by category, period, and number of data, and changes in relationships can be confirmed. For example, it is effective for changing the process window.\n Also, the relationship between categorical variables such as equipment names and quantitative variables can be drawn with a violin plot, and the relationships between categorical variables can be drawn with a heat map. The relationships between variables that do not depend on the data type and their changes can be confirmed. '
+        hover_ja: '測定値などの量的変数同士の関係性を散布図で描画します。さらに、カテゴリや期間、データ数で分解でき、関係性の変化を確認することができます。例えばプロセスウィンドウの変化に有効です。\nまた、設備名などのカテゴリ変数と量的変数の関係はバイオリンプロットで、カテゴリ変数同士の関係性はヒートマップで描画でき、データの型に寄らない変数同士の関係性およびその変化を確認することができます。'
+        link_address: '/ap/scp'
   - title_en: 'Multidimensional Correlation'
     title_ja: '相関/多次元相関'
     tiles:
@@ -67,14 +86,6 @@
         hover_ja: '目的の変数に関して、大量の変数間の相関関係を確認できます。\nそれぞれの軸(各軸が左右に平行に配置されています)で色が分かれている軸が注意すべき変数、すなわち何らかの相関がある軸と判断してください(特に相関係数順に並べている場合は両端に着目すべき色が分かれた軸が見えます。色が混ざっている軸は相関が低いと考えて結構です)。\n
                   バランスよく虹色になっている軸では線形の相関(カラーバーと同じ色配置[正の相関]もしくは反転した色配置[負の相関])が認められます。色が分離しているものの偏った色配置になっている場合は非線形の関係が考えられますので、何らかの関数変換を行なったり、クラスタリングし層別する必要があります(分離している変数と目的変数で散布図を用いて関係を確認することをお勧めします)。'
         link_address: '/ap/pcp'
-      - row: 1
-        column: 3
-        title_en: 'ScP Scatter Plot'
-        title_ja: 'ScP 散布図'
-        png_path: 'ScP.png'
-        hover_en: 'You can draw a scatter plot of the relationships between quantitative variables such as measurements. In addition, it can be decomposed by category, period, and number of data, and changes in relationships can be confirmed. For example, it is effective for changing the process window.\n Also, the relationship between categorical variables such as equipment names and quantitative variables can be drawn with a violin plot, and the relationships between categorical variables can be drawn with a heat map. The relationships between variables that do not depend on the data type and their changes can be confirmed. '
-        hover_ja: '測定値などの量的変数同士の関係性を散布図で描画します。さらに、カテゴリや期間、データ数で分解でき、関係性の変化を確認することができます。例えばプロセスウィンドウの変化に有効です。\nまた、設備名などのカテゴリ変数と量的変数の関係はバイオリンプロットで、カテゴリ変数同士の関係性はヒートマップで描画でき、データの型に寄らない変数同士の関係性およびその変化を確認することができます。'
-        link_address: '/ap/scp'
   - title_en: 'Anomaly Detection'
     title_ja: '異常検出'
     tiles:

@@ -41,7 +41,10 @@ SHOW_GRAPH_TEMP_TABLE_COL = 'cycle_id'
 DATETIME_DUMMY = 'DatetimeDummy'
 MAX_DATETIME_STEP_PER_DAY = 8640  # 10s/step -> 6steps * 60min * 24hrs
 
+RESAMPLING_SIZE = 10_000
+
 LOG_LEVEL = 'log_level'
+
 
 class AP_LOG_LEVEL(Enum):
     DEBUG = auto()
@@ -330,6 +333,17 @@ REQUEST_THREAD_ID = 'thread_id'
 SERIALS = 'serials'
 DATETIME = 'datetime'
 
+AGP_COLOR_VARS = 'aggColorVar'
+DIVIDE_OFFSET = 'divideOffset'
+DIVIDE_FMT = 'divideFormat'
+DIVIDE_FMT_COL = 'divide_format'
+COLOR_NAME = 'color_name'
+DATA = 'data'
+SHOWN_NAME = 'shown_name'
+COL_DATA_TYPE = 'data_type'
+DIVIDE_CALENDAR_DATES = 'divDates'
+DIVIDE_CALENDAR_LABELS = 'divFormats'
+
 
 class HMFunction(Enum):
     max = auto()
@@ -414,7 +428,8 @@ class MemoizeKey(Enum):
 
 # error message for dangling jobs
 FORCED_TO_BE_FAILED = 'DANGLING JOB. FORCED_TO_BE_FAILED'
-DEFAULT_POLLING_FREQ = 180 # default is import every 3 minutes
+DEFAULT_POLLING_FREQ = 180  # default is import every 3 minutes
+
 
 class CfgConstantType(Enum):
     def __str__(self):

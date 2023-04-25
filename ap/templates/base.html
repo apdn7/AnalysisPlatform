@@ -10,94 +10,12 @@
 	<link rel="icon" href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}" type="image/x-icon"/>
     <link rel="shortcut icon" href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}"
           type="image/x-icon"/>
-
-    <!-- JQuery CSS -->
-    <link href="{{ url_for('static', filename = 'common/custom-jquery/jquery-ui.css') }}" rel="stylesheet"/>
-
-    <!-- Select 2 -->
-    <link href="{{ url_for('static', filename = 'common/css/select2.min.css') }}" rel="stylesheet"/>
-
-    <!-- https://qiita.com/tonkotsuboy_com/items/15a914f073c8f9bb1344 -->
-    <!--Bootstrap４に必要なCSSとJavaScriptを読み込み-->
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/bootstrap.min.css') }}">
-    <!-- Fontawesome CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/all.min.css') }}">
-    <!-- Custom Common CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/main.css') }}">
-    <!-- Components CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/components.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/dragndrop.css') }}">
-
-
-    <!-- JQuery -->
-    <script src="{{ url_for('static', filename = 'common/js/libs/jquery.js') }}"></script>
-    <!-- https://stackoverflow.com/questions/45356723/jquery-ui-cannot-read-property-step-of-undefined -->
-    <script src="{{ url_for('static', filename = 'common/js/libs/jquery-ui.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/datepicker.js') }}"></script>
-    <!-- Popper Sidebar -->
-    <script src="{{ url_for('static', filename = 'modules/popper/umd/popper.min.js') }}"></script>
-
-    <!-- Bootstrap JS -->
-    <script src="{{ url_for('static', filename = 'common/js/libs/bootstrap.min.js') }}"></script>
-    <!-- Fontawesom -->
-    <script src="{{ url_for('static', filename = 'common/js/libs/all.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/jquery.ui.datepicker-ja.min.js') }}"></script>
-    <!-- Custom Common JS -->
-    <script src="{{ url_for('static', filename = 'common/js/libs/moment-with-locales.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/loadingoverlay.min.js') }}"></script>
-
-    <script src="{{ url_for('static', filename = 'common/js/libs/lodash.min.js') }}"></script>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script src="{{ url_for('static', filename = 'common/js/libs/gtag.js') }}"></script>
-
-    <script src="{{ url_for('static', filename = 'common/js/libs/clipboard.min.js') }}"></script>
-
-    <!-- To calculate size of object -->
-    <script src="{{ url_for('static', filename = 'common/js/config_data_interface.js') }}"></script>
-
-    <!-- Bootstrap table -->
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/bootstrap-table.min.css') }}">
-    <script src="{{ url_for('static', filename = 'common/js/libs/bootstrap-table.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/bootstrap-table-filter-control.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/bootstrap-table-locale-all.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/html2canvas.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/take_screenshot.js') }}"></script>
-    {#    <script src="{{ url_for('static', filename = 'common/js/libs/plotly-latest.min.js') }}"></script>#}
-    <script src="{{ url_for('static', filename = 'common/js/libs/plotly.min.js') }}"></script>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'common/css/toastr.css') }}">
-    <script type="text/javascript" src="/static/common/js/libs/toastr.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'common/css/data-finder.css') }}">
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename = 'modules/js-datatables/lib/jquery.dataTables.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/user-setting-table.css') }}">
-    <script src="{{ url_for('static', filename = 'modules/js-datatables/lib/jquery.dataTables.min.js') }}"></script>
-	<script src="{{ url_for('static', filename = 'common/js/libs/dataTables.fixedHeader.min.js') }}"></script>
-
-	<!-- Select 2 -->
-	<script src="{{ url_for('static', filename = 'common/js/libs/select2.min.js') }}"></script>
-
-    <script src="{{ url_for('static', filename = 'common/js/terms_of_use.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/base.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/utils.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/summary_table.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/auto-update-common.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/data-finder.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/components.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/data_point_info_table.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/save_load_user_input.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/validation.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/clipboard_utils.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/dragndrop.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/d3-format.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/dn-custom-select.js') }}"></script>
-
-    <!-- Shepherd: Tour -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'common/css/shepherd.css') }}">
-    <script src="{{ url_for('static', filename = 'common/js/libs/popper.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/shepherd.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='common/js/ap_tour.js') }}"></script>
-
+    {% assets "js_all" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_all" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 	<script>
 		window.dataLayer = window.dataLayer || [];
 
@@ -200,6 +118,10 @@
             '/ap/pcp': {
                 'title': 'PCP',
                 'icon': 'PCP.ico',
+            },
+            '/ap/agp': {
+                'title': 'AgP',
+                'icon': 'AgP.ico',
             },
 			'/ap/plot_view': {
                 'title': 'Plotview',

@@ -1,26 +1,5 @@
 {% extends "base.html" %}
 {% import 'macros.html' as macros %}
-
-{% block asset %}
-    <link href="{{ url_for('multiple_scatter_plot.static', filename = 'css/multiple_scatter_plot.css') }}"
-          rel="stylesheet">
-    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
-          rel="stylesheet">
-    <script
-            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
-    <script
-            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
-
-    <script type="text/javascript"
-            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"/>
-
-    <script type="text/javascript" src="/static/common/js/libs/js.cookie.min.js"></script>
-{% endblock %}
-
 {% block header %}
     {{ macros.page_title(key='MSP', title=_('Multi Scatter Plot'), hint=_('Displays a scatter chart matrix. You can create a matrix between up to four target variables.'), hasAction=true) }}
 {% endblock %}
@@ -82,7 +61,10 @@
 			procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
-    <script src="{{ url_for('multiple_scatter_plot.static', filename = 'js/multiple_scatter_histogram.js') }}"></script>
-    <script src="{{ url_for('multiple_scatter_plot.static', filename = 'js/multiple_scatter_contour.js') }}"></script>
-    <script src="{{ url_for('multiple_scatter_plot.static', filename = 'js/multiple_scatter_plot.js') }}"></script>
+    {% assets "js_msp" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_msp" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 {% endblock %}

@@ -4,14 +4,13 @@ from typing import List
 
 from apscheduler.triggers import date, interval
 from apscheduler.triggers.date import DateTrigger
-from loguru import logger
 from pytz import utc
 from sqlalchemy import insert
 from sqlalchemy.sql.expression import literal
 
 from ap import scheduler
 from ap.common.constants import *
-from ap.common.logger import log_execution_time
+from ap.common.logger import logger, log_execution_time
 from ap.common.memoize import set_all_cache_expired
 from ap.common.pydn.dblib.db_common import gen_insert_col_str, gen_select_col_str, PARAM_SYMBOL, add_single_quote
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db

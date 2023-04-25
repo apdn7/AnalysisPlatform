@@ -2,25 +2,6 @@
 {% import 'macros.html' as macros %}
 
 {% block asset %}
-<link href="{{ url_for('static', filename = 'common/css/fSelect.css')}}" rel="stylesheet">
-<link href="{{ url_for('parallel_plot.static', filename = 'css/parallel_plot.css')}}" rel="stylesheet">
-<link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css')}}"
-    rel="stylesheet">
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
-<script src="{{ url_for('static', filename = 'common/js/libs/fSelect.js')}}"></script>
-<script
-    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js')}}"></script>
-<script
-    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js')}}"></script>
-
-<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
-
-<script type="text/javascript" src="/static/common/js/libs/Chart.bundle.min.js"></script>
-<script type="text/javascript" src="/static/common/js/libs/js.cookie.min.js"></script>
-<link href="{{ url_for('static', filename = 'common/css/pagination.css') }}" rel="stylesheet">
-<script src="{{ url_for('static', filename = 'common/js/libs/pagination.min.js') }}"></script>
 <style>
 	text{
 		text-shadow: none !important;
@@ -96,6 +77,10 @@
         procConfigs[cfgProcess.id] = cfgProcess;
     }
 </script>
-<script src="{{ url_for('parallel_plot.static', filename = 'js/parallel_plot.js')}}"></script>
-<script src="{{ url_for('static', filename = 'common/js/cat_facet_label_filter_modal.js') }}"></script>
+    {% assets "js_pcp" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_pcp" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 {% endblock %}

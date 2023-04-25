@@ -69,6 +69,10 @@ const CYCLIC_TERM = {
     INTERVAL: 'cyclicTermInterval',
     WINDOW_LENGTH: 'cyclicTermWindowLength',
     DIV_NUM: 'cyclicTermDivNum',
+    DIV_CALENDER: 'divideFormat',
+    DIV_OFFSET: 'divideOffset',
+    DATA_NUMBER: 'dataNumber',
+    RECENT_INTERVAL: 'recentTimeInterval',
     INTERVAL_MIN_MAX: {
         MIN: -720,
         MAX: 720,
@@ -84,6 +88,11 @@ const CYCLIC_TERM = {
         MAX: 150,
         DEFAULT: 30,
     },
+    DIV_OFFSET_MIN_MAX: {
+        MIN: -24,
+        MAX: 24,
+        DEFAULT: 0,
+    }
 };
 
 const EXPORT_TYPE = {
@@ -386,6 +395,13 @@ const validateTargetPeriodInput = () => {
 
     // allow only real for interval
     validateNumericInput($(`#${CYCLIC_TERM.INTERVAL}`));
+
+    validateNumericInput($(`input[name=${CYCLIC_TERM.DATA_NUMBER}]`));
+
+    validateNumericInput($(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`));
+
+    validateNumericInput($(`input[name=${CYCLIC_TERM.RECENT_INTERVAL}]`));
+
 };
 
 const stringNormalization = (val) => {
@@ -1877,11 +1893,7 @@ function genHistCounts(histLabels, arrayVals, labelMin, labelMax) {
     return histCounts;
 }
 
-const endProcMultiSelectOnChange = async (count, radio = false, showDataType = null,
-    showStrColumn = null, showCatExp = null, isRequired = false,
-    showLabels = false, showObjective = false, showColor = false, hasDiv = false, hideStrVariable = false) => {
-    // const selectedProc = $(`#end-proc-process-${count}`).val();
-    // const selectedProc = $(`#end-proc-process-${count}`)[0].value;
+const endProcMultiSelectOnChange = async (count, props) => {
     const selectedProc = $(`#end-proc-process-${count}`);
     if (selectedProc.length === 0) {
         return;
@@ -1903,23 +1915,11 @@ const endProcMultiSelectOnChange = async (count, radio = false, showDataType = n
     await procInfo.updateColumns();
     const procColumns = procInfo.getColumns();
 
-    // const dataTypeTargets = showStrColumn ? CfgProcess.NUMERIC_AND_STR_TYPES : CfgProcess.NUMERIC_TYPES;
-    const dataTypeTargets = showStrColumn ? CfgProcess_CONST.ALL_TYPES : CfgProcess_CONST.NUMERIC_TYPES;
+    const dataTypeTargets = props.showStrColumn ? CfgProcess_CONST.ALL_TYPES : CfgProcess_CONST.NUMERIC_TYPES;
 
-    // for (const datType of dataTypeTargets) {
-    //     for (const col of procColumns) {
-    //         if (col.data_type === datType) {
-    //             ids.push(col.id);
-    //             vals.push(col.column_name);
-    //             names.push(col.name);
-    //             // checkedIds.push(col.id);
-    //             dataTypes.push(col.data_type);
-    //         }
-    //     }
-    // }
 
     // push cycle time columns first
-    if (showStrColumn) {
+    if (props.showStrColumn) {
         const [ctCol] = procInfo.getCTColumn();
         const datetimeCols = procInfo.getDatetimeColumns();
         if (ctCol) {
@@ -1955,28 +1955,44 @@ const endProcMultiSelectOnChange = async (count, radio = false, showDataType = n
     // load machine multi checkbox to Condition Proc.
     if (ids) {
         const parentId = `end-proc-val-div-${count}`;
-        if (radio) {
-            addGroupListCheckboxWithSearch(parentId, `end-proc-val-${count}`, '',
-                ids, vals, checkedIds, `GET02_VALS_SELECT${count}`, false, names,
-                null, showDataType ? dataTypes : null, true, showCatExp,
-                isRequired, getDateColID, showObjective, null, showLabels, [], count, showColor,
-                hasDiv, hideStrVariable);
-        } else {
-            addGroupListCheckboxWithSearch(parentId, `end-proc-val-${count}`, '',
-                ids, vals, checkedIds, `GET02_VALS_SELECT${count}`, false, names, null,
-                showDataType ? dataTypes : null, false, showCatExp,
-                isRequired, getDateColID, showObjective, null, showLabels, [], count, showColor,
-                hasDiv, hideStrVariable);
-        }
+        const availableColorVars = procColumns.filter(col => [
+            DataTypes.STRING.name, DataTypes.INTEGER.name, DataTypes.TEXT.name
+        ].includes(col.data_type));
+        const listGroupProps = {
+            checkedIds,
+            name: `GET02_VALS_SELECT${count}`,
+            noFilter: false,
+            itemNames: names,
+            itemDataTypes: props.showDataType ? dataTypes : null,
+            isRadio: !!props.radio,
+            showCatExp: props.showCatExp,
+            isRequired: props.isRequired,
+            getDateColID,
+            showObjectiveInput: props.showObjective,
+            showLabel: props.showLabels,
+            groupIDx: count,
+            showColor: props.showColor,
+            hasDiv: props.hasDiv,
+            hideStrVariable: props.hideStrVariable,
+            colorAsDropdown: props.colorAsDropdown,
+            availableColorVars,
+        };
+        addGroupListCheckboxWithSearch(
+            parentId,
+            `end-proc-val-${count}`, '',
+            ids,
+            vals,
+            listGroupProps
+        );
     }
     updateSelectedItems();
     onchangeRequiredInput();
     setProcessID();
 };
 
+
 // add end proc
-const addEndProcMultiSelect = (procIds, procVals, showItemDataType = false, showStrColumn = false,
-    showCatExp = false, isRequired = false, showLabels = false, showObjective = false, showColor = false, hasDiv = false, hideStrVariable = false) => {
+const addEndProcMultiSelect = (procIds, procVals, props) => {
     let count = 1;
     const innerFunc = (onChangeCallbackFunc = null, onCloseCallbackFunc = null, onChangeCallbackDicParam = null, onCloseCallbackDicParam = null) => {
         const itemList = [];
@@ -2002,7 +2018,7 @@ const addEndProcMultiSelect = (procIds, procVals, showItemDataType = false, show
                             <span class="mr-2">${i18nCommon.process}</span>
                             <div class="w-auto flex-grow-1">
                                 <select class="form-control select2-selection--single
-                                    ${isRequired ? 'required-input' : ''}
+                                    ${props.isRequired ? 'required-input' : ''}
                                     select-n-columns" name="end_proc${count}"
                                     id="end-proc-process-${count}" 
                                     data-gen-btn="btn-add-end-proc">
@@ -2018,8 +2034,7 @@ const addEndProcMultiSelect = (procIds, procVals, showItemDataType = false, show
         $('#end-proc-row div').last().before(proc);
         $(`#end-proc-process-${count}`).on('change', (e) => {
             const eleNumber = e.currentTarget.id.match(/\d+$/)[0];
-            endProcMultiSelectOnChange(eleNumber, false, showItemDataType,
-                showStrColumn, showCatExp, isRequired, showLabels, showObjective, showColor, hasDiv, hideStrVariable).then((r) => {
+            endProcMultiSelectOnChange(eleNumber, props).then((r) => {
                 if (onChangeCallbackFunc) {
                     if (onChangeCallbackDicParam) {
                         onChangeCallbackFunc(onChangeCallbackDicParam);
@@ -2573,7 +2588,7 @@ const drawProcessingTime = (t0, t1, backendTime, rowNumber, uniqueSerial = null)
     const netTime = (t1 - (requestStartedAt || t0)) / 1000; // seconds
     const hasDuplicate = $('[name=duplicated_serial]').length > 0;
     const duplicate = hasDuplicate ? `, Duplicate: ${uniqueSerial !== null ? applySignificantDigit(uniqueSerial) : ''}` : '';
-    let numberOfQueriedDat = rowNumber ? `, Number of queried data : ${
+    let numberOfQueriedDat = checkTrue(rowNumber) ? `, Number of queried data : ${
         applySignificantDigit(rowNumber)
     }${
         duplicate
@@ -2587,9 +2602,7 @@ const drawProcessingTime = (t0, t1, backendTime, rowNumber, uniqueSerial = null)
     } sec${
         numberOfQueriedDat
     }`;
-    // if (backendTime === undefined || rowNumber === undefined) {
-    //     processTime = '';
-    // }
+
     const lastUpdateTime = `Last update time: ${moment().format(DATETIME_FORMAT)}`;
     $('#lastUpdateTime').html(lastUpdateTime);
     $('#processingTime').html(processTime);
@@ -2992,7 +3005,7 @@ function validateInputByNameWithOnchange(name, option) {
         // uncheck if disabled
         if (e.target.disabled) return;
 
-        const { value } = e.currentTarget;
+        let { value } = e.currentTarget;
         if (!value || (value < option.MIN && value !== 0)) {
             e.currentTarget.value = option.MIN;
             showToastrMsg(i18nCommon.changedToMaxValue);
@@ -3004,7 +3017,7 @@ function validateInputByNameWithOnchange(name, option) {
             e.target.focus();
         }
 
-        if (name === CYCLIC_TERM.INTERVAL) {
+        if (name === CYCLIC_TERM.INTERVAL || name === CYCLIC_TERM.DIV_OFFSET) {
             if ((Math.abs(Number(value)) < option.DEFAULT && value > option.MIN)) {
                 e.currentTarget.value = option.DEFAULT;
                 showToastrMsg(i18nCommon.changedToMaxValue);
@@ -3378,13 +3391,23 @@ const getDateTimeRangeFromCyclic = (formData, traceTimeOption) => {
 };
 const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
     const divideOption = $('#divideOption').val();
+    let datetimeRange;
+    let divideDiv = null;
+    let traceTimeOption = '';
     if (divideOption) {
-        traceTimeName = `${divideOption}TraceTime1`;
+        divideDiv = $(`#for-${divideOption}`);
+        traceTimeOption = divideDiv.find(`[name*=TraceTime]:checked`).val();
+    } else {
+        traceTimeOption =  formData.get(traceTimeName);
     }
-    const traceTimeOption = formData.get(traceTimeName);
     const useLatestTime = traceTimeOption === TRACE_TIME_CONST.RECENT;
     const isCyclicTerm = divideOption === CYCLIC_TERM.NAME;
-    let datetimeRange = formData.getAll('DATETIME_RANGE_PICKER');
+    const isCyclicCalender = divideOption && divideOption === divideOptions.cyclicCalender;
+    if (isCyclicCalender) {
+        datetimeRange = [$('#datetimeRangeShowValue').text()];
+    } else {
+        datetimeRange = formData.getAll('DATETIME_RANGE_PICKER');
+    }
     const timeKeys = [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME];
     // delete all old value
     timeKeys.forEach((key) => {
@@ -3401,7 +3424,7 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         } else {
             datetimeRange = [getDateTimeRangeFromCyclic(formData, traceTimeOption)];
         }
-    } else if (useLatestTime) {
+    } else if (useLatestTime && !isCyclicCalender) {
         // in case of PCA, only apply for testing data
         const lastDatetimeEles = datetimeRange.length - 1;
         datetimeRange[lastDatetimeEles] = '';
@@ -3540,7 +3563,7 @@ const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBotto
     const ths = [];
     heades.each((i, th) => {
         const thEl = $(th);
-        const thClass = thEl.attr('class');
+        const thClass = thEl.attr('class') || '';
         thEl.addClass('position-relative');
         const iconHtml = `<span id="sortCol-${i}" idx="${i}" class="mr-1 sortCol" title="Sort"><i id="asc-${i}" class="fa fa-sm fa-play asc"></i><i id="desc-${i}" class="fa fa-sm fa-play desc"></i></span>`;
         thEl.append(iconHtml);
@@ -4124,7 +4147,6 @@ const showGraphAndDumpData = (exportType, callback) => {
     if (isFullPage) {
         callback(exportType, dataSrc);
     } else {
-        // check co graph hay khong
         if (isGraphShown) {
             callback(exportType, dataSrc);
         } else {

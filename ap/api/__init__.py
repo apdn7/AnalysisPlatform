@@ -12,6 +12,7 @@ def create_module(app, **kwargs):
     from .heatmap.controllers import api_heatmap_blueprint
     from .parallel_plot.controllers import api_paracords_blueprint
     from .common.controlllers import api_common_blueprint
+    from .aggregate_plot.controllers import api_agp_blueprint
     app.register_blueprint(api_setting_module_blueprint)
     app.register_blueprint(api_trace_data_blueprint)
     app.register_blueprint(api_table_viewer_blueprint)
@@ -25,3 +26,4 @@ def create_module(app, **kwargs):
     app.register_blueprint(api_heatmap_blueprint)
     app.register_blueprint(api_paracords_blueprint)
     app.register_blueprint(api_common_blueprint)
+    app.register_blueprint(api_agp_blueprint)

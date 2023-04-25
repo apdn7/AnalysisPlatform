@@ -94,7 +94,7 @@ const getBaseDateTimePickerConfig = () => {
             startDate: DEFAULT_START_DATETIME,
             endDate: DEFAULT_END_DATETIME,
             autoRoundMinuteInput: false,
-            showWeekNumbers: true,
+            showWeekNumbers: false,
             alwaysShowCalendars: true,
             showDropdowns: true,
             minYear: 1900,
@@ -113,6 +113,7 @@ const getBaseDateTimePickerConfig = () => {
                 firstDay: 1
             },
             cancelClass: 'btn-secondary',
+            showISOWeekNumbers: true,
             // rangesHoverMessage: getI18nDateTimePicker().rangesHoverMessage
         };
     return _baseDateTimePickerConfig;

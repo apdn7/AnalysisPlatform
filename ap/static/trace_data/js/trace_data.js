@@ -157,7 +157,13 @@ $(() => {
     const endProcs = genProcessDropdownData(procConfigs);
 
     // add first end process
-    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, true, true, true, true, true);
+    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
+        showDataType: true,
+        showStrColumn: true,
+        showCatExp:  true,
+        isRequired: true,
+        showLabels: true,
+    });
     endProcItem();
 
     // click even of end proc add button
@@ -264,8 +270,18 @@ const endProcCateOnChange = async (count) => {
 
     // load machine multi checkbox to Condition Proc.
     if (ids) {
-        addGroupListCheckboxWithSearch(parentId, `end-proc-cate-val-${count}`, '',
-            ids, vals, checkedIds, `GET02_CATE_SELECT${count}`, false, names);
+        addGroupListCheckboxWithSearch(
+            parentId,
+            `end-proc-cate-val-${count}`,
+            '',
+            ids,
+            vals,
+            {
+                checkedIds,
+                name: `GET02_CATE_SELECT${count}`,
+                itemNames: names
+            }
+        );
     }
     updateSelectedItems(isCategoryItem = true);
 };

@@ -223,16 +223,8 @@ const broadcastClickEvent = (dataPoint, startingChart, jsonPCAScoreTest = {}) =>
     $('[href="#table-info"]').tab('show');
 };
 
-const contributionChartLayout = (objData, type = 't2', sampleNo = null,
-    chartConfig = {}, shortName=null) => {
-    const getShortNameVar = (varName) => {
-        const shortKey = Object.keys(shortName).filter(keyName => keyName.includes(varName)) || null;
-        if (shortKey) {
-            return shortName[shortKey];
-        }
-        return '';
-};
-    const textVar = objData.Ratio.map((v, k) => getShortNameVar(objData.Var[k])).reverse();
+const contributionChartLayout = (objData, type = 't2', sampleNo = null) => {
+    const textVar = objData.Var.reverse();
     const layout = {
         margin: {
             t: 38.139200221392,
@@ -266,7 +258,7 @@ const contributionChartLayout = (objData, type = 't2', sampleNo = null,
             type: 'linear',
             autorange: false,
             range: [
-                -0.0486537209559121,
+                0,
                 1.05 * Math.max(...objData.Ratio.map(x => Math.abs(x))),
             ],
             tickmode: 'array',
@@ -379,7 +371,7 @@ const contributionChartLayout = (objData, type = 't2', sampleNo = null,
     return layout;
 };
 
-const genContributionChartData = (objData, type = 't2', dpInfo=null) => {
+const genContributionChartData = (objData, type = 't2', dpInfo = null) => {
     const colorScale = {
         t2: [
             [0, '#51A5E1'],
@@ -490,35 +482,35 @@ const genContributionChartData = (objData, type = 't2', dpInfo=null) => {
     const retData = objData.Ratio.map((v, k) => {
         const varFullName = getFullNameVar(objData.Var[k]);
         return {
-        orientation: 'h',
-        width: 0.9,
-        base: 0,
-        x: [
-            Math.abs(v),
-        ],
-        y: [
-            objData.Ratio.length - k,
-        ],
-        hovertext: `${objData.Var[k]}<br />abs(Ratio): ${
-            applySignificantDigit(Math.abs(v))
-        }<br />Ratio: ${
-            applySignificantDigit(v)
-        }`,
-        type: 'bar',
-        marker: {
-            autocolorscale: false,
-            color: markerColor(v),
-            line: {
-                width: 1.88976377952756,
-                color: 'transparent',
+            orientation: 'h',
+            width: 0.9,
+            base: 0,
+            x: [
+                Math.abs(v),
+            ],
+            y: [
+                objData.Ratio.length - k,
+            ],
+            hovertext: `${objData.Var[k]}<br />abs(Ratio): ${
+                applySignificantDigit(Math.abs(v))
+            }<br />Ratio: ${
+                applySignificantDigit(v)
+            }`,
+            type: 'bar',
+            marker: {
+                autocolorscale: false,
+                color: markerColor(v),
+                line: {
+                    width: 1.88976377952756,
+                    color: 'transparent',
+                },
             },
-        },
-        showlegend: false,
-        xaxis: 'x',
-        yaxis: 'y',
-        hoverinfo: 'text',
-        frame: null,
-    };
+            showlegend: false,
+            xaxis: 'x',
+            yaxis: 'y',
+            hoverinfo: 'text',
+            frame: null,
+        };
     });
 
     const ratioChart = {

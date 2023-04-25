@@ -3,22 +3,6 @@
 
 {% block asset %}
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
-          rel="stylesheet">
-    <script
-            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
-    <script
-            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
-
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('categorical_plot.static', filename = 'css/categorical_plot.css') }}"/>
-
-    <script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
-    <script src="{{ url_for('static', filename = 'common/js/libs/pagination.min.js') }}"></script>
-    <link href="{{ url_for('static', filename = 'common/css/pagination.css') }}" rel="stylesheet">
-
 {% endblock %}
 
 {% block header %}
@@ -52,6 +36,7 @@
                 </div>
             </div>
         </div>
+        {{ macros.data_finder_card() }}
         <!-- Date range -->
         <div class="card-body table-bordered graph-navi" id="varSrtPrc">
             <div class="row">
@@ -123,9 +108,10 @@
             procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
-    <script src="{{ url_for('categorical_plot.static', filename = 'js/categorical_histogram_with_density_curve.js') }}"></script>
-    <script src="{{ url_for('categorical_plot.static', filename = 'js/categorical_plot_utils.js') }}"></script>
-    <script src="{{ url_for('categorical_plot.static', filename = 'js/categorical_plot.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/cat_facet_label_filter_modal.js') }}"></script>
-
+    {% assets "js_stp" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_stp" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 {% endblock %}

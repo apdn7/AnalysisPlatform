@@ -94,7 +94,10 @@ $(() => {
     const endProcs = genProcessDropdownData(procConfigs);
 
     // add first end process
-    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, true, false, false, true);
+    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
+        showDataType: true,
+        isRequired: true,
+    });
     endProcItem();
 
     // add first condition process

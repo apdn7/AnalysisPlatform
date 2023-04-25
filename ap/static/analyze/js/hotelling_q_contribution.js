@@ -49,14 +49,14 @@ const drawQContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
 };
 
 const drawQContributionChartFromObj = (objData, sampleNo = null, chartConfig = {},
-    sizeOfData = null, dpInfo=null,
-    shortName= null) => {
+    sizeOfData = null, dpInfo = null,
+    shortName = null) => {
     if (!objData) return;
     const startTime = performance.now();
 
     Plotly.newPlot('qContributionChart',
         genContributionChartData(objData, 'q', dpInfo),
-        contributionChartLayout(objData, 'q', sampleNo, chartConfig, shortName), {
+        contributionChartLayout(objData, 'q', sampleNo), {
             ...genPlotlyIconSettings(),
             responsive: true, // responsive histogram
             useResizeHandler: true, // responsive histogram

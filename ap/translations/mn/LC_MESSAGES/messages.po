@@ -3520,7 +3520,6 @@ msgstr ""
 
 # ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/macros.html
-#, fuzzy
 msgid "No data link"
 msgstr "Исгэгч"
 
@@ -3634,7 +3633,6 @@ msgid "Hide cursor"
 msgstr "Hide cursor"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid ""
 "The target file does not have a datetime column. Please prepare a "
 "datetime column or consider using dummy datetime (DatetimeDummy)."
@@ -3651,7 +3649,6 @@ msgstr ""
 "points."
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "InfCastValue"
 msgstr "Агнээ"
 
@@ -3664,7 +3661,6 @@ msgstr ""
 " Replace to NA"
 
 #: ap/templates/macros.html
-#, fuzzy
 msgid "Cleansing"
 msgstr "Анхааруулга"
 
@@ -3685,7 +3681,6 @@ msgid "Accuracy"
 msgstr "Accuracy"
 
 #: ap/templates/sankey_plot/sankey_plot.html
-#, fuzzy
 msgid "Precision"
 msgstr "Түүх"
 
@@ -3702,33 +3697,28 @@ msgid "PR-AUC"
 msgstr "PR-AUC"
 
 #: ap/templates/sankey_plot/sankey_plot.html
-#, fuzzy
 msgid "Accuracy description"
 msgstr "Тодорхойлолт / төрөл анги"
 
 #: ap/templates/sankey_plot/sankey_plot.html
-#, fuzzy
 msgid "Precision description"
 msgstr ""
 "Хэрэв та 100.510.10-аас бага утгыг сонговол та жижиг CO -cururence "
 "харилцааг нуух болно. (Анхдагч: Нэг удаа ч гэсэн мөрийг зурах)"
 
 #: ap/templates/sankey_plot/sankey_plot.html
-#, fuzzy
 msgid "Recall description"
 msgstr ""
 "Хэрэв та 100.510.10-аас бага утгыг сонговол та жижиг CO -cururence "
 "харилцааг нуух болно. (Анхдагч: Нэг удаа ч гэсэн мөрийг зурах)"
 
 #: ap/templates/sankey_plot/sankey_plot.html
-#, fuzzy
 msgid "ROC-AUC description"
 msgstr ""
 "Хэрэв та 100.510.10-аас бага утгыг сонговол та жижиг CO -cururence "
 "харилцааг нуух болно. (Анхдагч: Нэг удаа ч гэсэн мөрийг зурах)"
 
 #: ap/templates/sankey_plot/sankey_plot.html
-#, fuzzy
 msgid "PR-AUC description"
 msgstr "Тодорхойлолт / төрөл анги"
 
@@ -3803,7 +3793,6 @@ msgid "Attribute"
 msgstr "Attribute"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "Lower"
 msgstr "Ойр дөхөм"
 
@@ -3821,19 +3810,16 @@ msgstr "Proc. limit"
 
 # ap/template/setting_module/master_config.html
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "Valid"
 msgstr "Хугацаа дуусах огноо (төгсгөл)"
 
 # ap/template/setting_module/master_config.html
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "ValidFrom"
 msgstr "Хугацаа дуусах огноо (Эхлэх)"
 
 # ap/template/setting_module/master_config.html
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "ValidTo"
 msgstr "Хугацаа дуусах огноо (төгсгөл)"
 
@@ -3906,7 +3892,6 @@ msgstr ""
 " words with mouse pointer for a second."
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourSelectTargetPeriod"
 msgstr "Зорилт зая хуваарь"
 
@@ -3936,12 +3921,10 @@ msgstr ""
 
 # ap/templates/trace_data/trace_data.html
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourUseFilter"
 msgstr "Шүүлтүүргүй"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourCleansing"
 msgstr "Анхааруулга"
 
@@ -3963,17 +3946,14 @@ msgstr ""
 "data from various angles."
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "GoBack"
 msgstr "Буцах"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "GoNext"
 msgstr "Холбох"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "GoFinish"
 msgstr ""
 "Thank you for completing this tour. BREAK_LINEBREAK_LINEMany useful "
@@ -3983,7 +3963,6 @@ msgstr ""
 "data from various angles."
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "GoNextToDataFinder"
 msgstr ""
 "With the data finder, you can select a datetime range while seeing when "
@@ -4009,7 +3988,6 @@ msgid "TourWelcomeQuit"
 msgstr "Quit tour"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourSelectTargetVarTitle"
 msgstr ""
 "Select a process and then select some variables that you would like to "
@@ -4018,12 +3996,10 @@ msgstr ""
 "facets.BREAK_LINE"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourSelectTargetPeriodTitle"
 msgstr "Зорилт зая хуваарь"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourSelectTargetPeriodDatePickerTitle"
 msgstr ""
 "Clicking on the textbox will show datetime selector. You can specify the "
@@ -4031,14 +4007,12 @@ msgstr ""
 "keyboard."
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourFindDataTitle"
 msgstr ""
 "No problem. Clicking the \"Data Finder\" button, you can access data "
 "finder, which you can find the time range of the stored data."
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourWithDatafinderTitle"
 msgstr ""
 "With the data finder, you can select a datetime range while seeing when "
@@ -4051,17 +4025,14 @@ msgstr ""
 
 # ap/templates/trace_data/trace_data.html
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourUseFilterTitle"
 msgstr "Шүүлтүүргүй"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourCleansingTitle"
 msgstr "Анхааруулга"
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourShowGraphTitle"
 msgstr ""
 "The basic setup is finished. Most of the settings done in this tour are "
@@ -4070,7 +4041,6 @@ msgstr ""
 "to be drawn."
 
 #: ap/templates/i18n.html
-#, fuzzy
 msgid "TourFinishTitle"
 msgstr ""
 "Thank you for completing this tour. BREAK_LINEBREAK_LINEMany useful "
@@ -4088,9 +4058,71 @@ msgid "Support site (JP)"
 msgstr "Support site (JP)"
 
 #: ap/templates/macros.html
-#, fuzzy
 msgid "Dup check message"
 msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/macros.html
+msgid "Divide by calender (Cyclic)"
+msgstr "Нэр томруулах (цикл)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/macros.html
+msgid "Divide format"
+msgstr "Хугацаа дуусах огноо (Эхлэх)"
+
+#: ap/templates/macros.html
+msgid "Offset"
+msgstr "Offset"
+
+#: ap/templates/macros.html
+msgid "Divide format hover msg"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the previous distribution is used as the reference."
+
+#: ap/templates/macros.html
+msgid "Daterange divide by calender hover msg"
+msgstr ""
+"Click : Date & time selection only \n"
+"Double click : Date & time selection and apply"
+
+#: ap/templates/macros.html
+msgid "Offset hover msg"
+msgstr ""
+"Select the EMD (Earth Mover's Distance) calculation mode that indicates "
+"the degree of distribution variation."
+
+#: ap/templates/macros.html
+msgid "AgP color hover msg"
+msgstr ""
+"Draws a scatter plot with contour showing the central portion of the "
+"distribution. If the number of data points drawn in one scatter plot is "
+"10,000 or more, scatter plot with contour is shown to omit the data "
+"points drawn on the plot."
+
+#: ap/templates/aggregate_plot/aggregate_plot.html
+msgid "Aggregation Plot info"
+msgstr ""
+"You can visualize aggregated results such as production volume, number of"
+" defects, and time-series changes in sensor data, and explore their "
+"relationships."
+
+#: ap/templates/aggregate_plot/aggregate_plot.html
+msgid "AgP target variables"
+msgstr "Target variable"
+
+#: ap/templates/sidebar.html
+#, fuzzy
+msgid "Aggregation Plot"
+msgstr "Aggregation Plot"
+
+#: ap/templates/macros.html
+msgid "Latest month"
+msgstr "month"
+
+#: ap/templates/macros.html
+msgid "Latest year"
+msgstr "year"
 
 #~ msgid ""
 #~ "\"Inf\"/\"-Inf\" and their estimated values"

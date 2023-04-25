@@ -58,9 +58,9 @@
   - [Early Bird Collaborators](#early-bird-collaborators)
 - [Research & Development Team](#research--development-team)
   - [Data Analysis Education, Research & Promotion](#data-analysis-education-research--promotion)
-  - [Data Analysis Package](#data-analysis-package)
-  - [Data Analysis Interface](#data-analysis-interface)
-  - [Data Analysis Platform](#data-analysis-platform)
+  - [Analysis Package](#analysis-package)
+  - [Analysis Interface](#analysis-interface)
+  - [Analysis Platform](#analysis-platform)
   - [© F-IoT DAC Team & Rainbow7 + Bridge7](#-f-iot-dac-team--rainbow7--bridge7)
 
 <!-- /TOC -->
@@ -142,15 +142,15 @@
 |Data Analysis Education Development & Management||Takero Arakawa　荒川 毅郎　DNJP　Monozukuri DX Promotion Div.|
 <br>
 
-## Data Analysis Package
+## Analysis Package
 
 ||||
 |--:|:-:|:--|
-|Data Analysis Package Development & Management Leader||Genta Kikuchi　菊池 元太　DNJP　Monozukuri DX Promotion Div.|
-|Data Analysis Package Development||Sho Takahashi　髙橋 翔　DNJP　Monozukuri DX Promotion Div.|
+|Analysis Package Development & Management Leader||Genta Kikuchi　菊池 元太　DNJP　Monozukuri DX Promotion Div.|
+|Analysis Package Development||Sho Takahashi　髙橋 翔　DNJP　Monozukuri DX Promotion Div.|
 <br>
 
-## Data Analysis Interface
+## Analysis Interface
 
 ||||
 |--:|:-:|:--|
@@ -159,21 +159,22 @@
 |||Pham Minh Hoang　ファム ミン ホアン　Phạm Minh Hoàng　FPT Software Japan|
 |||Tran Thi Kim Tuyen　チャン ティ キム トゥエン　Trần Thị Kim Tuyền　FPT Software Japan|
 |||Nguyen Huu Tuan　グエン フー トゥアン　Nguyễn Hữu Tuấn　FPT Software Japan|
+|||Duong Quoc Khanh　ズオン クォック カイン　Dương Quốc Khánh　FPT Software Japan|
 |||Nguyen Van Hoai　グエン ヴァン ホアイ　Nguyễn Văn Hoài|
 |Technology Leader of Rainbow7||Masato Yasuda　安田 真人　DNJP　Monozukuri DX Promotion Div.|
 |Agile Master of Rainbow7 & Bridge7||Yasutomo Kawashima　川島 恭朋　DNJP　Monozukuri DX Promotion Div.|
 <br>
 
-## Data Analysis Platform
+## Analysis Platform
 
 ||||
 |--:|:-:|:--|
-|Data Analysis Platform Product Owner FY20-||Tatsunori Kojo　古城 達則　DNJP　Monozukuri DX Promotion Div.|
-|Technology Leader of Data Analysis & Data Analysis Platform Product Owner FY19||Genta Kikuchi　菊池 元太　DNJP　Monozukuri DX Promotion Div.|
-|Data Analysis Platform Development||Takero Arakawa　荒川 毅郎　DNJP　Monozukuri DX Promotion Div.|
+|Analysis Platform Product Owner FY20-||Tatsunori Kojo　古城 達則　DNJP　Monozukuri DX Promotion Div.|
+|Technology Leader of Data Analysis & Analysis Platform Product Owner FY19||Genta Kikuchi　菊池 元太　DNJP　Monozukuri DX Promotion Div.|
+|Analysis Platform Development||Takero Arakawa　荒川 毅郎　DNJP　Monozukuri DX Promotion Div.|
 |||Sho Takahashi　髙橋 翔　DNJP　Monozukuri DX Promotion Div.|
 |Supervisor & Technology Leader of Data Analysis & SQC||Mutsumi Yoshino　吉野 睦　DNJP　Monozukuri DX Promotion Div.|
-|Supervisor & Senior Manager||Toshikuni Shinohara　篠原 壽邦　DNJP　Monozukuri DX Promotion Div.|
+|Supervisor & Senior Manager||Toshikuni Shinohara　篠原 壽邦|
 <br>
 <br>
 <br>

@@ -129,8 +129,12 @@ $(() => {
     const endProcs = genProcessDropdownData(procConfigs);
 
     // add first end process
-    const varEndProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, true, true,
-        true, true);
+    const varEndProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
+        showDataType: true,
+        showStrColumn: true,
+        showCatExp: true,
+        isRequired: true,
+    });
     varEndProcItem();
 
     // for multiple end procs setting
@@ -175,8 +179,6 @@ $(() => {
     }, 2000);
 
     // validate and change to default and max value cyclic term
-    validateInputByNameWithOnchange(CYCLIC_TERM.WINDOW_LENGTH, CYCLIC_TERM.WINDOW_LENGTH_MIN_MAX);
-    validateInputByNameWithOnchange(CYCLIC_TERM.INTERVAL, CYCLIC_TERM.INTERVAL_MIN_MAX);
     validateInputByNameWithOnchange(CYCLIC_TERM.DIV_NUM, { MAX: 32, MIN: 1 });
 
     initializeDateTimeRangePicker();

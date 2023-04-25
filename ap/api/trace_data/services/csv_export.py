@@ -134,7 +134,10 @@ def to_csv(df: DataFrame, dic_proc_cfgs: Dict[int, CfgProcess], graph_param: Dic
     suffix = '...'
     dic_rename = {}
     for proc in graph_param.array_formval:
-        proc_cfg = dic_proc_cfgs[proc.proc_id]
+        proc_cfg = dic_proc_cfgs[proc.proc_id] if proc.proc_id in dic_proc_cfgs else None
+        if not proc_cfg:
+            continue
+
         for col_id, col_name, name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
             old_name = gen_sql_label(col_id, col_name)
             if old_name not in df.columns:

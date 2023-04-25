@@ -3933,3 +3933,58 @@ msgstr ""
 "Skip: Always do not activate the calculation.\n"
 "Calculated duplicate counts is shown on the bottom left corner of the page after clicking the 'Display graph' button.\n"
 "This calculation may take time on large amount of data."
+
+#: ap/templates/macros.html
+msgid "Divide by calender (Cyclic)"
+msgstr "Divide by calender (Cyclic)"
+
+#: ap/templates/macros.html
+msgid "Divide format"
+msgstr "Divide format"
+
+#: ap/templates/macros.html
+msgid "Offset"
+msgstr "Offset"
+
+#: ap/templates/macros.html
+msgid "Divide format hover msg"
+msgstr "How to divide the x-axis and x-label format."
+
+#: ap/templates/macros.html
+msgid "Daterange divide by calender hover msg"
+msgstr "Aggregate for each division selected in 'Divide format' based on the start time set in Date range.\n"
+"For example, in the case of daily aggregation, aggregation is performed every 24 hours from the start time."
+
+#: ap/templates/macros.html
+msgid "Offset hover msg"
+msgstr "Stagger the switching time of working days. (-24 to 24)\n"
+"Example: 7.5 in increments of 1 day, from 7:30 to 31:30 (7:30 the next morning)"
+
+#: ap/templates/macros.html
+msgid "AgP color hover msg"
+msgstr "This setting is color-coded by group within the selected variable."
+
+#: ap/templates/aggregate_plot/aggregate_plot.html
+msgid "Aggregation Plot info"
+msgstr ""
+"You can visualize aggregated results such as production volume, number of defects, "
+"and time-series changes in sensor data, and explore their relationships."
+
+#: ap/templates/aggregate_plot/aggregate_plot.html
+msgid "AgP target variables"
+msgstr ""
+"Specifies the data to plot on the graph. If the data type is Str or Int,"
+" aggregate results will be displayed, and if the data type is Real or CT,"
+" line plots will be displayed."
+
+#: ap/templates/sidebar.html
+msgid "Aggregation Plot"
+msgstr "Aggregation Plot"
+
+#: ap/templates/macros.html
+msgid "Latest month"
+msgstr "month"
+
+#: ap/templates/macros.html
+msgid "Latest year"
+msgstr "year"
