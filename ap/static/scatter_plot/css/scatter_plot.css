@@ -89,7 +89,7 @@ canvas {
     transform-origin: center;
     color: #65c5f1;
     text-align: center;
-    font-size: 16px;
+    font-size: 14px;
     left: -50px;
 
     /* 3 dots */
@@ -171,7 +171,6 @@ canvas {
 }
 
 .matrix-level span {
-    color: white;
     font-size: 13px;
     display: block;
     text-decoration: underline;

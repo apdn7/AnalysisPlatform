@@ -136,6 +136,7 @@ const updateI18nCommon = async () => {
         exceptionEstimation: $('#i18nExceptionEstimation').text(),
         div: $('#i18nDiv').text(),
         colorExplanation: $('#i18nColorExplanation').text(),
+        agPColorExplanation: $('#i18nAgPColorExplanation').text(),
         changedToMaxValue: $('#i18nChangedDivisionNumberToMax').text(),
         limitDisplayedGraphs: $('#i18nLimitDisplayedGraphs').text(),
         limitDisplayedGraphsInOneTab: $('#i18nLimitDisplayedGraphsInOneTab').text(),
@@ -237,13 +238,7 @@ const genColDOM = (isShow, label, description, textCenter = false) => {
 
 let limitedCheckedList = [];
 
-const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
-    checkedIds = null, name = null, noFilter = false,
-    itemNames = null, thresholdBoxes = null, itemDataTypes = null,
-    isRadio = null, showCatExp = null, isRequired = false,
-    getDateColID = null, showObjectiveInput = false, objectiveID = null,
-    showLabel = false, catLabels = [], groupIDx = null, showColor = false,
-    hasDiv = false, hideStrVariable = false) => {
+const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, props) => {
     const mainChkBoxClass = 'main-checkbox';
     const indexDic = {
         dataType: 2,
@@ -252,6 +247,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
         catExp: 5,
         objective: 6,
     };
+    const isShowColorCheckBox = props.showColor && !props.colorAsDropdown;
     const genDetailItem = (chkBox, shownName = null, thresholdBox = null,
         dataType = null, catExpBox = null, isGetDate = false,
         objectiveSelectionDOM = null, categoryLabelDOM = null, colorDOM = null) => {
@@ -262,7 +258,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
         const radioClass = 'custom-control custom-radio';
         const masterNameClass = 'column-master-name';
         let commonClass = checkboxClass;
-        if (isRadio) {
+        if (props.isRadio) {
             commonClass = radioClass;
         }
 
@@ -273,7 +269,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
                     </div>`;
 
         if (shownName) {
-            const originalTotalCol = [chkBox, shownName, itemDataTypes, showLabel, showColor, showCatExp, showObjectiveInput];
+            const originalTotalCol = [chkBox, shownName, props.itemDataTypes, props.showLabel, props.showColor, props.showCatExp, props.showObjectiveInput];
             html = `
                 <div class="col-sm-4 col-xs-4 ${commonClass} shorten-name pr-1 search-col" title="${shownName}">
                     ${chkBox}
@@ -345,7 +341,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
         return;
     }
     let inputType = 'checkbox';
-    if (isRadio) {
+    if (props.isRadio) {
         inputType = 'radio';
     }
 
@@ -368,13 +364,13 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
         const itemVal = itemVals[i];
         let itemName = null;
         let threshold = null;
-        if (itemNames) {
-            itemName = itemNames[i];
+        if (props.itemNames) {
+            itemName = props.itemNames[i];
         }
         const chkBoxId = `${inputType}-${itemId + parentId}`;
         let thresholdChkBoxId = null;
-        if (thresholdBoxes) {
-            threshold = thresholdBoxes[i];
+        if (props.thresholdBoxes) {
+            threshold = props.thresholdBoxes[i];
             if (threshold) {
                 thresholdChkBoxId = `threshold-${chkBoxId}`;
                 threshold = `<input title="${i18nHoverText.threshold}" type="checkbox" name="thresholdBox"
@@ -387,23 +383,23 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
         let colDataType = null;
         let catExpBox = ''; // don't set null , it will show null on screen
         let catExpChkBoxId = null;
-        if (itemDataTypes) {
-            colDataType = DataTypes[itemDataTypes[i]].org_type;
+        if (props.itemDataTypes) {
+            colDataType = DataTypes[props.itemDataTypes[i]].org_type;
             catExpChkBoxId = `catExp-${chkBoxId}`;
-            if (showCatExp && [DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType)) {
+            if (props.showCatExp && [DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType)) {
                 catExpBox = `<select name="catExpBox" id="catExpItem-${itemId}" onchange="changeFacetLevel(this);"
                                 data-load-level="2" class="form-control level-select">
                     <option value="">---</option>
                     <option value="1">Lv1</option>
                     <option value="2">Lv2</option>
-                    ${hasDiv ? '<option value="3">Div</option>' : ''}
+                    ${props.hasDiv ? '<option value="3">Div</option>' : ''}
                 </select>`;
             }
         }
 
-        const isRequiredInput = isRequired ? 'required-input' : '';
+        const isRequiredInput = props.isRequired ? 'required-input' : '';
         let objectiveSelectionDOM = '';
-        if (showObjectiveInput) {
+        if (props.showObjectiveInput) {
             const objectiveChkBoxId = `objectiveVar-${itemId}`;
             objectiveSelectionDOM = `<input title="" type="radio" name="objectiveVar" onchange="compareSettingChange()"
                 class="custom-control-input ${isRequiredInput}" value="${itemId}"
@@ -412,14 +408,14 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
         }
 
         let categoryLabelDOM = null;
-        if (showLabel) {
+        if (props.showLabel) {
             const clChkBoxId = `categoryLabel-${itemId}`;
             let clSelection = '';
             // todo: check category item
-            if (catLabels.length && catLabels.includes(itemId)) {
+            if (props.catLabels && props.catLabels.length && props.catLabels.includes(itemId)) {
                 clSelection = 'selected="selected"';
             }
-            const categoryGroupId = groupIDx || 1;
+            const categoryGroupId = props.groupIDx || 1;
             if ([DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType)) {
                 categoryLabelDOM = `<input title="" onchange="compareSettingChange()" type="checkbox" name="GET02_CATE_SELECT${categoryGroupId}"
                     class="custom-control-input check-item" value="${itemId}"
@@ -428,22 +424,37 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
             }
         }
 
+
         let colorDOM = null;
-        if (showColor) {
-            const radioButtonColorId = `scp-color-${itemId}`;
-            colorDOM = `<div class="custom-control custom-radio d-flex pl-0">
-                            <input type="radio" name="colorVar" onchange="compareSettingChange()"
-                                  class="custom-control-input" value="${itemId}"
-                                  id="${radioButtonColorId}">
-                            <label title="" class="custom-control-label uncheck-when-click single-check-box" for="${radioButtonColorId}"></label>
-                        </div>`;
+        if (props.showColor) {
+            if (props.colorAsDropdown) {
+                const dropdownColorId = `agp-color-${itemId}`;
+                colorDOM = `<select name="colorVar" id="${dropdownColorId}" onchange="" 
+                    data-load-level="2" class="form-control level-select"
+                    data-target-var-id="${itemId}">
+                    <option value="">---</option>`;
+                if (props.availableColorVars && props.availableColorVars.length) {
+                    props.availableColorVars.forEach(col => {
+                        colorDOM += `<option value="${col.id}">${col.column_name}</option>`;
+                    });
+                }
+                colorDOM += `</select>`;
+            } else {
+                const radioButtonColorId = `scp-color-${itemId}`;
+                colorDOM = `<div class="custom-control custom-radio d-flex pl-0">
+                                <input type="radio" name="colorVar" onchange="compareSettingChange()"
+                                      class="custom-control-input" value="${itemId}"
+                                      id="${radioButtonColorId}">
+                                <label title="" class="custom-control-label uncheck-when-click single-check-box" for="${radioButtonColorId}"></label>
+                            </div>`;
+            }
         }
 
-        isChecked = (checkedIds && checkedIds.includes(itemId)) ? 'checked' : '';
-        const isHideCheckInput = hideStrVariable && colDataType === DataTypes.STRING.name;
+        isChecked = (props.checkedIds && props.checkedIds.includes(itemId)) ? 'checked' : '';
+        const isHideCheckInput = props.hideStrVariable && colDataType === DataTypes.STRING.name;
         const hideClass = isHideCheckInput ? ' hidden-input' : '';
 
-        const inputEl = !isHideCheckInput ? `<input type="${inputType}" name="${name}" ${showColor ? 'data-order=2' : ''}
+        const inputEl = !isHideCheckInput ? `<input type="${inputType}" name="${props.name}" ${isShowColorCheckBox ? 'data-order=2' : ''}
             class="custom-control-input check-item ${mainChkBoxClass} ${isRequiredInput}"  value="${itemId}"
             id="${chkBoxId}" ${isChecked}>` : '';
 
@@ -451,7 +462,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
             ${inputEl}
            <label class="custom-control-label${hideClass}" for="" title="${itemVal}">${itemVal}</label>`;
 
-        const isGetDate = (itemId === getDateColID);
+        const isGetDate = (itemId === props.getDateColID);
         itemList.push(
             genDetailItem(option, itemName, threshold, colDataType, catExpBox,
                 isGetDate, objectiveSelectionDOM, categoryLabelDOM, colorDOM),
@@ -461,21 +472,21 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
     const sensorListId = `list-${id}`;
     let noFilterOption = null;
     let allOption = null;
-    const isShowThreshold = noFilter ? false : thresholdBoxes;
+    const isShowThreshold = props.noFilter ? false : props.thresholdBoxes;
 
     const thresholdBoxDOM = genColDOM(isShowThreshold, 'CL', i18nHoverText.threshold);
-    const typeColDOM = genColDOM(itemDataTypes, 'Type', i18nHoverText.sensorExp);
-    const objColDOM = genColDOM(showObjectiveInput, i18nHoverText.objectiveLabel, i18nHoverText.objectiveExpl);
-    const categoryLabelColDOM = genColDOM(showLabel, 'Label', i18nHoverText.labelExplain);
-    const catExpDOM = genColDOM(showCatExp, i18nHoverText.catExpLabel, i18nHoverText.catExp);
-    const colorTile = genColDOM(showColor, 'Color', i18nCommon.colorExplanation, true);
+    const typeColDOM = genColDOM(props.itemDataTypes, 'Type', i18nHoverText.sensorExp);
+    const objColDOM = genColDOM(props.showObjectiveInput, i18nHoverText.objectiveLabel, i18nHoverText.objectiveExpl);
+    const categoryLabelColDOM = genColDOM(props.showLabel, 'Label', i18nHoverText.labelExplain);
+    const catExpDOM = genColDOM(props.showCatExp, i18nHoverText.catExpLabel, i18nHoverText.catExp);
+    const colorTile = genColDOM(props.showColor, 'Color', props.colorAsDropdown ? i18nCommon.agPColorExplanation : i18nCommon.colorExplanation, true);
     // const defaultColSize = '';
-    if (!isRadio) {
-        if (noFilter) {
-            isChecked = (checkedIds && itemIds.some(e => checkedIds.includes(e))) ? '' : 'checked';
+    if (!props.isRadio) {
+        if (props.noFilter) {
+            isChecked = (props.checkedIds && itemIds.some(e => props.checkedIds.includes(e))) ? '' : 'checked';
             noFilterOption = `<div class="row">
                 <div class="col-sm-10">
-                    <input type="${inputType}" name="${name}"
+                    <input type="${inputType}" name="${props.name}"
                         class="custom-control-input checkbox-no-filter"
                         id="checkbox-no-filter-${id + parentId}"
                         value="NO_FILTER" ${isChecked}>
@@ -486,16 +497,17 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
                     style="text-decoration: underline; min-width: 35px">CL</h6></div>
             </div>`;
         } else {
-            isChecked = (checkedIds && !isEmpty(itemIds)
-                && itemIds.every(e => checkedIds.includes(e))) ? 'checked' : '';
+            isChecked = (props.checkedIds && !isEmpty(itemIds)
+                && itemIds.every(e => props.checkedIds.includes(e))) ? 'checked' : '';
         }
-        const requiredClass = isRequired ? 'required-input' : '';
+
+        const requiredClass = props.isRequired ? 'required-input' : '';
         allOption = `<div class="row">
             <div class="col-sm-8 col-xs-8 pr-1 search-col">
-                 <input type="${inputType}" name="${name}"
+                 <input type="${inputType}" name="${props.name}"
                     class="custom-control-input checkbox-all ${requiredClass}"
-                     id="checkbox-all-${id + parentId}" value="All" ${!noFilter && isChecked} ${showColor ? 'hidden disabled' : ''}>
-                <label class="custom-control-label ${showColor ? 'd-none' : ''}"
+                     id="checkbox-all-${id + parentId}" value="All" ${!props.noFilter && isChecked} ${isShowColorCheckBox ? 'hidden disabled' : ''}>
+                <label class="custom-control-label ${isShowColorCheckBox ? 'd-none' : ''}"
                     for="checkbox-all-${id + parentId}">${i18nCommon.allSelection}</label>
             </div>
             ${typeColDOM}
@@ -560,7 +572,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
             thresholdBox.prop('checked', false);
             if (isCheckLimit) {
                 limitedCheckedList = limitedCheckedList.filter(el => el.val() !== $(this).val());
-                if (showColor) {
+                if (isShowColorCheckBox) {
                     $(this).removeAttr('data-sensor');
                     $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
                 }
@@ -569,7 +581,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
             thresholdBox.prop('checked', true);
             if (isCheckLimit) {
                 limitedCheckedList.push($(this));
-                if (showColor) {
+                if (isShowColorCheckBox) {
                     $(this.closest('.list-group-item')).find('[name=catExpBox]').val('').trigger('change');
                     $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', true);
                 }
@@ -598,7 +610,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
         if (isCheckLimit && limitedCheckedList.length > MAX_END_PROC) {
             limitedCheckedList[0].prop('checked', false);
 
-            if (showColor) {
+            if (isShowColorCheckBox) {
                 $(limitedCheckedList[0].closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
                 // remove data-sensor attr
                 limitedCheckedList[0].removeAttr('data-sensor');
@@ -607,7 +619,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals,
         }
 
         // in case of either x or y data type is string, color variable will be changed belong with string sensor.
-        if (showColor && limitedCheckedList.length > 0) {
+        if (isShowColorCheckBox && limitedCheckedList.length > 0) {
             const xSensor = limitedCheckedList[0];
             const xSensorType = xSensor ? $(`#dataType-${xSensor.val()}`).val() : '';
             const ySensor = limitedCheckedList[1];
@@ -831,7 +843,7 @@ const updateSelectedItems = (isCategoryItem = false, selectParent = $(formElemen
     Array.prototype.forEach.call(allSelected, (selected) => {
         $(selected).find('option').removeAttr('disabled');
         const currentCardSelector = $(selected).val();
-        if ($(selected).attr('name') !== 'catExpBox') {
+        if (!['catExpBox', 'colorVar'].includes($(selected).attr('name'))) {
             $.each($(selected).find('option'), (key, option) => {
                 const optionVal = $(option).val();
                 if (selectedItems.includes(optionVal) && currentCardSelector !== optionVal) {
@@ -959,9 +971,17 @@ const condLineOnChange = async (selectedLines, count, prefix = '', parentFormId 
             const machineLabel = i18nCommon.mach || '';
             const thresholdBoxes = [];
             machineIds.forEach(e => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
-            addGroupListCheckboxWithSearch(`${parentId}`, `${prefix}cond-proc-machine-${count}`,
-                machineLabel, machineIds, machineVals, checkedIds, `machine_id_multi${count}`,
-                true, null, thresholdBoxes);
+            addGroupListCheckboxWithSearch(
+                `${parentId}`,
+                `${prefix}cond-proc-machine-${count}`,
+                machineLabel,
+                machineIds,
+                machineVals, {
+                    checkedIds,
+                    name: `machine_id_multi${count}`,
+                    noFilter: true,
+                    thresholdBoxes
+                });
         }
     }
 };
@@ -996,7 +1016,17 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '') => {
     if (lineIds) {
         const thresholdBoxes = [];
         lineIds.forEach(e => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
-        addGroupListCheckboxWithSearch(`${prefix}cond-proc-line-div-${count}`, condProcMachineLineId, i18nCommon.line, lineIds, lineVals, null, `filter-line-machine-id${count}`, true, null, thresholdBoxes);
+        addGroupListCheckboxWithSearch(
+            `${prefix}cond-proc-line-div-${count}`,
+            condProcMachineLineId,
+            i18nCommon.line,
+            lineIds,
+            lineVals,
+            {
+                name: `filter-line-machine-id${count}`,
+                noFilter: true,
+                thresholdBoxes
+            });
 
         const lineInputs = $(document.getElementsByName(`filter-line-machine-id${count}`));
         let selectedLines = [];
@@ -1020,10 +1050,18 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '') => {
         partnoIds.forEach(e => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
 
         // load partno multi checkbox to Condition Proc.
-        addGroupListCheckboxWithSearch(parentId,
+        addGroupListCheckboxWithSearch(
+            parentId,
             `${prefix}cond-proc-partno-${count}`,
-            i18n.partNo, partnoIds, partnoVals,
-            null, `filter-partno${count}`, true, null, thresholdBoxes);
+            i18nCommon.partNo,
+            partnoIds,
+            partnoVals,
+            {
+                name: `filter-partno${count}`,
+                noFilter: true,
+                thresholdBoxes
+            }
+        );
     }
 
 
@@ -1034,12 +1072,18 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '') => {
             if (filter.title) {
                 const thresholdBoxes = [];
                 filter.ids.forEach(e => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
-                addGroupListCheckboxWithSearch(parentId,
+                addGroupListCheckboxWithSearch(
+                    parentId,
                     `${prefix}cond-proc-filterother-${filter.id}-${count}`,
-                    filter.title, filter.ids, filter.vals,
-                    null,
-                    `filter-other-${filter.id}-${count}`,
-                    true, null, thresholdBoxes);
+                    filter.title,
+                    filter.ids,
+                    filter.vals,
+                    {
+                        name: `filter-other-${filter.id}-${count}`,
+                        noFilter: true,
+                        thresholdBoxes
+                    }
+                );
             }
         });
     }

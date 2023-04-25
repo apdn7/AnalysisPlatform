@@ -1,9 +1,9 @@
 from collections import defaultdict
-from typing import List, Dict
+from typing import List, Dict, Optional
 
+from ap.common.constants import NO_FILTER, SELECT_ALL, DuplicateSerialShow, DuplicateSerialCount, END_COL_ID, \
+    END_COL_NAME, END_PROC_ID, END_PROC_NAME, SHOWN_NAME, COL_DATA_TYPE
 from ap.common.logger import logger
-
-from ap.common.constants import NO_FILTER, SELECT_ALL, DuplicateSerialShow, DuplicateSerialCount
 from ap.setting_module.models import CfgFilterDetail, CfgProcessColumn, CfgProcess
 
 
@@ -182,6 +182,7 @@ class CommonParam:
     sensor_cols: List[int]
     is_export_mode: bool
     duplicated_serials_count: str
+    is_latest: bool
 
     def __init__(self, start_proc=None, start_date=None, start_time=None, end_date=None,
                  end_time=None, cond_procs=None, cate_procs=None,
@@ -194,7 +195,8 @@ class CommonParam:
                  cyclic_div_num=None, cyclic_window_len=None, cyclic_interval=None, cyclic_terms=(), compare_type=None,
                  is_remove_outlier=0, remove_outlier_objective_var=0, remove_outlier_explanatory_var=0,
                  abnormal_count=0, sensor_cols=[], duplicate_serial_show=None, is_export_mode=False,
-                 duplicated_serials_count=None):
+                 duplicated_serials_count=None, agp_color_vars=None, divide_format=None, divide_offset=None,
+                 is_latest=False, divide_calendar_dates=[], divide_calendar_labels=[]):
         self.start_proc = int(start_proc) if str(start_proc).isnumeric() else None
         self.start_date = start_date
         self.start_time = start_time
@@ -246,6 +248,12 @@ class CommonParam:
             self.duplicate_serial_show = DuplicateSerialShow(duplicate_serial_show)
         self.is_export_mode = bool(int(is_export_mode))
         self.duplicated_serials_count = DuplicateSerialCount(duplicated_serials_count)
+        self.divide_format = divide_format or None
+        self.divide_offset = float(divide_offset) if divide_offset else None
+        self.agp_color_vars = agp_color_vars or None
+        self.is_latest = is_latest
+        self.divide_calendar_dates = divide_calendar_dates
+        self.divide_calendar_labels = divide_calendar_labels
 
 
 class DicParam:
@@ -430,9 +438,50 @@ class DicParam:
         target_cols = []
         for proc in self.array_formval:
             for i, col_id in enumerate(proc.col_ids):
+                proc_cfg = CfgProcess.query.get(proc.proc_id)
+                col_info = CfgProcessColumn.get_by_ids([col_id])
                 target_cols.append({
-                    'end_col_id': col_id,
-                    'end_col_name': proc.col_names[i],
-                    'end_proc_id': proc.proc_id
+                    END_COL_ID: col_id,
+                    END_COL_NAME: col_info[0].column_name,
+                    SHOWN_NAME: col_info[0].name,  # shown name of column
+                    END_PROC_ID: proc.proc_id,
+                    END_PROC_NAME: proc_cfg.name or '',
+                    COL_DATA_TYPE: col_info[0].data_type
                 })
         return target_cols
+
+    def add_agp_color_vars(self):
+        if self.common.agp_color_vars:
+            color_vars = list(self.common.agp_color_vars.values())
+            # add col if not in current col_ids list
+            already_col_ids = [str(col_id) for col_id in self.get_all_end_col_ids()]
+            color_vars = [col_var for col_var in color_vars if str(col_var) not in already_col_ids]
+            cfg_color_cols = CfgProcessColumn.get_by_ids(color_vars)
+            for cfg_col in cfg_color_cols:
+                # assign to list of target columns
+                self.add_proc_to_array_formval(cfg_col.process_id, cfg_col.id)
+
+    def get_col_info_by_id(self, col_id):
+        target_cols = self.get_all_target_cols()
+        cols = [col for col in target_cols if str(col[END_COL_ID]) == str(col_id)]
+        return cols[0] if len(cols) else None
+
+    def get_color_id(self, target_var: int) -> Optional[int]:
+        if self.common.agp_color_vars is None:
+            return None
+        color_id = self.common.agp_color_vars.get(str(target_var))
+        if color_id is None:
+            return None
+        return int(color_id)
+
+    def get_color_info(self, target_var, shown_name=False):
+        color_id = self.get_color_id(target_var)
+        if not color_id:
+            return None
+
+        color_col = self.get_col_info_by_id(color_id)
+
+        if not shown_name:
+            return color_col[END_COL_NAME] or None
+
+        return color_col[SHOWN_NAME] or None

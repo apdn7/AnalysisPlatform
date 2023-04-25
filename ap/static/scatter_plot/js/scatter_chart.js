@@ -244,7 +244,7 @@ const genScatterLayout = (chartOptions) => {
             {
                 font: {},
                 showarrow: false,
-                text: chartOptions.xAxisLabel,
+                text: '',
                 xanchor: 'center',
                 xref: 'paper',
                 y: -0.1,
@@ -254,7 +254,7 @@ const genScatterLayout = (chartOptions) => {
             {
                 font: {},
                 showarrow: false,
-                text: chartOptions.yAxisLabel,
+                text: '',
                 yanchor: 'center',
                 xanchor: 'bottom',
                 yref: 'paper',

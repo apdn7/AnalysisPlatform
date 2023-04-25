@@ -47,7 +47,7 @@
 }
 
 #tblUserSetting th:nth-child(2){
-	min-width: 50px !important;
+	min-width: 65px !important;
 }
 #tblUserSetting th:nth-child(3){
     width: 100px !important;
@@ -67,7 +67,7 @@
     width: 150px;
 }
 .col-with-button {
-    width: 100px !important;
+    min-width: 70px !important;
 }
 
 #tblUserSetting th:nth-child(10){

@@ -275,7 +275,7 @@
 
 
 <!-- end proc -->
-{% macro heatmap_end_proc(title='', procs=[], no_link_data=false, width=2) %}
+{% macro heatmap_end_proc(title='', procs=[], no_link_data=false, width=2, cat_count=true) %}
 	<div class="card-body table-bordered graph-navi">
 		<div class="row">
 			<div class="col-xl-{{ width }} col-3 d-flex flex-column">
@@ -294,13 +294,15 @@
 						<option value="range">{{ _('CHMRange') }}</option>
 						<option value="iqr">{{ _('IQR (Q3-Q1)') }}</option>
                     </select>
-                    {{ sub_label(_('Cat.'), hl=' pb-0') }}
-                    <select id="hmFunctionCate" class="form-control" name="function_cate">
-                        <option value="count">{{ _('CHMCount') }}</option>
-                        <option value="count_per_hour">{{ _('CHMCountPerHour') }}</option>
-                        <option value="count_per_min">{{ _('CHMCountPerMin') }}</option>
-                        <option value="time_per_count">{{ _('CHMTimePerCount') }}</option>
-                    </select>
+                    {% if cat_count %}
+                        {{ sub_label(_('Cat.'), hl=' pb-0') }}
+                        <select id="hmFunctionCate" class="form-control" name="function_cate">
+                            <option value="count">{{ _('CHMCount') }}</option>
+                            <option value="count_per_hour">{{ _('CHMCountPerHour') }}</option>
+                            <option value="count_per_min">{{ _('CHMCountPerMin') }}</option>
+                            <option value="time_per_count">{{ _('CHMTimePerCount') }}</option>
+                        </select>
+                    {% endif %}
                     <div class="mt-4">
                         {{ start_proc_select(procs, no_link_data=no_link_data) }}
                     </div>
@@ -603,7 +605,6 @@
                             <span id="catExpBoxTitle" class="cat-title">{{_('Facet')}}</span>
                             <div id="catExpBox" class="d-flex"></div>
                         </div>
-                        {% if scp %}
 <!--                        <div class="mr-2 cats-exp-box">-->
 <!--							<span id="divTitle" class="cat-title">Div</span>-->
 <!--							<div id="divBox" class="d-flex"></div>-->
@@ -612,7 +613,6 @@
                             <span id="colorTitle" class="cat-title">Color</span>
                             <div id="colorBox" class="d-flex"></div>
                         </div>
-						{% endif %}
 						<div class="category-box">
 							<span id="categoriesVarTitle" class="cat-title">System</span>
 							<div id="categoriesVarBox" class="d-flex"></div>
@@ -670,14 +670,14 @@
 {% endmacro %}
 
 <!--  対象期間　日時と最新入り替えボックス  -->
-{% macro start_proc_interval(showAutoUpdate=true, prefix='', disableLatest=false, name='traceTime', commonClass='', wrapID='target-period-wrapper', showDataFinder=True) %}
+{% macro start_proc_interval(showAutoUpdate=true, prefix='', disableLatest=false, name='traceTime', commonClass='', wrapID='target-period-wrapper', showDataFinder=True, cyclicCalender=False, dateRangeHoverMsg='') %}
     <div class="d-flex" id="{{wrapID}}">
         <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
             <input type="radio" name="{{name}}" onchange="handleChangeInterval(this, 'default-{{prefix}}')"
                    class="custom-control-input {{commonClass}}" id="{{prefix}}radioDefaultInterval"
                    value="default" checked="checked">
-            <label class="custom-control-label" for="{{prefix}}radioDefaultInterval" class="label-left">
-                <span class="sub-label">{{ _('Date range') }}</span>
+            <label class="custom-control-label" title="{{ dateRangeHoverMsg }}" for="{{prefix}}radioDefaultInterval" class="label-left">
+                <span class="{{'hint-text ' if dateRangeHoverMsg else '' }}sub-label">{{ _('Date range') }}</span>
             </label>
         </div>
         <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3 {{ 'visible-hide' if disableLatest else '' }}">
@@ -710,9 +710,15 @@
                            style="width: 30%" {{ 'disabled' if disableLatest else '' }}>
                     <select class="form-control mr-2 {{commonClass}}" id="{{prefix}}timeUnit" name="timeUnit" style="width: 30%" {{ 'disabled' if disableLatest else '' }}>
                         <option value="60">{{ _('hour') }}</option>
+                        {% if not cyclicCalender %}
                         <option value="1">{{ _('minute') }}</option>
+                        {% endif %}
                         <option value="1440">{{ _('day') }}</option>
                         <option value="10080">{{ _('week') }}</option>
+                        {% if cyclicCalender %}
+                        <option value="months">{{ _('Latest month') }}</option>
+                        <option value="years">{{ _('Latest year') }}</option>
+                        {% endif %}
                     </select>
                     {% if showAutoUpdate %}
                         <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
@@ -787,14 +793,16 @@
     </div>
 {% endmacro %}
 
-{% macro multiple_target_period(rlp=False, dataNumber=false, scp=false, DivisionNumberHover='', WindowLengthHover=_('Window length Hover'), IntervalHover=_('Interval Hover'), cyclicTermDefault=30) %}
+{% macro multiple_target_period(rlp=False, dataNumber=false, scp=false, DivisionNumberHover='', WindowLengthHover=_('Window length Hover'), IntervalHover=_('Interval Hover'), cyclicTermDefault=30, cyclicCalender=False) %}
     <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
         <div class="d-flex align-items-center">
             <select class="form-control" id="divideOption" name="compareType" onchange="handleChangeDivideOption(this)" style="width: 200px">
                 {% if rlp %}
                     <option value="category">{{ _("Divide by category") if not scp else _('Non-Divided / Divide by Category') }}</option>
+                    {% if not cyclicCalender %}
                     <option value="cyclicTerm">{{ _('Divide by term (Cyclic)') }}</option>
                     <option value="directTerm">{{_('Divide by term (Direct)')}}</option>
+                    {% endif %}
                 {% else %}
                     <option value="var">{{ _("Stratify by variables") }}</option>
                     <option value="cyclicTerm">{{ _('Stratify by term (Cyclic)') }}</option>
@@ -804,19 +812,23 @@
                 {% if dataNumber %}
                     <option value="dataNumberTerm">{{_('Divide by data number (Cyclic)')}}</option>
                 {% endif %}
+                {% if cyclicCalender %}
+                    <option value="cyclicCalender" selected>{{_('Divide by calender (Cyclic)')}}</option>
+                {% endif %}
             </select>
             <span class="ml-2">
-                {{ _('Datetime Range') }} <span id="datetimeRangeShowValue"></span>
+                {{ _('Datetime Range') }} <span id="datetimeRangeShowValue"></span><span id="cyclicCalenderShowDiv"></span>
                 <span id="category-daterange" class="hide"></span>
                 <span id="var-daterange" class="hide"></span>
                  <span id="cyclicTerm-daterange" class="hide"></span>
                  <span id="directTerm-daterange" class="hide"></span>
                  <span id="dataNumberTerm-daterange" class="hide"></span>
+                <span id="cyclicCalender-daterange" class="hide"></span>
             </span>
         </div>
         <div class="mt-3">
             <div id="for-{{'category' if rlp else 'var'}}" name="var-form">
-                {{start_proc_interval(name='varTraceTime1', commonClass='to-update-time-range', showDataFinder=False)}}
+                {{start_proc_interval(name='varTraceTime1', commonClass='to-update-time-range')}}
             </div>
             <div id="for-cyclicTerm" style="display: none; visibility: hidden">
                 <div class="d-flex mb-2">
@@ -846,6 +858,9 @@
                             <input id="cyclicTermStartDate" class="datepicker hasdatepicker form-control category-plot-time"
                                    data-date-format="yyyy-mm-dd" name="START_DATE" type="text" hidden>
                             <input name="START_TIME" class="form-control" id="cyclicTermStartTime" type="text" hidden>
+                            <button type="button" onclick="showDataFinderModal(this)" id="dataFinderBtn"
+                                    style="position: absolute; top: 60px; right: 7px; display: none"
+                                    class="btn btn-sm btn-primary">Data finder</button>
                         </div>
                         <div id="for-cyclicCecent" style="display: none">
                             <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
@@ -894,6 +909,9 @@
                             <input id="endDate1" class="datepicker hasdatepicker form-control category-plot-time"
                                        data-date-format="yyyy-mm-dd" name="END_DATE" type="text" hidden>
                             <input name="END_TIME" class="form-control" id="endTime1" type="text" hidden>
+                            <button type="button" onclick="showDataFinderModal(this)" id="dataFinderBtn"
+                                    style="position: absolute; top: 3px; right: 20px; display: none"
+                                    class="btn btn-sm btn-primary">Data finder</button>
                             <span class="ml-2" style="width: 8.5px"></span>
                         </div>
                         {% for i in range(2,9) %}
@@ -920,6 +938,47 @@
                     <div class="d-flex align-items-center mt-2">
                         <span class="sub-label mr-2">{{_('Number of data')}}</span>
                         <input type="text" class="form-control to-update-time-range" id="dataNumber" name="dataNumber" value="1000" style="max-width: 100px">
+                    </div>
+                </div>
+            {% endif %}
+
+             {% if cyclicCalender %}
+                <div id="for-cyclicCalender" style="display: none; visibility: hidden">
+                    {{start_proc_interval(name='varTraceTime2', prefix='cyclicCalender', commonClass='to-update-time-range', showAutoUpdate=true, cyclicCalender=True, dateRangeHoverMsg=_('Daterange divide by calender hover msg'))}}
+                    <div class="d-flex mt-2">
+                        <div class="d-flex align-items-center">
+                            <label class="mr-2 mb-0" title="{{ _('Divide format hover msg') }}">
+                                <span class="hint-text sub-label">{{ _('Divide format') }}</span>
+                            </label>
+                            <div class="custom-selection-section">
+                                 <div class="custom-selection gui-custom-selection" style="width: auto; min-width: 240px" id="cyclicCalender-selection">
+                                    <span id="cyclicCalender">yyyy-mm-dd 2022-04-01</span>
+                                    <span class="selection__arrow"><b></b></span>
+                                </div>
+                                <div class="custom-selection-content" style="width: auto" id="cyclicCalender-content">
+                                    <div class="cyclic-calender-select-option">
+                                        <div class="cyclic-calender-option-list">
+                                            <div class="cyclic-calender-option-item">
+                                                 <div class="custom-control custom-radio">
+                                                    <input type="radio" name="cyclicCalender" id="cyclicCalender_{{format}}" class="custom-control-input to-update-time-range" value="to">
+                                                    <label class="custom-control-label" for="cyclicCalender_{{format}}" class="label-left">
+                                                        <span class="sub-label">{{format}}</span>
+                                                    </label>
+                                                </div>
+                                                <span class="cyclic-calender-option-example">2022040112</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div style="display: none;" class="align-items-center for-recent-cyclicCalender ml-2">
+                            <label class="mr-2 mb-0" title="{{ _('Offset hover msg') }}">
+                                <span class="hint-text sub-label">{{ _('Offset') }} [hour]</span>
+                            </label>
+                            <input type="text" class="form-control to-update-time-range" name="divideOffset" id="divideOffset" style="max-width: 80px" name="divideOffset" value="0">
+                        </div>
                     </div>
                 </div>
             {% endif %}

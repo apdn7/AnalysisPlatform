@@ -321,12 +321,21 @@ def gen_cat_label_unique(df, dic_param, graph_param, has_na=False, label_col_id=
     cat_exp_list = gen_unique_data(df, dic_proc_cfgs, cat_and_div, has_na)
     dic_param[CAT_EXP_BOX] = list(cat_exp_list.values())
 
+    color_vals = []
+    if graph_param.common.color_var:
+        color_vals.append(graph_param.common.color_var)
+    if graph_param.common.agp_color_vars:
+        agp_color_vals = list(set(int(color) for color in graph_param.common.agp_color_vars.values()))
+        color_vals += agp_color_vals
+
     exclude_col_id = cat_and_div
     if label_col_id:
         exclude_col_id += label_col_id
+    exclude_col_id += color_vals
 
     sensor_ids = [col for col in graph_param.common.sensor_cols if col not in exclude_col_id]
     dic_param[CAT_ON_DEMAND] = list(gen_unique_data(df, dic_proc_cfgs, sensor_ids, True).values())
+    dic_param[UNIQUE_COLOR] = list(gen_unique_data(df, dic_proc_cfgs, color_vals, False).values())
 
     dic_param = gen_group_filter_list(df, graph_param, dic_param)
 
@@ -1300,10 +1309,10 @@ def gen_trace_procs_sql(path, graph: TraceGraph, start_tm, end_tm, short_procs, 
     # calculate +-14 day for end processes
     e_start_tm = convert_time(start_tm, return_string=False)
     e_start_tm = add_days(e_start_tm, -14)
-    e_start_tm = convert_time(e_start_tm)
+    e_start_tm = convert_time(e_start_tm, remove_ms=True)
     e_end_tm = convert_time(end_tm, return_string=False)
     e_end_tm = add_days(e_end_tm, 14)
-    e_end_tm = convert_time(e_end_tm)
+    e_end_tm = convert_time(e_end_tm, remove_ms=True)
     for from_proc, to_proc in zip(path[:-1], path[1:]):
         is_trace_forward = True
         edge_id = (from_proc, to_proc)

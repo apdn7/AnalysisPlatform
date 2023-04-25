@@ -1,5 +1,25 @@
 # Releases
 
+## v4.2.0
+
+New features and improvements
+
+* Added "Aggregation Plot(AgP)" page.
+  * This includes stacked bar charts and line charts with aggregated data.
+  * For example, you can visualize stacked bar charts of production volume, number of defects along with line chart of aggregated sensor data, and explore their relationships.
+  * Added sample data (/sample_data/AgP_sample_data) and a sample bookmark (10-1 AgP).
+* (StP/RLP/ScP) Enabled the data finder.
+* (FPP/StP/MSP) Changed the sampling logic of kernel density estimation, which is activated when the number of data points is large.
+  * Changed from random sampling to equidistant sampling method to preserve minimum, maximum, and median values
+* (PCA) In the T2/Q contribution plot, more character strings are displayed in the item names of the bar graphs to be displayed, and the appearance is adjusted.
+
+Bugfixes
+
+* Fixed a bug where an error occurred when importing data from a CSV/TSV file with no column name and the data could not be read (skipping columns with no column name)
+* Fixed incorrect week number displayed in calendar picker and Data finder
+* (RLP) Fixed a bug that overlapped variable names when the variable name is long.
+* (SkD/PCA) Fixed a bug where the original "column name" registered in the data source was displayed instead of the "display name".
+
 ## v4.1.2
 
 New features and improvements

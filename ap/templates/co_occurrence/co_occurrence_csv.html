@@ -1,18 +1,6 @@
 {% extends "base.html" %}
 {% import 'macros.html' as macros %}
 
-{% block asset %}
-    <link href="{{ url_for('co_occurrence.static', filename = 'css/co_occurrence_csv.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename = 'common/css/dragndrop.css') }}" rel="stylesheet"/>
-    <script src="{{ url_for('static',filename='modules/sigmajs/build/sigma.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.renderers.edgeLabels.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.plugins.dragNodes.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.layout.forceAtlas2.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.plugins.animate.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='modules/sigmajs/build/plugins/sigma.layout.noverlap.min.js') }}"></script>
-
-{% endblock %}
-
 {% block header %}
     {{ macros.page_title(key='COG', title=_('Co-occurrence Graph'), hint=_('Visualize co-occurrence (relationships that focus on how often one phenomenon and another occur at the same time) of faults/alarms.'), hasAction=true) }}
 {% endblock %}
@@ -189,6 +177,10 @@
 {% endblock %}
 
 {% block js %}
-    <script src="{{ url_for('co_occurrence.static', filename = 'js/pareto_plot.js') }}"></script>
-    <script src="{{ url_for('co_occurrence.static', filename = 'js/co_occurrence_csv.js') }}"></script>
+    {% assets "js_cog" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_cog" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 {% endblock %}

@@ -6,11 +6,11 @@ from copy import deepcopy
 
 from ap.common.common_utils import as_list
 from ap.common.constants import *
+from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.setting_module.models import CfgProcessColumn
 from ap.setting_module.services.process_config import get_all_process_no_nested, get_all_visualizations
 from ap.trace_data.schemas import DicParam, CommonParam, ConditionProc, CategoryProc, EndProc, \
     ConditionProcDetail
-from ap.common.services.jp_to_romaji_utils import to_romaji
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,9 @@ common_startwith_keys = ('start_proc', 'START_DATE', 'START_TIME', 'END_DATE', '
                          CYCLIC_DIV_NUM, CYCLIC_WINDOW_LEN, CYCLIC_INTERVAL, MATRIX_COL, COLOR_ORDER,
                          IS_EXPORT_MODE, IS_IMPORT_MODE, VAR_TRACE_TIME, TERM_TRACE_TIME, CYCLIC_TRACE_TIME, TRACE_TIME,
                          EMD_TYPE, ABNORMAL_COUNT, REMOVE_OUTLIER_OBJECTIVE_VAR, REMOVE_OUTLIER_EXPLANATORY_VAR,
-                         DUPLICATE_SERIAL_SHOW, EXPORT_FROM, DUPLICATED_SERIALS_COUNT)
+                         DUPLICATE_SERIAL_SHOW, EXPORT_FROM, DUPLICATED_SERIALS_COUNT, AGP_COLOR_VARS, DIVIDE_FMT,
+                         DIVIDE_OFFSET, DIVIDE_CALENDAR_DATES, DIVIDE_CALENDAR_LABELS
+                         )
 
 conds_startwith_keys = ('filter-', 'cond_', 'machine_id_multi')
 
@@ -119,8 +121,10 @@ def parse_multi_filter_into_one(dic_form):
                 dic_cat_filters = json.loads(value)
                 if dic_cat_filters:
                     dic_parsed[COMMON][key] = {int(col): vals for col, vals in dic_cat_filters.items()}
-            elif key in (TEMP_CAT_EXP, TEMP_CAT_PROCS):
+            elif key in (TEMP_CAT_EXP, TEMP_CAT_PROCS, AGP_COLOR_VARS, DIVIDE_CALENDAR_DATES, DIVIDE_CALENDAR_LABELS):
                 dic_parsed[COMMON][key] = json.loads(value)
+            elif key.startswith((VAR_TRACE_TIME, TRACE_TIME)):
+                dic_parsed[COMMON][TRACE_TIME] = value
             else:
                 dic_parsed[COMMON][key] = value
 
@@ -387,7 +391,14 @@ def bind_dic_param_to_class(dic_param):
                          sensor_cols=sensor_cols,
                          duplicate_serial_show=dic_common.get(DUPLICATE_SERIAL_SHOW, DuplicateSerialShow.SHOW_BOTH),
                          is_export_mode=dic_common.get(IS_EXPORT_MODE, False),
-                         duplicated_serials_count=dic_common.get(DUPLICATED_SERIALS_COUNT, DuplicateSerialCount.AUTO.value)
+                         duplicated_serials_count=dic_common.get(DUPLICATED_SERIALS_COUNT,
+                                                                 DuplicateSerialCount.AUTO.value),
+                         divide_format=dic_common.get(DIVIDE_FMT, None),
+                         divide_offset=dic_common.get(DIVIDE_OFFSET, None),
+                         agp_color_vars=dic_common.get(AGP_COLOR_VARS, None),
+                         is_latest=True if dic_common.get(TRACE_TIME, 'default') == 'recent' else False,
+                         divide_calendar_dates=dic_common.get(DIVIDE_CALENDAR_DATES, []),
+                         divide_calendar_labels=dic_common.get(DIVIDE_CALENDAR_LABELS, []),
                          )
 
     # use the first end proc as start proc
@@ -496,7 +507,7 @@ def get_end_procs_param(dic_param):
 def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
     updated_keys = [ARRAY_PLOTDATA, ACT_CELLS, UNIQUE_SERIAL, MATCHED_FILTER_IDS, UNMATCHED_FILTER_IDS, \
                     NOT_EXACT_MATCH_FILTER_IDS, CAT_EXP_BOX, ACTUAL_RECORD_NUMBER, IMAGES, IS_GRAPH_LIMITED, \
-                    EMD_TYPE, TIME_CONDS, FMT, CAT_ON_DEMAND]
+                    EMD_TYPE, TIME_CONDS, FMT, CAT_ON_DEMAND, UNIQUE_COLOR]
     for key in updated_keys:
         if key not in dic_param:
             continue

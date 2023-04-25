@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block header %}
+    {{ macros.page_title(key='AgP', title=_('Aggregation Plot'), hint=_('Aggregation Plot info'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+    <div class="card">
+        <form id="traceDataForm">
+            {{ macros.heatmap_end_proc(title=_('AgP target variables'), procs=procs, no_link_data=true, cat_count=false) }}
+            {{ macros.data_finder_card() }}
+            <!-- Date range -->
+            <div class="card-body table-bordered graph-navi" id="varSrtPrc">
+                <div class="row">
+                    <div class="col-xl-2 col-3">
+                        <div class="d-flex justify-content-between">
+                        {{ macros.label(_("Target period")) }}
+                        {{ macros.paste_btn() }}
+                        </div>
+                    </div>
+                    <div class="col-xl-10 col-9">
+                        <div class="row">
+                            {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover StP'), rlp=True, cyclicCalender=True, dataNumber=False)}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{ macros.cond_proc([],'', width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
+            <br class="graph-navi graph-navi-top-down">
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
+                {{ macros.preprocess_options(chmTitle=_('The targets of removing outlier are Max, Mean Min, σ, and Range.')) }}
+                <button id="showGraphBtn" type="button" value="{{ _('Display graph') }}"
+                        onClick="showAgP();" class="btn btn-primary show-graph ml-3"><i
+					class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+				{{ macros.export_gui() }}
+			</div>
+			<br>
+		</form>
+		{{ macros.cat_label_filter_modal() }}
+	</div>
+
+	<div class="result-section" id="scaleOption" style="display: none;">
+		<div class="y-scale-group tooltip-parent align-items-center mt-3 mb-2" id="graph-settings-area">
+			{{ macros.info_i_mark() }}
+			{{ macros.on_demand_filter() }}
+		</div>
+	</div>
+    <div id="agpCard" class="card ui-sortable" style="padding: 5px; display: none">
+    </div>
+    <div id="stContentTab">
+        <div class="setting-inform-content"></div>
+    </div>
+    <div class=" loading"></div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+    <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
+       target="_blank">{{ _("Click here to fix") }}</a>
+	{{ macros.data_point_info() }}
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    {% assets "js_agp" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_agp" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
+{% endblock %}

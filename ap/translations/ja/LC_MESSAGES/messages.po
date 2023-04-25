@@ -3671,3 +3671,54 @@ msgstr ""
 "重複数はグラフ描画後、ページ左下に表示されます。\n"
 "この処理はデータ点数が多いほど時間がかかることにご注意ください。"
 
+#: ap/templates/macros.html
+msgid "Divide by calender (Cyclic)"
+msgstr "カレンダ分解 (繰返入力)"
+
+# ap/template/setting_module/master_config.html
+#: ap/templates/macros.html
+msgid "Divide format"
+msgstr "分割フォーマット"
+
+#: ap/templates/macros.html
+msgid "Offset"
+msgstr "オフセット"
+
+#: ap/templates/macros.html
+msgid "Divide format hover msg"
+msgstr "x軸の分割方法、及びx軸ラベルフォーマット。"
+
+#: ap/templates/macros.html
+msgid "Daterange divide by calender hover msg"
+msgstr "日時で設定した開始時刻を基準に'分割フォーマット'で選択した分割毎に集計。例えば日毎の集計であれば、開始時刻から24h毎に集計する。"
+
+#: ap/templates/macros.html
+msgid "Offset hover msg"
+msgstr ""
+"稼働日の切り替え時間をずらす。(-24から24まで)\n"
+"例：1日刻みで7.5の場合、7:30から31:30(翌朝7:30)まで"
+
+#: ap/templates/macros.html
+msgid "AgP color hover msg"
+msgstr "この設定は選択した変数内のグループで色分けされる。"
+
+#: ap/templates/aggregate_plot/aggregate_plot.html
+msgid "Aggregation Plot info"
+msgstr "生産量、不良数などの集計結果とセンサーデータの時系列変化を可視化し、それらの関係性を探索することができます。"
+
+#: ap/templates/aggregate_plot/aggregate_plot.html
+msgid "AgP target variables"
+msgstr "グラフにプロットするデータを指定します。データのTypeがStrやIntの場合は集計結果を表示し、RealやCTの場合は線分プロットを表示します。"
+
+#: ap/templates/sidebar.html
+msgid "Aggregation Plot"
+msgstr "集計プロット"
+
+#: ap/templates/macros.html
+msgid "Latest month"
+msgstr "月"
+
+#: ap/templates/macros.html
+msgid "Latest year"
+msgstr "年"
+

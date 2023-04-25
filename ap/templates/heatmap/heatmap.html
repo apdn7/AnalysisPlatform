@@ -1,24 +1,6 @@
 {% extends "base.html" %}
 {% import 'macros.html' as macros %}
 
-{% block asset %}
-    <link href="{{ url_for('heatmap.static', filename = 'css/heat_map.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
-          rel="stylesheet">
-    <script
-            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
-    <script
-            src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"/>
-    <script src="{{ url_for('static', filename = 'common/js/libs/pagination.min.js') }}"></script>
-    <link href="{{ url_for('static', filename = 'common/css/pagination.css') }}" rel="stylesheet">
-{% endblock %}
-
 {% block header %}
     {{ macros.page_title(key='CHM', title=_('Calendar Heat Map'), hint=_('Visualize long-term data such as annual variations in processes and parameters that can vary depending on days of the week or shifts, etc.'), hasAction=true) }}
 {% endblock %}
@@ -89,7 +71,10 @@
             procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
-    <script src="{{ url_for('heatmap.static', filename = 'js/heatmap.js') }}"></script>
-    <script src="{{ url_for('heatmap.static', filename = 'js/heatmap_plotly.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/cat_facet_label_filter_modal.js') }}"></script>
+    {% assets "js_chm" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_chm" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 {% endblock %}

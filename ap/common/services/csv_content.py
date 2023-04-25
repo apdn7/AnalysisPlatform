@@ -1,8 +1,8 @@
 # CSVコンテンツを生成するService
 # read(dic_form, local_params)が外向けの関数
-import io
 import csv
 import decimal
+import io
 # https://stackoverrun.com/ja/q/6869533
 import logging
 import math
@@ -42,17 +42,15 @@ def read_data(f_name, headers=None, skip_head=None, end_row=None, delimiter=',',
         rows = csv.reader((line.replace('\0', '') for line in f), delimiter=delimiter)
 
         # skip tail
-        if end_row != None:
+        if end_row is not None:
             rows = islice(rows, end_row + 1)
-
         # skip head
-        if skip_head != None:
-            for _ in range(skip_head):
-                next(rows)
+        if skip_head is not None:
+            rows = islice(rows, skip_head, None)
 
         # use specify header( may be get from yaml config)
         csv_headers = next(rows)
-        if headers:
+        if headers is not None:
             yield normalize_func(headers)
         else:
             yield normalize_func(csv_headers)
@@ -252,4 +250,3 @@ def zip_file_to_response(csv_data, file_names):
                             })
 
     return response
-

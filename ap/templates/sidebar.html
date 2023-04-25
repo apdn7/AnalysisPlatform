@@ -44,6 +44,13 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ url_for('agp.index') }}" class="go-to-page"
+                       title="{{ _('Aggregation Plot info') }}">
+                        <span class="page-character">AgP</span>
+                        <span class="nav-text hint-text">{{ _('Aggregation Plot') }}</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ url_for('multiple_scatter_plot.index') }}" class="go-to-page"
                        title="{{ _('Displays a scatter chart matrix. You can create a matrix between up to four target variables.') }}">
                         <span class="page-character">MSP</span>

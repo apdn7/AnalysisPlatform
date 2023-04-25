@@ -40,4 +40,4 @@ unidic-lite==1.0.8
 fugashi==1.1.2
 cutlet==0.1.19
 waitress==2.1.2
-
+Flask-Assets==2.0

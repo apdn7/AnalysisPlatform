@@ -1,24 +1,6 @@
 {% extends "base.html" %}
 {% import 'macros.html' as macros %}
 
-{% block asset %}
-    <link href="{{ url_for('analyze.static', filename = 'css/anomaly_detection.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename = 'common/js/libs/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/dom-text.js') }}"></script>
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename = 'modules/js-datatables/lib/jquery.dataTables.min.css') }}">
-    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
-          rel="stylesheet">
-    <script src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
-
-    <script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
-
-{% endblock %}
-
 {% block header %}
    {{ macros.page_title(key='PCA', title=_('Principal Component Analysis'), hint=_('This function visualizes “unusual” and analyzes its factors by Principal Component Analysis.'), hasAction=true) }}
 {% endblock %}
@@ -238,13 +220,10 @@
 			procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
-    <script src="{{ url_for('analyze.static', filename = 'js/pca_toastr.js') }}"></script>
-    <script src="{{ url_for('analyze.static', filename = 'js/generateJson.js') }}"></script>
-    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_common.js') }}"></script>
-    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_timeseries.js') }}"></script>
-    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_scatters.js') }}"></script>
-    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_biplot.js') }}"></script>
-    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_q_contribution.js') }}"></script>
-    <script src="{{ url_for('analyze.static', filename = 'js/hotelling_t2_contribution.js') }}"></script>
-    <script src="{{ url_for('analyze.static', filename = 'js/pca.js') }}"></script>
+    {% assets "js_pca" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_pca" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 {% endblock %}

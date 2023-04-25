@@ -21,7 +21,7 @@ from ap.common.common_utils import set_sqlite_params, init_config
 from ap.common.constants import FlaskGKey, SQLITE_CONFIG_DIR, PARTITION_NUMBER, UNIVERSAL_DB_FILE, APP_DB_FILE, \
     TESTING, YAML_CONFIG_VERSION, YAML_CONFIG_BASIC, YAML_CONFIG_DB, YAML_CONFIG_PROC, YAML_CONFIG_AP, \
     INIT_APP_DB_FILE, INIT_BASIC_CFG_FILE, REQUEST_THREAD_ID, YAML_START_UP, LOG_LEVEL, AP_LOG_LEVEL, AppGroup, \
-    AppSource
+    AppSource, appENV
 from ap.common.logger import log_execution
 from ap.common.services.request_time_out_handler import RequestTimeOutAPI, set_request_g_dict
 from ap.common.trace_data_log import get_log_attr, TraceErrKey
@@ -118,6 +118,7 @@ def create_app(object_name=None):
     from .sankey_plot import create_module as sankey_create_module
     from .co_occurrence import create_module as co_occurrence_create_module
     from .multiple_scatter_plot import create_module as multiple_scatter_create_module
+    from .aggregate_plot import create_module as agp_create_module
     from .common.logger import bind_user_info
     from .script.convert_user_setting import convert_user_setting_url
     from .script.migrate_csv_datatype import migrate_csv_datatype
@@ -202,6 +203,7 @@ def create_app(object_name=None):
     co_occurrence_create_module(app)
     multiple_scatter_create_module(app)
     tile_interface_create_module(app)
+    agp_create_module(app)
     app.add_url_rule('/', endpoint='tile_interface.tile_interface')
 
     basic_config_yaml = BasicConfigYaml(dic_yaml_config_file[YAML_CONFIG_BASIC])
@@ -272,6 +274,8 @@ def create_app(object_name=None):
         # get the last time user request
         global dic_request_info
 
+
+
         # get api request thread id
         thread_id = request.form.get(REQUEST_THREAD_ID, None)
         set_request_g_dict(thread_id)
@@ -293,6 +297,7 @@ def create_app(object_name=None):
                     "action": "Chrome を今すぐダウンロード: ",
                     "url": "https://www.google.com/chrome/"
                 })
+
 
     @app.after_request
     def after_request_callback(response: Response):

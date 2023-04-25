@@ -1,6 +1,9 @@
 import os
 from functools import lru_cache
 from itertools import islice
+from typing import List, Tuple, Any
+
+import pandas as pd
 
 from ap.api.efa.services.etl import preview_data, detect_file_delimiter
 from ap.api.setting_module.services.csv_import import convert_csv_timezone
@@ -21,7 +24,6 @@ from ap.setting_module.models import CfgDataSource, CfgProcessColumn, CfgVisuali
     make_session, CfgProcess, crud_config
 from ap.setting_module.schemas import VisualizationSchema
 from ap.trace_data.models import Sensor, find_sensor_class
-import pandas as pd
 
 
 def get_latest_records(data_source_id, table_name, limit):
@@ -242,6 +244,11 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
         header_names = normalize_list(header_names)
         df_data_details = normalize_big_rows(data_details, header_names)
         data_types = [gen_data_types(df_data_details[col]) for col in header_names]
+        df_data_details, org_headers, header_names, dupl_cols, data_types = drop_null_header_column(df_data_details,
+                                                                                                    org_headers,
+                                                                                                    header_names,
+                                                                                                    dupl_cols,
+                                                                                                    data_types)
     else:
         # try to get file which has data to detect data types + get col names
         dic_file_info, csv_file = get_etl_good_file(sorted_files)
@@ -282,7 +289,11 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
             org_headers, header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
             header_names = normalize_list(header_names)
             df_data_details = normalize_big_rows(data_details, header_names)
-
+            df_data_details, org_headers, header_names, dupl_cols, data_types = drop_null_header_column(df_data_details,
+                                                                                                        org_headers,
+                                                                                                        header_names,
+                                                                                                        dupl_cols,
+                                                                                                        data_types)
     has_ct_col = True
     dummy_datetime_idx = None
     if df_data_details is not None:
@@ -294,6 +305,8 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
             validate_datetime(df_data_details, col, False, False)
             convert_csv_timezone(df_data_details, col)
             df_data_details.dropna(subset=[col], inplace=True)
+            # TODO: can we do this faster?
+            data_types = [gen_data_types(df_data_details[col]) for col in header_names]
 
         df_data_details = df_data_details[0:limit]
         if DataType.DATETIME.value not in data_types and DATETIME_DUMMY not in df_data_details.columns:
@@ -381,7 +394,7 @@ def get_etl_good_file(sorted_files):
 
         dic_file_info, is_empty_file = check_result
 
-        if dic_file_info is None:
+        if dic_file_info is None or isinstance(dic_file_info, Exception):
             continue
 
         if is_empty_file:
@@ -465,4 +478,25 @@ def gen_colsname_for_duplicated(cols_name):
 
 def is_valid_list(df_rows):
     return (isinstance(df_rows, list) and len(df_rows)) \
-            or (isinstance(df_rows, pd.DataFrame) and not df_rows.empty)
+        or (isinstance(df_rows, pd.DataFrame) and not df_rows.empty)
+
+
+# TODO: add test for this
+def drop_null_header_column(df: pd.DataFrame, original_headers: List[str], header_names: List[str],
+                            duplicated_names: List[str],
+                            data_types: List[int]) -> Tuple[pd.DataFrame, List[str], List[str], List[str], List[int]]:
+    null_indexes = {i for i, col_name in enumerate(original_headers) if not col_name}
+    if not null_indexes:
+        return df, original_headers, header_names, duplicated_names, data_types
+
+    null_header_names = [col_name for i, col_name in enumerate(header_names) if i in null_indexes]
+    df = df.drop(columns=null_header_names)
+
+    def filter_non_null_indexes(arr: List[Any]) -> List[Any]:
+        return [elem for i, elem in enumerate(arr) if i not in null_indexes]
+
+    new_original_headers = filter_non_null_indexes(original_headers)
+    new_header_names = filter_non_null_indexes(header_names)
+    new_duplicated_names = filter_non_null_indexes(duplicated_names)
+    new_data_types = filter_non_null_indexes(data_types)
+    return df, new_original_headers, new_header_names, new_duplicated_names, new_data_types

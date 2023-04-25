@@ -43,8 +43,10 @@ def import_csv_job(_job_id, _job_name, _db_id, _proc_id, _proc_name, is_user_req
         _job_id {[type]} -- [description] (default: {None})
         _job_name {[type]} -- [description] (default: {None})
     """
+
     def _add_gen_proc_link_job(*_args, **_kwargs):
         add_gen_proc_link_job(is_user_request=is_user_request, *_args, **_kwargs)
+
     kwargs.pop('is_user_request', None)
     gen = import_csv(*args, **kwargs)
     send_processing_info(gen, JobType.CSV_IMPORT, db_code=_db_id, process_id=_proc_id, process_name=_proc_name,
@@ -201,7 +203,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
                 continue
 
             default_csv_param['usecols'] = [i for i, col in enumerate(csv_cols) if col]
-            use_col_names = csv_cols
+            use_col_names = [col for col in csv_cols if col]
 
         # read csv file
         default_csv_param['dtype'] = {col: 'string' for col, data_type in dic_use_cols.items() if

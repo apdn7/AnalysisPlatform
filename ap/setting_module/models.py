@@ -9,7 +9,7 @@ from sqlalchemy.orm import load_only
 
 from ap import Session
 from ap import db
-from ap.common.common_utils import get_current_timestamp, dict_deep_merge
+from ap.common.common_utils import get_current_timestamp, dict_deep_merge, gen_sql_label
 from ap.common.constants import JobStatus, FlaskGKey, CsvDelimiter, DataType, CfgConstantType, \
     EFA_HEADER_FLAG, DiskUsageStatus, DEFAULT_WARNING_DISK_USAGE, DEFAULT_ERROR_DISK_USAGE
 from ap.common.constants import RelationShip
@@ -457,6 +457,18 @@ class CfgProcessColumn(db.Model):
     @classmethod
     def get_by_ids(cls, ids):
         return cls.query.filter(cls.id.in_(ids)).all()
+
+    @classmethod
+    def get_by_id(cls, col_id: int):
+        return cls.query.get(col_id)
+
+    @classmethod
+    def gen_label_from_col_id(cls, col_id: int):
+        col = cls.get_by_id(col_id)
+        if not col:
+            return None
+        col_label = gen_sql_label(col.id, col.column_name)
+        return col_label
 
     @classmethod
     def get_serials(cls, proc_id):

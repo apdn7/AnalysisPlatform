@@ -28,6 +28,7 @@ from ap.common.constants import ACTUAL_RECORD_NUMBER, \
     Y_THRESHOLD, SCALE_SETTING, CHART_INFOS, X_SERIAL, Y_SERIAL, ARRAY_PLOTDATA, IS_DATA_LIMITED, ColorOrder, \
     TIME_NUMBERINGS, SORT_KEY, VAR_TRACE_TIME, IS_RESAMPLING, CYCLE_IDS, SERIALS, DATETIME, START_PROC
 from ap.common.memoize import memoize
+from ap.common.services.ana_inf_data import resample_preserve_min_med_max
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress
@@ -1172,39 +1173,3 @@ def reduce_data_by_number(df, max_graph, recent_flg=None):
     return df
 
 
-@log_execution_time()
-@abort_process_handler()
-def resample_preserve_min_med_max(x, n_after: int):
-    """ Resample x, but preserve (minimum, median, and maximum) values
-    Inputs:
-        x (1D-NumpyArray or a list)
-        n_after (int) Length of x after resampling. Must be < len(x)
-    Return:
-        x (1D-NumpyArray) Resampled data
-    """
-    if x.shape[0] > n_after:
-        # walkaround: n_after with odd number is easier
-        if n_after % 2 == 0:
-            n_after += 1
-
-        n = len(x)
-        n_half = int((n_after - 1) / 2)
-
-        # index around median
-        x = np.sort(x)
-        idx_med = (n + 1) / 2 - 1  # median
-        idx_med_l = int(np.ceil(idx_med - 1))  # left of median
-        idx_med_r = int(np.floor(idx_med + 1))  # right of median
-
-        # resampled index
-        idx_low = np.linspace(0, idx_med_l - 1, num=n_half, dtype=int)
-        idx_upp = np.linspace(idx_med_r, n - 1, num=n_half, dtype=int)
-
-        # resampling
-        if n % 2 == 1:
-            med = x[int(idx_med)]
-            x = np.concatenate((x[idx_low], [med], x[idx_upp]))
-        else:
-            med = 0.5 * (x[idx_med_l] + x[idx_med_r])
-            x = np.concatenate((x[idx_low], [med], x[idx_upp]))
-    return x

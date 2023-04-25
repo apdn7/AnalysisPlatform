@@ -367,12 +367,12 @@ def gen_sensor_headers(orig_graph_param):
     short_names = {}
     used_names = set()
     for proc in orig_graph_param.array_formval:
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
             name = gen_sql_label(col_id, col_name)
-            dic_labels[name] = col_name
+            dic_labels[name] = col_show_name
 
             # gen short name
-            new_name = gen_abbr_name(col_name)
+            new_name = gen_abbr_name(col_show_name)
             i = 1
             while new_name in used_names:
                 new_name = f'{new_name[0:-3]}({i})'

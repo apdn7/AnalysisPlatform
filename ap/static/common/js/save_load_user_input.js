@@ -789,7 +789,12 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                 continue;
             }
             let input = null;
-            const eleSelector = buildEleSelector(v.name);
+            let eleSelector;
+            if (v.name === CYCLIC_TERM.DIV_CALENDER) {
+                 eleSelector = buildEleSelector(null, null, v.id);
+            } else {
+                 eleSelector = buildEleSelector(v.name);
+            }
             try {
                 input = form.querySelectorAll(eleSelector);
                 if (input === null || input === undefined) {
@@ -1058,7 +1063,7 @@ const createHTMLRow = (setting, idx) => {
 			</select>
 			<span class="hide">${setting.priority}</span>
 		</td>
-        <td class="col-3">${setting.title || ''}</td>
+        <td class="col-4">${setting.title || ''}</td>
         <td class="text-center">${setting.created_by || ''}</td>
         <td class="col-date">${moment(setting.updated_at).format(DATE_FORMAT_WITHOUT_TZ) || ''}</td>
         <td class="action col-with-button">
@@ -1078,7 +1083,7 @@ const createHTMLRow = (setting, idx) => {
 };
 
 const settingDataTableInit = () => {
-    sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 9, 10], '100%');
+    sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 10], '100%');
 };
 
 const scrollToBottom = (id) => {

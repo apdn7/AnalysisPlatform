@@ -54,7 +54,7 @@ if __name__ == '__main__':
         CfgConstant.initialize_disk_usage_limit()
 
     from ap.common.clean_old_data import run_clean_data_job
-    from ap.common.common_utils import get_data_path
+    from ap.common.common_utils import get_data_path, bundle_assets
     from ap.api.setting_module.services.polling_frequency import add_idle_mornitoring_job
 
     run_clean_data_job(folder=get_data_path(), num_day_ago=30, job_repeat_sec=24 * 60 * 60)
@@ -94,6 +94,10 @@ if __name__ == '__main__':
 
     # clear cache
     clear_cache()
+
+    # bundle assets
+    with app.app_context():
+        bundle_assets(app)
 
     if env == 'dev':
         print('Development Flask server !!!')

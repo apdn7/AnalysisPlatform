@@ -27,9 +27,6 @@ from ap.common.sigificant_digit import signify_digit, get_fmt_from_array
 from ap.common.trace_data_log import TraceErrKey, EventType, EventAction, Target, trace_log
 from ap.setting_module.models import CfgProcess
 from ap.trace_data.schemas import DicParam
-from ap.common.common_utils import DATE_FORMAT_STR, DATE_FORMAT_STR_CSV
-
-CHM_AGG_FUNC = [HMFunction.median.name, HMFunction.mean.name, HMFunction.std.name]
 
 
 @log_execution_time()
@@ -206,7 +203,7 @@ def build_plot_data(df, end_col, hm_function):
     }
 
 
-def get_function_i18n(hm_function):  # TODO better. can be moved to frontend
+def get_function_i18n(hm_function):
     """ Generate i18n aggregate function name """
     return _('CHM' + hm_function.replace('_', ' ').title().replace(' ', ''))
 
@@ -551,7 +548,7 @@ def agg_func_with_na(group_data, func_name):
     agg_func = {
         HMFunction.median.name: group_data.median,
         HMFunction.mean.name: group_data.mean,
-        HMFunction.std.name: group_data.mean,
+        HMFunction.std.name: group_data.std,
     }
     return agg_func[func_name](skipna=True)
 
@@ -589,12 +586,8 @@ def groupby_and_aggregate(df: pd.DataFrame, hm_function: HMFunction, hm_mode, hm
         step_time = (hm_step * 60) if hm_mode == 1 else (hm_step * 3600)
         df[end_col] = step_time / df[end_col]
     else:
-        if hm_function.name not in CHM_AGG_FUNC:
-            agg_func = hm_function.name
-        else:
-            agg_func = lambda x: agg_func_with_na(x, hm_function.name)
-        agg_params = {end_col: agg_func, TIME_COL: HMFunction.first.name}
-        df = df.groupby(agg_cols).agg(agg_params).reset_index()
+        agg_params = {end_col: hm_function.name, TIME_COL: HMFunction.first.name}
+        df = df.groupby(agg_cols).agg(agg_params, numeric_only=False).reset_index()
     return df
 
 
@@ -682,7 +675,8 @@ def gen_heatmap_data_as_dict(graph_param, dic_param, dic_proc_cfgs, dic_cat_filt
         var_agg_cols = [gen_sql_label(cfg_col.id, cfg_col.column_name) for cfg_col in cfg_facet_cols]
 
     # get sensor data from db
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param, dic_cat_filters, use_expired_cache=use_expired_cache)
+    df, actual_record_number, unique_serial = get_data_from_db(graph_param, dic_cat_filters,
+                                                               use_expired_cache=use_expired_cache)
 
     # filter by cat
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param, True)
@@ -720,6 +714,7 @@ def gen_heatmap_data_as_dict(graph_param, dic_param, dic_proc_cfgs, dic_cat_filt
     dic_df_proc = fill_empty_cells(df_cells, dic_df_proc, var_agg_cols)
 
     return dic_df_proc, hm_mode, hm_step, dic_col_func, df_cells, var_agg_cols, target_var_data, export_df
+
 
 @log_execution_time()
 def get_target_variable_data_from_df(df, dic_proc_cfgs, graph_param, cat_only=True):

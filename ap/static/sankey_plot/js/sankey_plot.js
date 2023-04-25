@@ -65,7 +65,11 @@ $(() => {
     const endProcs = genProcessDropdownData(procConfigs);
 
     // add first end process
-    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, true, false, false, true, false, true);
+    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
+        showDataType: true,
+        isRequired: true,
+        showObjective: true,
+    });
     endProcItem();
 
     // add first condition process
@@ -121,8 +125,19 @@ const endProcExplanatoryOnChange = async (count) => {
 
     // load machine multi checkbox to Condition Proc.
     if (ids) {
-        addGroupListCheckboxWithSearch(parentId, `end-proc-cate-val-${count}`, '',
-            ids, vals, checkedIds, `GET02_CATE_SELECT${count}`, noFilter = false, names, null, null, null, null, true);
+        addGroupListCheckboxWithSearch(
+            parentId,
+            `end-proc-cate-val-${count}`,
+            '',
+            ids,
+            vals,
+            {
+                checkedIds,
+                name: `GET02_CATE_SELECT${count}`,
+                itemNames: names,
+                isRequired: true
+            }
+        );
     }
     updateSelectedItems(isCategoryItem = true);
     onchangeRequiredInput();

@@ -1,12 +1,12 @@
 import copy
 import csv
 import fnmatch
+import json
 import locale
 import os
 import pickle
 import re
 import shutil
-import socket
 import sys
 from collections import OrderedDict
 from datetime import datetime, timedelta
@@ -20,11 +20,12 @@ import pyper
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 from flask import g
+from flask_assets import Environment, Bundle
 from pandas import DataFrame
 
 from ap.common.constants import AbsPath, DataType, YAML_AUTO_INCREMENT_COL, CsvDelimiter, R_PORTABLE, \
     SQL_COL_PREFIX, FilterFunc, ENCODING_ASCII, ENCODING_UTF_8, FlaskGKey, LANGUAGES, ENCODING_SHIFT_JIS, \
-    ENCODING_UTF_8_BOM
+    ENCODING_UTF_8_BOM, appENV
 from ap.common.logger import logger, log_execution_time
 from ap.common.services.normalization import unicode_normalize_nfkc
 
@@ -281,7 +282,7 @@ def universal_db_exists():
 
 
 # convert time before save to database YYYY-mm-DDTHH:MM:SS.NNNNNNZ
-def convert_time(time=None, format_str=DATE_FORMAT_STR, return_string=True, only_milisecond=False):
+def convert_time(time=None, format_str=DATE_FORMAT_STR, return_string=True, only_milisecond=False, remove_ms=False):
     if not time:
         time = datetime.utcnow()
     elif isinstance(time, str):
@@ -291,6 +292,8 @@ def convert_time(time=None, format_str=DATE_FORMAT_STR, return_string=True, only
         time = time.strftime(format_str)
         if only_milisecond:
             time = time[:-3]
+        elif remove_ms:
+            time = time[:-8]
     return time
 
 
@@ -1109,3 +1112,37 @@ class NoDataFoundException(Exception):
     def __init__(self):
         super().__init__()
         self.code = 999
+
+def bundle_assets(_app):
+    """
+    bundle assets when application be started at the first time
+    for commnon assets (all page), and single page
+    """
+    env = os.environ.get('ANALYSIS_INTERFACE_ENV')
+    # bundle js files
+    assets_path = os.path.join('ap', 'common', 'assets', 'assets.json')
+    with open(assets_path, 'r') as f:
+        _assets = json.load(f)
+
+    assets = Environment(_app)
+    if env != appENV.PRODUCTION.value:
+        assets.debug = True
+
+    for page in _assets.keys():
+        js_assets = _assets[page].get('js') or []
+        css_assets = _assets[page].get('css') or []
+        js_asset_name = f'js_{page}'
+        css_asset_name = f'css_{page}'
+        if env != appENV.PRODUCTION.value:
+            assets.register(js_asset_name, *js_assets)
+            assets.register(css_asset_name, *css_assets)
+        else:
+            js_bundle = Bundle(*js_assets,
+                               output=f'common/js/{page}.packed.js')
+            css_bundle = Bundle(*css_assets,
+                                output=f'common/css/{page}.packed.css')
+            assets.register(js_asset_name, js_bundle)
+            assets.register(css_asset_name, css_bundle)
+            # build assets
+            js_bundle.build()
+            css_bundle.build()

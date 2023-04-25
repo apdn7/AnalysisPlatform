@@ -136,7 +136,12 @@ $(() => {
     const endProcs = genProcessDropdownData(procConfigs);
 
     // add first end process
-    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, true, true, true, true);
+    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
+        showDataType: true,
+        showStrColumn: true,
+        showCatExp: true,
+        isRequired: true,
+    });
     endProcItem(endProcOnChange, checkAndHideStratifiedVar);
 
 
@@ -402,27 +407,20 @@ const countNumberProc = (formData) => {
     return numProc;
 };
 
-const collectInputAsFormData = () => {
+const collectInputAsFormData = (clearOnFlyFilter) => {
     const traceForm = $(formElements.formID);
     let formData = new FormData(traceForm[0]);
-    const isLinkData = formData.get('start_proc') !== '0';
-    if (countNumberProc(formData) > 1 && isLinkData) {
-        formData.set('categoryVariable1', '');
-    }
-    
-    // append client timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    formData.set('client_timezone', timezone);
-    
-    // choose default or recent datetime
-    formData = genDatetimeRange(formData);
-    return formData;
-};
-
-const queryDataAndShowHeatMap = (clearOnFlyFilter = true) => {
-
-    let formData = collectInputAsFormData();
     if (clearOnFlyFilter) {
+        const isLinkData = formData.get('start_proc') !== '0';
+        if (countNumberProc(formData) > 1 && isLinkData) {
+            formData.set('categoryVariable1', '');
+        }
+
+        // append client timezone
+        formData.set('client_timezone', detectLocalTimezone());
+
+        // choose default or recent datetime
+        formData = genDatetimeRange(formData);
         resetCheckedCats();
         formData = transformFacetParams(formData);
         formData = transformCHMParams(formData);
@@ -431,6 +429,13 @@ const queryDataAndShowHeatMap = (clearOnFlyFilter = true) => {
         formData = lastUsedFormData;
         formData = transformCatFilterParams(formData);
     }
+
+    return formData;
+};
+
+const queryDataAndShowHeatMap = (clearOnFlyFilter = true) => {
+
+    let formData = collectInputAsFormData(clearOnFlyFilter);
 
     showGraphCallApi('/ap/api/chm/plot', formData, REQUEST_TIMEOUT, async (res) => {
         afterShowCHM();
@@ -538,9 +543,11 @@ const createCardHTML = (graphId, title, facet) => {
     $('#plot-card-row').append(`
         <div class="col-xl-4 col-lg-6 col-sm-6 col-12" style="padding: 4px">
             <div class="chm-col d-flex dark-bg">
-                <div class="chm-card-title">
-                    <span title="${title}">${title}</span>
-                    ${facet ? `<span class="show-detail cat-exp-box" title="${facet}">${facet}</span>` : ''}
+                <div class="chm-card-title-parent">
+                    <div class="chm-card-title">
+                        <span title="${title}">${title}</span>
+                        ${facet ? `<span class="show-detail cat-exp-box" title="${facet}">${facet}</span>` : ''}
+                    </div>
                 </div>
                 <div id="chm_${graphId}" class="chm-plot graph-navi" style="width: 100%"></div>
             </div>
@@ -754,7 +761,7 @@ const endProcOnChange = (async (event) => {
 });
 
 const dumpData = (exportType, dataSrc) => {
-    const formData = lastUsedFormData || collectFormDataFromGUI(true);
+    const formData = lastUsedFormData || collectInputAsFormData(true);
     formData.set('export_from', dataSrc);
     if (exportType === EXPORT_TYPE.TSV_CLIPBOARD) {
         tsvClipBoard(CHM_EXPORT_URL.TSV.url, formData);

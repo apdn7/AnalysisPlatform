@@ -1,19 +1,6 @@
 {% extends "base.html" %}
 {% import 'macros.html' as macros %}
 
-{% block asset %}
-<link href="{{ url_for('sankey_plot.static', filename = 'css/sankey_plot.css')}}" rel="stylesheet">
-<link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css')}}"
-    rel="stylesheet">
-<script
-    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js')}}"></script>
-<script
-    src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js')}}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}" />
-{% endblock %}
-
 {% block header %}
     {{ macros.page_title(key='SkD', title=_('Sankey Diagram'), hint=_('Identify and visualize directly/indirectly correlated variables of objective(s)'), hasAction=true) }}
 {% endblock %}
@@ -150,15 +137,19 @@
 {% endblock %}
 
 {% block js %}
-<script>
-    const procJsons = {{ list_procs | safe }};
-    const hasGraphCfgsFilterDetails= {{ graph_filter_detail_ids | safe }};
-    const procConfigs = {};
-    for (let procJson of procJsons){
-        const cfgProcess = new CfgProcess(procJson);
-        procConfigs[cfgProcess.id] = cfgProcess;
-    }
-</script>
-<script src="{{ url_for('sankey_plot.static', filename = 'js/sankey_plot.js')}}"></script>
-<script src="{{ url_for('sankey_plot.static', filename = 'js/sankey_scp.js')}}"></script>
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails= {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons){
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    {% assets "js_skd" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_skd" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 {% endblock %}

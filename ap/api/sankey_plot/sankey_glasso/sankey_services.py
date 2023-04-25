@@ -164,7 +164,8 @@ def gen_graph_sankey_group_lasso(dic_param):
             x_cols = {key: val for key, val in dic_id_name.items() if key != y_id}
             groups = [dic_proc_cfgs.get(proc_id).name for key, proc_id in dic_col_proc_id.items() if key != y_id]
 
-            is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx = gen_sankey_grouplasso_plot_data(df_sensors, x_cols, y_col, groups)
+            is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx = gen_sankey_grouplasso_plot_data(df_sensors, x_cols,
+                                                                                                  y_col, groups)
 
             # get dic_scp
             dic_scp = dict(**dic_scp, **dic_tbl)
@@ -242,10 +243,11 @@ def gen_sankey_grouplasso_plot_data(df: pd.DataFrame, x_cols, y_col, groups):
     y_1d = df[[y_col_id]].values
 
     # please set verbose=False if info should not be printed
-    is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx = preprocess_skdpage(x_2d, y_1d, groups, x_col_names, y_col_name,
-                                                                                 penalty_factors=[0.0, 0.1, 0.3, 1.0],
-                                                                                 max_datapoints=10000,
-                                                                                 verbose=True)
+    is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx = preprocess_skdpage(x_2d, y_1d, groups, x_col_names,
+                                                                             y_col_name,
+                                                                             penalty_factors=[0.0, 0.1, 0.3, 1.0],
+                                                                             max_datapoints=10000,
+                                                                             verbose=True)
 
     return is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx
 
@@ -326,10 +328,10 @@ def get_sensors_objective_explanation(orig_graph_param):
     dic_id_name = {}
     dic_col_proc_id = {}
     for proc in orig_graph_param.array_formval:
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
             label = gen_sql_label(col_id, col_name)
             dic_label_id[label] = col_id
-            dic_id_name[col_id] = col_name
+            dic_id_name[col_id] = col_show_name
             dic_col_proc_id[col_id] = proc.proc_id
 
     return dic_label_id, dic_id_name, dic_col_proc_id

@@ -252,11 +252,21 @@ const endProcOnChange = async (count, sensorType, isRequired) => {
 
     // load machine multi checkbox to Condition Proc.
     if (ids) {
-        addGroupListCheckboxWithSearch(parentId, `end-proc-val-${sensorType}-${count}`, '',
-            ids, vals, checkedIds, `GET02_VALS_SELECT${count}`, false, names,
-            null, dataTypes, null, null, isRequired,
-            null, true, objectiveID = null,
-            false, [], null);
+        addGroupListCheckboxWithSearch(
+            parentId,
+            `end-proc-val-${sensorType}-${count}`,
+            '',
+            ids,
+            vals,
+            {
+                checkedIds,
+                name: `GET02_VALS_SELECT${count}`,
+                itemNames: names,
+                itemDataTypes: dataTypes,
+                isRequired,
+                showObjectiveInput: true
+            }
+        );
     }
 
     // disable selected procs or enable unselected procs

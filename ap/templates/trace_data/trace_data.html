@@ -2,33 +2,6 @@
 {% import 'macros.html' as macros %}
 
 {% block asset %}
-    <link href="{{ url_for('trace_data.static', filename = 'css/trace_data.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css') }}"
-          rel="stylesheet">
-    <link href="{{ url_for('static', filename = 'common/css/pagination.css') }}" rel="stylesheet">
-
-    <script src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/Chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/chartjs-adapter-moment.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/chartjs-plugin-annotation-latest.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/pagination.min.js') }}"></script>
-
-    <script type="text/javascript" src="/static/common/js/libs/js.cookie.min.js"></script>
-    <script type="text/javascript"
-            src="{{ url_for('trace_data.static', filename = 'js/trace_data_time_series.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('trace_data.static', filename = 'js/trace_data_histogram.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('trace_data.static', filename = 'js/trace_data_step_bar_chart.js') }}"></script>
-
-    <script type="text/javascript"
-            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"/>
-
     <script>
         gtag('config', 'UA-156244372-2', {
             'page_title': '{{ _("Full-points Plot") }}',
@@ -186,15 +159,10 @@
             procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
-    <script type="text/javascript"
-            src="{{ url_for('trace_data.static', filename = 'js/trace_data_summary_table.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('trace_data.static', filename = 'js/trace_data_cross_hair.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('trace_data.static', filename = 'js/trace_data_categorical_table.js') }}"></script>
-    <script src="{{ url_for('trace_data.static', filename = 'js/trace_data_scatter_plot.js') }}"></script>
-    <script src="{{ url_for('trace_data.static', filename = 'js/trace_data_whisker_plot.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/cat_facet_label_filter_modal.js') }}"></script>
-    <script src="{{ url_for('trace_data.static', filename = 'js/trace_data.js') }}"></script>
-    <script src="{{ url_for('trace_data.static', filename = 'js/trace_data_histogram_with_kde.js') }}"></script>
+    {% assets "js_fpp" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_fpp" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
 {% endblock %}
