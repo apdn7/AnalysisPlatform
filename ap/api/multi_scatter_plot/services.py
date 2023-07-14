@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from ap.common.logger import logger
 from scipy.linalg import pinv
 from scipy.signal import convolve2d
 from scipy.stats import gaussian_kde, binned_statistic_2d
@@ -20,8 +19,9 @@ from ap.common.constants import ARRAY_FORMVAL, ARRAY_PLOTDATA, ACTUAL_RECORD_NUM
     NORMAL_MODE_MAX_RECORD, CYCLE_IDS, PROC_NAME, \
     COL_DETAIL, COL_TYPE, DataTypeEncode, ORG_ARRAY_Y, SCALE_COMMON, SCALE_THRESHOLD, \
     SCALE_AUTO, SCALE_FULL, SERIALS, DATETIME, START_PROC
+from ap.common.logger import logger
 from ap.common.memoize import memoize
-from ap.common.services.ana_inf_data import calculate_kde, calculate_kde_trace_data
+from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress
@@ -121,22 +121,6 @@ def gen_scatter_plot(dic_param):
     dic_param[START_PROC] = start_proc_name
 
     return dic_param, dic_data
-
-
-@log_execution_time()
-@abort_process_handler()
-# @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
-#            (EventType.MSP, EventAction.PLOT, Target.GRAPH), send_ga=True)
-def gen_kde_data(dic_param):
-    array_plotdata = dic_param.get(ARRAY_PLOTDATA)
-    dic_param['hist_data'] = []
-    for num, plotdata in enumerate(array_plotdata):
-        array_plotdata_y = plotdata.get(ARRAY_Y)
-        # todo: add plotdata.scale_options befre calc kde
-        # hist_data = calculate_kde_trace_data(plotdata)
-        hist_data = calculate_kde(array_plotdata_y, use_hist_counts=True, bins=128)
-        dic_param['hist_data'].append(hist_data)
-    return dic_param
 
 
 @log_execution_time()
@@ -280,6 +264,7 @@ def fit_2d_kde(x, y, max_num_points_kde=10000):
 
     idx_sample = np.arange(len(x))
     if len(x) > max_num_points_kde:
+        np.random.seed(610)
         idx_sample = np.random.choice(np.arange(len(x)), size=max_num_points_kde)
     x = x[idx_sample].copy()
     y = y[idx_sample].copy()
@@ -356,15 +341,24 @@ def calc_2d_hist(x, y, num_bins):
     """
 
     # range of x and y
-    xmin = np.nanmin(x)
-    xmax = np.nanmax(x)
-    ymin = np.nanmin(y)
-    ymax = np.nanmax(y)
+
+    qx = np.quantile(x, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')  # noqa
+    min_x, q1_x, q3_x, max_x = qx[:4]
+    iqr_x = q3_x - q1_x
+
+    qy = np.quantile(y, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')  # noqa
+    min_y, q1_y, q3_y, max_y = qy[:4]
+    iqr_y = q3_y - q1_y
+
+    xmin = np.nanmin([min_x, q1_x - 2.5 * iqr_x])  # noqa
+    xmax = np.nanmax([max_x, q3_x + 2.5 * iqr_x])  # noqa
+    ymin = np.nanmin([min_y, q1_y - 2.5 * iqr_y])  # noqa
+    ymax = np.nanmax([max_y, q3_y + 2.5 * iqr_y])  # noqa
 
     # 2D histogram. TypeError when values=None
     # https://stackoverflow.com/questions/60623899/why-is-binned-statistic-2d-now-throwing-typeerror
     hist = binned_statistic_2d(x=x, y=y, values=x, statistic='count',
-                               bins=num_bins, range=[[xmin, xmax], [ymin, ymax]])
+                               bins=num_bins, range=[[xmin, xmax], [ymin, ymax]])  # noqa
     return hist
 
 
@@ -487,10 +481,12 @@ def gen_scatter_n_contour_data(dic_param: dict, dic_data, use_contour):
 
 @log_execution_time()
 @abort_process_handler()
-def partial_corr(data):
+def partial_corr(data, corr_only=False):
     # transpose dataframe before compute correlation
     # correlation_mat = np.corrcoef(data.T)
     correlation_mat = np.cov(data.T, ddof=0)
+    if corr_only:
+        return None, correlation_mat
     # It is safer to calculate inverse by (Moore-Penrose) pseudo inverse, in case of singular matrix
     precision_mat = pinv(correlation_mat)
 
@@ -541,25 +537,30 @@ def calc_partial_corr(dic_param):
     }
 
     pairs = []
-    for k, col in enumerate(columns):
-        corrs[CORR][col] = {}
-        corrs[PCORR][col] = {}
-        corrs[NTOTALS][col] = {}
-        for i, row in enumerate(columns):
-            df_pair = df[[col, row]]
-            df_pair = df_pair.replace(dict.fromkeys(ALL_SYMBOLS, np.nan)).dropna()
-            pairs.append(df_pair)
+    clean_df = df.replace(dict.fromkeys(ALL_SYMBOLS, np.nan)).dropna()
+    if clean_df.shape[0]:
+        scaler = StandardScaler()
+        data = scaler.fit_transform(clean_df)
+        p_corr_mat, _ = partial_corr(data)
+        for k, col in enumerate(columns):
+            corrs[CORR][col] = {}
+            corrs[PCORR][col] = {}
+            corrs[NTOTALS][col] = {}
+            for i, row in enumerate(columns):
+                df_pair = df[[col, row]]
+                df_pair = df_pair.replace(dict.fromkeys(ALL_SYMBOLS, np.nan)).dropna()
+                pairs.append(df_pair)
+                corrs[PCORR][col][row] = signify_digit(p_corr_mat[k][i])
 
     for pair in pairs:
         if pair.shape[0]:
             pair_columns = pair.columns.to_list()
             scaler = StandardScaler()
             data = scaler.fit_transform(pair)
-            p_corr_mat, corr_mat = partial_corr(data)
+            _, corr_mat = partial_corr(data, corr_only=True)
             for k, col in enumerate(pair_columns):
                 for i, row in enumerate(pair_columns):
                     corrs[CORR][col][row] = corr_mat[k][i]
-                    corrs[PCORR][col][row] = signify_digit(p_corr_mat[k][i])
                     corrs[NTOTALS][col][row] = pair.shape[0]
 
     dic_param[CORRS] = corrs

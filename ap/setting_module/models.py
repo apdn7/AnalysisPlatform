@@ -550,7 +550,14 @@ class CfgProcess(db.Model):
         return cols
 
     def get_order_cols(self, column_name_only=True, column_id_only=False):
-        cols = [col for col in self.columns if col.order or col.is_serial_no]
+        cols = [col for col in self.columns if col.is_serial_no or \
+                col.data_type in [
+                    DataType.DATETIME.name,
+                    DataType.TEXT.name,
+                    DataType.INTEGER.name,
+                    DataType.INTEGER_SEP.name,
+                    DataType.EU_INTEGER_SEP.name,
+                    DataType.BIG_INT.name]]
         if column_name_only:
             cols = [col.column_name for col in cols]
 

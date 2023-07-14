@@ -24,11 +24,11 @@ from ap.api.trace_data.services.proc_link import gen_global_id_job, show_proc_li
 from ap.api.trace_data.services.proc_link_simulation import sim_gen_global_id
 from ap.common.backup_db import add_backup_dbs_job
 from ap.common.common_utils import is_empty, \
-    parse_int_value
+    parse_int_value, add_seconds
 from ap.common.constants import WITH_IMPORT_OPTIONS, CfgConstantType, RelationShip, ProcessCfgConst, UI_ORDER_DB, \
-    Action, appENV
+    Action, appENV, FISCAL_YEAR_START_MONTH
 from ap.common.cryptography_utils import encrypt
-from ap.common.scheduler import JobType, scheduler
+from ap.common.scheduler import JobType, scheduler, lock
 from ap.common.services import http_content
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.sse import background_announcer
@@ -37,7 +37,7 @@ from ap.setting_module.models import AppLog, CfgDataSource, make_session, \
 from ap.setting_module.schemas import DataSourceSchema, ProcessSchema, CfgUserSettingSchema
 from ap.setting_module.services.background_process import get_job_detail_service
 from ap.setting_module.services.process_config import create_or_update_process_cfg, get_process_cfg, \
-    query_database_tables, get_process_columns, get_process_filters, get_process_visualizations
+    query_database_tables, get_process_columns, get_process_filters, get_process_visualizations, get_ct_range
 from ap.setting_module.services.trace_config import get_all_processes_traces_info, save_trace_config_to_db, \
     gen_cfg_trace
 
@@ -229,10 +229,33 @@ def get_background_jobs():
     return jsonify(background_jobs), 200
 
 
-@api_setting_module_blueprint.route('/listen_background_job', methods=['GET'])
-def listen_background_job():
+@api_setting_module_blueprint.route('/listen_background_job/<is_force>/<uuid>', methods=['GET'])
+def listen_background_job(is_force, uuid):
+    is_reject = False
+    is_force = int(is_force)
+    compare_time = add_seconds(seconds=-background_announcer.FORCE_SECOND)
+    with lock:
+        if uuid in background_announcer.dic_listeners:
+            if is_force:
+                start_time = background_announcer.dic_listeners[uuid][0]
+                if start_time >= compare_time:
+                    is_reject = True
+            else:
+                is_reject = True
+
+        if is_reject:
+            logger.debug(f'SSE Rejected: {uuid} {datetime.utcnow()} {is_force}')
+            return Response('SSE Rejected', status=500)
+
+        # add new uuid
+        logger.debug(f'SSE Accepted: {uuid} {datetime.utcnow()} {is_force}')
+        background_announcer.add_uuid(uuid)
+
     def stream():
-        messages = background_announcer.listen()  # returns a queue.Queue
+        messages = background_announcer.listen(uuid)
+        ping_msg = background_announcer.format_sse(None, event='ping')
+        yield ping_msg
+
         while True:
             msg = messages.get()
             yield msg
@@ -248,7 +271,8 @@ def check_folder():
             'status': 200,
             'url': data,
             'is_exists': os.path.isdir(data) and os.path.exists(data),
-            'dir': os.path.dirname(data)
+            'dir': os.path.dirname(data),
+            'not_empty_dir': bool(len(os.listdir(data)))
         })
     except Exception:
         # raise
@@ -488,8 +512,17 @@ def get_proc_column_config(proc_id):
     else:
         return jsonify({
             'status': 404,
-            'data': []
+            'data': [],
         }), 200
+
+@api_setting_module_blueprint.route('/proc_config/<proc_id>/get_ct_range', methods=['GET'])
+def get_proc_ct_range(proc_id):
+    columns = get_process_columns(proc_id)
+    ct_range = get_ct_range(proc_id, columns)
+    return jsonify({
+        'status': 200,
+        'data': ct_range,
+    }), 200
 
 
 @api_setting_module_blueprint.route('/proc_config/<proc_id>/filters', methods=['GET'])
@@ -708,6 +741,12 @@ def delete_user_setting(setting_id):
 def get_current_env():
     current_env = os.environ.get('ANALYSIS_INTERFACE_ENV', appENV.PRODUCTION.value)
     return jsonify({'status': 200, 'env': current_env}), 200
+
+
+@api_setting_module_blueprint.route('/get_fiscal_year_default', methods=['GET'])
+def get_fiscal_year():
+    fy = os.environ.get('fiscal_year_start_month', FISCAL_YEAR_START_MONTH)
+    return jsonify({'status': 200, 'fiscal_year_start_month': fy}), 200
 
 
 @api_setting_module_blueprint.route('/load_user_setting', methods=['POST'])

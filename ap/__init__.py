@@ -2,9 +2,11 @@ import atexit
 import os
 import time
 from datetime import datetime
+from pytz import utc
 
 import wtforms_json
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, render_template, Response, g, json
 from flask_apscheduler import APScheduler, STATE_STOPPED
 from flask_babel import Babel
@@ -20,7 +22,7 @@ from ap.common.common_utils import check_exist, make_dir, find_babel_locale, NoD
 from ap.common.common_utils import set_sqlite_params, init_config
 from ap.common.constants import FlaskGKey, SQLITE_CONFIG_DIR, PARTITION_NUMBER, UNIVERSAL_DB_FILE, APP_DB_FILE, \
     TESTING, YAML_CONFIG_VERSION, YAML_CONFIG_BASIC, YAML_CONFIG_DB, YAML_CONFIG_PROC, YAML_CONFIG_AP, \
-    INIT_APP_DB_FILE, INIT_BASIC_CFG_FILE, REQUEST_THREAD_ID, YAML_START_UP, LOG_LEVEL, AP_LOG_LEVEL, AppGroup, \
+    INIT_APP_DB_FILE, INIT_BASIC_CFG_FILE, REQUEST_THREAD_ID, YAML_START_UP, LOG_LEVEL, ApLogLevel, AppGroup, \
     AppSource, appENV
 from ap.common.logger import log_execution
 from ap.common.services.request_time_out_handler import RequestTimeOutAPI, set_request_g_dict
@@ -30,7 +32,7 @@ from ap.common.yaml_utils import YAML_CONFIG_BASIC_FILE_NAME, YAML_CONFIG_AP_FIL
 
 db = SQLAlchemy(session_options={'autoflush': False})
 migrate = Migrate()
-scheduler = APScheduler()
+scheduler = APScheduler(BackgroundScheduler(timezone=utc))
 ma = Marshmallow()
 wtforms_json.init()
 
@@ -209,8 +211,8 @@ def create_app(object_name=None):
     basic_config_yaml = BasicConfigYaml(dic_yaml_config_file[YAML_CONFIG_BASIC])
     start_up_yaml = BasicConfigYaml(dic_yaml_config_file[YAML_START_UP])
     hide_setting_page = basic_config_yaml.get_node(['info', 'hide-setting-page'], False)
-    default_log_level = basic_config_yaml.get_node(['info', LOG_LEVEL], AP_LOG_LEVEL.INFO.name)
-    is_default_log_level = default_log_level == AP_LOG_LEVEL.INFO.name
+    default_log_level = basic_config_yaml.get_node(['info', LOG_LEVEL], ApLogLevel.INFO.name)
+    is_default_log_level = default_log_level == ApLogLevel.INFO.name
     dic_yaml_config_instance[YAML_CONFIG_BASIC] = basic_config_yaml
     dic_yaml_config_instance[YAML_START_UP] = start_up_yaml
 
@@ -260,6 +262,10 @@ def create_app(object_name=None):
     if scheduler.state != STATE_STOPPED:
         scheduler.shutdown(wait=False)
 
+    if not app.config.get('SCHEDULER_TIMEZONE'):
+        # set timezone for scheduler before init job
+        # all job will run in UTC instead of local time
+        app.config['SCHEDULER_TIMEZONE'] = utc
     scheduler.init_app(app)
     print('SCHEDULER START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     scheduler.start()

@@ -7,7 +7,7 @@
 const REQUEST_TIMEOUT = setRequestTimeOut();
 
 const MAX_NUMBER_OF_GRAPH = 20;
-const MAX_END_PROC = 20;
+const MAX_NUMBER_OF_SENSOR = 20;
 let tabID = null;
 const graphStore = new GraphStore();
 let isValid = false;
@@ -237,6 +237,8 @@ $(() => {
 
     startProcChangeEvents();
     initCustomSelect();
+
+    bindScatterPlotEvents();
 });
 
 
@@ -670,14 +672,21 @@ const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
     const histObjs = [];
     for (let i = 0; i < data.array_plotdata.length; i++) {
         const formVal = data.ARRAY_FORMVAL[i];
+        // マスタが存在するならマスタ情報を適用
+        const endProcId = formVal.end_proc;
+        const sensorId = formVal.GET02_VALS_SELECT;
+        const isHideNonePoint = isHideNoneDataPoint(endProcId, sensorId, data.COMMON.remove_outlier);
+
         const formCommon = data.COMMON;
         const arrayY = data.array_plotdata[i].array_y;
-        const arrayX = data.array_plotdata[i].array_x;
         const arrayYMin = data.array_plotdata[i].array_y_min;
         const arrayYMax = data.array_plotdata[i].array_y_max;
+        const slotFrom = data.array_plotdata[i].slot_from;
+        const slotTo = data.array_plotdata[i].slot_to;
+        const slotCount = data.array_plotdata[i].slot_count;
         const scaleInfo = getScaleInfo(data.array_plotdata[i], scaleOption);
         const unlinkedIdxs = data.array_plotdata[i].unlinked_idxs;
-        const noneIdxs = data.array_plotdata[i].none_idxs;
+        const noneIdxs = isHideNonePoint ? [] : data.array_plotdata[i].none_idxs;
         const infIdxs = data.array_plotdata[i].inf_idxs;
         const negInfIdxs = data.array_plotdata[i].neg_inf_idxs;
         const isCatLimited = data.array_plotdata[i].is_cat_limited || false;
@@ -718,9 +727,7 @@ const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
             plotDataExColor,
         } = produceExceptionArrayY(arrayY, yMin, yMax, unlinkedIdxs, noneIdxs, infIdxs, negInfIdxs, negOutlierIdxs, outlierIdxs);
 
-        // マスタが存在するならマスタ情報を適用
-        const endProcId = formVal.end_proc;
-        const sensorId = formVal.GET02_VALS_SELECT;
+
 
         // カラム名を取得する。
         const columnName = getColumnName(endProcId, sensorId);
@@ -737,7 +744,7 @@ const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
         const stepChartSummary = data.array_plotdata[i].cat_summary || null;
         const allSummaryData = [];
         for (const summaryIdx in data.array_plotdata[i].summaries) {
-            const summaryData = calculateSummaryData(data.array_plotdata[i].summaries, summaryIdx);
+            const summaryData = calculateSummaryData(data.array_plotdata[i].summaries, summaryIdx, isHideNonePoint);
             allSummaryData.push(summaryData);
         }
 
@@ -755,6 +762,9 @@ const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
             arrayY,
             arrayYMin,
             arrayYMax,
+            slotFrom,
+            slotTo,
+            slotCount,
             beforeRankValues,
             arrayYTS,
             arrayYEx,
@@ -807,6 +817,9 @@ const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
             plotDataEx: chartOption.arrayYEx,
             plotDataMin: chartOption.arrayYMin,
             plotDataMax: chartOption.arrayYMax,
+            slotFrom: chartOption.slotFrom,
+            slotTo: chartOption.slotTo,
+            slotCount: chartOption.slotCount,
             beforeRankValues: chartOption.beforeRankValues,
             dictIdx2YValue: chartOption.dictIdx2YValue,
             plotDataExColor,
@@ -961,8 +974,10 @@ const drawHistogramsTab = (data, scaleOption = '1', isReset = true, frequencyOpt
         const stepChartSummary = data.array_plotdata[i].cat_summary || null;
 
         // create summaries HTMLs
-        const summaryData = calculateSummaryData(plotdata.summaries, latestChartInfoIdx);
-        const sensorType = procConfigs[plotdata.end_proc_id].dicColumns[plotdata.end_col_id].data_type;
+        const  { end_col_id, end_proc_id, summaries } = plotdata;
+        const isHideNonePoint = isHideNoneDataPoint(end_proc_id, end_col_id, data.COMMON.remove_outlier);
+        const summaryData = calculateSummaryData(summaries, latestChartInfoIdx, isHideNonePoint);
+        const sensorType = procConfigs[end_proc_id].dicColumns[end_col_id].data_type;
         const allGroupNames = sensorType === DataTypes.TEXT.name
             ? getAllGroupOfSensor(data.array_plotdata.filter(
                 plot => plot.end_col_id === plotdata.end_col_id
@@ -1146,12 +1161,16 @@ const traceDataWithDBChecking = (action) => {
 
     // continue to trace data or export CSV/TSV
     if (action === 'TRACE-DATA') {
-        isValid = checkValidations({ max: MAX_END_PROC });
+        isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
         updateStyleOfInvalidElements();
         if (!isValid) return;
         // close sidebar
         beforeShowGraphCommon();
         resetGraphSetting();
+
+        hideAllCrossAnchorInline();
+        clearTraceResultCards();
+        loadingUpdate(5);
 
         handleSubmit(true);
     }
@@ -1166,10 +1185,10 @@ const clearTraceResultCards = () => {
     $(formElements.traceDataTabs).hide();
 };
 
-const handleSubmit = (clearOnFlyFilter = false) => {
+const handleSubmit = (clearOnFlyFilter = false, autoUpdate = false) => {
     const startTime = runTime();
 
-    traceData(clearOnFlyFilter);
+    traceData(clearOnFlyFilter, autoUpdate);
 
     // send GA events
     const endTime = runTime();
@@ -1198,7 +1217,10 @@ const updateCategoryOrder = (formData) => {
     updateOrderCols = false;
 };
 
-const collectFormDataTrace = (clearOnFlyFilter) => {
+const collectFormDataTrace = (clearOnFlyFilter, autoUpdate = false) => {
+    if (autoUpdate) {
+        return genDatetimeRange(lastUsedFormData);
+    }
     let formData = null;
     if (clearOnFlyFilter) {
         formData = collectFormData(formElements.formID);
@@ -1226,15 +1248,9 @@ const collectFormDataTrace = (clearOnFlyFilter) => {
     return formData;
 };
 
-const traceData = (clearOnFlyFilter) => {
-    hideAllCrossAnchorInline();
-    if (clearOnFlyFilter) {
-        clearTraceResultCards();
-    }
+const traceData = (clearOnFlyFilter, autoUpdate) => {
 
-    let formData = collectFormDataTrace(clearOnFlyFilter);
-
-    loadingUpdate(5);
+    let formData = collectFormDataTrace(clearOnFlyFilter, autoUpdate);
 
     formData = handleXSettingOnGUI(formData);
 
@@ -1280,7 +1296,9 @@ const traceData = (clearOnFlyFilter) => {
         fillDataToFilterModal(catExpBox, categoryData, cat_on_demand, [], [], handleSubmit);
 
         // Move screen to graph after pushing グラフ表示 button
-        autoScrollToChart(500);
+        if (!autoUpdate) {
+            autoScrollToChart(500);
+        }
 
         // sql limit warining toastr
         // if (res.actual_record_number > SQL_LIMIT) {
@@ -1302,10 +1320,7 @@ const traceData = (clearOnFlyFilter) => {
             showToastrMsg(i18nCommon.limitDisplayedGraphs.replace('NUMBER', MAX_NUMBER_OF_GRAPH));
         }
 
-        // check and do auto-update
-        longPolling(formData, () => {
-            handleSubmit(true)
-        });
+        setPollingData(formData, handleSubmit, [false, true]);
 
         if ((isEmpty(res.array_plotdata)
                         || isEmpty(res.array_plotdata[0].array_y))
@@ -1559,4 +1574,16 @@ const dumpData = (type, exportFrom) => {
 };
 const handleExportData = (type) => {
     showGraphAndDumpData(type, dumpData);
+};
+
+const bindScatterPlotEvents = () => {
+    $(formElements.showScatterPlotSelect).on('change', (e) => {
+        // check facets
+        const facetLv1 = $('select[name=catExpBox] option:selected[value="1"]').length;
+        const facetLv2 = $('select[name=catExpBox] option:selected[value="2"]').length;
+        if (facetLv1 || facetLv2) {
+            // uncheck facets
+            $('select[name=catExpBox] option[value=""]').prop('selected', true);
+        }
+    });
 };

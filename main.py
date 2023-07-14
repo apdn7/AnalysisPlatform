@@ -59,7 +59,8 @@ if __name__ == '__main__':
 
     run_clean_data_job(folder=get_data_path(), num_day_ago=30, job_repeat_sec=24 * 60 * 60)
     # clean log file 7 days (1 day for demo release4.1.0)
-    run_clean_data_job(job_name=JobType.CLEAN_LOG.name, folder=get_data_path(is_log=True), num_day_ago=7, job_repeat_sec=24 * 60 * 60)
+    run_clean_data_job(job_name=JobType.CLEAN_LOG.name, folder=get_data_path(is_log=True), num_day_ago=7,
+                       job_repeat_sec=24 * 60 * 60)
     add_idle_mornitoring_job()
 
     # TODO : OSS

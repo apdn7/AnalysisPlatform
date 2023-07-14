@@ -3,6 +3,7 @@
 /* eslint-disable no-unused-vars */
 let currentProcItem;
 const currentProcData = {};
+const IS_CONFIG_PAGE = true;
 
 
 const procElements = {
@@ -47,6 +48,10 @@ const JOB_STATUS = {
 };
 
 const updateBackgroundJobs = (json) => {
+    if (_.isEmpty(json)) {
+        return;
+    }
+
     Object.values(json).forEach((row) => {
         const statusClass = JOB_STATUS[row.status].class || JOB_STATUS.FAILED.class;
         let statusTooltip = JOB_STATUS[row.status].title || JOB_STATUS.FAILED.title;
@@ -98,7 +103,7 @@ const confirmDelProc = () => {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ proc_id: procId }), // example: { proc_id: 3 }
+        body: JSON.stringify({proc_id: procId}), // example: { proc_id: 3 }
     })
         .then(response => response.clone().json())
         .then(() => {
@@ -123,7 +128,6 @@ const disableDatatime = (data_type, isAddNew) => {
 const genColConfigHTML = (col, isAddNew = true) => {
     const isDateTime = (col.is_get_date) ? ' checked' : '';
     const isSerial = (col.is_serial_no) ? ' checked' : '';
-    const isOrder = (col.order) ? ' checked' : '';
     const isAutoIncrement = (col.is_auto_increment) ? ' checked' : '';
     const isNumeric = isNumericDatatype(col.data_type);
     const [numericOperators, textOperators, coefHTML] = createOptCoefHTML(col.operator, col.coef, isNumeric);
@@ -139,7 +143,7 @@ const genColConfigHTML = (col, isAddNew = true) => {
         <td>
             <div class="custom-control custom-checkbox" style="text-align:center; vertical-align:middle">
                 <input id="datetimeColumn${col.column_name}"
-                    class="custom-control-input" type="checkbox" name="${procModalElements.dateTime}" ${isDateTime} ${disableDatetime}>
+                    class="custom-control-input" is-dummy-datetime="${isDummyDatetime}" type="checkbox" name="${procModalElements.dateTime}" ${isDateTime} ${disableDatetime}>
                 <label class="custom-control-label" for="datetimeColumn${col.column_name}"></label>
                 <input id="isDummyDatetime${col.column_name}" type="hidden" name="${procModalElements.isDummyDatetime}"
                     value="${isDummyDatetime}">
@@ -152,13 +156,6 @@ const genColConfigHTML = (col, isAddNew = true) => {
                 <label class="custom-control-label" for="serialColumn${col.column_name}"></label>
             </div>
         </td>
-        <td>
-            <div class="custom-control custom-checkbox" style="text-align:center; vertical-align:middle">
-                <input id="order${col.column_name}"
-                    class="custom-control-input" type="checkbox" name="${procModalElements.order}" ${isOrder}>
-                <label class="custom-control-label" for="order${col.column_name}"></label>
-            </div>
-        </td>
         <td title="To be used to keep time consistency for import date (Option)">
             <div class="custom-control custom-checkbox" style="text-align:center; vertical-align:middle">
                 <input id="autoIncrementColumn${col.column_name}"
@@ -167,7 +164,7 @@ const genColConfigHTML = (col, isAddNew = true) => {
                 <label class="custom-control-label" for="autoIncrementColumn${col.column_name}"></label>
             </div>
         </td>
-        <td class="pr-row"><input name="${procModalElements.englishName}" class="form-control" type="text" value="${col.english_name}"></td>
+        <td class="pr-row"><input name="${procModalElements.englishName}" class="form-control" type="text" value="${isDateTime ? 'Datetime' : col.english_name}"></td>
         <td class="pr-row"><input name="${procModalElements.shownName}" class="form-control" type="text" value="${col.name}"></td>
         <td class="pr-row">
             <select name="${procModalElements.operator}" class="form-control" type="text">
@@ -332,17 +329,17 @@ const showProcSettingModal = (procItem) => {
 
     // hide selection checkbox
     $(procModalElements.autoSelectAllColumn).hide();
-    
+
     // reset select all checkbox to uncheck when showing modal
     changeSelectionCheckbox(autoSect = false, selectAll = false);
     // disable original column name
     $(procModalElements.columnNameInput).each(function f() {
         $(this).attr('disabled', true);
     });
-    
+
     // show setting mode when loading proc config
     showHideModes(false);
-    
+
     // clear attr on buttons
     procModalElements.okBtn.removeAttr('data-has-ct');
 };
@@ -355,7 +352,7 @@ const changeDataSource = (e) => {
         }
     } else {
         const databaseId = $(e).val();
-        $.get(`api/setting/database_table/${databaseId}`, { "_": $.now() }, (res) => {
+        $.get(`api/setting/database_table/${databaseId}`, {"_": $.now()}, (res) => {
             const tables = res.tables.map(tblName => `<option value="${tblName}">${tblName}</option>`);
             const tableOptions = ['<option value="">---</option>', ...tables].join('');
             const tableDOM = $(e).parent().parent().find('select[name="tableName"]')[0];
@@ -451,15 +448,6 @@ $(() => {
     procModalElements.procModal.on('hidden.bs.modal', () => {
         $(procModalElements.selectAllColumn).css('display', 'none');
     });
-
-    // const source = new EventSource('/ap/api/setting/listen_background_job');
-    const source = openServerSentEvent();
-    source.addEventListener(serverSentEventType.jobRun, (event) => {
-        const msg = JSON.parse(event.data);
-        if (!_.isEmpty(msg)) {
-            updateBackgroundJobs(msg);
-        }
-    }, false);
 
     // add an empty process config when there is no process config
     setTimeout(() => {

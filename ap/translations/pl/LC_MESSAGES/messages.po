@@ -1754,7 +1754,7 @@ msgstr ""
 msgid "Invalid Cyclic Term Number of Ridge Lines"
 msgstr ""
 "Liczba wejściowej linii Ridgeline jest nieprawidłowa. Wprowadź liczbę "
-"całkowitą 1 lub więcej i 150 lub mniej. (wolę użyć około 100)"
+"całkowitą 1 lub więcej i 240 lub mniej. (wolę użyć około 100)"
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Start data & time"
@@ -2153,10 +2153,6 @@ msgstr ""
 "Wybierz zmienną docelową."
 
 #: ap/templates/templates/i18n.html
-msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
-msgstr "Cele usuwania wartości odstające są Max, Mean, Min, σ i Range."
-
-#: ap/templates/templates/i18n.html
 msgid "Cat."
 msgstr "Inne niż liczby rzeczywiste"
 
@@ -2356,8 +2352,8 @@ msgid "In process order"
 msgstr "W kolejności procesu"
 
 #: ap/templates/parallel_plot/parallel_plot.html
-msgid "In order of corr."
-msgstr "W korelacji COEF. zamówienie"
+msgid "In order of corr"
+msgstr "In order of corr"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid "Corr threshold (abs)"
@@ -3272,7 +3268,7 @@ msgstr ""
 msgid "Division number Hover RLP"
 msgstr ""
 "Wprowadź liczbę wyświetlanych rozkładów (liczba podziałów). Wprowadź "
-"liczbę całkowitą 2 lub 150 lub mniej."
+"liczbę całkowitą 2 lub 240 lub mniej."
 
 #: ap/templates/macros.html
 msgid "Division number Hover StP"
@@ -3791,10 +3787,6 @@ msgid "Col num hover msg"
 msgstr "Set the number of columns in the split graph."
 
 #: ap/templates/macros.html
-msgid "Remove outlier hover msg"
-msgstr "Top and bottom 5%%: Replace to NA"
-
-#: ap/templates/macros.html
 msgid "If checked, the config on graph area will also be saved."
 msgstr "If checked, the config on graph area will also be saved."
 
@@ -4142,6 +4134,155 @@ msgstr "month"
 msgid "Latest year"
 msgstr "year"
 
+#: ap/templates/templates/i18n.html
+#, fuzzy
+msgid "The target is a variable whose data type is Real(Float)"
+msgstr "The target is a variable whose data type is 'Real(Float)'"
+
+#: ap/templates/templates/i18n.html
+msgid "SkD select over 100 sensor msg"
+msgstr ""
+"Processing might take time due to the large number of selected variables."
+" To reduce the processing time, reduce the number of variables and rerun "
+"the visualization."
+
+#: ap/templates/templates/sidebar.html
+msgid "Open (new)"
+msgstr "Open (new)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open (takeover)"
+msgstr "Open (takeover)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open in new tab (new)"
+msgstr "Open in new tab (new)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open in new tab (takeover)"
+msgstr "Open in new tab (takeover)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Main page: DN7"
+msgstr "Main page: DN7"
+
+#: ap/templates/templates/sidebar.html
+msgid "Main page: AP"
+msgstr "Main page: AP"
+
+#: ap/templates/templates/macros.html
+msgid "Select a unit of time and input value."
+msgstr ""
+"Select a unit of time and input value. \n"
+"The range of possible inputs for each unit are as follows.\n"
+"* minute: 0.01 - 1,000,000\n"
+"* hour: 0.01 - 20,000\n"
+"* day: 0.01- 1,000\n"
+"* week: 0.01 - 100\n"
+"* month: 0.01- 24\n"
+"* year : 0.01 - 2\n"
+
+#: ap/templates/sidebar.html
+#, fuzzy
+msgid "Structure Learning"
+msgstr "Dane nie są narysowane, ponieważ istnieje zbyt wiele kategorii."
+
+#: ap/templates/sidebar.html
+#, fuzzy
+msgid "Graphical Lasso"
+msgstr "Graficzny LASSO"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sparsity"
+msgstr "Sparsity"
+
+#: ap/templates/analyze/graphical_lasso.html
+#, fuzzy
+msgid "GLThreshold"
+msgstr "Próg wyświetlania"
+
+#: ap/templates/analyze/graphical_lasso.html
+#, fuzzy
+msgid "Labels"
+msgstr "Etykieta"
+
+#: ap/templates/analyze/graphical_lasso.html
+#, fuzzy
+msgid "Sensor name"
+msgstr "Nazwa użytkownika"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GL Page Title"
+msgstr ""
+"Visualizes partial correlations of variables with network graph.\n"
+"By specifing the objective variable, you can visualize the directly "
+"correlated variables and the in-directly correlated variables in more "
+"easy to understand layout."
+
+#: ap/templates/analyze/graphical_lasso.html
+#, fuzzy
+msgid "Sparsity Hover"
+msgstr ""
+"When calculating the degree of distribution variation (EMD) for each "
+"distribution, the top distribution is used as the reference."
+
+#: ap/templates/analyze/graphical_lasso.html
+#, fuzzy
+msgid "GLThreshold Hover"
+msgstr "Linia progowa"
+
+#: ap/templates/analyze/graphical_lasso.html
+#, fuzzy
+msgid "GL Process name"
+msgstr "Nazwa procesu"
+
+#: ap/templates/templates/macros.html
+msgid "SkD objective hover messenger"
+msgstr ""
+"The variable selected here is called 'Objective variable',\n"
+"which we will fit a regression model to estimate the objective variable "
+"using other selected variables."
+
+#: ap/templates/templates/macros.html
+#, fuzzy
+msgid "GL target variable"
+msgstr "Target variable"
+
+#: ap/templates/templates/macros.html
+#, fuzzy
+msgid "GL objective hover messenger"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/templates/co_occurence.html
+#, fuzzy
+msgid "Show all node labels"
+msgstr "Pokaż etykiety osi X."
+
+#: ap/templates/templates/macros.html
+msgid "Generate proc link information msg"
+msgstr ""
+"If you want to update the number of imported records or the number of "
+"linked records, press the 'Reload' button."
+
+#: ap/templates/templates/sidebar.html
+#, fuzzy
+msgid "in new tab"
+msgstr "Open in new tab (new)"
+
+#: ap/templates/i18n.html
+msgid "File not found"
+msgstr "File not found"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Move next to target variable"
+msgstr "Move next to target variable"
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr ""
+"Values less than Q1-1.5×IQR and values greater than Q3+1.5×IQR: replace "
+"to NA"
+
 #~ msgid ""
 #~ "\"Inf\"/\"-Inf\" and their estimated values"
 #~ " are displayed on the graph as "
@@ -4156,4 +4297,13 @@ msgstr "year"
 
 #~ msgid "All 2"
 #~ msgstr "All"
+
+#~ msgid "Remove outlier hover msg"
+#~ msgstr "Top and bottom 5%%: Replace to NA"
+
+#~ msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
+#~ msgstr "Cele usuwania wartości odstające są Max, Mean, Min, σ i Range."
+
+#~ msgid "In order of corr."
+#~ msgstr "W korelacji COEF. zamówienie"
 

@@ -19,6 +19,16 @@ Let's try data-driven process improvement by utilizing the data sleeping in the 
 <td><img src="ap/config/image/MSP.png" alt="MSP" width="200"></td>
 <td><img src="ap/config/image/StP.png" alt="PCP" width="200"></td>
 </tr>
+<tr>
+<td><img src="ap/config/image/AgP.png" alt="AgP" width="200"></td>
+<td><img src="ap/config/image/ScP.png" alt="ScP" width="200"></td>
+<td><img src="ap/config/image/PCA.png" alt="PCA" width="200"></td>
+</tr>
+<tr>
+<td><img src="ap/config/image/COG.png" alt="COG" width="200"></td>
+<td><img src="ap/config/image/SkD.png" alt="SkD" width="200"></td>
+<td><img src="ap/config/image/GL.png" alt="GL" width="200"></td>
+</tr>
 </table>
 
 ## What can we do with the Analysis Platform?
@@ -32,6 +42,7 @@ The main activities that user can take with the Analysis Platform are:
 * Check behavior of related to human activities & process and product behavior (Calendar Heatmap)
 * Look for key variables that strongly relates to output (Sankey Diagram)
 * Grasp phenomenon that occurs at the same time (Cooccurrence Graph)
+* \+ many other useful visualizations
 
 The Analysis Platform currently supports following data sources:  
 
@@ -51,7 +62,7 @@ Windows embeddable package, running the batch file is regarded as you agreed to 
 ## Requirements
 
 * Windows (Tested with Windows 10)
-* Python (>=3.6) (Tested with Python 3.7.3)
+* Python (>=3.6) (Tested with Python 3.7.3, pip 22.2)
   * If you are going to use the Windows embeddable package, you do not have to install Python in your machine.  
   (See section: For users: Run the Analysis Platform with the Windows embeddable package)
 
@@ -139,6 +150,15 @@ To upgrade the Analysis Platform to a new version, see below document:
 
 * EN: [Upgrade Manual](https://github.com/apdn7/AnalysisPlatform/files/10739971/AP%2BDN7_upgrade_manual_En_v4.1.1.pdf)
 * JP: [Upgrade Manual](https://github.com/apdn7/AnalysisPlatform/files/10739976/AP%2BDN7_upgrade_manual_Jp_v4.1.1.pdf)
+
+## Uninstall
+
+To uninstall the Analysis Platform:
+
+1. Remove the Analysis Platform folder (the folder which the `start_ap.bat` is included)
+2. Remove the following files/folders:
+   * `get-pip.py`
+   * `python_embedded`
 
 ## Is there any sample data that we can use?
 

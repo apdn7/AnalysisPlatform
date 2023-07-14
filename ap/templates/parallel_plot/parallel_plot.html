@@ -33,20 +33,20 @@
 	</form>
 	{{ macros.cat_label_filter_modal() }}
 </div>
-	<div class="graph-navi plot-content" id="sctr-card">
-		<div class="d-flex justify-content-between align-items-center mb-3" id="graph-settings-area">
-			{{ macros.info_i_mark() }}
-			{{ macros.on_demand_filter() }}
-			{{ macros.graph_select_box(id='', name='show-var', label=_('Variables'), values=['all','number','real','category'],
-				texts=[_('Real(Float) and categorical'), _('Real(Float) and Integer'), _('Real(Float) only'), _('Categorical only') ],
-				onChange='showCategoryVarOnly(this)', cl='ml-4', defaultValue='all') }}
-			{{ macros.variable_ordering_mac() }}
-			<div class="d-flex flex-row-reverse flex-grow-1">
-			</div>
-		</div>
-		<div class="card chart-wrapper chart-margin">
-			<div class="dark-bg" id="paracord-plot" style="display: none; overflow-x: scroll;"></div>
-		</div>
+<div class="graph-navi plot-content" id="sctr-card">
+    <div class="d-flex justify-content-between align-items-center mb-3" id="graph-settings-area">
+        {{ macros.info_i_mark() }}
+        {{ macros.on_demand_filter() }}
+        {{ macros.graph_select_box(id='', name='show-var', label=_('Variables'), values=['all','number','real','category'],
+            texts=[_('Real(Float) and categorical'), _('Real(Float) and Integer'), _('Real(Float) only'), _('Categorical only') ],
+            onChange='showCategoryVarOnly(this)', cl='ml-4', defaultValue='all') }}
+        {{ macros.variable_ordering_mac() }}
+        <div class="d-flex flex-row-reverse flex-grow-1">
+        </div>
+    </div>
+    <div class="card chart-wrapper chart-margin">
+        <div class="dark-bg" id="paracord-plot" style="display: none; overflow-x: scroll;"></div>
+    </div>
 	<div id="stContentTab">
 			<div class="setting-inform-content"></div>
 	</div>
@@ -55,6 +55,7 @@
 <div>
     <ul id="contextMenuParallelPlot" class="context-menu" style="display:none;">
         <li class="menu-item" onclick="handleSelectMenuItem(this)" data-target-dim="">{{ _("Response variable") }}</li>
+        <li class="menu-item" onclick="handleSelectMenuItem(this, true)" data-target-dim="">{{ _("Move next to target variable") }}</li>
     </ul>
 </div>
 <div id="dimFullName" class="custom-tooltip"></div>

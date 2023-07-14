@@ -1,5 +1,8 @@
 from functools import lru_cache
 
+from ap import db
+from sqlalchemy.sql import func
+
 from ap.common.constants import DBType, ProcessCfgConst, DataType
 from ap.common.pydn.dblib.db_proxy import DbProxy
 from ap.common.services.jp_to_romaji_utils import to_romaji
@@ -7,6 +10,7 @@ from ap.setting_module.models import CfgProcess, make_session, CfgDataSource, cr
     insert_or_update_config, CfgFilter, CfgVisualization
 from ap.setting_module.schemas import ProcessSchema, ProcessOnlySchema, ProcessColumnSchema, FilterSchema, \
     ProcessVisualizationSchema
+from ap.trace_data.models import find_cycle_class, find_sensor_class
 
 
 def get_all_process():
@@ -144,3 +148,21 @@ def convert2serialize(obj):
         }
     else:
         return obj
+
+def get_ct_range(proc_id, columns):
+    is_using_dummy_datetime = True in [col['is_get_date'] and col['is_dummy_datetime'] for col in columns]
+
+    if not is_using_dummy_datetime:
+        return []
+
+    try:
+        cycle_cls = find_cycle_class(proc_id)
+        ct_range = db.session.query(cycle_cls.id, cycle_cls.time)\
+            .filter(cycle_cls.process_id == proc_id)\
+            .with_entities(
+                func.min(cycle_cls.time).label('min_time'),
+                func.max(cycle_cls.time).label('max_time')
+            ).first()
+        return list(ct_range)
+    except Exception:
+        return []

@@ -1,4 +1,9 @@
-from ap.setting_module.models import DataTraceLog, make_session, insert_or_update_config
+import numpy as np
+import pandas as pd
+
+from ap.common.common_utils import gen_sql_label
+from ap.common.constants import END_COL_NAME, END_PROC_ID, DataType
+from ap.setting_module.models import DataTraceLog, make_session, insert_or_update_config, CfgProcessColumn
 from ap.common.trace_data_log import EventAction
 
 
@@ -12,4 +17,41 @@ def update_draw_data_trace_log(dataset_id, exe_time):
         meta_session.commit()
 
     return True
+
+
+def convert_datetime_to_ct(df, graph_param, target_vars=[]):
+    """
+    Convert sensor that is datetime type to cycle time
+    :param df:
+    :param graph_param:
+    :param target_vars:
+    :return:
+    """
+    UPPER_LIM_MARGIN = 5
+    if not target_vars:
+        target_vars = graph_param.common.sensor_cols
+        color_id = graph_param.common.color_var
+        if color_id:
+            target_vars += [color_id]
+
+    for target_var in target_vars:
+        # find proc_id from col info
+        general_col_info = graph_param.get_col_info_by_id(target_var)
+        # list out all CT column from this process
+        dic_datetime_cols = {cfg_col.id: cfg_col for cfg_col in
+                             CfgProcessColumn.get_by_data_type(general_col_info[END_PROC_ID], DataType.DATETIME)}
+        sql_label = gen_sql_label(target_var, general_col_info[END_COL_NAME])
+        if target_var in dic_datetime_cols and df.size:
+            series = pd.to_datetime(df[sql_label])
+            # compute elapsed time, periods is "-1" mean (i1 - i2,)
+            # then add minus to get (i2 - i1)
+            series = -series.diff(periods=-1).dt.total_seconds()
+            # filter CT not zero/ replace zero to NA
+            series = pd.Series(np.where(series == 0, None, series))
+            # compute upper lim
+            upper_lim = UPPER_LIM_MARGIN * series.median()
+            # convert outliers (>= 5*median) to NA
+            series = pd.Series(np.where(series >= upper_lim, None, series))
+
+            df[sql_label] = series.convert_dtypes()
 

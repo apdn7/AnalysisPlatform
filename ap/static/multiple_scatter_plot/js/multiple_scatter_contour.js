@@ -10,6 +10,7 @@ const genScatterOutlierTrace = (sctData, isShowContour = false,
     let suffixLabel = '';
     suffixLabel = ` @${options.start_proc_name}`;
     const scatterData = sctData.scatter_data;
+    const pointSize = scatterData.x.length <= CONST.SMALL_DATA_SIZE ? 5.5 : 3.5;
     const scatterTrace = {
         mode: 'markers',
         type: 'scatter',
@@ -17,7 +18,7 @@ const genScatterOutlierTrace = (sctData, isShowContour = false,
         y: scatterData.y,
         marker: {
             color: isShowContour ? '#cccccc' : CONST.COLOR_NORMAL,
-            size: 3.5,
+            size: pointSize,
         },
         hoverlabel: {
             bgcolor: '#444',

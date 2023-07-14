@@ -932,8 +932,7 @@ def any_not_none_in_dict(dict_input):
 
 def calc_overflow_boundary(arr, remove_non_real=False):
     if len(arr):
-        q1 = np.quantile(arr, 0.25, interpolation='midpoint')
-        q3 = np.quantile(arr, 0.75, interpolation='midpoint')
+        q1, q3 = np.quantile(arr, [0.25, 0.75], interpolation='midpoint')
         iqr = q3 - q1
         if iqr:
             lower_boundary = q1 - 4.5 * iqr
@@ -1112,6 +1111,7 @@ class NoDataFoundException(Exception):
     def __init__(self):
         super().__init__()
         self.code = 999
+
 
 def bundle_assets(_app):
     """

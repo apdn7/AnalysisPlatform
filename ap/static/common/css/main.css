@@ -426,6 +426,7 @@ ul#traceDataSubmenu li a {
 }
 
 ul#anomalyDetectionMn li a,
+ul#structureLearningMn li a,
 ul#visnMn li a {
     padding-left: 45px !important;
 }
@@ -796,6 +797,10 @@ footer {
 #mainContent {
     color: white;
     min-height: calc(100vh - 130px);
+}
+
+#contextMenuSidebar {
+    background: rgba(14, 12, 12, 0.9);
 }
 
 .context-menu {
@@ -1964,7 +1969,7 @@ span.deleteicon input {
 }
 
 .custom-selection {
-    width: 187px;
+    width: 200px;
     background-color: #222;
     line-height: 29px;
     border: 1px solid #222;
@@ -2184,4 +2189,11 @@ table.table-hover-light {
     80% {
         opacity: 0.15;
     }
+}
+/* custom checkbox style*/
+.custom-checkbox .custom-control-label::before,
+.custom-control-label::after,
+.custom-control-input:checked ~ .custom-control-label::before,
+.custom-checkbox .custom-control-input:checked ~ .custom-control-label::after {
+    margin-top: -2px;
 }

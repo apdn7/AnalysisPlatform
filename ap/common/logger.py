@@ -9,7 +9,7 @@ from zipfile import ZipFile
 import logging
 
 from logging.handlers import TimedRotatingFileHandler
-from ap.common.constants import LOG_LEVEL, AP_LOG_LEVEL
+from ap.common.constants import LOG_LEVEL, ApLogLevel
 
 
 tz = time.strftime('%z')
@@ -116,8 +116,8 @@ def set_log_config():
 
     # retrieve config to write the debug log on file
     basic_config_yaml = get_basic_yaml_obj()
-    log_level = basic_config_yaml.dic_config['info'].get(LOG_LEVEL) or AP_LOG_LEVEL.INFO.name
-    default_logger_level = logging.DEBUG if log_level == AP_LOG_LEVEL.DEBUG.name else logging.INFO
+    log_level = basic_config_yaml.dic_config['info'].get(LOG_LEVEL) or ApLogLevel.INFO.name
+    default_logger_level = logging.DEBUG if log_level == ApLogLevel.DEBUG.name else logging.INFO
 
     # get log folder from config
     log_dir = ap.dic_config.get('INIT_LOG_DIR')

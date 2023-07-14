@@ -14,7 +14,8 @@ let isSettingLoading = false;
 const INVALID_FILTER_DETAIL_IDS = 'invalid_filter_detail_ids';
 const SHARED_USER_SETTING = 'shared_user_setting';
 let lastUsedFormData = null;
-let latestIndexOrder = []
+let latestIndexOrder = [];
+let selectedHref = '';
 
 const settingModals = {
     common: '#saveUserSettingModal',
@@ -39,6 +40,7 @@ const settingModals = {
     editSettingBtn: '#editSettingBtn',
     userSettingLabel: '#userSettingLabel',
     saveUserSettingConfirmContent: '#saveSettingConfirmContent',
+    sideBarContextMenu: '#contextMenuSidebar',
 };
 
 const i18nEles = {
@@ -255,7 +257,7 @@ const getSortKeys = (targetEle, isSimple = null) => {
 
     let cycleTimeVal = lastPosNumber;
     if (cycleTimeCol.length > 0) {
-        if (cycleTimeCol.text() === 'CT') {
+        if (cycleTimeCol.text().includes('CT')) {
             if (isChecked) {
                 cycleTimeVal = isColumnNameBlank ? 0 : 1;
             }
@@ -735,6 +737,9 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                 let eleSelector = buildEleSelector(v.name, null, v.id);
                 input = form.querySelector(eleSelector);
                 // selection
+                if (v.name === 'remove_outlier_type' && v.value === 'majority') {
+                    continue;
+                }
                 if (v.type === 'select-one') {
                     // in case of existing selection, but not existing item/option
                     // do nothing
@@ -849,6 +854,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
     };
 
     const loadIndex = (data) => {
+        if (!$('#xAxisModal').length) return;
         const procs = [];
         const cols = [];
         const orders = [];
@@ -864,20 +870,14 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             }
         }
 
-        setTimeout(() => {
-            procs.forEach((process, i) => {
-                const column = cols[i];
-                const order = orders[i];
-                $(`#${process.genBtnId}`).trigger('click');
-                setTimeout(() => {
-                    $($(`select[name=${process.name}]`)[i]).val(process.value).trigger('change');
-                }, 100);
-                setTimeout(() => {
-                    $($(`select[name=${column.name}]`)[i]).val(column.value).trigger('change');
-                    $($(`select[name=${order.name}]`)[i]).val(order.value)
-                }, 300);
-            });
-        }, 1000);
+        procs.forEach(async (proc, i) => {
+           await addSerialOrderRow(null, 'serialProcess', 'serialColumn', 'serialOrder', Number(proc.value), Number(cols[i].value), orders[i].value);
+           bindChangeProcessEvent();
+           updatePriorityAndDisableSelected();
+           setTimeout(() => { // wait select2 to be shown
+                bindChangeOrderColEvent();
+           }, 200);
+        })
     };
 
     const innerFunc = (isLoad = true, isSaveToLocalStorage = true, savedData = null) => {
@@ -1042,6 +1042,7 @@ const createHTMLRow = (setting, idx) => {
     // TODO i18n: Shared, Private, btns
     const priorities = [5, 4, 3, 2, 1];
     let prioritySelection = '';
+    let isDisabledSelectPriority = false;
     priorities.forEach((val) => {
         const selected = setting.priority == val ? ' selected="selected"' : '';
         let label = `${val}`;
@@ -1049,6 +1050,11 @@ const createHTMLRow = (setting, idx) => {
             label = '5 (High)';
         } else if (val === 1) {
             label = '1 (Low)';
+        }
+
+        if (setting.priority === 0) {
+            label = '0 (Demo)';
+            isDisabledSelectPriority = true;
         }
         prioritySelection += `<option value="${val}"${selected}>${label}</option>`;
     });
@@ -1058,7 +1064,7 @@ const createHTMLRow = (setting, idx) => {
         <td>${idx}</td>
         <td>${setting.share_info ? $(i18nEles.shared).text() : $(i18nEles.private).text()}</td>
         <td>
-        	<select class="form-control" onchange="updateSettingPriority(this, ${setting.id})">
+        	<select style="padding-left: 0; padding-right: 0; min-width: 84px" class="form-control" onchange="updateSettingPriority(this, ${setting.id})" ${isDisabledSelectPriority ? 'disabled' : ''}>
         		${prioritySelection}
 			</select>
 			<span class="hide">${setting.priority}</span>
@@ -1264,6 +1270,7 @@ const showIndexInforBox = () => {
 const applyUserSetting = (userSetting, onlyLoad = null, isLoadNew = true) => {
 
     if (isEmpty(userSetting)) return;
+    isSettingLoading = true;
 
     let userInputs;
     if (typeof (userSetting.settings) === 'string') {
@@ -1313,12 +1320,11 @@ const saveStateAndShowLabelSetting = (userSetting, inplace = true) => {
         if (userSetting.title) {
             userSettingText = `${userSetting.title}`;
             // set current loading setting label
-            $(settingModals.currentLoadSettingLbl).html('&#x2605');
+            fillStartBookmark();
             $('#setting-name').text(userSettingText)
-            $(settingModals.currentLoadSettingLbl).attr('title', userSettingText);
+            $(settingModals.bookmarkBtn).attr('title', userSettingText);
             $(settingModals.overwriteSaveSettingBtn).show();
             $(settingModals.editSettingBtn).show();
-            $(settingModals.bookmarkBtn).hide();
         }
     } else {
         $(settingModals.overwriteSaveSettingBtn).hide();
@@ -1326,6 +1332,14 @@ const saveStateAndShowLabelSetting = (userSetting, inplace = true) => {
         $(settingModals.bookmarkBtn).show();
     }
 };
+
+const fillStartBookmark = () => {
+    $(settingModals.bookmarkBtn).html('&#x2605');
+};
+
+const emptyStartBookmark = () => {
+    $(settingModals.bookmarkBtn).html('&#x2606');
+}
 
 // eslint-disable-next-line no-unused-vars
 const loadAllUserSetting = () => {
@@ -1362,12 +1376,19 @@ const showSettingModal = (userSetting) => {
         if (settingModalKeys.includes(settingKey)) {
             const settingInput = $(settingModals.userSetting)
                 .find(`[name="${settingKey}"]`);
-            switch (settingInput.attr('type')) {
+            const elType = settingInput.is('select') ? 'select' : settingInput.attr('type');
+            switch (elType) {
                 case 'checkbox':
                     settingInput.prop('checked', setting);
                     break;
                 case 'select':
-                    settingInput.val(setting);
+                    if (settingKey === 'priority' && setting === 0) {
+                        settingInput.append(`<option value="0">0 (Demo)</option>`);
+                        settingInput.val(0);
+                        settingInput.prop('disabled', true);
+                    } else {
+                        settingInput.val(setting);
+                    }
                     break;
                 default:
                     settingInput.val(setting);
@@ -1407,6 +1428,8 @@ const resetSaveUserSettingModal = () => {
     $(settingModals.common).find('input[name=page]').val('');
     $(settingModals.common).find('input[name=created_by]').val('');
     $(settingModals.common).find('select[name=priority]').val('1');
+    $(settingModals.common).find('select[name=priority] option[value="0"]').remove();
+    $(settingModals.common).find('select[name=priority]').prop('disabled', false);
     $(settingModals.common).find('input[name=description]').val('');
     $(settingModals.common).find('input[name=use_current_time]').prop('checked', true);
     $(settingModals.common).find('input[name=share_info]').prop('checked', true);
@@ -1676,12 +1699,10 @@ $(document).ready(() => {
             $(settingModals.confirmation).modal('show');
         }
 
-        const isEdit = $(settingModals.saveSettingConfirmBtn).attr('is-edit');
-        if (isEdit) {
-            $(settingModals.saveUserSettingConfirmContent).text(i18nCommon.editUserSettingConfirm.replace('_TITLE_', orgTitle));
-        } else {
-            $(settingModals.saveUserSettingConfirmContent).text(i18nCommon.saveUserSettingConfirm);
-        }
+        // const isEdit = $(settingModals.saveSettingConfirmBtn).attr('is-edit');
+        // if (!isEdit) {
+        //     $(settingModals.saveUserSettingConfirmContent).text(i18nCommon.saveUserSettingConfirm);
+        // }
         return false;
     });
 
@@ -1756,15 +1777,18 @@ $(document).ready(() => {
         isSettingLoading = false;
     }, 3500);
 
+    $('.go-to-page').on('contextmenu', (e) => {
+        selectedHref = e.target.closest('a').getAttribute('href');
+        rightClickHandler(e, settingModals.sideBarContextMenu);
+    });
+
     $('.go-to-page').on('click', (e) => {
         e.preventDefault();
         const href = e.target.closest('a').getAttribute('href');
         if (e.ctrlKey) {
             goToOtherPage(href, false);
         } else {
-            showSettingChangeModalHandler(() => {
-                goToOtherPage(href);
-            });
+            goToOtherPage(href);
         }
     });
 });
@@ -1803,8 +1827,7 @@ const compareSettingChange = () => {
     if (isSettingChanged) {
 
         if (currentLoadSetting) {
-            $(settingModals.currentLoadSettingLbl).html('&#x2606');
-            $(settingModals.bookmarkBtn).hide();
+            emptyStartBookmark();
         }
 
         $('#setting-change-mark').show();
@@ -1813,7 +1836,7 @@ const compareSettingChange = () => {
             return 'Do you want to save changes?';
         });
     } else {
-        // $(settingModals.currentLoadSettingLbl).html('&#x2605');
+       fillStartBookmark();
         resetChangeSettingMark();
     }
 }
@@ -1823,8 +1846,7 @@ const resetChangeSettingMark = () => {
     $('#setting-change-mark').hide();
     $(window).off("beforeunload");
     if (currentLoadSetting) {
-        $(settingModals.currentLoadSettingLbl).html('&#x2605');
-        $(settingModals.bookmarkBtn).hide();
+        fillStartBookmark();
     }
 };
 
@@ -1852,10 +1874,27 @@ const showSettingChangeModalHandler = (callback) => {
     }
 };
 
-const goToOtherPage = (href, inplace = true) => {
+const goToOtherPage = (href, inplace = true, emptyPage = false, mainPage='') => {
+    if (!href) {
+        href = selectedHref;
+    }
+    if (mainPage) {
+        if ( mainPage == 'DN7' ) {
+            href = '/ap/tile_interface/dn7';
+        }
+
+        if ( mainPage === 'AP' ) {
+            href = '/ap/tile_interface/analysis_platform';
+        }
+    }
+    if (emptyPage) {
+        useTileInterface().set();
+    }
     if (inplace) {
-        resetChangeSettingMark();
-        window.location.replace(href);
+        showSettingChangeModalHandler(() => {
+            resetChangeSettingMark();
+            window.location.replace(href);
+        });
     } else {
         window.open(href, '_blank');
     }

@@ -1,8 +1,8 @@
 /* eslint-disable arrow-parens,camelcase */
 // eslint-disable no-undef, no-unused-vars
-
 // term of use
 validateTerms();
+const HEART_BEAT_MILLI = 5000;
 let scpSelectedPoint = null;
 let scpCustomData = null;
 let serverSentEventCon = null;
@@ -10,11 +10,14 @@ let loadingProgressBackend = 0;
 let formDataQueried = null;
 const serverSentEventUrl = '/ap/api/setting/listen_background_job';
 
+
 let originalUserSettingInfo;
 let isGraphShown = false;
 let requestStartedAt;
+let handleHeartbeat;
 
 const serverSentEventType = {
+    ping: 'ping',
     jobRun: 'JOB_RUN',
     procLink: 'PROC_LINK',
     shutDown: 'SHUT_DOWN',
@@ -24,6 +27,10 @@ const serverSentEventType = {
     showGraph: 'SHOW_GRAPH',
     diskUsage: 'DISK_USAGE',
 };
+
+const KEY_CODE = {
+    ENTER: 13
+}
 
 let isShutdownListening = false;
 
@@ -49,6 +56,150 @@ const GRAPH_CONST = {
     histSummaryHeight: 'auto', // ~1/4 of histogram
 };
 
+const dnJETColorScale = [
+    ['0.0', 'rgb(0,0,255)'],
+    ['0.1666', 'rgb(0,159,255)'],
+    ['0.3333', 'rgb(0,255,255)'],
+    ['0.5', 'rgb(0, 255, 0)'],
+    ['0.6666', 'rgb(255,255,0)'],
+    ['0.8333', 'rgb(255,127,0)'],
+    ['1.0', 'rgb(255,0,0)']
+];
+
+const channelType = {
+    heartBeat: 'heart-beat',
+    sseMsg: 'sse-msg',
+    sseErr: 'sse-error',
+}
+
+// Broadcast channel for SSE
+const bc = new BroadcastChannel('sse')
+
+function postHeartbeat() {
+    // send heart beat
+    if (serverSentEventCon && serverSentEventCon.readyState === serverSentEventCon.OPEN) {
+        // console.log(toLocalTime(), 'post heart beat');
+        bc.postMessage({type: channelType.heartBeat});
+    } else {
+        // make new SSE connection
+        openServerSentEvent(true);
+        // console.log(toLocalTime(), 'force request');
+    }
+
+}
+
+// Handle SSE messages and errors
+const handleSSEMessage = (event) => {
+    // console.log(toLocalTime(), event.data);
+    const {type, data} = event.data;
+    if (type === channelType.heartBeat) {
+        // handle sse msg
+        if (handleHeartbeat) {
+            clearInterval(handleHeartbeat);
+            // console.log(toLocalTime(), 'clear interval');
+        }
+        handleHeartbeat = setInterval(postHeartbeat, HEART_BEAT_MILLI * 3);
+        if (serverSentEventCon) {
+            serverSentEventCon.close()
+        }
+    } else {
+        // data type error
+        if (type === serverSentEventType.dataTypeErr) {
+            handleError(data);
+        }
+
+        // import empty file
+        if (type === serverSentEventType.emptyFile) {
+            handleEmptyFile(data);
+        }
+
+        // fetch pca data
+        if (type === serverSentEventType.pcaSensor) {
+            if (typeof appendSensors !== 'undefined') {
+                appendSensors(data);
+            }
+        }
+
+        // fetch show graph progress
+        if (type === serverSentEventType.showGraph) {
+            if (typeof showGraphProgress !== 'undefined') {
+                showGraphProgress(data);
+            }
+        }
+
+        // show warning/error message about disk usage
+        if (type === serverSentEventType.diskUsage) {
+            if (typeof checkDiskCapacity !== 'undefined') {
+                checkDiskCapacity(data);
+            }
+        }
+
+        if (type === serverSentEventType.jobRun) {
+            if (typeof updateBackgroundJobs !== 'undefined') {
+                updateBackgroundJobs(data);
+            }
+        }
+
+        if (type === serverSentEventType.shutDown) {
+            if (typeof shutdownApp !== 'undefined') {
+                shutdownApp();
+            }
+        }
+
+        if (type === serverSentEventType.procLink) {
+            // calculate proc link count
+            if (typeof realProcLink !== 'undefined') {
+                realProcLink(false);
+                setTimeout(hideAlertMessages, 3000);
+            }
+
+            if (typeof handleSourceListener !== 'undefined') {
+                handleSourceListener();
+            }
+        }
+    }
+};
+
+const openServerSentEvent = (isForce = false) => {
+    if (isForce || serverSentEventCon === undefined || serverSentEventCon === null) {
+        let uuid = localStorage.getItem('uuid');
+        if (uuid === undefined || uuid === null) {
+            uuid = create_UUID();
+            localStorage.setItem('uuid', uuid);
+        }
+
+        const force = isForce ? 1 : 0;
+        serverSentEventCon = new EventSource(`${serverSentEventUrl}/${force}/${uuid}`);
+
+        serverSentEventCon.onerror = (err) => {
+            // console.log(toLocalTime(), 'SSE error');
+            if (handleHeartbeat) {
+                clearInterval(handleHeartbeat);
+            }
+            handleHeartbeat = setInterval(postHeartbeat, HEART_BEAT_MILLI * 3);
+            if (!bc.onmessage) {
+                bc.onmessage = handleSSEMessage;
+            }
+            if (serverSentEventCon) {
+                serverSentEventCon.close();
+            }
+        };
+
+        serverSentEventCon.addEventListener(serverSentEventType.ping, (event) => {
+            bc.postMessage({type: channelType.heartBeat});
+            if (handleHeartbeat) {
+                clearInterval(handleHeartbeat);
+            }
+            handleHeartbeat = setInterval(postHeartbeat, HEART_BEAT_MILLI);
+            if (!bc.onmessage) {
+                bc.onmessage = handleSSEMessage;
+            }
+            // listenSSE();
+            notifyStatusSSE();
+        }, false);
+    }
+};
+
 const divideOptions = {
     var: 'var',
     category: 'category',
@@ -58,107 +209,127 @@ const divideOptions = {
     cyclicCalender: 'cyclicCalender',
 }
 
-const openServerSentEvent = () => {
-    if (serverSentEventCon === undefined || serverSentEventCon === null) {
-        serverSentEventCon = new EventSource(serverSentEventUrl);
+function handleError(data) {
+    if (data) {
+        let msg = $(baseEles.i18nJobStatusMsg).text();
+        msg = msg.replace('__param__', data);
+
+        // show toastr to notify user
+        showToastrMsg(msg, MESSAGE_LEVEL.ERROR);
     }
+}
 
-    return serverSentEventCon;
-};
+function handleEmptyFile(data) {
+    if (data) {
+        let msg = $(baseEles.i18nImportEmptyFileMsg).text();
+        msg = msg.replace('__param__', `<br>${data.join('<br>')}`);
 
-const closeOldConnection = (eventSource) => {
-    if (eventSource !== undefined && eventSource !== null) {
-        eventSource.close();
-        eventSource = null;
+        // show toast to notify user
+        showToastrMsg(msg);
     }
-};
+}
 
-// shutdown app code - SSE
-const shutdownAppPolling = () => {
-    const source = openServerSentEvent();
-    source.addEventListener(serverSentEventType.shutDown, (event) => {
-        const msg = JSON.parse(event.data);
-        if (msg) {
-            // show toastr to notify user
-            showToastrMsg($(baseEles.i18nJobsStopped).text(), MESSAGE_LEVEL.INFO);
+function shutdownApp() {
+    // show toastr to notify user
+    showToastrMsg($(baseEles.i18nJobsStopped).text(), MESSAGE_LEVEL.INFO);
 
-            // call API to shutdown app
-            setTimeout(() => {
-                fetch('/ap/api/setting/shutdown', {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({}),
-                })
-                    .then(response => response.clone().json())
-                    .then(() => {
-                        // closeOldConnection(source);
-                    })
-                    .catch(() => {
-                        // closeOldConnection(source);
-                    });
-            }, 2000); // wait 2 seconds to let app update 100% in background job page
-        }
-    }, false);
-};
+    // call API to shutdown app
+    setTimeout(() => {
+        fetch('/ap/api/setting/shutdown', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({}),
+        })
+            .then(response => response.clone().json())
+            .then(() => {
+                // closeOldConnection(source);
+            })
+            .catch(() => {
+                // closeOldConnection(source);
+            });
+    }, 2000); // wait 2 seconds to let app update 100% in background job page
+}
+
+function showGraphProgress(data) {
+    if (data > loadingProgressBackend) {
+        loadingUpdate(data);
+        loadingProgressBackend = data;
+    }
+}
 
 // import job data type error notification
 const notifyStatusSSE = () => {
-    const source = openServerSentEvent();
-
     // data type error
-    source.addEventListener(serverSentEventType.dataTypeErr, (event) => {
+    serverSentEventCon.addEventListener(serverSentEventType.dataTypeErr, (event) => {
         const data = JSON.parse(event.data);
-        if (data) {
-            let msg = $(baseEles.i18nJobStatusMsg).text();
-            msg = msg.replace('__param__', data);
-
-            // show toastr to notify user
-	        showToastrMsg(msg, MESSAGE_LEVEL.ERROR);
-        }
+        bc.postMessage({type: serverSentEventType.dataTypeErr, data: data});
+        handleError(data);
     }, false);
 
     // import empty file
-    source.addEventListener(serverSentEventType.emptyFile, (event) => {
+    serverSentEventCon.addEventListener(serverSentEventType.emptyFile, (event) => {
         const data = JSON.parse(event.data);
-        if (data) {
-            let msg = $(baseEles.i18nImportEmptyFileMsg).text();
-            msg = msg.replace('__param__', `<br>${data.join('<br>')}`);
-
-            // show toast to notify user
-            showToastrMsg(msg);
-        }
+        bc.postMessage({type: serverSentEventType.emptyFile, data: data});
+        handleEmptyFile(data);
     }, false);
 
     // fetch pca data
-    source.addEventListener(serverSentEventType.pcaSensor, (event) => {
+    serverSentEventCon.addEventListener(serverSentEventType.pcaSensor, (event) => {
         const data = JSON.parse(event.data);
-        try {
+        bc.postMessage({type: serverSentEventType.pcaSensor, data: data});
+        if (typeof appendSensors !== 'undefined') {
             appendSensors(data);
-        } catch (e) {
-            //
         }
     }, false);
 
-    // fetch pca data
-    source.addEventListener(serverSentEventType.showGraph, (event) => {
+    // fetch show graph progress
+    serverSentEventCon.addEventListener(serverSentEventType.showGraph, (event) => {
         const data = JSON.parse(event.data);
-        try {
-            if (data > loadingProgressBackend) {
-                loadingUpdate(data);
-                loadingProgressBackend = data;
-            }
-        } catch (e) {
-            //
+        bc.postMessage({type: serverSentEventType.showGraph, data: data});
+        if (typeof showGraphProgress !== 'undefined') {
+            showGraphProgress(data);
         }
     }, false);
 
     // show warning/error message about disk usage
-    source.addEventListener(serverSentEventType.diskUsage, (event) => {
+    serverSentEventCon.addEventListener(serverSentEventType.diskUsage, (event) => {
         const data = JSON.parse(event.data);
-        checkDiskCapacity(data);
+        bc.postMessage({type: serverSentEventType.diskUsage, data: data});
+        if (typeof checkDiskCapacity !== 'undefined') {
+            checkDiskCapacity(data);
+        }
+    }, false);
+
+    serverSentEventCon.addEventListener(serverSentEventType.jobRun, (event) => {
+        const data = JSON.parse(event.data);
+        bc.postMessage({type: serverSentEventType.jobRun, data: data});
+        if (typeof updateBackgroundJobs !== 'undefined') {
+            updateBackgroundJobs(data);
+        }
+    }, false);
+
+    serverSentEventCon.addEventListener(serverSentEventType.shutDown, (event) => {
+        bc.postMessage({type: serverSentEventType.shutDown, data: true});
+        if (typeof shutdownApp !== 'undefined') {
+            shutdownApp();
+        }
+    }, false);
+
+    serverSentEventCon.addEventListener(serverSentEventType.procLink, (event) => {
+        bc.postMessage({type: serverSentEventType.procLink, data: true});
+        // calculate proc link count
+        if (typeof realProcLink !== 'undefined') {
+            realProcLink(false);
+            setTimeout(hideAlertMessages, 3000);
+        }
+
+        if (typeof handleSourceListener !== 'undefined') {
+            handleSourceListener();
+        }
+
     }, false);
 };
 
@@ -270,7 +441,7 @@ const toggleToMaxIcon = (collapseId) => {
 
 const hideContextMenu = () => {
     const menuName = '[name=contextMenu]';
-    $(menuName).css({ display: 'none' });
+    $(menuName).css({display: 'none'});
 };
 
 const handleMouseUp = (e) => { // later, not just mouse down, + mouseout of menu
@@ -401,7 +572,7 @@ const useTileInterface = () => {
         localStorage.removeItem('isLoadingFromTitleInterface');
         return null;
     };
-    return { set, get, reset };
+    return {set, get, reset};
 };
 
 const openNewPage = () => {
@@ -424,13 +595,14 @@ $(() => {
 
     updateI18nCommon();
 
-    // init fatal error polling
-    notifyStatusSSE();
-
     checkDiskCapacity();
 
     SetAppEnv();
+    getFiscalYearStartMonth();
 
+    // heart beat
+    // notifyStatusSSE();
+    serverSentEventCon = openServerSentEvent();
     // click shutdown event
     $('body').click((e) => {
         if ($(e.target).closest(baseEles.shutdownApp).length) {
@@ -441,7 +613,7 @@ $(() => {
     $(baseEles.btnConfirmShutdownApp).click(() => {
         // init shutdown polling
         if (isShutdownListening === false) {
-            shutdownAppPolling();
+            // shutdownAppPolling();
             isShutdownListening = true;
         }
 
@@ -508,40 +680,17 @@ $(() => {
 
     // trigger auto click show graph
     setTimeout(() => {
-        if (loadingSetting) {
-            const showGraphBtn = $('button.show-graph');
-            // if (showGraphBtn.data('with-tab')) {
-            //     const activeTab = showGraphBtn.closest('.tab-pane.active');
-            //     if (activeTab) {
-            //         showGraphBtn = $(activeTab).find('.show-graph');
-            //     }
-            // }
-            // console.log(showGraphBtn);
-            //
-            // debug mode
-            const loadingSettingObj = JSON.parse(loadingSetting);
-            if (loadingSettingObj.isExportMode) {
-                const input = document.createElement('input');
-                input.setAttribute('type', 'hidden');
-                input.setAttribute('name', 'isExportMode');
-                input.setAttribute('value', loadingSettingObj.settingID);
-                // append to form element that you want .
-                $(showGraphBtn).after(input);
-            }
 
-            if (loadingSettingObj.isImportMode) {
-                const input = document.createElement('input');
-                input.setAttribute('type', 'hidden');
-                input.setAttribute('name', 'isImportMode');
-                input.setAttribute('value', loadingSettingObj.isImportMode);
-                // append to form element that you want .
-                $(showGraphBtn).after(input);
-            }
-
-            $(showGraphBtn).click();
-            clearLoadingSetting();
-        }
     }, 4000);
+
+    checkShownGraphInterval = setInterval(() => {
+        // if show graph btn is active
+        const isValid = !!$('button.show-graph.valid-show-graph').length;
+        if (isValid && !isSettingLoading) {
+            handleAutoClickShowGraph(loadingSetting);
+            clearInterval(checkShownGraphInterval);
+        }
+    }, 100)
 
     $('[name=pasteCard]').click((e) => {
         const divTarget = e.currentTarget.closest('.card-body');
@@ -581,15 +730,45 @@ $(() => {
     cleansingHandling();
 });
 
+
+const handleAutoClickShowGraph = (loadingSetting) => {
+    if (loadingSetting) {
+            const showGraphBtn = $('button.show-graph');
+            // debug mode
+            const loadingSettingObj = JSON.parse(loadingSetting);
+            if (loadingSettingObj.isExportMode) {
+                const input = document.createElement('input');
+                input.setAttribute('type', 'hidden');
+                input.setAttribute('name', 'isExportMode');
+                input.setAttribute('value', loadingSettingObj.settingID);
+                // append to form element that you want .
+                $(showGraphBtn).after(input);
+            }
+
+            if (loadingSettingObj.isImportMode) {
+                const input = document.createElement('input');
+                input.setAttribute('type', 'hidden');
+                input.setAttribute('name', 'isImportMode');
+                input.setAttribute('value', loadingSettingObj.isImportMode);
+                // append to form element that you want .
+                $(showGraphBtn).after(input);
+            }
+
+            $(showGraphBtn).click();
+            clearLoadingSetting();
+        }
+};
+
 const initTargetPeriod = () => {
     removeDateTimeInList();
     addNewDatTimeRange();
     showDateTimeRangeValue();
 
-     // validate and change to default and max value cyclic term
+    // validate and change to default and max value cyclic term
     validateInputByNameWithOnchange(CYCLIC_TERM.WINDOW_LENGTH, CYCLIC_TERM.WINDOW_LENGTH_MIN_MAX);
     validateInputByNameWithOnchange(CYCLIC_TERM.INTERVAL, CYCLIC_TERM.INTERVAL_MIN_MAX);
     validateInputByNameWithOnchange(CYCLIC_TERM.DIV_OFFSET, CYCLIC_TERM.DIV_OFFSET_MIN_MAX);
+    validateInputByNameWithOnchange(CYCLIC_TERM.RECENT_INTERVAL, CYCLIC_TERM.TIME_UNIT);
 
     setTimeout(() => {
         $('input[type=text]').trigger('change');
@@ -695,7 +874,7 @@ const handleChangeDivideOption = (e) => {
     currentShower.find('input[type=text]').trigger('change');
     tabs.forEach(tab => {
         if (tab !== e.value) {
-            $(`#for-${tab}`).css({ display: 'none', visibility: 'hidden' });
+            $(`#for-${tab}`).css({display: 'none', visibility: 'hidden'});
             toggleDisableAllInputOfNoneDisplayEl($(`#for-${tab}`));
         }
     });
@@ -734,7 +913,20 @@ const addNewDatTimeRange = () => {
         $('#datetimeList').append(newDateHtml);
         removeDateTimeInList();
         initializeDateTimeRangePicker(dtId);
+        $(`#${dtId}`).off('focus')
+         $(`#${dtId}`).on('focus', (e) => {
+            handleOnfocusEmptyDatetimeRange(e.currentTarget)
+        })
     });
+};
+
+
+const handleOnfocusEmptyDatetimeRange = (e) => {
+    const _this = $(e);
+    const value = _this.val();
+    if (value) return;
+    const aboveSiblingValue = _this.parent().prev().find('input[name=DATETIME_RANGE_PICKER]').val();
+    _this.val(aboveSiblingValue).trigger('change');
 };
 
 const removeUnusedDate = () => {
@@ -770,52 +962,44 @@ const getDateTimeRangeValue = (tab = null, traceTimeName = 'varTraceTime', forDi
         const currentDivFormat = $(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`).val();
         if (currentDivFormat) {
             const offset = $(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`).val();
-            const { from, to, div } = dividedByCalendar(result.split(DATETIME_PICKER_SEPARATOR)[0], result.split(DATETIME_PICKER_SEPARATOR)[1], currentDivFormat, isLatest, offset);
+            const {
+                from,
+                to,
+                div
+            } = dividedByCalendar(result.split(DATETIME_PICKER_SEPARATOR)[0], result.split(DATETIME_PICKER_SEPARATOR)[1], currentDivFormat, isLatest, offset);
             result = `${from}${DATETIME_PICKER_SEPARATOR}${to}`;
-            $('#cyclicCalenderShowDiv').text(`Div=${div}`);
+            $('#cyclicCalenderShowDiv').text(`Div: ${div}`);
         }
     } else {
         $('#cyclicCalenderShowDiv').text('');
     }
     $('#datetimeRangeShowValue').text(result);
     $(`#${currentTab}-daterange`).text(result);
-    generateCalenderExample(result.split(DATETIME_PICKER_SEPARATOR)[0])
+    changeFormatAndExample($(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`));
     return result;
 };
 
 const showDateTimeRangeValue = () => {
     getDateTimeRangeValue();
-
-    $('.to-update-time-range').on('change', (e) => {
-        getDateTimeRangeValue();
-        compareSettingChange();
-    });
+    $('.to-update-time-range').off('change', handleChangeUpdateTimeRange);
+    $('.to-update-time-range').on('change', handleChangeUpdateTimeRange);
 };
+
+const handleChangeUpdateTimeRange = () => {
+    getDateTimeRangeValue();
+    compareSettingChange();
+}
 
 const calDateTimeRangeForVar = (currentTab, traceTimeName = 'varTraceTime', forDivision = true) => {
     const currentTargetDiv = forDivision ? $(`#for-${currentTab}`) : $('#target-period-wrapper');
     const traceOption = currentTargetDiv.find(`[name*=${traceTimeName}]:checked`).val();
     const dateTimeRange = currentTargetDiv.find('[name=DATETIME_RANGE_PICKER]').val();
-    const { startDate, startTime, endDate, endTime } = splitDateTimeRange(dateTimeRange)
+    const {startDate, startTime, endDate, endTime} = splitDateTimeRange(dateTimeRange)
     const recentTimeInterval = currentTargetDiv.find('[name=recentTimeInterval]').val() || 24;
     const timeUnit = currentTargetDiv.find('[name=timeUnit]').val() || 60;
 
     if (traceOption === TRACE_TIME_CONST.RECENT) {
-        let timeDiffMinute, newStartDate, newEndDate, newStartTime, newEndTime;
-
-        if (['months', 'years'].includes(timeUnit)) {
-            newStartDate = moment().subtract(recentTimeInterval, timeUnit).format(DATE_FORMAT);
-            newStartTime = moment().subtract(recentTimeInterval, timeUnit).format(TIME_FORMAT);
-        } else {
-            timeDiffMinute = Number(recentTimeInterval) * Number(timeUnit);
-            newStartDate = moment().add(-timeDiffMinute, 'minute').format(DATE_FORMAT);
-            newStartTime = moment().add(-timeDiffMinute, 'minute').format(TIME_FORMAT);
-
-        }
-        newEndDate = moment().format(DATE_FORMAT);
-        newEndTime = moment().format(TIME_FORMAT);
-
-         return `${newStartDate} ${newStartTime}${DATETIME_PICKER_SEPARATOR}${newEndDate} ${newEndTime}`;
+        return calcLatestDateTime(timeUnit, recentTimeInterval);
     }
     return `${startDate} ${startTime}${DATETIME_PICKER_SEPARATOR}${endDate} ${endTime}`;
 };
@@ -828,7 +1012,7 @@ const calDateTimeRangeForCyclic = (currentTab) => {
     const intervalNum = currentTargetDiv.find('[name=cyclicTermInterval]').val();
     const windowsLengthNum = currentTargetDiv.find('[name=cyclicTermWindowLength]').val();
     const datetime = currentTargetDiv.find('[name=DATETIME_PICKER]').val();
-    const { date, time } = splitDateTime(datetime)
+    const {date, time} = splitDateTime(datetime)
 
     const targetDate = traceTimeOption === TRACE_TIME_CONST.RECENT
         ? moment().format('YYYY-MM-DD') : date;
@@ -911,7 +1095,7 @@ const calDateTimeRangeForDirectTerm = (currentTab) => {
 const SetAppEnv = () => {
     const env = localStorage.getItem('env');
     if (env) return;
-    $.get('/ap/api/setting/get_env', { "_": $.now() }, (resp) => {
+    $.get('/ap/api/setting/get_env', {"_": $.now()}, (resp) => {
         localStorage.setItem('env', resp.env);
     });
 };
@@ -927,9 +1111,9 @@ const removeHoverInfo = () => {
     $('.scp-hover-info').remove();
 };
 
-const showCustomContextMenu = (plotDOM, positivePointOnly=false) => {
+const showCustomContextMenu = (plotDOM, positivePointOnly = false) => {
     let plotViewData;
-    plotDOM.on('plotly_click', function(data){
+    plotDOM.on('plotly_click', function (data) {
         if (data.event.button === 2) {
             const sampleNo = data.points[0].x;
             if (positivePointOnly && sampleNo < 0) {
@@ -939,8 +1123,9 @@ const showCustomContextMenu = (plotDOM, positivePointOnly=false) => {
         }
     });
     // show context menu
-    plotDOM.removeEventListener('contextmenu', () => {});
-    plotDOM.addEventListener('contextmenu', function(e) {
+    plotDOM.removeEventListener('contextmenu', () => {
+    });
+    plotDOM.addEventListener('contextmenu', function (e) {
         e.preventDefault();
         hideContextMenu();
         if (!plotViewData) {
@@ -948,8 +1133,8 @@ const showCustomContextMenu = (plotDOM, positivePointOnly=false) => {
         }
         setTimeout(() => {
             var pts = '';
-            for(var i=0; i < plotViewData.points.length; i++){
-                pts = 'x = '+plotViewData.points[i].x +'\ny = '+
+            for (var i = 0; i < plotViewData.points.length; i++) {
+                pts = 'x = ' + plotViewData.points[i].x + '\ny = ' +
                     plotViewData.points[i].y.toPrecision(4) + '\n\n';
             }
             scpSelectedPoint = {
@@ -973,8 +1158,9 @@ const showCustomContextMenu = (plotDOM, positivePointOnly=false) => {
         e.stopPropagation();
     });
     // hide context menu
-    plotDOM.removeEventListener('mousemove', () => {});
-    plotDOM.addEventListener('mousemove', function(e) {
+    plotDOM.removeEventListener('mousemove', () => {
+    });
+    plotDOM.addEventListener('mousemove', function (e) {
         hideContextMenu();
         removeHoverInfo();
     });
@@ -1017,10 +1203,10 @@ const handleSelectedPlotView = () => {
         const timeKeys = [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME];
         // pca use testing time only
         timeKeys.forEach((timeKey) => {
-             const values = formDataQueried.getAll(timeKey);
-             if (values.length > 1) {
-                 formDataQueried.set(timeKey, values[values.length - 1]);
-             }
+            const values = formDataQueried.getAll(timeKey);
+            if (values.length > 1) {
+                formDataQueried.set(timeKey, values[values.length - 1]);
+            }
         });
         let queryString = genQueryStringFromFormData(formDataQueried);
         // queryString = queryString.concat(`&time=${moment(xTime).toISOString()}`);
@@ -1047,7 +1233,10 @@ const initCommonSearchInput = (inputElement, className = '') => {
 
     $('.remove-search').off('click');
     $('.remove-search').on('click', function () {
-        $(this).prev('input').val('').trigger('input').focus();
+        const e = $.Event("input");
+        e.which = KEY_CODE.ENTER;
+        e.keyCode = KEY_CODE.ENTER;
+        $(this).prev('input').val('').trigger('input').focus().trigger(e);
     });
 };
 
@@ -1066,8 +1255,8 @@ const keepValueEachDivision = () => {
 
         // assign new value to current division
         const division = $(e.currentTarget).val();
-        const isCyclicTerm = division.toLowerCase().includes('cyclic');
-        const isDirectTerm = division.toLowerCase().includes('direct');
+        const isCyclicTerm = division.includes('cyclicTerm');
+        const isDirectTerm = division.includes('directTerm');
         const parentEl = $(`#for-${division}`);
 
         if (isCyclicTerm) {
@@ -1097,7 +1286,13 @@ const keepValueEachDivision = () => {
 const updateCleansing = (inputEle) => {
     const selectedLabel = $('#cleansing-selected');
     const cleansingValues = uniq([...$('#cleansing-content').find('input[type=checkbox]:is(:checked)')].map(el => $(el).attr('show-value')));
-    const dupValue = $('#cleansing-content').find('select option:selected').map((i, el) => $(el).attr('show-value'));
+    let dupValue = $('#cleansing-content').find('select option:selected').map((i, el) => $(el).attr('show-value'));
+    const removeOutlierType = dupValue[0];
+    dupValue = dupValue.splice(1);
+    if (cleansingValues.includes('O')) {
+        const indexOfO = cleansingValues.indexOf('O');
+        cleansingValues[indexOfO] = 'O' + removeOutlierType;
+    }
     if (dupValue) {
         cleansingValues.push(...dupValue);
     }
@@ -1107,13 +1302,16 @@ const updateCleansing = (inputEle) => {
 };
 
 const cleansingHandling = () => {
+    const openEvent = new Event("open", { bubbles: true })
     $('.custom-selection').off('click').on('click', (e) => {
         const contentDOM = $(e.target).closest('.custom-selection-section').find('.custom-selection-content');
         const contentIsShowed = contentDOM.is(':visible');
+        const selectContent = document.getElementById('cyclicCalender-content');
         if (contentIsShowed) {
             contentDOM.hide();
         } else {
             contentDOM.show();
+            selectContent.dispatchEvent(openEvent);
         }
     });
     window.addEventListener('click', function (e) {
@@ -1159,6 +1357,12 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
         ...additionalOption,
     };
 
+    // send GA mode "Auto update mode" or "Normal mode"
+    const GAMode = isSSEListening ? 'AutoUpdate' : 'Normal';
+    gtag('event', 'Mode', {
+        dn_app_show_graph_mode: GAMode
+    });
+
     $.ajax({
         ...option,
         beforeSend: (jqXHR) => {
@@ -1167,9 +1371,10 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
         success: async (res) => {
             try {
                 const responsedAt = performance.now();
-                loadingShow(true);
-
-                await removeAbortButton(res);
+                if (!isSSEListening) {
+                    loadingShow(true);
+                    await removeAbortButton(res);
+                }
 
                 await callback(res);
 
@@ -1222,31 +1427,79 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
         },
     }).then(() => {
         afterRequestAction();
+        isSSEListening = false;
     });
 };
 
 
-const generateCalenderExample = (targetDateTimeStr = moment().format(DATE_TIME_FMT)) => {
+const generateCalenderExample = () => {
+     const datetimeRange = $('#datetimeRangeShowValue').text();
+     if (!datetimeRange) return;
+     const targetDateTimeStr = datetimeRange.split(DATETIME_PICKER_SEPARATOR)[0];
+
     const calenderCyclicItems = $('.cyclic-calender-option-item');
+    if (!calenderCyclicItems || !calenderCyclicItems.length) return;
     for (let i = 0; i < calenderCyclicItems.length; i += 1) {
-       const calenderCyclicItem = $(calenderCyclicItems[i]);
-       let format = calenderCyclicItem.find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`).val();
-       if (!format) continue;
-       const [fmt, hasW] = transformFormat(format);
-       let example = moment(targetDateTimeStr).format(fmt);
-       if (hasW) {
-           example = 'W'+example;
-       }
-       calenderCyclicItem.find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`).attr('data-example', example);
-       calenderCyclicItem.find('.cyclic-calender-option-example').text(example);
+        const calenderCyclicItem = $(calenderCyclicItems[i]);
+        let format = calenderCyclicItem.find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`).val();
+        if (!format) continue;
+
+        const example = getExampleFormatOfDate(targetDateTimeStr, format);
+
+        calenderCyclicItem.find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`).attr('data-example', example);
+        calenderCyclicItem.find('.cyclic-calender-option-example').text(example);
     }
-    changeFormatAndExample($(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`));
 };
+
+const getExampleFormatOfDate = (targetDate, format) => {
+    if (!targetDate) {
+        const datetimeRange = $('#datetimeRangeShowValue').text();
+         if (!datetimeRange) return;
+         targetDate = datetimeRange.split(DATETIME_PICKER_SEPARATOR)[0];
+    }
+    const isFYFormat = getIsFYFormat(format);
+    let fmt = '';
+    let example = '';
+    if (isFYFormat) {
+        example = getSpecialFYFormat(targetDate, format);
+    } else {
+        [fmt, hasW] = transformFormat(format);
+        example = moment(targetDate).format(fmt);
+        if (hasW) {
+            example = example.replace(WEEK_FORMAT, 'W')
+        }
+    }
+
+    return example;
+}
 
 const changeFormatAndExample = (formatEl) => {
     const currentTarget = $(formatEl);
     if (!currentTarget.prop('checked')) return;
     const formatValue = currentTarget.val();
-    const example = currentTarget.attr('data-example');
+
+   const example = getExampleFormatOfDate(null, formatValue);
     $('#cyclicCalender').text(`${formatValue} ${example}`);
+
+    // hide offset input when hour is selected
+    const unit = currentTarget.attr('data-unit');
+    const offsetIsDisabled = $(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`).prop('disabled');
+    if (!offsetIsDisabled) {
+        if (unit === DivideFormatUnit.Hour) {
+             $('.for-recent-cyclicCalender').hide();
+        } else {
+            $('.for-recent-cyclicCalender').show();
+        }
+    }
 };
+
+const handleTimeUnitOnchange = (e) => {
+    const _this = $(e);
+    const selectedOption = _this.find(`option[value=${_this.val()}]`).attr('data-key');
+    // set default value of time unit by selected option
+    const selectedTimeUnit = TIME_UNIT[selectedOption]
+    $(`[name=${CYCLIC_TERM.RECENT_INTERVAL}]`).val(selectedTimeUnit.DEFAULT).trigger('change');
+    CYCLIC_TERM.TIME_UNIT = selectedTimeUnit;
+    validateInputByNameWithOnchange(CYCLIC_TERM.RECENT_INTERVAL, selectedTimeUnit);
+    showDateTimeRangeValue();
+}

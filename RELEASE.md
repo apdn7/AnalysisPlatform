@@ -1,5 +1,81 @@
 # Releases
 
+## v4.3.1
+
+New features and improvements
+
+* Added `Graphical Lasso (GL)` page
+  * You can visualize the partial correlation structure of the given sensor data.  
+  <img src="ap/config/image/GL.png" alt="GL" width="500">
+* (FPP)
+  * Now, the variable with "as datetime" selected on process config page is set as a default for the index order setting
+  * Removed "Order set" on Process Config page. Now all categorical variables can be set to index order setting
+  * Now x-axis is set to serial series when when drawing data without date/time data (DatetimeDummy)
+  * Disabled setting facet and scatter plot display at the same time
+* (FPP/MSP)
+  * Now adjusts the size of data points when the number of data points is less than 256
+* (CHM)
+  * Added an option to change the color scales
+  * Changed to aggregate datetime (CT) as a real number (min/max/etc.) instead of a categorical data (counts)
+  * Added `day of the week` information to hover messages
+* (SkD)
+  * Changed the limit of selectable target variables from 60 to 512.
+  * Added a sample bookmark for binary classification.
+* (PCP)
+  * Now shows on-demand filters by clicking the variables
+  * Changed variable order default to Correlation Coefficient|Top 8
+  * Added `Move next to target variable` to the right-click context menu. This will move the selected variable to the left of the target variable
+* (RLP)
+  * Now the aspect ratio of the charts are adjusted when displaying on a half-screen or vertical monitor, in the same way as the FPP
+* (AgP)
+  * Added `Divide by term (Cyclic)`, `Divide by term (Direct)`, `Divide by data's number (Cyclic)`
+  * Added options of dividing format for `Divide by calendar (Cyclic)`
+* (StP)
+  * Changed default setting of Y-axis to `common to all graphs` (from "graph setting value")
+* (ScP)
+  * Added an option to draw lines between the data points
+* (Config)
+  * `Auto Select` is selected by defaulted when previewing data on Process Config page
+  * Now shows warning message when the file does not exist in a folder specified in CSV/TSV Import Config page
+  * Now deletes `DatetimeDummy` column when other column is set to "datetime" type on Process Config page.
+* Now when `Auto Update` is selected, the charts are updated without refreshing the entire page
+* Removed limits on number of tabs we can open on web browser
+* Added P1-P99, P5-P95, 6IQR-Major/Minor/Upper/Lower to outlier processing
+* Added an option to open in a new tab to the context menu (displayed by right-clicking)
+* Added a limit to the `latest` input value for the target period of each page (the upper limit of the target period is about 2 years)
+* Changed the priority level of sample settings saved as default in bookmarks from 1 to 0 (Priority 0 cannot be selected in saved settings)
+
+Bugfixes
+
+* (FPP)
+  * Fixed a bug that the result of exception value handling is different between normal mode and high speed mode
+* (MSP)
+  * Fixed a bug where the values of partial correlation coefficient was incorrect
+* (CHM)
+  * ​​​​​​​​Fixed a bug that could not display the charts when NA existed in the data
+  * Fixed a bug that Y-axis variable name and Facet value were not displayed
+  * Fixed the order of week numbers on X-axis and days of the week on Y-axis
+  * Fixed a bug where the color bar of the output image (screenshot) had no color information
+* (PCP)
+  * ​​​​​​​​Fixed a bug where the DataFinder button was not displayed on the new page
+  * Fixed a bug that a warning toast message appears even if no real variables were selected
+  * Fixed a bug where on-demand filter in PCP showed "System" items with no value
+  * Fixed a bug where variables other than the starting process in PCP were also displayed in light blue
+* (SkD)
+  * Fixed a bug that the binary classification is not performed when the target variable is an integer binary
+* (StP/MSP)
+  * Fixed a bug that the standard line does not appear
+* (Config)
+  * Fixed a bug that integers larger than int64 were not displayed correctly when previewing at Data Source Config page and Process Config page
+  * Fixed a bug that integers with values greater than 2^53-1 were displayed with digit loss when previewing at Data Source Config page and Process Config page
+  * Fixed a bug that the real number column including inf/-inf was estimated as a character string instead of a real number on Process Config page
+* Fixed a bug where Data finder heatmap was not displayed for data imported from database
+* Fixed a bug that the data of the column set as bit type cannot be imported in the target database for data import
+* Fixed a bug that data import is not possible when column names with the same half-width and full-width names are mixed in the data source
+* Fixed a bug that the density curve does not appear when IQR=0
+* Fixed a bug where `Set` button did not work for data types in the search function in the target variable dropdown
+* Fixed start-up problems caused by Timezone offset error that may occur when the app is first started
+
 ## v4.2.0
 
 New features and improvements

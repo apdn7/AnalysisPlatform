@@ -69,7 +69,7 @@ ERR_COLS_NAME = '___ERR0R_C0LS___'
 
 
 @log_execution_time('[DATA IMPORT]')
-def import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls, dic_substring_sensors):
+def import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls, dic_substring_sensors, job_id):
     cycles_len = len(df)
     if not cycles_len:
         return 0
@@ -107,6 +107,9 @@ def import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls
     # if isinstance(commit_error, Exception):
     #     set_cycle_max_id(-cycles_len)
     #     return commit_error
+
+    if job_id:
+        save_proc_data_count(df, get_date_col, job_id)
 
     return cycles_len
 
@@ -838,23 +841,26 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
                 df.loc[df[col_name].isin([float('inf'), float('-inf')]), col_name] = nan
 
         elif user_data_type == DataType.TEXT.name:
-            idxs = df[col_name].dropna().index
-            if dtype_name == 'object':
-                df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str).str.strip("'").str.strip()
-            elif dtype_name == 'string':
-                df.loc[idxs, col_name] = df.loc[idxs, col_name].str.strip("'").str.strip()
+            if dtype_name == 'boolean':
+                df[col_name] = df[col_name].replace({True: 'True', False: 'False'})
             else:
-                # convert to string before insert to database
-                df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str)
-                continue
+                idxs = df[col_name].dropna().index
+                if dtype_name == 'object':
+                    df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str).str.strip("'").str.strip()
+                elif dtype_name == 'string':
+                    df.loc[idxs, col_name] = df.loc[idxs, col_name].str.strip("'").str.strip()
+                else:
+                    # convert to string before insert to database
+                    df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str)
+                    continue
 
-            if len(idxs):
-                conditions = [df[col_name].isin(na_vals),
-                              df[col_name].isin(INF_VALUES),
-                              df[col_name].isin(INF_NEG_VALUES)]
-                return_vals = [nan, inf_val, inf_neg_val]
+                if len(idxs):
+                    conditions = [df[col_name].isin(na_vals),
+                                  df[col_name].isin(INF_VALUES),
+                                  df[col_name].isin(INF_NEG_VALUES)]
+                    return_vals = [nan, inf_val, inf_neg_val]
 
-                df[col_name] = np.select(conditions, return_vals, df[col_name])
+                    df[col_name] = np.select(conditions, return_vals, df[col_name])
     df.head()
 
 

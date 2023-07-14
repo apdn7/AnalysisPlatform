@@ -1753,7 +1753,7 @@ msgstr "Giá trị độ rộng không hợp lệ. Hãy nhập số từ 0.01 đ
 msgid "Invalid Cyclic Term Number of Ridge Lines"
 msgstr ""
 "Số lượng của số phần đầu vào không hợp lệ. Nhập một số nguyên từ 1 đến "
-"150. (khuyến khích nhập số khoảng 100)"
+"240. (khuyến khích nhập số khoảng 100)"
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Start data & time"
@@ -2154,12 +2154,6 @@ msgstr ""
 "thị."
 
 #: ap/templates/templates/i18n.html
-msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
-msgstr ""
-"Các mục tiêu của việc loại bỏ giá trị ngoại lệ là Max, Mean, Min, σ và "
-"Range."
-
-#: ap/templates/templates/i18n.html
 msgid "Cat."
 msgstr "Khác với số thực"
 
@@ -2355,7 +2349,7 @@ msgid "In process order"
 msgstr "Theo công trình"
 
 #: ap/templates/parallel_plot/parallel_plot.html
-msgid "In order of corr."
+msgid "In order of corr"
 msgstr "Theo giá trị tương quan"
 
 #: ap/templates/parallel_plot/parallel_plot.html
@@ -3267,7 +3261,7 @@ msgstr ""
 msgid "Division number Hover RLP"
 msgstr ""
 "Nhập số lượng phân phối sẽ được hiển thị (số lượng phần). Nhập một số "
-"nguyên từ 2 đến 150"
+"nguyên từ 2 đến 240"
 
 #: ap/templates/macros.html
 msgid "Division number Hover StP"
@@ -3802,10 +3796,6 @@ msgid "Col num hover msg"
 msgstr "Set the number of columns in the split graph."
 
 #: ap/templates/macros.html
-msgid "Remove outlier hover msg"
-msgstr "Top and bottom 5%%: Replace to NA"
-
-#: ap/templates/macros.html
 msgid "If checked, the config on graph area will also be saved."
 msgstr "If checked, the config on graph area will also be saved."
 
@@ -4157,4 +4147,160 @@ msgstr "Tháng"
 #: ap/templates/macros.html
 msgid "Latest year"
 msgstr "Năm"
+
+#: ap/templates/templates/i18n.html
+msgid "The target is a variable whose data type is Real(Float)"
+msgstr "The target is a variable whose data type is 'Real(Float)'"
+
+#: ap/templates/templates/i18n.html
+msgid "SkD select over 100 sensor msg"
+msgstr ""
+"Processing might take time due to the large number of selected variables."
+" To reduce the processing time, reduce the number of variables and rerun "
+"the visualization."
+
+#: ap/templates/templates/sidebar.html
+msgid "Open (new)"
+msgstr "Open (new)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open (takeover)"
+msgstr "Open (takeover)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open in new tab (new)"
+msgstr "Open in new tab (new)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open in new tab (takeover)"
+msgstr "Open in new tab (takeover)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Main page: DN7"
+msgstr "Main page: DN7"
+
+#: ap/templates/templates/sidebar.html
+msgid "Main page: AP"
+msgstr "Main page: AP"
+
+#: ap/templates/templates/macros.html
+msgid "Select a unit of time and input value."
+msgstr ""
+"Select a unit of time and input value. \n"
+"The range of possible inputs for each unit are as follows.\n"
+"* minute: 0.01 - 1,000,000\n"
+"* hour: 0.01 - 20,000\n"
+"* day: 0.01- 1,000\n"
+"* week: 0.01 - 100\n"
+"* month: 0.01- 24\n"
+"* year : 0.01 - 2\n"
+
+#: ap/templates/sidebar.html
+msgid "Structure Learning"
+msgstr "Structure Learning"
+
+#: ap/templates/sidebar.html
+msgid "Graphical Lasso"
+msgstr "Graphical Lasso"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sparsity"
+msgstr "Sparsity"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GLThreshold"
+msgstr "Threshold"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Labels"
+msgstr "Nhãn"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sensor name"
+msgstr "Sensor name"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GL Page Title"
+msgstr ""
+"Visualizes partial correlations of variables with network graph.\n"
+"By specifing the objective variable, you can visualize the directly "
+"correlated variables and the in-directly correlated variables in more "
+"easy to understand layout."
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sparsity Hover"
+msgstr ""
+"Controlls the sparseness of the output graph: higer sparsity induces less"
+" edges."
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GLThreshold Hover"
+msgstr "Ignores the edges with the absolute value less than this value."
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GL Process name"
+msgstr "Tên công trình"
+
+#: ap/templates/templates/macros.html
+msgid "SkD objective hover messenger"
+msgstr ""
+"The variable selected here is called 'Objective variable',\n"
+"which we will fit a regression model to estimate the objective variable "
+"using other selected variables."
+
+#: ap/templates/templates/macros.html
+#, fuzzy
+msgid "GL target variable"
+msgstr ""
+"Specifies the data to plot on the graph. If the data type is Str or Int, "
+"aggregate results will be displayed, and if the data type is Real or CT, "
+"line plots will be displayed."
+
+#: ap/templates/templates/macros.html
+#, fuzzy
+msgid "GL objective hover messenger"
+msgstr "Number of duplicate serials (percentage)"
+
+#: ap/templates/templates/co_occurence.html
+#, fuzzy
+msgid "Show all node labels"
+msgstr "Hiển thị tất cả node"
+
+#: ap/templates/templates/macros.html
+msgid "Generate proc link information msg"
+msgstr ""
+"If you want to update the number of imported records or the number of "
+"linked records, press the 'Reload' button."
+
+#: ap/templates/templates/sidebar.html
+#, fuzzy
+msgid "in new tab"
+msgstr "Open in new tab (new)"
+
+#: ap/templates/i18n.html
+msgid "File not found"
+msgstr "Không tìm thấy file"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Move next to target variable"
+msgstr "Di chuyển đến cạnh biến mục tiêu"
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr ""
+"P1-P99 : Hiển thị dữ liệu giữa 1%%\n"
+"P5-P95 : Hiển thị dữ liệu giữa 5%%\n"
+"\n"
+"4IQR : Tính giới hạn trên Q3+1.5×IQR, giới hạn dưới Q1-1.5×IQR\n"
+"6IQR : Tính giới hạn trên Q3+2.5×IQR, giới hạn dưới Q1-2.5×IQR\n"
+"* Majority: Hiển thị dữ liệu giữa giới hạn trên và giới hạn dưới\n"
+"* Minority: Hiển thị dữ liệu ngoài giới hạn trên và giới hạn dưới\n"
+"* Upper: Hiển thị dữ liệu trên giới hạn trên\n"
+"* Lower: Hiển thị dữ liệu dưới giới hạn dưới"
+
+#~ msgid "Remove outlier hover msg"
+#~ msgstr ""
+#~ "Values less than Q1-1.5×IQR and values"
+#~ " greater than Q3+1.5×IQR: replace to "
+#~ "NA"
 

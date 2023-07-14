@@ -20,71 +20,7 @@ def all_equal(iterable):
     return next(g, True) and not next(g, False)
 
 
-def calculate_kde(data, bins=128, width=1, height=1, bounds=None, use_range=False, use_hist_counts=False):
-    """
-    Calculate KDE + Histogram bins + Histogram labels for an input array.
-    :param data: input array
-    :param bins: number of bins
-    :param width: width of the kde line, default is [.1min, .1max]
-    :param height: high of the kde line
-    :param bounds: special of xmin and xmax
-    :param use_range: use range to show the y-axis
-    :param use_hist_counts: use hist_counts to show histogram by line, do not use for RLP
-    :return: KDE + Histogram bins + Histogram labels with 100 data points.
-    """
-    hist_counts = []
-
-    if str_in_dat(data):
-        return gen_kde_result()
-
-    data_np = pd.Series(data)
-    data_np = data_np[data_np.notnull()]
-    if not len(data_np):
-        return gen_kde_result()
-
-    data_np = convert_series_to_number(data_np)
-    data_np = data_np[np.isfinite(data_np)]
-    data = data_np.tolist()
-
-    # remove inf, nan in data
-    data_np = np.array(data)
-    data = data_np[np.isfinite(data_np)].tolist()
-
-    if not data:  # empty
-        return gen_kde_result()
-    elif all_equal(data):  # all elements are the same
-        return gen_kde_result([data[0]], [data[0]], [len(data)])
-    else:
-        # boundaries
-        if bounds:
-            xmin, xmax = bounds
-        else:
-            mind = min(data)
-            maxd = max(data)
-            # default width=1 -> line scope is min/max +- 10%
-            xmin = mind - 0.1 * width * (maxd - mind)
-            xmax = maxd + 0.1 * width * (maxd - mind)
-
-        # xmin, xmax = [1450, 1850]
-        try:
-            # grid points
-            x = np.linspace(xmin, xmax, bins)
-            g_kde = gen_gaussian_kde_1d_same_as_r(data)
-            g_kde_values = g_kde(x) * height
-
-            if use_hist_counts:
-                # counting on bins
-                if use_range:
-                    histogram = np.histogram(data, bins=x, range=(xmin, xmax))
-                else:
-                    histogram = np.histogram(data, bins=x)
-
-                hist_counts = histogram[0].tolist()
-            return gen_kde_result(g_kde_values.tolist(), x.tolist(), hist_counts)
-        except Exception:
-            return gen_kde_result()
-
-
+@log_execution_time()
 def calculate_kde_for_ridgeline(data, grid_points, height=1, use_range=False, use_hist_counts=False):
     """
     Calculate KDE + Histogram bins + Histogram labels for an input array.
@@ -113,12 +49,12 @@ def calculate_kde_for_ridgeline(data, grid_points, height=1, use_range=False, us
             # grid points
             (xmin, xmax, x) = grid_points
             histogram = np.histogram(data, bins=x, range=(xmin, xmax)) if use_range else np.histogram(data, bins=x)
-
-            if all_equal(data):
+            std_value = np.std(data)
+            if std_value == 0:
                 # use histogram value from numpy
                 g_kde_values = histogram[0]
             else:
-                g_kde = gen_gaussian_kde_1d_same_as_r(data)
+                g_kde = gen_gaussian_kde_1d_same_as_r(data, std_value)
                 g_kde_values = g_kde(x) * height
 
             if use_hist_counts:
@@ -128,6 +64,7 @@ def calculate_kde_for_ridgeline(data, grid_points, height=1, use_range=False, us
             return gen_kde_result()
 
 
+@log_execution_time()
 def gen_kde_result(kde=(), hist_labels=(), hist_counts=()):
     return {
         'kde': kde,
@@ -137,6 +74,7 @@ def gen_kde_result(kde=(), hist_labels=(), hist_counts=()):
     }
 
 
+@log_execution_time()
 def calculate_kde_trace_data(plotdata, bins=128, height=1, full_array_y=None):
     """
     :param plotdata:
@@ -200,12 +138,12 @@ def calculate_kde_trace_data(plotdata, bins=128, height=1, full_array_y=None):
             # grid points
             histogram = np.histogram(data, bins=bins, range=(y_min, y_max))
             hist_counts, hist_labels = histogram
-
-            if all_equal(data):
+            std_value = np.std(sample_data)
+            if std_value == 0:
                 # use histogram value from numpy
                 g_kde_values = histogram[0]
             else:
-                g_kde = gen_gaussian_kde_1d_same_as_r(sample_data)
+                g_kde = gen_gaussian_kde_1d_same_as_r(sample_data, std_value)
                 g_kde_values = g_kde(hist_labels) * height
 
             kde = gen_kde_result(g_kde_values.tolist(), hist_labels, hist_counts)
@@ -215,18 +153,6 @@ def calculate_kde_trace_data(plotdata, bins=128, height=1, full_array_y=None):
         kde_list.append(kde)
 
     return kde_list
-
-
-# def gen_kde_from_singular_matrix(singular_matrix, range=(0, 1), bins=128, normalized=True):
-#     x = np.linspace(range[0], range[1], bins)
-#     kde = np.zeros(bins)
-#     for val in singular_matrix:
-#         kde += norm.pdf(x, loc=val, scale=1)
-#
-#     # normalized the KDE
-#     if normalized:
-#         kde /= integrate.simps(kde, x)
-#     return kde
 
 
 def is_numeric(n):
@@ -287,10 +213,18 @@ def str_in_dat(plotdata):
     return True in (isinstance(x, str) for x in plotdata)
 
 
-def gen_gaussian_kde_1d_same_as_r(x):
+def gen_gaussian_kde_1d_same_as_r(x, std_value):
     # x: 1D ndarray
-    bw_silverman = 1.06 * np.min([np.std(x), iqr(x) / 1.34]) * (len(x) ** (-0.2))
-    factor = bw_silverman / (np.std(x, ddof=1))
+    if not std_value:
+        std_value = np.std(x)
+
+    iqr_value = iqr(x)
+    if iqr_value == 0:
+        bw_silverman = 1.06 * std_value * (len(x) ** (-0.2))
+    else:
+        bw_silverman = 1.06 * np.min([std_value, (iqr_value / 1.34)]) * (len(x) ** (-0.2))
+
+    factor = (bw_silverman / (np.std(x, ddof=1))) or None
     kde = gaussian_kde(x, bw_method=factor)
     return kde
 

@@ -31,6 +31,9 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
     const unlinkedIdxs = setParam('unlinkedIdxs', []);
     const infIdxs = setParam('infIdxs', []);
     const negInfIdxs = setParam('negInfIdxs', []);
+    const slotFrom = setParam('slotFrom', []);
+    const slotTo = setParam('slotTo', []);
+    const slotCount = setParam('slotCount', []);
 
     const isCatLimited = setParam('isCatLimited', false);
 
@@ -185,16 +188,16 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
             const dataIndex = dataPoint.dataIndex;
             if (datasetIndex === CONST.IRREGULAR_DATASET) {
                 if (infIdxs.includes(dataIndex)) {
-                    return 'inf';
+                    return CONST.INF;
                 }
                 if (negInfIdxs.includes(dataIndex)) {
-                    return '-inf';
+                    return CONST.NEG_INF;
                 }
                 if (noneIdxs.includes(dataIndex)) {
                     return COMMON_CONSTANT.NA;
                 }
                 if (unlinkedIdxs.includes(dataIndex)) {
-                    return '';  // TODO which label for unlinked data?
+                    return CONST.NO_LINKED;
                 }
                 if (isOutlierValue(dataIndex, outlierDict)) {
                     // Sprint 79 #12: Display actual value if type is OUTLIER
@@ -211,22 +214,58 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
             return `${applySignificantDigit(y)}`;
         };
 
-        const getDatYMinMaxVal = (dataPoint, dataMin, dataMax) => {
+        const getDatYMinMaxVal = (dataPoint, dataMin, dataMax, outlierDict) => {
+            const datasetIndex = dataPoint.datasetIndex;
             const dataIndex = dataPoint.dataIndex;
-            const y = applySignificantDigit(dataPoint.parsed.y);
+            let medVal = dataPoint.parsed.y;
+            let minVal = ''
+            let maxVal = ''
+            const inf = CONST.INF;
+            const negInf = CONST.NEG_INF;
+            const noLinked = CONST.NO_LINKED;
 
-            let minVal = y
-            let maxVal = y
+            if (datasetIndex === CONST.IRREGULAR_DATASET) {
+                if (infIdxs.includes(dataIndex)) {
+                    medVal = inf;
+                }
+                if (negInfIdxs.includes(dataIndex)) {
+                    medVal = negInf;
+                }
+                if (noneIdxs.includes(dataIndex)) {
+                    medVal = COMMON_CONSTANT.NA;
+                }
+                if (unlinkedIdxs.includes(dataIndex)) {
+                    medVal = noLinked;  // TODO which label for unlinked data?
+                }
+                if (isOutlierValue(dataIndex, outlierDict)) {
+                    // Sprint 79 #12: Display actual value if type is OUTLIER
+                    // return `${i18n.outlierVal}: ${applySignificantDigit(outlierDict[dataIndex])}`;
+                    medVal = applySignificantDigit(outlierDict[dataIndex]);
+                }
+            }
+
             if (dataMin) {
                 minVal = applySignificantDigit(dataMin[dataIndex]);
             }
-
             if (dataMax) {
                 maxVal = applySignificantDigit(dataMax[dataIndex]);
             }
 
+            if (inf === medVal && inf === minVal && inf === maxVal) {
+                minVal = '';
+                medVal = '';
+            }
+            if (negInf === medVal && negInf === minVal && negInf === maxVal) {
+                maxVal = '';
+                medVal = '';
+            }
 
-            return [minVal, y, maxVal];
+            if ((COMMON_CONSTANT.NA === medVal && COMMON_CONSTANT.NA === minVal && COMMON_CONSTANT.NA === maxVal) || medVal === noLinked) {
+                minVal = '';
+                maxVal = '';
+            }
+
+            return [minVal, applySignificantDigit(medVal), maxVal];
         };
 
         // use showname for Japan locale only
@@ -319,31 +358,46 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
         };
         const genDataTable = (dataPoint, outlierDict, currentThreshold) => {
             let thresholdTr = '';
-            const medVal = getDatYVal(dataPoint, beforeRankValues, outlierDict);
             if (plotDataMin.length || plotDataMax.length) {
-                const [minVal, _medVal, maxVal] = getDatYMinMaxVal(dataPoint, plotDataMin, plotDataMax);
-                if (isOutlierValue(dataPoint.dataIndex, outlierDict)) {
-                    thresholdTr += genTRItems(i18n.outlierVal, checkNA(medVal));
-                } else {
-                    thresholdTr += genTRItems(i18n.medianVal, checkNA(medVal));
-                }
-                thresholdTr += genTRItems(i18n.maxVal, checkNA(maxVal));
-                thresholdTr += genTRItems(i18n.minVal, checkNA(minVal));
-            } else {
+                const [minVal, medVal, maxVal] = getDatYMinMaxVal(dataPoint, plotDataMin, plotDataMax, outlierDict);
                 if (isOutlierValue(dataPoint.dataIndex, outlierDict)) {
                     thresholdTr += genTRItems(i18n.outlierVal, medVal);
                 } else {
-                    thresholdTr += genTRItems(i18n.value, medVal);
+                    thresholdTr += genTRItems(i18n.medianVal, medVal);
                 }
+                thresholdTr += genTRItems(i18n.maxVal, maxVal);
+                thresholdTr += genTRItems(i18n.minVal, minVal);
+
+                // show from, to N of slot
+                if (slotFrom && slotFrom[dataPoint.dataIndex]) {
+                    thresholdTr += genTRItems('From', formatDateTime(slotFrom[dataPoint.dataIndex]))
+                }
+                if (slotTo && slotTo[dataPoint.dataIndex]) {
+                    thresholdTr += genTRItems('To', formatDateTime(slotTo[dataPoint.dataIndex]))
+                }
+                if (slotCount && slotCount[dataPoint.dataIndex]) {
+                    thresholdTr += genTRItems('N', applySignificantDigit(slotCount[dataPoint.dataIndex]))
+                }
+
+            } else {
+                const yVal = getDatYVal(dataPoint, beforeRankValues, outlierDict);
+                if (isOutlierValue(dataPoint.dataIndex, outlierDict)) {
+                    thresholdTr += genTRItems(i18n.outlierVal, yVal);
+                } else {
+                    thresholdTr += genTRItems(i18n.value, yVal);
+                }
+
+                const datetimeVals = getDatTimeObj(dataPoint);
+                const serialVals = getSerialObj(dataPoint);
+                thresholdTr += genTRItems(i18n.dateTime, datetimeVals.value);
+                serialVals.forEach(serialVal => {
+                    if (serialVal.value) {
+                        thresholdTr += genTRItems(i18n.serial, serialVal.value);
+                    }
+                });
             }
-            const datetimeVals = getDatTimeObj(dataPoint);
-            const serialVals = getSerialObj(dataPoint);
-            thresholdTr += genTRItems(i18n.dateTime, datetimeVals.value);
-            serialVals.forEach(serialVal => {
-                if (serialVal.value) {
-                    thresholdTr += genTRItems(i18n.serial, serialVal.value);
-                }
-            });
+
+
             thresholdTr += genTRItems('', ''); // br
 
             // filter
@@ -610,6 +664,8 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
     const yLabels = isCatLimited ? [] : xLabels;
     const chartData = isCatLimited ? [] : plotData;
 
+    const pointSize = plotData.length <= CONST.SMALL_DATA_SIZE ? 2.5 : plotData.length < 1000 ? 1.5 : 1;
+
     config.data = {
         labels: yLabels, datasets: [{
             label: 'Dataset 1',
@@ -618,7 +674,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
             borderColor: pointColor, // link between dot color
             borderWidth: 0.5,
             showLine: beforeRankValues ? false : !(isThinData || plotData.length >= 1000),
-            pointRadius: beforeRankValues ? 1 : plotData.length < 1000 ? 1.5 : 1,
+            pointRadius: pointSize,
             order: 0,
             pointBackgroundColor: new Array(plotData.length).fill(pointColor), // stepped: !!beforeRankValues,
             dictIdx2YValue,
@@ -1059,6 +1115,12 @@ const updateGraphScale = (scaleOption = '1') => {
 
     for (let i = 0; i < numChart; i++) {
         const plotData = currentTraceData.array_plotdata[i];
+        const formVal = currentTraceData.ARRAY_FORMVAL[i];
+        // マスタが存在するならマスタ情報を適用
+        const endProcId = formVal.end_proc;
+        const sensorId = formVal.GET02_VALS_SELECT;
+
+        const isHideNonePoint = isHideNoneDataPoint(endProcId, sensorId, currentTraceData.COMMON.remove_outlier);
         const beforeRankValues = plotData.before_rank_values;
         if (beforeRankValues) {
             continue;
@@ -1066,7 +1128,8 @@ const updateGraphScale = (scaleOption = '1') => {
 
         const arrayY = plotData.array_y;
         const unlinkedIdxs = plotData.unlinked_idxs;
-        const noneIdxs = plotData.none_idxs;
+        // this place
+        const noneIdxs = isHideNonePoint ? [] : plotData.none_idxs;
         const infIdxs = plotData.inf_idxs;
         const negInfIdxs = plotData.neg_inf_idxs;
 
@@ -1223,8 +1286,10 @@ const createOrderColRowHTML = async (selectedProcId, tableId = formElements.seri
     await procInfo.updateColumns();
     const columns = procInfo.getColumns();
     const orderCols = [];
-    for (const col of columns) {
-        if (col.order || col.is_serial_no) {
+    // sort serial & datetime to show first
+    const newSortedCols = orderSeriesCols(columns);
+    for (const col of newSortedCols) {
+        if (col.is_serial_no || col.is_get_date || CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)) {
             orderCols.push(col);
         }
     }
@@ -1311,8 +1376,10 @@ const bindChangeProcessEvent = (tableId = formElements.serialTable, processName 
                 let alreadyPickedOrderCol = false;
                 let defaultOrderCol = '';
                 const orderCols = [{id: '', text: '---', selected: true}];
-                for (const col of columns) {
-                    if (col.order || col.is_serial_no) {
+                // sort serial & datetime to show first
+                const newSortedCols = orderSeriesCols(columns);
+                for (const col of newSortedCols) {
+                    if (col.is_serial_no || col.is_get_date || CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)) {
                         const orderObject = {id: col.id, text: col.name, title: col.english_name};
 
                         const isColSelectedOnSameElement = `${selectedVal}` === `${col.id}`;
@@ -1388,6 +1455,9 @@ const bindDragNDrop = (serialTableBody, tableId = formElements.serialTable, seri
 };
 
 const addSerialOrderRow = async (tableId = formElements.serialTable, processName = 'serialProcess', serialName = 'serialColumn', orderName = 'serialOrder', selectedProc = null, selectedCol = null, selectedOrder = null, priority = null, isGraphArea = false) => {
+    if (!tableId) {
+        tableId = formElements.serialTable;
+    }
     const startProc = selectedProc ? selectedProc : getFirstSelectedProc();
     const serialTableBody = $(`${tableId} tbody`);
     const serialOrderRowHTML = await createOrderColRowHTML(startProc, tableId, processName, serialName, orderName, selectedCol, selectedOrder, priority, isGraphArea);
@@ -1418,11 +1488,16 @@ const checkAndShowModal = (tableId = formElements.serialTable) => {
 const bindXAxisEvents = () => {
     // change x-axis for timeseries chart
     $(formElements.xOption).on('change', function f() {
-        if ($(this).val() === CONST.XOPT_INDEX && !isSettingLoading) {
-            checkAndShowModal();
+        const changeValOnly = $(this).data('change-val-only') || false;
+        if (!changeValOnly) {
+            if ($(this).val() === CONST.XOPT_INDEX && !isSettingLoading) {
+                checkAndShowModal();
+            }
+            showIndexInforBox();
+            compareSettingChange();
         }
-        showIndexInforBox();
-        compareSettingChange();
+        // reset to show modal
+        $('#xOption').data('change-val-only', false);
     });
 
     $(formElements.btnAddSerial).off('click').on('click', () => {
@@ -1476,4 +1551,13 @@ const genStepLineAnnotation = (plotData, xLabels, pointColor) => {
         }
     }
     return annotations;
+};
+
+const orderSeriesCols = (columns) => {
+    // sort serial & datetime to show first
+    const serialCols = columns.filter(col => col.is_serial_no);
+    const datetimeCols = columns.filter(col => col.is_get_date);
+    const normalCols = columns.filter(col => !col.is_serial_no && !col.is_get_date);
+
+    return [...serialCols, ...datetimeCols, ...normalCols];
 };

@@ -86,6 +86,14 @@
         hover_ja: '目的の変数に関して、大量の変数間の相関関係を確認できます。\nそれぞれの軸(各軸が左右に平行に配置されています)で色が分かれている軸が注意すべき変数、すなわち何らかの相関がある軸と判断してください(特に相関係数順に並べている場合は両端に着目すべき色が分かれた軸が見えます。色が混ざっている軸は相関が低いと考えて結構です)。\n
                   バランスよく虹色になっている軸では線形の相関(カラーバーと同じ色配置[正の相関]もしくは反転した色配置[負の相関])が認められます。色が分離しているものの偏った色配置になっている場合は非線形の関係が考えられますので、何らかの関数変換を行なったり、クラスタリングし層別する必要があります(分離している変数と目的変数で散布図を用いて関係を確認することをお勧めします)。'
         link_address: '/ap/pcp'
+      - row: 1
+        column: 3
+        title_en: 'GL Graphical Lasso'
+        title_ja: 'GL Graphical Lasso'
+        png_path: 'GL.png'
+        hover_en: 'Visualizes partial correlations of variables with network graph.\nBy specifing the objective variable, you can visualize the directly correlated variables and the in-directly correlated variables in more easy to understand layout.'
+        hover_ja: '変数間の偏相関関係をネットワーク図で可視化することで、互いに相関している変数を見つけることができます。\n目的の変数を指定することで、それに直接相関する変数と、間接的に相関する変数とを分かりやすく可視化することができ。'
+        link_address: '/ap/analyze/structure_learning/gl'
   - title_en: 'Anomaly Detection'
     title_ja: '異常検出'
     tiles:

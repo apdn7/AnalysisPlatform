@@ -162,7 +162,7 @@ const concatAllArrayY = (tabPrefix, traceData, numChart, sensorID = '') => {
     return arrayPlotdataY;
 };
 
-const updateHistogramWhenChaneScale = (currentTraceData, scaleOption = scaleOptionConst.SETTING, sensorID = null, tabPrefix = '') => {
+const updateHistogramWhenChaneScale = (currentTraceData, scaleOption = scaleOptionConst.COMMON, sensorID = null, tabPrefix = '') => {
     if (tabPrefix === eles.varTabPrefix && !sensorID) {
         return;
     }

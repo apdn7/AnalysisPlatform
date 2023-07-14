@@ -738,7 +738,7 @@ msgstr "自動更新"
 
 #: ap/templates/macros.html
 msgid "minute"
-msgstr "分間"
+msgstr "分"
 
 #: ap/templates/macros.html
 msgid "minutes"
@@ -746,7 +746,7 @@ msgstr "分間"
 
 #: ap/templates/macros.html
 msgid "hour"
-msgstr "時間"
+msgstr "時"
 
 #: ap/templates/macros.html
 msgid "hours"
@@ -1683,7 +1683,7 @@ msgstr "入力した時間窓幅の値が無効です。0.01以上、48以下の
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Invalid Cyclic Term Number of Ridge Lines"
-msgstr "入力した稜線数の値が無効です。1以上、150以下の整数を入力してください。(100程度が好ましいです)"
+msgstr "入力した稜線数の値が無効です。1以上、240以下の整数を入力してください。(100程度が好ましいです)"
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Start data & time"
@@ -2013,10 +2013,6 @@ msgid "Too Many Sensors"
 msgstr "ターゲット変数はMAX_NUM_SENSOR個以上選択できません。ターゲット変数を選択しなおしてください。"
 
 #: ap/templates/templates/i18n.html
-msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
-msgstr "外れ値除去の対象は、Max, Mean, Min, σ, Rangeです。"
-
-#: ap/templates/templates/i18n.html
 msgid "Cat."
 msgstr "実数以外"
 
@@ -2177,7 +2173,7 @@ msgid "In process order"
 msgstr "工程順"
 
 #: ap/templates/parallel_plot/parallel_plot.html
-msgid "In order of corr."
+msgid "In order of corr"
 msgstr "相関係数順"
 
 #: ap/templates/parallel_plot/parallel_plot.html
@@ -2329,7 +2325,10 @@ msgstr "目的変数に直接/間接的に相関のある変数を特定し、�
 msgid ""
 "Identify the explanatory variables that are correlated with the "
 "variable(s) specified here."
-msgstr "ここで指定した変数の相関関係を可視化します。最大60項目選択できます。"
+msgstr ""
+"ここで「目的変数」に指定した変数と、それ以外の選択した変数との関係を調べます。\n"
+"具体的には回帰モデルを当てはめ、重要と思われる変数を自動的に抽出します。\n"
+"変数は最大512項目選択できます。"
 
 #: ap/templates/templates/sankey_plot/sankey_plot.html
 msgid "Candidate variables that are correlated with objective variable(s)."
@@ -3001,7 +3000,7 @@ msgstr "`__SERVER_INFO__`のハードディスクの容量が__LIMIT_PERCENT__%%
 
 #: ap/templates/macros.html
 msgid "Division number Hover RLP"
-msgstr "表示する分布の数(分割数)を入力します。2以上150以下の整数を入力してください。"
+msgstr "表示する分布の数(分割数)を入力します。2以上240以下の整数を入力してください。"
 
 #: ap/templates/macros.html
 msgid "Division number Hover StP"
@@ -3447,10 +3446,6 @@ msgid "Col num hover msg"
 msgstr "分割したグラフの列数を指定します。"
 
 #: ap/templates/macros.html
-msgid "Remove outlier hover msg"
-msgstr "外れ値: 上下位5%%=> NAに置換"
-
-#: ap/templates/macros.html
 msgid "If checked, the config on graph area will also be saved."
 msgstr "グラフエリアの設定を保存します。"
 
@@ -3721,4 +3716,143 @@ msgstr "月"
 #: ap/templates/macros.html
 msgid "Latest year"
 msgstr "年"
+
+#: ap/templates/templates/i18n.html
+msgid "The target is a variable whose data type is Real(Float)"
+msgstr "対象はデータ型が実数の変数です。"
+
+#: ap/templates/templates/i18n.html
+msgid "SkD select over 100 sensor msg"
+msgstr "選択された変数の数が多いため、処理に時間がかかる可能性があります。処理時間を削減するには、変数の数を削減して再実行してください。"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open (new)"
+msgstr "開く(新規)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open (takeover)"
+msgstr "開く(引継ぎ)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open in new tab (new)"
+msgstr "新しいタブで開く(新規)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open in new tab (takeover)"
+msgstr "新しいタブで開く(引継ぎ)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Main page: DN7"
+msgstr "メイン画面: DN7"
+
+#: ap/templates/templates/sidebar.html
+msgid "Main page: AP"
+msgstr "メイン画面: AP"
+
+#: ap/templates/templates/macros.html
+msgid "Select a unit of time and input value."
+msgstr ""
+"グラフ描画したい時間の範囲を入力し、その単位を選択します。\n"
+"各単位における入力可能な値の範囲は以下の通りです。\n"
+"* 分: 0.01- 1,000,000\n"
+"* 時: 0.01 - 20,000\n"
+"* 日: 0.01- 1,000\n"
+"* 週: 0.01 - 100\n"
+"* 月: 0.01- 24\n"
+"* 年 : 0.01 - 2\n"
+
+#: ap/templates/sidebar.html
+msgid "Structure Learning"
+msgstr "構造学習"
+
+#: ap/templates/sidebar.html
+msgid "Graphical Lasso"
+msgstr "Graphical Lasso"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sparsity"
+msgstr "変数選択の強さ"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GLThreshold"
+msgstr "偏相関閾値"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Labels"
+msgstr "表示ラベル"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sensor name"
+msgstr "センサ名"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GL Page Title"
+msgstr ""
+"変数間の偏相関関係をネットワーク図で可視化することで、互いに相関している変数を見つけることができます。\n"
+"目的の変数を指定することで、それに直接相関する変数と、間接的に相関する変数とを分かりやすく可視化することができ。"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sparsity Hover"
+msgstr "この値が大きいほど変数選択が強く働き、線の少ない疎なグラフが得られます。"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GLThreshold Hover"
+msgstr "偏相関係数の絶対値がこの値より小さい場合、関係性は無いものとしてグラフを描画します。"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GL Process name"
+msgstr "工程名"
+
+#: ap/templates/templates/macros.html
+msgid "SkD objective hover messenger"
+msgstr ""
+"ここにマークした変数を目的変数と呼び、\n"
+"残りの指定した変数でこれをうまく説明 (推定) できるような回帰モデルを作成します。"
+
+#: ap/templates/templates/macros.html
+msgid "GL target variable"
+msgstr ""
+"ここで選択した変数間の偏相関関係を可視化します。\n"
+"偏相関は通常の相関とは異なり、指定した変数で交絡 (疑似相関) を除去したものです。\n"
+"自動的に、無視してもよさそうな小さな偏相関関係を除外した上で結果を可視化します。\n"
+"最大で60項目選択できます。"
+
+#: ap/templates/templates/macros.html
+msgid "GL objective hover messenger"
+msgstr ""
+"(任意) ここにマークした変数を目的変数と呼び、\n"
+"目的変数に対する他の変数の偏相関関係がより読み取りやすいよう、可視化のレイアウトを調整します。"
+
+#: ap/templates/templates/co_occurence.html
+msgid "Show all node labels"
+msgstr "全ノードのラベルを表示"
+
+#: ap/templates/templates/macros.html
+msgid "Generate proc link information msg"
+msgstr "インポートしたレコード数や紐付け対象のレコード数を更新したい場合は、\"再読込み\"ボタンを押してください。"
+
+#: ap/templates/templates/sidebar.html
+msgid "in new tab"
+msgstr "(新しいタブ)"
+
+#: ap/templates/i18n.html
+msgid "File not found"
+msgstr "ファイルがありません。"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Move next to target variable"
+msgstr "目的変数の横に移動"
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr ""
+"P1-P99 : 上下位1%%の間にあるデータを表示\n"
+"P5-P95 : 上下位5%%の間にあるデータを表示\n"
+"\n"
+"4IQR : 上限Q3+1.5×IQR、下限Q1-1.5×IQRに対する処理\n"
+"6IQR : 上限Q3+2.5×IQR、下限Q1-2.5×IQRに対する処理\n"
+"* Majority: 上下限の間にあるデータを表示\n"
+"* Minority: 上下限の外にあるデータを表示\n"
+"* Upper: 上限より上にあるデータを表示\n"
+"* Lower: 下限より下にあるデータを表示"
 

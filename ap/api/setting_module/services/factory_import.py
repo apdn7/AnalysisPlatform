@@ -9,7 +9,8 @@ from ap.api.setting_module.services.data_import import import_data, save_sensors
     gen_import_job_info, \
     data_pre_processing, convert_df_col_to_utc, convert_df_datetime_to_str, validate_datetime, \
     gen_dic_sensor_n_cls, gen_substring_column_info, check_update_time_by_changed_tz, gen_error_output_df, \
-    get_df_first_n_last, write_error_import, write_error_trace, gen_duplicate_output_df, write_duplicate_import
+    get_df_first_n_last, write_error_import, write_error_trace, gen_duplicate_output_df, write_duplicate_import, \
+    save_proc_data_count
 from ap.api.trace_data.services.proc_link import add_gen_proc_link_job
 from ap.common.common_utils import add_days, convert_time, DATE_FORMAT_STR_FACTORY_DB, add_double_quotes, \
     add_years, DATE_FORMAT_STR_ONLY_DIGIT
@@ -207,7 +208,7 @@ def import_factory(proc_id):
 
             # import data
             save_res = import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls,
-                                   dic_substring_sensors)
+                                   dic_substring_sensors, job_id)
 
             # update job info
             imported_end_time = rows[-1][auto_increment_idx]
@@ -590,7 +591,7 @@ def factory_past_data_transform(proc_id):
                                                     proc_cfg.name, job_id)
 
         # import data
-        save_res = import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls, dic_substring_sensors)
+        save_res = import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls, dic_substring_sensors, job_id)
 
         # update job info
         imported_end_time = rows[-1][auto_increment_idx]

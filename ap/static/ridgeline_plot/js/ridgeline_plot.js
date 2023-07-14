@@ -4,7 +4,7 @@
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 20;
-const MAX_END_PROC = 20;
+const MAX_NUMBER_OF_SENSOR = 20;
 let valueInfo = null;
 const graphStore = new GraphStore();
 const dicTabs = { '#byCategory': 'category', '#byCyclicTerm': 'cyclicTerm', '#byDirectTerm': 'directTerm' };
@@ -154,8 +154,12 @@ $(() => {
     initValidation(eles.mainFormId);
 
     initTargetPeriod();
-    toggleDisableAllInputOfNoneDisplayEl($('#for-cyclicTerm'));
+    // default is show cyclicTerm, so disable category and directTerm's content tab
+    toggleDisableAllInputOfNoneDisplayEl($('#for-category'));
     toggleDisableAllInputOfNoneDisplayEl($('#for-directTerm'));
+
+    $('#divideOption').trigger('change');
+
 
     // add limit after running load_user_setting
     setTimeout(() => {
@@ -165,7 +169,7 @@ $(() => {
     }, 2000);
 
     // validate and change to default and max value cyclic term
-    validateInputByNameWithOnchange(CYCLIC_TERM.DIV_NUM, { MAX: 150, MIN: 2, DEFAULT: 30 });
+    validateInputByNameWithOnchange(CYCLIC_TERM.DIV_NUM, { MAX: 240, MIN: 2, DEFAULT: 120 });
 
     onChangeDivideOption();
 
@@ -288,20 +292,7 @@ const showRidgeLine = (res, eleIdPrefix = 'category', isFilterEmd = false) => {
 
     rlpXAxis[eleIdPrefix] = [];
 
-    const rlpCSSSetting = {
-        itemHeight: [50, 50, 33, 25],
-        titleHeight: [21, 21, 13, 9],
-    };
-    let itemMaxHeight;
-    let titleMaxHeight;
-    if (res.array_plotdata.length >= 4) {
-        itemMaxHeight = rlpCSSSetting.itemHeight[3];
-        titleMaxHeight = rlpCSSSetting.titleHeight[3];
-    } else {
-        itemMaxHeight = rlpCSSSetting.itemHeight[res.array_plotdata.length - 1];
-        titleMaxHeight = rlpCSSSetting.titleHeight[res.array_plotdata.length - 1];
-    }
-    const rlpItemHeight = `calc(${itemMaxHeight}vh - 15px)`;
+    const rlpItemHeight = `calc(15vw - 1rem)`;
 
     const { compareType } = res.COMMON;
     const startProc = res.COMMON.start_proc;
@@ -319,24 +310,26 @@ const showRidgeLine = (res, eleIdPrefix = 'category', isFilterEmd = false) => {
                 showType = i === 1 ? '(Drift)' : '(Diff)';
             }
             renderRidgeLine(rlpCard, eleIdPrefix, res, plotName, startProc, numGraphs,
-                titleMaxHeight, rlpItemHeight, compareType, showType, emdIdx);
+                rlpItemHeight, compareType, showType, emdIdx);
+
             emdIdx += 1;
         }
     });
-
-    $('html, body').animate({
-        scrollTop: rlpCard.offset().top,
-    }, 1000);
 };
 
 
-const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGraphs, titleMaxHeight, rlpItemHeight, compareType, emdType, emdIdx) => {
+const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGraphs, rlpItemHeight, compareType, emdType, emdIdx) => {
     // const originalData = [];
     const ridgelineCardID = `${eleIdPrefix}RLPCard-${plotName}-${emdIdx}`;
     const rlpCardGroupID = `${eleIdPrefix}RLPCardGroup-${plotName}-${emdIdx}`;
 
     const emdData = res.emd[emdIdx] || [];
     const sensorData = res.array_plotdata[plotName];
+    const end_proc_id = sensorData.end_proc_id;
+    const cfgProcess = procConfigs[parseInt(end_proc_id)] || procConfigs[end_proc_id];
+    const column = cfgProcess.getColumnById(sensorData.sensor_id);
+    const isColCT = column.data_type === DataTypes.DATETIME.name;
+    const CTTile = isColCT ? ` (${DataTypes.DATETIME.short}) [sec]` : '';
     const transEMDFromRidgeline = (emdDat, ridgelines) => {
         const transEMD = [];
         let startkey = 0;
@@ -363,7 +356,7 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
              <div class="tschart-title-parent" style="${titleStyle}">
                 <div class="tschart-title" style="width: ${rlpItemHeight};">
                    <span title="${sensorData.proc_name}">${sensorData.proc_name}</span>
-                   <span title="${sensorData.sensor_name}">${sensorData.sensor_name}</span>
+                   <span title="${sensorData.sensor_name}">${sensorData.sensor_name}${CTTile}</span>
                    ${facetDetailHTML}
                    <span title="${emdType}">${emdType}</span>
                </div>
@@ -420,7 +413,7 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
         // originXAxis,
         sensorData.rlp_xaxis,
         sensorData.rlp_yaxis,
-        nticks = 20,
+        nticks = 9,
         compareType,
         showXAxis,
         props,
@@ -544,7 +537,10 @@ const isRLPHasFewDataPoint = (res) => {
     return result;
 };
 
-const collectRLPFormData = (clearOnFlyFilter, eleIdPrefix) => {
+const collectRLPFormData = (clearOnFlyFilter, eleIdPrefix, autoUpdate = false) => {
+    if (autoUpdate) {
+        return genDatetimeRange(lastUsedFormData);
+    }
     const traceForm = $(eles.mainFormId);
     let formData = new FormData(traceForm[0]);
 
@@ -563,24 +559,26 @@ const collectRLPFormData = (clearOnFlyFilter, eleIdPrefix) => {
     return formData;
 };
 
-const showGraph = (clearOnFlyFilter = true) => {
+const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
     requestStartedAt = performance.now();
     const eleIdPrefix = $('select[name=compareType]').val();
-    // reset show x axis switch
-    $('#categoryShowOutlier').prop('checked', false);
-    const isValid = checkValidations({ max: MAX_END_PROC });
-    updateStyleOfInvalidElements();
+    if (clearOnFlyFilter) {
+        // reset show x axis switch
+        $('#categoryShowOutlier').prop('checked', false);
+        const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
+        updateStyleOfInvalidElements();
 
-    if (!isValid) return;
+        if (!isValid) return;
+    }
 
     // close sidebar
     beforeShowGraphCommon(clearOnFlyFilter);
 
     if (clearOnFlyFilter) {
-        resetCheckedCats();
+         resetCheckedCats();
     }
 
-    let formData = collectRLPFormData(clearOnFlyFilter, eleIdPrefix);
+    let formData = collectRLPFormData(clearOnFlyFilter, eleIdPrefix, autoUpdate);
 
     // validate form
     const validateFlg = isFormDataValid(eleIdPrefix, formData);
@@ -639,14 +637,18 @@ const showGraph = (clearOnFlyFilter = true) => {
             initUniquePairList(res.dic_filter);
         }
 
+        if (!autoUpdate) {
+             $('html, body').animate({
+                scrollTop: $('#RLPCard').offset().top,
+            }, 1000);
+        };
+
         // render cat, category label filer modal
         fillDataToFilterModal(catExpBox || [], [], cat_on_demand, [], [], () => {
             showGraph(false);
         });
 
-        longPolling(formData, () => {
-            showGraph(true);
-        });
+        setPollingData(formData, showGraph, [false, true]);
     });
 };
 

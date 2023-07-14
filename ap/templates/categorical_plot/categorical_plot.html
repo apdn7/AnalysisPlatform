@@ -48,7 +48,7 @@
                 </div>
                 <div class="col-xl-10 col-9">
                     <div class="row">
-                        {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover StP'), cyclicTermDefault=16)}}
+                        {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover StP'), cyclicTermDefault=16, cyclicIntervalDefault=1)}}
                     </div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
 			{{ macros.on_demand_filter() }}
 			{{ macros.summary_option(prefix='var', buttonId='varSummarySelectBtn', optionName='SummaryOption', cl='ml-2') }}
 			{{ macros.frequency_scale(name='frequencyScale', cl='ml-4') }}
-			{{ macros.scale_option(name='HistScale', className='ml-4') }}
+			{{ macros.scale_option(name='HistScale', className='ml-4', defaultOption='2') }}
 		</div>
 		<div id="CatePlotCards" class="stratifiedTabs mt-2" data-str-by="var"></div>
 		<div id="stContentTab">

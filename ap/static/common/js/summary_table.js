@@ -1,5 +1,5 @@
 /* eslint-disable */
-const calculateSummaryData = (summaries = {}, summaryIdx = 0) => {
+const calculateSummaryData = (summaries = {}, summaryIdx = 0, isHideNonePoint = false) => {
     const summary = summaries[summaryIdx] || {};
 
     const summaryData = {
@@ -64,8 +64,30 @@ const calculateSummaryData = (summaries = {}, summaryIdx = 0) => {
         mode: getNode(summary, ['non_parametric', 'mode'], '0') || '0',
     };
 
+    if (isHideNonePoint) {
+        let nTotal = summaryData.ntotal;
+        if (nTotal > 0) {
+            const nNA = summaryData.pnNA;
+            nTotal = nTotal - nNA;
+            summaryData.ntotal = nTotal;
+            summaryData.pNA = 0;
+            summaryData.pTotal = 0;
+            summaryData.pnTotal = 0;
+            summaryData.pnNA = 0;
+        }
+    }
+
     return summaryData;
 };
+
+
+const isHideNoneDataPoint = (procId, colId, isRemoveOutlier) => {
+    const col = procConfigs[procId].getColumnById(colId) || {};
+    const isCTCol = isCycleTimeCol(procId, colId);
+
+    const isHideNonePoint = (Boolean(isRemoveOutlier) && [DataTypes.REAL.name, DataTypes.INTEGER.name].includes(col.data_type)) || isCTCol;
+    return isHideNonePoint;
+}
 
 const buildSummaryResultsHTML = (summaryOption, tableIndex, generalInfo, beforeRankValues = null, stepChartSummary = null) => {
     const [nTotalHTML, noLinkedHTML] = genTotalAndNonLinkedHTML(summaryOption, generalInfo);

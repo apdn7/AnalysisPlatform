@@ -10,6 +10,7 @@ from numpy import matrix
 from pandas import Series, RangeIndex, Index
 
 from ap.api.categorical_plot.services import produce_cyclic_terms, gen_dic_param_terms, gen_time_conditions
+from ap.api.common.services.services import convert_datetime_to_ct
 from ap.api.trace_data.services.time_series_chart import (get_data_from_db,
                                                           main_check_filter_detail_match_graph_data,
                                                           calc_raw_common_scale_y,
@@ -132,6 +133,8 @@ def gen_scatter_plot(dic_param):
             df_term, graph_param, record_number, _is_res_limited = gen_df(term_dic_param, dic_cat_filters,
                                                                           _use_expired_cache=use_expired_cache)
 
+            convert_datetime_to_ct(df_term, graph_param)
+
             if df is None:
                 df = df_term.copy()
             else:
@@ -160,6 +163,8 @@ def gen_scatter_plot(dic_param):
         # query data and gen df
         df, graph_param, actual_record_number, unique_serial = gen_df(dic_param, dic_cat_filters,
                                                                       _use_expired_cache=use_expired_cache)
+
+        convert_datetime_to_ct(df, graph_param)
 
         # check filter match or not ( for GUI show )
         matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids = \
@@ -521,7 +526,7 @@ def calc_scale(df, col_id, col_label, dic_cols, chart_configs=None):
         if df is None or not len(df):
             return None
 
-        if DataType[cfg_col.data_type] not in (DataType.REAL, DataType.INTEGER):
+        if DataType[cfg_col.data_type] not in (DataType.REAL, DataType.INTEGER, DataType.DATETIME):
             return None
 
         plot = {END_PROC_ID: cfg_col.process_id, END_COL_ID: col_id, ARRAY_X: df[Cycle.time.key],
@@ -576,6 +581,7 @@ def gen_df(dic_param, dic_filter, _use_expired_cache=False):
 
     # add datetime col
     graph_param.add_datetime_col_to_start_proc()
+    graph_param.add_agp_color_vars()
 
     # get data from database
     df, actual_record_number, is_res_limited = get_data_from_db(graph_param, dic_filter, use_expired_cache=_use_expired_cache)
@@ -585,7 +591,7 @@ def gen_df(dic_param, dic_filter, _use_expired_cache=False):
 @log_execution_time()
 @abort_process_handler()
 def get_chart_type(x_id, y_id, dic_cols):
-    number_types = (DataType.INTEGER, DataType.REAL)
+    number_types = (DataType.INTEGER, DataType.REAL, DataType.DATETIME)
     x_type = DataType[dic_cols[x_id].data_type]
     y_type = DataType[dic_cols[y_id].data_type]
     if x_type in number_types and y_type in number_types:
@@ -688,7 +694,8 @@ def get_v_keys_str(v_keys):
 @log_execution_time()
 def calc_elapsed_times(df_data, time_col):
     elapsed_times = pd.to_datetime(df_data[time_col]).sort_values()
-    elapsed_times = elapsed_times.diff().dt.total_seconds().fillna(0)
+    elapsed_times = elapsed_times.iloc[0:] - elapsed_times.iat[0]
+    elapsed_times = elapsed_times.dt.total_seconds().fillna(0)
     elapsed_times = elapsed_times.sort_index()
     elapsed_times = elapsed_times.convert_dtypes()
     return elapsed_times

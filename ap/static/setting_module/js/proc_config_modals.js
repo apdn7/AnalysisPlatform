@@ -151,9 +151,10 @@ const setProcessName = (dataRowID = null) => {
         procModalElements.proc.val(combineProcName);
     }
 
-    if (isClickPreview) {
+    if (!procModalCurrentProcId) {
+        // remove selected table
+       $(`table[name=${procModalElements.selectedColumnsTable}] tbody`).empty();
         procModalElements.showRecordsBtn.click();
-        isClickPreview = false;
     }
 };
 
@@ -314,6 +315,14 @@ const genColumnWithCheckbox = (cols, rows, dummyDatetimeIdx) => {
         return colType;
     };
 
+    let isRemoveDummyDatetime = cols.filter(col => {
+        const colType = getColType(col);
+        if (colType === DataTypes.DATETIME.name) {
+            return true
+        }
+        return false
+    }).length > 1 && dummyDatetimeIdx !== null;
+
     cols.forEach((col, i) => {
         let isNull = true;
         const isDummyDatetimeCol = dummyDatetimeIdx === i;
@@ -323,7 +332,7 @@ const genColumnWithCheckbox = (cols, rows, dummyDatetimeIdx) => {
             }
         });
         header.push(`
-        <th>
+        <th class="${isDummyDatetimeCol ? 'dummyDatetimeCol' : ''}">
             <div class="custom-control custom-checkbox">
                 <input type="checkbox" onChange="selectTargetCol(this)"
                     class="check-item custom-control-input col-checkbox" value="${col.name}"
@@ -343,11 +352,11 @@ const genColumnWithCheckbox = (cols, rows, dummyDatetimeIdx) => {
         const colType = getColType(col);
         colTypes.push(DataTypes[colType].value);
 
-        dataTypeSelections.push(`<td>
+        dataTypeSelections.push(`<td class="${isDummyDatetimeCol ? 'dummyDatetimeCol' : ''}">
             <select id="col-${i}" class="form-control csv-datatype-selection"
                 onchange="parseDataType(this, ${i})" onfocus="storePreviousValue(this)">  <!-- B-Sprint36+80 #5 -->
                 <option value="${DataTypes.REAL.value}"${checkedColType(DataTypes.REAL.name)}>${reallabel}</option>
-                <option value="${DataTypes.INTEGER.value}"${checkedColType(DataTypes.INTEGER.name)}>${intlabel}</option>
+                <option value="${DataTypes.INTEGER.value}"${checkedColType(DataTypes.INTEGER.name)} ${col.is_big_int ? 'disabled': ''}>${intlabel}</option>
                 <option value="${DataTypes.STRING.value}"${checkedColType(DataTypes.STRING.name)}>${strlabel}</option>
                 <option value="${DataTypes.DATETIME.value}"${checkedColType(DataTypes.DATETIME.name)}>${dtlabel}</option>
                 <option value="${DataTypes.REAL_SEP.value}"${checkedColType(DataTypes.REAL_SEP.name)}>${realSepLabel}</option>
@@ -386,7 +395,7 @@ const genColumnWithCheckbox = (cols, rows, dummyDatetimeIdx) => {
                 }
             }
             const isKSep = [DataTypes.REAL_SEP.name, DataTypes.EU_REAL_SEP.name].includes(getColType(col));
-            data.push(`<td style="color: ${isKSep ? 'orange' : ''}" data-original="${row[col.name]}" class="${columnColor}"> ${val} </td>`);
+            data.push(`<td style="color: ${isKSep ? 'orange' : ''}" is-big-int="${col.is_big_int ? 1 : 0}" data-original="${row[col.name]}" class="${columnColor}"> ${val} </td>`);
         });
         datas.push(`<tr>${data.join('')}</tr>`);
     });
@@ -395,6 +404,11 @@ const genColumnWithCheckbox = (cols, rows, dummyDatetimeIdx) => {
     if (datas.length) {
         // procModalElements.latestDataBody.append(dataTypeSel);
         procModalElements.latestDataBody.append(`${datas.join('')}`);
+    }
+
+    if (isRemoveDummyDatetime) {
+         procModalElements.latestDataTable.find('.dummyDatetimeCol').remove();
+         procModalElements.latestDataTable.find('.dummy_datetime_col').remove();
     }
 
     parseEUDataTypeInFirstTimeLoad();
@@ -494,12 +508,19 @@ const validateCheckBoxesAll = () => {
                     `table[name=selectedColumnsTable] input:checkbox[name="${procModalElements.dateTime}"]`,
                 )
                     .not(this)
-                    .prop('checked', false);
+                    .prop('checked', false).trigger('change');
                 // uncheck serial at the same row
                 $(this)
                     .closest('tr')
                     .find(`input:checkbox[name="${procModalElements.serial}"]`)
                     .prop('checked', false);
+            } else {
+                if ($(this).attr('is-dummy-datetime') === 'true') {
+                    // remove dummydatetime column from table
+                    procModalElements.latestDataTable.find('input[data-is-dummy-datetime=true]').prop('checked', false).change();
+                    procModalElements.latestDataTable.find('.dummyDatetimeCol').remove();
+                    procModalElements.latestDataTable.find('.dummy_datetime_col').remove();
+                }
             }
         });
     });
@@ -742,6 +763,13 @@ const showLatestRecordsFromPrc = (json, clearSelectedColumnBody) => {
     
     // update columns from process
     currentProcColumns = json.cols; // TODO
+    if (!procModalCurrentProcId) {
+        // remove selected table
+        $(`table[name=${procModalElements.selectedColumnsTable}] tbody`).empty();
+        // auto click auto select
+        $(procModalElements.autoSelect).prop('checked', true).change();
+        isClickPreview = false;
+    }
 };
 
 const addDummyDatetimePrc = (addCol = true) => {
@@ -1005,7 +1033,6 @@ const getSelectedColumnsAsJson = () => {
     );
     getHtmlEleFunc(procModalElements.dateTime, ele => ele.checked);
     getHtmlEleFunc(procModalElements.serial, ele => ele.checked);
-    getHtmlEleFunc(procModalElements.order, ele => ele.checked);
     getHtmlEleFunc(procModalElements.auto_increment, ele => ele.checked);
     getHtmlEleFunc(procModalElements.columnName, ele => ele.value);
     getHtmlEleFunc(
@@ -1026,19 +1053,20 @@ const procColumnsData = (selectedJson) => {
     const columnsData = [];
     if (selectedJson.selects.columnName.length) {
         selectedJson.selects.columnName.forEach((v, k) => {
+            const dataType = selectedJson.selects.dataType[k];
             columnsData.push({
                 column_name: v,
                 english_name: selectedJson.selects.englishName[k],
                 name: selectedJson.selects.shownName[k],
-                data_type: selectedJson.selects.dataType[k],
+                data_type: dataType,
                 operator: selectedJson.selects.operator[k],
                 coef: selectedJson.selects.coef[k],
                 column_type: null, // duplicate with data_type means?
                 is_serial_no: selectedJson.selects.serial[k],
                 is_get_date: selectedJson.selects.dateTime[k],
                 is_auto_increment: selectedJson.selects.auto_increment[k],
-                order: selectedJson.selects.order[k] ? 1 : 0,
                 is_dummy_datetime: selectedJson.selects.isDummyDatetime[k] === 'true',
+                order: CfgProcess_CONST.CATEGORY_TYPES.includes(dataType) ? 1 : 0,
             });
         });
     }
@@ -1271,7 +1299,6 @@ const generateSpreadSheet = () => {
             { type: 'text', readOnly: true },
             { type: 'checkbox', readOnly: !isAddNewMode() },
             { type: 'checkbox', readOnly: false },
-            { type: 'checkbox', readOnly: false },
             { type: 'checkbox', readOnly: !isAddNewMode() },
         ],
     });
@@ -1287,25 +1314,21 @@ const getSettingModeRows = () => {
     const SELECT_ROOT = Object.keys(selectJson)[0]; // TODO use common function
     const dateTimes = selectJson[SELECT_ROOT][procModalElements.dateTime] || [''];
     const serials = selectJson[SELECT_ROOT][procModalElements.serial] || [''];
-    const orders = selectJson[SELECT_ROOT][procModalElements.order] || [''];
     const autoIncrements = selectJson[SELECT_ROOT][procModalElements.auto_increment] || [''];
     const columnNames = selectJson[SELECT_ROOT][procModalElements.columnName] || [''];
     const englishNames = selectJson[SELECT_ROOT][procModalElements.englishName] || [''];
     const shownNames = selectJson[SELECT_ROOT][procModalElements.shownName] || [''];
     const operators = selectJson[SELECT_ROOT][procModalElements.operator] || [''];
     const coefsRaw = selectJson[SELECT_ROOT][procModalElements.coef] || [''];
-    const isDummyDatetime = selectJson[SELECT_ROOT][procModalElements.isDummyDatetime] || [''];
     return zip(
         columnNames,
         dateTimes.map(mapBoolean),
         serials.map(mapBoolean),
-        orders.map(mapBoolean),
         autoIncrements.map(mapBoolean),
         englishNames,
         shownNames,
         operators.map(v => (v === 'regex' ? i18n.validLike : v)),
         coefsRaw,
-        isDummyDatetime,
     );
 };
 
@@ -1509,7 +1532,7 @@ const switchMode = (spreadTableDOM, force = false) => {
         const editModeData = getExcelModeData();
         let editModeDataVertical = transpose(editModeData);
         const validationColNames = [
-            'columnName', 'dateTime', 'serial', 'order', 'auto_increment', 'englishName', 'shownName', 'operator', 'coef',
+            'columnName', 'dateTime', 'serial', 'auto_increment', 'englishName', 'shownName', 'operator', 'coef'
         ]
         const colName2Type = buildDictCol2Type(currentProcColumns);
         const columnNameIdx = validationColNames.indexOf('columnName');
@@ -1556,12 +1579,11 @@ const sendSpreadSheetDataToSetting = async (editModeDataVertical, validationColN
             column_name: editModeRow[0],
             is_get_date: editModeRow[1],
             is_serial_no: editModeRow[2],
-            order: editModeRow[3],
-            is_auto_increment: editModeRow[4],
-            english_name: editModeRow[5],
-            name: editModeRow[6],
-            operator: editModeRow[7] === 'Valid-like' ? 'regex' : editModeRow[6],
-            coef: editModeRow[8],
+            is_auto_increment: editModeRow[3],
+            english_name: editModeRow[4],
+            name: editModeRow[5],
+            operator: editModeRow[6] === 'Valid-like' ? 'regex' : editModeRow[5],
+            coef: editModeRow[7],
         };
 
         procModalElements.seletedColumnsBody.append(

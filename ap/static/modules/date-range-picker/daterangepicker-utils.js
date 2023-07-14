@@ -444,6 +444,8 @@ const updateCalendarUI = (element, isShowTimePicker) => {
     const that = $(element.currentTarget);
     const calendar = that.data('daterangepicker');
     try {
+        calendar.setStartDate = overrideSetStartDate;
+        calendar.setEndDate = overrideSetEndDate;
         calendar.elementChanged(that);
         calendar.monthOrYearChanged(that);
         if (isShowTimePicker) calendar.timeChanged(that);
@@ -721,6 +723,11 @@ const initShowData = (element) => {
             thisCalendar =  $(currentDateTimePicker.currentTarget).data('daterangepicker');
             thisCalendar.callApi = true;
 
+
+            thisCalendar.setStartDate = overrideSetStartDate;
+            thisCalendar.setEndDate = overrideSetEndDate;
+
+
             thisCalendar.container.find('.drp-calendar').on('mousedown.daterangepicker', 'td.available', function (e) {
                 thisCalendar.callApi = false;
                 handleShowDataCount(picker, false);
@@ -904,4 +911,61 @@ function getDateFromDateRange (tdEl, thisCalendar) {
     const cal = $(tdEl).parents('.drp-calendar');
     const date = cal.hasClass('left') ? thisCalendar.leftCalendar.calendar[row][col] : thisCalendar.rightCalendar.calendar[row][col];
     return calTime(thisCalendar, date);
+}
+
+const convertUTCToLocaltime = (datetime) => {
+    return moment.utc(datetime).local().format(DATE_TIME_FMT);
+};
+
+function overrideSetStartDate(startDate) {
+    if (typeof startDate === 'string')
+        this.startDate = moment(startDate, this.locale.format);
+
+    if (typeof startDate === 'object')
+        this.startDate = moment(startDate);
+
+    if (!this.timePicker)
+        this.startDate = this.startDate.startOf('day');
+
+    if (this.minDate && this.startDate.isBefore(this.minDate)) {
+        this.startDate = this.minDate.clone();
+    }
+
+    if (this.maxDate && this.startDate.isAfter(this.maxDate)) {
+        this.startDate = this.maxDate.clone();
+    }
+
+    if (!this.isShowing)
+        this.updateElement();
+
+    this.updateMonthsInView();
+};
+
+function overrideSetEndDate(endDate) {
+    if (typeof endDate === 'string')
+        this.endDate = moment(endDate, this.locale.format);
+
+    if (typeof endDate === 'object')
+        this.endDate = moment(endDate);
+
+    if (!this.timePicker)
+        this.endDate = this.endDate.endOf('day');
+
+    if (this.endDate.isBefore(this.startDate))
+        this.endDate = this.startDate.clone();
+
+    if (this.maxDate && this.endDate.isAfter(this.maxDate))
+        this.endDate = this.maxDate.clone();
+
+    if (this.maxSpan && this.startDate.clone().add(this.maxSpan).isBefore(this.endDate))
+        this.endDate = this.startDate.clone().add(this.maxSpan);
+
+    this.previousRightTime = this.endDate.clone();
+
+    this.container.find('.drp-selected').html(this.startDate.format(this.locale.format) + this.locale.separator + this.endDate.format(this.locale.format));
+
+    if (!this.isShowing)
+        this.updateElement();
+
+    this.updateMonthsInView();
 }

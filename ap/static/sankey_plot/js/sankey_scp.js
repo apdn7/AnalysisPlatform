@@ -106,6 +106,8 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
             y: 0.05,
             bgcolor: 'transparent',
         },
+        plot_bgcolor: '#222222',
+        paper_bgcolor: '#222222',
     };
     
     const config = {

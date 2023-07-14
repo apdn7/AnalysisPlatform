@@ -22,7 +22,7 @@ const i18n = {
     testingData: $('#i18nTestingData').text(),
 };
 
-const MAX_END_PROC = 60;
+const MAX_NUMBER_OF_SENSOR = 60;
 
 const MSG_MAPPING = {
     E_ALL_NA: $('#i18nE01AllNA').text(),
@@ -117,7 +117,7 @@ const drawPCAPlotList = (res, clickOnChart, sampleNo = null) => {
     }
 };
 
-const getPCAPlotsFromBackend = (formData, clickOnChart = false, sampleNo = null) => {
+const getPCAPlotsFromBackend = (formData, clickOnChart = false, sampleNo = null, autoUpdate = false) => {
 
     const eleQCont = $(eles.qContributionChart);
     const eleT2Cont = $(eles.t2ContributionChart);
@@ -202,16 +202,20 @@ const getPCAPlotsFromBackend = (formData, clickOnChart = false, sampleNo = null)
         //     saveInvalidFilterCaller();
         // }
 
-        $('html, body').animate({
-            scrollTop: $('#plot-cards').offset().top,
-        }, 1000);
+        if (!autoUpdate) {
+            $('html, body').animate({
+                scrollTop: $('#plot-cards').offset().top,
+            }, 1000);
+        }
 
-        longPolling(formData, () => {
-            const newFormData = collectInputAsFormData();
-            getPCAPlotsFromBackend(newFormData);
-        });
+        setPollingData(formData, longPollingHandler, []);
     }, { page: 'pca', clickOnChart });
 };
+
+const longPollingHandler = () => {
+    const newFormData = lastUsedFormData;
+    getPCAPlotsFromBackend(newFormData, false, null, true);
+}
 
 const isIntegerDatatype = (type) => {
     const NUMERIC_TYPE = ['int', 'long'];
@@ -296,7 +300,7 @@ const collectInputAsFormData = () => {
 
 const getPCAPlots = () => {
     requestStartedAt = performance.now();
-    const isValid = checkValidations({ max: MAX_END_PROC });
+    const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
     updateStyleOfInvalidElements();
 
     if (isValid) {

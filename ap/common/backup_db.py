@@ -1,5 +1,7 @@
 import os
 from datetime import datetime
+from pytz import utc
+from dateutil import tz
 
 from apscheduler.triggers.cron import CronTrigger
 
@@ -60,8 +62,15 @@ def backup_dbs_job(_job_id, _job_name, *args, **kwargs):
 
 @log_execution_time()
 def add_backup_dbs_job(is_run_now=None):
+    # backup db job run at 3 AM local time
+    backup_db_at = (3, 0, 0)
     job_name = JobType.BACKUP_DATABASE.name
-    trigger = CronTrigger(hour=3, minute=0, second=0)
+    # generate datetime of today
+    today = datetime.today()
+    local_datetime = datetime(today.year, today.month, today.day, *backup_db_at)
+    # convert to utc
+    utc_datetime = local_datetime.astimezone(tz.tzutc())
+    trigger = CronTrigger(hour=utc_datetime.hour, minute=backup_db_at[1], second=backup_db_at[2], timezone=utc)
     kwargs = dict(_job_id=job_name, _job_name=job_name)
     add_job_to_scheduler(job_id=job_name, job_name=job_name, trigger=trigger, import_func=backup_dbs_job,
                          run_now=is_run_now, dic_import_param=kwargs)

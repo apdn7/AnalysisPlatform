@@ -147,7 +147,14 @@
             </form>
         </div>
     </div>
-    <div class="card chart-wrapper chart-margin" id="plotCard" style="margin-top: 1rem;">
+    <div id="plotCard" style="margin-top: 1rem;">
+        <div class="custom-control custom-checkbox mb-2">
+            <input type="checkbox" class="custom-control-input" id="showAllNodeLabels" checked onchange="updateNodeLabel(this);">
+            <label class="custom-control-label" for="showAllNodeLabels">{{ _('Show all node labels') }}</label>
+        </div>
+
+        <div class="card chart-wrapper chart-margin">
+
         <div class="">
             <div class="row dark-bg m-0">
                 <div class="col-8">
@@ -169,6 +176,7 @@
         </div>
 
     </div>
+        </div>
     <a class="edge-hover">
         <span id="tooltip-span">value</span>
     </a>

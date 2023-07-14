@@ -4,7 +4,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
-const MAX_END_PROC = 2;
+const MAX_NUMBER_OF_SENSOR = 2;
 let tabID = null;
 const graphStore = new GraphStore();
 let response = null;
@@ -56,6 +56,21 @@ const colorScales = {
     FULL: 'scale_full',
 };
 
+const plotTypeConst = {
+    POINT: {
+        name: 'POINT',
+        mode: 'markers',
+    },
+    LINE: {
+        name: 'LINE',
+        mode: 'lines',
+    },
+    ALL: {
+        name: 'ALL',
+        mode: 'lines+markers',
+    },
+}
+
 const els = {
     category: 'category',
     cyclicTerm: 'cyclicTerm',
@@ -68,6 +83,7 @@ const els = {
     showBackward: 'showBackward',
     scpChartScale: 'scpChartScale',
     colNumber: 'colNumber',
+    selectPlotType: 'selectPlotType',
 };
 
 const i18n = {
@@ -323,7 +339,7 @@ const loading = $('.loading');
 
 const scpTracing = () => {
     requestStartedAt = performance.now();
-    const isValid = checkValidations({ min: MAX_END_PROC, max: MAX_END_PROC });
+    const isValid = checkValidations({ min: MAX_NUMBER_OF_SENSOR, max: MAX_NUMBER_OF_SENSOR });
     updateStyleOfInvalidElements();
 
     if (!isValid) return;
@@ -519,8 +535,8 @@ const getHtitle = (showVTitle, showHTitle, isFirstCol, isFirstRow, hTitle, colDa
 };
 
 const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption = undefined,
-    colorOrdering = undefined, chartScale = undefined) => {
-    const scatterDat = [];
+    colorOrdering = undefined, chartScale = undefined, plotType=plotTypeConst.POINT.name) => {
+    let scatterDat = [];
     const colorOrderVar = (colorOrdering === colorOrders[1] ? colorOrders[0] : colorOrdering) || colorOrders[0];
     // console.log(allColorValSets);
     let allColorValSets = [];
@@ -823,6 +839,11 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
             }
         }
     }
+    if (plotType !== plotTypeConst.POINT.name) {
+        // update plot-type: points and/or lines with color
+        scatterDat = updatePlotType(scatterDat, plotType, [layout.coloraxis.cmin, layout.coloraxis.cmax], layout);
+    }
+
     // console.log(scatterDat);
     $(`#${canvasID}`).html('').show();
     const iconSettings = genPlotlyIconSettings();
@@ -870,7 +891,7 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
             datetime: datetime,
             start_proc: res.start_proc,
         };
-        const key = data.points[0].pointIndex;
+        const key = dataScp.data.customdata.first_point_idx || dataScp.pointIndex;
         setTimeout(() => {
             makeScatterHoverInfoBox(dataScp, option, key, pageX, pageY);
         }, 100);
@@ -902,7 +923,7 @@ const genLinearColorBar = (colorRange, isIntColor=false, fmt) => {
 
 // generate scatter hover information
 const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
-    if (!prop || !prop.data.customdata.columndata) return;
+    if (!prop || !prop.data.customdata || !prop.data.customdata.columndata) return;
     const col = prop.data.customdata.columndata;
     const vTitle = prop.data.customdata.vtitle;
     const hTitle = prop.data.customdata.htitle;
@@ -1016,10 +1037,11 @@ const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName
 
     // gen x_name y_name;
     const XYHtml = `
-        <div class="position-absolute vertical-text scp-html-tag" id="scpchart-ytitle" style="left: -20px">
-           <span title="${yName}">${yName}</span>
-        </div>
-        <div id="scpchart-xtitle" class="position-absolute scp-html-tag" style="bottom: 20px">
+            <div class="position-absolute vertical-text scp-html-tag" id="scpchart-ytitle" style="left: calc(${chartHeight}px / 2 * -1 + 20px); height: fit-content; top: calc(100% / 2); width: ${chartHeight}px;">
+                   <span title="${yName}">${yName}</span>
+            </div>
+           
+        <div id="scpchart-xtitle" class="position-absolute scp-html-tag" style="bottom: 10px">
            <span title="${xName}">${xName}</span>
         </div>
     `;
@@ -1112,7 +1134,7 @@ const resetChartSize = () => {
     $('#sctr-card').removeAttr('style');
 };
 
-const showSCP = async (res, settings = undefined, clearOnFlyFilter = false) => {
+const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
     if (!res.array_plotdata) {
         loadingHide();
         return;
@@ -1169,13 +1191,15 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false) => {
                 const hasColorBar = res.color_name || (settings.colorOrdering && settings.colorOrdering !== colorOrders[1]);
                 const isShowDateTime = [els.cyclicTerm, els.directTerm].includes(res.COMMON.compareType) ;
                 [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
-                genScatterPlots(scpMatrix, vLabels, hLabels, res, settings.colorScale, settings.colorOrdering, settings.chartScale);
+                genScatterPlots(scpMatrix, vLabels, hLabels, res, settings.colorScale,
+                    settings.colorOrdering, settings.chartScale, settings.plotType || plotTypeConst.POINT.name);
                 genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name);
 
                 $(window).on('resize', () => {
                     setTimeout(() => {
                             [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
-                            genScatterPlots(scpMatrix, vLabels, hLabels, res, settings.colorScale, settings.colorOrdering, settings.chartScale);
+                            genScatterPlots(scpMatrix, vLabels, hLabels, res, settings.colorScale,
+                                settings.colorOrdering, settings.chartScale, settings.plotType);
                             genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name);
                             initFilterModal(res, false);
                         },
@@ -1221,11 +1245,13 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false) => {
             // hide loadding icon
             loadingHide();
 
-            // scroll to chart
-            const scpCardPosition = $('#colorSettingGrp')
-                .offset().top;
-            $('html,body')
-                .animate({ scrollTop: scpCardPosition }, 1000);
+            if (!autoUpdate) {
+                 // scroll to chart
+                const scpCardPosition = $('#colorSettingGrp')
+                    .offset().top;
+                $('html,body')
+                    .animate({ scrollTop: scpCardPosition }, 1000);
+            }
             initFilterModal(res, clearOnFlyFilter);
         };
 
@@ -1257,7 +1283,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false) => {
                     if (chartType !== scpChartType.SCATTER) return;
                     loadingShow();
                     setTimeout(() => {
-                        $(`select[name=${els.scpColorScale}]`).val('FULL');
+                        $(`select[name=${els.scpColorScale}]`).val('AUTO');
                         const graphsettings = getCurrentSettings();
                         callToBackEndAPI(graphsettings);
                     }, 1000);
@@ -1300,11 +1326,25 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false) => {
                 });
         };
 
+        const onChangePlotType = () => {
+            $(`select[name=${els.selectPlotType}]`)
+                .off('change')
+                .on('change', () => {
+                    loadingShow();
+                    setTimeout(() => {
+                        const graphsettings = getCurrentSettings();
+                        console.log(graphsettings);
+                        showGraph(graphsettings);
+                    }, 1000);
+                });
+        };
+
         onChangeColorOrder();
         onChangeColorScale();
         onShowBackward();
         onChangeChartScale();
         onChangeColNumber();
+        onChangePlotType();
     }
 
     loadingHide();
@@ -1314,7 +1354,7 @@ const resetGraphSetting = () => {
     $(`select[name=${els.scpChartScale}]`).val('1');
 
     // Reset scpColorScale
-    $(`select[name=${els.scpColorScale}]`).val('FULL');
+    $(`select[name=${els.scpColorScale}]`).val('AUTO');
 
     // Reset colorOder to setting colors
     $(`select[name=${els.scpColorOrder}]`).val('1');
@@ -1712,8 +1752,8 @@ const genColorBarForViolin = (allColors, styles) => {
     Plotly.newPlot('coloScaleBar', data, layout, config);
 };
 
-const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false) => {
-    const formData = transformFormdata(clearOnFlyFilter);
+const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
+    const formData = transformFormdata(clearOnFlyFilter, autoUpdate);
     if (settings) {
         formData.set('colNumber', settings.colNumber);
         formData.set('scpColorOrder', settings.colorOrderVal);
@@ -1727,14 +1767,16 @@ const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false) => {
             showGAToastr(true);
         }
 
-        await showSCP(res, settings);
+        await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
 
-        // check and do auto-update
-        longPolling(formData, () => {
-            callToBackEndAPI(settings, true);
-        });
+        setPollingData(formData, handleSetPollingData, []);
     });
 };
+
+const handleSetPollingData = () => {
+    const settings = getCurrentSettings();
+    callToBackEndAPI(settings, false, true);
+}
 
 const validateXYColorType = (formData) => {
     const sensors = [];
@@ -1792,7 +1834,11 @@ const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
     });
 };
 
-const transformFormdata = (clearOnFlyFilter = null) => {
+const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
+
+    if (autoUpdate) {
+        return genDatetimeRange(lastUsedFormData);
+    }
     let formData;
     if (clearOnFlyFilter) {
         const traceForm = $(formElements.formID);
@@ -1855,11 +1901,7 @@ const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
 
         loadGraphSetings(clearOnFlyFilter);
 
-        // check and do auto-update
-        longPolling(formData, () => {
-            const settings = getCurrentSettings();
-            callToBackEndAPI(settings, true);
-        });
+        setPollingData(formData, handleSetPollingData, []);
     });
 
     $('#plot-cards').empty();
@@ -1922,6 +1964,8 @@ const getCurrentSettings = () => {
     const isShowForward = !isShowBackward;
     currentMatrix = Number(colNumber);
 
+    const plotType = $(`select[name=${els.selectPlotType}]`).val();
+
     return {
         chartScale,
         colorScale,
@@ -1929,6 +1973,7 @@ const getCurrentSettings = () => {
         isShowForward,
         colNumber,
         colorOrderVal,
+        plotType,
     };
 };
 
@@ -2019,4 +2064,65 @@ const dumpData = (type) => {
 };
 const handleExportData = (type) => {
     showGraphAndDumpData(type, dumpData);
+};
+
+const updatePlotType = (scatterDat, plotType, [cmin, cmax], layout) => {
+    const linesDat = [];
+    scatterDat.forEach(scpDat => {
+        if (Array.isArray(scpDat.marker.color)) {
+            scpDat.marker.color.forEach((colorVal, i) => {
+                const nextColor = scpDat.marker.color[i+1];
+                if (nextColor) {
+                    const x1 = scpDat.x[i];
+                    const x2 = scpDat.x[i+1];
+                    const y1 = scpDat.y[i];
+                    const y2 = scpDat.y[i+1];
+                    linesDat.push({
+                        x: [x1, x2],
+                        y: [y1, y2],
+                        xaxis: scpDat.xaxis,
+                        yaxis: scpDat.yaxis,
+                        mode: 'lines',
+                        type: 'scatter',
+                        line: {
+                            color: genLineColor(colorVal, cmin, cmax),
+                            width: 0.7,
+                            dash: 'solid',
+                        },
+                        legendgroup: '',
+                        hoverinfo: 'none',
+                        showlegend: false,
+                    });
+                }
+            })
+        }
+
+    });
+    if (plotType == plotTypeConst.LINE.name) {
+        // hide scatter points in line chart
+        layout.template.data.scatter.forEach(sct => sct.marker.opacity = 0);
+        layout.template.data.scattergl.forEach(sct => sct.marker.opacity = 0);
+
+        if (!linesDat.length) {
+            scatterDat.forEach(scpDat => scpDat.mode = 'lines');
+            return scatterDat;
+        }
+        return [...linesDat, ...scatterDat];
+    }
+    if (plotType == plotTypeConst.ALL.name) {
+        if (!linesDat.length) {
+            scatterDat.forEach(scpDat => scpDat.mode = 'lines+markers');
+        }
+        return [...linesDat, ...scatterDat];
+    }
+    return scatterDat;
+};
+const genLineColor = (color, cmin, cmax) => {
+    const colorRange = cmax - cmin;
+    const hValue = 100 * (1 - ((color - cmin) / colorRange));
+    return hsv2rgb({
+        h:hValue,
+        s:1,
+        v:1
+    });
 };

@@ -1,0 +1,36 @@
+#resetSetting {
+    position: absolute;
+    top: 46px;
+    z-index: 999;
+    right: 10px;
+    width: 25px;
+    border: 1px solid;
+    height: 25px;
+    border-radius: 24px;
+    font-size: 11px;
+    padding-top: 1px;
+    background-color: #222222;
+    color: white;
+}
+/* for sparsity of GL page */
+.custom-range {
+    height: 1.7rem;
+}
+
+.range-ticks {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 8px;
+    margin-top: -11px;
+}
+.tick {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 1px;
+  background: white;
+  height: 5px;
+}
+.cmt-2 {
+    margin-top: 2px;
+}

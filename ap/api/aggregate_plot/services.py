@@ -1,5 +1,4 @@
 import copy
-from datetime import timedelta
 from typing import List, Optional, Dict, Any, Tuple
 
 import pandas as pd
@@ -7,15 +6,15 @@ from dateutil.tz import tz
 from pandas.core.groupby import DataFrameGroupBy
 from scipy.stats import iqr
 
-from ap.api.categorical_plot.services import gen_graph_param
+from ap.api.categorical_plot.services import gen_graph_param, gen_time_conditions, produce_cyclic_terms, \
+    gen_dic_param_terms
+from ap.api.common.services.services import convert_datetime_to_ct
 from ap.api.heatmap.services import agg_func_with_na
 from ap.api.heatmap.services import get_function_i18n, range_func
+from ap.api.scatter_plot.services import gen_df
 from ap.api.trace_data.services.time_series_chart import customize_dic_param_for_reuse_cache, get_data_from_db, \
-    filter_cat_dict_common
-from ap.common.common_utils import gen_sql_label
-from ap.common.constants import ARRAY_PLOTDATA, HMFunction, ACTUAL_RECORD_NUMBER, UNIQUE_SERIAL, DIVIDE_FMT_COL, \
-    COLOR_NAME, AGG_FUNC, DATA, COL_DATA_TYPE, DataType, CAT_EXP_BOX, COL_DETAIL_NAME, COL_TYPE, UNIQUE_DIV, FMT, \
-    END_PROC_ID, END_COL_NAME
+    filter_cat_dict_common, calc_raw_common_scale_y, calc_scale_info, main_check_filter_detail_match_graph_data
+from ap.common.constants import *
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
@@ -50,33 +49,106 @@ def gen_agp_data(dic_param: DicParam):
     graph_param, dic_proc_cfgs = gen_graph_param(dic_param, with_ct_col=True)
     graph_param.add_agp_color_vars()
 
-    df, actual_number_records, duplicated_serials = get_data_from_db(graph_param, dic_cat_filters,
-                                                                     use_expired_cache=use_expired_cache)
-
-    df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
-    df = convert_utc_to_local_time_and_offset(df, graph_param)
-
-    graph_param: DicParam
-    if graph_param.common.divide_format is not None:
-        df = gen_divide_format_column(df, graph_param.common.divide_calendar_dates,
-                                      graph_param.common.divide_calendar_labels)
+    if graph_param.common.compare_type == RL_DIRECT_TERM:
+        # direct term
+        df, actual_number_records, duplicated_serials = gen_df_direct_term(dic_param, dic_cat_filters, use_expired_cache)
+    else:
+        df, actual_number_records, duplicated_serials = get_data_from_db(graph_param, dic_cat_filters,
+                                                                         use_expired_cache=use_expired_cache)
+        df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
 
     export_data = df
 
-    dic_data = gen_agp_data_from_df(df, graph_param)
+    # chunk data by cyclic terms
+    if graph_param.common.cyclic_div_num:
+        df = get_df_chunk_cyclic(df, dic_param)
+    if graph_param.common.div_by_data_number:
+        data_number = graph_param.common.div_by_data_number
+        df[DIVIDE_FMT_COL] = df.reset_index().index // data_number
+        df_from_to = df.groupby(DIVIDE_FMT_COL)[Cycle.time.key].agg(['min', 'max'])
+        from_to_list = list(zip(df_from_to['min'], df_from_to['max']))
+        df[DIVIDE_FMT_COL] = df[DIVIDE_FMT_COL].apply(lambda x: f'{data_number * x + 1} - {data_number * (x + 1)}')
+        dic_param['div_from_to'] = from_to_list
+
+    graph_param: DicParam
+    if graph_param.common.divide_format is not None:
+        df = convert_utc_to_local_time_and_offset(df, graph_param)
+        df = gen_divide_format_column(df, graph_param.common.divide_calendar_dates,
+                                      graph_param.common.divide_calendar_labels)
+
+    dic_data, str_cols = gen_agp_data_from_df(df, graph_param)
     dic_param[ARRAY_PLOTDATA] = dic_data
+    # calc y scale
+    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA], str_cols)
+    calc_scale_info(dic_param[ARRAY_PLOTDATA], min_max_list, all_graph_min, all_graph_max, str_cols)
+
     dic_param[ACTUAL_RECORD_NUMBER] = actual_number_records
     dic_param[UNIQUE_SERIAL] = duplicated_serials
 
     return dic_param, export_data, graph_param, dic_proc_cfgs
 
 
+def get_df_chunk_cyclic(df, dic_param):
+    produce_cyclic_terms(dic_param)
+    terms = gen_dic_param_terms(dic_param)
+    df.set_index(Cycle.time.key, inplace=True, drop=False)
+    df_full = None
+    for term_id, term in enumerate(terms):
+        df_chunk = df[(df.index >= term[START_DT]) & (df.index < term[END_DT])]
+        df_chunk[DIVIDE_FMT_COL] = f'{term[START_DT]} | {term[END_DT]}'
+
+        if df_full is None:
+            df_full = df_chunk.copy(deep=True)
+        else:
+            df_full = pd.concat([df_full, df_chunk])
+
+    return df_full
+
+
+@log_execution_time()
+def gen_df_direct_term(dic_param, dic_cat_filters, use_expired_cache):
+    duplicated = 0
+    total_record = 0
+    terms = gen_time_conditions(dic_param)
+    df = None
+    for term in terms:
+        # create dic_param for each term from original dic_param
+        term_dic_param = copy.deepcopy(dic_param)
+        term_dic_param[COMMON][START_DATE] = term[START_DATE]
+        term_dic_param[COMMON][START_TM] = term[START_TM]
+        term_dic_param[COMMON][END_DATE] = term[END_DATE]
+        term_dic_param[COMMON][END_TM] = term[END_TM]
+
+        # query data and gen df
+        df_term, graph_param, record_number, _duplicated = gen_df(term_dic_param, dic_cat_filters,
+                                                                      _use_expired_cache=use_expired_cache)
+
+        df_term[DIVIDE_FMT_COL] = f'{term[START_DT]} | {term[END_DT]}'
+
+        convert_datetime_to_ct(df_term, graph_param)
+
+        if df is None:
+            df = df_term.copy()
+        else:
+            df = pd.concat([df, df_term])
+
+        if _duplicated is None:
+            duplicated = None
+        if duplicated is not None:
+            duplicated += _duplicated
+        total_record += record_number
+
+    return df, total_record, duplicated
+
+
 @log_execution_time()
 def gen_divide_format_column(df: pd.DataFrame, divide_calendar_dates: List[str],
                              divide_calendar_labels: List[str]) -> pd.DataFrame:
+    df[DIVIDE_FMT_COL] = None
+    if df.empty:
+        return df
     df.sort_values(Cycle.time.key, inplace=True)
     dt = df[Cycle.time.key]
-    df[DIVIDE_FMT_COL] = None
     divide_calendar_dates = pd.to_datetime(divide_calendar_dates, utc=True)
     for i, label in enumerate(divide_calendar_labels):
         start_time = divide_calendar_dates[i]
@@ -92,26 +164,16 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam) -> List[Dict[A
     target_vars = graph_param.common.sensor_cols
 
     # calculate cycle_time and replace target column
-    for target_var in target_vars:
-        # find proc_id from col info
-        general_col_info = graph_param.get_col_info_by_id(target_var)
-        # list out all CT column from this process
-        dic_datetime_cols = {cfg_col.id: cfg_col for cfg_col in
-                             CfgProcessColumn.get_by_data_type(general_col_info[END_PROC_ID], DataType.DATETIME)}
-        sql_label = gen_sql_label(target_var, general_col_info[END_COL_NAME])
-        if target_var in dic_datetime_cols:
-            series = pd.to_datetime(df[sql_label])
-            series.sort_values(inplace=True)
-            series = series.diff().dt.total_seconds()
-            series.sort_index(inplace=True)
-            df.sort_index(inplace=True)
-            df[sql_label] = series
-            df[sql_label].convert_dtypes()
+    convert_datetime_to_ct(df, graph_param)
+
+    str_cols = []
 
     # each target var be shown on one chart (barchart or line chart)
     for target_var in target_vars:
         general_col_info = graph_param.get_col_info_by_id(target_var)
         is_real_data = general_col_info[COL_DATA_TYPE] in [DataType.REAL.name, DataType.DATETIME.name]
+        if not is_real_data:
+            str_cols.append(target_var)
         agg_func = graph_param.common.hm_function_real if is_real_data else HMFunction.count.name
         agg_func_show = get_function_i18n(agg_func)
 
@@ -120,11 +182,11 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam) -> List[Dict[A
         df_groupby = gen_groupby_from_target_var(summarized_df, graph_param, target_var, is_real_data)
 
         # get unique sorted div
-        unique_div_vars = []
         div_col_name = get_div_col_name(graph_param)
-        if div_col_name != DIVIDE_FMT_COL:
+        if graph_param.common.compare_type == RL_CATEGORY:
             unique_div_vars = sorted(df[div_col_name].dropna().unique())
-
+        else:
+            unique_div_vars = df[div_col_name].dropna().unique()
         if general_col_info is None:
             continue
 
@@ -146,12 +208,23 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam) -> List[Dict[A
         else:
             agg_df = df_groupby.count()
 
+        # check empty
+        if agg_df.empty:
+            return plot_data, str_cols
+
         num_facets = len(graph_param.common.cat_exp)
 
         # TODO refactor this
         if num_facets == 0:
-            data = get_data_for_target_var_without_facets(agg_df, graph_param, is_real_data, target_var, sorted_colors)
-            modified_agp_obj = {DATA: data, CAT_EXP_BOX: [], FMT: gen_ticks_format(data)}
+            data, array_y = get_data_for_target_var_without_facets(agg_df, graph_param, is_real_data, target_var, sorted_colors)
+            modified_agp_obj = {
+                DATA: data,
+                CAT_EXP_BOX: [],
+                FMT: gen_ticks_format(data),
+                ARRAY_Y: array_y,
+                ARRAY_X: array_y,
+                UNIQUE_COLOR: sorted_colors
+            }
             col_info = copy.deepcopy(general_col_info)
             col_info.update(modified_agp_obj)
             plot_data.append(col_info)
@@ -161,12 +234,15 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam) -> List[Dict[A
             # TODO: remove hard code level=0
             facets = agg_df.index.unique(level=0)
             for facet in facets:
-                data = get_data_for_target_var_without_facets(agg_df.xs(facet), graph_param, is_real_data,
+                data, array_y = get_data_for_target_var_without_facets(agg_df.xs(facet), graph_param, is_real_data,
                                                               target_var, sorted_colors)
                 modified_agp_obj = {
                     DATA: data,
                     CAT_EXP_BOX: [facet],
-                    FMT: gen_ticks_format(data)
+                    FMT: gen_ticks_format(data),
+                    ARRAY_Y: array_y,
+                    ARRAY_X: array_y,
+                    UNIQUE_COLOR: sorted_colors
                 }
                 col_info = copy.deepcopy(general_col_info)
                 col_info.update(modified_agp_obj)
@@ -181,21 +257,24 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam) -> List[Dict[A
                 for facet2 in facets2:
                     try:
                         sub_sub_df = sub_df.xs(facet2)
-                        data = get_data_for_target_var_without_facets(sub_sub_df, graph_param, is_real_data,
+                        data, array_y = get_data_for_target_var_without_facets(sub_sub_df, graph_param, is_real_data,
                                                                       target_var, sorted_colors)
                     except KeyError:
                         data = []
 
                     modified_agp_obj = {
                         DATA: data,
+                        ARRAY_Y: array_y,
+                        ARRAY_X: array_y,
                         CAT_EXP_BOX: [facet1, facet2],
-                        FMT: gen_ticks_format(data)
+                        FMT: gen_ticks_format(data),
+                        UNIQUE_COLOR: sorted_colors
                     }
                     col_info = copy.deepcopy(general_col_info)
                     col_info.update(modified_agp_obj)
                     plot_data.append(col_info)
 
-    return plot_data
+    return plot_data, str_cols
 
 
 def get_div_col_name(graph_param: DicParam) -> str:
@@ -206,7 +285,7 @@ def get_div_col_name(graph_param: DicParam) -> str:
         Column name which we will use to groupby final result.
     """
     div_col_name = DIVIDE_FMT_COL
-    if graph_param.common.divide_format is None:
+    if graph_param.common.compare_type == RL_CATEGORY:
         div_col_name = CfgProcessColumn.gen_label_from_col_id(graph_param.common.div_by_cat)
     return div_col_name
 
@@ -278,28 +357,36 @@ def get_data_for_target_var_without_facets(df: pd.DataFrame, graph_param: DicPar
 
     color_id = graph_param.get_color_id(target_var)
 
+    full_array_y = []
+
     def gen_trace_data(sub_df: pd.DataFrame, col_name: str) -> Dict[str, Any]:
+        y = list(sub_df[target_col_name].values)
+
         trace_data = {
             'x': sub_df[target_col_name].index.tolist(),
-            'y': list(sub_df[target_col_name].values),
+            'y': y,
             COL_DETAIL_NAME: col_name,
             COL_TYPE: chart_type,
         }
         if is_real_data:
             # TODO: set `mode` in constant
             trace_data['mode'] = chart_type
-        return trace_data
+        return trace_data, y
 
     if color_id is None:
-        plot_data = [gen_trace_data(df, target_col.name)]
+        data, array_y = gen_trace_data(df, target_col.name)
+        full_array_y += array_y if is_real_data else []
+        plot_data = [data]
     else:
         plot_data = []
         for color in sorted_colors:
             try:
-                plot_data.append(gen_trace_data(df.xs(color), color))
+                data, array_y = gen_trace_data(df.xs(color), color)
+                full_array_y += array_y if is_real_data else []
+                plot_data.append(data)
             except KeyError:
                 pass
-    return plot_data
+    return plot_data, full_array_y
 
 
 @log_execution_time()
@@ -354,8 +441,8 @@ def get_agg_lamda_func(df: DataFrameGroupBy, target_var, agg_func_name) -> pd.Da
         agg_params = {target_var: lambda x: agg_func_with_na(x, agg_func_name)}
         agg_df = df.agg(agg_params)
     elif agg_func_name == HMFunction.iqr.name:
-        # iqr
-        agg_df = df.agg(func=iqr, nan_policy='omit')
+        agg_df = df.agg(func=iqr)
+        agg_df = agg_df.dropna()
     elif agg_func_name == HMFunction.range.name:
         agg_params = {target_var: range_func}
         agg_df = df.agg(agg_params)

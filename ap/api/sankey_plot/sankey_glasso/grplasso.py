@@ -77,7 +77,7 @@ def preprocess_skdpage(X,
     # detect binary data
     is_binary = False
     y = y.flatten()
-    if isinstance(y[0], int):
+    if np.issubdtype(type(y[0]), np.integer):
         uniq_vals = np.unique(y)
         if len(uniq_vals) == 2:
             is_binary = True
@@ -217,10 +217,12 @@ def fit_grplasso(X, y, grps, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_b
     for i, rho in enumerate(penalty_factors):
         if is_binary:
             gl = LogisticGroupLasso(group_reg=rho, **params)
+            gl.fit(X, y)
+            coef_history[i, :] = gl.coef_[:, 1].flatten() - gl.coef_[:, 0].flatten()
         else:
             gl = GroupLasso(group_reg=rho, frobenius_lipschitz=False, **params)
-        gl.fit(X, y)
-        coef_history[i, :] = gl.coef_.flatten()
+            gl.fit(X, y)
+            coef_history[i, :] = gl.coef_.flatten()
         bic[i] = calc_bic(gl.predict(X).flatten(), y, gl.coef_)
 
         if verbose:

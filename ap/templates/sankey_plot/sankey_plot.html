@@ -14,7 +14,7 @@
 		{{ macros.cond_proc(width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
 		<br class="graph-navi graph-navi-top-down">
 		<div class="show-graph-div d-flex justify-content-center align-items-center" style="text-align: center;">
-			{{ macros.preprocess_options(objExp=True) }}
+			{{ macros.preprocess_options(objExp=True, outlierDefault='Op1') }}
 			<button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
 					onClick="sankeyTraceData();" class="btn btn-primary show-graph ml-3"><i
 				class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>

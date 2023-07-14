@@ -5,7 +5,7 @@
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 18;
-const MAX_END_PROC = 18;
+const MAX_NUMBER_OF_SENSOR = 18;
 tabID = null;
 let currentData = null;
 const graphStore = new GraphStore();
@@ -29,6 +29,9 @@ const eles = {
     CATE: 'cate',
     SPLITTER: '|',
     contextMenu: '#contextMenuHeatmap',
+    // color scale option in CHM
+    colorReal: $('select[name=color_real]'),
+    colorCat: $('select[name=color_cat]'),
 };
 
 const i18n = {
@@ -96,10 +99,6 @@ const formElements = {
     heatmapScale: $('select[name=heatmapScale]'),
     resultSection: $('.result-section'),
 };
-
-
-const colorPalettes = [['0', '#18324c'], ['0.2', '#204465'], ['0.4', '#2d5e88'],
-    ['0.6', '#3b7aae'], ['0.8', '#56b0f4'], ['1', '#6dc3fd']];
 
 // maximum number of processes is 10.
 const procColorPalettes = ['#6495ab', '#9d9a53', '#ae6e54', '#603567',
@@ -177,22 +176,6 @@ $(() => {
     initializeDateTimeRangePicker();
 });
 
-const heatmapScale = () => {
-    const set = (scale = 'common') => {
-        localStorage.setItem('heatmapScale', scale);
-        return scale;
-    };
-    const get = () => {
-        const isCommonScale = localStorage.getItem('heatmapScale');
-        return isCommonScale || 'auto';
-    };
-    const reset = () => {
-        localStorage.removeItem('heatmapScale');
-        return null;
-    };
-    return { set, get, reset };
-};
-
 const bindScaleEvent = () => {
     // bind showing context menu event
     $('body').on('contextmenu', formElements.plotCardId, (e) => {
@@ -204,7 +187,6 @@ const bindScaleEvent = () => {
     formElements.heatmapScale.change((e) => {
         const scaleOption = e.currentTarget.value;
         // set scale option to draw in next time
-        heatmapScale().set(scaleOption);
         drawHeatMap(currentData, scaleOption);
     });
 };
@@ -365,8 +347,11 @@ const addStratifiedVarBox = (values, displayNames) => {
 
 const showHeatMap = (clearOnFlyFilter = true) => {
     requestStartedAt = performance.now();
-    const isValid = checkValidations({ max: MAX_END_PROC });
+    const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
     updateStyleOfInvalidElements();
+    if (clearOnFlyFilter) {
+        formElements.heatmapScale.val('auto');
+    }
     if (isValid) {
         // close sidebar
         beforeShowGraphCommon(clearOnFlyFilter);
@@ -407,7 +392,10 @@ const countNumberProc = (formData) => {
     return numProc;
 };
 
-const collectInputAsFormData = (clearOnFlyFilter) => {
+const collectInputAsFormData = (clearOnFlyFilter, autoUpdate = false) => {
+    if (autoUpdate) {
+        return genDatetimeRange(lastUsedFormData);
+    }
     const traceForm = $(formElements.formID);
     let formData = new FormData(traceForm[0]);
     if (clearOnFlyFilter) {
@@ -433,9 +421,9 @@ const collectInputAsFormData = (clearOnFlyFilter) => {
     return formData;
 };
 
-const queryDataAndShowHeatMap = (clearOnFlyFilter = true) => {
+const queryDataAndShowHeatMap = (clearOnFlyFilter = true, autoUpdate = false) => {
 
-    let formData = collectInputAsFormData(clearOnFlyFilter);
+    let formData = collectInputAsFormData(clearOnFlyFilter, autoUpdate);
 
     showGraphCallApi('/ap/api/chm/plot', formData, REQUEST_TIMEOUT, async (res) => {
         afterShowCHM();
@@ -443,9 +431,9 @@ const queryDataAndShowHeatMap = (clearOnFlyFilter = true) => {
         currentData = res;
         graphStore.setTraceData(_.cloneDeep(res));
 
-        const getHeatmapScale = heatmapScale().get();
-        formElements.heatmapScale.val(getHeatmapScale);
-        drawHeatMap(res, getHeatmapScale);
+        const scale = formElements.heatmapScale.val();
+
+        drawHeatMap(res, scale, autoUpdate);
 
         // show info table
         showInfoTable(res);
@@ -463,9 +451,7 @@ const queryDataAndShowHeatMap = (clearOnFlyFilter = true) => {
 
         checkAndShowToastr(res, clearOnFlyFilter);
 
-        longPolling(formData, () => {
-            queryDataAndShowHeatMap(true);
-        });
+        setPollingData(formData, queryDataAndShowHeatMap, [false, true]);
     });
 };
 
@@ -507,6 +493,8 @@ const checkAndShowToastr = (data, clearOnFlyFilter) => {
 
 
 const drawHeatMapFromPlotData = (canvasId, plotData) => {
+    const colorSelectDOM = plotData.data_type == DataTypes.REAL.name ? eles.colorReal : eles.colorCat;
+    const colorOption = colorSelectDOM.val();
     const prop = {
         canvasId,
         x: plotData.x,
@@ -523,8 +511,10 @@ const drawHeatMapFromPlotData = (canvasId, plotData) => {
         yTickvals: plotData.y_tickvals,
         xTicktext: plotData.x_ticktext,
         xTickvals: plotData.x_tickvals,
-        colorScale: colorPalettes,
+        colorOption,
+        dataType: plotData.data_type,
         zFmt: plotData.z_fmt || '',
+        colorScaleCommon: plotData.color_scale_common || false
     };
 
     createHeatMap(prop);
@@ -539,13 +529,14 @@ const createRowHTML = (length) => {
     $('.ui-sortable').sortable({});
 };
 
-const createCardHTML = (graphId, title, facet) => {
+const createCardHTML = (graphId, title, facet, isCTCol) => {
+    const CTLabel = isCTCol ? ` (${DataTypes.DATETIME.short}) [sec]` : ''
     $('#plot-card-row').append(`
         <div class="col-xl-4 col-lg-6 col-sm-6 col-12" style="padding: 4px">
             <div class="chm-col d-flex dark-bg">
                 <div class="chm-card-title-parent">
                     <div class="chm-card-title">
-                        <span title="${title}">${title}</span>
+                        <span title="${title}">${title}${CTLabel}</span>
                         ${facet ? `<span class="show-detail cat-exp-box" title="${facet}">${facet}</span>` : ''}
                     </div>
                 </div>
@@ -601,11 +592,12 @@ const setCommonScale = (data, minZ, maxZ) => {
         for (const plotData of plotDatas) {
             plotData.z_min = minZ;
             plotData.z_max = maxZ;
+            plotData.color_scale_common = true;
         }
     }
 };
 
-const drawHeatMap = (orgData, scaleOption = 'auto') => {
+const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
     const data = _.cloneDeep(orgData); // if slow, change
     if (!data) {
         return;
@@ -628,6 +620,7 @@ const drawHeatMap = (orgData, scaleOption = 'auto') => {
         const sensorId = plotData.end_col;
         const column = cfgProcess.getColumnById(sensorId);
         const sensorName = column.name || sensorId;
+        const isCTCol = column.data_type === DataTypes.DATETIME.name;
 
         const cateValue = plotData.cate_value;
         let facetTitle = '';
@@ -639,7 +632,7 @@ const drawHeatMap = (orgData, scaleOption = 'auto') => {
             }
             title = `${cfgProcess.name}-${sensorName}`;
         }
-        return [title, sensorName, cateValue, facetTitle];
+        return [title, sensorName, cateValue, facetTitle, isCTCol];
     };
 
     const [minZ, maxZ] = getCommonScale(data);
@@ -656,12 +649,12 @@ const drawHeatMap = (orgData, scaleOption = 'auto') => {
         }
         for (const idx in procPlotData) {
             const plotData = procPlotData[idx];
-            const [title, sensorName, cardValue, facet] = buildGraphTitle(plotData, procId);
+            const [title, sensorName, cardValue, facet, isCTCol] = buildGraphTitle(plotData, procId);
             plotData.sensorName = sensorName;
             plotData.title = title;
             plotData.cardValue = cardValue;
 
-            createCardHTML(plotIdx, title, facet);
+            createCardHTML(plotIdx, title, facet, isCTCol);
 
             // draw heat map
             const plotContainerId = `chm_${plotIdx}`;
@@ -674,9 +667,11 @@ const drawHeatMap = (orgData, scaleOption = 'auto') => {
         }
     }
 
-    $('html, body').animate({
-        scrollTop: formElements.plotCard.offset().top,
-    }, 500);
+    if (!autoUpdate) {
+        $('html, body').animate({
+            scrollTop: formElements.plotCard.offset().top,
+        }, 500);
+    }
 
     // init filter modal
     fillDataToFilterModal(orgData.catExpBox, [], orgData.cat_on_demand, [], [], () => {
@@ -686,16 +681,9 @@ const drawHeatMap = (orgData, scaleOption = 'auto') => {
 
 
 const selectHeatmapMenu = (scaleOption) => {
-    const currentScale = formElements.heatmapScale.val();
-    if (scaleOption === currentScale) {
-        console.log('NO UPDATE');
-        return;
-    }
-    heatmapScale().set(scaleOption);
-
-    formElements.heatmapScale.val(scaleOption);
     drawHeatMap(currentData, scaleOption);
 
+    formElements.heatmapScale.val(scaleOption);
     hideContextMenu();
 };
 

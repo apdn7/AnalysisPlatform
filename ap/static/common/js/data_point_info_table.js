@@ -324,5 +324,9 @@ $(() => {
             $(`#${dpInfoCons.domID}`).hide();
             isInHoverInfo = false;
         }
+
+        if (!e.target.closest('context-menu')) {
+            $('.context-menu').hide();
+        }
     });
 });

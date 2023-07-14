@@ -18,6 +18,7 @@
       "common/js/libs/bootstrap-table-filter-control.min.js",
       "common/js/libs/bootstrap-table-locale-all.min.js",
       "common/js/libs/html2canvas.min.js",
+      "common/js/modern_screenshot.js",
       "common/js/take_screenshot.js",
       "common/js/libs/plotly.min.js",
       "common/js/libs/toastr.min.js",
@@ -211,6 +212,18 @@
     ],
     "css": [
       "aggregate_plot/css/aggregate_plot.css"
+    ]
+  },
+  "gl": {
+    "js": [
+      "analyze/js/graphical_lasso.js",
+      "common/js/libs/sigma.min.js",
+      "common/js/libs/sigma.plugins.dragNodes.min.js",
+      "common/js/libs/sigma.renderers.edgeLabels.min.js",
+      "analyze/js/graphical_lasso_sigma.js"
+    ],
+    "css": [
+      "analyze/css/graphical_lasso.css"
     ]
   }
 }

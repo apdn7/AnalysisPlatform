@@ -16,7 +16,7 @@ const clearOldScreenShot = () => {
     el.attr('download', null);
 
     // clear old setting information
-    $('#stContentTab .setting-inform-content').empty();
+    hideInfoContent();
 };
 
 const addSettingContentInfor = () => {
@@ -33,6 +33,9 @@ const addSettingContentInfor = () => {
 };
 
 const copyImageToClipboard = async (isFullPage = false) => {
+    if (isFullPage) {
+        $('#export-dropdown').removeClass('show');
+    }
     isRemoveCrosshair = false;
 
     loadingShow();
@@ -47,20 +50,16 @@ const copyImageToClipboard = async (isFullPage = false) => {
         [mainContent] = document.getElementsByClassName('plot-content');
     }
 
-    // create screenshot as canvas
-    await html2canvas(mainContent, {
-        scale: 1, logging: true, backgroundColor: '#222222',
-    }).then(async (canvas) => {
-        canvas.id = 'tsCanvas';
-        const response = await fetch(canvas.toDataURL());
-        const blob = await response.blob();
-        if (askWritePermission) {
-            setToClipboard(blob);
+    const currentPageName = window.location.pathname;
+    try {
+        if (['CHM'].includes(objTitle[currentPageName].title)) {
+            CHMCapture().copy(mainContent);
+        } else {
+            defaultCapture().copy(mainContent);
         }
-        loadingHide();
-    });
-
-    hideInfoContent();
+    }  catch (err) {
+        defaultCapture().copy(mainContent);
+    }
 };
 
 const handleTakeScreenShot = () => {
@@ -113,23 +112,12 @@ const takeScreenShot = async (isFullPage = true) => {
     if (!isFullPage) {
         [mainContent] = document.getElementsByClassName('plot-content');
     }
-    // create screenshot as canvas
-    await html2canvas(mainContent, {
-        scale: 1, logging: true, backgroundColor: '#222222',
-    }).then((canvas) => {
-        canvas.id = 'tsCanvas';
-        document.getElementById('screenshot').appendChild(canvas);
-    });
 
-    // generate filename
-    const filename = `${generateDefaultNameExport()}.png`;
-    $('#screenshotFilename').val(filename);
-    $('#screenshotModal').modal('show');
-
-    hideInfoContent();
+    captureImage(mainContent);
 };
 
 const hideInfoContent = () => {
+    console.log('clear content');
     $('#stContentTab .setting-inform-content').html('');
     $('#stContentTab').hide();
 };
@@ -137,22 +125,136 @@ const hideInfoContent = () => {
 const showLoadingIcon = () => {
     $('.download-timeout').toggleClass('hide');
 };
+
+const defaultCapture = () => {
+    const generator = async (mainContent) => {
+        // create screenshot as canvas
+        await html2canvas(mainContent, {
+            scale: 1, logging: true, backgroundColor: '#222222',
+        }).then((canvas) => {
+            canvas.id = 'tsCanvas';
+            document.getElementById('screenshot').appendChild(canvas);
+        });
+
+        // generate filename
+        const filename = `${generateDefaultNameExport()}.png`;
+        $('#screenshotFilename').val(filename);
+        $('#screenshotModal').modal('show');
+
+        hideInfoContent();
+    };
+    const download = () => {
+        const screenshot = document.getElementById('screenshot').querySelectorAll('canvas')[0];
+        const targetLink = document.createElement('a');
+        if (screenshot) {
+            const filename = $('#screenshotFilename').val();
+            targetLink.setAttribute('download', filename);
+            targetLink.href = screenshot.toDataURL();
+        }
+        return targetLink;
+        hideInfoContent();
+    };
+    const copy = async (mainContent) => {
+        // create screenshot as canvas
+        await html2canvas(mainContent, {
+            scale: 1, logging: true, backgroundColor: '#222222',
+        }).then(async (canvas) => {
+            canvas.id = 'tsCanvas';
+            const response = await fetch(canvas.toDataURL());
+            const blob = await response.blob();
+            if (askWritePermission) {
+                setToClipboard(blob);
+            }
+            loadingHide();
+            hideInfoContent();
+        });
+    };
+    return {
+        generator,
+        download,
+        copy,
+    }
+
+};
+const CHMCapture = () => {
+    const generator = (mainContent) => {
+        $('.select2-selection__rendered').css('margin-right', '50px');
+        modernScreenshot.domToPng(mainContent).then(dataUrl => {
+            document.getElementById('screenshot').setAttribute('data-url', dataUrl);
+            // generate filename
+            const filename = `${generateDefaultNameExport()}.png`;
+            $('#screenshotFilename').val(filename);
+            $('#screenshotModal').modal('show');
+            $('.select2-selection__rendered').css('margin-right', '0');
+
+            hideInfoContent();
+        });
+    }
+    const download = () => {
+        const screenshot = document.getElementById('screenshot').getAttribute('data-url');
+        const targetLink = document.createElement('a');
+        if (screenshot) {
+            const filename = $('#screenshotFilename').val();
+            targetLink.setAttribute('download', filename);
+            targetLink.href = screenshot;
+        }
+        hideInfoContent();
+        return targetLink;
+    };
+    const copy = async (mainContent) => {
+        $('.select2-selection__rendered').css('margin-right', '50px');
+        modernScreenshot.domToPng(mainContent).then(async (dataUrl) => {
+            $('.select2-selection__rendered').css('margin-right', '0');
+            const response = await fetch(dataUrl);
+            const blob = await response.blob();
+            if (askWritePermission) {
+                setToClipboard(blob);
+            }
+            loadingHide();
+            hideInfoContent();
+        });
+    };
+    return {
+        generator,
+        download,
+        copy,
+    }
+};
+
+const captureImage = (mainContent) => {
+    const currentPageName = window.location.pathname;
+    try {
+        if (['CHM'].includes(objTitle[currentPageName].title)) {
+            CHMCapture().generator(mainContent);
+        } else {
+            defaultCapture().generator(mainContent);
+        }
+    }  catch (err) {
+        defaultCapture().generator(mainContent);
+    }
+};
+
+const downloadImage = () => {
+    let targetLink;
+    const currentPageName = window.location.pathname;
+    try {
+        if (['CHM'].includes(objTitle[currentPageName].title)) {
+            targetLink = CHMCapture().download();
+        } else {
+            targetLink = defaultCapture().download();
+        }
+        return targetLink;
+    } catch (err) {
+        return defaultCapture().download();
+    }
+};
+
 // download image
 const downloadScreenshot = async (el) => {
     isRemoveCrosshair = false;
     showLoadingIcon();
-    const screenshot = document.getElementById('screenshot').querySelectorAll('canvas')[0];
-    const targetLink = document.createElement('a');
-    if (screenshot) {
-        const filename = $('#screenshotFilename').val();
-        targetLink.setAttribute('download', filename);
-        targetLink.href = screenshot.toDataURL();
-        // const response = await fetch(targetLink.href);
-        // const blob = await response.blob();
-        // if (askWritePermission) {
-        //     await setToClipboard(blob);
-        // }
-    }
+    const targetLink = downloadImage();
+    addSettingContentInfor();
     setTimeout(() => {
         targetLink.click();
         $('#screenshotModal').modal('hide');

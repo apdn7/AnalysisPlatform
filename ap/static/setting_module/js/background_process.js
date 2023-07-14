@@ -248,19 +248,26 @@ const filterJobFromLocal = (jobs) => {
 
 // custom formatShowingRows
 (function ($) {
+    // origin title: 全${totalRows}件から、${pageFrom}から${pageTo}件目まで表示しています
     $.fn.bootstrapTable.locales['ja-JP'] = {
-        formatShowingRows(pageFrom, pageTo, totalRows) {
-            return `全${totalRows}件のうち、${pageFrom}から${pageTo}件まで表示しています。`;
-        },
+        ...$.fn.bootstrapTable.locales['ja-JP'],
+        ...{
+            formatShowingRows(pageFrom, pageTo, totalRows) {
+                return `全${totalRows}件のうち、${pageFrom}から${pageTo}件まで表示しています。`;
+            },
+        }
     };
     $.fn.bootstrapTable.locales['en-US'] = {
-        formatShowingRows(pageFrom, pageTo, totalRows) {
-            return `Showing ${pageFrom} to ${pageTo} of all ${totalRows} rows.`;
-        },
+        ...$.fn.bootstrapTable.locales['en-US'],
+        ...{
+            formatShowingRows(pageFrom, pageTo, totalRows) {
+                return `Showing ${pageFrom} to ${pageTo} of all ${totalRows} rows.`;
+            },
+        }
     };
-
-    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['en-US-custom']);
+    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['en-US']);
 }(jQuery));
+
 
 $(() => {
     filterJobFromLocal(bgrdJobs);
@@ -276,14 +283,6 @@ $(() => {
             return sprintf('');
         },
     });
-
-    const source = openServerSentEvent();
-    source.addEventListener(serverSentEventType.jobRun, (event) => {
-        const msg = JSON.parse(event.data);
-        if (!_.isEmpty(msg)) {
-            filterJobFromLocal(msg);
-        }
-    }, false);
 
     $('#btnCopyToClipboard').on('click', () => copyToClipboard());
 

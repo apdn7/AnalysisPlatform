@@ -777,7 +777,6 @@ const initYearSelectors = (tableEl, startYear) => {
 
 // Service
 const getDataByType = async (from, to, type = calenderTypes.year, timeout = null) => {
-    setProcessID();
     if (!processId) {
         return {};
     }
@@ -804,11 +803,18 @@ const showDataFinderButton = (processId, btnParent) => {
     }
 };
 
-const setProcessID = () => {
+const setProcessID = async () => {
     const compareType = $('select[name=compareType]').val();
     const btnParent = compareType ? $(`#for-${compareType}`) : null;
     processId = getFirstSelectedProc();
     showDataFinderButton(processId, btnParent);
+    if (processId) {
+        if (procConfigs[processId] && procConfigs[processId].is_use_dummy_datetime) {
+           await changeDefaultIndexOrdering();
+        } else {
+            updateXOption(false);
+        }
+    }
 };
 
 const rangeCell = (type) => {

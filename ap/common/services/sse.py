@@ -1,5 +1,6 @@
 import json
 import queue
+from datetime import datetime
 from enum import Enum, auto
 from functools import wraps
 
@@ -18,13 +19,20 @@ class AnnounceEvent(Enum):
 
 
 class MessageAnnouncer:
+    FORCE_SECOND = 15
 
     def __init__(self):
-        self.listeners = []
+        self.dic_listeners = {}
 
-    def listen(self):
-        self.listeners.append(queue.Queue(maxsize=10))
-        return self.listeners[-1]
+    def add_uuid(self, uuid):
+        if uuid not in self.dic_listeners:
+            self.dic_listeners[uuid] = [None, queue.Queue(maxsize=100)]
+
+        self.dic_listeners[uuid][0] = datetime.utcnow()
+
+    def listen(self, uuid):
+        _, listener = self.dic_listeners.get(uuid)
+        return listener
 
     @staticmethod
     def format_sse(data, event=None) -> str:
@@ -42,11 +50,11 @@ class MessageAnnouncer:
         # We go in reverse order because we might have to delete an element, which will shift the
         # indices backward
         msg = self.format_sse(data, event)
-        for i in reversed(range(len(self.listeners))):
+        for uuid, (_, listener) in self.dic_listeners.items():
             try:
-                self.listeners[i].put_nowait(msg)
+                listener.put_nowait(msg)
             except queue.Full:
-                del self.listeners[i]
+                del self.dic_listeners[uuid]
 
 
 # background job status
@@ -67,5 +75,7 @@ def notify_progress(percent):
                 raise e
 
             return result
+
         return wrapper
+
     return decorator

@@ -117,7 +117,7 @@
 {% endmacro %}
 
 <!-- datetime_range_picker -->
-{% macro datetime_range_picker(name, label='', id='', noCoverDiv=False, isShowTimePicker=True, isSetDefaultValue=True, dtClassName='', isShowRecentDates=True) %}
+{% macro datetime_range_picker(name, label='', id='', noCoverDiv=False, isShowTimePicker=True, isSetDefaultValue=True, dtClassName='', isShowRecentDates=True, focus='') %}
     {% if noCoverDiv == False %}
     <div class="row">{% endif %}
         {% if label != '' %}
@@ -130,7 +130,7 @@
         {% endif %}
         {% if noCoverDiv == False %}
         <div class="col-sm-{{ col }}">{% endif %}
-            <input {% if id != '' %} id="{{ id }}" {% endif %} name="{{ name }}" type="text" value="" class="datetimepicker form-control {{dtClassName}}" is-show-time-picker="{{ isShowTimePicker }}" is-set-default-value="{{ isSetDefaultValue }}" is-show-recent-dates="{{ isShowRecentDates }}" autocomplete="off">
+            <input {% if id != '' %} id="{{ id }}" onfocus="{{focus}}" {% endif %} name="{{ name }}" type="text" value="" class="datetimepicker form-control {{dtClassName}}" is-show-time-picker="{{ isShowTimePicker }}" is-set-default-value="{{ isSetDefaultValue }}" is-show-recent-dates="{{ isShowRecentDates }}" autocomplete="off">
         {% if noCoverDiv == False %}
         </div>
     </div>{% endif %}
@@ -275,7 +275,7 @@
 
 
 <!-- end proc -->
-{% macro heatmap_end_proc(title='', procs=[], no_link_data=false, width=2, cat_count=true) %}
+{% macro heatmap_end_proc(title='', procs=[], no_link_data=false, width=2, cat_count=true, color_scale=false) %}
 	<div class="card-body table-bordered graph-navi">
 		<div class="row">
 			<div class="col-xl-{{ width }} col-3 d-flex flex-column">
@@ -284,24 +284,58 @@
 					{{ paste_btn() }}
 				</div>
 				<div class="mt-auto pl-3">
-					{{ sub_label(_('Real(Float)'), hl=' pb-0') }}
-					<select id="hmFunctionReal" class="form-control mb-2" name="function_real">
-						<option value="median">{{ _('CHMMedian') }}</option>
-						<option value="max">{{ _('CHMMax') }}</option>
-						<option value="mean">{{ _('CHMMean') }}</option>
-						<option value="min">{{ _('CHMMin') }}</option>
-						<option value="std">{{ _('CHMStd') }}</option>
-						<option value="range">{{ _('CHMRange') }}</option>
-						<option value="iqr">{{ _('IQR (Q3-Q1)') }}</option>
-                    </select>
+                    <div class="row">
+                        <div class="col">
+                            {{ sub_label(_('Real(Float)'), hl=' pb-0') }}
+                            <div class="d-flex justify-content-center">
+                            <select id="hmFunctionReal" class="form-control mb-2" name="function_real">
+                                <option value="median">{{ _('CHMMedian') }}</option>
+                                <option value="max">{{ _('CHMMax') }}</option>
+                                <option value="mean">{{ _('CHMMean') }}</option>
+                                <option value="min">{{ _('CHMMin') }}</option>
+                                <option value="std">{{ _('CHMStd') }}</option>
+                                <option value="range">{{ _('CHMRange') }}</option>
+                                <option value="iqr">{{ _('IQR (Q3-Q1)') }}</option>
+                            </select>
+                             {% if color_scale %}
+                            <select id="hmColorReal" class="form-control ml-2" name="color_real">
+                                    <option value="BLUE">{{ _('Blue') }}</option>
+                                    <option value="BLUE_REV">{{ _('Blue.Rev') }}</option>
+                                    <option value="JET">{{ _('Jet') }}</option>
+                                    <option value="JET_REV">{{ _('Jet.Rev') }}</option>
+                                    <option value="JET_ABS">{{ _('JetAbs') }}</option>
+                                    <option value="JET_ABS_REV">{{ _('JetAbs.Rev') }}</option>
+                            </select>
+                        {% endif %}
+                                </div>
+                        </div>
+
+                    </div>
                     {% if cat_count %}
-                        {{ sub_label(_('Cat.'), hl=' pb-0') }}
-                        <select id="hmFunctionCate" class="form-control" name="function_cate">
-                            <option value="count">{{ _('CHMCount') }}</option>
-                            <option value="count_per_hour">{{ _('CHMCountPerHour') }}</option>
-                            <option value="count_per_min">{{ _('CHMCountPerMin') }}</option>
-                            <option value="time_per_count">{{ _('CHMTimePerCount') }}</option>
-                        </select>
+                    <div class="row">
+                        <div class="col">
+                            {{ sub_label(_('Cat.'), hl=' pb-0') }}
+                            <div class="d-flex justify-content-center">
+                                <select id="hmFunctionCate" class="form-control" name="function_cate">
+                                    <option value="count">{{ _('CHMCount') }}</option>
+                                    <option value="count_per_hour">{{ _('CHMCountPerHour') }}</option>
+                                    <option value="count_per_min">{{ _('CHMCountPerMin') }}</option>
+                                    <option value="time_per_count">{{ _('CHMTimePerCount') }}</option>
+                                </select>
+                                {% if color_scale %}
+                                <select id="hmColorCate" class="form-control ml-2" name="color_cat">
+                                    <option value="BLUE">{{ _('Blue') }}</option>
+                                    <option value="BLUE_REV">{{ _('Blue.Rev') }}</option>
+                                    <option value="JET">{{ _('Jet') }}</option>
+                                    <option value="JET_REV">{{ _('Jet.Rev') }}</option>
+                                    <option value="JET_ABS">{{ _('JetAbs') }}</option>
+                                    <option value="JET_ABS_REV">{{ _('JetAbs.Rev') }}</option>
+                                </select>
+                                {% endif %}
+                                </div>
+                        </div>
+
+                    </div>
                     {% endif %}
                     <div class="mt-4">
                         {{ start_proc_select(procs, no_link_data=no_link_data) }}
@@ -553,12 +587,12 @@
 <!-- -->
 
 <!-- Graph range dropdown -->
-{% macro scale_option(name='yScaleGroup', label=_('Range of Y axis'), className='', onChange='') %}
+{% macro scale_option(name='yScaleGroup', label=_('Range of Y axis'), className='', onChange='', defaultOption='1') %}
     <div class="d-flex align-items-center ml-2 {{ className }}">
         <span class="mr-2">
             {{ label }}
         </span>
-         <select default-value="1" name="{{ name }}" onchange="{{onChange}}" class="form-control border-white w-auto scale-dropdown y-axis-scale">
+         <select default-value="{{ defaultOption }}" name="{{ name }}" onchange="{{onChange}}" class="form-control border-white w-auto scale-dropdown y-axis-scale">
             <option value="1">{{ _('Setting scale') }}</option>
             <option value="2">{{ _('Common scale') }}</option>
             <option value="3">{{ _('Threshold line') }}</option>
@@ -684,8 +718,8 @@
             <input class="custom-control-input {{commonClass}}" type="radio" name="{{name}}"
                    onchange="handleChangeInterval(this, 'recent-{{prefix}}')" id="{{prefix}}radioRecentInterval"
                    value="recent" {{ 'disabled' if disableLatest else '' }}>
-            <label class="custom-control-label" for="{{prefix}}radioRecentInterval" class="label-left">
-                <span class="sub-label">{{ _('Latest') }}</span>
+            <label class="custom-control-label" title="{{_('Select a unit of time and input value.')}}" for="{{prefix}}radioRecentInterval" class="label-left">
+                <span class="sub-label hint-text">{{ _('Latest') }}</span>
             </label>
         </div>
         <!-- switch content -->
@@ -708,17 +742,16 @@
                            name="recentTimeInterval"
                            value="24"
                            style="width: 30%" {{ 'disabled' if disableLatest else '' }}>
-                    <select class="form-control mr-2 {{commonClass}}" id="{{prefix}}timeUnit" name="timeUnit" style="width: 30%" {{ 'disabled' if disableLatest else '' }}>
-                        <option value="60">{{ _('hour') }}</option>
+                    <select class="form-control mr-2 {{commonClass}}" id="{{prefix}}timeUnit" onchange="handleTimeUnitOnchange(this)" name="timeUnit" style="width: 30%" {{ 'disabled' if disableLatest else '' }}>
                         {% if not cyclicCalender %}
-                        <option value="1">{{ _('minute') }}</option>
+                        <option data-key="minute" value="1">{{ _('minute') }}</option>
                         {% endif %}
-                        <option value="1440">{{ _('day') }}</option>
-                        <option value="10080">{{ _('week') }}</option>
-                        {% if cyclicCalender %}
-                        <option value="months">{{ _('Latest month') }}</option>
-                        <option value="years">{{ _('Latest year') }}</option>
-                        {% endif %}
+                        <option data-key="hour" value="60" selected>{{ _('hour') }}</option>
+
+                        <option data-key="day" value="1440">{{ _('day') }}</option>
+                        <option data-key="week" value="10080">{{ _('week') }}</option>
+                        <option data-key="month" value="months">{{ _('Latest month') }}</option>
+                        <option data-key="year" value="years">{{ _('Latest year') }}</option>
                     </select>
                     {% if showAutoUpdate %}
                         <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
@@ -793,16 +826,14 @@
     </div>
 {% endmacro %}
 
-{% macro multiple_target_period(rlp=False, dataNumber=false, scp=false, DivisionNumberHover='', WindowLengthHover=_('Window length Hover'), IntervalHover=_('Interval Hover'), cyclicTermDefault=30, cyclicCalender=False) %}
+{% macro multiple_target_period(rlp=False, dataNumber=false, scp=false, DivisionNumberHover='', WindowLengthHover=_('Window length Hover'), IntervalHover=_('Interval Hover'), cyclicTermDefault=120, cyclicCalender=False, cyclicIntervalDefault=0.5) %}
     <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
         <div class="d-flex align-items-center">
             <select class="form-control" id="divideOption" name="compareType" onchange="handleChangeDivideOption(this)" style="width: 200px">
                 {% if rlp %}
-                    <option value="category">{{ _("Divide by category") if not scp else _('Non-Divided / Divide by Category') }}</option>
-                    {% if not cyclicCalender %}
-                    <option value="cyclicTerm">{{ _('Divide by term (Cyclic)') }}</option>
-                    <option value="directTerm">{{_('Divide by term (Direct)')}}</option>
-                    {% endif %}
+                <option value="category">{{ _("Divide by category") if not scp else _('Non-Divided / Divide by Category') }}</option>
+                <option value="cyclicTerm" {{ 'selected' if rlp and not cyclicCalender and not scp }}>{{ _('Divide by term (Cyclic)') }}</option>
+                <option value="directTerm">{{_('Divide by term (Direct)')}}</option>
                 {% else %}
                     <option value="var">{{ _("Stratify by variables") }}</option>
                     <option value="cyclicTerm">{{ _('Stratify by term (Cyclic)') }}</option>
@@ -827,6 +858,7 @@
             </span>
         </div>
         <div class="mt-3">
+            {% set hidden = "display: none; visibility: hidden" %}
             <div id="for-{{'category' if rlp else 'var'}}" name="var-form">
                 {{start_proc_interval(name='varTraceTime1', commonClass='to-update-time-range')}}
             </div>
@@ -847,7 +879,7 @@
                         </label>
                     </div>
                     <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
-                        <input class="custom-control-input to-update-time-range" type="radio" name="cyclicTermTraceTime1" onchange="handleChangeInterval(this, 'cyclicCecent')" id="cyclicRecentInterval" value="recent">
+                        <input class="custom-control-input to-update-time-range" type="radio" name="cyclicTermTraceTime1" onchange="handleChangeInterval(this, 'cyclicRecent')" id="cyclicRecentInterval" value="recent">
                         <label class="custom-control-label" for="cyclicRecentInterval" class="label-left">
                             <span class="sub-label">{{ _('Latest') }}</span>
                         </label>
@@ -862,7 +894,7 @@
                                     style="position: absolute; top: 60px; right: 7px; display: none"
                                     class="btn btn-sm btn-primary">Data finder</button>
                         </div>
-                        <div id="for-cyclicCecent" style="display: none">
+                        <div id="for-cyclicRecent" style="display: none">
                             <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
                                 <input type="checkbox" name="autoUpdateInterval" value="1" class="custom-control-input" id="CyclicAutoUpdateInterval">
                                 <label class="custom-control-label" for="CyclicAutoUpdateInterval">{{_('Auto Update')}}</label>
@@ -887,7 +919,7 @@
                         <label class="mr-2 mb-0" title="{{ IntervalHover }}">
                             <span class="hint-text sub-label">{{ _('Interval') }} [hour]</span>
                         </label>
-                        <input type="text" class="form-control to-update-time-range" id="cyclicTermInterval" style="max-width: 80px" name="cyclicTermInterval" value="1">
+                        <input type="text" class="form-control to-update-time-range" id="cyclicTermInterval" style="max-width: 80px" name="cyclicTermInterval" value="{{ cyclicIntervalDefault }}">
                     </div>
                 </div>
             </div>
@@ -916,7 +948,7 @@
                         </div>
                         {% for i in range(2,9) %}
                             <div class="datetimerange-group d-flex align-items-center">
-                                {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker' + i|string ,noCoverDiv=True, isSetDefaultValue=False, dtClassName='to-update-time-range') }}
+                                {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker' + i|string ,noCoverDiv=True, isSetDefaultValue=False, dtClassName='to-update-time-range', focus='handleOnfocusEmptyDatetimeRange(this)') }}
                                 <input id="startDate{{i}}" class="datepicker hasdatepicker form-control category-plot-time"
                                        data-date-format="yyyy-mm-dd" name="START_DATE" type="text" hidden>
                                 <input name="START_TIME" class="form-control" id="startTime{{i}}" type="text" hidden>
@@ -1096,13 +1128,13 @@
 	</div>
 {% endmacro %}
 <!-- Data Preprocess Options -->
-{% macro preprocess_options(exception=True, outlier=True, pulsed=True, chmTitle='', dup=True, objExp=False) %}
+{% macro preprocess_options(exception=True, outlier=True, pulsed=True, isRealOnlyMsg='', dup=True, objExp=False, outlierDefault='O6m') %}
 	{% set cleansing_option = [] %}
 	{% if exception==True %}
 		{% set t = cleansing_option.append("E") %}
 	{% endif %}
 	{% if outlier==True %}
-		{% set t = cleansing_option.append("O") %}
+		{% set t = cleansing_option.append(outlierDefault) %}
 	{% endif %}
 	{% if pulsed==True %}
 		{% set t = cleansing_option.append("P") %}
@@ -1131,9 +1163,13 @@
 			</div>
             {% if objExp %}
             <div class="my-1">
-                 <label class="mb-1 hint-text">
-                     <span title="{{ _('Remove outlier hover msg') }}">Outlier(Trim)</span>
-                 </label>
+                <div class="d-flex justify-content-between align-items-center">
+                    <label class="mb-1 hint-text">
+                     <span title="{{ _('Remove outlier hover msg') }}">Outlier</span>
+                    </label>
+                    {{  outlier_option(outlierDefault) }}
+                </div>
+
                 <div class="pl-2">
                      <div class="custom-control custom-checkbox">
                         <input class="custom-control-input" id="remove_outlier_objective_var" type="checkbox"
@@ -1152,14 +1188,20 @@
                 </div>
             </div>
             {% else %}
-			<div class="custom-control custom-checkbox">
-				<input class="custom-control-input" id="outlier-input" type="checkbox"
-					 value="1"  show-value="O" name="remove_outlier" onchange="updateCleansing(this)" {% if outlier==True %}checked="checked"{% endif %}>
-				<label class="custom-control-label hint-text" for="outlier-input">
-					<span title="{{ _('Remove outlier hover msg') }}
-{{chmTitle}}">Outlier(Trim)</span>
-				</label>
-			</div>
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="custom-control custom-checkbox">
+                    <input class="custom-control-input" id="outlier-input" type="checkbox"
+                         value="1"  show-value="O" name="remove_outlier" onchange="updateCleansing(this)" {% if outlier==True %}checked="checked"{% endif %}>
+                    <label class="custom-control-label hint-text" for="outlier-input">
+                        <span title="{{ _('Remove outlier hover msg') }}
+{{isRealOnlyMsg}}">Outlier</span>
+                    </label>
+                </div>
+                {% if isRealOnlyMsg %}
+                <input type="checkbox" checked value="1" name="is_remove_outlier_real_only" hidden>
+                {% endif %}
+                {{ outlier_option(outlierDefault) }}
+             </div>
             {% endif %}
 			<div class="custom-control custom-checkbox">
 				<input class="custom-control-input" id="pulsed-input" type="checkbox"
@@ -1174,7 +1216,7 @@
                     <label class="mr-2 hint-text">
                         <span title="{{ _('Duplicate serial hover message') }}">Dup</span>
                     </label>
-                    <select onchange="updateCleansing(this)" class="form-control border-white" name="duplicated_serial" style="width: 80px; height: 30px; padding: 3px">
+                    <select onchange="updateCleansing(this)" class="form-control border-white" name="duplicated_serial" style="width: 84px; height: 30px; padding: 3px">
                         <option selected value="all" show-value="Da">All</option>
                         <option value="first" show-value="Df">First</option>
                         <option value="last" show-value="Dl">Last</option>
@@ -1184,7 +1226,7 @@
                         <label class="mr-2 hint-text">
                             <span title="{{ _('Dup check message') }}">Dup check</span>
                         </label>
-                        <select onchange="updateCleansing(this)" class="form-control border-white" name="dup_check" style="width: 80px; height: 30px; padding: 3px">
+                        <select onchange="updateCleansing(this)" class="form-control border-white" name="dup_check" style="width: 84px; height: 30px; padding: 3px">
                             <option selected value="auto" show-value="a">Auto</option>
                             <option value="check" show-value="c">Check</option>
                             <option value="silent" show-value="s">Skip</option>
@@ -1195,6 +1237,22 @@
 	</div>
 {% endmacro %}
 <!-- -->
+
+{% macro outlier_option(defaultValue='O6m') %}
+<select onchange="updateCleansing(this)" class="form-control border-white" name="remove_outlier_type" style="width: 101px; height: 30px; padding: 3px">
+    <option value="Op1" show-value="p1" {% if defaultValue=='Op1' %}selected="selected"{% endif %}>P1-P99</option>
+    <option value="Op5" show-value="p5" {% if defaultValue=='Op5' %}selected="selected"{% endif %}>P5-P95</option>
+    <option value="O4m" show-value="4m" {% if defaultValue=='O4m' %}selected="selected"{% endif %}>4IQR-Major</option>
+    <option value="O4i" show-value="4i" {% if defaultValue=='O4i' %}selected="selected"{% endif %}>4IQR-Minor</option>
+    <option value="O4u" show-value="4u" {% if defaultValue=='O4u' %}selected="selected"{% endif %}>4IQR-Upper</option>
+    <option value="O4l" show-value="4l" {% if defaultValue=='O4l' %}selected="selected"{% endif %}>4IQR-Lower</option>
+    <option value="O6m" show-value="6m" {% if defaultValue=='O6m' %}selected="selected"{% endif %}>6IQR-Major</option>
+    <option value="O6i" show-value="6i" {% if defaultValue=='O6i' %}selected="selected"{% endif %}>6IQR-Minor</option>
+    <option value="O6u" show-value="6u" {% if defaultValue=='O6u' %}selected="selected"{% endif %}>6IQR-Upper</option>
+    <option value="O6l" show-value="6l" {% if defaultValue=='O6l' %}selected="selected"{% endif %}>6IQR-Lower</option>
+</select>
+{% endmacro %}
+
 
 {% macro summary_option(prefix='', divId='summaryMenu', buttonId='summarySelectBtn', optionName='summaryOption', cl='') %}
     <div id="{{divId}}" class="summary-menu {{cl}}">
@@ -1232,7 +1290,7 @@
     </div>
 {% endmacro %}
 
-{% macro graph_select_box(id='', name='', label='', values=[], texts=[], selectedIndex=1, cl='', onChange='', defaultValue='', customSelect=False) %}
+{% macro graph_select_box(id='', name='', label='', values=[], texts=[], selectedValue='', cl='', onChange='', defaultValue='', customSelect=False) %}
     <div class="d-flex align-items-center {{ cl }}">
         <span class="mr-2">
             {{label}}
@@ -1242,7 +1300,7 @@
         {% endif %}
         <select name="{{ name }}" default-value="{{defaultValue}}" id="{{id}}" onchange="{{onChange}}" class="form-control border-white w-auto scale-dropdown">
             {% for value in values %}
-                <option value="{{value}}" {{ 'selected' if selectedIndex==i else '' }}>{{ texts[loop.index0] }}</option>
+                <option value="{{value}}" {{ 'selected' if selectedValue==value else '' }}>{{ texts[loop.index0] }}</option>
             {% endfor %}
         </select>
          {% if customSelect %}
@@ -1267,30 +1325,30 @@
 		<span class="mr-2">{{ _('Order') }}</span>
 		<div class="custom-selection-section">
 			<div class="custom-selection border-white" id="ordering-selection">
-				<span id="ordering-name">{{ _('In set order') }}</span>
+				<span id="ordering-name">{{ _('In order of corr') }}</span>
 				<span class="selection__arrow"><b></b></span>
 			</div>
 			<div class="custom-selection-content" id="ordering-content">
 				<div class="form-check">
 					<label class="form-check-label" for="sort-by-setting">
-						<input default-Value="setting" class="form-check-input" id="sort-by-setting" type="radio" name="sort_by" value="setting"
-							   checked="" data-action="reload">
+						<input default-Value="correlation" class="form-check-input" id="sort-by-setting" type="radio" name="sort_by" value="setting"
+							    data-action="reload">
 						<span>{{ _('In set order') }}</span>
 					</label>
 				</div>
 				<div class="form-check">
 					<label class="form-check-label" for="sort-by-proc">
-						<input class="form-check-input" default-Value="setting" id="sort-by-proc" type="radio" name="sort_by" value="process"
+						<input class="form-check-input" default-Value="correlation" id="sort-by-proc" type="radio" name="sort_by" value="process"
 							   data-action="reload">
 						<span>{{ _('In process order') }}</span>
 					</label>
 				</div>
 				<div class="form-check">
 					<label class="form-check-label" for="sort-by-corr">
-						<input class="form-check-input" default-Value="setting" id="sort-by-corr" type="radio" name="sort_by"
+						<input class="form-check-input" default-Value="correlation" id="sort-by-corr" type="radio" name="sort_by"
 							   value="correlation"
-							   data-action="reload">
-						<span>{{ _('In order of corr.') }}</span>
+							   checked data-action="reload">
+						<span>{{ _('In order of corr') }}</span>
 					</label>
 					<!-- 閾値 -->
 					<div>
@@ -1298,7 +1356,7 @@
 					</div>
 					<div class="form-check group-input">
 						<input class="form-check-input" id="corr-threshold" type="radio" name="sort_option"
-							   value="correlation" default-Value="setting" data-action="reload">
+							   value="correlation" default-Value="correlation" data-action="reload">
 						<label class="form-check-label" for="corr-threshold">{{ _('|Corr|>') }}</label>
 						<input type="number" class="form-control sub-input" name="corr_value" value="0.7"
 							   data-action="reload">
@@ -1309,11 +1367,11 @@
 							   data-action="reload">
 					</div>
 					<div class="form-check group-input">
-						<input class="form-check-input" id="top-vars" type="radio" name="sort_option" value="top" default-Value="setting"
-							   data-action="reload">
+						<input class="form-check-input" id="top-vars" type="radio" name="sort_option" value="top" default-Value="top"
+							   data-action="reload" checked>
 						<label class="form-check-label" for="top-vars">{{ _('Top') }}</label>
 						<input type="number" class="form-control sub-input" name="top_vars" value="8" default-value="8"
-							   data-action="reload">
+                               data-action="reload">
 					</div>
 				</div>
 			</div>

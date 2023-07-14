@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 let isOpenNewTab = false;
-document.addEventListener('contextmenu', event => event.preventDefault());
+document.getElementById('content').addEventListener('contextmenu', event => event.preventDefault());
 const setOpenTab = () => isOpenNewTab = true;
 const redirectPage = (tile) => {
     // mark as call page from tile interface, do not apply user setting
