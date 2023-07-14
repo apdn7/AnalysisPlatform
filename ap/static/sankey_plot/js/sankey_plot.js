@@ -4,7 +4,8 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
-const MAX_END_PROC = 60;
+const MAX_NUMBER_OF_SENSOR = 512;
+const MAX_SENSORS_LIM = 100;
 let tabID = null;
 const formElements = {
     formID: '#traceDataForm',
@@ -43,6 +44,8 @@ const i18n = {
 	noFilter: $('#i18nNoFilter').text(),
 	machineNo: $('#i18nMachineNo').text(),
 	partNo: $('#i18nPartNo').text(),
+    selectOver100SensorMsg: $('#i18nSelectOver100SensorMsg').text(),
+    objectiveHoverMsg: $('#i18nSkDObjectiveHoverMsg').text(),
 };
 
 const MSG_MAPPING = {
@@ -69,6 +72,7 @@ $(() => {
         showDataType: true,
         isRequired: true,
         showObjective: true,
+        objectiveHoverMsg: i18n.objectiveHoverMsg,
     });
     endProcItem();
 
@@ -145,7 +149,7 @@ const endProcExplanatoryOnChange = async (count) => {
 
 const sankeyTraceData = () => {
     requestStartedAt = performance.now();
-    const isValid = checkValidations({ max: MAX_END_PROC });
+    const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
     updateStyleOfInvalidElements();
 
     if (isValid) {
@@ -557,8 +561,27 @@ const collectFormDataSkD = () => {
     return formData;
 };
 
+const checkNumberOfSelectedSensor = (fromData) => {
+    // show msg when select over 100 sensor
+    const sensors = []
+    for (const item of fromData.entries()) {
+        const key = item[0];
+        const value = item[1];
+        if (/GET02_VALS_SELECT/.test(key)) {
+            sensors.push(value)
+        }
+    }
+
+    if (sensors.length > MAX_SENSORS_LIM) {
+        showToastrMsg(i18n.selectOver100SensorMsg)
+    }
+};
+
 const callToBackEndAPI = () => {
     const formData = collectFormDataSkD();
+
+    checkNumberOfSelectedSensor(formData);
+
 
     showGraphCallApi('/ap/api/skd/index', formData, REQUEST_TIMEOUT, async (res) => {
         if (res.errors) {

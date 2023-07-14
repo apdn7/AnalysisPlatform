@@ -5,13 +5,10 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
-from numpy import quantile
 from pandas import DataFrame
 from sqlalchemy import and_, or_
 
 from ap import db
-from ap.api.trace_data.services.regex_infinity import validate_numeric_minus, validate_numeric_plus, \
-    validate_string
 from ap.api.trace_data.services.time_series_chart import main_check_filter_detail_match_graph_data, \
     get_data_from_db, get_procs_in_dic_param, gen_unique_data, customize_dic_param_for_reuse_cache, \
     filter_cat_dict_common, get_fmt_str_from_dic_data, get_serial_and_datetime_data
@@ -76,9 +73,6 @@ def gen_graph_paracords(dic_param):
     df, actual_record_number, unique_serial = get_data_from_db(graph_param, dic_cat_filters,
                                                                use_expired_cache=use_expired_cache)
 
-    # filter on-demand
-    df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, None, None, graph_param)
-
     # check filter match or not ( for GUI show )
     matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids = main_check_filter_detail_match_graph_data(
         graph_param, df)
@@ -115,6 +109,10 @@ def gen_graph_paracords(dic_param):
         = gen_plotdata(orig_graph_param, dic_data, dic_proc_cfgs)
 
     dic_unique_cate = gen_unique_data(df, dic_proc_cfgs, category_cols, True)
+
+    # filter on-demand
+    df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, None, None, graph_param, True, category_cols)
+
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
     dic_param[CATEGORY_DATA] = list(dic_unique_cate.values())
     dic_param[CAST_INF_VALS] = cast_inf_vals
@@ -399,47 +397,6 @@ def graph_many_proc(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicParam,
     df_start.sort_values(Cycle.time.key, inplace=True)
 
     return df_start, is_res_limited
-
-
-@log_execution_time()
-def validate_data(df):
-    # regex filter exclude columns
-    exclude_cols = [Cycle.id.key, Cycle.global_id.key, Cycle.time.key, Cycle.is_outlier.key]
-
-    # convert data types
-    df = df.convert_dtypes()
-
-    # integer cols
-    int_cols = df.select_dtypes(include='integer').columns.tolist()
-    return_vals = [np.NAN, np.NAN]
-    for col in int_cols:
-        if col in exclude_cols:
-            continue
-
-        df = validate_numeric_minus(df, col, return_vals)
-        df = validate_numeric_plus(df, col, return_vals + [np.NAN])
-
-    # float
-    float_cols = df.select_dtypes(include='float').columns.tolist()
-    return_neg_vals = [float('-inf'), float('-inf')]
-    return_pos_vals = [float('inf'), float('inf'), np.NAN]
-    for col in float_cols:
-        if col in exclude_cols:
-            continue
-
-        df = validate_numeric_minus(df, col, return_neg_vals)
-        df = validate_numeric_plus(df, col, return_pos_vals)
-
-    # non-numeric cols
-    for col in df.columns:
-        if col in exclude_cols:
-            continue
-
-        if col in int_cols or col in float_cols:
-            continue
-        df = validate_string(df, col)
-
-    return df
 
 
 @log_execution_time()
@@ -1168,8 +1125,7 @@ def produce_irregular_plotdata(dic_param):
 def calc_upper_lower_whisker(arr):
     arr = [e for e in arr if e not in {None, float('inf'), float('-inf')}]
     if arr:
-        q1 = quantile(arr, 0.25, interpolation='midpoint')
-        q3 = quantile(arr, 0.75, interpolation='midpoint')
+        q1, q3 = np.quantile(arr, [0.25, 0.75], interpolation='midpoint')
         iqr = q3 - q1
         if iqr:
             whisker_lower = q1 - 2.5 * iqr

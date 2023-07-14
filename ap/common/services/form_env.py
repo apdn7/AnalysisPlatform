@@ -8,7 +8,8 @@ from ap.common.common_utils import as_list
 from ap.common.constants import *
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.setting_module.models import CfgProcessColumn
-from ap.setting_module.services.process_config import get_all_process_no_nested, get_all_visualizations
+from ap.setting_module.services.process_config import get_all_process_no_nested, get_all_visualizations, \
+    get_process_columns
 from ap.trace_data.schemas import DicParam, CommonParam, ConditionProc, CategoryProc, EndProc, \
     ConditionProcDetail
 
@@ -26,7 +27,7 @@ common_startwith_keys = ('start_proc', 'START_DATE', 'START_TIME', 'END_DATE', '
                          IS_EXPORT_MODE, IS_IMPORT_MODE, VAR_TRACE_TIME, TERM_TRACE_TIME, CYCLIC_TRACE_TIME, TRACE_TIME,
                          EMD_TYPE, ABNORMAL_COUNT, REMOVE_OUTLIER_OBJECTIVE_VAR, REMOVE_OUTLIER_EXPLANATORY_VAR,
                          DUPLICATE_SERIAL_SHOW, EXPORT_FROM, DUPLICATED_SERIALS_COUNT, AGP_COLOR_VARS, DIVIDE_FMT,
-                         DIVIDE_OFFSET, DIVIDE_CALENDAR_DATES, DIVIDE_CALENDAR_LABELS
+                         DIVIDE_OFFSET, DIVIDE_CALENDAR_DATES, DIVIDE_CALENDAR_LABELS, REMOVE_OUTLIER_TYPE, REMOVE_OUTLIER_REAL_ONLY
                          )
 
 conds_startwith_keys = ('filter-', 'cond_', 'machine_id_multi')
@@ -399,6 +400,8 @@ def bind_dic_param_to_class(dic_param):
                          is_latest=True if dic_common.get(TRACE_TIME, 'default') == 'recent' else False,
                          divide_calendar_dates=dic_common.get(DIVIDE_CALENDAR_DATES, []),
                          divide_calendar_labels=dic_common.get(DIVIDE_CALENDAR_LABELS, []),
+                         remove_outlier_type=dic_common.get(REMOVE_OUTLIER_TYPE, RemoveOutlierType.O6M.value),
+                         remove_outlier_real_only=dic_common.get(REMOVE_OUTLIER_REAL_ONLY, 0)
                          )
 
     # use the first end proc as start proc
@@ -415,17 +418,19 @@ def get_common_config_data(get_visualization_config=True):
     processes = get_all_process_no_nested()
     # generate english name for process
     for proc_data in processes:
-        proc_data['en_name'] = to_romaji(proc_data['name'])
+        proc_data[ENG_NAME] = to_romaji(proc_data[NAME])
+        proc_cols = get_process_columns(proc_data[ID])
+        proc_data[IS_USE_DUMMY_DATETIME] = True in [col[IS_GET_DATE] and col[IS_DUMMY_DATETIME] for col in proc_cols]
 
-    procs = [(proc.get('id'), proc.get('name'), proc.get('en_name')) for proc in processes]
+    procs = [(proc.get(ID), proc.get(NAME), proc.get(ENG_NAME)) for proc in processes]
     graph_filter_detail_ids = []
     if get_visualization_config:
         graph_filter_detail_ids = get_all_visualizations()
 
     output_dict = {
-        'list_procs': json.dumps(processes),  # use in each page
-        'procs': procs,  # use in jinja of macro
-        'graph_filter_detail_ids': graph_filter_detail_ids,
+        LIST_PROCS: json.dumps(processes),  # use in each page
+        PROCS: procs,  # use in jinja of macro
+        GRAPH_FILTER_DETAILS: graph_filter_detail_ids,
     }
 
     return output_dict
@@ -507,7 +512,7 @@ def get_end_procs_param(dic_param):
 def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
     updated_keys = [ARRAY_PLOTDATA, ACT_CELLS, UNIQUE_SERIAL, MATCHED_FILTER_IDS, UNMATCHED_FILTER_IDS, \
                     NOT_EXACT_MATCH_FILTER_IDS, CAT_EXP_BOX, ACTUAL_RECORD_NUMBER, IMAGES, IS_GRAPH_LIMITED, \
-                    EMD_TYPE, TIME_CONDS, FMT, CAT_ON_DEMAND, UNIQUE_COLOR]
+                    EMD_TYPE, TIME_CONDS, FMT, CAT_ON_DEMAND, UNIQUE_COLOR, COMMON, 'div_from_to']
     for key in updated_keys:
         if key not in dic_param:
             continue
@@ -520,8 +525,11 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
             # reset term conditions
             if key is TIME_CONDS:
                 orig_dic_param[key] = []
-
-            orig_dic_param[key] += dic_param[key]
+            # in case of one is None, error
+            if orig_dic_param[key] is not None or dic_param[key] is not None:
+                orig_dic_param[key] += dic_param[key]
+            else:
+                orig_dic_param[key] = None
         elif type(dic_param[key]) in [dict, defaultdict]:
             if key not in orig_dic_param:
                 orig_dic_param[key] = {}

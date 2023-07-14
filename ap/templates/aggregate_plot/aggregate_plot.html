@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-xl-10 col-9">
                         <div class="row">
-                            {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover StP'), rlp=True, cyclicCalender=True, dataNumber=False)}}
+                            {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover StP'), rlp=True, cyclicCalender=True, dataNumber=True)}}
                         </div>
                     </div>
                 </div>
@@ -29,7 +29,7 @@
             {{ macros.cond_proc([],'', width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
             <br class="graph-navi graph-navi-top-down">
             <div class="d-flex align-items-center justify-content-center show-graph-div">
-                {{ macros.preprocess_options(chmTitle=_('The targets of removing outlier are Max, Mean Min, σ, and Range.')) }}
+                {{ macros.preprocess_options(isRealOnlyMsg=_('The target is a variable whose data type is Real(Float)')) }}
                 <button id="showGraphBtn" type="button" value="{{ _('Display graph') }}"
                         onClick="showAgP();" class="btn btn-primary show-graph ml-3"><i
 					class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
@@ -44,6 +44,8 @@
 		<div class="y-scale-group tooltip-parent align-items-center mt-3 mb-2" id="graph-settings-area">
 			{{ macros.info_i_mark() }}
 			{{ macros.on_demand_filter() }}
+            {{ macros.graph_select_box(id='yScale', name='yScale', label=_('Range of Y axis'), values=['2', '4', '5'], texts=[_("Common scale"), _('Auto range'), _('Full range')], cl='ml-4', defaultValue='4', selectedValue='4') }}
+            {{ macros.switch_button(id='yAxisPercent', label='Y axis %', cl='ml-4', onChange='showYAxisPercent(this)') }}
 		</div>
 	</div>
     <div id="agpCard" class="card ui-sortable" style="padding: 5px; display: none">

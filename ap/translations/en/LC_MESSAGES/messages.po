@@ -1751,7 +1751,7 @@ msgstr "Specified `Window length` is invalid. Value must be between 0.01 and 48.
 msgid "Invalid Cyclic Term Number of Ridge Lines"
 msgstr ""
 "Specified `Number of Ridge lines` is invalid. Value must be an integer "
-"between 1 and 150. Value around 100 is recommended."
+"between 1 and 240. Value around 100 is recommended."
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Start data & time"
@@ -2153,10 +2153,6 @@ msgstr ""
 "should be selected again."
 
 #: ap/templates/templates/i18n.html
-msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
-msgstr "The targets of removing outlier are Max, Mean Min, σ, and Range."
-
-#: ap/templates/templates/i18n.html
 msgid "Cat."
 msgstr "Cat."
 
@@ -2363,8 +2359,8 @@ msgid "In process order"
 msgstr "In process order"
 
 #: ap/templates/parallel_plot/parallel_plot.html
-msgid "In order of corr."
-msgstr "In order of corr."
+msgid "In order of corr"
+msgstr "In order of corr"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid "Corr threshold (abs)"
@@ -2532,8 +2528,11 @@ msgid ""
 "Identify the explanatory variables that are correlated with the "
 "variable(s) specified here."
 msgstr ""
-"Visualizes the correlation of the variables specified here. It can be "
-"selected up to sixty items."
+"Relationship between selected variables and a variable selected as "
+"'Objective' here is analyzed.\n"
+"We will fit a regression model to automatically select the important "
+"variables.\n"
+"You can select up to 512 variables."
 
 #: ap/templates/templates/sankey_plot/sankey_plot.html
 msgid "Candidate variables that are correlated with objective variable(s)."
@@ -3288,7 +3287,7 @@ msgstr ""
 msgid "Division number Hover RLP"
 msgstr ""
 "Enter the number of distributions (Number of Divisions) to display. "
-"Please enter an integer (2 ≦ int ≦ 150)"
+"Please enter an integer (2 ≦ int ≦ 240)"
 
 #: ap/templates/macros.html
 msgid "Division number Hover StP"
@@ -3833,10 +3832,6 @@ msgid "Col num hover msg"
 msgstr "Set the number of columns in the split graph."
 
 #: ap/templates/macros.html
-msgid "Remove outlier hover msg"
-msgstr "Top and bottom 5%%: Replace to NA"
-
-#: ap/templates/macros.html
 msgid "If checked, the config on graph area will also be saved."
 msgstr "The config on graph area is saved."
 
@@ -4164,4 +4159,158 @@ msgstr "month"
 #: ap/templates/macros.html
 msgid "Latest year"
 msgstr "year"
+
+#: ap/templates/templates/i18n.html
+msgid "The target is a variable whose data type is Real(Float)"
+msgstr "The target is a variable whose data type is 'Real(Float)'"
+
+#: ap/templates/templates/i18n.html
+msgid "SkD select over 100 sensor msg"
+msgstr ""
+"Processing might take time due to the large number of selected variables."
+" To reduce the processing time, reduce the number of variables and rerun "
+"the visualization."
+
+#: ap/templates/templates/sidebar.html
+msgid "Open (new)"
+msgstr "Open (new)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open (takeover)"
+msgstr "Open (takeover)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open in new tab (new)"
+msgstr "Open in new tab (new)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Open in new tab (takeover)"
+msgstr "Open in new tab (takeover)"
+
+#: ap/templates/templates/sidebar.html
+msgid "Main page: DN7"
+msgstr "DN7"
+
+#: ap/templates/templates/sidebar.html
+msgid "Main page: AP"
+msgstr "AP"
+
+#: ap/templates/templates/macros.html
+msgid "Select a unit of time and input value."
+msgstr ""
+"Select a unit of time and input value. \n"
+"The range of possible inputs for each unit are as follows.\n"
+"* minute: 0.01 - 1,000,000\n"
+"* hour: 0.01 - 20,000\n"
+"* day: 0.01- 1,000\n"
+"* week: 0.01 - 100\n"
+"* month: 0.01- 24\n"
+"* year : 0.01 - 2\n"
+
+#: ap/templates/sidebar.html
+msgid "Structure Learning"
+msgstr "Structure Learning"
+
+#: ap/templates/sidebar.html
+msgid "Graphical Lasso"
+msgstr "Graphical Lasso"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sparsity"
+msgstr "Sparsity"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GLThreshold"
+msgstr "Threshold"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Labels"
+msgstr "Labels"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sensor name"
+msgstr "Sensor name"
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GL Page Title"
+msgstr ""
+"Visualizes partial correlations of variables with network graph.\n"
+"By specifing the objective variable, you can visualize the directly "
+"correlated variables and the in-directly correlated variables in more "
+"easy to understand layout."
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "Sparsity Hover"
+msgstr ""
+"Controlls the sparseness of the output graph: higer sparsity induces less"
+" edges."
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GLThreshold Hover"
+msgstr "Ignores the edges with the absolute value less than this value."
+
+#: ap/templates/analyze/graphical_lasso.html
+msgid "GL Process name"
+msgstr "Process name"
+
+#: ap/templates/templates/macros.html
+msgid "SkD objective hover messenger"
+msgstr ""
+"The variable selected here is called 'Objective variable',\n"
+"which we will fit a regression model to estimate the objective variable "
+"using other selected variables."
+
+#: ap/templates/templates/macros.html
+msgid "GL target variable"
+msgstr ""
+"Partial correlation structure between the selected variables here is "
+"visualized.\n"
+"Partial correlation differs from generally used correlation, in a sense "
+"that it \n"
+"removes confounding (pseudo-correlation) using the selected variables.\n"
+"Ignorably small partial correlations are automatically excluded in the "
+"visualization\n"
+"You can select up to 60 variables."
+
+#: ap/templates/templates/macros.html
+msgid "GL objective hover messenger"
+msgstr ""
+"(optional) The variable selected here is called 'Objective variable', \n"
+"which we will adjust the visualization to get a more easy to understand "
+"layout."
+
+#: ap/templates/templates/co_occurence.html
+msgid "Show all node labels"
+msgstr "Show all node labels"
+
+#: ap/templates/templates/macros.html
+msgid "Generate proc link information msg"
+msgstr ""
+"If you want to update the number of imported records or the number of "
+"linked records, press the 'Reload' button."
+
+#: ap/templates/templates/sidebar.html
+msgid "in new tab"
+msgstr " in new tab"
+
+#: ap/templates/i18n.html
+msgid "File not found"
+msgstr "Page not found"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Move next to target variable"
+msgstr "Move next to target variable"
+
+#: ap/templates/macros.html
+msgid "Remove outlier hover msg"
+msgstr ""
+"P1-P99 : Display data between upper and lower 1%%\n"
+"P5-P95 : Display data between upper and lower 5%%\n"
+"\n"
+"4IQR : Processing for upper limit Q3+1.5×IQR, lower limit Q1-1.5×IQR\n"
+"6IQR : Processing for upper limit Q3+2.5×IQR, lower limit Q1-2.5×IQR\n"
+"* Majority: Display data between upper and lower limits\n"
+"* Minority: Display data outside the upper and lower limits\n"
+"* Upper: Display data above the upper limit\n"
+"* Lower: Display data below the lower limit"
 

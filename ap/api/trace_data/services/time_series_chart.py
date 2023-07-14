@@ -15,6 +15,7 @@ from pandas import DataFrame, Series
 from sqlalchemy import and_
 
 from ap import db
+from ap.api.common.services.services import convert_datetime_to_ct
 from ap.api.trace_data.services.proc_link import TraceGraph
 from ap.api.trace_data.services.regex_infinity import validate_data_with_regex, get_changed_value_after_validate, \
     validate_data_with_simple_searching, check_validate_target_column
@@ -53,6 +54,8 @@ def gen_graph_fpp(dic_param, max_graph=None):
 
     dic_param, df, orig_graph_param, graph_param, graph_param_with_cate = gen_df(dic_param, dic_cat_filters,
                                                                                  use_expired_cache=use_expired_cache)
+
+    convert_datetime_to_ct(df, graph_param)
 
     # use for enable and disable index columns
     all_procs = []
@@ -274,7 +277,7 @@ def customize_dic_param_for_reuse_cache(dic_param):
         color_order = ColorOrder.DATA
 
     return dic_param, cat_exp, cat_procs, dic_cat_filters, use_expired_cache, temp_serial_column, temp_serial_order, \
-           temp_serial_process, temp_x_option, matrix_col, color_order
+        temp_serial_process, temp_x_option, matrix_col, color_order
 
 
 def filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param, has_na=False,
@@ -347,10 +350,12 @@ def gen_graph(dic_param, max_graph=None, use_export_df=False):
     dic_param, cat_exp, cat_procs, dic_cat_filters, use_expired_cache, *_ = customize_dic_param_for_reuse_cache(
         dic_param)
     dic_param, df, orig_graph_param, graph_param, graph_param_with_cate = gen_df(dic_param, dic_cat_filters,
-                                                                                 add_dt_col=True, use_expired_cache=use_expired_cache)
+                                                                                 add_dt_col=True,
+                                                                                 use_expired_cache=use_expired_cache)
 
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
-    export_df = df
+    export_df = df.copy()
+    convert_datetime_to_ct(df, graph_param)
     dic_data, is_graph_limited = gen_dic_data(df, orig_graph_param, graph_param_with_cate, max_graph)
     dic_param = gen_dic_param(df, dic_param, dic_data)
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
@@ -705,10 +710,11 @@ def gen_thin_dic_param(df, dic_param, dic_proc_cfgs, dic_cat_exp_labels=None, di
     graph_param = bind_dic_param_to_class(dic_param)
     dic_datetime_serial_cols = get_serials_and_date_col(graph_param, dic_proc_cfgs)
     dic_str_cols = get_str_cols_in_end_procs(dic_proc_cfgs, graph_param)
-    df_thin, dic_cates, dic_org_cates, group_counts = reduce_data(df, graph_param, dic_str_cols)
+    df_thin, dic_cates, dic_org_cates, group_counts, df_from_to_count, dic_min_med_max = reduce_data(df, graph_param,
+                                                                                                     dic_str_cols)
 
     # create output data
-    df_cat_exp = gen_df_thin_values(df, graph_param, df_thin, dic_str_cols)
+    df_cat_exp = gen_df_thin_values(df, graph_param, df_thin, dic_str_cols, df_from_to_count, dic_min_med_max)
     dic_data = gen_dic_data_from_df(df_cat_exp, graph_param, cat_exp_mode=True, dic_cat_exp_labels=dic_cat_exp_labels,
                                     calculate_cycle_time=False)
     dic_param = gen_dic_param(df_cat_exp, dic_param, dic_data, dic_proc_cfgs, dic_cates, dic_org_cates,
@@ -727,6 +733,9 @@ def gen_thin_dic_param(df, dic_param, dic_proc_cfgs, dic_cat_exp_labels=None, di
         min_label = gen_sql_label(ARRAY_Y_MIN, sql_label)
         max_label = gen_sql_label(ARRAY_Y_MAX, sql_label)
         cycle_label = gen_sql_label(CYCLE_IDS, sql_label)
+        sql_label_from = gen_sql_label(SLOT_FROM, sql_label)
+        sql_label_to = gen_sql_label(SLOT_TO, sql_label)
+        sql_label_count = gen_sql_label(SLOT_COUNT, sql_label)
 
         if time_label in df_cat_exp.columns:
             plot[ARRAY_X] = df_cat_exp[time_label].replace({np.nan: None}).tolist()
@@ -739,13 +748,24 @@ def gen_thin_dic_param(df, dic_param, dic_proc_cfgs, dic_cat_exp_labels=None, di
                                                                              dic_param[TIMES])
 
         if min_label in df_cat_exp.columns:
-            plot[ARRAY_Y_MIN] = df_cat_exp[min_label].tolist()
+            plot[ARRAY_Y_MIN] = df_cat_exp[min_label].replace(
+                {pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'}).tolist()
 
         if max_label in df_cat_exp.columns:
-            plot[ARRAY_Y_MAX] = df_cat_exp[max_label].tolist()
+            plot[ARRAY_Y_MAX] = df_cat_exp[max_label].replace(
+                {pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'}).tolist()
 
         if cycle_label in df_cat_exp.columns:
             plot[CYCLE_IDS] = df_cat_exp[cycle_label].tolist()
+
+        if sql_label_from in df_cat_exp.columns:
+            plot[SLOT_FROM] = df_cat_exp[sql_label_from].tolist()
+
+        if sql_label_to in df_cat_exp.columns:
+            plot[SLOT_TO] = df_cat_exp[sql_label_to].tolist()
+
+        if sql_label_count in df_cat_exp.columns:
+            plot[SLOT_COUNT] = df_cat_exp[sql_label_count].tolist()
 
         if plot[END_COL_ID] in dic_ranks:
             # category variable
@@ -756,8 +776,7 @@ def gen_thin_dic_param(df, dic_param, dic_proc_cfgs, dic_cat_exp_labels=None, di
             plot[CAT_TOTAL] = cat_size
             plot[IS_CAT_LIMITED] = True if cat_size >= MAX_CATEGORY_SHOW else False
 
-        # ignore show none value in thin mode
-        plot[NONE_IDXS] = []
+        plot[NONE_IDXS] = None
 
     # group count
     dic_param[THIN_DATA_GROUP_COUNT] = group_counts
@@ -946,6 +965,9 @@ def gen_graph_df(start_proc_id, start_tm, end_tm, end_procs: List[EndProc], cond
         df, actual_total_record = gen_trace_procs_df(start_proc_id, start_tm, end_tm, graph, common_paths, short_procs,
                                                      dic_mapping_col_n_sensor, dic_conditions, duplicate_serial_show)
 
+        # cycle id
+        df[Cycle.id.key] = df.index
+
         # check empty
         if df is None or not len(df):
             return df, serial_labels, 0, 0
@@ -969,9 +991,6 @@ def gen_graph_df(start_proc_id, start_tm, end_tm, end_procs: List[EndProc], cond
                 continue
 
             df = gen_trace_sensors_df(col_ids, col_names, cycle_ids, df, dic_mapping_col_n_sensor, proc_id)
-
-        # cycle id
-        df[Cycle.id.key] = df.index
 
         # count total record (with duplicate)
         duplicated_option, for_count = is_show_duplicated_serials(duplicate_serial_show, duplicated_serial_count,
@@ -1499,7 +1518,9 @@ def get_df_from_db(graph_param: DicParam, is_save_df_to_file=False, _use_expired
                 df[label] = None
 
     # reset index
-    df.reset_index(inplace=True)
+    df.reset_index(inplace=True, drop=True)
+
+    df = cast_df_number(df, graph_param.array_formval)
 
     # save log
     if is_save_df_to_file or graph_param.common.is_export_mode:
@@ -1523,6 +1544,7 @@ def get_data_from_db(graph_param: DicParam, dic_filter=None, is_save_df_to_file=
     # graph_param.common.is_validate_data = True
     if graph_param.common.is_validate_data:
         df = validate_data(df)
+        df = cast_df_number(df, graph_param.array_formval)  # TODO: we might not need this.
 
     cfg_cols = CfgProcessColumn.get_by_ids(graph_param.common.sensor_cols)
     sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols]
@@ -1535,19 +1557,49 @@ def get_data_from_db(graph_param: DicParam, dic_filter=None, is_save_df_to_file=
         df = validate_abnormal_count(df, sensor_labels)
 
     if graph_param.common.is_remove_outlier:
-        df = replace_outlier_to_na(df, sensor_labels)
+        df = remove_outlier(df, sensor_labels, graph_param)
 
     if graph_param.common.remove_outlier_objective_var:
         objective_id = graph_param.common.objective_var
         sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id == objective_id]
-        df = replace_outlier_to_na(df, sensor_labels)
+        df = remove_outlier(df, sensor_labels, graph_param)
 
     if graph_param.common.remove_outlier_explanatory_var:
         objective_id = graph_param.common.objective_var
         sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id != objective_id]
-        df = replace_outlier_to_na(df, sensor_labels)
+        df = remove_outlier(df, sensor_labels, graph_param)
 
+    df = cast_df_number(df, graph_param.array_formval)
     return df, actual_total_record, duplicated_serials_number
+
+
+def cast_df_integer(df: DataFrame, end_procs: List[EndProc]) -> DataFrame:
+    integer_column_ids = set()
+    for proc in end_procs:
+        integer_column_ids.update((col.id for col in CfgProcessColumn.get_by_data_type(proc.proc_id, DataType.INTEGER)))
+    for col_id in integer_column_ids:
+        col_name = CfgProcessColumn.gen_label_from_col_id(col_id)
+        if col_name in df.columns:
+            df[col_name] = df[col_name].astype('Int64')
+    return df
+
+
+def cast_df_real(df: DataFrame, end_procs: List[EndProc]) -> DataFrame:
+    real_column_ids = set()
+    for proc in end_procs:
+        real_column_ids.update((col.id for col in CfgProcessColumn.get_by_data_type(proc.proc_id, DataType.REAL)))
+    for col_id in real_column_ids:
+        col_name = CfgProcessColumn.gen_label_from_col_id(col_id)
+        if col_name in df.columns:
+            df[col_name] = df[col_name].astype('Float64')
+    return df
+
+
+@log_execution_time()
+def cast_df_number(df: DataFrame, end_procs: List[EndProc]) -> DataFrame:
+    df = cast_df_integer(df, end_procs)
+    df = cast_df_real(df, end_procs)
+    return df
 
 
 @log_execution_time()
@@ -1577,7 +1629,7 @@ def validate_abnormal_count(df, sensor_labels):
 
         x = df[col].replace({pd.NA: np.nan})
         abnormal_vals = detect_abnormal_count_values(x.dropna())
-        df[col] = df[col].replace(abnormal_vals, pd.NA)
+        df[col] = df[col].replace(abnormal_vals, pd.NA).astype(df[col].dtypes)
 
     return df
 
@@ -1586,13 +1638,11 @@ def validate_abnormal_count(df, sensor_labels):
 def validate_data(df: DataFrame):
     if len(df) > THIN_DATA_COUNT:
         df_before = get_sample_df(df)
-        df_before = df_before.convert_dtypes()
-        df_after = validate_data_with_regex(df_before)
+        df_after = validate_data_with_regex(df_before.copy(deep=True))
         checked_cols, dic_abnormal = get_changed_value_after_validate(df_before, df_after)
         df = validate_data_with_simple_searching(df, checked_cols, dic_abnormal)
     else:
         df = validate_data_with_regex(df)
-
     return df
 
 
@@ -1604,6 +1654,9 @@ def get_sample_df(df):
         if not check_validate_target_column(col):
             continue
         try:
+            # TODO: remove Exception handler after pandas version up
+            # https://github.com/pandas-dev/pandas/issues/41696
+            # pandas 1.2 does not work with Float64, Int64
             min_idx = df[col].idxmin()
             max_idx = df[col].idxmax()
             sample_df = sample_df.append(df.loc[min_idx], ignore_index=True)
@@ -1615,7 +1668,7 @@ def get_sample_df(df):
 
 
 @log_execution_time()
-def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_cols):
+def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_cols, df_from_to_count, dic_min_med_max):
     thin_idxs_len = len(df_thin)
     thin_boxes = [None] * thin_idxs_len
     df_cat_exp = pd.DataFrame({Cycle.time.key: thin_boxes}, index=df_thin.index)
@@ -1639,6 +1692,9 @@ def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_co
                 sql_label_cycle = gen_sql_label(CYCLE_IDS, sql_label)
                 sql_label_serial = gen_sql_label(SERIAL_DATA, sql_label)
                 sql_label_time = gen_sql_label(TIMES, sql_label)
+                sql_label_from = gen_sql_label(SLOT_FROM, sql_label)
+                sql_label_to = gen_sql_label(SLOT_TO, sql_label)
+                sql_label_count = gen_sql_label(SLOT_COUNT, sql_label)
                 idxs = df_thin[sql_label].notnull()
 
                 if not len(idxs) or not len(df_thin[idxs]):
@@ -1655,11 +1711,8 @@ def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_co
                     df_cat_exp[sql_label_max] = thin_boxes
                     continue
 
-                min_idxs, med_idxs, max_idxs = list(zip(*df_thin.loc[idxs, sql_label]))
-                min_idxs, med_idxs, max_idxs = list(min_idxs), list(med_idxs), list(max_idxs)
-                series[:] = None
-                series[idxs] = df.loc[med_idxs, sql_label].values
-                df_cat_exp[sql_label] = series
+                med_idxs = list(df_thin.loc[idxs, sql_label])
+                df_cat_exp[sql_label] = dic_min_med_max[sql_label]['median']
 
                 # time start proc
                 if Cycle.time.key in df.columns:
@@ -1685,15 +1738,12 @@ def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_co
                     series[idxs] = df.loc[med_idxs, orig_sql_label_serial].values
                     df_cat_exp[sql_label_serial] = series
 
-                # add min value to median position
-                series[:] = None
-                series[idxs] = df.loc[min_idxs, sql_label].values
-                df_cat_exp[sql_label_min] = series
+                df_cat_exp[sql_label_min] = dic_min_med_max[sql_label]['min']
 
-                # add max value to median position
-                series[:] = None
-                series[idxs] = df.loc[max_idxs, sql_label].values
-                df_cat_exp[sql_label_max] = series
+                df_cat_exp[sql_label_max] = dic_min_med_max[sql_label]['max']
+                df_cat_exp[sql_label_from] = df_from_to_count['min']
+                df_cat_exp[sql_label_to] = df_from_to_count['max']
+                df_cat_exp[sql_label_count] = df_from_to_count['count']
 
     return df_cat_exp
 
@@ -1713,9 +1763,6 @@ def gen_dic_data_from_df(df: DataFrame, graph_param: DicParam, cat_exp_mode=None
     dic_data = defaultdict(dict)
     blank_vals = [None] * df.index.size
     for proc in graph_param.array_formval:
-        # TODO: CfgProcessColumn call many times because outside loop
-        dic_datetime_cols = {cfg_col.id: cfg_col for cfg_col in
-                             CfgProcessColumn.get_by_data_type(proc.proc_id, DataType.DATETIME)}
         dic_data_cat_exp = defaultdict(list)
         for col_id, col_name in zip(proc.col_ids, proc.col_names):
             col_id_name = gen_sql_label(col_id, col_name)
@@ -1723,16 +1770,7 @@ def gen_dic_data_from_df(df: DataFrame, graph_param: DicParam, cat_exp_mode=None
             series_lst = []
             for sql_label in sql_labels:
                 if sql_label in df.columns:
-                    if calculate_cycle_time and col_id in dic_datetime_cols:
-                        series = pd.to_datetime(df[sql_label])
-                        series.sort_values(inplace=True)
-                        series = series.diff().dt.total_seconds()
-                        series.sort_index(inplace=True)
-                        df.sort_index(inplace=True)
-                        df[sql_label] = series
-                    else:
-                        series = df[sql_label]
-
+                    series = df[sql_label]
                     series = series.replace({np.nan: None}).tolist()
                 else:
                     series = blank_vals
@@ -2960,6 +2998,7 @@ def main_check_filter_detail_match_graph_data(graph_param: DicParam, df: DataFra
     return matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
 
 
+@log_execution_time()
 def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
     """
     make data for thin  mode
@@ -3039,11 +3078,33 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
             dfs.append(df_cates[rank_cols])
 
     cols = []
+    dic_min_med_max = {}
+
+    # get from, to and count of each slot
+    df_from_to_count = df.groupby(group_col)[Cycle.time.key].agg(['max', 'min', 'count'])
+
+    df_not_na = df.replace([float('-inf'), float('inf')], np.nan).notna()
+
+    # select all group which has all na value
+    df_group_all_na = (~df_not_na).groupby(group_col).all()
+
     for sql_label, (proc_id, *_) in dic_end_col_names.items():
-        df_temp = df[[index_col, sql_label]].dropna()
-        df_temp = df_temp.sort_values([group_col, sql_label], ascending=[True, True])
+        df_temp = df[[Cycle.time.key, index_col, sql_label]]
+
+        # get df remove -inf, inf and NA
+        df_drop = df_temp[df_not_na[sql_label]]
+
+        # get remaining group has only inf, -inf, NA
+        remaining_df = df_temp[df_group_all_na[sql_label]]
+
+        # calc min med max of 2 df and merge to one
+        df_min_med_max_1 = df_drop.groupby(group_col)[sql_label].agg(['min', 'median', 'max'])
+        df_min_med_max_2 = remaining_df.groupby(group_col)[sql_label].agg(['min', 'median', 'max'])
+        df_min_med_max = pd.concat([df_min_med_max_1, df_min_med_max_2]).sort_index()
+
+        # get idxs of each group
         df_temp.drop(sql_label, axis=1, inplace=True)
-        df_temp = df_temp.groupby(group_col).agg(get_min_median_max_pos)
+        df_temp = df_temp.groupby(group_col).agg('min')
         df_temp = df_temp.rename(columns={index_col: sql_label})
         if len(df_temp) == 0:
             blank_vals = [None] * total_group
@@ -3051,6 +3112,7 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
 
         dfs.append(df_temp)
         cols.append(sql_label)
+        dic_min_med_max[sql_label] = df_min_med_max
 
     df_box = pd.concat(dfs, axis=1)
 
@@ -3073,7 +3135,7 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
             dic_cates[proc_id][col_id] = df_cates.loc[df_box.index, sql_label].tolist()
         dic_org_cates[proc_id][col_id] = get_available_ratio(df[sql_label])
 
-    return df_box, dic_cates, dic_org_cates, group_counts
+    return df_box, dic_cates, dic_org_cates, group_counts, df_from_to_count, dic_min_med_max
 
 
 def get_min_median_max_pos(df):
@@ -3228,6 +3290,10 @@ def calc_auto_scale_y(plotdata, series_y):
 
     lower_outlier_idxs = series_y[series_y < lower_range].index.tolist() if lower_range is not None else []
     upper_outlier_idxs = series_y[series_y > upper_range].index.tolist() if upper_range is not None else []
+
+    if upper_range == lower_range:
+        lower_outlier_idxs = []
+        upper_outlier_idxs = []
 
     if lower_range and series_y.min() >= 0:
         lower_range = max(0, lower_range)
@@ -3649,25 +3715,77 @@ def calculate_histogram_count_common(array_plotdata):
 
 
 @log_execution_time()
-def replace_outlier_to_na(df: DataFrame, sensor_labels, percent=0.05):
+def get_outlier_info(remove_outlier_type):
+    percent = 0.25  # default p25-p75
+    actual_type = RemoveOutlierType.O6M
+    distance = 0
+    if remove_outlier_type in [RemoveOutlierType.O6M, RemoveOutlierType.O6I, RemoveOutlierType.O6U, RemoveOutlierType.O6L]:
+        distance = 2.5  # +- 2.5iqr
+
+    if remove_outlier_type in [RemoveOutlierType.O4M, RemoveOutlierType.O4I, RemoveOutlierType.O4U, RemoveOutlierType.O4L]:
+        distance = 1.5  # +- 1.5iqr
+
+    if remove_outlier_type in [RemoveOutlierType.OP1]:
+        percent = 0.01  # p1-p99
+
+    if remove_outlier_type in [RemoveOutlierType.OP5]:
+        percent = 0.05  # p5-p95
+
+    if remove_outlier_type in [RemoveOutlierType.O4M, RemoveOutlierType.O6M, RemoveOutlierType.OP1, RemoveOutlierType.OP5]:
+        actual_type = RemoveOutlierType.Majority
+
+    if remove_outlier_type in [RemoveOutlierType.O4I, RemoveOutlierType.O6I]:
+        actual_type = RemoveOutlierType.Minority
+
+    if remove_outlier_type in [RemoveOutlierType.O4U, RemoveOutlierType.O6U]:
+        actual_type = RemoveOutlierType.Upper
+
+    if remove_outlier_type in [RemoveOutlierType.O6L, RemoveOutlierType.O4L]:
+        actual_type = RemoveOutlierType.Lower
+
+    return actual_type, percent, distance
+
+
+@log_execution_time()
+def remove_outlier(df: DataFrame, sensor_labels, graph_param):
+    remove_outlier_type = graph_param.common.remove_outlier_type
+    is_real_only = graph_param.common.remove_outlier_real_only
+
+    actual_type, percent, distance = get_outlier_info(remove_outlier_type)
     upper_limit = 1 - percent
     lower_limit = percent
 
     valid_cols = [col for col in df.columns if col in sensor_labels]
 
-    numeric_cols = df.loc[:, valid_cols].select_dtypes(
-        'number').columns  # limits to a (float), b (int) and e (timedelta)
+    # limits to a (float), b (int) and e (timedelta)
+    if is_real_only:
+        numeric_cols = df.loc[:, valid_cols].select_dtypes('float').columns
+    else:
+        numeric_cols = df.loc[:, valid_cols].select_dtypes('number').columns
     df_sub = df.loc[:, numeric_cols]
-    df_sub = df_sub.replace(dict.fromkeys([pd.NA], np.nan))
-    q1 = df_sub.quantile(lower_limit, numeric_only=False)
-    q3 = df_sub.quantile(upper_limit, numeric_only=False)
-    # avoid case unit value is small [1,2,1,2..]
-    iqr = q3 - q1
-    fence_low = q1 - 1.5 * iqr
-    fence_high = q3 + 1.5 * iqr
-    lim = np.logical_and(df_sub > fence_low, df_sub < fence_high)
 
-    df.loc[:, numeric_cols] = df_sub.where(lim, pd.NA)
+    for target_col in numeric_cols:
+        series = df_sub[target_col].replace(dict.fromkeys([pd.NA], np.nan))
+        lower, upper, q1, q3 = series.quantile([lower_limit, upper_limit, 0.25, 0.75])
+        # do not apply outlier of q1 = q3
+        if q1 == q3:
+            continue
+
+        iqr = upper - lower
+        lower_whisker = lower - distance * iqr
+        upper_whisker = upper + distance * iqr
+        condition = None
+
+        if actual_type == RemoveOutlierType.Majority:
+            condition = (df_sub[target_col] < lower_whisker) | (df_sub[target_col] > upper_whisker)
+        elif actual_type == RemoveOutlierType.Minority:
+            condition = (df_sub[target_col] > lower_whisker) & (df_sub[target_col] < upper_whisker)
+        elif actual_type == RemoveOutlierType.Upper:
+            condition = df_sub[target_col] < upper_whisker
+        elif actual_type == RemoveOutlierType.Lower:
+            condition = df_sub[target_col] > lower_whisker
+
+        df.loc[condition, target_col] = pd.NA
 
     return df
 

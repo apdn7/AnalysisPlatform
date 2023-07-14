@@ -69,6 +69,7 @@ class EventType(Enum):
     CHM = 'CHM'
     SCP = 'ScP'
     AGP = 'AGP'
+    GL = 'GL'
 
 
 class EventAction(Enum):

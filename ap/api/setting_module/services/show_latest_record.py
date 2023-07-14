@@ -240,8 +240,8 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
                 break
 
         # normalization
-        org_headers, header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
         header_names = normalize_list(header_names)
+        org_headers, header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
         df_data_details = normalize_big_rows(data_details, header_names)
         data_types = [gen_data_types(df_data_details[col]) for col in header_names]
         df_data_details, org_headers, header_names, dupl_cols, data_types = drop_null_header_column(df_data_details,
@@ -286,9 +286,10 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
                 data_types += etl_headers[WR_TYPES]
                 data_details = chw.merge_etl_heads(etl_headers[WR_VALUES], data_details)
 
-            org_headers, header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
             header_names = normalize_list(header_names)
+            org_headers, header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
             df_data_details = normalize_big_rows(data_details, header_names)
+            data_types = [gen_data_types(df_data_details[col]) for col in header_names]
             df_data_details, org_headers, header_names, dupl_cols, data_types = drop_null_header_column(df_data_details,
                                                                                                         org_headers,
                                                                                                         header_names,
@@ -372,14 +373,6 @@ def check_same_values_in_df(df, cols):
 
         same_values.append(dict(is_null=is_null, is_same=is_same))
 
-    # same_values = [
-    #     {
-    #         'is_null': data[col].isnull().all() or (data[col] == '').all(),
-    #         'is_same': (data[col] == data[col][0]).all()
-    #     }
-    #     for col in cols
-    # ]
-
     return same_values
 
 
@@ -411,15 +404,16 @@ def gen_cols_with_types(cols, data_types, same_values):
     cols_with_types = []
     for col_name, data_type, same_value in zip(cols, data_types, same_values):
         is_date = DataType(data_type) is DataType.DATETIME
-
+        is_big_int = DataType(data_type) is DataType.BIG_INT
         # add to output
         if col_name:
             cols_with_types.append({
                 "name": col_name,
-                "type": DataType(data_type).name,
+                "type": DataType(data_type).name if not is_big_int else DataType.TEXT.name,
                 'romaji': to_romaji(col_name),
                 'is_date': is_date,
                 'check_same_value': same_value,
+                'is_big_int': is_big_int,
             })
 
     return cols_with_types

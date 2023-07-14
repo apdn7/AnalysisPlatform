@@ -12,6 +12,7 @@ from ap.api.categorical_plot.services import (gen_graph_param,
                                               category_bind_dic_param_to_class,
                                               gen_trace_data_by_cyclic_common, split_data_by_condition,
                                               customize_dict_param_common, split_data_by_div)
+from ap.api.common.services.services import convert_datetime_to_ct
 from ap.api.trace_data.services.time_series_chart import (get_data_from_db, gen_new_dic_param,
                                                           get_non_sensor_cols, gen_graph,
                                                           gen_dic_data_from_df, get_procs_in_dic_param,
@@ -91,7 +92,9 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
 
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
 
-    export_df = df
+    export_df = df.copy()
+
+    convert_datetime_to_ct(df, graph_param)
     # check filter match or not ( for GUI show )
     matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids = main_check_filter_detail_match_graph_data(
         graph_param, df)

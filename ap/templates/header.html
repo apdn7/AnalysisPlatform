@@ -17,18 +17,24 @@
 
 		<div class="d-flex align-items-center ml-auto py-1 flex-wrap">
 			<div class="dropdown mr-2 load-setting-common">
-				<button class="btn btn-setting bookmark-button dropdown-toggle" type="button" id="Bookmark"
-						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					<span id="bookmark-title" title="Bookmark">&#x2606</span>
-					<span title="" class="sub-label" id="currentLoadSettingLbl"></span>
-				</button>
-				<div class="dropdown-menu" aria-labelledby="Bookmark">
-					<a class="dropdown-item" href="#" onclick="openNewPage()">{{ _('New') }}</a>
-					<a class="dropdown-item" href="#" onclick="showSettingChangeModalHandler(loadAllUserSetting)">{{ _('Open') }}</a>
-                    <a class="dropdown-item" href="#" onclick="showOverwriteConfirmModel()" id="overwriteSaveSettingBtn" style="display: none">{{ _('Overwrite Save Setting Info') }}</a>
-				  	<a class="dropdown-item" href="#" data-toggle="modal" id="saveUserSetting" data-target="#saveUserSettingModal" onclick="autoFillUserSetting()">{{ _('Save Setting Info') }}</a>
-					  <a class="dropdown-item" href="#" onclick="showSettingChangeModalHandler(editUserSetting)" id="editSettingBtn" style="display: none">{{ _('Edit') }}</a>
-                  </div>
+                <div class="user-setting-btn">
+                    <button type="button" onclick="loadAllUserSetting()"
+                            data-toggle="modal" data-target="#loadUserSettingModal"
+                            class="btn btn-setting bookmark-button" style="margin-right: -3px; padding-right: 12px">
+                        <span id="bookmark-title" title="Bookmark">&#x2606</span>
+                        <span title="" class="sub-label" id="currentLoadSettingLbl"></span>
+                    </button>
+                    <button class="btn btn-setting bookmark-button dropdown-toggle" type="button" id="Bookmark"
+                            style="padding-right: 4px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="Bookmark">
+                        <a class="dropdown-item" href="#" onclick="openNewPage()">{{ _('New') }}</a>
+                        <a class="dropdown-item" href="#" onclick="showSettingChangeModalHandler(loadAllUserSetting)">{{ _('Open') }}</a>
+                        <a class="dropdown-item" href="#" onclick="showOverwriteConfirmModel()" id="overwriteSaveSettingBtn" style="display: none">{{ _('Overwrite Save Setting Info') }}</a>
+                        <a class="dropdown-item" href="#" data-toggle="modal" id="saveUserSetting" data-target="#saveUserSettingModal" onclick="autoFillUserSetting()">{{ _('Save Setting Info') }}</a>
+                        <a class="dropdown-item" href="#" onclick="showSettingChangeModalHandler(editUserSetting)" id="editSettingBtn" style="display: none">{{ _('Edit') }}</a>
+                    </div>
+                </div>
             </div>
             <button type="button" id="loadSettingBtn"
                         class="btn header-btn btn-setting mx-1 load-setting-tile-page"

@@ -1,7 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-# Author: DuyLSK (2019/05/31)
-
 import logging
 import re
 import traceback

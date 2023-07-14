@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-xl-10 col-9">
                     <div class="row">
-                        {{macros.multiple_target_period(rlp=true, dataNumber=true, scp=true, DivisionNumberHover=_('Division number Hover ScP'), WindowLengthHover=_('Window length Hover ScP'), cyclicTermDefault=49)}}
+                        {{macros.multiple_target_period(rlp=true, dataNumber=true, scp=true, DivisionNumberHover=_('Division number Hover ScP'), WindowLengthHover=_('Window length Hover ScP'), cyclicTermDefault=49, cyclicIntervalDefault=1)}}
                     </div>
                 </div>
             </div>
@@ -53,7 +53,7 @@
 					<option value="2">{{_('Time')}}</option>
 					<option value="3">{{_('Elapsed Time')}}</option>
 				</select>
-				<select name="scpColorScale" default-value="FULL" class="form-control border-white w-auto scale-dropdown ml-1">
+				<select name="scpColorScale" default-value="AUTO" class="form-control border-white w-auto scale-dropdown ml-1">
 					<option value="SETTING">{{ _('Setting scale') }}</option>
 					<option value="COMMON">{{ _('Common scale') }}</option>
 					<option value="THRESHOLD">{{ _('Threshold line') }}</option>
@@ -77,6 +77,13 @@
 				<select id="showBackward" name="showBackward" default-value="1" class="form-control border-white w-auto scale-dropdown ml-1">
 					<option value="1" selected>{{_('Backwards')}}</option>
 					<option value="">{{_('Forwards')}}</option>
+				</select>
+			</div>
+            <div class="d-flex align-items-center mr-4">
+				<select id="selectPlotType" name="selectPlotType" default-value="1" class="form-control border-white w-auto scale-dropdown ml-1">
+					<option value="POINT" selected>Point</option>
+					<option value="LINE">Line</option>
+                    <option value="ALL">Point and Line</option>
 				</select>
 			</div>
 		</div>

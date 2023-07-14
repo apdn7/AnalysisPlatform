@@ -13,16 +13,36 @@ const scatterChart = (ctx, data, prop) => {
         return [xTitleColor, yTitleColor];
     };
 
-    const genDataPointHoverInfo = (dataPoint, prop) => {
-        const xValue = applySignificantDigit(dataPoint.x);
-        const yValue = applySignificantDigit(dataPoint.y);
+    const externalScatterTooltipHandler = (context) => {
+        const {chart, tooltip} = context;
+        if (!tooltip.dataPoints) return;
+        const xValue = applySignificantDigit(tooltip.dataPoints[0].raw.x);
+        const yValue = applySignificantDigit(tooltip.dataPoints[0].raw.y);
+        let xName = '';
+        let yName = '';
+
         if (prop.xProcName && prop.yProcName) {
-            return [`${prop.sensorMasters[prop.xSensorIdx]}@${prop.xProcName}: ${xValue}`,
-                `${prop.sensorMasters[prop.xSensorIdx]}@${prop.yProcName}: ${yValue}`];
+            xName = `${prop.sensorMasters[prop.xSensorIdx]}@${prop.xProcName}`;
+            yName = `${prop.sensorMasters[prop.ySensorIdx]}@${prop.yProcName}`;
+        } else {
+            xName = `${prop.sensorMasters[prop.xSensorIdx]}`;
+            yName = `${prop.sensorMasters[prop.ySensorIdx]}`
         }
-        return [`${prop.sensorMasters[prop.xSensorIdx]}: ${xValue}`,
-            `${prop.sensorMasters[prop.xSensorIdx]}: ${yValue}`];
+
+        const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas;
+        // hover information table position
+        const canvasOffset = $(`#${chart.canvas.id}`).offset();
+        const leftPosition = canvasOffset.left + positionX + tooltip.caretX;
+        const topPosition = canvasOffset.top + positionY + tooltip.caretY;
+        genDataPointHoverTable(
+            genHoverDataTable([[xName, xValue], [yName, yValue]]),
+            {x: leftPosition - 192, y: topPosition},
+            125,
+            true,
+            chart.canvas.id,
+        );
     };
+
     const chartOptions = {
         interaction: {
             intersect: true,
@@ -137,12 +157,8 @@ const scatterChart = (ctx, data, prop) => {
             },
             tooltip: {
                 displayColors: false,
-                callbacks: {
-                    label: function(context) {
-                        const dataPointLabel = genDataPointHoverInfo(context.raw, prop);
-                        return dataPointLabel;
-                    },
-                },
+                enabled: false,
+                external:  externalScatterTooltipHandler,
             },
         },
         events: ['click', 'mousemove'],

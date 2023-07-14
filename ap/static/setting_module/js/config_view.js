@@ -150,7 +150,7 @@ $(() => {
         $(eles.pollingFreq).val(DB.getPollingFreq());
     });
 
-    stickyHeaders.load($('#db-config-register, #btn-trace-config-register'));
+    stickyHeaders.load($('#dataLinkGroup'));
 
     // set polling
     DB.setPollingFreq($(eles.pollingFreq).val());

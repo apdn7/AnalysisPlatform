@@ -123,7 +123,7 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
         globalTypingCount++;
         const currentTypingCount = globalTypingCount;
 
-        if (event.keyCode === 13) {
+        if (event.keyCode === KEY_CODE.ENTER) {
             setTimeout(() => {
                 regexEnter(currentTypingCount);
                 event.preventDefault();
@@ -176,7 +176,7 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
 
     // mouseover 2 seconds
     let timeoutId = null;
-    $('.show-detail').hover(function () {
+    $('.show-detail:not(.click-only)').hover(function () {
         if (!timeoutId) {
             timeoutId = setTimeout(() => {
                 timeoutId = null;
@@ -315,7 +315,7 @@ const onDemandFilterInputCheck = () => {
         } else {
             target.find('input').each((idx, item) => {
                 const currenStatus = $(item).prop('checked');
-                $(item).prop('checked', !currenStatus);
+                $(item).prop('checked', !currenStatus).change();
             });
         }
     });

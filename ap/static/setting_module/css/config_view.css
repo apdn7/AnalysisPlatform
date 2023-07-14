@@ -214,7 +214,7 @@ a.histview-link {
 .btn-fixed {
     position: fixed;
     top: 0;
-    right: 60px;
+    right: 40px;
     box-sizing: border-box;
     z-index: 10;
 }

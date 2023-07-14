@@ -124,6 +124,8 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
         is_abnormal = True
         default_csv_param['names'] = headers
         use_col_names = headers
+        if use_dummy_datetime and DATETIME_DUMMY in use_col_names:
+            use_col_names.remove(DATETIME_DUMMY)
         data_first_row = data_src.skip_head + 1
         head_skips = list(range(0, data_first_row))
     else:
@@ -175,11 +177,11 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
                                    delimiter=transformed_file_delimiter,
                                    do_normalize=False)
             csv_cols = next(check_file)
+            csv_cols = normalize_list(csv_cols)
             csv_cols = add_suffix_if_duplicated(csv_cols, True)
-            csv_cols_normalized = normalize_list(csv_cols)
 
             check_file.close()
-            missing_cols = set(dic_use_cols).difference(csv_cols_normalized)
+            missing_cols = set(dic_use_cols).difference(csv_cols)
             if DATETIME_DUMMY in missing_cols:
                 # remove dummy col before check
                 missing_cols.remove(DATETIME_DUMMY)
@@ -231,9 +233,11 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
         if is_abnormal:
             cols, vals = csv_data_with_headers(csv_file_name, data_src)
             df_one_file[cols] = vals
-
+            dic_use_cols_for_abnormal = dic_use_cols.copy()
+            if use_dummy_datetime and DATETIME_DUMMY in dic_use_cols_for_abnormal:
+                dic_use_cols_for_abnormal.pop(DATETIME_DUMMY)
             # remove unused columns
-            df_one_file = df_one_file[list(dic_use_cols)]
+            df_one_file = df_one_file[list(dic_use_cols_for_abnormal)]
 
         if use_dummy_datetime and DATETIME_DUMMY not in df_one_file.columns:
             df_one_file = gen_dummy_datetime(df_one_file, dummy_datetime_from)
@@ -390,7 +394,7 @@ def csv_to_df(transformed_file, data_src, head_skips, data_first_row, skip_row, 
 
     # load csv data to dataframe
     df = pd.read_csv(transformed_file, sep=csv_delimiter, skipinitialspace=True, na_values=NA_VALUES,
-                     error_bad_lines=False, encoding=encoding, skip_blank_lines=True, **read_csv_param)
+                     error_bad_lines=False, encoding=encoding, skip_blank_lines=True, index_col=False, **read_csv_param)
     df.dropna(how='all', inplace=True)
 
     if col_names:
@@ -588,8 +592,7 @@ def import_df(proc_id, df, dic_use_cols, get_date_col, cycle_cls, dic_sensor, di
     # remove duplicate records in csv file which exists in csv or DB
     df_duplicate = remove_duplicates(df, orig_df, proc_id, get_date_col)
 
-    save_res = import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls, dic_substring_sensors)
-    save_proc_data_count(df, get_date_col, job_id)
+    save_res = import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls, dic_substring_sensors, job_id)
     return save_res, df_error, df_duplicate
 
 

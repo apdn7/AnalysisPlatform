@@ -1,22 +1,38 @@
 <div class="card graph-navi" id="data_link">
     <div class="card-body">
         <form id="trace-config-form" class="position-relative">
-            <div class="form-header">
-                <h3 class="header-left hint-text" style="float: left !important;"
+            <div class="form-header d-flex justify-content-between align-items-center">
+                <div class="mr-4">
+                    <h3 class="header-left hint-text"
                     title="{{ _('Right drag & drop: data link setting') }}">{{ _("Data Link Config") }}</h3>
-                <button id="btn-trace-config-register" class="btn btn-primary btn-right btn-green" type="button"
-                        title="{{ _('Register Trace Config Hover') }}"><i class="far fa-save"></i>
-                    {{ _("Register") }}
-                </button>
-                <button id="btn-trace-config-sync" class="btn btn-secondary btn-right" type="button"
-                        style="margin-left: 1.5rem; margin-right: 1.5rem;" title="{{ _('Reload Hover') }}"><i
-                        class="fas fa-sync-alt"></i>
-                    {{ _("Reload") }}
-                </button>
-                <button id="btnTraceSimulation" class="btn btn-primary btn-right" type="button"
-                        title="{{ _('Prediction Hover') }}"><i class="fa fa-link"></i>
-                    {{ _("Prediction") }}
-                </button>
+                </div>
+                <div class="d-flex align-items-center justify-content-end" style="flex: 1">
+
+                          <!--       Alert msg         -->
+                   <div class="alert-wrapper mr-4" style="max-width: calc(100% - 324px);">
+                        <div id="alert-register-proc-link" class="alert alert-dismissible fade mb-0" style="display: none">
+                            <span id="alert-register-proc-link-content">{{ _('Generate proc link information msg') }}</span>
+                            <button type="button" class="close" onclick="$(this).parent().css('display','none');" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                   </div>
+                    <div id="dataLinkGroup">
+                        <button id="btnTraceSimulation" class="btn btn-primary" type="button"
+                                title="{{ _('Prediction Hover') }}"><i class="fa fa-link"></i>
+                            {{ _("Prediction") }}
+                        </button>
+                         <button id="btn-trace-config-sync" class="btn btn-secondary mx-2" type="button"
+                                title="{{ _('Reload Hover') }}"><i
+                                class="fas fa-sync-alt"></i>
+                            {{ _("Reload") }}
+                        </button>
+                        <button id="btn-trace-config-register" class="btn btn-primary btn-green" type="button"
+                                title="{{ _('Register Trace Config Hover') }}"><i class="far fa-save"></i>
+                            {{ _("Register") }}
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="modal fade" id="modal-edge-popup" tabindex="-1" role="dialog" data-backdrop="static"
                  data-keyboard="false">

@@ -1,6 +1,11 @@
 /* eslint-disable no-unused-vars,camelcase */
 let isSSEListening = false;
-let autoUpdateCallBackFunc = null;
+
+let longPollingData = {
+    formData: null, // javascript FormData obj
+    callbackFuncName: null, // string
+    callbackParams: [], // []
+};
 
 const getTraceTime = (formData) => {
     for (const item of formData.entries()) {
@@ -21,27 +26,24 @@ const isAutoUpdate = (formData) => {
 
 const shouldChartBeRefreshed = (formData) => {
     if (isAutoUpdate(formData)) {
-        isSSEListening = true;
         return true;
     }
-
-    isSSEListening = false;
     return false;
 };
 
-const longPolling = (formData, callback) => {
-    autoUpdateCallBackFunc = callback;
-    const source = openServerSentEvent();
-    source.removeEventListener(serverSentEventType.procLink, handleSourceListener, true);
-    if (shouldChartBeRefreshed(formData)) {
-        source.addEventListener(serverSentEventType.procLink, handleSourceListener, true);
+const handleSourceListener = () => {
+    const isAutoUpdate = shouldChartBeRefreshed(longPollingData.formData || new FormData());
+    if (isAutoUpdate && longPollingData.callbackFuncName) {
+        isSSEListening = true;
+        longPollingData.callbackFuncName(...longPollingData.callbackParams);
     }
 };
 
-const handleSourceListener = () => {
-    if (autoUpdateCallBackFunc) {
-        autoUpdateCallBackFunc();
-    } else {
-        $(`${currentFormID} button.show-graph`).click();
-    }
+const setPollingData = (formData, callbackFunc, params) => {
+    longPollingData = {
+        formData,
+        callbackFuncName: callbackFunc,
+        callbackParams: params,
+    };
 };
+

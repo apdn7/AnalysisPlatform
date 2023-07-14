@@ -45,8 +45,13 @@ RESAMPLING_SIZE = 10_000
 
 LOG_LEVEL = 'log_level'
 
+# fiscal year start month
+FISCAL_YEAR_START_MONTH = 4
 
-class AP_LOG_LEVEL(Enum):
+MAX_SAFE_INTEGER = 9007199254740991
+
+
+class ApLogLevel(Enum):
     DEBUG = auto()
     INFO = auto()
 
@@ -151,6 +156,9 @@ ORIG_ARRAY_Z = 'orig_array_z'
 ARRAY_Y_MIN = 'array_y_min'
 ARRAY_Y_MAX = 'array_y_max'
 ARRAY_Y_TYPE = 'array_y_type'
+SLOT_FROM = 'slot_from'
+SLOT_TO = 'slot_to'
+SLOT_COUNT = 'slot_count'
 IQR = 'iqr'
 ARRAY_X = 'array_x'
 Y_MAX = 'y-max'
@@ -198,6 +206,8 @@ END_DT = 'end_dt'
 IS_REMOVE_OUTLIER = 'remove_outlier'
 REMOVE_OUTLIER_OBJECTIVE_VAR = 'remove_outlier_objective_var'
 REMOVE_OUTLIER_EXPLANATORY_VAR = 'remove_outlier_explanatory_var'
+REMOVE_OUTLIER_TYPE = 'remove_outlier_type'
+REMOVE_OUTLIER_REAL_ONLY = 'is_remove_outlier_real_only'
 ABNORMAL_COUNT = 'abnormal_count'
 TBLS = 'TBLS'
 FILTER_PARTNO = 'filter-partno'
@@ -381,6 +391,7 @@ class DataType(Enum):
     EU_REAL_SEP = 7
     EU_INTEGER_SEP = 8
     K_SEP_NULL = 9
+    BIG_INT = 10
 
 
 class DataTypeEncode(Enum):
@@ -768,6 +779,7 @@ COL_NAME = 'column_name'
 COL_MASTER_NAME = 'column_master_name'
 PROC_ID = 'proc_id'
 COL_DETAIL_NAME = 'name'
+NAME = 'name'
 
 
 class DataCountType(Enum):
@@ -797,3 +809,29 @@ class AppGroup(Enum):
     DN = 'DN'
     Dev = 'Dev'
     Ext = 'Ext'
+
+
+class RemoveOutlierType(Enum):
+    OP1 = 'Op1'  # p1-p99
+    OP5 = 'Op5'  # p5-p95
+    O6M = 'O6m'  # q3 + 2.5iqr Majority
+    O6I = 'O6i'  # q3 + 2.5iqr Minority
+    O6U = 'O6u'  # q3 + 2.5iqr Upper
+    O6L = 'O6l'  # q3 + 2.5iqr Lower
+    O4M = 'O4m'  # q3 + 1.5iqr Majority
+    O4I = 'O4i'  # q3 + 1.5iqr Minority
+    O4U = 'O4u'  # q3 + 1.5iqr Upper
+    O4L = 'O4l'  # q3 + 1.5iqr Lower
+    Majority = 'majority'
+    Minority = 'minority'
+    Upper = 'upper'
+    Lower = 'lower'
+
+
+ID = 'id'
+IS_USE_DUMMY_DATETIME = 'is_use_dummy_datetime'
+ENG_NAME = 'en_name'
+IS_GET_DATE = 'is_get_date'
+IS_DUMMY_DATETIME = 'is_dummy_datetime'
+LIST_PROCS = 'list_procs'
+GRAPH_FILTER_DETAILS = 'graph_filter_detail_ids'

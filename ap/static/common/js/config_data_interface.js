@@ -96,6 +96,11 @@ const DataTypes = Object.freeze({
         exp: '',
         org_type: 'INTEGER'
     },
+    BIG_INT: {
+        name: 'BIG_INT',
+        value: 10,
+        org_type: 'STRING'
+    }
 });
 
 
@@ -116,7 +121,7 @@ const CfgProcess_CONST = {
     NUMERIC_TYPES: [DataTypes.REAL.name, DataTypes.INTEGER.name, DataTypes.EU_REAL_SEP.name, DataTypes.REAL_SEP.name, DataTypes.INTEGER_SEP.name, DataTypes.EU_INTEGER_SEP.name],
     NUMERIC_AND_STR_TYPES: [DataTypes.REAL.name, DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name, DataTypes.EU_REAL_SEP.name, DataTypes.REAL_SEP.name, DataTypes.INTEGER_SEP.name, DataTypes.EU_INTEGER_SEP.name],
     ALL_TYPES: [DataTypes.DATETIME.name, DataTypes.REAL.name, DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name, DataTypes.EU_REAL_SEP.name, DataTypes.REAL_SEP.name, DataTypes.INTEGER_SEP.name, DataTypes.EU_INTEGER_SEP.name],
-    CATEGORY_TYPES: [DataTypes.STRING.name, DataTypes.INTEGER.name, DataTypes.TEXT.name, DataTypes.INTEGER_SEP, DataTypes.EU_INTEGER_SEP],
+    CATEGORY_TYPES: [DataTypes.STRING.name, DataTypes.INTEGER.name, DataTypes.TEXT.name, DataTypes.INTEGER_SEP.name, DataTypes.EU_INTEGER_SEP.name, DataTypes.BIG_INT.name],
     CT_TYPES: [DataTypes.DATETIME.name],
     EU_TYPE_VALUE: [DataTypes.REAL_SEP.value, DataTypes.EU_REAL_SEP.value, DataTypes.INTEGER_SEP.value, DataTypes.EU_INTEGER_SEP.value]
 }
@@ -200,6 +205,8 @@ class CfgProcess {
 
     // col -> univeral data
     dicColumnData = {}; // columnId -> [val1, val2, ...]
+
+    ct_range = [];
 
     constructor(inObj) {
         // set data
@@ -312,22 +319,16 @@ class CfgProcess {
 
 
     getColumnFromDB = async () => {
-        await fetch(`/ap/api/setting/proc_config/${this.id}/columns`, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(response => response.clone().json())
-            .then(json => {
-                this.columns = [];
-                for (let colJson of json.data) {
-                    const cfgColumn = new CfgColumn(colJson);
-                    this.columns.push(cfgColumn);
-                    this.dicColumns[cfgColumn.id] = cfgColumn;
-                }
-            });
+        const url = `/ap/api/setting/proc_config/${this.id}/columns`;
+        const res = await fetchData(url, {}, 'GET');
+        if (res.data) {
+            this.columns = [];
+            for (let colJson of res.data) {
+                const cfgColumn = new CfgColumn(colJson);
+                this.columns.push(cfgColumn);
+                this.dicColumns[cfgColumn.id] = cfgColumn;
+            }
+        }
     }
 
     updateFilters = async () => {
@@ -340,21 +341,15 @@ class CfgProcess {
 
     // get filter from process config
     updateProcFilters = async () => {
-        await fetch(`/ap/api/setting/proc_config/${this.id}/filters`, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(response => response.clone().json())
-            .then(json => {
-                this.filters = [];
-                for (let filterItem of json.data) {
-                    const cfgFilter = new CfgFilter(filterItem);
-                    this.filters.push(cfgFilter);
-                }
-            });
+        const url = `/ap/api/setting/proc_config/${this.id}/filters`;
+        const res = await  fetchData(url, {}, 'GET');
+        this.filters = [];
+        if (res.data) {
+            for (let filterItem of res.data) {
+                const cfgFilter = new CfgFilter(filterItem);
+                this.filters.push(cfgFilter);
+            }
+        }
     }
 
     setColumnData = (columnId, data) => {
@@ -375,26 +370,24 @@ class CfgProcess {
 
     getColumnDataFromUDB = async (columnId) => {
         if (isEmpty(columnId)) return;
-
-        await fetch(`/ap/api/setting/distinct_sensor_values/${columnId}`, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(response => response.clone().json())
-            .then(json => {
-                const sensorValues = json.data || [];
-                this.dicColumnData[columnId] = sensorValues;
-            }).catch((e) => {
-                console.log(e);
-            });
+        const url = `/ap/api/setting/distinct_sensor_values/${columnId}`;
+        const res = await fetchData(url, {}, 'GET');
+        if (res.data) {
+            this.dicColumnData[columnId] = res.data || [];
+        }
     }
     
     getXAxisSetting = () => {
         const columns = this.columns;
         return columns;
+    }
+
+    getCTRange = async () => {
+        const url = `/ap/api/setting/proc_config/${this.id}/get_ct_range`;
+        const res = await fetchData(url, {}, 'GET');
+        if (res.data) {
+            this.ct_range = res.data;
+        }
     }
 }
 

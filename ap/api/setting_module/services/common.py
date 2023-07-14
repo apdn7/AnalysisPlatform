@@ -31,7 +31,7 @@ def parse_user_setting(params):
     page = params.get('page') or ''
     key = '{}|{}'.format(page, title)  # TODO use page + title for now
     created_by = params.get('created_by') or ''
-    priority = parse_int_value(params.get('priority')) or 1
+    priority = parse_int_value(params.get('priority', 0))
     use_current_time = bool(params.get('use_current_time'))
     description = params.get('description') or ''
     share_info = bool(params.get('share_info'))

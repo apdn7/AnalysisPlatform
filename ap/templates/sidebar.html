@@ -105,6 +105,20 @@
                         </li>
                     </ul>
                 </li>
+                 <li>
+                    <a href="#structureLearningMn" data-toggle="collapse" aria-expanded="false"
+                       class="side-dropdown-toggle dropdown-toggle collapsed"
+                       data-tog="anlSm"><span class="nav-text">{{ _('Structure Learning') }}</span></a>
+                    <ul class="list-unstyled collapse" id="structureLearningMn">
+                        <li>
+                            <a href="{{ url_for('analyze.gl') }}" class="go-to-page"
+                               title="{{ _('GL Page Title') }}">
+                                <span class="page-character">GL</span>
+                                <span class="nav-text hint-text">{{ _('Graphical Lasso') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </li>
         <li id="settingPageMenu">
@@ -171,4 +185,17 @@
             <span id="appLocation" class="sidebar-btm"></span>
         </div>
     </div>
+<!--context menu sidebar-->
+<div>
+    <ul id="contextMenuSidebar" class="context-menu" style="display:none;" name="contextMenuSidebar">
+        <li class="menu-item" onclick="goToOtherPage(null, true, true)">{{ _('Open (new)') }}</li>
+        <li class="menu-item" onclick="goToOtherPage(null, true, false)">{{ _('Open (takeover)') }}</li>
+        <li class="menu-item" onclick="goToOtherPage(null, false, true)">{{ _('Open in new tab (new)') }}</li>
+        <li class="menu-item" onclick="goToOtherPage(null, false, false)">{{ _('Open in new tab (takeover)') }}</li>
+        <li class="menu-item" onclick="goToOtherPage(null, true, false, 'DN7')">{{ _('Main page: DN7') }}</li>
+        <li class="menu-item" onclick="goToOtherPage(null, true, false, 'AP')">{{ _('Main page: AP') }}</li>
+        <li class="menu-item" onclick="goToOtherPage(null, false, false, 'DN7')">{{ _('Main page: DN7') }}{{_('in new tab')}}</li>
+        <li class="menu-item" onclick="goToOtherPage(null, false, false, 'AP')">{{ _('Main page: AP') }}{{_('in new tab')}}</li>
+    </ul>
+</div>
 </nav>

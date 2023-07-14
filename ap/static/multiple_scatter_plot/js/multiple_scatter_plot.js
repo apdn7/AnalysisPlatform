@@ -4,8 +4,8 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
-const MAX_END_PROC = 7;
-const MIN_END_PROC = 2;
+const MAX_NUMBER_OF_SENSOR = 7;
+const MIN_NUMBER_OF_SENSOR = 2;
 let tabID = null;
 let resultData = null;
 const graphStore = new GraphStore();
@@ -167,7 +167,7 @@ const collectFormDataMSP = () => {
 
 const mspTracing = () => {
     requestStartedAt = performance.now();
-    const isValid = checkValidations({ min: MIN_END_PROC, max: MAX_END_PROC });
+    const isValid = checkValidations({ min: MIN_NUMBER_OF_SENSOR, max: MAX_NUMBER_OF_SENSOR });
     updateStyleOfInvalidElements();
     if (isValid) {
         // close sidebar
@@ -443,10 +443,14 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
     }
 };
 
-const scatterTraceData = (formData, clearOnFlyFilter = false) => {
+const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false) => {
     if (!checkDisableScatterBtn()) {
         loadingHide();
         return;
+    }
+
+    if (autoUpdate) {
+        formData = genDatetimeRange(lastUsedFormData);
     }
 
     showGraphCallApi('/ap/api/msp/plot', formData, REQUEST_TIMEOUT, async (res) => {
@@ -473,17 +477,14 @@ const scatterTraceData = (formData, clearOnFlyFilter = false) => {
             showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
         }
 
-        multipleScatterPlot(res);
+        multipleScatterPlot(res, clearOnFlyFilter);
 
         // show info table
         showInfoTable(res);
 
         loadGraphSetings(clearOnFlyFilter);
 
-        // check and do auto-update
-        longPolling(formData, () => {
-            scatterTraceData(lastUsedFormData);
-        });
+        setPollingData(formData, scatterTraceData, [formData, false, true]);
 
         if (res.is_show_contour_only) {
             showToastrMsg(i18n.hideContourMsg);

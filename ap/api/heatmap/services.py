@@ -1,6 +1,6 @@
 import math
 from datetime import timedelta, datetime
-from typing import Dict, List
+from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -10,23 +10,26 @@ from flask_babel import gettext as _
 from scipy.stats import iqr
 
 from ap.api.categorical_plot.services import gen_graph_param
+from ap.api.common.services.services import convert_datetime_to_ct
 from ap.api.trace_data.services.time_series_chart import main_check_filter_detail_match_graph_data, \
     customize_dic_param_for_reuse_cache, filter_cat_dict_common, get_data_from_db
 from ap.common.common_utils import start_of_minute, end_of_minute, DATE_FORMAT_QUERY, gen_sql_label, \
-    reformat_dt_str
+    reformat_dt_str, DATE_FORMAT_STR, DATE_FORMAT_STR_CSV
 from ap.common.constants import TIME_COL, CELL_SUFFIX, AGG_COL, ARRAY_PLOTDATA, HMFunction, DataType, \
     MATCHED_FILTER_IDS, UNMATCHED_FILTER_IDS, NOT_EXACT_MATCH_FILTER_IDS, ACTUAL_RECORD_NUMBER, \
     UNIQUE_SERIAL, \
     AGG_FUNC, CATE_VAL, END_COL, X_TICKTEXT, X_TICKVAL, Y_TICKTEXT, Y_TICKVAL, ACT_CELLS, MAX_TICKS, NA_STR, \
-    COMMON, MAX_GRAPHS, CAT_EXP_BOX, UNIQUE_CATEGORIES, DATA_SIZE
+    COMMON, MAX_GRAPHS, CAT_EXP_BOX, UNIQUE_CATEGORIES, DATA_SIZE, COL_DATA_TYPE
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
 from ap.common.services.sse import notify_progress, background_announcer, AnnounceEvent
 from ap.common.sigificant_digit import signify_digit, get_fmt_from_array
 from ap.common.trace_data_log import TraceErrKey, EventType, EventAction, Target, trace_log
-from ap.setting_module.models import CfgProcess
+from ap.setting_module.models import CfgProcess, CfgProcessColumn
 from ap.trace_data.schemas import DicParam
+
+CHM_AGG_FUNC = [HMFunction.median.name, HMFunction.mean.name, HMFunction.std.name]
 
 
 @log_execution_time()
@@ -133,7 +136,7 @@ def fill_empty_cells(df_cells: pd.DataFrame, dic_df_proc, var_agg_col=None):
 def gen_y_ticks(hm_mode, hm_step):
     """ Generate ticks of y-axis """
     if hm_mode == 7:
-        ticktext = ['Sat', 'Fri', 'Thu', 'Wed', 'Tue', 'Mon', 'Sun']
+        ticktext = ['Sun', 'Sat', 'Fri', 'Thu', 'Wed', 'Tue', 'Mon']
         row_per_day = int(24 / hm_step)
         tickvals = [(i + 1) * row_per_day for i in range(len(ticktext))]
     else:
@@ -233,10 +236,12 @@ def gen_plotly_data(dic_param, dic_df_proc, hm_mode, hm_step, dic_col_func, df_c
                     for cate_value, df_cate in end_col_data.items():
                         df_sensor_agg: pd.DataFrame = df_cate
                         plotdata: dict = build_plot_data(df_sensor_agg, end_col, hm_function)
+                        col_data_type = CfgProcessColumn.get_by_id(end_col)
                         plotdata.update({
                             AGG_FUNC: hm_function,
                             CATE_VAL: cate_value,
                             END_COL: end_col,
+                            COL_DATA_TYPE: col_data_type.data_type if col_data_type else None,
                             X_TICKTEXT: x_ticktext,
                             X_TICKVAL: x_tickvals,
                             Y_TICKTEXT: y_ticktext,
@@ -246,9 +251,11 @@ def gen_plotly_data(dic_param, dic_df_proc, hm_mode, hm_step, dic_col_func, df_c
                 else:
                     df_sensor_agg: pd.DataFrame = end_col_data
                     plotdata: dict = build_plot_data(df_sensor_agg, end_col, hm_function)
+                    col_data_type = CfgProcessColumn.get_by_id(end_col)
                     plotdata.update({
                         AGG_FUNC: hm_function,
                         END_COL: end_col,
+                        COL_DATA_TYPE: col_data_type.data_type if col_data_type else None,
                         X_TICKTEXT: x_ticktext,
                         X_TICKVAL: x_tickvals,
                         Y_TICKTEXT: y_ticktext,
@@ -287,7 +294,7 @@ def gen_agg_col(df: pd.DataFrame, hm_mode, hm_step):
 
 def gen_weekly_ticks(df: pd.DataFrame):
     # tick weekly, first day of week, sunday
-    df['x_label'] = df[TIME_COL] - ((df[TIME_COL].dt.weekday + 1) % 7) * np.timedelta64(1, 'D')
+    df['x_label'] = df[TIME_COL] - (df[TIME_COL].dt.weekday % 7) * np.timedelta64(1, 'D')
     df['x_label'] = get_year_week_in_df_column(df['x_label']) \
                     + "<br>" + df['x_label'].dt.month.astype(str).str.pad(2, fillchar='0') \
                     + "-" + df['x_label'].dt.day.astype(str).str.pad(2, fillchar='0')
@@ -296,7 +303,7 @@ def gen_weekly_ticks(df: pd.DataFrame):
 
 def get_year_week_in_df_column(column: pd.DataFrame.columns):
     """ get year and week with format 'yy,w' -> '22, 20' """
-    return column.dt.year.astype(str).str[-2:] + ", " + (column.dt.strftime('%U').astype(int) + 1).astype(str).str.pad(
+    return column.dt.year.astype(str).str[-2:] + ", " + (column.dt.strftime('%U').astype(int)).astype(str).str.pad(
         2, fillchar='0')
 
 
@@ -318,14 +325,14 @@ def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm, client_tz=tz.t
         # gen y
         row_per_day = int(24 / hm_step)
         df['dayofweek'] = df[TIME_COL].dt.day_name().astype(str).str[:3]
-        df['newdayofweek'] = (12 - df[TIME_COL].dt.dayofweek) % 7  # sat,fri,...,mon,sun
+        df['newdayofweek'] = (16 - df[TIME_COL].dt.dayofweek) % 10  # mon, tue... sat
         df['y'] = int(24 / hm_step) - (df[TIME_COL].dt.hour / hm_step).astype(int) + df[
             'newdayofweek'] * row_per_day
 
         # gen x
         df['year'] = df[TIME_COL].dt.year
         min_year = df['year'].min()
-        df['x'] = df[TIME_COL].dt.strftime('%U').astype(int) + 1 + (df['year'] % min_year) * 53
+        df['x'] = df[TIME_COL].dt.strftime('%U').astype(int) + (df['year'] % min_year) * 53
 
         # x_label
         if num_days <= 140:
@@ -369,12 +376,13 @@ def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm, client_tz=tz.t
             # tick yearly
             df['x_label'] = get_year_week_in_df_column(df[TIME_COL]) + '<br>01-01'
 
-    df['from'] = 'From: ' + df[TIME_COL].astype(str).str[:16] + '<br>'
+    time_fmt = '%Y-%m-%d %a %H:%M'
+    df['from'] = 'From: ' + df[TIME_COL].dt.strftime(time_fmt) + '<br>'
     unit = 'min' if hm_mode == 1 else 'h'
     df['to_temp'] = df[TIME_COL] + pd.to_timedelta(hm_step, unit=unit)
     df.loc[df['to_temp'].astype(str).str[11:16] == '00:00', 'to'] = \
-        df['to_temp'].astype(str).str[:8] + df[TIME_COL].astype(str).str[8:11] + '24:00'
-    df.loc[df['to_temp'].astype(str).str[11:16] != '00:00', 'to'] = df['to_temp'].astype(str).str[:16]
+        df['to_temp'].astype(str).str[:8] + df[TIME_COL].dt.strftime('%d %a ') + '24:00'
+    df.loc[df['to_temp'].astype(str).str[11:16] != '00:00', 'to'] = df['to_temp'].dt.strftime(time_fmt)
     df['to'] = 'To: ' + df['to'] + '<br>'
 
     return df
@@ -391,7 +399,7 @@ def build_dic_col_func(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicPar
             end_col_ids = [col for col in graph_param.get_sensor_cols(proc_id) if col in graph_param.common.sensor_cols]
             end_cols = proc_config.get_cols(end_col_ids)
             for end_col in end_cols:
-                if DataType[end_col.data_type] is DataType.REAL:
+                if DataType[end_col.data_type] in [DataType.REAL, DataType.DATETIME]:
                     hm_function = HMFunction[graph_param.common.hm_function_real]
                 else:
                     hm_function = HMFunction[graph_param.common.hm_function_cate]
@@ -505,20 +513,6 @@ def concat_unique_categories(dic_filter_results, cat_exp_box):
     return dic_filter_results
 
 
-@log_execution_time()
-@abort_process_handler()
-def trim_data(df: pd.DataFrame, agg_cols: List, end_col):
-    """ Trim first 5% biggest and 5% smallest. Alternative, rank by pct. """
-
-    df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna()
-    # df['rank'] = df.groupby(agg_cols)[end_col].rank(method='first')
-    # df['group_size'] = df.groupby(agg_cols)['rank'].transform(np.size)
-    # df['p1'] = (df['group_size'] * 0.05).transform(np.floor)
-    # df['p9'] = df['group_size'] - df['p1']
-    # return df[(df['p1'] <= df['rank']) & (df['rank'] <= df['p9'])].reset_index()
-    return df
-
-
 def range_func(x):
     return np.max(x) - np.min(x)
 
@@ -578,6 +572,7 @@ def groupby_and_aggregate(df: pd.DataFrame, hm_function: HMFunction, hm_mode, hm
         agg_params = {end_col: range_func, TIME_COL: HMFunction.first.name}
         df = df.groupby(agg_cols).agg(agg_params).reset_index()
     elif hm_function is HMFunction.iqr:
+        df = df.dropna()
         agg_params = {end_col: iqr, TIME_COL: HMFunction.first.name}
         df = df.groupby(agg_cols).agg(agg_params).reset_index()
     elif hm_function is HMFunction.time_per_count:
@@ -586,8 +581,16 @@ def groupby_and_aggregate(df: pd.DataFrame, hm_function: HMFunction, hm_mode, hm
         step_time = (hm_step * 60) if hm_mode == 1 else (hm_step * 3600)
         df[end_col] = step_time / df[end_col]
     else:
-        agg_params = {end_col: hm_function.name, TIME_COL: HMFunction.first.name}
-        df = df.groupby(agg_cols).agg(agg_params, numeric_only=False).reset_index()
+        if hm_function.name not in CHM_AGG_FUNC:
+            agg_func = hm_function.name
+        else:
+            agg_func = lambda x: agg_func_with_na(x, hm_function.name)
+        agg_params = {end_col: agg_func, TIME_COL: HMFunction.first.name}
+        df = df.groupby(agg_cols).agg(agg_params).reset_index()
+
+        # # This code below has bug because df[end_col].dtypes == 'object'
+        # agg_params = {end_col: hm_function.name, TIME_COL: HMFunction.first.name}
+        # df = df.groupby(agg_cols).agg(agg_params, numeric_only=False).reset_index()
     return df
 
 
@@ -597,10 +600,10 @@ def gen_heat_map_cell_value(df: pd.DataFrame, graph_param: DicParam, agg_cols, e
     """ Value z for each cell (x,y) """
     hm_mode = int(graph_param.common.hm_mode)
     hm_step = int(graph_param.common.hm_step)
-    hm_trim = int(graph_param.common.hm_trim)
-    # trim data
-    if 'count' not in hm_function.name and hm_trim:
-        df = trim_data(df, agg_cols, end_col)
+
+    # drop na
+    if 'count' not in hm_function.name:
+        df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna()
 
     # groupby + aggregate
     df = groupby_and_aggregate(df, hm_function, hm_mode, hm_step, agg_cols, end_col)
@@ -681,7 +684,10 @@ def gen_heatmap_data_as_dict(graph_param, dic_param, dic_proc_cfgs, dic_cat_filt
     # filter by cat
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param, True)
 
-    export_df = df
+    export_df = df.copy()
+
+    # convert datetime columns to CT
+    convert_datetime_to_ct(df, graph_param)
     target_var_data = get_target_variable_data_from_df(df, dic_proc_cfgs, graph_param)
     # check filter match or not ( for GUI show )
     matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids = main_check_filter_detail_match_graph_data(

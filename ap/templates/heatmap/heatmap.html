@@ -8,13 +8,13 @@
 {% block midbody %}
     <div class="card">
         <form id="traceDataForm">
-            {{ macros.heatmap_end_proc(title=_('Enter target item of data (quantitative variable like measurement value and category variable like part number) to visualize pattern. This data is plotted on the graph. It can be selected up to ten items.'), procs=procs, no_link_data=true) }}
+            {{ macros.heatmap_end_proc(title=_('Enter target item of data (quantitative variable like measurement value and category variable like part number) to visualize pattern. This data is plotted on the graph. It can be selected up to ten items.'), procs=procs, no_link_data=true, color_scale=true) }}
             {{ macros.data_finder_card() }}
             {{ macros.heatmap_target_period() }}
             {{ macros.cond_proc([],'', width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
             <br class="graph-navi graph-navi-top-down">
             <div class="d-flex align-items-center justify-content-center show-graph-div">
-                {{ macros.preprocess_options(chmTitle=_('The targets of removing outlier are Max, Mean Min, σ, and Range.')) }}
+                {{ macros.preprocess_options(isRealOnlyMsg=_('The target is a variable whose data type is Real(Float)')) }}
                 <button id="showGraphBtn" type="button" value="{{ _('Display graph') }}"
                         onClick="showHeatMap();" class="btn btn-primary show-graph ml-3"><i
 					class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
@@ -41,9 +41,9 @@
 
 	<div id="heatmapCard" class="card result-section plot-content" style="display: none;">
         <div class="justify-content-center card chart-wrapper chart-margin clearfix" id="plot-cards"></div>
-    </div>
-    <div id="stContentTab">
-        <div class="setting-inform-content"></div>
+        <div id="stContentTab">
+            <div class="setting-inform-content"></div>
+        </div>
     </div>
 
     <div>

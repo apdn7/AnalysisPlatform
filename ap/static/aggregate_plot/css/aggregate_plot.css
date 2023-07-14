@@ -10,14 +10,15 @@
 
 .cyclic-calender-option-example {
     display: inline-block;
-    margin-left: 5px;
     width: calc(50% - 15px);
-    text-align: left;
+    text-align: right;
+    padding-right: 2px;
+
 }
 
 .cyclic-calender-option-list {
     border: 1px solid white;
-    padding-left: 8px;
+    padding-left: 4px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;

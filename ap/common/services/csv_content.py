@@ -12,6 +12,7 @@ from itertools import islice
 from zipfile import ZipFile
 
 from flask import Response
+from pandas import Series
 
 from ap.api.efa.services.etl import detect_file_delimiter
 from ap.common.common_utils import detect_encoding
@@ -59,7 +60,7 @@ def read_data(f_name, headers=None, skip_head=None, end_row=None, delimiter=',',
             yield normalize_func(row)
 
 
-def gen_data_types(data):
+def gen_data_types(data: Series):
     """
     check datatype of a list of columns
     :param data:
@@ -92,20 +93,31 @@ def gen_data_types(data):
     if DataType.EU_REAL_SEP in data_types:
         return DataType.EU_REAL_SEP.value
 
+    if DataType.BIG_INT in data_types:
+        return DataType.BIG_INT.value
+
     return DataType.TEXT.value
 
 
 # check special float type
-def check_float_type(data):
-    cast_float = data[data.astype(str).str.strip() != ''].astype(float)
+def check_float_type(data: Series):
+    def preprocess(s: Series) -> Series:
+        return s.astype(str).str.strip().str.lower()
+
+    def count_inf(s: Series) -> int:
+        s_str = preprocess(s)
+        return ((s == math.inf) | (s_str == INF_STR.lower())).sum() or ((s == -math.inf) | (s_str == MINUS_INF_STR.lower())).sum()
+
+    cast_float = data[preprocess(data) != ''].astype(float)
+
     # count +inf|-inf of cast data
-    n = (cast_float == math.inf).sum() or (cast_float == -math.inf).sum()
+    n = count_inf(cast_float)
 
     if n == 0:
         return DataType.REAL.value
     else:
         # count +inf|-inf of raw data
-        nr = (data == math.inf).sum() or (data == -math.inf).sum()
+        nr = count_inf(data)
         if n > nr:
             return DataType.TEXT.value
         else:
@@ -124,14 +136,18 @@ def check_data_type(data):
         return DataType.TEXT
 
     if isinstance(data, int):
-        return DataType.INTEGER
+        return check_large_int_type(data)
 
     if isinstance(data, float) or isinstance(data, decimal.Decimal):
         return DataType.REAL
 
+    # make sure data is real when it's -inf or inf instead of string
+    if str(data).lower() in [INF_STR.lower(), MINUS_INF_STR.lower()]:
+        return DataType.REAL
+
     try:
         if str(int(data)) == str(data):
-            return DataType.INTEGER
+            return check_large_int_type(data)
         else:
             return DataType.TEXT
     except ValueError:
@@ -193,6 +209,12 @@ def filter_blank_row(data):
     for row in data:
         if row:
             yield row
+
+
+def check_large_int_type(val):
+    if int(val) > MAX_SAFE_INTEGER:
+        return DataType.BIG_INT
+    return DataType.INTEGER
 
 
 @log_execution_time()

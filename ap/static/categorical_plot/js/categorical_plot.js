@@ -4,7 +4,7 @@
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 32;
-const MAX_END_PROC = 8;
+const MAX_NUMBER_OF_SENSOR = 8;
 // eslint-disable-next-line prefer-const
 const dicTabs = {'#byVarCompare': 'var', '#byTermCompare': 'term', '#byCyclicTerm': 'cyclicTerm'};
 let currentTraceDataVar;
@@ -258,7 +258,7 @@ const onChangeHistSummaryEventHandler = (eleIdPrefix = '') => {
 const onChangeHistScale = (prefix) => {
     $(`select[name=${prefix}HistScale]`).unbind('change');
     $(`select[name=${prefix}HistScale]`).on('change', function f() {
-        const scaleOption = $(this).children('option:selected').val() || '1';
+        const scaleOption = $(this).children('option:selected').val() || '2';
         const freOption = $(`select[name=${prefix}${eles.frequencyScale}]`).val();
         rerenderHistogram(prefix, scaleOption, freOption);
         checkSummaryOption(`${prefix}${eles.summaryOption}`);
@@ -401,11 +401,14 @@ const calculateSummaryData2 = (summaries, summaryIdx = 0) => {
 
 const showTabsAndCharts = (
     eleIdPrefix, data,
-    scaleOption = scaleOptionConst.SETTING,
+    scaleOption = scaleOptionConst.COMMON,
     genTab = true, onlySensorId = null,
     frequencyOption = frequencyOptions.COMMON,
 ) => {
-    let sensors = data.COMMON.GET02_VALS_SELECT || [];
+    let sensors = [];
+    data.ARRAY_FORMVAL.forEach(arrayFormval => {
+        sensors = [...sensors, ...arrayFormval.GET02_VALS_SELECT.map(val => Number(val))]
+    })
     if (typeof (sensors) === 'string') {
         sensors = [sensors];
     }
@@ -461,7 +464,8 @@ const showTabsAndCharts = (
             const termIdx = sensorPlotDatas[i].term_id || 0;
             const beforeRankValues = sensorPlotDatas[i].before_rank_values;
             const stepChartSummary = sensorPlotDatas[i].cat_summary || null;
-            const filterCond = catExpValue !== null
+            const catExpBoxCols = [data.COMMON.catExpBox1, data.COMMON.catExpBox2].filter(c => c);
+            const filterCond = catExpBoxCols.length > 0
                 ? catExpValue.toString().split(' | ') : null;
             // get latest thresholds -> show thresholds in scatter, histogram, summary
             const [chartInfos, chartInfosOrg] = getChartInfo(sensorPlotDatas[i], 'TIME', filterCond);
@@ -475,13 +479,12 @@ const showTabsAndCharts = (
             const minX = frequencyOption === frequencyOptions.COMMON ? scaleInfo['x-min'] : null;
 
             // produce summary data
-            const {summaries} = sensorPlotDatas[i];
-            const summaryData = calculateSummaryData(summaries, latestChartInfoIdx);
+            const {summaries, end_col, end_proc_id} = sensorPlotDatas[i];
+            const isHideNonePoint = isHideNoneDataPoint(end_proc_id, end_col, data.COMMON.remove_outlier);
+            const summaryData = calculateSummaryData(summaries, latestChartInfoIdx, isHideNonePoint);
 
             const isShowDate = eleIdPrefix !== eles.varTabPrefix;
             const timeCond = data.time_conds[termIdx];
-
-            const catExpBoxCols = [data.COMMON.catExpBox1, data.COMMON.catExpBox2].filter(c => c);
 
             const chartTitle = buildSummaryChartTitle(
                 catExpValue, catExpBoxCols, sensorPlotDatas[i].catExpBoxName,
@@ -565,7 +568,7 @@ const resetSetting = (eleIdPrefix) => {
 
     $(`select[name=${eleIdPrefix}${eles.frequencyScale}]`).val(frequencyOptions.COMMON);
 
-    $(`select[name=${eleIdPrefix}HistScale]`).val(scaleOptionConst.SETTING);
+    $(`select[name=${eleIdPrefix}HistScale]`).val(scaleOptionConst.COMMON);
 };
 
 const bindToChangeSensorItem = () => {
@@ -585,7 +588,10 @@ const showMessageIfFacetNotSelected = (res) => {
     showToastrMsg(i18n.selectFacetVariableDiv, MESSAGE_LEVEL.INFO);
 };
 
-const collectFormDataFromGUI = (clearOnFlyFilter) => {
+const collectFormDataFromGUI = (clearOnFlyFilter, autoUpdate = false) => {
+    if (autoUpdate) {
+        return genDatetimeRange(lastUsedFormData);
+    }
     const traceForm = $(eles.mainFormId);
     let formData = new FormData(traceForm[0]);
     
@@ -607,11 +613,11 @@ const collectFormDataFromGUI = (clearOnFlyFilter) => {
     return formData;
 };
 
-const showGraph = (clearOnFlyFilter = true) => {
+const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
     requestStartedAt = performance.now();
     const eleIdPrefix = $('select[name=compareType]').val();
     
-    const isValid = checkValidations({max: MAX_END_PROC});
+    const isValid = checkValidations({max: MAX_NUMBER_OF_SENSOR});
     updateStyleOfInvalidElements();
     if (!isValid) return;
     
@@ -620,7 +626,7 @@ const showGraph = (clearOnFlyFilter = true) => {
 
     // reset sumary option
     resetSetting(eleIdPrefix);
-    const formData = collectFormDataFromGUI(clearOnFlyFilter);
+    const formData = collectFormDataFromGUI(clearOnFlyFilter, autoUpdate);
     showGraphCallApi('/ap/api/stp/index', formData, REQUEST_TIMEOUT, async (res) => {
         // set summary bar for prefix
         setNameWithPrefix(eleIdPrefix);
@@ -643,7 +649,7 @@ const showGraph = (clearOnFlyFilter = true) => {
     
         // show graphs
         // if (eleIdPrefix === eles.varTabPrefix || eleIdPrefix === eles.cyclicTermTabPrefix) {
-        showTabsAndCharts(eleIdPrefix, res, scaleOptionConst.SETTING);
+        showTabsAndCharts(eleIdPrefix, res, scaleOptionConst.COMMON);
     
         // show info table
         showInfoTable(res);
@@ -660,9 +666,11 @@ const showGraph = (clearOnFlyFilter = true) => {
         }
     
         // Move screen to graph after pushing グラフ表示 button
-        $('html, body').animate({
-            scrollTop: $(`#${eles.categoryPlotCards}`).offset().top,
-        }, 500);
+        if (!autoUpdate) {
+            $('html, body').animate({
+                scrollTop: $(`#${eles.categoryPlotCards}`).offset().top,
+            }, 500);
+        }
 
         // check result and show toastr msg
         if (isEmpty(res.array_plotdata) || isEmpty(Object.values(res.array_plotdata)[0])) {
@@ -681,11 +689,7 @@ const showGraph = (clearOnFlyFilter = true) => {
         if (imgFile) {
             showScatterPlotImage(imgFile);
         }
-
-        // auto update
-        longPolling(formData, () => {
-            showGraph(true);
-        });
+        setPollingData(formData, showGraph, [false, true]);
 
         // drag & drop for tables
         $('.ui-sortable').sortable();

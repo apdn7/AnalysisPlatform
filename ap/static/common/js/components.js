@@ -247,7 +247,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         catExp: 5,
         objective: 6,
     };
-    const isShowColorCheckBox = props.showColor && !props.colorAsDropdown;
+    const isShowColorCheckBox = props ? (props.showColor && !props.colorAsDropdown) : false;
     const genDetailItem = (chkBox, shownName = null, thresholdBox = null,
         dataType = null, catExpBox = null, isGetDate = false,
         objectiveSelectionDOM = null, categoryLabelDOM = null, colorDOM = null) => {
@@ -264,7 +264,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         const col = thresholdBox ? '10' : '12';
 
-        let html = `<div class="col-md-${col} col-xs-${col} ${commonClass}">
+        let html = `<div class="col-md-${col} search-col col-xs-${col} ${commonClass}">
                     ${chkBox}
                     </div>`;
 
@@ -351,7 +351,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         catExp: $('#i18nCatExpExplain').text(),
         catExpLabel: $('#i18nCatExp').text(),
         objectiveLabel: $('#i18nObjective').text(),
-        objectiveExpl: $('#i18nObjectiveExplain').text(),
+        objectiveExpl: props.objectiveHoverMsg || $('#i18nObjectiveExplain').text(),
         labelExplain: $('#i18nLabelVariableDescription').text(),
     };
 
@@ -401,10 +401,11 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         let objectiveSelectionDOM = '';
         if (props.showObjectiveInput) {
             const objectiveChkBoxId = `objectiveVar-${itemId}`;
+            const uncheckRadio = props.optionalObjective ? ' uncheck-when-click' : '';
             objectiveSelectionDOM = `<input title="" type="radio" name="objectiveVar" onchange="compareSettingChange()"
                 class="custom-control-input ${isRequiredInput}" value="${itemId}"
                 id="${objectiveChkBoxId}" data-autoselect="false">
-                <label title="" class="custom-control-label" for="${objectiveChkBoxId}"></label>`;
+                <label title="" class="custom-control-label${uncheckRadio}" for="${objectiveChkBoxId}"></label>`;
         }
 
         let categoryLabelDOM = null;
@@ -563,7 +564,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     $(`#${id} .check-item`).on('change', function f() {
         const checkboxNoFilter = $(`#${this.closest('.list-group').id} .checkbox-no-filter`);
         const thresholdBox = $(`#threshold-${this.id}`);
-        const isCheckLimit = MAX_END_PROC && /VALS_SELECT/.test($(this).attr('name'));
+        const isCheckLimit = MAX_NUMBER_OF_SENSOR && /VALS_SELECT/.test($(this).attr('name'));
 
         if ($(this).is(':checked') === false) {
             $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', $(this).prop('checked'));
@@ -607,7 +608,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         }
 
         // only allow selected 2 items in list
-        if (isCheckLimit && limitedCheckedList.length > MAX_END_PROC) {
+        if (isCheckLimit && limitedCheckedList.length > MAX_NUMBER_OF_SENSOR) {
             limitedCheckedList[0].prop('checked', false);
 
             if (isShowColorCheckBox) {
@@ -703,8 +704,8 @@ const handleSearchItems = (id) => {
     const sensorListID = `#list-${id}`;
 
     // multi select search with input immediately
-    $(`#search-${id}`).off('keyup input');
-    $(`#search-${id}`).on('keyup input', (event) => {
+    $(`#search-${id}`).off('keypress input');
+    $(`#search-${id}`).on('keypress input', (event) => {
         const searchEle = event.currentTarget;
         let value = stringNormalization(searchEle.value.toLowerCase());
         // event.target.value = value;
@@ -727,7 +728,7 @@ const handleSearchItems = (id) => {
         });
 
 
-        if (event.keyCode === 13) {
+        if (event.keyCode === KEY_CODE.ENTER) {
             $(`#${searchEle.closest('.form-group').id} li`).filter(function f() {
                 $(this).toggle(regex.test($(this).find('.search-col').text().toLowerCase()));
             });
@@ -736,13 +737,20 @@ const handleSearchItems = (id) => {
 
     // handle on click set selected items button
     $(`#setBtnSearch-${id}`).on('click', function () {
-        selectedEls.find('input[type=checkbox]').prop('checked', true).trigger('change');
+        selectedEls.parent().find('input[name^=GET02_VALS_SELECT]').prop('checked', true).trigger('change');
         sortCheckItems();
     });
 
     // handle on click reset selected items button
     $(`#resetBtnSearch-${id}`).on('click', function () {
-        selectedEls.find('input[type=checkbox]').prop('checked', false).trigger('change');
+        const checkBoxNoFilter = selectedEls.find('input.checkbox-no-filter');
+        if (checkBoxNoFilter.length) {
+            checkBoxNoFilter.prop('checked', true).trigger('change');
+        } else {
+            originalCheckBoxs.parent().find('input[type=checkbox]').prop('checked', false).trigger('change');
+        }
+        originalCheckBoxs.parent().find('input[type=radio]').prop('checked', false).trigger('change');
+        originalCheckBoxs.parent().find('select').val('').trigger('change');
         sortCheckItems();
     });
 

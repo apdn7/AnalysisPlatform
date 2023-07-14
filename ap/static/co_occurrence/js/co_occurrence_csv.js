@@ -1,6 +1,8 @@
 /* eslint-disable prefer-const */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 let settingFile = false;
+const graphStore = new GraphStore();
+let currentData = null;
 const coOccElements = {
     apiCheckFileUrl: '/ap/api/cog/check_file',
     apiShowGraphUrl: '/ap/api/cog/show_graph',
@@ -39,7 +41,7 @@ const loading = $('.loading');
 let s = null;
 const cam = null;
 
-const showCoOccurrencePlot = (nodes, edges) => {
+const showCoOccurrencePlot = (nodes, edges, showAllNodeLabels = true) => {
     const N = nodes.length;
     const E = edges.length;
 
@@ -77,6 +79,8 @@ const showCoOccurrencePlot = (nodes, edges) => {
         });
     }
 
+    const labelThreshold = showAllNodeLabels ? { labelThreshold: 0 } : {};
+
     // Instantiate sigma:
     s = new sigma({
         graph: g,
@@ -103,6 +107,7 @@ const showCoOccurrencePlot = (nodes, edges) => {
             defaultNodeOuterBorderColor: '#fff',
             edgeHoverHighlightNodes: 'circle',
             sideMargin: 1,
+            ...labelThreshold,
             // scalingMode: 'outside', // TODO later
         },
     });
@@ -216,6 +221,7 @@ const showGraph = () => {
 
         const dicRes = JSON.parse(res);
         showCoOccurrencePlot(dicRes.nodes, dicRes.edges);
+        currentData = JSON.parse(res);
         loadingUpdate(75);
         showParetoPlot(dicRes.pareto);
 
@@ -262,3 +268,9 @@ $(() => {
     // Load userBookmarkBar
     $('#userBookmarkBar').show();
 });
+
+const updateNodeLabel = (e) => {
+    const isShowAllNodeLabels = $(e).prop('checked');
+    coOccElements.plotCOG.empty();
+    showCoOccurrencePlot(currentData.nodes, currentData.edges, isShowAllNodeLabels);
+}

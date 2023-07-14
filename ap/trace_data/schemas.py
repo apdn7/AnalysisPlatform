@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import List, Dict, Optional
 
 from ap.common.constants import NO_FILTER, SELECT_ALL, DuplicateSerialShow, DuplicateSerialCount, END_COL_ID, \
-    END_COL_NAME, END_PROC_ID, END_PROC_NAME, SHOWN_NAME, COL_DATA_TYPE
+    END_COL_NAME, END_PROC_ID, END_PROC_NAME, SHOWN_NAME, COL_DATA_TYPE, RemoveOutlierType
 from ap.common.logger import logger
 from ap.setting_module.models import CfgFilterDetail, CfgProcessColumn, CfgProcess
 
@@ -181,7 +181,6 @@ class CommonParam:
     abnormal_count: bool
     sensor_cols: List[int]
     is_export_mode: bool
-    duplicated_serials_count: str
     is_latest: bool
 
     def __init__(self, start_proc=None, start_date=None, start_time=None, end_date=None,
@@ -196,7 +195,8 @@ class CommonParam:
                  is_remove_outlier=0, remove_outlier_objective_var=0, remove_outlier_explanatory_var=0,
                  abnormal_count=0, sensor_cols=[], duplicate_serial_show=None, is_export_mode=False,
                  duplicated_serials_count=None, agp_color_vars=None, divide_format=None, divide_offset=None,
-                 is_latest=False, divide_calendar_dates=[], divide_calendar_labels=[]):
+                 is_latest=False, divide_calendar_dates=[], divide_calendar_labels=[],
+                 remove_outlier_type=RemoveOutlierType.O6M.value, remove_outlier_real_only=False):
         self.start_proc = int(start_proc) if str(start_proc).isnumeric() else None
         self.start_date = start_date
         self.start_time = start_time
@@ -247,13 +247,20 @@ class CommonParam:
         else:
             self.duplicate_serial_show = DuplicateSerialShow(duplicate_serial_show)
         self.is_export_mode = bool(int(is_export_mode))
-        self.duplicated_serials_count = DuplicateSerialCount(duplicated_serials_count)
+        if duplicated_serials_count is None:
+            self.duplicated_serials_count = DuplicateSerialCount.AUTO
+        else:
+            self.duplicated_serials_count = DuplicateSerialCount(duplicated_serials_count)
+
+        self.remove_outlier_type = RemoveOutlierType(remove_outlier_type)
+
         self.divide_format = divide_format or None
         self.divide_offset = float(divide_offset) if divide_offset else None
         self.agp_color_vars = agp_color_vars or None
         self.is_latest = is_latest
         self.divide_calendar_dates = divide_calendar_dates
         self.divide_calendar_labels = divide_calendar_labels
+        self.remove_outlier_real_only = bool(remove_outlier_real_only)
 
 
 class DicParam:

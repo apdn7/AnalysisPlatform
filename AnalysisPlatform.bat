@@ -131,7 +131,7 @@ if exist %path_oracle% (echo Detect oracle) else goto ORACLE_INSTANCE
 
 : install packages
 :: Get pip
-..\python_embedded\python.exe ..\get-pip.py "pip < 22.3"
+..\python_embedded\python.exe ..\get-pip.py --no-cache-dir --no-warn-script-location "pip < 22.3"
 :: Upgrade pip
 : ..\python_embedded\python.exe -m pip install --upgrade pip
 if %prod% == %product_dn% (

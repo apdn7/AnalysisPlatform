@@ -194,28 +194,6 @@ def gen_trace_data(dic_proc_cfgs, graph_param, orig_graph_param, training_data=F
 
 @log_execution_time()
 @abort_process_handler()
-def remove_outlier(df: pd.DataFrame, threshold=0.05):
-    if df is None:
-        return None
-
-    cols = list(df.columns)
-    total = df.index.size
-    for col in cols:
-        num_nan = df[col].isna().sum()
-        num_numeric = total - num_nan
-        if num_numeric < 20:  # when n=19, p1=0, p9=19 -> remove nothing -> skip
-            continue
-        p1 = np.floor(num_numeric * threshold)
-        p9 = num_numeric - p1
-        df['rank_{}'.format(col)] = df[col].replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).rank(
-            method='first')
-        df[col] = np.where((df['rank_{}'.format(col)] > p9) | (df['rank_{}'.format(col)] < p1), np.nan, df[col])
-
-    return df[cols]
-
-
-@log_execution_time()
-@abort_process_handler()
 @trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
            (EventType.PCA, EventAction.READ, Target.DATABASE), send_ga=True)
 def get_trace_data(dic_proc_cfgs, graph_param):

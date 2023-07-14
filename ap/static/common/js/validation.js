@@ -4,9 +4,14 @@ let uniqueRequiredArr = [];
 let requiredInputs = null;
 let invalids = [];
 let currentFormID = '';
+let checkObjectiveVar = true;
+
 function getUniqueRequiredArr() {
     const uniqueNames = [];
     return requiredInputs.map((i, el) => {
+        if (el.name === 'objectiveVar' && !checkObjectiveVar) {
+            return null;
+        }
         if (uniqueNames.indexOf(el.name) === -1) {
             uniqueNames.push(el.name);
             const type = el.tagName === 'INPUT' ? el.type : null;
@@ -87,16 +92,16 @@ function checkValidations(minMaxNumOfEndproc = null, formID = '') {
     return invalids.length <= 0;
 }
 
-function updateStyleButtonByCheckingValid(id = '') {
+function updateStyleButtonByCheckingValid() {
     const btn = $(currentFormID).find(':button.show-graph');
     btn.removeAttr('disable');
     btn.removeAttr('style');
     const isValid = checkValidations();
     if (!isValid) {
         btn.addClass('btn-secondary');
-        btn.removeClass('btn-primary');
+        btn.removeClass('btn-primary valid-show-graph');
     } else {
-        btn.addClass('btn-primary');
+        btn.addClass('btn-primary valid-show-graph');
         btn.removeClass('btn-secondary');
     }
 }
@@ -144,7 +149,7 @@ function updateStyleOfInvalidElements() {
             setClass(target, 'invalid');
         }
 
-        if (name === 'objectiveVar') {
+        if (name === 'objectiveVar' && checkObjectiveVar) {
             const parentEl = $(`#${id}`).closest('.card.end-proc');
             const parentId = $(`#${id}`).closest('.card.end-proc').attr('id');
             setClass(`#${parentId}`, 'invalid invalid-message');
@@ -158,7 +163,8 @@ function updateStyleOfInvalidElements() {
     }
 }
 
-function initValidation(formID = '') {
+function initValidation(formID = '', isCheckObjectiveVar = true) {
+    checkObjectiveVar = isCheckObjectiveVar;
     if (formID) {
         currentFormID = formID;
         $(formID).submit(function (e) {
@@ -187,7 +193,9 @@ function validateSelectedNumberOfEndProcs(minMaxNumOfEndproc) {
         const key = item[0];
         const value = item[1];
         if (/GET02_VALS_SELECT/.test(key)) {
-            endProcs.push(value);
+            if (value !== 'All') {
+                endProcs.push(value);
+            }
         }
     }
 

@@ -64,6 +64,39 @@ const EMDType = {
     BOTH: 'both'
 }
 
+const TIME_UNIT = {
+    hour: {
+        MIN: 0.01,
+        MAX: 20000,
+        DEFAULT: 24,
+    },
+    minute: {
+        MIN: 0.01,
+        MAX: 1000000,
+        DEFAULT: 60,
+    },
+    day: {
+        MIN: 0.01,
+        MAX: 1000,
+        DEFAULT: 1,
+    },
+    week: {
+        MIN: 0.01,
+        MAX: 100,
+        DEFAULT: 1,
+    },
+    month: {
+        MIN: 0.01,
+        MAX: 24,
+        DEFAULT: 1,
+    },
+    year: {
+        MIN: 0.01,
+        MAX: 2,
+        DEFAULT: 1,
+    }
+}
+
 const CYCLIC_TERM = {
     NAME: 'cyclicTerm',
     INTERVAL: 'cyclicTermInterval',
@@ -92,7 +125,8 @@ const CYCLIC_TERM = {
         MIN: -24,
         MAX: 24,
         DEFAULT: 0,
-    }
+    },
+    TIME_UNIT: TIME_UNIT.hour,
 };
 
 const EXPORT_TYPE = {
@@ -179,11 +213,15 @@ const CONST = {
     ARRAY_FORMVAL: 'ARRAY_FORMVAL',
     CATEGORY: 'category',
     CORR: 'correlation',
-    
+
     NAV: ['', 'null', null, 'nan', 'NA', '-inf', 'inf'],
     BGR_COLOR_ATTR: 'bgr-color',
     BGR_COLOR_KEY: 'background-color',
     DEFAULT_VALUE: 'default-value',
+    SMALL_DATA_SIZE: 256,
+    INF: 'inf',
+    NEG_INF: '-inf',
+    NO_LINKED: 'NoLinked',
 };
 const chmColorPalettes = [['0', '#18324c'], ['0.2', '#204465'], ['0.4', '#2d5e88'],
     ['0.6', '#3b7aae'], ['0.8', '#56b0f4'], ['1', '#6dc3fd']];
@@ -235,15 +273,15 @@ const docCookies = {
         let sExpires = '';
         if (vEnd) {
             switch (vEnd.constructor) {
-            case Number:
-                sExpires = vEnd === Infinity ? '; expires=Fri, 31 Dec 9999 23:59:59 GMT' : `; max-age=${vEnd}`;
-                break;
-            case String:
-                sExpires = `; expires=${vEnd}`;
-                break;
-            case Date:
-                sExpires = `; expires=${vEnd.toUTCString()}`;
-                break;
+                case Number:
+                    sExpires = vEnd === Infinity ? '; expires=Fri, 31 Dec 9999 23:59:59 GMT' : `; max-age=${vEnd}`;
+                    break;
+                case String:
+                    sExpires = `; expires=${vEnd}`;
+                    break;
+                case Date:
+                    sExpires = `; expires=${vEnd.toUTCString()}`;
+                    break;
             }
         }
         document.cookie = `${encodeURIComponent(sKey)}=${encodeURIComponent(sValue)}${sExpires}${sDomain ? `; domain=${sDomain}` : ''}; path=/${bSecure ? '; secure' : ''}`;
@@ -343,7 +381,7 @@ $(() => {
     const locale = docCookies.getItem('locale') || 'ja';
     // console.log(locale);
     $('#select-language').val(locale).trigger('change');
-    
+
     // change locale and reload current page
     $('#select-language').change(function changeLocal() {
         let selectedLocale = $(this).children('option:selected').val();
@@ -356,10 +394,10 @@ $(() => {
         $('#select-language').val(selectedLocale);
         window.location.reload(true);
     });
-    
+
     // Set sub_title and page title
     setPageTitle();
-    
+
     // press ESC to collapse floating dropdown
     document.addEventListener('keyup', keyPress);
 
@@ -374,12 +412,12 @@ $(() => {
 
 const validateNumericInput = (textbox) => {
     textbox.on('input', (eve) => {
-         let { value } = eve.currentTarget;
+        let {value} = eve.currentTarget;
         value = value.replace(/[^((0-9)|(０-９).\+\-)]+/gi, '');
         eve.currentTarget.value = value
     });
     textbox.on('change', (eve) => {
-        let { value } = eve.currentTarget;
+        let {value} = eve.currentTarget;
         const replaceVal = /[０-９]/gi;
         value = value.replaceAll(replaceVal, s => String.fromCharCode(s.charCodeAt(0) - 65248));
         eve.currentTarget.value = value;
@@ -476,7 +514,7 @@ const handleInputTextZenToHanEventSelect2 = (element) => {
     let val = element.val();
 
     if (!val) return;
-    
+
     if (typeof (val) !== 'object') {
         val = [val];
     }
@@ -619,14 +657,14 @@ const genJsonfromHTML = (searchFromHtml, jsonRootKey, valAlwaysArray = false) =>
 
             let val;
             switch (vals.length) {
-            case 0:
-                val = null;
-                break;
-            case 1:
-                val = valAlwaysArray ? [...vals] : vals[0];
-                break;
-            default:
-                val = [...vals];
+                case 0:
+                    val = null;
+                    break;
+                case 1:
+                    val = valAlwaysArray ? [...vals] : vals[0];
+                    break;
+                default:
+                    val = [...vals];
             }
 
             // set value to root json
@@ -667,9 +705,11 @@ const getNode = (dictObj, keys, defaultVal = null) => {
 };
 
 // display message after press register buttons
-const displayRegisterMessage = (alertID, flaskMessage = { message: '', is_error: false, is_warning: false }) => {
+const displayRegisterMessage = (alertID, flaskMessage = {message: '', is_error: false, is_warning: false}) => {
     if (alertID === null || alertID === undefined) return;
-    $(`${alertID}-content`).html(flaskMessage.message);
+    if (flaskMessage.message) {
+        $(`${alertID}-content`).html(flaskMessage.message);
+    }
     const alert = $(`${alertID}`);
     alert.removeClass('show');
     alert.removeClass('alert-success');
@@ -1185,6 +1225,7 @@ const scrollFloatingElement = (() => {
 })();
 
 const showToastrMsg = (msgContent, level = MESSAGE_LEVEL.WARN) => {
+    if (isSSEListening) return;
     if (!msgContent) {
         return;
     }
@@ -1324,7 +1365,7 @@ const syncTraceDateTimeRange = (parentId = '', dtNames = {}, dtValues = {}) => {
 };
 
 const toUTCDateTime = (localDate, localTime) => {
-    if (isEmpty(localDate) || isEmpty(localTime)) return { date: localDate, time: localTime };
+    if (isEmpty(localDate) || isEmpty(localTime)) return {date: localDate, time: localTime};
 
     const utcDT = moment.utc(moment(`${localDate} ${localTime}`, `${DATE_FORMAT} ${TIME_FORMAT}`));
     if (utcDT.isValid()) {
@@ -1333,7 +1374,7 @@ const toUTCDateTime = (localDate, localTime) => {
             time: utcDT.format(TIME_FORMAT),
         };
     }
-    return { date: localDate, time: localTime };
+    return {date: localDate, time: localTime};
 };
 
 const getColumnName = (endProcName, getVal) => {
@@ -1341,9 +1382,10 @@ const getColumnName = (endProcName, getVal) => {
     return col.name || getVal;
 };
 
-const isCycleTimeCol = (endProcName, getVal) => {
-    const col = procConfigs[endProcName].getColumnById(getVal) || {};
-    return col.data_type === DataTypes.DATETIME.name || false;
+const isCycleTimeCol = (endProcId, colId) => {
+    const col = procConfigs[endProcId].getColumnById(colId) || {};
+    const isCT = col.data_type === DataTypes.DATETIME.name || false;
+    return isCT;
 };
 
 // retrieve cycle time cols
@@ -1377,7 +1419,7 @@ const createIndex = (v) => {
 const getChartInfo = (plotdata, xAxisOption = 'TIME', filterCond = null) => {
     let chartInfos = plotdata.chart_infos || [];
     let chartInfosOrg = plotdata.chart_infos_org || [];
-    
+
     if (xAxisOption === 'INDEX') {
         chartInfos = plotdata.chart_infos_ci || [];
         chartInfosOrg = plotdata.chart_infos_org_ci || [];
@@ -1386,6 +1428,20 @@ const getChartInfo = (plotdata, xAxisOption = 'TIME', filterCond = null) => {
 
     // Filter when data has facet and filter condition threshold is same value -> remove once
     if (filterCond) {
+        let isFacetHasFilterConditionValue = false;
+        for (const facet of filterCond) {
+            for (const chartInfo of [...chartInfos, ...chartInfosOrg]) {
+                if (chartInfo.name && facet === chartInfo.name) {
+                    isFacetHasFilterConditionValue = true;
+                    break;
+                }
+            }
+        }
+
+        if (!isFacetHasFilterConditionValue) {
+            return [chartInfos, chartInfosOrg]
+        }
+
         chartInfos = chartInfos.filter(
             settingInfo => settingInfo.name ? filterCond.includes(settingInfo.name) : true);
         chartInfosOrg = chartInfosOrg.filter(
@@ -1397,7 +1453,7 @@ const getChartInfo = (plotdata, xAxisOption = 'TIME', filterCond = null) => {
 
 
 const chooseLatestThresholds = (chartInfos = [], chartInfosOrg = [],
-    clickedIdx = null, convertFunc = createDatetime) => {
+                                clickedIdx = null, convertFunc = createDatetime) => {
     if (isEmpty(chartInfos)) return [{}, 0];
 
 
@@ -1537,11 +1593,11 @@ const setSelect2Selection = (parent = null, additionalOption = {}) => {
         placeholder: `${i18nCommon.search}...`,
         allowClear: true,
         matcher: matchCustom,
-        dropdownAutoWidth : true,
+        dropdownAutoWidth: true,
         width: 'auto',
         language: {
             noResults: function (params) {
-              return i18nCommon.notApplicable;
+                return i18nCommon.notApplicable;
             }
         }
     }
@@ -1565,13 +1621,13 @@ const setSelect2Selection = (parent = null, additionalOption = {}) => {
         const ele = $(this);
         let select2El = null;
         if (ele.hasClass(nColCls)) {
-           select2El = ele.select2(dicNColsOptions);
+            select2El = ele.select2(dicNColsOptions);
         } else {
-           select2El = ele.select2(dicOptions);
+            select2El = ele.select2(dicOptions);
         }
 
         // Add placeholder in search input
-        $(ele).data('select2').$dropdown.find(':input.select2-search__field').attr('placeholder', i18nCommon.search + '...' )
+        $(ele).data('select2').$dropdown.find(':input.select2-search__field').attr('placeholder', i18nCommon.search + '...')
 
         resizeListOptionSelect2(select2El)
 
@@ -1731,7 +1787,7 @@ const validateDateTime = (event, dtFormat) => {
     if (newValue === curTarget.getAttribute('data-current-val')) {
         return;
     }
-    const { currentVal } = event.target.dataset;
+    const {currentVal} = event.target.dataset;
     if (!moment(newValue, dtFormat, true).isValid()) {
         event.target.value = currentVal;
     } else {
@@ -1742,8 +1798,8 @@ const validateDateTime = (event, dtFormat) => {
 const adjustMinMax1Percent = (minY, maxY) => [minY - 0.01 * Math.abs(minY), maxY + 0.01 * Math.abs(maxY)];
 
 const createHistogramParams = (scaleOption, arrayY,
-    setYMin, setYMax,
-    commonMinY, commonMaxY, latestChartInfo, corrSummary) => {
+                               setYMin, setYMax,
+                               commonMinY, commonMaxY, latestChartInfo, corrSummary) => {
     //  max/minY based on scaleOption
     let maxY = getNode(corrSummary, ['non_parametric', 'upper_range']);
     let minY = getNode(corrSummary, ['non_parametric', 'lower_range']);
@@ -1785,14 +1841,14 @@ const createHistogramParams = (scaleOption, arrayY,
 const colorErrorCells = (jexcelDivId, errorCells) => {
     if (isEmpty(errorCells)) return;
 
-    const styleParams = errorCells.reduce((a, b) => ({ ...a, [b]: 'color:red;' }), {});
+    const styleParams = errorCells.reduce((a, b) => ({...a, [b]: 'color:red;'}), {});
     document.getElementById(jexcelDivId).jspreadsheet.setStyle(styleParams);
 };
 
 const colorErrorCheckboxCells = (jexcelDivId, errorCells) => {
     if (isEmpty(errorCells)) return;
 
-    const styleParams = errorCells.reduce((a, b) => ({ ...a, [b]: 'background-color: red;' }), {});
+    const styleParams = errorCells.reduce((a, b) => ({...a, [b]: 'background-color: red;'}), {});
     document.getElementById(jexcelDivId).jspreadsheet.setStyle(styleParams);
 };
 
@@ -1840,7 +1896,7 @@ function genHistLabelsCounts(arrayVals, localNumBins, localValMin, localValMax) 
     histLabels.pop();
     // histLabelsがヒストグラムのX軸、histCountsがヒストグラムのY軸
     // 表示を合わせるために値を逆順にする
-    return { histLabels: histLabels.reverse(), histCounts: histCounts.reverse() };
+    return {histLabels: histLabels.reverse(), histCounts: histCounts.reverse()};
 }
 
 function genHistLabels(labelMin, labelMax, localNumBins) {
@@ -1924,14 +1980,14 @@ const endProcMultiSelectOnChange = async (count, props) => {
         const datetimeCols = procInfo.getDatetimeColumns();
         if (ctCol) {
             ids.push(ctCol.id);
-            vals.push(ctCol.column_name);
+            vals.push(ctCol.english_name);
             names.push(ctCol.name);
             dataTypes.push(ctCol.data_type);
         }
         if (datetimeCols) {
             for (const dtCol of datetimeCols) {
                 ids.push(dtCol.id);
-                vals.push(dtCol.column_name);
+                vals.push(dtCol.english_name);
                 names.push(dtCol.name);
                 dataTypes.push(dtCol.data_type);
             }
@@ -1945,7 +2001,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
         }
         if (dataTypeTargets.includes(col.data_type) && !CfgProcess_CONST.CT_TYPES.includes(col.data_type)) {
             ids.push(col.id);
-            vals.push(col.column_name);
+            vals.push(col.english_name);
             names.push(col.name);
             // checkedIds.push(col.id);
             dataTypes.push(col.data_type);
@@ -1976,6 +2032,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
             hideStrVariable: props.hideStrVariable,
             colorAsDropdown: props.colorAsDropdown,
             availableColorVars,
+            optionalObjective: props.optionalObjective,
+            objectiveHoverMsg: props.objectiveHoverMsg,
         };
         addGroupListCheckboxWithSearch(
             parentId,
@@ -2116,8 +2174,8 @@ const collapseFloatingList = (el) => {
     // collapse <ul> list
     $(el).removeClass('floating-dropdown');
     $(el).removeClass('disable-max-height');
-    $(el).css({ width: '', height: '', transform: '' });
-    $(el).parent().css({ height: '' });
+    $(el).css({width: '', height: '', transform: ''});
+    $(el).parent().css({height: ''});
 
     // const shouldReOrder = (el) => {
     //     const options = $(el).find('li input[type=checkbox], li input[type=radio]');
@@ -2159,7 +2217,7 @@ const keyPress = (e) => {
         collapseFloatingLists();
     } else if (e.key === 'ArrowLeft') {
         if (savedBox) { // TODO use common function, doesn't work now
-            $('.cate-tooltip').css({ visibility: 'hidden' }); // hide all tooltip
+            $('.cate-tooltip').css({visibility: 'hidden'}); // hide all tooltip
             let count = 0;
             let previousBox = savedBox.previousSibling;
             while (previousBox && count < 2000) { // TODO limit to a max iteration
@@ -2171,7 +2229,7 @@ const keyPress = (e) => {
                     // update current box
                     savedBox = previousBox;
                     $(savedBox).addClass('cate-box-border');
-                    $(savedBox).find('span.cate-value .cate-tooltip').css({ visibility: 'visible' });
+                    $(savedBox).find('span.cate-value .cate-tooltip').css({visibility: 'visible'});
                     break;
                 } else {
                     previousBox = previousBox.previousSibling;
@@ -2181,7 +2239,7 @@ const keyPress = (e) => {
         }
     } else if (e.key === 'ArrowRight') {
         if (savedBox) {
-            $('.cate-tooltip').css({ visibility: 'hidden' });
+            $('.cate-tooltip').css({visibility: 'hidden'});
             let count = 0;
             let nextBox = savedBox.nextSibling;
             while (nextBox && count < 2000) {
@@ -2191,7 +2249,7 @@ const keyPress = (e) => {
 
                     savedBox = nextBox;
                     $(savedBox).addClass('cate-box-border');
-                    $(savedBox).find('span.cate-value .cate-tooltip').css({ visibility: 'visible' });
+                    $(savedBox).find('span.cate-value .cate-tooltip').css({visibility: 'visible'});
                     break;
                 } else {
                     nextBox = nextBox.nextSibling;
@@ -2259,7 +2317,7 @@ const loadingShow = (isContinue = false, showGraph = false) => {
         const h = Math.floor(elapsedTime / (1000 * 60 * 60));
         const m = Math.floor(elapsedTime / (1000 * 60)) - (h * 60);
         const s = Math.round(elapsedTime / 1000) - (m * 60);
-        const time = `${h > 0 ? addZeroToNumber(h)+':' : ''}${addZeroToNumber(m)}:${addZeroToNumber(s)}`;
+        const time = `${h > 0 ? addZeroToNumber(h) + ':' : ''}${addZeroToNumber(m)}:${addZeroToNumber(s)}`;
         elapsedTimeEl.text(`Elapsed time: ${time}`)
 
     }
@@ -2272,7 +2330,7 @@ const loadingShow = (isContinue = false, showGraph = false) => {
 const sleep = (second) => new Promise(resolve => setTimeout(resolve, second * 1000))
 
 const removeAbortButton = (res) => {
-    return new Promise( async (rs, rj) => {
+    return new Promise(async (rs, rj) => {
         $('.abort-button').prop('disabled', true);
         clearInterval(showElapsedTime);
         $('#confirmAbortProcessModal').modal('hide');
@@ -2323,8 +2381,8 @@ const errorHandling = (error, type = '') => {
 
 const handleShowAbortModal = () => {
     $('#confirmAbortProcessModal').modal('show');
-    $('#confirmAbortProcessModal').css({ zIndex: 2147483649 });
-    $('.loadingoverlay').css({ zIndex: 9999 });
+    $('#confirmAbortProcessModal').css({zIndex: 2147483649});
+    $('.loadingoverlay').css({zIndex: 9999});
 };
 
 const abortProcess = () => {
@@ -2481,7 +2539,7 @@ class GraphStore {
 
     getDataAtIndex(dataIdx, dataPointIdx) {
         const plotDatas = getNode(this.traceDataResult, ['array_plotdata']) || [];
-        const empty = { x: '', y: '' };
+        const empty = {x: '', y: ''};
         if (isEmpty(plotDatas) || plotDatas.length <= dataIdx) {
             return empty;
         }
@@ -2621,16 +2679,16 @@ const drawProcessingTime = (t0, t1, backendTime, rowNumber, uniqueSerial = null)
 
 const getScaleInfo = (plotdata, scaleOption) => {
     switch (scaleOption) {
-    case scaleOptionConst.SETTING:
-        return plotdata.scale_setting;
-    case scaleOptionConst.COMMON:
-        return plotdata.scale_common;
-    case scaleOptionConst.THRESHOLD:
-        return plotdata.scale_threshold;
-    case scaleOptionConst.AUTO:
-        return plotdata.scale_auto;
-    case scaleOptionConst.FULL_RANGE:
-        return plotdata.scale_full;
+        case scaleOptionConst.SETTING:
+            return plotdata.scale_setting;
+        case scaleOptionConst.COMMON:
+            return plotdata.scale_common;
+        case scaleOptionConst.THRESHOLD:
+            return plotdata.scale_threshold;
+        case scaleOptionConst.AUTO:
+            return plotdata.scale_auto;
+        case scaleOptionConst.FULL_RANGE:
+            return plotdata.scale_full;
     }
 
     return null;
@@ -2902,7 +2960,7 @@ const transformSKDParam = (formData, procConf) => {
 
 
 // convert hsv color to rgb
-const hsv2rgb = ({ h, s, v }, opacity=false) => {
+const hsv2rgb = ({h, s, v}, opacity = false) => {
     const f = (n, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
     const rgb = [f(5), f(3), f(1)].map(value => value * 255);
     if (opacity) {
@@ -3001,6 +3059,7 @@ const chooseCyclicTraceTimeInterval = (formData) => {
 function validateInputByNameWithOnchange(name, option) {
     if (!name) return;
 
+    $(`input[name=${name}]`).off('change');
     $(`input[name=${name}]`).on('change', (e) => {
         // uncheck if disabled
         if (e.target.disabled) return;
@@ -3094,7 +3153,7 @@ const genInfoTableBody = (traceDat) => {
     const startProc = procConfigs[traceDat[CONST.COMMON].start_proc] || procConfigs[traceDat[CONST.ARRAY_FORMVAL][0].end_proc];
     const startProcName = startProc ? startProc.name : '';
     const startDate = _.isArray(traceDat[CONST.COMMON][CONST.STARTDATE]) ? traceDat[CONST.COMMON][CONST.STARTDATE][0] : traceDat[CONST.COMMON][CONST.STARTDATE];
-    const endDate = _.isArray(traceDat[CONST.COMMON][CONST.ENDDATE]) ? traceDat[CONST.COMMON][CONST.ENDDATE][0] : traceDat[CONST.COMMON][CONST.STARTDATE];
+    const endDate = _.isArray(traceDat[CONST.COMMON][CONST.ENDDATE]) ? traceDat[CONST.COMMON][CONST.ENDDATE][0] : traceDat[CONST.COMMON][CONST.ENDDATE];
     let startTime = _.isArray(traceDat[CONST.COMMON][CONST.STARTTIME]) ? traceDat[CONST.COMMON][CONST.STARTTIME][0] : traceDat[CONST.COMMON][CONST.STARTTIME];
     let endTime = _.isArray(traceDat[CONST.COMMON][CONST.ENDTIME]) ? traceDat[CONST.COMMON][CONST.ENDTIME][0] : traceDat[CONST.COMMON][CONST.ENDTIME];
     const startDateTime = `${startDate} ${startTime}`;
@@ -3244,7 +3303,7 @@ const zipImport = () => {
 };
 
 const exportMode = () => {
-   return  !!$('[name=isExportMode]').val();
+    return !!$('[name=isExportMode]').val();
 }
 
 const handleZipExport = (res) => {
@@ -3431,14 +3490,8 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         const timeUnit = formData.get('timeUnit') || 60;
         const recentTimeInterval = formData.get('recentTimeInterval') || 24;
         if (!isEmpty(recentTimeInterval)) {
-            const timeDiffMinute = Number(recentTimeInterval) * Number(timeUnit);
-            /* eslint-disable no-undef */
-            const newStartDate = moment().add(-timeDiffMinute, 'minute').format(DATE_FORMAT);
-            const newStartTime = moment().add(-timeDiffMinute, 'minute').format(TIME_FORMAT);
-            const newEndDate = moment().format(DATE_FORMAT);
-            const newEndTime = moment().format(TIME_FORMAT);
             /* eslint-enable  no-undef */
-            datetimeRange[lastDatetimeEles] = `${newStartDate} ${newStartTime}${seperator}${newEndDate} ${newEndTime}`;
+            datetimeRange[lastDatetimeEles] = calcLatestDateTime(timeUnit, recentTimeInterval);
         }
     }
     datetimeRange.forEach((timeRange) => {
@@ -3456,13 +3509,30 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
             }
         }
     });
-    formData.delete('DATETIME_RANGE_PICKER');
-    formData.delete('DATETIME_PICKER');
+    // formData.delete('DATETIME_RANGE_PICKER');
+    // formData.delete('DATETIME_PICKER');
 
     formData = setFitlerIntoFormData(formData);
 
     return formData;
 };
+
+const calcLatestDateTime = (timeUnit, recentTimeInterval) => {
+    let timeDiffMinute, newStartDate, newEndDate, newStartTime, newEndTime;
+
+    if (['months', 'years'].includes(timeUnit)) {
+        newStartDate = moment().subtract(recentTimeInterval, timeUnit).format(DATE_FORMAT);
+        newStartTime = moment().subtract(recentTimeInterval, timeUnit).format(TIME_FORMAT);
+    } else {
+        timeDiffMinute = Number(recentTimeInterval) * Number(timeUnit);
+        newStartDate = moment().add(-timeDiffMinute, 'minute').format(DATE_FORMAT);
+        newStartTime = moment().add(-timeDiffMinute, 'minute').format(TIME_FORMAT);
+
+    }
+    newEndDate = moment().format(DATE_FORMAT);
+    newEndTime = moment().format(TIME_FORMAT);
+    return `${newStartDate} ${newStartTime}${DATETIME_PICKER_SEPARATOR}${newEndDate} ${newEndTime}`;
+}
 
 
 const generateDefaultNameExport = () => {
@@ -3483,15 +3553,16 @@ const generateDefaultNameExport = () => {
         const {startDate, startTime, endDate, endTime} = splitDateTimeRange(dateTimeRange)
 
         return `${title}_${endProc}_${startDate}-${startTime.split(':').join('')}_${endDate}-${endTime.split(':').join('')}`
-    } catch(e) {
+    } catch (e) {
         return `${title}_${moment().format('YYYYMMDD_HH:mm')}`;
     }
 };
 
 const handleLoadSettingBtns = () => {
     // show only load button and hide bookmark button
-    $('.load-setting-tile-page').show();
     $('.load-setting-common').hide();
+    $('.load-setting-tile-page').show();
+
 };
 
 const calMinMaxYScale = (minY, maxY, scaleOption) => {
@@ -3611,7 +3682,8 @@ const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBotto
 
         for (let i = 0; i < rows.length; i++) {
             table.append(rows[i]);
-        };
+        }
+        ;
     });
 
     // add filter
@@ -3704,7 +3776,10 @@ const tableScroll = (tblID, maxHeight, toBottom = false) => {
  * @param xRange: array has two elements of x0 and x1.
  * @param yRange: array has two elements of y0 and y1.
  */
-const genThresholds = (xThreshold = {}, yThreshold = {}, ref = { xaxis: 'paper', yaxis: 'y' }, xRange = [0, 1], yRange = [0, 1]) => {
+const genThresholds = (xThreshold = {}, yThreshold = {}, ref = {
+    xaxis: 'paper',
+    yaxis: 'y'
+}, xRange = [0, 1], yRange = [0, 1]) => {
 
     const lines = [];
 
@@ -3840,7 +3915,7 @@ const genThresholds = (xThreshold = {}, yThreshold = {}, ref = { xaxis: 'paper',
             },
         });
     }
-    
+
     return lines;
 };
 
@@ -3883,8 +3958,18 @@ const bindFacetChangeEvents = () => {
     if (isUseFacet) {
         changeNoDataLinkSelection(false);
     }
+    const isShowScatter = checkShowScatter();
+    if (isUseFacet && isShowScatter) {
+        changeShowScatter(!isShowScatter);
+    }
 };
 
+const changeShowScatter = (isShowing) => {
+    $('input[name=showScatterPlotSelect]').prop('checked', isShowing);
+};
+const checkShowScatter = () => {
+    return $('input[name=showScatterPlotSelect]').is(':checked');
+};
 
 const checkHasFacet = () => {
     let hasFacet = false;
@@ -3973,7 +4058,7 @@ const onChangeDivideOption = () => {
                 .filter((i, el) => el.value);
             const isSelectedDiv = [...selectedCatExpBox].map(el => el.value)
                 .includes(facetLevels.DIV);
-            const { value } = e.currentTarget;
+            const {value} = e.currentTarget;
             if (value !== 'category' && isSelectedDiv) {
                 const categoryDivideText = $('select[name=compareType] option[value=category]').text();
                 const confirmText = i18nCommon.changeDivideOptionConfirmText.replaceAll('CATEGORY_DIVIDE_OPTION', categoryDivideText);
@@ -4003,7 +4088,7 @@ const onChangeDivInFacet = () => {
     $('select[name=catExpBox]').on('change');
     $('select[name=catExpBox]')
         .on('change', (e) => {
-            const { value } = e.currentTarget;
+            const {value} = e.currentTarget;
             currentSelectedDiv = $(e.currentTarget);
             const currentDivideOption = $('select[name=compareType]').val();
             const currentDivideOptionText = $('select[name=compareType] option:selected').text();
@@ -4027,7 +4112,7 @@ const onChangeDivInFacet = () => {
                 .val('category')
                 .trigger('change');
         });
-    
+
     $('#changeDivInFacetConfirmCancel')
         .on('click', () => {
             // clear div variable.
@@ -4093,11 +4178,11 @@ const handleExportDataCommon = (type, formData) => {
     if (type === EXPORT_TYPE.CSV) {
         exportData('/ap/api/common/csv_export', 'csv', formData);
     }
-    
+
     if (type === EXPORT_TYPE.TSV) {
         exportData('/ap/api/common/tsv_export', 'tsv', formData);
     }
-    
+
     if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
         tsvClipBoard('/ap/api/common/tsv_export', formData);
     }
@@ -4161,3 +4246,91 @@ const showGraphAndDumpData = (exportType, callback) => {
         }
     }
 };
+const isDefined = (variable) => {
+    return typeof variable !== 'undefined';
+};
+
+function create_UUID(){
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (dt + Math.random()*16)%16 | 0;
+        dt = Math.floor(dt/16);
+        return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+};
+
+const getEndProcCfg = async () => {
+    if (!processId || !procConfigs[processId] || !procConfigs[processId].is_use_dummy_datetime) {
+        return false;
+    }
+    const endProcCfg = procConfigs[processId];
+    await endProcCfg.getCTRange();
+    return endProcCfg;
+};
+
+const updateDatetimeInputs = (value) => {
+    const datetimeRanges = $('input[name=DATETIME_RANGE_PICKER]:visible');
+    const singleDatetime = $('input[name=DATETIME_PICKER]:visible');
+
+    if (singleDatetime.length) {
+        singleDatetime.val(value).change();
+    }
+    if (datetimeRanges.length) {
+        datetimeRanges.each((i, datetimeInput) => {
+            const currentVal = $(datetimeInput).val();
+            if (currentVal) {
+                $(datetimeInput).val(value).change();
+            }
+        });
+    }
+
+}
+
+const updateXOption = (serialOrder=true) => {
+    if (isSettingLoading) return;
+    let xOptionVal = 'INDEX';
+    if (!serialOrder && !isSettingLoading) {
+        xOptionVal = 'TIME';
+    }
+    if ($('#xOption').length) {
+        $('#xOption').data('change-val-only', true);
+        $('#xOption').val(xOptionVal).trigger('change');
+    }
+};
+
+const changeDefaultIndexOrdering = async () => {
+    if (isSettingLoading) return;
+    const endProcCfg = await getEndProcCfg();
+    if (endProcCfg && endProcCfg.ct_range.length) {
+        // in FPP, change xOption in case of CT is dummy datetime
+        updateXOption();
+        // change default value of datetime picker
+        const [minDate, maxDate] = endProcCfg.ct_range;
+        if(minDate && maxDate) {
+            const startDate = convertUTCToLocaltime(minDate); // floor
+            const endDate = convertUTCToLocaltime(maxDate); // ceil
+            const dummyDatetimeRange = `${roundMinute(startDate, 'down')} ${DATETIME_PICKER_SEPARATOR} ${roundMinute(endDate, 'up')}`;
+            // $('input[name=DATETIME_RANGE_PICKER]').val(dummyDatetimeRange).change();
+            updateDatetimeInputs(dummyDatetimeRange);
+        }
+    }
+    // reset to show xOption modal
+    $('#xOption').data('change-val-only', false);
+};
+
+const roundMinute = (dateStr, option = 'up', unit = 5) => {
+    if (unit === 0) return moment(dateStr).format('YYYY-MM-DD HH:00');
+    let minute = moment(dateStr).minute();
+    const isNeedRound = minute % unit !== 0;
+    if (!isNeedRound || !minute || !unit) return dateStr;
+
+    let divideUnit = (minute - (minute % unit)) / unit;
+    if (option === 'up') {
+        // ceil minute
+        divideUnit = divideUnit + 1;
+    }
+
+    const newMinute = divideUnit * unit;
+    return moment(moment(dateStr).format('YYYY-MM-DD HH:00')).add(newMinute, 'minutes').format(DATE_TIME_FMT);
+}

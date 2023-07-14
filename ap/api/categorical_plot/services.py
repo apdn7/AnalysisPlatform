@@ -8,6 +8,7 @@ import pandas as pd
 from dateutil import tz
 from pandas import DataFrame
 
+from ap.api.common.services.services import convert_datetime_to_ct
 from ap.api.efa.services.etl import FILE as FILE_ETL_SPRAY_SHAPE
 from ap.api.efa.services.etl import call_com_view
 from ap.api.trace_data.services.time_series_chart import (get_data_from_db, get_chart_infos,
@@ -119,6 +120,8 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
 
     # apply coef for text
     df = apply_coef_text(df, graph_param, dic_proc_cfgs)
+
+    convert_datetime_to_ct(df, graph_param)
 
     # convert proc to cols dic
     # transform raw data to graph data
@@ -696,7 +699,8 @@ def gen_graph_cyclic(dic_param, terms, max_graph=None):
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
 
     df, str_cols = rank_str_cols(df, dic_proc_cfgs, orig_graph_param)
-    export_df = df
+    export_df = df.copy()
+    convert_datetime_to_ct(df, get_df_graph_param)
     dic_str_cols = get_str_cols_in_end_procs(dic_proc_cfgs, orig_graph_param)
     dic_ranks = gen_before_rank_dict(df, dic_str_cols)
     # check filter match or not ( for GUI show )
@@ -803,6 +807,8 @@ def gen_graph_term(dic_param, max_graph=None):
                                                                use_expired_cache=use_expired_cache)
 
     df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
+
+    convert_datetime_to_ct(df, graph_param)
 
     df, str_cols = rank_str_cols(df, dic_proc_cfgs, orig_graph_param)
     dic_str_cols = get_str_cols_in_end_procs(dic_proc_cfgs, orig_graph_param)
@@ -975,10 +981,9 @@ def dump_img_files(df, graph_param, dic_proc_cfgs):
     if not df.index.size:
         return img_files
 
-    # make input tsv file
-    tsv_file = save_input_data_to_gen_images(df, graph_param)
-
     if use_etl_spray_shape(dic_proc_cfgs[graph_param.common.start_proc]):
+        # make input tsv file
+        tsv_file = save_input_data_to_gen_images(df, graph_param)
         img_files = call_com_view(tsv_file, get_view_path())
 
     # strip folder

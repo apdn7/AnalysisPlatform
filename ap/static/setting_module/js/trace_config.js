@@ -96,6 +96,7 @@ const tracingElements = {
     edgeBackProc: $('#edgeBackProc'),
     edgeForwardProc: $('#edgeForwardProc'),
     edgeSelects: $('#trace_link_procs select'),
+    alertProcLink: '#alert-register-proc-link',
 };
 
 const destroy = () => {
@@ -917,6 +918,8 @@ const saveTraceConfigToDB = () => {
     // send edges to db
     saveTraceConfigs(edgesCfg);
 
+    displayRegisterMessage(tracingElements.alertProcLink);
+
     // show msg
     informLinkingJobStarted();
 };
@@ -990,13 +993,6 @@ $(() => {
     $('#btn-trace-config-register').click(() => {
         $('#regenerate-confirm-modal').modal('show');
 
-        // SSEの通信を待つこと。
-        // const source = new EventSource('/ap/api/setting/listen_background_job');
-        const source = openServerSentEvent();
-        source.addEventListener(serverSentEventType.procLink, (event) => {
-            // calculate proc link count
-            realProcLink(false);
-        }, false);
     });
 
     // show reload confirm modal

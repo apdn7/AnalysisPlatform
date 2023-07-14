@@ -22,7 +22,7 @@ PATTERN_NEG_2 = re.compile(r'^-((\d)\2{3,}(\.0+)?|([^36])\4{0,2}\.\4{3,}0*)$')
 PATTERN_3 = re.compile(r'^(-+|0+(\d)\2{3,}(\.0+)?|(.)\3{4,}0*)$')
 
 # regex filter exclude columns
-EXCLUDE_COLS = [Cycle.id.key, Cycle.global_id.key, Cycle.time.key, Cycle.is_outlier.key]
+EXCLUDE_COLS = [Cycle.id.key, Cycle.global_id.key, Cycle.time.key, Cycle.is_outlier.key, 'index']
 
 
 @log_execution_time()
@@ -84,7 +84,7 @@ def validate_string(df: DataFrame, col_name):
         return df
 
     conditions = gen_all_conditions(target_data)
-    return_vals = ['inf', '-inf', 'inf', '-inf', pd.NA]
+    return_vals = [pd.NA] * 5
     df[col_name] = np.select(conditions, return_vals, df[col_name])
 
     return df
@@ -128,7 +128,7 @@ def get_changed_value_after_validate(df_before: DataFrame, df_after: DataFrame):
         df[col] = df_after[col][idxs]
         df[original_val] = df_before[col][idxs]
         df.drop_duplicates(inplace=True)
-        series = df.groupby(col)[original_val].apply(list)
+        series = df.groupby(col, dropna=False)[original_val].apply(list)
 
         for idx, vals in series.items():
             dic_abnormal[idx].extend(vals)
@@ -140,11 +140,9 @@ def get_changed_value_after_validate(df_before: DataFrame, df_after: DataFrame):
 
 @log_execution_time()
 def validate_data_with_regex(df):
-    # convert data types
-    df = df.convert_dtypes()
-
     # integer cols
     int_cols = df.select_dtypes(include='integer').columns.tolist()
+    float_cols = df.select_dtypes(include='float').columns.tolist()
     return_vals = [np.nan, np.nan]
     for col in int_cols:
         if not check_validate_target_column(col):
@@ -154,7 +152,6 @@ def validate_data_with_regex(df):
         df = validate_numeric_plus(df, col, return_vals + [np.nan])
 
     # float
-    float_cols = df.select_dtypes(include='float').columns.tolist()
     return_neg_vals = [float('-inf'), float('-inf')]
     return_pos_vals = [float('inf'), float('inf'), np.nan]
     for col in float_cols:
@@ -178,15 +175,20 @@ def validate_data_with_regex(df):
 
 @log_execution_time()
 def validate_data_with_simple_searching(df, checked_cols, dic_abnormal):
-    # convert data types
-    df = df.convert_dtypes()
 
     for col in checked_cols:
         conditions = []
         results = []
         for result, vals in dic_abnormal.items():
-            conditions.append(df[col].isin(vals))
-            results.append(result)
+            # if float then only get result is not NA
+            if df[col].dtypes == 'Float64':
+                if not pd.isna(result):
+                    conditions.append(df[col].isin(vals))
+                    results.append(result)
+            else:
+                if pd.isna(result):
+                    conditions.append(df[col].isin(vals))
+                    results.append(result)
 
         if conditions:
             df[col] = np.select(conditions, results, df[col])

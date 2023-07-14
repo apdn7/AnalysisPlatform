@@ -112,8 +112,8 @@ div.table_description {
     border: 1px solid;
     height: 25px;
     border-radius: 24px;
-    font-size: 11px;
-    padding-top: 1px;
+    font-size: 13px;
+    padding: 3px;
     background-color: #222222;
     color: white;
 }
