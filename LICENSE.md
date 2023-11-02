@@ -711,13 +711,6 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the license files for details.
 
 > licensed under the <a href="http://opensource.org/licenses/MIT">MIT License</a>
 
-### js/shepherd.min.js
-
-* Copyright (c) 2021
-* Shepherd is maintained by Ship Shape
-
-> licensed under the <a href="http://opensource.org/licenses/MIT">MIT License</a>
- 
 ### sigmajs/build/sigma.min.js
 ---------------------
 

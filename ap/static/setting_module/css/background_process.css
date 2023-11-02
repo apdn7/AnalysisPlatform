@@ -84,3 +84,7 @@ span.btn-group.dropdown {
 .th-inner.sortable.both {
     text-align: center;
 }
+
+.fixed-table-loading {
+    background: #333333 !important;
+}

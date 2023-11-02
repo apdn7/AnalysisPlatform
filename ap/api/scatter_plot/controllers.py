@@ -1,22 +1,24 @@
 import timeit
 
-import simplejson
 from flask import Blueprint, request
 
 from ap.api.scatter_plot.services import gen_scatter_plot
 from ap.common.pysize import get_size
-from ap.common.services import http_content
 from ap.common.services.form_env import parse_multi_filter_into_one
-from ap.common.services.import_export_config_n_data import get_dic_form_from_debug_info, \
-    set_export_dataset_id_to_dic_param
-from ap.common.trace_data_log import is_send_google_analytics, save_input_data_to_file, EventType, \
-    save_draw_graph_trace, trace_log_params
-
-api_scatter_blueprint = Blueprint(
-    'api_scatter_module',
-    __name__,
-    url_prefix='/ap/api/scp'
+from ap.common.services.http_content import orjson_dumps
+from ap.common.services.import_export_config_n_data import (
+    get_dic_form_from_debug_info,
+    set_export_dataset_id_to_dic_param,
 )
+from ap.common.trace_data_log import (
+    EventType,
+    is_send_google_analytics,
+    save_draw_graph_trace,
+    save_input_data_to_file,
+    trace_log_params,
+)
+
+api_scatter_blueprint = Blueprint('api_scatter_module', __name__, url_prefix='/ap/api/scp')
 
 
 @api_scatter_blueprint.route('/plot', methods=['POST'])
@@ -53,6 +55,6 @@ def trace_data():
 
     dic_param['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.SCP))
 
-    out_dict = simplejson.dumps(dic_param, ensure_ascii=False, default=http_content.json_serial, ignore_nan=True)
+    out_dict = orjson_dumps(dic_param)
 
     return out_dict, 200

@@ -159,6 +159,9 @@ $(() => {
     $('#userBookmarkBar').hide();
     // show load settings menu
     handleLoadSettingBtns();
+
+    // handle search in trace list
+    handleSearchTraceList();
 });
 
 const DB = new Databases();
@@ -171,16 +174,21 @@ const clearOldValue = () => {
     $(csvResourceElements.sqlInputFile).val('');
     // reset all test db connection messages before toggle edit connfiguration modals
     $('.check-db-msg').html('');
-    
+
     // reset optional function
     $(csvResourceElements.optionalFunction).select2().val('').trigger('change');
-    
+
     // hide loading
     $('#resourceLoading').hide();
-    
+
     // hide warning msg
     $('#alert-msg-csvDbname').hide();
     $('div[id*=validation]').hide();
+
+    // clear datasource type in modal
+    $(`.saveDBInfoBtn`).attr('data-isV2', false);
+    $(`#showResources`).attr('data-isV2', false);
+
     // show btn-secondary as disabled button, and
     // add prevent submit handling to button
     // instead of add disabled attribution
@@ -338,4 +346,62 @@ const showDuplColModal = () => {
     const modalID = csvResourceElements.duplColsModal;
     // show modal
     $(modalID).modal('show');
+};
+
+const handleSearchTraceList = () => {
+    const searchTraceEle = $('#searchTraceList');
+    initCommonSearchInput(searchTraceEle, 'flex-grow-1');
+    const parent = searchTraceEle.closest('.trace-menu-content');
+    const currentParentDivId = parent.length > 0 ? parent[0].id : null;
+    if (!currentParentDivId) return;
+
+    const originalCheckBoxs = $(`#${currentParentDivId} li`);
+    let selectedEls = originalCheckBoxs;
+
+    // multi select search with input immediately
+    $(`#searchTraceList`).off('keypress input');
+    $(`#searchTraceList`).on('keypress input', (event) => {
+        const searchEle = event.currentTarget;
+        let value = stringNormalization(searchEle.value.toLowerCase());
+        // event.target.value = value;
+
+        value = makeRegexForSearchCondition(value);
+
+        const regex = new RegExp(value, 'i');
+
+        selectedEls = $(parent).find(`li`).filter(function () {
+            const val = $(this).text().toLowerCase();
+
+            $(this).show();
+            if (!regex.test(val)) {
+                $(this).addClass('gray');
+            } else {
+                $(this).removeClass('gray');
+            }
+
+            return regex.test(val);
+        });
+
+
+        if (event.keyCode === KEY_CODE.ENTER) {
+            $(parent).find(`li`).filter(function f() {
+                $(this).toggle(regex.test($(this).find('label').text().toLowerCase()));
+            });
+        }
+    });
+
+    // handle on click set selected items button
+    $(`#setBtnSearch-searchTraceList`).on('click', function () {
+        selectedEls.not('.has')
+            .find('input[name=process]')
+            .prop('checked', true)
+            .change();
+    });
+
+    // handle on click reset selected items button
+    $(`#resetBtnSearch-searchTraceList`).on('click', function () {
+        $(parent).find('input[name=process]')
+            .prop('checked', false)
+            .change();
+    });
 };

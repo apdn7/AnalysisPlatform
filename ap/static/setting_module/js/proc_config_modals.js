@@ -17,6 +17,7 @@ let userEditedDSName = false;
 let setDatetimeSelected = false;
 let prcPreviewData;
 let isClickPreview = false;
+let allProcessColumns = []
 
 const procModalElements = {
     procModal: $('#procSettingModal'),
@@ -153,8 +154,8 @@ const setProcessName = (dataRowID = null) => {
 
     if (!procModalCurrentProcId) {
         // remove selected table
-       $(`table[name=${procModalElements.selectedColumnsTable}] tbody`).empty();
-        procModalElements.showRecordsBtn.click();
+       // $(`table[name=${procModalElements.selectedColumnsTable}] tbody`).empty();
+        procModalElements.showRecordsBtn.trigger('click');
     }
 };
 
@@ -174,9 +175,12 @@ const loadTables = (databaseId, dataRowID = null, selectedTbl = null) => {
         method: 'GET',
         cache: false,
     }).done((res) => {
-        if (res.ds_type.toLowerCase() === 'csv') {
+        if (['v2', 'csv'].includes(res.ds_type.toLowerCase())) {
             procModalElements.tables.empty();
             procModalElements.tables.prop('disabled', true);
+            if (!procModalCurrentProcId) {
+                setProcessName(dataRowID);
+            }
         } else if (res.tables) {
             res.tables.forEach((tbl) => {
                 const options = {
@@ -190,16 +194,21 @@ const loadTables = (databaseId, dataRowID = null, selectedTbl = null) => {
                     $('<option/>', options),
                 );
             });
+
+            if (!procModalCurrentProcId && selectedTbl) {
+                setProcessName(dataRowID);
+            }
         }
-        if (!procModalCurrentProcId) {
-            setProcessName(dataRowID);
+
+        if (!selectedTbl) {
+            procModalElements.tables.val('');
         }
 
     });
 };
 // load current proc name, database name and tables name
 // eslint-disable-next-line no-unused-vars
-const loadProcModal = async (procId = null, dataRowID = null) => {
+const loadProcModal = async (procId = null, dataRowID = null, dbsId = null) => {
     // set current proc
     procModalCurrentProcId = procId;
 
@@ -218,7 +227,7 @@ const loadProcModal = async (procId = null, dataRowID = null) => {
             selectedDs = settingDSName ? $(settingDSName).val() : null;
             selectedTbls = settingTableName ? $(settingTableName).val() : null;
         }
-        const currentDs = procModalElements.dsID.val() || selectedDs;
+        const currentDs = procModalElements.dsID.val() || dbsId || selectedDs;
         dbInfo.forEach((ds) => {
             const options = {
                 type: ds.type,
@@ -234,20 +243,31 @@ const loadProcModal = async (procId = null, dataRowID = null) => {
             );
         });
 
+        if (!currentDs) {
+            procModalElements.databases.val('');
+        }
+
+        const selectedDbInfo = dbInfo.filter(db => Number(db.id) === Number(currentDs))[0];
+
         // load default tables
-        if (!procId) {
-            if (dbInfo[0].type !== DB.DEFAULT_CONFIGS.CSV.type.toLowerCase()) {
-                const defaultDSID = selectedDs || dbInfo[0].id;
+        if (procId) return;
+
+        if (currentDs) {
+            if (![DB.DB_CONFIGS.CSV.type.toLowerCase(), DB.DB_CONFIGS.V2.type.toLowerCase()].includes(selectedDbInfo.type.toLowerCase()) || dbsId) {
+                const defaultDSID = selectedDs || selectedDbInfo.id;
                 loadTables(defaultDSID, dataRowID, selectedTbls);
             } else {
-                procModalElements.tables.append(
-                    $('<option/>', {
-                        value: '',
-                        text: '---',
-                    }),
-                );
-                procModalElements.tables.prop('disabled', true);
+                procModalElements.databases.trigger('change');
             }
+        } else {
+            procModalElements.tables.append(
+                $('<option/>', {
+                    value: '',
+                    text: '---',
+                }),
+            );
+
+            procModalElements.tables.prop('disabled', true);
         }
     }
 
@@ -731,7 +751,7 @@ const preventSelectAll = (preventFlag = false) => {
 };
 
 const updateCurrentDatasource = () => {
-    const currentShownTableName = procModalElements.tables.val() || null;
+    const currentShownTableName = $('select[name=tableName] option[selected=selected]').val() || null;
     const currentShownDataSouce = procModalElements.databases.val() || null;
     // re-assign datasource id and table of process
     if (currentShownDataSouce) {
@@ -762,7 +782,7 @@ const showLatestRecordsFromPrc = (json, clearSelectedColumnBody) => {
     bindSelectColumnsHandler();
     
     // update columns from process
-    currentProcColumns = json.cols; // TODO
+    currentProcColumns = json.cols;
     if (!procModalCurrentProcId) {
         // remove selected table
         $(`table[name=${procModalElements.selectedColumnsTable}] tbody`).empty();
@@ -802,6 +822,8 @@ const addDummyDatetimePrc = (addCol = true) => {
 
 // get latestRecords
 const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
+    loading.css('z-index', 9999);
+    loading.show();
     $.ajax({
         url: '/ap/api/setting/show_latest_records',
         data: formData,
@@ -810,6 +832,7 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
         contentType: false,
         processData: false,
         success: (json) => {
+            loading.hide();
             if (json.cols_duplicated) {
                 showToastrMsg(i18nCommon.colsDuplicated);
             }
@@ -823,8 +846,12 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
                 showLatestRecordsFromPrc(json, clearSelectedColumnBody);
                 updateBtnStyleWithValidation(procModalElements.createOrUpdateProcCfgBtn);
             }
+
+            allProcessColumns = json ? json.cols.map(col => col.name) : [];
         },
-        error: () => {
+        error: (e) => {
+            loading.hide();
+            console.log('error', e)
         },
     });
 };
@@ -1080,14 +1107,18 @@ const collectProcCfgData = (columnDataRaws) => {
     const tableName = procModalElements.tables.find(':selected').val() || '';
     const comment = procModalElements.comment.val();
     const procColumns = procColumnsData(columnDataRaws);
-    return {
+
+    // get uncheck column = all col - uncheck col
+    const checkedProcessColumn = procColumns.map(col => col.column_name);
+    const unusedColumns = allProcessColumns.filter(colName => !checkedProcessColumn.includes(colName));
+    return [{
         id: procID,
         name: procName,
         data_source_id: dataSourceId,
         table_name: tableName,
         comment,
         columns: procColumns,
-    };
+    }, unusedColumns];
 };
 
 const saveProcCfg = (selectedJson, importData = true) => {
@@ -1095,10 +1126,11 @@ const saveProcCfg = (selectedJson, importData = true) => {
     procModalElements.procModal.modal('hide');
     procModalElements.confirmImportDataModal.modal('hide');
 
-    const procCfgData = collectProcCfgData(selectedJson);
+    const [procCfgData, unusedColumns] = collectProcCfgData(selectedJson);
     const data = {
         proc_config: procCfgData,
         import_data: importData,
+        unused_columns: unusedColumns,
     };
 
     $.ajax({
@@ -1110,21 +1142,26 @@ const saveProcCfg = (selectedJson, importData = true) => {
     }).done((res) => {
         // sync Vis network
         reloadTraceConfigFromDB();
+        isV2ProcessConfigOpening = false;
 
         // update GUI
         if (res.status !== HTTP_RESPONSE_CODE_500) {
-            $(currentProcItem).find('input[name="processName"]').val(res.data.name)
+            if (!currentProcItem.length) {
+                addProcToTable(res.data.id, res.data.name, res.data.data_source.id);
+            } else {
+                $(currentProcItem).find('input[name="processName"]').val(res.data.name)
                 .prop('disabled', true);
-            $(currentProcItem).find('select[name="databaseName"]').val(res.data.data_source.id)
-                .prop('disabled', true);
-            $(currentProcItem).find('select[name="tableName"]')
-                .append(`<option value="${res.data.table_name}" selected="selected">${res.data.table_name}</option>`)
-                .prop('disabled', true);
-            $(currentProcItem).find('textarea[name="comment"]').val(res.data.comment)
-                .prop('disabled', true);
-            $(currentProcItem).attr('id', `proc_${res.data.id}`);
-            $(currentProcItem).attr('data-proc-id', res.data.id);
-            $(currentProcItem).attr('data-ds-id', res.data.data_source_id);
+                $(currentProcItem).find('select[name="databaseName"]').val(res.data.data_source.id)
+                    .prop('disabled', true);
+                $(currentProcItem).find('select[name="tableName"]')
+                    .append(`<option value="${res.data.table_name}" selected="selected">${res.data.table_name}</option>`)
+                    .prop('disabled', true);
+                $(currentProcItem).find('textarea[name="comment"]').val(res.data.comment)
+                    .prop('disabled', true);
+                $(currentProcItem).attr('id', `proc_${res.data.id}`);
+                $(currentProcItem).attr('data-proc-id', res.data.id);
+                $(currentProcItem).attr('data-ds-id', res.data.data_source_id);
+            }
         }
     });
 
@@ -1255,7 +1292,7 @@ const resetColor = () => {
     $('table.jexcel td').css('background-color', '#303030');  // TODO color const
     if (!isAddNewMode()){
         $('table.jexcel td:nth-child(3)').css('color', 'gray');
-        $('table.jexcel td:nth-child(6)').css('color', 'gray');
+        // $('table.jexcel td:nth-child(6)').css('color', 'gray');
     }
 }
 
@@ -1345,21 +1382,13 @@ const getDupIndices = (arr, excludes = new Set()) => {
 const buildDictCol2Type = (procColumns) => {
     const dicCol2Type = {};
     for (let col of procColumns){
-        const colName = col['name'];
-        dicCol2Type[colName] = col['type'];
+        const colName = col['column_name'];
+        dicCol2Type[colName] = col['data_type'];
     }
     return dicCol2Type;
 }
 
 const checkExcelDataValid = (verticalData, validationColNames, dataTypes) => {
-
-    const operatorBySensorType = {
-        DATETIME: new Set(['']),
-        TEXT: new Set(['', 'Valid-like']),
-        REAL: new Set(['', '+', '-', '*', '/']),
-        INTEGER: new Set(['', '+', '-', '*', '/']),
-    };
-
     const validateDatetime = (columnData, dataTypes=[]) => {  // TODO coloring for checkbox
         const normalizedColData = normalizeBoolean(columnData);
         const dupIndices =  getDupIndices(normalizedColData, FALSE_VALUES);
@@ -1399,7 +1428,7 @@ const checkExcelDataValid = (verticalData, validationColNames, dataTypes) => {
             for(let rowIdx in columnData){
                 const cellVal = columnData[rowIdx];
                 const dataType = dataTypes[rowIdx];
-                const isOperatorOK = operatorBySensorType[dataType].has(cellVal);
+                const isOperatorOK = DataTypes[dataType].operator.includes(cellVal);
                 if (!isOperatorOK){
                     invalidCells.push(rowIdx);
                 }
@@ -1524,8 +1553,13 @@ const cleanBooleanVerticalData = (editModeDataVertical, validationColNames, data
 }
 
 const switchMode = (spreadTableDOM, force = false) => {
+    const selectJson = getSelectedColumnsAsJson();
+    [procCfgData, _] = collectProcCfgData(selectJson);
+    let columns = procCfgData.columns;
+
     const isEditMode = isEmpty($(procModalElements.okBtn).attr('disabled'));
     if (isEditMode) { // go to excel mode
+
         // hide column setting table
         generateSpreadSheet();
     } else { // convert -> back to setting mode
@@ -1534,7 +1568,8 @@ const switchMode = (spreadTableDOM, force = false) => {
         const validationColNames = [
             'columnName', 'dateTime', 'serial', 'auto_increment', 'englishName', 'shownName', 'operator', 'coef'
         ]
-        const colName2Type = buildDictCol2Type(currentProcColumns);
+
+        const colName2Type = buildDictCol2Type(columns);
         const columnNameIdx = validationColNames.indexOf('columnName');
         const columnNames = editModeDataVertical[columnNameIdx];
         const dataTypes = columnNames.map(col => colName2Type[col] || DataTypes.STRING.name);  // set TEXT as default
@@ -1710,6 +1745,7 @@ $(() => {
         }
         runRegisterProcConfigFlow(edit = true);
     });
+
     procModalElements.confirmReRegisterProcBtn.click(() => {
         $(procModalElements.confirmReRegisterProcModal).modal('hide');
         const selectJson = getSelectedColumnsAsJson();
@@ -1745,15 +1781,16 @@ $(() => {
     // Show records button click event
     procModalElements.showRecordsBtn.click((event) => {
         event.preventDefault();
-        const currentShownTableName = procModalElements.tables
-            .find(':selected')
-            .val() || null;
+        const currentShownTableName = $('select[name=tableName] option[selected=selected]').val() || null;
         const currentShownDataSouce = procModalElements.databases
             .find(':selected')
             .val() || null;
         const clearDataFlg = checkClearColumnsTable(Number(currentShownDataSouce), currentShownTableName);
         const procModalForm = $(procModalElements.formId);
         const formData = new FormData(procModalForm[0]);
+        if (!formData.get('tableName') && currentShownTableName) {
+            formData.set('tableName', currentShownTableName);
+        }
 
         preventSelectAll(true);
 

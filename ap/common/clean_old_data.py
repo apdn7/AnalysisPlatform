@@ -7,15 +7,22 @@ from apscheduler.triggers import interval
 from pytz import utc
 
 from ap import check_exist
-from ap.common.logger import log_execution_time, log_execution
-from ap.common.scheduler import scheduler_app_context, JobType, scheduler
+from ap.common.common_utils import get_data_path
+from ap.common.logger import (
+    CLEAN_ZIP_INTERVAL,
+    ZIP_LOG_INTERVAL,
+    ZipFileHandler,
+    log_execution,
+    log_execution_time,
+)
+from ap.common.scheduler import JobType, scheduler, scheduler_app_context
 from ap.script.hide_exe_root_folder import heartbeat_bundle_folder
 from ap.setting_module.services.background_process import send_processing_info
 
 
 @scheduler_app_context
 def clean_old_data_job(_job_id=None, _job_name=None, *args, **kwargs):
-    """ scheduler job to delete process from db
+    """scheduler job to delete process from db
 
     Keyword Arguments:
         _job_id {[type]} -- [description] (default: {None})
@@ -27,7 +34,7 @@ def clean_old_data_job(_job_id=None, _job_name=None, *args, **kwargs):
 
 @log_execution_time()
 def clean_old_files(folder=None, num_day_ago=30):
-    """ Delete old files in a folder
+    """Delete old files in a folder
     Arguments:
         prefix {[type]} -- [file prefix]
         postfix {[type]} -- [file postfix]
@@ -165,7 +172,7 @@ def cleanup_unused_exe_folder():
 
 @log_execution()
 def run_clean_data_job(job_name=None, folder='.', num_day_ago=30, job_repeat_sec=86400, job_id=-1):
-    """ Trigger cleaning data job
+    """Trigger cleaning data job
     :return:
     """
     # clean_job_id = f'{JobType.CLEAN_DATA.name}'
@@ -178,11 +185,40 @@ def run_clean_data_job(job_name=None, folder='.', num_day_ago=30, job_repeat_sec
     start_time = dt.datetime.now()
 
     scheduler.add_job(
-        clean_job_id, clean_old_data_job,
+        clean_job_id,
+        clean_old_data_job,
         trigger=interval_trigger,
         replace_existing=True,
         next_run_time=start_time.astimezone(utc),
-        kwargs=dict(_job_id=clean_job_id, _job_name=job_name, folder=folder, num_day_ago=num_day_ago)
+        kwargs=dict(
+            _job_id=clean_job_id, _job_name=job_name, folder=folder, num_day_ago=num_day_ago
+        ),
     )
 
     return True
+
+
+def add_job_zip_all_previous_log_files():
+    log_path = get_data_path(is_log=True)
+    interval_trigger = interval.IntervalTrigger(seconds=ZIP_LOG_INTERVAL, timezone=utc)
+    scheduler.add_job(
+        JobType.ZIP_LOG.name,
+        ZipFileHandler.zip_all_previous_files,
+        trigger=interval_trigger,
+        replace_existing=True,
+        next_run_time=dt.datetime.now().astimezone(utc),
+        kwargs=dict(path=log_path),
+    )
+
+
+def add_job_delete_old_zipped_log_files():
+    log_path = get_data_path(is_log=True)
+    interval_trigger = interval.IntervalTrigger(seconds=CLEAN_ZIP_INTERVAL, timezone=utc)
+    scheduler.add_job(
+        JobType.CLEAN_ZIP.name,
+        ZipFileHandler.delete_old_zipped_files,
+        trigger=interval_trigger,
+        replace_existing=True,
+        next_run_time=dt.datetime.now().astimezone(utc),
+        kwargs=dict(path=log_path),
+    )

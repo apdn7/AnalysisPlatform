@@ -12,16 +12,17 @@ def fix_blank_string_port():
     :return:
     """
     try:
-        print('------------HOT FIX BLANK PORT: START  ------------')
+        print("------------HOT FIX BLANK PORT: START  ------------")
         from ap.setting_module.models import make_session, CfgDataSourceDB
+
         with make_session() as meta_session:
             db_details: List[CfgDataSourceDB] = meta_session.query(CfgDataSourceDB).all()
             for db_detail in db_details:
                 if db_detail.port is None or isinstance(db_detail.port, int):
                     continue
-                if str(db_detail.port).strip() == '':
+                if str(db_detail.port).strip() == "":
                     db_detail.port = None
-        print('------------HOT FIX BLANK PORT: END  ------------')
+        print("------------HOT FIX BLANK PORT: END  ------------")
     except Exception:
         pass
 
@@ -34,25 +35,31 @@ def unlock_db(db_path):
     :return:
     """
     try:
-        print('------------UNLOCK DB: START  ------------', db_path)
+        print("------------UNLOCK DB: START  ------------", db_path)
         tmp = db_path + DB_BACKUP_SUFFIX
         delete_file(tmp)
         rename_file(db_path, tmp)
         copy_file(tmp, db_path)
-        print('------------UNLOCK DB: END  ------------')
+        print("------------UNLOCK DB: END  ------------")
     except Exception:
         print("Can not unlock db. Some processes are using database file.")
 
 
 def reset_import_history(app):
     try:
-        print('------------RESET IMPORT HISTORY: START  ------------')
+        print("------------RESET IMPORT HISTORY: START  ------------")
         with app.app_context():
-            from ap.setting_module.models import make_session, CsvImport, FactoryImport, JobManagement
+            from ap.setting_module.models import (
+                make_session,
+                CsvImport,
+                FactoryImport,
+                JobManagement,
+            )
+
             with make_session() as meta_session:
                 meta_session.query(CsvImport).delete()
                 meta_session.query(FactoryImport).delete()
                 meta_session.query(JobManagement).delete()
-        print('------------RESET IMPORT HISTORY: END  ------------')
+        print("------------RESET IMPORT HISTORY: END  ------------")
     except Exception:
         print("Try to reset import history , but tables are not exist")

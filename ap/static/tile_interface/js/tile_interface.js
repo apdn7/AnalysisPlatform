@@ -11,7 +11,7 @@ const redirectPage = (tile) => {
             isOpenNewTab = false;
             window.open(target);
         } else {
-            window.location.replace(target);
+            window.location.assign(target);
         }
     }
 };

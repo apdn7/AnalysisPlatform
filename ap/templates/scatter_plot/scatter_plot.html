@@ -30,8 +30,8 @@
         <div class="d-flex align-items-center justify-content-center show-graph-div">
 			{{ macros.preprocess_options() }}
             <button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
-                onClick="scpTracing();" class="btn btn-primary show-graph ml-3"><i
-                    class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+                onClick="scpTracing();" class="btn btn-primary show-graph ml-3" title="Shortcut key: Ctrl+Enter">
+                <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
 			{{ macros.export_gui() }}
         </div>
         <br>
@@ -89,7 +89,7 @@
 		</div>
 	</div>
 </div>
-<div class="card graph-navi" id="sctr-card-parent" style="width: inherit; display: none;">
+<div class="card graph-navi plot-content" id="sctr-card-parent" style="width: inherit; display: none;">
 	<div class="align-items-center ml-3 pr-3" id="navigation-bar">
 		<div class="modebar">
 			<div class="modebar-group">
@@ -113,13 +113,16 @@
 	</div>
 	<div class="text-center position-relative" id="sctr-card" style="width: inherit">
 	</div>
+	<div id="stContentTab">
+		<div class="setting-inform-content"></div>
+	</div>
 </div>
-<div id="stContentTab">
-	<div class="setting-inform-content"></div>
-</div>
+
 <div>
 	<ul id="contextMenuTimeSeries" class="context-menu" style="display:none;" name="contextMenu">
-		<li class="menu-item cross-hair" onclick="handleSelectedPlotView()">{{ _("Plot View") }}</li>
+		<li class="menu-item" onclick="handleSelectedPlotView()">{{ _("Plot View") }}</li>
+		<li class="menu-item"
+                onclick="goToGraphConfigPage('{{ url_for('setting_module.master_config') }}')">{{ _("Threshold/Graph Config") }}</li>
 	</ul>
 </div>
 

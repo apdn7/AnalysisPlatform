@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, BooleanField, FormField, FieldList
+from wtforms import BooleanField, FieldList, FormField, IntegerField, StringField
 
 
 class DataSourceDbForm(FlaskForm):

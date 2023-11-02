@@ -9,11 +9,11 @@ categorical_plot_blueprint = Blueprint(
     __name__,
     template_folder=os.path.join('..', 'templates', 'categorical_plot'),
     static_folder=os.path.join('..', 'static', 'categorical_plot'),
-    url_prefix='/ap'
+    url_prefix='/ap',
 )
 
 
 @categorical_plot_blueprint.route('/stp')
 def categorical_plot():
     output_dict = get_common_config_data()
-    return render_template("categorical_plot.html", **output_dict)
+    return render_template('categorical_plot.html', **output_dict)

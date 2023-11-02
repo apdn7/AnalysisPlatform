@@ -20,18 +20,20 @@ def ext():
             st = time.time()
             result = fn(*args, **kwargs)
             et = time.time() + 0.005
-            exec_time = round((et - st) * 1000) # miliseconds
+            exec_time = round((et - st) * 1000)  # miliseconds
             print("Function `{:s}` executed in {:f} miliseconds!".format(fn.__name__, exec_time))
             return result
+
         return wrapper
+
     return decorator
 
 
 # Write query data into tsv file
 def write_tsv(data, ds):
-    tsv_source = ip + ds + '.tsv'
-    with open(tsv_source, 'wt', newline='') as f:
-        writer = csv.writer(f, delimiter='\t')
+    tsv_source = ip + ds + ".tsv"
+    with open(tsv_source, "wt", newline="") as f:
+        writer = csv.writer(f, delimiter="\t")
         for row in data:
             writer.writerow(row)
     return tsv_source
@@ -39,7 +41,7 @@ def write_tsv(data, ds):
 
 # Write query data into pickle file
 def write_pickle(data, ds):
-    pkl_source = ip + ds + '.pkl'
+    pkl_source = ip + ds + ".pkl"
     pickle.dump(data, open(pkl_source, "wb"))
     return pkl_source
 
@@ -48,7 +50,7 @@ def write_pickle(data, ds):
 def p2r_pypy(data):
     r.data = data
     r.run("res <- py2py(data)")
-    res = r.get('out')
+    res = r.get("out")
     return res
 
 
@@ -57,9 +59,9 @@ def p2r_pyt(data, ds):
     r.data = data
     r.ds = ds
     r.run("res <- pyper2tsv(data, ds)")
-    tsv = r.get('res')
-    with open(tsv, newline='') as f:
-        reader = csv.reader(f, delimiter='\t')
+    tsv = r.get("res")
+    with open(tsv, newline="") as f:
+        reader = csv.reader(f, delimiter="\t")
         res = list(reader)
     return res
 
@@ -69,15 +71,15 @@ def p2r_pypk(data, ds):
     r.data = data
     r.ds = ds
     r.run("res <- pyper2pkl(data, ds)")
-    pkl = r.get('res')
-    return pickle.load(open(pkl, 'rb'))
+    pkl = r.get("res")
+    return pickle.load(open(pkl, "rb"))
 
 
 @ext()
 def p2r_tpy(data, ds):
     r.tsv_source = write_tsv(data, ds)
     r.run("res <- tsv2pyper(tsv_source)")
-    return r.get('res')
+    return r.get("res")
 
 
 @ext()
@@ -85,9 +87,9 @@ def p2r_tt(data, ds):
     r.tsv_source = write_tsv(data, ds)
     r.ds = ds
     r.run("res <- tsv2tsv(tsv_source, ds)")
-    ptsv = r.get('res')
-    with open(ptsv, newline='') as f:
-        reader = csv.reader(f, delimiter='\t')
+    ptsv = r.get("res")
+    with open(ptsv, newline="") as f:
+        reader = csv.reader(f, delimiter="\t")
         res = list(reader)
     return res
 
@@ -97,15 +99,15 @@ def p2r_tpk(data, ds):
     r.tsv_source = write_tsv(data, ds)
     r.ds = ds
     r.run("res <- tsv2pkl(tsv_source, ds)")
-    tpk = r.get('res')
-    return pickle.load(open(tpk, 'rb'))
+    tpk = r.get("res")
+    return pickle.load(open(tpk, "rb"))
 
 
 @ext()
 def p2r_pkpy(data, ds):
     r.pkl_source = write_pickle(data, ds)
     r.run("res <- pkl2pyper(pkl_source)")
-    pkl = r.get('res')
+    pkl = r.get("res")
     return pkl
 
 
@@ -114,9 +116,9 @@ def p2r_pkt(data, ds):
     r.pkl_source = write_pickle(data, ds)
     r.ds = ds
     r.run("res <- pkl2tsv(pkl_source, ds)")
-    ptsv = r.get('res')
-    with open(ptsv, newline='') as f:
-        reader = csv.reader(f, delimiter='\t')
+    ptsv = r.get("res")
+    with open(ptsv, newline="") as f:
+        reader = csv.reader(f, delimiter="\t")
         res = list(reader)
     return res
 
@@ -126,15 +128,15 @@ def p2r_pkpk(data, ds):
     r.pkl_source = write_pickle(data, ds)
     r.ds = ds
     r.run("res <- pkl2pkl(pkl_source, ds)")
-    pkl = r.get('res')
-    return pickle.load(open(pkl, 'rb'))
+    pkl = r.get("res")
+    return pickle.load(open(pkl, "rb"))
 
 
 def main():
     # for ds in data_size:
     ds = "1KB"
     # Get data from csv/ database
-    with open(ip + ds + ".csv", newline='') as f:
+    with open(ip + ds + ".csv", newline="") as f:
         reader = csv.reader(f)
         data = list(reader)
 

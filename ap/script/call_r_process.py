@@ -5,7 +5,7 @@ from ap.common.common_utils import get_data_path, get_wrapr_path
 def call_r_process():
     dir_out = get_data_path()
     dir_wrapr = get_wrapr_path()
-    dic_task = dict(func='hello_world', file='hello_world')
+    dic_task = dict(func="hello_world", file="hello_world")
 
     try:
         pipe = wrapr_utils.RPipeline(dir_wrapr, dir_out)

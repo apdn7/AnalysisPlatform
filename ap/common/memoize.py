@@ -10,7 +10,14 @@ from threading import Lock
 
 from flask import g
 
-from ap.common.common_utils import resource_path, get_cache_path, write_to_pickle, read_pickle_file, delete_file, check_exist
+from ap.common.common_utils import (
+    check_exist,
+    delete_file,
+    get_cache_path,
+    read_pickle_file,
+    resource_path,
+    write_to_pickle,
+)
 from ap.common.constants import AbsPath, FlaskGKey, MemoizeKey
 
 cache = OrderedDict()
@@ -78,7 +85,6 @@ def memoize(is_save_file=False, duration=None):
     def memoize1(fn):
         @wraps(fn)
         def memoize2(*args, **kwargs):
-
             is_use_expired = kwargs.get(USE_EXPIRED_CACHE_PARAM_NAME)
             if USE_EXPIRED_CACHE_PARAM_NAME in kwargs:
                 kwargs.pop(USE_EXPIRED_CACHE_PARAM_NAME)
@@ -86,7 +92,11 @@ def memoize(is_save_file=False, duration=None):
             key = compute_key(fn, args, kwargs)
 
             is_stop_using_cache = get_cache_attr(MemoizeKey.STOP_USING_CACHE)
-            if not is_stop_using_cache and key in cache and (is_use_expired or not is_obsolete(cache[key], duration)):
+            if (
+                not is_stop_using_cache
+                and key in cache
+                and (is_use_expired or not is_obsolete(cache[key], duration))
+            ):
                 print('used cache')
                 if is_save_file:
                     file_name = cache[key]['file']

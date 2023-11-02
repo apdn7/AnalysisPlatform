@@ -1,9 +1,13 @@
 -r common.txt
 pytest-cov==2.8.1
 selenium==3.141.0
+Selenium-Screenshot==2.1.0
 slackclient==2.5.0
 setuptools==44.0.0
-pytest~=5.3.5
+pytest==7.4.0
 pyinstaller==5.0.1
 pyper==1.1.2
 requests==2.28.2
+black==23.3.0
+ruff==0.0.278
+pytest-xdist==3.3.1

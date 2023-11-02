@@ -5,10 +5,10 @@
     <link href="{{ url_for('static', filename = 'plot_view/css/plot_view.css') }}" rel="stylesheet">
     <script src="{{ url_for('static', filename = 'plot_view/js/plot_view.js') }}"></script>
     <script>
-        gtag('config', 'UA-156244372-2', {
+        gtag('config', GA_TRACKING_ID, {
             'page_title': '{{ _("Plot View") }}',
         });
-        gtag('config', 'G-9DJ9TV72B5', {
+        gtag('config', UA_TRACKING_ID, {
             'page_title': '{{ _("Plot View") }}',
         });
     </script>
@@ -25,7 +25,7 @@
                 <span class="plot-view-label">List</span>
                 <br>
                 <button class="btn clipboard" style="float:right;" data-clipboard-target="#listTable"
-                        title="Copy to Clipboard">
+                        title="">
                     <i class="fa fa-copy" aria-hidden="true"></i>
                 </button>
             </div>
@@ -59,7 +59,7 @@
                 <span class="plot-view-label">Stats</span>
                 <br>
                 <button class="btn clipboard" style="float:right;" data-clipboard-target="#statTable"
-                        title="Copy to Clipboard">
+                        title="">
                     <i class="fa fa-copy" aria-hidden="true"></i></button>
             </div>
             <div class="col-sm-11">
@@ -92,7 +92,7 @@
                 <span class="plot-view-label">Full Link Data</span>
                 <br>
                 <button class="btn clipboard" style="float:right;" data-clipboard-target="#fullLinkTable"
-                        title="Copy to Clipboard">
+                        title="">
                     <i class="fa fa-copy" aria-hidden="true"></i>
                 </button>
             </div>

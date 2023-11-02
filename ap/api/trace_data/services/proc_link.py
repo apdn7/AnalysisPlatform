@@ -1,4 +1,4 @@
-from collections import defaultdict, Counter, namedtuple, deque
+from collections import Counter, defaultdict, deque, namedtuple
 from datetime import datetime, timedelta
 from typing import List
 
@@ -10,13 +10,18 @@ from sqlalchemy.sql.expression import literal
 
 from ap import scheduler
 from ap.common.constants import *
-from ap.common.logger import logger, log_execution_time
+from ap.common.logger import log_execution_time, logger
 from ap.common.memoize import set_all_cache_expired
-from ap.common.pydn.dblib.db_common import gen_insert_col_str, gen_select_col_str, PARAM_SYMBOL, add_single_quote
+from ap.common.pydn.dblib.db_common import (
+    PARAM_SYMBOL,
+    add_single_quote,
+    gen_insert_col_str,
+    gen_select_col_str,
+)
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
-from ap.common.scheduler import scheduler_app_context, JobType, RESCHEDULE_SECONDS
-from ap.common.services.sse import background_announcer, AnnounceEvent
-from ap.setting_module.models import CfgTrace, ProcLinkCount, make_session, CfgProcess
+from ap.common.scheduler import RESCHEDULE_SECONDS, JobType, scheduler_app_context
+from ap.common.services.sse import AnnounceEvent, background_announcer
+from ap.setting_module.models import CfgProcess, CfgTrace, ProcLinkCount, make_session
 from ap.setting_module.services.background_process import send_processing_info
 from ap.trace_data.models import *
 
@@ -54,8 +59,12 @@ class TraceGraph:
         counter_target_procs = Counter(target_procs)
         set_self_procs = set(counter_self_procs)
         set_target_procs = set(counter_target_procs)
-        self.split_multi_nodes = [_node for _node, _count in counter_self_procs.items() if _count > 1]
-        self.merge_multi_nodes = [_node for _node, _count in counter_target_procs.items() if _count > 1]
+        self.split_multi_nodes = [
+            _node for _node, _count in counter_self_procs.items() if _count > 1
+        ]
+        self.merge_multi_nodes = [
+            _node for _node, _count in counter_target_procs.items() if _count > 1
+        ]
         self.leaf_start_nodes = list(set_self_procs - set_target_procs)
         self.leaf_end_nodes = list(set_target_procs - set_self_procs)
 
@@ -111,23 +120,35 @@ class TraceGraph:
             if not first_edge:
                 first_edge = self.dic_edges.get((middle_proc, start_proc))
                 left_cols = tuple(
-                    (key.self_column_id, key.self_column_substr_from, key.self_column_substr_to) for key in
-                    first_edge.trace_keys)
+                    (key.self_column_id, key.self_column_substr_from, key.self_column_substr_to)
+                    for key in first_edge.trace_keys
+                )
             else:
                 left_cols = tuple(
-                    (key.target_column_id, key.target_column_substr_from, key.target_column_substr_to) for key in
-                    first_edge.trace_keys)
+                    (
+                        key.target_column_id,
+                        key.target_column_substr_from,
+                        key.target_column_substr_to,
+                    )
+                    for key in first_edge.trace_keys
+                )
 
             next_edge = self.dic_edges.get((middle_proc, end_proc))
             if not next_edge:
                 next_edge = self.dic_edges.get((end_proc, middle_proc))
                 right_cols = tuple(
-                    (key.target_column_id, key.target_column_substr_from, key.target_column_substr_to) for key in
-                    next_edge.trace_keys)
+                    (
+                        key.target_column_id,
+                        key.target_column_substr_from,
+                        key.target_column_substr_to,
+                    )
+                    for key in next_edge.trace_keys
+                )
             else:
                 right_cols = tuple(
-                    (key.self_column_id, key.self_column_substr_from, key.self_column_substr_to) for key in
-                    next_edge.trace_keys)
+                    (key.self_column_id, key.self_column_substr_from, key.self_column_substr_to)
+                    for key in next_edge.trace_keys
+                )
 
             if left_cols != right_cols:
                 reduced_path.append(middle_proc)
@@ -164,15 +185,17 @@ class TraceGraph:
         for edge in self.dic_edges.values():
             start_proc_id = edge.self_process_id
             start_cols = tuple(
-                (key.self_column_id, key.self_column_substr_from, key.self_column_substr_to) for key in
-                edge.trace_keys)
+                (key.self_column_id, key.self_column_substr_from, key.self_column_substr_to)
+                for key in edge.trace_keys
+            )
 
             trace_cols.add((start_proc_id, start_cols))
 
             end_proc_id = edge.target_process_id
             end_cols = tuple(
-                (key.target_column_id, key.target_column_substr_from, key.target_column_substr_to) for key in
-                edge.trace_keys)
+                (key.target_column_id, key.target_column_substr_from, key.target_column_substr_to)
+                for key in edge.trace_keys
+            )
 
             trace_cols.add((end_proc_id, end_cols))
 
@@ -180,7 +203,13 @@ class TraceGraph:
 
 
 @scheduler_app_context
-def gen_global_id_job(_job_id=None, _job_name=None, is_new_data_check=True, is_publish=True, is_user_request: bool = False):
+def gen_global_id_job(
+    _job_id=None,
+    _job_name=None,
+    is_new_data_check=True,
+    is_publish=True,
+    is_user_request: bool = False,
+):
     """run job generate global id
 
     :param _job_id:
@@ -255,8 +284,7 @@ def gen_global_id():
 
 @log_execution_time()
 def order_before_mapping_data(edges: List[CfgTrace]):
-    """ trace all node in dic_node , and gen sql
-    """
+    """trace all node in dic_node , and gen sql"""
     ordered_edges = []
 
     max_loop = len(edges) * 10
@@ -264,7 +292,9 @@ def order_before_mapping_data(edges: List[CfgTrace]):
     cnt = 0
     while edges:
         if cnt > max_loop:
-            raise Exception('Edges made a ring circle, You must re-setting tracing edge to break the ring circle!!!')
+            raise Exception(
+                'Edges made a ring circle, You must re-setting tracing edge to break the ring circle!!!'
+            )
 
         # get first element
         edge = edges.popleft()
@@ -285,8 +315,9 @@ def order_before_mapping_data(edges: List[CfgTrace]):
 # def gen_trace_key_info(edge: CfgTrace, is_start_proc):
 def gen_trace_key_info(proc_id, keys):
     # trace key info
-    TraceKeyInfo = namedtuple('TraceKeyInfo',
-                              'proc_id, column_id, column_name, col_name_with_substr, from_char, to_char')
+    TraceKeyInfo = namedtuple(
+        'TraceKeyInfo', 'proc_id, column_id, column_name, col_name_with_substr, from_char, to_char'
+    )
 
     trace_key_infos = []
     for key in keys:
@@ -297,7 +328,9 @@ def gen_trace_key_info(proc_id, keys):
         else:
             substr_col_name = column.column_name
 
-        trace_key_info = TraceKeyInfo(proc_id, column.id, column.column_name, substr_col_name, from_char, to_char)
+        trace_key_info = TraceKeyInfo(
+            proc_id, column.id, column.column_name, substr_col_name, from_char, to_char
+        )
         trace_key_infos.append(trace_key_info)
 
     return trace_key_infos
@@ -321,7 +354,11 @@ def insert_proc_link_data(proc_id, proc_cols):
         col_names.add(trace_key.column_name)
         col_names.add(trace_key.col_name_with_substr)
 
-    sensors = Sensor.query.filter(Sensor.process_id == proc_id).filter(Sensor.column_name.in_(list(col_names))).all()
+    sensors = (
+        Sensor.query.filter(Sensor.process_id == proc_id)
+        .filter(Sensor.column_name.in_(list(col_names)))
+        .all()
+    )
     dic_sensors = {sensor.column_name: sensor for sensor in sensors}
 
     sensor_cols = []
@@ -353,8 +390,13 @@ def insert_proc_link_data(proc_id, proc_cols):
 
     proc_link_cls = ProcLink.find_proc_link_class(sensor_cols)
     proc_link_table_name = proc_link_cls.__table__.name
-    proc_link_cols = [proc_link_cls.process_id.key, proc_link_cls.cycle_id.key, proc_link_cls.time.key,
-                      proc_link_cls.link_key.key, proc_link_cls.link_value.key]
+    proc_link_cols = [
+        proc_link_cls.process_id.key,
+        proc_link_cls.cycle_id.key,
+        proc_link_cls.time.key,
+        proc_link_cls.link_key.key,
+        proc_link_cls.link_value.key,
+    ]
 
     select_max_cycle_id = f'''SELECT COALESCE(max({proc_link_cls.cycle_id.key}),0)
                               FROM {proc_link_table_name} WHERE {proc_link_cls.link_key.key} = {PARAM_SYMBOL}'''
@@ -371,7 +413,9 @@ def insert_proc_link_data(proc_id, proc_cols):
     WHERE cycle.process_id = {PARAM_SYMBOL} AND cycle.id > ({select_max_cycle_id})
     '''
     params = (*orig_sensor_cols, proc_id, link_key)
-    with DbProxy(gen_data_source_of_universal_db(), True, immediate_isolation_level=True) as db_instance:
+    with DbProxy(
+        gen_data_source_of_universal_db(), True, immediate_isolation_level=True
+    ) as db_instance:
         db_instance.execute_sql(sql, params=params)
 
 
@@ -391,15 +435,19 @@ def gen_substring_proc_link_data(orig_sensor, sensor_id, sensor_col, sensor_type
     orig_sensor_val_cls = find_sensor_class(orig_sensor.id, DataType(orig_sensor.type))
 
     # get all value of original sensor
-    data = db.session.query(orig_sensor_val_cls.cycle_id, literal(sensor_id),
-                            func.substr(orig_sensor_val_cls.value, from_char, to_char - from_char + 1))
+    data = db.session.query(
+        orig_sensor_val_cls.cycle_id,
+        literal(sensor_id),
+        func.substr(orig_sensor_val_cls.value, from_char, to_char - from_char + 1),
+    )
 
     data = data.filter(orig_sensor_val_cls.sensor_id == orig_sensor.id)
 
     # insert into sensor val
     sensor_val_cls = find_sensor_class(sensor_id, DataType(sensor_type))
     sensor_insert = insert(sensor_val_cls).from_select(
-        (sensor_val_cls.cycle_id, sensor_val_cls.sensor_id, sensor_val_cls.value), data)
+        (sensor_val_cls.cycle_id, sensor_val_cls.sensor_id, sensor_val_cls.value), data
+    )
 
     # execute
     db.session.execute(sensor_insert)
@@ -418,9 +466,19 @@ def add_gen_proc_link_job(publish=False, is_user_request: bool = False):
     job_id = JobType.GEN_GLOBAL.name
     run_time = datetime.now().astimezone(utc) + timedelta(seconds=RESCHEDULE_SECONDS)
     date_trigger = date.DateTrigger(run_date=run_time, timezone=utc)
-    scheduler.add_job(job_id, gen_global_id_job, trigger=date_trigger, replace_existing=True,
-                      kwargs=dict(_job_id=job_id, _job_name=job_id, is_new_data_check=True, is_publish=publish,
-                                  is_user_request=is_user_request))
+    scheduler.add_job(
+        job_id,
+        gen_global_id_job,
+        trigger=date_trigger,
+        replace_existing=True,
+        kwargs=dict(
+            _job_id=job_id,
+            _job_name=job_id,
+            is_new_data_check=True,
+            is_publish=publish,
+            is_user_request=is_user_request,
+        ),
+    )
 
 
 #######################################################
@@ -433,31 +491,39 @@ def gen_substring_sensors(edges: List[CfgTrace]):
         for trace_key in edge.trace_keys:
             if trace_key.self_column_substr_from:
                 orig_col = CfgProcessColumn.query.get(trace_key.self_column_id)
-                sensor = gen_substring_sensor(edge.self_process_id, orig_col.column_name,
-                                              trace_key.self_column_substr_from,
-                                              trace_key.self_column_substr_to)
+                sensor = gen_substring_sensor(
+                    edge.self_process_id,
+                    orig_col.column_name,
+                    trace_key.self_column_substr_from,
+                    trace_key.self_column_substr_to,
+                )
                 if sensor:
                     substr_sensors.add(sensor)
 
             if trace_key.target_column_substr_from:
                 orig_col = CfgProcessColumn.query.get(trace_key.target_column_id)
-                sensor = gen_substring_sensor(edge.target_process_id, orig_col.column_name,
-                                              trace_key.target_column_substr_from,
-                                              trace_key.target_column_substr_to)
+                sensor = gen_substring_sensor(
+                    edge.target_process_id,
+                    orig_col.column_name,
+                    trace_key.target_column_substr_from,
+                    trace_key.target_column_substr_to,
+                )
                 if sensor:
                     substr_sensors.add(sensor)
 
     if substr_sensors:
+        add_sensor(substr_sensors)
 
-        for substr_sensor in substr_sensors:
-            proc_id, col_name, dtype = substr_sensor
-            sensor = Sensor()
-            sensor.process_id = proc_id
-            sensor.column_name = col_name
-            sensor.type = dtype
-            db.session.add(sensor)
 
-        db.session.commit()
+def add_sensor(sensors):
+    for sensor in sensors:
+        proc_id, col_name, dtype = sensor
+        sensor = Sensor()
+        sensor.process_id = proc_id
+        sensor.column_name = col_name
+        sensor.type = dtype
+        db.session.add(sensor)
+    db.session.commit()
 
 
 def show_proc_link_info():
@@ -474,8 +540,10 @@ def show_proc_link_info():
     # count matched per edge
     for row in data:
         dic_edge_cnt[f'{row.process_id}-{row.target_process_id}'] = row.matched_count
-        dic_proc_cnt[row.process_id] = 0
-        dic_proc_cnt[row.target_process_id] = 0
+
+    # get all processes
+    for proc_cfg in CfgProcess.get_all_ids():
+        dic_proc_cnt[proc_cfg.id] = 0
 
     dic_proc_cnt = count_all_procs(dic_proc_cnt)
     return dic_proc_cnt, dic_edge_cnt
@@ -496,7 +564,11 @@ def count_all_procs(dic_procs):
 
 
 def count_proc_links():
-    from ap.api.trace_data.services.time_series_chart import gen_sensor_ids_from_trace_keys, gen_cfg_col_n_sensor_pair
+    from ap.api.trace_data.services.time_series_chart import (
+        gen_cfg_col_n_sensor_pair,
+        gen_sensor_ids_from_trace_keys,
+    )
+
     edges = CfgTrace.get_all()
     graph = TraceGraph(edges)
 
@@ -512,7 +584,9 @@ def count_proc_links():
     link_val_col = proc_link_first_cls.link_value.key
     sql_list = []
     for edge in edges:
-        self_sensor_ids, target_sensor_ids = gen_sensor_ids_from_trace_keys(edge, dic_mapping_col_n_sensor)
+        self_sensor_ids, target_sensor_ids = gen_sensor_ids_from_trace_keys(
+            edge, dic_mapping_col_n_sensor
+        )
 
         from_link_key = None
         if self_sensor_ids and all(self_sensor_ids):
@@ -566,16 +640,30 @@ def proc_link_count_job(is_user_request: bool = False):
 
         interval_trigger = interval.IntervalTrigger(hours=24, timezone=utc)
         now_hour = run_time.hour
-        run_time = run_time.replace(hour=PROC_LINK_COUNT_JOB_HOUR, minute=0, second=0, microsecond=0)
-        if now_hour >= PROC_LINK_COUNT_JOB_HOUR:  # Add 1 day if now exceed the run time {PROC_LINK_COUNT_JOB_HOUR}
+        run_time = run_time.replace(
+            hour=PROC_LINK_COUNT_JOB_HOUR, minute=0, second=0, microsecond=0
+        )
+        if (
+            now_hour >= PROC_LINK_COUNT_JOB_HOUR
+        ):  # Add 1 day if now exceed the run time {PROC_LINK_COUNT_JOB_HOUR}
             run_time += timedelta(days=1)
 
-        scheduler.add_job(job_id, proc_link_count, replace_existing=False, trigger=interval_trigger,
-                          next_run_time=run_time.astimezone(utc), kwargs=dict(_job_id=job_id, _job_name=job_id))
+        scheduler.add_job(
+            job_id,
+            proc_link_count,
+            replace_existing=False,
+            trigger=interval_trigger,
+            next_run_time=run_time.astimezone(utc),
+            kwargs=dict(_job_id=job_id, _job_name=job_id),
+        )
     else:
-        scheduler.add_job(job_id, proc_link_count, replace_existing=True,
-                          trigger=DateTrigger(run_time.astimezone(utc), timezone=utc),
-                          kwargs=dict(_job_id=job_id, _job_name=job_id))
+        scheduler.add_job(
+            job_id,
+            proc_link_count,
+            replace_existing=True,
+            trigger=DateTrigger(run_time.astimezone(utc), timezone=utc),
+            kwargs=dict(_job_id=job_id, _job_name=job_id),
+        )
 
 
 @scheduler_app_context

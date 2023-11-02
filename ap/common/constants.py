@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import Optional
 
 MATCHED_FILTER_IDS = 'matched_filter_ids'
 UNMATCHED_FILTER_IDS = 'unmatched_filter_ids'
@@ -27,6 +28,8 @@ DB_BACKUP_SUFFIX = '_old'
 DB_BACKUP_FOLDER = 'backup'
 IN_MODIFIED_DAYS = 30
 NORMAL_MODE_MAX_RECORD = 10000
+MAX_COL_IN_TILES = 4
+MAX_COL_IN_USAGE = 3
 
 DEFAULT_WARNING_DISK_USAGE = 80
 DEFAULT_ERROR_DISK_USAGE = 90
@@ -49,6 +52,13 @@ LOG_LEVEL = 'log_level'
 FISCAL_YEAR_START_MONTH = 4
 
 MAX_SAFE_INTEGER = 9007199254740991
+DELIMITER_KW = 'sep'
+ENCODING_KW = 'encoding'
+
+MSP_CONTOUR_ADJUST = 0.4227
+MSP_AS_HEATMAP_FROM = 10
+AS_HEATMAP_MATRIX = 'as_heatmap_matrix'
+HEATMAP_MATRIX = 'heatmap_matrix'
 
 
 class ApLogLevel(Enum):
@@ -82,6 +92,24 @@ class DBType(Enum):
     ORACLE = 'oracle'
     MYSQL = 'mysql'
     CSV = 'csv'
+    V2 = 'v2'
+    V2_MULTI = 'v2_multi'
+    V2_HISTORY = 'v2_history'
+
+    @classmethod
+    def from_str(cls, s: str) -> Optional['DBType']:
+        for e in DBType:
+            if s == e.name:
+                return e
+
+    def is_db(self):
+        return self in [
+            DBType.POSTGRESQL,
+            DBType.MSSQLSERVER,
+            DBType.SQLITE,
+            DBType.ORACLE,
+            DBType.MYSQL,
+        ]
 
 
 class ErrorMsg(Enum):
@@ -90,6 +118,7 @@ class ErrorMsg(Enum):
 
     E_ALL_NA = auto()
     E_ZERO_VARIANCE = auto()
+    E_EMPTY_DF = auto()
 
 
 # YAML Keywords
@@ -215,6 +244,7 @@ FILTER_MACHINE = 'machine_id'
 CATE_PROC = 'end_proc_cate'
 GET02_CATE_SELECT = 'GET02_CATE_SELECT'
 CATEGORY_DATA = 'category_data'
+FILTER_DATA = 'filter_data'
 CATE_PROCS = 'cate_procs'
 TIMES = 'times'
 TIME_NUMBERINGS = 'time_numberings'
@@ -229,6 +259,8 @@ Y_THRESHOLD = 'y_threshold'
 X_SERIAL = 'x_serial'
 Y_SERIAL = 'y_serial'
 SORT_KEY = 'sort_key'
+FILTER_ON_DEMAND = 'filter_on_demand'
+DIV_FROM_TO = 'div_from_to'
 
 UNIQUE_SERIAL = 'unique_serial'
 UNIQUE_SERIAL_TRAIN = 'unique_serial_train'
@@ -249,7 +281,7 @@ TEMP_SERIAL_ORDER = 'TermSerialOrder'
 THRESHOLD_BOX = 'thresholdBox'
 SCATTER_CONTOUR = 'scatter_contour'
 SHOW_ONLY_CONTOUR = 'is_show_contour_only'
-NEW_ARRAY_FORMVAL = 'new_array_formval'
+ORDER_ARRAY_FORMVAL = 'order_array_formval'
 DF_ALL_PROCS = 'dfProcs'
 DF_ALL_COLUMNS = 'dfColumns'
 CHART_TYPE = 'chartType'
@@ -286,6 +318,7 @@ END_PROC_ID = 'end_proc_id'
 END_PROC_NAME = 'end_proc_name'
 END_COL_ID = 'end_col_id'
 END_COL_NAME = 'end_col_name'
+END_COL_SHOW_NAME = 'end_col_show_name'
 RANK_COL = 'before_rank_values'
 SUMMARIES = 'summaries'
 IS_RESAMPLING = 'is_resampling'
@@ -493,6 +526,8 @@ PROC_LINK_DONE_PUBLISH = 'proc_link_publish'
 SHUTDOWN_APP_DONE_PUBSUB = '/shutdown_app_done_pubsub'
 SHUTDOWN_APP_DONE_PUBLISH = 'shutdown_app_publish'
 BACKGROUND_JOB_PUBSUB = '/job'
+LISTEN_BACKGROUND_TIMEOUT = 10  # seconds
+
 # JOB_STATUS_PUBLISH = 'job_status_publish'
 # JOB_INFO_PUBLISH = 'res_background_job'
 
@@ -538,6 +573,25 @@ TILE_INTERFACE = 'tile_interface'
 SECTIONS = 'sections'
 DN7_TILE = 'dn7'
 AP_TILE = 'analysis_platform'
+SEARCH_USAGE = 'usage'
+TILE_MASTER = 'tile_master'
+TILE_JUMP_CFG = 'jump'
+RCMDS = 'recommends'
+UN_AVAILABLE = 'unavailable'
+ALL_TILES = 'all'
+TILES = 'tiles'
+UNDER_SCORE = '_'
+TITLE = 'title'
+HOVER = 'hover'
+DESCRIPTION = 'description'
+EXAMPLE = 'example'
+ICON_PATH = 'icon_path'
+PAGE = 'page'
+PNG_PATH = 'png_path'
+LINK_ADD = 'link_address'
+ROW = 'row'
+COLUMN = 'column'
+ENG = 'en'
 
 
 # actions
@@ -616,7 +670,7 @@ DATA_TYPE_DUPLICATE_MSG = 'Duplicate Record'
 AUTO_BACKUP = 'auto-backup-universal'
 
 
-class appENV(Enum):
+class AppEnv(Enum):
     PRODUCTION = 'prod'
     DEVELOPMENT = 'dev'
 
@@ -629,7 +683,9 @@ CORRS = 'corrs'
 CORR = 'corr'
 PCORR = 'pcorr'
 NTOTALS = 'ntotals'
-DUPLICATE_COUNT_COLUMN = '__DUPLICATE_COUNT__'  # A column that store duplicate count of current data row
+DUPLICATE_COUNT_COLUMN = (
+    '__DUPLICATE_COUNT__'  # A column that store duplicate count of current data row
+)
 
 # Heatmap
 MAX_TICKS = 8
@@ -762,8 +818,13 @@ LANGUAGES = [
     'sv',
     'te',
     'tl',
-    'tr'
+    'tr',
 ]
+
+MAXIMUM_V2_PREVIEW_PROCESSES = 20
+MAXIMUM_V2_PREVIEW_ZIP_FILES = 5
+MAXIMUM_PROCESSES_ORDER_FILES = 3
+DF_CHUNK_SIZE = 1_000_000
 
 
 class EMDType(Enum):
@@ -835,3 +896,336 @@ IS_GET_DATE = 'is_get_date'
 IS_DUMMY_DATETIME = 'is_dummy_datetime'
 LIST_PROCS = 'list_procs'
 GRAPH_FILTER_DETAILS = 'graph_filter_detail_ids'
+
+
+class BaseEnum(Enum):
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_items(cls):
+        return tuple(cls.__members__.items())
+
+    @classmethod
+    def get_keys(cls):
+        return tuple(cls.__members__.keys())
+
+    @classmethod
+    def get_values(cls):
+        return tuple(cls.__members__.values())
+
+
+class DataGroupType(BaseEnum):
+    """
+    Enum supports for handling in system.
+    Because user can mapping this type with some other column name. Should use get_primary_groups instead.
+    """
+
+    LINE_ID = 1
+    PROCESS_ID = 2
+    PART_NO = 3
+    MACHINE_ID = 4
+    QUALITY_ID = 5
+    DATA_TIME = 6
+    DATA_VALUE = 7
+    AUTO_INCREMENTAL = 8
+    DATA_SERIAL = 9
+    LINE_NAME = 10
+    PROCESS_NAME = 11
+    MACHINE_NAME = 12
+    QUALITY_NAME = 13
+    SUB_PART_NO = 14
+    SUB_LOT_NO = 15
+    SUB_TRAY_NO = 16
+    SUB_SERIAL = 17
+    # generate equation
+    Femto_Date = 18
+    Femto_Mach = 19
+    Femto_Order = 20
+    Line = 21
+    Datetime = 22
+    Milling = 23
+
+    FACTORY_ID = 24
+    FACTORY_NAME = 25
+    PLANT_ID = 26
+    PLANT_NO = 27
+    DEPT_ID = 28
+    DEPT_NAME = 29
+    LINE_GROUP_ID = 30
+    LINE_GROUP_NAME = 31
+    PART_FULL = 32
+    EQUIP_ID = 33  # TODO CHECK
+    HORIZONTAL_DATA = 34  # Type for horizontal columns that are sensor columns
+
+    # PART_LOG
+    FORGING_DATE = 35
+    DELIVERY_ASSY_FASTEN_TORQUE = 36
+
+    # PRODUCT_ID = 35
+
+    GENERATED = 99
+    GENERATED_EQUATION = 100  # unused
+
+    @classmethod
+    def get_transaction_data_groups(cls):  # columns were stored in t_master_data
+        return [cls.DATA_SERIAL, cls.GENERATED]
+
+    @classmethod
+    def get_master_data_groups(cls):  # columns were stored in t_master_data
+        return [
+            cls.LINE_ID,
+            cls.PROCESS_ID,
+            cls.PART_NO,
+            cls.MACHINE_ID,
+            cls.QUALITY_ID,
+            cls.LINE_NAME,
+            cls.PROCESS_NAME,
+            cls.MACHINE_NAME,
+            cls.QUALITY_NAME,
+        ]
+
+    @classmethod
+    def get_all_reserved_groups(cls):
+        return tuple(cls.__members__.keys())
+
+
+WELL_KNOWN_COLUMNS = {
+    DBType.V2.name: {
+        'ラインID': DataGroupType.LINE_ID.value,
+        'ライン名': DataGroupType.LINE_NAME.value,
+        '工程ID': DataGroupType.PROCESS_ID.value,
+        '工程名': DataGroupType.PROCESS_NAME.value,
+        '子設備ID': DataGroupType.MACHINE_ID.value,
+        '子設備名': DataGroupType.MACHINE_NAME.value,
+        '品番': DataGroupType.PART_NO.value,
+        'シリアルNo': DataGroupType.DATA_SERIAL.value,
+        '計測日時': DataGroupType.DATA_TIME.value,
+        '計測項目ID': DataGroupType.QUALITY_ID.value,
+        '計測項目名': DataGroupType.QUALITY_NAME.value,
+        '計測値': DataGroupType.DATA_VALUE.value,
+    },
+    DBType.V2_MULTI.name: {
+        'ラインID': DataGroupType.LINE_ID.value,
+        'ライン': DataGroupType.LINE_NAME.value,
+        '工程ID': DataGroupType.PROCESS_ID.value,
+        '工程': DataGroupType.PROCESS_NAME.value,
+        '子設備ID': DataGroupType.MACHINE_ID.value,
+        '子設備': DataGroupType.MACHINE_NAME.value,
+        '品番': DataGroupType.PART_NO.value,
+        'シリアルNo': DataGroupType.DATA_SERIAL.value,
+        '加工日時': DataGroupType.DATA_TIME.value,
+        '測定項目名': DataGroupType.QUALITY_NAME.value,
+        '測定値': DataGroupType.DATA_VALUE.value,
+    },
+    DBType.V2_HISTORY.name: {
+        'ラインID': DataGroupType.LINE_ID.value,
+        'ライン': DataGroupType.LINE_NAME.value,
+        '工程ID': DataGroupType.PROCESS_ID.value,
+        '工程': DataGroupType.PROCESS_NAME.value,
+        '子設備ID': DataGroupType.MACHINE_ID.value,
+        '子設備': DataGroupType.MACHINE_NAME.value,
+        '品番': DataGroupType.PART_NO.value,
+        'シリアルNo': DataGroupType.DATA_SERIAL.value,
+        '加工日時': DataGroupType.DATA_TIME.value,
+        '子部品品番': DataGroupType.SUB_PART_NO.value,
+        '子部品ロットNo': DataGroupType.SUB_LOT_NO.value,
+        '子部品トレイNo': DataGroupType.SUB_TRAY_NO.value,
+        '子部品シリアルNo': DataGroupType.SUB_SERIAL.value,
+    },
+}
+
+REVERSED_WELL_KNOWN_COLUMNS = {
+    DBType.V2.name: {
+        DataGroupType.LINE_ID.value: 'ラインID',
+        DataGroupType.LINE_NAME.value: 'ライン名',
+        DataGroupType.PROCESS_ID.value: '工程ID',
+        DataGroupType.PROCESS_NAME.value: '工程名',
+        DataGroupType.MACHINE_ID.value: '子設備ID',
+        DataGroupType.MACHINE_NAME.value: '子設備名',
+        DataGroupType.PART_NO.value: '品番',
+        DataGroupType.DATA_SERIAL.value: 'シリアルNo',
+        DataGroupType.DATA_TIME.value: '計測日時',
+        DataGroupType.QUALITY_ID.value: '計測項目ID',
+        DataGroupType.QUALITY_NAME.value: '計測項目名',
+        DataGroupType.DATA_VALUE.value: '計測値',
+    },
+    DBType.V2_MULTI.name: {
+        DataGroupType.LINE_ID.value: 'ラインID',
+        DataGroupType.LINE_NAME.value: 'ライン',
+        DataGroupType.PROCESS_ID.value: '工程ID',
+        DataGroupType.PROCESS_NAME.value: '工程',
+        DataGroupType.MACHINE_ID.value: '子設備ID',
+        DataGroupType.MACHINE_NAME.value: '子設備',
+        DataGroupType.PART_NO.value: '品番',
+        DataGroupType.DATA_SERIAL.value: 'シリアルNo',
+        DataGroupType.DATA_TIME.value: '加工日時',
+        DataGroupType.QUALITY_NAME.value: '測定項目名',
+        DataGroupType.DATA_VALUE.value: '測定値',
+    },
+    DBType.V2_HISTORY.name: {
+        DataGroupType.LINE_ID.value: 'ラインID',
+        DataGroupType.LINE_NAME.value: 'ライン',
+        DataGroupType.PROCESS_ID.value: '工程ID',
+        DataGroupType.PROCESS_NAME.value: '工程',
+        DataGroupType.MACHINE_ID.value: '子設備ID',
+        DataGroupType.MACHINE_NAME.value: '子設備',
+        DataGroupType.PART_NO.value: '品番',
+        DataGroupType.DATA_SERIAL.value: 'シリアルNo',
+        DataGroupType.DATA_TIME.value: '加工日時',
+        DataGroupType.SUB_PART_NO.value: '子部品品番',
+        DataGroupType.SUB_LOT_NO.value: '子部品ロットNo',
+        DataGroupType.SUB_TRAY_NO.value: '子部品トレイNo',
+        DataGroupType.SUB_SERIAL.value: '子部品シリアルNo',
+    },
+}
+ABNORMAL_WELL_KNOWN_COLUMNS = {
+    DBType.V2.name: {
+        'ラインID': DataGroupType.LINE_ID.value,
+        'ライン名': DataGroupType.LINE_NAME.value,
+        '工程ID': DataGroupType.PROCESS_ID.value,
+        '工程名': DataGroupType.PROCESS_NAME.value,
+        '子設備ID': DataGroupType.MACHINE_ID.value,
+        '子設備名': DataGroupType.MACHINE_NAME.value,
+        '品番': DataGroupType.PART_NO.value,
+        'シリアル番号': DataGroupType.DATA_SERIAL.value,
+        '計測日時': DataGroupType.DATA_TIME.value,
+        '計測項目ID': DataGroupType.QUALITY_ID.value,
+        '計測項目名': DataGroupType.QUALITY_NAME.value,
+        '計測値': DataGroupType.DATA_VALUE.value,
+    },
+    DBType.V2_MULTI.name: {
+        'ラインID': DataGroupType.LINE_ID.value,
+        'ライン': DataGroupType.LINE_NAME.value,
+        '工程ID': DataGroupType.PROCESS_ID.value,
+        '工程': DataGroupType.PROCESS_NAME.value,
+        '子設備ID': DataGroupType.MACHINE_ID.value,
+        '子設備': DataGroupType.MACHINE_NAME.value,
+        '品番': DataGroupType.PART_NO.value,
+        'シリアルNo': DataGroupType.DATA_SERIAL.value,
+        '加工日時': DataGroupType.DATA_TIME.value,
+        '測定項目名': DataGroupType.QUALITY_NAME.value,
+        '測定値': DataGroupType.DATA_VALUE.value,
+    },
+    DBType.V2_HISTORY.name: {
+        'ラインID': DataGroupType.LINE_ID.value,
+        'ライン名': DataGroupType.LINE_NAME.value,
+        '工程ID': DataGroupType.PROCESS_ID.value,
+        '工程名': DataGroupType.PROCESS_NAME.value,
+        '子設備ID': DataGroupType.MACHINE_ID.value,
+        '子設備名': DataGroupType.MACHINE_NAME.value,
+        '品番': DataGroupType.PART_NO.value,
+        'シリアルNo': DataGroupType.DATA_SERIAL.value,
+        '計測日時': DataGroupType.DATA_TIME.value,
+        '子部品品番': DataGroupType.SUB_PART_NO.value,
+        '子部品ロットNo': DataGroupType.SUB_LOT_NO.value,
+        '子部品トレイNo': DataGroupType.SUB_TRAY_NO.value,
+        '子部品シリアルNo': DataGroupType.SUB_SERIAL.value,
+    },
+}
+ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS = {
+    DBType.V2.name: {
+        DataGroupType.LINE_ID.value: 'ラインID',
+        DataGroupType.LINE_NAME.value: 'ライン名',
+        DataGroupType.PROCESS_ID.value: '工程ID',
+        DataGroupType.PROCESS_NAME.value: '工程名',
+        DataGroupType.MACHINE_ID.value: '子設備ID',
+        DataGroupType.MACHINE_NAME.value: '子設備名',
+        DataGroupType.PART_NO.value: '品番',
+        DataGroupType.DATA_SERIAL.value: 'シリアル番号',
+        DataGroupType.DATA_TIME.value: '計測日時',
+        DataGroupType.QUALITY_ID.value: '計測項目ID',
+        DataGroupType.QUALITY_NAME.value: '計測項目名',
+        DataGroupType.DATA_VALUE.value: '計測値',
+    },
+    DBType.V2_MULTI.name: {
+        DataGroupType.LINE_ID.value: 'ラインID',
+        DataGroupType.LINE_NAME.value: 'ライン',
+        DataGroupType.PROCESS_ID.value: '工程ID',
+        DataGroupType.PROCESS_NAME.value: '工程',
+        DataGroupType.MACHINE_ID.value: '子設備ID',
+        DataGroupType.MACHINE_NAME.value: '子設備',
+        DataGroupType.PART_NO.value: '品番',
+        DataGroupType.DATA_SERIAL.value: 'シリアルNo',
+        DataGroupType.DATA_TIME.value: '加工日時',
+        DataGroupType.QUALITY_NAME.value: '測定項目名',
+        DataGroupType.DATA_VALUE.value: '測定値',
+    },
+    DBType.V2_HISTORY.name: {
+        DataGroupType.LINE_ID.value: 'ラインID',
+        DataGroupType.LINE_NAME.value: 'ライン名',
+        DataGroupType.PROCESS_ID.value: '工程ID',
+        DataGroupType.PROCESS_NAME.value: '工程名',
+        DataGroupType.MACHINE_ID.value: '子設備ID',
+        DataGroupType.MACHINE_NAME.value: '子設備名',
+        DataGroupType.PART_NO.value: '品番',
+        DataGroupType.DATA_SERIAL.value: 'シリアルNo',
+        DataGroupType.DATA_TIME.value: '計測日時',
+        DataGroupType.SUB_PART_NO.value: '子部品品番',
+        DataGroupType.SUB_LOT_NO.value: '子部品ロットNo',
+        DataGroupType.SUB_TRAY_NO.value: '子部品トレイNo',
+        DataGroupType.SUB_SERIAL.value: '子部品シリアルNo',
+    },
+}
+ABNORMAL_V2_COLS = {
+    'ライン名': DataGroupType.LINE_NAME.value,
+    '工程名': DataGroupType.PROCESS_NAME.value,
+    '子設備名': DataGroupType.MACHINE_NAME.value,
+    '計測日時': DataGroupType.DATA_TIME.value,
+    'シリアル番号': DataGroupType.DATA_SERIAL.value,
+}
+
+SUB_PART_NO_DEFAULT_SUFFIX = '.'
+SUB_PART_NO_NAMES = '部品'
+SUB_PART_NO_DEFAULT_NO = 'No'
+v2_PART_NO_REGEX = r'JP\d{10}$'
+SUB_PART_NO_SUFFIX = 'Part'
+SUB_PART_NO_PREFIX = 'Sub'
+
+# PCP categorized real
+CATEGORIZED_SUFFIX = '__CATEGORIZED__'
+# timeout 10 seconds for preview data
+PREVIEW_DATA_TIMEOUT = 10
+NULL_PERCENT = 'null_percent'
+ZERO_VARIANCE = 'zero_variance'
+SELECTED_VARS = 'selected_vars'
+
+OSERR = {22: 'Access denied', 2: 'Folder not found'}
+
+# Browser support
+SAFARI_SUPPORT_VER = 15.4
+
+UTF8_WITH_BOM = 'utf-8-sig'
+UTF8_WITHOUT_BOM = 'utf-8'
+
+SENSOR_NAMES = 'sensor_names'
+SENSOR_IDS = 'sensor_ids'
+COEF = 'coef'
+BAR_COLORS = 'bar_colors'
+
+# rlp NG rate
+JUDGE_VAR = 'judgeVar'
+NG_CONDITION = 'NGCondition'
+NG_CONDITION_VALUE = 'NGConditionValue'
+X = 'x'
+Y = 'y'
+FACET_SEP = ' | '
+NG_RATES = 'ng_rates'
+GROUP = 'group'
+COUNT = 'count'
+TRUE_MATCH = 'true'
+RATE = 'rate'
+IS_PROC_LINKED = 'is_proc_linked'
+EXPORT_TERM_FROM = 'From'
+EXPORT_TERM_TO = 'To'
+EXPORT_NG_RATE = 'NG Rate'
+JUDGE_LABEL = 'judge_label'
+
+
+class NGCondition(Enum):
+    LESS_THAN = '<'
+    LESS_THAN_OR_EQUAL = '<='
+    GREATER_THAN = '>'
+    GREATER_THAN_OR_EQUAL = '>='
+    EQUAL = '='
+    NOT_EQUAL_TO = '!='

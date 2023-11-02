@@ -3,23 +3,53 @@ import io
 import os
 import pickle
 from pathlib import Path
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZIP_DEFLATED, ZipFile
 
 import pandas as pd
 from flask import make_response
 
 from ap.api.trace_data.services.time_series_chart import get_proc_ids_in_dic_param
-from ap.common.common_utils import get_basename, resource_path, get_export_path, read_pickle_file, set_debug_data, \
-    delete_file
-from ap.common.constants import AbsPath, DIC_FORM_NAME, CONFIG_DB_NAME, DF_NAME, DebugKey, CsvDelimiter, \
-    COMMON, IS_EXPORT_MODE, IS_IMPORT_MODE, MemoizeKey, USER_SETTING_NAME
+from ap.common.common_utils import (
+    delete_file,
+    get_basename,
+    get_export_path,
+    read_pickle_file,
+    resource_path,
+    set_debug_data,
+)
+from ap.common.constants import (
+    COMMON,
+    CONFIG_DB_NAME,
+    DF_NAME,
+    DIC_FORM_NAME,
+    IS_EXPORT_MODE,
+    IS_IMPORT_MODE,
+    USER_SETTING_NAME,
+    AbsPath,
+    CsvDelimiter,
+    DebugKey,
+    MemoizeKey,
+)
 from ap.common.memoize import set_cache_attr
 from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one
-from ap.common.trace_data_log import get_log_attr, TraceErrKey, EventAction, Target
-from ap.setting_module.models import CfgProcess, DataTraceLog, make_session, CfgProcessColumn, CfgFilter, \
-    CfgTrace, CfgVisualization, CfgFilterDetail, CfgTraceKey, CfgUserSetting, CfgDataSource, CfgDataSourceDB, \
-    CfgDataSourceCSV, CfgCsvColumn
-from ap.setting_module.schemas import ProcessFullSchema, CfgUserSettingSchema
+from ap.common.trace_data_log import EventAction, Target, TraceErrKey, get_log_attr
+from ap.setting_module.models import (
+    CfgCsvColumn,
+    CfgDataSource,
+    CfgDataSourceCSV,
+    CfgDataSourceDB,
+    CfgFilter,
+    CfgFilterDetail,
+    CfgProcess,
+    CfgProcessColumn,
+    CfgTrace,
+    CfgTraceKey,
+    CfgUserSetting,
+    CfgVisualization,
+    DataTraceLog,
+    make_session,
+)
+from ap.setting_module.schemas import CfgUserSettingSchema, ProcessFullSchema
 
 
 def export_debug_info(dataset_id, user_setting_id):
@@ -47,9 +77,16 @@ def export_debug_info(dataset_id, user_setting_id):
     pickle.dump(user_setting, user_setting_buffer, pickle.HIGHEST_PROTOCOL)
 
     # TODO : naming zip file
-    response = download_zip_file('export_file', [file_dic_form, file_df, config_buffer, user_setting_buffer],
-                                 [f'{DIC_FORM_NAME}.pickle', f'{DF_NAME}.tsv', f'{CONFIG_DB_NAME}.pickle',
-                                  f'{USER_SETTING_NAME}.pickle'])
+    response = download_zip_file(
+        'export_file',
+        [file_dic_form, file_df, config_buffer, user_setting_buffer],
+        [
+            f'{DIC_FORM_NAME}.pickle',
+            f'{DF_NAME}.tsv',
+            f'{CONFIG_DB_NAME}.pickle',
+            f'{USER_SETTING_NAME}.pickle',
+        ],
+    )
 
     # remove target file
     delete_file(file_dic_form)
@@ -205,7 +242,15 @@ def get_data_source_info(config_db):
 
 def import_config_db(zip_file):
     data_source_tables = [CfgDataSource, CfgDataSourceDB, CfgDataSourceCSV, CfgCsvColumn]
-    process_tables = [CfgProcess, CfgProcessColumn, CfgFilter, CfgFilterDetail, CfgTrace, CfgTraceKey, CfgVisualization]
+    process_tables = [
+        CfgProcess,
+        CfgProcessColumn,
+        CfgFilter,
+        CfgFilterDetail,
+        CfgTrace,
+        CfgTraceKey,
+        CfgVisualization,
+    ]
 
     # clear db first
     clear_config_db(reversed(process_tables))

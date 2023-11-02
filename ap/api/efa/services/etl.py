@@ -1,7 +1,14 @@
-from ap.common.common_utils import detect_encoding
-from ap.common.common_utils import get_temp_path, get_wrapr_path, get_etl_path, get_base_dir, make_dir
+from ap.common.common_utils import (
+    detect_encoding,
+    get_base_dir,
+    get_etl_path,
+    get_temp_path,
+    get_wrapr_path,
+    make_dir,
+    open_with_zip,
+)
 from ap.common.constants import CfgConstantType, CsvDelimiter
-from ap.common.logger import logger, log_execution_time
+from ap.common.logger import log_execution_time, logger
 from ap.common.services.sse import notify_progress
 from ap.script.r_scripts.wrapr import wrapr_utils
 from ap.setting_module.models import CfgConstant
@@ -23,9 +30,7 @@ def preview_data(fname):
 
 @log_execution_time()
 def csv_transform(proc_id, fname):
-    """transform to standard csv
-
-    """
+    """transform to standard csv"""
     out_dir = get_base_dir(fname)
     etl_dir = get_etl_path(str(proc_id), out_dir)
     make_dir(etl_dir)
@@ -121,8 +126,9 @@ def call_com_view(fname, out_dir):
 
 @log_execution_time()
 def save_etl_json(script_fname, json_str):
-    CfgConstant.create_or_update_by_type(const_type=CfgConstantType.ETL_JSON.name,
-                                         const_value=json_str, const_name=script_fname)
+    CfgConstant.create_or_update_by_type(
+        const_type=CfgConstantType.ETL_JSON.name, const_value=json_str, const_name=script_fname
+    )
 
 
 @log_execution_time()
@@ -133,24 +139,35 @@ def load_etl_json(script_fname):
 
 
 @log_execution_time()
-def detect_file_delimiter(file_path, default_delimiter):
-    white_list = [CsvDelimiter.CSV.value, CsvDelimiter.TSV.value, CsvDelimiter.SMC.value]
+def detect_file_path_delimiter(file_path, default_delimiter):
     encoding = detect_encoding(file_path)
-    candidates = []
-    with open(file_path, "r", encoding=encoding) as f:
-        for i in range(200):
-            try:
-                line = f.readline()
-            except StopIteration:
-                break
+    with open_with_zip(file_path, 'r', encoding=encoding) as f:
+        return detect_file_stream_delimiter(f, default_delimiter, encoding=encoding)
 
-            if line:
-                _, row_delimiter = max([(len(line.split(split_char)), split_char) for split_char in white_list])
-                candidates.append(row_delimiter)
+
+def detect_file_stream_delimiter(file_stream, default_delimiter, encoding=None):
+    white_list = [CsvDelimiter.CSV.value, CsvDelimiter.TSV.value, CsvDelimiter.SMC.value]
+    candidates = []
+
+    for i in range(200):
+        try:
+            line = file_stream.readline()
+            if isinstance(line, bytes):
+                line = line.decode(encoding)
+        except StopIteration:
+            break
+
+        if line:
+            _, row_delimiter = max(
+                [(len(line.split(split_char)), split_char) for split_char in white_list]
+            )
+            candidates.append(row_delimiter)
 
     if candidates:
         good_delimiter = max(candidates, key=candidates.count)
         if good_delimiter is not None:
             return good_delimiter
+
+    file_stream.seek(0)
 
     return default_delimiter

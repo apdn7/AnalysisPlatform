@@ -113,11 +113,11 @@ const showLimitResultToastr = () => {
 const CHM_EXPORT_URL = {
     CSV: {
         ext_name: 'csv',
-        url: '/ap/api/chm/csv_export',
+        url: '/ap/api/chm/data_export/csv',
     },
     TSV: {
         ext_name: 'tsv',
-        url: '/ap/api/chm/tsv_export',
+        url: '/ap/api/chm/data_export/tsv',
     },
 };
 
@@ -362,6 +362,10 @@ const showHeatMap = (clearOnFlyFilter = true) => {
     }
 };
 
+const handleShowHeatmapWithOrder = () => {
+    showHeatMap(false);
+};
+
 const beforeShowCHM = (clearOnFlyFilter) => {
     if (clearOnFlyFilter) {
         formElements.resultSection.css('display', 'none');
@@ -428,6 +432,8 @@ const queryDataAndShowHeatMap = (clearOnFlyFilter = true, autoUpdate = false) =>
     showGraphCallApi('/ap/api/chm/plot', formData, REQUEST_TIMEOUT, async (res) => {
         afterShowCHM();
 
+
+        res = sortArrayFormVal(res);
         currentData = res;
         graphStore.setTraceData(_.cloneDeep(res));
 
@@ -440,20 +446,34 @@ const queryDataAndShowHeatMap = (clearOnFlyFilter = true, autoUpdate = false) =>
 
         loadGraphSetings(clearOnFlyFilter);
 
-        const {catExpBox, cat_on_demand} = res;
-        if (clearOnFlyFilter) {
-            clearGlobalDict();
-            initGlobalDict(catExpBox);
-            initGlobalDict(cat_on_demand);
-            initDicChecked(getDicChecked());
-            initUniquePairList(res.dic_filter);
-        }
-
         checkAndShowToastr(res, clearOnFlyFilter);
 
         setPollingData(formData, queryDataAndShowHeatMap, [false, true]);
     });
 };
+
+const sortArrayFormVal = (res) => {
+    const arrayPlotData = res.array_plotdata;
+    if (!arrayPlotData) return;
+
+    // flat array_plotdata
+    res.array_plotdata = [];
+    res.procs = Object.keys(arrayPlotData);
+    for (const procId of Object.keys(arrayPlotData)) {
+        const plotList = arrayPlotData[procId].map(plot => {
+            plot.proc_id = procId;
+            return plot;
+        })
+        res.array_plotdata.push(...plotList);
+    }
+    // sort graphs
+    if (latestSortColIds && latestSortColIds.length) {
+        res.ARRAY_FORMVAL = sortGraphs(res.ARRAY_FORMVAL, 'GET02_VALS_SELECT', latestSortColIds);
+        res.array_plotdata = sortGraphs(res.array_plotdata, 'end_col', latestSortColIds);
+    }
+
+    return res;
+}
 
 
 const checkAndShowToastr = (data, clearOnFlyFilter) => {
@@ -465,23 +485,22 @@ const checkAndShowToastr = (data, clearOnFlyFilter) => {
         showLimitResultToastr();
     }
 
-    const arrayPlotData = data.array_plotdata || {};
-    for (const procId in arrayPlotData) {
-        const procPlotData = arrayPlotData[procId] || [];
-        if (isEmpty(procPlotData)) {
+    const arrayPlotData = data.array_plotdata || [];
+    if (isEmpty(arrayPlotData)) {
+        showToastrAnomalGraph();
+        afterShowCHM();
+        return;
+    }
+
+
+    for (const idx in arrayPlotData) {
+        const plotData = arrayPlotData[idx];
+        const zMax = plotData.z_max;
+        const zMin = plotData.z_min;
+        if (isEmpty(zMax) && isEmpty(zMin)) {
             showToastrAnomalGraph();
-            afterShowCHM();
+            afterShowCHM(true);
             return;
-        }
-        for (const idx in procPlotData) {
-            const plotData = procPlotData[idx];
-            const zMax = plotData.z_max;
-            const zMin = plotData.z_min;
-            if (isEmpty(zMax) && isEmpty(zMin)) {
-                showToastrAnomalGraph();
-                afterShowCHM(true);
-                return;
-            }
         }
     }
 
@@ -559,19 +578,14 @@ const getCommonScale = (data) => {
     let minScale = null;
     let maxScale = null;
 
-    for (const procId in procPlotDatas) {
-        const plotDatas = procPlotDatas[procId];
-        if (isEmpty(plotDatas)) continue;
-
-        for (const plotData of plotDatas) {
-            const minZ = plotData.z_min;
-            const maxZ = plotData.z_max;
-            if (isEmpty(minScale) || !isEmpty(minZ) && minZ < minScale) {
-                minScale = minZ;
-            }
-            if (isEmpty(maxScale) || !isEmpty(maxZ) && maxScale < maxZ) {
-                maxScale = maxZ;
-            }
+    for (const plotData of procPlotDatas) {
+        const minZ = plotData.z_min;
+        const maxZ = plotData.z_max;
+        if (isEmpty(minScale) || !isEmpty(minZ) && minZ < minScale) {
+            minScale = minZ;
+        }
+        if (isEmpty(maxScale) || !isEmpty(maxZ) && maxScale < maxZ) {
+            maxScale = maxZ;
         }
     }
 
@@ -584,16 +598,10 @@ const setCommonScale = (data, minZ, maxZ) => {
     if (isEmpty(procPlotDatas) || isEmpty(minZ) || isEmpty(maxZ)) {
         return;
     }
-
-    for (const procId in procPlotDatas) {
-        const plotDatas = procPlotDatas[procId];
-        if (isEmpty(plotDatas)) continue;
-
-        for (const plotData of plotDatas) {
-            plotData.z_min = minZ;
-            plotData.z_max = maxZ;
-            plotData.color_scale_common = true;
-        }
+    for (const plotData of procPlotDatas) {
+        plotData.z_min = minZ;
+        plotData.z_max = maxZ;
+        plotData.color_scale_common = true;
     }
 };
 
@@ -605,8 +613,8 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
     formElements.plotCard.empty();
     formElements.plotCard.show();
 
-    const arrayPlotData = data.array_plotdata || {};
-    const procs = Object.keys(arrayPlotData);
+    const arrayPlotData = data.array_plotdata || [];
+    const procs = data.procs;
 
     const colorGraph = (plotContainerId, procId) => {
         /* Graphs of the same process have the same color. */
@@ -640,31 +648,24 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
         setCommonScale(data, minZ, maxZ);
     }
 
-    let plotIdx = 0;
-    for (const procId in arrayPlotData) {
-        const procPlotData = arrayPlotData[procId] || [];
+    createRowHTML(arrayPlotData.length);
+    for (const plotIdx in arrayPlotData) {
+        const plotData = arrayPlotData[plotIdx]
+        const procId = plotData.proc_id;
+        const [title, sensorName, cardValue, facet, isCTCol] = buildGraphTitle(plotData, procId);
+        plotData.sensorName = sensorName;
+        plotData.title = title;
+        plotData.cardValue = cardValue;
 
-        if (plotIdx === 0) {
-            createRowHTML(procPlotData.length);
-        }
-        for (const idx in procPlotData) {
-            const plotData = procPlotData[idx];
-            const [title, sensorName, cardValue, facet, isCTCol] = buildGraphTitle(plotData, procId);
-            plotData.sensorName = sensorName;
-            plotData.title = title;
-            plotData.cardValue = cardValue;
+        createCardHTML(plotIdx, title, facet, isCTCol);
 
-            createCardHTML(plotIdx, title, facet, isCTCol);
+        // draw heat map
+        const plotContainerId = `chm_${plotIdx}`;
+        drawHeatMapFromPlotData(plotContainerId, plotData, plotIdx);
 
-            // draw heat map
-            const plotContainerId = `chm_${plotIdx}`;
-            drawHeatMapFromPlotData(plotContainerId, plotData, plotIdx);
+        // coloring
+        colorGraph(plotContainerId,procId);
 
-            // coloring
-            colorGraph(plotContainerId, procId);
-
-            plotIdx += 1;
-        }
     }
 
     if (!autoUpdate) {
@@ -674,7 +675,8 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
     }
 
     // init filter modal
-    fillDataToFilterModal(orgData.catExpBox, [], orgData.cat_on_demand, [], [], () => {
+
+    fillDataToFilterModal(orgData.filter_on_demand, () => {
         showHeatMap(false);
     });
 };

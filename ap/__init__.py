@@ -2,33 +2,65 @@ import atexit
 import os
 import time
 from datetime import datetime
-from pytz import utc
 
 import wtforms_json
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, render_template, Response, g, json
-from flask_apscheduler import APScheduler, STATE_STOPPED
+from flask import Flask, Response, g, render_template
+from flask_apscheduler import STATE_STOPPED, APScheduler
 from flask_babel import Babel
+from flask_babel import gettext as _
 from flask_compress import Compress
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from ap.common.logger import logger
+from pytz import utc
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import scoped_session, create_session
+from sqlalchemy.orm import create_session, scoped_session
 
-from ap.common.common_utils import check_exist, make_dir, find_babel_locale, NoDataFoundException
-from ap.common.common_utils import set_sqlite_params, init_config
-from ap.common.constants import FlaskGKey, SQLITE_CONFIG_DIR, PARTITION_NUMBER, UNIVERSAL_DB_FILE, APP_DB_FILE, \
-    TESTING, YAML_CONFIG_VERSION, YAML_CONFIG_BASIC, YAML_CONFIG_DB, YAML_CONFIG_PROC, YAML_CONFIG_AP, \
-    INIT_APP_DB_FILE, INIT_BASIC_CFG_FILE, REQUEST_THREAD_ID, YAML_START_UP, LOG_LEVEL, ApLogLevel, AppGroup, \
-    AppSource, appENV
-from ap.common.logger import log_execution
+from ap.common.common_utils import (
+    NoDataFoundException,
+    check_client_browser,
+    check_exist,
+    find_babel_locale,
+    init_config,
+    make_dir,
+    set_sqlite_params,
+)
+from ap.common.constants import (
+    APP_DB_FILE,
+    INIT_APP_DB_FILE,
+    INIT_BASIC_CFG_FILE,
+    LOG_LEVEL,
+    PARTITION_NUMBER,
+    REQUEST_THREAD_ID,
+    SQLITE_CONFIG_DIR,
+    TESTING,
+    UNIVERSAL_DB_FILE,
+    YAML_CONFIG_AP,
+    YAML_CONFIG_BASIC,
+    YAML_CONFIG_DB,
+    YAML_CONFIG_PROC,
+    YAML_CONFIG_VERSION,
+    YAML_START_UP,
+    ApLogLevel,
+    AppEnv,
+    AppGroup,
+    AppSource,
+    FlaskGKey,
+)
+from ap.common.logger import log_execution, logger
+from ap.common.services.http_content import json_dumps
 from ap.common.services.request_time_out_handler import RequestTimeOutAPI, set_request_g_dict
-from ap.common.trace_data_log import get_log_attr, TraceErrKey
-from ap.common.yaml_utils import YAML_CONFIG_BASIC_FILE_NAME, YAML_CONFIG_AP_FILE_NAME, \
-    YAML_CONFIG_PROC_FILE_NAME, YAML_CONFIG_DB_FILE_NAME, BasicConfigYaml, YAML_START_UP_FILE_NAME
+from ap.common.trace_data_log import TraceErrKey, get_log_attr
+from ap.common.yaml_utils import (
+    YAML_CONFIG_AP_FILE_NAME,
+    YAML_CONFIG_BASIC_FILE_NAME,
+    YAML_CONFIG_DB_FILE_NAME,
+    YAML_CONFIG_PROC_FILE_NAME,
+    YAML_START_UP_FILE_NAME,
+    BasicConfigYaml,
+)
 
 db = SQLAlchemy(session_options={'autoflush': False})
 migrate = Migrate()
@@ -41,8 +73,14 @@ background_jobs = {}
 LOG_IGNORE_CONTENTS = ('.html', '.js', '.css', '.ico', '.png')
 # yaml config files
 dic_yaml_config_file = dict(basic=None, db=None, proc=None, ap=None, version=0)
-dic_config = {'db_secret_key': None, SQLITE_CONFIG_DIR: None, PARTITION_NUMBER: None, APP_DB_FILE: None,
-              UNIVERSAL_DB_FILE: None, TESTING: None}
+dic_config = {
+    'db_secret_key': None,
+    SQLITE_CONFIG_DIR: None,
+    PARTITION_NUMBER: None,
+    APP_DB_FILE: None,
+    UNIVERSAL_DB_FILE: None,
+    TESTING: None,
+}
 
 # last request time
 dic_request_info = {'last_request_time': datetime.utcnow()}
@@ -68,12 +106,9 @@ def init_engine(app, uri, **kwargs):
     return db_engine
 
 
-Session = scoped_session(lambda: create_session(
-    bind=db_engine,
-    autoflush=True,
-    autocommit=False,
-    expire_on_commit=True
-))
+Session = scoped_session(
+    lambda: create_session(bind=db_engine, autoflush=True, autocommit=False, expire_on_commit=True)
+)
 
 
 def close_sessions():
@@ -106,34 +141,35 @@ def close_sessions():
 def create_app(object_name=None):
     """Create and configure an instance of the Flask application."""
     from flask import request
-    from .api import create_module as api_create_module
-    from .tile_interface import create_module as tile_interface_create_module
-    from .setting_module import create_module as setting_create_module
-    from .trace_data import create_module as trace_data_create_module
-    from .analyze import create_module as analyze_create_module
-    from .table_viewer import create_module as table_viewer_create_module
-    from .scatter_plot import create_module as scatter_plot_create_module
-    from .heatmap import create_module as heatmap_create_module
-    from .categorical_plot import create_module as categorical_create_module
-    from .ridgeline_plot import create_module as ridgeline_create_module
-    from .parallel_plot import create_module as parallel_create_module
-    from .sankey_plot import create_module as sankey_create_module
-    from .co_occurrence import create_module as co_occurrence_create_module
-    from .multiple_scatter_plot import create_module as multiple_scatter_create_module
+
     from .aggregate_plot import create_module as agp_create_module
+    from .analyze import create_module as analyze_create_module
+    from .api import create_module as api_create_module
+    from .categorical_plot import create_module as categorical_create_module
+    from .co_occurrence import create_module as co_occurrence_create_module
     from .common.logger import bind_user_info
+    from .heatmap import create_module as heatmap_create_module
+    from .multiple_scatter_plot import create_module as multiple_scatter_create_module
+    from .parallel_plot import create_module as parallel_create_module
+    from .ridgeline_plot import create_module as ridgeline_create_module
+    from .sankey_plot import create_module as sankey_create_module
+    from .scatter_plot import create_module as scatter_plot_create_module
     from .script.convert_user_setting import convert_user_setting_url
+    from .script.migrate_cfg_data_source_csv import migrate_cfg_data_source_csv
     from .script.migrate_csv_datatype import migrate_csv_datatype
     from .script.migrate_csv_dummy_datetime import migrate_csv_dummy_datetime
     from .script.migrate_csv_save_graph_settings import migrate_csv_save_graph_settings
+    from .setting_module import create_module as setting_create_module
+    from .table_viewer import create_module as table_viewer_create_module
+    from .tile_interface import create_module as tile_interface_create_module
+    from .trace_data import create_module as trace_data_create_module
 
     app = Flask(__name__)
     app.config.from_object(object_name)
 
     app.config.update(
         SCHEDULER_JOBSTORES={
-            'default': SQLAlchemyJobStore(
-                url=app.config['SQLALCHEMY_DATABASE_APP_URI'])
+            'default': SQLAlchemyJobStore(url=app.config['SQLALCHEMY_DATABASE_APP_URI'])
         },
     )
     # table partition number
@@ -167,13 +203,18 @@ def create_app(object_name=None):
     # reset import history when no universal db
     if should_reset_import_history:
         from ap.script.hot_fix.fix_db_issues import reset_import_history
+
         reset_import_history(app)
 
     # yaml files path
     yaml_config_dir = app.config.get('YAML_CONFIG_DIR')
-    dic_yaml_config_file[YAML_CONFIG_BASIC] = os.path.join(yaml_config_dir, YAML_CONFIG_BASIC_FILE_NAME)
+    dic_yaml_config_file[YAML_CONFIG_BASIC] = os.path.join(
+        yaml_config_dir, YAML_CONFIG_BASIC_FILE_NAME
+    )
     dic_yaml_config_file[YAML_CONFIG_DB] = os.path.join(yaml_config_dir, YAML_CONFIG_DB_FILE_NAME)
-    dic_yaml_config_file[YAML_CONFIG_PROC] = os.path.join(yaml_config_dir, YAML_CONFIG_PROC_FILE_NAME)
+    dic_yaml_config_file[YAML_CONFIG_PROC] = os.path.join(
+        yaml_config_dir, YAML_CONFIG_PROC_FILE_NAME
+    )
     dic_yaml_config_file[YAML_CONFIG_AP] = os.path.join(yaml_config_dir, YAML_CONFIG_AP_FILE_NAME)
     dic_yaml_config_file[YAML_START_UP] = os.path.join(os.getcwd(), YAML_START_UP_FILE_NAME)
 
@@ -223,7 +264,7 @@ def create_app(object_name=None):
         lang = basic_config_yaml.get_node(['info', 'language'], False)
 
     lang = find_babel_locale(lang)
-    lang = lang or app.config["BABEL_DEFAULT_LOCALE"]
+    lang = lang or app.config['BABEL_DEFAULT_LOCALE']
 
     @babel.localeselector
     def get_locale():
@@ -254,6 +295,7 @@ def create_app(object_name=None):
     migrate_csv_datatype(app.config['APP_DB_FILE'])
     migrate_csv_dummy_datetime(app.config['APP_DB_FILE'])
     migrate_csv_save_graph_settings(app.config['APP_DB_FILE'])
+    migrate_cfg_data_source_csv(app.config['APP_DB_FILE'])
 
     # convert_user_setting()
     convert_user_setting_url()
@@ -272,7 +314,10 @@ def create_app(object_name=None):
 
     # Shut down the scheduler when exiting the app
     atexit.register(
-        lambda: scheduler.shutdown() if scheduler.state != STATE_STOPPED else print('Scheduler is already shutdown'))
+        lambda: scheduler.shutdown()
+        if scheduler.state != STATE_STOPPED
+        else print('Scheduler is already shutdown')
+    )
 
     @app.before_request
     def before_request_callback():
@@ -280,30 +325,31 @@ def create_app(object_name=None):
         # get the last time user request
         global dic_request_info
 
-
-
         # get api request thread id
         thread_id = request.form.get(REQUEST_THREAD_ID, None)
         set_request_g_dict(thread_id)
 
         resource_type = request.base_url or ''
-        is_ignore_content = any(resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS)
+        is_ignore_content = any(
+            resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS
+        )
         if not is_ignore_content:
             dic_request_info['last_request_time'] = datetime.utcnow()
             bind_user_info(request)
-            browser_info = request.user_agent.browser or 'chrome'
-            print("user's browser:", browser_info)
-            browser_info = str(browser_info).lower()
-            is_good_browser = any(name in browser_info in browser_info for name in ('chrome', 'edge'))
-            # if request.headers.environ.get('HTTP_SEC_CH_UA') and 'chrome' not in request.user_agent.browser.lower():
-            if not dic_config.get(TESTING) and not is_good_browser:
-                return render_template('none.html', **{
-                    "title": "お使いのブラウザーはサポートされていません。",
-                    "message": "現在のバージョンはChromeブラウザのみをサポートしています！",
-                    "action": "Chrome を今すぐダウンロード: ",
-                    "url": "https://www.google.com/chrome/"
-                })
 
+            if not dic_config.get(TESTING):
+                is_valid_browser, is_valid_version = check_client_browser(request)
+                if not is_valid_version:
+                    # safari not valid version
+                    g.is_valid_version = True
+
+                if not is_valid_browser:
+                    # browser not valid
+                    content = {
+                        'title': _('InvalidBrowserTitle'),
+                        'message': _('InvalidBrowserContent'),
+                    }
+                    return render_template('none.html', **content)
 
     @app.after_request
     def after_request_callback(response: Response):
@@ -312,8 +358,12 @@ def create_app(object_name=None):
 
         # In case of text/html request, add information of disk capacity to show up on UI.
         if 'text/html' in str(request.accept_mimetypes) or 'text/html' in str(response.headers):
-            from ap.common.disk_usage import get_disk_capacity_to_load_UI, add_disk_capacity_into_response
-            dict_capacity = get_disk_capacity_to_load_UI()
+            from ap.common.disk_usage import (
+                add_disk_capacity_into_response,
+                get_disk_capacity_to_load_ui,
+            )
+
+            dict_capacity = get_disk_capacity_to_load_ui()
             add_disk_capacity_into_response(response, dict_capacity)
             if not request.cookies.get('locale'):
                 response.set_cookie('locale', lang)
@@ -339,7 +389,9 @@ def create_app(object_name=None):
             return response
 
         resource_type = request.base_url or ''
-        is_ignore_content = any(resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS)
+        is_ignore_content = any(
+            resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS
+        )
         if not is_ignore_content:
             bind_user_info(request, response)
             response.set_cookie('log_level', str(is_default_log_level))
@@ -347,12 +399,16 @@ def create_app(object_name=None):
             response.set_cookie('app_version', str(app_ver).strip('\n'))
             response.set_cookie('app_location', str(app_source).strip('\n'))
 
+        response.set_cookie('invalid_browser_version', '0')
+        if hasattr(g, 'is_valid_version') and g.is_valid_version:
+            response.set_cookie('invalid_browser_version', '1')
+
         return response
 
     @app.errorhandler(404)
     def page_not_found(e):
         # note that we set the 404 status explicitly
-        return render_template('404.html'), 404
+        return render_template('404.html', do_not_send_ga=True), 404
 
     @app.errorhandler(500)
     def internal_server_error(e):
@@ -360,11 +416,9 @@ def create_app(object_name=None):
         close_sessions()
         logger.exception(e)
 
-        response = json.dumps({
-            "code": e.code,
-            "message": str(e),
-            "dataset_id": get_log_attr(TraceErrKey.DATASET)
-        })
+        response = json_dumps(
+            {'code': e.code, 'message': str(e), 'dataset_id': get_log_attr(TraceErrKey.DATASET)}
+        )
         status = 500
         return Response(response=response, status=status)
         # return render_template('500.html'), 500
@@ -375,7 +429,7 @@ def create_app(object_name=None):
         close_sessions()
         logger.exception(e)
 
-        response = json.dumps({"message": str('No data Found!')})
+        response = json_dumps({'message': str('No data Found!')})
         status = 500
         return Response(response=response, status=status)
 
@@ -402,10 +456,13 @@ def create_app(object_name=None):
 
         # start with the correct headers and status code from the error
         # replace the body with JSON
-        response = json.dumps({
-            "code": e.status_code,
-            "message": e.message,
-        })
+
+        response = json_dumps(
+            {
+                'code': e.status_code,
+                'message': e.message,
+            }
+        )
         return Response(response=response, status=408)
 
     @app.teardown_appcontext
@@ -423,7 +480,8 @@ def init_db(app):
     init db with some parameter
     :return:
     """
-    from .common.common_utils import sql_regexp, set_sqlite_params
+    from .common.common_utils import set_sqlite_params, sql_regexp
+
     db.create_all(app=app)
     # Universal DB init
     # if not universal_db_exists():
@@ -434,7 +492,7 @@ def init_db(app):
     def do_connect(dbapi_conn, connection_record):
         set_sqlite_params(dbapi_conn)
 
-    @event.listens_for(universal_engine, "begin")
+    @event.listens_for(universal_engine, 'begin')
     def do_begin(dbapi_conn):
         dbapi_conn.connection.create_function('REGEXP', 2, sql_regexp)
 

@@ -9,18 +9,37 @@ from dateutil import parser, tz
 
 from ap.api.trace_data.services.graph_search import GraphUtil
 from ap.api.trace_data.services.proc_link import order_before_mapping_data
-from ap.api.trace_data.services.time_series_chart import get_data_from_db, gen_dic_data_from_df, \
-    get_chart_infos, gen_plotdata, create_rsuffix, get_procs_in_dic_param, create_graph_config, \
-    gen_blank_df_end_cols
-from ap.common.common_utils import gen_sql_label, DATE_FORMAT_STR_CSV, DATE_FORMAT, TIME_FORMAT
-from ap.common.constants import ARRAY_PLOTDATA, PRC_MAX, PRC_MIN, THRESH_HIGH, THRESH_LOW, ARRAY_FORMVAL, \
-    END_PROC, GET02_VALS_SELECT, ACT_FROM, ACT_TO, SUMMARIES, CYCLE_IDS
+from ap.api.trace_data.services.time_series_chart import (
+    create_graph_config,
+    create_rsuffix,
+    gen_blank_df_end_cols,
+    gen_dic_data_from_df,
+    gen_plotdata,
+    get_chart_infos,
+    get_data_from_db,
+    get_procs_in_dic_param,
+)
+from ap.common.common_utils import DATE_FORMAT, DATE_FORMAT_STR_CSV, TIME_FORMAT, gen_sql_label
+from ap.common.constants import (
+    ACT_FROM,
+    ACT_TO,
+    ARRAY_FORMVAL,
+    ARRAY_PLOTDATA,
+    CYCLE_IDS,
+    END_PROC,
+    GET02_VALS_SELECT,
+    PRC_MAX,
+    PRC_MIN,
+    SUMMARIES,
+    THRESH_HIGH,
+    THRESH_LOW,
+)
 from ap.common.logger import log_execution_time
 from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one
 from ap.common.services.statistics import calc_summaries
 from ap.common.timezone_utils import get_datetime_from_str
 from ap.common.yaml_utils import YamlConfig
-from ap.setting_module.models import CfgProcessColumn, CfgTrace, CfgProcess
+from ap.setting_module.models import CfgProcess, CfgProcessColumn, CfgTrace
 from ap.trace_data.models import Cycle
 from ap.trace_data.schemas import EndProc
 
@@ -28,9 +47,9 @@ from ap.trace_data.schemas import EndProc
 @log_execution_time()
 def gen_graph_plot_view(dic_form):
     """tracing data to show graph
-        1 start point x n end point
-        filter by condition point
-        https://files.slack.com/files-pri/TJHPR9BN3-F01GG67J84C/image.pngnts that between start point and end_point
+    1 start point x n end point
+    filter by condition point
+    https://files.slack.com/files-pri/TJHPR9BN3-F01GG67J84C/image.pngnts that between start point and end_point
     """
     dic_param = parse_multi_filter_into_one(dic_form)
     cycle_id = int(dic_form.get('cycle_id'))
@@ -56,8 +75,9 @@ def gen_graph_plot_view(dic_form):
     # get chart infos
     chart_infos, original_graph_configs = get_chart_infos(orig_graph_param, dic_data, times)
 
-    _, dic_param[ARRAY_PLOTDATA] \
-        = gen_plotdata(orig_graph_param, dic_data, chart_infos, original_graph_configs)
+    _, dic_param[ARRAY_PLOTDATA] = gen_plotdata(
+        orig_graph_param, dic_data, chart_infos, original_graph_configs
+    )
 
     # calculate_summaries
     calc_summaries(dic_param)
@@ -94,7 +114,7 @@ def gen_graph_plot_view(dic_form):
 
     # Full link table
     start_proc_local_time = df[Cycle.time.key][0]
-    serial_value = df[target_serial_cols[0]][0]
+    serial_value = df[target_serial_cols[0]][0] if target_serial_cols else ''
     dic_param = build_dic_param_plot_view(dic_form, start_proc_local_time)
     graph_param, dic_proc_cfgs = build_graph_param(dic_param, full_link=True)
     full_target_serial_cols = get_serial_cols(dic_proc_cfgs)
@@ -116,7 +136,9 @@ def gen_graph_plot_view(dic_form):
         df_blank[df.columns] = df[df.columns].to_numpy()
         df_full = df.merge(df_blank)
 
-    full_link_tbl_header, full_link_tbl_rows = gen_list_table(dic_proc_cfgs, graph_param, df_full, client_timezone)
+    full_link_tbl_header, full_link_tbl_rows = gen_list_table(
+        dic_proc_cfgs, graph_param, df_full, client_timezone
+    )
 
     return dic_param, {
         'stats_tbl_header': stats_tbl_header,
@@ -138,6 +160,7 @@ def extract_cycle(df: pd.DataFrame, cycle_id):
 
     return df.replace({np.nan: ''})
 
+
 def extract_serial(df: pd.DataFrame, serial_cols, serial_value):
     serial_col = serial_cols[0]
     df = df[df[serial_col] == serial_value].reset_index()
@@ -147,14 +170,25 @@ def extract_serial(df: pd.DataFrame, serial_cols, serial_value):
 
 def get_serial_cols(dic_proc_cfgs):
     serials = []
-    for (proc_id, proc) in dic_proc_cfgs.items():
+    for proc_id, proc in dic_proc_cfgs.items():
         serial_cols = proc.get_serials(column_name_only=False)
-        serials += [gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols]
+        serials += [
+            gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols
+        ]
     return serials
 
 
-def gen_stats_table(dic_proc_cfgs, graph_param, df, dic_param, chart_infos, client_timezone, start_time_val, target_id,
-                    target_proc_id):
+def gen_stats_table(
+    dic_proc_cfgs,
+    graph_param,
+    df,
+    dic_param,
+    chart_infos,
+    client_timezone,
+    start_time_val,
+    target_id,
+    target_proc_id,
+):
     proc_ids = dic_proc_cfgs.keys()
     proc_ids = order_proc_as_trace_config(proc_ids)
 
@@ -243,7 +277,9 @@ def gen_stats_table(dic_proc_cfgs, graph_param, df, dic_param, chart_infos, clie
             threshold = {}
             if col_thresholds:
                 point_time = time_val or start_time_val
-                threshold, latest_idx = get_latest_threshold(col_thresholds, point_time, client_timezone)
+                threshold, latest_idx = get_latest_threshold(
+                    col_thresholds, point_time, client_timezone
+                )
             th_type = threshold.get('type') or ''
             th_name = threshold.get('name') or ''
             if col_idx is not None:
@@ -311,11 +347,35 @@ def get_latest_threshold(col_thresholds, point_time, client_timezone):
 
 def build_stats_header(max_num_serial):
     stats_tbl_header = ['Serial No {}'.format(idx + 1) for idx in range(max_num_serial)]
-    stats_tbl_header.extend(['Item', 'Name', 'Value', 'Datetime', 'Process name',
-                             'Type', 'Name', 'Lower threshold', 'Upper threshold',
-                             'Lower process threshold', 'Upper process threshold',
-                             'N', 'Average', '3σ', 'Cp', 'Cpk', 'σ', 'Max', 'Min',
-                             'Median', 'P95', 'P75 Q3', 'P25 Q1', 'P5', 'IQR'])
+    stats_tbl_header.extend(
+        [
+            'Item',
+            'Name',
+            'Value',
+            'Datetime',
+            'Process name',
+            'Type',
+            'Name',
+            'Lower threshold',
+            'Upper threshold',
+            'Lower process threshold',
+            'Upper process threshold',
+            'N',
+            'Average',
+            '3σ',
+            'Cp',
+            'Cpk',
+            'σ',
+            'Max',
+            'Min',
+            'Median',
+            'P95',
+            'P75 Q3',
+            'P25 Q1',
+            'P5',
+            'IQR',
+        ]
+    )
     return stats_tbl_header
 
 
@@ -326,13 +386,27 @@ def build_empty_summary_cells():
 def build_summary_cells(summary):
     bstats = summary['basic_statistics'] or {}
     non_pt = summary['non_parametric'] or {}
-    return list(map(
-        lambda x: '' if x is None else x,
-        [bstats.get('n_stats'), bstats.get('average'), bstats.get('sigma_3'), bstats.get('Cp'),
-         bstats.get('Cpk'), bstats.get('sigma'), bstats.get('Max'), bstats.get('Min'),
-         non_pt.get('median'), non_pt.get('p95'), non_pt.get('p75'), non_pt.get('p25'), non_pt.get('p5'),
-         non_pt.get('iqr')]
-    ))
+    return list(
+        map(
+            lambda x: '' if x is None else x,
+            [
+                bstats.get('n_stats'),
+                bstats.get('average'),
+                bstats.get('sigma_3'),
+                bstats.get('Cp'),
+                bstats.get('Cpk'),
+                bstats.get('sigma'),
+                bstats.get('Max'),
+                bstats.get('Min'),
+                non_pt.get('median'),
+                non_pt.get('p95'),
+                non_pt.get('p75'),
+                non_pt.get('p25'),
+                non_pt.get('p5'),
+                non_pt.get('iqr'),
+            ],
+        )
+    )
 
 
 def convert_and_format(time_val, client_timezone, out_format=DATE_FORMAT_STR_CSV):
@@ -353,7 +427,7 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
     for proc in graph_param.array_formval:
         proc_id = proc.proc_id
         proc_cfg = dic_proc_cfgs.get(proc_id)
-        list_tbl_header.extend(['Item', "Name", "Value"])
+        list_tbl_header.extend(['Item', 'Name', 'Value'])
         # col_ids = [col.id for col in dic_proc_cfgs[proc_id].columns]
         # end_proc: EndProc = graph_param.search_end_proc(proc_id)[1]
         col_ids = proc.col_ids
@@ -430,7 +504,9 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
 
     list_tbl_rows = []
     for row in itertools.zip_longest(*list_tbl_data):
-        list_tbl_rows.append(list(itertools.chain.from_iterable([r if r else ['', '', ''] for r in row])))
+        list_tbl_rows.append(
+            list(itertools.chain.from_iterable([r if r else ['', '', ''] for r in row]))
+        )
 
     return list_tbl_header, list_tbl_rows
 

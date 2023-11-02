@@ -2,22 +2,32 @@
 // eslint-disable no-undef, no-unused-vars
 // term of use
 validateTerms();
-const HEART_BEAT_MILLI = 5000;
+const GA_TRACKING_ID = 'G-9DJ9TV72B5';
+const UA_TRACKING_ID = 'UA-156244372-2';
+const HEART_BEAT_MILLI = 2500;
+const RE_HEART_BEAT_MILLI = HEART_BEAT_MILLI * 4;
 let scpSelectedPoint = null;
 let scpCustomData = null;
 let serverSentEventCon = null;
 let loadingProgressBackend = 0;
 let formDataQueried = null;
+let clearOnFlyFilter = false;
 const serverSentEventUrl = '/ap/api/setting/listen_background_job';
+
+let problematicData = null;
+let problematicPCAData = null;
 
 
 let originalUserSettingInfo;
 let isGraphShown = false;
 let requestStartedAt;
 let handleHeartbeat;
+let isDirectFromJumpFunction = false;
 
 const serverSentEventType = {
     ping: 'ping',
+    timeout: 'timeout',
+    closeOldSSE: 'close_old_sse',
     jobRun: 'JOB_RUN',
     procLink: 'PROC_LINK',
     shutDown: 'SHUT_DOWN',
@@ -73,14 +83,31 @@ const channelType = {
 }
 
 // Broadcast channel for SSE
-const bc = new BroadcastChannel('sse')
+let bc = {
+    onmessage: () => {
+
+    },
+    postMessage: () => {
+
+    }
+};
+
+try {
+   bc = new BroadcastChannel('sse');
+} catch(e) {
+    // Broadcast is not support safari version less than 15.4
+    console.log(e)
+}
+
 
 function postHeartbeat() {
     // send heart beat
     if (serverSentEventCon && serverSentEventCon.readyState === serverSentEventCon.OPEN) {
         // console.log(toLocalTime(), 'post heart beat');
         bc.postMessage({type: channelType.heartBeat});
+        consoleLogDebug(`[SSE][Main] Broadcast: ${channelType.heartBeat}`);
     } else {
+        consoleLogDebug(`[SSE] Status code: ${(serverSentEventCon ?? {}).readyState}`);
         // make new SSE connection
         openServerSentEvent(true);
         // console.log(toLocalTime(), 'force request');
@@ -93,16 +120,13 @@ const handleSSEMessage = (event) => {
     // console.log(toLocalTime(), event.data);
     const {type, data} = event.data;
     if (type === channelType.heartBeat) {
-        // handle sse msg
-        if (handleHeartbeat) {
-            clearInterval(handleHeartbeat);
-            // console.log(toLocalTime(), 'clear interval');
-        }
-        handleHeartbeat = setInterval(postHeartbeat, HEART_BEAT_MILLI * 3);
+        consoleLogDebug(`[SSE][Sub] ${type}`);
+        delayPostHeartBeat(RE_HEART_BEAT_MILLI);
         if (serverSentEventCon) {
             serverSentEventCon.close()
         }
     } else {
+        consoleLogDebug(`[SSE][Sub] ${type}\n${JSON.stringify(data)}`);
         // data type error
         if (type === serverSentEventType.dataTypeErr) {
             handleError(data);
@@ -160,42 +184,70 @@ const handleSSEMessage = (event) => {
     }
 };
 
+const delayPostHeartBeat = (() => (ms=0, ...args) => {
+    if (this.__heartBeatIntervalID__) clearInterval(this.__heartBeatIntervalID__);
+    this.__heartBeatIntervalID__ = setInterval(postHeartbeat, ms || 0, ...args);
+})();
+const isDebugMode = localStorage.getItem('DEBUG') ? localStorage.getItem('DEBUG').trim().toLowerCase() === 'true' : false;
+
+const consoleLogDebug = (msg='') => {
+    // If you want to show log, you must set DEBUG=true on localStorage first !!!
+    if (!isDebugMode) return;
+    console.debug(msg);
+}
+
 const openServerSentEvent = (isForce = false) => {
-    if (isForce || serverSentEventCon === undefined || serverSentEventCon === null) {
+    if (isForce || serverSentEventCon == null) {
+        consoleLogDebug(`[SSE] Make new SSE connection...`);
+
         let uuid = localStorage.getItem('uuid');
-        if (uuid === undefined || uuid === null) {
+        if (uuid == null) {
             uuid = create_UUID();
             localStorage.setItem('uuid', uuid);
         }
 
+        let mainTabUUID = window.name;
+        if (mainTabUUID == null || mainTabUUID === '') {
+            mainTabUUID = create_UUID();
+            window.name = mainTabUUID;
+        }
+
         const force = isForce ? 1 : 0;
-        serverSentEventCon = new EventSource(`${serverSentEventUrl}/${force}/${uuid}`);
+        serverSentEventCon = new EventSource(`${serverSentEventUrl}/${force}/${uuid}/${mainTabUUID}`);
 
         serverSentEventCon.onerror = (err) => {
-            // console.log(toLocalTime(), 'SSE error');
-            if (handleHeartbeat) {
-                clearInterval(handleHeartbeat);
-            }
-            handleHeartbeat = setInterval(postHeartbeat, HEART_BEAT_MILLI * 3);
+            delayPostHeartBeat(RE_HEART_BEAT_MILLI);
+
             if (!bc.onmessage) {
                 bc.onmessage = handleSSEMessage;
             }
             if (serverSentEventCon) {
                 serverSentEventCon.close();
+                consoleLogDebug(`[SSE] SSE connection closed`);
             }
         };
 
         serverSentEventCon.addEventListener(serverSentEventType.ping, (event) => {
             bc.postMessage({type: channelType.heartBeat});
-            if (handleHeartbeat) {
-                clearInterval(handleHeartbeat);
-            }
-            handleHeartbeat = setInterval(postHeartbeat, HEART_BEAT_MILLI);
+            consoleLogDebug(`[SSE][Main] Broadcast: ${channelType.heartBeat}`);
+
+            delayPostHeartBeat(HEART_BEAT_MILLI);
+
             if (!bc.onmessage) {
                 bc.onmessage = handleSSEMessage;
             }
             // listenSSE();
             notifyStatusSSE();
+        }, false);
+
+        serverSentEventCon.addEventListener(serverSentEventType.timeout, (event) => {
+            consoleLogDebug(`[SSE][Main] Server feedback: timeout`);
+        }, false);
+
+        serverSentEventCon.addEventListener(serverSentEventType.closeOldSSE, (event) => {
+            consoleLogDebug(`[SSE][Main] Server feedback: closeOldSSE`);
+            serverSentEventCon.close();
+            consoleLogDebug(`[SSE] SSE connection closed`);
         }, false);
     }
 };
@@ -262,9 +314,14 @@ function showGraphProgress(data) {
 
 // import job data type error notification
 const notifyStatusSSE = () => {
+    if (!serverSentEventCon) {
+        return;
+    }
+
     // data type error
     serverSentEventCon.addEventListener(serverSentEventType.dataTypeErr, (event) => {
         const data = JSON.parse(event.data);
+        consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.dataTypeErr}\n${event.data}`);
         bc.postMessage({type: serverSentEventType.dataTypeErr, data: data});
         handleError(data);
     }, false);
@@ -272,6 +329,7 @@ const notifyStatusSSE = () => {
     // import empty file
     serverSentEventCon.addEventListener(serverSentEventType.emptyFile, (event) => {
         const data = JSON.parse(event.data);
+        consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.emptyFile}\n${event.data}`);
         bc.postMessage({type: serverSentEventType.emptyFile, data: data});
         handleEmptyFile(data);
     }, false);
@@ -279,6 +337,7 @@ const notifyStatusSSE = () => {
     // fetch pca data
     serverSentEventCon.addEventListener(serverSentEventType.pcaSensor, (event) => {
         const data = JSON.parse(event.data);
+        consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.pcaSensor}\n${event.data}`);
         bc.postMessage({type: serverSentEventType.pcaSensor, data: data});
         if (typeof appendSensors !== 'undefined') {
             appendSensors(data);
@@ -288,6 +347,7 @@ const notifyStatusSSE = () => {
     // fetch show graph progress
     serverSentEventCon.addEventListener(serverSentEventType.showGraph, (event) => {
         const data = JSON.parse(event.data);
+        consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.showGraph}\n${event.data}`);
         bc.postMessage({type: serverSentEventType.showGraph, data: data});
         if (typeof showGraphProgress !== 'undefined') {
             showGraphProgress(data);
@@ -297,6 +357,7 @@ const notifyStatusSSE = () => {
     // show warning/error message about disk usage
     serverSentEventCon.addEventListener(serverSentEventType.diskUsage, (event) => {
         const data = JSON.parse(event.data);
+        consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.diskUsage}\n${event.data}`);
         bc.postMessage({type: serverSentEventType.diskUsage, data: data});
         if (typeof checkDiskCapacity !== 'undefined') {
             checkDiskCapacity(data);
@@ -305,6 +366,7 @@ const notifyStatusSSE = () => {
 
     serverSentEventCon.addEventListener(serverSentEventType.jobRun, (event) => {
         const data = JSON.parse(event.data);
+        consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.jobRun}\n${event.data}`);
         bc.postMessage({type: serverSentEventType.jobRun, data: data});
         if (typeof updateBackgroundJobs !== 'undefined') {
             updateBackgroundJobs(data);
@@ -312,6 +374,7 @@ const notifyStatusSSE = () => {
     }, false);
 
     serverSentEventCon.addEventListener(serverSentEventType.shutDown, (event) => {
+        consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.shutDown}\n${true}`);
         bc.postMessage({type: serverSentEventType.shutDown, data: true});
         if (typeof shutdownApp !== 'undefined') {
             shutdownApp();
@@ -319,6 +382,7 @@ const notifyStatusSSE = () => {
     }, false);
 
     serverSentEventCon.addEventListener(serverSentEventType.procLink, (event) => {
+        consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.procLink}\n${true}`);
         bc.postMessage({type: serverSentEventType.procLink, data: true});
         // calculate proc link count
         if (typeof realProcLink !== 'undefined') {
@@ -588,6 +652,7 @@ const openNewPage = () => {
 const isLoadingFromTitleInterface = useTileInterface().get();
 
 $(() => {
+    isDirectFromJumpFunction = !!getParamFromUrl(goToFromJumpFunction) && localStorage.getItem(sortedColumnsKey);
     // hide userBookmarkBar
     $('#userBookmarkBar').hide();
 
@@ -602,7 +667,7 @@ $(() => {
 
     // heart beat
     // notifyStatusSSE();
-    serverSentEventCon = openServerSentEvent();
+    openServerSentEvent();
     // click shutdown event
     $('body').click((e) => {
         if ($(e.target).closest(baseEles.shutdownApp).length) {
@@ -641,6 +706,7 @@ $(() => {
     addAttributeToElement();
 
     const loadingSetting = localStorage.getItem('loadingSetting') || null;
+    const userSettingId = getParamFromUrl('user_setting_id');
     if (isLoadingFromTitleInterface) {
         // reset global flag after use tile interface
         useTileInterface().reset();
@@ -653,18 +719,19 @@ $(() => {
         setTimeout(() => {
             // save original setting info
             originalUserSettingInfo = saveOriginalSetting();
-            if (loadingSetting) {
+            if (userSettingId) {
+                useUserSetting(userSettingId);
+                autoClickShowGraphButton(null, userSettingId)
+            } else if (loadingSetting) {
                 const loadingSettingObj = JSON.parse(loadingSetting);
                 const isRedirect = loadingSettingObj.redirect;
                 if (isRedirect) {
                     useUserSetting(loadingSettingObj.settingID);
+                    autoClickShowGraphButton(loadingSetting)
                 }
             } else {
                 useUserSettingOnLoad();
             }
-
-            // const allTabs = getAllTabs();
-            // allTabs.each((_, tab) => setTriggerInvalidFilter(tab));
         }, 100);
     }
 
@@ -677,20 +744,6 @@ $(() => {
     showHideShutDownButton();
 
     sidebarCollapseHandle();
-
-    // trigger auto click show graph
-    setTimeout(() => {
-
-    }, 4000);
-
-    checkShownGraphInterval = setInterval(() => {
-        // if show graph btn is active
-        const isValid = !!$('button.show-graph.valid-show-graph').length;
-        if (isValid && !isSettingLoading) {
-            handleAutoClickShowGraph(loadingSetting);
-            clearInterval(checkShownGraphInterval);
-        }
-    }, 100)
 
     $('[name=pasteCard]').click((e) => {
         const divTarget = e.currentTarget.closest('.card-body');
@@ -723,40 +776,80 @@ $(() => {
         setTooltip($(this), $(baseEles.i18nCopied).text());
     });
 
+    if (isDirectFromJumpFunction) {
+        setTimeout(() => {
+            $('[name=pastePage]').trigger('click');
+            autoClickShowGraphButton(null, null);
+        }, 1000);
+    }
+
     // Search table user setting
     onSearchTableContent('searchInTopTable', 'tblUserSetting');
 
     // show preprocessing content
     cleansingHandling();
-});
 
+    clipboardInit();
 
-const handleAutoClickShowGraph = (loadingSetting) => {
-    if (loadingSetting) {
+    initShowGraphCommon();
+
+    // showGraph ctrl+Enter
+    document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.key == "Enter") {
             const showGraphBtn = $('button.show-graph');
-            // debug mode
-            const loadingSettingObj = JSON.parse(loadingSetting);
-            if (loadingSettingObj.isExportMode) {
-                const input = document.createElement('input');
-                input.setAttribute('type', 'hidden');
-                input.setAttribute('name', 'isExportMode');
-                input.setAttribute('value', loadingSettingObj.settingID);
-                // append to form element that you want .
-                $(showGraphBtn).after(input);
-            }
-
-            if (loadingSettingObj.isImportMode) {
-                const input = document.createElement('input');
-                input.setAttribute('type', 'hidden');
-                input.setAttribute('name', 'isImportMode');
-                input.setAttribute('value', loadingSettingObj.isImportMode);
-                // append to form element that you want .
-                $(showGraphBtn).after(input);
-            }
-
             $(showGraphBtn).click();
             clearLoadingSetting();
         }
+    });
+
+    showBrowserSupportMsg();
+});
+
+const autoClickShowGraphButton = (loadingSetting, userSettingId) => {
+        checkShownGraphInterval = setInterval(() => {
+        // if show graph btn is active
+        const isValid = !!$('button.show-graph.valid-show-graph').length;
+        if (isValid && (!isSettingLoading || isDirectFromJumpFunction)) {
+            if (isDirectFromJumpFunction) {
+                loadDataSortColumnsToModal('', true);
+            } else {
+                latestSortColIds = [];
+            }
+            handleAutoClickShowGraph(loadingSetting, userSettingId);
+            clearInterval(checkShownGraphInterval);
+            isDirectFromJumpFunction = false;
+        }
+    }, 100)
+};
+
+const handleAutoClickShowGraph = (loadingSetting, userSettingId) => {
+    const showGraphBtn = $('button.show-graph');
+    if (loadingSetting) {
+        // debug mode
+        const loadingSettingObj = JSON.parse(loadingSetting);
+        if (loadingSettingObj.isExportMode) {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'hidden');
+            input.setAttribute('name', 'isExportMode');
+            input.setAttribute('value', loadingSettingObj.settingID);
+            // append to form element that you want .
+            $(showGraphBtn).after(input);
+        }
+
+        if (loadingSettingObj.isImportMode) {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'hidden');
+            input.setAttribute('name', 'isImportMode');
+            input.setAttribute('value', loadingSettingObj.isImportMode);
+            // append to form element that you want .
+            $(showGraphBtn).after(input);
+        }
+    }
+
+    if (loadingSetting || userSettingId || isDirectFromJumpFunction) {
+        $(showGraphBtn).click();
+        clearLoadingSetting();
+    }
 };
 
 const initTargetPeriod = () => {
@@ -878,6 +971,7 @@ const handleChangeDivideOption = (e) => {
             toggleDisableAllInputOfNoneDisplayEl($(`#for-${tab}`));
         }
     });
+    isCyclicTermTab = e.value === CYCLIC_TERM.NAME;
 
     showDateTimeRangeValue();
     compareSettingChange();
@@ -914,7 +1008,7 @@ const addNewDatTimeRange = () => {
         removeDateTimeInList();
         initializeDateTimeRangePicker(dtId);
         $(`#${dtId}`).off('focus')
-         $(`#${dtId}`).on('focus', (e) => {
+        $(`#${dtId}`).on('focus', (e) => {
             handleOnfocusEmptyDatetimeRange(e.currentTarget)
         })
     });
@@ -1166,6 +1260,13 @@ const showCustomContextMenu = (plotDOM, positivePointOnly = false) => {
     });
 };
 
+const goToGraphConfigPage = (url) => {
+    if (!scpSelectedPoint) return;
+
+    const procId = scpSelectedPoint.proc_id_x;
+    goToOtherPage(`${url}?proc_id=${procId}`, false);
+}
+
 const genQueryStringFromFormData = (formDat = null) => {
     const traceForm = $(formElements.formID);
 
@@ -1302,7 +1403,7 @@ const updateCleansing = (inputEle) => {
 };
 
 const cleansingHandling = () => {
-    const openEvent = new Event("open", { bubbles: true })
+    const openEvent = new Event("open", {bubbles: true})
     $('.custom-selection').off('click').on('click', (e) => {
         const contentDOM = $(e.target).closest('.custom-selection-section').find('.custom-selection-content');
         const contentIsShowed = contentDOM.is(':visible');
@@ -1376,6 +1477,14 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
                     await removeAbortButton(res);
                 }
 
+                if (clearOnFlyFilter) {
+                    clearGlobalDict();
+                    initGlobalDict(res.filter_on_demand);
+                    initDicChecked(getDicChecked());
+                    initUniquePairList(res.dic_filter);
+                    clearOnFlyFilter = false;
+                }
+
                 await callback(res);
 
                 isGraphShown = true;
@@ -1418,7 +1527,31 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
 
                 if (res.responseJSON) {
                     const resJson = JSON.parse(res.responseJSON) || {};
+
+                    if (!additionalOption.reselect) {
+                        // click show graph
+                        problematicPCAData = {
+                            train_data: {
+                                null_percent: resJson.json_errors.train_data.null_percent || {},
+                                zero_variance: resJson.json_errors.train_data.zero_variance || {},
+                                selected_vars: resJson.json_errors.train_data.selected_vars
+                            },
+                            target_data: {
+                                null_percent: resJson.json_errors.target_data.null_percent || {},
+                                zero_variance: resJson.json_errors.target_data.zero_variance || [],
+                                selected_vars: resJson.json_errors.target_data.selected_vars
+                            },
+                        };
+                        reselectCallback = reselectPCAData;
+                    }
+
+                    const trainDataErrors = resJson.json_errors.train_data.errors || []
+                    const targetDataErrors = resJson.json_errors.target_data.errors || []
+
                     showToastr(resJson.json_errors);
+                    if (problematicPCAData && (trainDataErrors.length || targetDataErrors.length)) {
+                        showRemoveProblematicColsMdl(problematicPCAData, true);
+                    }
                     return;
                 }
             }
@@ -1433,9 +1566,9 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
 
 
 const generateCalenderExample = () => {
-     const datetimeRange = $('#datetimeRangeShowValue').text();
-     if (!datetimeRange) return;
-     const targetDateTimeStr = datetimeRange.split(DATETIME_PICKER_SEPARATOR)[0];
+    const datetimeRange = $('#datetimeRangeShowValue').text();
+    if (!datetimeRange) return;
+    const targetDateTimeStr = datetimeRange.split(DATETIME_PICKER_SEPARATOR)[0];
 
     const calenderCyclicItems = $('.cyclic-calender-option-item');
     if (!calenderCyclicItems || !calenderCyclicItems.length) return;
@@ -1454,8 +1587,8 @@ const generateCalenderExample = () => {
 const getExampleFormatOfDate = (targetDate, format) => {
     if (!targetDate) {
         const datetimeRange = $('#datetimeRangeShowValue').text();
-         if (!datetimeRange) return;
-         targetDate = datetimeRange.split(DATETIME_PICKER_SEPARATOR)[0];
+        if (!datetimeRange) return;
+        targetDate = datetimeRange.split(DATETIME_PICKER_SEPARATOR)[0];
     }
     const isFYFormat = getIsFYFormat(format);
     let fmt = '';
@@ -1478,7 +1611,7 @@ const changeFormatAndExample = (formatEl) => {
     if (!currentTarget.prop('checked')) return;
     const formatValue = currentTarget.val();
 
-   const example = getExampleFormatOfDate(null, formatValue);
+    const example = getExampleFormatOfDate(null, formatValue);
     $('#cyclicCalender').text(`${formatValue} ${example}`);
 
     // hide offset input when hour is selected
@@ -1486,7 +1619,7 @@ const changeFormatAndExample = (formatEl) => {
     const offsetIsDisabled = $(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`).prop('disabled');
     if (!offsetIsDisabled) {
         if (unit === DivideFormatUnit.Hour) {
-             $('.for-recent-cyclicCalender').hide();
+            $('.for-recent-cyclicCalender').hide();
         } else {
             $('.for-recent-cyclicCalender').show();
         }
@@ -1503,3 +1636,20 @@ const handleTimeUnitOnchange = (e) => {
     validateInputByNameWithOnchange(CYCLIC_TERM.RECENT_INTERVAL, selectedTimeUnit);
     showDateTimeRangeValue();
 }
+
+const collapsingTiles = (collapsing=true) => {
+    const toggle = collapsing ? 'hide' : 'show';
+    $('.section-content').collapse(toggle);
+};
+
+const showBrowserSupportMsg = () => {
+    if (isBrowserInvalidVersion && isBrowserInvalidVersion == '1') {
+        const msg = $('#i18nBrowserInvalidVersion').text().replace('BREAK_LINE', '<br>');
+        showToastrMsg(msg);
+    }
+};
+
+const getParamFromUrl = (paramKey) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(paramKey);
+};

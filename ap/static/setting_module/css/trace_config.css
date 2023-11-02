@@ -1,6 +1,7 @@
 #trace-network, .trace_body {
     position: relative;
-    height: 85vh;
+    height: 100%;
+    flex: 1;
     border: 2px solid #444444 !important;
     border-radius: 0.25rem;
     background-color: #222222;
@@ -93,9 +94,6 @@ div.table_description {
 }
 
 #traceNetworkLayout {
-    position: absolute;
-    top: 118px;
-    left: 13px;
     width: 140px;
     border: 1px solid;
     height: 25px;
@@ -105,9 +103,6 @@ div.table_description {
 }
 
 #resetLayout {
-    position: absolute;
-    top: 118px;
-    left: 162px;
     width: 25px;
     border: 1px solid;
     height: 25px;
@@ -116,4 +111,135 @@ div.table_description {
     padding: 3px;
     background-color: #222222;
     color: white;
+    margin-left: 8px;
 }
+
+.trace-network-content {
+    display: flex;
+    height: 85vh;
+    border: 1px solid #444444;
+    border-radius: 3px;
+}
+
+.trace-network-menu {
+    width: 40px;
+    height: 100%;
+    transition: all 0.3s linear;
+}
+
+.trace-network-menu.active {
+    width: 300px;
+}
+
+.trace-network-menu .sidebar-header {
+    padding: 4px;
+    border-bottom: 1px solid #444444;
+}
+
+.trace-menu-content {
+    opacity: 0;
+    display: none;
+    transition: opacity 0.3s linear;
+}
+
+.trace-network-menu.active .trace-menu-content {
+    height: calc(100% - 36px);
+    width: 100%;
+    opacity: 1;
+    display: block;
+    transition: opacity 0.3s linear;
+}
+
+.trace-layout-wrapper {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    top: 40px;
+    left: 13px;
+    z-index: 9;
+}
+
+.trace-network-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+/*Tree checkboxs CSS*/
+.tree {
+  list-style: none;
+    margin-top: 8px;
+    max-height: calc(100% - 96px);
+    overflow: auto;
+}
+
+.tree ul {
+  border-left: 1px dashed #444444;
+  list-style: none;
+    padding-left: 24px;
+}
+
+
+.tree li {
+  padding: 4px 8px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.tree li:first-child {
+  border-radius: 3px 3px 0 0;
+}
+
+.tree li:last-child {
+  border-radius: 0 0 3px 3px;
+}
+
+.tree label {
+  cursor: pointer;
+}
+
+.has  ul {
+    margin-top: -5px;
+}
+
+.tree .total {
+  color: #e13300;
+}
+.tree .has {
+    position: relative;
+}
+
+.tree .tree-plus {
+    position: absolute;
+    top: 8px;
+    left: -30px;
+    width: 10px;
+    height: 10px;
+    border: 1px solid #444444;
+    border-radius: 2px;
+    text-align: center;
+}
+
+.tree .tree-plus:before {
+   position: absolute;
+    content: '\002B';
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.tree-plus.expanded:before {
+    content: '\2212';
+}
+
+.tree > li.has .tree-plus {
+    display: block;
+}
+
+.tree > li .tree-plus {
+    display: none;
+}
+
+.tree > li label.no-tree {
+    /*padding-left: 32px;*/
+}
+

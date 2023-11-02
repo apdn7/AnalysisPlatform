@@ -326,23 +326,6 @@ const filterCfgGenerator = ((cardId, filterType = filterTypes.OTHER) => {
         });
     };
 
-    const genSelect2Param = (type = 1, data = []) => {
-        const params = {
-            width: '100%',
-            allowClear: true,
-            tags: true,
-            placeholder: '',
-        };
-        if (type === 2) {
-            params.multiple = true;
-            params.tokenSeparators = [' ', '\n'];
-        }
-        if (data && data.length) {
-            params.data = data;
-        }
-        return params;
-    };
-
     const bindOnchangeColumnEvent = () => {
         // // TODO column on change, code here, refactor later
         $(eles.columnName).unbind('change');
@@ -356,9 +339,11 @@ const filterCfgGenerator = ((cardId, filterType = filterTypes.OTHER) => {
                 const condSelect2 = $(this);
                 const formula = condSelect2.closest('tr').find('select[name=filterConditionFormula]').val();
                 const select2Type = findFilterCondType(formula);
-                const selectedValue = condSelect2.val();
+
                 condSelect2.empty();
                 condSelect2.select2(genSelect2Param(select2Type, select2Data));
+                const selectedValue = condSelect2.val();
+
                 assignValueToSelect2(condSelect2, selectedValue);
 
                 if (!select2Type) {

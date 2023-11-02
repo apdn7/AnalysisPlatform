@@ -249,7 +249,7 @@ const tryTour = () => {
                 text: tourContent.tourSelectTargetPeriodDatePicker.next,
                 classes: 'btn btn-sm btn-primary',
                 action() {
-                    const dataFinderDOM = document.getElementById('dataFinderBtn')
+                    const dataFinderDOM = document.getElementsByName('dataFinderBtn')[0];
                     dataFinderDOM.style.display = 'inherit';
                     return this.next()
                 },
@@ -264,7 +264,7 @@ const tryTour = () => {
         title: tourContent.tourFindData.title,
         text: tourContent.tourFindData.content,
         attachTo: {
-            element: '#dataFinderBtn',
+            element: 'button[name=dataFinderBtn]',
             on: 'bottom'
         },
         scrollTo: false,
@@ -283,7 +283,7 @@ const tryTour = () => {
                 text: tourContent.tourFindData.next,
                 classes: 'btn btn-sm btn-primary',
                 action() {
-                    const selector = document.getElementById('dataFinderBtn')
+                    const selector = document.getElementsByName('dataFinderBtn')[0];
                     selector.click()
                     return this.next()
                 },
@@ -304,12 +304,12 @@ const tryTour = () => {
                 text: tourContent.tourFindDataWithDatafinder.back,
                 classes: 'btn btn-sm btn-secondary',
                 action() {
-                    closeCalenderModal()
-                     const dataFinderDOM = document.getElementById('dataFinderBtn')
-                    dataFinderDOM.style.display = 'inherit'
-                    const selector = document.getElementById('datetimeRangePicker')
-                    selector.select()
-                    return this.back()
+                    closeCalenderModal();
+                    const dataFinderDOM = document.getElementsByName('dataFinderBtn')[0];
+                    dataFinderDOM.style.display = 'inherit';
+                    const selector = document.getElementById('datetimeRangePicker');
+                    selector.select();
+                    return this.back();
                 },
             },
             nextStepButton,

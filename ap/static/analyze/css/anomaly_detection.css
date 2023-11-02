@@ -190,6 +190,6 @@ table.dataTable.cell-border tbody td {
     display: none;
 }
 
-h6 {
+.plotbox-header h6 {
     margin: 0.3rem;
 }

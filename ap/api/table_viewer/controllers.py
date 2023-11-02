@@ -4,15 +4,13 @@ from flask import Blueprint, request
 
 from ap.common.pydn.dblib import mssqlserver, oracle
 from ap.common.pydn.dblib.db_proxy import DbProxy
-from ap.common.services import http_content
+from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.sse import notify_progress
 from ap.setting_module.models import CfgDataSource
 
 api_table_viewer_blueprint = Blueprint(
-    'api_table_viewer',
-    __name__,
-    url_prefix='/ap/api/table_viewer'
+    'api_table_viewer', __name__, url_prefix='/ap/api/table_viewer'
 )
 
 
@@ -26,10 +24,7 @@ def get_column_names():
     database = request.args.get('database')
     table = request.args.get('table')
 
-    blank_output = json.dumps({
-        'cols': [],
-        'rows': []
-    }, ensure_ascii=False, default=http_content.json_serial)
+    blank_output = json_dumps({'cols': [], 'rows': []})
 
     data_source = CfgDataSource.query.get(database)
     if not data_source:
@@ -47,7 +42,7 @@ def get_column_names():
         'cols': cols,
     }
 
-    return json.dumps(content, ensure_ascii=False, default=http_content.json_serial)
+    return json_dumps(content)
 
 
 @api_table_viewer_blueprint.route('/table_records', methods=['POST'])
@@ -59,18 +54,15 @@ def get_table_records():
     """
 
     request_data = json.loads(request.data)
-    db_code = request_data.get("database_code")
-    table_name = request_data.get("table_name")
-    sort_column = request_data.get("sort_column")
-    sort_order = request_data.get("sort_order") or "DESC"
-    limit = request_data.get("limit") or 5
+    db_code = request_data.get('database_code')
+    table_name = request_data.get('table_name')
+    sort_column = request_data.get('sort_column')
+    sort_order = request_data.get('sort_order') or 'DESC'
+    limit = request_data.get('limit') or 5
 
-    blank_output = json.dumps({
-        'cols': [],
-        'rows': []
-    }, ensure_ascii=False, default=http_content.json_serial)
+    blank_output = json_dumps({'cols': [], 'rows': []})
 
-    if not db_code or not table_name or sort_order not in ("ASC", "DESC"):
+    if not db_code or not table_name or sort_order not in ('ASC', 'DESC'):
         return blank_output
 
     data_source = CfgDataSource.query.get(db_code)
@@ -87,25 +79,22 @@ def get_table_records():
 
         cols, rows = query_data(db_instance, table_name, sort_column, sort_order, limit)
 
-    result = {
-        'cols': cols_with_types,
-        'rows': rows
-    }
-    return json.dumps(result, ensure_ascii=False, default=http_content.json_serial)
+    result = {'cols': cols_with_types, 'rows': rows}
+    return json_dumps(result)
 
 
 @notify_progress(50)
 def query_data(db_instance, table_name, sort_column, sort_order, limit):
     sort_statement = ''
     if sort_column and sort_order:
-        sort_statement = "order by \"{}\" {} ".format(sort_column, sort_order)
+        sort_statement = 'order by "{}" {} '.format(sort_column, sort_order)
 
     if isinstance(db_instance, mssqlserver.MSSQLServer):
-        sql = "select TOP {}  * from \"{}\" {} ".format(limit, table_name, sort_statement)
+        sql = 'select TOP {}  * from "{}" {} '.format(limit, table_name, sort_statement)
     elif isinstance(db_instance, oracle.Oracle):
-        sql = "select * from \"{}\" where rownum <= {} {} ".format(table_name, limit, sort_statement)
+        sql = 'select * from "{}" where rownum <= {} {} '.format(table_name, limit, sort_statement)
     else:
-        sql = "select * from \"{}\" {} limit {}".format(table_name, sort_statement, limit)
+        sql = 'select * from "{}" {} limit {}'.format(table_name, sort_statement, limit)
 
     cols, rows = db_instance.run_sql(sql=sql)
 

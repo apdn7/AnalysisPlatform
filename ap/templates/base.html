@@ -16,39 +16,7 @@
     {% assets "css_all" %}
         <link rel="stylesheet" href="{{ ASSET_URL }}">
     {% endassets %}
-	<script>
-		window.dataLayer = window.dataLayer || [];
-
-		function gtag() {
-            dataLayer.push(arguments);
-        }
-
-        gtag('js', new Date());
-
-        gtag('config', 'UA-156244372-2', {
-            'link_attribution': {
-                'cookie_name': '_gaela',
-                'cookie_expires': 60,
-                'levels': 4,
-            },
-            'linker': {
-                'accept_incoming': true,
-                'domains': ['127.0.0.1', 'localhost:6868', '192.168.1.69:6868'],
-            },
-        });
-
-        gtag('config', 'G-9DJ9TV72B5', {
-            'link_attribution': {
-                'cookie_name': '_gaela',
-                'cookie_expires': 60,
-                'levels': 4,
-            },
-            'linker': {
-                'accept_incoming': true,
-                'domains': ['127.0.0.1', 'localhost:6868', '192.168.1.69:6868'],
-            },
-        });
-
+    <script>
         //Dictionaryを生成する。
         let objTitle = {
             '/ap/stp': {
@@ -96,7 +64,7 @@
                 'icon': 'Filter.ico',
             },
             '/ap/config/master': {
-                'title': 'Master',
+                'title': 'TH',
                 'icon': 'Master.ico',
             },
             '/ap/config/job': {
@@ -145,35 +113,35 @@
             $('link[rel*=\'icon\']')
                 .prop('href', '/static/common/icons/' + getSetting.icon + '');
         }
-
     </script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9DJ9TV72B5"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+    {% if not do_not_send_ga %}
+        <!-- Google tag (gtag.js) -->
+        <script async type="text/javascript" src="{{ url_for('static', filename = 'common/js/libs/gtag.js')}}"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', GA_TRACKING_ID);
+          gtag('config', UA_TRACKING_ID);
 
-      gtag('config', 'G-9DJ9TV72B5');
+          const user_group = docCookies.getItem('user_group');
+          const app_source = docCookies.getItem('app_location');
+          let app_version = docCookies.getItem('app_version');
+          app_version = app_version.split('.').slice(0,-1).join('.');
 
-      const user_group = docCookies.getItem('user_group');
-      const app_source = docCookies.getItem('app_location');
-      let app_version = docCookies.getItem('app_version');
-      app_version = app_version.split('.').slice(0,-1).join('.');
+          gtag('event', 'Version', {
+              dn_app_version: app_version
+          });
 
-      gtag('event', 'Version', {
-          dn_app_version: app_version
-      });
+          gtag('event', 'Source', {
+              dn_app_source: app_source
+          });
 
-      gtag('event', 'Source', {
-          dn_app_source: app_source
-      });
-
-      gtag('event', 'Group', {
-          dn_app_group: user_group
-      });
-    </script>
-
+          gtag('event', 'Group', {
+              dn_app_group: user_group
+          });
+        </script>
+    {% endif %}
     {% block asset %}
     {% endblock %}
 </head>
@@ -209,6 +177,7 @@
 		// hide setting page
 		const hideSettingPage = docCookies.getItem('hide_setting_page');
         const useDefaultLogLevel = docCookies.getItem('log_level');
+        const isBrowserInvalidVersion = docCookies.getItem('invalid_browser_version');
 		if (hideSettingPage === 'True') {
 			$('#settingPageMenu')
 				.css('display', 'none');

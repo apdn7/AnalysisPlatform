@@ -10,7 +10,7 @@ const drawT2ContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
     figure.layout.paper_bgcolor = '#222222';
     figure.layout.xaxis.gridcolor = '#444444';
     figure.layout.yaxis.gridcolor = '#444444';
-    figure.layout.xaxis.tickangle = -30;
+    figure.layout.xaxis.tickangle  = COMMON_CONSTANT.TICKS_ANGLE;
     figure.layout.autosize = true;
     figure.layout.legend = {
         bgcolor: '#222222',

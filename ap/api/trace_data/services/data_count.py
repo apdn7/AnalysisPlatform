@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ap.common.common_utils import DATE_FORMAT_SIMPLE, TERM_FORMAT, FREQ_FOR_RANGE
+from ap.common.common_utils import DATE_FORMAT_SIMPLE, FREQ_FOR_RANGE, TERM_FORMAT
 from ap.common.constants import DataCountType
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
@@ -14,7 +14,7 @@ def gen_full_data_by_time(df, start_date, end_date, query_type):
     min_val = None
     group_conditions = [
         df[ProcDataCount.datetime.key].dt.year,
-        df[ProcDataCount.datetime.key].dt.month
+        df[ProcDataCount.datetime.key].dt.month,
     ]
     if query_type != DataCountType.YEAR.value:
         # month and week
@@ -69,16 +69,24 @@ def get_data_count_by_time_range(proc_id, start_date, end_date, query_type, loca
     data_count = [[r.datetime, r.process_id, r.count] for r in data_count]
 
     if data_count:
-        df = pd.DataFrame(data_count, columns=[
-            ProcDataCount.datetime.key,
-            ProcDataCount.process_id.key,
-            ProcDataCount.count.key])
+        df = pd.DataFrame(
+            data_count,
+            columns=[
+                ProcDataCount.datetime.key,
+                ProcDataCount.process_id.key,
+                ProcDataCount.count.key,
+            ],
+        )
         local_datetime = lambda t: from_utc_to_localtime(t, local_tz)
         df[ProcDataCount.datetime.key] = df[ProcDataCount.datetime.key].apply(local_datetime)
         # group data count by datetime and process id, to hours
-        df = df.groupby([ProcDataCount.datetime.key, ProcDataCount.process_id.key], as_index=False).sum()
+        df = df.groupby(
+            [ProcDataCount.datetime.key, ProcDataCount.process_id.key], as_index=False
+        ).sum()
         df.drop(columns=[ProcDataCount.process_id.key], inplace=True)
-        df[ProcDataCount.datetime.key] = pd.to_datetime(arg=df[ProcDataCount.datetime.key], format=DATE_FORMAT_SIMPLE)
+        df[ProcDataCount.datetime.key] = pd.to_datetime(
+            arg=df[ProcDataCount.datetime.key], format=DATE_FORMAT_SIMPLE
+        )
         # convert to localtime to genen date_range and group data
         start_date = local_datetime(start_date)
         end_date = local_datetime(end_date)

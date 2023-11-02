@@ -1,5 +1,4 @@
 import json
-import math
 
 import numpy as np
 import pandas as pd
@@ -23,9 +22,11 @@ def get_valid_procs(procs):
         if len(filter_info[key]) > 0:
             filter_time = False
             for item in filter_info[key]:
-                if item.get('item_info', {}) \
-                        and item['item_info'].get('type') \
-                        and item['item_info']['type'] == 'datehour-range':
+                if (
+                    item.get('item_info', {})
+                    and item['item_info'].get('type')
+                    and item['item_info']['type'] == 'datehour-range'
+                ):
                     filter_time = True
             if filter_time:
                 proc_list.update({key: proc_master[key]})
@@ -48,15 +49,6 @@ def get_multivariate_normal(num_samples=500):
     # sns.distplot(df['x'], fit=norm, kde=False).get_lines()[0].get_data()
     # get histogram distribution bar from x/y
     # [h.get_height() for h in sns.distplot(df['x'], fit=norm, kde=False).patches]
-    return dt
-
-
-def generateCircum(r, n=720):
-    pi = math.pi
-    dt = []
-    for x in range(0, n + 1):
-        dt.append({'x': math.cos(2 * pi / n * x) * r, 'y': math.sin(2 * pi / n * x) * r})
-
     return dt
 
 

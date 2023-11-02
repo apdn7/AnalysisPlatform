@@ -19,41 +19,34 @@
 
 
 <script>
-    gtag('config', 'UA-156244372-2', {
+	gtag('config', GA_TRACKING_ID, {
         'page_title' : '{{ _("Filter/Graph") }} {{ _("Config") }}',
     });
-	gtag('config', 'G-9DJ9TV72B5', {
+    gtag('config', UA_TRACKING_ID, {
         'page_title' : '{{ _("Filter/Graph") }} {{ _("Config") }}',
     });
 </script>
 {% endblock %}
 
 {% block header %}
-	{{ macros.page_title(title=_("Master Config"), hint=_('Master Config Hover')) }}
+	{{ macros.page_title(title=_("Threshold/Graph Config"), hint=_('Master Config Hover')) }}
 {% endblock %}
 
 {% block midbody %}
 <!-- Header -->
 <div class="card card-xl graph-navi">
     <div class="card-body">
-        <div class="row">
-            <div class="col-12">
-                <h3 class="header-left">{{ _("Process name") }}</h3>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-8">
-                <select name="type" id="processList" class="form-control select2-selection--single select-n-columns">
-                    <option value="" selected>---</option>
-                    {% for proc in procs %}
-                    <option value="{{ proc.id }}" title="{{ proc.en_name }}">{{ proc.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-4 text-center">
-                <button id="btnShowAllSettings" class="btn btn-secondary">{{ _("Show") }}</button>
-            </div>
-    </div>
+		<div class="d-flex align-items-center flex-row">
+			 <h3 class="header-left mb-0">{{ _("Process name") }}</h3>
+			<div class="flex-grow-1 ml-3">
+				 <select name="type" id="processList" class="form-control select2-selection--single select-n-columns">
+						<option value="" selected>---</option>
+						{% for proc in procs %}
+						<option value="{{ proc.id }}" title="{{ proc.en_name }}">{{ proc.name }}</option>
+						{% endfor %}
+					</select>
+			</div>
+		</div>
 </div>
 </div>
 <div class="loading" style="display: none;"></div>
@@ -63,10 +56,7 @@
 		<div class="card-body">
 			<form id="visualForm">
 				<div class="row form-header">
-					<div class="col-4">
-						<h3 class="header-left">{{ _("Graph Config") }}</h3>
-					</div>
-					<div class="col-8 d-flex align-items-center justify-content-end mb-2">
+					<div class="col-12 d-flex align-items-center justify-content-end mb-2">
 						<div class="mr-3">
 							<input id="searchMasterConfig" class="form-control common-search-input" placeholder="{{_('Search')}}...">
 						</div>
@@ -80,48 +70,92 @@
 				<div class="table-view">
 					<div class="table-wrapper">
 						<table id="tblVisualConfig" class="table table-bordered table-main table-hover-light">
+							<span id="tblVisualConfig_th" class="d-none">{{ _("No.") }}|{{_("Target")}} [{{ _("Data Name") }}]|{{_("Condition")}} [{{ _("Data Name") }}]|{{_("Condition")}} [{{ _("Value") }}]|{{_("Threshold config")}} [{{ _("Lower") }}]|{{_("Threshold config")}} [{{ _("Upper") }}]|{{_("Process threshold")}} [{{ _("Lower") }}]|{{_("Process threshold")}} [{{ _("Upper") }}]|{{_("Graph axis range")}} [{{ _("Min value") }}]|{{_("Graph axis range")}} [{{ _("Max value") }}]|{{_("Valid")}} [From]|{{_("Valid")}} [To]</span>
 						<thead>
 							<tr>
-                                <th scope="col" class="col-number">
-									<span class="">{{ _("No.") }}</span>
+								<th rowspan="2" class="data-col sticky-col first-col get-header" style="width: 50px">{{ _("No.") }}</th>
+								<th colspan="1" class="sticky-col second-col">
+									<span class="hint-text" title="{{_("Target hover msg")}}">{{_("Target")}}</span>
 								</th>
-								<th class="text-center th-sm sticky-col first-col" scope="col">
-									<span class="hint-text" title="{{ _('Control item Hover') }}">{{ _("Control item") }}</span>
+								<th colspan="2" class="sticky-col third-col">
+									<span class="hint-text" title="{{_("Condition hover msg")}}">{{_("Condition")}}</span>
 								</th>
-								<th scope="col" class="text-center th-title-other th-sm sticky-col second-col">
-									<span class="hint-text" title="{{ _('Type Hover') }}">{{ _("Type") }}</span>
+								<th colspan="2" >
+									<span class="hint-text" title="{{_("Threshold config hover msg")}}">{{_("Threshold config")}}</span>
 								</th>
-								<th class="text-center th-sm sticky-col third-col" scope="col">
-									<span class="hint-text" title="{{ _('Name MCF Hover') }}">{{ _("Name") }}</span>
+								<th colspan="2">
+									<span class="hint-text" title="{{_("Process threshold hover msg")}}">{{_("Process threshold")}}</span>
 								</th>
-								<th class="text-center th-sm thresh-line" scope="col">
-									<span>{{ _("Lower threshold") }}</span>
+								<th colspan="2">
+									{{_("Graph axis range")}}
 								</th>
-								<th class="text-center th-sm thresh-line" scope="col">
-									<span>{{ _("Upper threshold") }}</span>
+								<th colspan="2">
+									<span class="hint-text" title="{{_("Valid hover msg")}}">{{_("Valid")}}</span>
 								</th>
-								<th class="text-center th-sm thresh-line" scope="col">
-									<span>{{ _("Lower process threshold") }}</span>
-								</th>
-								<th class="text-center th-sm thresh-line" scope="col">
-									<span>{{ _("Upper process threshold") }}</span>
-								</th>
-								<th class="text-center th-sm thresh-line" scope="col">
-									<span>{{ _("y-axes range: min") }}</span>
-								</th>
-								<th class="text-center th-sm thresh-line" scope="col">
-									<span>{{ _("y-axes range: max") }}</span>
-								</th>
-								<th class="text-center th-sm thresh-line" scope="col">
-									<span class="hint-text"
-										  title="{{ _('Action from Hover') }}">{{ _("Valid from") }}</span>
-								</th>
-								<th class="text-center th-sm thresh-line" scope="col">
-									<span class="hint-text"
-										  title="{{ _('Action to Hover') }}">{{ _("Valid to") }}</span>
-								</th>
-								<th class="text-center col-btn" scope="col"></th>
+								<th class="col-btn" rowspan="2"></th>
 							</tr>
+							<tr>
+								<th class="th-sm position-relative get-header" scope="col">
+									<span class="data-col">{{ _("Data Name") }}</span>
+									<span style="color: yellow">*</span>
+									<span id="sortCol-1" idx="1" class="mr-1 sortCol" title="Sort"><i id="asc-1" class="fa fa-sm fa-play asc"></i><i id="desc-1" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th scope="col" class="th-title-other th-sm position-relative get-header">
+									<span class="data-col"n>{{ _("Data Name") }}</span>
+									<span id="sortCol-2" idx="2" class="mr-1 sortCol" title="Sort"><i id="asc-2" class="fa fa-sm fa-play asc"></i><i id="desc-2" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th class="th-sm position-relative get-header" scope="col">
+									<span class="data-col">{{ _("Value") }}</span>
+									<span id="sortCol-3" idx="3" class="mr-1 sortCol" title="Sort"><i id="asc-3" class="fa fa-sm fa-play asc"></i><i id="desc-3" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th class="th-sm thresh-line position-relative get-header" scope="col">
+									<span class="data-col">{{ _("Lower") }}</span>
+									<span id="sortCol-4" idx="4" class="mr-1 sortCol" title="Sort"><i id="asc-4" class="fa fa-sm fa-play asc"></i><i id="desc-4" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th class="th-sm thresh-line position-relative get-header" scope="col">
+									<span class="data-col">{{ _("Upper") }}</span>
+									<span id="sortCol-5" idx="5" class="mr-1 sortCol" title="Sort"><i id="asc-5" class="fa fa-sm fa-play asc"></i><i id="desc-5" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th class="th-sm thresh-line position-relative get-header" scope="col">
+									<span class="data-col">{{ _("Lower") }}</span>
+									<span id="sortCol-6" idx="6" class="mr-1 sortCol" title="Sort"><i id="asc-6" class="fa fa-sm fa-play asc"></i><i id="desc-6" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th class="th-sm thresh-line position-relative get-header" scope="col">
+									<span class="data-col">{{ _("Upper") }}</span>
+									<span id="sortCol-7" idx="7" class="mr-1 sortCol" title="Sort"><i id="asc-7" class="fa fa-sm fa-play asc"></i><i id="desc-7" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th class="th-sm thresh-line position-relative get-header" scope="col">
+									<span class="data-col">{{ _("Min value") }}</span>
+									<span id="sortCol-8" idx="8" class="mr-1 sortCol" title="Sort"><i id="asc-8" class="fa fa-sm fa-play asc"></i><i id="desc-8" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th class="th-sm thresh-line position-relative get-header" scope="col">
+									<span class="data-col">{{ _("Max value") }}</span>
+									<span id="sortCol-9" idx="9" class="mr-1 sortCol" title="Sort"><i id="asc-9" class="fa fa-sm fa-play asc"></i><i id="desc-9" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th class="th-sm thresh-line position-relative get-header" scope="col" style="width: 125px">
+									<span class="data-col" title="{{ _('Action from Hover') }}">From</span>
+									<span style="color: yellow">*</span>
+									<span id="sortCol-10" idx="10" class="mr-1 sortCol" title="Sort"><i id="asc-10" class="fa fa-sm fa-play asc"></i><i id="desc-10" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+								<th class="th-sm thresh-line position-relative get-header" scope="col" style="width: 125px">
+									<span class="data-col">To</span>
+									<span id="sortCol-11" idx="11" class="mr-1 sortCol" title="Sort"><i id="asc-11" class="fa fa-sm fa-play asc"></i><i id="desc-11" class="fa fa-sm fa-play desc"></i></span>
+								</th>
+							</tr>
+							<tr id="filters" class="filter-row">
+                               	<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="0" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="1" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="2" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="3" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="4" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="5" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="6" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="7" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="8" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="9" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="10" placeholder='Filter...'></th>
+								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="11" placeholder='Filter...'></th>
+                           	</tr>
 						</thead>
 						<tbody>
 

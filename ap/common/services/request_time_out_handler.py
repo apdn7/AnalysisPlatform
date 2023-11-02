@@ -1,8 +1,10 @@
 import os
 import time
-from flask import g
 from functools import wraps
-from ap.common.constants import appENV, REQUEST_THREAD_ID, FlaskGKey
+
+from flask import g
+
+from ap.common.constants import AppEnv, FlaskGKey
 
 api_request_threads = []
 
@@ -25,20 +27,21 @@ class RequestTimeOutAPI(Exception):
 
 
 def request_timeout_handling(max_timeout=10):
-    """ Decorator to log function run time
+    """Decorator to log function run time
     Arguments:
         fn {function} -- [description]
         max_timeout {number} -- tracing timeout (minutes)
     Returns:
         fn {function} -- [description]
     """
+
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             result = fn(*args, **kwargs)
 
-            current_env = os.environ.get('ANALYSIS_INTERFACE_ENV', appENV.PRODUCTION.value)
-            if current_env == appENV.PRODUCTION.value:
+            current_env = os.environ.get('ANALYSIS_INTERFACE_ENV', AppEnv.PRODUCTION.value)
+            if current_env == AppEnv.PRODUCTION.value:
                 start_func_time = time.time()
                 request_start_time = getattr(g, 'request_start_time', None)
                 if request_start_time:
@@ -69,12 +72,13 @@ def check_abort_process():
 
 
 def abort_process_handler():
-    """ Decorator to abort running process
+    """Decorator to abort running process
     Arguments:
         fn {function} -- [description]
     Returns:
         fn {function} -- [description]
     """
+
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):

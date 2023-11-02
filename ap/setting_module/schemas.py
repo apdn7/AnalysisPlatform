@@ -1,9 +1,21 @@
-from marshmallow import post_load, fields
+from marshmallow import fields, post_load
 from marshmallow_sqlalchemy.fields import Nested
 
 from ap import ma
-from ap.setting_module.models import CfgDataSourceDB, CfgDataSourceCSV, CfgDataSource, CfgProcess, \
-    CfgCsvColumn, CfgTrace, CfgTraceKey, CfgProcessColumn, CfgFilter, CfgFilterDetail, CfgVisualization, CfgUserSetting
+from ap.setting_module.models import (
+    CfgCsvColumn,
+    CfgDataSource,
+    CfgDataSourceCSV,
+    CfgDataSourceDB,
+    CfgFilter,
+    CfgFilterDetail,
+    CfgProcess,
+    CfgProcessColumn,
+    CfgTrace,
+    CfgTraceKey,
+    CfgUserSetting,
+    CfgVisualization,
+)
 
 
 class CsvColumnSchema(ma.SQLAlchemyAutoSchema):
@@ -118,13 +130,15 @@ class ProcessSchema(ma.SQLAlchemyAutoSchema):
         model = CfgProcess
         include_fk = True
         include_relationships = True
-        exclude = ("visualizations",)  # re-open the params if used
+        exclude = ('visualizations',)  # re-open the params if used
 
     id = fields.Integer(required=False, allow_none=True)
     columns = Nested(ProcessColumnSchema, many=True)
     traces = Nested(TraceSchema, many=True)
     filters = Nested(FilterSchema, many=True)
-    data_source = Nested(lambda: DataSourceSchema(only=("id", "name")))
+    data_source = Nested(
+        lambda: DataSourceSchema(only=('id', 'name', 'type', 'csv_detail', 'db_detail'))
+    )
 
 
 class ProcessFullSchema(ma.SQLAlchemyAutoSchema):
@@ -146,7 +160,7 @@ class ProcessVisualizationSchema(ma.SQLAlchemyAutoSchema):
         model = CfgProcess
         include_fk = True
         include_relationships = True
-        exclude = ("data_source", "traces")
+        exclude = ('data_source', 'traces')
 
     columns = Nested(ProcessColumnSchema, many=True)
     visualizations = Nested(VisualizationSchema, many=True)
@@ -156,7 +170,7 @@ class ProcessVisualizationSchema(ma.SQLAlchemyAutoSchema):
 class ProcessOnlySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgProcess
-        exclude = ("visualizations", "columns", "traces", "filters")  # re-open the params if used
+        exclude = ('visualizations', 'columns', 'traces', 'filters')  # re-open the params if used
 
 
 class CfgUserSettingSchema(ma.SQLAlchemyAutoSchema):

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from pandas import Series
 
-from ap.common.common_utils import DATE_FORMAT_STR, reformat_dt_str, calc_overflow_boundary
+from ap.common.common_utils import DATE_FORMAT_STR, calc_overflow_boundary, reformat_dt_str
 from ap.common.constants import *
 from ap.common.logger import log_execution_time
 from ap.common.sigificant_digit import signify_digit
@@ -13,11 +13,7 @@ def calc_summary_elements(plot):
     none_ids = plot.get(NONE_IDXS)
     array_y = plot.get(ARRAY_Y) or []
     array_x = plot.get(ARRAY_X) or []
-    empty_summary = {
-        'count': {},
-        'basic_statistics': {},
-        'non_parametric': {}
-    }
+    empty_summary = {'count': {}, 'basic_statistics': {}, 'non_parametric': {}}
     if len(array_x) != len(array_y):
         return [empty_summary]
 
@@ -79,10 +75,14 @@ def calc_summary_elements(plot):
         if not act_to_formatted:
             act_to_formatted = reformat_dt_str('9999-01-01', DATE_FORMAT_STR)
 
-        if (not act_from and not act_to) or (act_from_formatted <= min_x and max_x <= act_to_formatted):
+        if (not act_from and not act_to) or (
+            act_from_formatted <= min_x and max_x <= act_to_formatted
+        ):
             df_threshold = df
         else:
-            df_threshold = df[(df[ARRAY_X] >= act_from_formatted) & (df[ARRAY_X] < act_to_formatted)]
+            df_threshold = df[
+                (df[ARRAY_X] >= act_from_formatted) & (df[ARRAY_X] < act_to_formatted)
+            ]
 
         count_unlinked = len(df_threshold[df_threshold[ARRAY_X].isnull()])
 
@@ -214,8 +214,10 @@ def calc_summary_elements(plot):
 
             if th_high is not None and th_low is not None and trimmed_sigma:
                 t_cp = (th_high - th_low) / (6 * trimmed_sigma)
-                t_cpk = min((th_high - trimmed_average) / trimmed_sigma_3,
-                            (trimmed_average - th_low) / trimmed_sigma_3)
+                t_cpk = min(
+                    (th_high - trimmed_average) / trimmed_sigma_3,
+                    (trimmed_average - th_low) / trimmed_sigma_3,
+                )
 
         avg_p_3sigma = None
         avg_p_sigma = None
@@ -239,88 +241,89 @@ def calc_summary_elements(plot):
         unlinked_pct = signify_digit(100 - linked_pct)
 
         niqr = (iqr * 0.7413) if iqr else None
-        summaries.append({
-            'count': {
-                'ntotal': ntotal,
-                'count_unlinked': count_unlinked,
-                'pn': signify_digit(pn),
-                'pn_minus': signify_digit(pn_minus),
-                'pn_plus': signify_digit(pn_plus),
-                'p': signify_digit(p),
-                'p_minus': signify_digit(p_minus),
-                'p_plus': signify_digit(p_plus),
-                'pn_proc': signify_digit(pn_proc),
-                'pn_proc_minus': signify_digit(pn_proc_minus),
-                'pn_proc_plus': signify_digit(pn_proc_plus),
-                'p_proc': signify_digit(p_proc),
-                'p_proc_minus': signify_digit(p_proc_minus),
-                'p_proc_plus': signify_digit(p_proc_plus),
-                'pn_na': signify_digit(pn_na),
-                'p_na': signify_digit(p_na),
-                'pn_nan': signify_digit(pn_nan),
-                'p_nan': signify_digit(p_nan),
-                'pn_inf': signify_digit(pn_inf),
-                'p_inf': signify_digit(p_inf),
-                'pn_neg_inf': signify_digit(pn_neg_inf),
-                'p_neg_inf': signify_digit(p_neg_inf),
-                'pn_total': signify_digit(pn_total),
-                'p_total': signify_digit(p_total),
-                'linked_pct': signify_digit(linked_pct),
-                'no_linked_pct': unlinked_pct,
-            },
-            'basic_statistics': {
-                'n_stats': n_stats,
-                't_n_stats': signify_digit(t_n_stats),
-                'average': signify_digit(average),
-                't_average': signify_digit(trimmed_average),
-                'sigma': signify_digit(sigma),
-                't_sigma': signify_digit(trimmed_sigma),
-                'sigma_3': signify_digit(sigma_3),
-                't_sigma_3': signify_digit(trimmed_sigma_3),
-                'Cp': signify_digit(cp),
-                'Cpk': signify_digit(cpk),
-                't_cp': signify_digit(t_cp),
-                't_cpk': signify_digit(t_cpk),
-                'Max': signify_digit(max_input_arr),
-                't_max': signify_digit(t_max_input_arr),
-                'max_org': max_input_arr,
-                'Min': signify_digit(min_input_arr),
-                't_min': signify_digit(t_min_input_arr),
-                'min_org': min_input_arr,
-                'avg_p_3sigma': signify_digit(avg_p_3sigma),
-                'avg_p_sigma': signify_digit(avg_p_sigma),
-                'avg_m_sigma': signify_digit(avg_m_sigma),
-                'avg_m_3sigma': signify_digit(avg_m_3sigma),
-                't_avg_p_3sigma': signify_digit(t_avg_p_3sigma),
-                't_avg_p_sigma': signify_digit(t_avg_p_sigma),
-                't_avg_m_sigma': signify_digit(t_avg_m_sigma),
-                't_avg_m_3sigma': signify_digit(t_avg_m_3sigma),
-
-            },
-            'non_parametric': {
-                'p95': signify_digit(p95),
-                'p75': signify_digit(p75),
-                'p75_org': p75,
-                'median': signify_digit(median),
-                'median_org': median,
-                'p25': signify_digit(p25),
-                'p25_org': p25,
-                'whisker_lower': signify_digit(whisker_lower),
-                'whisker_lower_org': whisker_lower,
-                'whisker_upper': signify_digit(whisker_upper),
-                'whisker_upper_org': whisker_upper,
-                'p5': signify_digit(p5),
-                'num_over_upper': signify_digit(num_over_upper),
-                'num_over_lower': signify_digit(num_over_lower),
-                'iqr': signify_digit(iqr),
-                'niqr': signify_digit(niqr),
-                'lower_range': signify_digit(lower_range),
-                'lower_range_org': lower_range,
-                'upper_range': signify_digit(upper_range),
-                'upper_range_org': upper_range,
-                'mode': signify_digit(mode),
+        summaries.append(
+            {
+                'count': {
+                    'ntotal': ntotal,
+                    'count_unlinked': count_unlinked,
+                    'pn': signify_digit(pn),
+                    'pn_minus': signify_digit(pn_minus),
+                    'pn_plus': signify_digit(pn_plus),
+                    'p': signify_digit(p),
+                    'p_minus': signify_digit(p_minus),
+                    'p_plus': signify_digit(p_plus),
+                    'pn_proc': signify_digit(pn_proc),
+                    'pn_proc_minus': signify_digit(pn_proc_minus),
+                    'pn_proc_plus': signify_digit(pn_proc_plus),
+                    'p_proc': signify_digit(p_proc),
+                    'p_proc_minus': signify_digit(p_proc_minus),
+                    'p_proc_plus': signify_digit(p_proc_plus),
+                    'pn_na': signify_digit(pn_na),
+                    'p_na': signify_digit(p_na),
+                    'pn_nan': signify_digit(pn_nan),
+                    'p_nan': signify_digit(p_nan),
+                    'pn_inf': signify_digit(pn_inf),
+                    'p_inf': signify_digit(p_inf),
+                    'pn_neg_inf': signify_digit(pn_neg_inf),
+                    'p_neg_inf': signify_digit(p_neg_inf),
+                    'pn_total': signify_digit(pn_total),
+                    'p_total': signify_digit(p_total),
+                    'linked_pct': signify_digit(linked_pct),
+                    'no_linked_pct': unlinked_pct,
+                },
+                'basic_statistics': {
+                    'n_stats': n_stats,
+                    't_n_stats': signify_digit(t_n_stats),
+                    'average': signify_digit(average),
+                    't_average': signify_digit(trimmed_average),
+                    'sigma': signify_digit(sigma),
+                    't_sigma': signify_digit(trimmed_sigma),
+                    'sigma_3': signify_digit(sigma_3),
+                    't_sigma_3': signify_digit(trimmed_sigma_3),
+                    'Cp': signify_digit(cp),
+                    'Cpk': signify_digit(cpk),
+                    't_cp': signify_digit(t_cp),
+                    't_cpk': signify_digit(t_cpk),
+                    'Max': signify_digit(max_input_arr),
+                    't_max': signify_digit(t_max_input_arr),
+                    'max_org': max_input_arr,
+                    'Min': signify_digit(min_input_arr),
+                    't_min': signify_digit(t_min_input_arr),
+                    'min_org': min_input_arr,
+                    'avg_p_3sigma': signify_digit(avg_p_3sigma),
+                    'avg_p_sigma': signify_digit(avg_p_sigma),
+                    'avg_m_sigma': signify_digit(avg_m_sigma),
+                    'avg_m_3sigma': signify_digit(avg_m_3sigma),
+                    't_avg_p_3sigma': signify_digit(t_avg_p_3sigma),
+                    't_avg_p_sigma': signify_digit(t_avg_p_sigma),
+                    't_avg_m_sigma': signify_digit(t_avg_m_sigma),
+                    't_avg_m_3sigma': signify_digit(t_avg_m_3sigma),
+                },
+                'non_parametric': {
+                    'p95': signify_digit(p95),
+                    'p75': signify_digit(p75),
+                    'p75_org': p75,
+                    'median': signify_digit(median),
+                    'median_org': median,
+                    'p25': signify_digit(p25),
+                    'p25_org': p25,
+                    'whisker_lower': signify_digit(whisker_lower),
+                    'whisker_lower_org': whisker_lower,
+                    'whisker_upper': signify_digit(whisker_upper),
+                    'whisker_upper_org': whisker_upper,
+                    'p5': signify_digit(p5),
+                    'num_over_upper': signify_digit(num_over_upper),
+                    'num_over_lower': signify_digit(num_over_lower),
+                    'iqr': signify_digit(iqr),
+                    'niqr': signify_digit(niqr),
+                    'lower_range': signify_digit(lower_range),
+                    'lower_range_org': lower_range,
+                    'upper_range': signify_digit(upper_range),
+                    'upper_range_org': upper_range,
+                    'mode': signify_digit(mode),
+                },
             }
-        })
+        )
 
     return summaries
 

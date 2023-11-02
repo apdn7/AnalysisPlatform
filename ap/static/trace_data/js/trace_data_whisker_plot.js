@@ -341,7 +341,7 @@ const updateHoverData = (canvasId, prop) => {
     const woOutlierLabel = $('#i18nWOOutlier').text();
     const hoverHTML = `<div>
         <div class="tbl-group" style="max-width: 200px;">
-            <button class="btn clipboard" data-clipboard-target="#${canvasId}ParamTbl" title="Copy to Clipboard">
+            <button class="btn clipboard" data-clipboard-target="#${canvasId}ParamTbl" title="">
                 <i class="fa fa-copy" aria-hidden="true"></i>
             </button>
             <table id="${canvasId}ParamTbl">
@@ -390,7 +390,7 @@ const updateHoverData = (canvasId, prop) => {
             </table>
         </div>
         <div class="tbl-group">
-            <button class="btn clipboard" data-clipboard-target="#${canvasId}NonParamTbl" title="Copy to Clipboard">
+            <button class="btn clipboard" data-clipboard-target="#${canvasId}NonParamTbl" title="">
                 <i class="fa fa-copy" aria-hidden="true"></i>
             </button>
             <table id="${canvasId}NonParamTbl">

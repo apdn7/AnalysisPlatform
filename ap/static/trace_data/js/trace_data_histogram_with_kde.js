@@ -117,6 +117,12 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         hoverinfo: 'none',
         // hovertemplate: '%{x}',
         barmode: 'relative',
+        customdata: {
+            isbarchart: true,
+            groupname: {
+                value: allGroupNames.value || [],
+            }
+        },
     };
     const data = !beforeRankValues ? [histogram, kdeDensity] : [barChart];
 

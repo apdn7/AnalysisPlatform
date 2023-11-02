@@ -1112,8 +1112,8 @@ msgid "Principal Component Analysis"
 msgstr "主成分分析"
 
 # ap/template/analyze/hotelling_tsquare.html
-msgid "Principal Component Score of Testing Data"
-msgstr "1. 検証データの主成分得点"
+msgid "Principal Component Score of Target Data"
+msgstr "1. 対象データの主成分得点"
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
@@ -1144,8 +1144,8 @@ msgid "Training data"
 msgstr "学習データ"
 
 #: ap/template/analyze/hotelling_tsquare.html
-msgid "Testing data"
-msgstr "検証データ"
+msgid "Target data"
+msgstr "対象データ"
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "Yes"
@@ -1173,7 +1173,7 @@ msgstr "Warning"
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "AllNA"
-msgstr "全ての行が欠損値処理(NA除去)によって削除されたため、分析するデータがありません。NAを含む空の値だけの列が選択されていないか確認してください。"
+msgstr "欠損値が全レコードの50%%よりも多く存在する変数があります。変数の再選択をしてください。"
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "NoneNumeric"
@@ -1698,10 +1698,6 @@ msgid "Window length"
 msgstr "時間窓幅"
 
 # ap/template/setting_module/master_config.html
-msgid "Control item"
-msgstr "管理項目"
-
-# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "種別"
 
@@ -1782,7 +1778,7 @@ msgstr "全て表示"
 
 #: ap/templates/setting_module/proc_config.html
 msgid "As Key (Option)"
-msgstr "キーとして(オプション)"
+msgstr "キー(オプション)"
 
 #: ap/templates/templates/i18n.html
 msgid "PCA delete NA"
@@ -1848,7 +1844,7 @@ msgstr "グラフを表示するターゲット変数の中で、解析・表示
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
-msgstr "多次元の検証データを2次元に集約表示(主成分による次元圧縮)したものです。データが中央の的の中に入っていれば正常状態に近いと解釈できます。"
+msgstr "多次元の対象データを2次元に集約表示(主成分による次元圧縮)したものです。データが中央の的の中に入っていれば正常状態に近いと解釈できます。"
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid ""
@@ -1860,13 +1856,13 @@ msgstr "多次元の学習データを2次元に集約表示(主成分による�
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
-msgstr "T2統計量(このデータの主要な部分[主成分]の異常を監視)のプロットです。学習データは白で負の部分にプロットされています。黄色いプロットが検証データです。検証データが白のデータに比べて高いほど、状況が逸脱していることを示します。そこをクリックすると、何の要素がその状態を作っているかを寄与度プロットで確認できます。"
+msgstr "T2統計量(このデータの主要な部分[主成分]の異常を監視)のプロットです。学習データは白で負の部分にプロットされています。黄色いプロットが対象データです。対象データが白のデータに比べて高いほど、状況が逸脱していることを示します。そこをクリックすると、何の要素がその状態を作っているかを寄与度プロットで確認できます。"
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
-msgstr "Q統計量(このデータの主要でない部分[残差]の異常を監視)のプロットです。学習データは白で負の部分にプロットされています。黄色いプロットが検証データです。検証データが白のデータに比べて高いほど、状況が逸脱していることを示します。そこをクリックすると、何の要素がその状態を作っているかを寄与度プロットで確認できます。"
+msgstr "Q統計量(このデータの主要でない部分[残差]の異常を監視)のプロットです。学習データは白で負の部分にプロットされています。黄色いプロットが対象データです。対象データが白のデータに比べて高いほど、状況が逸脱していることを示します。そこをクリックすると、何の要素がその状態を作っているかを寄与度プロットで確認できます。"
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid ""
@@ -2079,26 +2075,6 @@ msgstr "設定中の紐付け条件を破棄し、先回登録した紐付け条
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "設定した紐付け条件でデータを紐付けるためのIDが内部で生成されます。"
-
-#: ap/templates/templates/i18n.html
-msgid "Control item Hover"
-msgstr "グラフ設定の管理項目となる品質管理項目や設備管理項目を選択してください。"
-
-#: ap/templates/templates/i18n.html
-msgid "Type Hover"
-msgstr "品番や設備などの管理対象の種類を選択してください。"
-
-#: ap/templates/templates/i18n.html
-msgid "Name MCF Hover"
-msgstr "品番の値や設備の値などの管理対象を選択してください。"
-
-#: ap/templates/templates/i18n.html
-msgid "Action from Hover"
-msgstr "グラフ設定の開始日時を設定してください。 (必須)"
-
-#: ap/templates/templates/i18n.html
-msgid "Action to Hover"
-msgstr "グラフ設定の終了日時を設定してください。 (任意)"
 
 #: ap/templates/templates/i18n.html
 msgid "Load Setting Info Hover"
@@ -2450,7 +2426,7 @@ msgid ""
 "Enter target item of data (quantitative variable like measurement value) "
 "to visualize the correlation between variables. This data is plotted on "
 "the graph. It can be selected up to four items."
-msgstr "変数間の相関関係を可視化するデータ(量的変数：測定値など)の項目です。このデータがグラフにプロットされます。最小2, 最大7項目選択できます。"
+msgstr "変数間の相関関係を可視化するデータ(量的変数：測定値など)の項目です。このデータがグラフにプロットされます。最小2, 最大64項目選択できます。"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid ""
@@ -3837,7 +3813,7 @@ msgstr "(新しいタブ)"
 
 #: ap/templates/i18n.html
 msgid "File not found"
-msgstr "ファイルがありません。"
+msgstr "ファイルが存在しません。"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid "Move next to target variable"
@@ -3855,4 +3831,213 @@ msgstr ""
 "* Minority: 上下限の外にあるデータを表示\n"
 "* Upper: 上限より上にあるデータを表示\n"
 "* Lower: 下限より下にあるデータを表示"
+
+#: ap/templates/modal.html
+msgid "Do you want to uncheck problematic variables?"
+msgstr "問題がある変数のチェックを外しますか?"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorized Real"
+msgstr "実数 カテゴリ化"
+
+#: ap/templates/templates/modal.html
+msgid "Generate several v2 data sources msg"
+msgstr "複数のデータソース設定を自動生成しますか? そうでない場合は、工程を一つだけ選択してください?"
+
+#: ap/templates/tile_interface/tile_search_by_use.html
+msgid "For example"
+msgstr "例えば"
+
+#: ap/templates/tile_interface/tile_search_by_use.html
+msgid "Search by Usage"
+msgstr "用途から探す"
+
+#: ap/templates/i18n.html
+msgid "Filter label hover msg"
+msgstr "チェックをつけたカテゴリ変数をグラフ内でのオンデマンドフィルタの項目として利用できます。データ型がInt(整数)とStr(文字列)の項目を選択できます。"
+
+#: ap/templates/macros.html
+msgid "Link"
+msgstr "リンク"
+
+#: ap/templates/macros.html
+msgid "Link copy hover msg"
+msgstr "保存した設定でグラフ描画するURLをコピーします。"
+
+#: ap/templates/sidebar.html
+msgid "New tab"
+msgstr "新しいタブ"
+
+#: ap/templates/sidebar.html
+msgid "Takeover"
+msgstr "引継ぎ"
+
+#: ap/templates/sidebar.html
+msgid "Usage"
+msgstr "用途別"
+
+#: ap/templates/modal.html
+msgid "Selected Variables"
+msgstr "選択変数"
+
+#: ap/templates/modal.html
+msgid "Zero Variance"
+msgstr "分散ゼロ"
+
+#: ap/templates/modal.html
+msgid "NA rate"
+msgstr "NA率"
+
+#: ap/templates/macros.html
+msgid "Variable display ordering"
+msgstr "変数の表示順序設定"
+
+#: ap/templates/tile_interface/tile_search_by_use.html
+msgid ""
+"You can find the recommended pages and their settings from what you want "
+"to do."
+msgstr "やりたいことからおすすめページとその設定内容を逆引きできます。"
+
+msgid "Folder not found"
+msgstr "フォルダが存在しません。"
+
+msgid "Access denied"
+msgstr "フォルダにアクセスできません。"
+
+#: ap/templates/macros.html
+msgid "Jump to other pages"
+msgstr "他のページにジャンプ"
+
+#: ap/templates/macros.html
+msgid "Jump to"
+msgstr "ジャンプ"
+
+#: ap/templates/macros.html
+msgid "Variable setting"
+msgstr "変数設定"
+
+#: ap/templates/macros.html
+msgid "Select only the objective and top important variables (Max: 20)"
+msgstr "目的変数と、重要度が高い変数 (最大20個) を選択"
+
+#: ap/templates/macros.html
+msgid "Variable setting hover"
+msgstr ""
+"ジャンプ先に渡す変数を指定できます。\n"
+"ジャンプ先で目的変数を指定できる場合、自動的に先頭の変数が使用されます。"
+
+#: ap/templates/macros.html
+msgid "Select sensor hover"
+msgstr "目的変数と、それに関連する重要変数のみを別の可視化で分析できます。"
+
+#: ap/templates/macros.html
+msgid "ALL"
+msgstr "全て"
+
+#: ap/templates/macros.html
+msgid "A list of pages that you can jump to."
+msgstr "ジャンプ可能なページの一覧です。"
+
+#: ap/templates/macros.html
+msgid "Recommended"
+msgstr "おすすめ"
+
+#: ap/templates/i18n.html
+msgid "Threshold/Graph Config"
+msgstr "閾値/グラフ設定"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Target"
+msgstr "対象"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Target hover msg"
+msgstr "対象のデータ名を選択します。(必須)"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Condition"
+msgstr "条件"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Condition hover msg"
+msgstr "品番や設備により閾値やグラフ軸の設定を変えたい場合に、設定を変更する条件となるデータ名とその値を選択できます。"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Threshold config"
+msgstr "閾値"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Threshold config hover msg"
+msgstr ""
+"対象データの閾値を入力します。\n"
+"設定した閾値を超えたデータの割合とその数(outCL)の算出や、工程能力の算出に利用します。\n"
+"また、グラフ上に赤線で描画されます。"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Process threshold"
+msgstr "工程内閾値"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Process threshold hover msg"
+msgstr ""
+"対象データの工程内閾値を入力します。\n"
+"設定した工程内閾値を超えたデータの割合とその数(outAL)の算出に利用します。\n"
+"また、グラフ上に青線で描画されます。"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Graph axis range"
+msgstr "グラフ軸範囲"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Valid hover msg"
+msgstr ""
+"設定が適用される開始日時(From)と終了日時(To)を選択します。\n"
+"設計変更などで閾値が変更された場合など、日時で閾値が変わる場合に利用します。(From: 必須)"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Max value"
+msgstr "最大値"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Min value"
+msgstr "最小値"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Data Name"
+msgstr "データ名"
+
+msgid "InvalidBrowserTitle"
+msgstr "お使いのブラウザーはサポートされていません。"
+
+msgid "InvalidBrowserContent"
+msgstr ""
+"現在のバージョンでサポートしているブラウザは、Chrome、Microsoft "
+"Edge、Safari(>=15.4)になります。BREAK_LINE現在お使いのブラウザを確認していただき、再度、アプリにアクセスしてください。"
+
+msgid "InvalidBrowserVersion"
+msgstr "アプリを使うためには、バージョン15.4かそれ以降のSafariが必要です。BREAK_LINE現在お使いのブラウザを確認していただき、再度、アプリにアクセスしてください。"
+
+#: ap/templates/macros.html
+msgid "Applies outlier removal to the objective variable."
+msgstr "目的変数に外れ値除去を適用します。"
+
+#: ap/templates/macros.html
+msgid "Applies outlier removal to the explanatory variable."
+msgstr "説明変数に外れ値除去を適用します。"
+
+#: ap/templates/i18n.html
+msgid "Judge"
+msgstr "判定"
+
+#: ap/templates/i18n.html
+msgid "Judge hover msg"
+msgstr "不良率の計算に使用します。選択した変数に対して条件式を適用し、それを満たしたデータをNGとして扱います。"
+
+#: ap/templates/i18n.html
+msgid "NG condition"
+msgstr "NG条件"
+
+#: ap/templates/i18n.html
+msgid "NG condition hover msg"
+msgstr "'判定' で指定した変数に対して、NGが満たす条件を定義します (例: 温度 > 90、検査結果 == 2)"
 

@@ -1,0 +1,72 @@
+<div class="modal fade" id="jumpModal">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <!--    head actions    -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h4>{{_('Jump to')}}</h4>
+                    <div class="d-flex align-items-center">
+                        <button type="button" id="jumpOKButton" class="btn btn-setting simple-btn mr-1">OK</button>
+                        <button type="button" class="btn btn-setting simple-btn" data-dismiss="modal" aria-label="Close" id="">Cancel</button>
+                    </div>
+                </div>
+                    <!--    body   -->
+                <div class="jump-content">
+                    <div class="jump-page-list">
+                        <div class="jump-recommended">
+                            <h4 class="jump-recommended-header jump-sub-header">{{ _('Recommended') }}</h4>
+                            <div class="jump-recommended-list jump-list" id="recommendedList">
+                            </div>
+                        </div>
+                        <div class="jump-all-page">
+                            <div class="jump-all-header collapsed" href="#jumpAllList" data-toggle="collapse" aria-expanded="true">
+                                <div class="icon-col mr-2">
+                                    <a class="btn-collapse collapsed" href="#jumpAllList" data-toggle="collapse" aria-expanded="true"></a>
+                                </div>
+                                <h4 class="mb-0 jump-sub-header"><span class="hint-text" title="{{_('A list of pages that you can jump to.')}}">{{ _('ALL') }}</span></h4>
+                            </div>
+                                <!--         Jump all list                   -->
+                            <div id="jumpAllList" class="jump-all-list jump-list jump-recommended-list collapse">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="jump-sensor-list">
+                        <h4 class="jump-sensor-list-header jump-sub-header">
+                            <span class="hint-text" title="{{_('Variable setting hover')}}">{{ _('Variable setting') }}</span>
+                        </h4>
+                        <div class="custom-control custom-checkbox custom-control-inline">
+                            <input type="checkbox" class="custom-control custom-control-input" id="jumpVariableSetting" onchange="bindChangeVariableOrdering(this)" checked>
+                            <label class="custom-control-label" for="jumpVariableSetting">
+                                <span class="hint-text" title="{{ _('Select sensor hover') }}">{{ _('Select only the objective and top important variables (Max: 20)') }}</span>
+                            </label>
+                        </div>
+                        <div class="jump-sensor-table">
+                            <div id="jumpSensorTbl_wrap" class="table-responsive" style="max-height: 73vh;">
+                                <table id="jumpSensorTbl" class="table table-bordered table-main table-bordered table-fixed table-dark table-striped table-hover table-hover-light">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                {{ _('Order') }}
+                                            </th>
+                                            <th>
+                                                {{ _('Process Name') }}
+                                            </th>
+                                            <th>
+                                                {{ _('Column Name') }}
+                                            </th>
+                                            <th>
+                                                {{ _('Data Type') }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

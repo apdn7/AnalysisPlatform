@@ -1,9 +1,9 @@
 import os
 
-from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
-from ap.common.logger import logger
+from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 
 from ap.common.common_utils import resource_path
+from ap.common.logger import logger
 
 basedir = os.getcwd()
 
@@ -31,10 +31,10 @@ class Config(object):
     logger.info(os.environ['PATH'])
     print(R_PORTABLE)
 
-    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_LOCALE = 'en'
 
     # run `python ap/script/generate_db_secret_key.py` to generate DB_SECRET_KEY
-    DB_SECRET_KEY = "4hlAxWLWt8Tyqi5i1zansLPEXvckXR2zrl_pDkxVa-A="
+    DB_SECRET_KEY = '4hlAxWLWt8Tyqi5i1zansLPEXvckXR2zrl_pDkxVa-A='
 
     # CREATE_ENGINE_PARAMS = {'timeout': 180, 'isolation_level': 'IMMEDIATE'}
     CREATE_ENGINE_PARAMS = {'timeout': 60 * 5}
@@ -46,27 +46,24 @@ class Config(object):
     # APScheduler
     SCHEDULER_EXECUTORS = {
         'default': ThreadPoolExecutor(100),
-        'processpool': ProcessPoolExecutor(5)
+        'processpool': ProcessPoolExecutor(5),
     }
 
-    SCHEDULER_JOB_DEFAULTS = {
-        'coalesce': True,
-        'max_instances': 1,
-        'misfire_grace_time': 2 * 60
-    }
+    SCHEDULER_JOB_DEFAULTS = {'coalesce': True, 'max_instances': 1, 'misfire_grace_time': 2 * 60}
     VERSION_FILE_PATH = resource_path('VERSION')
     BASE_DIR = basedir
-    GA_TRACKING_ID = 'UA-156244372-2'
+    GA_TRACKING_ID = 'G-9DJ9TV72B5'
+    UA_TRACKING_ID = 'UA-156244372-2'
     PARTITION_NUMBER = 100
 
     COMPRESS_MIMETYPES = [
-        "text/html",
-        "text/css",
-        "text/xml",
-        "text/csv",
-        "text/tsv",
-        "application/json",
-        "application/javascript",
+        'text/html',
+        'text/css',
+        'text/xml',
+        'text/csv',
+        'text/tsv',
+        'application/json',
+        'application/javascript',
     ]
     COMPRESS_LEVEL = 6
     COMPRESS_MIN_SIZE = 500
@@ -86,9 +83,7 @@ class ProdConfig(Config):
     APP_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'app.sqlite3')
     SQLALCHEMY_DATABASE_APP_URI = 'sqlite:///' + APP_DB_FILE
     # have to keep SQLALCHEMY_BINDS before SCHEDULER_JOBSTORES -> avoid overwrite
-    SQLALCHEMY_BINDS = {
-        'app_metadata': SQLALCHEMY_DATABASE_APP_URI
-    }
+    SQLALCHEMY_BINDS = {'app_metadata': SQLALCHEMY_DATABASE_APP_URI}
     # SCHEDULER_JOBSTORES = {
     #     'default': SQLAlchemyJobStore(url='sqlite:///' + os.path.join(basedir, 'instance', 'app.sqlite3'))
     # }
@@ -104,9 +99,7 @@ class DevConfig(Config):
     APP_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'app.sqlite3')
     SQLALCHEMY_DATABASE_APP_URI = 'sqlite:///' + APP_DB_FILE
     # have to keep SQLALCHEMY_BINDS before SCHEDULER_JOBSTORES -> avoid overwrite
-    SQLALCHEMY_BINDS = {
-        'app_metadata': SQLALCHEMY_DATABASE_APP_URI
-    }
+    SQLALCHEMY_BINDS = {'app_metadata': SQLALCHEMY_DATABASE_APP_URI}
     # SCHEDULER_JOBSTORES = {
     #     'default': SQLAlchemyJobStore(url='sqlite:///' + os.path.join(basedir, 'instance', 'app.sqlite3'))
     # }
@@ -123,11 +116,9 @@ class TestingConfig(Config):
     APP_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'app.sqlite3')
     SQLALCHEMY_DATABASE_APP_URI = 'sqlite:///' + APP_DB_FILE
 
-    SQLALCHEMY_BINDS = {
-        'app_metadata': SQLALCHEMY_DATABASE_APP_URI
-    }
+    SQLALCHEMY_BINDS = {'app_metadata': SQLALCHEMY_DATABASE_APP_URI}
     # SCHEDULER_JOBSTORES = {
     #     'default': SQLAlchemyJobStore(url='sqlite:///' + os.path.join(basedir, 'tests', 'instances', 'app.sqlite3'))
     # }
     YAML_CONFIG_DIR = os.path.join(basedir, 'tests', 'ap', 'config')
-    PARTITION_NUMBER = 2
+    PARTITION_NUMBER = 100

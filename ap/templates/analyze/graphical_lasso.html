@@ -16,17 +16,20 @@
 		<div class="show-graph-div d-flex justify-content-center align-items-center" style="text-align: center;">
 			{{ macros.preprocess_options(objExp=True, outlierDefault='Op1') }}
 			<button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
-					onClick="graphicalLassoShowGraph();" class="btn btn-primary show-graph ml-3"><i
-				class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+					onClick="graphicalLassoShowGraph();" class="btn btn-primary show-graph ml-3"
+                    title="Shortcut key: Ctrl+Enter">
+                <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
 			{{ macros.export_gui() }}
 		</div>
 		<br>
 	</form>
+    {{ macros.cat_label_filter_modal() }}
 </div>
 
 <div id="plot-card" class="plot-content" style="margin-top: 1rem; display: none;">
     <div class="mb-2 d-flex align-items-center position-relative">
         {{ macros.info_i_mark() }}
+        {{ macros.on_demand_filter() }}
 		<div class="d-flex align-items-center ml-4">
 			<label for="sparsity" class="mr-2 mb-0 hint-text" title="{{ _('Sparsity Hover') }}">{{ _('Sparsity') }}</label>
             <div class="group-input-range">

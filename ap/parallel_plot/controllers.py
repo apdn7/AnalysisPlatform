@@ -10,7 +10,7 @@ parallel_plot_blueprint = Blueprint(
     template_folder=os.path.join('..', 'templates', 'parallel_plot'),
     static_folder=os.path.join('..', 'static', 'parallel_plot'),
     # static_url_path='../static/trace_data',
-    url_prefix='/ap'
+    url_prefix='/ap',
 )
 
 
@@ -18,4 +18,4 @@ parallel_plot_blueprint = Blueprint(
 def index():
     output_dict = get_common_config_data()
     # print(kde_data)
-    return render_template("parallel_plot.html", **output_dict)
+    return render_template('parallel_plot.html', **output_dict)

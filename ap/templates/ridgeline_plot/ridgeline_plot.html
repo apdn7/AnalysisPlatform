@@ -36,6 +36,7 @@
                     </div>
                 </div>
             </div>
+            {{ macros.judgeCondition() }}
             {{ macros.data_finder_card() }}
             <!-- Date range -->
             <div class="card-body table-bordered graph-navi" id="categorySrtPrc">
@@ -57,16 +58,19 @@
             {{ macros.cond_proc([],'', prefix='category', title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
             <br class="graph-navi graph-navi-top-down">
             <div class="d-flex align-items-center justify-content-center show-graph-div">
+                 {{ macros.order_btn() }}
                 {{ macros.emd_select(cl='mr-3') }}
                 {{ macros.preprocess_options() }}
                 <button type="button" value="{{ _('Display graph') }}" onClick="showGraph()"
-                        class="btn btn-primary show-graph ml-3" data-with-tab="true"><i
-                        class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+                        class="btn btn-primary show-graph ml-3" data-with-tab="true" title="Shortcut key: Ctrl+Enter">
+                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
                 {{ macros.export_gui()}}
             </div>
             <br>
         </form>
         {{ macros.cat_label_filter_modal() }}
+        {{ macros.end_col_order_modal() }}
+        {{ macros.end_col_order_modal(graphArea='1') }}
     </div>
     <br>
     <div id="CatePlotCards" style="display: none">
@@ -76,15 +80,20 @@
                     {{ macros.info_i_mark() }}
                 </div>
 				{{ macros.on_demand_filter() }}
+                {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSortGraphPosition();}') }}
 				{{ macros.scale_option(name='yScaleOption', className='ml-4', onChange='changeRLPScale()') }}
                 {{ macros.switch_button(id='showXAxis', label=_('Show x-axis labels'), cl='ml-4', onChange='showXAxisLabel(this)')}}
-<!--                {{ macros.emd_select(name='filterEmd', cl='ml-4', selectCl='border-white scale-dropdown') }}-->
             </div>
         </div>
-        <div class="card cate-plot-cards chart-wrapper clearfix ui-sortable plot-content" id="RLPCard"></div>
-        <div id="stContentTab">
-            <div class="setting-inform-content"></div>
+        <div class="plot-content">
+            <div class="card cate-plot-cards chart-wrapper clearfix ui-sortable" id="RLPCard">
+            </div>
+            <div id="stContentTab">
+                <div class="setting-inform-content"></div>
+            </div>
         </div>
+
+
     </div>
 
 

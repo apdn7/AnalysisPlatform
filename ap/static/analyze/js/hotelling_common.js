@@ -8,6 +8,9 @@ const graphStore = new GraphStore();
 // TODO: fix this.
 const formElements = {
     NO_FILTER: 'NO_FILTER',
+    endProcItems: '#end-proc-row .end-proc',
+    endProcSelectedItem: '#end-proc-row select',
+    endProcCateSelectedItem: '#end-proc-cate-row select',
 };
 
 const eles = {
@@ -274,7 +277,7 @@ const contributionChartLayout = (objData, type = 't2', sampleNo = null) => {
                 family: '',
                 size: 10.6268161062682,
             },
-            tickangle: -30,
+            tickangle: COMMON_CONSTANT.TICKS_ANGLE,
             showline: false,
             linecolor: null,
             linewidth: 0,

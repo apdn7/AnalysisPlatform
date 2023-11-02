@@ -9,8 +9,7 @@
 // TODO use class
 
 // global variable to store data of processes
-const processes = {};
-
+let processes = {};
 const getConfigOption = () => JSON.parse(localStorage.getItem('network-config')) || {};
 
 const configOption = getConfigOption();
@@ -588,6 +587,7 @@ const initVisData = (processesArray) => {
     // update processes from global const
     // create Vis nodes from processes data
     let procTraces = [];
+    processes = {}
     for (const key in processesArray) {
         const procCopy = { ...processesArray[key] };
         procCopy.master = procCopy.name;
@@ -920,9 +920,16 @@ const saveTraceConfigToDB = () => {
 
     displayRegisterMessage(tracingElements.alertProcLink);
 
+
     // show msg
     informLinkingJobStarted();
 };
+
+
+const getV2OrderedProcesses = async (data) => {
+    const res = await fetchData('api/setting/get_v2_ordered_processes', JSON.stringify(data), 'POST');
+    return res.ordered_processes;
+}
 
 const syncVisData = (procs = []) => {
     initVisData(procs);
@@ -972,8 +979,10 @@ const reloadTraceConfigFromDB = (isUpdatePosition = true) => {
             setTimeout(() => {
                 realProcLink(isUpdatePosition);
             }, 500);
+            treeCheckboxJs();
         })
-        .catch(() => {
+        .catch((e) => {
+            console.log(e);
         });
 };
 
@@ -1310,6 +1319,13 @@ const saveEditEdge = () => {
         return;
     }
 
+     // save data to external/global dict
+    drawEdgeToGUI(edgeData);
+
+    $('#modal-edge-popup').modal('hide');
+};
+
+const drawEdgeToGUI = (edgeData) => {
     // save data to external/global dict
     mapIdFromIdTo2Edge[`${edgeData.from}-${edgeData.to}`] = edgeData;
 
@@ -1319,8 +1335,7 @@ const saveEditEdge = () => {
         edges.update(edgeData);
     }
     currentEditEdge = {};
-    $('#modal-edge-popup').modal('hide');
-};
+}
 
 const cancelEditEdge = () => false;
 
@@ -1365,3 +1380,4 @@ const handleSwitchTraceConfig = (e) => {
     handleEditEdge(newEdgeData, () => {
     });
 };
+

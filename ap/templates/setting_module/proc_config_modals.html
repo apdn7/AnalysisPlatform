@@ -20,16 +20,15 @@
     aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-			<form id="procCfgForm" onSubmit="return false;">
             <div class="modal-header">
                 <h4 class="modal-title" id="procSettingLabel">{{ _("Process Config") }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" onclick="handleCloseProcConfigModal()" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" name="modal-body-input" id="procSettingModalBody">
-
-                <div id="processGeneralInfo" name="processGeneralInfo">
+                <form id="procCfgForm" onSubmit="return false;">
+                    <div id="processGeneralInfo" name="processGeneralInfo">
                     <div class="row">
                         <div class="col-sm-12">
                             {{ macros.alert_message("alertProcessNameErrorMsg", True) }}
@@ -56,11 +55,12 @@
                         <div class="col-sm-10">
                             {{ macros.single_selectbox('tableName',_("Table Name"),{},1,4,8, multiple_cols=false) }}
                         </div>
-                        <div class="col-sm-2 form-group">
+                        <div class="col-sm-2">
                             <button name="showRecords" type="button" class="btn btn-secondary">{{ _("Show") }}</button>
                         </div>
                     </div>
                 </div>
+                </form>
 
                 <!-- Last 5 records -->
                 <div class="row">
@@ -78,7 +78,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="row">
                     <div class="col-sm-12">
                         <div class="table-responsive">
                             <table class="table bg-secondary table-striped table-hover table-hover-light" name="latestDataTable">
@@ -97,7 +97,7 @@
 					</div>
                 </div>
                 <div class="row">
-                    <div class="col-sm text-left" style="margin-top: 17px;">
+                    <div class="col-sm text-left setting-content-detail">
                         {{macros.label(_("Setting Content"))}}
                     </div>
 					<div class="col-sm">
@@ -110,28 +110,30 @@
                     <div class="col-sm-12">
 						{{ macros.alert_message("alertMsgSelectedColumnsTable", True) }}
                         <div class="table-responsive-xl">
-                            <table name="selectedColumnsTable" id="selectedColumnsTable"
-                                class="table table-bordered table-dark table-striped table-hover table-hover-light">
-                                <thead>
-                                    <tr>
-										<th class="col-number">{{ _("No.") }}</th>
-										<th class="pr-head">{{ _("Column Name") }}</th>
-                                        <th class="pr-head">{{ _("As Datetime") }}</th>
-                                        <th class="pr-head" title="{{ _('As Link ID Hover') }}">
-											<span class="hint-text">{{ _("As Link ID") }}</span></th>
-                                        <th class="pr-head pr-head-sm" title="{{ _('As Key (Option) Hover') }}">
-											<span class="hint-text">{{ _("As Key (Option)") }}</span></th>
-                                        <th class="pr-head">{{ _("English Name") }}</th>
-                                        <th class="pr-head">{{ _("Shown Name") }}</th>
-                                        <th class="pr-head" title="{{ _('Operator Hover') }}">
-											<span class="hint-text">{{ _("Operator") }}</span></th>
-                                        <th class="pr-head pr-head-sm" title="{{ _('Coef Hover') }}">
-											<span class="hint-text">{{ _("Coef") }}</span></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                            <div id="selectedColumnsTable_wrap" class="table-responsive" style="max-height: 73vh">
+                                <table name="selectedColumnsTable" id="selectedColumnsTable"
+                                    class="table table-bordered table-dark table-striped table-hover table-hover-light table-fixed">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-number">{{ _("No.") }}</th>
+                                            <th class="pr-head">{{ _("Column Name") }}</th>
+                                            <th class="pr-head">{{ _("As Datetime") }}</th>
+                                            <th class="pr-head" title="{{ _('As Link ID Hover') }}">
+                                                <span class="hint-text">{{ _("As Link ID") }}</span></th>
+                                            <th class="pr-head pr-head-sm" title="{{ _('As Key (Option) Hover') }}">
+                                                <span class="hint-text" style="font-size: 0.65em;">{{ _("As Key (Option)") }}</span></th>
+                                            <th class="pr-head">{{ _("English Name") }}</th>
+                                            <th class="pr-head">{{ _("Shown Name") }}</th>
+                                            <th class="pr-head" title="{{ _('Operator Hover') }}">
+                                                <span class="hint-text">{{ _("Operator") }}</span></th>
+                                            <th class="pr-head pr-head-sm" title="{{ _('Coef Hover') }}">
+                                                <span class="hint-text">{{ _("Coef") }}</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -159,10 +161,9 @@
                         onclick="" title="{{ _("Register the corrected contents such as Shown Name.") }}">{{ _("Re-register") }}</button>
                     <button name="okBtn" id="createOrUpdateProcCfgBtn" type="button" class="btn btn-primary" data-itemId=""
                         onclick="" style="margin: 0 1rem;">{{ _("Import Data") }}</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                    <button type="button" class="btn btn-secondary" onclick="handleCloseProcConfigModal()" data-dismiss="modal">{{ _("Cancel") }}</button>
                 </div>
             </div>
-			</form>
         </div>
     </div>
 </div>

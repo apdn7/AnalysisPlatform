@@ -11,12 +11,12 @@
         <div class="form-group" style="margin-top: 10px;">
             <div class="custom-control custom-checkbox">
                 <input type="checkbox" class="custom-control-input" id="genGlobalID" name="filterJobs"
-                    onchange="updateFilterJobs('genGlobalID')" value="GEN_GLOBAL">
+                    value="GEN_GLOBAL">
                 <label class="custom-control-label" for="genGlobalID">{{ _('SHOW_GEN_GLOBAL') }}</label>
             </div>
             <div class="custom-control custom-checkbox">
                 <input type="checkbox" class="custom-control-input" id="factoryPassImport" name="filterJobs"
-                    onchange="updateFilterJobs('factoryPassImport')" value="FACTORY_PAST_IMPORT">
+                    value="FACTORY_PAST_IMPORT">
                 <label class="custom-control-label" for="factoryPassImport">{{ _('SHOW_FACTORY_PAST_IMPORT') }}</label>
             </div>
         </div>
@@ -50,34 +50,37 @@
             <div id="jobDataTable" class="table-responsive">
                 <table class="table bg-secondary table-striped table-hover table-sm table-hover-light"
                     id="jobTable"
-                    data-filter-control="true" name="" >
+                    data-toggle="jobTable"
+                    data-ajax="ajaxRequest"
+                    data-side-pagination="server"
+                    data-pagination="true">
                     <thead class="thead-dark">
                         <tr>
-                            <th data-field="id1" data-filter-control="input"
+                            <th data-field="job_id" data-filter-control="input"
                                 data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
                                 class="job-id">{{ _('Job ID') }}</th>
-                            <th data-field="id2" data-filter-control="input"
+                            <th data-field="job_name" data-filter-control="input"
                                 data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
                                 class="job-name">{{ _('Job Name') }}</th>
-                            <th data-field="id3" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col">
-                                {{ _('Data Source Name') }}</th>
-                            <th data-field="id4" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col">
-                                {{ _('Process ') }}</th>
-                            <th data-field="id5" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col">
-                                {{ _('Started') }}</th>
-                            <th data-field="id6" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col">
-                                {{ _('Duration') }} (sec)</th>
-                            <th data-field="id7" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col">
-                                {{ _('Succeed/Total') }}</th>
-                            <th data-field="id8" data-filter-control="input"
+                            <th data-field="db_master_name" data-filter-control="input"
+                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
+                                class="job-db-name">{{ _('Data Source Name') }}</th>
+                            <th data-field="process_master_name" data-filter-control="input"
+                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
+                                class="job-process-name">{{ _('Process ') }}</th>
+                            <th data-field="start_tm" data-filter-control="input"
+                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
+                                class="job-start-time">{{ _('Started') }}</th>
+                            <th data-field="duration" data-filter-control="input"
+                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
+                                class="job-duration">{{ _('Duration') }} (sec)</th>
+                            <th data-field="progress" data-filter-control="input"
+                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
+                                class="job-progress">{{ _('Succeed/Total') }}</th>
+                            <th data-field="status" data-filter-control="input"
                                 data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
                                 class="job-status">{{ _('Status') }}</th>
-                            <th data-field="id9" data-filter-control="input"
+                            <th data-field="detail" data-filter-control="input"
                                 data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
                                 class="job-detail">{{ _('Detail') }}</th>
                         </tr>
@@ -130,19 +133,19 @@
 
 
 <script>
-    gtag('config', 'UA-156244372-2', {
+    gtag('config', GA_TRACKING_ID, {
         'page_title': '{{ page_title }}',
     });
-    gtag('config', 'G-9DJ9TV72B5', {
+    gtag('config', UA_TRACKING_ID, {
         'page_title': '{{ page_title }}',
     });
-
 </script>
 {% endblock %}
 
 {% block js %}
-<script>
-    const bgrdJobs = {{ jobs| safe }};
-</script>
+<!-- <script>-->
+<!--     const bgrdJobs = {{ jobs| safe }};-->
+<!-- </script>-->
+
 <script src="{{ url_for('setting_module.static', filename = 'js/background_process.js')}}"></script>
 {% endblock %}

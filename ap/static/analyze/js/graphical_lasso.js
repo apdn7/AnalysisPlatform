@@ -51,6 +51,11 @@ $(() => {
         showObjective: true,
         optionalObjective: true,
         objectiveHoverMsg: i18n.objectiveHoverMsg,
+        showStrColumn: true,
+        hideStrVariable: true,
+        hideCTCol: true,
+        showLabels: true,
+        labelAsFilter: true,
     });
     endProcItem();
 
@@ -96,6 +101,7 @@ const collectFromDataGL = (clearOnFlyFilter) => {
         lastUsedFormData  = formData;
     } else {
         formData = lastUsedFormData;
+        formData = transformCatFilterParams(formData);
     }
 
     return formData;
@@ -114,6 +120,10 @@ const callToBackEndAPI = (clearOnFlyFilter = true) => {
         }, 500);
         // show info table
         showInfoTable(res);
+
+        fillDataToFilterModal(res.filter_on_demand, () => {
+            callToBackEndAPI(false);
+        });
 
     });
 };

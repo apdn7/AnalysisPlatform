@@ -93,3 +93,15 @@ canvas {
     right: 35px;
     top: -60px;
 }
+.msp-chart-title {
+    display: flex;
+    flex-direction: column;
+}
+
+#graph-settings-area {
+    height: 30px !important;
+}
+
+.align-items-center {
+    align-items: center;
+}

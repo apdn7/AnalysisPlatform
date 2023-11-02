@@ -1124,7 +1124,7 @@ msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
 # ap/template/analyze/hotelling_tsquare.html
-msgid "Principal Component Score of Testing Data"
+msgid "Principal Component Score of Target Data"
 msgstr "1. Оценка основных компонентов данных тестирования"
 
 # ap/template/analyze/hotelling_tsquare.html
@@ -1156,7 +1156,7 @@ msgid "Training data"
 msgstr "Данные обучения"
 
 #: ap/template/analyze/hotelling_tsquare.html
-msgid "Testing data"
+msgid "Target data"
 msgstr "Данные тестирования"
 
 #: ap/template/analyze/hotelling_tsquare.html
@@ -1772,10 +1772,6 @@ msgid "Window length"
 msgstr "Длина окна"
 
 # ap/template/setting_module/master_config.html
-msgid "Control item"
-msgstr "Элемент управления"
-
-# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Тип"
 
@@ -2268,32 +2264,6 @@ msgid "Register Trace Config Hover"
 msgstr ""
 "ID генерируется внутри, чтобы связать данные с установленными условиями "
 "связывания."
-
-#: ap/templates/templates/i18n.html
-msgid "Control item Hover"
-msgstr ""
-"Выберите элементы управления качеством или элементы управления "
-"оборудованием, используя в настройках графика."
-
-#: ap/templates/templates/i18n.html
-msgid "Type Hover"
-msgstr ""
-"Пожалуйста, выберите тип цели управления, такой как номер детали и "
-"оборудование."
-
-#: ap/templates/templates/i18n.html
-msgid "Name MCF Hover"
-msgstr ""
-"Пожалуйста, выберите цель управления, такую ​​как стоимость номера детали"
-" и стоимость оборудования."
-
-#: ap/templates/templates/i18n.html
-msgid "Action from Hover"
-msgstr "Установите начало DateTime для настройки графика. (Необходимый)"
-
-#: ap/templates/templates/i18n.html
-msgid "Action to Hover"
-msgstr "Установите End DateTime для настройки графика. (По желанию)"
 
 #: ap/templates/templates/i18n.html
 msgid "Load Setting Info Hover"
@@ -4315,6 +4285,240 @@ msgstr ""
 "Values less than Q1-1.5×IQR and values greater than Q3+1.5×IQR: replace "
 "to NA"
 
+#: ap/templates/modal.html
+msgid "Do you want to uncheck problematic variables?"
+msgstr "Do you want to uncheck problematic variables?"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorized Real"
+msgstr "Categorized Real"
+
+#: ap/templates/templates/modal.html
+msgid "Generate several v2 data sources msg"
+msgstr ""
+"Do you want to generate data source config automatically? Or please "
+"select only one process to avoid."
+
+#: ap/templates/tile_interface/tile_search_by_use.html
+msgid "For example"
+msgstr "For example"
+
+#: ap/templates/tile_interface/tile_search_by_use.html
+msgid "Search by Usage"
+msgstr "Search by Usage"
+
+#: ap/templates/i18n.html
+msgid "Filter label hover msg"
+msgstr ""
+"Checked categorical variables can be used as on-demand filter items in "
+"graphs. You can select items whose data types are Int(integer) and "
+"Str(String)."
+
+#: ap/templates/macros.html
+msgid "Link"
+msgstr "Link"
+
+#: ap/templates/macros.html
+msgid "Link copy hover msg"
+msgstr "Copy the URL to draw the graph with the saved settings."
+
+#: ap/templates/sidebar.html
+msgid "New tab"
+msgstr "New tab"
+
+#: ap/templates/sidebar.html
+msgid "Takeover"
+msgstr "Takeover"
+
+#: ap/templates/sidebar.html
+msgid "Usage"
+msgstr "Usage"
+
+#: ap/templates/modal.html
+msgid "Selected Variables"
+msgstr "Selected Variables"
+
+#: ap/templates/modal.html
+msgid "Zero Variance"
+msgstr "Zero Variance"
+
+#: ap/templates/modal.html
+msgid "NA rate"
+msgstr "NA rate"
+
+#: ap/templates/macros.html
+msgid "Variable display ordering"
+msgstr "Variable display ordering"
+
+#: ap/templates/tile_interface/tile_search_by_use.html
+msgid ""
+"You can find the recommended pages and their settings from what you want "
+"to do."
+msgstr ""
+"You can find the recommended pages and their settings from what you want "
+"to do."
+
+msgid "Folder not found"
+msgstr "Folder not found"
+
+msgid "Access denied"
+msgstr "Access denied"
+
+#: ap/templates/macros.html
+msgid "Jump to other pages"
+msgstr "Jump to other pages"
+
+#: ap/templates/macros.html
+msgid "Jump to"
+msgstr "Jump to"
+
+#: ap/templates/macros.html
+msgid "Variable setting"
+msgstr "Variable setting"
+
+#: ap/templates/macros.html
+msgid "Select only the objective and top important variables (Max: 20)"
+msgstr "Select only the objective and top important variables (Max: 20)"
+
+#: ap/templates/macros.html
+msgid "Variable setting hover"
+msgstr ""
+"You can specify the variables to pass to the new page.\n"
+"If the new page has 'Objective' setting, the first variable is used."
+
+#: ap/templates/macros.html
+msgid "Select sensor hover"
+msgstr ""
+"You can analyze the relationship between the objective and the important "
+"variables on other page"
+
+#: ap/templates/macros.html
+msgid "ALL"
+msgstr "All"
+
+#: ap/templates/macros.html
+msgid "A list of pages that you can jump to."
+msgstr "A list of pages that you can jump to."
+
+#: ap/templates/macros.html
+msgid "Recommended"
+msgstr "Recommended"
+
+#: ap/templates/i18n.html
+msgid "Threshold/Graph Config"
+msgstr "Threshold/Graph Config"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Target"
+msgstr "Target"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Target hover msg"
+msgstr "Select the target data name. (Required)"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Condition"
+msgstr "Condition"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Condition hover msg"
+msgstr ""
+"If you want to change the threshold or graph axis settings depending on "
+"the part number or equipment,\n"
+"you can select the data name and its value that will be the condition for"
+" changing the settings."
+
+#: ap/templates/setting_module/master_config.html
+msgid "Threshold config"
+msgstr "Threshold"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Threshold config hover msg"
+msgstr ""
+"Enter the threshold for the target data.\n"
+"It is used to calculate the ratio and number of data exceeding the set "
+"threshold (outCL) and process capability. \n"
+"It is drawn as a red line on the graph."
+
+#: ap/templates/setting_module/master_config.html
+msgid "Process threshold"
+msgstr "Process threshold"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Process threshold hover msg"
+msgstr ""
+"Enter the in-process threshold for the target data. \n"
+"It is used to calculate the percentage of data exceeding the set in-"
+"process threshold and the number (outAL).\n"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Graph axis range"
+msgstr "Graph axis range"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Valid hover msg"
+msgstr ""
+"Select the start date and time (From) and end date and time (To) to apply"
+" the settings. \n"
+"This is used when the threshold changes depending on the date and time, \n"
+"such as when the threshold is changed due to a design change. (From: "
+"Required)"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Max value"
+msgstr "Max"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Min value"
+msgstr "Min"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Data Name"
+msgstr "DataName"
+
+msgid "InvalidBrowserTitle"
+msgstr "Your browser does not support"
+
+msgid "InvalidBrowserContent"
+msgstr ""
+"The current version only supports Chrome, Microsoft Edge and Safari (>= "
+"15.4) browsers.BREAK_LINEPlease check your browser and try to accessing "
+"the application again."
+
+msgid "InvalidBrowserVersion"
+msgstr ""
+"Safari version 15.4 or higher is required to run some features of the "
+"application.BREAK_LINEPlease check your browser version and try accessing"
+" the application again."
+
+#: ap/templates/macros.html
+msgid "Applies outlier removal to the objective variable."
+msgstr "Applies outlier removal to the objective variable."
+
+#: ap/templates/macros.html
+msgid "Applies outlier removal to the explanatory variable."
+msgstr "Applies outlier removal to the explanatory variable."
+
+#: ap/templates/i18n.html
+msgid "Judge"
+msgstr "Judge"
+
+#: ap/templates/i18n.html
+msgid "Judge hover msg"
+msgstr ""
+"Used to calculate NG rate. Data of selected variable, that satisfies the "
+"conditional expression is regarded as NG."
+
+#: ap/templates/i18n.html
+msgid "NG condition"
+msgstr "NG condition"
+
+#: ap/templates/i18n.html
+msgid "NG condition hover msg"
+msgstr ""
+"You can specify a condition of NGs for the variable selected as 'Judge'. "
+"For example, Temperature > 90, InspectionResult == 2"
+
 #~ msgid ""
 #~ "\"Inf\"/\"-Inf\" and their estimated values"
 #~ " are displayed on the graph as "
@@ -4338,4 +4542,31 @@ msgstr ""
 
 #~ msgid "In order of corr."
 #~ msgstr "В корреляции коф. заказ"
+
+# ap/template/setting_module/master_config.html
+#~ msgid "Control item"
+#~ msgstr "Элемент управления"
+
+#~ msgid "Control item Hover"
+#~ msgstr ""
+#~ "Выберите элементы управления качеством или "
+#~ "элементы управления оборудованием, используя в"
+#~ " настройках графика."
+
+#~ msgid "Type Hover"
+#~ msgstr ""
+#~ "Пожалуйста, выберите тип цели управления, "
+#~ "такой как номер детали и оборудование."
+
+#~ msgid "Name MCF Hover"
+#~ msgstr ""
+#~ "Пожалуйста, выберите цель управления, такую"
+#~ " ​​как стоимость номера детали и "
+#~ "стоимость оборудования."
+
+#~ msgid "Action from Hover"
+#~ msgstr "Установите начало DateTime для настройки графика. (Необходимый)"
+
+#~ msgid "Action to Hover"
+#~ msgstr "Установите End DateTime для настройки графика. (По желанию)"
 

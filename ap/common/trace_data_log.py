@@ -9,7 +9,7 @@ from flask import current_app, g
 from pandas import DataFrame
 
 from ap.common.common_utils import create_file_path, write_to_pickle
-from ap.common.constants import MPS, FlaskGKey, CsvDelimiter, IS_EXPORT_MODE
+from ap.common.constants import IS_EXPORT_MODE, MPS, CsvDelimiter, FlaskGKey
 from ap.common.logger import log_execution_time
 
 # some environment can not access to google analytics ,
@@ -19,6 +19,7 @@ is_send_google_analytics = True
 
 def _gen_dataset_id():
     from ap.setting_module.models import DataTraceLog
+
     dataset_id = DataTraceLog.get_max_id()
     while True:
         dataset_id += 1
@@ -31,10 +32,10 @@ gen_dataset_id_inst = _gen_dataset_id()
 
 def send_gtag(**kwargs):
     try:
-        GA_TRACKING_ID = current_app.config.get('GA_TRACKING_ID')
+        ga_tracking_id = current_app.config.get('GA_TRACKING_ID')
         data = {
             'v': '1',  # API Version.
-            'tid': GA_TRACKING_ID,  # Tracking ID / Property ID.
+            'tid': ga_tracking_id,  # Tracking ID / Property ID.
             # Anonymous Client Identifier. Ideally, this should be a UUID that
             # is associated with particular user, device, or browser instance.
             'cid': '555',
@@ -46,7 +47,7 @@ def send_gtag(**kwargs):
         headers = {}
         querystring = urlencode(data)
         print(querystring)
-        conn.request("POST", "/collect?" + querystring, payload, headers)
+        conn.request('POST', '/collect?' + querystring, payload, headers)
         res = conn.getresponse()
         return res.status
     except Exception:
@@ -69,6 +70,7 @@ class EventType(Enum):
     CHM = 'CHM'
     SCP = 'ScP'
     AGP = 'AGP'
+    COG = 'COG'
     GL = 'GL'
 
 
@@ -127,6 +129,7 @@ def save_trace_log_db(is_err=False, data_frame=None):
     save trace log to database
     """
     from ap.setting_module.models import AbnormalTraceLog, DataTraceLog
+
     g_trace_error = _get_g_dict()
     if not g_trace_error:
         return
@@ -155,6 +158,7 @@ def save_trace_log_db(is_err=False, data_frame=None):
             setattr(rec, new_key, new_val)
 
     from ap.setting_module.models import make_session
+
     with make_session() as meta_session:
         meta_session.add(rec)
 
@@ -187,7 +191,9 @@ def get_log_attr(key, get_enum=False):
     return val
 
 
-def trace_log(keys=None, vals=None, save_log=True, output_key=None, send_ga=False, method_key=False):
+def trace_log(
+    keys=None, vals=None, save_log=True, output_key=None, send_ga=False, method_key=False
+):
     """
     decorator to manage trace data and trace log
     """
@@ -294,14 +300,16 @@ def send_google_analytic():
     exe_time = get_log_attr(TraceErrKey.EXE_TIME)
     data_size = get_log_attr(TraceErrKey.DATA_SIZE)
 
-    send_result = send_gtag(ec=EventCategory.EXEC_TIME.value, ea=event_type + '_et',
-                            el=event_label, ev=exe_time)
+    send_result = send_gtag(
+        ec=EventCategory.EXEC_TIME.value, ea=event_type + '_et', el=event_label, ev=exe_time
+    )
 
     if not send_result:
         return False
 
-    send_result = send_gtag(ec=EventCategory.INPUT_DATA.value, ea=event_type + '_ds',
-                            el=event_label, ev=data_size)
+    send_result = send_gtag(
+        ec=EventCategory.INPUT_DATA.value, ea=event_type + '_ds', el=event_label, ev=data_size
+    )
 
     if not send_result:
         return False
@@ -310,8 +318,11 @@ def send_google_analytic():
 
 
 @log_execution_time()
-@trace_log((TraceErrKey.ACTION, TraceErrKey.TARGET),
-           (EventAction.SAVE, Target.PICKLE), output_key=TraceErrKey.DUMPFILE)
+@trace_log(
+    (TraceErrKey.ACTION, TraceErrKey.TARGET),
+    (EventAction.SAVE, Target.PICKLE),
+    output_key=TraceErrKey.DUMPFILE,
+)
 def save_input_data_to_file(input_form, prefix=None):
     if prefix:
         set_log_attr(TraceErrKey.TYPE, prefix)
@@ -329,8 +340,11 @@ def save_input_data_to_file(input_form, prefix=None):
 
 
 @log_execution_time()
-@trace_log((TraceErrKey.ACTION, TraceErrKey.TARGET),
-           (EventAction.SAVE, Target.TSV), output_key=TraceErrKey.DUMPFILE)
+@trace_log(
+    (TraceErrKey.ACTION, TraceErrKey.TARGET),
+    (EventAction.SAVE, Target.TSV),
+    output_key=TraceErrKey.DUMPFILE,
+)
 def save_df_to_file(df: DataFrame):
     event_type = get_log_attr(TraceErrKey.TYPE) or ''
     file_path = create_file_path('dat_' + event_type)
@@ -345,4 +359,3 @@ def save_draw_graph_trace(keys=(TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKe
 
 def trace_log_params(event_type):
     return event_type, EventAction.DRAW, Target.GRAPH
-

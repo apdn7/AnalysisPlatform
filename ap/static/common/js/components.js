@@ -166,11 +166,26 @@ setTimeout(() => {
     });
 }, 500);
 
+const endProcSortable = () => {
+ $('.grouplist-checkbox-with-search').sortable({
+     update: function( event, ui ) {
+         const targetItem = $(ui.item);
+         const isChecked = targetItem.find('input[name^=GET02_VALS_SELECT]').prop('checked');
+         if (!isChecked) return;
+         // add order number
+         targetItem.parent().find('input[name^=GET02_VALS_SELECT]').removeAttr('order');
+         const checked = targetItem.parent().find('input[name^=GET02_VALS_SELECT]:checked');
+         checked.each((i,el) => {
+             $(el).attr('order', i);
+         })
+     }
+ });
+};
 const objectiveInputEventHandle = () => {
     $('input[name="objectiveVar"]').on('change', (e) => {
         const isChecked = e.currentTarget.checked;
         const parentRow = $(e.target).closest('li.list-group-item.form-check');
-        isChecked && parentRow.find('input[type=checkbox]').prop('checked', true);
+        isChecked && parentRow.find('input[type=checkbox][name^=GET02_VALS_SELECT]').prop('checked', true);
     });
 };
 
@@ -179,7 +194,11 @@ const inputCheckInlineEvents = (parentId) => {
         const firstInputIsChecked = $(e.currentTarget).find('input:eq(0)')[0].checked;
         const childInputElems = $(e.target).find('input');
 
-        if ($(e.target).is('select')) {
+        const isLabelInput = $(e.target).closest(".fit-item").find("input[type=checkbox]").hasClass("checkbox-all-labels");
+        if (isLabelInput) {
+            return;
+        }
+        if ($(e.target).is('select') || $(e.target).hasClass('select2-selection__rendered')) {
             return;
         }
 
@@ -201,6 +220,9 @@ const inputCheckInlineEvents = (parentId) => {
         if (childInputElems.length || !isSecondaryCheckbox) {
             // if (childInputElems.length) {
             $(e.currentTarget).find('input').each((idx, item) => {
+                if ($(item).hasClass('checkbox-all-labels')) {
+                    return;
+                }
                 // fpp label column
                 if ($(item).attr('data-autoselect') === 'false' || $(item).prop('disabled')) {
                     return;
@@ -226,10 +248,21 @@ const inputCheckInlineEvents = (parentId) => {
     });
 };
 
-const genColDOM = (isShow, label, description, textCenter = false) => {
+const genColDOM = (isShow, label, description, textCenter = false, withCheckBox=false, id='', className = '') => {
     // todo: check nofilter option
+    const filterClasses = (id !== '') ?
+        'col custom-control custom-checkbox fit-item text-center pr-1 d-flex ' :
+        'col px-1 fit-item title-col';
     if (isShow) {
-        return `<div class="col px-1 fit-item title-col">
+        if (withCheckBox) {
+            return `<div class="${filterClasses} ${className}">
+                <input type="checkbox" class="custom-control-input checkbox-all-labels" id="checkbox-all-label${id}">
+                    <label class="custom-control-label checkbox-all-label" for="checkbox-all-label${id}">
+                        <h6 title="${description}" class="${textCenter ? 'text-center' : ''}" style="text-decoration: underline">${label}</h6>
+                    </label>
+            </div>`;
+        }
+        return `<div class="${filterClasses} ${className}">
             <h6 title="${description}" class="${textCenter ? 'text-center' : ''}" style="text-decoration: underline">${label}</h6>
         </div>`;
     }
@@ -246,11 +279,12 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         color: 4,
         catExp: 5,
         objective: 6,
+        judge: 7
     };
     const isShowColorCheckBox = props ? (props.showColor && !props.colorAsDropdown) : false;
-    const genDetailItem = (chkBox, shownName = null, thresholdBox = null,
+    const genDetailItem = (isHeader = false, chkBox, shownName = null, thresholdBox = null,
         dataType = null, catExpBox = null, isGetDate = false,
-        objectiveSelectionDOM = null, categoryLabelDOM = null, colorDOM = null) => {
+        objectiveSelectionDOM = null, categoryLabelDOM = null, colorDOM = null, judgeDOM = null) => {
         if (!chkBox) {
             return '';
         }
@@ -264,17 +298,24 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         const col = thresholdBox ? '10' : '12';
 
+
+        const rowClass = [props.showLabel, props.showColor, props.showCatExp, props.showObjectiveInput, props.judge].filter(col => col).length > 1 ? '' : 'less-col';
+
         let html = `<div class="col-md-${col} search-col col-xs-${col} ${commonClass}">
-                    ${chkBox}
-                    </div>`;
+                   ${chkBox}
+                 </div>`;
+
+        if (isHeader) {
+            html = chkBox;
+        }
 
         if (shownName) {
-            const originalTotalCol = [chkBox, shownName, props.itemDataTypes, props.showLabel, props.showColor, props.showCatExp, props.showObjectiveInput];
+            const originalTotalCol = [chkBox, shownName, props.itemDataTypes, props.showLabel, props.showColor, props.showCatExp, props.showObjectiveInput, props.judge];
             html = `
-                <div class="col-sm-4 col-xs-4 ${commonClass} shorten-name pr-1 search-col" title="${shownName}">
+                <div class="col-sm-4 col-xs-4 show-name-col ${commonClass} shorten-name pr-1 search-col" title="${shownName}">
                     ${chkBox}
                 </div>
-                <div class="col-sm-4 col-xs-4 ${masterNameClass} shorten-name pr-1 search-col" title="${shownName}">
+                <div class="col-sm-4 col-xs-4 show-name-col ${masterNameClass} shorten-name pr-1 search-col" title="${shownName}">
                     ${dataType === DataTypes.DATETIME.name ? (isGetDate ? '' : shownName) : shownName}
                 </div>
             `;
@@ -286,21 +327,21 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                         const text = DataTypes[dataType].short;
                         const hiddenValue = DataTypes[dataType].short === DataTypes.DATETIME.short ? DataTypes.STRING.short : DataTypes[dataType].short;
                         const hiddenDataTypeInput = `<input id="dataType-${$(chkBox).val()}" value="${hiddenValue}" hidden disabled>`;
-                        html += `<div class="col data-type fit-item px-1 search-col" title="${title}">
+                        html += `<div class="col data-type fit-item type-item px-1 search-col" title="${title}">
                                       ${text}${hiddenDataTypeInput}
                                  </div>`;
                     }
                     if (i === indexDic.label) {
                         // label
                         const title = 'Label';
-                        html += `<div class="col ${checkboxClass} fit-item text-center pr-1 d-flex" title="${title}">
+                        html += `<div class="col ${checkboxClass} fit-item text-center small-col pr-1 d-flex" title="${title}">
                                     ${categoryLabelDOM || ''}
                                  </div>`;
                     }
                     if (i === indexDic.color) {
                         // color
                         html += `
-                            <div class="col fit-item text-center px-1 flex-row-center justify-content-center" title="">
+                            <div class="col fit-item text-center px-1 flex-row-center" title="">
                                   ${colorDOM}
                              </div>
                         `;
@@ -308,14 +349,21 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     if (i === indexDic.catExp) {
                         // cat exp box
                         const title = 'Cat Expansion'; // TODO: i18n
-                        html += `<div class="col-sm-2 col-xs-2 ${checkboxClass} fit-item px-1 flex-row-center justify-content-center" title="${title}">
+                        html += `<div class="col-sm-2 col-xs-2 ${checkboxClass} fit-item px-1 flex-row-center" title="${title}">
                                     ${catExpBox}
                                  </div>`;
                     }
                     if (i === indexDic.objective) {
                         // objective
-                        html += `<div class="col-sm-2 col-xs-2 fit-item">
+                        html += `<div class="col-sm-2 col-xs-2 fit-item objective-item">
                                     <div class="custom-control custom-radio">${objectiveSelectionDOM}</div>
+                                </div>`;
+                    }
+
+                    if (i === indexDic.judge) {
+                        // objective
+                        html += `<div class="col-sm-2 col-xs-2 fit-item">
+                                    ${judgeDOM}
                                 </div>`;
                     }
                 }
@@ -328,8 +376,10 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                        </div>`;
         }
 
-        const output = `<li class="list-group-item form-check">
-                            <div class="row" style="padding-left: 5px">
+        const headerClass = isHeader ? 'keep-header' : '';
+
+        const output = `<li class="list-group-item form-check ${headerClass}">
+                            <div class="row ${rowClass}" style="padding-left: 5px">
                                ${html}
                             </div>
                         </li> `;
@@ -353,6 +403,9 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         objectiveLabel: $('#i18nObjective').text(),
         objectiveExpl: props.objectiveHoverMsg || $('#i18nObjectiveExplain').text(),
         labelExplain: $('#i18nLabelVariableDescription').text(),
+        filterLabelExplain: $('#i18nFilterLabelExplain').text(),
+        judgeHoverMsg: $('#i18nJudgeHoverMsg').text(),
+        judgeLabel: $('#i18nJudgeLabel').text() || 'Judge',
     };
 
     // items
@@ -399,7 +452,9 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         const isRequiredInput = props.isRequired ? 'required-input' : '';
         let objectiveSelectionDOM = '';
-        if (props.showObjectiveInput) {
+        const isCategoryVar = [DataTypes.DATETIME.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType);
+        const showObjInput = !props.allowObjectiveForRealOnly || (props.allowObjectiveForRealOnly && !isCategoryVar);
+        if (props.showObjectiveInput && showObjInput) {
             const objectiveChkBoxId = `objectiveVar-${itemId}`;
             const uncheckRadio = props.optionalObjective ? ' uncheck-when-click' : '';
             objectiveSelectionDOM = `<input title="" type="radio" name="objectiveVar" onchange="compareSettingChange()"
@@ -418,10 +473,10 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             }
             const categoryGroupId = props.groupIDx || 1;
             if ([DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType)) {
-                categoryLabelDOM = `<input title="" onchange="compareSettingChange()" type="checkbox" name="GET02_CATE_SELECT${categoryGroupId}"
-                    class="custom-control-input check-item" value="${itemId}"
+                categoryLabelDOM = `<input title="" onchange="onChangeFilterCheckBox(this)" type="checkbox" name="GET02_CATE_SELECT${categoryGroupId}"
+                    class="custom-control-input not-autocheck as-label-input" value="${itemId}"
                     id="${clChkBoxId}"${clSelection} data-autoselect="false">
-                    <label title="" class="custom-control-label single-check-box" for="${clChkBoxId}"></label>`;
+                    <label title="" class="custom-control-label" for="${clChkBoxId}"></label>`;
             }
         }
 
@@ -431,12 +486,12 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             if (props.colorAsDropdown) {
                 const dropdownColorId = `agp-color-${itemId}`;
                 colorDOM = `<select name="colorVar" id="${dropdownColorId}" onchange="" 
-                    data-load-level="2" class="form-control level-select"
+                    data-load-level="2" class="form-control level-select select2-selection--single select-n-columns"
                     data-target-var-id="${itemId}">
                     <option value="">---</option>`;
                 if (props.availableColorVars && props.availableColorVars.length) {
                     props.availableColorVars.forEach(col => {
-                        colorDOM += `<option value="${col.id}">${col.column_name}</option>`;
+                        colorDOM += `<option value="${col.id}" title="${col.column_name}">${col.name}</option>`;
                     });
                 }
                 colorDOM += `</select>`;
@@ -449,6 +504,17 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                                 <label title="" class="custom-control-label uncheck-when-click single-check-box" for="${radioButtonColorId}"></label>
                             </div>`;
             }
+        }
+
+        let judgeDOM = null;
+        if (props.judge) {
+            const judgeId = `judge-var${itemId}`;
+            judgeDOM = `<div class="custom-control custom-radio d-flex pl-0">
+                                <input type="radio" name="judgeVar" data-type="${colDataType}" onchange="onchangeJudge(this)"
+                                      class="custom-control-input" value="${itemId}"
+                                      id="${judgeId}">
+                                <label title="" class="custom-control-label uncheck-when-click single-check-box" for="${judgeId}"></label>
+                            </div>`;
         }
 
         isChecked = (props.checkedIds && props.checkedIds.includes(itemId)) ? 'checked' : '';
@@ -465,8 +531,8 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         const isGetDate = (itemId === props.getDateColID);
         itemList.push(
-            genDetailItem(option, itemName, threshold, colDataType, catExpBox,
-                isGetDate, objectiveSelectionDOM, categoryLabelDOM, colorDOM),
+            genDetailItem(false, option, itemName, threshold, colDataType, catExpBox,
+                isGetDate, objectiveSelectionDOM, categoryLabelDOM, colorDOM, judgeDOM),
         );
     }
 
@@ -476,17 +542,25 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     const isShowThreshold = props.noFilter ? false : props.thresholdBoxes;
 
     const thresholdBoxDOM = genColDOM(isShowThreshold, 'CL', i18nHoverText.threshold);
-    const typeColDOM = genColDOM(props.itemDataTypes, 'Type', i18nHoverText.sensorExp);
-    const objColDOM = genColDOM(props.showObjectiveInput, i18nHoverText.objectiveLabel, i18nHoverText.objectiveExpl);
-    const categoryLabelColDOM = genColDOM(props.showLabel, 'Label', i18nHoverText.labelExplain);
+    const typeColDOM = genColDOM(props.itemDataTypes, 'Type', i18nHoverText.sensorExp, false, false, '', 'type-item');
+    const objColDOM = genColDOM(props.showObjectiveInput, i18nHoverText.objectiveLabel, i18nHoverText.objectiveExpl, false, false, '', 'objective-item');
+    const judgeTitle = genColDOM(props.judge, i18nHoverText.judgeLabel, i18nHoverText.judgeHoverMsg);
+    // todo: change filter hover msg
+    const labelProps = {
+        title: !props.labelAsFilter ? 'Label' : 'Filter',
+        i18n: !props.labelAsFilter ? i18nHoverText.labelExplain : i18nHoverText.filterLabelExplain
+    };
+    // change Title on On-demand filter
+    $('#categoriesBoxTitle').text(labelProps.title);
+    const categoryLabelColDOM = genColDOM(props.showLabel, labelProps.title, labelProps.i18n, false, true, id, 'small-col');
     const catExpDOM = genColDOM(props.showCatExp, i18nHoverText.catExpLabel, i18nHoverText.catExp);
-    const colorTile = genColDOM(props.showColor, 'Color', props.colorAsDropdown ? i18nCommon.agPColorExplanation : i18nCommon.colorExplanation, true);
+    const colorTile = genColDOM(props.showColor, 'Color', props.colorAsDropdown ? i18nCommon.agPColorExplanation : i18nCommon.colorExplanation, false);
     // const defaultColSize = '';
     if (!props.isRadio) {
         if (props.noFilter) {
             isChecked = (props.checkedIds && itemIds.some(e => props.checkedIds.includes(e))) ? '' : 'checked';
-            noFilterOption = `<div class="row">
-                <div class="col-sm-10">
+            noFilterOption = `
+                <div class="col-sm-10 custom-control custom-checkbox shorten-name pr-1">
                     <input type="${inputType}" name="${props.name}"
                         class="custom-control-input checkbox-no-filter"
                         id="checkbox-no-filter-${id + parentId}"
@@ -495,16 +569,15 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                         ${i18nCommon.noFilter}</label>
                 </div>
                 <div class="col-sm-1 pl-1"><h6 title="${i18nHoverText.threshold}"
-                    style="text-decoration: underline; min-width: 35px">CL</h6></div>
-            </div>`;
+                    style="text-decoration: underline; min-width: 35px">CL</h6></div>`;
         } else {
             isChecked = (props.checkedIds && !isEmpty(itemIds)
                 && itemIds.every(e => props.checkedIds.includes(e))) ? 'checked' : '';
         }
 
         const requiredClass = props.isRequired ? 'required-input' : '';
-        allOption = `<div class="row">
-            <div class="col-sm-8 col-xs-8 pr-1 search-col">
+        allOption = `
+            <div class="col-sm-8 col-xs-8 show-name-col-header pr-1 custom-control custom-checkbox shorten-name">
                  <input type="${inputType}" name="${props.name}"
                     class="custom-control-input checkbox-all ${requiredClass}"
                      id="checkbox-all-${id + parentId}" value="All" ${!props.noFilter && isChecked} ${isShowColorCheckBox ? 'hidden disabled' : ''}>
@@ -517,7 +590,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             ${colorTile}
             ${catExpDOM}
             ${objColDOM}
-        </div>`;
+            ${judgeTitle}`;
     }
 
     const labelClass = label ? 'flex-grow-1 border-gray-curve' : '';
@@ -533,8 +606,8 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                 ${expandArrow}
                 ${searchItems(id)}
                 <ul class="list-group grouplist-checkbox-with-search" id="${sensorListId}" >
-                    ${genDetailItem(noFilterOption)}
-                    ${genDetailItem(allOption)}
+                    ${genDetailItem(true, noFilterOption)}
+                    ${genDetailItem(true, allOption)}
                     ${itemList.join(' ')}
                 </ul>
             </div>
@@ -552,6 +625,11 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop('checked', !$(this).prop('checked'));
         $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`).prop('checked', $(this).prop('checked'));
         compareSettingChange();
+    });
+    // check all labels and filters
+    $(`.checkbox-all-labels`).change(function f() {
+        $(`#${this.closest('.list-group').id} .as-label-input`).prop('checked', $(this).prop('checked'));
+        return;
     });
     // check to mark no filter
     $(`#checkbox-no-filter-${id + parentId}`).change(function f() {
@@ -679,6 +757,59 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     }
     onchangeRequiredInput();
     objectiveInputEventHandle();
+    endProcSortable();
+};
+
+const onChangeFilterCheckBox = (e) => {
+    const parentDiv = $(e).closest('li.list-group-item.form-check').parent();
+    const selector = 'input[name^=GET02_CATE_SELECT]';
+    const allCheckBoxLen = parentDiv.find(selector).length;
+    const checkedCheckBoxLen = parentDiv.find(selector + ':checked').length;
+
+    if (checkedCheckBoxLen === allCheckBoxLen) {
+        // check All Label
+        parentDiv.find('.checkbox-all-labels').prop('checked', true);
+    } else {
+        // uncheck All Label
+        parentDiv.find('.checkbox-all-labels').prop('checked', false);
+    }
+
+    compareSettingChange();
+};
+
+const onchangeJudge = (e) => {
+    const _this = $(e);
+    const isChecked = _this.prop('checked');
+    const judgeConditionCard = $('#judgeConditionCard');
+    const NGCondition = $('#NGCondition');
+    const NGConditionValue = $('#NGConditionValue');
+
+    if (isChecked) {
+         const dataType = _this.attr('data-type');
+         judgeConditionCard.show();
+         judgeConditionCard.find('input, select').prop('disabled', false);
+
+         // show only =, != if type == str
+        if (dataType === DataTypes.STRING.name) {
+            NGCondition.find('option[show-for=real]').attr('hidden', true);
+            // off change, input event
+            NGConditionValue.off('input');
+            NGConditionValue.off('change');
+        } else {
+            NGCondition.find('option[show-for=real]').attr('hidden', false);
+            // validate type = Int, and real input
+            validateNumericInput(NGConditionValue);
+            if (!Number(NGConditionValue.val())) {
+                NGConditionValue.val(0)
+            }
+        }
+    } else {
+        judgeConditionCard.hide();
+        judgeConditionCard.find('input, select').prop('disabled', true);
+    }
+
+    compareSettingChange();
+
 };
 
 // Render search with set and reset button
@@ -700,7 +831,7 @@ const handleSearchItems = (id) => {
     if (!currentParentDivId) return;
 
     const originalCheckBoxs = $(`#${currentParentDivId} li`);
-    let selectedEls = originalCheckBoxs;
+    let selectedEls = [];
     const sensorListID = `#list-${id}`;
 
     // multi select search with input immediately
@@ -714,43 +845,58 @@ const handleSearchItems = (id) => {
 
         const regex = new RegExp(value, 'i');
 
-        selectedEls = $(`#${searchEle.closest('.form-group').id} li .search-col`).filter(function () {
-            const val = $(this).text().toLowerCase();
-
+        selectedEls = $(`#${searchEle.closest('.form-group').id} li`).filter(function () {
+            const searchEls = $(this).find('.search-col');
+            const val = searchEls.text().toLowerCase();
             $(this).show();
-            if (!regex.test(val)) {
-                $(this).addClass('gray');
-            } else {
-                $(this).removeClass('gray');
-            }
+            searchEls.each((i, el) => {
+                if (!regex.test($(el).text().toLowerCase())) {
+                    $(el).addClass('gray');
+                } else {
+                    $(el).removeClass('gray');
+                }
+            })
+            if (!value) return false;
 
             return regex.test(val);
         });
 
 
         if (event.keyCode === KEY_CODE.ENTER) {
-            $(`#${searchEle.closest('.form-group').id} li`).filter(function f() {
-                $(this).toggle(regex.test($(this).find('.search-col').text().toLowerCase()));
+            $(`#${searchEle.closest('.form-group').id} li`).filter(function f(index) {
+                // keep to show first (header) row as index = 0
+                if (index) {
+                    $(this).toggle(regex.test($(this).find('.search-col').text().toLowerCase()));
+                }
             });
         }
     });
 
     // handle on click set selected items button
     $(`#setBtnSearch-${id}`).on('click', function () {
-        selectedEls.parent().find('input[name^=GET02_VALS_SELECT]').prop('checked', true).trigger('change');
+        selectedEls.find('input.main-checkbox').prop('checked', true).trigger('change');
         sortCheckItems();
     });
 
     // handle on click reset selected items button
     $(`#resetBtnSearch-${id}`).on('click', function () {
-        const checkBoxNoFilter = selectedEls.find('input.checkbox-no-filter');
-        if (checkBoxNoFilter.length) {
+        const checkBoxNoFilter = originalCheckBoxs.find('input.checkbox-no-filter');
+        if (checkBoxNoFilter.length && !selectedEls.length) {
+            // reset in filter component
+            originalCheckBoxs.parent().find('input[name=thresholdBox]').prop('checked', false).trigger('change');
             checkBoxNoFilter.prop('checked', true).trigger('change');
-        } else {
-            originalCheckBoxs.parent().find('input[type=checkbox]').prop('checked', false).trigger('change');
         }
-        originalCheckBoxs.parent().find('input[type=radio]').prop('checked', false).trigger('change');
-        originalCheckBoxs.parent().find('select').val('').trigger('change');
+        if (selectedEls.length) {
+            // reset only searched element
+            selectedEls.find('input.main-checkbox').prop('checked', false).trigger('change');
+        }
+        if (!selectedEls.length && !checkBoxNoFilter.length) {
+            // reset all input, select
+            originalCheckBoxs.parent().find('input[type=checkbox]').prop('checked', false).trigger('change');
+            originalCheckBoxs.parent().find('input[type=radio]').prop('checked', false).trigger('change');
+            originalCheckBoxs.parent().find('select').val('').trigger('change');
+        }
+
         sortCheckItems();
     });
 
@@ -1397,4 +1543,5 @@ const genFullCategoryData = (categoryIds, stepChartDat, allGroupNames) => {
         return countVal;
     });
 };
+
 

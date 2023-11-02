@@ -2,30 +2,76 @@ import numpy as np
 import pandas as pd
 from scipy.linalg import pinv
 from scipy.signal import convolve2d
-from scipy.stats import gaussian_kde, binned_statistic_2d
+from scipy.stats import binned_statistic_2d, gaussian_kde
 from sklearn.preprocessing import StandardScaler
 
+from ap.api.common.services.services import get_filter_on_demand_data
 from ap.api.setting_module.services.data_import import ALL_SYMBOLS
-from ap.api.trace_data.services.time_series_chart import (get_data_from_db, get_chart_infos,
-                                                          gen_plotdata, make_irregular_data_none,
-                                                          get_procs_in_dic_param, gen_dic_data_from_df,
-                                                          main_check_filter_detail_match_graph_data,
-                                                          calc_raw_common_scale_y, calc_scale_info,
-                                                          get_serial_and_datetime_data)
-from ap.common.constants import ARRAY_FORMVAL, ARRAY_PLOTDATA, ACTUAL_RECORD_NUMBER, \
-    UNIQUE_SERIAL, ARRAY_Y, MATCHED_FILTER_IDS, UNMATCHED_FILTER_IDS, NOT_EXACT_MATCH_FILTER_IDS, \
-    END_PROC, \
-    GET02_VALS_SELECT, END_COL_ID, CORRS, CORR, PCORR, ARRAY_X, SCALE_SETTING, KDE_DATA, NTOTALS, \
-    NORMAL_MODE_MAX_RECORD, CYCLE_IDS, PROC_NAME, \
-    COL_DETAIL, COL_TYPE, DataTypeEncode, ORG_ARRAY_Y, SCALE_COMMON, SCALE_THRESHOLD, \
-    SCALE_AUTO, SCALE_FULL, SERIALS, DATETIME, START_PROC
+from ap.api.trace_data.services.time_series_chart import (
+    calc_raw_common_scale_y,
+    calc_scale_info,
+    customize_dic_param_for_reuse_cache,
+    filter_cat_dict_common,
+    gen_dic_data_from_df,
+    gen_plotdata,
+    get_chart_infos,
+    get_data_from_db,
+    get_procs_in_dic_param,
+    get_serial_and_datetime_data,
+    main_check_filter_detail_match_graph_data,
+    make_irregular_data_none,
+)
+from ap.common.constants import (
+    ACTUAL_RECORD_NUMBER,
+    ARRAY_FORMVAL,
+    ARRAY_PLOTDATA,
+    ARRAY_X,
+    ARRAY_Y,
+    AS_HEATMAP_MATRIX,
+    COL_DETAIL,
+    COL_TYPE,
+    CORR,
+    CORRS,
+    CYCLE_IDS,
+    DATETIME,
+    END_COL_ID,
+    END_COL_NAME,
+    END_COL_SHOW_NAME,
+    END_PROC,
+    END_PROC_ID,
+    GET02_VALS_SELECT,
+    HEATMAP_MATRIX,
+    KDE_DATA,
+    MATCHED_FILTER_IDS,
+    MSP_AS_HEATMAP_FROM,
+    MSP_CONTOUR_ADJUST,
+    NORMAL_MODE_MAX_RECORD,
+    NOT_EXACT_MATCH_FILTER_IDS,
+    NTOTALS,
+    ORG_ARRAY_Y,
+    PCORR,
+    PROC_NAME,
+    SCALE_AUTO,
+    SCALE_COMMON,
+    SCALE_FULL,
+    SCALE_SETTING,
+    SCALE_THRESHOLD,
+    SERIALS,
+    START_PROC,
+    UNIQUE_SERIAL,
+    UNMATCHED_FILTER_IDS,
+    DataTypeEncode,
+)
 from ap.common.logger import logger
 from ap.common.memoize import memoize
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
+from ap.common.services.request_time_out_handler import (
+    abort_process_handler,
+    request_timeout_handling,
+)
 from ap.common.services.sse import notify_progress
-from ap.common.sigificant_digit import signify_digit, get_fmt_from_array
+from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
 from ap.common.trace_data_log import *
 from ap.trace_data.models import Cycle
 
@@ -34,22 +80,27 @@ from ap.trace_data.models import Cycle
 @request_timeout_handling()
 @abort_process_handler()
 @notify_progress(60)
-@trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
-           (EventType.MSP, EventAction.PLOT, Target.GRAPH), send_ga=True)
+@trace_log(
+    (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
+    (EventType.MSP, EventAction.PLOT, Target.GRAPH),
+    send_ga=True,
+)
 @memoize(is_save_file=True)
 def gen_scatter_plot(dic_param):
     """tracing data to show graph
-        1 start point x n end point
-        filter by condition points that between start point and end_point
+    1 start point x n end point
+    filter by condition points that between start point and end_point
     """
+    (
+        dic_param,
+        cat_exp,
+        cat_procs,
+        dic_cat_filters,
+        use_expired_cache,
+        *_,
+    ) = customize_dic_param_for_reuse_cache(dic_param)
     # bind dic_param
     graph_param = bind_dic_param_to_class(dic_param)
-
-    # add start proc
-    # graph_param.add_start_proc_to_array_formval()
-
-    # add condition procs
-    # graph_param.add_cond_procs_to_array_formval()
 
     dic_proc_cfgs = get_procs_in_dic_param(graph_param)
 
@@ -59,16 +110,27 @@ def gen_scatter_plot(dic_param):
     # get serials
     for proc in graph_param.array_formval:
         proc_cfg = dic_proc_cfgs[proc.proc_id]
-        # serial_ids = [serial.id for serial in proc_cfg.get_serials(column_name_only=False)]
-        # proc.add_cols(serial_ids)
         dic_proc_name[proc.proc_id] = proc_cfg.name
 
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param)
+    df, actual_record_number, unique_serial = get_data_from_db(
+        graph_param, dic_cat_filters, use_expired_cache=use_expired_cache
+    )
+
+    dic_param = filter_cat_dict_common(
+        df,
+        dic_param,
+        cat_exp,
+        cat_procs,
+        graph_param,
+    )
 
     # check filter match or not ( for GUI show )
-    matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids = main_check_filter_detail_match_graph_data(
-        graph_param, df)
+    (
+        matched_filter_ids,
+        unmatched_filter_ids,
+        not_exact_match_filter_ids,
+    ) = main_check_filter_detail_match_graph_data(graph_param, df)
 
     # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
     dic_param[MATCHED_FILTER_IDS] = matched_filter_ids
@@ -81,25 +143,16 @@ def gen_scatter_plot(dic_param):
     dic_data = gen_dic_data_from_df(df, orig_graph_param)
     times = df[Cycle.time.key].tolist() or []
 
-    # TODO: ask Tinh san how about serial hover
-    # gen_dic_serial_data_scatter(df, dic_proc_cfgs, dic_param)
-
     # get chart infos
     chart_infos, chart_infos_org = get_chart_infos(orig_graph_param, dic_data, times)
 
-    dic_param[ARRAY_FORMVAL], dic_param[ARRAY_PLOTDATA] = \
-        gen_plotdata(orig_graph_param, dic_data, chart_infos, chart_infos_org, reorder=False)
+    dic_param[ARRAY_FORMVAL], dic_param[ARRAY_PLOTDATA] = gen_plotdata(
+        orig_graph_param, dic_data, chart_infos, chart_infos_org, reorder=False
+    )
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
     if Cycle.id.key in df.columns:
         dic_param[CYCLE_IDS] = df.id.tolist()
-
-    # calculate_summaries
-    # calc_summaries(dic_param)
-
-    # scale settings
-    # min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA])
-    # calc_scale_info(dic_param[ARRAY_PLOTDATA], min_max_list, all_graph_min, all_graph_max)
 
     # flag to show that trace result was limited
     dic_param[UNIQUE_SERIAL] = unique_serial
@@ -107,18 +160,23 @@ def gen_scatter_plot(dic_param):
     # convert irregular data
     make_irregular_data_none(dic_param)
 
-    # remove none data points
-    # remove_none_data(dic_param)
-
     gen_scale_info(dic_param)
 
     # partial correlation
     calc_partial_corr(dic_param)
 
-    serial_data, datetime_data, start_proc_name = get_serial_and_datetime_data(df, graph_param, dic_proc_cfgs)
+    serial_data, datetime_data, start_proc_name = get_serial_and_datetime_data(
+        df, graph_param, dic_proc_cfgs
+    )
     dic_param[SERIALS] = serial_data
     dic_param[DATETIME] = datetime_data
     dic_param[START_PROC] = start_proc_name
+
+    # msp as heatmap matrix
+    # in case of variables number > MSP_AS_HEATMAP_FROM
+    gen_heatmap_data_from_msp(dic_param, dic_proc_cfgs)
+
+    dic_param = get_filter_on_demand_data(dic_param)
 
     return dic_param, dic_data
 
@@ -127,18 +185,26 @@ def gen_scatter_plot(dic_param):
 @abort_process_handler()
 def remove_none_data(dic_param):
     num_sensors = len(dic_param.get(ARRAY_PLOTDATA) or [])
-    if not num_sensors or not dic_param[ARRAY_PLOTDATA][0] or not len(dic_param[ARRAY_PLOTDATA][0].get(ARRAY_Y) or []):
+    if (
+        not num_sensors
+        or not dic_param[ARRAY_PLOTDATA][0]
+        or not len(dic_param[ARRAY_PLOTDATA][0].get(ARRAY_Y) or [])
+    ):
         return
 
     # find none vals
     array_ys = zip(*[dic_param[ARRAY_PLOTDATA][ss].get(ARRAY_Y) or [] for ss in range(num_sensors)])
-    list_nones = [idx for idx, vals in enumerate(array_ys) if any([v is None or np.isnan(v) for v in vals])]
+    list_nones = [
+        idx for idx, vals in enumerate(array_ys) if any([v is None or np.isnan(v) for v in vals])
+    ]
 
     # remove none vals
     num_points = len(dic_param[ARRAY_PLOTDATA][0].get(ARRAY_Y) or [])
     for ss in range(num_sensors):
         array_y = dic_param[ARRAY_PLOTDATA][ss][ARRAY_Y]
-        dic_param[ARRAY_PLOTDATA][ss][ARRAY_Y] = [array_y[i] for i in range(num_points) if i not in list_nones]
+        dic_param[ARRAY_PLOTDATA][ss][ARRAY_Y] = [
+            array_y[i] for i in range(num_points) if i not in list_nones
+        ]
 
 
 @log_execution_time()
@@ -150,11 +216,12 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
     max_num_points = 1000  # maximum number of points for scatter plot
     max_num_points_kde = 10000  # maximum number of points for kde
 
-    data = {'array_y1': array_y1,
-            'array_y2': array_y2,
-            DATETIME: dic_param[DATETIME],
-            CYCLE_IDS: dic_param[CYCLE_IDS]
-            }
+    data = {
+        'array_y1': array_y1,
+        'array_y2': array_y2,
+        DATETIME: dic_param[DATETIME],
+        CYCLE_IDS: dic_param[CYCLE_IDS],
+    }
 
     if len(dic_param[SERIALS]) > 0:
         data[SERIALS] = dic_param[SERIALS][0]
@@ -167,18 +234,8 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
     serials = df[SERIALS].to_numpy() if SERIALS in df.columns else []
     cycle_ids = df[CYCLE_IDS].to_numpy()
 
-    contour_data = {
-        'x': [],
-        'y': [],
-        'z': [],
-        'contours_coloring': 'heatmap',
-        'line_width': 0
-    }
-    scatter_data = {
-        'x': [],
-        'y': [],
-        'mode': 'markers'
-    }
+    contour_data = {'x': [], 'y': [], 'z': [], 'contours_coloring': 'heatmap', 'line_width': 0}
+    scatter_data = {'x': [], 'y': [], 'mode': 'markers'}
 
     if len(array_y1) < 2 or len(array_y2) < 2:
         return [contour_data, scatter_data]
@@ -202,7 +259,7 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
                 CYCLE_IDS: cycle_ids,
                 'x_fmt': get_fmt_from_array(array_y1),
                 'y_fmt': get_fmt_from_array(array_y2),
-                'mode': 'markers'
+                'mode': 'markers',
             }
 
         if len(array_y1) >= show_contour_limit or use_contour:
@@ -222,7 +279,7 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
                 'y_fmt': get_fmt_from_array(y_grid),
                 'z_fmt': get_fmt_from_array(z_value),
                 'contours_coloring': 'heatmap',
-                'line_width': 1
+                'line_width': 1,
             }
 
             scatter_data = {
@@ -233,7 +290,7 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
                 CYCLE_IDS: cycle_ids,
                 'x_fmt': get_fmt_from_array(array_y1[flg_outlier]),
                 'y_fmt': get_fmt_from_array(array_y2[flg_outlier]),
-                'mode': 'markers'
+                'mode': 'markers',
             }
 
     except Exception as ex:
@@ -297,8 +354,8 @@ def add_jitter_for_kde(x, y):
         Added jitter if necessary
     """
 
-    xrng = (np.nanmax(x) - np.nanmin(x))
-    yrng = (np.nanmax(y) - np.nanmin(y))
+    xrng = np.nanmax(x) - np.nanmin(x)
+    yrng = np.nanmax(y) - np.nanmin(y)
 
     add_jitter = False
     if (xrng == 0.0) or (yrng == 0.0):
@@ -342,11 +399,11 @@ def calc_2d_hist(x, y, num_bins):
 
     # range of x and y
 
-    qx = np.quantile(x, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')  # noqa
+    qx = np.quantile(x, [0.0, 0.25, 0.75, 1.0], interpolation="midpoint")  # noqa
     min_x, q1_x, q3_x, max_x = qx[:4]
     iqr_x = q3_x - q1_x
 
-    qy = np.quantile(y, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')  # noqa
+    qy = np.quantile(y, [0.0, 0.25, 0.75, 1.0], interpolation="midpoint")  # noqa
     min_y, q1_y, q3_y, max_y = qy[:4]
     iqr_y = q3_y - q1_y
 
@@ -357,8 +414,9 @@ def calc_2d_hist(x, y, num_bins):
 
     # 2D histogram. TypeError when values=None
     # https://stackoverflow.com/questions/60623899/why-is-binned-statistic-2d-now-throwing-typeerror
-    hist = binned_statistic_2d(x=x, y=y, values=x, statistic='count',
-                               bins=num_bins, range=[[xmin, xmax], [ymin, ymax]])  # noqa
+    hist = binned_statistic_2d(
+        x=x, y=y, values=x, statistic='count', bins=num_bins, range=[[xmin, xmax], [ymin, ymax]]
+    )  # noqa
     return hist
 
 
@@ -422,7 +480,7 @@ def get_outlier_flg(hist, kde_gridpoints, num_outliers, num_bins):
     # where +2 is for boundaries of each dimension
     # https://stackoverflow.com/questions/31708773/translate-scipy-stats-binned-statistic-2ds-binnumber-to-a-x-y-bin
     idx_cells_scipy = (np.arange(0, (num_cells + 2) ** 2)).reshape(num_cells + 2, num_cells + 2)
-    idx_cells_scipy = idx_cells_scipy[1:(num_cells + 1), 1:(num_cells + 1)].ravel()
+    idx_cells_scipy = idx_cells_scipy[1 : (num_cells + 1), 1 : (num_cells + 1)].ravel()
 
     # density of each cells (average of surrounding girdpoints)
     ave_filter = np.ones((2, 2)) / 4.0
@@ -437,7 +495,7 @@ def get_outlier_flg(hist, kde_gridpoints, num_outliers, num_bins):
         if csum > num_outliers:
             break
 
-    idx_outlier_cells = idx_cells_scipy[idx_cells[:(k + 1)]]
+    idx_outlier_cells = idx_cells_scipy[idx_cells[: (k + 1)]]
     flg_outlier = np.isin(hist.binnumber, idx_outlier_cells)
     return flg_outlier
 
@@ -448,7 +506,7 @@ def gen_scatter_n_contour_data(dic_param: dict, dic_data, use_contour):
     scatter_contours = {}
     array_formval = dic_param[ARRAY_FORMVAL]
     num_sensor = len(array_formval)
-    adjust = 0.7
+    adjust = MSP_CONTOUR_ADJUST
     combi_count = num_sensor * (num_sensor - 1) / 2
     show_contour_limit = round(NORMAL_MODE_MAX_RECORD / (pow(combi_count, adjust) or 1))
     for i in range(num_sensor - 1):
@@ -465,8 +523,9 @@ def gen_scatter_n_contour_data(dic_param: dict, dic_data, use_contour):
             col_id_k = array_formval_k.get(GET02_VALS_SELECT)
             array_y_k = dic_data[proc_id_k][col_id_k]
 
-            contour_data, scatter_data = \
-                gen_scatter_n_contour_data_pair(dic_param, array_y_i, array_y_k, use_contour, show_contour_limit)
+            contour_data, scatter_data = gen_scatter_n_contour_data_pair(
+                dic_param, array_y_i, array_y_k, use_contour, show_contour_limit
+            )
             scatter_contours['{}-{}'.format(r_idx, c_idx)] = {
                 'contour_data': contour_data,
                 'scatter_data': scatter_data,
@@ -479,8 +538,6 @@ def gen_scatter_n_contour_data(dic_param: dict, dic_data, use_contour):
     return scatter_contours, show_contour_limit
 
 
-@log_execution_time()
-@abort_process_handler()
 def partial_corr(data, corr_only=False):
     # transpose dataframe before compute correlation
     # correlation_mat = np.corrcoef(data.T)
@@ -497,7 +554,7 @@ def partial_corr(data, corr_only=False):
     for i, j in zip(rowidx, colidx):
         if i == j:
             continue
-        parcor = - precision_mat[i, j] / np.sqrt(precision_mat[i, i] * precision_mat[j, j])
+        parcor = -precision_mat[i, j] / np.sqrt(precision_mat[i, i] * precision_mat[j, j])
         parcor_mat[i, j] = parcor
         parcor_mat[j, i] = parcor
 
@@ -512,8 +569,11 @@ def get_org_plotdat(plotdat):
 
     data = plotdat[ARRAY_Y]
     # use origin data for integer column only
-    if COL_DETAIL and ORG_ARRAY_Y in plotdat and \
-            plotdat[COL_DETAIL][COL_TYPE] == DataTypeEncode.INTEGER.name:
+    if (
+        COL_DETAIL in plotdat
+        and ORG_ARRAY_Y in plotdat
+        and plotdat[COL_DETAIL][COL_TYPE] == DataTypeEncode.INTEGER.name
+    ):
         data = plotdat[ORG_ARRAY_Y]
 
     return data
@@ -530,38 +590,36 @@ def calc_partial_corr(dic_param):
     df = pd.DataFrame(plot_list)
     columns = df.columns.to_list()
 
-    corrs = {
-        CORR: {},  # correlation coefficient
-        PCORR: {},  # partial correlation
-        NTOTALS: {}
-    }
+    corrs = {CORR: {}, PCORR: {}, NTOTALS: {}}  # correlation coefficient  # partial correlation
+    dic_param[CORRS] = corrs
 
-    pairs = []
+    if df.empty:
+        return dic_param
+
+    scaler = StandardScaler()
     clean_df = df.replace(dict.fromkeys(ALL_SYMBOLS, np.nan)).dropna()
-    if clean_df.shape[0]:
-        scaler = StandardScaler()
+    p_corr_mat = None
+    if len(clean_df):
         data = scaler.fit_transform(clean_df)
         p_corr_mat, _ = partial_corr(data)
-        for k, col in enumerate(columns):
-            corrs[CORR][col] = {}
-            corrs[PCORR][col] = {}
-            corrs[NTOTALS][col] = {}
-            for i, row in enumerate(columns):
-                df_pair = df[[col, row]]
-                df_pair = df_pair.replace(dict.fromkeys(ALL_SYMBOLS, np.nan)).dropna()
-                pairs.append(df_pair)
-                corrs[PCORR][col][row] = signify_digit(p_corr_mat[k][i])
 
-    for pair in pairs:
-        if pair.shape[0]:
-            pair_columns = pair.columns.to_list()
-            scaler = StandardScaler()
-            data = scaler.fit_transform(pair)
+    for k, col in enumerate(columns):
+        corrs[CORR][col] = {}
+        corrs[PCORR][col] = {}
+        corrs[NTOTALS][col] = {}
+        for i, row in enumerate(columns):
+            df_pair = df[[col, row]]
+            df_pair = df_pair.replace(dict.fromkeys(ALL_SYMBOLS, np.nan)).dropna()
+            if df_pair.empty:
+                continue
+
+            data = scaler.fit_transform(df_pair)
             _, corr_mat = partial_corr(data, corr_only=True)
-            for k, col in enumerate(pair_columns):
-                for i, row in enumerate(pair_columns):
-                    corrs[CORR][col][row] = corr_mat[k][i]
-                    corrs[NTOTALS][col][row] = pair.shape[0]
+            corrs[CORR][col][row] = corr_mat[0][1]
+            corrs[PCORR][col][row] = (
+                signify_digit(p_corr_mat[k][i]) if p_corr_mat is not None else None
+            )
+            corrs[NTOTALS][col][row] = df_pair.shape[0]
 
     dic_param[CORRS] = corrs
     return dic_param
@@ -584,10 +642,16 @@ def gen_scale_info(dic_param):
     array_plotdata = dic_param.get(ARRAY_PLOTDATA, [])
     min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(array_plotdata)
     calc_scale_info(array_plotdata, min_max_list, all_graph_min, all_graph_max)
-    for plotdata in array_plotdata:
-        plotdata[SCALE_SETTING][KDE_DATA], plotdata[SCALE_COMMON][KDE_DATA], \
-            plotdata[SCALE_THRESHOLD][KDE_DATA], plotdata[SCALE_AUTO][KDE_DATA], \
-            plotdata[SCALE_FULL][KDE_DATA] = calculate_kde_trace_data(plotdata)
+
+    if len(array_plotdata) <= MSP_AS_HEATMAP_FROM:
+        for plotdata in array_plotdata:
+            (
+                plotdata[SCALE_SETTING][KDE_DATA],
+                plotdata[SCALE_COMMON][KDE_DATA],
+                plotdata[SCALE_THRESHOLD][KDE_DATA],
+                plotdata[SCALE_AUTO][KDE_DATA],
+                plotdata[SCALE_FULL][KDE_DATA],
+            ) = calculate_kde_trace_data(plotdata)
 
 
 def clear_unused_data(dic_param):
@@ -595,3 +659,33 @@ def clear_unused_data(dic_param):
         del plot_data[ARRAY_Y]
         del plot_data[ARRAY_X]
     return dic_param
+
+
+@log_execution_time()
+def gen_heatmap_data_from_msp(dic_param, dic_proc_cfgs):
+    dic_param[AS_HEATMAP_MATRIX] = False
+    if len(dic_param[ARRAY_PLOTDATA]) > MSP_AS_HEATMAP_FROM:
+        dic_param[AS_HEATMAP_MATRIX] = True
+        x, y, z = [], [], []
+        sensor_ids = [sensor[END_COL_ID] for sensor in dic_param[ARRAY_PLOTDATA]]
+        y_sensor_ids = reversed(sensor_ids)
+        for sensor_data in dic_param[ARRAY_PLOTDATA]:
+            x_label = '{} | {}'.format(
+                sensor_data[END_COL_SHOW_NAME], dic_proc_cfgs[sensor_data[END_PROC_ID]].name
+            )
+            x.append(x_label)
+
+            # remove unused data
+            sensor_data[ARRAY_X] = []
+            sensor_data[ARRAY_Y] = []
+
+        for id in y_sensor_ids:
+            # in case there is no data
+            if id not in dic_param[CORRS][CORR]:
+                continue
+
+            corr_data = dic_param[CORRS][CORR][id]
+            z_data = [corr_data[_id] if _id != id else None for _id in sensor_ids]
+            z.append(z_data)
+
+        dic_param[HEATMAP_MATRIX] = dict(x=x, y=x[::-1], z=z)

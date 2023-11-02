@@ -5,8 +5,16 @@ from flask import Markup
 
 
 def markdown_to_html(markdown_file_path):
-    extras = ['tables', 'header-ids', 'footnotes', 'code-color',
-              'link-pattern', 'markdown-in-html', 'numbering', 'wiki-tables']
+    extras = [
+        'tables',
+        'header-ids',
+        'footnotes',
+        'code-color',
+        'link-pattern',
+        'markdown-in-html',
+        'numbering',
+        'wiki-tables',
+    ]
 
     css, html = split_css_html(markdown_file_path)
     html = markdown2.markdown(html, extras=extras)

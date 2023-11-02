@@ -4,14 +4,18 @@ import pandas as pd
 from pandas import DataFrame, Series
 
 from ap.common.common_utils import gen_sql_label
-from ap.common.constants import FilterFunc, DataType
+from ap.common.constants import DataType, FilterFunc
 from ap.setting_module.models import CfgProcessColumn
 from ap.trace_data.schemas import ConditionProc
 
 
-def filter_procs(df: DataFrame, condition_procs: List[ConditionProc], condition_target_proc_id=None):
+def filter_procs(
+    df: DataFrame, condition_procs: List[ConditionProc], condition_target_proc_id=None
+):
     for condition_proc in condition_procs:
-        if condition_target_proc_id is None or condition_proc.proc_id == int(condition_target_proc_id):
+        if condition_target_proc_id is None or condition_proc.proc_id == int(
+            condition_target_proc_id
+        ):
             df = filter_proc(df, condition_proc)
 
     return df
@@ -77,8 +81,8 @@ def filter_proc(df: DataFrame, condition_proc: ConditionProc):
                 if len(df_res):
                     dfs.append(series[idxs])
 
-                series= series[~idxs]
-                series_str= series_str[~idxs]
+                series = series[~idxs]
+                series_str = series_str[~idxs]
         # union or condition
         if dfs:
             df_cols = pd.concat(dfs)

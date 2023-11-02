@@ -10,7 +10,10 @@ const dicTabs = {'#byVarCompare': 'var', '#byTermCompare': 'term', '#byCyclicTer
 let currentTraceDataVar;
 let currentTraceDataTerm;
 let currentTraceDataCyclicTerm;
-const scaleOptions = {};
+const stpScaleOption = {
+    xAxis: null,
+    yAxis: null,
+};
 const graphStore = new GraphStore();
 
 const eles = {
@@ -256,27 +259,21 @@ const onChangeHistSummaryEventHandler = (eleIdPrefix = '') => {
 };
 
 const onChangeHistScale = (prefix) => {
-    $(`select[name=${prefix}HistScale]`).unbind('change');
-    $(`select[name=${prefix}HistScale]`).on('change', function f() {
-        const scaleOption = $(this).children('option:selected').val() || '2';
-        const freOption = $(`select[name=${prefix}${eles.frequencyScale}]`).val();
-        rerenderHistogram(prefix, scaleOption, freOption);
-        checkSummaryOption(`${prefix}${eles.summaryOption}`);
+    $(`select[name=${prefix}${eles.histScale}]`).unbind('change');
+    $(`select[name=${prefix}${eles.histScale}]`).on('change', function f() {
+        setScaleOption(prefix);
+        rerenderHistogram(prefix);
     });
 
     $(`select[name=${prefix}${eles.frequencyScale}]`).unbind('change');
     $(`select[name=${prefix}${eles.frequencyScale}]`).on('change', (e) => {
-        const freOption = e.currentTarget.value;
-        const scaleOption = $(`select[name=${prefix}${eles.histScale}]`).val();
-        rerenderHistogram(prefix, scaleOption, freOption);
-        checkSummaryOption(`${prefix}${eles.summaryOption}`);
+        setScaleOption(prefix);
+        rerenderHistogram(prefix);
     });
 };
 
-const rerenderHistogram = (prefix, scaleOption, frequencyOption) => {
+const rerenderHistogram = (prefix) => {
     let data = null;
-    let sensorID = 0;
-    sensorID = $(`#${eles.categoryPlotCards}`).find($(eles.histActiveTab)).data('sensor-id');
     if (prefix === eles.varTabPrefix) {
         data = currentTraceDataVar;
     } else if (prefix === eles.cyclicTermTabPrefix) {
@@ -285,125 +282,15 @@ const rerenderHistogram = (prefix, scaleOption, frequencyOption) => {
         data = currentTraceDataTerm;
     }
 
-    scaleOptions[sensorID] = scaleOption;
-    showTabsAndCharts(prefix, data, scaleOption, false, null, frequencyOption);
-};
+    setScaleOption(prefix);
 
-const calculateSummaryData2 = (summaries, summaryIdx = 0) => {
-    const summary = summaries[summaryIdx || 0] || summaries[0];
-
-    // count statistics
-    const ntotal = getNode(summary, ['count', 'ntotal'], 0) || 0;
-    const countUnlinked = getNode(summary, ['count', 'count_unlinked'], 0) || 0;
-    const p = getNode(summary, ['count', 'p'], '0') || '0';
-    const pMinus = getNode(summary, ['count', 'p_minus'], '0') || '0';
-    const pPlus = getNode(summary, ['count', 'p_plus'], '0') || '0';
-    const pn = getNode(summary, ['count', 'pn'], '0') || '0';
-    const pnMinus = getNode(summary, ['count', 'pn_minus'], '0') || '0';
-    const pnPlus = getNode(summary, ['count', 'pn_plus'], '0') || '0';
-    const pnProc = getNode(summary, ['count', 'pn_proc'], '0') || '0';
-    const pnProcPlus = getNode(summary, ['count', 'pn_proc_plus'], '0') || '0';
-    const pnProcMinus = getNode(summary, ['count', 'pn_proc_minus'], '0') || '0';
-    const pProc = getNode(summary, ['count', 'p_proc'], '0') || '0';
-    const pProcPlus = getNode(summary, ['count', 'p_proc_plus'], '0') || '0';
-    const pProcMinus = getNode(summary, ['count', 'p_proc_minus'], '0') || '0';
-    const pNA = getNode(summary, ['count', 'p_na'], '0') || '0';
-    const pnNA = getNode(summary, ['count', 'pn_na'], '0') || '0';
-    const pNaN = getNode(summary, ['count', 'p_nan'], '0') || '0';
-    const pnNaN = getNode(summary, ['count', 'pn_nan'], '0') || '0';
-    const pInf = getNode(summary, ['count', 'p_inf'], '0') || '0';
-    const pnInf = getNode(summary, ['count', 'pn_inf'], '0') || '0';
-    const pNegInf = getNode(summary, ['count', 'p_neg_inf'], '0') || '0';
-    const pnNegInf = getNode(summary, ['count', 'pn_neg_inf'], '0') || '0';
-    const pTotal = getNode(summary, ['count', 'p_total'], '0') || '0';
-    const pnTotal = getNode(summary, ['count', 'pn_total'], '0') || '0';
-    const linkedPct = getNode(summary, ['count', 'linked_pct'], '0') || '0';
-    const noLinkedPct = getNode(summary, ['count', 'no_linked_pct'], '0') || '0';
-    // basic-statistics
-    const nStats = getNode(summary, ['basic_statistics', 'n_stats'], '-') || '-';
-    const cp = getNode(summary, ['basic_statistics', 'Cp'], '-') || '-';
-    const cpk = getNode(summary, ['basic_statistics', 'Cpk'], '-') || '-';
-    const maxValue = getNode(summary, ['basic_statistics', 'Max'], '0') || '0';
-    const maxValueOrg = getNode(summary, ['basic_statistics', 'max_org'], '0') || '0';
-    const minValue = getNode(summary, ['basic_statistics', 'Min'], '0') || '0';
-    const minValueOrg = getNode(summary, ['basic_statistics', 'min_org'], '0') || '0';
-    const bsAverage = getNode(summary, ['basic_statistics', 'average'], '0') || '0';
-    const sigma = getNode(summary, ['basic_statistics', 'sigma'], '0') || '0';
-    const sigma3 = getNode(summary, ['basic_statistics', 'sigma_3'], '0') || '0';
-    // non-parametric
-    const median = getNode(summary, ['non_parametric', 'median'], '0') || '0';
-    const p5 = getNode(summary, ['non_parametric', 'p5'], '0') || '0';
-    const p25Q1 = getNode(summary, ['non_parametric', 'p25'], '0') || '0';
-    const p25Q1Org = getNode(summary, ['non_parametric', 'p25_org'], '0') || '0';
-    const p75Q3 = getNode(summary, ['non_parametric', 'p75'], '0') || '0';
-    const p75Q3Org = getNode(summary, ['non_parametric', 'p75_org'], '0') || '0';
-    const p95 = getNode(summary, ['non_parametric', 'p95'], '0') || '0';
-    const numOverLower = getNode(summary, ['non_parametric', 'num_over_lower'], '0') || '0';
-    const numOverUpper = getNode(summary, ['non_parametric', 'num_over_upper'], '0') || '0';
-    const iqr = getNode(summary, ['non_parametric', 'iqr'], '-') || '-';
-    const niqr = getNode(summary, ['non_parametric', 'niqr'], '-') || '-';
-    const mode = getNode(summary, ['non_parametric', 'mode'], '0') || '0';
-
-    return {
-        // count
-        ntotal,
-        countUnlinked,
-        p,
-        pMinus,
-        pPlus,
-        pn,
-        pnPlus,
-        pnMinus,
-        pnProc,
-        pnProcPlus,
-        pnProcMinus,
-        pProc,
-        pProcPlus,
-        pProcMinus,
-        pNA,
-        pnNA,
-        pNaN,
-        pnNaN,
-        pInf,
-        pnInf,
-        pNegInf,
-        pnNegInf,
-        pTotal,
-        pnTotal,
-        linkedPct,
-        noLinkedPct,
-        // basic-statistics
-        nStats,
-        cp,
-        cpk,
-        maxValue,
-        maxValueOrg,
-        minValue,
-        minValueOrg,
-        bsAverage,
-        sigma,
-        sigma3,
-        // non-parametric
-        p95,
-        p75Q3,
-        p75Q3Org,
-        median,
-        p25Q1,
-        p25Q1Org,
-        p5,
-        numOverLower,
-        numOverUpper,
-        iqr,
-        niqr,
-        mode,
-    };
+    showTabsAndCharts(prefix, data, false, null);
 };
 
 const showTabsAndCharts = (
     eleIdPrefix, data,
-    scaleOption = scaleOptionConst.COMMON,
-    genTab = true, onlySensorId = null,
-    frequencyOption = frequencyOptions.COMMON,
+    genTab = true,
+    onlySensorId = null,
 ) => {
     let sensors = [];
     data.ARRAY_FORMVAL.forEach(arrayFormval => {
@@ -414,6 +301,9 @@ const showTabsAndCharts = (
     }
 
     const numSensors = sensors.length;
+
+    const scaleOption = stpScaleOption.yAxis;
+    const frequencyOption = stpScaleOption.xAxis;
 
     // prepare tabs HTML
     if (genTab) {
@@ -540,8 +430,10 @@ const showTabsAndCharts = (
         loadingUpdate(loadingProgressBackend + sensorIdx * ((100 - loadingProgressBackend) / (numSensors || 1)));
     }
 
+     checkSummaryOption(`${eleIdPrefix}${eles.summaryOption}`);
+
     // Init filter modal
-    fillDataToFilterModal(data.catExpBox, [], data.cat_on_demand, [], [], () => {
+    fillDataToFilterModal(data.filter_on_demand, () => {
         showGraph(false);
     });
 };
@@ -569,18 +461,6 @@ const resetSetting = (eleIdPrefix) => {
     $(`select[name=${eleIdPrefix}${eles.frequencyScale}]`).val(frequencyOptions.COMMON);
 
     $(`select[name=${eleIdPrefix}HistScale]`).val(scaleOptionConst.COMMON);
-};
-
-const bindToChangeSensorItem = () => {
-    $('#tabs .nav-link.tab-name').on('click', (e) => {
-        let selectedOption;
-        const sensorID = $(e.currentTarget).data('sensor-id');
-        if (scaleOptions[sensorID]) {
-            selectedOption = scaleOptions[sensorID];
-        } else {
-            selectedOption = formElements.SCALE_DEFAULT_OPTION; // 1 is default option
-        }
-    });
 };
 
 const showMessageIfFacetNotSelected = (res) => {
@@ -624,8 +504,11 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
     // close sidebar
     beforeShowGraphCommon(clearOnFlyFilter);
 
-    // reset sumary option
-    resetSetting(eleIdPrefix);
+    if (clearOnFlyFilter) {
+        // reset sumary option
+        resetSetting(eleIdPrefix);
+    };
+
     const formData = collectFormDataFromGUI(clearOnFlyFilter, autoUpdate);
     showGraphCallApi('/ap/api/stp/index', formData, REQUEST_TIMEOUT, async (res) => {
         // set summary bar for prefix
@@ -633,7 +516,6 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
 
         // show result section
         $('#categoricalPlotArea').show();
-        resetSetting(eleIdPrefix);
 
         if (!_.isEmpty(res.array_plotdata)) {
             graphStore.setTraceData(_.cloneDeep(res));
@@ -646,24 +528,17 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
                 currentTraceDataCyclicTerm = res;
             }
         }
+
+        setScaleOption(eleIdPrefix);
     
         // show graphs
         // if (eleIdPrefix === eles.varTabPrefix || eleIdPrefix === eles.cyclicTermTabPrefix) {
-        showTabsAndCharts(eleIdPrefix, res, scaleOptionConst.COMMON);
+        showTabsAndCharts(eleIdPrefix, res);
     
         // show info table
         showInfoTable(res);
     
         loadGraphSetings(clearOnFlyFilter);
-    
-        const {catExpBox, cat_on_demand} = res;
-        if (clearOnFlyFilter) {
-            clearGlobalDict();
-            initGlobalDict(catExpBox);
-            initGlobalDict(cat_on_demand);
-            initDicChecked(getDicChecked());
-            initUniquePairList(res.dic_filter);
-        }
     
         // Move screen to graph after pushing グラフ表示 button
         if (!autoUpdate) {
@@ -682,8 +557,6 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
             showToastrMsg(i18nCommon.limitDisplayedGraphsInOneTab.replace('NUMBER', MAX_NUMBER_OF_GRAPH));
         }
 
-        bindToChangeSensorItem();
-
         // show scatter plot tab
         const imgFile = res.images;
         if (imgFile) {
@@ -694,4 +567,9 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
         // drag & drop for tables
         $('.ui-sortable').sortable();
     });
+};
+
+const setScaleOption = (prefix) => {
+    stpScaleOption.yAxis = $(`select[name=${prefix}${eles.histScale}]`).val();
+    stpScaleOption.xAxis = $(`select[name=${prefix}${eles.frequencyScale}]`).val();
 };

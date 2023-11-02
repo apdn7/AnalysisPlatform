@@ -1,7 +1,7 @@
 <div class="card graph-navi" id="data_link">
     <div class="card-body">
         <form id="trace-config-form" class="position-relative">
-            <div class="form-header d-flex justify-content-between align-items-center">
+             <div class="form-header d-flex justify-content-between align-items-center">
                 <div class="mr-4">
                     <h3 class="header-left hint-text"
                     title="{{ _('Right drag & drop: data link setting') }}">{{ _("Data Link Config") }}</h3>
@@ -110,16 +110,47 @@
 				</div>
 			</div>
 			<br/>
+            <div class="trace-network-content">
+                <div class="trace-network-menu active">
+                    <div class="sidebar-header">
+                        <button type="button" id="traceCollapse" onclick="handleOpenTraceConfigMenu(this)" class="btn navbar-btn">
+                            <i class="fas fa-bars "></i>
+                        </button>
+                    </div>
+                    <div id="traceListContainer" class="trace-menu-content">
+                        <div class="d-flex">
+                            <input class="form-control" id="searchTraceList" placeholder="{{_('Search')}}">
+                            <button type="button" id="setBtnSearch-searchTraceList" class="btn simple-btn btn-setting">Set</button>
+                            <button type="button" id="resetBtnSearch-searchTraceList" class="btn simple-btn btn-setting">Reset</button>
+                        </div>
+                        <!--            Dropdown check box list            -->
+                        <ul class="tree" id="tree-checkbox-list">
+                        </ul>
+                        <div class="d-flex align-items-center justify-content-end mt-2 mb-2 pr-2">
+                              <button id="btnAutoLinkV2Process" onclick="handleAutoLinkV2Process()" class="btn btn-primary btn-sm mr-2" type="button"
+                                title="{{ _('Auto link') }}">
+                                    {{ _("Auto link") }}
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-sm mr-2" onclick="handleResetCheckedEdge()">Reset</button>
+                                <button type="button" class="btn btn-success btn-sm" onclick="handleAddCheckedEdge()">Add Edge</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="trace-network-wrapper">
+                    <div class="trace-layout-wrapper">
+                        <select id="traceNetworkLayout" class="form-control" name="traceNetworkLayout">
+                        <option value="Star">Normal</option>
+                        <option value="UD">Up-Down</option>
+                        <option value="DU">Down-Up</option>
+                        <option value="LR">Left-Right</option>
+                        <option value="RL">Right-Left</option>
+                        </select>
+                        <button type="button" id="resetLayout"><i class="fas fa-redo-alt"></i></button>
+                    </div>
+                    <div id="trace-network"></div>
+                </div>
+            </div>
 
-			<div id="trace-network"></div>
-			<select id="traceNetworkLayout" class="form-control" name="traceNetworkLayout">
-				<option value="Star">Normal</option>
-				<option value="UD">Up-Down</option>
-				<option value="DU">Down-Up</option>
-				<option value="LR">Left-Right</option>
-				<option value="RL">Right-Left</option>
-			</select>
-			<button type="button" id="resetLayout"><i class="fas fa-redo-alt"></i></button>
 		</form>
 
 

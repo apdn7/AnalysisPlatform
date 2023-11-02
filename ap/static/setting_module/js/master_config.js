@@ -24,7 +24,6 @@ const procKeys = {
 };
 const filterElements = {
     processList: $('#processList'),
-    btnShowAllSettings: $('#btnShowAllSettings'),
     detailCards: $('#detailCards'),
     loading: $('.loading'),
     tblConfigBody: $('#tblVisualConfig tbody'),
@@ -89,7 +88,7 @@ const showProcessSettings = async (procId) => {
 $(() => {
     $('html, body').animate({ scrollTop: 0 }, 'slow');
 
-    filterElements.btnShowAllSettings.click(() => {
+    filterElements.processList.on('change', (e) => {
         hideAlertMessages();
         // hide loading screen
         filterElements.loading.show();
@@ -99,9 +98,10 @@ $(() => {
         if ($('.table-main').hasClass('hide')) {
             $('.sp-container').toggleClass('hide');
             $('.table-main').removeClass('hide');
+            $(visualModule.eles.addVisualConfig).removeClass('hide');
         }
         // update process id
-        const currentProcessId = filterElements.processList.val() || '';
+        const currentProcessId = $(e.currentTarget).val() || '';
 
         // get process configuration from YML
         if (!isEmpty(currentProcessId)) {
@@ -127,7 +127,18 @@ $(() => {
     resizableGrid(configTable);
 
     onSearchTableContent('searchMasterConfig', filterElements.tblVisualConfig);
-    sortableTable(filterElements.tblVisualConfig, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    initSortIcon();
+    handleSearchFilterInTable(filterElements.tblVisualConfig);
     // show load settings menu
     handleLoadSettingBtns();
+
+    setDefaultGraphConfig();
 });
+
+
+const setDefaultGraphConfig = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const procId = urlParams.get('proc_id');
+    if (!procId) return;
+    filterElements.processList.val(procId).trigger('change');
+};

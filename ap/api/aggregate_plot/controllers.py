@@ -2,32 +2,38 @@ import timeit
 from copy import deepcopy
 
 import pytz
-import simplejson
 from dateutil import tz
 from flask import Blueprint, request
 
 from ap.api.aggregate_plot.services import gen_agp_data
 from ap.api.categorical_plot.services import customize_dict_param
 from ap.api.trace_data.services.csv_export import to_csv
-from ap.common.constants import COMMON, ARRAY_FORMVAL, END_PROC, CLIENT_TIMEZONE
-from ap.common.services import http_content
+from ap.common.constants import ARRAY_FORMVAL, CLIENT_TIMEZONE, COMMON, END_PROC
 from ap.common.services.csv_content import zip_file_to_response
-from ap.common.services.form_env import parse_multi_filter_into_one, get_end_procs_param, \
-    update_data_from_multiple_dic_params, parse_request_params
-from ap.common.services.import_export_config_n_data import get_dic_form_from_debug_info, \
-    set_export_dataset_id_to_dic_param
-from ap.common.trace_data_log import save_input_data_to_file, EventType, save_draw_graph_trace, trace_log_params
-
-api_agp_blueprint = Blueprint(
-    'api_agp',
-    __name__,
-    url_prefix='/ap/api/agp'
+from ap.common.services.form_env import (
+    get_end_procs_param,
+    parse_multi_filter_into_one,
+    parse_request_params,
+    update_data_from_multiple_dic_params,
 )
+from ap.common.services.http_content import orjson_dumps
+from ap.common.services.import_export_config_n_data import (
+    get_dic_form_from_debug_info,
+    set_export_dataset_id_to_dic_param,
+)
+from ap.common.trace_data_log import (
+    EventType,
+    save_draw_graph_trace,
+    save_input_data_to_file,
+    trace_log_params,
+)
+
+api_agp_blueprint = Blueprint('api_agp', __name__, url_prefix='/ap/api/agp')
 
 
 @api_agp_blueprint.route('/plot', methods=['POST'])
 def generate_agp():
-    """ [summary]
+    """[summary]
     Returns:
         [type] -- [description]
     """
@@ -57,7 +63,7 @@ def generate_agp():
 
     org_dic_param['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.CHM))
 
-    return simplejson.dumps(org_dic_param, ensure_ascii=False, default=http_content.json_serial, ignore_nan=True)
+    return orjson_dumps(org_dic_param)
 
 
 @api_agp_blueprint.route('/data_export/<export_type>', methods=['GET'])
@@ -88,9 +94,10 @@ def data_export(export_type):
 
         client_timezone = agp_dat[COMMON].get(CLIENT_TIMEZONE)
         client_timezone = pytz.timezone(client_timezone) if client_timezone else tz.tzlocal()
-        csv_df = to_csv(agp_df, dic_proc_cfgs, graph_param, client_timezone=client_timezone, delimiter=delimiter)
+        csv_df = to_csv(
+            agp_df, dic_proc_cfgs, graph_param, client_timezone=client_timezone, delimiter=delimiter
+        )
         agp_dataset.append(csv_df)
 
-    response = zip_file_to_response(agp_dataset, csv_list_name)
-    response.charset = "utf-8-sig"
+    response = zip_file_to_response(agp_dataset, csv_list_name, export_type)
     return response

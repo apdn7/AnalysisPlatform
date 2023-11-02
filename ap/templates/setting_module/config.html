@@ -12,10 +12,10 @@
         const pcaDataDir = "{{ pca_data_dir|safe }}";
         const importErrDir = "{{ import_err_dir|safe }}";
 
-        gtag('config', 'UA-156244372-2', {
+        gtag('config', GA_TRACKING_ID, {
             'page_title': '{{ _("Config") }}',
         });
-        gtag('config', 'G-9DJ9TV72B5', {
+        gtag('config', UA_TRACKING_ID, {
             'page_title': '{{ _("Config") }}',
         });
     </script>
@@ -94,6 +94,7 @@
     <script src="{{ url_for('static', filename = 'modules/vis/vis-network.min.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/predict_data_type.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/trace_config.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/auto_link.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/db_config.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/proc_config.js') }}"></script>
 

@@ -51,6 +51,7 @@ let _recentChosenDates;
 
 let currentDateTimePicker = null;
 let currentCalender = null;
+const ENTER_KEY = 'Enter';
 
 
 /* <h2>Load i18n, get all words by current language</h2><br>
@@ -446,6 +447,7 @@ const updateCalendarUI = (element, isShowTimePicker) => {
     try {
         calendar.setStartDate = overrideSetStartDate;
         calendar.setEndDate = overrideSetEndDate;
+        calendar.renderTimePicker = overrideRenderTimePickerFunction;
         calendar.elementChanged(that);
         calendar.monthOrYearChanged(that);
         if (isShowTimePicker) calendar.timeChanged(that);
@@ -560,7 +562,12 @@ const initializeDateTimeRangePicker = (dtId = null, isClassName = false) => {
             initShowData(element);
 
             // add event for input control
-            $(element).keyup(delay(updateDateTimeRangeValue, KEYUP_EVENT_DELAY));
+            $(element).keyup((event) => {
+                delay(updateDateTimeRangeValue, KEYUP_EVENT_DELAY)
+                if (event.key == ENTER_KEY) {
+                    $(event.target).blur();
+                }
+            });
             $(element).change((element) => {
                 updateDateTimeRangeValue(element);
             });
@@ -722,11 +729,6 @@ const initShowData = (element) => {
         if (currentCalender) {
             thisCalendar =  $(currentDateTimePicker.currentTarget).data('daterangepicker');
             thisCalendar.callApi = true;
-
-
-            thisCalendar.setStartDate = overrideSetStartDate;
-            thisCalendar.setEndDate = overrideSetEndDate;
-
 
             thisCalendar.container.find('.drp-calendar').on('mousedown.daterangepicker', 'td.available', function (e) {
                 thisCalendar.callApi = false;
@@ -969,3 +971,169 @@ function overrideSetEndDate(endDate) {
 
     this.updateMonthsInView();
 }
+
+const roundMinuteByTimeIncrement = (minute) => {
+    const padding = (minute % TIME_PICKER_INCREMENTS) > 0 ? TIME_PICKER_INCREMENTS : 0;
+    const roundVal = (Math.floor(minute / TIME_PICKER_INCREMENTS) * TIME_PICKER_INCREMENTS) + padding;
+    return roundVal >= 60 ? 60 - TIME_PICKER_INCREMENTS : roundVal;
+};
+
+function overrideRenderTimePickerFunction(side) {
+    // Don't bother updating the time picker if it's currently disabled
+    // because an end date hasn't been clicked yet
+    if (side == 'right' && !this.endDate) return;
+
+    var html, selected, minDate, maxDate = this.maxDate;
+
+    if (this.maxSpan && (!this.maxDate || this.startDate.clone().add(this.maxSpan).isBefore(this.maxDate)))
+        maxDate = this.startDate.clone().add(this.maxSpan);
+
+    if (side == 'left') {
+        selected = this.startDate.clone();
+        minDate = this.minDate;
+    } else if (side == 'right') {
+        selected = this.endDate.clone();
+        minDate = this.startDate;
+
+        //Preserve the time already selected
+        var timeSelector = this.container.find('.drp-calendar.right .calendar-time');
+        if (timeSelector.html() != '') {
+
+            selected.hour(!isNaN(selected.hour()) ? selected.hour() : timeSelector.find('.hourselect option:selected').val());
+            selected.minute(!isNaN(selected.minute()) ? selected.minute() : timeSelector.find('.minuteselect option:selected').val());
+            selected.second(!isNaN(selected.second()) ? selected.second() : timeSelector.find('.secondselect option:selected').val());
+
+            if (!this.timePicker24Hour) {
+                var ampm = timeSelector.find('.ampmselect option:selected').val();
+                if (ampm === 'PM' && selected.hour() < 12)
+                    selected.hour(selected.hour() + 12);
+                if (ampm === 'AM' && selected.hour() === 12)
+                    selected.hour(0);
+            }
+
+        }
+
+        if (selected.isBefore(this.startDate))
+            selected = this.startDate.clone();
+
+        if (maxDate && selected.isAfter(maxDate))
+            selected = maxDate.clone();
+
+    }
+
+    //
+    // hours
+    //
+
+    html = '<select class="hourselect">';
+
+    var start = this.timePicker24Hour ? 0 : 1;
+    var end = this.timePicker24Hour ? 23 : 12;
+
+    for (var i = start; i <= end; i++) {
+        var i_in_24 = i;
+        if (!this.timePicker24Hour)
+            i_in_24 = selected.hour() >= 12 ? (i == 12 ? 12 : i + 12) : (i == 12 ? 0 : i);
+
+        var time = selected.clone().hour(i_in_24);
+        var disabled = false;
+        if (minDate && time.minute(59).isBefore(minDate))
+            disabled = true;
+        if (maxDate && time.minute(0).isAfter(maxDate))
+            disabled = true;
+
+        if (i_in_24 == selected.hour() && !disabled) {
+            html += '<option value="' + i + '" selected="selected">' + i + '</option>';
+        } else if (disabled) {
+            html += '<option value="' + i + '" disabled="disabled" class="disabled">' + i + '</option>';
+        } else {
+            html += '<option value="' + i + '">' + i + '</option>';
+        }
+    }
+
+    html += '</select> ';
+
+    //
+    // minutes
+    //
+
+    html += ': <select class="minuteselect">';
+
+    for (var i = 0; i < 60; i += this.timePickerIncrement) {
+        var padded = i < 10 ? '0' + i : i;
+        var time = selected.clone().minute(i);
+        var minute = roundMinuteByTimeIncrement(selected.minute());
+
+        var disabled = false;
+        if (minDate && time.second(59).isBefore(minDate))
+            disabled = true;
+        if (maxDate && time.second(0).isAfter(maxDate))
+            disabled = true;
+
+        if (minute == i && !disabled) {
+            html += '<option value="' + i + '" selected="selected">' + padded + '</option>';
+        } else if (disabled) {
+            html += '<option value="' + i + '" disabled="disabled" class="disabled">' + padded + '</option>';
+        } else {
+            html += '<option value="' + i + '">' + padded + '</option>';
+        }
+    }
+
+    html += '</select> ';
+
+    //
+    // seconds
+    //
+
+    if (this.timePickerSeconds) {
+        html += ': <select class="secondselect">';
+
+        for (var i = 0; i < 60; i++) {
+            var padded = i < 10 ? '0' + i : i;
+            var time = selected.clone().second(i);
+
+            var disabled = false;
+            if (minDate && time.isBefore(minDate))
+                disabled = true;
+            if (maxDate && time.isAfter(maxDate))
+                disabled = true;
+
+            if (selected.second() == i && !disabled) {
+                html += '<option value="' + i + '" selected="selected">' + padded + '</option>';
+            } else if (disabled) {
+                html += '<option value="' + i + '" disabled="disabled" class="disabled">' + padded + '</option>';
+            } else {
+                html += '<option value="' + i + '">' + padded + '</option>';
+            }
+        }
+
+        html += '</select> ';
+    }
+
+    //
+    // AM/PM
+    //
+
+    if (!this.timePicker24Hour) {
+        html += '<select class="ampmselect">';
+
+        var am_html = '';
+        var pm_html = '';
+
+        if (minDate && selected.clone().hour(12).minute(0).second(0).isBefore(minDate))
+            am_html = ' disabled="disabled" class="disabled"';
+
+        if (maxDate && selected.clone().hour(0).minute(0).second(0).isAfter(maxDate))
+            pm_html = ' disabled="disabled" class="disabled"';
+
+        if (selected.hour() >= 12) {
+            html += '<option value="AM"' + am_html + '>AM</option><option value="PM" selected="selected"' + pm_html + '>PM</option>';
+        } else {
+            html += '<option value="AM" selected="selected"' + am_html + '>AM</option><option value="PM"' + pm_html + '>PM</option>';
+        }
+
+        html += '</select>';
+    }
+
+    this.container.find('.drp-calendar.' + side + ' .calendar-time').html(html);
+};

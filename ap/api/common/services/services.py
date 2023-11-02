@@ -2,11 +2,18 @@ import numpy as np
 import pandas as pd
 
 from ap.common.common_utils import gen_sql_label
-from ap.common.constants import END_COL_NAME, END_PROC_ID, DataType
-from ap.setting_module.models import DataTraceLog, make_session, insert_or_update_config, CfgProcessColumn
+from ap.common.constants import *
+from ap.common.logger import log_execution_time
 from ap.common.trace_data_log import EventAction
+from ap.setting_module.models import (
+    CfgProcessColumn,
+    DataTraceLog,
+    insert_or_update_config,
+    make_session,
+)
 
 
+@log_execution_time()
 def update_draw_data_trace_log(dataset_id, exe_time):
     trace_logs = DataTraceLog.get_dataset_id(dataset_id, EventAction.DRAW.value)
     for trace_log in trace_logs:
@@ -19,6 +26,7 @@ def update_draw_data_trace_log(dataset_id, exe_time):
     return True
 
 
+@log_execution_time()
 def convert_datetime_to_ct(df, graph_param, target_vars=[]):
     """
     Convert sensor that is datetime type to cycle time
@@ -38,8 +46,12 @@ def convert_datetime_to_ct(df, graph_param, target_vars=[]):
         # find proc_id from col info
         general_col_info = graph_param.get_col_info_by_id(target_var)
         # list out all CT column from this process
-        dic_datetime_cols = {cfg_col.id: cfg_col for cfg_col in
-                             CfgProcessColumn.get_by_data_type(general_col_info[END_PROC_ID], DataType.DATETIME)}
+        dic_datetime_cols = {
+            cfg_col.id: cfg_col
+            for cfg_col in CfgProcessColumn.get_by_data_type(
+                general_col_info[END_PROC_ID], DataType.DATETIME
+            )
+        }
         sql_label = gen_sql_label(target_var, general_col_info[END_COL_NAME])
         if target_var in dic_datetime_cols and df.size:
             series = pd.to_datetime(df[sql_label])
@@ -55,3 +67,19 @@ def convert_datetime_to_ct(df, graph_param, target_vars=[]):
 
             df[sql_label] = series.convert_dtypes()
 
+
+@log_execution_time()
+def get_filter_on_demand_data(dic_param, remove_filter_data=False):
+    dic_param[FILTER_ON_DEMAND] = {
+        'facet': dic_param.get(CAT_EXP_BOX, []),
+        'system': dic_param.get(CAT_ON_DEMAND, []),
+        'color': dic_param.get(UNIQUE_COLOR, []),
+        'div': dic_param.get(UNIQUE_DIV, []),
+        'category': dic_param.get(CATEGORY_DATA, []),
+        'filter': [] if remove_filter_data else dic_param.get(FILTER_DATA, []),
+    }
+    filter_key = [CAT_EXP_BOX, CATEGORY_DATA, FILTER_DATA, UNIQUE_COLOR, UNIQUE_DIV, CAT_ON_DEMAND]
+    for key in filter_key:
+        if key in dic_param:
+            dic_param.pop(key)
+    return dic_param

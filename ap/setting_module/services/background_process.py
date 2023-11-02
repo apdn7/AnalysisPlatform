@@ -9,12 +9,12 @@ from sqlalchemy import desc
 from ap.common.common_utils import DATE_FORMAT_STR, DATE_FORMAT_STR_FACTORY_DB, convert_time
 from ap.common.constants import *
 from ap.common.disk_usage import get_disk_capacity_once
-from ap.common.logger import logger, log_execution_time
+from ap.common.logger import log_execution_time, logger
 from ap.common.scheduler import JobType, dic_running_job
-from ap.common.services.sse import background_announcer, AnnounceEvent
+from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.common.timezone_utils import choose_utc_convert_func
 from ap.setting_module.models import *
-from ap.setting_module.models import JobManagement, CsvImport, FactoryImport
+from ap.setting_module.models import CsvImport, FactoryImport, JobManagement
 
 JOB_ID = 'job_id'
 JOB_NAME = 'job_name'
@@ -35,20 +35,31 @@ previous_disk_status = DiskUsageStatus.Normal
 
 
 @log_execution_time()
-def get_background_jobs_service():
+def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignore_job_types=None):
     """
     Get background jobs from JobManagement table
     """
 
     dic_running_job_keys = set(dic_running_job.keys())
-    days_ago = dt.datetime.utcnow() - dt.timedelta(days=1)
-    jobs_from_db = JobManagement.query.filter(JobManagement.start_tm > days_ago.strftime(DATE_FORMAT_STR)).order_by(
-        desc(JobManagement.id)).all()
+    jobs = JobManagement.query
+    if ignore_job_types:
+        jobs = jobs.filter(JobManagement.job_type.notin_(ignore_job_types))
 
-    jobs = {}
-    for job in jobs_from_db:
+    if sort_by != '':
+        sort_by_col = JobManagement.job_sorts(order)
+        jobs = jobs.order_by(sort_by_col[sort_by])
+    else:
+        jobs = jobs.order_by(JobManagement.id.desc())
+
+    jobs = jobs.paginate(page, per_page, error_out=False)
+    rows = []
+    for job in jobs.items:
         # check and force dangling jobs to be FAILED
-        if job.job_type in (JobType.CSV_IMPORT.name, JobType.FACTORY_IMPORT.name, JobType.FACTORY_PAST_IMPORT.name):
+        if job.job_type in (
+            JobType.CSV_IMPORT.name,
+            JobType.FACTORY_IMPORT.name,
+            JobType.FACTORY_PAST_IMPORT.name,
+        ):
             job_running_id = {f'{job.job_type}_{job.process_id}'}
         elif job.job_type == JobType.GEN_GLOBAL.name:
             job_running_id = {f'_{job.job_type}', f'{job.job_type}'}
@@ -61,12 +72,9 @@ def get_background_jobs_service():
             job.error_msg = FORCED_TO_BE_FAILED
 
         # get job information and send to UI
-        if job.job_type:
-            job_name = _(job.job_type)
-        else:
-            job_name = job.id
+        job_name = _(job.job_type) if job.job_type else job.id
 
-        jobs[job.id] = {
+        row = {
             JOB_ID: job.id,
             JOB_NAME: job_name,
             JOB_TYPE: job.job_type or '',
@@ -78,15 +86,24 @@ def get_background_jobs_service():
             DURATION: round(job.duration, 2),
             STATUS: str(job.status),
             PROCESS_MASTER_NAME: job.process_name or '',
-            DETAIL: ''
+            DETAIL: '',
         }
+        rows.append(row)
 
-    return jobs
+    # TODO get more info from jobs ( next_page, prev_page, total_pages...)
+    return rows, jobs
 
 
-def send_processing_info(generator_func, job_type: JobType, db_code=None, process_id=None, process_name=None,
-                         after_success_func=None, is_check_disk=True):
-    """ send percent, status to client
+def send_processing_info(
+    generator_func,
+    job_type: JobType,
+    db_code=None,
+    process_id=None,
+    process_name=None,
+    after_success_func=None,
+    is_check_disk=True,
+):
+    """send percent, status to client
 
     Arguments:
         job_type {JobType} -- [description]
@@ -119,22 +136,24 @@ def send_processing_info(generator_func, job_type: JobType, db_code=None, proces
         meta_session.commit()
 
         # processing info
-        dic_res = {job.id: {
-            JOB_ID: job.id,
-            JOB_NAME: job.job_type or job.id or '',
-            JOB_TYPE: job.job_type,
-            DB_CODE: job.db_code or '',
-            PROC_CODE: process_name or '',
-            PROC_ID: job.process_id or process_id or '',
-            DB_MASTER_NAME: job.db_name or '',
-            DONE_PERCENT: job.done_percent,
-            START_TM: job.start_tm,
-            END_TM: job.end_tm,
-            DURATION: round(job.duration, 2),
-            STATUS: str(job.status),
-            PROCESS_MASTER_NAME: job.process_name or '',
-            DETAIL: ''
-        }}
+        dic_res = {
+            job.id: {
+                JOB_ID: job.id,
+                JOB_NAME: job.job_type or job.id or '',
+                JOB_TYPE: job.job_type,
+                DB_CODE: job.db_code or '',
+                PROC_CODE: process_name or '',
+                PROC_ID: job.process_id or process_id or '',
+                DB_MASTER_NAME: job.db_name or '',
+                DONE_PERCENT: job.done_percent,
+                START_TM: job.start_tm,
+                END_TM: job.end_tm,
+                DURATION: round(job.duration, 2),
+                STATUS: str(job.status),
+                PROCESS_MASTER_NAME: job.process_name or '',
+                DETAIL: '',
+            }
+        }
 
         # time variable ( use for set start time in csv import)
         anchor_tm = get_current_timestamp()
@@ -147,8 +166,9 @@ def send_processing_info(generator_func, job_type: JobType, db_code=None, proces
 
                     if disk_capacity:
                         if previous_disk_status != disk_capacity.disk_status:
-                            background_announcer.announce(disk_capacity.to_dict(),
-                                                                   AnnounceEvent.DISK_USAGE.name)
+                            background_announcer.announce(
+                                disk_capacity.to_dict(), AnnounceEvent.DISK_USAGE.name
+                            )
                             previous_disk_status = disk_capacity.disk_status
 
                         if disk_capacity.disk_status == DiskUsageStatus.Full:
@@ -175,7 +195,9 @@ def send_processing_info(generator_func, job_type: JobType, db_code=None, proces
 
                         # empty files
                         if job_info.empty_files:
-                            background_announcer.announce(job_info.empty_files, AnnounceEvent.EMPTY_FILE.name)
+                            background_announcer.announce(
+                                job_info.empty_files, AnnounceEvent.EMPTY_FILE.name
+                            )
 
                     elif job_type in (JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT):
                         detail_rec = insert_factory_import_info(job, anchor_tm, job_info)
@@ -199,7 +221,10 @@ def send_processing_info(generator_func, job_type: JobType, db_code=None, proces
                 if prev_job_info and prev_job_info.has_record:
                     # call gen global id job
                     if after_success_func:
-                        proc_link_publish_flg = job_type in (JobType.FACTORY_IMPORT, JobType.CSV_IMPORT)
+                        proc_link_publish_flg = job_type in (
+                            JobType.FACTORY_IMPORT,
+                            JobType.CSV_IMPORT,
+                        )
                         after_success_func(proc_link_publish_flg)
 
                 # stop while loop
@@ -213,7 +238,11 @@ def send_processing_info(generator_func, job_type: JobType, db_code=None, proces
                 break
             finally:
                 # notify if data type error greater than 100
-                if notify_data_type_error_flg and prev_job_info and prev_job_info.data_type_error_cnt > 100:
+                if (
+                    notify_data_type_error_flg
+                    and prev_job_info
+                    and prev_job_info.data_type_error_cnt > 100
+                ):
                     background_announcer.announce(job.db_name, AnnounceEvent.DATA_TYPE_ERR.name)
                     dic_res[job.id][DATA_TYPE_ERR] = True
                     notify_data_type_error_flg = False
@@ -221,7 +250,9 @@ def send_processing_info(generator_func, job_type: JobType, db_code=None, proces
                 # emit info
                 dic_res[job.id][DONE_PERCENT] = job.done_percent
                 dic_res[job.id][END_TM] = job.end_tm
-                dic_res[job.id][DURATION] = round((dt.datetime.utcnow() - start_tm).total_seconds(), 2)
+                dic_res[job.id][DURATION] = round(
+                    (dt.datetime.utcnow() - start_tm).total_seconds(), 2
+                )
                 background_announcer.announce(dic_res, AnnounceEvent.JOB_RUN.name)
 
         dic_res[job.id][STATUS] = str(job.status)
@@ -229,15 +260,21 @@ def send_processing_info(generator_func, job_type: JobType, db_code=None, proces
 
 
 def update_job_management(job, err=None):
-    """ update job status
+    """update job status
 
     Arguments:
         job {[type]} -- [description]
         done_percent {[type]} -- [description]
     """
 
-    if not err and not job.error_msg and (
-            job.done_percent == 100 or job.status in (JobStatus.PROCESSING.name, JobStatus.DONE.name)):
+    if (
+        not err
+        and not job.error_msg
+        and (
+            job.done_percent == 100
+            or job.status in (JobStatus.PROCESSING.name, JobStatus.DONE.name)
+        )
+    ):
         job.status = JobStatus.DONE.name
         job.done_percent = 100
         job.error_msg = None
@@ -246,12 +283,16 @@ def update_job_management(job, err=None):
         job.error_msg = err or job.error_msg or 'An unidentified error has occurred'
 
     job.duration = round(
-        (dt.datetime.utcnow() - dt.datetime.strptime(job.start_tm, DATE_FORMAT_STR)).total_seconds(), 2)
+        (
+            dt.datetime.utcnow() - dt.datetime.strptime(job.start_tm, DATE_FORMAT_STR)
+        ).total_seconds(),
+        2,
+    )
     job.end_tm = get_current_timestamp()
 
 
 def insert_csv_import_info(job, start_tm, dic_detail):
-    """ insert csv import information
+    """insert csv import information
 
     Arguments:
         job {[type]} -- [description]
@@ -274,7 +315,7 @@ def insert_csv_import_info(job, start_tm, dic_detail):
 
 
 def insert_factory_import_info(job, start_tm, dic_detail):
-    """ insert csv import information
+    """insert csv import information
 
     Arguments:
         job {[type]} -- [description]
@@ -283,8 +324,12 @@ def insert_factory_import_info(job, start_tm, dic_detail):
         error_msg {[type]} -- [description]
     """
 
-    import_frm = format_factory_date_to_meta_data(dic_detail.first_cycle_time, dic_detail.auto_increment_col_timezone)
-    import_to = format_factory_date_to_meta_data(dic_detail.last_cycle_time, dic_detail.auto_increment_col_timezone)
+    import_frm = format_factory_date_to_meta_data(
+        dic_detail.first_cycle_time, dic_detail.auto_increment_col_timezone
+    )
+    import_to = format_factory_date_to_meta_data(
+        dic_detail.last_cycle_time, dic_detail.auto_increment_col_timezone
+    )
 
     fac_import_mana = FactoryImport()
     fac_import_mana.job_id = job.id
@@ -380,10 +425,12 @@ def format_factory_date_to_meta_data(date_val, is_tz_col):
         convert_utc_func, _ = choose_utc_convert_func(date_val)
         date_val = convert_utc_func(date_val)
         date_val = date_val.replace('T', ' ')
-        regex_str = r"(\.)(\d{3})(\d{3})"
+        regex_str = r'(\.)(\d{3})(\d{3})'
         date_val = re.sub(regex_str, f'\\1\\2', date_val)
     else:
-        date_val = convert_time(date_val, format_str=DATE_FORMAT_STR_FACTORY_DB, only_milisecond=True)
+        date_val = convert_time(
+            date_val, format_str=DATE_FORMAT_STR_FACTORY_DB, only_milisecond=True
+        )
 
     return date_val
 

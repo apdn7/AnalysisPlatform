@@ -4,24 +4,29 @@ from apscheduler.triggers.date import DateTrigger
 from pytz import utc
 
 from ap import db, scheduler
-from ap.common.logger import log_execution_time, log_execution
-from ap.common.scheduler import scheduler_app_context, JobType, remove_jobs
-from ap.setting_module.models import CfgDataSource, make_session
-from ap.setting_module.models import CfgProcess
+from ap.common.logger import log_execution, log_execution_time
+from ap.common.scheduler import JobType, remove_jobs, scheduler_app_context
+from ap.setting_module.models import CfgDataSource, CfgProcess, make_session
 from ap.setting_module.services.background_process import send_processing_info
 from ap.trace_data.models import Process
 
 
 @scheduler_app_context
 def delete_process_job(_job_id=None, _job_name=None, *args, **kwargs):
-    """ scheduler job to delete process from db
+    """scheduler job to delete process from db
 
     Keyword Arguments:
         _job_id {[type]} -- [description] (default: {None})
         _job_name {[type]} -- [description] (default: {None})
     """
     gen = delete_process(*args, **kwargs)
-    send_processing_info(gen, JobType.DEL_PROCESS, db_code=kwargs.get('db_id'), process_id=kwargs.get('proc_id'), is_check_disk=False)
+    send_processing_info(
+        gen,
+        JobType.DEL_PROCESS,
+        db_code=kwargs.get('db_id'),
+        process_id=kwargs.get('proc_id'),
+        is_check_disk=False,
+    )
 
 
 @log_execution_time()
@@ -52,10 +57,11 @@ def add_del_proc_job():
         return
 
     scheduler.add_job(
-        JobType.DEL_PROCESS.name, delete_process_job,
+        JobType.DEL_PROCESS.name,
+        delete_process_job,
         trigger=DateTrigger(run_date=datetime.now().astimezone(utc), timezone=utc),
         replace_existing=True,
-        kwargs=dict(_job_id=JobType.DEL_PROCESS.name, _job_name=JobType.DEL_PROCESS.name)
+        kwargs=dict(_job_id=JobType.DEL_PROCESS.name, _job_name=JobType.DEL_PROCESS.name),
     )
 
 
@@ -74,7 +80,10 @@ def delete_proc_cfg_and_relate_jobs(proc_id):
 
 @log_execution_time()
 def get_unused_procs():
-    return list(set([proc.id for proc in Process.get_all_ids()]) - set([proc.id for proc in CfgProcess.get_all_ids()]))
+    return list(
+        set([proc.id for proc in Process.get_all_ids()])
+        - set([proc.id for proc in CfgProcess.get_all_ids()])
+    )
 
 
 def del_data_source(ds_id):

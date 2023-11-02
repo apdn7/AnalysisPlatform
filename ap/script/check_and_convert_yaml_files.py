@@ -7,9 +7,9 @@ from ap.common.logger import log_execution
 from ap.common.transform_yaml_to_db import DBConfigYaml, ProcConfigYaml
 from ap.common.yaml_utils import *
 
-DATA_TYPE = 'data_type'
-NAME = 'name'
-KEY = 'key'
+DATA_TYPE = "data_type"
+NAME = "name"
+KEY = "key"
 
 
 def check_proc_id(proc_id_info, db_yaml):
@@ -34,24 +34,27 @@ def convert_proc_id_node(proc_id_info, db_yaml, proc_yaml):
         if proc_id_node and type(proc_id_node).__name__ not in proc_id_info.get(DATA_TYPE):
             procs = YamlConfig.get_node(proc_yaml.dic_config, [YAML_PROC], {})
             for proc_code, proc_obj in procs.items():
-                proc_db = YamlConfig.get_node(proc_obj, [YAML_DB], '')
+                proc_db = YamlConfig.get_node(proc_obj, [YAML_DB], "")
                 if proc_db == db_code:
-                    new_proc_id_node = {
-                        proc_code: parse_int_value(proc_id_node)
-                    }
+                    new_proc_id_node = {proc_code: parse_int_value(proc_id_node)}
                     universal_db_node = YamlConfig.get_node(db_obj, [YAML_UNIVERSAL_DB])
-                    if universal_db_node and type(universal_db_node).__name__ in ('dict', 'ordereddict'):
-                        db_yaml.dic_config[YAML_DB][db_code][YAML_UNIVERSAL_DB][YAML_PROC_ID] = new_proc_id_node
+                    if universal_db_node and type(universal_db_node).__name__ in (
+                        "dict",
+                        "ordereddict",
+                    ):
+                        db_yaml.dic_config[YAML_DB][db_code][YAML_UNIVERSAL_DB][
+                            YAML_PROC_ID
+                        ] = new_proc_id_node
 
 
 def backup_current_yml():
-    config_path = resource_path('ap', 'config')
-    bk_folder = 'bk_' + datetime.strftime(datetime.now(), '%Y%m%d_%H%M%S')
+    config_path = resource_path("ap", "config")
+    bk_folder = "bk_" + datetime.strftime(datetime.now(), "%Y%m%d_%H%M%S")
     config_bk_path = os.path.join(config_path, bk_folder)
     if not os.path.exists(config_bk_path):
         try:
             os.mkdir(config_bk_path)
-            yaml_files = [f for f in os.listdir(config_path) if f.endswith('yml')]
+            yaml_files = [f for f in os.listdir(config_path) if f.endswith("yml")]
             for yaml_file in yaml_files:
                 shutil.copy2(os.path.join(config_path, yaml_file), config_bk_path)
         except Exception:
@@ -61,14 +64,14 @@ def backup_current_yml():
 @log_execution()
 def check_and_convert_old_yaml():
     # check exist
-    if not os.path.exists(dic_yaml_config_file['db']):
+    if not os.path.exists(dic_yaml_config_file["db"]):
         return
 
     # define keys to check
     proc_id_info = {
         NAME: YAML_PROC_ID,
         KEY: [YAML_UNIVERSAL_DB, YAML_PROC_ID],
-        DATA_TYPE: ['dict', 'ordereddict']
+        DATA_TYPE: ["dict", "ordereddict"],
     }
 
     # original yaml

@@ -13,10 +13,10 @@
     href="{{ url_for('setting_module.static', filename = 'css/filter_visualization.css')}}">
 
 <script>
-    gtag('config', 'UA-156244372-2', {
+    gtag('config', GA_TRACKING_ID, {
         'page_title' : '{{ _("Filter/Graph") }} {{ _("Config") }}',
     });
-    gtag('config', 'G-9DJ9TV72B5', {
+    gtag('config', UA_TRACKING_ID, {
         'page_title' : '{{ _("Filter/Graph") }} {{ _("Config") }}',
     });
 </script>
@@ -30,13 +30,9 @@
 <!-- Header -->
 <div class="card card-xl graph-navi">
     <div class="card-body">
-        <div class="row">
-            <div class="col-12">
-                <h3 class="header-left">{{ _("Process name") }}</h3>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-8">
+        <div class="d-flex align-items-center flex-row">
+            <h3 class="header-left mb-0">{{ _("Process name") }}</h3>
+            <div class="flex-grow-1 ml-3">
                 <select name="type" id="processList" class="form-control select2-selection--single select-n-columns">
                     <option value="" selected>---</option>
                     {% for proc in procs %}
@@ -44,10 +40,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-4 text-center">
-                <button id="btnShowAllFilterSettings" class="btn btn-secondary">{{ _("Show") }}</button>
-            </div>
-		</div>
+        </div>
 	</div>
 </div>
 <div class="loading" style="display: none;"></div>

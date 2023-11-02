@@ -5,8 +5,8 @@ from flask_babel import get_locale
 
 from ap.common.common_utils import resource_path
 from ap.common.constants import *
-from ap.common.yaml_utils import YamlConfig, TileInterfaceYaml
-from ap.tile_interface.services.utils import sectionInforWithLang
+from ap.common.yaml_utils import TileInterfaceYaml, YamlConfig
+from ap.tile_interface.services.utils import section_infor_with_lang
 
 tile_interface_blueprint = Blueprint(
     'tile_interface',
@@ -14,7 +14,7 @@ tile_interface_blueprint = Blueprint(
     template_folder=os.path.join('..', 'templates', 'tile_interface'),
     static_folder=os.path.join('..', 'static', 'tile_interface'),
     static_url_path=os.path.join(os.sep, 'static', 'tile_interface'),
-    url_prefix='/ap'
+    url_prefix='/ap',
 )
 
 
@@ -25,21 +25,23 @@ def tile_interface(tile_type=None):
     if not current_lang:
         return False
 
-    dn7_interface = True
-    if tile_type and tile_type != DN7_TILE:
-        dn7_interface = False
+    is_usage = tile_type and tile_type == SEARCH_USAGE
 
-    tile_interface_yml = TileInterfaceYaml(dn7_interface)
+    tile_interface_yml = TileInterfaceYaml(tile_type)
+    tile_master = TileInterfaceYaml(TILE_MASTER)
     dic_config = tile_interface_yml.dic_config
+    master_info = tile_master.dic_config
 
     sections = YamlConfig.get_node(dic_config, [SECTIONS])
     if sections:
-        sections = sectionInforWithLang(sections, current_lang)
+        sections = section_infor_with_lang(
+            sections, current_lang, is_usage=is_usage, master_info=master_info
+        )
 
-    output_dict = {
-        'title': 'Analysis Platform',
-        'sections': sections
-    }
+    output_dict = {'title': 'Analysis Platform', 'sections': sections}
+    if is_usage:
+        return render_template('tile_search_by_use.html', **output_dict)
+
     return render_template('tile_dashboard.html', **output_dict)
 
 

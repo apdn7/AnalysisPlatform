@@ -72,7 +72,7 @@ const genScatterLayout = (chartOptions) => {
                 // dtick: 1000,
             },
             colorscale: chartOptions.colorScaleSets,
-            // showscale: true,
+            showscale: !!colorbarTitle,
         },
         legend: {
             itemsizing: 'constant',
@@ -363,4 +363,59 @@ const genLayoutAxis = (layoutAttrs, isNotEmptyPlot) => {
         xaxis: xAxisId,
         yaxis: yAxisId,
     };
+};
+
+const removeInvalidDataPoints = (scpMatrix, xRange, yRange, colorVar='colors') => {
+    scpMatrix.forEach(row => {
+        row.forEach(col => {
+            if (col) {
+                const pointObjs= [];
+                col.array_x.forEach((v, i) => {
+                    if (v >= xRange[0] && v <= xRange[1] && col.array_y[i] >= yRange[0] && col.array_y[i] <= yRange[1]) {
+                        pointObjs.push({
+                            x: v,
+                            y: col.array_y[i],
+                            colors: col.colors[i],
+                            cycle_ids: col.cycle_ids[i],
+                            elapsed_time: col.elapsed_time[i],
+                            times: col.times[i],
+                            x_serial: col.x_serial ? col.x_serial.map(xSerial => xSerial.data[i]) : null,
+                            y_serial: col.y_serial ? col.y_serial.map(ySerial => ySerial.data[i]) : null,
+                            time_numberings: col.time_numberings ? col.time_numberings[i] : null,
+                        });
+                    }
+                });
+                const comparator = keys => (a, b) => {
+                    if (a[keys[0]] == b[keys[0]]) {
+                        return a[keys[1]] - b[keys[1]];
+                    }
+                    return a[keys[0]] > b[keys[0]] ? 1 : -1;
+                };
+                pointObjs.sort(comparator([colorVar, 'cycle_ids']));
+                // console.log();
+                col.n_total = pointObjs.length;
+                col.array_x = pointObjs.map(pointData => pointData.x);
+                col.array_y = pointObjs.map(pointData => pointData.y);
+                col.colors = pointObjs.map(pointData => pointData.colors);
+                col.cycle_ids = pointObjs.map(pointData => pointData.cycle_ids);
+                col.elapsed_time = pointObjs.map(pointData => pointData.elapsed_time);
+                col.times = pointObjs.map(pointData => pointData.times);
+                if (col.time_numberings) {
+                    col.time_numberings = pointObjs.map(pointData => pointData.time_numberings);
+                }
+
+                if (col.x_serial) {
+                    col.x_serial.forEach((xSerial, i) => {
+                        xSerial.data = pointObjs.map(pointData => pointData.x_serial[i]);
+                    })
+                }
+                if (col.y_serial) {
+                    col.y_serial.forEach((ySerial, i) => {
+                        ySerial.data = pointObjs.map(pointData => pointData.y_serial[i]);
+                    })
+                }
+            }
+       });
+    });
+    return scpMatrix;
 };

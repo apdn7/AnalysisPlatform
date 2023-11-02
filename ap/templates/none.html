@@ -8,8 +8,7 @@
   <body>
     <div class="ui-widget" style="text-align:center;">
       <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
-        <p><span class="ui-icon ui-icon-alert" style="margin-right: .3em;"></span>{{ message }}</p>
-        <p>{{ action }}<a href="{{ url }}">{{ url }}</a></p>
+        <p><span class="ui-icon ui-icon-alert" style="margin-right: .3em;"></span>{{ message |replace('BREAK_LINE', '<br>')|safe }}</p>
       </div>
     </div>
   </body>

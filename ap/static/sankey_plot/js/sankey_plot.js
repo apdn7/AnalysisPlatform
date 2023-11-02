@@ -7,6 +7,7 @@ const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_SENSOR = 512;
 const MAX_SENSORS_LIM = 100;
 let tabID = null;
+const graphStore = new GraphStore();
 const formElements = {
     formID: '#traceDataForm',
     scatterBtn: '#scatter-btn',
@@ -70,9 +71,15 @@ $(() => {
     // add first end process
     const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
         showDataType: true,
+        showStrColumn: true,
         isRequired: true,
         showObjective: true,
         objectiveHoverMsg: i18n.objectiveHoverMsg,
+        hideStrVariable: false,
+        showLabels: true,
+        labelAsFilter: true,
+        hideCTCol: true,
+        allowObjectiveForRealOnly: true,
     });
     endProcItem();
 
@@ -156,7 +163,7 @@ const sankeyTraceData = () => {
         // close sidebar
         beforeShowGraphCommon();
 
-        callToBackEndAPI();
+        callToBackEndAPI(true);
     }
 };
 
@@ -190,7 +197,7 @@ const showBarGraph = (barJson) => {
         marker: {
             color: barJson.marker_color || [],
         },
-        hovertemplate: '%{text}',
+        hovertemplate: '%{text}<extra></extra>',
         type: 'bar',
         insidetextanchor: 'start',
         insidetextfont: {
@@ -209,7 +216,7 @@ const showBarGraph = (barJson) => {
         paper_bgcolor: '#303030',
         margin: {
             t: 10,
-            r: 10,
+            r: 0,
             b: 10,
             l: 10,
         },
@@ -406,7 +413,7 @@ const showGroupLasso = (sankeyJson) => {
             t: 15,
             r: 15,
             b: 50,
-            l: 15,
+            l: 0,
         },
         autosize: true,
         annotationdefaults: {
@@ -554,10 +561,16 @@ const showGroupLasso = (sankeyJson) => {
     });
 };
 
-const collectFormDataSkD = () => {
+const collectFormDataSkD = (clearOnFlyFilter = false) => {
     const traceForm = $(formElements.formID);
     let formData = new FormData(traceForm[0]);
-    formData = genDatetimeRange(formData);
+    if (clearOnFlyFilter) {
+        formData = genDatetimeRange(formData);
+        lastUsedFormData = formData;
+    } else {
+        formData = lastUsedFormData;
+        formData = transformCatFilterParams(formData);
+    }
     return formData;
 };
 
@@ -577,19 +590,43 @@ const checkNumberOfSelectedSensor = (fromData) => {
     }
 };
 
-const callToBackEndAPI = () => {
-    const formData = collectFormDataSkD();
+const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false) => {
+    const formData = collectFormDataSkD(clearOnFlyFilter || reselectVars);
 
     checkNumberOfSelectedSensor(formData);
 
 
     showGraphCallApi('/ap/api/skd/index', formData, REQUEST_TIMEOUT, async (res) => {
-        if (res.errors) {
+        if (!res.actual_record_number) {
+            showToastrAnomalGraph();
+            return;
+        }
+        if (res.errors && res.errors.length) {
             showErrorToastr(res.errors);
             loadingHide();
+
+            if (clearOnFlyFilter) {
+                // click show graph
+                problematicData = {
+                    null_percent: res.null_percent || {},
+                    zero_variance: res.err_cols || [],
+                    selected_vars: res.selected_vars || []
+                };
+                reselectCallback = callToBackEndAPI;
+            }
+            const errors = res.errors || [];
+            if (problematicData && errors.length) {
+                showRemoveProblematicColsMdl(problematicData);
+            }
             return;
         }
 
+        // render cat, category label filer modal
+        fillDataToFilterModal(res.filter_on_demand, () => {
+            callToBackEndAPI(false);
+        });
+
+        graphStore.setTraceData(_.cloneDeep(res));
         showSankeyPlot(res.plotly_data);
 
         showScatterPlot(res.dic_scp, {});
@@ -611,7 +648,7 @@ const showErrorToastr = (errors) => {
 };
 
 const dumpData = (type) => {
-    const formData = collectFormDataSkD();
+    const formData = lastUsedFormData || collectFormDataSkD(true);
     handleExportDataCommon(type, formData);
 };
 

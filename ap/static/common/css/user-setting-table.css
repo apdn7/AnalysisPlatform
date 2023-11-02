@@ -70,7 +70,7 @@
     min-width: 70px !important;
 }
 
-#tblUserSetting th:nth-child(10){
+#tblUserSetting th:last-child{
     width: 200px !important;
 }
 

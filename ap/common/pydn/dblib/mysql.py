@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class MySQL:
-
     def __init__(self, host, dbname, username, password):
         self.host = host
         self.port = 3306
@@ -27,28 +26,30 @@ class MySQL:
         self.connection = None
 
     def dump(self):
-        print("===== DUMP RESULT =====")
-        print("DB Type: MySQL")
-        print("self.host: " + self.host)
-        print("self.port: " + str(self.port))
-        print("self.dbname: " + self.dbname)
-        print("self.username: " + self.username)
-        print("self.is_connected: ", self.is_connected)
-        print("=======================")
+        print('===== DUMP RESULT =====')
+        print('DB Type: MySQL')
+        print('self.host: ' + self.host)
+        print('self.port: ' + str(self.port))
+        print('self.dbname: ' + self.dbname)
+        print('self.username: ' + self.username)
+        print('self.is_connected: ', self.is_connected)
+        print('=======================')
 
     def connect(self):
         try:
-            self.connection = pymysql.connect(host=self.host,
-                                              user=self.username,
-                                              password=self.password,
-                                              db=self.dbname,
-                                              port=self.port,
-                                              charset='utf8')  # ,
+            self.connection = pymysql.connect(
+                host=self.host,
+                user=self.username,
+                password=self.password,
+                db=self.dbname,
+                port=self.port,
+                charset='utf8',
+            )  # ,
             # cursorclass=pymysql.cursors.DictCursor)
             self.is_connected = True
             return self.connection
         except:
-            print("Cannot connect to db")
+            print('Cannot connect to db')
             print('>>> traceback <<<')
             traceback.print_exc()
             print('>>> end of traceback <<<')
@@ -64,27 +65,27 @@ class MySQL:
         if not self._check_connection():
             return False
 
-        tblname = tblname.strip('\"')
-        sql = "create table {0:s}(".format(tblname)
+        tblname = tblname.strip('"')
+        sql = 'create table {0:s}('.format(tblname)
         for idx, val in enumerate(valtypes):
             if idx > 0:
-                sql += ","
+                sql += ','
 
-            sql += val["name"] + " " + val["type"]
-        sql += ")"
+            sql += val['name'] + ' ' + val['type']
+        sql += ')'
         print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + " created!")
+        print(tblname + ' created!')
 
     # 作成済みのテーブルを配列として返す
     def list_tables(self):
         if not self._check_connection():
             return False
 
-        sql = "show tables"
+        sql = 'show tables'
         cur = self.connection.cursor()
         cur.execute(sql)
         results = []
@@ -96,7 +97,7 @@ class MySQL:
         if not self._check_connection():
             return False
         # Only list tables of default schema (default schema name can be got by "SCHEMA_NAME()")
-        sql = "select table_name from information_schema.tables "
+        sql = 'select table_name from information_schema.tables '
         sql += "where table_schema = '{0:s}'".format(self.dbname)
         cur = self.connection.cursor()
         cur.execute(sql)
@@ -111,13 +112,13 @@ class MySQL:
         if not self._check_connection():
             False
 
-        sql = "drop table if exists " + tblname
-        sql = sql.replace('\"', '`')
+        sql = 'drop table if exists ' + tblname
+        sql = sql.replace('"', '`')
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + " dropped!")
+        print(tblname + ' dropped!')
 
     # テーブルのカラムのタイプを辞書の配列として返す
     # columns:
@@ -126,17 +127,14 @@ class MySQL:
     def list_table_columns(self, tblname):
         if not self._check_connection():
             return False
-        sql = "show columns from " + tblname
-        sql = sql.replace('\"', '`')
+        sql = 'show columns from ' + tblname
+        sql = sql.replace('"', '`')
         cur = self.connection.cursor()
         cur.execute(sql)
         rows = cur.fetchall()
         results = []
         for row in rows:
-            results.append({
-                "name": row[0],
-                "type": row[1]
-            })
+            results.append({'name': row[0], 'type': row[1]})
         return results
 
     def get_data_type_by_colname(self, tbl, col_name):
@@ -152,32 +150,32 @@ class MySQL:
         columns = self.list_table_columns(tblname)
         colnames = []
         for column in columns:
-            colnames.append(column["name"])
+            colnames.append(column['name'])
         return colnames
 
     def insert_table_records(self, tblname, names, values, add_comma_to_value=True):
         if not self._check_connection():
             return False
 
-        sql = "insert into {0:s}".format(tblname)
+        sql = 'insert into {0:s}'.format(tblname)
 
         # Generate column names field
-        sql += "("
+        sql += '('
         for idx, name in enumerate(names):
             if idx > 0:
-                sql += ","
+                sql += ','
             sql += name
-        sql += ") "
+        sql += ') '
 
         # Generate values field
-        sql += "values "
+        sql += 'values '
         for idx1, value in enumerate(values):
             if idx1 > 0:
-                sql += ","
-            sql += "("
+                sql += ','
+            sql += '('
             for idx2, name in enumerate(names):
                 if idx2 > 0:
-                    sql += ","
+                    sql += ','
 
                 if value[name] in ('', None):
                     sql += 'Null'
@@ -186,15 +184,15 @@ class MySQL:
                 else:
                     sql += str(value[name])
 
-            sql += ")"
+            sql += ')'
 
-        sql = sql.replace('\"', '`')
+        sql = sql.replace('"', '`')
         # print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print("Dummy data was inserted to {}!".format(tblname))
+        print('Dummy data was inserted to {}!'.format(tblname))
 
     # SQLをそのまま実行。
     # cols, rows = db1.run_sql("select * from tbl01")
@@ -203,7 +201,7 @@ class MySQL:
         if not self._check_connection():
             return False
         cur = self.connection.cursor()
-        sql = sql.replace('\"', '`')
+        sql = sql.replace('"', '`')
         cur.execute(sql)
         # cursor.descriptionはcolumnの配列
         # そこから配列名(column[0])を取り出して配列columnsに代入
@@ -224,7 +222,7 @@ class MySQL:
             return False
 
         cur = self.connection.cursor()
-        sql = sql.replace('\"', '`')
+        sql = sql.replace('"', '`')
         cur.execute(sql)
         cols = [column[0] for column in cur.description]
         yield cols
@@ -254,7 +252,7 @@ class MySQL:
         return None
 
     def execute_sql(self, sql):
-        """ For executing any query requires commit action
+        """For executing any query requires commit action
         :param sql: SQL to be executed
         :return: Execution result
         """
@@ -263,7 +261,7 @@ class MySQL:
 
         cur = self.connection.cursor()
         # print(sql)
-        sql = sql.replace('\"', '`')
+        sql = sql.replace('"', '`')
         print(sql)
         res = cur.execute(sql)
         cur.close()
@@ -277,7 +275,7 @@ class MySQL:
         if self.is_connected:
             return True
         # 接続していないなら
-        print("Connection is not Initialized. Please run connect() to connect to DB")
+        print('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def is_timezone_hold_column(self, tbl, col):

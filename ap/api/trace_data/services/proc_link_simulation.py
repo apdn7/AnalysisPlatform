@@ -1,5 +1,5 @@
 from collections import deque
-from typing import List, Union, Dict
+from typing import Dict, List, Union
 
 from sqlalchemy import and_
 
@@ -8,8 +8,8 @@ from ap.api.trace_data.services.proc_link import gen_trace_key_info
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import DataType
 from ap.common.logger import log_execution_time
-from ap.setting_module.models import CfgTrace, CfgProcess
-from ap.trace_data.models import find_cycle_class, Sensor, find_sensor_class
+from ap.setting_module.models import CfgProcess, CfgTrace
+from ap.trace_data.models import Sensor, find_cycle_class, find_sensor_class
 
 PREDICT_SAMPLE = 10_000
 
@@ -37,24 +37,32 @@ def sim_gen_global_id(edges: List[CfgTrace]):
     for edge in edges:
         # matching keys
         start_proc_id = edge.self_process_id
-        start_cols = [(key.self_column_id, key.self_column_substr_from, key.self_column_substr_to) for key in
-                      edge.trace_keys]
+        start_cols = [
+            (key.self_column_id, key.self_column_substr_from, key.self_column_substr_to)
+            for key in edge.trace_keys
+        ]
 
         end_proc_id = edge.target_process_id
-        end_cols = [(key.target_column_id, key.target_column_substr_from, key.target_column_substr_to) for key in
-                    edge.trace_keys]
+        end_cols = [
+            (key.target_column_id, key.target_column_substr_from, key.target_column_substr_to)
+            for key in edge.trace_keys
+        ]
         start_keys = gen_trace_key_info(end_proc_id, start_cols)
         end_keys = gen_trace_key_info(start_proc_id, end_cols)
 
         start_proc_id = edge.target_process_id
-        start_proc_data = gen_start_proc_data(start_proc_id, dic_proc_data, filtered_procs, dic_cycle_ids)
+        start_proc_data = gen_start_proc_data(
+            start_proc_id, dic_proc_data, filtered_procs, dic_cycle_ids
+        )
         if not start_proc_data:
             continue
 
         dic_start_data = gen_dic_proc_data(start_proc_data, start_keys)
 
         end_proc_id = edge.self_process_id
-        end_proc_data = gen_end_proc_data(start_proc_id, start_keys, end_proc_id, end_keys, dic_proc_data)
+        end_proc_data = gen_end_proc_data(
+            start_proc_id, start_keys, end_proc_id, end_keys, dic_proc_data
+        )
         dic_end_data = gen_dic_proc_data(end_proc_data, end_keys)
 
         # init count data
@@ -75,7 +83,9 @@ def sim_gen_global_id(edges: List[CfgTrace]):
         # count matched per edge
         dic_edge_cnt[f'{end_proc_id}-{start_proc_id}'] = cnt
 
-    dic_proc_cnt = {proc_id: len(dic_proc_data[proc_id]) for proc_id, cycles in dic_cycle_ids.items()}
+    dic_proc_cnt = {
+        proc_id: len(dic_proc_data[proc_id]) for proc_id, cycles in dic_cycle_ids.items()
+    }
     return dic_proc_cnt, dic_edge_cnt
 
 
@@ -91,7 +101,9 @@ def get_sample_data(proc_id, cols_filters: Union[Dict, List], from_time=None, li
     column_names = list(cols_filters)
 
     cycle_cls = find_cycle_class(proc_id)
-    data = db.session.query(cycle_cls.id, cycle_cls.global_id, cycle_cls.time).filter(cycle_cls.process_id == proc_id)
+    data = db.session.query(cycle_cls.id, cycle_cls.global_id, cycle_cls.time).filter(
+        cycle_cls.process_id == proc_id
+    )
     data = data.order_by(cycle_cls.time, cycle_cls.id)
 
     offset = PREDICT_SAMPLE
@@ -100,7 +112,11 @@ def get_sample_data(proc_id, cols_filters: Union[Dict, List], from_time=None, li
         offset = 0
 
     # get sensor information of keys from database (run separate to reuse cache, keys are only 1 or 2 columns)
-    sensors = Sensor.query.filter(Sensor.process_id == proc_id).filter(Sensor.column_name.in_(column_names)).all()
+    sensors = (
+        Sensor.query.filter(Sensor.process_id == proc_id)
+        .filter(Sensor.column_name.in_(column_names))
+        .all()
+    )
 
     for sensor in sensors:
         sensor_val_cls = find_sensor_class(sensor.id, DataType(sensor.type), auto_alias=True)
@@ -109,8 +125,10 @@ def get_sample_data(proc_id, cols_filters: Union[Dict, List], from_time=None, li
         if filter_val is None:
             data = data.join(sensor_val_cls, sensor_val_cls.cycle_id == cycle_cls.id)
         else:
-            data = data.join(sensor_val_cls,
-                             and_(sensor_val_cls.cycle_id == cycle_cls.id, sensor_val_cls.value == filter_val))
+            data = data.join(
+                sensor_val_cls,
+                and_(sensor_val_cls.cycle_id == cycle_cls.id, sensor_val_cls.value == filter_val),
+            )
 
         data = data.filter(sensor_val_cls.sensor_id == sensor.id)
         data = data.add_columns(sensor_val_cls.value.label(gen_sql_label(sensor.column_name)))
@@ -121,15 +139,14 @@ def get_sample_data(proc_id, cols_filters: Union[Dict, List], from_time=None, li
 
     # do not use offset , because maybe records count < 50
     if not from_time:
-        data = data[min(offset * 2, len(data)) // 2:]
+        data = data[min(offset * 2, len(data)) // 2 :]
 
     return data
 
 
 @log_execution_time()
 def sim_order_before_mapping_data(edges: List[CfgTrace]):
-    """ trace all node in dic_node , and gen sql
-    """
+    """trace all node in dic_node , and gen sql"""
     ordered_edges = []
 
     max_loop = len(edges) * 10
@@ -137,7 +154,9 @@ def sim_order_before_mapping_data(edges: List[CfgTrace]):
     cnt = 0
     while edges:
         if cnt > max_loop:
-            raise Exception('Edges made a ring circle, You must re-setting tracing edge to break the ring circle!!!')
+            raise Exception(
+                'Edges made a ring circle, You must re-setting tracing edge to break the ring circle!!!'
+            )
 
         # get first element
         edge = edges.popleft()
@@ -206,8 +225,10 @@ def gen_end_proc_data(start_proc_id, start_keys, end_proc_id, end_keys, dic_proc
 
 def find_from_time(start_proc_data, start_keys, end_proc_id, end_keys):
     row = start_proc_data[0]
-    dic_keys = {end_key.column_name: getattr(row, gen_sql_label(start_key.column_name))
-                for start_key, end_key in zip(start_keys, end_keys)}
+    dic_keys = {
+        end_key.column_name: getattr(row, gen_sql_label(start_key.column_name))
+        for start_key, end_key in zip(start_keys, end_keys)
+    }
 
     end_proc_data = get_sample_data(end_proc_id, dic_keys, limit=1)
     if end_proc_data:
@@ -223,7 +244,7 @@ def gen_dic_proc_data(data, trace_key_infos):
         for key in trace_key_infos:
             val = str(getattr(row, gen_sql_label(key.column_name)))
             if key.from_char:
-                val = val[key.from_char - 1:key.to_char]
+                val = val[key.from_char - 1 : key.to_char]
 
             keys.append(val)
 

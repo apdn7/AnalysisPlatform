@@ -1,0 +1,101 @@
+.jump-content {
+    display: flex;
+    justify-content: space-between;
+    max-height: 85vh;
+    overflow-y: scroll;
+}
+
+.jump-page-list,
+.jump-sensor-list{
+    width: calc(100% / 2 - 20px);
+}
+
+.jump-recommended {
+    padding: 15px 20px;
+    border-radius: 10px;
+    border: 1px solid #444444;
+    margin-bottom: 15px;
+}
+
+.jump-all-header.collapsed {
+    margin-bottom: 0px;
+    transition: all 1s;
+}
+
+.jump-all-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.jump-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px
+}
+
+.jump-list .tile-content {
+    margin: 0;
+}
+
+.jump-list .tile-item {
+    width: auto;
+    margin: 0;
+}
+
+.jump-all-page {
+    padding: 15px 20px;
+    border-radius: 10px;
+    border: 1px solid #444444;
+}
+
+.jump-sensor-table {
+    margin-top: 35px;
+}
+
+.jump-sensor-table table {
+    width: 100%;
+    font-size: 14px;
+}
+
+.jump-sensor-table table th,
+.jump-sensor-table table td {
+    text-align: center;
+    border: 1px solid #444444;
+    padding: 5px 5px !important;
+}
+
+.jump-sensor-list-header {
+    margin-bottom: 25px;
+}
+
+.jump-recommended-header {
+    margin-left: 25px;
+}
+
+.jump-sub-header {
+    font-size: 1rem;
+}
+
+.jump-content .custom-control-label {
+    font-size: 14px;
+}
+
+.jump-content .tile-item.active {
+    border: 2px solid white;
+}
+
+#jumpModal .modal-body {
+    max-height: 95vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#jumpSensorTbl tr {
+    width: 800px !important;
+}
+
+.over-lim-item {
+    color: gray;
+}

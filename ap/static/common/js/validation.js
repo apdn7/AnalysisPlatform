@@ -4,7 +4,7 @@ let uniqueRequiredArr = [];
 let requiredInputs = null;
 let invalids = [];
 let currentFormID = '';
-let checkObjectiveVar = true;
+let checkObjectiveVar = true; // option to validate objective var
 
 function getUniqueRequiredArr() {
     const uniqueNames = [];
@@ -77,7 +77,7 @@ function checkValidations(minMaxNumOfEndproc = null, formID = '') {
             value = getValueInputByType(ob.type, ob.name);
         }
         if (!value) {
-            if (/VALS_SELECT/.test(ob.name)) {
+            if (/VALS_SELECT/.test(ob.name) || /end_proc/.test(ob.name)) {
                 if (!checkRelatedVariablesOfProcess(ob.name)) invalids.push({ name: ob.name, id: ob.id });
             } else {
                 invalids.push({ name: ob.name, id: ob.id });
@@ -122,8 +122,10 @@ function checkRelatedVariablesOfProcess(name) {
     const hasCatExp = parent.find('[name=catExpBox]').val();
     const hasLabel = $(`[name=GET02_CATE_SELECT${index[1]}]:checked`).length > 0;
     const hasColor = parent.find('[name=colorVar]:checked').length > 0;
+    //end_proc
+    const atLeastOneColumn = $('input[name^=GET02_VALS_SELECT]:checked').length > 0;
 
-    return hasCatExp || hasLabel || hasColor;
+    return hasCatExp || hasLabel || hasColor || atLeastOneColumn;
 }
 
 function updateStyleOfInvalidElements() {

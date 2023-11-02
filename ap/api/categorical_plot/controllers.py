@@ -1,28 +1,42 @@
 import timeit
 from copy import deepcopy
 
-import simplejson
-from flask import Blueprint, request, send_from_directory, Response
+from flask import Blueprint, Response, request, send_from_directory
 
-from ap.api.categorical_plot.services \
-    import gen_trace_data_by_categorical_var, customize_dict_param, \
-    gen_trace_data_by_term, convert_end_cols_to_array, \
-    gen_trace_data_by_cyclic
+from ap.api.categorical_plot.services import (
+    convert_end_cols_to_array,
+    customize_dict_param,
+    gen_trace_data_by_categorical_var,
+    gen_trace_data_by_cyclic,
+    gen_trace_data_by_term,
+)
+from ap.api.common.services.services import get_filter_on_demand_data
 from ap.api.trace_data.services.csv_export import gen_csv_data
 from ap.common.common_utils import resource_path
 from ap.common.constants import *
 from ap.common.logger import logger
-from ap.common.services import http_content, csv_content
-from ap.common.services.form_env import parse_multi_filter_into_one, get_end_procs_param, \
-    update_data_from_multiple_dic_params, parse_request_params
-from ap.common.services.import_export_config_n_data import get_dic_form_from_debug_info, \
-    set_export_dataset_id_to_dic_param
-from ap.common.trace_data_log import save_input_data_to_file, EventType, save_draw_graph_trace, trace_log_params
+from ap.common.services import csv_content
+from ap.common.services.csv_content import zip_file_to_response
+from ap.common.services.form_env import (
+    get_end_procs_param,
+    parse_multi_filter_into_one,
+    parse_request_params,
+    update_data_from_multiple_dic_params,
+)
+from ap.common.services.http_content import orjson_dumps
+from ap.common.services.import_export_config_n_data import (
+    get_dic_form_from_debug_info,
+    set_export_dataset_id_to_dic_param,
+)
+from ap.common.trace_data_log import (
+    EventType,
+    save_draw_graph_trace,
+    save_input_data_to_file,
+    trace_log_params,
+)
 
 api_categorical_plot_blueprint = Blueprint(
-    'api_categorical_plot',
-    __name__,
-    url_prefix='/ap/api/stp'
+    'api_categorical_plot', __name__, url_prefix='/ap/api/stp'
 )
 
 MAX_GRAPH_PER_TAB = 32
@@ -74,8 +88,10 @@ def trace_data():
 
     org_dicparam['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.STP))
 
+    org_dicparam = get_filter_on_demand_data(org_dicparam)
+
     # trace_data.htmlをもとにHTML生成
-    out_dict = simplejson.dumps(org_dicparam, ensure_ascii=False, default=http_content.json_serial, ignore_nan=True)
+    out_dict = orjson_dumps(org_dicparam)
     return out_dict, 200
 
 
@@ -87,8 +103,8 @@ def download_file(filename):
     return send_from_directory(dir_data_view, filename)
 
 
-@api_categorical_plot_blueprint.route('/csv_export', methods=['GET'])
-def csv_export():
+@api_categorical_plot_blueprint.route('/data_export/<export_type>', methods=['GET'])
+def data_export(export_type):
     """csv export
 
     Returns:
@@ -97,34 +113,7 @@ def csv_export():
     dic_form = parse_request_params(request)
     dic_param = parse_multi_filter_into_one(dic_form)
     stratified_by_terms = dic_param[COMMON].get(COMPARE_TYPE) in [RL_CYCLIC_TERM, RL_DIRECT_TERM]
-    csv_str = gen_csv_data(dic_param, with_terms=stratified_by_terms)
-    csv_filename = csv_content.gen_csv_fname()
-    response = Response(csv_str.encode("utf-8-sig"), mimetype="text/csv",
-                        headers={
-                            "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                        })
-    response.charset = "utf-8-sig"
-
-    return response
-
-
-@api_categorical_plot_blueprint.route('/tsv_export', methods=['GET'])
-def tsv_export():
-    """tsv export
-
-    Returns:
-        [type] -- [description]
-    """
-    dic_form = parse_request_params(request)
-    dic_param = parse_multi_filter_into_one(dic_form)
-    stratified_by_terms = dic_param[COMMON].get(COMPARE_TYPE) in [RL_CYCLIC_TERM, RL_DIRECT_TERM]
-    csv_str = gen_csv_data(dic_param, delimiter='\t', with_terms=stratified_by_terms)
-    csv_filename = csv_content.gen_csv_fname("tsv")
-
-    response = Response(csv_str.encode("utf-8-sig"), mimetype="text/tsv",
-                        headers={
-                            "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                        })
-    response.charset = "utf-8-sig"
-
+    delimiter = ',' if export_type == 'csv' else '\t'
+    csv_str = gen_csv_data(dic_param, delimiter=delimiter, with_terms=stratified_by_terms)
+    response = zip_file_to_response([csv_str], None, export_type=export_type)
     return response

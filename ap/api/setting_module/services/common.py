@@ -1,7 +1,6 @@
-from ap.common.logger import logger
-
 from ap.common.common_utils import parse_int_value
-from ap.setting_module.models import make_session, CfgUserSetting, insert_or_update_config
+from ap.common.logger import logger
+from ap.setting_module.models import CfgUserSetting, insert_or_update_config, make_session
 from ap.setting_module.schemas import CfgUserSettingSchema
 
 
@@ -38,19 +37,21 @@ def parse_user_setting(params):
     save_graph_settings = bool(params.get('save_graph_settings'))
     settings = params.get('settings') or '[]'
 
-    cfg_user_setting = CfgUserSetting(**{
-        'id': setting_id,
-        'key': key,
-        'title': title,
-        'page': page,
-        'created_by': created_by,
-        'priority': priority,
-        'use_current_time': use_current_time,
-        'description': description,
-        'share_info': share_info,
-        'save_graph_settings': save_graph_settings,
-        'settings': settings,
-    })
+    cfg_user_setting = CfgUserSetting(
+        **{
+            'id': setting_id,
+            'key': key,
+            'title': title,
+            'page': page,
+            'created_by': created_by,
+            'priority': priority,
+            'use_current_time': use_current_time,
+            'description': description,
+            'share_info': share_info,
+            'save_graph_settings': save_graph_settings,
+            'settings': settings,
+        }
+    )
 
     return cfg_user_setting
 

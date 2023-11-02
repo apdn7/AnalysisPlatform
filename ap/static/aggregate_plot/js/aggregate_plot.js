@@ -314,7 +314,7 @@ const transformColorsParams = (formData) => {
     formData.append('aggColorVar', JSON.stringify(colorVars));
     return formData;
 };
-const queryDataAndShowAGP = (clearOnFlyFilter = true, autoUpdate = false) => {
+const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
     const formData = collectInputAsFormData(clearOnFlyFilter, autoUpdate);
 
 
@@ -331,6 +331,12 @@ const queryDataAndShowAGP = (clearOnFlyFilter = true, autoUpdate = false) => {
 
     showGraphCallApi('/ap/api/agp/plot', formData, REQUEST_TIMEOUT, async (res) => {
         afterShowAGP();
+
+        // sort graphs
+        if (latestSortColIds && latestSortColIds.length) {
+            res.ARRAY_FORMVAL = sortGraphs(res.ARRAY_FORMVAL, 'GET02_VALS_SELECT', latestSortColIds);
+            res.array_plotdata = sortGraphs(res.array_plotdata, 'end_col_id', latestSortColIds);
+        }
 
         currentData = res;
         graphStore.setTraceData(_.cloneDeep(res));
@@ -351,16 +357,6 @@ const queryDataAndShowAGP = (clearOnFlyFilter = true, autoUpdate = false) => {
              $('html, body').animate({
                 scrollTop: $(formElements.agpCard).offset().top,
             }, 500);
-        }
-
-        const {catExpBox, cat_on_demand, unique_color} = res;
-        if (clearOnFlyFilter) {
-            clearGlobalDict();
-            initGlobalDict(catExpBox);
-            initGlobalDict(cat_on_demand);
-            initGlobalDict(unique_color);
-            initDicChecked(getDicChecked());
-            initUniquePairList(res.dic_filter);
         }
 
         setPollingData(formData, longPollingHandler, []);
@@ -389,7 +385,7 @@ const drawAGP = (orgData, scale = scaleOption, showPercent = isShowPercent) => {
     formElements.plotCard.show();
 
     // init filter modal
-    fillDataToFilterModal(orgData.catExpBox, [], orgData.cat_on_demand,[],  orgData.unique_color || [], () => {
+    fillDataToFilterModal(orgData.filter_on_demand, () => {
         queryDataAndShowAGP(false);
     });
 };

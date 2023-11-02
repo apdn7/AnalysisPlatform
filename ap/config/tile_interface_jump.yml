@@ -1,0 +1,21 @@
+!!omap
+- all:
+  - fpp
+  - stp
+  - chm
+  - msp
+  - scp
+  - pcp
+  - skd
+  - pca
+  - agp
+  - gl
+- tiles:
+    skd:
+      recommends:
+        - pcp
+        - rlp
+        - fpp
+        - gl
+      unavailable:
+        - pca

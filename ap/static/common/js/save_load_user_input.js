@@ -16,6 +16,9 @@ const SHARED_USER_SETTING = 'shared_user_setting';
 let lastUsedFormData = null;
 let latestIndexOrder = [];
 let selectedHref = '';
+let excludeSensors = [];
+let jumpCheckedAllSensors = [];
+let objectiveId = null;
 
 const settingModals = {
     common: '#saveUserSettingModal',
@@ -93,7 +96,6 @@ const getShowFormId = () => {
     }
 
     return null;
-
 
 
 };
@@ -241,6 +243,7 @@ const getSortKeys = (targetEle, isSimple = null) => {
     const isColumnNameBlank = !!(columnName.length > 0 && columnName.text() === '');
     // order by sensor x, y
     const sensor = checkboxs.length > 0 ? $(checkboxs[0]).attr('data-sensor') : null;
+    const order = checkboxs.length > 0 && isChecked ? $(checkboxs[0]).attr('order') : null;
 
     if (val === 'NO_FILTER') {
         keys.push(0);
@@ -253,6 +256,10 @@ const getSortKeys = (targetEle, isSimple = null) => {
     if (isSimple) {
         keys.push(isChecked === null ? lastPosNumber : (isChecked ? 0 : 1));
         return keys;
+    }
+
+    if (order) {
+        keys.push(order);
     }
 
     let cycleTimeVal = lastPosNumber;
@@ -480,14 +487,15 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
     let formId;
     let form;
     if (typeof (selector) === 'string') {
-        if (!selector.replace('#', '')) return ()=>{};
+        if (!selector.replace('#', '')) return () => {
+        };
         form = document.querySelector(selector);
         // form does not exist
         if (!form) {
             // find a form in document ( maybe GUI changed )
             form = $('form').not('#userSetting');
             if (!form) {
-               return;
+                return;
             }
             form = form[0];
         }
@@ -512,7 +520,6 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
 
     const checkActiveTab = (el) => {
         return el.classList.contains('tab-pane') && el.classList.contains('active') && el.classList.contains('show');
-
     };
 
 
@@ -531,14 +538,52 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
 
             // only match
             if (el.type === 'radio' || el.type === 'checkbox') {
-                data.checked = el.checked;
+                if (data.name === 'objectiveVar' && objectiveId) {
+                     if (data.id === objectiveId) {
+                        data.checked = true;
+                    } else if (data.id !== objectiveId) {
+                        data.checked = false;
+                    }
+                } else if (/GET02_VALS_SELECT/.test(data.name)) {
+                    if (jumpCheckedAllSensors.length && jumpCheckedAllSensors.includes(data.value)) {
+                        data.checked = true;
+                    } else if ((jumpCheckedAllSensors.length && !jumpCheckedAllSensors.includes(data.value)) || excludeSensors.includes(data.value)) {
+                        data.checked = false;
+                    } else {
+                        data.checked = el.checked;
+                    }
+                } else {
+                    data.checked = el.checked;
+                }
             } else if (el.getAttribute(DYNAMIC_ELE_ATTR)) {
                 // dynamic generate div
                 data.genBtnId = el.getAttribute(DYNAMIC_ELE_ATTR);
             }
 
+            if (data.id === 'datetimeRangePicker' && data.name === 'DATETIME_RANGE_PICKER' && divideOption === divideOptions.cyclicTerm) {
+                // assign new data
+                serializeData.push({
+                    id: 'cyclicTermDatetimePicker',
+                    name: 'DATETIME_PICKER',
+                    type: 'text',
+                    value: data.value.split(DATETIME_PICKER_SEPARATOR)[0],
+                });
+            }
+
             serializeData.push(data);
+
         });
+
+        if (divideOption) {
+            serializeData.push({
+                id: "divideOption",
+                name: "compareType",
+                type: "select-one",
+                value: divideOption,
+            })
+        }
+
+        resetCommonJumpObj();
 
         tabPanes.forEach((el) => {
             const data = {
@@ -546,6 +591,12 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             };
             serializeData.push(data);
         });
+
+        // sort checked judge
+        const checkedJudge = serializeData.filter(setting => setting.name === 'judgeVar' && setting.checked === true);
+        if (checkedJudge.length) {
+            serializeData.push(checkedJudge[0]);
+        }
 
         return serializeData;
     };
@@ -598,6 +649,9 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
     };
 
     const checkEleExistOnScreen = (btn, ele) => {
+        if (btn === 'btn-add-end-proc-paracords-real') {
+            btn = 'btn-add-end-proc';
+        }
         const genBtn = findGenBtn(btn);
         if (!genBtn) {
             return null;
@@ -639,7 +693,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
 
     const removeUnusedEle = (btn, usedEleNames) => {
         const genBtn = findGenBtn(btn);
-        if (!genBtn){
+        if (!genBtn) {
             return;
         }
         const dataGenBtnId = genBtn.id;
@@ -744,7 +798,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                     // in case of existing selection, but not existing item/option
                     // do nothing
                     if (input !== null && v.name === 'catExpBox' && !isLoadNew) {
-                       v.value = facetGenerate(srcSetting, desSetting, v)
+                        v.value = facetGenerate(srcSetting, desSetting, v)
                     }
                 }
 
@@ -796,9 +850,9 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             let input = null;
             let eleSelector;
             if (v.name === CYCLIC_TERM.DIV_CALENDER) {
-                 eleSelector = buildEleSelector(null, null, v.id);
+                eleSelector = buildEleSelector(null, null, v.id);
             } else {
-                 eleSelector = buildEleSelector(v.name);
+                eleSelector = buildEleSelector(v.name);
             }
             try {
                 input = form.querySelectorAll(eleSelector);
@@ -815,6 +869,9 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                 if (el.value === v.value) {
                     if (v.type === 'radio') {
                         $(el).attr('checked', v.checked);
+                        $(el).trigger('change');
+                    }
+                    if (v.name === 'judgeVar') {
                         $(el).trigger('change');
                     }
                     const oldCheck = el.checked;
@@ -871,12 +928,12 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
         }
 
         procs.forEach(async (proc, i) => {
-           await addSerialOrderRow(null, 'serialProcess', 'serialColumn', 'serialOrder', Number(proc.value), Number(cols[i].value), orders[i].value);
-           bindChangeProcessEvent();
-           updatePriorityAndDisableSelected();
-           setTimeout(() => { // wait select2 to be shown
+            await addSerialOrderRow(null, 'serialProcess', 'serialColumn', 'serialOrder', Number(proc.value), Number(cols[i].value), orders[i].value);
+            bindChangeProcessEvent();
+            updatePriorityAndDisableSelected();
+            setTimeout(() => { // wait select2 to be shown
                 bindChangeOrderColEvent();
-           }, 200);
+            }, 200);
         })
     };
 
@@ -939,14 +996,14 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                     });
                 }, 500);
             }, 1000);
-            setTimeout(()=>{
+            setTimeout(() => {
                 if (currentFormID && isLoadNew) {
                     const form = $(currentFormID);
                     currentFromDataFromLoadSetting = new FormData(form[0]);
                     resetChangeSettingMark();
-                    isSettingLoading = false;
                 }
-            },3500);
+                isSettingLoading = false;
+            }, 3500);
         } else if (isSaveToLocalStorage) {
             saveUserInput();
         } else {
@@ -1018,7 +1075,7 @@ const clearSettingID = () => {
 const updateSettingPriority = (elem, userSettingId) => {
     const settingPriority = $(elem).val();
     if (settingPriority) {
-        $.get(`/ap/api/setting/user_setting/${userSettingId}`, { "_": $.now() }, (res) => {
+        $.get(`/ap/api/setting/user_setting/${userSettingId}`, {"_": $.now()}, (res) => {
             if (res.status === 200) {
                 const settingDat = {
                     id: userSettingId,
@@ -1038,7 +1095,7 @@ const updateSettingPriority = (elem, userSettingId) => {
     }
 };
 
-const createHTMLRow = (setting, idx) => {
+const createHTMLRow = (setting, idx, isCurrentSetting) => {
     // TODO i18n: Shared, Private, btns
     const priorities = [5, 4, 3, 2, 1];
     let prioritySelection = '';
@@ -1060,7 +1117,12 @@ const createHTMLRow = (setting, idx) => {
     });
     const objTitlePage = objTitle ? objTitle[setting.page] : '';
     const pageTitle = objTitlePage ? objTitlePage.title : '';
-    const htmlRow = pageTitle ? `<tr data-setting-id="${setting.id}">
+    if (!pageTitle) {
+        return '';
+    }
+
+    const backgroundColor = isCurrentSetting ? ' style=" background-color: steelblue;"': '';
+    const htmlRow =`<tr data-setting-id="${setting.id}" ${backgroundColor}>
         <td>${idx}</td>
         <td>${setting.share_info ? $(i18nEles.shared).text() : $(i18nEles.private).text()}</td>
         <td>
@@ -1081,15 +1143,20 @@ const createHTMLRow = (setting, idx) => {
         <td class="action col-with-button"><button class="btn-orange btn"
         	onclick="editSettings(${setting.id})"><i class="far fa-edit"></i></button></td>
         <td class="action col-with-button">
+            <button class="btn-secondary btn" onclick="handleCopyUrlToClipBoard(this, ${setting.id})">
+                <i class="fa fa-copy"></i>
+            </button>
+        </td>
+        <td class="action col-with-button">
         	<button class="btn-danger btn"
         	onclick="bindDeleteUserSetting(this, ${setting.id})"><i class="fas fa-trash"></i></button></td>
         <td class="col-3">${setting.description || ''}</td>
-    </tr>` : '';
+    </tr>`;
     return htmlRow;
 };
 
 const settingDataTableInit = () => {
-    sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 10], '100%');
+    sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 11], '100%');
 };
 
 const scrollToBottom = (id) => {
@@ -1109,7 +1176,8 @@ const showUserSettingsToModal = (userSettings) => {
         const isShowSetting = !currentUser || currentUser && setting.created_by === currentUser || setting.share_info;
 
         if (isShowSetting) {
-            const rowHTML = createHTMLRow(setting, idx);
+            const isCurrentSetting = currentLoadSetting ? setting.id == currentLoadSetting.id : false
+            const rowHTML = createHTMLRow(setting, idx, isCurrentSetting);
             rowHTMLs.push(rowHTML);
             idx += 1;
         }
@@ -1197,7 +1265,7 @@ const goToSettingPage = (userSettingId, settingPage, isImportMode = false, isBla
     setExportMode(false);
 
     if (settingPage && !isBlank) {
-        window.location.replace(settingPage);
+        window.location.assign(settingPage);
     }
 
     if (settingPage && isBlank) {
@@ -1206,12 +1274,12 @@ const goToSettingPage = (userSettingId, settingPage, isImportMode = false, isBla
 };
 
 const handleGoToSettingPage = (e, userSettingId, settingPage) => {
-     e.preventDefault();
-     if (e.ctrlKey) {
-         goToSettingPage(userSettingId, settingPage, false, true)
-     } else {
-         goToSettingPage(userSettingId, settingPage);
-     }
+    e.preventDefault();
+    if (e.ctrlKey) {
+        goToSettingPage(userSettingId, settingPage, false, true)
+    } else {
+        goToSettingPage(userSettingId, settingPage);
+    }
 };
 const useUserSetting = (userSettingId = null, sharedSetting = null, onlyLoad = null, isLoadNew = true, fromPaste = false) => {
     const reqHeaders = new Headers();
@@ -1312,7 +1380,7 @@ const saveStateAndShowLabelSetting = (userSetting, inplace = true) => {
 
     // if not inplace replace, do nothing
     if (!inplace) {
-         return;
+        return;
     }
     // show "overwrite save" button in case load config
     // show bookmark when setting label is empty. Otherwise
@@ -1403,15 +1471,25 @@ const showSettingModal = (userSetting) => {
     $(settingModals.common).modal('show');
 };
 
-const editSettings = (userSettingId) => {
-    $.get(`/ap/api/setting/user_setting/${userSettingId}`, { "_": $.now() }, (res) => {
-        if (res.status === 200) {
-            // change tile
-            $(settingModals.userSettingLabel).text(i18nCommon.edit);
-            $(settingModals.saveSettingConfirmBtn).attr('is-edit', 1);
-            showSettingModal(res.data);
-        }
-    });
+const getUserSettingById = async (userSettingId) => {
+    const res = await fetchData(`/ap/api/setting/user_setting/${userSettingId}`, {}, 'GET');
+    return res;
+};
+
+const getHostName = async () => {
+    const res = await fetchData(`/ap/api/setting/host_name`, {}, 'GET');
+    return res;
+};
+
+const editSettings = async (userSettingId) => {
+    const res = await getUserSettingById(userSettingId);
+    if (res.status === 200) {
+        // change tile
+        $(settingModals.userSettingLabel).text(i18nCommon.edit);
+        $(settingModals.saveSettingConfirmBtn).attr('is-edit', 1);
+        showSettingModal(res.data);
+    }
+    ;
 };
 
 const autoFillUserSetting = () => {
@@ -1592,7 +1670,6 @@ const getSettingCommonInfo = () => {
         });
 
 
-
         const filterData = {
             dic_cat_filters: lastUsedFormData ? JSON.parse(lastUsedFormData.get('dic_cat_filters')) : '',
             temp_cat_exp: lastUsedFormData ? JSON.parse(lastUsedFormData.get('temp_cat_exp')) : '',
@@ -1725,7 +1802,7 @@ $(document).ready(() => {
 
         // set userName in localStorage at first time
         getOrSetUserName(settingCommonInfo.created_by);
-        
+
         const inplaceSetting = !settingCommonInfo.id ? true : (currentLoadSetting && settingCommonInfo)
             ? (Number(currentLoadSetting.id) === Number(settingCommonInfo.id))
             : true;
@@ -1762,15 +1839,15 @@ $(document).ready(() => {
     genTriggerFileSetting(dragAreaCls, selectFileBtnId, selectFileInputId);
 
     // init
-    setTimeout(()=> {
+    setTimeout(() => {
         if (currentFormID) {
             const form = $(currentFormID);
             currentFromDataFromLoadSetting = new FormData(form[0]);
-            form.find('input').on('change', () =>{
+            form.find('input').on('change', () => {
                 compareSettingChange();
             });
 
-            form.find('select').on('change', () =>{
+            form.find('select').on('change', () => {
                 compareSettingChange();
             });
         }
@@ -1778,6 +1855,14 @@ $(document).ready(() => {
     }, 3500);
 
     $('.go-to-page').on('contextmenu', (e) => {
+        const takeOverItems = $('#contextMenuSidebar').find('.takeover-item');
+        takeOverItems.hide();
+        const parentItem = $(e.currentTarget).closest('.menu-group-item');
+        const isVisualPage = parentItem.hasClass('visual-page') || false;
+        if (isVisualPage) {
+            takeOverItems.show();
+        }
+
         selectedHref = e.target.closest('a').getAttribute('href');
         rightClickHandler(e, settingModals.sideBarContextMenu);
     });
@@ -1832,11 +1917,11 @@ const compareSettingChange = () => {
 
         $('#setting-change-mark').show();
         $(window).off("beforeunload");
-        $(window).on("beforeunload", function() {
+        $(window).on("beforeunload", function () {
             return 'Do you want to save changes?';
         });
     } else {
-       fillStartBookmark();
+        fillStartBookmark();
         resetChangeSettingMark();
     }
 }
@@ -1874,18 +1959,12 @@ const showSettingChangeModalHandler = (callback) => {
     }
 };
 
-const goToOtherPage = (href, inplace = true, emptyPage = false, mainPage='') => {
+const goToOtherPage = (href, inplace = true, emptyPage = false, mainPage = '') => {
     if (!href) {
         href = selectedHref;
     }
     if (mainPage) {
-        if ( mainPage == 'DN7' ) {
-            href = '/ap/tile_interface/dn7';
-        }
-
-        if ( mainPage === 'AP' ) {
-            href = '/ap/tile_interface/analysis_platform';
-        }
+        href = `/ap/tile_interface/${mainPage}`;
     }
     if (emptyPage) {
         useTileInterface().set();
@@ -1893,7 +1972,7 @@ const goToOtherPage = (href, inplace = true, emptyPage = false, mainPage='') => 
     if (inplace) {
         showSettingChangeModalHandler(() => {
             resetChangeSettingMark();
-            window.location.replace(href);
+            window.location.assign(href);
         });
     } else {
         window.open(href, '_blank');
@@ -1910,6 +1989,23 @@ const isSaveGraphSetting = () => {
     return currentLoadSetting && currentLoadSetting.save_graph_settings && !isSettingChanged;
 };
 
+const handleCopyUrlToClipBoard = async (e, userSettingId) => {
+    const res = await getUserSettingById(userSettingId);
+    let page = '';
+    if (res.status === 200) {
+        page = res.data.page;
+        let url = `${window.location.host}${page}?user_setting_id=${res.data.id}`;
+        const serverMachineName = "";
+        url = url.replace(/localhost|127.0.0.1/, res.hostname)
+        $('#copyClipboardContent').show();
+        $('#copyClipboardContentText').text(url);
+        setTimeout(() => {
+            $('#copyUrlButton').click();
+            setTooltip($(e), 'Copied!');
+        }, 300);
+    }
+}
+
 
 const getFilterOnDemand = () => {
     if (!currentLoadSetting) return null;
@@ -1922,7 +2018,7 @@ const getGraphSettings = () => {
     const settings = JSON.parse(currentLoadSetting.settings);
     // sort by order
 
-    return  settings.graphSetting ? settings.graphSetting.sort(function (a, b) {
+    return settings.graphSetting ? settings.graphSetting.sort(function (a, b) {
         return a.order > b.order ? -1 : 1;
     }) : null;
 };
@@ -1963,7 +2059,7 @@ const loadGraphSetings = (isFirstTime = false) => {
             selectorStr = `[name=${setting.name}]`;
             // el = graphArea.find(`[name=${setting.name}]`);
         } else {
-             // el = graphArea.find(`#${setting.id}`);
+            // el = graphArea.find(`#${setting.id}`);
             selectorStr = `#${setting.id}`;
         }
 
@@ -1972,18 +2068,19 @@ const loadGraphSetings = (isFirstTime = false) => {
         if (setting.type === 'radio') {
             el = graphArea.find(`${selectorStr}[value=${setting.value}]`).prop('checked', true);
         } else if (setting.type === 'select') {
-           el = graphArea.find(`${selectorStr}`).val(setting.value);
+            el = graphArea.find(`${selectorStr}`).val(setting.value);
         } else if (setting.type === 'checkbox') {
             el = graphArea.find(`${selectorStr}`).prop('checked', setting.checked);
             isTriggerChange = setting.defaultVal !== setting.checked;
         } else if (setting.type === 'text') {
-           el = graphArea.find(`${selectorStr}`).val(setting.value);
+            el = graphArea.find(`${selectorStr}`).val(setting.value);
         }
 
         if (isTriggerChange) {
             el.trigger('change');
         }
-    };
+    }
+    ;
 };
 
 const getDicChecked = () => {
@@ -2014,6 +2111,6 @@ const facetGenerate = (src, des, value) => {
             // facet lv1 -> lv2
             facetVal = (facetVal === facets.DIV) ? facets.LV1 : facets.LV2;
         }
-     }
+    }
     return facetVal;
 };

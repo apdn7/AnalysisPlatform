@@ -15,6 +15,10 @@ let xAxisShowSettings;
 let availableOrderingSettings = {};
 let isShowIndexInGraphArea = false;
 let updateOrderCols = false;
+let fppScaleOption = {
+    xAxis: null,
+    yAxis: null,
+};
 
 const formElements = {
     formID: '#traceDataForm',
@@ -160,7 +164,7 @@ $(() => {
     const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
         showDataType: true,
         showStrColumn: true,
-        showCatExp:  true,
+        showCatExp: true,
         isRequired: true,
         showLabels: true,
     });
@@ -210,16 +214,13 @@ $(() => {
     // onChange Y scale function
     onChangeYScale();
 
-     // on select histogam y-scale option
+    // on select histogam y-scale option
     $(`select[name=${formElements.frequencyScale}]`).off('change');
     $(`select[name=${formElements.frequencyScale}]`).on('change', function (e) {
-        const frequencyOption = e.currentTarget.value;
-        const scaleOption = $(formElements.yScaleOption).val();
-
+        setGraphSetting();
         const currentTraceData = graphStore.getTraceData();
         // TODO: should update than re-draw
-        drawHistogramsTab(currentTraceData, scaleOption, false, frequencyOption);
-        // updateHistogramWhenChaneScale(scaleOption);
+        drawHistogramsTab(currentTraceData, fppScaleOption.yAxis, false, fppScaleOption.xAxis);
     });
 
     // set copy clipboard for setting information
@@ -240,7 +241,6 @@ $(() => {
 
     bindScatterPlotEvents();
 });
-
 
 
 const endProcCateOnChange = async (count) => {
@@ -297,19 +297,19 @@ const autoScrollToChart = (milisec = 100) => {
 };
 
 const buildTimeSeriesCardHTML = (chartOption, cssName) => {
-    const { index } = chartOption;
-    const { endProcName } = chartOption;
-    const { sensorName } = chartOption;
-    const { getProc } = chartOption;
-    const { getVal } = chartOption;
-    const { catExpBox } = chartOption;
+    const {index} = chartOption;
+    const {endProcName} = chartOption;
+    const {sensorName} = chartOption;
+    const {getProc} = chartOption;
+    const {getVal} = chartOption;
+    const {catExpBox} = chartOption;
     const graphCanvasHTML = buildGraphContainerHTML(chartOption);
-    const { allSummaryData } = chartOption;
-    const { latestChartInfoIdx } = chartOption;
-    const { startProc } = chartOption;
-    const { beforeRankValues } = chartOption;
-    const { stepChartSummary } = chartOption;
-    const { isCTCol } = chartOption;
+    const {allSummaryData} = chartOption;
+    const {latestChartInfoIdx} = chartOption;
+    const {startProc} = chartOption;
+    const {beforeRankValues} = chartOption;
+    const {stepChartSummary} = chartOption;
+    const {isCTCol} = chartOption;
 
     const generalInfo = {
         getProc, getVal, startProc, endProcName, catExpBox,
@@ -381,21 +381,21 @@ const calcContainerWidth = (showScatterPlot = false) => {
 };
 
 const buildGraphContainerHTML = (chartOption) => {
-    const { numCards } = chartOption;
-    const { endProcName } = chartOption;
-    const { sensorName } = chartOption;
-    const { index } = chartOption;
-    const { tsCanvasId } = chartOption;
-    const { histCanvasId } = chartOption;
-    const { whiskerCanvasId } = chartOption;
-    const { sctrCanvasId } = chartOption;
-    const { showScatterPlot } = chartOption;
-    const { chartCols } = chartOption;
-    const { getVal } = chartOption;
-    const { catExpBox } = chartOption;
-    const { dicScatterXY } = chartOption;
-    const { beforeRankValues } = chartOption;
-    const { isCTCol } = chartOption;
+    const {numCards} = chartOption;
+    const {endProcName} = chartOption;
+    const {sensorName} = chartOption;
+    const {index} = chartOption;
+    const {tsCanvasId} = chartOption;
+    const {histCanvasId} = chartOption;
+    const {whiskerCanvasId} = chartOption;
+    const {sctrCanvasId} = chartOption;
+    const {showScatterPlot} = chartOption;
+    const {chartCols} = chartOption;
+    const {getVal} = chartOption;
+    const {catExpBox} = chartOption;
+    const {dicScatterXY} = chartOption;
+    const {beforeRankValues} = chartOption;
+    const {isCTCol} = chartOption;
     let graphCanvasHTML = '';
     let catExpBoxHTML = '';
 
@@ -556,7 +556,7 @@ const produceExceptionArrayY = (plotdata, yMin, yMax, unlinkedIdxs, noneIdxs, in
         arrayYEx[idx] = yMin;
         plotDataExColor[idx] = CONST.COLOR_UNLINKED;
     }
-    return { arrayYEx, plotDataExColor };
+    return {arrayYEx, plotDataExColor};
 };
 
 const getStartEndPoint = (xAxisOption = 'TIME', timesLength = 20, data = {}) => {
@@ -627,7 +627,7 @@ const selectScatterXY = (plots) => {
 };
 
 
-const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
+const traceDataChart = (data, clearOnFlyFilter) => {
     if (isEmpty(data)) return;
 
     const startTime = performance.now();
@@ -635,11 +635,11 @@ const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
     // get size of input in bytes
     const sizeOfData = data.data_size;
 
+    const scaleOption = fppScaleOption.yAxis;
+
     // clear old results and charts
     cleanOldChartsAndResults();
-    if (!scaleOption) {
-        scaleOption = scaleOptionConst.SETTING;
-    }
+
     const isThinData = data.is_thin_data;
     let showScatterPlot;
     if (isThinData) {
@@ -728,10 +728,9 @@ const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
         } = produceExceptionArrayY(arrayY, yMin, yMax, unlinkedIdxs, noneIdxs, infIdxs, negInfIdxs, negOutlierIdxs, outlierIdxs);
 
 
-
         // カラム名を取得する。
         const columnName = getColumnName(endProcId, sensorId);
-        let { catExpBox } = data.array_plotdata[i];
+        let {catExpBox} = data.array_plotdata[i];
         if (catExpBox === null) {
             catExpBox = COMMON_CONSTANT.NA;
         }
@@ -893,7 +892,7 @@ const traceDataChart = (data, scaleOption = null, clearOnFlyFilter) => {
     }
 
     // produce categorical table
-    produceCategoricalTable(data, options = { chartCols }, clearOnFlyFilter);
+    produceCategoricalTable(data, options = {chartCols}, clearOnFlyFilter);
 
     // drag and drop timeseries card to save order + redraw scatter plot
     addTimeSeriesCardSortableEventHandler();
@@ -932,7 +931,7 @@ const sendGAEvent = (startTime, sizeOfData) => {
 
 
 // build histogram tab
-const drawHistogramsTab = (data, scaleOption = '1', isReset = true, frequencyOption = frequencyOptions.AUTO) => {
+const drawHistogramsTab = (data, scaleOption = fppScaleOption.yAxis, isReset = true, frequencyOption = fppScaleOption.xAxis) => {
     $(formElements.histPlotCards).empty();
     $(formElements.histPlotCards).css('display', 'block');
 
@@ -959,7 +958,7 @@ const drawHistogramsTab = (data, scaleOption = '1', isReset = true, frequencyOpt
 
         const endProcName = formVal.end_proc;
         const getVal = formVal.GET02_VALS_SELECT;
-        let { catExpBox } = plotdata;
+        let {catExpBox} = plotdata;
         if (catExpBox === null) {
             catExpBox = COMMON_CONSTANT.NA;
         }
@@ -974,7 +973,7 @@ const drawHistogramsTab = (data, scaleOption = '1', isReset = true, frequencyOpt
         const stepChartSummary = data.array_plotdata[i].cat_summary || null;
 
         // create summaries HTMLs
-        const  { end_col_id, end_proc_id, summaries } = plotdata;
+        const {end_col_id, end_proc_id, summaries} = plotdata;
         const isHideNonePoint = isHideNoneDataPoint(end_proc_id, end_col_id, data.COMMON.remove_outlier);
         const summaryData = calculateSummaryData(summaries, latestChartInfoIdx, isHideNonePoint);
         const sensorType = procConfigs[end_proc_id].dicColumns[end_col_id].data_type;
@@ -1030,120 +1029,14 @@ const drawHistogramsTab = (data, scaleOption = '1', isReset = true, frequencyOpt
         };
         HistogramWithDensityCurve($, histParam);
     }
-    
+
     // Init filter modal
-    const {catExpBox, category_data, cat_on_demand} = data;
-    fillDataToFilterModal(catExpBox, category_data, cat_on_demand, [], [], handleSubmit);
+    fillDataToFilterModal(data.filter_on_demand, () => {
+        bindCategorySort();
+        handleSubmit(false, false);
+    });
     checkSummaryOption(formElements.summaryOption);
 };
-
-// const updateHistogramWhenChaneScale = (scaleOption = '1') => {
-//     const currentTraceData = graphStore.getTraceData();
-//     const numChart = currentTraceData.array_plotdata.length;
-//
-//     // set common max min
-//     // let commonMaxY = null;
-//     // let commonMinY = null;
-//     // if (scaleOption === '2') {
-//     //     let arrayPlotdataY = [];
-//     //     for (let idx = 0; idx < numChart; idx++) {
-//     //         if (currentTraceData.array_plotdata[idx].before_rank_values === null) {
-//     //             arrayPlotdataY = arrayPlotdataY.concat(currentTraceData.array_plotdata[idx].array_y);
-//     //         }
-//     //     }
-//     //     arrayPlotdataY = arrayPlotdataY.filter(e => $.isNumeric(e));
-//     //     [commonMinY, commonMaxY] = findMinMax(arrayPlotdataY);
-//     // }
-//
-//
-//     for (let i = 0; i < numChart; i++) {
-//         const plotData = currentTraceData.array_plotdata[i];
-//         const beforeRankValues = plotData.before_rank_values;
-//         if (beforeRankValues) {
-//             continue;
-//         }
-//
-//         // const arrayY = plotData.array_y;
-//         // const setYMax = plotData['y-max'];
-//         // const setYMin = plotData['y-min'];
-//         // const convertedChartInfos = plotData.chart_infos;
-//         // const [latestChartInfo, latestIndex] = chooseLatestThresholds(convertedChartInfos) || {};
-//         // const corrSummary = plotData.summaries[latestIndex] || {};
-//         // const [minY, maxY, globalRange, customBinSize] = createHistogramParamsTraceData(scaleOption, arrayY, setYMin, setYMax, commonMinY, commonMaxY, latestChartInfo, corrSummary);
-//
-//         const scaleInfo = getScaleInfo(plotData, scaleOption);
-//         const kdeData = scaleInfo.kde_data;
-//         let yMax = scaleInfo['y-max'];
-//         const yMin = scaleInfo['y-min'];
-//
-//         yMax = yMax * 105 / 100;
-//
-//         const kdeDensity = {
-//             y: kdeData.hist_labels,
-//             x: kdeData.kde,
-//             mode: 'lines',
-//             name: 'KDE',
-//             line: {
-//                 shape: 'spline',
-//                 width: 1,
-//             },
-//             type: 'scatter',
-//             orientation: 'h',
-//             xaxis: 'x2',
-//             // marker: {
-//             //     color: isThinData ? CONST.COLOR_THIN : '#d07e00',
-//             // },
-//             hoverinfo: 'none',
-//         };
-//
-//         const histogram = {
-//             // y: kdeData.hist_counts,
-//             // x: kdeData.hist_labels,
-//             y: kdeData.hist_labels,
-//             x: kdeData.hist_counts,
-//             histfunc: 'sum',
-//             orientation: 'h',
-//             marker: {
-//                 color: '#89b368',
-//                 line: {
-//                     color: '#89b368',
-//                     width: 0.2,
-//                 },
-//             },
-//             name: '',
-//             opacity: 0.75,
-//             type: 'histogram',
-//             autobiny: false,
-//             ybins: { end: yMax, size: 128, start: yMin },
-//             hovertemplate: '%{x}',
-//         };
-//         const dataUpdate = [
-//             histogram,
-//             kdeDensity,
-//         ];
-//
-//
-//         // const layoutUpdate = {
-//         //     yaxis: {
-//         //         gridcolor: '#444444',
-//         //         tickfont: {
-//         //             color: 'rgba(255,255,255,1)',
-//         //             size: 8,
-//         //         },
-//         //         spikemode: 'across',
-//         //         spikethickness: 1,
-//         //         spikedash: 'solid',
-//         //         spikecolor: 'rgb(255, 0, 0)',
-//         //         // range: globalRange,
-//         //     },
-//         // };
-//
-//         const canvasId = `${formElements.histograms}${i + 1}`;
-//
-//         Plotly.update(canvasId, dataUpdate);
-//         // Plotly.update(canvasId, dataUpdate, layoutUpdate, [0]);
-//     }
-// };
 
 const loading = $('.loading');
 
@@ -1161,7 +1054,7 @@ const traceDataWithDBChecking = (action) => {
 
     // continue to trace data or export CSV/TSV
     if (action === 'TRACE-DATA') {
-        isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
+        isValid = checkValidations({max: MAX_NUMBER_OF_SENSOR});
         updateStyleOfInvalidElements();
         if (!isValid) return;
         // close sidebar
@@ -1175,7 +1068,6 @@ const traceDataWithDBChecking = (action) => {
         handleSubmit(true);
     }
 };
-
 const clearTraceResultCards = () => {
     // clear catgory table
     $(formElements.cateCard).html('');
@@ -1226,7 +1118,6 @@ const collectFormDataTrace = (clearOnFlyFilter, autoUpdate = false) => {
         formData = collectFormData(formElements.formID);
         // transform facet params
         formData = transformFacetParams(formData);
-        formData = bindCategoryParams(formData);
 
         // genDatetime of tracing from date-time-range-picker
         formData = genDatetimeRange(formData);
@@ -1249,61 +1140,52 @@ const collectFormDataTrace = (clearOnFlyFilter, autoUpdate = false) => {
 };
 
 const traceData = (clearOnFlyFilter, autoUpdate) => {
-
     let formData = collectFormDataTrace(clearOnFlyFilter, autoUpdate);
 
     formData = handleXSettingOnGUI(formData);
 
+
     showGraphCallApi('/ap/api/fpp/index', formData, REQUEST_TIMEOUT, async (res) => {
-    
         $(formElements.traceDataTabs).css('display', 'block');
-    
+
+        // sort graphs
+        if (latestSortColIds && latestSortColIds.length) {
+            res.ARRAY_FORMVAL = sortGraphs(res.ARRAY_FORMVAL, 'GET02_VALS_SELECT', latestSortColIds);
+            res.array_plotdata = sortGraphs(res.array_plotdata, 'end_col_id', latestSortColIds);
+        }
         convertChartInfoToIndex(res);
-    
+
         // store trace result
         graphStore.setTraceData(_.cloneDeep(res));
-    
-        const {catExpBox, category_data, cat_on_demand} = res;
 
         availableOrderingSettings = res.COMMON.available_ordering_columns;
 
         // TODO:  lay nhung column va process o res de disable chinh xac hon.
         if (clearOnFlyFilter) {
-            const dfProcs = res.COMMON.dfProcs || [];
-            const dfCols = res.COMMON.dfColumns || [];
-            clearGlobalDict();
-            initTableValue(dfProcs, dfCols);
-            initGlobalDict(catExpBox);
-            initGlobalDict(category_data);
-            initGlobalDict(cat_on_demand);
-            initDicChecked(getDicChecked());
-            initUniquePairList(res.dic_filter);
+            initTableValue();
         }
 
-        const shouldOrderByIndexList = isShowIndexInGraphArea || clearOnFlyFilter;
+        res.filter_on_demand.category = orderCategoryWithOrderSeries(res, clearOnFlyFilter);
+        const { category } = res.filter_on_demand;
 
-        const categoryData = shouldOrderByIndexList ? orderCategoryWithOrderSeries(res) : category_data;
-        res.category_data = categoryData;
-
+        setGraphSetting();
         // draw + show data to graphs
-        traceDataChart(res, null, clearOnFlyFilter);
+        traceDataChart(res, clearOnFlyFilter);
 
         loadGraphSetings(clearOnFlyFilter);
 
         showInfoTable(res);
 
         // render cat, category label filer modal
-        fillDataToFilterModal(catExpBox, categoryData, cat_on_demand, [], [], handleSubmit);
+        fillDataToFilterModal(res.filter_on_demand, () => {
+            bindCategorySort();
+            handleSubmit(false, false);
+        });
 
         // Move screen to graph after pushing グラフ表示 button
         if (!autoUpdate) {
             autoScrollToChart(500);
         }
-
-        // sql limit warining toastr
-        // if (res.actual_record_number > SQL_LIMIT) {
-        //     showToastrMsg(i18n.SQLLimit);
-        // }
 
         // show toastr to inform result was truncated upto 5000
         if (res.is_res_limited) {
@@ -1323,13 +1205,20 @@ const traceData = (clearOnFlyFilter, autoUpdate) => {
         setPollingData(formData, handleSubmit, [false, true]);
 
         if ((isEmpty(res.array_plotdata)
-                        || isEmpty(res.array_plotdata[0].array_y))
-                    && (isEmpty(res.category_data)
-                        || isEmpty(res.category_data[0]))) {
+                || isEmpty(res.array_plotdata[0].array_y))
+            && (isEmpty(category)
+                || isEmpty(category[0]))) {
             showToastrAnomalGraph();
         }
         isShowIndexInGraphArea = false;
     });
+};
+
+
+const setGraphSetting = () => {
+    // frequencyScale, yScaleOption
+    fppScaleOption.xAxis = $(`select[name=${formElements.frequencyScale}]`).val();
+    fppScaleOption.yAxis = $(formElements.yScaleOption).val();
 };
 
 
@@ -1376,7 +1265,7 @@ const scrollTSChart = (() => {
             if ($stickies.find('.btn-anchor').hasClass('pin')
                 && $stickies.hasClass('pinChart')) {
                 $stickies.removeClass('pinChart');
-                $stickies.css({ position: '' });
+                $stickies.css({position: ''});
             }
         } else if ($stickies.find('.btn-anchor').hasClass('pin')) {
             $stickies.addClass('pinChart');
@@ -1468,7 +1357,7 @@ const pinTSChart = (chartDOMId) => {
 
     // remove width + position to make more responsive when unpin
     if (!cardEle.hasClass('pinChart')) {
-        cardEle.css({ width: '', position: '' });
+        cardEle.css({width: '', position: ''});
     }
 };
 
@@ -1542,35 +1431,19 @@ const onChangeYScale = () => {
     // on select histogam y-scale option
     $(formElements.yScaleOption).off('change');
     $(formElements.yScaleOption).on('change', function () {
-        const scaleOption = $(this).children('option:selected').val() || 1;
+        setGraphSetting();
         // update scale of time series
-        updateGraphScale(scaleOption);
-
-        const frequencyOption = $(`select[name=${formElements.frequencyScale}]`).val();
-        // reset summary seletion
-        // resetSummaryOption('histSummaryOption');
+        updateGraphScale(fppScaleOption.yAxis);
 
         const currentTraceData = graphStore.getTraceData();
-        // TODO: should update than re-draw
-        drawHistogramsTab(currentTraceData, scaleOption, false, frequencyOption);
-        // updateHistogramWhenChaneScale(scaleOption);
+
+        drawHistogramsTab(currentTraceData, fppScaleOption.yAxis, false, fppScaleOption.xAxis);
     });
 };
 
-const dumpData = (type, exportFrom) => {
+const dumpData = (type) => {
     const formData = lastUsedFormData || collectFormDataTrace(true);
-    formData.set('export_from', exportFrom);
-    if (type === EXPORT_TYPE.CSV) {
-        exportData('/ap/api/fpp/csv_export', 'csv', formData);
-    }
-
-    if (type === EXPORT_TYPE.TSV) {
-        exportData('/ap/api/fpp/tsv_export', 'tsv', formData);
-    }
-
-    if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
-        tsvClipBoard('/ap/api/fpp/tsv_export', formData);
-    }
+    handleExportDataCommon(type, formData);
 };
 const handleExportData = (type) => {
     showGraphAndDumpData(type, dumpData);
@@ -1587,3 +1460,14 @@ const bindScatterPlotEvents = () => {
         }
     });
 };
+
+const goToGraphConfigPageFPP = (url) => {
+    const selectedCanvasId = graphStore.getSelectedCanvas();
+    if (!selectedCanvasId) {
+        hideFPPContextMenu();
+        return;
+    }
+
+    const procId = graphStore.getArrayPlotData(selectedCanvasId).end_proc_id;
+    goToOtherPage(`${url}?proc_id=${procId}`, false);
+}

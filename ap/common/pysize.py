@@ -1,5 +1,5 @@
-import sys
 import inspect
+import sys
 
 
 def get_size(obj, seen=None):

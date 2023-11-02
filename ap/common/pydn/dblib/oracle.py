@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 class Oracle:
-
     def __init__(self, host, service_name, username, password):
         self.host = host
         self.port = 1521
@@ -21,25 +20,29 @@ class Oracle:
         self.is_connected = False
 
     def dump(self):
-        print("===== DUMP RESULT =====")
-        print("DB Type: Oracle")
-        print("self.host: " + self.host)
-        print("self.port: " + str(self.port))
-        print("self.dbname: " + self.dbname)
-        print("self.username: " + self.username)
-        print("self.is_connected: ", self.is_connected)
-        print("=======================")
+        print('===== DUMP RESULT =====')
+        print('DB Type: Oracle')
+        print('self.host: ' + self.host)
+        print('self.port: ' + str(self.port))
+        print('self.dbname: ' + self.dbname)
+        print('self.username: ' + self.username)
+        print('self.is_connected: ', self.is_connected)
+        print('=======================')
 
     def connect(self):
-        dsn = cx_Oracle.makedsn(self.host, self.port,
-                                service_name=self.dbname)
+        dsn = cx_Oracle.makedsn(self.host, self.port, service_name=self.dbname)
         try:
             self.connection = cx_Oracle.connect(
-                user=self.username, password=self.password, dsn=dsn, encoding=ENCODING_UTF_8, nencoding=ENCODING_UTF_8)
+                user=self.username,
+                password=self.password,
+                dsn=dsn,
+                encoding=ENCODING_UTF_8,
+                nencoding=ENCODING_UTF_8,
+            )
             self.is_connected = True
             return self.connection
         except:
-            print("Cannot connect to db")
+            print('Cannot connect to db')
             print('>>> traceback <<<')
             traceback.print_exc()
             print('>>> end of traceback <<<')
@@ -56,24 +59,24 @@ class Oracle:
     def create_table(self, tblname, valtypes):
         if not self._check_connection():
             return False
-        sql = "create table {0:s}(".format(tblname)
+        sql = 'create table {0:s}('.format(tblname)
         for idx, val in enumerate(valtypes):
             if idx > 0:
-                sql += ","
-            sql += val["name"] + " " + val["type"]
-        sql += ")"
+                sql += ','
+            sql += val['name'] + ' ' + val['type']
+        sql += ')'
         print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + " created!")
+        print(tblname + ' created!')
 
     # テーブル名の配列を取得
     def list_tables(self):
         if not self._check_connection():
             return False
-        sql = "select table_name from user_tables"
+        sql = 'select table_name from user_tables'
         cur = self.connection.cursor()
         cur.execute(sql)
         results = []
@@ -100,14 +103,14 @@ class Oracle:
     def drop_table(self, tblname):
         if not self._check_connection():
             return False
-        sql = "drop table " + tblname
+        sql = 'drop table ' + tblname
         cur = self.connection.cursor()
         try:
             cur.execute(sql)
             self.connection.commit()
-            print(tblname + " dropped!")
+            print(tblname + ' dropped!')
         except Exception:
-            print(tblname + " is not found!")
+            print(tblname + ' is not found!')
         finally:
             cur.close()
 
@@ -119,18 +122,15 @@ class Oracle:
     def list_table_columns(self, tblname):
         if not self._check_connection():
             return False
-        sql = "select column_id, column_name, data_type "
-        sql += "from user_tab_columns "
+        sql = 'select column_id, column_name, data_type '
+        sql += 'from user_tab_columns '
         sql += "where table_name='{0:s}'".format(tblname)
         cur = self.connection.cursor()
         cur.execute(sql)
         rows = cur.fetchall()
         results = []
         for row in rows:
-            results.append({
-                "name": row[1],
-                "type": row[2]
-            })
+            results.append({'name': row[1], 'type': row[2]})
         cur.close()
         return results
 
@@ -141,21 +141,21 @@ class Oracle:
         columns = self.list_table_columns(tblname)
         colnames = []
         for column in columns:
-            colnames.append(column["name"])
+            colnames.append(column['name'])
         return colnames
 
     def divide_data_to_chunks(self, lst_data, n):
-        """ Devide a list to chunks of n elements.
+        """Devide a list to chunks of n elements.
 
         :param lst_data: data needs to be chunked
         :param n: size of chunk
         :return: an array of chunks with max size of n
         """
         for i in range(0, len(lst_data), n):
-            yield lst_data[i:i + n]
+            yield lst_data[i : i + n]
 
     def insert_table_records(self, tblname, names, values, add_comma_to_value=True):
-        """ Insert one or many records to Oracle DB.
+        """Insert one or many records to Oracle DB.
 
         Note: Please note that
             - TIMESTAMP literal should be in '%Y-%m-%d %H:%M:%S' format.
@@ -171,23 +171,23 @@ class Oracle:
             return False
 
         # Generate column names field
-        col_name = "("
+        col_name = '('
         for idx, name in enumerate(names):
             if idx > 0:
-                col_name += ","
+                col_name += ','
             col_name += name
-        col_name += ") "
+        col_name += ') '
 
         # Generate values field
         data_chunks = self.divide_data_to_chunks(values, 10_000)
 
         for chunk in data_chunks:
-            sql = "insert all "
+            sql = 'insert all '
             for idx1, value in enumerate(chunk):
-                sql += " into {0:s} ".format(tblname) + col_name + " values ("
+                sql += ' into {0:s} '.format(tblname) + col_name + ' values ('
                 for idx2, name in enumerate(names):
                     if idx2 > 0:
-                        sql += ","
+                        sql += ','
 
                     if value[name] in ('', None):
                         sql += 'Null'
@@ -196,16 +196,16 @@ class Oracle:
                     else:
                         sql += str(value[name])
 
-                sql += ")"
-            sql += " SELECT 1 FROM dual"
+                sql += ')'
+            sql += ' SELECT 1 FROM dual'
             cur = self._create_cursor_with_date_time_format()
             sql = Oracle.convert_sql(sql)
             cur.execute(sql)
             cur.close()
-            print("Inserted {} rows".format(len(chunk)))
+            print('Inserted {} rows'.format(len(chunk)))
         self.connection.commit()
 
-        print("Dummy data was inserted to {0:s}!".format(tblname))
+        print('Dummy data was inserted to {0:s}!'.format(tblname))
 
     # SQLをこのまま実行
     # [以下、結果をDict形式で返す方法]
@@ -255,7 +255,7 @@ class Oracle:
         cursor.close()
 
     def execute_sql(self, sql):
-        """ For executing any query requires commit action
+        """For executing any query requires commit action
         :param sql: SQL to be executed
         :return: Execution result
         """
@@ -293,7 +293,7 @@ class Oracle:
         if self.is_connected:
             return True
         # 接続していないなら
-        print("Connection is not Initialized. Please run connect() to connect to DB")
+        print('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def _create_cursor_with_date_time_format(self):

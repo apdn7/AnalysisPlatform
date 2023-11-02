@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from ap.common.constants import *
 from ap.common.logger import log_execution_time
-from ap.common.services.sse import background_announcer, AnnounceEvent
+from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.common.sigificant_digit import signify_digit_pca_vector
 from ap.setting_module.models import CfgProcess
 from ap.trace_data.models import Sensor, find_sensor_class
@@ -20,8 +20,13 @@ def get_checked_cols():
     for proc in procs:
         checked_cols = proc.columns or []
         for col in checked_cols:
-            yield dict(proc_id=proc.id, proc_name=proc.name, col_id=col.id,
-                       col_name=col.column_name, col_type=col.data_type)
+            yield dict(
+                proc_id=proc.id,
+                proc_name=proc.name,
+                col_id=col.id,
+                col_name=col.column_name,
+                col_type=col.data_type,
+            )
 
 
 def filter_data(data, filter_func):
@@ -68,11 +73,11 @@ def produce_sample_value_str(sensor_vals=[], effective_length=29, max_length=32)
     :return:
     """
     sensor_vals = list(map(lambda x: str(x), sensor_vals))
-    sensor_vals_str = ", ".join(sensor_vals)
+    sensor_vals_str = ', '.join(sensor_vals)
     len_vals = len(sensor_vals_str)
     if len_vals > effective_length:
         sensor_vals_str = sensor_vals_str[0:effective_length]
-        sensor_vals_str = sensor_vals_str.ljust(max_length, ".")
+        sensor_vals_str = sensor_vals_str.ljust(max_length, '.')
     else:
         return sensor_vals_str
     return sensor_vals_str
@@ -80,7 +85,10 @@ def produce_sample_value_str(sensor_vals=[], effective_length=29, max_length=32)
 
 def produce_tool_tip_data(col_name='', lst_sensor_vals=[], num_head_tail=10):
     tooltip = [{'pos': '{col}:'.format(col=col_name), 'val': ''}]
-    head = [{'pos': idx + 1, 'val': sample} for idx, sample in enumerate(lst_sensor_vals[0:num_head_tail])]
+    head = [
+        {'pos': idx + 1, 'val': sample}
+        for idx, sample in enumerate(lst_sensor_vals[0:num_head_tail])
+    ]
     tooltip.extend(head)
 
     mid = [{'pos': '.', 'val': '.'}, {'pos': '.', 'val': '.'}, {'pos': '.', 'val': '.'}]
@@ -88,11 +96,13 @@ def produce_tool_tip_data(col_name='', lst_sensor_vals=[], num_head_tail=10):
 
     num_sample = len(lst_sensor_vals)
     if num_sample > num_head_tail + 3:
-        tail_sensors = lst_sensor_vals[num_head_tail + 3:][-num_head_tail:]
+        tail_sensors = lst_sensor_vals[num_head_tail + 3 :][-num_head_tail:]
         len_tail = len(tail_sensors)
 
-        tail = [{'pos': num_sample + idx - len_tail + 1, 'val': sample}
-                for idx, sample in enumerate(tail_sensors)]
+        tail = [
+            {'pos': num_sample + idx - len_tail + 1, 'val': sample}
+            for idx, sample in enumerate(tail_sensors)
+        ]
         tooltip.extend(tail)
 
     return tooltip
@@ -120,14 +130,18 @@ def get_sample_data(columns, limit=None):
 
         sensor_id = sensor.id
         sensor_type = sensor.type
-        sensor_vals = get_sensor_first_records(cfg_col_id, cfg_col_name, sensor_id, sensor_type, limit)
+        sensor_vals = get_sensor_first_records(
+            cfg_col_id, cfg_col_name, sensor_id, sensor_type, limit
+        )
 
         signified_sensor_vals = signify_digit_pca_vector(sensor_vals, sig_dig=4)
         sensor_vals_str = produce_sample_value_str(signified_sensor_vals[0:11])
         col['sample'] = sensor_vals_str
 
         # produce tooltip
-        col['tooltip'] = produce_tool_tip_data(col_name=cfg_col_name, lst_sensor_vals=signified_sensor_vals)
+        col['tooltip'] = produce_tool_tip_data(
+            col_name=cfg_col_name, lst_sensor_vals=signified_sensor_vals
+        )
         samples.append(col)
         if count % 60 == 0:
             background_announcer.announce(samples, AnnounceEvent.PCA_SENSOR.name)
