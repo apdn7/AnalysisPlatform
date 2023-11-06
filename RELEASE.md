@@ -5,22 +5,25 @@
 Core changes
 
 * Upgraded from python 3.7.3 to python 3.9.0
-* Hided 'x' button on the console screen.  
-User can only shutdown the APDN7 by accessing the APDN7 with `localhost:{port_number}` and clicking the shutdown button on the sidebar.
+  * Now the folder name of the downloaded Windows embeddable package for Python will be  `python_embedded_39`.
+* Hided 'x' button on the console screen, to prevent closing the console screen by mistake.
+  * User can only shutdown the APDN7 by accessing the APDN7 with `localhost:{port_number}` and clicking the shutdown button on the sidebar.
 
 
 New features and improvents
 
 * (Common)
-  * Added `Search by Usage` page:
+  * Added `Search by Usage` page (navigation bar):
     * This page introduces the details of each visualization of the APDN7, categorized by what insight we want to get.
-    * If you have any difficulties choosing a visualization to use, check this page.
+    * If you have any difficulties choosing a visualization to use, check this page.  
     <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/aa17513d-bae7-486f-9f85-b4a498fb9340" alt="SearchByUsage" width="500">
-  * Improve context menu on sidebar
+  * Improved context menu on sidebar
     * <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/68279d2a-0d4a-450a-8f80-d15d0ed81427" alt="ContextNenu" width="200">
   * Now we allow users to access APDN7 from iOS, by Chrome/Edge/Safari
   * Added a checkbox on `Label`/`Filter` to select all the checkboxes. 
-  * Encoding of exported file, csv: utf-8 w/ BOM, tsv: utf-8
+  * Changed file encodings of exported data files.
+    * CSV: UTF-8 with BOM
+    * TSV: UTF-8
 * (FPP)
   * Imporved the format of x-axis label, against month/year of timeseries chart.
   * Alinged Y-axis lable with dicimal.
@@ -36,7 +39,7 @@ New features and improvents
 * (SkD)
   * Now SkD can handle categorical variables.
   * Added `Jump` feature to jump from SkD to other pages.
-    * You can either select to pass all the variables, or important variables selected with SkD.
+    * You can either select to pass all the variables, or important variables selected with SkD.  
     <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/3d93b776-ca56-4b3d-9b50-a6c3ed970777" alt="JumpButton" width="400">  
     <br>
     <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/f288517a-8128-4777-b699-3dc4556a739f" alt="JumpPage" width="500">

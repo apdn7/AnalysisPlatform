@@ -4,6 +4,10 @@
 
 # Analysis Platform
 
+```
+2023-11-06: Released version 4.4.0! see RELEASE.md for details.
+```
+
 Analysis Platform is an open source web application to import, connect and visualize factory IoT data. It helps to collect, link and integrate data from multiple data sources.
 Visualizations include Digital Native QC7 Tools, which is designed especially suitable for data on manufacturing domain.
 Let's try data-driven process improvement by utilizing the data sleeping in the field.
