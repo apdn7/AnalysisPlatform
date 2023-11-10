@@ -129,16 +129,11 @@
           let app_version = docCookies.getItem('app_version');
           app_version = app_version.split('.').slice(0,-1).join('.');
 
-          gtag('event', 'Version', {
-              dn_app_version: app_version
-          });
-
-          gtag('event', 'Source', {
-              dn_app_source: app_source
-          });
-
-          gtag('event', 'Group', {
-              dn_app_group: user_group
+          gtag('event', 'apdn7_events_tracking', {
+              dn_app_version: app_version,
+              dn_app_source: app_source,
+              dn_app_group: user_group,
+              dn_app_show_graph_mode: 'None', // have not clicked show_graph yet
           });
         </script>
     {% endif %}

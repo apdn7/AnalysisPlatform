@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, jsonify, render_template, request
+from flask import Blueprint, render_template, request
 from flask_babel import get_locale
 
 from ap.api.common.services.plot_view import gen_graph_plot_view
@@ -11,10 +11,7 @@ from ap.common.constants import (
     TILE_MASTER,
     TILES,
     UN_AVAILABLE,
-    UTF8_WITH_BOM,
-    UTF8_WITHOUT_BOM,
 )
-from ap.common.services import csv_content
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import parse_multi_filter_into_one, parse_request_params
 from ap.common.services.http_content import orjson_dumps

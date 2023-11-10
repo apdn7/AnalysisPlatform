@@ -90,6 +90,7 @@ common_startwith_keys = (
     JUDGE_VAR,
     NG_CONDITION,
     NG_CONDITION_VALUE,
+    REQ_ID,
 )
 
 conds_startwith_keys = ('filter-', 'cond_', 'machine_id_multi')
@@ -516,13 +517,14 @@ def get_common_config_data(get_visualization_config=True):
     processes = get_all_process_no_nested()
     # generate english name for process
     for proc_data in processes:
-        proc_data[ENG_NAME] = to_romaji(proc_data[NAME])
+        if not proc_data['name_en']:
+            proc_data['name_en'] = to_romaji(proc_data[NAME])
         proc_cols = get_process_columns(proc_data[ID])
         proc_data[IS_USE_DUMMY_DATETIME] = True in [
             col[IS_GET_DATE] and col[IS_DUMMY_DATETIME] for col in proc_cols
         ]
 
-    procs = [(proc.get(ID), proc.get(NAME), proc.get(ENG_NAME)) for proc in processes]
+    procs = [(proc.get(ID), proc.get('shown_name'), proc.get('name_en')) for proc in processes]
     graph_filter_detail_ids = []
     if get_visualization_config:
         graph_filter_detail_ids = get_all_visualizations()

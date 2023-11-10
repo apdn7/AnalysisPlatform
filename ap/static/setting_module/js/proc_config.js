@@ -171,8 +171,9 @@ const genColConfigHTML = (col, isAddNew = true) => {
                 <label class="custom-control-label" for="autoIncrementColumn${col.column_name}"></label>
             </div>
         </td>
-        <td class="pr-row"><input name="${procModalElements.englishName}" class="form-control" type="text" value="${isDateTime && !isDummyDatetime ? 'Datetime' : col.english_name}"></td>
-        <td class="pr-row"><input name="${procModalElements.shownName}" class="form-control" type="text" value="${col.name}"></td>
+        <td class="pr-row"><input name="${procModalElements.englishName}" class="form-control" type="text" value="${isDateTime && !isDummyDatetime ? 'Datetime' : col.name_en}"></td>
+        <td class="pr-row"><input name="${procModalElements.japaneseName}" data-shown-name="1" class="form-control" type="text" value="${col.name_jp || ''}"></td>
+        <td class="pr-row"><input name="${procModalElements.localName}" data-shown-name="1" class="form-control" type="text" value="${col.name_local || ''}"></td>
         <td class="pr-row">
             <select name="${procModalElements.operator}" class="form-control" type="text">
                 <option value="">---</option>
@@ -194,7 +195,9 @@ const getProcInfo = (procId) => {
         success(res) {
             loading.hide();
 
-            procModalElements.proc.val(res.data.name);
+            procModalElements.proc.val(res.data.name_en);
+            procModalElements.procJapaneseName.val(res.data.name_jp || '');
+            procModalElements.procLocalName.val(res.data.name_local || '');
             procModalElements.procID.val(res.data.id);
             procModalElements.comment.val(res.data.comment);
             procModalElements.tables.val(res.data.table_name);
@@ -307,6 +310,8 @@ const showProcSettingModal = (procItem, dbsId = null) => {
     $(procModalElements.seletedColumnsBody).empty();
     procModalElements.comment.val('');
     procModalElements.proc.val('');
+    procModalElements.procLocalName.val('');
+    procModalElements.procJapaneseName.val('');
     procModalElements.procID.val('');
     procModalElements.comment.val('');
     procModalElements.databases.html('');
@@ -372,7 +377,7 @@ const changeDataSource = (e) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-const addProcToTable = (procId = null, procName = null, dbsId = null) => {
+const addProcToTable = (procId = null, procName = null, procShownName = null, dbsId = null) => {
     // function to create proc_id
 
     const procConfigTextByLang = {
@@ -392,8 +397,8 @@ const addProcToTable = (procId = null, procName = null, dbsId = null) => {
     <tr name="procInfo" ${procId ? `data-proc-id=${procId} id=proc_${procId}` : ''} ${dbsId ? `data-ds-id=${dbsId}` : ''} data-rowid="${dummyRowID}">
         <td class="col-number">${rowNumber + 1}</td>
         <td>
-            <input name="processName" class="form-control" type="text"
-                placeholder="${procConfigTextByLang.procName}" value="${procName || ''}" ${procName ? 'disabled' : ''} ${dragDropRowInTable.DATA_ORDER_ATTR}>
+            <input data-name-en="${procName}" name="processName" class="form-control" type="text"
+                placeholder="${procConfigTextByLang.procName}" value="${procShownName || ''}" ${procName ? 'disabled' : ''} ${dragDropRowInTable.DATA_ORDER_ATTR}>
         </td>
         <td class="text-center">
             <select class="form-control" name="databaseName" ${dbsId ? 'disabled' : ''}

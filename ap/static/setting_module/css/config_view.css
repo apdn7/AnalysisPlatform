@@ -425,3 +425,9 @@ td.pr-row {
 #procSettingModal .modal-footer {
     padding: 0.3rem 1rem;
 }
+
+.process-name-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 15px;
+}

@@ -810,7 +810,7 @@ const getDataByType = async (from, to, type = calenderTypes.year, timeout = null
     };
     const option = timeout ? { timeout } : {};
     const res = await fetchData(url, JSON.stringify(data), 'POST', option);
-    return JSON.parse(res);
+    return res;
 };
 
 const showDataFinderButton = (processId, btnParent) => {

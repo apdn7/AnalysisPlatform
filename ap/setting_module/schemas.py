@@ -9,8 +9,10 @@ from ap.setting_module.models import (
     CfgDataSourceDB,
     CfgFilter,
     CfgFilterDetail,
+    CfgOption,
     CfgProcess,
     CfgProcessColumn,
+    CfgRequest,
     CfgTrace,
     CfgTraceKey,
     CfgUserSetting,
@@ -120,6 +122,11 @@ class ProcessColumnSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgProcessColumn
 
+    name_jp = fields.String(required=False, allow_none=True)
+    name_local = fields.String(required=False, allow_none=True)
+    name_en = fields.String(required=False, allow_none=False)
+    shown_name = fields.String(required=False, allow_none=True)
+
     @post_load
     def make_obj(self, data, **kwargs):
         return CfgProcessColumn(**data)
@@ -139,6 +146,10 @@ class ProcessSchema(ma.SQLAlchemyAutoSchema):
     data_source = Nested(
         lambda: DataSourceSchema(only=('id', 'name', 'type', 'csv_detail', 'db_detail'))
     )
+    name_en = fields.String(required=False, allow_none=False)
+    name_jp = fields.String(required=False, allow_none=True)
+    name_local = fields.String(required=False, allow_none=True)
+    shown_name = fields.String(required=False, allow_none=True)
 
 
 class ProcessFullSchema(ma.SQLAlchemyAutoSchema):
@@ -172,13 +183,34 @@ class ProcessOnlySchema(ma.SQLAlchemyAutoSchema):
         model = CfgProcess
         exclude = ('visualizations', 'columns', 'traces', 'filters')  # re-open the params if used
 
+    shown_name = fields.String(required=False, allow_none=False)
+
 
 class CfgUserSettingSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgUserSetting
 
     id = fields.Integer(required=False, allow_none=True)
+    function = fields.String(required=False, allow_none=True)
 
     @post_load
     def make_obj(self, data, **kwargs):
         return CfgUserSetting(**data)
+
+
+class CfgRequestSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CfgRequest
+
+    @post_load
+    def make_obj(self, data, **kwargs):
+        return CfgRequest(**data)
+
+
+class CfgOptionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CfgOption
+
+    @post_load
+    def make_obj(self, data, **kwargs):
+        return CfgOption(**data)

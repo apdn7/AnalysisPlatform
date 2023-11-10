@@ -202,7 +202,7 @@ def gen_graph_fpp(dic_param, max_graph=None):
             for sql_label, col in dic_order_cols.items():
                 output_orders.append(
                     dict(
-                        name=col.name,
+                        name=col.shown_name,
                         min=df_order[(sql_label, 'min')].tolist(),
                         max=df_order[(sql_label, 'max')].tolist(),
                         id=col.id,
@@ -211,7 +211,7 @@ def gen_graph_fpp(dic_param, max_graph=None):
         else:
             for sql_label, col in dic_order_cols.items():
                 output_orders.append(
-                    dict(name=col.name, value=df_order[sql_label].tolist(), id=col.id)
+                    dict(name=col.shown_name, value=df_order[sql_label].tolist(), id=col.id)
                 )
 
     full_arrays = None
@@ -255,7 +255,7 @@ def gen_graph_fpp(dic_param, max_graph=None):
 
     # dic_param[CAT_EXP_BOX] = cat_exp_list
     dic_param[INDEX_ORDER_COLS] = output_orders
-    dic_param['proc_name'] = {k: proc.name for (k, proc) in dic_proc_cfgs.items()}
+    dic_param['proc_name'] = {k: proc.shown_name for (k, proc) in dic_proc_cfgs.items()}
 
     # get order column data
     retrieve_order_setting(dic_param, dic_proc_cfgs)
@@ -1372,7 +1372,8 @@ def gen_trace_procs_df(
 
             common_paths = reduced_path
 
-    with DbProxy(gen_data_source_of_universal_db(), True) as db_instance:
+    immediate_isolation_level = bool(dic_conditions)
+    with DbProxy(gen_data_source_of_universal_db(), True, immediate_isolation_level) as db_instance:
         for path, is_trace_forward in common_paths:
             if not is_trace_forward:
                 path = list(reversed(path))
@@ -2299,12 +2300,12 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
         serial_cols = proc_cfg.get_serials(column_name_only=False)
         datetime_col = proc_cfg.get_date_col(column_name_only=False)
         if datetime_col:
-            datetime_col = datetime_col.name
+            datetime_col = datetime_col.shown_name
         sql_labels = [
             gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols
         ]
         before_rank_sql_labels = [gen_sql_label(RANK_COL, sql_label) for sql_label in sql_labels]
-        serial_cols = [serial_col.name for serial_col in serial_cols]
+        serial_cols = [serial_col.shown_name for serial_col in serial_cols]
         dic_param[COMMON_INFO][proc_id] = {
             DATETIME_COL: datetime_col or '',
             SERIAL_COLUMNS: serial_cols,
@@ -2338,8 +2339,8 @@ def gen_dic_serial_data_from_df_thin(df: DataFrame, dic_param, dic_datetime_seri
         datetime_col, serial_cols = dic_datetime_serial_cols.get(proc_id, (None, None))
         if datetime_col:
             dic_param[COMMON_INFO][proc_id] = {
-                DATETIME_COL: datetime_col.name,
-                SERIAL_COLUMNS: [serial_col.name for serial_col in serial_cols],
+                DATETIME_COL: datetime_col.shown_name,
+                SERIAL_COLUMNS: [serial_col.shown_name for serial_col in serial_cols],
             }
 
         if col_id in dic_ranks:
@@ -2624,9 +2625,9 @@ def create_graph_config(cfgs: List[CfgVisualization] = []):
                 PRC_MIN: cfg.lpcl,
                 ACT_FROM: cfg.act_from,
                 ACT_TO: cfg.act_to,
-                'type': cfg.filter_column.name if cfg.filter_column else None,
+                'type': cfg.filter_column.shown_name if cfg.filter_column else None,
                 'name': cfg.filter_detail.name if cfg.filter_detail else None,
-                'eng_name': cfg.filter_column.english_name if cfg.filter_column else None,
+                'eng_name': cfg.filter_column.name_en if cfg.filter_column else None,
             }
         )
     return list_cfgs
@@ -2912,7 +2913,7 @@ def gen_plotdata(
     cat_exp_box_proc_name = []
     dic_procs, dic_cols = get_cfg_proc_col_info(cat_exp_box_cols)
     for col in cat_exp_box_cols:
-        cat_exp_box_proc_name.append(dic_cols[col].name)
+        cat_exp_box_proc_name.append(dic_cols[col].shown_name)
 
     plotdatas = []
     array_formval = []
@@ -2972,7 +2973,7 @@ def gen_plotdata_fpp(
         cat_exp_box_proc_name = []
         dic_procs, dic_cols = get_cfg_proc_col_info(cat_exp_box_cols)
         for col in cat_exp_box_cols:
-            cat_exp_box_proc_name.append(dic_cols[col].name)
+            cat_exp_box_proc_name.append(dic_cols[col].shown_name)
 
         for idx, array_y in enumerate(y_list):
             if orig_graph_param.common.cat_exp and not array_y:
@@ -2982,7 +2983,7 @@ def gen_plotdata_fpp(
                 ARRAY_Y: array_y,
                 ARRAY_X: array_x,
                 END_PROC_ID: proc_id,
-                END_PROC_NAME: dic_proc_name[proc_id].name,
+                END_PROC_NAME: dic_proc_name[proc_id].shown_name,
                 END_COL_ID: col_id,
                 END_COL_NAME: col_name,
                 END_COL_SHOW_NAME: col_show_name,
@@ -3061,6 +3062,7 @@ def gen_category_data(
         for col_id, column_name, col_show_name in zip(
             proc.col_ids, proc.col_names, proc.col_show_names
         ):
+            col_cfg = dic_proc_cfgs[proc_id].get_cols([col_id])[0]
             data = dic_proc.get(col_id)
             if not data:
                 continue
@@ -3078,12 +3080,13 @@ def gen_category_data(
 
             plotdata = dict(
                 proc_name=proc_id,
-                proc_master_name=proc_cfg.name,
+                proc_master_name=proc_cfg.shown_name,
                 column_name=column_name,
                 column_master_name=col_show_name,
                 data=array_y,
                 summary=cate_summary,
                 column_id=col_id,
+                data_type=col_cfg.data_type,
             )
             plotdatas.append(plotdata)
 
@@ -4103,7 +4106,7 @@ def gen_unique_data(df, dic_proc_cfgs, col_ids, has_na=False):
     for col_id in col_ids:
         cfg_col = dic_cols.get(col_id)
         col_name = cfg_col.column_name
-        master_name = cfg_col.name
+        master_name = cfg_col.shown_name
         proc_id = cfg_col.process_id
         col_type = cfg_col.data_type
         if col_type not in [DataType.TEXT.name, DataType.INTEGER.name]:
@@ -4118,7 +4121,7 @@ def gen_unique_data(df, dic_proc_cfgs, col_ids, has_na=False):
             s = df[sql_label].value_counts(dropna=not has_na)
             unique_data = s.index.tolist()
 
-        cfg_proc_name = dic_proc_cfgs[proc_id].name
+        cfg_proc_name = dic_proc_cfgs[proc_id].shown_name
         unique_data = {
             'proc_name': proc_id,
             'proc_master_name': cfg_proc_name,
@@ -4126,6 +4129,7 @@ def gen_unique_data(df, dic_proc_cfgs, col_ids, has_na=False):
             'column_master_name': master_name,
             'column_id': col_id,
             UNIQUE_CATEGORIES: unique_data,
+            COL_DATA_TYPE: cfg_col.data_type,
         }
 
         dic_unique_cate[col_id] = unique_data
@@ -4345,7 +4349,7 @@ def get_serial_and_datetime_data(df, graph_param, dic_proc_cfgs):
         if proc == graph_param.common.start_proc:
             start_proc = dic_proc_cfgs[proc]
             if start_proc:
-                start_proc_name = start_proc.name
+                start_proc_name = start_proc.shown_name
                 serial_cols = start_proc.get_serials(column_name_only=False)
                 datetime_col = start_proc.get_date_col(column_name_only=False)
                 datetime_id = datetime_col.id
@@ -4454,7 +4458,8 @@ def gen_graph_df_one_proc(
     cycle_cls = find_cycle_class(end_proc_id)
     cycle_table_name = cycle_cls.__table__.name
 
-    with DbProxy(gen_data_source_of_universal_db(), True) as db_instance:
+    immediate_isolation_level = bool(dic_conditions)
+    with DbProxy(gen_data_source_of_universal_db(), True, immediate_isolation_level) as db_instance:
         if dic_conditions:
             # add regular expression function to db
             db_instance.connection.create_function(SQL_REGEXP_FUNC, 2, sql_regexp)
@@ -4561,7 +4566,7 @@ def gen_cat_plotdata(plot_data, array_y=[], dic_proc_cfgs={}):
     col_id = plot_data[END_COL_ID] if END_COL_ID in plot_data else plot_data[END_COL]
     [column_data, *_] = dic_proc_cfgs[proc_id].get_cols([col_id])
     if column_data and column_data.data_type in [DataType.INTEGER.name, DataType.TEXT.name]:
-        col_name = column_data.name
+        col_name = column_data.shown_name
         cat_list = array_y or plot_data[ARRAY_Y]
         if ORG_ARRAY_Y in plot_data and plot_data[ORG_ARRAY_Y]:
             cat_list = plot_data[ORG_ARRAY_Y]
@@ -4581,7 +4586,7 @@ def gen_cat_plotdata(plot_data, array_y=[], dic_proc_cfgs={}):
                 unique_vals = org_value
         return {
             PROC_NAME: proc_id,
-            PROC_MASTER_NAME: dic_proc_cfgs[proc_id].name,
+            PROC_MASTER_NAME: dic_proc_cfgs[proc_id].shown_name,
             COL_NAME: col_name,
             COL_ID: col_id,
             UNIQUE_CATEGORIES: unique_vals,

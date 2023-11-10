@@ -1,4 +1,5 @@
 import copy
+from datetime import timedelta
 from typing import Any, Dict, List, Tuple
 
 import pandas as pd
@@ -435,7 +436,7 @@ def get_data_for_target_var_without_facets(
         return trace_data, y
 
     if color_id is None:
-        data, array_y = gen_trace_data(df, target_col.name)
+        data, array_y = gen_trace_data(df, target_col.shown_name)
         full_array_y += array_y if is_real_data else []
         plot_data = [data]
     else:
@@ -493,8 +494,8 @@ def convert_utc_to_local_time_and_offset(df, graph_param):
     client_timezone = graph_param.get_client_timezone()
     # divide_offset = graph_param.common.divide_offset or 0
     client_tz = tz.gettz(client_timezone or None) or tz.tzlocal()
-    offset = get_utc_offset(client_tz)
-    df[Cycle.time.key] = pd.to_datetime(df[Cycle.time.key]) + offset
+    if not df.empty:
+        df[Cycle.time.key] = pd.to_datetime(df[Cycle.time.key]).dt.tz_convert(tz=client_tz)
 
     return df
 

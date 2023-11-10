@@ -163,7 +163,7 @@ def gen_graph_sankey_group_lasso(dic_param):
         for serial in proc_cfg.get_serials(column_name_only=False):
             serial_ids.append(serial.id)
             if objective_var in proc.col_ids:
-                serials.append((proc_cfg.name, serial.id, serial.column_name))
+                serials.append((proc_cfg.shown_name, serial.id, serial.column_name))
         proc.add_cols(serial_ids)
 
     # get data from database
@@ -217,7 +217,7 @@ def gen_graph_sankey_group_lasso(dic_param):
             y_col = (y_id, dic_id_name[y_id])
             x_cols = {key: val for key, val in dic_id_name.items() if key != y_id}
             groups = [
-                dic_proc_cfgs.get(proc_id).name
+                dic_proc_cfgs.get(proc_id).shown_name
                 for key, proc_id in dic_col_proc_id.items()
                 if key != y_id
             ]
@@ -237,7 +237,7 @@ def gen_graph_sankey_group_lasso(dic_param):
             dic_scp = dict(**dic_scp, **dic_tbl)
             obj_var = dic_param[COMMON][OBJ_VAR]
             _, dic_cols = get_cfg_proc_col_info(obj_var)
-            dic_scp[OBJ_VAR] = dic_cols[int(obj_var[0])].name
+            dic_scp[OBJ_VAR] = dic_cols[int(obj_var[0])].shown_name
 
             dic_scp['fitted_fmt'] = get_fmt_from_array(dic_scp['fitted'])
             dic_scp['actual_fmt'] = get_fmt_from_array(dic_scp['actual'])
@@ -421,7 +421,7 @@ def plot_barchart_grplasso(dic_bar: defaultdict, dic_proc_cfgs: dict, dic_col_pr
             if label in dup_sensor_name:
                 sensor_ids = dic_bar[SENSOR_IDS].tolist()
                 col_id = sensor_ids[idx]
-                label = f'{dic_proc_cfgs[dic_col_proc_id[col_id]].name}|{label}'
+                label = f'{dic_proc_cfgs[dic_col_proc_id[col_id]].shown_name}|{label}'
             sensor_label.append(label)
 
     bar_trace = dict(
@@ -448,7 +448,8 @@ def gen_sankey_plot_data(
     col_ids = [dic_label_id.get(c) for c in x.columns.values]
     cols = CfgProcessColumn.get_by_ids(col_ids) or []
     dic_cols = {
-        col.id: '{} | {}'.format(dic_proc_cfgs.get(col.process_id).name, col.name) for col in cols
+        col.id: '{} | {}'.format(dic_proc_cfgs.get(col.process_id).shown_name, col.shown_name)
+        for col in cols
     }
     node_labels = [dic_cols.get(col_id) for col_id in col_ids]
     dic_proc_color = {}

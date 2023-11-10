@@ -2,7 +2,6 @@ import json
 import os
 import traceback
 from datetime import datetime
-from queue import Empty
 
 from apscheduler.triggers.date import DateTrigger
 from flask import Blueprint, Response, jsonify, request
@@ -52,6 +51,7 @@ from ap.api.trace_data.services.proc_link_simulation import sim_gen_global_id
 from ap.common.backup_db import add_backup_dbs_job
 from ap.common.common_utils import add_seconds, get_hostname, is_empty, parse_int_value
 from ap.common.constants import (
+    ANALYSIS_INTERFACE_ENV,
     FISCAL_YEAR_START_MONTH,
     LISTEN_BACKGROUND_TIMEOUT,
     OSERR,
@@ -397,7 +397,7 @@ def listen_background_job(is_force: str, uuid: str, main_tab_uuid: str):
                 f'[SSE] Rejected: UUID = {uuid}; main_tab_uuid = {main_tab_uuid}; is_force = {is_force};'
                 f' compare_time = {compare_time}; start_time = {start_time};'
             )
-            return Response('SSE Rejected', status=500)
+            return Response('SSE Rejected', status=202)
 
         # add new uuid
         logger.debug(
@@ -594,7 +594,8 @@ def get_trace_configs():
         procs = get_all_processes_traces_info()
         # generate english name for process
         for proc_data in procs:
-            proc_data['en_name'] = to_romaji(proc_data['name'])
+            if not proc_data['name_en']:
+                proc_data['name_en'] = to_romaji(proc_data['name'])
         return {'trace_config': json_dumps({'procs': procs})}, 200
     except Exception:
         traceback.print_exc()
@@ -665,7 +666,8 @@ def get_proc_config_filter_data(proc_id):
     # filter_col_data = get_filter_col_data(process) or {}
     filter_col_data = {}
     if process:
-        process['en_name'] = to_romaji(process['name'])
+        if not process['name_en']:
+            process['name_en'] = to_romaji(process['name'])
         return (
             jsonify(
                 {

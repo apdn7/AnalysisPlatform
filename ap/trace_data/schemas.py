@@ -54,7 +54,7 @@ class EndProc:
                 column = CfgProcessColumn.query.get(col_id)
                 id = column.id
                 column_name = column.column_name
-                name = column.name
+                name = column.shown_name
                 self.proc_id = column.process_id
 
             if append_first:
@@ -102,7 +102,7 @@ class CategoryProc:
         for id in self.col_ids:
             column = CfgProcessColumn.query.get(id)
             self.col_names.append(column.column_name)
-            self.col_show_names.append(column.name)
+            self.col_show_names.append(column.shown_name)
             self.proc_id = column.process_id
 
 
@@ -515,9 +515,9 @@ class DicParam:
                     {
                         END_COL_ID: col_id,
                         END_COL_NAME: col_info[0].column_name,
-                        SHOWN_NAME: col_info[0].name,  # shown name of column
+                        SHOWN_NAME: col_info[0].shown_name,  # shown name of column
                         END_PROC_ID: proc.proc_id,
-                        END_PROC_NAME: proc_cfg.name or '',
+                        END_PROC_NAME: proc_cfg.shown_name or '',
                         COL_DATA_TYPE: col_info[0].data_type,
                     }
                 )

@@ -64,6 +64,7 @@ TIME_FORMAT = '%H:%M'
 RL_DATETIME_FORMAT = '%Y-%m-%dT%H:%M'
 DATE_FORMAT_SIMPLE = '%Y-%m-%d %H:%M:%S'
 DATE_FORMAT_FOR_ONE_HOUR = '%Y-%m-%d %H:00:00'
+API_DATETIME_FORMAT = '%Y-%m-%dT%H:%MZ'
 # for data count
 TERM_FORMAT = {'year': '%Y', 'month': '%Y-%m', 'week': DATE_FORMAT}
 FREQ_FOR_RANGE = {'year': 'M', 'month': 'D', 'week': 'H'}
@@ -1360,3 +1361,16 @@ def check_client_browser(client_request):
                 )
 
     return is_valid_browser, is_valid_version
+
+
+class DictToClass:
+    # TODO: clear updated_at , created_at to reduce memory
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+        for key, value in self.__dict__.items():
+            if isinstance(value, (list, tuple)):
+                self.__dict__[key] = [
+                    DictToClass(**val) if isinstance(val, dict) else val for val in value
+                ]
+            elif isinstance(value, dict):
+                self.__dict__[key] = DictToClass(**value)

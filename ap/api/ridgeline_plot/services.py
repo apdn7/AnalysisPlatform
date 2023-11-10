@@ -755,10 +755,10 @@ def gen_custom_plotdata(dic_data, sensors, cat_div_id, max_graph):
         cfg_proc: CfgProcess = dic_procs[cfg_col.process_id]
 
         plotdata = gen_blank_rlp_plot(
-            proc_name=cfg_proc.name,
+            proc_name=cfg_proc.shown_name,
             proc_id=cfg_proc.id,
             sensor_id=sensor_id,
-            sensor_name=cfg_col.name,
+            sensor_name=cfg_col.shown_name,
         )
 
         if not cat_div_id:
@@ -775,10 +775,10 @@ def gen_custom_plotdata(dic_data, sensors, cat_div_id, max_graph):
                     is_graph_limited = True
                     break
                 plotdata = gen_blank_rlp_plot(
-                    proc_name=cfg_proc.name,
+                    proc_name=cfg_proc.shown_name,
                     proc_id=cfg_proc.id,
                     sensor_id=sensor_id,
-                    sensor_name=cfg_col.name,
+                    sensor_name=cfg_col.shown_name,
                     group_name=cate_name,
                 )
                 plotdata['facet_groups'] = cate_name
@@ -906,19 +906,19 @@ def to_csv(dic_param, dic_data, sensors, client_tz=None, newline='\n', delimiter
         for col in data:
             if col == RL_PERIOD:
                 dt_frm, dt_to = col.split('|')
-                cols.append(f'{proc_cfg.name}|{dt_frm}')
-                cols.append(f'{proc_cfg.name}|{dt_to}')
+                cols.append(f'{proc_cfg.shown_name}|{dt_frm}')
+                cols.append(f'{proc_cfg.shown_name}|{dt_to}')
             else:
                 column = CfgProcessColumn.query.get(int(col))
 
                 for diff in emd_value:
-                    show_col = column.name
+                    show_col = column.shown_name
                     show_col += '|emd'
                     if col in sensors:
                         show_col += diff
 
                     # col_name = CfgProcessColumn.get_by_col_name(proc_id,col)
-                    cols.append(f'{proc_cfg.name}|{show_col}')
+                    cols.append(f'{proc_cfg.shown_name}|{show_col}')
 
     out_str += delimiter.join(cols)
     out_str += newline
@@ -1455,11 +1455,11 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
             # ng data info
             ng_info = {
                 JUDGE_LABEL: judge_col_name,
-                RL_SENSOR_NAME: judge_col_data.name,
+                RL_SENSOR_NAME: judge_col_data.shown_name,
                 END_COL_ID: judge_col_data.id,
                 CAT_EXP_BOX: name,
                 END_PROC_ID: judge_col_data.process_id,
-                END_PROC_NAME: judge_proc.name,
+                END_PROC_NAME: judge_proc.shown_name,
                 COL_DATA_TYPE: judge_col_data.data_type,
                 NG_CONDITION: ng_condition,
                 NG_CONDITION_VALUE: ng_condition_val,
@@ -1479,11 +1479,11 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
             # ng data info
             ng_info = {
                 JUDGE_LABEL: judge_col_name,
-                RL_SENSOR_NAME: judge_col_data.name,
+                RL_SENSOR_NAME: judge_col_data.shown_name,
                 END_COL_ID: judge_col_data.id,
                 CAT_EXP_BOX: name,
                 END_PROC_ID: judge_col_data.process_id,
-                END_PROC_NAME: judge_proc.name,
+                END_PROC_NAME: judge_proc.shown_name,
                 COL_DATA_TYPE: judge_col_data.data_type,
                 NG_CONDITION: ng_condition,
                 NG_CONDITION_VALUE: ng_condition_val,

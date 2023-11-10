@@ -59,8 +59,8 @@ def add_process_columns(process_id, column_data: list):
         sensors = set()
         for column in column_data:
             proc_column = proc_column_schemas.load(column)
-            proc_column.english_name = to_romaji(proc_column.column_name)
-            proc_column.name = proc_column.column_name
+            # proc_column.english_name = to_romaji(proc_column.column_name)
+            proc_column.name_en = to_romaji(proc_column.column_name)
             proc_column.process_id = process_id
             current_columns.append(proc_column)
             sensors.add(

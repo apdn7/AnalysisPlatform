@@ -309,9 +309,9 @@ const filterCfgGenerator = ((cardId, filterType = filterTypes.OTHER) => {
     const calcMaxLengthColName = (columns) => {
         let maxLen = 0;
         for (let i = 0; i < columns.length; i++) {
-            if (columns[i].name) {
-                if (calcByteLength(columns[i].name) > maxLen) {
-                    maxLen = columns[i].name.length;
+            if (columns[i].shown_name) {
+                if (calcByteLength(columns[i].shown_name) > maxLen) {
+                    maxLen = columns[i].shown_name.length;
                 }
             }
         }
@@ -321,7 +321,7 @@ const filterCfgGenerator = ((cardId, filterType = filterTypes.OTHER) => {
     const appendColumnList = (columnElement, columns) => {
         [].concat(columns).forEach((col) => {
             columnElement.append(
-                `<option value="${col.id}" title="${col.column_name}" class="shorten-name">${col.name}</option>`,
+                `<option value="${col.id}" title="${col.name_en}" class="shorten-name">${col.shown_name}</option>`,
             );
         });
     };

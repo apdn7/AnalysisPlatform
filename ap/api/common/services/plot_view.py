@@ -268,7 +268,7 @@ def gen_stats_table(
             row.append(time_val)
 
             # Process
-            row.append(proc_cfg.name)
+            row.append(proc_cfg.shown_name)
 
             # Threshold
             latest_idx = None
@@ -445,7 +445,7 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
             serial_val = df.loc[0][serial_label]
             serial_vals.append(serial_val)
             # Serial No
-            proc_rows.append([serial.column_name, serial.name, serial_val])
+            proc_rows.append([serial.column_name, serial.shown_name, serial_val])
 
         # Datetime
         time_col_name = str(Cycle.time.key) + create_rsuffix(proc_id)
@@ -462,7 +462,7 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
         proc_rows.append(['Line No', '', ''])
 
         # Process
-        proc_rows.append(['Process', '', proc_cfg.name])
+        proc_rows.append(['Process', '', proc_cfg.shown_name])
 
         # Machine No
         proc_rows.append(['Machine No', '', ''])
@@ -487,7 +487,7 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
             row.append(cfg_col.column_name)
 
             # Name
-            row.append(cfg_col.name)
+            row.append(cfg_col.shown_name)
 
             # Value
             col_label = gen_sql_label(cfg_col.id, cfg_col.column_name)

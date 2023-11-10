@@ -4,6 +4,7 @@ def create_module(app, **kwargs):
     from .categorical_plot.controllers import api_categorical_plot_blueprint
     from .co_occurrence.controllers import api_co_occurrence_blueprint
     from .common.controlllers import api_common_blueprint
+    from .external_api.controllers import external_api_v1_blueprint
     from .graphical_lasso.controllers import api_gl_blueprint
     from .heatmap.controllers import api_heatmap_blueprint
     from .multi_scatter_plot.controllers import api_multi_scatter_blueprint
@@ -30,3 +31,4 @@ def create_module(app, **kwargs):
     app.register_blueprint(api_common_blueprint)
     app.register_blueprint(api_agp_blueprint)
     app.register_blueprint(api_gl_blueprint)
+    app.register_blueprint(external_api_v1_blueprint)

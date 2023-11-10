@@ -7,6 +7,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+import pytz
 from apscheduler.triggers.date import DateTrigger
 from dateutil import tz
 from pandas import DataFrame
@@ -39,6 +40,7 @@ from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_
 from ap.common.scheduler import JobType, lock, scheduler_app_context
 from ap.common.services import csv_header_wrapr as chw
 from ap.common.services.csv_content import read_data
+from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_df, normalize_str
 from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.common.timezone_utils import calc_offset_between_two_tz
@@ -549,19 +551,11 @@ def get_new_adding_columns(proc, dic_use_cols):
             column_name=col_name,
             type=data_type_obj.value,
             created_at=created_at,
+            name_en=to_romaji(col_name),
         )
         missing_sensors.append(sensor)
 
     return missing_sensors
-
-
-@log_execution_time()
-def commit_db_instance(db_instance):
-    # commit changes to db
-    db_instance.connection.commit()
-
-    # clear cache
-    set_all_cache_expired()
 
 
 def csv_data_with_headers(csv_file_name, data_src):
@@ -1070,14 +1064,26 @@ def get_object_cols(df: DataFrame):
 
 
 @log_execution_time('[CONVERT DATE TIME TO UTC')
-def convert_df_col_to_utc(df, get_date_col, is_tz_inside, utc_time_offset):
+def convert_df_col_to_utc(df, get_date_col, is_timezone_inside, db_time_zone, utc_time_offset):
     if DATETIME not in df[get_date_col].dtype.name:
-        df[get_date_col] = pd.to_datetime(df[get_date_col], errors='coerce')
+        # create datetime column in df
+        # if data has tz info, convert to utc
+        df[get_date_col] = pd.to_datetime(df[get_date_col], errors='coerce', utc=is_timezone_inside)
 
-    if is_tz_inside:
-        return df[df[get_date_col].notnull()][get_date_col].dt.tz_convert('UTC')
+    if not db_time_zone:
+        db_time_zone = tz.tzlocal()
 
-    return df[df[get_date_col].notnull()][get_date_col] - utc_time_offset
+    local_dt = df[df[get_date_col].notnull()][get_date_col]
+    # return if there is utc
+    if not utc_time_offset:
+        # utc_offset = 0
+        return local_dt
+
+    if not local_dt.dt.tz:
+        # utc_time_offset = 0: current UTC
+        # cast to local before convert to utc
+        local_dt = local_dt.dt.tz_localize(tz=db_time_zone)
+    return local_dt.dt.tz_convert(tz.tzutc())
 
 
 @log_execution_time()
@@ -1340,8 +1346,8 @@ def insert_data_to_db(sensor_values, cycle_vals, sql_insert_cycle):
             sql_insert_sensor = gen_bulk_insert_sql(tblname, *sensor_sql_params)
             insert_data(db_instance, sql_insert_sensor, vals)
 
-        # commit data to database
-        commit_db_instance(db_instance)
+    # clear cache
+    set_all_cache_expired()
 
     return None
 
@@ -1465,14 +1471,9 @@ def save_proc_data_count(df, get_date_col, job_id):
     insert_params = get_insert_params(columns)
     insert_query = gen_bulk_insert_sql(ProcDataCount.__tablename__, *insert_params)
     # import data
-    try:
-        with lock:
-            with DbProxy(gen_data_source_of_universal_db(), True) as db_instance:
-                # insert cycle
-                insert_data(db_instance, insert_query, count_df.values.tolist())
-                # commit data to database
-                commit_db_instance(db_instance)
+    with DbProxy(gen_data_source_of_universal_db(), True, True) as db_instance:
+        # insert cycle
+        insert_data(db_instance, insert_query, count_df.values.tolist())
 
-        return None
-    except Exception as e:
-        return e
+    # clear cache
+    set_all_cache_expired()

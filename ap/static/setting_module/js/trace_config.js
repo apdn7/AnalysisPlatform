@@ -556,8 +556,8 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
 
     const selfSerialColumns = processes[selfProcId].columns.filter(e => e.is_serial_no);
     selfColCandidates = selfSerialColumns.map(e => e.id);
-    selfColCandidateMasters = selfSerialColumns.map(e => e.name);
-    selfColNames = selfSerialColumns.map(e => e.column_name);
+    selfColCandidateMasters = selfSerialColumns.map(e => e.shown_name);
+    selfColNames = selfSerialColumns.map(e => e.name_en);
 
     if (typeof edgeData.target_col !== 'object') {
         selectedTargetCols = [edgeData.target_col];
@@ -567,8 +567,8 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
 
     const targetSerialColumns = processes[targetProcId].columns.filter(e => e.is_serial_no);
     targetColCandidates = targetSerialColumns.map(e => e.id);
-    targetColCandidateMasters = targetSerialColumns.map(e => e.name);
-    targetColNames = targetSerialColumns.map(e => e.column_name);
+    targetColCandidateMasters = targetSerialColumns.map(e => e.shown_name);
+    targetColNames = targetSerialColumns.map(e => e.name_en);
     targetChosenTraceKeys = [];
     selfChosenTraceKeys = [];
 
@@ -590,9 +590,9 @@ const initVisData = (processesArray) => {
     processes = {}
     for (const key in processesArray) {
         const procCopy = { ...processesArray[key] };
-        procCopy.master = procCopy.name;
+        procCopy.master = procCopy.shown_name;
         procCopy.font = { multi: 'html' };
-        procCopy.label = `${procCopy.name}`;
+       procCopy.label = `${procCopy.shown_name}`;
         nodes.add(procCopy);
 
         const trace = procCopy.traces;
@@ -939,18 +939,18 @@ const syncVisData = (procs = []) => {
 const updateProcessEditModal = (procs = []) => {
     tracingElements.edgeBackProc.empty();
     procs.map((proc) => {
-        const option = new Option(proc.name, proc.id, false, false);
-        if (proc.en_name) {
-            option.setAttribute('title', proc.en_name);
+       const option = new Option(proc.shown_name, proc.id, false, false);
+        if (proc.name_en) {
+            option.setAttribute('title', proc.name_en);
         }
         tracingElements.edgeBackProc.append(option).trigger('change');
     });
 
     tracingElements.edgeForwardProc.empty();
     procs.map((proc) => {
-        const option = new Option(proc.name, proc.id, false, false);
-        if (proc.en_name) {
-            option.setAttribute('title', proc.en_name);
+         const option = new Option(proc.shown_name, proc.id, false, false);
+        if (proc.name_en) {
+            option.setAttribute('title', proc.name_en);
         }
         tracingElements.edgeForwardProc.append(option).trigger('change');
     });

@@ -651,7 +651,7 @@ const openNewPage = () => {
 
 const isLoadingFromTitleInterface = useTileInterface().get();
 
-$(() => {
+$(async () => {
     isDirectFromJumpFunction = !!getParamFromUrl(goToFromJumpFunction) && localStorage.getItem(sortedColumnsKey);
     // hide userBookmarkBar
     $('#userBookmarkBar').hide();
@@ -706,7 +706,7 @@ $(() => {
     addAttributeToElement();
 
     const loadingSetting = localStorage.getItem('loadingSetting') || null;
-    const userSettingId = getParamFromUrl('user_setting_id');
+    const userSettingId = getParamFromUrl('bookmark_id');
     if (isLoadingFromTitleInterface) {
         // reset global flag after use tile interface
         useTileInterface().reset();
@@ -714,6 +714,10 @@ $(() => {
             // save original setting info
             originalUserSettingInfo = saveOriginalSetting();
         }, 100);
+    } else if (needToLoaUserSettingsFromUrl()) {
+        const newUserSetting = await makeUserSettingFromParams();
+        applyUserSetting(newUserSetting, null, true);
+        autoClickShowGraphButton(null, 1)
     } else {
         // load user input on page load
         setTimeout(() => {
@@ -847,6 +851,10 @@ const handleAutoClickShowGraph = (loadingSetting, userSettingId) => {
     }
 
     if (loadingSetting || userSettingId || isDirectFromJumpFunction) {
+
+        // before click, check params in url to modify GUI input
+        modifyGUIInput();
+
         $(showGraphBtn).click();
         clearLoadingSetting();
     }
@@ -1434,7 +1442,7 @@ const cleansingHandling = () => {
     });
 };
 
-const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {}) => {
+const showGraphCallApi = async (url, formData, timeOut, callback, additionalOption = {}) => {
     if (!requestStartedAt) {
         requestStartedAt = performance.now();
     }
@@ -1444,6 +1452,25 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
         formData.set('isExportMode', 1);
     } else {
         formData.delete('isExportMode')
+    }
+
+    // set req_id and filter on-demand value if there is option_id in URL params
+    const { req_id, option_id } = getRequestParamsForShowGraph();
+
+    if (req_id) {
+        formData.set('req_id', req_id);
+    }
+
+    if (option_id) {
+        // get option from db
+        const option = await fetchData(`/ap/api/v1/option?option_id=${option_id}`, {}, 'GET')
+        if (option) {
+            const { od_filter } = JSON.parse(option.option)
+            if (od_filter) {
+                formData.set('dic_cat_filters', JSON.stringify(od_filter))
+            }
+
+        }
     }
 
     const option = {
@@ -1460,8 +1487,11 @@ const showGraphCallApi = (url, formData, timeOut, callback, additionalOption = {
 
     // send GA mode "Auto update mode" or "Normal mode"
     const GAMode = isSSEListening ? 'AutoUpdate' : 'Normal';
-    gtag('event', 'Mode', {
-        dn_app_show_graph_mode: GAMode
+    gtag('event', 'apdn7_events_tracking', {
+        dn_app_version: app_version,
+        dn_app_source: app_source,
+        dn_app_group: user_group,
+        dn_app_show_graph_mode: GAMode,
     });
 
     $.ajax({
@@ -1653,3 +1683,198 @@ const getParamFromUrl = (paramKey) => {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(paramKey);
 };
+
+
+const getRequestParamsForShowGraph = () => {
+    const reqId = getParamFromUrl('req_id');
+    const bookmarkId = getParamFromUrl('bookmark_id');
+    const startDateTime = getParamFromUrl('start_datetime');
+    const endDateTime = getParamFromUrl('end_datetime');
+    const optionId = getParamFromUrl('option_id');
+    let columns = getParamFromUrl('columns');
+    const objective = getParamFromUrl('objective');
+    const func = getParamFromUrl('function');
+    let procs = getParamFromUrl('end_procs');
+    const loadGUIFromURL = !!getParamFromUrl('load_gui_from_url');
+    const latest = getParamFromUrl('latest')
+
+    columns = columns ? columns.split(',') : []
+    procs = procs ? JSON.parse(procs) : []
+
+    let datetimeRange = '';
+    if (startDateTime && endDateTime) {
+        datetimeRange = `${formatDateTime(startDateTime, DATE_TIME_FMT)}${DATETIME_PICKER_SEPARATOR}${formatDateTime(endDateTime, DATE_TIME_FMT)}`
+    }
+
+
+    return {
+        req_id: reqId,
+        bookmark_id: bookmarkId,
+        start_datetime: startDateTime,
+        end_datetime: endDateTime,
+        option_id: optionId,
+        columns: columns,
+        func: func,
+        objective: objective,
+        datetimeRange: datetimeRange,
+        endProcs: procs,
+        loadGUIFromURL: loadGUIFromURL,
+        latest: latest,
+    }
+};
+
+
+const modifyGUIInput = () => {
+    let { start_datetime, end_datetime, bookmark_id, datetimeRange, latest } = getRequestParamsForShowGraph();
+    if (start_datetime && end_datetime && bookmark_id) {
+        const dateTimeRangeInput = $('input[name=DATETIME_RANGE_PICKER]:not(:disabled)');
+        const dateTimeInput = $('input[name=DATETIME_PICKER]:not(:disabled)');
+
+        if (dateTimeRangeInput.length) {
+            dateTimeRangeInput.val(datetimeRange)
+        } else if (datetimeRange.length) {
+            dateTimeInput.val(formatDateTime(start_datetime, DATE_TIME_FMT))
+        }
+    }
+
+    if (latest) {
+        $('input[name=traceTime][value=recent]').prop('checked', true).trigger('change');
+        $('input[name=cyclicTermTraceTime1][value=recent]').prop('checked', true).trigger('change');
+        $('input[name=varTraceTime1][value=recent]').prop('checked', true).trigger('change');
+        $('input[name=varTraceTime2][value=recent]').prop('checked', true).trigger('change');
+        $('input[name=autoUpdateInterval]').prop('checked', true);
+        $('select[name=timeUnit]').val('60').trigger('change');
+        $('input[name=recentTimeInterval]').val(latest)
+    }
+}
+
+const makeUserSettingFromParams = async () => {
+    let {
+        datetimeRange,
+        objective,
+        columns,
+        endProcs,
+        start_datetime,
+        latest
+    } = getRequestParamsForShowGraph();
+    const settings = []
+    const divideOption = $('select[name=compareType]');
+    if (divideOption.length) {
+        settings.push({
+            id: 'divideOption',
+            name: 'compareType',
+            type: 'select-one',
+            value: 'cyclicTerm'
+        })
+        if (start_datetime) {
+            settings.push({
+                id: 'cyclicTermDatetimePicker',
+                name: 'DATETIME_PICKER',
+                type: 'text',
+                value: formatDateTime(start_datetime, DATE_TIME_FMT)
+            })
+        }
+    }
+    if (datetimeRange && ! divideOption.length) {
+        settings.push({
+            id: 'radioDefaultInterval',
+            name: 'traceTime',
+            value: 'traceTime',
+            type: 'radio',
+            checked: 'true'
+        })
+        settings.push({
+            id: 'datetimeRangePicker',
+            name: 'DATETIME_RANGE_PICKER',
+            type: 'text',
+            value: datetimeRange
+        })
+    }
+
+    for (const idx in endProcs) {
+        const endProc = endProcs[idx];
+        const cfgProcess = procConfigs[endProc];
+        const index = Number(idx) + 1;
+        settings.push({
+            id: `end-proc-process-${index}`,
+            name: `end_proc${index}`,
+            value: endProc.toString(),
+            type: 'select-one',
+            genBtnId: 'btn-add-end-proc'
+        })
+        await cfgProcess.updateColumns()
+
+        for (const colId of columns) {
+            const column = cfgProcess.getColumnById(colId);
+            if (!column) continue;
+            settings.push({
+                id: `checkbox-${colId}end-proc-val-div-${index}`,
+                value: colId.toString(),
+                name: `GET02_VALS_SELECT${index}`,
+                type: 'checkbox',
+                checked: true
+            })
+
+        }
+    }
+
+    if (latest) {
+        settings.push({
+            id: 'radioDefaultInterval',
+            name: 'traceTime',
+            value: 'recent',
+            type: 'radio',
+            checked: 'true'
+        })
+        settings.push({
+            id: 'cyclicRecentInterval',
+            name: 'cyclicTermTraceTime1',
+            checked: true,
+            value: 'recent',
+            type: 'radio'
+        })
+
+        settings.push({
+            id: 'CyclicAutoUpdateInterval',
+            name: 'autoUpdateInterval',
+            checked: true,
+            value: '1',
+            type: 'checkbox'
+        })
+
+         settings.push({
+            id: 'timeUnit',
+            name: 'timeUnit',
+            type: 'select-one',
+            value: '60'
+        })
+
+        settings.push({
+            id: 'recentTimeInterval',
+            name: 'recentTimeInterval',
+            value: latest,
+            type: 'text'
+        })
+    }
+
+    if (objective) {
+        settings.push({
+            id: `objectiveVar-${objective}`,
+            name: 'objectiveVar',
+            value: objective,
+            type: 'radio',
+            checked: true,
+        })
+    }
+
+    return {
+        settings: {
+            traceDataForm: settings
+        }
+    };
+};
+
+const needToLoaUserSettingsFromUrl = () => {
+    const { loadGUIFromURL } = getRequestParamsForShowGraph();
+    return loadGUIFromURL;
+}

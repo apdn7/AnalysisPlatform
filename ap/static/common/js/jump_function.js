@@ -45,7 +45,7 @@ const showJumpModal = async () => {
 
 const getJumpPages = async (page = 'skd') => {
     const res = await fetchData(`${JUMP_API}/${page}`, {}, 'GET');
-    return JSON.parse(res);
+    return res;
 };
 
 const generatePageItem = (page, pageObj, parentDivId = null) => {
@@ -133,7 +133,7 @@ const bindVariableOrderingToModal = (useFeatureImportance=true) => {
                tblContent += `<tr data-proc-id="${variable.proc_id}" data-col-id="${variable.id}">
                     <td>${i + 1}</td>
                     <td style="text-align: left">${variable.proc_name}</td>
-                    <td style="text-align: left">${variable.name}</td>
+                    <td style="text-align: left">${variable.shown_name}</td>
                     <td>${DataTypes[variable.type].short}</td>
                 </tr>`
             });

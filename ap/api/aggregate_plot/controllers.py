@@ -89,7 +89,7 @@ def data_export(export_type):
     for single_dic_param in dic_params:
         agp_dat, agp_df, graph_param, dic_proc_cfgs = gen_agp_data(single_dic_param)
         end_proc_id = int(agp_dat[ARRAY_FORMVAL][0][END_PROC])
-        proc_name = dic_proc_cfgs[end_proc_id].name
+        proc_name = dic_proc_cfgs[end_proc_id].shown_name
         csv_list_name.append('{}.{}'.format(proc_name, export_type))
 
         client_timezone = agp_dat[COMMON].get(CLIENT_TIMEZONE)

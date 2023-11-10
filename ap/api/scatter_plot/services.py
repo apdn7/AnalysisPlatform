@@ -561,14 +561,14 @@ def gen_scatter_plot(dic_param):
         is_show_v_label = True
 
     # column names
-    dic_param['x_name'] = dic_cols[x_id].name if x_id else None
-    dic_param['y_name'] = dic_cols[y_id].name if y_id else None
-    dic_param['color_name'] = dic_cols[color_id].name if color_id else None
+    dic_param['x_name'] = dic_cols[x_id].shown_name if x_id else None
+    dic_param['y_name'] = dic_cols[y_id].shown_name if y_id else None
+    dic_param['color_name'] = dic_cols[color_id].shown_name if color_id else None
     dic_param['color_type'] = dic_cols[color_id].data_type if color_id else None
-    dic_param['div_name'] = dic_cols[cat_div_id].name if cat_div_id else None
+    dic_param['div_name'] = dic_cols[cat_div_id].shown_name if cat_div_id else None
     dic_param['div_data_type'] = dic_cols[cat_div_id].data_type if cat_div_id else None
     dic_param['level_names'] = (
-        [dic_cols[level_id].name for level_id in level_ids] if level_ids else None
+        [dic_cols[level_id].shown_name for level_id in level_ids] if level_ids else None
     )
     dic_param['is_show_v_label'] = is_show_v_label
     dic_param['is_show_h_label'] = is_show_h_label
@@ -578,8 +578,8 @@ def gen_scatter_plot(dic_param):
     dic_param['y_fmt'] = get_fmt_from_array(df[y_label].to_list())
 
     # add proc name for x and y column
-    dic_param['x_proc'] = dic_proc_cfgs[dic_cols[x_id].process_id].name if x_id else None
-    dic_param['y_proc'] = dic_proc_cfgs[dic_cols[y_id].process_id].name if y_id else None
+    dic_param['x_proc'] = dic_proc_cfgs[dic_cols[x_id].process_id].shown_name if x_id else None
+    dic_param['y_proc'] = dic_proc_cfgs[dic_cols[y_id].process_id].shown_name if y_id else None
 
     # min, max color
     # TODO: maybe we need to get chart infor for color to get ymax ymin of all chart infos
@@ -1332,7 +1332,7 @@ def get_proc_serials(df: DataFrame, serial_cols: List[CfgProcessColumn]):
     for col in serial_cols:
         sql_label = gen_sql_label(col.id, col.column_name)
         if sql_label in df.columns:
-            dic_serial = {'col_name': col.name, 'data': df[sql_label].tolist()}
+            dic_serial = {'col_name': col.shown_name, 'data': df[sql_label].tolist()}
             serials.append(dic_serial)
 
     return serials

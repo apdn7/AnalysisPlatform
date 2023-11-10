@@ -387,7 +387,7 @@ def get_data_by_range_time(
                 [
                     add_double_quotes(col)
                     if col != get_date_col
-                    else f'convert(varchar(20), "{col}", 127) "{col}"'
+                    else f'convert(varchar(30), "{col}", 127) "{col}"'
                     for col in column_names
                 ]
             )
@@ -459,7 +459,7 @@ def get_factory_max_date(proc_cfg):
 
         sql = f'select max({get_date_col}) from {table_name}'
         if isinstance(db_instance, mssqlserver.MSSQLServer):
-            sql = f'select convert(varchar(20), max({get_date_col}), 127) from {table_name}'
+            sql = f'select convert(varchar(30), max({get_date_col}), 127) from {table_name}'
         _, rows = db_instance.run_sql(sql, row_is_dict=False)
 
         if not rows:
@@ -744,9 +744,9 @@ def handle_time_zone(proc_cfg, get_date_col):
         # use os time zone
         db_timezone = None
 
-    is_tz_inside, _, time_offset = get_time_info(get_date, db_timezone)
+    is_timezone_inside, db_time_zone, utc_offset = get_time_info(get_date, db_timezone)
 
-    return is_tz_inside, time_offset
+    return is_timezone_inside, db_time_zone, utc_offset
 
 
 @log_execution_time()

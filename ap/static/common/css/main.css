@@ -1929,7 +1929,7 @@ span.deleteicon input {
 .alert-top-fixed {
     z-index: 9999;
     position: fixed;
-    top: 45px;
+    top: 24px;
     left: 50%;
     width: calc(75% - 70px);
     transform: translateX(-50%);

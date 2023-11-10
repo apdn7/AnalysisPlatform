@@ -138,7 +138,7 @@ def get_utc_offset(time_zone):
     return time_offset
 
 
-def limit_num_cells(df_cells: pd.DataFrame, end_tm, offset, limit=10000):
+def limit_num_cells(df_cells: pd.DataFrame, end_tm, client_tz, limit=10000):
     """Limit number of cells to 10k including empty cells"""
     # is_res_limited = df_cells.index.size > limit
 
@@ -147,7 +147,9 @@ def limit_num_cells(df_cells: pd.DataFrame, end_tm, offset, limit=10000):
 
     # update new end_time to 10000 cells
     last_cell_time = list(df_cells.tail(1)[TIME_COL])[0]
-    end_tm_tz = pd.Timestamp(end_tm) + offset
+    # end_tm is utc -> convert to local-time
+    end_tm_tz = pd.to_datetime(pd.Series([end_tm]), utc=True).dt.tz_convert(client_tz)
+    end_tm_tz = list(end_tm_tz)[0]
     new_end_time = np.minimum(end_tm_tz, last_cell_time)
     new_end_tm = new_end_time.strftime(DATE_FORMAT_QUERY)
 
@@ -399,6 +401,18 @@ def gen_weekly_ticks(df: pd.DataFrame):
     return df['x_label']
 
 
+def gen_daily_ticks(df: pd.DataFrame):
+    # tick weekly, first day of week, sunday
+    df['x_label'] = (
+        get_year_week_in_df_column(df[TIME_COL])
+        + '<br>'
+        + df[TIME_COL].dt.month.astype(str).str.pad(2, fillchar='0')
+        + '-'
+        + df[TIME_COL].dt.day.astype(str).str.pad(2, fillchar='0')
+    )
+    return df['x_label']
+
+
 def get_year_week_in_df_column(column: pd.DataFrame.columns):
     """get year and week with format 'yy,w' -> '22, 20'"""
     return (
@@ -415,7 +429,7 @@ def convert_cell_tz(df: pd.DataFrame, offset):
 
 @log_execution_time()
 @abort_process_handler()
-def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm, client_tz=tz.tzlocal()):
+def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm):
     """Generate x, y values and text labels of x and y axes"""
     start_dt = parser.parse(start_tm)
     end_dt = parser.parse(end_tm)
@@ -481,7 +495,7 @@ def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm, client_tz=tz.t
                 + df[TIME_COL].dt.date.astype(str).str[5:]
             )
         elif num_days <= 140:
-            df['x_label'] = gen_weekly_ticks(df)
+            df['x_label'] = gen_daily_ticks(df)
         elif num_days <= 365 * 2:
             # tick monthly
             df['x_label'] = (
@@ -660,13 +674,15 @@ def convert_to_pandas_step(hm_step, hm_mode):
 
 @log_execution_time()
 @abort_process_handler()
-def create_agg_column(df, pd_step='4h', agg_col=AGG_COL, hm_mode=7, offset=timedelta(0)):
+def create_agg_column(df, pd_step='4h', agg_col=AGG_COL, hm_mode=7, client_tz=tz.tzutc()):
     """Create aggregate column data"""
     if hm_mode == 7:
         length = 13
     else:
         length = 16
-    temp = pd.to_datetime(df[TIME_COL], format='%Y-%m-%dT%H:%M') + offset
+    temp = pd.to_datetime(df[TIME_COL], format='%Y-%m-%dT%H:%M', utc=True).dt.tz_convert(
+        tz=client_tz
+    )
     df[agg_col] = temp.dt.floor(pd_step).astype(str).str[:length]
     return df
 
@@ -802,16 +818,18 @@ def gen_heatmap_data_as_dict(
     cells = gen_cells(start_tm, end_tm, hm_mode, hm_step)
     df_cells = pd.DataFrame({TIME_COL: cells})
     # time_delta = calc_time_delta(hm_mode, hm_step, start_tm)
-    offset = get_utc_offset(client_tz)
-    df_cells = convert_cell_tz(df_cells, offset)
+    if not df_cells.empty:
+        df_cells[TIME_COL] = pd.to_datetime(df_cells[TIME_COL], utc=True).dt.tz_convert(
+            tz=client_tz
+        )
     df_cells = gen_agg_col(df_cells, hm_mode, hm_step)
 
     # limit to 10000 cells
     dic_param.update({ACT_CELLS: df_cells.index.size})
-    df_cells, end_tm = limit_num_cells(df_cells, end_tm, offset)
+    df_cells, end_tm = limit_num_cells(df_cells, end_tm, client_tz)
 
     # generate x, y, x_label, y_label
-    df_cells = gen_x_y(df_cells, hm_mode, hm_step, start_tm, end_tm, client_tz)
+    df_cells = gen_x_y(df_cells, hm_mode, hm_step, start_tm, end_tm)
 
     # build dic col->function
     dic_col_func = build_dic_col_func(dic_proc_cfgs, graph_param)
@@ -855,7 +873,7 @@ def gen_heatmap_data_as_dict(
 
     # gen aggregate end col
     pd_step = convert_to_pandas_step(hm_step, hm_mode)
-    df: pd.DataFrame = create_agg_column(df, pd_step, AGG_COL, hm_mode, offset)
+    df: pd.DataFrame = create_agg_column(df, pd_step, AGG_COL, hm_mode, client_tz)
     agg_cols = gen_agg_col_names(var_agg_cols)  # move
 
     dic_df_proc = {}

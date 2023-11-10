@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from ap.api.external_api.services import save_odf_data_of_request
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import *
 from ap.common.logger import log_execution_time
@@ -82,4 +83,7 @@ def get_filter_on_demand_data(dic_param, remove_filter_data=False):
     for key in filter_key:
         if key in dic_param:
             dic_param.pop(key)
+
+    save_odf_data_of_request(dic_param)
+
     return dic_param

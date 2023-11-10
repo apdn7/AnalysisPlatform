@@ -336,7 +336,7 @@ const showTabsAndCharts = (
         // カラム名を取得する。
         const endProc = getEndProcFromFormVal(sensors[sensorIdx], data.ARRAY_FORMVAL);
         const displayColName = getColumnName(endProc, sensor);
-        const endProcName = procConfigs[endProc].name;
+        const endProcName = procConfigs[endProc].shown_name;
         const sensorType = procConfigs[endProc].dicColumns[sensor].data_type;
         const allGroupNames = sensorType === DataTypes.TEXT.name
             ? getAllGroupOfSensor(sensorPlotDatas) : [];

@@ -41,6 +41,8 @@ def get_all_process_no_nested():
 def get_process_cfg(proc_id):
     process_schema = ProcessSchema()
     process = CfgProcess.query.get(proc_id) or {}
+    if process and not process.name_en:
+        process.name_en = to_romaji(process.name_jp)
     return process_schema.dump(process)
 
 
@@ -93,7 +95,7 @@ def create_or_update_process_cfg(proc_data, unused_columns):
 
             proc_column.process_id = process.id
             # transform english name
-            proc_column.english_name = to_romaji(proc_column.english_name)
+            proc_column.name_en = to_romaji(proc_column.column_name)
 
             sensor = Sensor.get_sensor_by_col_name(process.id, proc_column.column_name)
 

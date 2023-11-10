@@ -75,11 +75,11 @@ const generateSortOrderColumn = (sortList, graphArea) => {
         const [procId, colId] = col.split('-');
         const cfgProc = procConfigs[procId];
         const dicCols = cfgProc.dicColumns;
-        const colShowName = dicCols[colId].name;
-        const columnName = dicCols[colId].english_name;
+        const colShowName = dicCols[colId].shown_name;
+        const columnName = dicCols[colId].name_en;
         const dataType = dicCols[colId].data_type;
-        const procEnName = cfgProc.en_name;
-        showColOrderingSetting(orderingEls.endColOrderTable + graphArea, colId, cfgProc.id, cfgProc.name, procEnName, colShowName, columnName, dataType, isReset, graphArea);
+        const procEnName = cfgProc.name_en;
+        showColOrderingSetting(orderingEls.endColOrderTable + graphArea, colId, cfgProc.id, cfgProc.shown_name, procEnName, colShowName, columnName, dataType, isReset, graphArea);
         isReset = false;
     }
 };

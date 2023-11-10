@@ -54,8 +54,8 @@
                                         data-proc-id="{{ proc_info.id }}">
                                         <td class="col-number">{{ loop.index }}</td>
                                         <td>
-                                            <input name="processName" class="form-control" type="text"
-                                                   value="{{ proc_info.name }}"
+                                            <input data-name-en="{{proc_info.name_en}}" name="processName" class="form-control" type="text"
+                                                   value="{{ proc_info.shown_name }}"
                                                    disabled
                                                    data-order>
                                         </td>

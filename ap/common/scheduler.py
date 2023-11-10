@@ -39,6 +39,7 @@ class JobType(Enum):
     PROC_LINK_COUNT = 10
     ZIP_LOG = 11
     CLEAN_ZIP = 12
+    CLEAN_EXPIRED_REQUEST = 13
 
 
 PRIORITY_JOBS = [

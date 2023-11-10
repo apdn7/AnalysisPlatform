@@ -411,7 +411,7 @@ const buildGraphContainerHTML = (chartOption) => {
     graphCanvasHTML += `
         <div class="tschart-title-parent">
             <div class="tschart-title">
-                <span title="${procConfigs[endProcName].name}">${procConfigs[endProcName].name}</span>
+                <span title="${procConfigs[endProcName].shown_name}">${procConfigs[endProcName].shown_name}</span>
                 <span title="${getVal}">${getVal} ${CTLabel}</span>
                 ${catExpBoxHTML}
              </div>
@@ -775,7 +775,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             endTime: formCommon.END_TIME,
             endProcName: endProcId,
             sensorName: sensorId,
-            getProc: procConfigs[endProcId].name,
+            getProc: procConfigs[endProcId].shown_name,
             procId: endProcId,
             startProc,
             getVal: columnName,
@@ -854,7 +854,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             maxY: chartOption.yMax,
             prcMin: chartOption.prcMin,
             prcMax: chartOption.prcMax,
-            title: `${procConfigs[endProcId].name} ${columnName}`,
+            title: `${procConfigs[endProcId].shown_name} ${columnName}`,
             isThinData,
             categoryDistributed,
             xAxisOption,
@@ -863,7 +863,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
 
         // 今回はAjaxでupdateが必要が無いのでオブジェクトを返さない
         const chartLabels = data.ARRAY_FORMVAL.map(
-            fv => `${procConfigs[fv.end_proc].name} ${columnName}`,
+            fv => `${procConfigs[fv.end_proc].shown_name} ${columnName}`,
         );
 
         const tsChartObject = YasuTsChart($, chartParamObj, chartLabels, tabID, xaxis = xAxisOption, isStepChart = beforeRankValues);
@@ -1008,7 +1008,7 @@ const drawHistogramsTab = (data, scaleOption = fppScaleOption.yAxis, isReset = t
         </div>`;
         $(formElements.histPlotCards).append(cardHtml);
 
-        const procName = procConfigs[endProcName].name;
+        const procName = procConfigs[endProcName].shown_name;
 
         const histParam = {
             canvasId: `${formElements.histograms}${i + 1}`,

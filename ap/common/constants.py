@@ -668,11 +668,13 @@ DATA_TYPE_ERROR_MSG = 'Data Type Error'
 DATA_TYPE_DUPLICATE_MSG = 'Duplicate Record'
 
 AUTO_BACKUP = 'auto-backup-universal'
+ANALYSIS_INTERFACE_ENV = 'ANALYSIS_INTERFACE_ENV'
 
 
 class AppEnv(Enum):
     PRODUCTION = 'prod'
     DEVELOPMENT = 'dev'
+    TEST = 'test'
 
 
 THIN_DATA_CHUNK = 4000
@@ -1229,3 +1231,38 @@ class NGCondition(Enum):
     GREATER_THAN_OR_EQUAL = '>='
     EQUAL = '='
     NOT_EQUAL_TO = '!='
+
+
+CLEAN_REQUEST_INTERVAL = 24  # 1 day interval
+
+
+# External API request params
+REQ_ID = 'req_id'
+BOOKMARK_ID = 'bookmark_id'
+PROCESS_ID = 'process_id'
+COLUMNS = 'columns'
+START_DATETIME = 'start_datetime'
+END_DATETIME = 'end_datetime'
+LATEST = 'latest'
+OPTION_ID = 'option_id'
+OD_FILTER = 'od_filter'
+OBJECTIVE = 'objective'
+FUNCTION = 'function'
+BOOKMARKS = 'bookmarks'
+PROCESSES = 'processes'
+EXTERNAL_API = 'external_api'
+EXAMPLE_VALUE = 3
+
+
+class PagePath(Enum):
+    FPP = 'ap/fpp'
+    STP = 'ap/stp'
+    RLP = 'ap/rlp'
+    CHM = 'ap/chm'
+    MSP = 'ap/msp'
+    SCP = 'ap/scp'
+    AGP = 'ap/agp'
+    SKD = 'ap/skd'
+    PCP = 'ap/pcp'
+    PCA = 'ap/analyze/anomaly_detection/pca'
+    GL = 'ap/analyze/structure_learning/gl'

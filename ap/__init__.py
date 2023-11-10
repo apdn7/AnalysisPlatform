@@ -29,6 +29,7 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import (
     APP_DB_FILE,
+    EXTERNAL_API,
     INIT_APP_DB_FILE,
     INIT_BASIC_CFG_FILE,
     LOG_LEVEL,
@@ -282,11 +283,10 @@ def create_app(object_name=None):
 
         app_source = rows[2] if len(rows) > 2 else ''
         app_source = str(app_source).strip('\n')
-
-        user_group = os.environ.get('group', AppGroup.Ext.value)
-        user_group = get_app_group(app_source, user_group)
-
         app_source = app_source if app_source != '' else AppSource.DN.value
+
+        user_group = os.environ.get('group', AppGroup.Dev.value)
+        user_group = get_app_group(app_source, user_group)
 
     # Universal DB init
     init_db(app)
@@ -333,7 +333,8 @@ def create_app(object_name=None):
         is_ignore_content = any(
             resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS
         )
-        if not is_ignore_content:
+
+        if not is_ignore_content and request.blueprint != EXTERNAL_API:
             dic_request_info['last_request_time'] = datetime.utcnow()
             bind_user_info(request)
 

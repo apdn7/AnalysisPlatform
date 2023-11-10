@@ -9,6 +9,7 @@ from functools import wraps
 from threading import Lock
 
 from flask import g
+from flask_babel import get_locale
 
 from ap.common.common_utils import (
     check_exist,
@@ -48,8 +49,8 @@ def is_obsolete(entry, duration=None):
 #     return new_params
 
 
-def compute_key(fn, args, kwargs):
-    key = pickle.dumps((fn.__name__, args, kwargs))
+def compute_key(fn, args, kwargs, locale=None):
+    key = pickle.dumps((fn.__name__, args, kwargs, locale))
     # try:
     #     key = pickle.dumps((fn.__name__, args, kwargs))
     # except Exception:
@@ -89,7 +90,12 @@ def memoize(is_save_file=False, duration=None):
             if USE_EXPIRED_CACHE_PARAM_NAME in kwargs:
                 kwargs.pop(USE_EXPIRED_CACHE_PARAM_NAME)
 
-            key = compute_key(fn, args, kwargs)
+            try:
+                locale = get_locale()
+            except Exception:
+                locale = None
+
+            key = compute_key(fn, args, kwargs, locale)
 
             is_stop_using_cache = get_cache_attr(MemoizeKey.STOP_USING_CACHE)
             if (

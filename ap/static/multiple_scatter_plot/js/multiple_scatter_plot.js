@@ -257,8 +257,8 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
         for (let i = 0; i < plotDataCount; i++) {
             const iProcId = sensors[i].end_col_id;
             const kProcId = sensors[k].end_col_id;
-            const iProcInfo = procConfigs[endProc] ? procConfigs[endProc].name : '';
-            const kProcInfo = procConfigs[sensors[k].end_proc_id] ? procConfigs[sensors[k].end_proc_id].name : '';
+            const iProcInfo = procConfigs[endProc] ? procConfigs[endProc].shown_name : '';
+            const kProcInfo = procConfigs[sensors[k].end_proc_id] ? procConfigs[sensors[k].end_proc_id].shown_name : '';
             const chartXLabel = `${iProcInfo}|${_pd.end_col_name}`;
             const chartYLabel = `${kProcInfo}|${sensors[i].end_col_name}`;
             if (i === k) {
@@ -315,8 +315,8 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
         const procId = data.ARRAY_FORMVAL[k].end_proc;
         const colId = data.ARRAY_FORMVAL[k].GET02_VALS_SELECT;
         const procInfo = procConfigs[procId];
-        const procName = procInfo.name;
-        const colName = procInfo.getColumnById(colId).name;
+        const procName = procInfo.shown_name;
+        const colName = procInfo.getColumnById(colId).shown_name;
         const chartLabel = `${procName}|${colName}`;
 
         const [histTrace, fmt] = genHistogramTrace(plotData, xScaleOption);

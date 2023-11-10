@@ -69,6 +69,7 @@ from ap.common.timezone_utils import (
     detect_timezone,
     gen_dummy_datetime,
     get_next_datetime_value,
+    get_time_info,
     get_utc_offset,
 )
 from ap.setting_module.models import (
@@ -260,16 +261,18 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
                 csv_cols = add_suffix_if_duplicated(csv_cols, True)
 
                 check_file.close()
-            missing_cols = set(dic_use_cols).difference(csv_cols)
-
+            # missing_cols = set(dic_use_cols).difference(csv_cols)
+            # find same columns between csv file and db
+            valid_columns = list(set(dic_use_cols).intersection(csv_cols))
+            # re-arrange cols
+            valid_columns = [col for col in csv_cols if col in valid_columns]
+            missing_cols = [] if len(valid_columns) else dic_use_cols
             if DATETIME_DUMMY in missing_cols:
                 # remove dummy col before check
                 missing_cols.remove(DATETIME_DUMMY)
 
             if missing_cols and not is_v2_datasource:
-                err_msg = (
-                    f"File {transformed_file} doesn't contain expected columns: {missing_cols}"
-                )
+                err_msg = f"File {transformed_file} doesn't contain expected columns: {list(set(dic_use_cols))}"
 
                 df_one_file = csv_to_df(
                     transformed_file,
@@ -303,8 +306,9 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
                 yield from yield_job_info(job_info, csv_file_name, err_msgs=err_msg)
                 continue
 
-            default_csv_param['usecols'] = [i for i, col in enumerate(csv_cols) if col]
-            use_col_names = [col for col in csv_cols if col]
+            # default_csv_param['usecols'] = [i for i, col in enumerate(valid_columns) if col]
+            default_csv_param['usecols'] = valid_columns
+            use_col_names = [col for col in valid_columns if col]
 
         # read csv file
         default_csv_param['dtype'] = {
@@ -550,10 +554,13 @@ def validate_columns(checked_cols, csv_cols, use_dummy_datetime):
     :param csv_cols:
     :return:
     """
-    ng_cols = set(checked_cols) - set(csv_cols)
+    # ng_cols = set(csv_cols) - set(checked_cols)
+    valid_cols = list(set(checked_cols).intersection(csv_cols))
+    ng_cols = [] if len(valid_cols) else csv_cols
     # remove dummy datetime columns from set to skip validate this column
     if use_dummy_datetime and DATETIME_DUMMY in ng_cols:
         ng_cols.remove(DATETIME_DUMMY)
+    # if all columns from csv file is not included in db, raise exception
     if ng_cols:
         raise Exception('CSVファイルの列名・列数が正しくないです。')
 
@@ -802,7 +809,7 @@ def import_df(
 
     # Convert UTC time
     for col, dtype in dic_use_cols.items():
-        if DataType[dtype] is not DataType.DATETIME:
+        if DataType[dtype] is not DataType.DATETIME and col != get_date_col:
             continue
 
         null_is_error = False
@@ -866,9 +873,10 @@ def yield_job_info(
 @log_execution_time()
 def convert_csv_timezone(df, get_date_col):
     datetime_val = get_datetime_val(df[get_date_col])
-    is_tz_inside = bool(detect_timezone(datetime_val))
-    time_offset = get_utc_offset(tz.tzlocal()) if not is_tz_inside else None
-    df[get_date_col] = convert_df_col_to_utc(df, get_date_col, is_tz_inside, time_offset)
+    is_timezone_inside, csv_timezone, utc_offset = get_time_info(datetime_val, None)
+    df[get_date_col] = convert_df_col_to_utc(
+        df, get_date_col, is_timezone_inside, csv_timezone, utc_offset
+    )
     df[get_date_col] = convert_df_datetime_to_str(df, get_date_col)
 
 

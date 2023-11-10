@@ -724,16 +724,16 @@ def convert_utc_df(df_rows, cols, data_types, data_source, table_name):
         if not is_date:
             continue
 
-        # convert utc
-        date_val, tzoffset_str, db_timezone = get_tzoffset_of_random_record(
-            data_source, table_name, col_name
-        )
+        # # convert utc
+        # date_val, tzoffset_str, db_timezone = get_tzoffset_of_random_record(
+        #     data_source, table_name, col_name
+        # )
 
-        # use os timezone
-        if data_source.db_detail.use_os_timezone:
-            db_timezone = None
+        # # use os timezone
+        # if data_source.db_detail.use_os_timezone:
+        #     db_timezone = None
 
-        is_tz_inside, _, time_offset = get_time_info(date_val, db_timezone)
+        # is_tz_inside, _, time_offset = get_time_info(date_val, db_timezone)
 
         # Convert UTC time
         validate_datetime(df_rows, col_name, False, False)

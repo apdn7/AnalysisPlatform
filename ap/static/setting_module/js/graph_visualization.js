@@ -330,7 +330,7 @@ const visualModule = (() => {
         let selectedFilterItemName;
         let selectedFilterItemId;
         if (selectedFilterColumnId && selectedFilterColumnId !== 'default') {
-            selectedFilterItemName = dicColumns[selectedFilterColumnId].name;
+            selectedFilterItemName = dicColumns[selectedFilterColumnId].shown_name;
             selectedFilterItemId = dicColumns[selectedFilterColumnId].id;
         } else {
             // set default if null
@@ -345,9 +345,9 @@ const visualModule = (() => {
         const controlColOptions = controlCols.map((col) => {
             const selected = col.id === selectedControlCol ? eles.selectedOptStr : '';
             if (col.id === selectedControlCol) {
-                controlColName = col.name;
+                controlColName = col.shown_name;
             }
-            return `<option value="${col.id}" title="${col.column_name}" ${selected}>${col.name}</option>`;
+            return `<option value="${col.id}" title="${col.name_en}" ${selected}>${col.shown_name}</option>`;
         });
 
 
@@ -356,7 +356,7 @@ const visualModule = (() => {
         cfgProcess.getFilters().forEach((filter) => {
             const isSelected = Number(selectedFilterItemId) === Number(filter.column_id) ? 'selected' : '';
             if (!isEmpty(filter.column_id)) { // to prevent the case N/A column in LINE filter
-                const filterItemName = dicColumns[filter.column_id].name || filter.column_id || filter.name;
+                const filterItemName = dicColumns[filter.column_id].shown_name || filter.column_id || filter.name;
                 fromFilterConfigItemOptions.push(
                     `<option value="${filter.column_id}" ${isSelected}>${filterItemName}</option>`
                 );
@@ -367,7 +367,7 @@ const visualModule = (() => {
         cfgProcess.getCategoryColumns().forEach((col) => {
             const isSelected = Number(selectedFilterItemId) === Number(col.id) ? 'selected' : '';
             showAllItemOptions.push(
-                `<option value="${col.id}" ${isSelected}>${col.name}</option>`
+                `<option value="${col.id}" ${isSelected}>${col.shown_name}</option>`
             );
         });
 
@@ -904,7 +904,7 @@ const visualModule = (() => {
             }
 
             if (dicCols[filterOption]) {
-                return dicCols[filterOption].name;
+                return dicCols[filterOption].shown_name;
             }
         };
         console.timeEnd('getConfigItems');
@@ -913,7 +913,7 @@ const visualModule = (() => {
                 const controlCol = dicCols[controlColumns[i]];
                 let controlColName = '';
                 if (controlCol) {
-                    controlColName = controlCol.name;
+                    controlColName = controlCol.shown_name;
                 }
                 const filterColName = getFilterName(filterColumns[i]);
                 const filterColVal = getFilterName(filterValues[i], filterColumns[i]);
@@ -955,7 +955,7 @@ const visualModule = (() => {
         const controlColumn = {};
         controlColumn[i18nNames.partNoDefaultName.trim()] = '';
         Object.keys(dictCols).forEach((key) => {
-            controlColumn[dictCols[key].name] = dictCols[key].id;
+            controlColumn[dictCols[key].shown_name] = dictCols[key].id;
         });
         return {
             controlColumn,

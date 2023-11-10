@@ -36,7 +36,7 @@
                 <select name="type" id="processList" class="form-control select2-selection--single select-n-columns">
                     <option value="" selected>---</option>
                     {% for proc in procs %}
-                    <option value="{{ proc.id }}" title="{{ proc.en_name }}">{{ proc.name }}</option>
+                    <option value="{{ proc.id }}" title="{{ proc.name_en }}">{{ proc.shown_name }}</option>
                     {% endfor %}
                 </select>
             </div>

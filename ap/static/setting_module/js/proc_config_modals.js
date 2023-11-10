@@ -24,6 +24,8 @@ const procModalElements = {
     procModalBody: $('#procSettingModalBody'),
     procSettingContent: $('#procSettingContent'),
     proc: $('#procSettingModal input[name=processName]'),
+    procJapaneseName: $('#procSettingModal input[name=processJapaneseName]'),
+    procLocalName: $('#procSettingModal input[name=processLocalName]'),
     comment: $('#procSettingModal input[name=comment]'),
     databases: $('#procSettingModal select[name=databaseName]'),
     tables: $('#procSettingModal select[name=tableName]'),
@@ -56,6 +58,8 @@ const procModalElements = {
     columnName: 'columnName',
     englishName: 'englishName',
     shownName: 'shownName',
+    japaneseName: 'japaneseName',
+    localName: 'localName',
     operator: 'operator',
     coef: 'coef',
     procsMasterName: 'processName',
@@ -113,6 +117,15 @@ const procModali18n = {
     noDatetimeCol: $('#i18nNoDatetimeCol').text(),
 };
 
+const translateToEng = async  (text) => {
+    const result = await fetchData(
+    '/ap/api/setting/to_eng',
+    JSON.stringify({colname: text}),
+'POST');
+    return result;
+};
+
+
 const setProcessName = (dataRowID = null) => {
     const procDOM = $(`#tblProcConfig tr[data-rowid=${dataRowID}]`);
 
@@ -148,8 +161,21 @@ const setProcessName = (dataRowID = null) => {
         } else if (settingTableName) {
             firstTableName = $(settingTableName).val();
         }
-        const combineProcName = firstTableName ? `${dsNameSelection}_${firstTableName}` : dsNameSelection;
-        procModalElements.proc.val(combineProcName);
+        let combineProcName = firstTableName ? `${dsNameSelection}_${firstTableName}` : dsNameSelection;
+        // set default jp and local process name
+        const isJPLocal = docCookies.isJaLocale();
+        if (isJPLocal) {
+            procModalElements.procJapaneseName.val(combineProcName);
+        } else {
+            procModalElements.procLocalName.val(combineProcName);
+        }
+        translateToEng(combineProcName).then(res => {
+            if (res.data) {
+                procModalElements.proc.val(res.data);
+            } else {
+                procModalElements.proc.val(combineProcName);
+            }
+        })
     }
 
     if (!procModalCurrentProcId) {
@@ -357,7 +383,7 @@ const genColumnWithCheckbox = (cols, rows, dummyDatetimeIdx) => {
                 <input type="checkbox" onChange="selectTargetCol(this)"
                     class="check-item custom-control-input col-checkbox" value="${col.name}"
                     id="checkbox-${col.romaji}" data-type="${col.type}" data-romaji="${col.romaji}"
-                    data-isnull="${isNull}" data-col-index="${i}" data-is-dummy-datetime="${isDummyDatetimeCol}">
+                    data-isnull="${isNull}" data-col-index="${i}" data-is-dummy-datetime="${isDummyDatetimeCol}" data-name-jp="${col.name_jp || ''}" data-name-local="${col.name_local || ''}">
                 <label class="custom-control-label" for="checkbox-${col.romaji}">${col.name}</label>
             </div>
         </th>`);
@@ -613,9 +639,12 @@ const createOptCoefHTML = (operator, coef, isNumeric) => {
 const selectTargetCol = (col, doValidate = true) => {
     if (col.checked) {
         // add new record
+        const isJPLocale = docCookies.isJaLocale();
         const colDataType = col.getAttribute('data-type');
         const romaji = col.getAttribute('data-romaji');
         const isDummyDatetime = col.getAttribute('data-is-dummy-datetime') === 'true';
+        const nameJp = col.getAttribute('data-name-jp') || isJPLocale ? col.value : '';
+        const nameLocal = col.getAttribute('data-name-local') || !isJPLocale ? col.value : '';
         const isDatetime = !setDatetimeSelected && DataTypes.DATETIME.name === colDataType;
         const colConfig = {
             is_get_date: isDatetime,
@@ -623,8 +652,10 @@ const selectTargetCol = (col, doValidate = true) => {
             is_auto_increment: false,
             data_type: colDataType,
             column_name: col.value,
-            english_name: romaji,
-            name: col.value,
+            name_en: romaji,
+            name_jp: nameJp,
+            name_local: nameLocal,
+            // name: col.value,
             is_dummy_datetime: isDummyDatetime,
         };
         if (isDatetime) {
@@ -733,7 +764,7 @@ const updateLatestDataCheckbox = () => {
         // eslint-disable-next-line no-restricted-syntax
         for (const colname of selectJson[SELECT_ROOT][procModalElements.columnName]) {
             const isDisabledCol = colname === datetimeColName;
-            const currentInput = $(`input[value="${colname}"][name!="shownName"]`);
+            const currentInput = $(`input[value="${colname}"][data-shown-name!='1']`);
             currentInput.prop('checked', true);
             if (isDisabledCol) {
                 currentInput.prop('disabled', true);
@@ -909,8 +940,8 @@ const handleEnglishNameChange = () => {
     });
 };
 
-const englishAndMasterNameValidator = (englishNames = [], shownNames = []) => {
-    if (isEmpty(englishNames) && isEmpty(shownNames)) return [];
+const englishAndMasterNameValidator = (englishNames = [], japaneseNames = [], localNames = []) => {
+    if (isEmpty(englishNames)) return [];
 
     const nameErrors = new Set();
     const isEmptyEnglishName = []
@@ -920,15 +951,19 @@ const englishAndMasterNameValidator = (englishNames = [], shownNames = []) => {
         nameErrors.add($(procModali18n.noEnglishName).text() || '');
     }
 
-    const isEmptyShownName = [].concat(shownNames).some(name => isEmpty(name));
-    if (isEmptyShownName) {
-        nameErrors.add($(procModali18n.noMasterName).text() || '');
-    }
+    // const isEmptyShownName = [].concat(shownNames).some(name => isEmpty(name));
+    // if (isEmptyShownName) {
+    //     nameErrors.add($(procModali18n.noMasterName).text() || '');
+    // }
     if (isArrayDuplicated(englishNames)) {
         nameErrors.add($(procModali18n.duplicatedEnglishName).text() || '');
     }
 
-    if (isArrayDuplicated(shownNames.filter(name => !isEmpty(name)))) {
+    if (isArrayDuplicated(japaneseNames.filter(name => !isEmpty(name)))) {
+        nameErrors.add($(procModali18n.duplicatedMasterName).text() || '');
+    }
+
+     if (isArrayDuplicated(localNames.filter(name => !isEmpty(name)))) {
         nameErrors.add($(procModali18n.duplicatedMasterName).text() || '');
     }
 
@@ -944,7 +979,7 @@ const checkDuplicateMasterName = () => {
         const procId = $(this).data('proc-id');
         const rowId = $(this).attr('id');
         if (rowId) {
-            const masterName = $(`#${rowId} input[name=processName]`).val() || '';
+            const masterName = $(`#${rowId} input[name=processName]`).attr('data-name-en') || '';
             existingProcIdMasterNames[`${procId}`] = masterName;
         }
     });
@@ -1068,7 +1103,8 @@ const getSelectedColumnsAsJson = () => {
         'dataType',
     );
     getHtmlEleFunc(procModalElements.englishName);
-    getHtmlEleFunc(procModalElements.shownName);
+    getHtmlEleFunc(procModalElements.japaneseName);
+    getHtmlEleFunc(procModalElements.localName);
     getHtmlEleFunc(procModalElements.operator);
     getHtmlEleFunc(procModalElements.isDummyDatetime);
     const selectJson = getHtmlEleFunc(procModalElements.coef);
@@ -1081,10 +1117,11 @@ const procColumnsData = (selectedJson) => {
     if (selectedJson.selects.columnName.length) {
         selectedJson.selects.columnName.forEach((v, k) => {
             const dataType = selectedJson.selects.dataType[k];
+            const localName = selectedJson.selects.localName[k];
+            const japaneseName = selectedJson.selects.japaneseName[k];
             columnsData.push({
                 column_name: v,
-                english_name: selectedJson.selects.englishName[k],
-                name: selectedJson.selects.shownName[k],
+                name_en: selectedJson.selects.englishName[k],
                 data_type: dataType,
                 operator: selectedJson.selects.operator[k],
                 coef: selectedJson.selects.coef[k],
@@ -1094,6 +1131,8 @@ const procColumnsData = (selectedJson) => {
                 is_auto_increment: selectedJson.selects.auto_increment[k],
                 is_dummy_datetime: selectedJson.selects.isDummyDatetime[k] === 'true',
                 order: CfgProcess_CONST.CATEGORY_TYPES.includes(dataType) ? 1 : 0,
+                name_jp: japaneseName || null,
+                name_local: localName || null,
             });
         });
     }
@@ -1102,7 +1141,9 @@ const procColumnsData = (selectedJson) => {
 
 const collectProcCfgData = (columnDataRaws) => {
     const procID = procModalElements.procID.val() || null;
-    const procName = procModalElements.proc.val();
+    const procEnName = procModalElements.proc.val();
+    const procLocalName = procModalElements.procLocalName.val() || null;
+    const procJapaneseName = procModalElements.procJapaneseName.val() || null;
     const dataSourceId = procModalElements.databases.find(':selected').val() || '';
     const tableName = procModalElements.tables.find(':selected').val() || '';
     const comment = procModalElements.comment.val();
@@ -1113,11 +1154,14 @@ const collectProcCfgData = (columnDataRaws) => {
     const unusedColumns = allProcessColumns.filter(colName => !checkedProcessColumn.includes(colName));
     return [{
         id: procID,
-        name: procName,
+        name_en: procEnName,
+        name: procEnName,
         data_source_id: dataSourceId,
         table_name: tableName,
         comment,
         columns: procColumns,
+        name_jp: procJapaneseName,
+        name_local: procLocalName,
     }, unusedColumns];
 };
 
@@ -1147,10 +1191,11 @@ const saveProcCfg = (selectedJson, importData = true) => {
         // update GUI
         if (res.status !== HTTP_RESPONSE_CODE_500) {
             if (!currentProcItem.length) {
-                addProcToTable(res.data.id, res.data.name, res.data.data_source.id);
+                addProcToTable(res.data.id, res.data.name, res.data.shown_name, res.data.data_source.id);
             } else {
-                $(currentProcItem).find('input[name="processName"]').val(res.data.name)
+                $(currentProcItem).find('input[name="processName"]').val(res.data.shown_name)
                 .prop('disabled', true);
+                 $(currentProcItem).find('input[name="processName"]').attr('data-name-en', res.data.name)
                 $(currentProcItem).find('select[name="databaseName"]').val(res.data.data_source.id)
                     .prop('disabled', true);
                 $(currentProcItem).find('select[name="tableName"]')
@@ -1200,6 +1245,8 @@ const runRegisterProcConfigFlow = (edit = false) => {
     const coefsRaw = selectJson[SELECT_ROOT][procModalElements.coef];
     const englishNames = selectJson[SELECT_ROOT][procModalElements.englishName];
     const shownNames = selectJson[SELECT_ROOT][procModalElements.shownName];
+    const japaneseNames = selectJson[SELECT_ROOT][procModalElements.japaneseName];
+    const localNames = selectJson[SELECT_ROOT][procModalElements.localName];
     let coefs = [];
     if (coefsRaw) {
         coefs = coefsRaw.map((coef) => {
@@ -1209,7 +1256,7 @@ const runRegisterProcConfigFlow = (edit = false) => {
             return Number(coef);
         });
     }
-    let nameMsgs = englishAndMasterNameValidator(englishNames, []); // check english names only
+    let nameMsgs = englishAndMasterNameValidator(englishNames, japaneseNames, localNames);
     const coefMsgs = validateCoefOnSave(coefs, operators);
 
 
@@ -1354,7 +1401,8 @@ const getSettingModeRows = () => {
     const autoIncrements = selectJson[SELECT_ROOT][procModalElements.auto_increment] || [''];
     const columnNames = selectJson[SELECT_ROOT][procModalElements.columnName] || [''];
     const englishNames = selectJson[SELECT_ROOT][procModalElements.englishName] || [''];
-    const shownNames = selectJson[SELECT_ROOT][procModalElements.shownName] || [''];
+    const japaneseNames = selectJson[SELECT_ROOT][procModalElements.japaneseName] || [''];
+    const localNames = selectJson[SELECT_ROOT][procModalElements.localName] || [''];
     const operators = selectJson[SELECT_ROOT][procModalElements.operator] || [''];
     const coefsRaw = selectJson[SELECT_ROOT][procModalElements.coef] || [''];
     return zip(
@@ -1363,7 +1411,8 @@ const getSettingModeRows = () => {
         serials.map(mapBoolean),
         autoIncrements.map(mapBoolean),
         englishNames,
-        shownNames,
+        japaneseNames,
+        localNames,
         operators.map(v => (v === 'regex' ? i18n.validLike : v)),
         coefsRaw,
     );
@@ -1379,11 +1428,11 @@ const getDupIndices = (arr, excludes = new Set()) => {
         .map(tuple => tuple[1]);
 }
 
-const buildDictCol2Type = (procColumns) => {
+const buildDictColWithKey  = (procColumns, key='data_type') => {
     const dicCol2Type = {};
     for (let col of procColumns){
         const colName = col['column_name'];
-        dicCol2Type[colName] = col['data_type'];
+        dicCol2Type[colName] = col[key] || '';
     }
     return dicCol2Type;
 }
@@ -1420,7 +1469,10 @@ const checkExcelDataValid = (verticalData, validationColNames, dataTypes) => {
         englishName: (columnData, dataTypes=[]) => {
             return getDupIndices(columnData);
         },
-        shownName: (columnData, dataTypes=[]) => {
+        japaneseName: (columnData, dataTypes=[]) => {
+            return getDupIndices(columnData);
+        },
+        localName: (columnData, dataTypes=[]) => {
             return getDupIndices(columnData);
         },
         operator: (columnData, dataTypes= []) => {
@@ -1566,10 +1618,10 @@ const switchMode = (spreadTableDOM, force = false) => {
         const editModeData = getExcelModeData();
         let editModeDataVertical = transpose(editModeData);
         const validationColNames = [
-            'columnName', 'dateTime', 'serial', 'auto_increment', 'englishName', 'shownName', 'operator', 'coef'
+            'columnName', 'dateTime', 'serial', 'auto_increment', 'englishName', 'japaneseName', 'localName', 'operator', 'coef'
         ]
 
-        const colName2Type = buildDictCol2Type(columns);
+        const colName2Type = buildDictColWithKey(columns, 'data_type');
         const columnNameIdx = validationColNames.indexOf('columnName');
         const columnNames = editModeDataVertical[columnNameIdx];
         const dataTypes = columnNames.map(col => colName2Type[col] || DataTypes.STRING.name);  // set TEXT as default
@@ -1615,10 +1667,11 @@ const sendSpreadSheetDataToSetting = async (editModeDataVertical, validationColN
             is_get_date: editModeRow[1],
             is_serial_no: editModeRow[2],
             is_auto_increment: editModeRow[3],
-            english_name: editModeRow[4],
-            name: editModeRow[5],
-            operator: editModeRow[6] === 'Valid-like' ? 'regex' : editModeRow[5],
-            coef: editModeRow[7],
+            name_en: editModeRow[4],
+            name_jp: editModeRow[5],
+            name_local: editModeRow[6],
+            operator: editModeRow[7] === 'Valid-like' ? 'regex' : editModeRow[7],
+            coef: editModeRow[8],
         };
 
         procModalElements.seletedColumnsBody.append(

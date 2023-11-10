@@ -1064,6 +1064,8 @@ class TransformYamlToDb:
 
         proc_cfg.id = proc_new_id
         proc_cfg.name = proc_info['master-name']
+        proc_cfg.name_jp = proc_info['master-name']
+        proc_cfg.name_en = proc_info['master-name']
         proc_cfg.table_name = clear_special_char(proc_info['sql']['from'])
         proc_cfg.comment = proc_info['comment']
         proc_cfg.columns = []
@@ -1077,8 +1079,8 @@ class TransformYamlToDb:
         column_cfg = CfgProcessColumn()
 
         column_cfg.column_name = col_name
-        column_cfg.name = col_info['master-names']
-        column_cfg.english_name = to_romaji(col_info['alias-names'])
+        column_cfg.name_jp = col_info['master-names']
+        column_cfg.name_en = to_romaji(col_info['alias-names'])
         column_cfg.operator = col_info['operators']
         column_cfg.coef = col_info['coefs']
         column_cfg.data_type = col_info['data-types']

@@ -139,11 +139,16 @@ const CfgProcess_CONST = {
 
 class CfgColumn {
     id;
-    name;
     column_name;
     column_type;
     data_type;
-    english_name;
+    name_en;
+
+    name_jp;
+
+    name_local;
+
+    shown_name;
     is_auto_increment;
     is_get_date;
     is_serial_no;
@@ -203,6 +208,10 @@ class CfgVisualization {
 class CfgProcess {
     id;
     name;
+    name_jp;
+    name_en;
+    name_local;
+    shown_name;
     table_name;
     data_source_id;
     data_source;
@@ -499,8 +508,8 @@ const genProcessDropdownData = (procConfigs = {}) => {
     Object.values(procConfigs).sort(sortByOrderOrID).forEach((proc) => {
         ids.push(proc.id);
         names.push({
-            name: proc.name,
-            en_name: proc.en_name,
+            shown_name: proc.shown_name,
+            name_en: proc.name_en,
         });
     });
 

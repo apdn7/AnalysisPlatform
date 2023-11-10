@@ -110,7 +110,7 @@ def gen_scatter_plot(dic_param):
     # get serials
     for proc in graph_param.array_formval:
         proc_cfg = dic_proc_cfgs[proc.proc_id]
-        dic_proc_name[proc.proc_id] = proc_cfg.name
+        dic_proc_name[proc.proc_id] = proc_cfg.shown_name
 
     # get data from database
     df, actual_record_number, unique_serial = get_data_from_db(
@@ -671,7 +671,7 @@ def gen_heatmap_data_from_msp(dic_param, dic_proc_cfgs):
         y_sensor_ids = reversed(sensor_ids)
         for sensor_data in dic_param[ARRAY_PLOTDATA]:
             x_label = '{} | {}'.format(
-                sensor_data[END_COL_SHOW_NAME], dic_proc_cfgs[sensor_data[END_PROC_ID]].name
+                sensor_data[END_COL_SHOW_NAME], dic_proc_cfgs[sensor_data[END_PROC_ID]].shown_name
             )
             x.append(x_label)
 

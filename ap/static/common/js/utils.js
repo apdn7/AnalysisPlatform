@@ -312,6 +312,12 @@ const docCookies = {
         }
         return aKeys;
     },
+     getLocale() {
+        return this.getItem('locale') || 'en';
+    },
+    isJaLocale() {
+        return this.getLocale() === 'ja';
+    }
 };
 
 // get or create node from object
@@ -1383,7 +1389,7 @@ const toUTCDateTime = (localDate, localTime) => {
 
 const getColumnName = (endProcName, getVal) => {
     const col = procConfigs[endProcName].getColumnById(getVal) || {};
-    return col.name || getVal;
+    return col.shown_name || getVal;
 };
 
 const isCycleTimeCol = (endProcId, colId) => {
@@ -1989,15 +1995,15 @@ const endProcMultiSelectOnChange = async (count, props) => {
         const datetimeCols = procInfo.getDatetimeColumns();
         if (ctCol) {
             ids.push(ctCol.id);
-            vals.push(ctCol.english_name);
-            names.push(ctCol.name);
+            vals.push(ctCol.name_en);
+            names.push(ctCol.shown_name);
             dataTypes.push(ctCol.data_type);
         }
         if (datetimeCols) {
             for (const dtCol of datetimeCols) {
                 ids.push(dtCol.id);
-                vals.push(dtCol.english_name);
-                names.push(dtCol.name);
+                vals.push(dtCol.name_en);
+                names.push(dtCol.shown_name);
                 dataTypes.push(dtCol.data_type);
             }
         }
@@ -2010,8 +2016,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
         }
         if (dataTypeTargets.includes(col.data_type) && !CfgProcess_CONST.CT_TYPES.includes(col.data_type)) {
             ids.push(col.id);
-            vals.push(col.english_name);
-            names.push(col.name);
+            vals.push(col.name_en);
+            names.push(col.shown_name);
             // checkedIds.push(col.id);
             dataTypes.push(col.data_type);
         }
@@ -2068,8 +2074,8 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
         const itemList = [];
         for (let i = 0; i < procIds.length; i++) {
             const itemId = procIds[i];
-            const itemVal = procVals[i].name;
-            const itemEnVal = procVals[i].en_name;
+            const itemVal = procVals[i].shown_name;
+            const itemEnVal = procVals[i].name_en;
             itemList.push(`<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`);
         }
 
@@ -2134,14 +2140,14 @@ const getStratifiedVars = async (selectedEndProc) => {
 
     let maxLen = 0;
     for (const col of stratifiedVarColumns) {
-        if (col.name && col.name.length > maxLen) {
-            maxLen = col.name.length;
+        if (col.shown_name && col.shown_name.length > maxLen) {
+            maxLen = col.shown_name.length;
         }
     }
 
     let stratifiedVarOptions = '<option value="">---</option>';
     stratifiedVarColumns.forEach((col) => {
-        stratifiedVarOptions += `<option value="${col.id}" title="${col.column_name}">${col.name}</option>`;
+        stratifiedVarOptions += `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`;
     });
     svcolumns.html(stratifiedVarOptions);
 };
@@ -2633,8 +2639,8 @@ class GraphStore {
                 if (targetCol) {
                     ordering.push({
                         id: id,
-                        name: targetCol.name,
-                        proc_name: targetProc.name,
+                        shown_name: targetCol.shown_name,
+                        proc_name: targetProc.shown_name,
                         type: targetCol.data_type,
                         proc_id: targetProc.id,
                     })
@@ -3317,7 +3323,7 @@ const getLastNumberInString = (inputStr) => {
 const zipExport = (datasetId) => {
     const filename = $('#setting-name').text();
     const exportModeEle = $('[name=isExportMode]');
-    const url = `/ap/api/fpp/zip_export?dataset_id=${datasetId}&user_setting_id=${exportModeEle.val()}`;
+    const url = `/ap/api/fpp/zip_export?dataset_id=${datasetId}&bookmark_id=${exportModeEle.val()}`;
     downloadTextFile(url, `${filename}.zip`);
     exportModeEle.remove();
     return false;
@@ -3578,7 +3584,7 @@ const generateDefaultNameExport = () => {
     const title = document.title ? document.title.split(' ')[0] : '';
     try {
         const endProc1 = $('select[name*=end_proc]')[0].value;
-        const endProc = endProc1 ? procConfigs[endProc1].name : '';
+        const endProc = endProc1 ? procConfigs[endProc1].shown_name : '';
         let dateTimeRange = '';
 
         const hasDivision = $('select[name=compareType]').length > 0;
@@ -3635,7 +3641,11 @@ const fetchData = async (url, data, method = 'GET', options = {}) => {
         $.ajax({
             ...requestContent,
             success: (res) => {
-                resolve(res);
+                if (typeof res === 'string') {
+                    resolve(JSON.parse(res));
+                } else {
+                    resolve(res);
+                }
             },
             error: (err) => {
                 reject(err);

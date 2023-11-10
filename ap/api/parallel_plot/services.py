@@ -922,15 +922,15 @@ def gen_plotdata(orig_graph_param: DicParam, dic_data, dic_proc_cfg, df=None):
                 cast_inf_vals = True
             col_detail = {
                 'id': col_id,
-                'name': get_cols[0].name,
+                'name': get_cols[0].shown_name,
                 'type': get_cols[0].data_type,
                 'proc_id': proc_id,
-                'proc_name': get_cols[0].cfg_process.name,
+                'proc_name': get_cols[0].cfg_process.shown_name,
                 'is_category': is_category,
             }
             end_col_id = col_id
 
-            col_name_label = gen_sql_label(col_id, get_cols[0].name) + CATEGORIZED_SUFFIX
+            col_name_label = gen_sql_label(col_id, get_cols[0].column_name) + CATEGORIZED_SUFFIX
             if df is not None and col_name_label in df.columns:
                 categorized_data = df[col_name_label].tolist()
 
@@ -973,7 +973,7 @@ def gen_category_data(
 
             plotdata = dict(
                 proc_name=proc_id,
-                proc_master_name=proc_cfg.name,
+                proc_master_name=proc_cfg.shown_name,
                 column_name=col_id,
                 column_master_name=col_show_name,
                 data=array_y,

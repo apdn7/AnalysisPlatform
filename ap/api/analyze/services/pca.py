@@ -354,7 +354,7 @@ def get_data_point_info(
                         'sensor_id_x': col_id,
                     }
 
-            col_infos.append((proc_cfg.name, show_name, row[col_name], order))
+            col_infos.append((proc_cfg.shown_name, show_name, row[col_name], order))
 
     return col_infos, meta_data
 

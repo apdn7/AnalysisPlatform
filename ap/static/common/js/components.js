@@ -491,7 +491,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     <option value="">---</option>`;
                 if (props.availableColorVars && props.availableColorVars.length) {
                     props.availableColorVars.forEach(col => {
-                        colorDOM += `<option value="${col.id}" title="${col.column_name}">${col.name}</option>`;
+                        colorDOM += `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`;
                     });
                 }
                 colorDOM += `</select>`;
@@ -1253,8 +1253,8 @@ const addCondProc = (procIds, procVals, prefix = '', parentFormId = '', dataGenB
         const itemList = [];
         for (let i = 0; i < procIds.length; i++) {
             const itemId = procIds[i];
-            const itemVal = procVals[i].name;
-            const itemEnVal = procVals[i].en_name;
+            const itemVal = procVals[i].shown_name;
+            const itemEnVal = procVals[i].name_en;
             itemList.push(`<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`);
         }
 

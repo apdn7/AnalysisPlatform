@@ -1242,7 +1242,7 @@ const buildProcessColumnHTML = (selectedProcId, name = 'serialProcess') => {
     const procOptions = [];
     for (const procId in procConfigs) {
         const selected = Number(procId) === Number(selectedProcId) ? 'selected' : '';
-        const option = `<option value="${procId}" ${selected} title="${procConfigs[procId].en_name}">${procConfigs[procId].name || procId}</option>`;
+        const option = `<option value="${procId}" ${selected} title="${procConfigs[procId].name_en}">${procConfigs[procId].shown_name || procId}</option>`;
         procOptions.push(option);
     }
     return `
@@ -1259,14 +1259,14 @@ const buildColumnHTML = (serialCols, tableId = formElements.serialTable, name = 
     let alreadySet = false;
     for (const idx in serialCols) {
         const col = serialCols[idx];
-        let optionHTML = `<option value="${col.id}" title="${col.english_name}">${col.name}</option>`; // TODO no need, order alphabet
+        let optionHTML = `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`; // TODO no need, order alphabet
         if (selectedCol) {
             if (col.id === selectedCol) {
-                optionHTML = `<option value="${col.id}" title="${col.english_name}" selected>${col.name}</option>`;
+                optionHTML = `<option value="${col.id}" title="${col.name_en}" selected>${col.shown_name}</option>`;
                 alreadySet = true;
             }
         } else if (!alreadySet && !selectedOrderCols.has(`${col.id}`)) {
-            optionHTML = `<option value="${col.id}" title="${col.english_name}">${col.name}</option>`;
+            optionHTML = `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`;
             alreadySet = true;
         }
         optionHTMLs.push(optionHTML);
@@ -1386,7 +1386,7 @@ const bindChangeProcessEvent = (tableId = formElements.serialTable, processName 
                 const newSortedCols = orderSeriesCols(columns);
                 for (const col of newSortedCols) {
                     if (col.is_serial_no || col.is_get_date || CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)) {
-                        const orderObject = {id: col.id, text: col.name, title: col.english_name};
+                        const orderObject = {id: col.id, text: col.shown_name, title: col.name_en};
 
                         const isColSelectedOnSameElement = `${selectedVal}` === `${col.id}`;
                         const isColSelected = selectedSerials.has(col.id) || selectedSerials.has(`${col.id}`);

@@ -42,8 +42,20 @@ class DbProxy:
             set_sqlite_params(conn)
         return self.db_instance
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.db_instance.disconnect()
+    def __exit__(self, _exc_type, _exc_val, _exc_tb):
+        try:
+            if _exc_type:
+                self.db_instance.connection.rollback()
+            else:
+                self.db_instance.connection.commit()
+
+        except Exception as e:
+            if self.db_instance.connection is not None:
+                self.db_instance.connection.rollback()
+
+            raise e
+        finally:
+            self.db_instance.disconnect()
         return False
 
     def _get_db_instance(self):

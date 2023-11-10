@@ -58,8 +58,9 @@ def config_screen():
     processes = get_all_process_no_nested()
     # generate english name for process
     for proc_data in processes:
-        proc_data['en_name'] = to_romaji(proc_data['name'])
-    procs = [(proc.get('id'), proc.get('name'), proc.get('en_name')) for proc in processes]
+        if not proc_data['name_en']:
+            proc_data['name_en'] = to_romaji(proc_data['name'])
+    procs = [(proc.get('id'), proc.get('shown_name'), proc.get('name_en')) for proc in processes]
 
     output_dict = {
         'page_title': _('Application Configuration'),
@@ -91,7 +92,8 @@ def filter_config():
     processes = get_all_process_no_nested()
     # generate english name for process
     for proc_data in processes:
-        proc_data['en_name'] = to_romaji(proc_data['name'])
+        if not proc_data['name_en']:
+            proc_data['name_en'] = to_romaji(proc_data['name'])
     output_dict = {
         'procs': processes,
     }
@@ -132,7 +134,8 @@ def master_config():
     processes = get_all_process_no_nested()
     # generate english name for process
     for proc_data in processes:
-        proc_data['en_name'] = to_romaji(proc_data['name'])
+        if not proc_data['name_en']:
+            proc_data['name_en'] = to_romaji(proc_data['name'])
     output_dict = {
         'procs': processes,
     }

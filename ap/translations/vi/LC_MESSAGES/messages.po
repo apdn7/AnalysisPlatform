@@ -4500,6 +4500,14 @@ msgstr ""
 "You can specify a condition of NGs for the variable selected as 'Judge'. "
 "For example, Temperature > 90, InspectionResult == 2"
 
+#: ap/templates/macros.html
+msgid "Japanese Name"
+msgstr "Japanese Name"
+
+#: ap/templates/macros.html
+msgid "Local Name"
+msgstr "Local Name"
+
 # ap/template/setting_module/master_config.html
 #~ msgid "Control item"
 #~ msgstr "Control item"

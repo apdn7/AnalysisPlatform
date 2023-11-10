@@ -189,7 +189,7 @@ def to_csv(
             if output_col_ids and col_id not in output_col_ids:
                 continue
 
-            new_name = gen_export_col_name(proc_cfg.name, name)
+            new_name = gen_export_col_name(proc_cfg.shown_name, name)
             if len_of_col_name and len(new_name) > len_of_col_name:
                 new_name = new_name[: len_of_col_name - len(suffix)] + suffix
                 idx = 1
@@ -224,13 +224,13 @@ def to_csv(
         start_proc_term_to = None
         for proc_cfg in dic_proc_cfgs.values():
             get_date_col = proc_cfg.get_date_col(column_name_only=False)
-            get_date_name_in_df = gen_export_col_name(proc_cfg.name, get_date_col.name)
+            get_date_name_in_df = gen_export_col_name(proc_cfg.shown_name, get_date_col.shown_name)
             get_dates.append(get_date_name_in_df)
             if proc_cfg.id == graph_param.common.start_proc:
                 start_ct_col = get_date_name_in_df
                 if terms:
-                    start_proc_term_from = gen_export_col_name(proc_cfg.name, 'from')
-                    start_proc_term_to = gen_export_col_name(proc_cfg.name, 'to')
+                    start_proc_term_from = gen_export_col_name(proc_cfg.shown_name, 'from')
+                    start_proc_term_to = gen_export_col_name(proc_cfg.shown_name, 'to')
 
         if start_proc_term_from:
             # add term datetime to df

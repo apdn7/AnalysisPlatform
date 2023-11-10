@@ -627,18 +627,18 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
         const cfgProcess = procConfigs[parseInt(procId)] || procConfigs[procId];
         const sensorId = plotData.end_col;
         const column = cfgProcess.getColumnById(sensorId);
-        const sensorName = column.name || sensorId;
+        const sensorName = column.shown_name || sensorId;
         const isCTCol = column.data_type === DataTypes.DATETIME.name;
 
         const cateValue = plotData.cate_value;
         let facetTitle = '';
-        let title = `${cfgProcess.name}: ${sensorName}`;
+        let title = `${cfgProcess.shown_name}: ${sensorName}`;
         if (!isEmpty(cateValue)) {
             facetTitle = cateValue;
             if (Array.isArray(cateValue)) {
                 facetTitle = cateValue.length > 1 ? `${cateValue[0]} | ${cateValue[1]}` : cateValue[0];
             }
-            title = `${cfgProcess.name}-${sensorName}`;
+            title = `${cfgProcess.shown_name}-${sensorName}`;
         }
         return [title, sensorName, cateValue, facetTitle, isCTCol];
     };
@@ -725,8 +725,8 @@ const endProcOnChange = (async (event) => {
     const checkedIds = [];
     for (const col of procColumns) {
         ids.push(col.id);
-        vals.push(col.column_name);
-        names.push(col.name);
+        vals.push(col.name_en);
+        names.push(col.shown_name);
     }
 
     // load end proc sensors

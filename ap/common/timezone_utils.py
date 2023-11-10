@@ -186,7 +186,7 @@ def gen_sql(db_instance, table_name, get_date_col):
 
     sql = f'from {table_name} where {get_date_col} is not null'
     if isinstance(db_instance, mssqlserver.MSSQLServer):
-        sql = f'select TOP 1 CONVERT(VARCHAR(20), {get_date_col}, 127) {get_date_col}, 0 {sql}'
+        sql = f'select TOP 1 CONVERT(VARCHAR(30), {get_date_col}, 127) {get_date_col}, 0 {sql}'
     elif isinstance(db_instance, oracle.Oracle):
         data_type = db_instance.get_data_type_by_colname(
             table_name.strip('"'), get_date_col.strip('"')
@@ -266,13 +266,17 @@ def get_utc_offset(time_zone):
     if isinstance(time_zone, str):
         time_zone = tz.gettz(time_zone)
 
+    if not time_zone:
+        time_zone = tz.tzlocal()
     # localtime
     time_in_tz = datetime.now(tz=time_zone)
     # utc offset from localtime
     # localtime UTC-5 -> offset = -14400
     time_offset = time_in_tz.utcoffset().total_seconds()
-    time_offset = timedelta(seconds=time_offset)
+    # time_offset = timedelta(seconds=time_offset)
 
+    # return number of seconds diff to utc
+    # do not use timedelta
     return time_offset
 
 
@@ -287,7 +291,8 @@ def get_time_info(date_val, time_zone=None):
         detected_timezone = time_zone or tz.tzlocal()
 
     utc_offset = get_utc_offset(detected_timezone)
-
+    if not detected_timezone:
+        detected_timezone = time_zone or tz.tzlocal()
     return is_timezone_inside, detected_timezone, utc_offset
 
 

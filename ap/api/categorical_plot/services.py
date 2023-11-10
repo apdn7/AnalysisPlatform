@@ -634,7 +634,7 @@ def gen_plotdata_for_var(dic_data, cat_exp_box_cols):
     col_ids = list(dic_data.keys()) + cat_exp_box_cols
     dic_procs, dic_cols = get_cfg_proc_col_info(col_ids)
     for col in cat_exp_box_cols:
-        cat_exp_box_proc_name.append(dic_cols[col].name)
+        cat_exp_box_proc_name.append(dic_cols[col].shown_name)
 
     for end_col, cat_exp_data in dic_data.items():
         plotdatas[end_col] = []
@@ -648,9 +648,9 @@ def gen_plotdata_for_var(dic_data, cat_exp_box_cols):
                 ARRAY_Y: data[ARRAY_Y],
                 ARRAY_X: data[ARRAY_X],
                 END_PROC_ID: cfg_col.process_id,
-                END_PROC_NAME: cfg_proc.name,
+                END_PROC_NAME: cfg_proc.shown_name,
                 END_COL: end_col,
-                END_COL_NAME: cfg_col.name,
+                END_COL_NAME: cfg_col.shown_name,
                 CAT_EXP_BOX: cat_exp_value,
                 CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
             }
@@ -665,7 +665,7 @@ def gen_plotdata_one_proc(dic_data, cat_exp_box_cols=[]):
     col_ids = list(dic_data.keys()) + cat_exp_box_cols
     dic_procs, dic_cols = get_cfg_proc_col_info(col_ids)
     for col in cat_exp_box_cols:
-        cat_exp_box_proc_name.append(dic_cols[col].name)
+        cat_exp_box_proc_name.append(dic_cols[col].shown_name)
 
     for end_col, cat_exp_data in dic_data.items():
         cfg_col: CfgProcessColumn = dic_cols[end_col]
@@ -676,9 +676,9 @@ def gen_plotdata_one_proc(dic_data, cat_exp_box_cols=[]):
                 ARRAY_Y: data[ARRAY_Y],
                 ARRAY_X: data[ARRAY_X],
                 END_PROC_ID: cfg_col.process_id,
-                END_PROC_NAME: cfg_proc.name,
+                END_PROC_NAME: cfg_proc.shown_name,
                 END_COL: end_col,
-                END_COL_NAME: cfg_col.name,
+                END_COL_NAME: cfg_col.shown_name,
                 CAT_EXP_BOX: cat_value,
                 CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
             }

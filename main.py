@@ -2,17 +2,19 @@ import os
 import sys
 
 from ap import create_app, get_basic_yaml_obj, get_start_up_yaml_obj, init_db
+from ap.common.clean_expired_request import add_job_delete_expired_request
 from ap.common.clean_old_data import (
     add_job_delete_old_zipped_log_files,
     add_job_zip_all_previous_log_files,
 )
+from ap.common.constants import ANALYSIS_INTERFACE_ENV
 from ap.script.disable_terminal_close_button import disable_terminal_close_btn
 
 # main params
 param_cnt = len(sys.argv)
 port = None
 
-env = os.environ.get('ANALYSIS_INTERFACE_ENV', 'prod')
+env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
 app = create_app('config.%sConfig' % env.capitalize())
 
 if __name__ == '__main__':
@@ -63,6 +65,9 @@ if __name__ == '__main__':
     add_job_zip_all_previous_log_files()
     add_job_delete_old_zipped_log_files()
     add_idle_mornitoring_job()
+
+    # delete req_id created > 24h ago
+    add_job_delete_expired_request()
 
     # TODO : OSS
     # check and update R-Portable folder

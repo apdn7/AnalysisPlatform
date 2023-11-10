@@ -3,7 +3,9 @@ from contextlib import contextmanager
 from typing import Dict, List, Union
 
 from flask import g
+from flask_babel import get_locale
 from sqlalchemy import Index, and_, asc, desc, event, func, or_
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import load_only
 
@@ -113,6 +115,9 @@ class JobManagement(db.Model):  # TODO change to new modal and edit job
             'status': sort(cls.status),
             'detail': sort(cls.error_msg),
         }
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class CsvImport(db.Model):
@@ -511,8 +516,9 @@ class CfgProcessColumn(db.Model):
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     process_id = db.Column(db.Integer(), db.ForeignKey('cfg_process.id', ondelete='CASCADE'))
     column_name = db.Column(db.Text())
-    english_name = db.Column(db.Text())
-    name = db.Column(db.Text())
+    name_en = db.Column(db.Text())
+    name_jp = db.Column(db.Text())
+    name_local = db.Column(db.Text())
     data_type = db.Column(db.Text())
     predict_type = db.Column(db.Text())
     operator = db.Column(db.Text())
@@ -529,6 +535,24 @@ class CfgProcessColumn(db.Model):
 
     # TODO trace key, cfg_filter: may not needed
     # visualizations = db.relationship('CfgVisualization', lazy='dynamic', backref="cfg_process_column", cascade="all")
+
+    def get_shown_name(self):
+        try:
+            locale = get_locale()
+            if not locale:
+                return None
+            if locale.language == 'ja':
+                return self.name_jp if self.name_jp else self.name_en
+            if locale.language == 'en':
+                return self.name_en
+            else:
+                return self.name_local if self.name_local else self.name_en
+        except Exception:
+            return self.name_jp
+
+    @hybrid_property
+    def shown_name(self):
+        return self.get_shown_name()
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -565,6 +589,14 @@ class CfgProcessColumn(db.Model):
     def get_all_columns(cls, proc_id):
         return cls.query.filter(cls.process_id == proc_id).all()
 
+    @classmethod
+    def get_columns_by_process_id(cls, proc_id):
+        return (
+            cls.query.filter(cls.process_id == proc_id)
+            .with_entities(cls.id, cls.name, cls.data_type)
+            .all()
+        )
+
 
 class CfgProcess(db.Model):
     __bind_key__ = 'app_metadata'
@@ -572,7 +604,10 @@ class CfgProcess(db.Model):
     __table_args__ = {'sqlite_autoincrement': True}
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    name = db.Column(db.Text())
+    name = db.Column(db.Text())  # system_name
+    name_jp = db.Column(db.Text())
+    name_en = db.Column(db.Text())
+    name_local = db.Column(db.Text())
     data_source_id = db.Column(
         db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE')
     )
@@ -599,6 +634,26 @@ class CfgProcess(db.Model):
         'CfgVisualization', lazy='dynamic', backref='cfg_process', cascade='all'
     )
     data_source = db.relationship('CfgDataSource', lazy='select')
+
+    def get_shown_name(self):
+        try:
+            locale = get_locale()
+            if not self.name_en:
+                self.name_en = to_romaji(self.name)
+            if not locale:
+                return None
+            if locale.language == 'ja':
+                return self.name_jp if self.name_jp else self.name_en
+            if locale.language == 'en':
+                return self.name_en
+            else:
+                return self.name_local if self.name_local else self.name_en
+        except Exception:
+            return self.name
+
+    @hybrid_property
+    def shown_name(self):
+        return self.get_shown_name()
 
     def get_date_col(self, column_name_only=True):
         """
@@ -749,6 +804,10 @@ class CfgProcess(db.Model):
     @classmethod
     def update_order(cls, meta_session, process_id, order):
         meta_session.query(cls).filter(cls.id == process_id).update({cls.order: order})
+
+    @classmethod
+    def get_list_of_process(cls):
+        return cls.query.with_entities(cls.id, cls.name).all()
 
 
 class CfgTraceKey(db.Model):
@@ -1251,6 +1310,8 @@ def insert_or_update_config(
 
         setattr(rec, key, val)
 
+    meta_session.commit()
+
     return rec
 
 
@@ -1371,6 +1432,8 @@ def crud_config(
 
         meta_session.delete(current_rec)
 
+    meta_session.commit()
+
     return True
 
 
@@ -1485,6 +1548,80 @@ class CfgUserSetting(db.Model):
             .order_by(cls.priority.desc(), cls.created_at.desc())
             .all()
         )
+
+    @classmethod
+    def get_bookmarks(cls):
+        return cls.query.with_entities(
+            cls.id,
+            cls.priority,
+            cls.page.label('function'),
+            cls.title,
+            cls.created_by,
+            cls.description,
+            cls.updated_at,
+        ).all()
+
+    @classmethod
+    def get_page_by_bookmark(cls, bookmark_id):
+        return cls.query.filter(cls.id == bookmark_id).first().page
+
+
+class CfgRequest(db.Model):
+    __bind_key__ = 'app_metadata'
+    __tablename__ = 'cfg_request'
+
+    id = db.Column(db.Text(), primary_key=True)
+    params = db.Column(db.Text())
+    odf = db.Column(db.Text())
+
+    created_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
+
+    options = db.relationship('CfgOption', cascade='all, delete', backref='parent')
+
+    @classmethod
+    def save_odf_by_req_id(cls, session, req_id, odf):
+        req = cls.query.filter(cls.id == req_id).first()
+        if not req:
+            req = CfgRequest(id=req_id, odf=odf)
+            session.add(req)
+            session.commit()
+
+    @classmethod
+    def get_by_req_id(cls, req_id):
+        return cls.query.get(req_id)
+
+    @classmethod
+    def get_odf_by_req_id(cls, req_id):
+        req = cls.query.get(req_id)
+        if req:
+            return req.odf
+        return None
+
+    @classmethod
+    def find_all_expired_reqs(cls, time):
+        res = cls.query.filter(cls.created_at < time).all()
+        return res or []
+
+
+class CfgOption(db.Model):
+    __bind_key__ = 'app_metadata'
+    __tablename__ = 'cfg_option'
+
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    option = db.Column(db.Text())
+    req_id = db.Column(db.Text(), db.ForeignKey('cfg_request.id', ondelete='CASCADE'))
+
+    created_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
+
+    @classmethod
+    def get_option(cls, option_id):
+        return cls.query.filter(cls.id == option_id).first()
+
+    @classmethod
+    def get_options(cls, req_id):
+        return cls.query.filter(cls.req_id == req_id).all()
 
 
 def get_models():

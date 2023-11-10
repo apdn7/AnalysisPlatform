@@ -962,7 +962,7 @@ const addDBConfigRow = () => {
         <td class="text-center">
         <select name="type" class="form-control">
                 <option value="${DB_CONFIGS.CSV.configs.type}">${DB_CONFIGS.CSV.name}</option>
-<!--                <option value="${DB_CONFIGS.V2.configs.type}">${DB_CONFIGS.V2.name}</option>-->
+                <option value="${DB_CONFIGS.V2.configs.type}">${DB_CONFIGS.V2.name}</option>
                 <option value="${DB_CONFIGS.SQLITE.configs.type}">${DB_CONFIGS.SQLITE.name}</option>
                 <option value="${DB_CONFIGS.POSTGRESQL.configs.type}">${DB_CONFIGS.POSTGRESQL.name}</option>
                 <option value="${DB_CONFIGS.MSSQL.configs.type}">${DB_CONFIGS.MSSQL.name}</option>

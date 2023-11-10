@@ -243,8 +243,8 @@ const generateTreeCheckBoxs = (processObj) => {
                 const proc = procs[i];
                 child += `
                    <li class="custom-control custom-checkbox">
-                        <input type="checkbox" dbs-type="${proc.data_source.type}" dbs-id="${proc.data_source.id}" data-path="${path}" id="${path}-${proc.name}" ${proc.isChecked ? 'checked' : ''} name="process" class="custom-control-input" value="${proc.id}">
-                        <label for="${path}-${proc.name}" class="custom-control-label">${proc.name}</label>
+                        <input type="checkbox" dbs-type="${proc.data_source.type}" dbs-id="${proc.data_source.id}" data-path="${path}" id="${path}-${proc.shown_name}" ${proc.isChecked ? 'checked' : ''} name="process" class="custom-control-input" value="${proc.id}">
+                        <label for="${path}-${proc.shown_name}" class="custom-control-label">${proc.shown_name}</label>
                    </li>
                 `;
             }
@@ -262,7 +262,7 @@ const generateTreeCheckBoxs = (processObj) => {
                         ${!hasChild && procs[0].isChecked ? 'checked' : ''} 
                         id="${path}" value="${hasChild ? path : procs[0].id}" 
                         class="custom-control-input ${hasChild ? 'group-input' : ''}">
-                   <label class="custom-control-label move ${!hasChild ? 'no-tree' : ''}" for="${path}">${hasChild ? '' : procs[0].name}</label>
+                   <label class="custom-control-label move ${!hasChild ? 'no-tree' : ''}" for="${path}">${hasChild ? '' : procs[0].shown_name}</label>
                    ${child}
                </li>
          `;

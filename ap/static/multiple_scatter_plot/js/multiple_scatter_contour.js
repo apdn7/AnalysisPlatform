@@ -1,7 +1,7 @@
 /* eslint-disable */
 const getColName = (procId, colId) => {
     const column = procConfigs[procId].getColumnById(colId) || {};
-    return column.name || colId;
+    return column.shown_name || colId;
 };
 
 const genScatterOutlierTrace = (sctData, isShowContour = false,

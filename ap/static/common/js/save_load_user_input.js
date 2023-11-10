@@ -1994,7 +1994,7 @@ const handleCopyUrlToClipBoard = async (e, userSettingId) => {
     let page = '';
     if (res.status === 200) {
         page = res.data.page;
-        let url = `${window.location.host}${page}?user_setting_id=${res.data.id}`;
+        let url = `${window.location.host}${page}?bookmark_id=${res.data.id}`;
         const serverMachineName = "";
         url = url.replace(/localhost|127.0.0.1/, res.hostname)
         $('#copyClipboardContent').show();

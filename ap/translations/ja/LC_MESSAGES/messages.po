@@ -4041,3 +4041,11 @@ msgstr "NG条件"
 msgid "NG condition hover msg"
 msgstr "'判定' で指定した変数に対して、NGが満たす条件を定義します (例: 温度 > 90、検査結果 == 2)"
 
+#: ap/templates/macros.html
+msgid "Japanese Name"
+msgstr "日本語名"
+
+#: ap/templates/macros.html
+msgid "Local Name"
+msgstr "現地語名"
+
