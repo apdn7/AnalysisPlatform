@@ -1,6 +1,6 @@
 # Releases
 
-## v4.4.0
+## v4.5.0
 
 Core changes
 
@@ -19,6 +19,16 @@ New features and improvents
     <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/aa17513d-bae7-486f-9f85-b4a498fb9340" alt="SearchByUsage" width="500">
   * Improved context menu on sidebar
     * <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/68279d2a-0d4a-450a-8f80-d15d0ed81427" alt="ContextNenu" width="200">
+  * Sensor names showin in UI will automatically switched, according to the Process Config / language setting.
+    * Now you will see `Local Name` field in the Process Config.
+    * Below image shows an example when an user set Español for the Local Name.  
+      <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/9a8e88a8-1973-4950-aa19-18257e6ae911" alt="ProcessLang" width="500">
+    * Then, according to the language setting on the right end of the navigation bar:  
+      <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/236d07d2-f99f-4fdb-9230-6835e42b0739" alt="LangSetting" width="200">
+    * Set to 日本語 (JA): `Japanese Name` is shown
+    * Set to English (EN): `English Name` is shown
+    * Else: `Local Name` is shown (see below image)  
+    <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/bfc5c6ae-0a7a-4fa6-9417-599204bbf6aa" alt="LangSwitch" width="500"> 
   * Now we allow users to access APDN7 from iOS, by Chrome/Edge/Safari
   * Added a checkbox on `Label`/`Filter` to select all the checkboxes. 
   * Changed file encodings of exported data files.
@@ -128,6 +138,7 @@ Bug fixes
     * Fixed how to get the unique values of a column.
     * Added loading screen
 * (Misc)
+  * Fixed an error caused by DB lock on sqlite3.
   * Fixed to filter data of database correctly if data more than 5M records
   * Fixed to launch the AP located under multi-byte charater folder with using R-Portable
 
