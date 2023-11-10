@@ -6,11 +6,14 @@ from threading import Lock
 from apscheduler.triggers import date
 from pytz import utc
 
-from ap import scheduler, close_sessions
+from ap import close_sessions, scheduler
 from ap.common.logger import log_execution_time
 
 # RESCHEDULE_SECONDS
 RESCHEDULE_SECONDS = 5
+
+# max concurrent importing jobs
+MAX_CONCURRENT_JOBS = 10
 
 # running jobs dict
 dic_running_job = {}
@@ -34,8 +37,16 @@ class JobType(Enum):
     SHUTDOWN_APP = 8
     BACKUP_DATABASE = 9
     PROC_LINK_COUNT = 10
-    CLEAN_LOG = 10
+    ZIP_LOG = 11
+    CLEAN_ZIP = 12
+    CLEAN_EXPIRED_REQUEST = 13
 
+
+PRIORITY_JOBS = [
+    JobType.CSV_IMPORT.name,
+    JobType.FACTORY_IMPORT.name,
+    JobType.FACTORY_PAST_IMPORT.name,
+]
 
 # check parallel running
 # ex: (JobType.CSV_IMPORT, JobType.GEN_GLOBAL): False
@@ -48,29 +59,29 @@ CONFLICT_PAIR = {
     (JobType.DEL_PROCESS.name, JobType.FACTORY_IMPORT.name),
     (JobType.DEL_PROCESS.name, JobType.GEN_GLOBAL.name),
     (JobType.DEL_PROCESS.name, JobType.FACTORY_PAST_IMPORT.name),
-
     # (JobType.CSV_IMPORT.name, JobType.CSV_IMPORT.name),
     # (JobType.CSV_IMPORT.name, JobType.FACTORY_IMPORT.name),
     (JobType.CSV_IMPORT.name, JobType.GEN_GLOBAL.name),
     # (JobType.CSV_IMPORT.name, JobType.FACTORY_PAST_IMPORT.name),
-
     # (JobType.FACTORY_IMPORT.name, JobType.FACTORY_IMPORT.name),
     (JobType.FACTORY_IMPORT.name, JobType.GEN_GLOBAL.name),
     # (JobType.FACTORY_IMPORT.name, JobType.FACTORY_PAST_IMPORT.name),
-
     (JobType.GEN_GLOBAL.name, JobType.GEN_GLOBAL.name),
     (JobType.GEN_GLOBAL.name, JobType.FACTORY_PAST_IMPORT.name),
-
     # (JobType.FACTORY_PAST_IMPORT.name, JobType.FACTORY_PAST_IMPORT.name),
 }
 
 # Jobs that change universal data
-IMPORT_DATA_JOBS = [JobType.CSV_IMPORT.name, JobType.FACTORY_IMPORT.name, JobType.FACTORY_PAST_IMPORT.name]
+IMPORT_DATA_JOBS = [
+    JobType.CSV_IMPORT.name,
+    JobType.FACTORY_IMPORT.name,
+    JobType.FACTORY_PAST_IMPORT.name,
+]
 
 
 @log_execution_time(logging_exception=True)
 def scheduler_app_context(fn):
-    """ application context decorator for background task(scheduler)
+    """application context decorator for background task(scheduler)
 
     Arguments:
         fn {function} -- [description]
@@ -118,21 +129,37 @@ def scheduler_app_context(fn):
     return inner
 
 
-def scheduler_check_before_run(job_id, job_name, dic_running_job_param):
-    """check if job can run parallel with other jobs
-    """
+def is_running_jobs_over_limitation():
+    priority_jobs_running = []
+    for running_job_name, *_ in dic_running_job.values():
+        if running_job_name in PRIORITY_JOBS:
+            priority_jobs_running.append(running_job_name)
+    if len(priority_jobs_running) >= MAX_CONCURRENT_JOBS:
+        return True
+    return False
 
-    print("job_id:", job_id)
-    print("job_name:", job_name)
-    print("RUNNING JOBS:", dic_running_job_param)
+
+def scheduler_check_before_run(job_id, job_name, dic_running_job_param):
+    """check if job can run parallel with other jobs"""
+
+    print('job_id:', job_id)
+    print('job_name:', job_name)
+    print('RUNNING JOBS:', dic_running_job_param)
     if dic_running_job_param.get(job_id):
-        print("The same job is running")
+        print('The same job is running')
         return False
 
     for running_job_name, *_ in dic_running_job_param.values():
-        if (job_name, running_job_name) in CONFLICT_PAIR or (running_job_name, job_name) in CONFLICT_PAIR:
-            print(f"{job_name} job can not run parallel with {running_job_name}")
+        if (job_name, running_job_name) in CONFLICT_PAIR or (
+            running_job_name,
+            job_name,
+        ) in CONFLICT_PAIR:
+            print(f'{job_name} job can not run parallel with {running_job_name}')
             return False
+
+    if is_running_jobs_over_limitation():
+        print(f'=== PENDING JOB: {job_id} ===')
+        return False
 
     return True
 
@@ -161,9 +188,15 @@ def reschedule_job(job_id, job_name, fn, args, kwargs):
     else:
         # for non-interval job , there is no job in scheduler anymore
         # so we must add new job to scheduler.
-        job = scheduler.add_job(job_id, fn, name=job_name,
-                                trigger=date.DateTrigger(run_date=run_time, timezone=utc),
-                                args=args, kwargs=kwargs)
+        job = scheduler.add_job(
+            job_id,
+            fn,
+            name=job_name,
+            trigger=date.DateTrigger(run_date=run_time, timezone=utc),
+            args=args,
+            kwargs=kwargs,
+        )
+    print('=== RESCHEDULED JOB ===')
     print(job)
 
 
@@ -193,10 +226,23 @@ def remove_jobs(target_job_names, proc_id=None):
 
 
 def add_job_to_scheduler(job_id, job_name, trigger, import_func, run_now, dic_import_param):
+    print(f'=== ADD JOB: {job_id}===')
     if run_now:
-        scheduler.add_job(job_id, import_func, name=job_name, replace_existing=True, trigger=trigger,
-                          next_run_time=datetime.now().astimezone(utc),
-                          kwargs=dic_import_param)
+        scheduler.add_job(
+            job_id,
+            import_func,
+            name=job_name,
+            replace_existing=True,
+            trigger=trigger,
+            next_run_time=datetime.now().astimezone(utc),
+            kwargs=dic_import_param,
+        )
     else:
-        scheduler.add_job(job_id, import_func, name=job_name, replace_existing=True, trigger=trigger,
-                          kwargs=dic_import_param)
+        scheduler.add_job(
+            job_id,
+            import_func,
+            name=job_name,
+            replace_existing=True,
+            trigger=trigger,
+            kwargs=dic_import_param,
+        )

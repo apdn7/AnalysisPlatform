@@ -125,23 +125,26 @@ if not exist %path_R% if %prod% == %product_dn% (
   echo Or prepare R-Portable folder and reboot AP before using R function
   timeout 10
 )
+
 if exist %path_python% (echo Detect python) else goto PYTHON_EMBEDDED
 if exist %path_getpip% (echo Detect getpip) else goto PIP_DOWNLOAD
 if exist %path_oracle% (echo Detect oracle) else goto ORACLE_INSTANCE
 
 : install packages
 :: Get pip
-..\python_embedded\python.exe ..\get-pip.py --no-cache-dir --no-warn-script-location "pip < 22.3"
+%path_python%\python.exe %path_getpip% --no-cache-dir --no-warn-script-location "pip < 22.3"
 :: Upgrade pip
-: ..\python_embedded\python.exe -m pip install --upgrade pip
+: %path_python%\python.exe -m pip install --upgrade pip
 if %prod% == %product_dn% (
-  ..\python_embedded\Scripts\pip install --no-cache-dir --no-warn-script-location -r requirements\prod.txt
+  %path_python%\Scripts\pip install --no-cache-dir --no-warn-script-location -r %file_prod%
 ) else (
-  ..\python_embedded\Scripts\pip install --no-cache-dir --no-warn-script-location -r requirements\oss_prod.txt
+  %path_python%\Scripts\pip install --no-cache-dir --no-warn-script-location -r %file_oss_prod%
 )
 IF exist %path_R% (
-  ..\R-Portable\bin\R CMD BATCH "r_install_packages.r"
+  %path_R%\bin\R CMD BATCH "r_install_packages.r"
 )
+
+if exist %ca_cert% call :REMOVE_CA_CERT
 
 echo:
 echo Download components, libraries and installation is completed.
@@ -173,7 +176,7 @@ if [%1]==[SKIP_RUN_MAIN] GOTO FINISH
 
 REM run application
 ECHO Starting Up Analysis Platform ...
-..\python_embedded\python.exe main.py
+%path_python%\python.exe main.py
 set /a error=%error%+%ErrorLevel%
 echo:
 echo:
@@ -196,39 +199,69 @@ exit /b
 : Sub Program
 : _____________________________________________________________________________
 
+:CA_CERT
+curl "https://curl.se/ca/cacert-2023-08-22.pem" --output %ca_cert%
+echo %ca_cert% file is downloaded.
+exit /b
+:end
+
+:REMOVE_CA_CERT
+del %ca_cert%
+echo %ca_cert% file is removed.
+exit /b
+:end
+
 :PYTHON_EMBEDDED
 echo Download python
-curl "https://www.python.org/ftp/python/3.7.3/python-3.7.3-embed-amd64.zip" --output ..\python_embedded.zip
+curl "https://www.python.org/ftp/python/3.9.0/python-3.9.0-embed-amd64.zip" --output ..\python_embedded_39.zip
+if %errorlevel% == 35 (
+  REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
+  if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
+  curl --cacert %ca_cert% "https://www.python.org/ftp/python/3.9.0/python-3.9.0-embed-amd64.zip" --output %path_python_zip%
+)
 if errorlevel 1 (
   echo %esc%[41m Error on Curl  Check network connection or use latest Win10 ^>1803 %esc%[0m
   pause
 )
+
 echo Unzip python_embedded
-powershell -Command "Expand-Archive -Path ..\python_embedded.zip -DestinationPath ..\python_embedded"
-rename ..\python_embedded\python37._pth python37._pth.renamed
+powershell -Command "Expand-Archive -Path %path_python_zip% -DestinationPath %path_python%"
+rename %path_python%\python39._pth python39._pth.renamed
 echo:
 GOTO CHECK_EXIST
 
 :PIP_DOWNLOAD
 echo Download pip
-curl "https://bootstrap.pypa.io/get-pip.py" --output ..\get-pip.py
+curl "https://bootstrap.pypa.io/get-pip.py" --output %path_getpip%
+if %errorlevel% == 35 (
+  REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
+  if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
+  curl --cacert %ca_cert% "https://bootstrap.pypa.io/get-pip.py" --output %path_getpip%
+)
 if errorlevel 1 (
   echo %esc%[41m Error on Curl  Check network connection or use latest Win10 ^>1803 %esc%[0m
   pause
 )
+
 echo: > %file_status%
 echo:
 GOTO CHECK_EXIST
 
 :ORACLE_INSTANCE
 echo Download oracle instance
-curl "https://download.oracle.com/otn_software/nt/instantclient/213000/instantclient-basic-windows.x64-21.3.0.0.0.zip" --output ..\Oracle-Portable.zip
+curl "https://download.oracle.com/otn_software/nt/instantclient/213000/instantclient-basic-windows.x64-21.3.0.0.0.zip" --output %path_oracle_zip%
+if %errorlevel% == 35 (
+  REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
+  if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
+  curl --cacert %ca_cert% "https://download.oracle.com/otn_software/nt/instantclient/213000/instantclient-basic-windows.x64-21.3.0.0.0.zip" --output %path_oracle_zip%
+)
 if errorlevel 1 (
   echo %esc%[41m Error on Curl  Check network connection or use latest Win10 ^>1803 %esc%[0m
   pause
 )
+
 echo unzip oracle instance
-powershell -Command "Expand-Archive -Path ..\Oracle-Portable.zip -DestinationPath ..\Oracle-Portable"
+powershell -Command "Expand-Archive -Path %path_oracle_zip% -DestinationPath %path_oracle%"
 echo:
 GOTO CHECK_EXIST
 
@@ -270,11 +303,13 @@ GOTO CHECK_EXIST
   set file_ver=VERSION
   :: Product Judge File dn or oss
   set file_prod=requirements\prod.txt
+  set file_oss_prod=requirements\oss_prod.txt
   set path_R=..\R-Portable
-  set path_python=..\python_embedded
+  set ca_cert=..\cacert.pem
+  set path_python=..\python_embedded_39
   set path_getpip=..\get-pip.py
   set path_oracle=..\Oracle-Portable
-  set path_python_zip=..\python_embedded.zip
+  set path_python_zip=..\python_embedded_39.zip
   set path_oracle_zip=..\Oracle-Portable.zip
 
   : Definition

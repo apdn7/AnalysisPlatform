@@ -431,6 +431,8 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
             chart.canvas.id,
         );
     };
+
+    let y_fmt = ''
     const ctx = $(`#${canvasId}`).get(0).getContext('2d');
     const fixTick = 8;
     const config = {
@@ -447,7 +449,8 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                 },
             }, scales: {
                 x: {
-                    parsing: false, afterBuildTicks: function (scale) {
+                    parsing: false,
+                    afterBuildTicks: function (scale) {
                         if (xaxis === 'INDEX') {
                             return;
                         }
@@ -480,8 +483,14 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                             }
                         });
                         scale.ticks = ticks;
-                        return;
-                    }, ticks: {
+                    },
+                    beforeTickToLabelConversion: function(scale) {
+                        if (xaxis === 'INDEX') {
+                            return;
+                        }
+                        scale._unit = getUnitDateTimeFormat(scale.min, scale.max, scale.ticks.length);
+                    },
+                    ticks: {
                         callback: function (value) {
                             if (xaxis === 'INDEX') {
                                 const label = this.getLabelForValue(value);
@@ -539,11 +548,12 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
 
                             // limit 8 ticks
                             let yabels = axis.ticks;
-                            if (yabels.length <= 8) {
+                            if (yabels.length <= fixTick) {
                                 return;
                             }
 
                             let step = Math.floor(yabels.length / fixTick);
+                            step = Math.max(2, step)
 
                             const idxs = []
                             let lastTick;
@@ -567,12 +577,16 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                             });
                             axis.ticks = yticks;
                             // end limit 8 ticks
+                        } else {
+                            const ticks = axis.ticks.map(tick => tick.value);
+                            y_fmt = getFmtValueOfArray(ticks);
                         }
                         return;
                     }, afterTickToLabelConversion: function adjust(context) {
                         const ticks = context.ticks;
                         context.ticks[0].label = '';
                         if (ticks.length) context.ticks[ticks.length - 1].label = '';
+                        alignLengthTickLabels(context.ticks);
                     }, afterFit: function (scaleInstance) {
                         scaleInstance.width = 60; // sets the width to 100px
                     }, ticks: {
@@ -590,7 +604,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                             if (isCatLimited) return '';
 
                             // String Ranked label
-                            let showVal = applySignificantDigit(value);
+                            let showVal = applySignificantDigit(value, undefined, y_fmt);
                             if (beforeRankValues) {
                                 showVal = (`0${Number(showVal)}`).slice(-2);
                                 showVal = showVal.padEnd(5);
@@ -651,9 +665,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
         // xTicks = xTicks.map((e) => xLabels[e - 1])
         config.options.scales.x.type = 'time';
         config.options.scales.x.time = {
-            displayFormats: {
-                millisecond: 'HH:mm:ss', second: 'HH:mm:ss', minute: 'HH:mm   ', hour: 'MM/DD HH', day: 'MM/DD HH',
-            },
+            displayFormats: dateTimeDisplayFormat,
         };
         config.options.scales.x.min = new Date(startPoint);
         config.options.scales.x.max = new Date(endPoint);
@@ -1098,7 +1110,7 @@ const handleSelectTSMenuItem = (selectedItem = 'click', menuItem = null) => {
             const row = $(`#${selectedCanvasId}`).closest('.row.chart-row');
             const sensorId = row.length ? row.attr('sensor') : null;
             queryString = queryString.concat(`&sensor_id=${sensorId}`);
-    
+
             showPlotView(queryString);
             break;
         }
@@ -1230,7 +1242,7 @@ const buildProcessColumnHTML = (selectedProcId, name = 'serialProcess') => {
     const procOptions = [];
     for (const procId in procConfigs) {
         const selected = Number(procId) === Number(selectedProcId) ? 'selected' : '';
-        const option = `<option value="${procId}" ${selected} title="${procConfigs[procId].en_name}">${procConfigs[procId].name || procId}</option>`;
+        const option = `<option value="${procId}" ${selected} title="${procConfigs[procId].name_en}">${procConfigs[procId].shown_name || procId}</option>`;
         procOptions.push(option);
     }
     return `
@@ -1247,14 +1259,14 @@ const buildColumnHTML = (serialCols, tableId = formElements.serialTable, name = 
     let alreadySet = false;
     for (const idx in serialCols) {
         const col = serialCols[idx];
-        let optionHTML = `<option value="${col.id}" title="${col.english_name}">${col.name}</option>`; // TODO no need, order alphabet
+        let optionHTML = `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`; // TODO no need, order alphabet
         if (selectedCol) {
             if (col.id === selectedCol) {
-                optionHTML = `<option value="${col.id}" title="${col.english_name}" selected>${col.name}</option>`;
+                optionHTML = `<option value="${col.id}" title="${col.name_en}" selected>${col.shown_name}</option>`;
                 alreadySet = true;
             }
         } else if (!alreadySet && !selectedOrderCols.has(`${col.id}`)) {
-            optionHTML = `<option value="${col.id}" title="${col.english_name}">${col.name}</option>`;
+            optionHTML = `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`;
             alreadySet = true;
         }
         optionHTMLs.push(optionHTML);
@@ -1297,12 +1309,6 @@ const createOrderColRowHTML = async (selectedProcId, tableId = formElements.seri
     const columnSelectHTML = buildColumnHTML(orderCols, tableId, serialName, selectedCol);
     const orderSelectHTML = buildOrderHTML(orderName, selectedOrder);
     return htmlOrderColRowTemplate(priority || calcPriority(), processSelectHTML, columnSelectHTML, orderSelectHTML, isGraphArea);
-};
-
-const updatePriority = (tableID) => {
-    $(`${tableID} tbody tr`).each((rowIdx, row) => {
-        $(row).find('td:nth-child(1)').text(rowIdx + 1);
-    });
 };
 
 const getSelectedOrderCols = (tableId = formElements.serialTable, serialName = 'serialColumn') => {
@@ -1380,7 +1386,7 @@ const bindChangeProcessEvent = (tableId = formElements.serialTable, processName 
                 const newSortedCols = orderSeriesCols(columns);
                 for (const col of newSortedCols) {
                     if (col.is_serial_no || col.is_get_date || CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)) {
-                        const orderObject = {id: col.id, text: col.name, title: col.english_name};
+                        const orderObject = {id: col.id, text: col.shown_name, title: col.name_en};
 
                         const isColSelectedOnSameElement = `${selectedVal}` === `${col.id}`;
                         const isColSelected = selectedSerials.has(col.id) || selectedSerials.has(`${col.id}`);
@@ -1561,3 +1567,4 @@ const orderSeriesCols = (columns) => {
 
     return [...serialCols, ...datetimeCols, ...normalCols];
 };
+

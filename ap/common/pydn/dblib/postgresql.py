@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class PostgreSQL:
-
     def __init__(self, host, dbname, username, password):
         self.host = host
         self.port = 5432
@@ -28,21 +27,21 @@ class PostgreSQL:
         self.connection = None
 
     def dump(self):
-        print("===== DUMP RESULT =====")
-        print("DB Type: PostgreSQL")
-        print("self.host: " + self.host)
-        print("self.port: " + str(self.port))
-        print("self.dbname: " + self.dbname)
-        print("self.username: " + self.username)
-        print("self.is_connected: ", self.is_connected)
-        print("=======================")
+        print('===== DUMP RESULT =====')
+        print('DB Type: PostgreSQL')
+        print('self.host: ' + self.host)
+        print('self.port: ' + str(self.port))
+        print('self.dbname: ' + self.dbname)
+        print('self.username: ' + self.username)
+        print('self.is_connected: ', self.is_connected)
+        print('=======================')
 
     def connect(self):
-        dsn = "host={0:s} ".format(self.host)
-        dsn += "port={0:d} ".format(self.port)
-        dsn += "dbname={0:s} ".format(self.dbname)
-        dsn += "user={0:s} ".format(self.username)
-        dsn += "password={0:s}".format(self.password)
+        dsn = 'host={0:s} '.format(self.host)
+        dsn += 'port={0:d} '.format(self.port)
+        dsn += 'dbname={0:s} '.format(self.dbname)
+        dsn += 'user={0:s} '.format(self.username)
+        dsn += 'password={0:s}'.format(self.password)
         try:
             self.connection = psycopg2.connect(dsn)
             cur = self.connection.cursor()
@@ -50,22 +49,25 @@ class PostgreSQL:
 
             if self.schema:
                 cur.execute(
-                    "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{}';".format(self.schema))
+                    "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{}';".format(
+                        self.schema
+                    )
+                )
                 if cur.rowcount:
-                    cur.execute("SET search_path TO {0:s}".format(self.schema))
+                    cur.execute('SET search_path TO {0:s}'.format(self.schema))
                 else:
-                    print("Schema is not exists!!!")
+                    print('Schema is not exists!!!')
                     self.disconnect()
             else:
                 # Get current schema
-                cur.execute("SELECT current_schema();")
+                cur.execute('SELECT current_schema();')
                 default_schema = cur.fetchone()
                 # Save default schema as constant, use to list current schema's tables
                 self.schema = default_schema[0]
             cur.close()
             return self.connection
         except:
-            print("Cannot connect to db")
+            print('Cannot connect to db')
             print('>>> traceback <<<')
             traceback.print_exc()
             print('>>> end of traceback <<<')
@@ -82,24 +84,24 @@ class PostgreSQL:
     def create_table(self, tblname, colnames):
         if not self._check_connection():
             return False
-        sql = "create table {0:s}(".format(tblname)
+        sql = 'create table {0:s}('.format(tblname)
         for idx, val in enumerate(colnames):
             if idx > 0:
-                sql += ","
-            sql += val["name"] + " " + val["type"]
-        sql += ")"
+                sql += ','
+            sql += val['name'] + ' ' + val['type']
+        sql += ')'
         print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + " created!")
+        print(tblname + ' created!')
 
     # テーブル名を配列として返す
     def list_tables(self):
         if not self._check_connection():
             return False
-        sql = "select table_name from information_schema.tables "
+        sql = 'select table_name from information_schema.tables '
         sql += "where table_type = 'BASE TABLE' and table_schema = '{0:s}'".format(self.schema)
         cur = self.connection.cursor()
         cur.execute(sql)
@@ -114,12 +116,12 @@ class PostgreSQL:
             rows.append(dict(zip(cols, row)))
         cur.close()
         # キーに"table_name"を持つ要素を配列として返す
-        return [row["table_name"] for row in rows]
+        return [row['table_name'] for row in rows]
 
     def list_tables_and_views(self):
         if not self._check_connection():
             return False
-        sql = "select table_name from information_schema.tables "
+        sql = 'select table_name from information_schema.tables '
         sql += "where table_schema = '{0:s}'".format(self.schema)
         cur = self.connection.cursor()
         cur.execute(sql)
@@ -134,29 +136,28 @@ class PostgreSQL:
             rows.append(dict(zip(cols, row)))
         cur.close()
         # キーに"table_name"を持つ要素を配列として返す
-        return [row["table_name"] for row in rows]
+        return [row['table_name'] for row in rows]
 
     def drop_table(self, tblname):
         if not self._check_connection():
             return False
-        sql = "drop table if exists " + tblname
+        sql = 'drop table if exists ' + tblname
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + " dropped!")
+        print(tblname + ' dropped!')
 
     # テーブルのカラムのタイプを辞書の配列として返す
     # columns:
     #  name => カラム名,
     #  type => カラムタイプ
     def list_table_columns(self, tblname):
-
         if not self._check_connection():
             return False
 
         columns = []
-        sql = "select * from information_schema.columns "
+        sql = 'select * from information_schema.columns '
         sql += "where table_schema = '{0}' and table_name = '{1}'".format(self.schema, tblname)
         cur = self.connection.cursor()
         cur.execute(sql)
@@ -173,10 +174,7 @@ class PostgreSQL:
         results = []
 
         for row in rows:
-            results.append({
-                "name": row["column_name"],
-                "type": row["data_type"]
-            })
+            results.append({'name': row['column_name'], 'type': row['data_type']})
         return results
 
     def get_data_type_by_colname(self, tbl, col_name):
@@ -192,7 +190,7 @@ class PostgreSQL:
         columns = self.list_table_columns(tblname)
         colnames = []
         for column in columns:
-            colnames.append(column["name"])
+            colnames.append(column['name'])
         return colnames
 
     # 元はinsert_table関数
@@ -200,28 +198,28 @@ class PostgreSQL:
         if not self._check_connection():
             return False
 
-        sql = "insert into {0:s}".format(tblname)
+        sql = 'insert into {0:s}'.format(tblname)
 
         # Generate column names fields
-        sql += "("
+        sql += '('
         for idx, name in enumerate(names):
             if idx > 0:
-                sql += ","
+                sql += ','
             sql += name
-        sql += ") "
+        sql += ') '
 
         # Generate values field
         if not values:
             return False
 
-        sql += "values "
+        sql += 'values '
         for idx1, value in enumerate(values):
             if idx1 > 0:
-                sql += ","
-            sql += "("
+                sql += ','
+            sql += '('
             for idx2, name in enumerate(names):
                 if idx2 > 0:
-                    sql += ","
+                    sql += ','
 
                 if value[name] in ('', None):
                     sql += 'Null'
@@ -230,14 +228,14 @@ class PostgreSQL:
                 else:
                     sql += str(value[name])
 
-            sql += ")"
+            sql += ')'
 
         # print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print("Dummy data was inserted to {}!".format(tblname))
+        print('Dummy data was inserted to {}!'.format(tblname))
 
     # SQLをそのまま実行
     # colsとdict形式のrowsを返す
@@ -284,7 +282,7 @@ class PostgreSQL:
         cur.close()
 
     def execute_sql(self, sql):
-        """ For executing any query requires commit action
+        """For executing any query requires commit action
         :param sql: SQL to be executed
         :return: Execution result
         """
@@ -318,7 +316,7 @@ class PostgreSQL:
         if self.is_connected:
             return True
         # 接続していないなら
-        print("Connection is not Initialized. Please run connect() to connect to DB")
+        print('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def is_timezone_hold_column(self, tbl, col):

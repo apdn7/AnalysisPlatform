@@ -1123,7 +1123,7 @@ msgid "Principal Component Analysis"
 msgstr "Phân tích thành phần chính"
 
 # ap/template/analyze/hotelling_tsquare.html
-msgid "Principal Component Score of Testing Data"
+msgid "Principal Component Score of Target Data"
 msgstr "1. Điểm thành phần chính của dữ liệu kiểm tra"
 
 # ap/template/analyze/hotelling_tsquare.html
@@ -1155,7 +1155,7 @@ msgid "Training data"
 msgstr "Dữ liệu huấn luyện"
 
 #: ap/template/analyze/hotelling_tsquare.html
-msgid "Testing data"
+msgid "Target data"
 msgstr "Dữ liệu kiểm thử"
 
 #: ap/template/analyze/hotelling_tsquare.html
@@ -1768,10 +1768,6 @@ msgid "Window length"
 msgstr "Độ rộng"
 
 # ap/template/setting_module/master_config.html
-msgid "Control item"
-msgstr "Control item"
-
-# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Type"
 
@@ -2251,30 +2247,6 @@ msgstr ""
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID được tạo nội bộ để liên kết dữ liệu với các điều kiện liên kết tập hợp."
-
-#: ap/templates/templates/i18n.html
-msgid "Control item Hover"
-msgstr ""
-"Chọn các mục điều khiển chất lượng hoặc kiểm soát thiết bị bằng cách sử "
-"dụng trong cài đặt biểu đồ."
-
-#: ap/templates/templates/i18n.html
-msgid "Type Hover"
-msgstr "Vui lòng chọn loại mục tiêu quản lý như số phần và thiết bị."
-
-#: ap/templates/templates/i18n.html
-msgid "Name MCF Hover"
-msgstr ""
-"Vui lòng chọn mục tiêu quản lý như giá trị của số bộ phận và giá trị của "
-"thiết bị."
-
-#: ap/templates/templates/i18n.html
-msgid "Action from Hover"
-msgstr "Đặt ngày giờ bắt đầu cho cài đặt biểu đồ. (Yêu cầu)"
-
-#: ap/templates/templates/i18n.html
-msgid "Action to Hover"
-msgstr "Đặt ngày giờ kết thúc cho cài đặt biểu đồ. (Không bắt buộc)"
 
 #: ap/templates/templates/i18n.html
 msgid "Load Setting Info Hover"
@@ -4249,7 +4221,6 @@ msgstr ""
 "using other selected variables."
 
 #: ap/templates/templates/macros.html
-#, fuzzy
 msgid "GL target variable"
 msgstr ""
 "Specifies the data to plot on the graph. If the data type is Str or Int, "
@@ -4257,12 +4228,10 @@ msgstr ""
 "line plots will be displayed."
 
 #: ap/templates/templates/macros.html
-#, fuzzy
 msgid "GL objective hover messenger"
 msgstr "Number of duplicate serials (percentage)"
 
 #: ap/templates/templates/co_occurence.html
-#, fuzzy
 msgid "Show all node labels"
 msgstr "Hiển thị tất cả node"
 
@@ -4273,7 +4242,6 @@ msgstr ""
 "linked records, press the 'Reload' button."
 
 #: ap/templates/templates/sidebar.html
-#, fuzzy
 msgid "in new tab"
 msgstr "Open in new tab (new)"
 
@@ -4298,9 +4266,271 @@ msgstr ""
 "* Upper: Hiển thị dữ liệu trên giới hạn trên\n"
 "* Lower: Hiển thị dữ liệu dưới giới hạn dưới"
 
-#~ msgid "Remove outlier hover msg"
+#: ap/templates/modal.html
+msgid "Do you want to uncheck problematic variables?"
+msgstr "Do you want to uncheck problematic variables?"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Categorized Real"
+msgstr "Categorized Real"
+
+#: ap/templates/templates/modal.html
+msgid "Generate several v2 data sources msg"
+msgstr ""
+"Do you want to generate data source config automatically? Or please "
+"select only one process to avoid."
+
+#: ap/templates/tile_interface/tile_search_by_use.html
+msgid "For example"
+msgstr "For example"
+
+#: ap/templates/tile_interface/tile_search_by_use.html
+msgid "Search by Usage"
+msgstr "Search by Usage"
+
+#: ap/templates/i18n.html
+msgid "Filter label hover msg"
+msgstr ""
+"Checked categorical variables can be used as on-demand filter items in "
+"graphs. You can select items whose data types are Int(integer) and "
+"Str(String)."
+
+#: ap/templates/macros.html
+msgid "Link"
+msgstr "Link"
+
+#: ap/templates/macros.html
+msgid "Link copy hover msg"
+msgstr "Copy the URL to draw the graph with the saved settings."
+
+#: ap/templates/sidebar.html
+msgid "New tab"
+msgstr "New tab"
+
+#: ap/templates/sidebar.html
+msgid "Takeover"
+msgstr "Takeover"
+
+#: ap/templates/sidebar.html
+msgid "Usage"
+msgstr "Usage"
+
+#: ap/templates/modal.html
+msgid "Selected Variables"
+msgstr "Selected Variables"
+
+#: ap/templates/modal.html
+msgid "Zero Variance"
+msgstr "Zero Variance"
+
+#: ap/templates/modal.html
+msgid "NA rate"
+msgstr "NA rate"
+
+#: ap/templates/macros.html
+msgid "Variable display ordering"
+msgstr "Variable display ordering"
+
+#: ap/templates/tile_interface/tile_search_by_use.html
+msgid ""
+"You can find the recommended pages and their settings from what you want "
+"to do."
+msgstr ""
+"You can find the recommended pages and their settings from what you want "
+"to do."
+
+msgid "Folder not found"
+msgstr "Folder not found"
+
+msgid "Access denied"
+msgstr "Access denied"
+
+#: ap/templates/macros.html
+msgid "Jump to other pages"
+msgstr "Jump to other pages"
+
+#: ap/templates/macros.html
+msgid "Jump to"
+msgstr "Jump to"
+
+#: ap/templates/macros.html
+msgid "Variable setting"
+msgstr "Variable setting"
+
+#: ap/templates/macros.html
+msgid "Select only the objective and top important variables (Max: 20)"
+msgstr "Select only the objective and top important variables (Max: 20)"
+
+#: ap/templates/macros.html
+msgid "Variable setting hover"
+msgstr ""
+"You can specify the variables to pass to the new page.\n"
+"If the new page has 'Objective' setting, the first variable is used."
+
+#: ap/templates/macros.html
+msgid "Select sensor hover"
+msgstr ""
+"You can analyze the relationship between the objective and the important "
+"variables on other page"
+
+#: ap/templates/macros.html
+msgid "ALL"
+msgstr "All"
+
+#: ap/templates/macros.html
+msgid "A list of pages that you can jump to."
+msgstr "A list of pages that you can jump to."
+
+#: ap/templates/macros.html
+msgid "Recommended"
+msgstr "Recommended"
+
+#: ap/templates/i18n.html
+msgid "Threshold/Graph Config"
+msgstr "Threshold/Graph Config"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Target"
+msgstr "Target"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Target hover msg"
+msgstr "Select the target data name. (Required)"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Condition"
+msgstr "Condition"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Condition hover msg"
+msgstr ""
+"If you want to change the threshold or graph axis settings depending on "
+"the part number or equipment,\n"
+"you can select the data name and its value that will be the condition for"
+" changing the settings."
+
+#: ap/templates/setting_module/master_config.html
+msgid "Threshold config"
+msgstr "Threshold"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Threshold config hover msg"
+msgstr ""
+"Enter the threshold for the target data.\n"
+"It is used to calculate the ratio and number of data exceeding the set "
+"threshold (outCL) and process capability. \n"
+"It is drawn as a red line on the graph."
+
+#: ap/templates/setting_module/master_config.html
+msgid "Process threshold"
+msgstr "Process threshold"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Process threshold hover msg"
+msgstr ""
+"Enter the in-process threshold for the target data. \n"
+"It is used to calculate the percentage of data exceeding the set in-"
+"process threshold and the number (outAL).\n"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Graph axis range"
+msgstr "Graph axis range"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Valid hover msg"
+msgstr ""
+"Select the start date and time (From) and end date and time (To) to apply"
+" the settings. \n"
+"This is used when the threshold changes depending on the date and time, \n"
+"such as when the threshold is changed due to a design change. (From: "
+"Required)"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Max value"
+msgstr "Max"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Min value"
+msgstr "Min"
+
+#: ap/templates/setting_module/master_config.html
+msgid "Data Name"
+msgstr "DataName"
+
+msgid "InvalidBrowserTitle"
+msgstr "Your browser does not support"
+
+msgid "InvalidBrowserContent"
+msgstr ""
+"The current version only supports Chrome, Microsoft Edge and Safari (>= "
+"15.4) browsers.BREAK_LINEPlease check your browser and try to accessing "
+"the application again."
+
+msgid "InvalidBrowserVersion"
+msgstr ""
+"Safari version 15.4 or higher is required to run some features of the "
+"application.BREAK_LINEPlease check your browser version and try accessing"
+" the application again."
+
+#: ap/templates/macros.html
+msgid "Applies outlier removal to the objective variable."
+msgstr "Applies outlier removal to the objective variable."
+
+#: ap/templates/macros.html
+msgid "Applies outlier removal to the explanatory variable."
+msgstr "Applies outlier removal to the explanatory variable."
+
+#: ap/templates/i18n.html
+msgid "Judge"
+msgstr "Judge"
+
+#: ap/templates/i18n.html
+msgid "Judge hover msg"
+msgstr ""
+"Used to calculate NG rate. Data of selected variable, that satisfies the "
+"conditional expression is regarded as NG."
+
+#: ap/templates/i18n.html
+msgid "NG condition"
+msgstr "NG condition"
+
+#: ap/templates/i18n.html
+msgid "NG condition hover msg"
+msgstr ""
+"You can specify a condition of NGs for the variable selected as 'Judge'. "
+"For example, Temperature > 90, InspectionResult == 2"
+
+#: ap/templates/macros.html
+msgid "Japanese Name"
+msgstr "Japanese Name"
+
+#: ap/templates/macros.html
+msgid "Local Name"
+msgstr "Local Name"
+
+# ap/template/setting_module/master_config.html
+#~ msgid "Control item"
+#~ msgstr "Control item"
+
+#~ msgid "Control item Hover"
 #~ msgstr ""
-#~ "Values less than Q1-1.5×IQR and values"
-#~ " greater than Q3+1.5×IQR: replace to "
-#~ "NA"
+#~ "Chọn các mục điều khiển chất lượng"
+#~ " hoặc kiểm soát thiết bị bằng "
+#~ "cách sử dụng trong cài đặt biểu"
+#~ " đồ."
+
+#~ msgid "Type Hover"
+#~ msgstr "Vui lòng chọn loại mục tiêu quản lý như số phần và thiết bị."
+
+#~ msgid "Name MCF Hover"
+#~ msgstr ""
+#~ "Vui lòng chọn mục tiêu quản lý "
+#~ "như giá trị của số bộ phận "
+#~ "và giá trị của thiết bị."
+
+#~ msgid "Action from Hover"
+#~ msgstr "Đặt ngày giờ bắt đầu cho cài đặt biểu đồ. (Yêu cầu)"
+
+#~ msgid "Action to Hover"
+#~ msgstr "Đặt ngày giờ kết thúc cho cài đặt biểu đồ. (Không bắt buộc)"
 

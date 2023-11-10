@@ -12,7 +12,7 @@ from ap.common.logger import log_execution
 
 
 def copy_with_update(src, dst, symlinks=False, ignore=None):
-    """ Copy with update
+    """Copy with update
     https://stackoverflow.com/questions/1868714/
     how-do-i-copy-an-entire-directory-of-files-into-an-existing-directory-using-pyth
     :param src:
@@ -62,10 +62,10 @@ def should_update_r(source_dir, dest_dir):
         if not os.path.exists(dest_version_file):
             return True
 
-        with open(src_version_file, 'r') as f:
+        with open(src_version_file, "r") as f:
             src_version = f.read()
 
-        with open(dest_version_file, 'r') as f:
+        with open(dest_version_file, "r") as f:
             dest_version = f.read()
 
         if dest_version < src_version:
@@ -90,16 +90,21 @@ def check_and_copy_r_portable():
 
     try:
         should_update = should_update_r(source_r_portable_dir, dest_r_portable_dir)
-        print('Should update R libraries: ', should_update)
+        print("Should update R libraries: ", should_update)
         if should_update:
-            print('Copying R libraries from {src} to {dest} ...'.format(src=source_r_portable_dir,
-                                                                        dest=dest_r_portable_dir))
+            print(
+                "Copying R libraries from {src} to {dest} ...".format(
+                    src=source_r_portable_dir, dest=dest_r_portable_dir
+                )
+            )
             copy_with_update(source_r_portable_dir, dest_r_portable_dir)
 
             end = time.time()
-            print('DONE updating R in {sec} seconds'.format(sec=(end - start)))
-            logger.info('DONE updating R in {sec} seconds'.format(sec=(end - start)))
+            print("DONE updating R in {sec} seconds".format(sec=(end - start)))
+            logger.info("DONE updating R in {sec} seconds".format(sec=(end - start)))
     except Exception as ex:
         traceback.print_exc()
         end = time.time()
-        logger.error('ERROR updating R in {sec} seconds. Error: {err}'.format(sec=(end - start), err=ex))
+        logger.error(
+            "ERROR updating R in {sec} seconds. Error: {err}".format(sec=(end - start), err=ex)
+        )

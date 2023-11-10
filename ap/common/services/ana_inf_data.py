@@ -9,8 +9,8 @@ from scipy.stats import gaussian_kde, iqr
 from ap.common.constants import *
 from ap.common.logger import log_execution_time
 from ap.common.services.request_time_out_handler import abort_process_handler
-from ap.common.sigificant_digit import get_fmt_from_array
 from ap.common.services.statistics import convert_series_to_number
+from ap.common.sigificant_digit import get_fmt_from_array
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,9 @@ def all_equal(iterable):
 
 
 @log_execution_time()
-def calculate_kde_for_ridgeline(data, grid_points, height=1, use_range=False, use_hist_counts=False):
+def calculate_kde_for_ridgeline(
+    data, grid_points, height=1, use_range=False, use_hist_counts=False
+):
     """
     Calculate KDE + Histogram bins + Histogram labels for an input array.
     :param data: input array
@@ -48,7 +50,11 @@ def calculate_kde_for_ridgeline(data, grid_points, height=1, use_range=False, us
         try:
             # grid points
             (xmin, xmax, x) = grid_points
-            histogram = np.histogram(data, bins=x, range=(xmin, xmax)) if use_range else np.histogram(data, bins=x)
+            histogram = (
+                np.histogram(data, bins=x, range=(xmin, xmax))
+                if use_range
+                else np.histogram(data, bins=x)
+            )
             std_value = np.std(data)
             if std_value == 0:
                 # use histogram value from numpy
@@ -229,8 +235,9 @@ def gen_gaussian_kde_1d_same_as_r(x, std_value):
     return kde
 
 
-def detect_abnormal_count_values(x, nmax=2, threshold=50, min_uniques=10, max_sample_size=10_000,
-                                 verbose=False) -> list:
+def detect_abnormal_count_values(
+    x, nmax=2, threshold=50, min_uniques=10, max_sample_size=10_000, verbose=False
+) -> list:
     """
     Detect values those with abnormal count values.
     We can detect np.inf, but can not detect np.nan (depending on numpy version)
@@ -258,14 +265,14 @@ def detect_abnormal_count_values(x, nmax=2, threshold=50, min_uniques=10, max_sa
     # np.random.default_rng() is much faster than np.random.choice()
     if len(x) > max_sample_size:
         if verbose:
-            print(f"resampled: exceeded {max_sample_size} data points")
+            print(f'resampled: exceeded {max_sample_size} data points')
         rng = np.random.default_rng()
         x = rng.choice(x, max_sample_size, replace=False)
 
     uniq, count = np.unique(x, return_counts=True)
     if len(uniq) < min_uniques:
         if verbose:
-            print(f"Number of unique values where less than {min_uniques}")
+            print(f'Number of unique values where less than {min_uniques}')
         return []
 
     # average counts of left and right unique values
@@ -282,16 +289,17 @@ def detect_abnormal_count_values(x, nmax=2, threshold=50, min_uniques=10, max_sa
     val_outlier = np.sort(values_detected[idx_desc[:nmax]])  # return values in ascending order
     if verbose:
         if len(val_outlier) > 0:
-            print("detected: {}".format(val_outlier))
+            print('detected: {}'.format(val_outlier))
         else:
-            print("outlier not detected")
+            print('outlier not detected')
 
     return val_outlier
+
 
 @log_execution_time()
 @abort_process_handler()
 def resample_preserve_min_med_max(x, n_after: int):
-    """ Resample x, but preserve (minimum, median, and maximum) values
+    """Resample x, but preserve (minimum, median, and maximum) values
     Inputs:
         x (1D-NumpyArray or a list)
         n_after (int) Length of x after resampling. Must be < len(x)

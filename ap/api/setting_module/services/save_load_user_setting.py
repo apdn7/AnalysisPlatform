@@ -16,7 +16,11 @@ class UserSettingDetail:
         self.original_obj = dic_vals
 
     def convert_to_obj(self):
-        dic_vals = {key: val for key, val in self.__dict__.items() if key != 'original_obj' and val is not None}
+        dic_vals = {
+            key: val
+            for key, val in self.__dict__.items()
+            if key != 'original_obj' and val is not None
+        }
         return dic_vals
 
     def is_checkbox_or_radio(self):
@@ -128,7 +132,9 @@ def group_by_name(vals):
             short_name = short_name.lower()
             dic_others[short_name].append(setting)
 
-    dic_checkboxes = {key: sorted(vals, key=lambda x: x.name) for key, vals in dic_checkboxes.items()}
+    dic_checkboxes = {
+        key: sorted(vals, key=lambda x: x.name) for key, vals in dic_checkboxes.items()
+    }
     dic_others = {key: sorted(vals, key=lambda x: x.name) for key, vals in dic_others.items()}
 
     return dic_checkboxes, dic_others
@@ -160,7 +166,10 @@ def map_form_bk(dic_src_vals, dic_des_vals):
         if form_name in dic_src_vals:
             mapping_groups.append((form_name, dic_src_vals[form_name], vals))
         else:
-            src_vals = [(len(set(form_name) & set(_form_name)), _vals) for _form_name, _vals in dic_src_vals.items()]
+            src_vals = [
+                (len(set(form_name) & set(_form_name)), _vals)
+                for _form_name, _vals in dic_src_vals.items()
+            ]
             src_vals = sorted(src_vals, key=lambda x: x[0])[-1]
 
             mapping_groups.append((form_name, src_vals[1], vals))
@@ -187,7 +196,7 @@ def get_active_tab(dic_setting):
 
 
 def remove_non_str(val):
-    return re.sub(r"[-_\d\s]", '', val)
+    return re.sub(r'[-_\d\s]', '', val)
 
 
 def split_str_and_last_number(input_str):

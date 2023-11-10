@@ -1,15 +1,14 @@
 import shutil
-import json
 import socket
 
-from ap.common.memoize import memoize
-from ap.setting_module.models import CfgConstant
 from ap.common.constants import DiskUsageStatus
 from ap.common.logger import log_execution_time
+from ap.common.memoize import memoize
+from ap.common.services.http_content import json_dumps
+from ap.setting_module.models import CfgConstant
 
 
 class DiskUsageInterface:
-
     @classmethod
     def get_disk_usage(cls, path=None):
         raise NotImplementedError()
@@ -37,8 +36,10 @@ def get_disk_usage_percent(path=None):
     if not path:
         path = './'  # as default dir
 
-    dict_status_measures = {CfgConstant.get_warning_disk_usage(): DiskUsageStatus.Warning,
-                                CfgConstant.get_error_disk_usage(): DiskUsageStatus.Full}
+    dict_status_measures = {
+        CfgConstant.get_warning_disk_usage(): DiskUsageStatus.Warning,
+        CfgConstant.get_error_disk_usage(): DiskUsageStatus.Full,
+    }
     dict_limit_capacity = {y: x for x, y in dict_status_measures.items() if x}  # switch key value
 
     status = DiskUsageStatus.Normal
@@ -58,7 +59,7 @@ def get_disk_usage_percent(path=None):
     return status, used_percent, dict_limit_capacity
 
 
-@log_execution_time(is_debug=True)
+@log_execution_time()
 def get_disk_capacity():
     """
     Get information of disk capacity on Bridge Station & Postgres DB
@@ -70,19 +71,28 @@ def get_disk_capacity():
 
     message = ''
     if disk_status == DiskUsageStatus.Full:
-        message = 'Data import has stopped because the hard disk capacity of `__SERVER_INFO__` has reached ' \
-                  f'{dict_limit_capacity.get(DiskUsageStatus.Full)}%. ' \
-                  'Data import will restart when unnecessary data is deleted and the free space increases.'
+        message = (
+            'Data import has stopped because the hard disk capacity of `__SERVER_INFO__` has reached '
+            f'{dict_limit_capacity.get(DiskUsageStatus.Full)}%. '
+            'Data import will restart when unnecessary data is deleted and the free space increases.'
+        )
     elif disk_status == DiskUsageStatus.Warning:
-        message = 'Please delete unnecessary data because the capacity of the hard disk of `__SERVER_INFO__` has ' \
-                  f'reached {dict_limit_capacity.get(DiskUsageStatus.Warning)}%.'
+        message = (
+            'Please delete unnecessary data because the capacity of the hard disk of `__SERVER_INFO__` has '
+            f'reached {dict_limit_capacity.get(DiskUsageStatus.Warning)}%.'
+        )
 
     server_info = get_ip_address()
     message = message.replace('__SERVER_INFO__', server_info)
-    return DiskCapacityException(disk_status, used_percent, server_info,
-                                 'EdgeServer',
-                                 dict_limit_capacity.get(DiskUsageStatus.Warning),
-                                 dict_limit_capacity.get(DiskUsageStatus.Full), message)
+    return DiskCapacityException(
+        disk_status,
+        used_percent,
+        server_info,
+        'EdgeServer',
+        dict_limit_capacity.get(DiskUsageStatus.Warning),
+        dict_limit_capacity.get(DiskUsageStatus.Full),
+        message,
+    )
 
 
 def get_disk_capacity_once(_job_id=None):
@@ -111,8 +121,16 @@ class DiskCapacityException(Exception):
         message -- explanation of the error
     """
 
-    def __init__(self, disk_status, used_percent, server_info, server_type, warning_limit_percent, error_limit_percent,
-                 message):
+    def __init__(
+        self,
+        disk_status,
+        used_percent,
+        server_info,
+        server_type,
+        warning_limit_percent,
+        error_limit_percent,
+        message,
+    ):
         self.disk_status: DiskUsageStatus = disk_status
         self.used_percent = used_percent
         self.server_info = server_info
@@ -130,12 +148,12 @@ class DiskCapacityException(Exception):
             'server_type': self.server_type,
             'warning_limit_percent': self.warning_limit_percent,
             'error_limit_percent': self.error_limit_percent,
-            'message': self.message
+            'message': self.message,
         }
 
 
 @log_execution_time()
-def get_disk_capacity_to_load_UI():
+def get_disk_capacity_to_load_ui():
     disk_capacity = {
         'EdgeServer': None,
     }
@@ -149,11 +167,12 @@ def get_disk_capacity_to_load_UI():
 
 def add_disk_capacity_into_response(response, disk_capacity):
     render_data = response.get_data()
-    script = f'<script>var disk_capacity = {json.dumps(disk_capacity)};</script>'
+    script = f'<script>var disk_capacity = {json_dumps(disk_capacity)};</script>'
     render_data = render_data.replace(bytes('</html>', 'UTF-8'), bytes(f'{script}</html>', 'UTF-8'))
     response.set_data(render_data)
 
-@log_execution_time(is_debug=True)
+
+@log_execution_time()
 @memoize(duration=60)
 def get_ip_address():
     hostname = socket.gethostname()

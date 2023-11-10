@@ -2,6 +2,9 @@
 /* eslint-disable func-names */
 /* eslint-disable no-extend-native */
 /* eslint-disable no-undef */
+let isFirstTimeRunPaging = true;
+let pagingParams = null;
+const RELOAD_INTERVAL = 3 * 60 * 1000; // reload job page after 3 minutes
 const i18n = {
     jobId: $('#i18nJobId').text(),
     database: $('#i18nDatabase').text(),
@@ -73,14 +76,40 @@ const convertJobName = (jobName) => {
     }
     return jobName;
 };
-const updateBackgroundJobs = (json) => {
+
+const genDicTrJobs = () => {
+    const dicTableRows = {};
+    const rows = $('#jobDataTable table tbody tr')
+    for (let i = 0; i < rows.length; i++) {
+        const tr = rows[i];
+        const jobId = $(tr).find('td.job-id').text()
+        dicTableRows[jobId] = tr
+    }
+    return dicTableRows;
+};
+const updateBackgroundJobs = (json, isFirstTime = false) => {
     const tableBody = $('#jobDataTable table tbody');
-    Object.values(json).forEach((row) => {
+    const dicTableRows = genDicTrJobs();
+    let rows = json;
+    if (!isFirstTime) {
+        rows = Object.values(json);
+    }
+
+    const pageOptions = getPageOptionsFromGUI();
+    const ignoreJobs = [];
+    if (!pageOptions.showProcLinkJob) {
+        ignoreJobs.push('GEN_GLOBAL')
+    }
+    if (!pageOptions.showPastImportJob) {
+        ignoreJobs.push('FACTORY_PAST_IMPORT')
+    }
+    rows.forEach((row) => {
         const statusClass = JOB_STATUS[row.status].class || JOB_STATUS.FAILED.class;
         const statusTooltip = JOB_STATUS[row.status].title || JOB_STATUS.FAILED.title;
         // eslint-disable-next-line max-len
         const statusProgressBar = JOB_STATUS[row.status]['class-progress-bar'] || JOB_STATUS.FAILED['class-progress-bar'];
-        const rowHtml = tableBody.find(`#job-${row.job_id}`);
+        // const rowHtml = tableBody.find(`#job-${row.job_id}`);
+        let rowHtml = dicTableRows[row.job_id];
         const updatedStatus = `<div class="align-middle text-center" data-st="${statusClass}">
             <div class="" data-toggle="tooltip" data-placement="top" title="${statusTooltip}">
                 <i class="fas fa-${statusClass} status-i"></i>
@@ -96,16 +125,23 @@ const updateBackgroundJobs = (json) => {
         if (row.status === 'FAILED') {
             jobDetailHTML = `<button id="" class="btn btn-warning btn-right" onclick="showJobErrorDetail(${row.job_id})"><i class="fas fa-info-circle"></i></button>`;
         }
-        if (rowHtml.length > 0) {
+        if (rowHtml) {
+            rowHtml = $(rowHtml);
+            if (isFirstTime) {
+                rowHtml.find('.job-name').text(convertJobName(row.job_name) || ' ');
+                rowHtml.find('.job-start-time').text(moment(row.start_tm).format(DATE_FORMAT_WITHOUT_TZ));
+            }
             rowHtml.find('.job-duration').text(row.duration);
             rowHtml.find('.job-progress').html(progress);
             if (rowHtml.find('.job-status').attr('data-status') !== row.status) {
                 rowHtml.find('.job-status').html(updatedStatus);
             }
             rowHtml.find('.job-detail').html(jobDetailHTML);
+            rowHtml.find('.job-status').attr('data-status', row.status);
         } else {
-            tableBody.prepend(`
-            <tr id="job-${row.job_id}">
+            if (pageOptions && pageOptions.pageNumber === 1 && !ignoreJobs.includes(row.job_name)) {
+                tableBody.prepend(`
+                <tr id="job-${row.job_id}">
                 <td class="job-id">${row.job_id}</td>
                 <td class="job-name">${convertJobName(row.job_name) || ' '}</td>
                 <td class="job-db-name">${row.db_master_name}</td>
@@ -115,9 +151,9 @@ const updateBackgroundJobs = (json) => {
                 <td class="job-progress">${progress}</td>
                 <td class="job-status" data-status="${row.status}">${updatedStatus}</td>
                 <td class="job-detail">${jobDetailHTML}</td>
-            </tr>`);
+                </tr>`);
+            }
         }
-        rowHtml.find('.job-status').attr('data-status', row.status);
     });
     $('.loading').hide();
 };
@@ -190,60 +226,84 @@ const showJobErrorDetail = async (jobId) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-const updateFilterJobs = (jobType) => {
-    const filterFlag = $(`#${jobType}`).is(':checked');
-    const filterVal = $(`#${jobType}`).val();
-    const filterJSON = localStorage.getItem('filterBackgroundJobs');
-    const filters = filterJSON ? JSON.parse(filterJSON) : [];
-    Array.prototype.remove = function () {
-        let what;
-        const a = arguments;
-        let L = a.length;
-        let ax;
-        while (L && this.length) {
-            what = a[--L];
-            while ((ax = this.indexOf(what)) !== -1) {
-                this.splice(ax, 1);
-            }
-        }
-        return this;
-    };
-    if (filterFlag) {
-        filters.push(filterVal);
-    } else {
-        filters.remove(filterVal);
-    }
-    localStorage.setItem('filterBackgroundJobs', JSON.stringify(filters));
+const updateFilterJobs = () => {
+    const showPastImportJob = $('#factoryPassImport').is(':checked');
+    const showProcLinkJob = $('#genGlobalID').is(':checked');
+    const dicFilterJobs = {factoryPassImport: showPastImportJob, genGlobalID: showProcLinkJob}
+    localStorage.setItem('filterBackgroundJobs', JSON.stringify(dicFilterJobs));
 };
 
-const filterJobFromLocal = (jobs) => {
-    const filterTypeConst = ['GEN_GLOBAL', 'FACTORY_PAST_IMPORT'];
-    const defaultFilter = ['GEN_GLOBAL'];
-    const showJobs = {};
-    // load filter background jobs
-    const userFilterJSON = localStorage.getItem('filterBackgroundJobs');
-    const userFilterJobs = userFilterJSON ? JSON.parse(userFilterJSON) : [];
+// const filterJobFromLocal = (jobs) => {
+//     const filterTypeConst = ['GEN_GLOBAL', 'FACTORY_PAST_IMPORT'];
+//     const defaultFilter = ['GEN_GLOBAL'];
+//     const showJobs = {};
+//     // load filter background jobs
+//     const userFilterJSON = localStorage.getItem('filterBackgroundJobs');
+//     const userFilterJobs = userFilterJSON ? JSON.parse(userFilterJSON) : [];
+//
+//     let filterJobs;
+//     if (userFilterJSON == null) {
+//         filterJobs = defaultFilter;
+//         localStorage.setItem('filterBackgroundJobs', JSON.stringify(defaultFilter));
+//     } else {
+//         filterJobs = userFilterJobs;
+//     }
+//     filterJobs.forEach((e) => {
+//         $(`input[value="${e}"]`).prop('checked', true);
+//     });
+//     Object.values(jobs).forEach((jobDetail, k) => {
+//         if (filterTypeConst.includes(jobDetail.job_type) && filterJobs.includes(jobDetail.job_type)) {
+//             showJobs[k] = jobDetail;
+//         } else if (!filterTypeConst.includes(jobDetail.job_type)) {
+//             // apply for general jobs
+//             showJobs[k] = jobDetail;
+//         }
+//     });
+//     // get jobs from db
+//     updateBackgroundJobs(showJobs);
+// };
 
-    let filterJobs;
-    if (userFilterJSON == null) {
-        filterJobs = defaultFilter;
-        localStorage.setItem('filterBackgroundJobs', JSON.stringify(defaultFilter));
-    } else {
-        filterJobs = userFilterJobs;
+
+const getPageOptionsFromGUI = () => {
+    const showPastImportJob = $('#factoryPassImport').is(':checked');
+    const showProcLinkJob = $('#genGlobalID').is(':checked');
+    const jobDataTbl = $(ids.jobTable);
+    const pageOptions = jobDataTbl.bootstrapTable('getOptions');
+    const jobPageOptions = {
+        pageSize: pageOptions.pageSize,
+        pageNumber: pageOptions.pageNumber,
+        showProcLinkJob: showProcLinkJob,
+        showPastImportJob: showPastImportJob,
     }
-    filterJobs.forEach((e) => {
-        $(`input[value="${e}"]`).prop('checked', true);
-    });
-    Object.values(jobs).forEach((jobDetail, k) => {
-        if (filterTypeConst.includes(jobDetail.job_type) && filterJobs.includes(jobDetail.job_type)) {
-            showJobs[k] = jobDetail;
-        } else if (!filterTypeConst.includes(jobDetail.job_type)) {
-            // apply for general jobs
-            showJobs[k] = jobDetail;
+    return jobPageOptions;
+};
+
+const setJobPageConfig = (jobPageOptions) => {
+    // save jobPage option to keep settings after reload
+    if (jobPageOptions) {
+        localStorage.setItem('jobPageOptions', JSON.stringify(jobPageOptions));
+    }
+}
+
+const isFirstPage = () => {
+    const jobDataTbl = $(ids.jobTable);
+    const pageOptions = jobDataTbl.bootstrapTable('getOptions');
+    return pageOptions.pageNumber === 1;
+};
+
+const loadPage = () => {
+    updateFilterJobs();
+    // window.location.reload()
+    if (pagingParams) {
+        ajaxRequest(pagingParams);
+    }
+}
+const reloadPageAfterInterval = () => {
+    setInterval(function () {
+        if (isFirstPage() && pagingParams) {
+            ajaxRequest(pagingParams);
         }
-    });
-    // get jobs from db
-    updateBackgroundJobs(showJobs);
+    }, RELOAD_INTERVAL);
 };
 
 // custom formatShowingRows
@@ -270,25 +330,96 @@ const filterJobFromLocal = (jobs) => {
 
 
 $(() => {
-    filterJobFromLocal(bgrdJobs);
-
     // init job table with bootstrap
+    // load filter options
+    loadFilterOptions();
+
     const jobTable = $(ids.jobTable);
+    const pageOptions = getPageOptionsFromLocalStorage();
     jobTable.bootstrapTable({
         pagination: true,
         paginationVAlign: 'both',
-        pageSize: 50,
+        pageSize: pageOptions ? pageOptions.pageSize : 50,
         locale: $('option:selected', $(ids.selectLanguage)).attr('bootstrap-locale'),
-        formatShowingRows() {
-            return sprintf('');
-        },
+        // formatShowingRows() {
+        //     return sprintf('');
+        // },
     });
 
     $('#btnCopyToClipboard').on('click', () => copyToClipboard());
+    $('#factoryPassImport').on('change', () => loadPage());
+    $('#genGlobalID').on('change', () => loadPage());
+
 
     // Search content of table
     onSearchTableContent('searchJobList', 'jobTable');
-    
+    sortableTable('jobTable', [0, 1, 2, 3, 4, 5, 6, 7, 8], null, false, false);
+
     // show load settings menu
     handleLoadSettingBtns();
+    reloadPageAfterInterval();
 });
+
+const loadFilterOptions = () => {
+    const filterOptions = getFilterOptions();
+    const filterItems = $('input[name=filterJobs]');
+    filterItems.each((_, ele) => {
+        const val = filterOptions[ele.id];
+        $(ele).prop('checked', val);
+    });
+};
+const getFilterOptions = () => {
+    // load filter background jobs
+    const filterJSON = localStorage.getItem('filterBackgroundJobs');
+    const filterJobs = filterJSON ? JSON.parse(filterJSON) : [];
+    return filterJobs;
+};
+const getPageOptionsFromLocalStorage = () => {
+    let pageOptions = localStorage.getItem('jobPageOptions');
+    if (pageOptions === 'undefined') {
+        return null;
+    }
+
+    if (pageOptions) {
+        pageOptions = JSON.parse(pageOptions);
+    }
+
+    return pageOptions
+};
+
+function ajaxRequest(params) {
+    const url = '/ap/api/setting/get_jobs';
+    let pageOptions;
+    if (isFirstTimeRunPaging) {
+        pageOptions = getPageOptionsFromLocalStorage();
+    } else {
+        pageOptions = getPageOptionsFromGUI();
+    }
+
+    isFirstTimeRunPaging = false;
+    pagingParams = params;
+    if (pageOptions) {
+        params.data.limit = pageOptions.pageSize;
+        // params.data.offset = (pageOptions.pageNumber - 1) * params.data.limit;
+        params.data.show_proc_link_job = pageOptions.showProcLinkJob;
+        params.data.show_past_import_job = pageOptions.showPastImportJob;
+    }
+    const json = fetch(url + '?' + $.param(params.data), {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    }).then(response => response.json())
+        .then(res => {
+            params.success(res);
+            updateBackgroundJobs(res.rows, true);
+            $('.loading').hide();
+
+            // save latest options
+            pageOptions = getPageOptionsFromGUI();
+            setJobPageConfig(pageOptions);
+        });
+    return json;
+}
+

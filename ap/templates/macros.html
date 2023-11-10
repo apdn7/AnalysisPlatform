@@ -493,9 +493,9 @@
                 </div>
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
-                <div class="row" id="end-proc-paracords-real-row" sensor-type="real">
+                <div class="row" id="end-proc-row" sensor-type="real">
                     <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
-                        <button id="btn-add-end-proc-paracords-real" name="btnAddEndProc" type="button"
+                        <button id="btn-add-end-proc" name="btnAddEndProc" type="button"
                                 class="btn simple-btn">
                             <i class="fas fa-plus-circle"></i>
                         </button>
@@ -634,6 +634,11 @@
 								  class="cat-title ui-sortable">{{ 'Label' }}</span>
 							<div id="categoriesBox" class="d-flex ui-sortable"></div>
 						</div>
+                        <div class="mr-2 cats-exp-box">
+                            <span id="filterBoxTitle"
+								  class="cat-title ui-sortable">{{ 'Filter' }}</span>
+							<div id="filterBox" class="d-flex ui-sortable"></div>
+						</div>
                         {% endif %}
                         <div class="mr-2 cats-exp-box">
                             <span id="catExpBoxTitle" class="cat-title">{{_('Facet')}}</span>
@@ -733,7 +738,7 @@
                        data-date-format="yyyy-mm-dd" name="END_DATE" type="text" hidden>
                 <input name="END_TIME" class="form-control" id="{{prefix}}endTime" type="text" hidden>
                 {% if showDataFinder %}
-                    <button type="button" onclick="showDataFinderModal(this)" id="dataFinderBtn" style="position: absolute; top: 3px; right: 4px; display: none" class="btn btn-sm btn-primary">Data finder</button>
+                    <button type="button" onclick="showDataFinderModal(this)" name="dataFinderBtn" style="position: absolute; top: 3px; right: 3px; display: none" class="btn btn-sm btn-primary">Data finder</button>
                 {% endif %}
             </div>
             <div id="for-recent-{{prefix}}" style="display: none">
@@ -784,7 +789,7 @@
                 <span class="sub-label">{{ _('Index Ordering Setting') }}</span>
                 <button class="btn clipboard" style="float:right;"
                         data-clipboard-target="#index-infor-table"
-                        title="Copy to Clipboard">
+                        title="">
                     <i class="fa fa-copy" aria-hidden="true"></i>
                 </button>
                 <div class="index-content">
@@ -863,35 +868,35 @@
                 {{start_proc_interval(name='varTraceTime1', commonClass='to-update-time-range')}}
             </div>
             <div id="for-cyclicTerm" style="display: none; visibility: hidden">
-                <div class="d-flex mb-2">
-                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
+                <div class="d-flex mb-2 flex-wrap">
+                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-median-3 mr-3">
                         <input type="radio" name="cyclicTermTraceTime1" onchange="handleChangeInterval(this, 'fromTo')" class="custom-control-input to-update-time-range" id="cyclicTermFrom"
                                value="from" checked="checked">
                         <label class="custom-control-label" for="cyclicTermFrom" class="label-left">
                             <span class="sub-label">{{ _('From') }}</span>
                         </label>
                     </div>
-                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
+                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-median-3 mr-3">
                         <input type="radio" name="cyclicTermTraceTime1" onchange="handleChangeInterval(this, 'fromTo')" class="custom-control-input to-update-time-range" id="cyclicTermTo"
                                value="to">
                         <label class="custom-control-label" for="cyclicTermTo" class="label-left">
                             <span class="sub-label">{{ _('To') }}</span>
                         </label>
                     </div>
-                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
+                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-median-3 mr-3">
                         <input class="custom-control-input to-update-time-range" type="radio" name="cyclicTermTraceTime1" onchange="handleChangeInterval(this, 'cyclicRecent')" id="cyclicRecentInterval" value="recent">
                         <label class="custom-control-label" for="cyclicRecentInterval" class="label-left">
-                            <span class="sub-label">{{ _('Latest') }}</span>
+                            <span class="sub-label hint-text" title="{{_('Select a unit of time and input value.')}}">{{ _('Latest') }}</span>
                         </label>
                     </div>
                     <div class="flex-grow-1">
-                        <div id="for-fromTo">
+                        <div id="for-fromTo" class="position-relative">
                              {{ datetime_range_picker('DATETIME_PICKER','',id='cyclicTermDatetimePicker',noCoverDiv=True, isShowTimePicker=True, dtClassName='to-update-time-range') }}
                             <input id="cyclicTermStartDate" class="datepicker hasdatepicker form-control category-plot-time"
                                    data-date-format="yyyy-mm-dd" name="START_DATE" type="text" hidden>
                             <input name="START_TIME" class="form-control" id="cyclicTermStartTime" type="text" hidden>
-                            <button type="button" onclick="showDataFinderModal(this)" id="dataFinderBtn"
-                                    style="position: absolute; top: 60px; right: 7px; display: none"
+                            <button type="button" onclick="showDataFinderModal(this)" name="dataFinderBtn"
+                                    style="position: absolute; top: 3px; right: 3px; display: none"
                                     class="btn btn-sm btn-primary">Data finder</button>
                         </div>
                         <div id="for-cyclicRecent" style="display: none">
@@ -902,20 +907,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="mb-2 d-flex align-items-center flex-wrap">
-                    <div class="d-flex align-items-center mr-3">
+                <div class="d-flex align-items-center flex-wrap">
+                    <div class="d-flex align-items-center mr-3 mb-2">
                         <label class="mr-2 mb-0" title="{{ DivisionNumberHover }}">
                             <span class="hint-text sub-label">{{_('Division number')}}</span>
                         </label>
                         <input type="text" class="form-control to-update-time-range" id="cyclicTermDivNum" name="cyclicTermDivNum" value="{{cyclicTermDefault}}" style="max-width: 100px">
                     </div>
-                    <div class="d-flex align-items-center mr-3">
+                    <div class="d-flex align-items-center mr-3 mb-2">
                         <label title="{{ WindowLengthHover }}" class="mr-2 mb-0">
                             <span class="hint-text sub-label">{{ _('Window length') }} [hour]</span>
                         </label>
                         <input type="text" class="form-control to-update-time-range" id="cyclicTermWindowLength" name="cyclicTermWindowLength" value="1" style="max-width: 80px">
                     </div>
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center mb-2">
                         <label class="mr-2 mb-0" title="{{ IntervalHover }}">
                             <span class="hint-text sub-label">{{ _('Interval') }} [hour]</span>
                         </label>
@@ -941,7 +946,7 @@
                             <input id="endDate1" class="datepicker hasdatepicker form-control category-plot-time"
                                        data-date-format="yyyy-mm-dd" name="END_DATE" type="text" hidden>
                             <input name="END_TIME" class="form-control" id="endTime1" type="text" hidden>
-                            <button type="button" onclick="showDataFinderModal(this)" id="dataFinderBtn"
+                            <button type="button" onclick="showDataFinderModal(this)" name="dataFinderBtn"
                                     style="position: absolute; top: 3px; right: 20px; display: none"
                                     class="btn btn-sm btn-primary">Data finder</button>
                             <span class="ml-2" style="width: 8.5px"></span>
@@ -1037,7 +1042,7 @@
 		</div>
 		<div id="settingHoverContent" class="setting-inform-content show-filter-info">
 			<button class="btn clipboard" style="float:right;"
-				data-clipboard-target="#setting-infor-table" title="Copy to Clipboard">
+				data-clipboard-target="#setting-infor-table" title="">
 				<i class="fa fa-copy" aria-hidden="true"></i>
 			</button>
 		    <div class="setting-content">
@@ -1174,15 +1179,15 @@
                      <div class="custom-control custom-checkbox">
                         <input class="custom-control-input" id="remove_outlier_objective_var" type="checkbox"
                              value="1" show-value="O" name="remove_outlier_objective_var" onchange="updateCleansing(this)" checked>
-                        <label class="custom-control-label" for="remove_outlier_objective_var">
-                            <span title="">Objective var</span>
+                        <label class="custom-control-label hint-text" for="remove_outlier_objective_var">
+                            <span title="{{_('Applies outlier removal to the objective variable.')}}">Objective var</span>
                         </label>
                     </div>
                     <div class="custom-control custom-checkbox">
                         <input class="custom-control-input" id="remove_outlier_explanatory_var" type="checkbox"
                              value="1"  show-value="O" name="remove_outlier_explanatory_var" onchange="updateCleansing(this)">
-                        <label class="custom-control-label" for="remove_outlier_explanatory_var">
-                            <span title="">Explanatory var</span>
+                        <label class="custom-control-label hint-text" for="remove_outlier_explanatory_var">
+                            <span title="{{_('Applies outlier removal to the explanatory variable.')}}">Explanatory var</span>
                         </label>
                     </div>
                 </div>
@@ -1424,7 +1429,7 @@
         <input name="data-finder-from" id="data-finder-to" class="form-control" type="text" hidden>
         <div class="action">
             <div class="action-offset">
-                <label for="data-finder-input">From To</label>
+                <label id="dataFinderInputLabel" for="data-finder-input">From To</label>
             </div>
             <div class="flex-grow-1">
                 <div class="form-group">
@@ -1472,4 +1477,92 @@
 				title="{{ _('You can filter categorical data used for graph drawing.') }}">
 		</button>
 	</div>
+{% endmacro %}
+{% macro end_col_order_modal(graphArea='', modalId='endColOrderModal', tableId='endColOrderTable', okBtnId='btnEndColOrderModalOK', cancelBtnId='btnEndColOrderModalCancel') %}
+    <div id="{{ modalId }}{{'GraphArea' if graphArea else ''}}" class="modal in endColOrderTable" data-backdrop="static">
+        <div class="modal-dialog modal-confirm modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _('Variable display ordering') }}</h4>
+                    <button type="button" class="close {{ cancelBtnId }}" data-dismiss="modal" aria-hidden="true">×
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive" id="{{tableId}}{{'GraphArea' if graphArea else ''}}_wrap" style="max-height: 75vh">
+                        <table id="{{tableId}}{{'GraphArea' if graphArea else ''}}"
+                               class="table table-bordered table-main table-bordered table-dark table-fixed table-striped table-hover table-hover-light endColOrderTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center" style="max-width: 20px">{{ _("Order") }}</th>
+                                <th class="text-center">{{ _("Process Name") }}</th>
+                                <th class="text-center">{{ _("Process Name") }}</th>
+                                <th class="text-center">{{ _("English Name") }}</th>
+                                <th class="text-center">{{ _("Shown Name") }}</th>
+                                <th class="text-center">{{ _("Data Type") }}</th>
+                                {% if not graphArea %}
+                                    <th class="text-center col-del-btn"></th>
+                                {% endif %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="{{okBtnId}}{{'GraphArea' if graphArea else ''}}" class="btn btn-primary" data-item-id=""
+                            data-dismiss="modal">{{ _('OK') }}</button>
+                    <button id="{{cancelBtnId}}{{'GraphArea' if graphArea else ''}}" class="btn btn-secondary {{cancelBtnId}}{{'GraphArea' if graphArea else ''}}" data-dismiss="modal">{{ _('Cancel') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro order_btn(graphArea='0', callbackFunc='null') %}
+    <button id="btnSortCol" name="btnSortCol"
+            onclick="showSortColModal({{graphArea}}, {{callbackFunc}})" type="button" class="btn {{'btn-sm border-white ml-2' if graphArea != '0' else 'simple-btn mr-3'}}"><i class="fa-solid fa-list-ol"></i>
+    </button>
+{% endmacro %}
+
+{% macro jump_modal() %}
+    {% include 'jump.html' %}
+{% endmacro %}
+
+{% macro jump_button() %}
+	<div class="summary-menu ml-2">
+		<button onclick="showJumpModal();" class="btn btn-sm border-white jump-btn"
+				title="{{ _('Jump to other pages') }}">
+            <i class="fa fa-arrow-alt-circle-right"></i>
+		</button>
+	</div>
+{% endmacro %}
+
+{% macro judgeCondition() %}
+	<div class="card-body table-bordered graph-navi" id="judgeConditionCard" style="display: none">
+        <div class="row">
+            <div class="col-xl-2 col-3">
+            </div>
+            <div class="col-xl-10 col-9">
+               <div class="row">
+                   <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+                       <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center mr-3">
+                                <span class="sub-label hint-text d-block mr-3" title="{{_('NG condition hover msg')}}">{{ _('NG Condition') }}</span>
+                                <select style="width: 65px" id="NGCondition" class="form-control w-auto" name="NGCondition">
+                                    <option show-for="real" value=">">{{'>'}}</option>
+                                    <option show-for="real" value=">=">{{'>='}}</option>
+                                    <option show-for="real" value="<">{{'<'}}</option>
+                                    <option show-for="real" value="<=">{{'<='}}</option>
+                                    <option value="=" selected>{{'='}}</option>
+                                    <option value="!=">{{'!='}}</option>
+                                </select>
+                            </div>
+                            <input class="form-control" id="NGConditionValue" name="NGConditionValue" type="text" value="0" style="width: 120px">
+                       </div>
+                   </div>
+               </div>
+            </div>
+        </div>
+    </div>
 {% endmacro %}

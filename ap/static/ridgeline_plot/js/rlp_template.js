@@ -842,48 +842,21 @@ const rlpTemplate = (shapes, plotName = '') => ({
     paper_bgcolor: '#222222',
 });
 
-const emdInstance = (name, lineColor, yValue) => ({
-    line: {
-        color: lineColor,
-    },
-    name,
-    orientation: 'v',
-    points: false,
-    side: 'positive',
-    type: 'violin',
-    width: 10,
-    y: yValue,
-    xaxis: 'x2',
-    yaxis: 'y2',
-    fillcolor: '#222222',
-    opacity: 0.6,
-    spanmode: 'hard',
-});
-
 const generateTickAsDatetime = (tickText) => {
     if (!isNaN(Number(tickText[0])) || !moment(tickText[0]).isValid()) {
         return tickText;
     }
-    const isDiffYear = moment(tickText[tickText.length - 1]).year() - moment(tickText[0]).year();
-    const convertedTickText = tickText.map((tick) => {
-        return isDiffYear > 1 ? moment(tick).format('MMM YYYY') : moment(tick).format('MM/DD HH');
-    });
-    return convertedTickText;
+    const format = getDateTimeFormat(tickText[0], tickText[tickText.length - 1], tickText.length);
+    return tickText.map(tick => moment(tick).format(format));
 };
 
-const rlpByLineTemplate = (title, groupName, xaxisValue, yaxisValue, nticks = 0, compareType, showXAxis= false, props, tickFmt = '') => {
+const rlpByLineTemplate = (title, groupName, xaxisValue, yaxisValue, compareType, showXAxis= false, props, tickFmt = '') => {
     // re-scale groups in x-axes
     let textTicks = groupName;
     let valTicks = xaxisValue;
-    if (nticks > 0) {
-        const step = Math.ceil(groupName.length / nticks); // nticks = 20, groups = 100 -> step = 5
-        const tickIndexs = groupName.map((v, i) => ((i % step === 0) ? i : null)).filter(i => i !== null);
-        textTicks = groupName.filter((v, i) => tickIndexs.includes(i));
-        textTicks = textTicks.map(tick => (_.isString(tick) ? tick.replace('|', '<br>~') : tick));
-        valTicks = xaxisValue.filter((v, i) => tickIndexs.includes(i));
-    }
     // save categories to show/hide by button
     rlpXAxis[compareType].push(valTicks);
+    rlpXAxis.tickText.push(textTicks);
 
     const layout = {
         font: { color: 'white' },
@@ -902,22 +875,24 @@ const rlpByLineTemplate = (title, groupName, xaxisValue, yaxisValue, nticks = 0,
             nticks: 5,
             showline: true, // show lines and border here
             linecolor: '#757575',
-            // linewidth: 2,
             mirror: true,
-            tickformat: tickFmt.includes('e') ? '.1e' : '',
+            tickformat: tickFmt,
         },
         yaxis2: {
             domain: [0.7, 1],
             fixedrange: true,
-            zeroline: true,
-            zerolinecolor: 'green',
+            ticklen: 3,
             showgrid: true,
             gridcolor: '#444444',
+            zeroline: true,
+            zerolinecolor: 'green',
+            nticks: 3,
             showline: true, // show lines and border here
             linecolor: '#757575',
             linewidth: 1,
             mirror: true,
-            nticks: 3,
+            tickformat: tickFmt.includes('e') ? '.1e' : '',
+            exponentformat: 'e', // set to show exponent value
         },
         xaxis: {
             type: 'linear',

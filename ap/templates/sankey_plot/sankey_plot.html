@@ -16,26 +16,32 @@
 		<div class="show-graph-div d-flex justify-content-center align-items-center" style="text-align: center;">
 			{{ macros.preprocess_options(objExp=True, outlierDefault='Op1') }}
 			<button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
-					onClick="sankeyTraceData();" class="btn btn-primary show-graph ml-3"><i
-				class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+					onclick="sankeyTraceData(true);" class="btn btn-primary show-graph ml-3"
+                    title="Shortcut key: Ctrl+Enter">
+                <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
 			{{ macros.export_gui() }}
 		</div>
 		<br>
 	</form>
+	{{ macros.cat_label_filter_modal() }}
+	{{ macros.jump_modal() }}
 </div>
 
 <div id="plot-card" class="plot-content" style="margin-top: 1rem; display: none;">
-    <div class="mb-2">
+    <div class="mb-2 d-flex">
         {{ macros.info_i_mark() }}
+		{{ macros.on_demand_filter() }}
+		{{ macros.jump_button() }}
+
     </div>
     <div class="card chart-wrapper">
         <div class="row dark-bg main-chart m-0">
-            <div class="col-4">
+            <div class="col-4 pr-0">
                 <div>
                     <div id="barContainer" class="graph-container"></div>
                 </div>
             </div>
-            <div class="col-8">
+            <div class="col-8 pl-0">
                 <div>
                     <div id="graphContainer" class="graph-container"></div>
                 </div>

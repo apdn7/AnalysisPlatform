@@ -60,7 +60,7 @@ const genHistogramTrace = (plotData, scaleOption) => {
     return [traces, fmt];
 };
 
-const genHistogramLayout = (xrange = false, yrange = false, fmt) => {
+const genHistogramLayout = (xrange = false, yrange = false, fmt, isLargeOfSensors=false, chartLabel='') => {
     const styleLayout = {
         font: {
             size: 11,
@@ -68,10 +68,10 @@ const genHistogramLayout = (xrange = false, yrange = false, fmt) => {
         },
         showlegend: false,
         margin: {
-            l: 40,
-            r: 15,
-            b: 20,
-            t: 25,
+            l: 7,
+            r: 10,
+            b: 5,
+            t: 10,
             // pad: 5,
         },
         hovermode: 'closest',
@@ -79,6 +79,7 @@ const genHistogramLayout = (xrange = false, yrange = false, fmt) => {
         plot_bgcolor: '#222222',
         paper_bgcolor: '#222222',
         xaxis: {
+            showticklabels: !isLargeOfSensors,
             showgrid: true,
             gridcolor: '#303030',
             autotick: true,
@@ -89,6 +90,7 @@ const genHistogramLayout = (xrange = false, yrange = false, fmt) => {
             tickformat: fmt.includes('e') ? '.1e' : '',
         },
         yaxis: {
+            showticklabels: !isLargeOfSensors,
             showgrid: true,
             gridcolor: '#303030',
             autotick: true,
@@ -99,12 +101,30 @@ const genHistogramLayout = (xrange = false, yrange = false, fmt) => {
             },
             rangemode: 'tozero',
         },
+        bargroupgap: 0.1,
     };
     if (xrange) {
         styleLayout.xaxis.range = xrange;
     }
     if (yrange) {
         styleLayout.yaxis.range = yrange;
+    }
+    if (!isLargeOfSensors) {
+        styleLayout.title = {
+            text: chartLabel,
+            font: {
+                size: 11,
+                color: '#65c5f1',
+            },
+            xref: 'paper',
+            x: 0.5,
+        };
+        styleLayout.margin = {
+            l: 40,
+            r: 15,
+            b: 20,
+            t: 25,
+        };
     }
     return styleLayout;
 };
@@ -119,84 +139,4 @@ const addHistogramThresholds = (layout, maxHistNum, histLabels, xThreshold) => {
     }
 
     return layout;
-
-    // draw line annotation
-    // if (!isEmpty(procThresholds.xMin)) {
-    //     const procMinBin = binarySearch(histLabels, procThresholds.xMin, ((x, y) => x - y));
-    //     if (histLabels.length > procMinBin + 1) {
-    //         layout.shapes.push({
-    //             type: 'line',
-    //             xref: 'x',
-    //             yref: 'y',
-    //             x0: procThresholds.xMin,
-    //             y0: 0,
-    //             x1: procThresholds.xMin,
-    //             y1: maxHistNum,
-    //             line: {
-    //                 color: CONST.BLUE,
-    //                 width: 0.75,
-    //             },
-    //         });
-    //     }
-    // }
-    //
-    // if (!isEmpty(procThresholds.xMax)) {
-    //     const procMaxBin = binarySearch(histLabels, procThresholds.xMax, ((x, y) => x - y));
-    //     if (histLabels.length > procMaxBin + 1) {
-    //         layout.shapes.push({
-    //             type: 'line',
-    //             xref: 'x',
-    //             yref: 'y',
-    //             x0: procThresholds.xMax,
-    //             y0: 0,
-    //             x1: procThresholds.xMax,
-    //             y1: maxHistNum,
-    //             line: {
-    //                 color: CONST.BLUE,
-    //                 width: 0.75,
-    //             },
-    //         });
-    //     }
-    // }
-    //
-    // // // draw line annotation
-    // if (!isEmpty(uclThresholds.xMin)) {
-    //     const uclMinBin = binarySearch(histLabels, uclThresholds.xMin, ((x, y) => x - y));
-    //     if (histLabels.length > uclMinBin + 1) {
-    //         layout.shapes.push({
-    //             type: 'line',
-    //             xref: 'x',
-    //             yref: 'y',
-    //             x0: uclThresholds.xMin,
-    //             y0: 0,
-    //             x1: uclThresholds.xMin,
-    //             y1: maxHistNum,
-    //             line: {
-    //                 color: CONST.RED,
-    //                 width: 0.75,
-    //             },
-    //         });
-    //     }
-    // }
-    //
-    // if (!isEmpty(uclThresholds.xMax)) {
-    //     const uclMaxBin = binarySearch(histLabels, uclThresholds.xMax, ((x, y) => x - y));
-    //     if (histLabels.length > uclMaxBin + 1) {
-    //         layout.shapes.push({
-    //             type: 'line',
-    //             xref: 'x',
-    //             yref: 'y',
-    //             x0: uclThresholds.xMax,
-    //             y0: 0,
-    //             x1: uclThresholds.xMax,
-    //             y1: maxHistNum,
-    //             line: {
-    //                 color: CONST.RED,
-    //                 width: 0.75,
-    //             },
-    //         });
-    //     }
-    // }
-    //
-    // return layout;
 };

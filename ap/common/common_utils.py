@@ -1,35 +1,58 @@
 import copy
 import csv
 import fnmatch
+import functools
 import json
 import locale
 import os
 import pickle
 import re
 import shutil
+import socket
 import sys
+import zipfile
 from collections import OrderedDict
 from datetime import datetime, timedelta
-from itertools import islice, chain, permutations
+from io import IOBase
+from itertools import chain, islice, permutations
+from pathlib import Path
+from typing import IO, List, Optional, TextIO, Union
 
 import chardet
 import numpy as np
 import pandas as pd
 import pyper
+
 # from charset_normalizer import detect
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 from flask import g
-from flask_assets import Environment, Bundle
+from flask_assets import Bundle, Environment
 from pandas import DataFrame
 
-from ap.common.constants import AbsPath, DataType, YAML_AUTO_INCREMENT_COL, CsvDelimiter, R_PORTABLE, \
-    SQL_COL_PREFIX, FilterFunc, ENCODING_ASCII, ENCODING_UTF_8, FlaskGKey, LANGUAGES, ENCODING_SHIFT_JIS, \
-    ENCODING_UTF_8_BOM, appENV
-from ap.common.logger import logger, log_execution_time
+from ap.common.constants import (
+    ENCODING_ASCII,
+    ENCODING_SHIFT_JIS,
+    ENCODING_UTF_8,
+    ENCODING_UTF_8_BOM,
+    LANGUAGES,
+    R_PORTABLE,
+    SAFARI_SUPPORT_VER,
+    SQL_COL_PREFIX,
+    YAML_AUTO_INCREMENT_COL,
+    AbsPath,
+    AppEnv,
+    CsvDelimiter,
+    DataType,
+    FilterFunc,
+    FlaskGKey,
+)
+from ap.common.logger import log_execution_time, logger
 from ap.common.services.normalization import unicode_normalize_nfkc
 
 INCLUDES = ['*.csv', '*.tsv']
+TXT_FILE_TYPE = '.txt'
+DATE_FORMAT_STR_SQLITE = '%Y-%m-%dT%H:%M:%S.%fZ'
 DATE_FORMAT_STR = '%Y-%m-%dT%H:%M:%S.%fZ'
 DATE_FORMAT_QUERY = '%Y-%m-%dT%H:%M:%S.%f'
 DATE_FORMAT_STR_CSV = '%Y-%m-%d %H:%M:%S.%f'
@@ -41,17 +64,10 @@ TIME_FORMAT = '%H:%M'
 RL_DATETIME_FORMAT = '%Y-%m-%dT%H:%M'
 DATE_FORMAT_SIMPLE = '%Y-%m-%d %H:%M:%S'
 DATE_FORMAT_FOR_ONE_HOUR = '%Y-%m-%d %H:00:00'
+API_DATETIME_FORMAT = '%Y-%m-%dT%H:%MZ'
 # for data count
-TERM_FORMAT = {
-    'year': '%Y',
-    'month': '%Y-%m',
-    'week': DATE_FORMAT
-}
-FREQ_FOR_RANGE = {
-    'year': 'M',
-    'month': 'D',
-    'week': 'H'
-}
+TERM_FORMAT = {'year': '%Y', 'month': '%Y-%m', 'week': DATE_FORMAT}
+FREQ_FOR_RANGE = {'year': 'M', 'month': 'D', 'week': 'H'}
 
 
 def get_current_timestamp(format_str=DATE_FORMAT_STR):
@@ -124,8 +140,12 @@ def get_columns_selected(histview_cfg, proc_cfg):
 
     # Get serial column
     if histview_cfg.get('serial-column'):
-        serial_cols = list(map(lambda x: re.sub(r'(["*\/\'\s]+)', '', re.split(' as ', x)[0]),
-                               histview_cfg['serial-column']))
+        serial_cols = list(
+            map(
+                lambda x: re.sub(r'(["*\/\'\s]+)', '', re.split(' as ', x)[0]),
+                histview_cfg['serial-column'],
+            )
+        )
 
     # Get serial column
     auto_increment_col = histview_cfg.get(YAML_AUTO_INCREMENT_COL)
@@ -152,17 +172,19 @@ def get_columns_selected(histview_cfg, proc_cfg):
         is_serial = True if (value in serial_cols) else False
         is_auto_increment = value == auto_increment_col
 
-        result.append({
-            'master_name': master_name,
-            'column_name': column_name,
-            'alias': alias,
-            'operator': operator,
-            'coef': coef,
-            'is_datetime': is_datetime,
-            'is_serial': is_serial,
-            'is_auto_increment': is_auto_increment,
-            'data_type': data_type
-        })
+        result.append(
+            {
+                'master_name': master_name,
+                'column_name': column_name,
+                'alias': alias,
+                'operator': operator,
+                'coef': coef,
+                'is_datetime': is_datetime,
+                'is_serial': is_serial,
+                'is_auto_increment': is_auto_increment,
+                'data_type': data_type,
+            }
+        )
     return result
 
 
@@ -220,14 +242,80 @@ def get_latest_file(root_name):
         return ''
 
 
-def get_sorted_files(root_name):
+def get_sorted_files(root_name, is_allow_zip: bool = True) -> List[str]:
     try:
-        latest_files = get_files(root_name, depth_from=1, depth_to=100, extension=['csv', 'tsv'])
+        extension = ['csv', 'tsv', 'zip'] if is_allow_zip else ['csv', 'tsv']
+        latest_files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
         latest_files = [file_path.replace(os.sep, '/') for file_path in latest_files]
         latest_files.sort(reverse=True)
         return latest_files
     except Exception:
         return []
+
+
+@log_execution_time()
+def is_normal_zip(f_name: Union[str, Path]) -> bool:
+    return Path(f_name).suffix == '.zip'
+
+
+def get_largest_files_in_list(files: List[str]) -> List[str]:
+    sorted_files = sorted(files, key=lambda x: os.path.getsize(x))
+    sorted_files.reverse()
+    return sorted_files
+
+
+def get_sorted_files_in_list(files: List[str]) -> List[str]:
+    sorted_files = sorted(files, key=lambda x: (os.path.getsize(x), os.path.getctime(x)))
+    sorted_files.reverse()
+    return sorted_files
+
+
+def get_sorted_files_by_size(root_name: str, is_allow_zip: bool = True) -> List[str]:
+    try:
+        extension = ['csv', 'tsv', 'zip'] if is_allow_zip else ['csv', 'tsv']
+        files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
+        largest_files = get_largest_files_in_list(files)
+        return largest_files
+    except FileNotFoundError:
+        return []
+
+
+def get_sorted_files_by_size_and_time(root_name: str, is_allow_zip: bool = True) -> List[str]:
+    try:
+        extension = ['csv', 'tsv', 'zip'] if is_allow_zip else ['csv', 'tsv']
+        files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
+        largest_files = get_sorted_files_in_list(files)
+        return largest_files
+    except FileNotFoundError:
+        return []
+
+
+def get_latest_files(root_name: Union[Path, str]) -> List[str]:
+    try:
+        files = get_files(
+            str(root_name), depth_from=1, depth_to=100, extension=['csv', 'tsv', 'zip']
+        )
+        files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
+        files = [f.replace(os.sep, '/') for f in files]
+        return files
+    except FileNotFoundError:
+        return []
+
+
+@log_execution_time()
+def get_maximum_file_in_zip(file: str) -> Optional[str]:
+    if not is_normal_zip(file):
+        return file
+    with zipfile.ZipFile(file) as zf:
+        largest_file = None
+        for zfile in zf.filelist:
+            if largest_file is None:
+                largest_file = zfile
+            else:
+                largest_file = zfile if zfile.file_size > largest_file.file_size else largest_file
+        if largest_file is None:
+            return None
+        return largest_file.filename
 
 
 def start_of_minute(start_date, start_tm, delimeter='T'):
@@ -266,7 +354,7 @@ def _clear_special_char(target_str):
         return target_str
 
     output = target_str
-    for s in ('\"', '\'', '*'):
+    for s in ('"', "'", '*'):
         output = output.replace(s, '')
 
     return output
@@ -282,7 +370,13 @@ def universal_db_exists():
 
 
 # convert time before save to database YYYY-mm-DDTHH:MM:SS.NNNNNNZ
-def convert_time(time=None, format_str=DATE_FORMAT_STR, return_string=True, only_milisecond=False, remove_ms=False):
+def convert_time(
+    time=None,
+    format_str=DATE_FORMAT_STR,
+    return_string=True,
+    only_milisecond=False,
+    remove_ms=False,
+):
     if not time:
         time = datetime.utcnow()
     elif isinstance(time, str):
@@ -359,6 +453,7 @@ def add_years(time=datetime.utcnow(), years=0):
     return time + relativedelta(years=years)
 
 
+@log_execution_time()
 def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_only=False):
     """get files in folder
 
@@ -377,7 +472,7 @@ def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_onl
         return output_files
 
     if not check_exist(directory):
-        raise Exception('Folder not found!')
+        raise FileNotFoundError('Folder not found!')
 
     root_depth = directory.count(os.path.sep)
     for root, dirs, files in os.walk(directory):
@@ -412,13 +507,13 @@ def add_double_quotes(instr: str):
     if not instr:
         return instr
 
-    instr = instr.strip('\"')
+    instr = instr.strip('"')
 
     return f'"{instr}"'
 
 
 def guess_data_types(instr: str):
-    """ guess data type of all kind of databases to 4 type (INTEGER,REAL,DATETIME,TEXT)
+    """guess data type of all kind of databases to 4 type (INTEGER,REAL,DATETIME,TEXT)
 
     Arguments:
         instr {str} -- [description]
@@ -446,7 +541,7 @@ def guess_data_types(instr: str):
 
 
 def resource_path(*relative_path, level=None):
-    """ make absolute path
+    """make absolute path
 
     Keyword Arguments:
         level {int} -- [0: auto, 1: user can see folder, 2: user can not see folder(MEIPASS)] (default: {0})
@@ -496,7 +591,7 @@ class RUtils:
         self.r(f'source("{self.source}")')
 
     def __call__(self, func, *args, _number_of_recheck_r_output=1000, **kwargs) -> object:
-        """ call funtion with parameters
+        """call funtion with parameters
 
         Arguments:
             func {[string]} -- R function name
@@ -761,13 +856,19 @@ def df_chunks(df, size):
         return df
 
     for i in range(0, df.shape[0], size):
-        yield df.iloc[i:i + size]
+        yield df.iloc[i : i + size]
+
+
+def chunk_two_list(lst1, lst2, size):
+    """Yield n-sized chunks from lst."""
+    for i in range(0, len(lst1), size):
+        yield lst1[i : i + size], lst2[i : i + size]
 
 
 def chunks(lst, size):
     """Yield n-sized chunks from lst."""
     for i in range(0, len(lst), size):
-        yield lst[i:i + size]
+        yield lst[i : i + size]
 
 
 def chunks_dic(data, size):
@@ -793,12 +894,12 @@ def get_basename(path):
 
 
 def get_datetime_without_timezone(time):
-    """ remove timezone string from time
+    """remove timezone string from time
 
     Args:
         time ([type]): [description]
     """
-    regex_str = r"(\d{4}[-\/]\d{2}[-\/]\d{2}\s\d{2}:\d{2}:\d{2}(.\d{1,6})?)"
+    regex_str = r'(\d{4}[-\/]\d{2}[-\/]\d{2}\s\d{2}:\d{2}:\d{2}(.\d{1,6})?)'
     res = re.search(regex_str, time)
     if res:
         return convert_time(res.group())
@@ -849,7 +950,9 @@ def set_sqlite_params(conn):
 
 
 def gen_sql_label(*args):
-    return SQL_COL_PREFIX + SQL_COL_PREFIX.join([str(name).strip(SQL_COL_PREFIX) for name in args if name is not None])
+    return SQL_COL_PREFIX + SQL_COL_PREFIX.join(
+        [str(name).strip(SQL_COL_PREFIX) for name in args if name is not None]
+    )
 
 
 def gen_sql_like_value(val, func: FilterFunc, position=None):
@@ -989,15 +1092,47 @@ def detect_encoding_from_list(data):
         return locale.getpreferredencoding(False)
 
 
-def detect_encoding(f_name, read_line=10000):
-    with open(f_name, 'rb') as f:
-        if read_line:
-            data = f.read(read_line)
-        else:
-            data = f.read()
+def detect_encoding(f_name, read_line=200):
+    if isinstance(f_name, IOBase):
+        return detect_encoding_stream(f_name, read_line)
+    if isinstance(f_name, str):
+        return detect_encoding_file_name(f_name, read_line)
+    return None
+
+
+@log_execution_time()
+def detect_encoding_stream(file_stream, read_line=10000):
+    if read_line:
+        data = functools.reduce(
+            lambda x, y: x + y,
+            (file_stream.readline() for _ in range(read_line)),
+        )
+    else:
+        data = file_stream.read()
+
+    if isinstance(data, str):  # default is string, zip file is byte
+        data = data.encode()
 
     encoding = chardet.detect(data).get('encoding')
-    if not encoding:
+    encoding = check_detected_encoding(encoding, data)
+
+    file_stream.seek(0)
+    return encoding
+
+
+@log_execution_time()
+def detect_encoding_file_name(f_name, read_line=10000):
+    with open_with_zip(f_name, 'rb') as f:
+        return detect_encoding_stream(f, read_line)
+
+
+def check_detected_encoding(encoding, data):
+    if encoding:
+        try:
+            data.decode(encoding)
+        except:
+            encoding = detect_encoding_from_list(data)
+    else:
         encoding = detect_encoding_from_list(data)
 
     if encoding == ENCODING_ASCII:
@@ -1020,7 +1155,7 @@ def replace_str_in_file(file_name, search_str, replace_to_str):
     with open(file_name, encoding=encoding) as f:
         replaced_text = f.read().replace(search_str, replace_to_str)
 
-    with open(file_name, "w", encoding=encoding) as f_out:
+    with open(file_name, 'w', encoding=encoding) as f_out:
         f_out.write(replaced_text)
 
 
@@ -1038,13 +1173,14 @@ def gen_abbr_name(name, len_of_col_name=10):
     suffix = '...'
     short_name = str(name)
     if len(short_name) > len_of_col_name:
-        short_name = name[:len_of_col_name - len(suffix)] + suffix
+        short_name = name[: len_of_col_name - len(suffix)] + suffix
 
     return short_name
 
 
 # def remove_inf(series):
 #     return series[~series.isin([float('inf'), float('-inf')])]
+
 
 def read_pickle_file(file):
     with open(file, 'rb') as f:
@@ -1080,11 +1216,15 @@ def get_debug_data(key):
 
 @log_execution_time()
 def zero_variance(df: DataFrame):
+    is_zero_var = False
+    err_cols = []
     for col in df.columns:
-        variance = df[col].var()
-        if pd.isna(variance) or variance == 0:
-            return True
-    return False
+        if df[col].dtype != 'object':
+            variance = df[col].replace([np.inf, -np.inf], np.nan).var()
+            if pd.isna(variance) or variance == 0:
+                is_zero_var = True
+                err_cols.append(col)
+    return is_zero_var, err_cols
 
 
 @log_execution_time()
@@ -1125,7 +1265,7 @@ def bundle_assets(_app):
         _assets = json.load(f)
 
     assets = Environment(_app)
-    if env != appENV.PRODUCTION.value:
+    if env != AppEnv.PRODUCTION.value:
         assets.debug = True
 
     for page in _assets.keys():
@@ -1133,16 +1273,104 @@ def bundle_assets(_app):
         css_assets = _assets[page].get('css') or []
         js_asset_name = f'js_{page}'
         css_asset_name = f'css_{page}'
-        if env != appENV.PRODUCTION.value:
+        if env != AppEnv.PRODUCTION.value:
             assets.register(js_asset_name, *js_assets)
             assets.register(css_asset_name, *css_assets)
         else:
-            js_bundle = Bundle(*js_assets,
-                               output=f'common/js/{page}.packed.js')
-            css_bundle = Bundle(*css_assets,
-                                output=f'common/css/{page}.packed.css')
+            js_bundle = Bundle(*js_assets, output=f'common/js/{page}.packed.js')
+            css_bundle = Bundle(*css_assets, output=f'common/css/{page}.packed.css')
             assets.register(js_asset_name, js_bundle)
             assets.register(css_asset_name, css_bundle)
             # build assets
             js_bundle.build()
             css_bundle.build()
+
+
+def open_with_zip(file_name, mode, encoding=None) -> Union[IO[bytes], TextIO]:
+    """
+    :param file_name:
+    :param mode:
+    :param encoding: not for zip file
+    :return:
+    """
+    if str(file_name).endswith('.zip'):
+        zip_mode = 'w' if 'w' in mode else 'r'
+        zf = zipfile.ZipFile(file_name)
+
+        assert len(zf.namelist()) == 1, "We currently don't support multiple zip file"
+        return zf.open(zf.namelist()[0], zip_mode)
+    else:
+        return open(file_name, mode, encoding=encoding)
+
+
+def get_hostname():
+    hostname = socket.gethostname()
+    return hostname
+
+
+@log_execution_time()
+def get_ip_address():
+    hostname = get_hostname()
+    ip_addr = socket.gethostbyname(hostname)
+
+    return ip_addr
+
+
+def check_client_browser(client_request):
+    is_valid_browser = False
+    is_valid_version = True
+    safari_support_version = str(SAFARI_SUPPORT_VER).split('.')  # >= ver15.4
+
+    request_env = client_request.headers.environ
+    http_ch_ua = request_env.get('HTTP_SEC_CH_UA') if request_env else None
+    http_user_agent = (
+        request_env.get('HTTP_USER_AGENT') if request_env else client_request.user_agent
+    )
+
+    # Windows
+    if http_ch_ua:
+        if 'Google Chrome' in http_ch_ua or 'Microsoft Edge' in http_ch_ua:
+            is_valid_browser = True
+            is_valid_version = True
+
+        return is_valid_browser, is_valid_version
+
+    # iOS
+    if http_user_agent:
+        if 'Edg' in http_user_agent:
+            is_valid_browser = True
+
+        if 'Safari' in http_user_agent:
+            is_valid_browser = True
+            user_agents = http_user_agent.split('Version/')
+            if len(user_agents) == 1:
+                # chrome in ios
+                return is_valid_browser, is_valid_version
+
+            [safari_version, _] = user_agents[1].split(' Safari/')
+            if safari_version:
+                versions = safari_version.split('.')
+                v1 = versions[0]
+                v2 = 0
+                if len(versions) > 1:
+                    v2 = versions[1]
+
+                is_valid_version = (int(v1) > int(safari_support_version[0])) or (
+                    int(v1) == int(safari_support_version[0])
+                    and int(v2) >= int(safari_support_version[1])
+                )
+
+    return is_valid_browser, is_valid_version
+
+
+class DictToClass:
+    # TODO: clear updated_at , created_at to reduce memory
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+        for key, value in self.__dict__.items():
+            if isinstance(value, (list, tuple)):
+                self.__dict__[key] = [
+                    DictToClass(**val) if isinstance(val, dict) else val for val in value
+                ]
+            elif isinstance(value, dict):
+                self.__dict__[key] = DictToClass(**value)

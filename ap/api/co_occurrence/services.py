@@ -12,10 +12,10 @@ from ap.common.trace_data_log import *
 from ap.common.yaml_utils import YamlConfig
 
 dic_colors = {
-    "bar_highlight": "#729e44",  # green, same as other charts
-    "bar_normal": "#8d8b8b",
-    "line_80": "#a9a9a9",
-    "chart_title": "#3385b7",  # blue, same as other charts
+    'bar_highlight': '#729e44',  # green, same as other charts
+    'bar_normal': '#8d8b8b',
+    'line_80': '#a9a9a9',
+    'chart_title': '#3385b7',  # blue, same as other charts
 }
 
 
@@ -88,7 +88,7 @@ def calc_csv_graph_data(df: DataFrame, aggregate_by: AggregateBy, pareto=None):
     nodes_cum_rate_80 = YamlConfig.get_node(pareto, ['bar', 'highlight_bars'], set()) or set()
     nodes = []
     for key, val in df_sum.sum().to_dict().items():
-        color = dic_colors["bar_highlight"] if key in nodes_cum_rate_80 else ''
+        color = dic_colors['bar_highlight'] if key in nodes_cum_rate_80 else ''
         nodes.append(dict(id=key, label=key, size=int(val), color=color))
 
     edges = []
@@ -131,6 +131,7 @@ def gen_random_coordinate(nodes):
     if not nodes:
         return []
     import random
+
     for idx, node in enumerate(nodes):
         node['x'] = random.randint(1, 5)
         node['y'] = random.randint(1, 5)
@@ -148,29 +149,38 @@ def filter_edge_by_threshold(edges, threshold=100):
 
 @notify_progress(30)
 @abort_process_handler()
+@trace_log(
+    (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
+    (EventType.COG, EventAction.PLOT, Target.GRAPH),
+    send_ga=True,
+)
 def calc_pareto(df: pd.DataFrame):
     drop_col = df.columns.values[0]
 
     # ----- summarize -----
     # sort with descending order and take cumsum for pareto chart
-    total_occurrences = df.drop(drop_col, axis="columns").sum(axis="index").sort_values(ascending=False)
+    total_occurrences = (
+        df.drop(drop_col, axis='columns').sum(axis='index').sort_values(ascending=False)
+    )
     cum_occurrences_ratio = total_occurrences.cumsum() / total_occurrences.sum()
     alarm_names = total_occurrences.index.values
-    print("alarm names: ", alarm_names[:5], "...")
-    print("total number of alarms: ", total_occurrences.values[:5], "...")
-    print("cumulative ratio of number of alarms [%]: ", cum_occurrences_ratio.values[:5], "...")
+    print('alarm names: ', alarm_names[:5], '...')
+    print('total number of alarms: ', total_occurrences.values[:5], '...')
+    print('cumulative ratio of number of alarms [%]: ', cum_occurrences_ratio.values[:5], '...')
 
     # change color of bar (highlight cumulative ratio <= 80%)
     # note that this list is not in the original column order.
     # bar_colors = [dic_colors["bar_highlight"] if x <= 0.8 else dic_colors["bar_normal"] for x in cum_occurrences_ratio]
     highlight_bars = set()
     bar_colors = []
-    for alarm_name, cum_ratio_value in list(zip(cum_occurrences_ratio.index, cum_occurrences_ratio)):
+    for alarm_name, cum_ratio_value in list(
+        zip(cum_occurrences_ratio.index, cum_occurrences_ratio)
+    ):
         if cum_ratio_value <= 0.8:
-            color = dic_colors["bar_highlight"]
+            color = dic_colors['bar_highlight']
             highlight_bars.add(alarm_name)
         else:
-            color = dic_colors["bar_normal"]
+            color = dic_colors['bar_normal']
         bar_colors.append(color)
 
     return {
@@ -179,7 +189,7 @@ def calc_pareto(df: pd.DataFrame):
             'y': alarm_names,
             'x': total_occurrences,
             'name': _('Total Occurrences'),
-            'orientation': "h",
+            'orientation': 'h',
             'marker_color': bar_colors,
             'text': total_occurrences.values,
             'highlight_bars': highlight_bars,
@@ -192,8 +202,8 @@ def calc_pareto(df: pd.DataFrame):
         },
         'line_80_percent': {
             'x': np.repeat(0.8, len(alarm_names)) * total_occurrences.max(),
-            'name': "80 [%]",
-            'marker_color': dic_colors["line_80"],
-            'mode': "lines",
-        }
+            'name': '80 [%]',
+            'marker_color': dic_colors['line_80'],
+            'mode': 'lines',
+        },
     }

@@ -19,6 +19,10 @@ const graphStore = new GraphStore();
 const loading = $('.loading');
 const MAX_INT_LABEL_SIZE = 128;
 const MAX_CAT_LABEL = 32;
+// let dimOrderingFromODF;
+let latestDimensionInChart;
+let changeVariableOnly = false;
+let needUpdateDimColor = false;
 
 const formElements = {
     formID: '#traceDataForm',
@@ -28,7 +32,8 @@ const formElements = {
     radioRecentInterval: $('#radioRecentInterval'),
     traceTimeOptions: $('input:radio[name="traceTime"]'),
     endProcItems: '#end-proc-row .end-proc',
-    endProcSelectedItem: '#end-proc-paracords-real-row select',
+    endProcSelectedItem: '#end-proc-row select',
+    endProcCateSelectedItem: '#end-proc-cate-row select',
     condProcReg: /cond_proc/g,
     i18nAllSelection: $('#i18nAllSelection').text(),
     i18nNoFilter: $('#i18nNoFilter').text(),
@@ -67,6 +72,7 @@ const paracordsSetting = {
         REAL: 'real',
         CATEGORY: 'category',
         NUMBER: 'number',
+        CATEGORIZED: 'categorized_real'
     },
     corrOrdering: {
         orderBy: ['correlation', 'top'],
@@ -95,8 +101,17 @@ $(() => {
     const endProcs = genProcessDropdownData(procConfigs);
 
     // add first end process
-    const endProcRealItem = addEndProc(endProcs.ids, endProcs.names, true, true);
-    endProcRealItem();
+     // add first end process
+    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
+        showDataType: true,
+        showStrColumn: true,
+        isRequired: true,
+        showObjective: true,
+        hideCTCol: true,
+        showLabels: true,
+        labelAsFilter: true,
+    });
+    endProcItem();
 
     // add first condition process
     const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
@@ -104,12 +119,14 @@ $(() => {
 
     // click even of condition proc add button
     $(formElements.btnAddCondProc).click(() => {
-        condProcItem();
+         condProcItem();
+         updateSelectedItems();
+         addAttributeToElement();
     });
 
     // click even of end proc add button
-    $('#btn-add-end-proc-paracords-real').click(() => {
-        endProcRealItem();
+    $('#btn-add-end-proc').click(() => {
+        endProcItem();
         updateSelectedItems();
         addAttributeToElement();
     });
@@ -128,15 +145,6 @@ $(() => {
     $('.context-menu').mouseleave((e) => {
         hideMenu();
     });
-
-    // $('.menu-item').mouseleave((e) => {
-    //     hideMenu();
-    // });
-
-    // formElements.isRemoveOutlier.on('change', () => {
-    //     removeOutlierOptionChanged = true;
-    //     removeOutliers = Number(formElements.isRemoveOutlier.val());
-    // });
 
     // validation
     initValidation(formElements.formID);
@@ -221,67 +229,6 @@ const addEndProc = (procIds, procVals, realSensor = true, isRequired = false) =>
     return innerFunc;
 };
 
-// add End Process children components ( line, machine , partno)
-// todo: refactoring to use common func
-const endProcOnChange = async (count, sensorType, isRequired) => {
-    const selectedProc = $(`#end-proc-${sensorType}-${count}`).val();
-    const procInfo = procConfigs[selectedProc];
-
-    // remove old elements
-    $(`#end-proc-val-${sensorType}-${count}`).remove();
-    if (procInfo == null) {
-        updateSelectedItems();
-        return;
-    }
-    const ids = [];
-    const vals = [];
-    const names = [];
-    const checkedIds = [];
-    const dataTypes = [];
-    await procInfo.updateColumns();
-    const columns = procInfo.getColumns();
-
-    // check if need get default checked columns from local storage
-    const parentId = `end-proc-val-div-${sensorType}-${count}`;
-    
-    const dataTypeTargets = CfgProcess_CONST.NUMERIC_AND_STR_TYPES;
-    // eslint-disable-next-line no-restricted-syntax
-    for (const col of columns) {
-        if (dataTypeTargets.includes(col.data_type)) {
-            ids.push(col.id);
-            vals.push(col.column_name);
-            names.push(col.name);
-            // checkedIds.push(col.id);
-            dataTypes.push(col.data_type);
-        }
-    }
-
-    // load machine multi checkbox to Condition Proc.
-    if (ids) {
-        addGroupListCheckboxWithSearch(
-            parentId,
-            `end-proc-val-${sensorType}-${count}`,
-            '',
-            ids,
-            vals,
-            {
-                checkedIds,
-                name: `GET02_VALS_SELECT${count}`,
-                itemNames: names,
-                itemDataTypes: dataTypes,
-                isRequired,
-                showObjectiveInput: true
-            }
-        );
-    }
-
-    // disable selected procs or enable unselected procs
-    updateSelectedItems();
-    onchangeRequiredInput();
-    setProcessID();
-};
-
-
 const parallelTraceDataWithDBChecking = (action = 'TRACE-DATA', clearOnFlyFilter = false) => {
     requestStartedAt = performance.now();
     if (clearOnFlyFilter) {
@@ -300,7 +247,7 @@ const parallelTraceDataWithDBChecking = (action = 'TRACE-DATA', clearOnFlyFilter
 
     if (action === 'TRACE-DATA') {
         // parallelTraceData();
-        showParallelGraph(clearOnFlyFilter);
+        showParallelGraph(clearOnFlyFilter, isDirectFromJumpFunction);
     }
 };
 
@@ -360,10 +307,11 @@ const mergeTargetProc = (formData) => {
     return formData;
 };
 
-const resetSetting = () => {
+const resetSetting = (isRedirectFromJump=false) => {
     // reset setting variables
     $("select[name='show-var']").val('all');
-    $("input[name='sort_by'][value='correlation']").prop('checked', true);
+    const orderValue = isRedirectFromJump ? 'setting' : 'correlation';
+    $(`input[name='sort_by'][value=${orderValue}]`).prop('checked', true);
 };
 
 const clearTargetTmp = () => {
@@ -404,7 +352,7 @@ const collectFormDataPCP = (clearOnFlyFilter) => {
     return formData;
 };
 
-const showParallelGraph = (clearOnFlyFilter = false) => {
+const showParallelGraph = (clearOnFlyFilter = false, isRedirectFromJump=false) => {
     const formData = collectFormDataPCP(clearOnFlyFilter);
 
     showGraphCallApi('/ap/api/pcp/index', formData, REQUEST_TIMEOUT, async (res) => {
@@ -421,27 +369,20 @@ const showParallelGraph = (clearOnFlyFilter = false) => {
 
         // reset setting variables
         if (clearOnFlyFilter) {
-            resetSetting();
+            resetSetting(isRedirectFromJump);
         }
 
         const sensorTypes = getSensorTypes(res.array_plotdata);
         // set sensor type default
         $('select[name=show-var]').val(sensorTypes);
-        let defaultShowOrder = paracordsSetting.orderOptions.correlation;
+        let defaultShowOrder = isRedirectFromJump ?
+            paracordsSetting.orderOptions.setting :
+            paracordsSetting.orderOptions.correlation;
         // set order default value for paracat only
         if (sensorTypes === paracordsSetting.showVariables.CATEGORY) {
             defaultShowOrder = paracordsSetting.orderOptions.process;
         }
-        showParacords(res, sensorTypes, clearOnFlyFilter, defaultShowOrder);
-        loadGraphSetings(clearOnFlyFilter);
-
-        if (clearOnFlyFilter) {
-            clearGlobalDict();
-            initGlobalDict(res.category_data);
-            initGlobalDict(res.cat_on_demand);
-            initDicChecked(getDicChecked());
-            initUniquePairList(res.dic_filter);
-        }
+        showParacords(res, isRedirectFromJump, sensorTypes, clearOnFlyFilter, defaultShowOrder);
 
         // show info table
         showInfoTable(res);
@@ -550,6 +491,7 @@ const handleSelectMenuItem = (e, updatePosition=false) => {
             [, objectVar] = getObjectiveDim(true);
             showParacords(
                 paracordTraces,
+                false,
                 settings.showVariable,
                 false,
                 settings.showOrder,
@@ -563,8 +505,9 @@ const handleSelectMenuItem = (e, updatePosition=false) => {
         } else {
             showParacords(
                 paracordTraces,
-                settings.showVariable,
                 false,
+                settings.showVariable,
+                true,
                 settings.showOrder,
                 settings.showOrderFrom,
                 objectVar,
@@ -585,6 +528,7 @@ const callBackendAPI = async (filter) => {
     showGraphCallApi('/ap/api/pcp/index', formData, REQUEST_TIMEOUT, async (res) => {
         paracordTraces = res;
         const settings = getSettingOptions();
+        needUpdateDimColor = true;
 
         // clear old target variables
         if (settings.showVariable === 'category') {
@@ -596,9 +540,11 @@ const callBackendAPI = async (filter) => {
         }
 
         if (paracordTraces) {
-            const [, dim] = targetDim;
+            const endDim = getDimOrderingFromODF();
+            const [, dim] = endDim || targetDim;
             showParacords(
                 paracordTraces,
+                false,
                 settings.showVariable,
                 filter,
                 settings.showOrder,
@@ -633,19 +579,12 @@ const showParacordWithSettings = async (filter = false) => {
     if (filter) {
         settings.showVariable = getSensorTypes(paracordTraces.array_plotdata);
     }
-    // clear old target variables
-    if (settings.showVariable === 'category') {
-        // clearTargetTmp();
-        const previousEndDim = getDPVFromLatestCatDim();
-        if (previousEndDim) {
-            updateTargetDim(previousEndDim);
-        }
-    }
 
     if (paracordTraces) {
         const [, dim] = targetDim;
         showParacords(
             paracordTraces,
+            false,
             settings.showVariable,
             filter,
             settings.showOrder,
@@ -658,24 +597,6 @@ const showParacordWithSettings = async (filter = false) => {
         );
         $('#updateParacords').addClass('hide');
     }
-};
-
-// convert dimension name to short name with ".."
-const shortDimName = (dimensionName, limitSize = 21) => {
-    // total length from name
-    let nameLength = 0;
-    let shortName = '';
-    for (const char of [...dimensionName]) {
-        nameLength += new Blob([char]).size;
-        if (nameLength > limitSize) {
-            break;
-        }
-        shortName += char;
-    }
-    if (nameLength >= limitSize) {
-        shortName += '...';
-    }
-    return shortName;
 };
 
 const changeObjectiveVar = (objectiveID) => {
@@ -706,12 +627,13 @@ const getEndCatDimFromChart = () => {
     return null;
 
 };
+
 const changeDimColor = (isParacat=false) => {
     const allDim = $('#paracord-plot g.y-axis');
     const lastDim = $(`#paracord-plot g.y-axis:eq(${allDim.length - 1})`);
-    const dpvID = lastDim.length ? lastDim.find('text.axis-title:eq(0)').data('dpv') : null;
+    // const dpvID = lastDim.length ? lastDim.find('text.axis-title:eq(0)').data('dpv') : null;
+    const dpvID = targetDim ? `${targetDim[0]}-${targetDim[1]}` : null;
     if (dpvID) {
-        // console.log(lastDim);
         const sameProcDim = $('#paracord-plot g.y-axis').find(`.axis-title[data-dpv^=${dpvID.split('-')[0]}]`);
         const tspanLabel = '.axis-title tspan.line>tspan';
         // reset all dim color
@@ -719,6 +641,7 @@ const changeDimColor = (isParacat=false) => {
         sameProcDim.find('tspan.line>tspan').css('fill', CONST.LIGHT_BLUE);
         // set target dim color
         lastDim.find(tspanLabel).css('fill', CONST.YELLOW);
+        updateTargetDim(dpvID);
     }
 
     // for category chart
@@ -729,20 +652,43 @@ const changeDimColor = (isParacat=false) => {
 
         const endDim = getEndCatDimFromChart();
         // assign blue for same process columns
-        const objectiveDPV = endDim ? endDim.data('dpv') : allCatDim.last().data('dpv');
-        const [processID,] = objectiveDPV.split('-');
-        allCatDim.filter((i, v) => $(v).data('dpv').split('-')[0] === processID)
-            .css('fill', CONST.LIGHT_BLUE);
-        if (endDim.length) {
-            endDim.css('fill', CONST.YELLOW);
-        } else {
-            allCatDim.last().css('fill', CONST.YELLOW);
+        const objectiveDPV = dpvID;
+        if (objectiveDPV) {
+            const [processID,] = objectiveDPV.split('-');
+            allCatDim.filter((i, v) => $(v).data('dpv') === objectiveDPV)
+                .css('fill', CONST.YELLOW);
+            allCatDim.filter((i, v) => $(v).data('dpv').split('-')[0] === processID && $(v).data('dpv') !== objectiveDPV)
+                .css('fill', CONST.LIGHT_BLUE);
+            if (needUpdateDimColor) {
+                if (endDim && endDim.length) {
+                    endDim.css('fill', CONST.YELLOW);
+                } else {
+                    allCatDim.last().css('fill', CONST.YELLOW);
+                }
+                updateTargetDim(objectiveDPV);
+            }
         }
     }
+    needUpdateDimColor = false;
 };
 
 const updateTargetDim = (targetDPV, changeColor=false) => {
     if (paracordTraces) {
+        // update on-demand-filter modal content
+        const dimPositions = getDimPositionFromGraph();
+        if (dimPositions && latestDimensionInChart) {
+            const {category} = paracordTraces.filter_on_demand;
+            const dimAfterUpdate = updateDimPosition(dimPositions);
+            const odfData = updateCategoryOrdering(category, dimAfterUpdate);
+            const filterData = {
+                ...paracordTraces.filter_on_demand,
+                category: odfData,
+            }
+            fillDataToFilterModal(filterData, () => {
+                showParacordWithSettings(true);
+            });
+        }
+
         const newTargetDPV = targetDPV.split('-').map(i => Number(i));
         clearTargetTmp();
         // re-assign target dimension information
@@ -755,11 +701,6 @@ const updateTargetDim = (targetDPV, changeColor=false) => {
         });
         if (changeColor) {
             changeDimColor();
-        }
-
-        if (targetDim) {
-            const objectiveID = targetDim[1] || null;
-            changeObjectiveVar(objectiveID);
         }
     }
 };
@@ -785,12 +726,15 @@ const getDPVFromLatestCatDim = () => {
 };
 
 // todo: merge parameters to props
-const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
+const showParacords = (dat, isRedirectFromJump=false, showVar = 'all', clearOnFlyFilter = false,
                        showOrder = paracordsSetting.orderOptions.correlation,
                        showOrderFrom = '0.7', objective = null,
                        maxDim = null, topDim = 8, isSortedByCorr = false,
                        useDefaultMaxCorr = true, explainVar=null) => {
     $('#paracord-plot').html('');
+    const isParacat = showVar==paracordsSetting.showVariables.CATEGORY ||
+        showVar==paracordsSetting.showVariables.CATEGORIZED;
+    const useCategorized = showVar==paracordsSetting.showVariables.CATEGORIZED;
     const objectVarID = objective || dat.COMMON.objectiveVar[0] || null;
     const plotDat = dat.array_plotdata;
     const startProcID = dat.COMMON.start_proc;
@@ -798,6 +742,7 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
     let data = {};
     const dPVar = [];
     const dNames = [];
+    const showFilterClass = 'show-detail click-only';
     // check showOrdering option
     // const orderBy = showOrder === CONST.CORR ? Number(showOrderFrom) : null;
     let orderBy = null;
@@ -812,6 +757,9 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
             const pcpDat = graphStore.getPCPArrayPlotDataByID(Number(objectVarID));
             if (!_.isEmpty(pcpDat)) {
                 targetSensorDat = pcpDat.data.array_y;
+                if (useCategorized && pcpDat.data.categorized_data.length) {
+                    targetSensorDat = pcpDat.data.categorized_data;
+                }
                 targetSensorIndex = pcpDat.key;
                 // targetSensorName = pcpDat.data.col_detail.name;
                 targetDim = [pcpDat.data.col_detail.proc_id, pcpDat.data.col_detail.id];
@@ -827,6 +775,9 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
                     && !isEmpty(arrayYDat)
                 ) {
                     targetSensorDat = plotData[i].array_y;
+                    if (useCategorized && plotData[i].categorized_data.length) {
+                        targetSensorDat = plotData[i].categorized_data;
+                    }
                     targetSensorIndex = i;
                     // targetSensorName = plotData[i].col_detail.name;
                     targetDim = [plotData[i].col_detail.proc_id, plotData[i].col_detail.id];
@@ -836,6 +787,9 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
             if (!targetDim) {
                 const endEl = plotData.length - 1;
                 targetSensorDat = plotData[endEl].array_y;
+                if (useCategorized && plotData[endEl].categorized_data.length) {
+                    targetSensorDat = plotData[endEl].categorized_data;
+                }
                 targetSensorIndex = endEl;
                 targetDim = [plotData[endEl].col_detail.proc_id, plotData[endEl].col_detail.id];
             }
@@ -985,10 +939,16 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
         const filteredPlotData = filterByShowVarType(plotData, varType);
 
         filteredPlotData.forEach((sensorDat) => {
+            let sensorArrayY = [...sensorDat.array_y];
+            if (useCategorized && sensorDat.categorized_data.length) {
+                sensorArrayY = sensorDat.categorized_data;
+            }
             labelColor = Number(startProcID) === sensorDat.col_detail.proc_id ? CONST.LIGHT_BLUE : CONST.WHITE;
-            dimProcName = shortDimName(sensorDat.col_detail.proc_name, limitSize = 14);
-            dimSensorName = shortDimName(sensorDat.col_detail.name);
+            let dimProcName = shortTextName(sensorDat.col_detail.proc_name, limitSize = 14);
+            let dimSensorName = shortTextName(sensorDat.col_detail.name);
             const isCategory = sensorDat.col_detail.is_category;
+            const isCategorize = sensorDat.col_detail.type === DataTypes.REAL.name && useCategorized;
+            const corr = getCorrelation(corrMatrix, sensorDat.col_detail.id, targetDim[1]);
 
 
             // TODO split chart by selected option
@@ -1003,7 +963,7 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
                 const dms = {
                     // ticktext: tickNumbers,
                     process: sensorDat.col_detail.proc_id,
-                    correlation: 0,
+                    correlation: corr,
                     isReal: 0,
                     dPV: `${sensorDat.col_detail.proc_id}-${sensorDat.col_detail.id}`,
                     dName: `${sensorDat.col_detail.name} ${sensorDat.col_detail.proc_name}`,
@@ -1020,21 +980,16 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
                         dms.ticktext = dms.tickvals.map(i => sensorDat.rank_value[i]);
                     }
                 }
-                dms.values = sensorDat.array_y;
+                dms.values = sensorArrayY;
                 dms.tickvals = dms.tickvals.map(i => Number(i));
                 // correlation for int column
-                let special_corr = '';
+                 let special_corr = '';
                 if (sensorDat.col_detail.type === DataTypes.INTEGER.name) {
-                    special_corr = getCorrelation(corrMatrix, sensorDat.col_detail.id, targetDim[1]);
-                    dms.correlation = special_corr;
-                    special_corr = `[${applySignificantDigit(special_corr)}]`;
+                    special_corr = `[${applySignificantDigit(corr)}]`;
                 }
-                if (showVar === paracordsSetting.showVariables.CATEGORY) {
+                if (isParacat) {
                     dms.label = `${dimSensorName} ${dimProcName}`;
                     dms.values = dimValWithNA(sensorDat); // use origin values for ticktext in case of category plot
-                    // dms.group = dms.values.filter(onlyUnique);
-                    // dms.categoryarray = dimWithNASorted(sensorDat);
-                    // dms.ticktext = dms.categoryarray;
 
                     dms.group = dms.tickvals;
                     dms.categoryarray = dms.tickvals;
@@ -1042,14 +997,9 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
                 } else {
                     dms.label = `<span style="color: ${labelColor};">${dimSensorName}</span><br>`;
                     dms.label += `<span ${isCategory ? 'is-category' : ''} style="color: ${labelColor};">${dimProcName}${special_corr}</span>`;
-                    // dms.ticktext = sensorDat.tickText;
-                    // dms.tickvals = sensorDatCoded.tickVals;
-                    // dms.values = sensorDatCoded.sensorDatCoded;
-                    // dms.range = [Math.min(...dms.tickvals), Math.max(...dms.tickvals)];
                 }
 
-                if ((targetDim[1] !== sensorDat.col_detail.id)
-                    && (!orderBy || (orderBy && Math.abs(special_corr) >= orderBy))) {
+                if ((targetDim[1] !== sensorDat.col_detail.id) && (!orderBy || (orderBy && Math.abs(corr) >= orderBy))) {
                     if (explainVar && explainVar == `${sensorDat.col_detail.proc_id}-${sensorDat.col_detail.id}`) {
                         explainDimension = dms;
                     } else {
@@ -1061,17 +1011,22 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
             } else if (sensorDat.col_detail.type === DataTypes.REAL.name) {
                 // show real only
                 const fmt = dat.fmt[sensorDat.end_col_id];
-                const dimTextAndVals = genDimRangeText(sensorDat.array_y, sensorDat.inf_idx, sensorDat.m_inf_idx, false, fmt);
+                const dimTextAndVals = genDimRangeText(sensorArrayY, sensorDat.inf_idx, sensorDat.m_inf_idx, false, fmt);
                 const dimRange = findMinMax(dimTextAndVals.values);
-                // const corr = getPearsonCorrelation(targetSensorData, sensorDat.array_y) || 0;
-                const corr = getCorrelation(corrMatrix, sensorDat.col_detail.id, targetDim[1]);
                 if (targetDim[1] === sensorDat.col_detail.id) {
                     labelColor = CONST.YELLOW;
                 }
                 dimensionLabel = `<span style="color: ${labelColor};" class="dim-sensor">${dimSensorName}</span><br>`;
                 dimensionLabel += `<span style="color: ${labelColor};" class="dim-proc">${dimProcName}[${applySignificantDigit(corr)}]</span>`;
+                // dimension label for real sensor, show in paracat
+                if (isParacat) {
+                    dimensionLabel = `${dimSensorName}[${applySignificantDigit(corr)}]`;
+                }
 
 
+                if (showVar === paracordsSetting.showVariables.CATEGORIZED) {
+                    dimTextAndVals.values = dimTextAndVals.values.map(i => applySignificantDigit(i));
+                }
                 if ((targetDim[1] !== sensorDat.col_detail.id)
                     && (!orderBy || (orderBy && Math.abs(corr) >= orderBy))) {
                     if (explainVar && explainVar == `${sensorDat.col_detail.proc_id}-${sensorDat.col_detail.id}`) {
@@ -1096,6 +1051,7 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
                             dName: `${sensorDat.col_detail.name} ${sensorDat.col_detail.proc_name}`,
                             correlation: corr,
                             isReal: 1,
+                            isCategorize: isCategorize,
                             range: dimRange,
                             ticktext: dimTextAndVals.tickText,
                             tickvals: dimTextAndVals.tickVals,
@@ -1110,6 +1066,7 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
                         dName: `${sensorDat.col_detail.name} ${sensorDat.col_detail.proc_name}`,
                         correlation: corr,
                         isReal: 1,
+                        isCategorize: isCategorize,
                         range: dimRange,
                         ticktext: dimTextAndVals.tickText,
                         tickvals: dimTextAndVals.tickVals,
@@ -1118,7 +1075,7 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
             }
         });
     
-        if (showOrder !== 'setting') {
+        if (showOrder !== paracordsSetting.orderOptions.setting) {
             dimensionDat.sort(propComparator(showOrder));
         } else {
             dimensionDat.sort(propComparator('isReal'));
@@ -1153,7 +1110,7 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
         return dimensionDat;
     };
 
-    const dimensions = dimensionByType(plotDat, showVar);
+    let dimensions = dimensionByType(plotDat, showVar);
 
     // update dimension data
     dimensions.forEach((dimension) => {
@@ -1167,8 +1124,24 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
         $('select[name=show-var]').val(showVar);
     }
 
-    const isParacat = showVar==paracordsSetting.showVariables.CATEGORY;
+    if (isRedirectFromJump && latestSortColIds) {
+        const orderedDim = [];
+        latestSortColIds.forEach(dimKey => {
+            const dim = dimensions.filter(dim => dim.dPV == dimKey);
+            if (dim) {
+                orderedDim.push(dim[0]);
+            }
+        });
+        dimensions = orderedDim.reverse();
+    }
+
+    if (!clearOnFlyFilter && showOrder === paracordsSetting.orderOptions.settings) {
+        // reassigne dim position after change by odf
+        dimensions = rearrangeDimAfterODF(dimensions);
+    }
+    latestDimensionInChart = [...dimensions];
     if (isParacat) {
+        dimensions = transformCategoryData(dimensions, useCategorized);
         // show category variables only
         // use parcats plot
         const endDim = dimensions[dimensions.length - 1];
@@ -1177,10 +1150,10 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
                 type: 'parcats',
                 dimensions,
                 line: {
-                    reversescale: true,
+                    reversescale: !!!endDim.isReal,
                     colorscale: dnJETColorScale,
-                    color: endDim && endDim.values,
-                    // showscale: true,
+                    color: endDim && endDim.values.filter(i => i !== null).map(i => Number(i)),
+                    showscale: !!endDim.isReal,
                 },
                 hoveron: 'color',
                 hoverinfo: 'none',
@@ -1196,7 +1169,6 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
         data = [{
             type: 'parcoords',
             line: {
-                // autocolorscale: true,
                 showscale: true,
                 reversescale: false,
                 colorscale: dnJETColorScale,
@@ -1211,6 +1183,16 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
         }];
     }
 
+    // apply sigdigit for ticks
+    dimensions.forEach((dimension) => {
+        dimension.ticktext = dimension.ticktext.map(i => {
+            const tickVal = Number(i);
+            if (!['NA', 'inf', '-inf'].includes(i) && !isNaN(tickVal)) {
+                return applySignificantDigit(tickVal);
+            }
+            return i;
+        });
+    });
     // assign chart width by parent cards and  number of variables
     const mainCardWidth = $('#mainContent').width();
     const widthByDim = 130 * dimensions.length;
@@ -1247,6 +1229,7 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
 
     // draw paracords
     loadingUpdate(80);
+
     Plotly.newPlot('paracord-plot', data, layout, { ...genPlotlyIconSettings() });
 
     $('#paracord-plot').show();
@@ -1269,23 +1252,17 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
             // update dimension color for category variables
             const dimInSVG = document.getElementsByClassName('dimension');
             dimensions.forEach((dim, i) => {
-                // let dimColor = '';
-                // const dpv = targetDim.join('-');
-                // const dimDPV = dim.dPV.split('-');
-                // if (dim.dPV === dpv) {
-                //     dimColor = CONST.YELLOW;
-                // } else if (dimDPV[0] === startProcID) {
-                //     dimColor = CONST.LIGHT_BLUE;
-                // }
-                // if (dimColor && $(dimInSVG[i]).find('.dimlabel')[0]) {
-                //     $(dimInSVG[i]).find('.dimlabel')[0].style.fill = dimColor;
-                // }
                 // add custom data
                 $($(dimInSVG[i]).find('.dimlabel')[0]).attr('data-dpv', dim.dPV);
                 $($(dimInSVG[i]).find('.dimlabel')[0]).attr('data-dName', dim.dName);
+                if (dim.isCategorize) {
+                    $($(dimInSVG[i]).find('.dimlabel')[0]).attr('is-categorize', dim.isCategorize);
+                }
             });
         }
-        bindChangeDimColor(isParacat);
+        if (!isRedirectFromJump || !latestSortColIds) {
+            bindChangeDimColor(isParacat);
+        }
     });
     
     paralellPlot.on('plotly_hover', (data) => {
@@ -1306,11 +1283,9 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
     $('.axis-title').each((i, el) => {
         const isCategory = $(el).attr('data-unformatted').toString().includes('is-category');
         if (isCategory) {
-            $(el).find('tspan:last-child tspan').addClass('show-detail click-only');
+            $(el).find('tspan:last-child tspan').addClass(showFilterClass);
         }
     });
-    
-    $('text.dimlabel').addClass('show-detail click-only');
     
     $('.axis-title, text.dimlabel').contextmenu((e) => {
         const label = $(e.currentTarget).text();
@@ -1330,28 +1305,29 @@ const showParacords = (dat, showVar = 'all', clearOnFlyFilter = false,
 
     // if showVar = 'category only' and
     const categoryOnly = plotDat.filter((data) => data.col_detail.is_category).length === plotDat.length;
-    const isShowMsg = dimensions.length > 0 && !categoryOnly;
-    if (showVar === paracordsSetting.showVariables.CATEGORY && isShowMsg) {
+    const isShowMsg = dimensions.length > 0 && !categoryOnly && changeVariableOnly;
+    if ((showVar === paracordsSetting.showVariables.CATEGORY) &&
+        isShowMsg) {
         const msgContent = $('#i18nRemoveRealInParcats').text();
         showToastrMsg(msgContent);
+        changeVariableOnly = false;
     }
-    // scroll to right of chart
-    setTimeout(() => {
+
+    setTimeout(()=> {
         loadingHide();
+        $('text.dimlabel[data-dpv]:not([is-categorize])').addClass(showFilterClass);
         $('#paracord-plot').scrollLeft(1000);
-        const fullFilterList = []
-        if (dat.category_data && dat.category_data.length) {
-            fullFilterList.push(...dat.category_data)
+        // update category position of on-demand-filter same as dimension
+        const odfData = updateCategoryOrdering(dat.filter_on_demand.category, dimensions);
+        const filterData = {
+            ...dat.filter_on_demand,
+            category: odfData,
         }
-        if (dat.cat_on_demand && dat.cat_on_demand.length) {
-            fullFilterList.push(...dat.cat_on_demand)
-        }
-        updateGlobalDict(fullFilterList);
-        fillDataToFilterModal([], dat.category_data, dat.cat_on_demand, [], [], () => {
+        fillDataToFilterModal(filterData, () => {
             showParacordWithSettings(true);
         });
         $('#categoriesBoxTitle').text('Category');
-    
+
         // show message for casting inf/-inf
         if (dat.cast_inf_vals && clearOnFlyFilter) {
             const msgContent = $('#i18nInfCast').text();
@@ -1375,6 +1351,8 @@ const updateParacords = (dimensionID) => {
     paracordTraces.array_plotdata = [...pcpData, ...explainDim, targetDim];
 };
 const showCategoryVarOnly = (selection) => {
+    changeVariableOnly = true;
+    needUpdateDimColor = true;
     let propOption = false;
     if (selection === CONST.CATEGORY) {
         propOption = true;
@@ -1386,9 +1364,10 @@ const showCategoryVarOnly = (selection) => {
     }
     $('input[type=radio][name=sort_by][value=correlation]').prop('disabled', propOption);
     $('input[type=number][name=corr_value]').prop('disabled', propOption);
-    
+
     loading.show();
     setTimeout(() => {
+        // if there is categorized real selected, pass it to call API same as with ODF case
         showParacordWithSettings();
         loading.hide();
     }, 500);
@@ -1409,6 +1388,11 @@ const filterByShowVarType = (plotData, showVar) => plotData.filter((data) => {
     
     if (showVar === paracordsSetting.showVariables.REAL) {
         return data.col_detail.type === DataTypes.REAL.name;
+    }
+
+    if (showVar === paracordsSetting.showVariables.CATEGORIZED) {
+        return [DataTypes.INTEGER.name, DataTypes.REAL.name].includes(data.col_detail.type) ||
+            data.col_detail.is_category === true;
     }
 });
 
@@ -1481,24 +1465,192 @@ const bindChangeDimColor = (isParacat=false) => {
 
     // bind drag-drpo dimension events
     $('g.y-axis .axis-title, g.dimension text.dimlabel')
-        .off('mousedown').on('mousedown', () => {
-            changeDimColor(isParacat);
-        })
-        .off('mouseup').on('mouseup', () => {
-            changeDimColor(isParacat);
-        })
         .off('mouseover').on('mouseover', (e) => {
             const dimName = $(e.currentTarget).attr('data-dName');
             $('#dimFullName').text(dimName);
             showDimFullName(e);
-            changeDimColor(isParacat);
         })
         .off('mouseout').on('mouseout', () => {
             $('#dimFullName').text('');
             $('#dimFullName').hide();
-            changeDimColor(isParacat);
         })
-        .off('mouseleave').on('mouseleave', () => {
-            changeDimColor(isParacat);
-        });
+
+};
+
+const updateCategoryOrdering = (categoryData, dimensions) => {
+    if (!categoryData.length || !dimensions.length) {
+        return [];
+    }
+    const catsOnDemandFilter = dimensions.map(dim => {
+        const [procID, colID] = dim.dPV.split('-').map(i => Number(i));
+        const odfDims = categoryData.filter(catDim => catDim.proc_name == procID && catDim.column_id == colID);
+        if (odfDims.length) {
+            return odfDims[0];
+        }
+        return null;
+    }).filter(dim => dim !== null);
+    return catsOnDemandFilter;
+};
+
+const getDimOrderingFromODF = () => {
+    // const data = latestDimensionInChart;
+    if (!latestDimensionInChart) {
+        return null;
+    }
+
+    let endDim = latestDimensionInChart[latestDimensionInChart.length - 1];
+    const endDimIDFromChart = endDim.dPV;
+
+    const [, odfDims] = getSortedCatExpAndCategories();
+    const dimOrderingFromODF = odfDims.map(dim => [Number(dim.end_proc_cate), Number(dim.GET02_CATE_SELECT[0])]);
+    if (!dimOrderingFromODF || !dimOrderingFromODF.length) {
+        return endDimIDFromChart.split('-').map(val => Number(val));
+    }
+
+    const dpvOrdering = dimOrderingFromODF.map(dim => `${dim[0]}-${dim[1]}`);
+    const endDimFromODF = dpvOrdering[dpvOrdering.length - 1];
+
+    if (dpvOrdering.includes(endDimIDFromChart)) {
+        endDim = latestDimensionInChart.filter(dim => dim.dPV == endDimFromODF)[0];
+    }
+    return endDim.dPV.split('-').map(val => Number(val));
 }
+
+const rearrangeDimAfterODF = (data) => {
+    if (!data.length) {
+        return [];
+    }
+
+    let endDim;
+    let unCatDims = [];
+    let catDims = [];
+
+    const [, odfDims] = getSortedCatExpAndCategories();
+    const dimOrderingFromODF = odfDims.map(dim => [Number(dim.end_proc_cate), Number(dim.GET02_CATE_SELECT[0])]);
+    if (!dimOrderingFromODF) {
+        return data;
+    }
+    const endDimIDFromChart = data[data.length - 1].dPV;
+    const dpvOrdering = dimOrderingFromODF.map(dim => `${dim[0]}-${dim[1]}`);
+    const endDimFromODF = dpvOrdering[dpvOrdering.length - 1];
+
+    if (!dpvOrdering.includes(endDimIDFromChart)) {
+        // keep objective var from chart
+        endDim = data[data.length - 1];
+    } else {
+        endDim = data.filter(dim => dim.dPV == endDimFromODF)[0];
+    }
+
+    // filter columns are not in category list and endDim
+    unCatDims = data.filter(dim => !dpvOrdering.includes(dim.dPV) && dim.dPV !== endDim.dPV);
+
+    catDims = dpvOrdering.filter(dimDPV => dimDPV !== endDim.dPV).map(dimDPV => {
+        return data.filter(dim => dim.dPV === dimDPV)[0];
+    });
+
+    return [...catDims, ...unCatDims, endDim].filter(dim => dim !== undefined);
+};
+
+const getAllDimDPVFromChart = () => {
+    const allDimInParal = Array.from($('#paracord-plot g.y-axis').find('text.axis-title'));
+    const allDimInParac = $('g.dimension');
+
+    const getParacDimPosition = (translateVal) => {
+        const [x,] = translateVal.replace('translate', '')
+            .replace('(', '')
+            .replace(')', '')
+            .split(',')
+            .map(val => Number(val))
+        return x;
+    } ;
+
+    // parallel graph
+    if (allDimInParal.length) {
+        return allDimInParal.map(dim => $(dim).data('dpv'));
+    }
+
+    let catDimPosition = allDimInParac.map((i, dim) => [[getParacDimPosition($(dim).attr('transform')), i]]);
+    // sort categroy dimension by transform value
+    catDimPosition.sort((a, b) => a[0] - b[0]);
+    if (catDimPosition.length) {
+        const dpvs = catDimPosition.map((_, dim) => $(allDimInParac[dim[1]]).find('text.dimlabel:eq(0)').data('dpv'));
+        return Array.from(dpvs);
+    }
+    return []
+
+};
+
+const getDimPositionFromGraph = () => {
+    if (!latestDimensionInChart) {
+        return false;
+    }
+    const latestDimDPV = latestDimensionInChart.map(dim => dim.dPV);
+    const currentDimDPV = getAllDimDPVFromChart();
+    const isChanged = JSON.stringify(latestDimDPV) !== JSON.stringify(currentDimDPV);
+    if (isChanged) {
+        return currentDimDPV;
+    }
+    return false;
+};
+
+const updateDimPosition = (dimPositions) => {
+    if (latestDimensionInChart) {
+        const dimensions = [];
+        dimPositions.forEach(dPV => {
+            dimensions.push(latestDimensionInChart.filter(dim => dim.dPV === dPV)[0]);
+        })
+        return dimensions;
+    }
+    return latestDimensionInChart;
+};
+
+const transformCategoryData = (dimensions, useCategorized) => {
+    dimensions.forEach((dimension) => {
+        dimension.values = dimension.values.map(i => Number(i));
+        dimension.categoryorder = 'array'; // set 'array' to ordering groups by ticktext
+        const [,colID] = dimension.dPV.split('-').map(i => Number(i));
+        const [sensorDat] = paracordTraces ? paracordTraces.array_plotdata.filter(
+            plot => plot.end_col_id == colID) : null;
+        if (sensorDat && sensorDat.rank_value) {
+            let rankVal = Object.keys(sensorDat.rank_value).map(i => Number(i)).sort((a, b) => a - b);
+            if (dimension.isReal) {
+                rankVal.reverse();
+            }
+            dimension.ticktext = rankVal.map(i => sensorDat.rank_value[i]);
+            dimension.tickvals = rankVal;
+            if (!rankVal.length) {
+                let sensorArrayY = sensorDat.array_y;
+                if (useCategorized && sensorDat.categorized_data.length) {
+                    sensorArrayY = sensorDat.categorized_data;
+                }
+                let hasNA = sensorArrayY.includes(null);
+                rankVal = Array.from(new Set(sensorArrayY.filter(i => i))).sort((a, b) => a - b);
+                if (dimension.isReal) {
+                    rankVal.reverse(); // [3,2,1]
+                }
+                dimension.values = sensorArrayY;
+                dimension.ticktext = rankVal;
+                dimension.tickvals = rankVal;
+                if (hasNA) {
+                    // add NA to categories of sensors
+                    dimension.ticktext = [...rankVal, COMMON_CONSTANT.NA];
+                    dimension.tickvals = [...rankVal, null];
+                }
+            } else {
+                const naIndex = dimension.ticktext.indexOf(COMMON_CONSTANT.NA);
+                // has NA in rank_value
+                if (naIndex >= 0) {
+                    const tickTextWtNA = dimension.ticktext.filter(tick => tick !== COMMON_CONSTANT.NA);
+                    const tickValWtNA = dimension.tickvals.filter((val, i) => i !== naIndex);
+                    const naVal = dimension.tickvals[naIndex];
+                    // add NA to categories of sensors
+                    dimension.ticktext = [...tickTextWtNA, COMMON_CONSTANT.NA];
+                    dimension.tickvals = [...tickValWtNA, naVal];
+                }
+            }
+            dimension.categoryarray = dimension.tickvals;
+            dimension.group = dimension.ticktext;
+        }
+    });
+    return dimensions;
+};

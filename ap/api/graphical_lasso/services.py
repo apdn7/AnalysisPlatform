@@ -1,29 +1,56 @@
+import colorsys
+
 import numpy as np
 import pandas as pd
-import colorsys
-from sklearn.covariance import empirical_covariance, shrunk_covariance, graphical_lasso
+from sklearn.covariance import empirical_covariance, graphical_lasso, shrunk_covariance
 from sklearn.preprocessing import StandardScaler
 
-from ap.api.trace_data.services.time_series_chart import get_data_from_db, main_check_filter_detail_match_graph_data
+from ap.api.common.services.services import get_filter_on_demand_data
+from ap.api.trace_data.services.time_series_chart import (
+    customize_dic_param_for_reuse_cache,
+    filter_cat_dict_common,
+    get_data_from_db,
+    get_procs_in_dic_param,
+    main_check_filter_detail_match_graph_data,
+)
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import *
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import request_timeout_handling, abort_process_handler
-from ap.common.trace_data_log import trace_log, TraceErrKey, EventType, EventAction, Target
+from ap.common.services.request_time_out_handler import (
+    abort_process_handler,
+    request_timeout_handling,
+)
+from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 
 
 @log_execution_time('[TRACE DATA]')
 @request_timeout_handling()
 @abort_process_handler()
-@trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
-           (EventType.GL, EventAction.PLOT, Target.GRAPH), send_ga=True)
+@trace_log(
+    (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
+    (EventType.GL, EventAction.PLOT, Target.GRAPH),
+    send_ga=True,
+)
 @memoize(is_save_file=True)
 def gen_graphical_lasso(dic_param):
+    (
+        dic_param,
+        cat_exp,
+        cat_procs,
+        dic_cat_filters,
+        use_expired_cache,
+        *_,
+    ) = customize_dic_param_for_reuse_cache(dic_param)
+
     graph_param = bind_dic_param_to_class(dic_param)
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param)
+    df, actual_record_number, unique_serial = get_data_from_db(
+        graph_param, dic_cat_filters, use_expired_cache=use_expired_cache
+    )
+
+    dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
 
     df_sensor = pd.DataFrame()
     sensor_names = []
@@ -43,12 +70,16 @@ def gen_graphical_lasso(dic_param):
         if objective_var and col_id == objective_var:
             idx_target = i
 
-    alphas, best_alpha, threshold, dic_nodes, dic_edges = \
-        preprocess_glasso_page(df_sensor, idx_target, process_names, sensor_names)
+    alphas, best_alpha, threshold, dic_nodes, dic_edges = preprocess_glasso_page(
+        df_sensor, idx_target, process_names, sensor_names
+    )
 
     # check filter match or not ( for GUI show )
-    matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids = main_check_filter_detail_match_graph_data(
-        graph_param, df)
+    (
+        matched_filter_ids,
+        unmatched_filter_ids,
+        not_exact_match_filter_ids,
+    ) = main_check_filter_detail_match_graph_data(graph_param, df)
 
     # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
     dic_param[MATCHED_FILTER_IDS] = matched_filter_ids
@@ -57,24 +88,16 @@ def gen_graphical_lasso(dic_param):
     dic_param[DATA_SIZE] = df.memory_usage(deep=True).sum()
     dic_param[UNIQUE_SERIAL] = unique_serial
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
-    dic_param[ARRAY_PLOTDATA] = [
-        alphas,
-        best_alpha,
-        threshold,
-        dic_nodes,
-        dic_edges,
-        process_names
-    ]
+    dic_param[ARRAY_PLOTDATA] = [alphas, best_alpha, threshold, dic_nodes, dic_edges, process_names]
+
+    dic_param = get_filter_on_demand_data(dic_param)
 
     return dic_param
 
 
 @log_execution_time()
 @abort_process_handler()
-def preprocess_glasso_page(X,
-                           idx_target,
-                           groups: list,
-                           colnames: list):
+def preprocess_glasso_page(X, idx_target, groups: list, colnames: list):
     """
     Main function to generate data for GL page
 
@@ -127,29 +150,33 @@ def preprocess_glasso_page(X,
 @log_execution_time()
 @abort_process_handler()
 def _fit_glasso(X, idx_target):
-    """ Fit graphical lasso with reasonable alpha sequence"""
+    """Fit graphical lasso with reasonable alpha sequence"""
     X = _clean_data_glasso(X)
 
     alphas = np.round(10 ** (np.linspace(-2, 0, num=10)), 2).tolist()
     ggm = GaussianGraphicalModel(alphas=alphas, idx_target=idx_target)
     ggm.fit(X)
     best_alpha, best_parcor = ggm._get_best_results()
-    parcors = ggm.results["parcor"]
+    parcors = ggm.results['parcor']
     return alphas, best_alpha, parcors, best_parcor
 
 
 @log_execution_time()
 @abort_process_handler()
 def _clean_data_glasso(X, max_datapoints=10_000, verbose=True):
-    """drop Infs, NAs, resampling and zero-variance variables """
+    """drop Infs, NAs, resampling and zero-variance variables"""
 
     X = X[np.isfinite(X).all(1)]
-    X = X.dropna(how="any").reset_index(drop=True)
+    X = X.dropna(how='any').reset_index(drop=True)
     if X.shape[0] > max_datapoints:
         np.random.seed(1)
         X = X.sample(n=max_datapoints, replace=False)
         if verbose:
-            print("Number of data points exceeded {}. Data is automatically resampled. ".format(max_datapoints))
+            print(
+                'Number of data points exceeded {}. Data is automatically resampled. '.format(
+                    max_datapoints
+                )
+            )
     # replace zero variance variable with an independent random variable
     is_zerovar = X.var(axis=0).values == 0
     if np.sum(is_zerovar > 0):
@@ -158,7 +185,7 @@ def _clean_data_glasso(X, max_datapoints=10_000, verbose=True):
     return X
 
 
-class GaussianGraphicalModel():
+class GaussianGraphicalModel:
     """
     Calculate sparse partial correlation matrix with GraphicalLASSO
 
@@ -185,7 +212,7 @@ class GaussianGraphicalModel():
         self.idx_target = idx_target
 
     def fit(self, X):
-        """ Fit GraphcialLASSO
+        """Fit GraphcialLASSO
         Inputs:
         X: 2d NumpyArray or pandas dataframe
            nrow, ncol = sample_size, num_vars
@@ -203,26 +230,28 @@ class GaussianGraphicalModel():
             emp_cov = shrunk_covariance(emp_cov, shrinkage=0.8)
 
         # fit glasso along specified alphas
-        dic_res = {"alpha": [], "parcor": [], "ebic": []}
+        dic_res = {'alpha': [], 'parcor': [], 'ebic': []}
         for alpha in self.alphas:
             try:
                 _, pmat = graphical_lasso(emp_cov, alpha)
-                dic_res["alpha"].append(alpha)
-                dic_res["parcor"].append(self._precision2parcor(pmat))
-                dic_res["ebic"].append(self._calc_extended_bic(pmat, emp_cov, X.shape[0]))
+                dic_res['alpha'].append(alpha)
+                dic_res['parcor'].append(self._precision2parcor(pmat))
+                dic_res['ebic'].append(self._calc_extended_bic(pmat, emp_cov, X.shape[0]))
             except:
-                print("Poorly conditioned on alpha={}. Skip".format(alpha))
+                print('Poorly conditioned on alpha={}. Skip'.format(alpha))
 
         self.results = dic_res
 
     def _precision2parcor(self, pmat):
-        """ Convert precision matrix to partial correlation matrix """
-        parcor = - pmat / (np.sqrt(np.diag(pmat)).reshape(-1, 1) @ np.sqrt(np.diag(pmat)).reshape(1, -1))
+        """Convert precision matrix to partial correlation matrix"""
+        parcor = -pmat / (
+            np.sqrt(np.diag(pmat)).reshape(-1, 1) @ np.sqrt(np.diag(pmat)).reshape(1, -1)
+        )
         np.fill_diagonal(parcor, 0.0)  # no self loops
         return parcor
 
     def _calc_extended_bic(self, pmat, covmat, sample_size: int, gamma=0.3) -> float:
-        """ Compute extended BIC
+        """Compute extended BIC
         Reference:
         ----------
         Rina Foygel and Mathias Drton (2010)
@@ -241,34 +270,36 @@ class GaussianGraphicalModel():
         return term1 + term2 + term3
 
     def _get_best_results(self):
-        """ Select the best results """
+        """Select the best results"""
         if self.idx_target is None:
             # if no target, select the results with lowest EBIC
-            idx = np.argmin(self.results["ebic"])
-            best_alpha = self.results["alpha"][idx]
-            best_parcor = self.results["parcor"][idx]
+            idx = np.argmin(self.results['ebic'])
+            best_alpha = self.results['alpha'][idx]
+            best_parcor = self.results['parcor'][idx]
         else:
             # if specified, select the results with the reasonable num of direclty connected nodes
-            d = self.results["parcor"][0].shape[0]  # controlls the number of directly connected variables
+            d = self.results['parcor'][0].shape[
+                0
+            ]  # controlls the number of directly connected variables
             obj_num = np.min([10, np.ceil((d - 1.0) / 3.0)])
 
             best_alpha = self.alphas[0]
-            best_parcor = self.results["parcor"][0]
+            best_parcor = self.results['parcor'][0]
             for i in reversed(range(len(self.alphas))):
-                num_direct_vars = np.sum(self.results["parcor"][i][self.idx_target, :] != 0)
-                print("alpha: {}, num_direct_vars: {}".format(self.alphas[i], num_direct_vars))
+                num_direct_vars = np.sum(self.results['parcor'][i][self.idx_target, :] != 0)
+                print('alpha: {}, num_direct_vars: {}'.format(self.alphas[i], num_direct_vars))
                 if num_direct_vars >= obj_num:
                     best_alpha = self.alphas[i]
-                    best_parcor = self.results["parcor"][i]
+                    best_parcor = self.results['parcor'][i]
                     break
         return best_alpha, best_parcor.copy()
 
 
 def _gen_node_positions(parcor, idx_target=None):
-    """ Generate node positions for graphical lasso"""
+    """Generate node positions for graphical lasso"""
 
     def _gen_node_positions_glasso(d: int, radius=10):
-        ''' circle layout '''
+        """circle layout"""
         step = 2 * np.pi / d
         theta = np.arange(d) * step
         x = radius * np.sin(theta)
@@ -278,7 +309,7 @@ def _gen_node_positions(parcor, idx_target=None):
         return x, y
 
     def _gen_node_positions_tlasso(d: int, colidx_per_layer: list):
-        """ right to left layout"""
+        """right to left layout"""
 
         def gen_layer_positions(num_vars: int, layer=1):
             if layer == 0:
@@ -305,11 +336,13 @@ def _gen_node_positions(parcor, idx_target=None):
         return x, y
 
     def _get_colidx_per_layer(parcor, idx_target, num_layers=3, verbose=False):
-        """ Get column index per layer, based on the partial correlation matrix """
+        """Get column index per layer, based on the partial correlation matrix"""
 
         def extract_connected_idx(parcor, from_idx, to_idx):
-            ''' Extract index of directly connected nodes '''
-            idx_candidates = np.where(parcor[np.ix_(from_idx, to_idx)].reshape(len(from_idx), len(to_idx)) != 0)[0]
+            """Extract index of directly connected nodes"""
+            idx_candidates = np.where(
+                parcor[np.ix_(from_idx, to_idx)].reshape(len(from_idx), len(to_idx)) != 0
+            )[0]
             idx_connected = np.unique(idx_candidates)
             return from_idx[idx_connected]
 
@@ -319,12 +352,14 @@ def _gen_node_positions(parcor, idx_target=None):
         idx_remain = np.setdiff1d(idx_all, idx_tgt)
         idx_per_layer = [np.array(idx_tgt)]
         if verbose:
-            print("==========\nall: {}".format(idx_all))
+            print('==========\nall: {}'.format(idx_all))
         for i in range(1, num_layers):
             if verbose:
-                print("from: {}".format(idx_remain))
-                print("to: {}".format(idx_per_layer[i - 1]))
-            connected_idx = extract_connected_idx(parcor, from_idx=idx_remain, to_idx=idx_per_layer[i - 1])
+                print('from: {}'.format(idx_remain))
+                print('to: {}'.format(idx_per_layer[i - 1]))
+            connected_idx = extract_connected_idx(
+                parcor, from_idx=idx_remain, to_idx=idx_per_layer[i - 1]
+            )
             idx_remain = np.setdiff1d(idx_remain, connected_idx)
             if len(connected_idx) == 0:
                 break
@@ -332,8 +367,8 @@ def _gen_node_positions(parcor, idx_target=None):
                 break
             idx_per_layer.append(connected_idx)
             if verbose:
-                print("added: {}".format(connected_idx))
-                print("remain: {}".format(idx_remain))
+                print('added: {}'.format(connected_idx))
+                print('remain: {}'.format(idx_remain))
         idx_per_layer.append(idx_remain)
         return idx_per_layer
 
@@ -347,15 +382,16 @@ def _gen_node_positions(parcor, idx_target=None):
 
 # -- functions for sigmajs --
 
+
 def _gen_proc_colorcodes(procnames):
     """
     generate color codes of each process
-    :param procnames: 
+    :param procnames:
     :return: node_colors
     """
 
-    def get_N_HexCol(N=5):
-        ''' Random color generator (used to generate colors per process) '''
+    def get_n_hex_col(N=5):
+        """Random color generator (used to generate colors per process)"""
         HSVs = [(x * 1.0 / N, 0.5, 0.5) for x in range(N)]
         hex_colorcodes = []
         for rgb in HSVs:
@@ -366,7 +402,7 @@ def _gen_proc_colorcodes(procnames):
     # colors
     uniq_grps, idx_grps = np.unique(procnames, return_inverse=True)
     num_grps = len(uniq_grps)
-    colorcodes = get_N_HexCol(num_grps)
+    colorcodes = get_n_hex_col(num_grps)
     node_colors = np.array(colorcodes)[np.array(idx_grps)]
     return node_colors
 
@@ -375,32 +411,39 @@ def _gen_df_nodes_sigmajs(x, y, colnames, groups):
     # generate node data.frame (id, label, size, x, y)
     d = len(y)
     node_colors = _gen_proc_colorcodes(groups)
-    df_node = pd.DataFrame({"id": ["n" + str(x) for x in np.arange(d)],
-                            # "label": [str(x)+"\\\\n"+str(y) for x, y in zip(groups, colnames)],
-                            # "label": [str(x)+" | "+str(y) for x, y in zip(groups, colnames)],
-                            "label": [str(y) for x, y in zip(groups, colnames)],
-                            "size": [10] * d,
-                            "x": x,
-                            "y": [-x for x in y],  # on sigmajs, (0, 0) is the upper left corner
-                            "color": node_colors})
+    df_node = pd.DataFrame(
+        {
+            'id': ['n' + str(x) for x in np.arange(d)],
+            # "label": [str(x)+"\\\\n"+str(y) for x, y in zip(groups, colnames)],
+            # "label": [str(x)+" | "+str(y) for x, y in zip(groups, colnames)],
+            'label': [str(y) for x, y in zip(groups, colnames)],
+            'size': [10] * d,
+            'x': x,
+            'y': [-x for x in y],  # on sigmajs, (0, 0) is the upper left corner
+            'color': node_colors,
+        }
+    )
     return df_node
 
 
 def _gen_df_edges_sigmajs(adj_mat):
     # generate edge data.frame (id, source, target)
-    color_edge_positive = 'rgba(44, 160, 44, 0.4)',  # green-like color
-    color_edge_negative = 'rgba(214, 39, 40, 0.4)',  # red-like color
+    color_edge_positive = ('rgba(44, 160, 44, 0.4)',)  # green-like color
+    color_edge_negative = ('rgba(214, 39, 40, 0.4)',)  # red-like color
 
     from_idxs, to_idxs = np.where(np.abs(adj_mat) > 0)
     edge_values = adj_mat[from_idxs, to_idxs]
     num_edges = len(edge_values)
-    df_edge = pd.DataFrame({"id": ["e" + str(x) for x in np.arange(num_edges)],
-                            "label": [str(np.round(x, 2)) for x in edge_values],  # please apply significant_digit
-                            "size": np.abs(edge_values),
-                            "source": ["n" + str(x) for x in from_idxs],
-                            "target": ["n" + str(x) for x in to_idxs],
-                            "hover_color": ['#00aeff'] * num_edges,
-                            "color": [color_edge_positive if x >= 0 else color_edge_negative for x in edge_values],
-                            "type": ["line"] * num_edges
-                            })
+    df_edge = pd.DataFrame(
+        {
+            'id': ['e' + str(x) for x in np.arange(num_edges)],
+            'label': [str(np.round(x, 2)) for x in edge_values],  # please apply significant_digit
+            'size': np.abs(edge_values),
+            'source': ['n' + str(x) for x in from_idxs],
+            'target': ['n' + str(x) for x in to_idxs],
+            'hover_color': ['#00aeff'] * num_edges,
+            'color': [color_edge_positive if x >= 0 else color_edge_negative for x in edge_values],
+            'type': ['line'] * num_edges,
+        }
+    )
     return df_edge

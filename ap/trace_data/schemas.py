@@ -1,10 +1,22 @@
 from collections import defaultdict
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
-from ap.common.constants import NO_FILTER, SELECT_ALL, DuplicateSerialShow, DuplicateSerialCount, END_COL_ID, \
-    END_COL_NAME, END_PROC_ID, END_PROC_NAME, SHOWN_NAME, COL_DATA_TYPE, RemoveOutlierType
+from ap.common.common_utils import gen_sql_label
+from ap.common.constants import (
+    COL_DATA_TYPE,
+    END_COL_ID,
+    END_COL_NAME,
+    END_PROC_ID,
+    END_PROC_NAME,
+    NO_FILTER,
+    SELECT_ALL,
+    SHOWN_NAME,
+    DuplicateSerialCount,
+    DuplicateSerialShow,
+    RemoveOutlierType,
+)
 from ap.common.logger import logger
-from ap.setting_module.models import CfgFilterDetail, CfgProcessColumn, CfgProcess
+from ap.setting_module.models import CfgFilterDetail, CfgProcess, CfgProcessColumn
 
 
 class EndProc:
@@ -42,7 +54,7 @@ class EndProc:
                 column = CfgProcessColumn.query.get(col_id)
                 id = column.id
                 column_name = column.column_name
-                name = column.name
+                name = column.shown_name
                 self.proc_id = column.process_id
 
             if append_first:
@@ -90,7 +102,7 @@ class CategoryProc:
         for id in self.col_ids:
             column = CfgProcessColumn.query.get(id)
             self.col_names.append(column.column_name)
-            self.col_show_names.append(column.name)
+            self.col_show_names.append(column.shown_name)
             self.proc_id = column.process_id
 
 
@@ -183,20 +195,62 @@ class CommonParam:
     is_export_mode: bool
     is_latest: bool
 
-    def __init__(self, start_proc=None, start_date=None, start_time=None, end_date=None,
-                 end_time=None, cond_procs=None, cate_procs=None,
-                 hm_step=None, hm_mode=None,
-                 hm_function_real=None, hm_function_cate=None,
-                 hm_trim=None, client_timezone=None,
-                 x_option=None, serial_processes=(), serial_columns=(), serial_orders=(), threshold_boxes=(),
-                 cat_exp=(), is_validate_data=None, objective_var=None,
-                 color_var=None, div_by_data_number=None, div_by_cat=None,
-                 cyclic_div_num=None, cyclic_window_len=None, cyclic_interval=None, cyclic_terms=(), compare_type=None,
-                 is_remove_outlier=0, remove_outlier_objective_var=0, remove_outlier_explanatory_var=0,
-                 abnormal_count=0, sensor_cols=[], duplicate_serial_show=None, is_export_mode=False,
-                 duplicated_serials_count=None, agp_color_vars=None, divide_format=None, divide_offset=None,
-                 is_latest=False, divide_calendar_dates=[], divide_calendar_labels=[],
-                 remove_outlier_type=RemoveOutlierType.O6M.value, remove_outlier_real_only=False):
+    judge_var: int
+    ng_condition: str
+    ng_condition_val: str
+
+    def __init__(
+        self,
+        start_proc=None,
+        start_date=None,
+        start_time=None,
+        end_date=None,
+        end_time=None,
+        cond_procs=None,
+        cate_procs=None,
+        hm_step=None,
+        hm_mode=None,
+        hm_function_real=None,
+        hm_function_cate=None,
+        hm_trim=None,
+        client_timezone=None,
+        x_option=None,
+        serial_processes=(),
+        serial_columns=(),
+        serial_orders=(),
+        threshold_boxes=(),
+        cat_exp=(),
+        is_validate_data=None,
+        objective_var=None,
+        color_var=None,
+        div_by_data_number=None,
+        div_by_cat=None,
+        cyclic_div_num=None,
+        cyclic_window_len=None,
+        cyclic_interval=None,
+        cyclic_terms=(),
+        compare_type=None,
+        is_remove_outlier=0,
+        remove_outlier_objective_var=0,
+        remove_outlier_explanatory_var=0,
+        abnormal_count=0,
+        sensor_cols=[],
+        duplicate_serial_show=None,
+        is_export_mode=False,
+        duplicated_serials_count=None,
+        agp_color_vars=None,
+        divide_format=None,
+        divide_offset=None,
+        is_latest=False,
+        divide_calendar_dates=[],
+        divide_calendar_labels=[],
+        remove_outlier_type=RemoveOutlierType.O6M.value,
+        remove_outlier_real_only=False,
+        judge_var=None,
+        ng_condition=None,
+        ng_condition_val=None,
+        is_proc_linked=False,
+    ):
         self.start_proc = int(start_proc) if str(start_proc).isnumeric() else None
         self.start_date = start_date
         self.start_time = start_time
@@ -217,7 +271,9 @@ class CommonParam:
 
         self.cond_procs = cond_procs
         self.cate_procs = cate_procs
-        self.threshold_boxes = [int(filter_detail_id) for filter_detail_id in threshold_boxes if filter_detail_id]
+        self.threshold_boxes = [
+            int(filter_detail_id) for filter_detail_id in threshold_boxes if filter_detail_id
+        ]
 
         if not cat_exp:
             self.cat_exp = []
@@ -261,6 +317,12 @@ class CommonParam:
         self.divide_calendar_dates = divide_calendar_dates
         self.divide_calendar_labels = divide_calendar_labels
         self.remove_outlier_real_only = bool(remove_outlier_real_only)
+
+        # rlp NG rate
+        self.judge_var = judge_var
+        self.ng_condition = ng_condition
+        self.ng_condition_val = ng_condition_val
+        self.is_proc_linked = is_proc_linked
 
 
 class DicParam:
@@ -420,17 +482,19 @@ class DicParam:
 
         return False
 
-    def get_facet_var_cols_id(self):
-        if self.common.cat_exp:
-            return self.common.cat_exp
-
-        return None
-
     def get_facet_var_cols_name(self):
         if self.common.cat_exp:
-            cfg_cols = CfgProcessColumn.get_by_ids(self.common.cat_exp)
+            cfg_cols = []
+            for col_id in self.common.cat_exp:
+                cfg_cols.append(CfgProcessColumn.get_by_id(col_id))
             return cfg_cols
 
+        return []
+
+    def get_div_cols_label(self):
+        if self.common.div_by_cat:
+            div_col = CfgProcessColumn.get_by_id(self.common.div_by_cat)
+            return gen_sql_label(div_col.id, div_col.column_name)
         return None
 
     def add_datetime_col_to_start_proc(self):
@@ -447,14 +511,16 @@ class DicParam:
             for i, col_id in enumerate(proc.col_ids):
                 proc_cfg = CfgProcess.query.get(proc.proc_id)
                 col_info = CfgProcessColumn.get_by_ids([col_id])
-                target_cols.append({
-                    END_COL_ID: col_id,
-                    END_COL_NAME: col_info[0].column_name,
-                    SHOWN_NAME: col_info[0].name,  # shown name of column
-                    END_PROC_ID: proc.proc_id,
-                    END_PROC_NAME: proc_cfg.name or '',
-                    COL_DATA_TYPE: col_info[0].data_type
-                })
+                target_cols.append(
+                    {
+                        END_COL_ID: col_id,
+                        END_COL_NAME: col_info[0].column_name,
+                        SHOWN_NAME: col_info[0].shown_name,  # shown name of column
+                        END_PROC_ID: proc.proc_id,
+                        END_PROC_NAME: proc_cfg.shown_name or '',
+                        COL_DATA_TYPE: col_info[0].data_type,
+                    }
+                )
         return target_cols
 
     def add_agp_color_vars(self):
@@ -492,3 +558,13 @@ class DicParam:
             return color_col[END_COL_NAME] or None
 
         return color_col[SHOWN_NAME] or None
+
+    def add_ng_condition_to_array_formval(self):
+        if self.common.judge_var:
+            judge_var = CfgProcessColumn.get_by_id(int(self.common.judge_var))
+            if judge_var:
+                self.add_proc_to_array_formval(judge_var.process_id, judge_var.id)
+
+    def get_process_by_id(self, proc_id):
+        process = [proc for (_, proc) in self.dic_proc_cfgs.items() if proc.id == proc_id]
+        return process[0] if process else None

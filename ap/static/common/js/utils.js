@@ -29,6 +29,7 @@ const COMMON_CONSTANT = {
     MINF: '-Inf',
     DEFAULT_SUB_TITLE: 'DN7QCTools',
     TAB: '&#09;',
+    TICKS_ANGLE: 0,
 };
 
 const MESSAGE_LEVEL = {
@@ -226,6 +227,13 @@ const CONST = {
 const chmColorPalettes = [['0', '#18324c'], ['0.2', '#204465'], ['0.4', '#2d5e88'],
     ['0.6', '#3b7aae'], ['0.8', '#56b0f4'], ['1', '#6dc3fd']];
 
+let reselectCallback = null;
+const domEles = {
+    problematicTbl: '#cols-variance-tbl',
+    problematicModal: '#removeErrorColumnMdl',
+    problematicPCATbl: '#cols-variance-tbl-multiple-range',
+};
+
 const trimLeft = target => target.replace(new RegExp(/^[\s]+/), '');
 
 const trimRight = target => target.replace(new RegExp(/[\s]+$/), '');
@@ -304,6 +312,12 @@ const docCookies = {
         }
         return aKeys;
     },
+     getLocale() {
+        return this.getItem('locale') || 'en';
+    },
+    isJaLocale() {
+        return this.getLocale() === 'ja';
+    }
 };
 
 // get or create node from object
@@ -736,9 +750,7 @@ const hideAlertMessages = () => {
 
 // delete closest element
 const delClosestEle = (e, closestEle) => {
-    const tableEle = $(e).closest('table');
     e.closest(closestEle).remove();
-    // updateTableRowNumber(null, tableEle);
 };
 
 const sidebarEles = {
@@ -800,11 +812,9 @@ const closeSidebar = () => {
     }
 };
 
-const beforeShowGraphCommon = (showLoading = true) => {
+const beforeShowGraphCommon = (clearOnFlyFilter = true) => {
     closeSidebar();
-    if (showLoading) {
-        loadingShow(false, true)
-    }
+    loadingShow(false, clearOnFlyFilter);
 };
 
 const fetchBackgroundJobs = (cb) => {
@@ -1379,7 +1389,7 @@ const toUTCDateTime = (localDate, localTime) => {
 
 const getColumnName = (endProcName, getVal) => {
     const col = procConfigs[endProcName].getColumnById(getVal) || {};
-    return col.name || getVal;
+    return col.shown_name || getVal;
 };
 
 const isCycleTimeCol = (endProcId, colId) => {
@@ -1617,9 +1627,14 @@ const setSelect2Selection = (parent = null, additionalOption = {}) => {
     };
 
     // single select2
-    eles.find('select.select2-selection--single').each(function () {
+    eles.find('select.select2-selection--single:not([hidden])').each(function () {
         const ele = $(this);
         let select2El = null;
+
+        if (ele.attr('data-allow-clear')) {
+            Object.assign(dicNColsOptions, {allowClear: true});
+            Object.assign(dicOptions, {allowClear: true});
+        }
         if (ele.hasClass(nColCls)) {
             select2El = ele.select2(dicNColsOptions);
         } else {
@@ -1975,20 +1990,20 @@ const endProcMultiSelectOnChange = async (count, props) => {
 
 
     // push cycle time columns first
-    if (props.showStrColumn) {
+    if (props.showStrColumn && !props.hideCTCol) {
         const [ctCol] = procInfo.getCTColumn();
         const datetimeCols = procInfo.getDatetimeColumns();
         if (ctCol) {
             ids.push(ctCol.id);
-            vals.push(ctCol.english_name);
-            names.push(ctCol.name);
+            vals.push(ctCol.name_en);
+            names.push(ctCol.shown_name);
             dataTypes.push(ctCol.data_type);
         }
         if (datetimeCols) {
             for (const dtCol of datetimeCols) {
                 ids.push(dtCol.id);
-                vals.push(dtCol.english_name);
-                names.push(dtCol.name);
+                vals.push(dtCol.name_en);
+                names.push(dtCol.shown_name);
                 dataTypes.push(dtCol.data_type);
             }
         }
@@ -2001,8 +2016,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
         }
         if (dataTypeTargets.includes(col.data_type) && !CfgProcess_CONST.CT_TYPES.includes(col.data_type)) {
             ids.push(col.id);
-            vals.push(col.english_name);
-            names.push(col.name);
+            vals.push(col.name_en);
+            names.push(col.shown_name);
             // checkedIds.push(col.id);
             dataTypes.push(col.data_type);
         }
@@ -2034,6 +2049,9 @@ const endProcMultiSelectOnChange = async (count, props) => {
             availableColorVars,
             optionalObjective: props.optionalObjective,
             objectiveHoverMsg: props.objectiveHoverMsg,
+            labelAsFilter: props.labelAsFilter,
+            allowObjectiveForRealOnly: props.allowObjectiveForRealOnly || false,
+            judge: props.judge || false,
         };
         addGroupListCheckboxWithSearch(
             parentId,
@@ -2056,8 +2074,8 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
         const itemList = [];
         for (let i = 0; i < procIds.length; i++) {
             const itemId = procIds[i];
-            const itemVal = procVals[i].name;
-            const itemEnVal = procVals[i].en_name;
+            const itemVal = procVals[i].shown_name;
+            const itemEnVal = procVals[i].name_en;
             itemList.push(`<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`);
         }
 
@@ -2122,14 +2140,14 @@ const getStratifiedVars = async (selectedEndProc) => {
 
     let maxLen = 0;
     for (const col of stratifiedVarColumns) {
-        if (col.name && col.name.length > maxLen) {
-            maxLen = col.name.length;
+        if (col.shown_name && col.shown_name.length > maxLen) {
+            maxLen = col.shown_name.length;
         }
     }
 
     let stratifiedVarOptions = '<option value="">---</option>';
     stratifiedVarColumns.forEach((col) => {
-        stratifiedVarOptions += `<option value="${col.id}" title="${col.column_name}">${col.name}</option>`;
+        stratifiedVarOptions += `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`;
     });
     svcolumns.html(stratifiedVarOptions);
 };
@@ -2366,7 +2384,6 @@ const errorHandling = (error, type = '') => {
     const timeout = error.statusText || error.message;
     if (timeout.toLowerCase().includes('timeout')) {
         abortProcess();
-        console.log('request timeout..');
         const i18nTexts = {
             abnormalGraphShow: type === 'front' ? $('#i18nFrontProcessTimeout').text() : $('#i18nRequestTimeout').text(),
         };
@@ -2593,6 +2610,48 @@ class GraphStore {
         });
         return plotObj;
     }
+
+    getVariableOrdering(procConfig, useFeatureImportance=true) {
+        const ordering = [];
+        let orderingID = [];
+        const currentTrace = this.traceDataResult;
+        const objectiveVariable = currentTrace.COMMON.objectiveVar ? Number(currentTrace.COMMON.objectiveVar[0]) : undefined;
+
+        if (objectiveVariable) {
+            orderingID.push(objectiveVariable);
+        }
+
+        let sensorList = [];
+        if (useFeatureImportance && currentTrace.importance_columns_ids.length) {
+            sensorList = currentTrace.importance_columns_ids;
+        }
+        if (currentTrace.COMMON.GET02_VALS_SELECT.length && !useFeatureImportance) {
+            sensorList = currentTrace.COMMON.GET02_VALS_SELECT;
+        }
+        orderingID = [...orderingID, ...sensorList];
+        orderingID = new Set(orderingID);
+        orderingID = Array.from(orderingID);
+        if (orderingID.length) {
+            orderingID.forEach(id => {
+                const targetProcID = currentTrace.COMMON.end_proc[id];
+                const targetProc = procConfig[targetProcID];
+                const targetCol = targetProc.dicColumns[id]
+                if (targetCol) {
+                    ordering.push({
+                        id: id,
+                        shown_name: targetCol.shown_name,
+                        proc_name: targetProc.shown_name,
+                        type: targetCol.data_type,
+                        proc_id: targetProc.id,
+                    })
+                }
+            })
+        }
+        return {
+            ordering,
+            use_feature_importance: true
+        };
+    }
 }
 
 const significantDigitFmt = (val, sigDigit = 4) => {
@@ -2800,15 +2859,6 @@ const bindCategoryParams = (formData) => {
             }
         }
     }
-    let startProc = formData.get('start_proc');
-    if (!startProc || startProc === 'null') {
-        // get first end proc from GUI instead of set end_proc_1
-        // to handle event: remove end_proc_1, add end_proc_2, 3 ,...
-        const firstEndProc = $('select[name^=end_proc]')[0].value;
-        // set to 0 mean that no data link if cannot get any end_proc
-        startProc = firstEndProc || '0';
-        formData.set('start_proc', startProc);
-    }
     return formData;
 };
 
@@ -2820,15 +2870,17 @@ const hideTooltip = (selector, timeOut = 1000) => {
 };
 
 const setTooltip = (selector, message, autoHide = true) => {
-    const title = $(selector).attr('title');
-    $(selector).attr('data-original-title', message)
-        .attr('title', '')
-        .tooltip('show');
+    if ($(selector).parent().is(':visible')) {
+        const title = $(selector).attr('title');
+        $(selector).attr('data-original-title', message)
+            .attr('title', '')
+            .tooltip('show');
 
-    if (autoHide) {
-        hideTooltip(selector);
-        if (title) {
-            $(selector).attr('title', title);
+        if (autoHide) {
+            hideTooltip(selector);
+            if (title) {
+                $(selector).attr('title', title);
+            }
         }
     }
 };
@@ -2890,15 +2942,6 @@ const transformCategoryVariableParams = (formData, procConf) => {
             formData.set('categoryVariable1', catExpVal);
         }
         formData.set('categoryValueMulti1', 'NO_FILTER'); // default
-    }
-    let startProc = formData.get('start_proc');
-    if (!startProc || startProc === 'null') {
-        // get first end proc from GUI instead of set end_proc_1
-        // to handle event: remove end_proc_1, add end_proc_2, 3 ,...
-        const firstEndProc = $('select[name^=end_proc]')[0].value;
-        // set to 0 mean that no data link if cannot get any end_proc
-        startProc = firstEndProc || '0';
-        formData.set('start_proc', startProc);
     }
     return formData;
 };
@@ -3064,7 +3107,7 @@ function validateInputByNameWithOnchange(name, option) {
         // uncheck if disabled
         if (e.target.disabled) return;
 
-        let { value } = e.currentTarget;
+        let {value} = e.currentTarget;
         if (!value || (value < option.MIN && value !== 0)) {
             e.currentTarget.value = option.MIN;
             showToastrMsg(i18nCommon.changedToMaxValue);
@@ -3150,7 +3193,8 @@ const getConditionFromSetting = (traceDat) => {
 };
 
 const genInfoTableBody = (traceDat) => {
-    const startProc = procConfigs[traceDat[CONST.COMMON].start_proc] || procConfigs[traceDat[CONST.ARRAY_FORMVAL][0].end_proc];
+    const firstEndProc = traceDat[CONST.ARRAY_FORMVAL].length ? traceDat[CONST.ARRAY_FORMVAL][0].end_proc : undefined;
+    const startProc = procConfigs[traceDat[CONST.COMMON].start_proc] || procConfigs[firstEndProc] || undefined;
     const startProcName = startProc ? startProc.name : '';
     const startDate = _.isArray(traceDat[CONST.COMMON][CONST.STARTDATE]) ? traceDat[CONST.COMMON][CONST.STARTDATE][0] : traceDat[CONST.COMMON][CONST.STARTDATE];
     const endDate = _.isArray(traceDat[CONST.COMMON][CONST.ENDDATE]) ? traceDat[CONST.COMMON][CONST.ENDDATE][0] : traceDat[CONST.COMMON][CONST.ENDDATE];
@@ -3279,7 +3323,7 @@ const getLastNumberInString = (inputStr) => {
 const zipExport = (datasetId) => {
     const filename = $('#setting-name').text();
     const exportModeEle = $('[name=isExportMode]');
-    const url = `/ap/api/fpp/zip_export?dataset_id=${datasetId}&user_setting_id=${exportModeEle.val()}`;
+    const url = `/ap/api/fpp/zip_export?dataset_id=${datasetId}&bookmark_id=${exportModeEle.val()}`;
     downloadTextFile(url, `${filename}.zip`);
     exportModeEle.remove();
     return false;
@@ -3457,7 +3501,7 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         divideDiv = $(`#for-${divideOption}`);
         traceTimeOption = divideDiv.find(`[name*=TraceTime]:checked`).val();
     } else {
-        traceTimeOption =  formData.get(traceTimeName);
+        traceTimeOption = formData.get(traceTimeName);
     }
     const useLatestTime = traceTimeOption === TRACE_TIME_CONST.RECENT;
     const isCyclicTerm = divideOption === CYCLIC_TERM.NAME;
@@ -3484,7 +3528,7 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
             datetimeRange = [getDateTimeRangeFromCyclic(formData, traceTimeOption)];
         }
     } else if (useLatestTime && !isCyclicCalender) {
-        // in case of PCA, only apply for testing data
+        // in case of PCA, only apply for Target data
         const lastDatetimeEles = datetimeRange.length - 1;
         datetimeRange[lastDatetimeEles] = '';
         const timeUnit = formData.get('timeUnit') || 60;
@@ -3513,6 +3557,7 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
     // formData.delete('DATETIME_PICKER');
 
     formData = setFitlerIntoFormData(formData);
+    formData = bindCategoryParams(formData);
 
     return formData;
 };
@@ -3539,7 +3584,7 @@ const generateDefaultNameExport = () => {
     const title = document.title ? document.title.split(' ')[0] : '';
     try {
         const endProc1 = $('select[name*=end_proc]')[0].value;
-        const endProc = endProc1 ? procConfigs[endProc1].name : '';
+        const endProc = endProc1 ? procConfigs[endProc1].shown_name : '';
         let dateTimeRange = '';
 
         const hasDivision = $('select[name=compareType]').length > 0;
@@ -3596,7 +3641,11 @@ const fetchData = async (url, data, method = 'GET', options = {}) => {
         $.ajax({
             ...requestContent,
             success: (res) => {
-                resolve(res);
+                if (typeof res === 'string') {
+                    resolve(JSON.parse(res));
+                } else {
+                    resolve(res);
+                }
             },
             error: (err) => {
                 reject(err);
@@ -3621,7 +3670,7 @@ const afterReceiveResponseCommon = (res) => {
     dataSetID = res['dataset_id'];
 };
 
-const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBottom = false) => {
+const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBottom = false, iconSort = true) => {
     const tableIDEl = `#${tableID}`;
     const table = $(tableIDEl);
 
@@ -3635,18 +3684,41 @@ const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBotto
     heades.each((i, th) => {
         const thEl = $(th);
         const thClass = thEl.attr('class') || '';
-        thEl.addClass('position-relative');
-        const iconHtml = `<span id="sortCol-${i}" idx="${i}" class="mr-1 sortCol" title="Sort"><i id="asc-${i}" class="fa fa-sm fa-play asc"></i><i id="desc-${i}" class="fa fa-sm fa-play desc"></i></span>`;
-        thEl.append(iconHtml);
+        if (iconSort) {
+            thEl.addClass('position-relative');
+            const iconHtml = `<span id="sortCol-${i}" idx="${i}" class="mr-1 sortCol" title="Sort"><i id="asc-${i}" class="fa fa-sm fa-play asc"></i><i id="desc-${i}" class="fa fa-sm fa-play desc"></i></span>`;
+            thEl.append(iconHtml);
+        }
 
         if (filterCols && filterCols.length > 0 && !hasFilterRow) {
             const hasFilter = filterCols.indexOf(i) !== -1;
-            const filterTh = `<th scope="col" class="search-box ${thClass}">${hasFilter ? `<input class="form-control filterCol" data-col-idx="${i}" placeholder='Filter...'>` : ''}</th>`;
+            const filterTh = `<th scope="col" class="search-box ${thClass}">${hasFilter ? `<input class="form-control filterCol" data-col-idx="${i}" placeholder="${i18nCommon.filter}...">` : ''}</th>`;
             ths.push(filterTh);
         }
     });
 
-    // handle sort
+    if (iconSort) {
+        initSortIcon();
+    }
+
+    // add filter
+    if (filterCols) {
+        const trFilter = `<tr id="filters" class="filter-row">
+                                ${ths.join('')}
+                           </tr>`;
+        $(table.find('thead')).append(trFilter);
+        $(table.find('thead .filter-row:not(:first)')).remove();
+
+        handleSearchFilterInTable(tableID);
+    }
+
+    if (maxheight) {
+        tableScroll(tableID, maxheight, scrollToBottom);
+    }
+};
+
+const initSortIcon = () => {
+        // handle sort
     $('.sortCol').off('click');
     $('.sortCol').on('click', (el) => {
         let asc = true;
@@ -3685,21 +3757,7 @@ const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBotto
         }
         ;
     });
-
-    // add filter
-    if (filterCols) {
-        const trFilter = `<tr id="filters" class="filter-row">
-                                ${ths.join('')}
-                           </tr>`;
-        $(table.find('thead')).append(trFilter);
-
-        handleSearchFilterInTable(tableID);
-    }
-
-    if (maxheight) {
-        tableScroll(tableID, maxheight, scrollToBottom);
-    }
-};
+}
 
 
 const handleSearchFilterInTable = (tableID) => {
@@ -4176,15 +4234,15 @@ const handleExportDataCommon = (type, formData) => {
     const exportFrom = getExportDataSrc();
     formData.set('export_from', exportFrom);
     if (type === EXPORT_TYPE.CSV) {
-        exportData('/ap/api/common/csv_export', 'csv', formData);
+        exportData('/ap/api/common/data_export/csv', 'csv', formData);
     }
 
     if (type === EXPORT_TYPE.TSV) {
-        exportData('/ap/api/common/tsv_export', 'tsv', formData);
+        exportData('/ap/api/common/data_export/tsv', 'tsv', formData);
     }
 
     if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
-        tsvClipBoard('/ap/api/common/tsv_export', formData);
+        tsvClipBoard('/ap/api/common/data_export/tsv', formData);
     }
 };
 
@@ -4250,12 +4308,12 @@ const isDefined = (variable) => {
     return typeof variable !== 'undefined';
 };
 
-function create_UUID(){
+function create_UUID() {
     var dt = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (dt + Math.random()*16)%16 | 0;
-        dt = Math.floor(dt/16);
-        return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (dt + Math.random() * 16) % 16 | 0;
+        dt = Math.floor(dt / 16);
+        return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
     return uuid;
 };
@@ -4287,7 +4345,7 @@ const updateDatetimeInputs = (value) => {
 
 }
 
-const updateXOption = (serialOrder=true) => {
+const updateXOption = (serialOrder = true) => {
     if (isSettingLoading) return;
     let xOptionVal = 'INDEX';
     if (!serialOrder && !isSettingLoading) {
@@ -4307,7 +4365,7 @@ const changeDefaultIndexOrdering = async () => {
         updateXOption();
         // change default value of datetime picker
         const [minDate, maxDate] = endProcCfg.ct_range;
-        if(minDate && maxDate) {
+        if (minDate && maxDate) {
             const startDate = convertUTCToLocaltime(minDate); // floor
             const endDate = convertUTCToLocaltime(maxDate); // ceil
             const dummyDatetimeRange = `${roundMinute(startDate, 'down')} ${DATETIME_PICKER_SEPARATOR} ${roundMinute(endDate, 'up')}`;
@@ -4333,4 +4391,211 @@ const roundMinute = (dateStr, option = 'up', unit = 5) => {
 
     const newMinute = divideUnit * unit;
     return moment(moment(dateStr).format('YYYY-MM-DD HH:00')).add(newMinute, 'minutes').format(DATE_TIME_FMT);
+};
+const reselectVariablesToShowGraph = () => {
+    $('input[name^=selectedVar]').each((_, el) => {
+        const elStatus = $(el).is(':checked');
+        const guiDOM = $(`input[name^=GET02_VALS_SELECT][value=${$(el).val()}]`);
+        const guiStatus = guiDOM.prop('checked');
+
+        if (elStatus !== guiStatus) {
+            guiDOM.prop('checked', elStatus).trigger('change');
+        }
+    });
+    if (reselectCallback) {
+        reselectCallback(false, true);
+    }
+};
+
+const genProblematicContent = (plotData, multipleTimeRange = false) => {
+    const problematicTblBody = $(domEles.problematicTbl).find('tbody');
+    const problematicPCATblBody = $(domEles.problematicPCATbl).find('tbody');
+    problematicTblBody.html('');
+    problematicPCATblBody.html('');
+    if (multipleTimeRange) {
+        $(domEles.problematicPCATbl).show();
+        $(domEles.problematicTbl).hide();
+
+        const selectedVars = plotData.train_data.selected_vars;
+        const nullPercent = plotData.train_data.null_percent;
+        const selectedVarsTarget = plotData.target_data.selected_vars;
+        const nullPercentTarget = plotData.target_data.null_percent;
+
+        const trainDataSensorIDs = Object.keys(selectedVars).length ? Object.keys(selectedVars) : null;
+        const trainDataSensorIDsFromNADict = Object.keys(nullPercent).length ? Object.keys(nullPercent) : null;
+        const targetDataSensorIDs = Object.keys(selectedVarsTarget).length ? Object.keys(selectedVarsTarget) : null;
+        const targetDataSensorIDsFromNADict = Object.keys(nullPercentTarget).length ? Object.keys(nullPercentTarget) : null;
+        const selectedCols = trainDataSensorIDs || targetDataSensorIDs ||
+            trainDataSensorIDsFromNADict || targetDataSensorIDsFromNADict;
+
+        if (selectedCols) {
+            selectedCols.forEach(colID => {
+                const colName = selectedVars[colID] || selectedVarsTarget[colID] || '';
+                const zeroVar = plotData.train_data.zero_variance.map(i => String(i)).includes(colID);
+                const naRate = trainDataSensorIDsFromNADict ? applySignificantDigit(nullPercent[colID]) : 100;
+                const selectedTrain = naRate <= 50 && !zeroVar;
+
+                const zeroVarTarget = plotData.target_data.zero_variance.map(i => String(i)).includes(colID);
+                const naRateTarget = targetDataSensorIDsFromNADict ? applySignificantDigit(nullPercentTarget[colID]) : 100;
+                const selectedTarget = naRateTarget <= 50 && !zeroVarTarget;
+
+                const selected = (selectedTrain && selectedTarget) ? ' checked' : '';
+                const rowContent = `<tr>
+                    <td>
+                        <div class="custom-control custom-radio">
+                          <input type="radio" id="selectedVar_${colID}" name="selectedVar_${colID}" 
+                            class="custom-control-input" ${selected} value="${colID}">
+                            <label class="custom-control-label" onclick="uncheckRadioEvent(this);" for="selectedVar_${colID}"></label>
+                        </div>
+                    </td>
+                    <td style="text-align: left; padding-left: 4px">${colName}</td>
+                    <td>${zeroVar ? '〇' : ''}</td>
+                    <td>${naRate}%</td>
+                    <td>${zeroVarTarget ? '〇' : ''}</td>
+                    <td>${naRateTarget}%</td>
+                </tr>`;
+                problematicPCATblBody.append(rowContent);
+            });
+        }
+
+    } else {
+        $(domEles.problematicPCATbl).hide();
+        $(domEles.problematicTbl).show();
+
+        const selectedVars = Object.keys(plotData.selected_vars).length ? Object.keys(plotData.selected_vars) : null;
+        const nullPercent = Object.keys(plotData.null_percent).length ? Object.keys(plotData.null_percent) : null;
+
+        const selectedCols = selectedVars || nullPercent;
+        selectedCols.forEach(colID => {
+            const colName = plotData.selected_vars[colID] || '';
+            const zeroVar = plotData.zero_variance.map(i => String(i)).includes(colID);
+            const naRate = nullPercent ? applySignificantDigit(plotData.null_percent[colID]) : 0;
+            const selected = (naRate <= 50 && !zeroVar) ? ' checked' : '';
+            const rowContent = `<tr>
+                <td>
+                    <div class="custom-control custom-radio">
+                      <input type="radio" id="selectedVar_${colID}" name="selectedVar_${colID}" 
+                        class="custom-control-input" ${selected} value="${colID}">
+                        <label class="custom-control-label" onclick="uncheckRadioEvent(this);" for="selectedVar_${colID}"></label>
+                    </div>
+                </td>
+                <td style="text-align: left; padding-left: 4px">${colName}</td>
+                <td>${zeroVar ? '〇' : ''}</td>
+                <td>${naRate}%</td>
+            </tr>`;
+            problematicTblBody.append(rowContent);
+        });
+    }
+};
+
+const showRemoveProblematicColsMdl = (resPlotData = null, multipleTimeRange = false) => {
+    setTimeout(() => {
+        genProblematicContent(resPlotData, multipleTimeRange);
+        $(domEles.problematicModal).modal().show();
+    }, 1000);
+};
+
+const genSelect2Param = (type = 1, data = []) => {
+    const params = {
+        width: '100%',
+        allowClear: true,
+        tags: true,
+        placeholder: '',
+    };
+    if (type === 2) {
+        params.multiple = true;
+        params.tokenSeparators = [' ', '\n'];
+    }
+    if (data && data.length) {
+        params.data = data;
+    }
+    return params;
+};
+
+const uncheckRadioEvent = (e) => {
+    const currentEl = $(e).parent().find('input');
+    const check = currentEl.prop('checked');
+    if (check) {
+        setTimeout(() => {
+            currentEl.prop('checked', false).trigger('change');
+        }, 100);
+    }
+};
+
+const updatePriority = (tableID) => {
+    $(`${tableID} tbody tr`).each((rowIdx, row) => {
+        $(row).find('td:nth-child(1)').text(rowIdx + 1);
+    });
+};
+
+// convert dimension name to short name with ".."
+const shortTextName = (text, limitSize = 21) => {
+    // total length from name
+    let nameLength = 0;
+    let shortName = '';
+    for (const char of [...text]) {
+        nameLength += new Blob([char]).size;
+        if (nameLength > limitSize) {
+            break;
+        }
+        shortName += char;
+    }
+    if (nameLength >= limitSize) {
+        shortName += '...';
+    }
+    return shortName;
+};
+
+const getFmtValueOfArrayTrim5Percent = (array) => {
+    let sortedArray = [...array].sort();
+    const start = Math.floor(sortedArray.length * 0.05);
+    const end = sortedArray.length - start;
+    sortedArray = sortedArray.slice(start, end);
+    const fmt = sortedArray.length > 0 ? significantDigitFmt(Math.max(...sortedArray)) : '';
+    return fmt;
+};
+
+const getFmtValueOfArray = (array) => {
+    const decimal = '.';
+    let sortedArray = [...array].sort();
+    let usageNum = 0;
+    let sigDigit = 0;
+    sortedArray.forEach(num => {
+       const vals = String(num).split(decimal);
+       if (vals.length > 1 && vals[1].length > sigDigit) {
+            sigDigit = vals[1].length;
+            usageNum = num;
+       }
+    });
+    const fmt = sortedArray.length > 0 ? significantDigitFmt(usageNum, sigDigit) : '';
+    return fmt;
+}
+
+const alignLengthTickLabels = (ticks) => {
+    const decimal = '.';
+    const pattern = /0*$/;
+    try {
+        const zeroLens = ticks.filter(tick => tick.label && tick.label !== '').map(tick => {
+            // tick > 0 then pass
+            if (!tick.label || !tick.label.includes(decimal)) return -1;
+            const [_, subTicks] = tick.label.split(decimal)
+            const matching = subTicks.match(pattern);
+            if (!matching) return 0;
+            return matching[0].length;
+        });
+        const minLen = Math.min(...zeroLens);
+        if (minLen > 0) {
+            ticks.map(tick => {
+                tick.label = tick.label.substring(0, tick.label.length - minLen);
+                const lastIdx = tick.label.length - 1;
+                const decimalIdx = tick.label.lastIndexOf(decimal);
+                // remove decimal if no number after that (10.)
+                if (decimalIdx >= 0 && decimalIdx == lastIdx) {
+                    tick.label = tick.label.substring(0, lastIdx);
+                }
+            });
+        }
+    } catch (e) {
+        return;
+    }
 }

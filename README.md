@@ -4,6 +4,10 @@
 
 # Analysis Platform
 
+```
+2023-11-10: Released version 4.5.0! see RELEASE.md for details.
+```
+
 Analysis Platform is an open source web application to import, connect and visualize factory IoT data. It helps to collect, link and integrate data from multiple data sources.
 Visualizations include Digital Native QC7 Tools, which is designed especially suitable for data on manufacturing domain.
 Let's try data-driven process improvement by utilizing the data sleeping in the field.
@@ -62,7 +66,7 @@ Windows embeddable package, running the batch file is regarded as you agreed to 
 ## Requirements
 
 * Windows (Tested with Windows 10)
-* Python (>=3.6) (Tested with Python 3.7.3, pip 22.2)
+* Python (>=3.6) (Tested with Python 3.9.0, pip 22.2)
   * If you are going to use the Windows embeddable package, you do not have to install Python in your machine.  
   (See section: For users: Run the Analysis Platform with the Windows embeddable package)
 
@@ -103,7 +107,7 @@ Open below URL to access the application.
 http://localhost:7770/
 ```
 
-Downloads are only excecuted only if above files were not detected, so you can use use "`start_ap.bat`" for the next activation. (The Analysis Platform detects a folder named `python_embedded` on the same level as `AnalysisPlatform-master`)
+Downloads are only excecuted only if above files were not detected, so you can use use "`start_ap.bat`" for the next activation. (The Analysis Platform detects a folder named `python_embedded_39` on the same level as `AnalysisPlatform-master`)
 
 The Analysis Platform can run without internet connection.
 If you want to use this application on machine which has no internet connection (for example, intranet),
@@ -114,7 +118,7 @@ then copy entire files.
 
 The Analysis Platform uses [Flask](https://flask.palletsprojects.com/en/latest/) framework.
 
-* Python (>=3.6) (Tested with Python 3.7.3)
+* Python (>=3.6) (Tested with Python 3.9.0)
 
 First, pull this repository to your PC.  
 
@@ -129,7 +133,7 @@ Then, install requirements:
 pip install -r requirements/common.txt
 ```
 
-If pip install fails, try using Python 3.7.3.  
+If pip install fails, try using Python 3.9.0.  
 Analysis Platform is activated by following command
 
 ```bash
@@ -141,8 +145,8 @@ Corresponding ODBC driver must be installed to use SQL Server and Oracle Databas
 ## How do we shut down Analysis Platform?
 
 To shut down the Analysis Platform,  
-press shut down button on bottom of sidebar (this button is only available on host machine),  
-or you can press `Ctrl + C` on your console.
+press shut down button on bottom of sidebar  
+(this button is only available on host machine, by accessing the application with `localhost:{port_no}`),  
 
 ## Upgrade
 
@@ -158,7 +162,8 @@ To uninstall the Analysis Platform:
 1. Remove the Analysis Platform folder (the folder which the `start_ap.bat` is included)
 2. Remove the following files/folders:
    * `get-pip.py`
-   * `python_embedded`
+   * `python_embedded_39`
+   * `Oracle-Portable`
 
 ## Is there any sample data that we can use?
 

@@ -1,0 +1,292 @@
+!!omap
+- sections:
+  - title_en: 'How do I watch the fluctuations of time-Series data?'
+    title_ja: 'データの時系列的な動きを把握したい'
+    icon_path: 'linechart.png'
+    example_en: '<ul>
+                 <li> I want to watch and monitor measured values (like the Andon)</li>
+                 <li> I want to know when and how often the outliers occurs</li>
+                 <li> I want to detect the sudden change of the process</li>
+                 <li> I think that we might miss abnormal product with X-R chart</li>
+                 <li> I want to look at the trend of the daily result of machine maintenance</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> 測定値の値を監視したい (アンドン)</li>
+                 <li> 外れ値の発生状況を知りたい</li>
+                 <li> 加工の状況の急変を検出したい</li>
+                 <li> X-R管理図では見逃しがありそう</li>
+                 <li> 装置の日常点検のトレンドをみたい</li>
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: fpp
+        description_en: '<ul>
+                         <li> Show value: Measurements to visualize</li>
+                         <li> Target period: If you want to refresh the charts to monitor the latest imprted data, select "Latest" > "Auto Update"</li>
+                         Note: Control lines are visualized if you set the configurations on master config'
+        description_ja: '<ul>
+                         <li> ターゲット変数: 見たい測定値</li>
+                         <li> 対象期間: アンドンなど、常時監視したい場合「最新」と「自動更新」を選択</li>
+                         </ul>
+                         ※ マスタ設定を行えば、規格線の描画が可能'
+  - title_en: 'How do I analyze the differences of the data among the lines/machines/etc?'
+    title_ja: '機差/ライン差など、層別でデータ群の違いを把握したい'
+    icon_path: 'barchart.png'
+    example_en: '<ul>
+                 <li> Machines: There might be differences among the machine number 1-7.</li>
+                 <li> Lines: There might be differences on the distribution of the measurements among the lines</li>
+                 <li> Production Lots: Measurements might change among the production lots.</li>
+                 <li> Shifts: Are there any differences between shifts?</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> 機差: 装置の1-7号機で出来栄えに差があるかも</li>
+                 <li> ライン間差: ライン毎で分布のばらつきに差があるのでは？</li>
+                 <li> ロット間差: ロット毎に特性のばらつきがある</li>
+                 <li> シフト間差: シフト毎の差を見たい</li>
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: stp
+        description_en: '<b>I want to see the histograms of the measurements, stratified by machine no./part no./line no./etc</b>
+                         <ul>
+                         <li> Show value: Measurements to analyze the difference</li>
+                         <li> Select "Facet" of the variable which you want to stratify</li>
+                         </ul>'
+        description_ja: '<b>各測定値を層別してヒストグラムを表示したい</b>\n
+                         <ul>
+                         <li> ターゲット変数: 比較したい測定値</li>
+                         <li> 「Facet」に、層別する変数(機番/品番/シフト/ラインなど)を指定</li>
+                         </ul>'
+      - row: 1
+        column: 2
+        page: pcp
+        description_en: '<b>I want to stratify with more variables</b>\n
+                         <ul>
+                         <li> Show value: Measurements to analyze the differences, and variables to stratify (machine no./part no./line no./etc)</li>
+                         <li> Select "Objective" of the measurement which you are most interested on (Failure flag/Important measurement/etc)</li>
+                         </ul>'
+        description_ja: '<b>より多くの変数で層別して、着目したい変数との関係性を見たい</b>
+                         <ul>
+                         <li> ターゲット変数: 比較したい測定値と、層別したい変数(機番/品番/シフト/ラインなど)</li>
+                         <li> 「目的変数」に、着目したい変数(不良フラグや重要な測定値など)を一つ指定</li>
+                         </ul>'
+  - title_en: 'How do I analyze the correlation among the measurements?'
+    title_ja: '測定値間の相関関係
+    を把握したい'
+    icon_path: 'circlenodes.png'
+    example_en: '<ul>
+                 <li> I want to create scatter plots</li>
+                 <li> I want to see if the data distribution is seperated in some clusters</li>
+                 <li> I want to analyze the condition of the good quality</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> 散布図をプロットしたい</li>
+                 <li> 分布がいくつかの山に分かれているか確認したい</li>
+                 <li> 良品条件を分析したい
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: msp
+        description_en: '<b>I want to draw scatter plots and correlation coefficients between each pair of the measurements</b>\n
+                        <ul> 
+                        <li> Show value: Measurements to visualize (2 to 7 measurements)</li>
+                        </ul>'
+        description_ja: '<b>各測定値の組み合わせで散布図と相関係数を表示したい</b>\n
+                         <ul>
+                         <li> ターゲット変数: 見たい測定値 (2-7個)</li>
+                         </ul>'
+      - row: 1
+        column: 2
+        page: pcp
+        description_en: '<b>I want to look at the correlations of more variables</b>\n
+                         <ul>
+                         <li> Show value: Measurements to visualize</li>
+                         <li> Select "Objective" of the measurement which you are most interested on (Failure flag/Important measurement/etc)</li>
+                         </ul>'
+        description_ja: '<b>より多くの測定値の相関関係を把握したい</b>\n
+                         <ul>
+                         <li> ターゲット変数: 見たい測定値</li>
+                         <li> 「目的変数」に、着目したい変数(不良フラグや重要な測定値など)を一つ指定</li>
+                         </ul>'
+      - row: 1
+        column: 3
+        page: scp
+        description_en: '<b>I want to look at the relationship between two measurements, with automatically selecting from scatter plot/violin plot/heatmap according to the data types.</b>\n
+                         <ul>
+                         <li> Show value: Measurements to visualize (2 measurements)</li>
+                         <li> Select "Color" of the measurement (number of shots/elapse time/failure flag/etc) which you want to use the values to color the chart
+                         </ul>'
+        description_ja: '<b>測定値のデータ型に合わせて、散布図/バイオリンプロット/ヒートマップの中から適切に自動選択し表示したい</b>\n
+                         <ul>
+                         <li> ターゲット変数: 見たい測定値 (2個)</li>
+                         <li> 「Color」に、色分けの基準となる変数(ショット数や経過時間・良/不良品など)を一つ指定 (任意)</li>
+                         </ul>'
+  - title_en: 'How do I visualize trends depending on time of day/day of week/etc?'
+    title_ja: '時間帯や曜日別の傾向を把握したい'
+    icon_path: 'calendar.png'
+    example_en: '<ul>
+                 <li> It seems that NG occurs frequently after the break time</li>
+                 <li> I want to see if seasonality (long-term change) exists</li>
+                 <li> I want to see the relationship between sensor data and amount of productions/NGs</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> 休憩明けに不良が多発していそう</li>
+                 <li> 季節性 (長期変動) があるか確認したい</li>
+                 <li> 各測定値と、生産数/不良数との関係を見たい</li>
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: chm
+        description_en: '<b>I want to see if there is difference of measurements in some certain time period/season/day/etc</b>\n
+                         <ul>
+                         <li> Show value: Measurements to visualize (failure flag/important measurement/etc)</li>
+                         <li> Target period: Set "Cycle" to Daily if you want to see the short time range, or Weekly for the long time range</li>
+                         </ul>'
+        description_ja: '<b>特定の時間帯や時期によって測定値の傾向が異なるかを見たい</b>\n
+                         <ul>
+                         <li> ターゲット変数: 見たい測定値(良/不良・重要特性など)</li>
+                         <li> 対象期間: 「表示周期」を、短期の傾向ならDaily、中長期の傾向ならWeeklyに指定</li>
+                         </ul>'
+  - title_en: 'How do I find a measurement that seems to be related to the objective variable?'
+    title_ja: '目的変数に寄与していそうな測定値を探したい'
+    icon_path: 'search.png'
+    example_en: '<ul>
+                 <li> What variable has the most strong effect to the important measurement?</li>
+                 <li> I want to narrow down the variables, as I have large number of measurements</li>
+                 <li> I want a blueprint of fishbone chart</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> 重要特性に効きそうな変数は？</li>
+                 <li> 測定項目が多いので、分析対象を重要度が高いものだけに絞りたい</li>
+                 <li> 魚の骨のたたき台が欲しい</li>
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: skd
+        description_en: '<b>I want to automatically narrow down the important variables from huge amounts of measurements</b>\n
+                         <ul>
+                         <li> Show value: The objective variable and (potentially) related measurements</li>
+                         <li> Select "Objective" of the measurement (failure flag/important measurement/etc) you are interested on</li>
+                         </ul>
+                         Note: Measurements those estimated to be unrelated to the objective are automatically removed'
+        description_ja: '<b>大量の測定値から、目的変数に寄与しうる変数のあたりをつけたい</b>\n
+                         <ul>
+                         <li> ターゲット変数: 目的変数と、それに関係する測定値</li>
+                         <li>  「目的変数」に、着目したい変数(不良フラグや重要な測定値など)を一つ指定</li>
+                         </ul>
+                         ※ 寄与しないと思われる変数を自動的に除去'
+      - row: 1
+        column: 2
+        page: pcp
+        description_en: '<b>I want to see the relationships between the values of the objective and other measurements taken at the same time</b>\n
+                         <ul>
+                         <li> Show value: The objective variable and (potentially) related measurements</li>
+                         <li> Select "Objective" of the measurement (failure flag/important measurement/etc) you are interested on</li>
+                         </ul>'
+        description_ja: '<b>目的変数がとる値と、他の多数の測定値がとる値との関係を見たい</b>
+                         <ul>
+                         <li> ターゲット変数: 目的変数と、それに関係する測定値</li>
+                         <li> 「目的変数」に、着目したい変数(不良フラグや重要な測定値など)を一つ指定</li>
+                         </ul>'
+      - row: 1
+        column: 3
+        page: gl
+        description_en: '<b>I want to look at the connection between the measurements, with adjusting pseudo-correlations</b>
+                         <ul>
+                         <li> Show value: The objective variable and (potentially) related measurements</li>
+                         <li> Select "Objective" of the measurement (failure flag/important measurement/etc) you are interested on</li>
+                         </ul>
+                         Note: Advanced visualization'
+        description_ja: '<b>測定値間から疑似相関を取り除いたときの関係性を見たい</b>\n
+                         <ul>
+                         <li> ターゲット変数: 目的変数と、それに関係する測定値</li>
+                         <li> 「目的変数」に、着目したい変数(不良フラグや重要な測定値など)を一つ指定</li>
+                         </ul>
+                         ※ 上級者用'
+  - title_en: 'How do I monitor the change of the distiribution of each measurement?'
+    title_ja: '測定項目の分布の動きを把握したい'
+    icon_path: 'columnchart.png'
+    example_en: '<ul>
+                 <li> I want to visualize the change of distributions with more comprehensible way</li>
+                 <li> I have too many data points, so the line chart is hard to interpret</li>
+                 <li> I want to see the change of distribution over time.</li>
+                 <li> I want to see the change from the initial distribution</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> 分布の動きを分かりやすく見える化したい</li>
+                 <li> データ点数が多すぎて潰れてしまう</li>
+                 <li> 分布の変化点を見たい</li>
+                 <li> 初期分布からの分布の動きを把握したい</li>
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: rlp
+        description_en: '<ul>
+                         <li> Show value: Measurements to visualize</li>
+                         <li> (Optional) Select "Facet" > "Div" of the measurement (LotID, etc) if you want to set as x-axe</li>
+                         <li> Target period: If you want to see the change over time, select "Divide by Term"</li>
+                         </ul>'
+        description_ja: '<ul>
+                         <li> ターゲット変数: 見たい測定値</li>
+                         <li> 「Facet: Div」に、横軸に指定したい測定値 (ロットIDなど) があれば選択</li>
+                         <li> 対象期間: 時系列的な変化を見たい場合は「期間分解」を選択</li>
+                         </ul>
+                         ※ FPPより細かい分布の変動と、その変数間の関係性が分かりやすい'
+  - title_en: 'How do I monitor the change of many measurements simultaneously?'
+    title_ja: '多くの変数(多変量)の変動を一括して把握したい'
+    icon_path: 'manyvariables.png'
+    example_en: '<ul>
+                 <li> I want to detect abnormal data points and its cause</li>
+                 <li> I want to monitor the process more efficiently, as I have too many X-R charts to see</li>
+                 <li> As I have more than 100 measurements, it is difficult to monitor all of them.</li>
+                 <li> I want to narrow down the potential causes of the change</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> 異常なデータ点とその原因を探りたい</li>
+                 <li> X-R管理図が多いので、効率的に状況把握したい</li>
+                 <li> 装置の測定パラメータが100個近くあり、全てをモニタするのが難しい</li>
+                 <li> 変動が発生した際の主要因を絞り込みたい</li>
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: pca
+        description_en: '<ul>
+                         <li> Show value: Measurements to be summarized and viewed</li>
+                         <li> Target period: Set "Train data" to the period which assumed to be normal, and set "Testing data" to the period which might include abnormal value</li>
+                         </ul>'
+        description_ja: '<ul>
+                         <li> ターゲット変数: まとめて変動を見たい測定値</li>
+                         <li> 対象期間: 「学習データ」にデータが正常であるとみなす期間を、「検証データ」にデータに異常が含まれている可能性のある期間を選択</li>
+                         </ul>'
+  - title_en: 'How do I analyze the events that occure on the same time interval?'
+    title_ja: '同時に発生する現象を把握したい'
+    icon_path: 'network.png'
+    example_en: '<ul>
+                 <li> I want to analyze how often the alarms are co-occurring</li>
+                 <li> Is there any relationship between some events and the alarms?</li>
+                 <li> I want to see the co-occurence of the alarms and the failures</li>
+                 <li> Is there any failures those occur at the same time?</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> アラームがどういう頻度で同時に発生しているか調べたい</li>
+                 <li> ある事象とアラームに関係はある？</li>
+                 <li> アラーム/不良の共起関係を探りたい</li>
+                 <li> 同時発生する不良の関係は？</li>
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: cog
+        description_en: '<ul>
+                         <li> Set "Data file" to the TSV/CSV file which has datetime in the first column, and other columns with counts of (alarms/failures/etc)</li>
+                         <li> Set "Aggregate by" to the time interval to count the co-occurrence'
+        description_ja: '<li> 「ファイル」に1列目に日時、2列目以降にアラーム等の発生回数が格納されたCSV/TSVを指定</li>
+                         <li> 「集計単位」に、共起関係を集計する単位を選択</li>
+                         </ul>'

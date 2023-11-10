@@ -7,35 +7,54 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+import pytz
 from apscheduler.triggers.date import DateTrigger
 from dateutil import tz
-from ap.common.logger import logger
 from pandas import DataFrame
 from pytz import utc
 from sqlalchemy import and_
 
 from ap import db, scheduler
 from ap.common.common_utils import (
+    DATE_FORMAT_FOR_ONE_HOUR,
+    DATE_FORMAT_STR,
+    DATE_FORMAT_STR_ONLY_DIGIT,
+    TXT_FILE_TYPE,
+    chunks,
+    convert_time,
+    get_basename,
+    get_csv_delimiter,
+    get_current_timestamp,
+    get_error_duplicate_path,
+    get_error_import_path,
+    get_error_trace_path,
+    make_dir_from_file_path,
     parse_int_value,
-    make_dir_from_file_path, get_current_timestamp, get_csv_delimiter, DATE_FORMAT_STR, convert_time,
-    DATE_FORMAT_STR_ONLY_DIGIT, split_path_to_list, get_error_trace_path, get_error_import_path, get_basename,
-    chunks, get_error_duplicate_path, DATE_FORMAT_FOR_ONE_HOUR
+    split_path_to_list,
 )
 from ap.common.constants import *
 from ap.common.disk_usage import get_ip_address
-from ap.common.logger import log_execution_time
+from ap.common.logger import log_execution_time, logger
 from ap.common.memoize import set_all_cache_expired
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
-from ap.common.scheduler import scheduler_app_context, JobType, lock
+from ap.common.scheduler import JobType, lock, scheduler_app_context
 from ap.common.services import csv_header_wrapr as chw
 from ap.common.services.csv_content import read_data
+from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_df, normalize_str
-from ap.common.services.sse import background_announcer, AnnounceEvent
+from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.common.timezone_utils import calc_offset_between_two_tz
 from ap.setting_module.models import CfgConstant, CfgDataSource, CfgDataSourceDB, CfgProcess
 from ap.setting_module.services.background_process import send_processing_info
-from ap.trace_data.models import Sensor, find_sensor_class, SensorType, find_cycle_class, CYCLE_CLASSES, Cycle, \
-    ProcDataCount
+from ap.trace_data.models import (
+    CYCLE_CLASSES,
+    Cycle,
+    ProcDataCount,
+    Sensor,
+    SensorType,
+    find_cycle_class,
+    find_sensor_class,
+)
 
 # csv_import : max id of cycles
 # ( because of csv import performance, we make a deposit/a guess of cycle id number
@@ -50,14 +69,30 @@ CYCLE_TIME_COL = '__time__'
 FILE_IDX_COL = '__FILE_INDEX__'
 
 # max insert record per job
-# RECORD_PER_COMMIT = 10_000
-RECORD_PER_COMMIT = 100
+RECORD_PER_COMMIT = 10_000
 
 # range of time per sql
 
 # N/A value lists
-PANDAS_DEFAULT_NA = {'#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>',
-                     'N/A', 'NA', 'NULL', 'NaN', 'n/a', 'nan', 'null'}
+PANDAS_DEFAULT_NA = {
+    '#N/A',
+    '#N/A N/A',
+    '#NA',
+    '-1.#IND',
+    '-1.#QNAN',
+    '-NaN',
+    '-nan',
+    '1.#IND',
+    '1.#QNAN',
+    '<NA>',
+    'N/A',
+    'NA',
+    'NULL',
+    'NaN',
+    'n/a',
+    'nan',
+    'null',
+}
 NA_VALUES = {'na', '-', '--', '---', '#NULL!', '#REF!', '#VALUE!', '#NUM!', '#NAME?', '0/0'}
 INF_VALUES = {'Inf', 'Infinity', '1/0', '#DIV/0!', float('inf')}
 INF_NEG_VALUES = {'-Inf', '-Infinity', '-1/0', float('-inf')}
@@ -69,7 +104,9 @@ ERR_COLS_NAME = '___ERR0R_C0LS___'
 
 
 @log_execution_time('[DATA IMPORT]')
-def import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls, dic_substring_sensors, job_id):
+def import_data(
+    df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls, dic_substring_sensors, job_id
+):
     cycles_len = len(df)
     if not cycles_len:
         return 0
@@ -100,7 +137,10 @@ def import_data(df, proc_id, get_date_col, cycle_cls, dic_sensor, dic_sensor_cls
     # run in main thread
     sensor_vals = []
     for col_name, sensor in dic_sensor.items():
-        sensor_vals += gen_sensor_data(df, sensor, col_name, dic_sensor_cls, dic_substring_sensors)
+        if col_name in df:
+            sensor_vals += gen_sensor_data(
+                df, sensor, col_name, dic_sensor_cls, dic_substring_sensors
+            )
 
     commit_error = insert_data_to_db(sensor_vals, cycle_vals, sql_insert_cycle)
 
@@ -157,13 +197,14 @@ def gen_data_type_list(columns, data_types, get_date_col, auto_increment_col=Non
         else:
             texts.append(col)
 
-    return {'get_date_col': get_date_col,
-            'auto_increment_col': auto_increment_col or get_date_col,
-            'int_type_cols': ints,
-            'real_type_cols': reals,
-            'date_type_cols': dates,
-            'text_type_cols': texts,
-            }
+    return {
+        'get_date_col': get_date_col,
+        'auto_increment_col': auto_increment_col or get_date_col,
+        'int_type_cols': ints,
+        'real_type_cols': reals,
+        'date_type_cols': dates,
+        'text_type_cols': texts,
+    }
 
 
 # -------------------------- Factory data import -----------------------------
@@ -253,7 +294,7 @@ def write_error_trace(df_error: DataFrame, proc_name, file_path=None, ip_address
 
     base_name = f'_{get_basename(file_path)}' if file_path else ''
 
-    file_name = f'{proc_name}{base_name}_{time_str}{ip_address}.txt'
+    file_name = f'{proc_name}{base_name}_{time_str}{ip_address}{TXT_FILE_TYPE}'
     full_path = os.path.join(get_error_trace_path(), file_name)
     make_dir_from_file_path(full_path)
 
@@ -268,7 +309,7 @@ def write_duplicate_import(df: DataFrame, file_name_elements: List):
         return df
 
     file_name = '_'.join([element for element in file_name_elements if element])
-    export_file_name = f'{file_name}.txt'
+    export_file_name = f'{file_name}{TXT_FILE_TYPE}'
     full_path = os.path.join(get_error_duplicate_path(), export_file_name)
     # make folder
     make_dir_from_file_path(full_path)
@@ -279,8 +320,13 @@ def write_duplicate_import(df: DataFrame, file_name_elements: List):
 
 
 @log_execution_time()
-def write_error_import(df_error: DataFrame, proc_name, file_path=None, error_file_delimiter=CsvDelimiter.CSV.value,
-                       csv_directory=None):
+def write_error_import(
+    df_error: DataFrame,
+    proc_name,
+    file_path=None,
+    error_file_delimiter=CsvDelimiter.CSV.value,
+    csv_directory=None,
+):
     if not len(df_error):
         return df_error
 
@@ -288,13 +334,14 @@ def write_error_import(df_error: DataFrame, proc_name, file_path=None, error_fil
         file_paths = split_path_to_list(file_path)
         csv_directories = split_path_to_list(csv_directory)
         file_name = file_paths[-1]
-        folders = file_paths[len(csv_directories):-1]
+        folders = file_paths[len(csv_directories) : -1]
     else:
         time_str = convert_time(format_str=DATE_FORMAT_STR_ONLY_DIGIT)[4:-3]
-        file_name = time_str + error_file_delimiter
+        file_name = proc_name + '_' + time_str + TXT_FILE_TYPE
         folders = []
 
     full_path = os.path.join(get_error_import_path(), proc_name, *folders, file_name)
+    full_path = full_path.replace('.zip', '')
     make_dir_from_file_path(full_path)
 
     df_error.to_csv(full_path, sep=error_file_delimiter, index=False)
@@ -313,7 +360,9 @@ def get_latest_records(proc_id, dic_sensors, get_date_col):
     col_names = list(dic_sensors)
     dfs = []
     for cols in chunks(col_names, 50):
-        records = get_sensor_values(proc_id, cols, dic_sensors, cycle_cls, cycle_ids=cycle_ids, get_time_col=is_first)
+        records = get_sensor_values(
+            proc_id, cols, dic_sensors, cycle_cls, cycle_ids=cycle_ids, get_time_col=is_first
+        )
         is_first = False
 
         if not records:
@@ -354,12 +403,16 @@ def gen_error_output_df(csv_file_name, dic_sensors, df_error, df_db, error_msgs=
     # data in db
     new_row = columns
     selected_columns = list(dic_sensors.keys())
-    df_db = add_row_to_df(df_db, columns, new_row, selected_columns=selected_columns, mark_not_set_cols=True)
+    df_db = add_row_to_df(
+        df_db, columns, new_row, selected_columns=selected_columns, mark_not_set_cols=True
+    )
 
     new_row = ('column name/sample data (latest 5)',)
     df_db = add_row_to_df(df_db, columns, new_row)
 
-    new_row = [DataType(dic_sensors[col_name].type).name for col_name in columns if col_name in dic_sensors]
+    new_row = [
+        DataType(dic_sensors[col_name].type).name for col_name in columns if col_name in dic_sensors
+    ]
     df_db = add_row_to_df(df_db, columns, new_row)
 
     new_row = ('data type',)
@@ -390,7 +443,9 @@ def gen_error_output_df(csv_file_name, dic_sensors, df_error, df_db, error_msgs=
     return df_db
 
 
-def gen_duplicate_output_df(dic_use_cols, df_duplicate, csv_file_name=None, table_name=None, error_msgs=None):
+def gen_duplicate_output_df(
+    dic_use_cols, df_duplicate, csv_file_name=None, table_name=None, error_msgs=None
+):
     # db_name: if factory db -> db name
     #                           else if csv -> file name
     columns = df_duplicate.columns.tolist()
@@ -439,17 +494,21 @@ def gen_duplicate_output_df(dic_use_cols, df_duplicate, csv_file_name=None, tabl
     return df_output
 
 
-def add_row_to_df(df, columns, new_row, pos=0, rename_err_cols=False, selected_columns=[], mark_not_set_cols=False):
+def add_row_to_df(
+    df, columns, new_row, pos=0, rename_err_cols=False, selected_columns=[], mark_not_set_cols=False
+):
     df_temp = pd.DataFrame({columns[i]: new_row[i] for i in range(len(new_row))}, index=[pos])
 
     error_cols = {}
     if ERR_COLS_NAME in df.columns:
-        df = df.astype("string")
+        df = df.astype('string')
         for i in range(0, len(df)):
             for col_name in df.columns:
-                if not pd.isna(df.iloc[i][ERR_COLS_NAME]) and \
-                        col_name in df.iloc[i][ERR_COLS_NAME] and \
-                        col_name not in [ERR_COLS_NAME, IS_ERROR_COL]:
+                if (
+                    not pd.isna(df.iloc[i][ERR_COLS_NAME])
+                    and col_name in df.iloc[i][ERR_COLS_NAME]
+                    and col_name not in [ERR_COLS_NAME, IS_ERROR_COL]
+                ):
                     df.loc[i, col_name] = '{}*****'.format(df.iloc[i][col_name])
                     error_cols[col_name] = '!{}'.format(col_name)
             df.loc[i, ERR_COLS_NAME] = None
@@ -487,19 +546,16 @@ def get_new_adding_columns(proc, dic_use_cols):
         if data_type_obj is DataType.DATETIME:
             data_type_obj = DataType.TEXT
 
-        sensor = dict(process_id=proc_id, column_name=col_name, type=data_type_obj.value, created_at=created_at)
+        sensor = dict(
+            process_id=proc_id,
+            column_name=col_name,
+            type=data_type_obj.value,
+            created_at=created_at,
+            name_en=to_romaji(col_name),
+        )
         missing_sensors.append(sensor)
 
     return missing_sensors
-
-
-@log_execution_time()
-def commit_db_instance(db_instance):
-    # commit changes to db
-    db_instance.connection.commit()
-
-    # clear cache
-    set_all_cache_expired()
 
 
 def csv_data_with_headers(csv_file_name, data_src):
@@ -511,7 +567,9 @@ def csv_data_with_headers(csv_file_name, data_src):
             csv_delimiter = get_csv_delimiter(data_src.delimiter)
 
             # read file directly to get Line, Machine, Process
-            csv_reader = read_data(csv_file_name, end_row=5, delimiter=csv_delimiter, do_normalize=False)
+            csv_reader = read_data(
+                csv_file_name, end_row=5, delimiter=csv_delimiter, do_normalize=False
+            )
             next(csv_reader)
 
             row_line = next(csv_reader)  # 2nd row
@@ -524,7 +582,11 @@ def csv_data_with_headers(csv_file_name, data_src):
             machine = normalize_str(row_machine[1])  # 2nd cell
 
             etl_headers = {
-                WR_HEADER_NAMES: [EFAColumn.Line.name, EFAColumn.Process.name, EFAColumn.Machine.name],
+                WR_HEADER_NAMES: [
+                    EFAColumn.Line.name,
+                    EFAColumn.Process.name,
+                    EFAColumn.Machine.name,
+                ],
                 WR_VALUES: [line, process, machine],
             }
             return etl_headers[WR_HEADER_NAMES], etl_headers[WR_VALUES]
@@ -546,9 +608,11 @@ def csv_data_with_headers(csv_file_name, data_src):
         # save flag to db if header exists
         efa_header_exists = chw.get_efa_header_flag(csv_inst)
         if efa_header_exists:
-            CfgConstant.create_or_update_by_type(const_type=CfgConstantType.EFA_HEADER_EXISTS.name,
-                                                 const_name=data_src.id,
-                                                 const_value=EFA_HEADER_FLAG)
+            CfgConstant.create_or_update_by_type(
+                const_type=CfgConstantType.EFA_HEADER_EXISTS.name,
+                const_name=data_src.id,
+                const_value=EFA_HEADER_FLAG,
+            )
 
         return etl_headers[WR_HEADER_NAMES], etl_headers[WR_VALUES]
 
@@ -559,19 +623,20 @@ def add_shutdown_app_job():
     # delete process data from universal db
     shutdown_app_job_id = JobType.SHUTDOWN_APP.name
     scheduler.add_job(
-        shutdown_app_job_id, shutdown_app_job,
+        shutdown_app_job_id,
+        shutdown_app_job,
         trigger=DateTrigger(run_date=datetime.now().astimezone(utc), timezone=utc),
         replace_existing=True,
         kwargs=dict(
             _job_id=shutdown_app_job_id,
             _job_name=JobType.SHUTDOWN_APP.name,
-        )
+        ),
     )
 
 
 @scheduler_app_context
 def shutdown_app_job(_job_id=None, _job_name=None, *args, **kwargs):
-    """ scheduler job to shutdown app
+    """scheduler job to shutdown app
 
     Keyword Arguments:
         _job_id {[type]} -- [description] (default: {None})
@@ -596,8 +661,9 @@ def waiting_for_job_done():
     """
     yield 0
 
-    from ap.common.scheduler import dic_running_job, scheduler
     import time
+
+    from ap.common.scheduler import dic_running_job, scheduler
 
     with lock:
         try:
@@ -700,7 +766,9 @@ def gen_sensors_data(cycle_id, sensor_id, sensor_val, created_at):
 
 
 @log_execution_time()
-def gen_import_job_info(job_info, save_res, start_time=None, end_time=None, imported_count=0, err_cnt=0, err_msgs=None):
+def gen_import_job_info(
+    job_info, save_res, start_time=None, end_time=None, imported_count=0, err_cnt=0, err_msgs=None
+):
     # start time
     if job_info.last_cycle_time:
         job_info.first_cycle_time = job_info.last_cycle_time
@@ -790,7 +858,9 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
             df.loc[df[col_name].isin([float('inf'), float('-inf')]), col_name] = nan
             non_na_vals = df[col_name].dropna()
             if len(non_na_vals):
-                df.loc[non_na_vals.index, col_name] = df.loc[non_na_vals.index, col_name].astype('Int64')
+                df.loc[non_na_vals.index, col_name] = df.loc[non_na_vals.index, col_name].astype(
+                    'Int64'
+                )
 
             continue
 
@@ -828,7 +898,9 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
                         df.at[idx, col_name] = inf_neg_val
                     else:
                         df.at[idx, IS_ERROR_COL] = 1
-                        df.at[idx, ERR_COLS_NAME] = df[ERR_COLS_NAME].at[idx] + '{},'.format(col_name)
+                        df.at[idx, ERR_COLS_NAME] = df[ERR_COLS_NAME].at[idx] + '{},'.format(
+                            col_name
+                        )
 
                 try:
                     if len(non_num_idxs):
@@ -846,7 +918,9 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
             else:
                 idxs = df[col_name].dropna().index
                 if dtype_name == 'object':
-                    df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str).str.strip("'").str.strip()
+                    df.loc[idxs, col_name] = (
+                        df.loc[idxs, col_name].astype(str).str.strip("'").str.strip()
+                    )
                 elif dtype_name == 'string':
                     df.loc[idxs, col_name] = df.loc[idxs, col_name].str.strip("'").str.strip()
                 else:
@@ -855,9 +929,11 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
                     continue
 
                 if len(idxs):
-                    conditions = [df[col_name].isin(na_vals),
-                                  df[col_name].isin(INF_VALUES),
-                                  df[col_name].isin(INF_NEG_VALUES)]
+                    conditions = [
+                        df[col_name].isin(na_vals),
+                        df[col_name].isin(INF_VALUES),
+                        df[col_name].isin(INF_NEG_VALUES),
+                    ]
                     return_vals = [nan, inf_val, inf_neg_val]
 
                     df[col_name] = np.select(conditions, return_vals, df[col_name])
@@ -899,6 +975,8 @@ def data_pre_processing(df, orig_df, dic_use_cols, na_values=None, exclude_cols=
 
     # string parse
     cols = get_object_cols(df)
+    # keep None value in object column, instead of convert to "None"
+    df[cols] = df[cols].fillna(np.nan)
     df[cols] = df[cols].astype(str)
     cols += get_string_cols(df)
 
@@ -950,7 +1028,9 @@ def gen_substr_data(substr_sensor, df, col_name):
 
     substr_cls, from_char, to_char = substr_check_res
 
-    sub_col_name = add_new_col_to_df(df, f'{col_name}_{from_char}_{to_char}', df[col_name].str[from_char:to_char])
+    sub_col_name = add_new_col_to_df(
+        df, f'{col_name}_{from_char}_{to_char}', df[col_name].str[from_char:to_char]
+    )
 
     # # remove blank values (we need to insert the same with proclink, so do not move blank)
     # df_insert = df[df[sub_col_name] != '']
@@ -984,14 +1064,26 @@ def get_object_cols(df: DataFrame):
 
 
 @log_execution_time('[CONVERT DATE TIME TO UTC')
-def convert_df_col_to_utc(df, get_date_col, is_tz_inside, utc_time_offset):
+def convert_df_col_to_utc(df, get_date_col, is_timezone_inside, db_time_zone, utc_time_offset):
     if DATETIME not in df[get_date_col].dtype.name:
-        df[get_date_col] = pd.to_datetime(df[get_date_col], errors='coerce')
+        # create datetime column in df
+        # if data has tz info, convert to utc
+        df[get_date_col] = pd.to_datetime(df[get_date_col], errors='coerce', utc=is_timezone_inside)
 
-    if is_tz_inside:
-        return df[df[get_date_col].notnull()][get_date_col].dt.tz_convert('UTC')
+    if not db_time_zone:
+        db_time_zone = tz.tzlocal()
 
-    return df[df[get_date_col].notnull()][get_date_col] - utc_time_offset
+    local_dt = df[df[get_date_col].notnull()][get_date_col]
+    # return if there is utc
+    if not utc_time_offset:
+        # utc_offset = 0
+        return local_dt
+
+    if not local_dt.dt.tz:
+        # utc_time_offset = 0: current UTC
+        # cast to local before convert to utc
+        local_dt = local_dt.dt.tz_localize(tz=db_time_zone)
+    return local_dt.dt.tz_convert(tz.tzutc())
 
 
 @log_execution_time()
@@ -1000,7 +1092,9 @@ def convert_df_datetime_to_str(df: DataFrame, get_date_col):
 
 
 @log_execution_time()
-def validate_datetime(df: DataFrame, date_col, is_strip=True, add_is_error_col=True, null_is_error=True):
+def validate_datetime(
+    df: DataFrame, date_col, is_strip=True, add_is_error_col=True, null_is_error=True
+):
     dtype_name = df[date_col].dtype.name
     if dtype_name == 'object':
         df[date_col] = df[date_col].astype(str)
@@ -1026,13 +1120,18 @@ def validate_datetime(df: DataFrame, date_col, is_strip=True, add_is_error_col=T
             err_date_col_idxs = df[date_col].isna()
             for idx, dc_val in err_date_col_idxs.items():
                 err_col_name = df[ERR_COLS_NAME].at[idx] + '{},'.format(date_col)
-                df.at[idx, ERR_COLS_NAME] = err_col_name if pd.isna(df[date_col].at[idx]) else df[ERR_COLS_NAME].at[idx]
+                df.at[idx, ERR_COLS_NAME] = (
+                    err_col_name if pd.isna(df[date_col].at[idx]) else df[ERR_COLS_NAME].at[idx]
+                )
         else:
             df_temp = df.loc[idxs, [date_col, IS_ERROR_COL, ERR_COLS_NAME]]
             # df.loc[idxs, IS_ERROR_COL] = np.where(pd.isna(df.loc[idxs, date_col]), 1, df.loc[idxs, IS_ERROR_COL])
             df_temp[IS_ERROR_COL] = np.where(pd.isna(df_temp[date_col]), 1, df_temp[IS_ERROR_COL])
-            df_temp[ERR_COLS_NAME] = np.where(pd.isna(df_temp[date_col]), df_temp[ERR_COLS_NAME] + date_col + ',',
-                                              df_temp[ERR_COLS_NAME])
+            df_temp[ERR_COLS_NAME] = np.where(
+                pd.isna(df_temp[date_col]),
+                df_temp[ERR_COLS_NAME] + date_col + ',',
+                df_temp[ERR_COLS_NAME],
+            )
             df.loc[idxs, IS_ERROR_COL] = df_temp
             df.loc[idxs, ERR_COLS_NAME] = df_temp
 
@@ -1048,8 +1147,7 @@ def init_is_error_col(df: DataFrame):
 
 @log_execution_time()
 def set_cycle_max_id(next_use_id_count):
-    """ get cycle max id to avoid conflict cycle id
-    """
+    """get cycle max id to avoid conflict cycle id"""
     global csv_import_cycle_max_id
     with lock:
         # when app start get max id of all tables
@@ -1111,7 +1209,8 @@ def check_timezone_changed(proc_id, yml_use_os_timezone):
         return False
 
     db_use_os_tz = CfgConstant.get_value_by_type_name(
-        CfgConstantType.USE_OS_TIMEZONE.name, proc_id, lambda x: bool(int(x)))
+        CfgConstantType.USE_OS_TIMEZONE.name, proc_id, lambda x: bool(int(x))
+    )
     if db_use_os_tz is None:
         return False
 
@@ -1138,7 +1237,8 @@ def save_use_os_timezone_to_db(proc_id, yml_use_os_timezone):
     CfgConstant.create_or_update_by_type(
         const_type=CfgConstantType.USE_OS_TIMEZONE.name,
         const_value=yml_use_os_timezone,
-        const_name=proc_id)
+        const_name=proc_id,
+    )
 
     return True
 
@@ -1151,7 +1251,11 @@ def gen_insert_cycle_values(df, proc_id, cycle_cls, get_date_col):
 
     proc_id_col_name = add_new_col_to_df(df, cycle_cls.process_id.key, proc_id)
     is_outlier_col_name = add_new_col_to_df(df, cycle_cls.is_outlier.key, 0)
-    cycle_vals = df[[proc_id_col_name, get_date_col, is_outlier_col_name, created_at_col_name]].to_records().tolist()
+    cycle_vals = (
+        df[[proc_id_col_name, get_date_col, is_outlier_col_name, created_at_col_name]]
+        .to_records()
+        .tolist()
+    )
     return cycle_vals
 
 
@@ -1178,7 +1282,13 @@ def gen_bulk_insert_sql(tblname, cols_str, params_str):
 
 @log_execution_time()
 def get_cycle_columns():
-    return Cycle.id.key, Cycle.process_id.key, Cycle.time.key, Cycle.is_outlier.key, Cycle.created_at.key
+    return (
+        Cycle.id.key,
+        Cycle.process_id.key,
+        Cycle.time.key,
+        Cycle.is_outlier.key,
+        Cycle.created_at.key,
+    )
 
 
 @log_execution_time()
@@ -1198,6 +1308,9 @@ def get_insert_params(columns):
 def gen_sensor_data(df, sensor, col_name, dic_sensor_cls, dic_substring_sensors):
     data = []
     sensor_cls = dic_sensor_cls[col_name]
+
+    if col_name not in df:
+        return data
 
     df_insert = df.dropna(subset=[col_name])[[col_name]]
     if not df_insert.size:
@@ -1221,7 +1334,9 @@ def gen_sensor_data(df, sensor, col_name, dic_sensor_cls, dic_substring_sensors)
 
 @log_execution_time()
 def insert_data_to_db(sensor_values, cycle_vals, sql_insert_cycle):
-    with DbProxy(gen_data_source_of_universal_db(), True, immediate_isolation_level=True) as db_instance:
+    with DbProxy(
+        gen_data_source_of_universal_db(), True, immediate_isolation_level=True
+    ) as db_instance:
         # insert cycle
         insert_data(db_instance, sql_insert_cycle, cycle_vals)
 
@@ -1231,8 +1346,8 @@ def insert_data_to_db(sensor_values, cycle_vals, sql_insert_cycle):
             sql_insert_sensor = gen_bulk_insert_sql(tblname, *sensor_sql_params)
             insert_data(db_instance, sql_insert_sensor, vals)
 
-        # commit data to database
-        commit_db_instance(db_instance)
+    # clear cache
+    set_all_cache_expired()
 
     return None
 
@@ -1279,9 +1394,19 @@ def insert_data_to_db(sensor_values, cycle_vals, sql_insert_cycle):
 #     except Exception as e:
 #         q_output.put(e)
 
+
 @log_execution_time()
-def get_sensor_values(proc_id, col_names, dic_sensors, cycle_cls, start_tm=None, end_tm=None, cycle_ids=None,
-                      sort_by_time=False, get_time_col=None):
+def get_sensor_values(
+    proc_id,
+    col_names,
+    dic_sensors,
+    cycle_cls,
+    start_tm=None,
+    end_tm=None,
+    cycle_ids=None,
+    sort_by_time=False,
+    get_time_col=None,
+):
     cols = [cycle_cls.id.label(INDEX_COL)]
     if get_time_col:
         cols.append(cycle_cls.time.label(CYCLE_TIME_COL))
@@ -1296,7 +1421,7 @@ def get_sensor_values(proc_id, col_names, dic_sensors, cycle_cls, start_tm=None,
 
         data_query = data_query.outerjoin(
             sensor_val_cls,
-            and_(sensor_val_cls.cycle_id == cycle_cls.id, sensor_val_cls.sensor_id == sensor.id)
+            and_(sensor_val_cls.cycle_id == cycle_cls.id, sensor_val_cls.sensor_id == sensor.id),
         )
 
         data_query = data_query.add_columns(sensor_val)
@@ -1327,9 +1452,11 @@ def save_proc_data_count(df, get_date_col, job_id):
     if not df.size:
         return None
     # group data by datetime time
-    df[get_date_col] = df[get_date_col].apply(lambda x: '{}'.format(
-        datetime.strptime(x, DATE_FORMAT_STR).strftime(DATE_FORMAT_FOR_ONE_HOUR)
-    ))
+    df[get_date_col] = df[get_date_col].apply(
+        lambda x: '{}'.format(
+            datetime.strptime(x, DATE_FORMAT_STR).strftime(DATE_FORMAT_FOR_ONE_HOUR)
+        )
+    )
     count_df = df.groupby([get_date_col]).process_id.value_counts()
     count_df = count_df.to_frame(name=ProcDataCount.count.key).reset_index()
     count_df[ProcDataCount.job_id.key] = job_id
@@ -1339,19 +1466,14 @@ def save_proc_data_count(df, get_date_col, job_id):
         ProcDataCount.process_id.key,
         ProcDataCount.count.key,
         ProcDataCount.job_id.key,
-        ProcDataCount.created_at.key
+        ProcDataCount.created_at.key,
     ]
     insert_params = get_insert_params(columns)
     insert_query = gen_bulk_insert_sql(ProcDataCount.__tablename__, *insert_params)
     # import data
-    try:
-        with lock:
-            with DbProxy(gen_data_source_of_universal_db(), True) as db_instance:
-                # insert cycle
-                insert_data(db_instance, insert_query, count_df.values.tolist())
-                # commit data to database
-                commit_db_instance(db_instance)
+    with DbProxy(gen_data_source_of_universal_db(), True, True) as db_instance:
+        # insert cycle
+        insert_data(db_instance, insert_query, count_df.values.tolist())
 
-        return None
-    except Exception as e:
-        return e
+    # clear cache
+    set_all_cache_expired()

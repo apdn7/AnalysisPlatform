@@ -1,6 +1,4 @@
-
 class GraphUtil:
-
     def __init__(self, V):
         self.V = V
         self.adj = [[] for i in range(len(V))]
@@ -48,7 +46,7 @@ class GraphUtil:
         return []
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     g = GraphUtil([10, 11, 12, 13, 14, 20, 2222])  # pass list of proc_ids
     g.add_edge(11, 10)
     g.add_edge(12, 13)

@@ -1,5 +1,147 @@
 # Releases
 
+## v4.5.0
+
+Core changes
+
+* Upgraded from python 3.7.3 to python 3.9.0
+  * Now the folder name of the downloaded Windows embeddable package for Python will be  `python_embedded_39`.
+* Hided 'x' button on the console screen, to prevent closing the console screen by mistake.
+  * User can only shutdown the APDN7 by accessing the APDN7 with `localhost:{port_number}` and clicking the shutdown button on the sidebar.
+
+
+New features and improvents
+
+* (Common)
+  * Added `Search by Usage` page (navigation bar):
+    * This page introduces the details of each visualization of the APDN7, categorized by what insight we want to get.
+    * If you have any difficulties choosing a visualization to use, check this page.  
+    <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/aa17513d-bae7-486f-9f85-b4a498fb9340" alt="SearchByUsage" width="500">
+  * Improved context menu on sidebar
+    * <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/68279d2a-0d4a-450a-8f80-d15d0ed81427" alt="ContextNenu" width="200">
+  * Sensor names showin in UI will automatically switched, according to the Process Config / language setting.
+    * Now you will see `Local Name` field in the Process Config.
+    * Below image shows an example when an user set Español for the Local Name.  
+      <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/9a8e88a8-1973-4950-aa19-18257e6ae911" alt="ProcessLang" width="500">
+    * Then, according to the language setting on the right end of the navigation bar:  
+      <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/236d07d2-f99f-4fdb-9230-6835e42b0739" alt="LangSetting" width="200">
+    * Set to 日本語 (JA): `Japanese Name` is shown
+    * Set to English (EN): `English Name` is shown
+    * Else: `Local Name` is shown (see below image)  
+    <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/bfc5c6ae-0a7a-4fa6-9417-599204bbf6aa" alt="LangSwitch" width="500"> 
+  * Now we allow users to access APDN7 from iOS, by Chrome/Edge/Safari
+  * Added a checkbox on `Label`/`Filter` to select all the checkboxes. 
+  * Changed file encodings of exported data files.
+    * CSV: UTF-8 with BOM
+    * TSV: UTF-8
+* (FPP)
+  * Imporved the format of x-axis label, against month/year of timeseries chart.
+  * Alinged Y-axis lable with dicimal.
+    * Now we do not display extra zeros of the decimal points.
+* (PCP)
+  * Enabled PCatP to synchronize the order of graph lables and the order of the on-demand filter.
+  * Added `Categorized Real` mode to show PCatP with columns with data type=Real.
+  * Keep color of the Objective variable when user moves the position of columns
+* (MSP)
+  * Changed the limit of the maximum number of columns from 7 to 64.
+  * Now MSP shows scatter plots when number of columns <= 10,  
+  and for more columns, a heatmap of correlation coefficients is shown.
+* (SkD)
+  * Now SkD can handle categorical variables.
+  * Added `Jump` feature to jump from SkD to other pages.
+    * You can either select to pass all the variables, or important variables selected with SkD.  
+    <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/3d93b776-ca56-4b3d-9b50-a6c3ed970777" alt="JumpButton" width="400">  
+    <br>
+    <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/f288517a-8128-4777-b699-3dc4556a739f" alt="JumpPage" width="500">
+  * Now shows a modal window to notificate user when data has columns with 0 variance or NA ratio.
+    * User can reselect valid columns and show the graph again
+* (RLP)
+  * Added `Judge` option, an option that allows you to calculate and draw NG rate of a variable, with specified conditon.  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/42b91e7d-6616-4d57-ad3a-8cb2fe6150cb" alt="Judge" width="400">  
+    <br>
+    <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/bc72a88a-d639-4b29-b416-6df1418e2d8c" alt="Ratio" width="500">
+  * In Divide by Term (Cyclic), now user only have to select "From" datetime on the data finder.
+  * Improved format of Y-axis on EMD chart
+* (PCA)
+  * Changed the term `Test Data` to `Target Data`.
+  * Added Data finder button for the Target Data.
+* (MSP, SkD, PCP, PCA, GL, RLP)
+  * Added `Filter` checkbox to specify columns to be included in the on-demand filter.
+* (FPP, ScP, MSP)
+  * Added `Threshold/Graph config` into context menu of datapoint.
+    * Now user can go to Threshold/Graph config page immediately.
+* (Config)
+  * Datasource config
+    * Read latest/largest 5 files only. Add timeout 10s when preview data
+  * Process config
+    * Now uses 1000 rows to predict data-type instead of 5 files
+    * Adjusted marginal space of Process Config modal
+    * Default data source in Process Config modal is set to empty, if user did not have selectes previously.
+    * Added scroll if there are many columns of a process
+  * Data Link Config:
+    * Improved UI of data link config.
+      * Added a side panel on the left side.
+        * User can hide or show processess in the data link window. 
+        * User can now easily reset an edge, remove an edge.
+    * Added `Auto link` function.  
+      * The APDN7 can automatically estimate and link selected processes based on their timestamps.  
+      <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/8730a3e8-ed97-4fd2-aa64-44b11999a968" alt="AutoLink" width="400">
+  * Threshold/Graph Config
+    * Changed the term `Master Config` to `Threshold/Graph Config`.
+    * improved GUI of Threshold/Graph config table
+    * Improved GUI of Threshold/Graph config edit mode.
+  * Changed expand/collapse icon
+* (Misc)
+  * Bookmarks:
+    * Added feature to copy the URL of a bookmark, to share with other users.
+    * Improved GUI of bookmark list
+    * Now highlights the activated bookmark
+  * Added 'Variable display ordering' modal.
+    * Now user can order selected variables in GUI and graph area.  
+    <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/fcfb4fc4-858d-4b75-b990-e7d97398a264" alt="Ordering" width="400">  
+    <br>
+    <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/604cd3d4-b223-4512-b718-bfa3720cf2a8" alt="OrderingPage" width="500">
+  * Improved logic of writing log file
+    * Now the APDN7 splits log file each day, or if a file size become larger than 50MB.
+    * Now zips all the log files 1 week after created.
+    * Now removes log files older than 30 days.
+  * 
+  * Sends data to GA4 only after a user acceptes the Term of use.
+  * Added a shortcut key : `CTRL + ENTER` to `Display graph`.
+
+Bug fixes
+
+* (FPP)
+  * Fixed a bug where tick labels do not appear evenly in step charts
+  * Fix to show 'Serial series' modal even when user had copied and pasted the settings
+* (PCP)
+  * Now shows English name of column when the language is set to English.
+  * Keep default setting of graph when pushing show graph again
+  * Fixed to show category variable by ascending in PCatP
+  * Fixed the ordering of correlation coefficient in PCatP
+* (ScP, CHM, PCP, PCA)
+  * Fixed to save PNG of graph area with color scale bar
+* (MSP)
+  * Fixed clipboard of PNG
+* (StP)
+  * Fixed data name when tab header is long and overlaps.
+    * We narrow the data name and add suffix `...`.
+* (Config)
+  * Data Source Config
+    * Show correct error message incase of `Folder not found`, `File not found`, `Access denied`.
+  * Process config
+    * Show blank instead of None when data is Null in Factory DB.
+    * Estimate data-type of datetime with miliseconds.
+    * Fixed encode error on preview data.
+    * Fixed the function of changing data-type of column and re-registering the settings.
+  * Filter config
+    * Fixed how to get the unique values of a column.
+    * Added loading screen
+* (Misc)
+  * Fixed an error caused by DB lock on sqlite3.
+  * Fixed to filter data of database correctly if data more than 5M records
+  * Fixed to launch the AP located under multi-byte charater folder with using R-Portable
+
 ## v4.3.1
 
 New features and improvements

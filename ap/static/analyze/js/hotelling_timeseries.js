@@ -595,7 +595,7 @@ const drawTimeSeriesQChartFromObj = (objData, jsonDtTest = {}, chartConfig = {},
             sensor_id_x: arrayPlotdata[0].end_col_id,
         }
     }
-    // 1 is for testing data
+    // 1 is for Target data
     qTimeSeriesData[1].customdata = scpCustomData;
     qTimeSeriesData.forEach(dat => {
         dat.hoverinfo = 'none';

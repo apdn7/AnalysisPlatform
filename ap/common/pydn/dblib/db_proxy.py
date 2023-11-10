@@ -1,7 +1,7 @@
 from typing import Union
 
-from ap import set_sqlite_params, dic_config
-from ap.common.constants import DBType, UNIVERSAL_DB_FILE
+from ap import dic_config, set_sqlite_params
+from ap.common.constants import UNIVERSAL_DB_FILE, DBType
 from ap.common.cryptography_utils import decrypt_pwd
 from ap.common.pydn.dblib import sqlite
 from ap.common.pydn.dblib.mssqlserver import MSSQLServer
@@ -9,13 +9,14 @@ from ap.common.pydn.dblib.mysql import MySQL
 from ap.common.pydn.dblib.oracle import Oracle
 from ap.common.pydn.dblib.postgresql import PostgreSQL
 from ap.common.pydn.dblib.sqlite import SQLite3
-from ap.setting_module.models import CfgDataSourceDB, CfgDataSource
+from ap.setting_module.models import CfgDataSource, CfgDataSourceDB
 
 
 class DbProxy:
     """
     An interface for client to connect to many type of database
     """
+
     db_instance: Union[SQLite3, None, PostgreSQL, Oracle, MySQL, MSSQLServer]
     db_basic: CfgDataSource
     db_detail: CfgDataSourceDB
@@ -41,8 +42,20 @@ class DbProxy:
             set_sqlite_params(conn)
         return self.db_instance
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.db_instance.disconnect()
+    def __exit__(self, _exc_type, _exc_val, _exc_tb):
+        try:
+            if _exc_type:
+                self.db_instance.connection.rollback()
+            else:
+                self.db_instance.connection.commit()
+
+        except Exception as e:
+            if self.db_instance.connection is not None:
+                self.db_instance.connection.rollback()
+
+            raise e
+        finally:
+            self.db_instance.disconnect()
         return False
 
     def _get_db_instance(self):
@@ -65,7 +78,9 @@ class DbProxy:
         if self.db_detail.hashed:
             password = decrypt_pwd(password)
 
-        db_instance = target_db_class(self.db_detail.host, self.db_detail.dbname, self.db_detail.username, password)
+        db_instance = target_db_class(
+            self.db_detail.host, self.db_detail.dbname, self.db_detail.username, password
+        )
 
         # use custom port or default port
         if self.db_detail.port:

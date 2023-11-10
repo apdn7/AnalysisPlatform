@@ -9,12 +9,10 @@ from pymssql import connect as mssqlconnect
 
 from ap.common.common_utils import strip_all_quote
 
-
 # import pyodbc
 
 
 class MSSQLServer:
-
     def __init__(self, host, dbname, username, password):
         self.host = host
         self.port = 1433
@@ -41,15 +39,15 @@ class MSSQLServer:
             self._schema_withdot = ''
 
     def dump(self):
-        print("===== DUMP RESULT =====")
-        print("DB Type: MS SQL Server")
-        print("self.host: " + self.host)
-        print("self.port: " + str(self.port))
-        print("self.dbname: " + self.dbname)
-        print("self.username: " + self.username)
-        print("self.schema: " + str(self.schema or ''))
-        print("self.is_connected: ", self.is_connected)
-        print("=======================")
+        print('===== DUMP RESULT =====')
+        print('DB Type: MS SQL Server')
+        print('self.host: ' + self.host)
+        print('self.port: ' + str(self.port))
+        print('self.dbname: ' + self.dbname)
+        print('self.username: ' + self.username)
+        print('self.schema: ' + str(self.schema or ''))
+        print('self.is_connected: ', self.is_connected)
+        print('=======================')
 
     def connect(self):
         # dsn = "Driver={{ODBC Driver 17 for SQL Server}};Server={0:s};".format(self.host)
@@ -61,8 +59,14 @@ class MSSQLServer:
         # dsn += ';Trusted_Connection=No;'
         try:
             # self.connection = pyodbc.connect(dsn)
-            self.connection = mssqlconnect(self.host, self.username, self.password, self.dbname,
-                                           port=self.port, login_timeout=3)
+            self.connection = mssqlconnect(
+                self.host,
+                self.username,
+                self.password,
+                self.dbname,
+                port=self.port,
+                login_timeout=3,
+            )
 
             # if alredy use default schema , set to None to avoid replace schema
             self.is_connected = True
@@ -76,7 +80,7 @@ class MSSQLServer:
 
             return self.connection
         except:
-            print("Cannot connect to db")
+            print('Cannot connect to db')
             print('>>> traceback <<<')
             traceback.print_exc()
             print('>>> end of traceback <<<')
@@ -116,15 +120,15 @@ class MSSQLServer:
 
         for idx, val in enumerate(valtypes):
             if idx > 0:
-                sql += ","
-            sql += val["name"] + " " + val["type"]
-        sql += ")"
+                sql += ','
+            sql += val['name'] + ' ' + val['type']
+        sql += ')'
         print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + " created!")
+        print(tblname + ' created!')
 
     # テーブル名の配列を取得
     def list_tables(self):
@@ -167,7 +171,7 @@ class MSSQLServer:
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + " dropped!")
+        print(tblname + ' dropped!')
 
     # テーブルのカラムのタイプを辞書の配列として返す(元々はtbl_get_valtypes関数)
     # columns:
@@ -189,10 +193,7 @@ class MSSQLServer:
         rows = cur.fetchall()
         results = []
         for row in rows:
-            results.append({
-                "name": row[1],
-                "type": row[2]
-            })
+            results.append({'name': row[1], 'type': row[2]})
         cur.close()
         return results
 
@@ -209,7 +210,7 @@ class MSSQLServer:
         columns = self.list_table_columns(tblname)
         colnames = []
         for column in columns:
-            colnames.append(column["name"])
+            colnames.append(column['name'])
         return colnames
 
     def insert_table_records(self, tblname, names, values, add_comma_to_value=True):
@@ -219,25 +220,25 @@ class MSSQLServer:
         sql_template = f'insert into {self._schema_withdot}{tblname}'
 
         # Generate column names fields
-        sql_template += "("
+        sql_template += '('
         for idx, name in enumerate(names):
             if idx > 0:
-                sql_template += ","
+                sql_template += ','
             sql_template += name
-        sql_template += ") "
+        sql_template += ') '
 
         # Generate values field
-        sql_template += "values "
+        sql_template += 'values '
         sql = sql_template
         end_index = len(values) - 1
         start_batch = True
         for idx1, value in enumerate(values):
             if not start_batch:
-                sql += ","
-            sql += "("
+                sql += ','
+            sql += '('
             for idx2, name in enumerate(names):
                 if idx2 > 0:
-                    sql += ","
+                    sql += ','
 
                 if value[name] in ('', None):
                     sql += 'Null'
@@ -246,7 +247,7 @@ class MSSQLServer:
                 else:
                     sql += str(value[name])
 
-            sql += ")"
+            sql += ')'
 
             start_batch = False
 
@@ -258,7 +259,7 @@ class MSSQLServer:
                 self.connection.commit()
                 sql = sql_template
                 start_batch = True
-        print("Dummy data was inserted to " + tblname)
+        print('Dummy data was inserted to ' + tblname)
 
     # SQLをこのまま実行
     # [以下、結果をDict形式で返す方法]
@@ -266,12 +267,13 @@ class MSSQLServer:
     # output-pyodbc-cursor-results-as-python-dictionary
     # cols, rows = db1.run_sql("select * from tbl01")
     # という形で呼び出す
-    def run_sql(self, sql, row_is_dict=True):
+    def run_sql(self, sql, row_is_dict=True, params=None):
         if not self._check_connection():
             return False
         cur = self.connection.cursor()
         sql = self._add_schema_to_sql(sql)
-        cur.execute(sql)
+        cur.execute(sql, params=params)
+
         # cursor.descriptionはcolumnの配列
         # そこから配列名(column[0])を取り出して配列columnsに代入
         cols = [column[0] for column in cur.description]
@@ -286,13 +288,13 @@ class MSSQLServer:
         cur.close()
         return cols, rows
 
-    def fetch_many(self, sql, size=10_000):
+    def fetch_many(self, sql, size=10_000, params=None):
         if not self._check_connection():
             return False
 
         cur = self.connection.cursor()
         sql = self._add_schema_to_sql(sql)
-        cur.execute(sql)
+        cur.execute(sql, params=params)
         cols = [column[0] for column in cur.description]
         yield cols
         while True:
@@ -310,7 +312,10 @@ class MSSQLServer:
 
     def get_timezone(self):
         try:
-            rows = self.run_sql('SELECT SYSDATETIMEOFFSET() AS SYSDATETIME')
+            # rows = self.run_sql('SELECT SYSDATETIMEOFFSET() AS SYSDATETIME')
+            rows = self.run_sql(
+                "SELECT FORMAT(SYSDATETIMEOFFSET(), 'yyyy-MM-ddThh:mm:ss.fffK') AS SYSDATETIME"
+            )
             sys_dt_str = rows[1][0]['SYSDATETIME']
             sys_datetime = parser.parse(sys_dt_str)
             return sys_datetime.tzinfo
@@ -322,11 +327,11 @@ class MSSQLServer:
         if self.is_connected:
             return True
         # 接続していないなら
-        print("Connection is not Initialized. Please run connect() to connect to DB")
+        print('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def execute_sql(self, sql):
-        """ For executing any query requires commit action
+        """For executing any query requires commit action
         :param sql: SQL to be executed
         :return: Execution result
         """

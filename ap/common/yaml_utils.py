@@ -5,7 +5,12 @@ from collections import OrderedDict
 import ruamel.yaml as yaml
 from ruamel.yaml import add_constructor, resolver
 
-from ap.common.common_utils import (dict_deep_merge, convert_json_to_ordered_dict, detect_encoding, check_exist)
+from ap.common.common_utils import (
+    check_exist,
+    convert_json_to_ordered_dict,
+    detect_encoding,
+    dict_deep_merge,
+)
 from ap.common.constants import *
 
 # yaml config files name
@@ -13,8 +18,11 @@ YAML_CONFIG_BASIC_FILE_NAME = 'basic_config.yml'
 YAML_CONFIG_DB_FILE_NAME = 'db_config.yml'
 YAML_CONFIG_PROC_FILE_NAME = 'proc_config.yml'
 YAML_CONFIG_AP_FILE_NAME = 'ap_config.yml'
+YAML_TILE_MASTER = 'tile_master.yml'
 YAML_TILE_INTERFACE_DN7 = 'tile_interface_dn7.yml'
 YAML_TILE_INTERFACE_AP = 'tile_interface_analysis_platform.yml'
+YAML_TILE_INTERFACE_USAGE = 'tile_interface_search_by_use.yml'
+YAML_TILE_JUMP = 'tile_interface_jump.yml'
 YAML_START_UP_FILE_NAME = 'startup.yaml'
 
 
@@ -47,13 +55,15 @@ class YamlConfig:
         # Read YAML and return dic
         # https://qiita.com/konomochi/items/f5f53ba8efa07ec5089b
         # 入力時に順序を保持する
-        add_constructor(resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-                        lambda loader, node: OrderedDict(loader.construct_pairs(node)))
+        add_constructor(
+            resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            lambda loader, node: OrderedDict(loader.construct_pairs(node)),
+        )
 
         # get encoding
         encoding = detect_encoding(self.fname_config_yaml)
 
-        with open(self.fname_config_yaml, "r", encoding=encoding) as f:
+        with open(self.fname_config_yaml, 'r', encoding=encoding) as f:
             data = yaml.load(f, Loader=yaml.Loader)
 
         return data
@@ -64,7 +74,9 @@ class YamlConfig:
 
         try:
             dict_obj = convert_json_to_ordered_dict(dict_obj)
-            with open(self.fname_config_yaml if not output_file else output_file, 'w', encoding=encoding) as outfile:
+            with open(
+                self.fname_config_yaml if not output_file else output_file, 'w', encoding=encoding
+            ) as outfile:
                 yaml.dump(dict_obj, outfile, default_flow_style=False, allow_unicode=True)
 
             return True
@@ -123,7 +135,7 @@ class YamlConfig:
 
             # use parent node reference to delete its children
             if key == keys[-1] and key in node:
-                del (node[key])
+                del node[key]
                 return
 
             # move current node reference to 1 layer deeper
@@ -174,11 +186,16 @@ class TileInterfaceYaml(YamlConfig):
     Tile Interface Yaml class
     """
 
-    def __init__(self, dn7=True):
-        if dn7:
-            file_name = YAML_TILE_INTERFACE_DN7
-        else:
-            file_name = YAML_TILE_INTERFACE_AP
+    YML_CFG = {
+        None: YAML_TILE_INTERFACE_DN7,
+        DN7_TILE: YAML_TILE_INTERFACE_DN7,
+        AP_TILE: YAML_TILE_INTERFACE_AP,
+        SEARCH_USAGE: YAML_TILE_INTERFACE_USAGE,
+        TILE_MASTER: YAML_TILE_MASTER,
+        TILE_JUMP_CFG: YAML_TILE_JUMP,
+    }
 
-        file_name = os.path.join('ap', 'config', file_name)
+    def __init__(self, file_name):
+        yml_file_name = self.YML_CFG[file_name]
+        file_name = os.path.join('ap', 'config', yml_file_name)
         super().__init__(file_name)

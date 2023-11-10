@@ -20,6 +20,8 @@ let currentDateRangeEl = null;
 let startDate = '';
 let endDate = '';
 let currentCalendarType = calenderTypes.month;
+let isCyclicTermTab = false;
+let isDataFinderShowing = false;
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const weekDays2 = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -72,8 +74,9 @@ const dataFinderEls = {
     inputFromId: '#data-finder-from',
     inputToId: '#data-finder-to',
     inputFromTo: '#data-finder-input',
-    dataFinderBtn: '#dataFinderBtn',
+    dataFinderBtn: 'button[name=dataFinderBtn]',
     startProc: 'select[name=start_proc]',
+    dataFinderInputLabel: '#dataFinderInputLabel',
 };
 
 
@@ -90,7 +93,7 @@ const setValueFromToInput = (from = null, to = null, type) => {
 
     const date = from && to ? `${from} ${DATETIME_PICKER_SEPARATOR} ${to}` : '';
 
-    $(dataFinderEls.inputFromTo).val(date);
+    $(dataFinderEls.inputFromTo).val(isCyclicTermTab ? from : date);
 };
 
 const getFromToInputByType = (type) => {
@@ -105,7 +108,10 @@ const setDefaultValueOfCalender = (type) => {
     const currentDatetimeRangeVal = typeof(currentDateRangeEl) == 'object' ? currentDateRangeEl.val() : currentDateRangeEl;
     if (type === calenderTypes.month) {
         const currentSetDateRange = currentDatetimeRangeVal;
-        const { startDate, startTime, endDate, endTime } = splitDateTimeRange(currentSetDateRange)
+        let { startDate, endDate } = splitDateTimeRange(currentSetDateRange)
+        if (!endDate) {
+            endDate = moment(startDate).add(1, 'months').format(DATE_FMT);
+        }
         const [fromInput, toInput] = getFromToInputByType(calenderTypes.year);
         let startDateObj = null;
         let endDateObj = null;
@@ -147,7 +153,10 @@ const setDefaultValueOfCalender = (type) => {
 
     if (type === calenderTypes.week) {
         // set defaul from to input
-        const [fromInput, toInput] = getFromToInputByType(calenderTypes.month);
+        let [fromInput, toInput] = getFromToInputByType(calenderTypes.month);
+        if (fromInput && !toInput) {
+            toInput = fromInput;
+        }
         const defaultFromInput = `${fromInput} 00:00`;
         // next day of 00:00
         const selectedTo = `${moment(toInput).add(1, 'days').format(DATE_FMT)} 00:00`;
@@ -165,8 +174,11 @@ const setDefaultValueOfCalender = (type) => {
     }
 
     if (type === calenderTypes.year) {
-        const [fromInput, toInput] = getFromToInputByType(calenderTypes.month);
-        if (!fromInput || !toInput) {
+        let [fromInput, toInput] = getFromToInputByType(calenderTypes.month);
+        if (fromInput && !toInput) {
+            toInput = fromInput;
+        }
+        if (!fromInput && !toInput) {
             generateYearCalendar(defaultDateTime.year - YEARS + 1);
             setValueFromToInput('', '', type);
         } else {
@@ -179,6 +191,8 @@ const setDefaultValueOfCalender = (type) => {
 };
 
 const switchCalender = (type) => {
+    // set from to label
+    $(dataFinderEls.dataFinderInputLabel).text(isCyclicTermTab ? 'From' : 'From To');
     $('#data-finder-card').show();
 
     $('.calender-box').hide();
@@ -229,10 +243,12 @@ function getRandomInt(max) {
 
 // handling function START
 const showDataFinderModal = (e) => {
-    currentDateRangeEl = $(e).parent().find('[name=DATETIME_RANGE_PICKER]');
+    isDataFinderShowing = true;
+    currentDateRangeEl = $(e).parent().find('[name^=DATETIME]');
     if (!currentDateRangeEl.get().length) {
         currentDateRangeEl = $('#datetimeRangeShowValue').text();
     }
+    isCyclicTermTab = $('select[name=compareType]').val() === CYCLIC_TERM.NAME;
     defaultDateTime = getDefaultDateTime();
     switchCalender(calenderTypes.month);
     setDefaultValueOfCalender(calenderTypes.month);
@@ -247,6 +263,7 @@ const closeCalenderModal = () => {
     startDate = '';
     endDate = '';
     $('#data-finder-card').hide();
+    isDataFinderShowing = false;
 };
 
 const handleGoToCalender = (type) => {
@@ -373,11 +390,12 @@ const createMonthTableView = (year, month, from = true) => {
         const cl = [5, 6].includes(index) ? 'inactive' : '';
         return `<th style="height: 36.5px" class="${cl}" weekday="${index}">${week}</th>`;
     }).join('');
+    const label = from ? 'From' : isCyclicTermTab ? '' : 'To';
     const table = `
         <table id="${id}">
              <thead>
                     <tr>
-                        <th>${from ? 'From' : 'To'}</th>
+                        <th>${label}</th>
                         <th colspan="7">
                             <div class="calendar-go-to ${from ? 'from' : 'to'}-calendar-go-to">
                                 <button type="button" class="previous-month"><i class="fa fa-angle-left arrow"></i></button>
@@ -530,11 +548,12 @@ const createWeekTableView = (startDate, from = true) => {
         weekDaysEl += `<th class="${cl} p-0">${weekDays2[nextDate.dayOfWeeks]}</th>`;
         nextDate = getDateObject(moment(nextDate.date).add(1, 'days'));
     }
+    const label = from ? 'From' : isCyclicTermTab ? '' : 'To';
     const table = `
         <table id="${id}">
             <thead>
                     <tr>
-                        <th>${from ? 'From' : 'To'}</th>
+                        <th>${label}</th>
                         <th colspan="7">
                             <div class="calendar-go-to ${from ? 'from' : 'to'}-calendar-go-to">
                                 <button type="button" class="previous-week"><i class="fa fa-angle-left arrow"></i></button>
@@ -791,7 +810,7 @@ const getDataByType = async (from, to, type = calenderTypes.year, timeout = null
     };
     const option = timeout ? { timeout } : {};
     const res = await fetchData(url, JSON.stringify(data), 'POST', option);
-    return JSON.parse(res);
+    return res;
 };
 
 const showDataFinderButton = (processId, btnParent) => {
@@ -815,6 +834,13 @@ const setProcessID = async () => {
             updateXOption(false);
         }
     }
+
+    // reload data finder
+    if (processId && isDataFinderShowing) {
+        switchCalender(currentCalendarType);
+        setDefaultValueOfCalender(currentCalendarType);
+    }
+
 };
 
 const rangeCell = (type) => {
@@ -930,6 +956,17 @@ const handleMouseoverCell = (e, type) => {
 const handleClickCell = (e, type) => {
     const parentClass = `.${type}-calendar`;
     const thisCell = $(e.currentTarget);
+    if (isCyclicTermTab) {
+        // click only to choose date
+        thisCell.closest(parentClass).find('.cell').removeClass('in-range');
+        thisCell.closest(parentClass).find('.cell').removeClass('active');
+        thisCell.addClass('in-range');
+        thisCell.addClass('active');
+        startDate = thisCell.attr('data');
+        endDate = startDate;
+        setValueFromToInput(startDate, startDate, type);
+        return;
+    }
     const searchData = type === calenderTypes.week ? thisCell.attr('dat') : thisCell.attr('data');
     const allSameCell = type === calenderTypes.week ? thisCell.closest(parentClass).find(`.cell[dat=${searchData}]`) :
             thisCell.closest(parentClass).find(`.cell[data=${searchData}]`);

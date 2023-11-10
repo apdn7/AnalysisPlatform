@@ -10,11 +10,11 @@ multiple_scatter_plot_blueprint = Blueprint(
     template_folder=os.path.join('..', 'templates', 'multiple_scatter_plot'),
     static_folder=os.path.join('..', 'static', 'multiple_scatter_plot'),
     # static_url_path='../static/trace_data',
-    url_prefix='/ap'
+    url_prefix='/ap',
 )
 
 
 @multiple_scatter_plot_blueprint.route('/msp')
 def index():
     output_dict = get_common_config_data()
-    return render_template("multiple_scatter_plot.html", **output_dict)
+    return render_template('multiple_scatter_plot.html', **output_dict)

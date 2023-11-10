@@ -5,19 +5,37 @@ import pandas as pd
 from pandas import DataFrame
 from sklearn.preprocessing import StandardScaler
 
+from ap.api.common.services.services import get_filter_on_demand_data
+from ap.api.sankey_plot.sankey_glasso.sankey_services import clean_input_data
 from ap.api.trace_data.services.csv_export import to_csv
-from ap.api.trace_data.services.time_series_chart import get_data_from_db, get_procs_in_dic_param
-from ap.common.common_utils import gen_sql_label, gen_abbr_name, zero_variance
+from ap.api.trace_data.services.time_series_chart import (
+    customize_dic_param_for_reuse_cache,
+    filter_cat_dict_common,
+    get_data_from_db,
+    get_procs_in_dic_param,
+)
+from ap.common.common_utils import gen_abbr_name, gen_sql_label
 from ap.common.constants import *
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.pysize import get_size
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import abort_process_handler, request_timeout_handling
+from ap.common.services.request_time_out_handler import (
+    abort_process_handler,
+    request_timeout_handling,
+)
 from ap.common.services.sse import notify_progress
-from ap.common.trace_data_log import set_log_attr, TraceErrKey, save_trace_log_db, trace_log, \
-    EventAction, EventType, Target
+from ap.common.trace_data_log import (
+    EventAction,
+    EventType,
+    Target,
+    TraceErrKey,
+    save_trace_log_db,
+    set_log_attr,
+    trace_log,
+)
 from ap.setting_module.models import CfgProcess
+
 # ------------------------------------START TRACING DATA TO SHOW ON GRAPH-----------------------------
 from ap.trace_data.schemas import DicParam
 
@@ -26,6 +44,11 @@ from ap.trace_data.schemas import DicParam
 @request_timeout_handling()
 @abort_process_handler()
 @notify_progress(75)
+@trace_log(
+    (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
+    (EventType.PCA, EventAction.PLOT, Target.GRAPH),
+    send_ga=True,
+)
 def run_pca(dic_param, sample_no=0):
     """run pca package to get graph jsons"""
 
@@ -39,26 +62,32 @@ def run_pca(dic_param, sample_no=0):
 
     # get sample no info
     graph_param, dic_proc_cfgs, dic_serials, dic_get_dates = pca_bind_dic_param_to_class(dic_param)
-    data_point_info, meta_data = get_data_point_info(sample_no, dic_output.get('df'), graph_param, dic_proc_cfgs,
-                                                     dic_serials, dic_get_dates)
-    array_plotdata = [{
-        'array_x': dic_output.get('df').time,
-        # 'array_x': plotly_jsons.get('json_pca_score_test').get('scatter').get('x'),
-        'end_col_id': meta_data['sensor_id_x'],
-        'end_proc_id': meta_data['proc_id_x'],
-    }]
+    data_point_info, meta_data = get_data_point_info(
+        sample_no, dic_output.get('df'), graph_param, dic_proc_cfgs, dic_serials, dic_get_dates
+    )
+    array_plotdata = [
+        {
+            'array_x': dic_output.get('df').time,
+            # 'array_x': plotly_jsons.get('json_pca_score_test').get('scatter').get('x'),
+            'end_col_id': meta_data['sensor_id_x'],
+            'end_proc_id': meta_data['proc_id_x'],
+        }
+    ]
     cycle_ids = dic_output.get('df').id
-    return {PLOTLY_JSON: plotly_jsons, DATAPOINT_INFO: data_point_info,
-            UNIQUE_SERIAL_TRAIN: dic_output.get(UNIQUE_SERIAL_TRAIN),
-            UNIQUE_SERIAL_TEST: dic_output.get(UNIQUE_SERIAL_TEST),
-            ACTUAL_RECORD_NUMBER_TRAIN: dic_output.get(ACTUAL_RECORD_NUMBER_TRAIN),
-            ACTUAL_RECORD_NUMBER_TEST: dic_output.get(ACTUAL_RECORD_NUMBER_TEST),
-            REMOVED_OUTLIER_NAN_TRAIN: dic_output.get(REMOVED_OUTLIER_NAN_TRAIN),
-            REMOVED_OUTLIER_NAN_TEST: dic_output.get(REMOVED_OUTLIER_NAN_TEST),
-            SHORT_NAMES: dic_output.get(SHORT_NAMES),
-            ARRAY_PLOTDATA: array_plotdata,
-            CYCLE_IDS: cycle_ids
-            }, None
+    return {
+        PLOTLY_JSON: plotly_jsons,
+        DATAPOINT_INFO: data_point_info,
+        UNIQUE_SERIAL_TRAIN: dic_output.get(UNIQUE_SERIAL_TRAIN),
+        UNIQUE_SERIAL_TEST: dic_output.get(UNIQUE_SERIAL_TEST),
+        ACTUAL_RECORD_NUMBER_TRAIN: dic_output.get(ACTUAL_RECORD_NUMBER_TRAIN),
+        ACTUAL_RECORD_NUMBER_TEST: dic_output.get(ACTUAL_RECORD_NUMBER_TEST),
+        REMOVED_OUTLIER_NAN_TRAIN: dic_output.get(REMOVED_OUTLIER_NAN_TRAIN),
+        REMOVED_OUTLIER_NAN_TEST: dic_output.get(REMOVED_OUTLIER_NAN_TEST),
+        SHORT_NAMES: dic_output.get(SHORT_NAMES),
+        ARRAY_PLOTDATA: array_plotdata,
+        CYCLE_IDS: cycle_ids,
+        FILTER_ON_DEMAND: dic_output.get(FILTER_ON_DEMAND, {}),
+    }, None
 
 
 @log_execution_time()
@@ -83,33 +112,55 @@ def gen_base_object(dic_param):
 def get_test_n_train_data(dic_param):
     dic_output, dict_data, dict_train_data, errors = None, None, None, None
 
+    (
+        dic_param,
+        cat_exp,
+        cat_procs,
+        dic_cat_filters,
+        use_expired_cache,
+        *_,
+    ) = customize_dic_param_for_reuse_cache(dic_param)
+
     # bind dic_param
     orig_graph_param = bind_dic_param_to_class(dic_param)
     graph_param, dic_proc_cfgs, *_ = pca_bind_dic_param_to_class(dic_param)
-    train_graph_param, *_ = pca_bind_dic_param_to_class(dic_param, dic_proc_cfgs, is_train_data=True)
+    train_graph_param, *_ = pca_bind_dic_param_to_class(
+        dic_param, dic_proc_cfgs, is_train_data=True
+    )
 
-    dict_train_data = gen_trace_data(dic_proc_cfgs, train_graph_param, orig_graph_param,
-                                     training_data=True)
+    dict_train_data = gen_trace_data(
+        train_graph_param, orig_graph_param, dic_cat_filters, use_expired_cache
+    )
+    dict_train_errors = dict_train_data.get('errors')
 
-    errors = dict_train_data.get('errors')
-    if errors:
+    dict_data = gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_cache)
+    dict_target_errors = dict_data.get('errors')
+
+    if dict_train_errors['error'] or dict_target_errors['error']:
+        errors = dict(train_data=dict_train_errors, target_data=dict_target_errors)
         return dic_output, dict_data, dict_train_data, errors
 
-    dict_data = gen_trace_data(dic_proc_cfgs, graph_param, orig_graph_param)
+    # get filter data of train data
+    full_df = pd.concat([dict_train_data['df'], dict_data['df']])
+    dic_param = filter_cat_dict_common(
+        full_df, dic_param, cat_exp, cat_procs, orig_graph_param, False
+    )
 
-    errors = dict_data.get('errors')
-    if errors:
-        return dic_output, dict_data, dict_train_data, errors
+    dic_param = get_filter_on_demand_data(dic_param)
 
     # count removed outlier, nan
-    dic_output = {UNIQUE_SERIAL_TRAIN: dict_train_data.get(UNIQUE_SERIAL),
-                  UNIQUE_SERIAL_TEST: dict_data.get(UNIQUE_SERIAL),
-                  REMOVED_OUTLIER_NAN_TRAIN: int(dict_train_data[ACTUAL_RECORD_NUMBER]) - len(dict_train_data['df']),
-                  ACTUAL_RECORD_NUMBER_TEST: dict_data.get(ACTUAL_RECORD_NUMBER, 0),
-                  ACTUAL_RECORD_NUMBER_TRAIN: dict_train_data.get(ACTUAL_RECORD_NUMBER, 0),
-                  REMOVED_OUTLIER_NAN_TEST: int(dict_data[ACTUAL_RECORD_NUMBER]) - len(dict_data['df']),
-                  'df': dict_data['df'],
-                  SHORT_NAMES: dict_data[SHORT_NAMES]}
+    dic_output = {
+        UNIQUE_SERIAL_TRAIN: dict_train_data.get(UNIQUE_SERIAL),
+        UNIQUE_SERIAL_TEST: dict_data.get(UNIQUE_SERIAL),
+        REMOVED_OUTLIER_NAN_TRAIN: int(dict_train_data[ACTUAL_RECORD_NUMBER])
+        - len(dict_train_data['df']),
+        ACTUAL_RECORD_NUMBER_TEST: dict_data.get(ACTUAL_RECORD_NUMBER, 0),
+        ACTUAL_RECORD_NUMBER_TRAIN: dict_train_data.get(ACTUAL_RECORD_NUMBER, 0),
+        REMOVED_OUTLIER_NAN_TEST: int(dict_data[ACTUAL_RECORD_NUMBER]) - len(dict_data['df']),
+        'df': dict_data['df'],
+        SHORT_NAMES: dict_data[SHORT_NAMES],
+        FILTER_ON_DEMAND: dic_param[FILTER_ON_DEMAND],
+    }
 
     return dic_output, dict_data, dict_train_data, errors
 
@@ -145,21 +196,28 @@ def get_sample_no_data(dic_biplot, dic_t2q_lrn, dic_t2q_tst, sample_no=0):
 
 @log_execution_time()
 @abort_process_handler()
-def gen_trace_data(dic_proc_cfgs, graph_param, orig_graph_param, training_data=False):
+def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_cache):
     """tracing data to show graph
-        1 start point x n end point
-        filter by condition points that between start point and end_point
+    1 start point x n end point
+    filter by condition points that between start point and end_point
     """
 
     # get sensor cols
-    dic_sensor_headers, short_names = gen_sensor_headers(orig_graph_param)
+    dic_sensor_headers, short_names, ids = gen_sensor_headers(orig_graph_param)
 
     # get data from database
-    df, actual_record_number, unique_serial = get_trace_data(dic_proc_cfgs, graph_param)
+    df, actual_record_number, unique_serial = get_trace_data(
+        graph_param, dic_cat_filters, use_expired_cache
+    )
+
+    dic_var_name = {}
+    for col_alias, id in ids.items():
+        dic_var_name[id] = dic_sensor_headers[col_alias]
 
     if not actual_record_number:
-        return dict(errors=[ErrorMsg.E_ALL_NA.name])
-
+        return dict(
+            errors=dict(error=True, selected_vars=dic_var_name, null_percent={}, zero_variance=[])
+        )
     # sensor headers
     cols = list(dic_sensor_headers)
 
@@ -169,34 +227,54 @@ def gen_trace_data(dic_proc_cfgs, graph_param, orig_graph_param, training_data=F
     # sensors
     df_sensors: DataFrame = df[dic_sensor_headers]
 
-    # if training_data and graph_param.common.is_remove_outlier:
-    #     df_sensors = remove_outlier(df_sensors, threshold=0.05)
-    #     if df_sensors is None or not df_sensors.size:
-    #         return dict(errors=[ErrorMsg.E_ALL_NA.name])
-    #
-    #     df[cols] = df_sensors[cols].to_numpy()
+    _, _, errors, err_cols, dic_null_percent, dic_var = clean_input_data(df_sensors)
+
+    # use column id instead of label
+    err_cols = [ids[col] for col in err_cols] if len(err_cols) else []
+    if dic_null_percent:
+        dic_null_percent = {ids[col]: value for col, value in dic_null_percent.items()}
+
+    error = bool(len(errors))
 
     # remove NaN row
     df.dropna(subset=cols, inplace=True)
 
-    # zero variance check
-    if zero_variance(df[df_sensors.columns]):
-        return dict(errors=[ErrorMsg.E_ZERO_VARIANCE.name])
-
     # if there is no data
     if not df.size:
-        return dict(errors=[ErrorMsg.E_ALL_NA.name])
+        return dict(
+            errors=dict(
+                error=True,
+                errors=errors,
+                selected_vars=dic_var_name,
+                null_percent=dic_null_percent,
+                zero_variance=err_cols,
+            )
+        )
 
-    return {'df': df, 'dic_sensor_headers': dic_sensor_headers,
-            UNIQUE_SERIAL: unique_serial,
-            ACTUAL_RECORD_NUMBER: actual_record_number, SHORT_NAMES: short_names}
+    return {
+        'df': df,
+        'dic_sensor_headers': dic_sensor_headers,
+        'errors': {
+            'error': error,
+            'errors': errors,
+            'selected_vars': dic_var_name,
+            'null_percent': dic_null_percent,
+            'zero_variance': err_cols,
+        },
+        UNIQUE_SERIAL: unique_serial,
+        ACTUAL_RECORD_NUMBER: actual_record_number,
+        SHORT_NAMES: short_names,
+    }
 
 
 @log_execution_time()
 @abort_process_handler()
-@trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
-           (EventType.PCA, EventAction.READ, Target.DATABASE), send_ga=True)
-def get_trace_data(dic_proc_cfgs, graph_param):
+@trace_log(
+    (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
+    (EventType.PCA, EventAction.READ, Target.DATABASE),
+    send_ga=True,
+)
+def get_trace_data(graph_param, dic_cat_filters, use_expired_cache):
     """get data from universal db
 
     Arguments:
@@ -207,20 +285,32 @@ def get_trace_data(dic_proc_cfgs, graph_param):
         [type] -- data join from start to end by global_id
     """
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param)
+    df, actual_record_number, unique_serial = get_data_from_db(
+        graph_param, dic_cat_filters, use_expired_cache=use_expired_cache
+    )
 
     return df, actual_record_number, unique_serial
 
 
 @log_execution_time()
 @abort_process_handler()
-@trace_log((TraceErrKey.ACTION, TraceErrKey.TARGET),
-           (EventAction.SAVE, Target.TSV),
-           output_key=TraceErrKey.DUMPFILE, send_ga=True)
+@trace_log(
+    (TraceErrKey.ACTION, TraceErrKey.TARGET),
+    (EventAction.SAVE, Target.TSV),
+    output_key=TraceErrKey.DUMPFILE,
+    send_ga=True,
+)
 def write_csv(dfs, dic_proc_cfgs, graph_param, file_paths, dic_headers):
     for df, file_path in zip(dfs, file_paths):
-        to_csv(df, dic_proc_cfgs, graph_param, delimiter=CsvDelimiter.TSV.value,
-               output_path=file_path, output_col_ids=dic_headers, len_of_col_name=10)
+        to_csv(
+            df,
+            dic_proc_cfgs,
+            graph_param,
+            delimiter=CsvDelimiter.TSV.value,
+            output_path=file_path,
+            output_col_ids=dic_headers,
+            len_of_col_name=10,
+        )
 
     return file_paths[0]
 
@@ -232,7 +322,9 @@ def change_path(file_path):
 
 @log_execution_time()
 @abort_process_handler()
-def get_data_point_info(sample_no, df: DataFrame, graph_param: DicParam, dic_proc_cfgs, dic_serials, dic_get_dates):
+def get_data_point_info(
+    sample_no, df: DataFrame, graph_param: DicParam, dic_proc_cfgs, dic_serials, dic_get_dates
+):
     meta_data = {
         'proc_id_x': None,
         'sensor_id_x': None,
@@ -262,7 +354,7 @@ def get_data_point_info(sample_no, df: DataFrame, graph_param: DicParam, dic_pro
                         'sensor_id_x': col_id,
                     }
 
-            col_infos.append((proc_cfg.name, show_name, row[col_name], order))
+            col_infos.append((proc_cfg.shown_name, show_name, row[col_name], order))
 
     return col_infos, meta_data
 
@@ -297,7 +389,9 @@ def calculate_data_size(output_dict):
 
 @log_execution_time()
 @abort_process_handler()
-def pca_bind_dic_param_to_class(dic_param, dic_proc_cfgs: List[CfgProcess] = None, is_train_data=False):
+def pca_bind_dic_param_to_class(
+    dic_param, dic_proc_cfgs: List[CfgProcess] = None, is_train_data=False
+):
     # bind dic_param
     graph_param = bind_dic_param_to_class(dic_param)
 
@@ -319,7 +413,9 @@ def pca_bind_dic_param_to_class(dic_param, dic_proc_cfgs: List[CfgProcess] = Non
         serial_ids = [serial.id for serial in serials]
         get_date = proc_cfg.get_date_col(column_name_only=False)
         get_date_id = get_date.id
-        text_cols = [col.id for col in proc_cfg.get_cols_by_data_type(DataType.TEXT, column_name_only=False)]
+        text_cols = [
+            col.id for col in proc_cfg.get_cols_by_data_type(DataType.TEXT, column_name_only=False)
+        ]
         proc.add_cols(text_cols, append_first=True)
         proc.add_cols(get_date_id, append_first=True)
         proc.add_cols(serial_ids, append_first=True)
@@ -343,9 +439,12 @@ def pca_bind_dic_param_to_class(dic_param, dic_proc_cfgs: List[CfgProcess] = Non
 def gen_sensor_headers(orig_graph_param):
     dic_labels = {}
     short_names = {}
+    ids = {}
     used_names = set()
     for proc in orig_graph_param.array_formval:
-        for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, col_name, col_show_name in zip(
+            proc.col_ids, proc.col_names, proc.col_show_names
+        ):
             name = gen_sql_label(col_id, col_name)
             dic_labels[name] = col_show_name
 
@@ -357,8 +456,9 @@ def gen_sensor_headers(orig_graph_param):
                 i += 1
 
             short_names[name] = new_name
+            ids[name] = col_id
 
-    return dic_labels, short_names
+    return dic_labels, short_names, ids
 
 
 # ------------------------------------------------------
@@ -379,7 +479,7 @@ def gen_sensor_headers(orig_graph_param):
 
 @log_execution_time()
 def run_pca_and_calc_t2q(X_train, X_test, varnames: list) -> dict:
-    ''' Run PCA and Calculate T2/Q Statistics/Contributions
+    """Run PCA and Calculate T2/Q Statistics/Contributions
 
     X_train and X_test must have same number of columns.
     Data must all be integer or float, and NA/NaNs must be removed beforehand.
@@ -405,7 +505,7 @@ def run_pca_and_calc_t2q(X_train, X_test, varnames: list) -> dict:
             json_q_contribution
             json_pca_biplot
 
-    '''
+    """
     pca = PCA()
     pca.fit(X_train)
     pca.x = pca.transform(X_train)
@@ -425,7 +525,7 @@ def run_pca_and_calc_t2q(X_train, X_test, varnames: list) -> dict:
 
 
 class PCA:
-    ''' Principle Component Analysis with sklearn interface
+    """Principle Component Analysis with sklearn interface
 
     Note that sklearn's PCA function does not return rotation matrix.
 
@@ -443,7 +543,7 @@ class PCA:
         If True, scale date to zero mean unit variance.
     scaler: StandardScaler instance
         Scaler fitted with data given to fit().
-    '''
+    """
 
     def __init__(self, scale=True):
         self.sdev = None
@@ -482,80 +582,88 @@ class PCA:
 # Biplot (PCA)
 # ---------------------------
 
+
 def _calc_biplot_data(pca: dict, varnames: list, tgt_pc=[1, 2]) -> dict:
-    ''' Generate a set of data for biplot
+    """Generate a set of data for biplot
     Data for scatter plot, arrows, circles (and axis labels)
-    '''
+    """
     dic_radius = _calc_biplot_circle_radius(pca.x)
-    dic_arrows = _calc_biplot_arrows(rotation=pca.rotation, sdev=pca.sdev, max_train=dic_radius['max'])
+    dic_arrows = _calc_biplot_arrows(
+        rotation=pca.rotation, sdev=pca.sdev, max_train=dic_radius['max']
+    )
     df_circles = _gen_biplot_circles_dataframe(dic_radius)
     axislabs = _gen_biplot_axislabs(pca.var_explained)
     idx_tgt_pc = [x - 1 for x in tgt_pc]
 
-    res = {'pca_obj': pca,
-           'varnames': varnames,
-           'arr_biplot_lrn': pca.x[:, idx_tgt_pc],
-           'arr_biplot_tst': pca.newx[:, idx_tgt_pc],
-           'dic_arrows': dic_arrows,
-           'dic_radius': dic_radius,
-           'df_circles': df_circles,
-           'axislab': axislabs}
+    res = {
+        'pca_obj': pca,
+        'varnames': varnames,
+        'arr_biplot_lrn': pca.x[:, idx_tgt_pc],
+        'arr_biplot_tst': pca.newx[:, idx_tgt_pc],
+        'dic_arrows': dic_arrows,
+        'dic_radius': dic_radius,
+        'df_circles': df_circles,
+        'axislab': axislabs,
+    }
     return res
 
 
 def _calc_biplot_circle_radius(pca_score_train, prob_manual=85) -> dict:
-    ''' Calculate radius for circles in biplot
-    '''
+    """Calculate radius for circles in biplot"""
     # standardized to unit variance
     score_sqsums = pca_score_train[:, 0] ** 2 + pca_score_train[:, 1] ** 2
 
-    dic_radius = {'sigma': 1,
-                  '2sigma': 2,
-                  '3sigma': 3,
-                  'max': np.sqrt(np.max(score_sqsums)),
-                  # 'train': np.sqrt(np.percentile(score_sqsums, 99.5)),
-                  'train': np.sqrt(np.max(score_sqsums)),
-                  'percentile': np.sqrt(np.percentile(score_sqsums, prob_manual)),
-                  'prob_manual': str(prob_manual)}
+    dic_radius = {
+        'sigma': 1,
+        '2sigma': 2,
+        '3sigma': 3,
+        'max': np.sqrt(np.max(score_sqsums)),
+        # 'train': np.sqrt(np.percentile(score_sqsums, 99.5)),
+        'train': np.sqrt(np.max(score_sqsums)),
+        'percentile': np.sqrt(np.percentile(score_sqsums, prob_manual)),
+        'prob_manual': str(prob_manual),
+    }
     return dic_radius
 
 
 def _gen_biplot_circles_dataframe(dic_radius: dict):
-    ''' Generate a dataframe with x,y values to plot circles in biplot
-    '''
+    """Generate a dataframe with x,y values to plot circles in biplot"""
     theta = np.concatenate([np.linspace(-np.pi, np.pi, 50), np.linspace(np.pi, -np.pi, 50)])
     px = np.cos(theta)
     py = np.sin(theta)
-    df_1sigma = pd.DataFrame({'pc1.x': dic_radius['sigma'] * px,
-                              'pc2.y': dic_radius['sigma'] * py,
-                              'border': 'Sigma'})
-    df_2sigma = pd.DataFrame({'pc1.x': dic_radius['2sigma'] * px,
-                              'pc2.y': dic_radius['2sigma'] * py,
-                              'border': '2Sigma'})
-    df_3sigma = pd.DataFrame({'pc1.x': dic_radius['3sigma'] * px,
-                              'pc2.y': dic_radius['3sigma'] * py,
-                              'border': '3Sigma'})
-    df_maxval = pd.DataFrame({'pc1.x': dic_radius['max'] * px,
-                              'pc2.y': dic_radius['max'] * py,
-                              'border': 'Outlier'})
-    df_normal = pd.DataFrame({'pc1.x': dic_radius['train'] * px,
-                              'pc2.y': dic_radius['train'] * py,
-                              'border': 'Range'})
-    df_percen = pd.DataFrame({'pc1.x': dic_radius['percentile'] * px,
-                              'pc2.y': dic_radius['percentile'] * py,
-                              'border': 'Percentile' + dic_radius['prob_manual']})
+    df_1sigma = pd.DataFrame(
+        {'pc1.x': dic_radius['sigma'] * px, 'pc2.y': dic_radius['sigma'] * py, 'border': 'Sigma'}
+    )
+    df_2sigma = pd.DataFrame(
+        {'pc1.x': dic_radius['2sigma'] * px, 'pc2.y': dic_radius['2sigma'] * py, 'border': '2Sigma'}
+    )
+    df_3sigma = pd.DataFrame(
+        {'pc1.x': dic_radius['3sigma'] * px, 'pc2.y': dic_radius['3sigma'] * py, 'border': '3Sigma'}
+    )
+    df_maxval = pd.DataFrame(
+        {'pc1.x': dic_radius['max'] * px, 'pc2.y': dic_radius['max'] * py, 'border': 'Outlier'}
+    )
+    df_normal = pd.DataFrame(
+        {'pc1.x': dic_radius['train'] * px, 'pc2.y': dic_radius['train'] * py, 'border': 'Range'}
+    )
+    df_percen = pd.DataFrame(
+        {
+            'pc1.x': dic_radius['percentile'] * px,
+            'pc2.y': dic_radius['percentile'] * py,
+            'border': 'Percentile' + dic_radius['prob_manual'],
+        }
+    )
     df_circles = pd.concat([df_1sigma, df_2sigma, df_3sigma, df_maxval, df_normal, df_percen])
     return df_circles
 
 
 def _calc_biplot_arrows(rotation, sdev, max_train, var_name_adjust=1.5, tgt_pc=[1, 2]) -> dict:
-    ''' Calculate direction of arrows (loadings) for biplot
-    '''
+    """Calculate direction of arrows (loadings) for biplot"""
     dic_arrows = {'xval': None, 'yval': None, 'angle': None, 'hjust': None, 'varname': None}
 
     # x,y direction for arrows (length corresponds to eigen values)
     scaled_eig_vecs = rotation * sdev
-    max_len = np.sqrt(np.max(np.sum(scaled_eig_vecs ** 2, axis=1)))
+    max_len = np.sqrt(np.max(np.sum(scaled_eig_vecs**2, axis=1)))
 
     idx_tgt_pc = [x - 1 for x in tgt_pc]
     direc = scaled_eig_vecs[:, idx_tgt_pc] * (max_train / max_len)
@@ -571,8 +679,7 @@ def _calc_biplot_arrows(rotation, sdev, max_train, var_name_adjust=1.5, tgt_pc=[
 
 
 def _gen_biplot_axislabs(var_explained, tgt_pc=[1, 2]) -> list:
-    ''' Generate axis labels for biplot
-    '''
+    """Generate axis labels for biplot"""
     axislabs = ['PC{}({:.1f} [%] explained Var.)'.format(x, var_explained[x - 1]) for x in tgt_pc]
     return axislabs
 
@@ -581,9 +688,9 @@ def _gen_biplot_axislabs(var_explained, tgt_pc=[1, 2]) -> list:
 # PCA-MSPC
 # ---------------------------
 
+
 def _calc_mspc_t2q(pca, X, num_pc=2) -> dict:
-    ''' PCA-MSPC: Calculate T2/Q statics and contributions
-    '''
+    """PCA-MSPC: Calculate T2/Q statics and contributions"""
     dic_t2q = dict(stats=None, contr_t2=None, contr_q=None)
 
     # calculate T2 stats and contributions
@@ -608,7 +715,10 @@ def _calc_mspc_t2q(pca, X, num_pc=2) -> dict:
 # Utilities
 # ---------------------------
 
-def _gen_jsons_for_plotly(dic_biplot: dict, dic_t2q_lrn: dict, dic_t2q_tst: dict, sample_no=0) -> dict:
+
+def _gen_jsons_for_plotly(
+    dic_biplot: dict, dic_t2q_lrn: dict, dic_t2q_tst: dict, sample_no=0
+) -> dict:
     """
     Generate a json to pass to plotly (Biplot and T2/Q Chart)
     :param dic_biplot:
@@ -631,7 +741,7 @@ def _gen_jsons_for_plotly(dic_biplot: dict, dic_t2q_lrn: dict, dic_t2q_tst: dict
         },
         'circles': dic_circles,
         'axislab': dic_biplot['axislab'],
-        'r': dic_biplot['dic_radius']
+        'r': dic_biplot['dic_radius'],
     }
 
     json_pca_score_test = {
@@ -641,11 +751,13 @@ def _gen_jsons_for_plotly(dic_biplot: dict, dic_t2q_lrn: dict, dic_t2q_tst: dict
         },
         'circles': dic_circles,
         'axislab': dic_biplot['axislab'],
-        'r': dic_biplot['dic_radius']
+        'r': dic_biplot['dic_radius'],
     }
 
     # Biplots (arrows): same graph for train and test
-    score_clicked = _extract_clicked_sample(dic_biplot['arr_biplot_lrn'], dic_biplot['arr_biplot_tst'], sample_no)
+    score_clicked = _extract_clicked_sample(
+        dic_biplot['arr_biplot_lrn'], dic_biplot['arr_biplot_tst'], sample_no
+    )
     json_pca_biplot = {
         'x': dic_biplot['dic_arrows'].get('xval'),
         'y': dic_biplot['dic_arrows'].get('yval'),
@@ -654,19 +766,29 @@ def _gen_jsons_for_plotly(dic_biplot: dict, dic_t2q_lrn: dict, dic_t2q_tst: dict
         'hjust': dic_biplot['dic_arrows'].get('hjust'),
         'r': dic_biplot['dic_radius'],
         'clicked_point': {
-            "x": score_clicked[0],
-            "y": score_clicked[1],
-        }
+            'x': score_clicked[0],
+            'y': score_clicked[1],
+        },
     }
 
     # PCA-MSPC
-    json_t2_time_series = {'train': dic_t2q_lrn['dic_stats']['t2'], 'test': dic_t2q_tst['dic_stats']['t2']}
-    json_q_time_series = {'SPE': dic_t2q_lrn['dic_stats']['q'], 'test': dic_t2q_tst['dic_stats']['q']}
+    json_t2_time_series = {
+        'train': dic_t2q_lrn['dic_stats']['t2'],
+        'test': dic_t2q_tst['dic_stats']['t2'],
+    }
+    json_q_time_series = {
+        'SPE': dic_t2q_lrn['dic_stats']['q'],
+        'test': dic_t2q_tst['dic_stats']['q'],
+    }
     t2_contr = _extract_clicked_sample(dic_t2q_lrn['contr_t2'], dic_t2q_tst['contr_t2'], sample_no)
     q_contr = _extract_clicked_sample(dic_t2q_lrn['contr_q'], dic_t2q_tst['contr_q'], sample_no)
 
-    df_t2_contr = pd.DataFrame({'Var': dic_biplot['varnames'], 'Ratio': t2_contr / np.sum(np.abs(t2_contr))})
-    df_q_contr = pd.DataFrame({'Var': dic_biplot['varnames'], 'Ratio': q_contr / np.sum(np.abs(q_contr))})
+    df_t2_contr = pd.DataFrame(
+        {'Var': dic_biplot['varnames'], 'Ratio': t2_contr / np.sum(np.abs(t2_contr))}
+    )
+    df_q_contr = pd.DataFrame(
+        {'Var': dic_biplot['varnames'], 'Ratio': q_contr / np.sum(np.abs(q_contr))}
+    )
     df_t2_contr = df_t2_contr.sort_values('Ratio', ascending=False, key=abs).reset_index()
     df_q_contr = df_q_contr.sort_values('Ratio', ascending=False, key=abs).reset_index()
 
@@ -677,13 +799,13 @@ def _gen_jsons_for_plotly(dic_biplot: dict, dic_t2q_lrn: dict, dic_t2q_tst: dict
         'json_q_time_series': json_q_time_series,
         'json_t2_contribution': df_t2_contr,
         'json_q_contribution': df_q_contr,
-        'json_pca_biplot': json_pca_biplot}
+        'json_pca_biplot': json_pca_biplot,
+    }
     return output_dict
 
 
 def _convert_df_circles_to_dict(df_circles) -> dict:
-    ''' Convert dataframe of circles to dictionary, to pass it to plotly
-    '''
+    """Convert dataframe of circles to dictionary, to pass it to plotly"""
     dic_circles = {}
     for label in df_circles['border'].unique():
         dic_circles[label] = {'x': [], 'y': []}
@@ -694,8 +816,7 @@ def _convert_df_circles_to_dict(df_circles) -> dict:
 
 
 def _extract_clicked_sample(df_train, df_test, sample_no=0):
-    ''' Extract a row from train/test data, according to given sample_no
-    '''
+    """Extract a row from train/test data, according to given sample_no"""
 
     if sample_no >= 0:
         return df_test[sample_no, :]

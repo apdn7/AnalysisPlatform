@@ -9,11 +9,11 @@ heatmap_blueprint = Blueprint(
     __name__,
     template_folder=os.path.join('..', 'templates', 'heatmap'),
     static_folder=os.path.join('..', 'static', 'heatmap'),
-    url_prefix='/ap'
+    url_prefix='/ap',
 )
 
 
 @heatmap_blueprint.route('/chm')
 def index():
     output_dict = get_common_config_data()
-    return render_template("heatmap.html", **output_dict)
+    return render_template('heatmap.html', **output_dict)

@@ -1,5 +1,5 @@
-from enum import auto, Enum
-from typing import Dict, List, Union, Tuple
+from enum import Enum, auto
+from typing import Dict, List, Tuple, Union
 
 # from bridge.models.model_utils import TableColumn
 # from histview2.common.constants import DataTypeDB, ServerType
@@ -77,7 +77,9 @@ def _gen_condition_str(dic_conditions: Dict[str, Tuple], is_or_operation=False):
 def gen_update_value_str(model_cls, dic_values: Dict):
     model_columns = model_cls.Columns.get_column_names()
     parameter_marker = model_cls.get_parameter_marker()  # %s
-    sql = ','.join([f'"{col}" = {parameter_marker}' for col in dic_values.keys() if col in model_columns])
+    sql = ','.join(
+        [f'"{col}" = {parameter_marker}' for col in dic_values.keys() if col in model_columns]
+    )
     param = [value for col, value in dic_values.items() if col in model_columns]
     return sql, param
 
@@ -219,13 +221,21 @@ def gen_select_aggregate_function(dict_aggregate_function: Dict):
         return None
     # output
     # MAX(col1),MIN(col2),FUNC_A(col3,col4,const)
-    return {f'"{key}"': f'{value[0]}({",".join(value[1:])}) as "{key}"' for key, value in
-            dict_aggregate_function.items()}
+    return {
+        f'"{key}"': f'{value[0]}({",".join(value[1:])}) as "{key}"'
+        for key, value in dict_aggregate_function.items()
+    }
 
 
-def gen_select_by_condition_sql(table_name, dic_conditions=None, select_cols=None,
-                                dict_aggregate_function=None, dic_order_by=Union[List, Dict, None], limit=None,
-                                is_or_operation=False):
+def gen_select_by_condition_sql(
+    table_name,
+    dic_conditions=None,
+    select_cols=None,
+    dict_aggregate_function=None,
+    dic_order_by=Union[List, Dict, None],
+    limit=None,
+    is_or_operation=False,
+):
     select_col_names = [add_double_quote(col) for col in select_cols] if select_cols else []
 
     table_str = add_double_quote(table_name)  # extract partition value from dic_values
@@ -257,7 +267,11 @@ def gen_select_by_condition_sql(table_name, dic_conditions=None, select_cols=Non
         order_by_str = None
         if isinstance(dic_order_by, dict):
             order_by_str = ', '.join(
-                [f'{col} {order_by_type or OrderBy.ASC.name}' for col, order_by_type in dic_order_by.items()])
+                [
+                    f'{col} {order_by_type or OrderBy.ASC.name}'
+                    for col, order_by_type in dic_order_by.items()
+                ]
+            )
         elif isinstance(dic_order_by, list):
             order_by_str = ', '.join([col for col in dic_order_by])
 

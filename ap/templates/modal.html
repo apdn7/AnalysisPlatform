@@ -233,6 +233,7 @@
                         <th title="{{ _('User Setting Open Explaining') }}" scope="col"><span class="hint-text">{{ _('Open') }}</span></th>
                         <th title="{{ _('User Setting Read Explaining') }}" scope="col"><span class="hint-text">{{ _('Load') }}</span></th>
                         <th title="{{ _('User Setting Edit Explaining') }}" scope="col"><span class="hint-text">{{ _('Edit') }}</span></th>
+                        <th title="{{ _('Link copy hover msg') }}" scope="col"><span class="hint-text">Link</span></th>
                         <th scope="col">{{ _('Del') }}</th>
                         <th scope="col">{{ _('Description') }}</th>
                     </tr>
@@ -522,4 +523,74 @@
 			</div>
 		</div>
 	</div>
+</div>
+<div id="removeErrorColumnMdl" class="modal fade in" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog modal-confirm modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">{{ _('Please confirm') }}</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			</div>
+			<div class="modal-body scroll-body">
+				<p class="modal-inform modal-msg">{{ _('Do you want to uncheck problematic variables?') }}</p>
+                <table id="cols-variance-tbl">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>{{ _('Selected Variables') }}</th>
+                            <th>{{ _('Zero Variance') }}</th>
+                            <th>{{ _('NA rate')}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <table id="cols-variance-tbl-multiple-range">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>{{ _('Selected Variables') }}</th>
+                            <th>{{ _('Zero Variance') }}(Train data)</th>
+                            <th>{{ _('NA rate')}}(Train data)</th>
+                            <th>{{ _('Zero Variance') }}(Target data)</th>
+                            <th>{{ _('NA rate')}}(Target data)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+			</div>
+			<div class="modal-footer">
+				<button onclick="reselectVariablesToShowGraph();" class="btn btn-primary"
+						data-dismiss="modal">{{ _('Reselect') }}</button>
+				<button class="btn btn-secondary"
+						data-dismiss="modal">{{ _('Cancel') }}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="createV2ProcessDataSource" class="modal fade in" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog modal-confirm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">{{ _('Please confirm') }}</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			</div>
+			<div class="modal-body">
+				<p class="modal-inform modal-msg">{{ _('Generate several v2 data sources msg') }}</p>
+			</div>
+			<div class="modal-footer">
+				<button onclick="handleSaveV2DataSources()" class="btn btn-primary"
+						data-dismiss="modal">{{ _('OK') }}</button>
+				<button class="btn btn-secondary"
+						data-dismiss="modal">{{ _('Cancel') }}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="copyClipboardContent">
+    <span style="color: black" id="copyClipboardContentText"></span>
+    <button id="copyUrlButton" data-clipboard-target="#copyClipboardContentText" class="btn btn-secondary clipboard"></button>
 </div>

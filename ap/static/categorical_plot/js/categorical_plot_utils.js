@@ -20,11 +20,11 @@ const cyclicEles = {
 const STP_EXPORT_URL = {
     CSV: {
         ext_name: 'csv',
-        url: '/ap/api/stp/csv_export',
+        url: '/ap/api/stp/data_export/csv',
     },
     TSV: {
         ext_name: 'tsv',
-        url: '/ap/api/stp/tsv_export',
+        url: '/ap/api/stp/data_export/tsv',
     },
 };
 
@@ -87,7 +87,7 @@ const generateTabHTML = (eleIdPrefix, arrayFormVal, sensors, showViewer = false)
         viewerContentHTML = genTabContentHTML(tabId = 'scattersTab', plotCardId = 'varScatterPlotCards');
     }
 
-    const stratifiedVarTabHTML = `<ul id="${eleIdPrefix}Tabs" class="nav nav-tabs justify-content-end" role="tablist" style="margin-top: -35px">
+    const stratifiedVarTabHTML = `<ul id="${eleIdPrefix}Tabs" class="nav nav-tabs justify-content-end stp-tab" role="tablist">
         ${navItemHTMLs.join(' ')}
         ${viewerNavHTML}
     </ul>

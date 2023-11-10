@@ -21,6 +21,10 @@ let dicEnter = {};
 let currentRegexVal = '';
 let groupDic = {};
 let catOnDemandChanged = false;
+let isDragDrop = false;
+let dragDropInterval = null;
+let dragDropTime = 0;
+const DELAY_MOUSE_TIME = 0.3;
 
 const modalEls = {
     okBtn: $('#catFilterSubmit'),
@@ -34,6 +38,8 @@ const modalEls = {
     categoriesBox: $('#categoriesBox'),
     categoriesBoxTitle: $('#categoriesBoxTitle'),
     categoriesVarTitle: $('#categoriesVarTitle'),
+    filterTitle: $('#filterBoxTitle'),
+    filterBox: $('#filterBox'),
     categoriesVarBox: $('#categoriesVarBox'),
     divBox: $('#divBox'),
     divBoxTitle: $('#divTitle'),
@@ -94,18 +100,47 @@ const bindCategorySort = () => {
     }
 };
 
-function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, callback) {
-    let catHtml = renderFilterHtml(catExpBox);
-    let categoryHtml = renderFilterHtml(categories);
+const setMouseDown = () => {
+    isDragDrop = false;
+    dragDropTime = 0;
+    dragDropInterval = setInterval(() => {
+        dragDropTime += 0.1;
+    }, 100);
+};
+
+
+const setMouseUp = () => {
+    clearInterval(dragDropInterval);
+    if (dragDropTime >= DELAY_MOUSE_TIME) {
+        isDragDrop = true;
+    } else {
+        isDragDrop = false;
+    }
+    dragDropTime = 0;
+};
+
+const filterDataModal = {
+    facet: [],
+    category: [],
+    system: [],
+    filter: [],
+    color: [],
+    div: []
+}
+
+function fillDataToFilterModal(data = filterDataModal, callback) {
+    let facetHtml = renderFilterHtml(data.facet);
+    let categoryHtml = renderFilterHtml(data.category);
     // sort categoryVars by alphabet name
-    if (categoryVars) {
-        categoryVars.sort((a, b) => {
+    if (data.system) {
+        data.system.sort((a, b) => {
             return a.column_master_name < b.column_master_name ? -1 : 1;
         });
     }
-    const categoryVarHtml = renderFilterHtml(categoryVars);
-    const divHtml = renderFilterHtml(div);
-    const colorHtml = renderFilterHtml(color);
+    const categoryVarHtml = renderFilterHtml(data.system);
+    const divHtml = renderFilterHtml(data.div);
+    const colorHtml = renderFilterHtml(data.color);
+    const filterHtml = renderFilterHtml(data.filter);
     init();
     initCommonSearchInput(modalEls.search);
     
@@ -114,7 +149,6 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
         modalEls.modal.modal('toggle');
         dicConfirmed = copyDict(dicChecked);
         // update category sort
-        bindCategorySort();
         callback();
     });
 
@@ -157,20 +191,32 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
         setAndResetFilter(false);
     });
 
+    $('.show-detail').off('mousedown', setMouseDown);
+    $('.show-detail').on('mousedown', setMouseDown);
+
+    $('.show-detail').off('mouseup', setMouseUp);
+    $('.show-detail').on('mouseup', setMouseUp);
+
+    $('.show-detail').off('mouseleave', setMouseUp);
+    $('.show-detail').on('mouseleave', setMouseUp);
+
     $('.show-detail').unbind('click');
     $('.show-detail').click(function () {
-        const selectedColumnID = $(this).attr('data-id');
-        modalEls.modal.modal('toggle');
-        prepareDuplicateColumnID(selectedColumnID);
-        filterPaging(dicCheckboxes);
+      if (!isDragDrop) {
+          const selectedColumnID = $(this).attr('data-id');
+          modalEls.modal.modal('toggle');
+          prepareDuplicateColumnID(selectedColumnID);
+          filterPaging(dicCheckboxes);
 
-        setTimeout(() => {
-            showCheckStatus(dicConfirmed);
-            sortCheckboxes();
-            checkboxOnChange();
-            onChangeAllOption();
-            onDemandFilterInputCheck();
-        }, 500);
+          setTimeout(() => {
+              if (isDragDrop) return;
+              showCheckStatus(dicConfirmed);
+              sortCheckboxes();
+              checkboxOnChange();
+              onChangeAllOption();
+              onDemandFilterInputCheck();
+          }, 500);
+         }
     });
 
 
@@ -230,12 +276,13 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
     });
 
     function init() {
-        showTitle(catExpBox, categories, categoryVars, div, color);
-        modalEls.catExpBox.html(catHtml);
+        showTitle(data);
+        modalEls.catExpBox.html(facetHtml);
         modalEls.categoriesBox.html(categoryHtml);
         modalEls.categoriesVarBox.html(categoryVarHtml);
         modalEls.divBox.html(divHtml);
         modalEls.colorBox.html(colorHtml);
+        modalEls.filterBox.html(filterHtml);
         moveCheckedLabelsToTop();
 
         initSortCard();
@@ -271,8 +318,8 @@ function fillDataToFilterModal(catExpBox, categories, categoryVars, div, color, 
     }
 
     function prepareDuplicateColumnID(selectedColumnID) {
-        preparedCatBox = _.cloneDeep(catExpBox);
-        preparedCategories = _.cloneDeep(categories);
+        preparedCatBox = _.cloneDeep(data.facet);
+        preparedCategories = _.cloneDeep(data.category);
         if (selectedColumnID) {
             preparedCatBox.forEach((cat, i) => {
                 if (Number(selectedColumnID) === cat.column_id) {
@@ -370,35 +417,41 @@ function setAndResetFilter(isSet = true) {
     }
 }
 
-function showTitle(catExpBox, categories, categoryVars, div, color) {
-    if (catExpBox && catExpBox.length === 0) {
+function showTitle(data = filterDataModal) {
+    if (data.facet && data.facet.length === 0) {
         modalEls.catExpBoxTitle.parent().hide();
     } else {
         modalEls.catExpBoxTitle.parent().show();
     }
     
-    if (categories && categories.length === 0) {
+    if (data.category && data.category.length === 0) {
         modalEls.categoriesBoxTitle.parent().hide();
     } else {
         modalEls.categoriesBoxTitle.parent().show();
     }
 
-    if (div && div.length === 0) {
+    if (data.div && data.div.length === 0) {
         modalEls.divBoxTitle.parent().hide();
     } else {
         modalEls.divBoxTitle.parent().show();
     }
     
-    if (color && color.length === 0) {
+    if (data.color && data.color.length === 0) {
         modalEls.colorBoxTitle.parent().hide();
     } else {
         modalEls.colorBoxTitle.parent().show();
     }
     
-    if (categoryVars && categoryVars.length === 0) {
+    if (data.system && data.system.length === 0) {
         modalEls.categoriesVarTitle.parent().hide();
     } else {
         modalEls.categoriesVarTitle.parent().show();
+    }
+
+    if (data.filter && data.filter.length === 0) {
+         modalEls.filterTitle.parent().hide();
+    } else {
+        modalEls.filterTitle.parent().show();
     }
 }
 
@@ -499,39 +552,41 @@ const pagination = (columnId, dataSource) => {
                             </div>
                          </div>`;
     const pageSize = 20;
-    container.pagination({
-        dataSource,
-        pageSize,
-        showNavigator: true,
-        showPageNumbers: false,
-        callback(data, pagi) {
-            const html = data.map(value => genCheckBox(columnId, value));
-            dataContainer.html(allCheckbox + html.join(' '));
-            const thisEL = $(pagi.el[0]);
-            const ul = thisEL.find('.paginationjs-pages ul');
-            const totalPageNum = thisEL.find('.paginationjs-nav.J-paginationjs-nav').text().split('/')[1].trim();
-            const isDisibleNext = ul.find('.paginationjs-next').hasClass('disabled');
-            const isDisiblePre = ul.find('.paginationjs-prev').hasClass('disabled');
+    if (container.length) {
+        container.pagination({
+            dataSource,
+            pageSize,
+            showNavigator: true,
+            showPageNumbers: false,
+            callback(data, pagi) {
+                const html = data.map(value => genCheckBox(columnId, value));
+                dataContainer.html(allCheckbox + html.join(' '));
+                const thisEL = $(pagi.el[0]);
+                const ul = thisEL.find('.paginationjs-pages ul');
+                const totalPageNum = thisEL.find('.paginationjs-nav.J-paginationjs-nav').text().split('/')[1].trim();
+                const isDisibleNext = ul.find('.paginationjs-next').hasClass('disabled');
+                const isDisiblePre = ul.find('.paginationjs-prev').hasClass('disabled');
 
-            const goToFirstHtml = `
+                const goToFirstHtml = `
             <li class="paginationjs-page paginationjs-first J-paginationjs-page${isDisiblePre ? ' disabled' : ''}" data-num="1"><a><i class="fa fa-step-backward"></i></a></li>
             `;
-            const goToLastHtml = `
+                const goToLastHtml = `
             <li class="paginationjs-page paginationjs-last J-paginationjs-page${isDisibleNext ? ' disabled' : ''}" data-num="${totalPageNum}"><a><i class="fa fa-step-forward"></i></a></li>
             `;
 
-            ul.append(goToLastHtml);
-            ul.prepend(goToFirstHtml);
-        },
-        afterPaging() {
-            searchRegEx(currentRegexVal, null, dataContainerId);
-            showCheckStatus(dicChecked, dataContainerId);
-            sortCheckboxes();
-            checkboxOnChange();
-            onChangeAllOption();
-            onDemandFilterInputCheck();
-        },
-    });
+                ul.append(goToLastHtml);
+                ul.prepend(goToFirstHtml);
+            },
+            afterPaging() {
+                searchRegEx(currentRegexVal, null, dataContainerId);
+                showCheckStatus(dicChecked, dataContainerId);
+                sortCheckboxes();
+                checkboxOnChange();
+                onChangeAllOption();
+                onDemandFilterInputCheck();
+            },
+        });
+    }
 };
 
 const filterPaging = (dicBoxWithOrder) => {
@@ -634,13 +689,16 @@ const clearGlobalDict = () => {
     dicEnter = {};
 };
 
-const initGlobalDict = (filterData) => {
-    if (!filterData || !_.isArray(filterData)) return;
-    for (const cat of filterData) {
-        const columnId = cat.column_id;
-        dicCheckboxes[columnId] = cat.unique_categories;
-        dicChecked[columnId] = [];
-        dicConfirmed[columnId] = [];
+const initGlobalDict = (data = filterDataModal) => {
+    if (!data) return;
+    for (const filterData of Object.values(data)) {
+        if (!filterData || !_.isArray(filterData)) return;
+        for (const cat of filterData) {
+            const columnId = cat.column_id;
+            dicCheckboxes[columnId] = cat.unique_categories;
+            dicChecked[columnId] = [];
+            dicConfirmed[columnId] = [];
+        }
     }
 };
 

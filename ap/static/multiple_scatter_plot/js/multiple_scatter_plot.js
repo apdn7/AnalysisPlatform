@@ -4,7 +4,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
-const MAX_NUMBER_OF_SENSOR = 7;
+const MAX_NUMBER_OF_SENSOR = 64;
 const MIN_NUMBER_OF_SENSOR = 2;
 let tabID = null;
 let resultData = null;
@@ -35,6 +35,7 @@ const formElements = {
     showHeatmapInput: $('#showHeatmapInput'),
     xScale: $('select[name=XScaleOption]'),
     yScale: $('select[name=YScaleOption]'),
+    plotCardId: '#sctr-card',
 };
 
 const i18n = {
@@ -66,16 +67,6 @@ const checkDisableScatterBtn = (id = 'end-proc-row') => {
         return;
     }
 
-    const SCATTER_MAX_NUM = 7;
-    const SCATTER_MIN_NUM = 2;
-    const checkedItems = $(`#${id}`).find('input[type="checkbox"][value!=All]:checked').length;
-    if (checkedItems > SCATTER_MAX_NUM || checkedItems < SCATTER_MIN_NUM) {
-        // $(formElements.scatterBtn).attr('disabled', true);
-        // $(formElements.scatterBtn).css('cursor', 'not-allowed');
-        return false; // form data is NG
-    }
-    // $(formElements.scatterBtn).attr('disabled', false);
-    // $(formElements.scatterBtn).css('cursor', 'default');
     return true; // form data is OK
 };
 
@@ -96,7 +87,12 @@ $(() => {
     // add first end process
     const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
         showDataType: true,
+        showStrColumn: true,
         isRequired: true,
+        hideStrVariable: true,
+        showLabels: true,
+        labelAsFilter: true,
+        hideCTCol: true,
     });
     endProcItem();
 
@@ -134,7 +130,7 @@ $(() => {
             loadingShow(true);
             const newCols = [];
             const newPlots = [];
-            $('#sctr-card>div').each(function () {
+            $(`${formElements.plotCardId}>div`).each(function () {
                 const pos = $(this).data('pos');
                 newCols.push(resultData.array_plotdata[pos]);
                 newPlots.push(resultData.ARRAY_FORMVAL[pos]);
@@ -146,10 +142,10 @@ $(() => {
             resultData.show_heatmap = showHeatmap;
             const isCurrentShowContour = formElements.switchContour.is(':checked');
             if (isCurrentShowContour) {
-                lastUsedFormData.set('new_array_formval', JSON.stringify(newPlots))
+                lastUsedFormData.set('order_array_formval', JSON.stringify(newPlots))
                 scatterTraceData(lastUsedFormData);
             } else {
-                lastUsedFormData.delete('new_array_formval')
+                lastUsedFormData.delete('order_array_formval')
                 multipleScatterPlot(resultData, false);
                 loadingHide();
             }
@@ -159,11 +155,34 @@ $(() => {
 
 const loading = $('.loading');
 
-const collectFormDataMSP = () => {
+const collectFormDataMSP = (clearOnFlyFilter = false, autoUpdate = false) => {
+    if (autoUpdate) {
+        return genDatetimeRange(lastUsedFormData);
+    }
     let formData = collectFormData(formElements.formID);
-    formData = genDatetimeRange(formData);
+    if (clearOnFlyFilter) {
+        formData = genDatetimeRange(formData);
+        lastUsedFormData = formData;
+    } else {
+        formData = lastUsedFormData;
+        formData = transformCatFilterParams(formData);
+    }
+    formData = setUseContourAndHeatMap(formData);
+    if (latestSortColIds.length) {
+        // make new array formval from sortedColIds
+        const newArrayFormval = []
+        for (const procCol of latestSortColIds) {
+            const [procId, colId] = procCol.split('-');
+            newArrayFormval.push({
+                GET02_VALS_SELECT: Number(colId),
+                end_proc: Number(procId),
+            })
+        }
+        formData.set('order_array_formval', JSON.stringify(newArrayFormval));
+    }
     return formData;
 };
+
 
 const mspTracing = () => {
     requestStartedAt = performance.now();
@@ -173,22 +192,16 @@ const mspTracing = () => {
         // close sidebar
         beforeShowGraphCommon();
 
-        formElements.switchContour.prop('checked', false);
-        formElements.xScale.val(scaleOptionConst.SETTING);
-        formElements.yScale.val(scaleOptionConst.SETTING);
+        resetGraphSetting();
 
         // clear old chart
-        $('#sctr-card').html('');
+        $(formElements.plotCardId).html('');
 
-        const formData = collectFormDataMSP();
+        const formData = collectFormDataMSP(true, false);
 
         // set default remove_outliers
         formElements.selectRemoveOutlierInChart.val(formData.get('remove_outlier'));
 
-        // set use contour
-        const showContourOption = formElements.switchContour.is(':checked') ? 1 : 0;
-        formData.set('use_contour', showContourOption);
-        lastUsedFormData = formData;
         scatterTraceData(formData, true);
     }
 };
@@ -211,6 +224,9 @@ const calculateMaxCorr = (data) => {
 };
 
 const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
+    // clear old chart title
+    clearOldChartTitles();
+
     // save global
     graphStore.setTraceData(_.cloneDeep(data));
     // share global var to base.js
@@ -231,21 +247,34 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
         formElements.showHeatmapInput.prop(CONST.DEFAULT_VALUE, showHeatmap);
     }
 
-    $('#sctr-card').html('');
+    // large of sensor (8 ~ 10) selected
+    const isLargeOfSensors = sensors.length > 7;
+
+    $(formElements.plotCardId).html('');
     sensors.forEach((_pd, k) => {
         let row = `<div class="chart-row" data-pos=${k}>`;
         const endProc = _pd.end_proc_id;
         for (let i = 0; i < plotDataCount; i++) {
             const iProcId = sensors[i].end_col_id;
             const kProcId = sensors[k].end_col_id;
+            const iProcInfo = procConfigs[endProc] ? procConfigs[endProc].shown_name : '';
+            const kProcInfo = procConfigs[sensors[k].end_proc_id] ? procConfigs[sensors[k].end_proc_id].shown_name : '';
+            const chartXLabel = `${iProcInfo}|${_pd.end_col_name}`;
+            const chartYLabel = `${kProcInfo}|${sensors[i].end_col_name}`;
             if (i === k) {
                 if (String(endProc) === String(startProc)) {
                     row += `<div class="hist-item chart-column-border graph-navi"
-                    style="width:${canvasSize}%;height:calc(${canvasSize}vh - 1em);">
+                    style="width:${canvasSize}%;height:calc(${canvasSize}vh - 1em);" 
+                    onmouseover="showChartTitle(this, ${isLargeOfSensors});"
+                    onmouseleave="clearOldChartTitles();" 
+                    data-x-title="${chartXLabel}" data-y-title="">
                     <div class="center" id="hist-${kProcId}-${iProcId}" style="width: 99%;height: 100%"></div></div>`;
                 } else {
                     row += `<div class="hist-item chart-column graph-navi"
-                    style="width:${canvasSize}%;height:calc(${canvasSize}vh - 1em);">
+                    style="width:${canvasSize}%;height:calc(${canvasSize}vh - 1em);"
+                    onmouseover="showChartTitle(this, ${isLargeOfSensors});" 
+                    onmouseleave="clearOldChartTitles();"
+                    data-x-title="${chartXLabel}" data-y-title="">
                     <div class="center" id="hist-${kProcId}-${iProcId}" style="width: 99%;height: 100%"></div></div>`;
                 }
             } else if (i > k) {
@@ -254,12 +283,16 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
                     <p class="coef-text m-0" id="coef-${kProcId}-${iProcId}"></p></div>`;
             } else if (i < k) {
                 row += `<div class="sctr-item chart-column graph-navi"
-                    style="width:${canvasSize}%;height:calc(${canvasSize}vh - 1em);">
+                    style="width:${canvasSize}%;height:calc(${canvasSize}vh - 1em);" 
+                    onmouseover="showChartTitle(this, ${isLargeOfSensors});" 
+                    onmouseleave="clearOldChartTitles();"
+                    data-y-title="${chartXLabel}" 
+                    data-x-title="${chartYLabel}">
                     <div class="center" id="sctr-${kProcId}-${iProcId}" style="width: 99%;height: 100%"></div></div>`;
             }
         }
         row += '</div>';
-        $('#sctr-card').append(row);
+        $(formElements.plotCardId).append(row);
     });
 
     const graphCfg = {
@@ -268,7 +301,6 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
         useResizeHandler: true, // responsive
         style: { width: '100%', height: '100%' }, // responsive
     };
-
 
     // Histogram Chart
     $('.hist-item div').each((k, his) => {
@@ -283,24 +315,12 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
         const procId = data.ARRAY_FORMVAL[k].end_proc;
         const colId = data.ARRAY_FORMVAL[k].GET02_VALS_SELECT;
         const procInfo = procConfigs[procId];
-        const procName = procInfo.name;
-        const colName = procInfo.getColumnById(colId).name;
-        const chartLabel = `${procName} ${colName}`;
+        const procName = procInfo.shown_name;
+        const colName = procInfo.getColumnById(colId).shown_name;
+        const chartLabel = `${procName}|${colName}`;
 
         const [histTrace, fmt] = genHistogramTrace(plotData, xScaleOption);
-        const gridlayout = {
-            bargroupgap: 0.1,
-            title: {
-                text: chartLabel,
-                font: {
-                    size: 11,
-                    color: '#65c5f1',
-                },
-                xref: 'paper',
-                x: 0.5,
-            },
-        };
-        const histLayout = { ...genHistogramLayout(xrange, false, fmt), ...gridlayout };
+        const histLayout = genHistogramLayout(xrange, false, fmt, isLargeOfSensors, chartLabel);
 
         const maxHistNum = Math.max(...scaleInfo.kde_data.hist_counts);
         const layoutWithThresholds = addHistogramThresholds(
@@ -391,7 +411,7 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
 
         const scatterData = sctData.scatter_data;
         const {x_fmt, y_fmt} = scatterData;
-        let sctLayout = genScatterContourLayout(showColor, x_fmt || '', y_fmt || '');
+        let sctLayout = genScatterContourLayout(showColor, x_fmt || '', y_fmt || '', isLargeOfSensors);
         sctLayout.shapes = genThresholds(xThreshold, yThreshold, {xaxis: 'x', yaxis: 'y'}, xRange, yRange);
         sctLayout = addAxisRange(sctLayout, xRange, yRange);
         sctLayout.xaxis.ticklen = 0;
@@ -433,14 +453,20 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
     // trigger resize window
     window.dispatchEvent(new Event('resize'));
 
-    $('#sctr-card').show();
-    $('#showContour').show();
+    $(formElements.plotCardId).show();
 
-    if (clearOnFlyFilter) {
-         $('html, body').animate({
-            scrollTop: $('#sctr-card').offset().top,
-        }, 1500);
+    if (isLargeOfSensors) {
+        $('.coef-text').css('font-size', '0.8vw');
     }
+};
+
+const resetGraphSetting = () => {
+    xScaleOption = scaleOptionConst.SETTING;
+    yScaleOption = scaleOptionConst.SETTING;
+    formElements.switchContour.prop('checked', false);
+    formElements.xScale.val(scaleOptionConst.SETTING);
+    formElements.yScale.val(scaleOptionConst.SETTING);
+    formElements.showHeatmapInput.prop('checked', true);
 };
 
 const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false) => {
@@ -449,8 +475,8 @@ const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false
         return;
     }
 
-    if (autoUpdate) {
-        formData = genDatetimeRange(lastUsedFormData);
+    if (!formData) {
+        formData = collectFormDataMSP(clearOnFlyFilter, autoUpdate);
     }
 
     showGraphCallApi('/ap/api/msp/plot', formData, REQUEST_TIMEOUT, async (res) => {
@@ -462,6 +488,7 @@ const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false
         // Hide loading screen
         loading.addClass('hide');
         $('#plot-cards').empty();
+          $('#showContour').show();
 
         // check result and show toastr msg
         if (isEmpty(res.array_plotdata)) {
@@ -477,12 +504,32 @@ const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false
             showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
         }
 
-        multipleScatterPlot(res, clearOnFlyFilter);
+        if (res.as_heatmap_matrix) {
+            showHeatmap(res.heatmap_matrix);
+            $(formElements.plotCardId).addClass('align-items-center');
+            $(window).off('resize', handleResizeWindow);
+            $(window).on('resize', handleResizeWindow);
+        } else {
+            $(window).off('resize', handleResizeWindow);
+            multipleScatterPlot(res, clearOnFlyFilter);
+            $(formElements.plotCardId).removeClass('align-items-center');
+        }
+
+        if (clearOnFlyFilter) {
+            $('html, body').animate({
+                scrollTop: $(formElements.plotCardId).offset().top,
+            }, 1500);
+        }
 
         // show info table
         showInfoTable(res);
 
         loadGraphSetings(clearOnFlyFilter);
+
+        // render cat, category label filer modal
+        fillDataToFilterModal(res.filter_on_demand, () => {
+            scatterTraceData(null, false, false);
+        });
 
         setPollingData(formData, scatterTraceData, [formData, false, true]);
 
@@ -492,6 +539,16 @@ const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false
     });
 
     $('#plot-cards').empty();
+};
+
+let timerVar;
+const handleResizeWindow = () => {
+      if (!resultData.as_heatmap_matrix) return;
+
+      clearTimeout(timerVar);
+      timerVar = setTimeout(() => {
+          showHeatmap(resultData.heatmap_matrix);
+      }, 500);
 };
 
 // get correlation between 2 variables
@@ -534,12 +591,16 @@ const getThresholdData = (cId, data, xScale, yScale) => {
 const showContour = () => {
     // show loading screen
     loadingShow();
+    const formData = setUseContourAndHeatMap(lastUsedFormData);
+    scatterTraceData(formData);
+};
+
+const setUseContourAndHeatMap = (formData) => {
     const showContourOption = formElements.switchContour.is(':checked') ? 1 : 0;
-    const formData = lastUsedFormData;
     const showHeatmap = formElements.showHeatmapInput.is(':checked') ? 1 : 0;
     formData.set('use_contour', showContourOption);
     formData.set('use_heatmap', showHeatmap);
-    scatterTraceData(formData);
+    return formData;
 };
 
 const shortenName = (name, byteLimit = 10) => {
@@ -597,6 +658,7 @@ const showMSPHeatmap = () => {
 };
 
 const handleChangeScaleOption = (type = 'x', e) => {
+     if (resultData.as_heatmap_matrix) return;
     if (type === 'x') {
         xScaleOption = $(e).val();
     } else {
@@ -609,9 +671,36 @@ const handleChangeScaleOption = (type = 'x', e) => {
 };
 
 const dumpData = (type) => {
-    const formData = collectFormDataMSP();
+    const formData = lastUsedFormData || collectFormDataMSP(true);
     handleExportDataCommon(type, formData);
 };
 const handleExportData = (type) => {
     showGraphAndDumpData(type, dumpData);
+};
+
+const showChartTitle = (chartDOM, showTitle=true) => {
+    if (!showTitle) {
+        return;
+    }
+    // reset title
+    clearOldChartTitles();
+
+    let xTitle = $(chartDOM).attr('data-x-title') || null;
+    let yTitle = $(chartDOM).attr('data-y-title') || null;
+    const isScatter = xTitle && yTitle;
+
+    if (xTitle) {
+        xTitle = isScatter ? `X: ${xTitle}` : xTitle;
+        $('#x-title').text(xTitle);
+    }
+    if (yTitle) {
+        yTitle = isScatter ? `Y: ${yTitle}` : yTitle;
+        $('#y-title').text(yTitle);
+    }
+};
+
+const clearOldChartTitles = () => {
+    // reset title
+    $('#x-title').text('');
+    $('#y-title').text('');
 };

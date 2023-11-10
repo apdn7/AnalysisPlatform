@@ -3,10 +3,10 @@
 
 {% block asset %}
     <script>
-        gtag('config', 'UA-156244372-2', {
+        gtag('config', GA_TRACKING_ID, {
             'page_title': '{{ _("Full-points Plot") }}',
         });
-        gtag('config', 'G-9DJ9TV72B5', {
+        gtag('config', UA_TRACKING_ID, {
             'page_title': '{{ _("Full-points Plot") }}',
         });
 
@@ -32,17 +32,21 @@
             {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
             <br class="graph-navi graph-navi-top-down">
             <div class="d-flex align-items-center justify-content-center show-graph-div">
+                {{ macros.order_btn() }}
                 {{ macros.x_index() }}
                 {{ macros.preprocess_options(outlier=False, dup=True) }}
                 <button type="button" value="{{ _('Display graph') }}" onClick="traceDataWithDBChecking('TRACE-DATA');"
-                        id="showTraceDataGraph" class="btn btn-primary show-graph ml-3"><i
-                        class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                        id="showTraceDataGraph" class="btn btn-primary show-graph ml-3"
+                        title="Shortcut key: Ctrl+Enter">
+                        <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
                 </button>
                 {{ macros.export_gui() }}
             </div>
             <br>
             {{ macros.index_order_modal() }}
             {{ macros.index_order_modal(modalId='xAxisModal2', tableId='serialTable2', addBtnId='btnAddSerial2', okBtnId='btnXAxisModalOK2', cancelBtnId='btnXAxisModalCancel2') }}
+            {{ macros.end_col_order_modal() }}
+            {{ macros.end_col_order_modal(graphArea='1') }}
         </form>
         {{ macros.cat_label_filter_modal() }}
     </div>
@@ -57,6 +61,8 @@
 			{{ macros.on_demand_filter() }}
             <!--FPP and Histogram use common histSummaryOption and summaryOption will be one.-->
             {{ macros.summary_option(prefix='', optionName='summaryOption', cl='ml-2') }}
+
+            {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSubmit(false, false);}') }}
             <!--X axis for Histogram tab-->
             <div class="for-tab for-histogramsTab" style="display: none">
                 {{ macros.frequency_scale(cl='ml-4', defaultValue='2') }}
@@ -98,7 +104,7 @@
         <ul id="contextMenuTimeSeries" class="context-menu" style="display:none;">
             <li class="menu-item show-filter-info" onmouseover="hideGraphScaleMenu(); saveOffset(this);"
                 onclick="handleSelectTSMenuItem('showSettingInfor', this)">{{ _("Setting View") }}</li>
-            <li class="menu-item" onmouseover="handleSelectTSMenuItem('graphScale', this)">{{ _("Graph scale") }}</li>
+            <li class="menu-item flex-row-center justify-content-between" onmouseover="handleSelectTSMenuItem('graphScale', this)">{{ _("Graph scale") }}<i class="fa fa-angle-right"></i></li>
 
             <li class="menu-item" onmouseover="hideGraphScaleMenu()"
                 onclick="handleSelectTSMenuItem('click')">{{ _("Display Cross hair cursor (Click)") }}</li>
@@ -107,10 +113,8 @@
 
             <li class="menu-item cross-hair" id="timeSeriesPlotView" onmouseover="hideGraphScaleMenu()"
                 onclick="handleSelectTSMenuItem('showPlotView')">{{ _("Plot View") }}</li>
-
-            <!-- <li class="menu-item" onmouseover="hideGraphScaleMenu()" onclick="handleSelectTSMenuItem('checkOutlier')">{{ _("Check as an outlier") }}</li>
-			<li class="menu-item" onmouseover="hideGraphScaleMenu()" onclick="handleSelectTSMenuItem('showListHistograms')">{{ _("Display list of histograms") }}</li>
-			<li class="menu-item" onmouseover="hideGraphScaleMenu()" onclick="handleSelectTSMenuItem('cancelCheckedOutlier')">{{ _("Cancel checked outlier") }}</li> -->
+            <li class="menu-item" onmouseover="hideGraphScaleMenu()"
+                onclick="goToGraphConfigPageFPP('{{ url_for('setting_module.master_config') }}')">{{ _("Threshold/Graph Config") }}</li>
         </ul>
     </div>
     <div>

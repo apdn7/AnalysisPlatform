@@ -1,6 +1,7 @@
 // take screenshot
 const defaultHomepage = 'trace_data';
 let checkShownGraphInterval = null;
+const colorScalePages = ['CHM', 'ScP', 'PCP', 'PCA', 'MSP'];
 
 const clearOldScreenShot = () => {
     const oldCanvas = document.getElementById('screenshot').querySelectorAll('canvas')[0];
@@ -52,8 +53,8 @@ const copyImageToClipboard = async (isFullPage = false) => {
 
     const currentPageName = window.location.pathname;
     try {
-        if (['CHM'].includes(objTitle[currentPageName].title)) {
-            CHMCapture().copy(mainContent);
+        if (colorScalePages.includes(objTitle[currentPageName].title)) {
+            modernScreenShotCapture().copy(mainContent);
         } else {
             defaultCapture().copy(mainContent);
         }
@@ -117,7 +118,6 @@ const takeScreenShot = async (isFullPage = true) => {
 };
 
 const hideInfoContent = () => {
-    console.log('clear content');
     $('#stContentTab .setting-inform-content').html('');
     $('#stContentTab').hide();
 };
@@ -176,7 +176,7 @@ const defaultCapture = () => {
     }
 
 };
-const CHMCapture = () => {
+const modernScreenShotCapture = () => {
     const generator = (mainContent) => {
         $('.select2-selection__rendered').css('margin-right', '50px');
         modernScreenshot.domToPng(mainContent).then(dataUrl => {
@@ -224,8 +224,8 @@ const CHMCapture = () => {
 const captureImage = (mainContent) => {
     const currentPageName = window.location.pathname;
     try {
-        if (['CHM'].includes(objTitle[currentPageName].title)) {
-            CHMCapture().generator(mainContent);
+        if (colorScalePages.includes(objTitle[currentPageName].title)) {
+            modernScreenShotCapture().generator(mainContent);
         } else {
             defaultCapture().generator(mainContent);
         }
@@ -238,8 +238,8 @@ const downloadImage = () => {
     let targetLink;
     const currentPageName = window.location.pathname;
     try {
-        if (['CHM'].includes(objTitle[currentPageName].title)) {
-            targetLink = CHMCapture().download();
+        if (colorScalePages.includes(objTitle[currentPageName].title)) {
+            targetLink = modernScreenShotCapture().download();
         } else {
             targetLink = defaultCapture().download();
         }

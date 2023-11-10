@@ -9,8 +9,7 @@
 // TODO use class
 
 // global variable to store data of processes
-const processes = {};
-
+let processes = {};
 const getConfigOption = () => JSON.parse(localStorage.getItem('network-config')) || {};
 
 const configOption = getConfigOption();
@@ -557,8 +556,8 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
 
     const selfSerialColumns = processes[selfProcId].columns.filter(e => e.is_serial_no);
     selfColCandidates = selfSerialColumns.map(e => e.id);
-    selfColCandidateMasters = selfSerialColumns.map(e => e.name);
-    selfColNames = selfSerialColumns.map(e => e.column_name);
+    selfColCandidateMasters = selfSerialColumns.map(e => e.shown_name);
+    selfColNames = selfSerialColumns.map(e => e.name_en);
 
     if (typeof edgeData.target_col !== 'object') {
         selectedTargetCols = [edgeData.target_col];
@@ -568,8 +567,8 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
 
     const targetSerialColumns = processes[targetProcId].columns.filter(e => e.is_serial_no);
     targetColCandidates = targetSerialColumns.map(e => e.id);
-    targetColCandidateMasters = targetSerialColumns.map(e => e.name);
-    targetColNames = targetSerialColumns.map(e => e.column_name);
+    targetColCandidateMasters = targetSerialColumns.map(e => e.shown_name);
+    targetColNames = targetSerialColumns.map(e => e.name_en);
     targetChosenTraceKeys = [];
     selfChosenTraceKeys = [];
 
@@ -588,11 +587,12 @@ const initVisData = (processesArray) => {
     // update processes from global const
     // create Vis nodes from processes data
     let procTraces = [];
+    processes = {}
     for (const key in processesArray) {
         const procCopy = { ...processesArray[key] };
-        procCopy.master = procCopy.name;
+        procCopy.master = procCopy.shown_name;
         procCopy.font = { multi: 'html' };
-        procCopy.label = `${procCopy.name}`;
+       procCopy.label = `${procCopy.shown_name}`;
         nodes.add(procCopy);
 
         const trace = procCopy.traces;
@@ -920,9 +920,16 @@ const saveTraceConfigToDB = () => {
 
     displayRegisterMessage(tracingElements.alertProcLink);
 
+
     // show msg
     informLinkingJobStarted();
 };
+
+
+const getV2OrderedProcesses = async (data) => {
+    const res = await fetchData('api/setting/get_v2_ordered_processes', JSON.stringify(data), 'POST');
+    return res.ordered_processes;
+}
 
 const syncVisData = (procs = []) => {
     initVisData(procs);
@@ -932,18 +939,18 @@ const syncVisData = (procs = []) => {
 const updateProcessEditModal = (procs = []) => {
     tracingElements.edgeBackProc.empty();
     procs.map((proc) => {
-        const option = new Option(proc.name, proc.id, false, false);
-        if (proc.en_name) {
-            option.setAttribute('title', proc.en_name);
+       const option = new Option(proc.shown_name, proc.id, false, false);
+        if (proc.name_en) {
+            option.setAttribute('title', proc.name_en);
         }
         tracingElements.edgeBackProc.append(option).trigger('change');
     });
 
     tracingElements.edgeForwardProc.empty();
     procs.map((proc) => {
-        const option = new Option(proc.name, proc.id, false, false);
-        if (proc.en_name) {
-            option.setAttribute('title', proc.en_name);
+         const option = new Option(proc.shown_name, proc.id, false, false);
+        if (proc.name_en) {
+            option.setAttribute('title', proc.name_en);
         }
         tracingElements.edgeForwardProc.append(option).trigger('change');
     });
@@ -972,8 +979,10 @@ const reloadTraceConfigFromDB = (isUpdatePosition = true) => {
             setTimeout(() => {
                 realProcLink(isUpdatePosition);
             }, 500);
+            treeCheckboxJs();
         })
-        .catch(() => {
+        .catch((e) => {
+            console.log(e);
         });
 };
 
@@ -1310,6 +1319,13 @@ const saveEditEdge = () => {
         return;
     }
 
+     // save data to external/global dict
+    drawEdgeToGUI(edgeData);
+
+    $('#modal-edge-popup').modal('hide');
+};
+
+const drawEdgeToGUI = (edgeData) => {
     // save data to external/global dict
     mapIdFromIdTo2Edge[`${edgeData.from}-${edgeData.to}`] = edgeData;
 
@@ -1319,8 +1335,7 @@ const saveEditEdge = () => {
         edges.update(edgeData);
     }
     currentEditEdge = {};
-    $('#modal-edge-popup').modal('hide');
-};
+}
 
 const cancelEditEdge = () => false;
 
@@ -1365,3 +1380,4 @@ const handleSwitchTraceConfig = (e) => {
     handleEditEdge(newEdgeData, () => {
     });
 };
+

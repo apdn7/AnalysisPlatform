@@ -3,12 +3,12 @@ import io
 import itertools
 import pickle
 import re
+import unicodedata
 from collections import Counter
 from itertools import tee
 
 import numpy as np
 import pandas as pd
-import unicodedata
 
 from ap.common.constants import *
 from ap.common.logger import logger
@@ -166,8 +166,9 @@ def merge_etl_heads(new_vals, data):
 
 # ----- Filechecker -----
 
+
 def filechecker(fpath: str, nrows_to_check=20) -> dict:
-    ''' Analyze dsv files
+    """Analyze dsv files
 
     Inputs:
         fpath (str) Path to csv/tsv
@@ -179,7 +180,7 @@ def filechecker(fpath: str, nrows_to_check=20) -> dict:
         - head  (pd.DataFrame) Header info. Column names and units.
         - type  (pd.DataFrame) Datatype info. Datetime/string/numeric/integer.
         - ctgy  (pd.DataFrame) Category info. (Machine, Line, Process)
-    '''
+    """
 
     results = dict(info=None, head=None, type=None, ctgy=None)
 
@@ -200,7 +201,7 @@ def filechecker(fpath: str, nrows_to_check=20) -> dict:
     info = dict(encd=encd, sepr=sep_str, ncol=ncols, na_s=nas['str'], expt=nas['exc'])
     hdr = parse_header(dlist, arr_dat, info)
     if len(hdr['row']) == 0:
-        print("No header detected")
+        print('No header detected')
     info['skip'] = hdr['skip']
     head = summarize_header_as_df(hdr, info)
     ctgy = summarize_category_as_df(hdr, info, head['main'].values)
@@ -220,11 +221,12 @@ def filechecker(fpath: str, nrows_to_check=20) -> dict:
 # Read header
 # =========================
 
+
 def guess_encoding_simply(fpath: str, max_rows=100) -> str:
-    ''' Very simple file encoding estimator
+    """Very simple file encoding estimator
     Just try utf-8 and shift-jis.
     Assume that we can not open shift-jis file with utf-8.
-    '''
+    """
     try:
         encd = 'utf-8'
         _ = read_first_nrows_as_list(fpath, max_rows, encd)
@@ -236,10 +238,10 @@ def guess_encoding_simply(fpath: str, max_rows=100) -> str:
 
 
 def read_first_nrows_as_list(fpath: str, nrows: int, encd: str, del_newline=False) -> list:
-    ''' Read a text file as a list
+    """Read a text file as a list
     Each element corresponds to a row of text file.
     File encoding must be estimated beforehand.
-    '''
+    """
     dat = []
     with open(fpath, encoding=encd) as f:
         try:
@@ -253,15 +255,15 @@ def read_first_nrows_as_list(fpath: str, nrows: int, encd: str, del_newline=Fals
 
 
 def read_first_nrows_as_array(fpath: str, nrows: int, ncols: int, sep_str: str, encd: str):
-    ''' Read a text file as a NumpyArray
+    """Read a text file as a NumpyArray
     File encoding, separator, and number of columns must be estimated beforehand.
-    '''
+    """
     dat = np.full((nrows, ncols), '', dtype=object)
     with open(fpath, encoding=encd) as f:
         try:
             for row in range(nrows):
                 vals = next(f).split(sep_str)
-                dat[row, :len(vals)] = np.array(_remove_newline_str(vals))
+                dat[row, : len(vals)] = np.array(_remove_newline_str(vals))
         except StopIteration:
             dat = dat[:row, :]
             pass
@@ -277,11 +279,12 @@ def _remove_newline_str(x: list, newline_str='\n') -> list:
 # Guess delimeter / number of columns
 # =========================
 
+
 def guess_delimeter(x: list, candidates=[',', '\t', ';']) -> str:
-    ''' Guess delimeter from a list of strings
+    """Guess delimeter from a list of strings
     The character which maximizes the minimum of occurrence is estimated as a delimeter.
     Note that this is just a heuristic.
-    '''
+    """
     ed_row = np.max([0, len(x) - 1])
     st_row = np.max([0, ed_row - 10])
     rows_to_check = np.arange(st_row, ed_row)
@@ -294,19 +297,18 @@ def guess_delimeter(x: list, candidates=[',', '\t', ';']) -> str:
 
 
 def _count_characters(x: list, charlist: list):
-    ''' Count occurrence of characters in each element of x
-    '''
+    """Count occurrence of characters in each element of x"""
     cnts = np.zeros((len(x), len(charlist)))
-    for (i, row) in enumerate(range(len(x))):
+    for i, row in enumerate(range(len(x))):
         chr_counter = Counter(x[row])
         cnts[i, :] = [chr_counter[char] for char in charlist]
     return cnts
 
 
 def guess_number_of_columns(x: list, delimeter: str) -> int:
-    ''' Guess number of columns from a list of strings
+    """Guess number of columns from a list of strings
     Take the maximum count of delimeters + 1
-    '''
+    """
     delim_cnts = [text.count(delimeter) for text in x]
     ncols = np.max(delim_cnts) + 1  # e.g. one separator means 2 columns
     return ncols
@@ -316,9 +318,9 @@ def guess_number_of_columns(x: list, delimeter: str) -> int:
 # Parse header
 # =========================
 
+
 def parse_header(x, arr_dat, info: dict) -> dict:
-    ''' Get positions and category info of header
-    '''
+    """Get positions and category info of header"""
     # does header exist?
     hdr = guess_where_header_is(x, info)
     hdr['is_header_detected']
@@ -327,33 +329,48 @@ def parse_header(x, arr_dat, info: dict) -> dict:
     def trimws(x):
         return x.strip()
 
-    inf = arr_dat.copy()[:(hdr['end'] + 1), :]
+    inf = arr_dat.copy()[: (hdr['end'] + 1), :]
     inf = np.vectorize(trimws)(inf)
 
     values, lengths = rle(inf[hdr['main'], :].flatten())
     values[:] = np.full(len(values), 1)
-    values[np.where(lengths != 1)] = "0"
+    values[np.where(lengths != 1)] = '0'
 
-    hdm = dict(uni=np.equal(inverse_rle(values, lengths), np.array("1", dtype=object)))
+    hdm = dict(uni=np.equal(inverse_rle(values, lengths), np.array('1', dtype=object)))
     hdr['hdm'] = hdm
 
     # Get special dsv header information
-    hdr['uni'] = np.full(info['ncol'], "", dtype=object)
-    hdr['sb0'] = np.full(info['ncol'], "", dtype=object)
+    hdr['uni'] = np.full(info['ncol'], '', dtype=object)
+    hdr['sb0'] = np.full(info['ncol'], '', dtype=object)
     is_known_struct = is_known_header(inf[:, 0])
     if is_known_struct:
         hdr = parse_known_header(hdr, inf, info)
 
-    hdr['act'] = hdr['uni'] != ""
+    hdr['act'] = hdr['uni'] != ''
     hdr['skip'] = hdr['end']
     hdr['inf'] = inf
     return hdr
 
 
 def guess_where_header_is(x: list, info: dict) -> dict:
-    dic_hdr = dict(lst=None, msk=None, str=None, nch=None, flg=None,
-                   top=0, end=0, main=None, skip=0, is_header_detected=None,
-                   ctg=None, inf=None, act=None, hdm=None, uni=None, sb0=None)
+    dic_hdr = dict(
+        lst=None,
+        msk=None,
+        str=None,
+        nch=None,
+        flg=None,
+        top=0,
+        end=0,
+        main=None,
+        skip=0,
+        is_header_detected=None,
+        ctg=None,
+        inf=None,
+        act=None,
+        hdm=None,
+        uni=None,
+        sb0=None,
+    )
 
     header_starts_from = guess_where_header_starts(x, delimeter=info['sepr'], ncols=info['ncol'])
     row_idx_candidate = np.arange(header_starts_from, len(x))
@@ -363,7 +380,7 @@ def guess_where_header_is(x: list, info: dict) -> dict:
     x_masked = []
     msk = gen_header_mask(info['sepr'], info['na_s'], info['expt'])
     for row in row_idx_candidate:
-        x_masked.append(re.sub(msk, "", x[row]))
+        x_masked.append(re.sub(msk, '', x[row]))
 
     nchars_in_each_row = [len(text) for text in x_masked]
     hdr_flgs = seems_like_header(nchars_in_each_row)
@@ -409,11 +426,11 @@ def gen_header_mask(sep_str: str, na_s, expt) -> str:
     msk = sep_str
     if len(na_s) > 0:
         exceptions = list(itertools.chain.from_iterable([sep_str, na_s]))
-        msk = "|".join(exceptions)
+        msk = '|'.join(exceptions)
     if len(expt) > 0:
         exceptions = list(itertools.chain.from_iterable([msk, expt]))
-        msk = "|".join(exceptions)
-    msk = "(" + msk + "|/|:|\\d+(\\.|,| )?)"
+        msk = '|'.join(exceptions)
+    msk = '(' + msk + '|/|:|\\d+(\\.|,| )?)'
     return msk
 
 
@@ -433,18 +450,18 @@ def seems_like_header(nchars_in_each_row):
 
 
 def guess_number_of_informative_cols(x: list, delimeter: str) -> list:
-    ''' Guess number of "Informative" columns on each row
+    """Guess number of "Informative" columns on each row
     Here, informative means that a value is stored in an element.
-    '''
-    reg_nul = "(" + delimeter + " *" + delimeter + "|" + delimeter + " *$)"
+    """
+    reg_nul = '(' + delimeter + ' *' + delimeter + '|' + delimeter + ' *$)'
     nsep = [len(re.findall(delimeter, text)) for text in x]
-    dsv = [re.sub(reg_nul, "", text) for text in x]
+    dsv = [re.sub(reg_nul, '', text) for text in x]
     ncol = [len(re.findall(delimeter, text)) + 1 for text in dsv]
     return ncol
 
 
 def is_known_header(x) -> bool:
-    known_header = ["検索期間", "ライン", "工程", "設備", "特性名", "", ""]
+    known_header = ['検索期間', 'ライン', '工程', '設備', '特性名', '', '']
     if len(x) < len(known_header):
         return False
     for i in range(len(known_header)):
@@ -455,23 +472,25 @@ def is_known_header(x) -> bool:
 
 def parse_known_header(hdr, inf, info) -> dict:
     # Get category of machine
-    ma0 = np.array([re.sub("#N/A", "-", text) for text in inf[3, :]])
-    ma0[0] = ""
+    ma0 = np.array([re.sub('#N/A', '-', text) for text in inf[3, :]])
+    ma0[0] = ''
     machine_values, machine_lengths = rle(ma0)
 
     # Shifted position to repeat (to the right side to fill the empty cells)
     for i in range(1, len(machine_values)):
-        if machine_values[i] == "":
+        if machine_values[i] == '':
             machine_values[i] = machine_values[i - 1]
 
-    ctg = dict(mac=inverse_rle(machine_values, machine_lengths),
-               lin=np.full(info['ncol'], re.sub("#N/A", "-", inf[1, 1])),
-               prc=np.full(info['ncol'], re.sub("#N/A", "-", inf[2, 1])))
+    ctg = dict(
+        mac=inverse_rle(machine_values, machine_lengths),
+        lin=np.full(info['ncol'], re.sub('#N/A', '-', inf[1, 1])),
+        prc=np.full(info['ncol'], re.sub('#N/A', '-', inf[2, 1])),
+    )
 
     hdr['ctg'] = ctg
     hdr['uni'] = inf[5, :]
     hdr['sb0'] = inf[4, :]
-    hdr['sb0'][0] = ""
+    hdr['sb0'][0] = ''
     hdr['sb1'] = inf[6, :]
     hdr['if1'] = inf[0, :]
     chars_if1 = np.array([len(text) for text in hdr['if1']])
@@ -483,15 +502,18 @@ def parse_known_header(hdr, inf, info) -> dict:
 # Summarize
 # =========================
 
+
 def summarize_header_as_df(hdr: dict, info: dict):
-    ''' Summarize header info to data frame
+    """Summarize header info to data frame
     Column names are translated/normalized.
     Units are extracted.
     If Column names are duplicated, suffix is added (e.g. _01)
-    '''
+    """
     # header information
-    head = dict(base=hdr['inf'][hdr['main'], :].flatten(),
-                rplc=np.logical_and(np.logical_not(hdr['hdm']['uni']), hdr['act']))
+    head = dict(
+        base=hdr['inf'][hdr['main'], :].flatten(),
+        rplc=np.logical_and(np.logical_not(hdr['hdm']['uni']), hdr['act']),
+    )
 
     if np.sum(head['rplc']) > 0:
         head['main'] = head['base'].copy()
@@ -501,15 +523,15 @@ def summarize_header_as_df(hdr: dict, info: dict):
         head['long'][idx] = hdr['sb0'][idx].copy()
     else:
         # extract text before :
-        head['main'] = np.array([text.split(":")[0] for text in head['base']])
+        head['main'] = np.array([text.split(':')[0] for text in head['base']])
         if len(head['main']) > 1:
             head['long'] = head['main'].copy()
         else:
-            head['long'] = np.full(info['ncol'], "")
+            head['long'] = np.full(info['ncol'], '')
 
     # NFKC normalization (e.g. zenkaku -> hankaku)
-    head['main'] = [unicodedata.normalize("NFKC", text) for text in head['main']]
-    head['long'] = [unicodedata.normalize("NFKC", text) for text in head['long']]
+    head['main'] = [unicodedata.normalize('NFKC', text) for text in head['main']]
+    head['long'] = [unicodedata.normalize('NFKC', text) for text in head['long']]
 
     # extract units
     units = _split_colnames_from_unit(head['long'])
@@ -525,11 +547,12 @@ def summarize_header_as_df(hdr: dict, info: dict):
 
 
 def summarize_category_as_df(hdr: dict, info: dict, col_names: list):
-    ''' Summarize category (Machine, Line, Process) info to data frame
-    '''
-    ctgy = dict(Machine=np.full(info['ncol'], ""),
-                Line=np.full(info['ncol'], ""),
-                Process=np.full(info['ncol'], ""))
+    """Summarize category (Machine, Line, Process) info to data frame"""
+    ctgy = dict(
+        Machine=np.full(info['ncol'], ''),
+        Line=np.full(info['ncol'], ''),
+        Process=np.full(info['ncol'], ''),
+    )
 
     if hdr['ctg'] != None:
         if len(hdr['ctg']['mac']) > 0:
@@ -544,21 +567,34 @@ def summarize_category_as_df(hdr: dict, info: dict, col_names: list):
 
 
 def _split_colnames_from_unit(x) -> dict:
-    units = dict(raw=x, colname=x, unit=np.full(len(x), ""), suffix=np.full(len(x), ""))
-    x_split = [re.split(" \\[|\\] |\\[|\\]", text) for text in x]
+    units = dict(raw=x, colname=x, unit=np.full(len(x), ''), suffix=np.full(len(x), ''))
+    x_split = [re.split(' \\[|\\] |\\[|\\]', text) for text in x]
     is_unit_detected = np.max([len(split) for split in x_split]) > 0
     if is_unit_detected:
         units['colname'] = [x[0] for x in x_split]
-        units['unit'] = [x[1] if len(x) > 1 else "" for x in x_split]
-        units['suffix'] = [x[2] if len(x) > 2 else "" for x in x_split]
+        units['unit'] = [x[1] if len(x) > 1 else '' for x in x_split]
+        units['suffix'] = [x[2] if len(x) > 2 else '' for x in x_split]
     return units
 
 
 def _translate_wellknown_jp2en(x):
-    fromto = dict(製品="Product", ロット="Lot", 内="Internal", 日時="DateTime",
-                  時間="Time", 品番="PartsNo", シリアル="Serial", ナンバー="Number",
-                  実績種別="ResultCategory", 番号="No", コード="Code", トレー="Tray",
-                  測定値="Measurement", 判定="Result", 作業者="Worker")
+    fromto = dict(
+        製品='Product',
+        ロット='Lot',
+        内='Internal',
+        日時='DateTime',
+        時間='Time',
+        品番='PartsNo',
+        シリアル='Serial',
+        ナンバー='Number',
+        実績種別='ResultCategory',
+        番号='No',
+        コード='Code',
+        トレー='Tray',
+        測定値='Measurement',
+        判定='Result',
+        作業者='Worker',
+    )
 
     for key, val in fromto.items():
         x = [text.replace(key, val) for text in x]
@@ -600,15 +636,21 @@ def add_suffix_if_duplicated(x, skip_zero=False, with_dupl_cols=False):
 
 
 def read_main_text_as_df(fpath: str, info: dict, max_rows=100, col_names=None, header=False):
-    ''' Based on estimated header position, read data as pd.DataFrame
+    """Based on estimated header position, read data as pd.DataFrame
     Remove leading single quotes
-    '''
+    """
     str_to_remove = "^'|(?<=" + info['sepr'] + ")(')"
     x = read_first_nrows_as_list(fpath, nrows=max_rows, encd=info['encd'], del_newline=True)
-    x = [re.sub(str_to_remove, "", text) for text in x]
+    x = [re.sub(str_to_remove, '', text) for text in x]
     x = [x[row] for row in range(len(x)) if row >= info['skip'] + header]
-    df = pd.read_csv(io.StringIO('\n'.join(x)), sep=r',', header=None, names=col_names,
-                     na_values=[''] + info['na_s'], dtype=str)
+    df = pd.read_csv(
+        io.StringIO('\n'.join(x)),
+        sep=r',',
+        header=None,
+        names=col_names,
+        na_values=[''] + info['na_s'],
+        dtype=str,
+    )
     return df
 
 
@@ -624,42 +666,42 @@ def guess_datatypes(df) -> list:
         real.append(_can_parse_as_numeric(uniq_vals))
         dati.append(_can_parse_as_datetime(uniq_vals))
 
-    types = pd.DataFrame({'class': dtypes, 'intg': intg, 'real': real, 'dati': dati},
-                         index=df.columns.values)
+    types = pd.DataFrame(
+        {'class': dtypes, 'intg': intg, 'real': real, 'dati': dati}, index=df.columns.values
+    )
     return types
 
 
 def _guess_datatype(uniq_vals) -> str:
-    ''' Guess datatype of given arrray
-    '''
+    """Guess datatype of given arrray"""
 
     # initial guess
     if len(uniq_vals) == 0:
-        return "logical"
+        return 'logical'
     if _leading_zero_exists(uniq_vals):
-        return "string"
+        return 'string'
 
     # datetime, integer or numeric
     if _is_date(uniq_vals) or _is_dati(uniq_vals):
         return 'datetime64'
 
     try:
-        _ = uniq_vals.astype("int")
+        _ = uniq_vals.astype('int')
         return 'integer'
     except:
         try:
             _ = pd.to_numeric(uniq_vals)
             return 'numeric'
         except:
-            return "string"
+            return 'string'
 
 
 def _leading_zero_exists(uniq_vals) -> bool:
-    ''' Detect leading zeros
+    """Detect leading zeros
     Detects: 000123, 0123
     Not detects: 123, 0.123
-    '''
-    reg_lead_zero = "^0+[0-9]+(?!\.)"
+    """
+    reg_lead_zero = '^0+[0-9]+(?!\.)'
     is_leading_zero = np.any([re.search(reg_lead_zero, str(val)) != None for val in uniq_vals])
     return is_leading_zero
 
@@ -674,7 +716,7 @@ def _can_parse_as_numeric(uniq_vals) -> bool:
 
 def _can_parse_as_integer(uniq_vals) -> bool:
     try:
-        _ = uniq_vals.astype("int")
+        _ = uniq_vals.astype('int')
         return True
     except:
         return False
@@ -689,16 +731,23 @@ def _can_parse_as_datetime(uniq_vals) -> bool:
 
 
 def _is_date(x) -> bool:
-    '''
+    """
     detect date format
     x: 1-d array or list of strings
-    '''
+    """
 
-    formats = ["%Y-%m-%d", "%Y/%m/%d",  # YMD
-               "%d-%m-%Y", "%d/%m/%Y",  # DMY
-               "%m-%d-%Y", "%m/%d/%Y",  # MDY
-               "%m-%d", "%m/%d",  # MD
-               "%d-%m", "%d/%m"]  # DM
+    formats = [
+        '%Y-%m-%d',
+        '%Y/%m/%d',  # YMD
+        '%d-%m-%Y',
+        '%d/%m/%Y',  # DMY
+        '%m-%d-%Y',
+        '%m/%d/%Y',  # MDY
+        '%m-%d',
+        '%m/%d',  # MD
+        '%d-%m',
+        '%d/%m',
+    ]  # DM
 
     dttm = np.vectorize(datetime.datetime.strptime)
 
@@ -714,31 +763,49 @@ def _is_date(x) -> bool:
 
 
 def _is_dati(x) -> bool:
-    '''
+    """
     detect datetime format
     x: 1-d array or list of strings
-    '''
+    """
 
-    formats = ["%Y-%m-%d %H:%M:%S", "%Y/%m/%d %H:%M:%S",  # YMD HMS
-               "%Y-%m-%dT%H:%M:%S", "%Y/%m/%dT%H:%M:%S",
-               "%Y-%m-%d %H:%M:%S.%f", "%Y/%m/%d %H:%M:%S.%f",  # YMD HMS.f
-               "%Y-%m-%dT%H:%M:%S.%f", "%Y/%m/%dT%H:%M:%S.%f",
-               "%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M",  # YMD HM
-               "%Y-%m-%dT%H:%M", "%Y/%m/%dT%H:%M",
-
-               "%d-%m-%Y %H:%M:%S", "%d/%m/%Y %H:%M:%S",  # DMY HMS
-               "%d-%m-%YT%H:%M:%S", "%d/%m/%YT%H:%M:%S",
-               "%d-%m-%Y %H:%M:%S.%f", "%d/%m/%Y %H:%M:%S.%f",  # DMY HMS.f
-               "%d-%m-%YT%H:%M:%S.%f", "%d/%m/%YT%H:%M:%S.%f",
-               "%d-%m-%Y %H:%M", "%d/%m/%Y %H:%M",  # DMY HM
-               "%d-%m-%YT%H:%M", "%d/%m/%YT%H:%M",
-
-               "%m-%d-%Y %H:%M:%S", "%m/%d/%Y %H:%M:%S",  # MDY HMS
-               "%m-%d-%YT%H:%M:%S", "%m/%d/%YT%H:%M:%S",
-               "%m-%d-%Y %H:%M:%S.%f", "%m/%d/%Y %H:%M:%S.%f",  # MDY HMS.f
-               "%m-%d-%YT%H:%M:%S.%f", "%m/%d/%YT%H:%M:%S.%f",
-               "%m-%d-%Y %H:%M", "%m/%d/%Y %H:%M",
-               "%m-%d-%YT%H:%M", "%m/%d/%YT%H:%M"]
+    formats = [
+        '%Y-%m-%d %H:%M:%S',
+        '%Y/%m/%d %H:%M:%S',  # YMD HMS
+        '%Y-%m-%dT%H:%M:%S',
+        '%Y/%m/%dT%H:%M:%S',
+        '%Y-%m-%d %H:%M:%S.%f',
+        '%Y/%m/%d %H:%M:%S.%f',  # YMD HMS.f
+        '%Y-%m-%dT%H:%M:%S.%f',
+        '%Y/%m/%dT%H:%M:%S.%f',
+        '%Y-%m-%d %H:%M',
+        '%Y/%m/%d %H:%M',  # YMD HM
+        '%Y-%m-%dT%H:%M',
+        '%Y/%m/%dT%H:%M',
+        '%d-%m-%Y %H:%M:%S',
+        '%d/%m/%Y %H:%M:%S',  # DMY HMS
+        '%d-%m-%YT%H:%M:%S',
+        '%d/%m/%YT%H:%M:%S',
+        '%d-%m-%Y %H:%M:%S.%f',
+        '%d/%m/%Y %H:%M:%S.%f',  # DMY HMS.f
+        '%d-%m-%YT%H:%M:%S.%f',
+        '%d/%m/%YT%H:%M:%S.%f',
+        '%d-%m-%Y %H:%M',
+        '%d/%m/%Y %H:%M',  # DMY HM
+        '%d-%m-%YT%H:%M',
+        '%d/%m/%YT%H:%M',
+        '%m-%d-%Y %H:%M:%S',
+        '%m/%d/%Y %H:%M:%S',  # MDY HMS
+        '%m-%d-%YT%H:%M:%S',
+        '%m/%d/%YT%H:%M:%S',
+        '%m-%d-%Y %H:%M:%S.%f',
+        '%m/%d/%Y %H:%M:%S.%f',  # MDY HMS.f
+        '%m-%d-%YT%H:%M:%S.%f',
+        '%m/%d/%YT%H:%M:%S.%f',
+        '%m-%d-%Y %H:%M',
+        '%m/%d/%Y %H:%M',
+        '%m-%d-%YT%H:%M',
+        '%m/%d/%YT%H:%M',
+    ]
 
     dttm = np.vectorize(datetime.datetime.strptime)
 
@@ -757,9 +824,9 @@ def _is_dati(x) -> bool:
 # Utilities
 # =========================
 
+
 def rle(x):
-    ''' Run Length Encoding (RLE)
-    '''
+    """Run Length Encoding (RLE)"""
     seq_index = np.concatenate(([True], x[1:] != x[:-1], [True])).nonzero()[0]
     vals = x[seq_index[:-1]]
     lens = np.ediff1d(seq_index)
@@ -767,8 +834,7 @@ def rle(x):
 
 
 def inverse_rle(vals, lens):
-    ''' Inverse of RLE
-    '''
+    """Inverse of RLE"""
     x = [None] * np.sum(lens)
     cnt = 0
     for i in range(len(vals)):
@@ -780,8 +846,7 @@ def inverse_rle(vals, lens):
 
 
 def guess_na_str(arr_dat) -> dict:
-    ''' Guess NA strings included in the data
-    '''
+    """Guess NA strings included in the data"""
 
     dic_nas = dict(lst=None, exc=None, sts=None, str=None)
 
@@ -800,12 +865,12 @@ def guess_na_str(arr_dat) -> dict:
     sorted_items = sorted_items[idx]
 
     # remove non-na characters
-    nas = [re.sub("([ ,;:]|\\[.*\\]|\\(.*\\)|[^\x01-\x7E])", "", x) for x in sorted_items]
-    nas = [re.sub("( |\\d{1,2}/\\d|-?\\d*\\.?\\d+$)", "", x) for x in nas]
-    nas = [re.sub("(^[a-z]+$|^[A-Z]{3,}$)", "", x) for x in nas]
-    nas = [x for x in nas if x != ""]
+    nas = [re.sub('([ ,;:]|\\[.*\\]|\\(.*\\)|[^\x01-\x7E])', '', x) for x in sorted_items]
+    nas = [re.sub('( |\\d{1,2}/\\d|-?\\d*\\.?\\d+$)', '', x) for x in nas]
+    nas = [re.sub('(^[a-z]+$|^[A-Z]{3,}$)', '', x) for x in nas]
+    nas = [x for x in nas if x != '']
 
-    exceptions = ["Inf", "-Inf", "inf", "-inf", "#DIV/0!", "#VALUE!"]
+    exceptions = ['Inf', '-Inf', 'inf', '-inf', '#DIV/0!', '#VALUE!']
     exc = np.intersect1d(nas, exceptions)
     sts = np.intersect1d(nas, np.setdiff1d(sorted_items, exc))
 
@@ -817,9 +882,9 @@ def guess_na_str(arr_dat) -> dict:
 
 
 def guess_escape_strings(df) -> list:
-    ''' Guess escape strings included in the data
+    """Guess escape strings included in the data
     e.g. 99999, -99999 sometime indicates Inf, -Inf, respectively.
-    '''
+    """
     escape_str = []
     for col in df.columns.values:
         escape_str.append(_extract_escape_str(df[col]))
@@ -830,10 +895,12 @@ def _extract_escape_str(col) -> str:
     cnts = col.value_counts()
     vals_more_than_once = np.array(cnts.index[cnts > 1])
     if len(vals_more_than_once) == 0:
-        return ""
-    is_escape_str_detected = np.array([re.search("^(9+\\.?9*)$", str(val)) != None for val in vals_more_than_once])
+        return ''
+    is_escape_str_detected = np.array(
+        [re.search('^(9+\\.?9*)$', str(val)) != None for val in vals_more_than_once]
+    )
     detected_str = vals_more_than_once[is_escape_str_detected]
     if len(detected_str) == 0:
-        return ""
+        return ''
     else:
         return detected_str[0]

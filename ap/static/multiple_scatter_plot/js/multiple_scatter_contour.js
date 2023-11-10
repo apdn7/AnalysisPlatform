@@ -1,7 +1,7 @@
 /* eslint-disable */
 const getColName = (procId, colId) => {
     const column = procConfigs[procId].getColumnById(colId) || {};
-    return column.name || colId;
+    return column.shown_name || colId;
 };
 
 const genScatterOutlierTrace = (sctData, isShowContour = false,
@@ -106,7 +106,7 @@ const getScatterContourData = (cId, scatterContourData) => {
     }
 };
 
-const genScatterContourLayout = (backgroundColor, x_fmt, y_fmt) => {
+const genScatterContourLayout = (backgroundColor, x_fmt, y_fmt, isLargeOfSensors=false) => {
     const layout = {
         annotationdefaults: {
             arrowcolor: '#2a3f5f',
@@ -221,6 +221,7 @@ const genScatterContourLayout = (backgroundColor, x_fmt, y_fmt) => {
             x: 0.05,
         },
         xaxis: {
+            showticklabels: !isLargeOfSensors,
             automargin: true,
             gridcolor: '#303030',
             linecolor: '#303030',
@@ -237,6 +238,7 @@ const genScatterContourLayout = (backgroundColor, x_fmt, y_fmt) => {
             tickformat: x_fmt.includes('e') ? '.1e' : '',
         },
         yaxis: {
+            showticklabels: !isLargeOfSensors,
             automargin: true,
             gridcolor: '#303030',
             linecolor: '#303030',
@@ -253,13 +255,21 @@ const genScatterContourLayout = (backgroundColor, x_fmt, y_fmt) => {
             tickformat: y_fmt.includes('e') ? '.1e' : '',
         },
         margin: {
+            l: 7,
+            r: 10,
+            b: 5,
+            t: 10,
+            // pad: 5,
+        },
+    };
+    if (!isLargeOfSensors) {
+        layout.margin = {
             l: 40,
             r: 15,
             b: 15,
             t: 20,
-            // pad: 5,
-        },
-    };
+        };
+    }
     return layout;
 };
 

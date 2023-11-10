@@ -1,25 +1,80 @@
 import os
 import traceback
 from enum import Enum
-from itertools import takewhile, zip_longest, chain
+from itertools import chain, takewhile, zip_longest
 from json import dumps, loads
 from typing import List
 
 from ap import dic_yaml_config_file
-from ap.common.common_utils import parse_int_value, clear_special_char, dict_deep_merge, guess_data_types
-from ap.common.constants import YAML_CONFIG_BASIC, YAML_CONFIG_DB, YAML_CONFIG_PROC, YAML_CONFIG_AP, \
-    CfgFilterType, DBType, YAML_COL_NAMES, SQL_REGEX_PREFIX, FilterFunc, YAML_DB, YAML_PROC_ID, YAML_HASHED, \
-    YAML_PASSWORD, YAML_PROC, YAML_TRACE, YAML_TRACE_FORWARD, YAML_MASTER_NAME, YAML_CHECKED_COLS, YAML_ALIASES, \
-    YAML_MASTER_NAMES, YAML_OPERATORS, YAML_COEFS, YAML_DATA_TYPES, YAML_TRACE_BACK, YAML_TRACE_SELF_COLS, \
-    YAML_TRACE_TARGET_COLS, YAML_TRACE_MATCH_SELF, YAML_TRACE_MATCH_TARGET, YAML_SQL, YAML_FROM, YAML_DATE_COL, \
-    YAML_SERIAL_COL, YAML_AUTO_INCREMENT_COL, YAML_WHERE_OTHER_VALUES, FILTER_MACHINE, YAML_FILTER_LINE_MACHINE_ID, \
-    YAML_MACHINE_ID, YAML_COL_NAME, YAML_VALUE_MASTER, YAML_SQL_STATEMENTS, YAML_VALUE_LIST, FILTER_PARTNO, \
-    YAML_SELECT_OTHER_VALUES, YAML_ORIG_COL_NAME
+from ap.common.common_utils import (
+    clear_special_char,
+    dict_deep_merge,
+    guess_data_types,
+    parse_int_value,
+)
+from ap.common.constants import (
+    FILTER_MACHINE,
+    FILTER_PARTNO,
+    SQL_REGEX_PREFIX,
+    YAML_ALIASES,
+    YAML_AUTO_INCREMENT_COL,
+    YAML_CHECKED_COLS,
+    YAML_COEFS,
+    YAML_COL_NAME,
+    YAML_COL_NAMES,
+    YAML_CONFIG_AP,
+    YAML_CONFIG_BASIC,
+    YAML_CONFIG_DB,
+    YAML_CONFIG_PROC,
+    YAML_DATA_TYPES,
+    YAML_DATE_COL,
+    YAML_DB,
+    YAML_FILTER_LINE_MACHINE_ID,
+    YAML_FROM,
+    YAML_HASHED,
+    YAML_MACHINE_ID,
+    YAML_MASTER_NAME,
+    YAML_MASTER_NAMES,
+    YAML_OPERATORS,
+    YAML_ORIG_COL_NAME,
+    YAML_PASSWORD,
+    YAML_PROC,
+    YAML_PROC_ID,
+    YAML_SELECT_OTHER_VALUES,
+    YAML_SERIAL_COL,
+    YAML_SQL,
+    YAML_SQL_STATEMENTS,
+    YAML_TRACE,
+    YAML_TRACE_BACK,
+    YAML_TRACE_FORWARD,
+    YAML_TRACE_MATCH_SELF,
+    YAML_TRACE_MATCH_TARGET,
+    YAML_TRACE_SELF_COLS,
+    YAML_TRACE_TARGET_COLS,
+    YAML_VALUE_LIST,
+    YAML_VALUE_MASTER,
+    YAML_WHERE_OTHER_VALUES,
+    CfgFilterType,
+    DBType,
+    FilterFunc,
+)
 from ap.common.cryptography_utils import decrypt_db_password
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.common.yaml_utils import parse_bool_value, YamlConfig
-from ap.setting_module.models import CfgDataSource, make_session, CfgProcess, CfgDataSourceCSV, CfgDataSourceDB, \
-    CfgCsvColumn, CfgProcessColumn, CfgTrace, CfgTraceKey, CfgFilter, CfgFilterDetail, CfgVisualization
+from ap.common.yaml_utils import YamlConfig, parse_bool_value
+from ap.setting_module.models import (
+    CfgCsvColumn,
+    CfgDataSource,
+    CfgDataSourceCSV,
+    CfgDataSourceDB,
+    CfgFilter,
+    CfgFilterDetail,
+    CfgProcess,
+    CfgProcessColumn,
+    CfgTrace,
+    CfgTraceKey,
+    CfgVisualization,
+    make_session,
+)
 
 
 class DBConfigYaml(YamlConfig):
@@ -81,34 +136,44 @@ class DBConfigYaml(YamlConfig):
 
     def get_db_master_name(self, db_code):
         try:
-            return YamlConfig.get_node(self.dic_config, (DBConfigYaml.DB, db_code, DBConfigYaml.MASTER_NAME)) or db_code
+            return (
+                YamlConfig.get_node(
+                    self.dic_config, (DBConfigYaml.DB, db_code, DBConfigYaml.MASTER_NAME)
+                )
+                or db_code
+            )
         except Exception:
             return db_code
 
     def get_comment(self, db_code):
-        return YamlConfig.get_node(self.dic_config, (DBConfigYaml.DB, db_code, DBConfigYaml.COMMENT))
+        return YamlConfig.get_node(
+            self.dic_config, (DBConfigYaml.DB, db_code, DBConfigYaml.COMMENT)
+        )
 
     def get_type(self, db_code):
         return YamlConfig.get_node(self.dic_config, (DBConfigYaml.DB, db_code, DBConfigYaml.TYPE))
 
     def get_csv_folder(self, db_code):
-        return YamlConfig.get_node(self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.DIRECTORY], None)
+        return YamlConfig.get_node(
+            self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.DIRECTORY], None
+        )
 
     def get_dbs(self):
         return [key for key in self.dic_config[YAML_DB].keys()]
 
     def is_csv(self, db_code):
-        if isinstance(db_code, str) \
-                and self.get_node(self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.TYPE]) == DBType.CSV.value:
+        if (
+            isinstance(db_code, str)
+            and self.get_node(self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.TYPE])
+            == DBType.CSV.value
+        ):
             return True
         else:
             return False
 
     def get_db_infos(self):
         dbs = self.get_dbs()
-        return {
-            db: YamlConfig.get_node(self.dic_config, [DBConfigYaml.DB, db]) for db in dbs
-        }
+        return {db: YamlConfig.get_node(self.dic_config, [DBConfigYaml.DB, db]) for db in dbs}
 
     def get_db_info(self, ds_id):
         dbs = self.get_db_infos()
@@ -117,58 +182,70 @@ class DBConfigYaml(YamlConfig):
     def get_csv_procs(self):
         dbs = self.get_dbs()
         return {
-            db: YamlConfig.get_node(self.dic_config, [DBConfigYaml.DB, db,
-                                                      DBConfigYaml.UNIVERSAL_DB, DBConfigYaml.PROC_ID])
-            for db in dbs if self.is_csv(db)
+            db: YamlConfig.get_node(
+                self.dic_config,
+                [DBConfigYaml.DB, db, DBConfigYaml.UNIVERSAL_DB, DBConfigYaml.PROC_ID],
+            )
+            for db in dbs
+            if self.is_csv(db)
         }
 
     def get_proc_ids(self, db_id):
         dbs = self.get_dbs()
         procs = [
-            YamlConfig.get_node(self.dic_config, [DBConfigYaml.DB, db, DBConfigYaml.UNIVERSAL_DB, DBConfigYaml.PROC_ID])
-            for db in dbs if db == db_id]
+            YamlConfig.get_node(
+                self.dic_config,
+                [DBConfigYaml.DB, db, DBConfigYaml.UNIVERSAL_DB, DBConfigYaml.PROC_ID],
+            )
+            for db in dbs
+            if db == db_id
+        ]
         return procs[0]
 
     def get_etl_func(self, db_code):
-        return YamlConfig.get_node(self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.ETL_FUNC])
+        return YamlConfig.get_node(
+            self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.ETL_FUNC]
+        )
 
     def get_use_os_timezone(self, db_code):
-        return YamlConfig.get_node(self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.USE_OS_TIMEZONE])
+        return YamlConfig.get_node(
+            self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.USE_OS_TIMEZONE]
+        )
 
     def get_factory_procs(self):
         dbs = self.get_dbs()
         return {
-            db: YamlConfig.get_node(self.dic_config, [DBConfigYaml.DB, db,
-                                                      DBConfigYaml.UNIVERSAL_DB, DBConfigYaml.PROC_ID])
-            for db in dbs if not self.is_csv(db)
+            db: YamlConfig.get_node(
+                self.dic_config,
+                [DBConfigYaml.DB, db, DBConfigYaml.UNIVERSAL_DB, DBConfigYaml.PROC_ID],
+            )
+            for db in dbs
+            if not self.is_csv(db)
         }
 
-    def gen_proc_id(self, db_code, proc_code, proc_id):  # TODO support factory only -> need to support csv
+    def gen_proc_id(
+        self, db_code, proc_code, proc_id
+    ):  # TODO support factory only -> need to support csv
         proc_id_node = YamlConfig.get_node(
-            self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.UNIVERSAL_DB, DBConfigYaml.PROC_ID])
+            self.dic_config,
+            [DBConfigYaml.DB, db_code, DBConfigYaml.UNIVERSAL_DB, DBConfigYaml.PROC_ID],
+        )
 
         if proc_id_node:
-            self.dic_config[DBConfigYaml.DB][db_code][DBConfigYaml.UNIVERSAL_DB][DBConfigYaml.PROC_ID][proc_code] \
-                = proc_id
-            universal_db_node = YamlConfig.get_node(self.dic_config,
-                                                    [DBConfigYaml.DB, db_code, DBConfigYaml.UNIVERSAL_DB],
-                                                    {})
-            return {
-                DBConfigYaml.DB:
-                    {db_code:
-                         {DBConfigYaml.UNIVERSAL_DB: universal_db_node}
-                     }
-            }
+            self.dic_config[DBConfigYaml.DB][db_code][DBConfigYaml.UNIVERSAL_DB][
+                DBConfigYaml.PROC_ID
+            ][proc_code] = proc_id
+            universal_db_node = YamlConfig.get_node(
+                self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.UNIVERSAL_DB], {}
+            )
+            return {DBConfigYaml.DB: {db_code: {DBConfigYaml.UNIVERSAL_DB: universal_db_node}}}
         else:
             return {
-                DBConfigYaml.DB:
-                    {db_code:
-                         {DBConfigYaml.UNIVERSAL_DB:
-                              {DBConfigYaml.PROC_ID:
-                                   {proc_code: proc_id}
-                               }
-                          }
-                     }
+                DBConfigYaml.DB: {
+                    db_code: {
+                        DBConfigYaml.UNIVERSAL_DB: {DBConfigYaml.PROC_ID: {proc_code: proc_id}}
+                    }
+                }
             }
 
         # return universal_db_node
@@ -181,9 +258,12 @@ class DBConfigYaml(YamlConfig):
     def del_proc_from_cfg(self, db_code, proc_code):
         db_configs = self.dic_config[DBConfigYaml.DB]
         for code, db_config in db_configs.items():
-            if code == db_code \
-                    and YamlConfig.get_node(db_configs, [db_code, DBConfigYaml.UNIVERSAL_DB, YAML_PROC_ID, proc_code]):
-                del self.dic_config[DBConfigYaml.DB][db_code][DBConfigYaml.UNIVERSAL_DB][YAML_PROC_ID][proc_code]
+            if code == db_code and YamlConfig.get_node(
+                db_configs, [db_code, DBConfigYaml.UNIVERSAL_DB, YAML_PROC_ID, proc_code]
+            ):
+                del self.dic_config[DBConfigYaml.DB][db_code][DBConfigYaml.UNIVERSAL_DB][
+                    YAML_PROC_ID
+                ][proc_code]
                 break
         self.update_yaml(dict_obj=self.dic_config)
 
@@ -221,10 +301,13 @@ class DBConfigYaml(YamlConfig):
 
         if dic_db_info.get(DBConfigYaml.TYPE) == DBType.POSTGRESQL.value:
             from ap.common.pydn.dblib import postgresql
-            db_instance = postgresql.PostgreSQL(dic_db_info.get(DBConfigYaml.HOST),
-                                                dic_db_info.get(DBConfigYaml.DBNAME),
-                                                dic_db_info.get(DBConfigYaml.USERNAME),
-                                                dic_db_info.get(DBConfigYaml.PASSWORD))
+
+            db_instance = postgresql.PostgreSQL(
+                dic_db_info.get(DBConfigYaml.HOST),
+                dic_db_info.get(DBConfigYaml.DBNAME),
+                dic_db_info.get(DBConfigYaml.USERNAME),
+                dic_db_info.get(DBConfigYaml.PASSWORD),
+            )
             # use custom port or default port
             if port:
                 db_instance.port = port
@@ -235,10 +318,13 @@ class DBConfigYaml(YamlConfig):
             return db_instance
         elif dic_db_info.get(DBConfigYaml.TYPE) == DBType.ORACLE.value:
             from ap.common.pydn.dblib import oracle
-            db_instance = oracle.Oracle(dic_db_info.get(DBConfigYaml.HOST),
-                                        dic_db_info.get(DBConfigYaml.DBNAME),
-                                        dic_db_info.get(DBConfigYaml.USERNAME),
-                                        dic_db_info.get(DBConfigYaml.PASSWORD))
+
+            db_instance = oracle.Oracle(
+                dic_db_info.get(DBConfigYaml.HOST),
+                dic_db_info.get(DBConfigYaml.DBNAME),
+                dic_db_info.get(DBConfigYaml.USERNAME),
+                dic_db_info.get(DBConfigYaml.PASSWORD),
+            )
             # use custom port or default port
             if port:
                 db_instance.port = port
@@ -246,10 +332,13 @@ class DBConfigYaml(YamlConfig):
             return db_instance
         elif dic_db_info.get(DBConfigYaml.TYPE) == DBType.MYSQL.value:
             from ap.common.pydn.dblib import mysql
-            db_instance = mysql.MySQL(dic_db_info.get(DBConfigYaml.HOST),
-                                      dic_db_info.get(DBConfigYaml.DBNAME),
-                                      dic_db_info.get(DBConfigYaml.USERNAME),
-                                      dic_db_info.get(DBConfigYaml.PASSWORD))
+
+            db_instance = mysql.MySQL(
+                dic_db_info.get(DBConfigYaml.HOST),
+                dic_db_info.get(DBConfigYaml.DBNAME),
+                dic_db_info.get(DBConfigYaml.USERNAME),
+                dic_db_info.get(DBConfigYaml.PASSWORD),
+            )
             # use custom port or default port
             if port:
                 db_instance.port = port
@@ -257,10 +346,13 @@ class DBConfigYaml(YamlConfig):
             return db_instance
         elif dic_db_info.get(DBConfigYaml.TYPE) == DBType.MSSQLSERVER.value:
             from ap.common.pydn.dblib import mssqlserver
-            db_instance = mssqlserver.MSSQLServer(dic_db_info.get(DBConfigYaml.HOST),
-                                                  dic_db_info.get(DBConfigYaml.DBNAME),
-                                                  dic_db_info.get(DBConfigYaml.USERNAME),
-                                                  dic_db_info.get(DBConfigYaml.PASSWORD))
+
+            db_instance = mssqlserver.MSSQLServer(
+                dic_db_info.get(DBConfigYaml.HOST),
+                dic_db_info.get(DBConfigYaml.DBNAME),
+                dic_db_info.get(DBConfigYaml.USERNAME),
+                dic_db_info.get(DBConfigYaml.PASSWORD),
+            )
             # use custom port or default port
             if port:
                 db_instance.port = port
@@ -272,9 +364,13 @@ class DBConfigYaml(YamlConfig):
 
         elif dic_db_info.get(DBConfigYaml.TYPE) == DBType.SQLITE.value:
             from ap.common.pydn.dblib import sqlite
+
             return sqlite.SQLite3(dic_db_info.get(DBConfigYaml.DBNAME))
-        elif dic_db_info.get(DBConfigYaml.TYPE) == DBType.CSV.name and dic_db_info.get(DBConfigYaml.DBNAME):
+        elif dic_db_info.get(DBConfigYaml.TYPE) == DBType.CSV.name and dic_db_info.get(
+            DBConfigYaml.DBNAME
+        ):
             from ap.common.pydn.dblib import sqlite
+
             return sqlite.SQLite3(dic_db_info.get(DBConfigYaml.DBNAME))
         else:
             return None
@@ -294,13 +390,16 @@ class DBConfigYaml(YamlConfig):
         if not self.is_csv(db_code):
             return None
 
-        dic_universal = YamlConfig.get_node(self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.UNIVERSAL_DB], {})
+        dic_universal = YamlConfig.get_node(
+            self.dic_config, [DBConfigYaml.DB, db_code, DBConfigYaml.UNIVERSAL_DB], {}
+        )
         data_types = dic_universal.get(DBConfigYaml.DATA_TYPES)
 
         return data_types
 
     def save_ds_config(self, ds_code, ds_info):
         from ap.common.cryptography_utils import decrypt, encrypt_db_password
+
         try:
             dic_db_config = self.dic_config[YAML_DB]
             current_ds_info = dic_db_config.get(ds_code) or {}
@@ -348,7 +447,10 @@ class ProcConfigYaml(YamlConfig):
 
     def get_proc_master_name(self, proc_name):
         try:
-            return YamlConfig.get_node(self.dic_config, (YAML_PROC, proc_name, YAML_MASTER_NAME)) or proc_name
+            return (
+                YamlConfig.get_node(self.dic_config, (YAML_PROC, proc_name, YAML_MASTER_NAME))
+                or proc_name
+            )
         except Exception:
             return proc_name
 
@@ -393,7 +495,9 @@ class ProcConfigYaml(YamlConfig):
         if not checked_cols:
             return key_cols
 
-        return [checked_cols[oricol][YAML_ALIASES] or col for col, oricol in zip(key_cols, key_origcols)]
+        return [
+            checked_cols[oricol][YAML_ALIASES] or col for col, oricol in zip(key_cols, key_origcols)
+        ]
 
     def get_leaf_procs(self, is_traceback=True):
         """
@@ -416,7 +520,7 @@ class ProcConfigYaml(YamlConfig):
         return list(set(procs) - set(chain.from_iterable(non_leafs)))
 
     def get_substr_match_info(self, start_proc, trace_target_proc, is_traceback=None):
-        """ get substr match infor of 2 procs
+        """get substr match infor of 2 procs
 
         Arguments:
             start_proc {[type]} - - [description]
@@ -463,8 +567,9 @@ class ProcConfigYaml(YamlConfig):
     def get_substr_info(trace, start_proc, end_proc):
         # get substring match information
         for trace_direct in (True, False):
-            dic_start_substr, dic_end_substr \
-                = trace.proc_yaml.get_substr_match_info(start_proc, end_proc, trace_direct)
+            dic_start_substr, dic_end_substr = trace.proc_yaml.get_substr_match_info(
+                start_proc, end_proc, trace_direct
+            )
             if dic_start_substr or dic_end_substr:
                 break
 
@@ -486,8 +591,9 @@ class ProcConfigYaml(YamlConfig):
             if not checked_cols:
                 continue
             if checked_cols[YAML_DATA_TYPES]:
-                checked_cols[YAML_DATA_TYPES] \
-                    = [guess_data_types(data_type).name for data_type in checked_cols[YAML_DATA_TYPES]]
+                checked_cols[YAML_DATA_TYPES] = [
+                    guess_data_types(data_type).name for data_type in checked_cols[YAML_DATA_TYPES]
+                ]
 
     def del_proc_config(self, proc_code):
         if self.get_node(self.dic_config, [YAML_PROC, proc_code]):
@@ -531,10 +637,18 @@ class ProcConfigYaml(YamlConfig):
 
         for proc_code, proc_config in procs.items():
             # get current trace setting from proc_config.yaml
-            forward_edges = self.get_node(self.dic_config, [YAML_PROC, proc_code, YAML_TRACE, YAML_TRACE_FORWARD],
-                                          []) or []
-            backward_edges = self.get_node(self.dic_config, [YAML_PROC, proc_code, YAML_TRACE, YAML_TRACE_BACK],
-                                           []) or []
+            forward_edges = (
+                self.get_node(
+                    self.dic_config, [YAML_PROC, proc_code, YAML_TRACE, YAML_TRACE_FORWARD], []
+                )
+                or []
+            )
+            backward_edges = (
+                self.get_node(
+                    self.dic_config, [YAML_PROC, proc_code, YAML_TRACE, YAML_TRACE_BACK], []
+                )
+                or []
+            )
             old_alias_2_colname = self.get_checked_columns(proc_code, dic_key_is_alias=True)
 
             # get new column settings
@@ -598,7 +712,9 @@ class Hist2ConfigYaml(YamlConfig):
 
         return [val for key, val in zip(value_master, sql_statements) if key in ids]
 
-    def get_vals_from_sql(self, proc_name, node_name=FILTER_PARTNO, list_sqls=tuple()):  # TODO commonize
+    def get_vals_from_sql(
+        self, proc_name, node_name=FILTER_PARTNO, list_sqls=tuple()
+    ):  # TODO commonize
         if not list_sqls:
             return []
 
@@ -607,7 +723,11 @@ class Hist2ConfigYaml(YamlConfig):
         sql_statements = YamlConfig.get_node(self.dic_config, keys + [YAML_SQL_STATEMENTS])
         if not value_list or not sql_statements:
             return []
-        return [value for value, sql_statement in zip(value_list, sql_statements) if sql_statement in list_sqls]
+        return [
+            value
+            for value, sql_statement in zip(value_list, sql_statements)
+            if sql_statement in list_sqls
+        ]
 
     def get_filters(self, proc_name):
         keys = [YAML_PROC, proc_name, YAML_SQL, YAML_WHERE_OTHER_VALUES]
@@ -803,8 +923,9 @@ class TransformYamlToDb:
                 # checked columns
                 dic_checked_columns = self.get_columns(proc_id) or {}
 
-                # serials
-                serial_cols = [s.split()[0] for s in self.ap_yaml.get_serial_col(proc_id) if s]
+                serial_cols = []
+                if self.ap_yaml.get_serial_col(proc_id):
+                    serial_cols = [s.split()[0] for s in self.ap_yaml.get_serial_col(proc_id) if s]
 
                 # get date
                 date_col = self.ap_yaml.get_date_col(proc_id)
@@ -817,8 +938,9 @@ class TransformYamlToDb:
                 dic_columns = {}
                 dic_proc_columns[proc_id] = (proc_cfg, dic_columns)
                 for col_name, col_info in dic_checked_columns.items():
-                    column_cfg = self.set_process_column(col_name, col_info, date_col, serial_cols,
-                                                         auto_incremental_col)
+                    column_cfg = self.set_process_column(
+                        col_name, col_info, date_col, serial_cols, auto_incremental_col
+                    )
 
                     proc_cfg.columns.append(column_cfg)
                     dic_columns[col_name] = column_cfg
@@ -845,7 +967,9 @@ class TransformYamlToDb:
                         machine_info = filter_info.get('machine-id')
                         filter_machine_cfg = self.set_machine_filter(machine_info, filter_cfg)
                         if filter_machine_cfg:
-                            machine_col_name = machine_info.get('orig_column') or machine_info.get('column_name')
+                            machine_col_name = machine_info.get('orig_column') or machine_info.get(
+                                'column_name'
+                            )
                             if machine_col_name:
                                 filter_machine_cfg.column = dic_columns.get(machine_col_name)
 
@@ -855,7 +979,9 @@ class TransformYamlToDb:
                 # visualization( chart infos)
                 dic_charts = self.ap_yaml.get_all_chart_infos(proc_id) or {}
                 for col_name, chart_infos in dic_charts.items():
-                    visual_cfgs = self.set_visualization(chart_infos, dic_columns.get(col_name), dic_chart_infos)
+                    visual_cfgs = self.set_visualization(
+                        chart_infos, dic_columns.get(col_name), dic_chart_infos
+                    )
                     for visual_cfg in visual_cfgs:
                         proc_cfg.visualizations.append(visual_cfg)
 
@@ -938,6 +1064,8 @@ class TransformYamlToDb:
 
         proc_cfg.id = proc_new_id
         proc_cfg.name = proc_info['master-name']
+        proc_cfg.name_jp = proc_info['master-name']
+        proc_cfg.name_en = proc_info['master-name']
         proc_cfg.table_name = clear_special_char(proc_info['sql']['from'])
         proc_cfg.comment = proc_info['comment']
         proc_cfg.columns = []
@@ -951,8 +1079,8 @@ class TransformYamlToDb:
         column_cfg = CfgProcessColumn()
 
         column_cfg.column_name = col_name
-        column_cfg.name = col_info['master-names']
-        column_cfg.english_name = to_romaji(col_info['alias-names'])
+        column_cfg.name_jp = col_info['master-names']
+        column_cfg.name_en = to_romaji(col_info['alias-names'])
         column_cfg.operator = col_info['operators']
         column_cfg.coef = col_info['coefs']
         column_cfg.data_type = col_info['data-types']
@@ -979,8 +1107,10 @@ class TransformYamlToDb:
             for dic_trace in traces:
                 # self
                 self_proc_cfg = proc_cfg
-                self_col_cfgs = [dic_columns[checked_cols[col][YAML_COL_NAMES]] for col in
-                                 dic_trace['self-alias-columns']]
+                self_col_cfgs = [
+                    dic_columns[checked_cols[col][YAML_COL_NAMES]]
+                    for col in dic_trace['self-alias-columns']
+                ]
 
                 self_substrs = dic_trace.get('self-substr')
                 if self_substrs is None:
@@ -1004,7 +1134,9 @@ class TransformYamlToDb:
                 trace_cfg.self_process = self_proc_cfg
                 trace_cfg.target_process = tar_proc_cfg
                 trace_cfg.trace_keys = []
-                for self_col, self_sub, tar_col, tar_sub in zip(self_col_cfgs, self_substrs, tar_col_cfgs, tar_substrs):
+                for self_col, self_sub, tar_col, tar_sub in zip(
+                    self_col_cfgs, self_substrs, tar_col_cfgs, tar_substrs
+                ):
                     trace_key_cfg = CfgTraceKey()
                     trace_cfg.trace_keys.append(trace_key_cfg)
 
@@ -1037,7 +1169,11 @@ class TransformYamlToDb:
             value_masters = detail_info.get('value_masters')
             detail_cfgs, _ = self.set_filter_details(None, value_list, value_masters)
             for detail_cfg in detail_cfgs:
-                parents = list(filter(lambda x: x.filter_condition == line_detail_id, filter_cfg.filter_details))
+                parents = list(
+                    filter(
+                        lambda x: x.filter_condition == line_detail_id, filter_cfg.filter_details
+                    )
+                )
                 detail_cfg.parent = parents[0]
                 machine_cfg.filter_details.append(detail_cfg)
 
@@ -1050,7 +1186,9 @@ class TransformYamlToDb:
         sql_statements = filter_info.get('sql_statements')
         value_list = filter_info.get('value_list')
         value_masters = filter_info.get('value_masters')
-        filter_details, dic_chart_info_key = self.set_filter_details(sql_statements, value_list, value_masters)
+        filter_details, dic_chart_info_key = self.set_filter_details(
+            sql_statements, value_list, value_masters
+        )
         filter_cfg.filter_details = filter_details
 
         return filter_cfg, dic_chart_info_key
@@ -1083,7 +1221,9 @@ class TransformYamlToDb:
     def set_filter_details(self, sql_statements, value_list, value_masters):
         detail_cfgs = []
         dic_chart_info_key = {}
-        for statement, filter_old_id, name in zip_longest(sql_statements or [], value_list or [], value_masters or []):
+        for statement, filter_old_id, name in zip_longest(
+            sql_statements or [], value_list or [], value_masters or []
+        ):
             detail_cfg = CfgFilterDetail()
             detail_cfg.name = name
             if statement:

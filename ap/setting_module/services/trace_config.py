@@ -40,16 +40,19 @@ def gen_cfg_trace(trace):
         target_col_id = target_col_ids[idx]
         self_sub_from, self_sub_to = self_substrs[idx] or (None, None)
         target_sub_from, target_sub_to = target_substrs[idx] or (None, None)
-        trace_key = CfgTraceKey(self_column_id=self_col_id,
-                                self_column_substr_from=self_sub_from,
-                                self_column_substr_to=self_sub_to,
-                                target_column_id=target_col_id,
-                                target_column_substr_from=target_sub_from,
-                                target_column_substr_to=target_sub_to)
+        trace_key = CfgTraceKey(
+            self_column_id=self_col_id,
+            self_column_substr_from=self_sub_from,
+            self_column_substr_to=self_sub_to,
+            target_column_id=target_col_id,
+            target_column_substr_from=target_sub_from,
+            target_column_substr_to=target_sub_to,
+        )
         trace_keys.append(trace_key)
     self_process_id = trace.get('from')
     target_process_id = trace.get('to')
-    cfg_trace = CfgTrace(self_process_id=self_process_id, target_process_id=target_process_id,
-                         trace_keys=trace_keys)
+    cfg_trace = CfgTrace(
+        self_process_id=self_process_id, target_process_id=target_process_id, trace_keys=trace_keys
+    )
 
     return cfg_trace

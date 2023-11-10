@@ -313,3 +313,25 @@ canvas {
 .overlay-card span {
     color: #65c5f1;
 }
+
+.stp-tab li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc((100% - 494px) / 8);
+}
+
+.stp-tab {
+    margin-top: -40px;
+}
+
+@media (max-width: 1200px) {
+    .stp-tab {
+        margin-top: 0px;
+    }
+
+    .stp-tab li {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: calc(100% / 8);
+    }
+}

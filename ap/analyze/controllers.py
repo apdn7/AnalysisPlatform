@@ -10,7 +10,7 @@ analyze_blueprint = Blueprint(
     __name__,
     template_folder=os.path.join('..', 'templates', 'analyze'),
     static_folder=os.path.join('..', 'static', 'analyze'),
-    url_prefix='/ap/analyze'
+    url_prefix='/ap/analyze',
 )
 
 
@@ -19,10 +19,10 @@ def pca():
     output_dict = get_common_config_data()
     output_dict['sensor_list'] = []
     output_dict['page_title'] = _('Principle Component Analysis')
-    return render_template("hotelling_tsquare.html", **output_dict)
+    return render_template('hotelling_tsquare.html', **output_dict)
 
 
 @analyze_blueprint.route('/structure_learning/gl')
 def gl():
     output_dict = get_common_config_data()
-    return render_template("graphical_lasso.html", **output_dict)
+    return render_template('graphical_lasso.html', **output_dict)

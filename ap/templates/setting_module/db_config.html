@@ -6,12 +6,11 @@
                     <div class="panel-heading" role="tab" id="headingDS">
                         <div class="form-header">
                             <div class="row d-flex align-items-center justify-content-between"
-                                 style="padding-top: 5px;">
+                                 style="padding-top: 5px; padding-bottom: 5px;">
                                 <div class="col-5">
                                     <div class="collapse-box header-left">
-                                        <a role="button" data-toggle="collapse" data-parent="#accordionDS"
+                                        <a role="button" class="btn-collapse" data-toggle="collapse" data-parent="#accordionDS"
                                            href="#collapseDS" aria-expanded="true" aria-controls="collapseDS">
-                                            <i class="more-less fas fa-window-minimize"></i>
                                         </a>
                                     </div>
                                     <h3 class="header-left">{{ _("Data Source Config") }}</h3>
@@ -83,10 +82,12 @@
                                         </td>
                                         <td class="text-center">
                                             <select name="type" class="form-control">
-                                                {% for dbtype in ('CSV', 'SQLITE','POSTGRESQL', 'MSSQLSERVER', 'ORACLE', 'MYSQL') %}
+                                                {% for dbtype in ('CSV', 'V2', 'SQLITE','POSTGRESQL', 'MSSQLSERVER', 'ORACLE', 'MYSQL') %}
                                                     {% if dbtype == db_info.type.data %}
                                                         {% if dbtype == 'CSV' %}
                                                             <option value="{{ dbtype }}" selected>csv/tsv</option>
+                                                        {% elif dbtype == 'V2' %}
+                                                            <option value="{{ dbtype }}" selected>V2 csv</option>
                                                         {% else %}
                                                             <option value="{{ dbtype }}"
                                                                     selected>{{ dbtype.lower() }}</option>

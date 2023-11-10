@@ -84,7 +84,7 @@ const getProcessConfigFromDB = async (procId) => {
     return [json.data, json.filter_col_data];
 };
 
-const loadFilterOthers = (processConfig) => {
+const loadFilterOthers = async (processConfig) => {
     // there is no filter flag
     let noneFilterFlg = true;
 
@@ -95,7 +95,7 @@ const loadFilterOthers = (processConfig) => {
     const cfgProcess = filterStore.getSelectedProcessConfig();
 
     const { filters } = processConfig;
-    filters.forEach(async (filterConfig) => {
+    await filters.forEach(async (filterConfig) => {
         if (filterConfig && filterConfig.filter_type === filterTypes.OTHER) {
             const filterId = filterConfig.id;
 
@@ -129,34 +129,30 @@ const showProcessSettings = async (procId) => {
 
     filterStore.setSelectedProcess(processConfig); // TODO remove later
     filterStore.setSelectedProcessConfig(new CfgProcess(processConfig));
-    // filterStore.setFilterColumnsData(filterColumnData);
-    // // TODO set column data
+
     const cfgProcess = filterStore.getSelectedProcessConfig();
 
     if (!isEmpty(processConfig)) {
         // show line setting
         const lineCfgFuncs = filterCfgGenerator(htmlCardId.LINE, filterTypes.LINE);
         lineCfgFuncs.genEvents();
-        lineCfgFuncs.showLineSetting(processConfig, cfgProcess).then(() => {
-            addAttributeToElement($(lineCfgFuncs.eles.thisCard));
-        });
+        await lineCfgFuncs.showLineSetting(processConfig, cfgProcess);
+        addAttributeToElement($(lineCfgFuncs.eles.thisCard));
 
         // show machine setting
         const machineCfgFuncs = filterCfgGenerator(htmlCardId.MACHINE_ID, filterTypes.MACHINE);
         machineCfgFuncs.genEvents();
-        machineCfgFuncs.showMachineSetting(processConfig).then(() => {
-            addAttributeToElement($(machineCfgFuncs.eles.thisCard));
-        });
+        await machineCfgFuncs.showMachineSetting(processConfig);
+        addAttributeToElement($(machineCfgFuncs.eles.thisCard));
 
         // show partno setting
         const partnoFuncs = filterCfgGenerator(htmlCardId.PART_NO, filterTypes.PART_NO);
         partnoFuncs.genEvents();
-        partnoFuncs.showPartnoSetting(processConfig).then(() => {
-            addAttributeToElement($(partnoFuncs.eles.thisCard));
-        });
+        await partnoFuncs.showPartnoSetting(processConfig);
+        addAttributeToElement($(partnoFuncs.eles.thisCard));
 
         // show other filter settings
-        loadFilterOthers(processConfig);
+        await loadFilterOthers(processConfig);
         collapseConfig();
     }
 };
@@ -165,7 +161,8 @@ const showProcessSettings = async (procId) => {
 $(() => {
     $('html, body').animate({ scrollTop: 0 }, 'slow');
 
-    filterElements.btnShowAllSettings.click(() => {
+    filterElements.processList.change( async (e) => {
+        const currentProcessId = $(e.currentTarget).val() || ''
         hideAlertMessages();
         // hide loading screen
         const loading = $('.loading');
@@ -173,14 +170,12 @@ $(() => {
         filterElements.detailCards.css('display', 'none');
 
         // update process id
-        const currentProcessId = filterElements.processList.val() || '';
         filterStore.setSelectedProcessId(currentProcessId);
 
         if (!isEmpty(currentProcessId)) {
-            showProcessSettings(currentProcessId).then(() => {
-                loading.hide();
-                filterElements.detailCards.css('display', 'unset');
-            });
+            await showProcessSettings(currentProcessId);
+            loading.hide();
+            filterElements.detailCards.css('display', 'unset');
         } else {
             loading.hide();
         }

@@ -309,9 +309,9 @@ const filterCfgGenerator = ((cardId, filterType = filterTypes.OTHER) => {
     const calcMaxLengthColName = (columns) => {
         let maxLen = 0;
         for (let i = 0; i < columns.length; i++) {
-            if (columns[i].name) {
-                if (calcByteLength(columns[i].name) > maxLen) {
-                    maxLen = columns[i].name.length;
+            if (columns[i].shown_name) {
+                if (calcByteLength(columns[i].shown_name) > maxLen) {
+                    maxLen = columns[i].shown_name.length;
                 }
             }
         }
@@ -321,26 +321,9 @@ const filterCfgGenerator = ((cardId, filterType = filterTypes.OTHER) => {
     const appendColumnList = (columnElement, columns) => {
         [].concat(columns).forEach((col) => {
             columnElement.append(
-                `<option value="${col.id}" title="${col.column_name}" class="shorten-name">${col.name}</option>`,
+                `<option value="${col.id}" title="${col.name_en}" class="shorten-name">${col.shown_name}</option>`,
             );
         });
-    };
-
-    const genSelect2Param = (type = 1, data = []) => {
-        const params = {
-            width: '100%',
-            allowClear: true,
-            tags: true,
-            placeholder: '',
-        };
-        if (type === 2) {
-            params.multiple = true;
-            params.tokenSeparators = [' ', '\n'];
-        }
-        if (data && data.length) {
-            params.data = data;
-        }
-        return params;
     };
 
     const bindOnchangeColumnEvent = () => {
@@ -356,9 +339,11 @@ const filterCfgGenerator = ((cardId, filterType = filterTypes.OTHER) => {
                 const condSelect2 = $(this);
                 const formula = condSelect2.closest('tr').find('select[name=filterConditionFormula]').val();
                 const select2Type = findFilterCondType(formula);
-                const selectedValue = condSelect2.val();
+
                 condSelect2.empty();
                 condSelect2.select2(genSelect2Param(select2Type, select2Data));
+                const selectedValue = condSelect2.val();
+
                 assignValueToSelect2(condSelect2, selectedValue);
 
                 if (!select2Type) {

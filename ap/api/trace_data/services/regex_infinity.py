@@ -91,7 +91,11 @@ def validate_string(df: DataFrame, col_name):
 
 
 def gen_pos_conditions(df_str: DataFrame):
-    return [df_str.str.contains(PATTERN_POS_1), df_str.str.contains(PATTERN_POS_2), df_str.str.contains(PATTERN_3)]
+    return [
+        df_str.str.contains(PATTERN_POS_1),
+        df_str.str.contains(PATTERN_POS_2),
+        df_str.str.contains(PATTERN_3),
+    ]
 
 
 def gen_neg_conditions(df_str: DataFrame):
@@ -99,11 +103,13 @@ def gen_neg_conditions(df_str: DataFrame):
 
 
 def gen_all_conditions(df_str: DataFrame):
-    return [df_str.str.contains(PATTERN_POS_1),
-            df_str.str.contains(PATTERN_NEG_1),
-            df_str.str.contains(PATTERN_POS_2),
-            df_str.str.contains(PATTERN_NEG_2),
-            df_str.str.contains(PATTERN_3)]
+    return [
+        df_str.str.contains(PATTERN_POS_1),
+        df_str.str.contains(PATTERN_NEG_1),
+        df_str.str.contains(PATTERN_POS_2),
+        df_str.str.contains(PATTERN_NEG_2),
+        df_str.str.contains(PATTERN_3),
+    ]
 
 
 @log_execution_time()
@@ -175,7 +181,6 @@ def validate_data_with_regex(df):
 
 @log_execution_time()
 def validate_data_with_simple_searching(df, checked_cols, dic_abnormal):
-
     for col in checked_cols:
         conditions = []
         results = []

@@ -17,25 +17,30 @@ logger = logging.getLogger(__name__)
 
 class SQLite3:
     def __init__(self, dbname, isolation_level=None):
-        from ap import dic_config, SQLITE_CONFIG_DIR
-        self.dbname = os.path.join(dic_config[SQLITE_CONFIG_DIR], dbname or '')  # sqliteで言うdbnameはファイル名/
+        from ap import SQLITE_CONFIG_DIR, dic_config
+
+        self.dbname = os.path.join(
+            dic_config[SQLITE_CONFIG_DIR], dbname or ''
+        )  # sqliteで言うdbnameはファイル名/
         self.is_connected = False
         self.connection = None
         self.cursor = None
         self.isolation_level = isolation_level
 
     def dump(self):
-        print("===== DUMP RESULT =====")
-        print("DB Type: SQLite3")
-        print("self.dbname: {}".format(self.dbname))
-        print("self.isolation_level: {}".format('IMMEDIATE' if self.isolation_level else None))
-        print("self.is_connected: {}".format(self.is_connected))
-        print("=======================")
+        print('===== DUMP RESULT =====')
+        print('DB Type: SQLite3')
+        print('self.dbname: {}'.format(self.dbname))
+        print('self.isolation_level: {}'.format('IMMEDIATE' if self.isolation_level else None))
+        print('self.is_connected: {}'.format(self.is_connected))
+        print('=======================')
 
     def connect(self):
         try:
             if self.isolation_level:
-                self.connection = sqlite3.connect(self.dbname, timeout=60 * 5, isolation_level='IMMEDIATE')
+                self.connection = sqlite3.connect(
+                    self.dbname, timeout=60 * 5, isolation_level='IMMEDIATE'
+                )
             else:
                 self.connection = sqlite3.connect(self.dbname, timeout=60 * 5)
 
@@ -44,7 +49,7 @@ class SQLite3:
             self.dump()
             return self.connection
         except Exception:
-            print("Cannot connect to db")
+            print('Cannot connect to db')
             print('>>> traceback <<<')
             traceback.print_exc()
             print('>>> end of traceback <<<')
@@ -58,7 +63,7 @@ class SQLite3:
         """
         if os.path.isfile(self.dbname):
             if os.path.getsize(self.dbname) > 100:
-                with open(self.dbname, 'r', encoding="ISO-8859-1") as f:
+                with open(self.dbname, 'r', encoding='ISO-8859-1') as f:
                     header = f.read(100)
                     if header.startswith('SQLite format'):
                         return True
@@ -73,18 +78,18 @@ class SQLite3:
     def create_table(self, tblname, valtypes):
         if not self._check_connection():
             return False
-        sql = "create table {0:s}(".format(tblname)
+        sql = 'create table {0:s}('.format(tblname)
         for idx, val in enumerate(valtypes):
             if idx > 0:
-                sql += ","
+                sql += ','
 
-            sql += val["name"] + " " + val["type"]
-        sql += ")"
+            sql += val['name'] + ' ' + val['type']
+        sql += ')'
         print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
-        print(tblname + " created!")
+        print(tblname + ' created!')
 
     # 作成済みのテーブルを配列として返す
     def list_tables(self):
@@ -117,32 +122,28 @@ class SQLite3:
         if not self._check_connection():
             return False
 
-        sql = "drop table if exists " + tblname
+        sql = 'drop table if exists ' + tblname
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
-        print(tblname + " dropped!")
+        print(tblname + ' dropped!')
 
     # テーブルのカラムのタイプを辞書の配列として返す
     # columns:
     #  name => カラム名,
     #  type => カラムタイプ
     def list_table_columns(self, tblname):
-
         if not self._check_connection():
             return False
         # http://o.inchiki.jp/obbr/4
-        sql = "PRAGMA TABLE_INFO({})".format(tblname)
+        sql = 'PRAGMA TABLE_INFO({})'.format(tblname)
         cur = self.connection.cursor()
         cur.execute(sql)
         rows = cur.fetchall()
         results = []
 
         for row in rows:
-            results.append({
-                "name": row[1],
-                "type": row[2]
-            })
+            results.append({'name': row[1], 'type': row[2]})
         return results
 
     def get_data_type_by_colname(self, tbl, col_name):
@@ -158,7 +159,7 @@ class SQLite3:
         columns = self.list_table_columns(tblname)
         colnames = []
         for column in columns:
-            colnames.append(column["name"])
+            colnames.append(column['name'])
         return colnames
 
     def is_column_existing(self, tblname, col_name):
@@ -170,34 +171,34 @@ class SQLite3:
         if not self._check_connection():
             return False
 
-        sql = "insert into {0:s}".format(tblname)
+        sql = 'insert into {0:s}'.format(tblname)
 
         # Generate column names field
-        sql += "("
+        sql += '('
         for idx, name in enumerate(names):
             if idx > 0:
-                sql += ","
+                sql += ','
             sql += name
-        sql += ") "
+        sql += ') '
 
         # Generate values field
-        sql += "values "
+        sql += 'values '
         for idx1, value in enumerate(values):
             if idx1 > 0:
-                sql += ","
-            sql += "("
+                sql += ','
+            sql += '('
             for idx2, name in enumerate(names):
                 if idx2 > 0:
-                    sql += ","
+                    sql += ','
                 sql += "'" + str(value[name]) + "'"
-            sql += ")"
+            sql += ')'
 
         # print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print("Dummy data was inserted to {}!".format(tblname))
+        print('Dummy data was inserted to {}!'.format(tblname))
 
     # SQLをそのまま実行。
     # cols, rows = db1.run_sql("select * from tbl01")
@@ -211,7 +212,10 @@ class SQLite3:
             cur.execute(sql)
         else:
             # convert datetime type to str
-            _params = [p.strftime('%Y-%m-%dT%H:%M:%S.%fZ') if isinstance(p, datetime) else p for p in params]
+            _params = [
+                p.strftime('%Y-%m-%dT%H:%M:%S.%fZ') if isinstance(p, datetime) else p
+                for p in params
+            ]
             print(_params)
             cur.execute(sql, _params)
         # cursor.descriptionはcolumnの配列
@@ -255,7 +259,7 @@ class SQLite3:
         cur.close()
 
     def execute_sql(self, sql, params=None, return_value: str = None):
-        """ For executing any query requires commit action
+        """For executing any query requires commit action
         :param sql: SQL to be executed
         :return: Execution result
         """
@@ -267,7 +271,10 @@ class SQLite3:
         if not params:
             res = cur.execute(sql)
         else:
-            _params = [p.strftime('%Y-%m-%dT%H:%M:%S.%fZ') if isinstance(p, datetime) else p for p in params]
+            _params = [
+                p.strftime('%Y-%m-%dT%H:%M:%S.%fZ') if isinstance(p, datetime) else p
+                for p in params
+            ]
             print(_params)
             cur.execute(sql, _params)
 
@@ -280,7 +287,7 @@ class SQLite3:
         return affected_rows  # changed from return res ot affected rows
 
     def execute_sql_in_transaction(self, sql, rows):
-        """ For executing any query requires commit action
+        """For executing any query requires commit action
         :param sql: SQL to be executed
         :param rows: data
         :return: Execution result
@@ -303,7 +310,7 @@ class SQLite3:
         if self.is_connected:
             return True
         # 接続していないなら
-        print("Connection is not Initialized. Please run connect() to connect to DB")
+        print('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def is_timezone_hold_column(self, tbl, col):

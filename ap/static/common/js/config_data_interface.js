@@ -6,6 +6,7 @@ const DataTypes = Object.freeze({
         short: 'NONE',
         exp: 'NONE',
         org_type: 'NONE',
+        operator: [''],
     },
     INTEGER: {
         name: 'INTEGER',
@@ -15,7 +16,8 @@ const DataTypes = Object.freeze({
         i18nAllLabel: 'i18nAllInt',
         short: 'Int',
         exp: 'i18nInteger',
-        org_type: 'INTEGER'
+        org_type: 'INTEGER',
+        operator: ['', '+', '-', '*', '/'],
     },
     REAL: {
         name: 'REAL',
@@ -25,7 +27,8 @@ const DataTypes = Object.freeze({
         i18nAllLabel: 'i18nAllReal',
         short: 'Real',
         exp: 'i18nFloatTypeExplain',
-        org_type: 'REAL'
+        org_type: 'REAL',
+        operator: ['', '+', '-', '*', '/'],
     },
     STRING: {
         name: 'TEXT',
@@ -35,7 +38,8 @@ const DataTypes = Object.freeze({
         i18nAllLabel: 'i18nAllStr',
         short: 'Str',
         exp: 'i18nString',
-        org_type: 'TEXT'
+        org_type: 'TEXT',
+        operator: ['', 'Valid-like'],
     },
     DATETIME: {
         name: 'DATETIME',
@@ -44,7 +48,8 @@ const DataTypes = Object.freeze({
         i18nLabelID: 'i18nDateTime',
         short: 'CT',
         exp: 'i18nCTTypeExplain',
-        org_type: 'DATETIME'
+        org_type: 'DATETIME',
+        operator: [''],
     },
     TEXT: {
         name: 'TEXT',
@@ -54,7 +59,8 @@ const DataTypes = Object.freeze({
         i18nAllLabel: 'i18nAllStr',
         short: 'Str',
         exp: 'i18nString',
-        org_type: 'TEXT'
+        org_type: 'TEXT',
+        operator: ['', 'Valid-like'],
     },
     REAL_SEP: {
         name: 'REAL_SEP',
@@ -64,7 +70,8 @@ const DataTypes = Object.freeze({
         i18nAllLabel: 'i18nAllRealSep',
         short: 'Real_Sep',
         exp: '',
-        org_type: 'REAL'
+        org_type: 'REAL',
+        operator: ['', '+', '-', '*', '/'],
     },
     INTEGER_SEP: {
         name: 'INTEGER_SEP',
@@ -74,7 +81,8 @@ const DataTypes = Object.freeze({
         i18nAllLabel: 'i18nAllIntSep',
         short: 'Int_Sep',
         exp: '',
-        org_type: 'INTEGER'
+        org_type: 'INTEGER',
+        operator: ['', '+', '-', '*', '/'],
     },
     EU_REAL_SEP: {
         name: 'EU_REAL_SEP',
@@ -84,7 +92,8 @@ const DataTypes = Object.freeze({
         i18nAllLabel: 'i18nAllEURealSep',
         short: 'EU_Real_Sep',
         exp: '',
-        org_type: 'REAL'
+        org_type: 'REAL',
+        operator: ['', '+', '-', '*', '/'],
     },
     EU_INTEGER_SEP: {
         name: 'EU_INTEGER_SEP',
@@ -94,12 +103,14 @@ const DataTypes = Object.freeze({
         i18nAllLabel: 'i18nAllEUIntSep',
         short: 'EU_Int_Sep',
         exp: '',
-        org_type: 'INTEGER'
+        org_type: 'INTEGER',
+        operator: ['', '+', '-', '*', '/'],
     },
     BIG_INT: {
         name: 'BIG_INT',
         value: 10,
-        org_type: 'STRING'
+        org_type: 'STRING',
+        operator: ['', '+', '-', '*', '/'],
     }
 });
 
@@ -128,11 +139,16 @@ const CfgProcess_CONST = {
 
 class CfgColumn {
     id;
-    name;
     column_name;
     column_type;
     data_type;
-    english_name;
+    name_en;
+
+    name_jp;
+
+    name_local;
+
+    shown_name;
     is_auto_increment;
     is_get_date;
     is_serial_no;
@@ -192,6 +208,10 @@ class CfgVisualization {
 class CfgProcess {
     id;
     name;
+    name_jp;
+    name_en;
+    name_local;
+    shown_name;
     table_name;
     data_source_id;
     data_source;
@@ -488,8 +508,8 @@ const genProcessDropdownData = (procConfigs = {}) => {
     Object.values(procConfigs).sort(sortByOrderOrID).forEach((proc) => {
         ids.push(proc.id);
         names.push({
-            name: proc.name,
-            en_name: proc.en_name,
+            shown_name: proc.shown_name,
+            name_en: proc.name_en,
         });
     });
 

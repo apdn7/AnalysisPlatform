@@ -100,44 +100,10 @@ const visualModule = (() => {
         'actFromDateTime',
         'actToDateTime'];
 
-    const openOptions = (rowIdx) => {
-        $(`#${rowIdx} .mcs-container`).click((event) => {
-            event.stopPropagation();
-            // reset sticky columns
-            $('.sticky-rcol').css('position', 'static');
-
-            $('.mcs-container--open').hide();
-            const eleIdx = event.currentTarget.id.split('_');
-            $(`#mcs-filter-items-options_${eleIdx[1]}`).show();
-            $(`#mcs-searchbox_${eleIdx[1]}`).focus();
-        });
-    };
-    const hideFilterItems = (rowIdx) => {   // TODO optimize
-        $('html').click(() => {
-            $(`#${rowIdx} .mcs-container--open`).hide();
-            $('.sticky-rcol').css('position', 'sticky');
-        });
-        $(`${rowIdx} .mcs-container`).click((event) => {
-            event.stopPropagation();
-            $('.sticky-rcol').css('position', 'sticky');
-        });
-    };
-
-    // remove all highlighted
-    const hoveringOptions = (rowIdx) => {
-        $(`#${rowIdx}.mcs-results__option`).hover((e) => {
-            $('.mcs-results__option').removeClass('mcs-results__option--highlighted');
-            $(e.currentTarget).addClass('mcs-results__option--highlighted');
-        });
-    };
-
     // select the options
     const onSelectFilterTypeValue = (rowIdx) => {
-        $(`#${rowIdx} .mcs-results__option`).click(async (e) => {
-            const filterColumnId = $(e.currentTarget).data('mcs-id'); // TODO consider change name
-            const optionName = $(e.currentTarget).data('mcs-name');
-            $(`#mcs-filterType_${rowIdx}`).text(optionName); // filterTypeName
-            $(`#mcs-filterType_${rowIdx}`).attr('data-selection-id', filterColumnId); // filterTypeId // TODO why?
+        $(`#${rowIdx} .filter-selection`).change(async (e) => {
+            const filterColumnId =$(e.currentTarget).val();
 
             // set selected filter column id
             $(`#filterColumnId_${rowIdx}`).val(filterColumnId);
@@ -185,6 +151,7 @@ const visualModule = (() => {
 
             // auto update Act From
             autoUpdateActFrom(rowIdx);
+            addAttributeToElement();
         });
     };
 
@@ -276,7 +243,7 @@ const visualModule = (() => {
                     filterValueColElement.empty().append(filterValueOptions.join(''));
 
                     filterValueColElement.val(selectedFilterValue);
-                    filterValueColElement.select2().trigger('change');
+                    filterValueColElement.trigger('change');
                 } else {
                     // no need to update if from config
                 }
@@ -291,11 +258,7 @@ const visualModule = (() => {
 
         // build filter detail options
         const filterDetails = Object.assign([], selectedFilter.filter_details) || [];
-        filterDetails.unshift({
-            id: eles.defaultVal,
-            name: i18nNames.partNoDefaultName,
-        });
-
+        filterValueOptions.push(createDefaultOption())
         for (const filterDetail of filterDetails) {
             const selected = selectedFilterValue === filterDetail.id ? eles.selectedOptStr : '';
             filterValueOptions.push(
@@ -328,7 +291,7 @@ const visualModule = (() => {
 
     const createDefaultOption = (selected = false) => {
         const selectOption = selected ? eles.selectedOptStr : '';
-        return `<option value="${eles.defaultVal}" ${selectOption}>${i18nNames.partNoDefaultName}</option>`;
+        return `<option value="${eles.defaultVal}" ${selectOption}>---</option>`;
     };
 
     // search columns
@@ -351,8 +314,29 @@ const visualModule = (() => {
 
 
     // add new row
-    const addConfigRow = (cfgVisualization, isAddNewRow = false, fromSpread = false) => {
+    const addConfigRow = (cfgVisualization, isAddNewRow = false, fromSpread = false, index = null) => {
         const rowIdx = `${moment().format('YYMMDDHHmmssSSS')}${generateRandomString(3)}`;
+
+         const dicColumns = cfgProcess.dicColumns || {};
+
+        // filter item: decide show all or from config
+        let isFromConfig = true;
+        let showHideFromConfig = '';
+        let showHideShowAll = 'hidden';
+        let checkFilterTypeFromConfig = 'checked="checked"';
+
+        // selected filter column
+        let selectedFilterColumnId = cfgVisualization.filter_column_id;
+        let selectedFilterItemName;
+        let selectedFilterItemId;
+        if (selectedFilterColumnId && selectedFilterColumnId !== 'default') {
+            selectedFilterItemName = dicColumns[selectedFilterColumnId].shown_name;
+            selectedFilterItemId = dicColumns[selectedFilterColumnId].id;
+        } else {
+            // set default if null
+            selectedFilterColumnId = eles.defaultVal;
+            selectedFilterItemName = '';
+        }
 
         // build control column selections
         const selectedControlCol = cfgVisualization.control_column_id;
@@ -361,71 +345,35 @@ const visualModule = (() => {
         const controlColOptions = controlCols.map((col) => {
             const selected = col.id === selectedControlCol ? eles.selectedOptStr : '';
             if (col.id === selectedControlCol) {
-                controlColName = col.name;
+                controlColName = col.shown_name;
             }
-            return `<option value="${col.id}" ${selected}>${col.name}</option>`;
+            return `<option value="${col.id}" title="${col.name_en}" ${selected}>${col.shown_name}</option>`;
         });
-        // const controlColName = controlCols.filter(col => col.id == selectedControlCol)[0].name;
-        // filter item (type column)
-        const dicColumns = cfgProcess.dicColumns || {};
-        const defaultFilterItemOption = `<li class="mcs-results__option" role="option"
-                                        aria-selected="false" data-select2-id="28"
-                                        id="mcs-filterValue-io-result-no_${rowIdx}"
-                                        data-mcs-name="${i18nNames.partNoDefaultName}"
-                                        data-mcs-id="default">${i18nNames.partNoDefaultName}</li>`;
-        const fromFilterConfigItemOptions = [defaultFilterItemOption];
+
+
+        const defaultOption = '<option id="mcs-filterValue-io-result-no_${rowIdx}">---</option>'
+        const fromFilterConfigItemOptions = [defaultOption];
         cfgProcess.getFilters().forEach((filter) => {
+            const isSelected = Number(selectedFilterItemId) === Number(filter.column_id) ? 'selected' : '';
             if (!isEmpty(filter.column_id)) { // to prevent the case N/A column in LINE filter
-                const filterItemName = dicColumns[filter.column_id].name || filter.column_id || filter.name;
+                const filterItemName = dicColumns[filter.column_id].shown_name || filter.column_id || filter.name;
                 fromFilterConfigItemOptions.push(
-                    `<li class="mcs-results__option" id="mcs-filterValue-io-result-no_${cfgVisualization.id}"
-                    role="option" aria-selected="false"
-                    data-mcs-name="${filterItemName}"
-                    data-mcs-id="${filter.column_id}">${filterItemName}</li>`,
+                    `<option value="${filter.column_id}" ${isSelected}>${filterItemName}</option>`
                 );
             }
         });
 
-        const showAllItemOptions = [defaultFilterItemOption];
+        const showAllItemOptions = [defaultOption];
         cfgProcess.getCategoryColumns().forEach((col) => {
-            // TODO id="mcs-filterValue-io-result-no_${col.id}" uniqueness
+            const isSelected = Number(selectedFilterItemId) === Number(col.id) ? 'selected' : '';
             showAllItemOptions.push(
-                `<li class="mcs-results__option" id="mcs-filterValue-io-result-no_${col.id}"
-                role="option" aria-selected="false"
-                data-mcs-name="${col.name}"
-                data-mcs-id="${col.id}">${col.name}</li>`,
+                `<option value="${col.id}" ${isSelected}>${col.shown_name}</option>`
             );
         });
 
-        // filter item: decide show all or from config
-        let isFromConfig = true;
-        // let isFromConfig = false;
-        let showHideFromConfig = '';
-        let showHideShowAll = 'hidden';
-        let checkFilterTypeFromConfig = 'checked="checked"';
-        // let checkFilterTypeShowAll = '';
-        if (cfgVisualization.is_from_data === false) {
-            isFromConfig = true;
-            showHideFromConfig = '';
-            showHideShowAll = 'hidden';
-            // checkFilterTypeShowAll = '';
-            checkFilterTypeFromConfig = 'checked="checked"';
-        }
-
-        // selected filter column
-        let selectedFilterColumnId = cfgVisualization.filter_column_id;
-        let selectedFilterItemName;
-        if (selectedFilterColumnId && selectedFilterColumnId !== 'default') {
-            selectedFilterItemName = dicColumns[selectedFilterColumnId].name;
-        } else {
-            // set default if null
-            selectedFilterColumnId = eles.defaultVal;
-            selectedFilterItemName = i18nNames.partNoDefaultName;
-        }
-
         // filter value (name column)
         let filterValueOptions = [];
-        let filterValueName = i18nNames.partNoDefaultName;
+        let filterValueName = '---';
         if (isFromConfig) {
             // build options from filter details
             const selectedFilterValue = cfgVisualization.filter_detail_id || eles.defaultVal;
@@ -474,7 +422,7 @@ const visualModule = (() => {
             inputInRows.show = 'show';
             inputInRows.hide = 'hide';
         }
-        const rowNumber = $(`#${eles.tblVisualConfig} tbody tr`).length;
+        const rowNumber = index != null ? index : $(`#${eles.tblVisualConfig} tbody tr`).length;
         const rowDOM = `
             <tr name="visualInfo" id="${rowIdx}">
                 <input type="hidden"  name="${eles.cfgVisualizationId}" id="${eles.cfgVisualizationId}_${rowIdx}"
@@ -483,69 +431,30 @@ const visualModule = (() => {
                 <td class="sticky-rcol first-col">
                     <div class="msc-input ${inputInRows.show}">
                         <select name="${eles.controlColumn}" id="${eles.controlColumn}_${rowIdx}"
-                            class="form-control">
+                            class="form-control select2-selection--single select-n-columns">
                         <option value="" >---</option>
-                        ${controlColOptions}
+                            ${controlColOptions}
                         </select>
                     </div>
                     <div class="msc-label ${inputInRows.hide}"><span>${controlColName}</span></div>
                 </td>
                 <td class="sticky-rcol second-col" id="filterType_${rowIdx}">
                     <div class="msc-input ${inputInRows.show}">
-                        <span id="mcs-filter-items_${rowIdx}" class="mcs mcs-container mcs-container--default"
-                        data-select2-id="2" style="min-width: 80px;">
-                            <span class="selection">
-                                <span class="mcs-selection mcs-selection--single"
-                                    role="combobox" aria-haspopup="true" aria-expanded="true"
-                                     tabindex="0" aria-disabled="false"
-                                     aria-labelledby="mcs-filterType_${rowIdx}"
-                                     aria-owns="mcs-filterValue-io-results"
-                                     aria-activedescendant="mcs-filterValue-io-result-r755----">
-                                     <input type="hidden" id="filterColumnId_${rowIdx}"
+                    <div class="custom-control custom-radio mcs-options hide">
+                          <input type="radio" class="custom-control-input"
+                                       id="fromFlt_${rowIdx}" name="${eles.filterTypeOption}_${rowIdx}"
+                                       value="${eles.fromFilterConfig}" ${checkFilterTypeFromConfig}>
+                                   <label class="custom-control-label"
+                                       for="fromFlt_${rowIdx}">${$(`#${i18nNames.filterCfgID}`).text()}</label>
+                               </div>
+                        <input type="hidden" id="filterColumnId_${rowIdx}"
                                         name="filterColumnId" value="${selectedFilterColumnId}">
-                                     <span class="mcs-selection__rendered"
-                                        id="mcs-filterType_${rowIdx}"
-                                        role="textbox" aria-readonly="true"
-                                        title="">${selectedFilterItemName}</span>
-                                    <span class="mcs-selection__arrow"
-                                        role="presentation">
-                                        <b role="presentation"></b>
-                                    </span>
-                                </span>
-                            </span>
-                            <span class="dropdown-wrapper" aria-hidden="true"></span>
-                        </span>
-                        <span id="mcs-filter-items-options_${rowIdx}"
-                            class="mcs-container mcs-container--default mcs-container--open"
-                            style="position: absolute;">
-                            <span name="${eles.filterType}"
-                                class="mcs-dropdown mcs-dropdown--below" dir="ltr" style="width: 200px;">
-                                <div class="custom-control custom-radio mcs-options hide">
-                                    <input type="radio" class="custom-control-input"
-                                        id="fromFlt_${rowIdx}" name="${eles.filterTypeOption}_${rowIdx}"
-                                        value="${eles.fromFilterConfig}" ${checkFilterTypeFromConfig}>
-                                    <label class="custom-control-label"
-                                        for="fromFlt_${rowIdx}">${$(`#${i18nNames.filterCfgID}`).text()}</label>
-                                </div>
-                                <span class="mcs-search mcs-search--dropdown">
-                                    <input id="mcs-searchbox_${rowIdx}"
-                                        class="mcs-search__field search-column"
-                                        data-row-id="${rowIdx}" type="search">
-                                </span>
-                                <span class="mcs-results">
-                                    <ul class="mcs-results__options" role="listbox"
-                                        id="filterTypeFromConfig_${rowIdx}" aria-expanded="true"
-                                        aria-hidden="false" ${showHideFromConfig}>
-                                        ${fromFilterConfigItemOptions.join('')}
-                                    </ul>
-                                    <ul class="mcs-results__options" role="listbox"
-                                        id="filterTypeShowAll_${rowIdx}" aria-expanded="true"
-                                        aria-hidden="false" ${showHideShowAll}>
-                                        ${showAllItemOptions.join('')}
-                                    </ul>
-                                </span>
-                            </span>
-                        </span>
+                        <select ${showHideFromConfig} id="filterTypeFromConfig_${rowIdx}" class="form-control select2-selection--single filter-selection">
+                            ${fromFilterConfigItemOptions.join('')}
+                        </select>
+                        <select ${showHideShowAll} id="filterTypeShowAll_${rowIdx}" class="form-control select2-selection--single filter-selection">
+                            ${showAllItemOptions.join('')}
+                        </select>
                     </div>
                     <div class="msc-label ${inputInRows.hide}"><span>${selectedFilterItemName}</span></div>
                 </td>
@@ -553,8 +462,8 @@ const visualModule = (() => {
                     <div class="msc-input ${inputInRows.show}">
                         <select name="filterValue"
                             id="filterValue_${rowIdx}"
-                            class="form-control filter-values">
-                        ${filterValueOptions.join('')}
+                            class="form-control select2-selection--single">
+                                ${filterValueOptions.join('')}
                     </select>
                     </div>
                     <div class="msc-label ${inputInRows.hide}"><span>${filterValueName || ''}</span></div>
@@ -665,8 +574,8 @@ const visualModule = (() => {
 
         const visualizations = cfgProcess.getVisualizations();
         let tblConfigDOM = '';
-        _.sortBy(visualizations, 'order').forEach((cfgVisualization) => {
-            const [_, rowDOM] = addConfigRow(cfgVisualization);
+        _.sortBy(visualizations, 'order').forEach((cfgVisualization, index) => {
+            const [_, rowDOM] = addConfigRow(cfgVisualization, undefined, undefined, index);
             tblConfigDOM += rowDOM;
         });
         eles.tblConfigBody.html(tblConfigDOM);
@@ -674,6 +583,7 @@ const visualModule = (() => {
         dragDropRowInTable.sortRowInTable(filterElements.tblVisualConfig);
 
         initializeDateTimePicker(null, true);
+        addAttributeToElement();
     };
 
     const getEles = () => {
@@ -911,22 +821,14 @@ const visualModule = (() => {
 
     const initRowEvents = (currentRowEle) => {
         initializeDateTimePicker(null, true);
-        initRowSelect2(currentRowEle);
+        addAttributeToElement();
         const rowIdx = currentRowEle.attr('id');
-        openOptions(rowIdx);
-        hideFilterItems(rowIdx);
-        hoveringOptions(rowIdx);
         onChangeControlColumn(rowIdx);
         onChangeFilterType(rowIdx);
         onSelectFilterTypeValue(rowIdx);
         onChangeFilterValue(rowIdx);
         onClickFilterValue(rowIdx);
         searchColumns(rowIdx);
-    };
-
-    const initRowSelect2 = (rowElement) => {
-        rowElement.find('.filter-items').select2();
-        rowElement.find('.filter-values').select2();
     };
 
     const updateLabel = (e, action = '') => {
@@ -994,7 +896,7 @@ const visualModule = (() => {
         // const filteroptVal = getValueFromFilterOption(filterColumns[i], filterValues[i]);
         const getFilterName = (filterOption, filterColId = false) => {
             if (filterOption === defaultFilter.DEFAULT.name || filterColId === defaultFilter.DEFAULT.name) {
-                return $(defaultFilter.DEFAULT.i18n).text();
+                return '';
             }
 
             if (filterColId) {
@@ -1002,7 +904,7 @@ const visualModule = (() => {
             }
 
             if (dicCols[filterOption]) {
-                return dicCols[filterOption].name;
+                return dicCols[filterOption].shown_name;
             }
         };
         console.timeEnd('getConfigItems');
@@ -1011,7 +913,7 @@ const visualModule = (() => {
                 const controlCol = dicCols[controlColumns[i]];
                 let controlColName = '';
                 if (controlCol) {
-                    controlColName = controlCol.name;
+                    controlColName = controlCol.shown_name;
                 }
                 const filterColName = getFilterName(filterColumns[i]);
                 const filterColVal = getFilterName(filterValues[i], filterColumns[i]);
@@ -1039,11 +941,11 @@ const visualModule = (() => {
 
     const buildReferences = () => {
         const procFilters = cfgProcess.getFilters();
-        const filterValues = { default: i18nNames.partNoDefaultName };
+        const filterValues = { default: '' };
         if (procFilters.length) {
             procFilters.forEach((filter, i) => {
                 filterValues[filter.column_id] = {};
-                filterValues[filter.column_id][i18nNames.partNoDefaultName.trim()] = 'default';
+                filterValues[filter.column_id][i18nNames.partNoDefaultName.trim()] = '';
                 filter.filter_details.forEach((f, _) => {
                     filterValues[filter.column_id][`${f.name}`] = f.id;
                 });
@@ -1051,9 +953,9 @@ const visualModule = (() => {
         }
         const dictCols = cfgProcess.dicColumns;
         const controlColumn = {};
-        controlColumn[i18nNames.partNoDefaultName.trim()] = 'default';
+        controlColumn[i18nNames.partNoDefaultName.trim()] = '';
         Object.keys(dictCols).forEach((key) => {
-            controlColumn[dictCols[key].name] = dictCols[key].id;
+            controlColumn[dictCols[key].shown_name] = dictCols[key].id;
         });
         return {
             controlColumn,
@@ -1126,19 +1028,14 @@ const visualModule = (() => {
     };
     const generateSpreadSheet = (filterName) => {
         const getCols = () => {
-            const headerLabels = [];
+            const headerLabels = $('#tblVisualConfig_th').text().split('|');
             const colWidths = [];
-            $('#tblVisualConfig').find('thead th span').each((_, th) => {
-                const colspan = $(th).parent().attr('colspan');
-                const headerName = $(th).text();
-                const colWidth = $(th).parent().width() + 6;
-                if (colspan) {
-                    headerLabels.push(...Array(Number(colspan)).fill(headerName));
-                    colWidths.push(...Array(Number(colspan)).fill(colWidth / 2));
-                } else if (headerName) {
-                    headerLabels.push(headerName);
-                    colWidths.push(colWidth);
+            $('#tblVisualConfig').find('thead th.get-header').each((i, th) => {
+                let colWidth = $(th).width() + 6;
+                if ([6,7].includes(i)) {
+                    colWidth += 20;
                 }
+                colWidths.push(colWidth)
             });
             const spreadWidth = colWidths.reduce((a, b) => a + b);
             const orgTableWidth = $('table#tblVisualConfig').width();
@@ -1285,8 +1182,9 @@ const visualModule = (() => {
 
         const mergedConfigRows = mergeData(editData, settingData);
         let tblConfigDOM = '';
+        let index = 0;
         for (const configRow of mergedConfigRows) {
-            const [_, rowDOM] = addConfigRow(configRow, false, true);
+            const [_, rowDOM] = addConfigRow(configRow, false, true, index++);
             tblConfigDOM += rowDOM;
         }
         $(eles.tblConfigBody).html(tblConfigDOM);

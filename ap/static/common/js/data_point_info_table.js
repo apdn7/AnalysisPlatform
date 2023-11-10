@@ -271,6 +271,7 @@ const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
             data.serial.forEach((serial) => {
                 tblContent += genTRItems('Serial', serial);
             });
+            tblContent += genTRItems('Time sort', data.time_numberings);
             tblContent += genTRItems('Elapsed time', data.elapsed_time);
         }
         tblContent += genTRItems('', '');

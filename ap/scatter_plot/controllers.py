@@ -9,11 +9,11 @@ scatter_plot_blueprint = Blueprint(
     __name__,
     template_folder=os.path.join('..', 'templates', 'scatter_plot'),
     static_folder=os.path.join('..', 'static', 'scatter_plot'),
-    url_prefix='/ap'
+    url_prefix='/ap',
 )
 
 
 @scatter_plot_blueprint.route('/scp')
 def index():
     output_dict = get_common_config_data()
-    return render_template("scatter_plot.html", **output_dict)
+    return render_template('scatter_plot.html', **output_dict)

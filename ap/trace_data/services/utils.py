@@ -16,13 +16,13 @@ def get_valid_procs(procs):
         if len(filter_info[key]) > 0:
             filter_time = False
             for item in filter_info[key]:
-                if item.get('item_info', {}) \
-                        and item['item_info'].get('type') \
-                        and item['item_info']['type'] == 'datehour-range':
+                if (
+                    item.get('item_info', {})
+                    and item['item_info'].get('type')
+                    and item['item_info']['type'] == 'datehour-range'
+                ):
                     filter_time = True
             if filter_time:
                 proc_list.append((key, proc_master[key]))
 
     return proc_list
-
-

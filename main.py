@@ -2,19 +2,25 @@ import os
 import sys
 
 from ap import create_app, get_basic_yaml_obj, get_start_up_yaml_obj, init_db
-from ap.common.scheduler import JobType
+from ap.common.clean_expired_request import add_job_delete_expired_request
+from ap.common.clean_old_data import (
+    add_job_delete_old_zipped_log_files,
+    add_job_zip_all_previous_log_files,
+)
+from ap.common.constants import ANALYSIS_INTERFACE_ENV
+from ap.script.disable_terminal_close_button import disable_terminal_close_btn
 
 # main params
 param_cnt = len(sys.argv)
 port = None
 
-env = os.environ.get('ANALYSIS_INTERFACE_ENV', 'prod')
+env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
 app = create_app('config.%sConfig' % env.capitalize())
 
 if __name__ == '__main__':
-    from ap.common.logger import set_log_config
-    from ap.common.check_available_port import check_available_port
     from ap.common.backup_db import add_backup_dbs_job
+    from ap.common.check_available_port import check_available_port
+    from ap.common.logger import set_log_config
     from ap.common.memoize import clear_cache
 
     set_log_config()
@@ -53,15 +59,15 @@ if __name__ == '__main__':
 
         CfgConstant.initialize_disk_usage_limit()
 
-    from ap.common.clean_old_data import run_clean_data_job
-    from ap.common.common_utils import get_data_path, bundle_assets
     from ap.api.setting_module.services.polling_frequency import add_idle_mornitoring_job
+    from ap.common.common_utils import bundle_assets
 
-    run_clean_data_job(folder=get_data_path(), num_day_ago=30, job_repeat_sec=24 * 60 * 60)
-    # clean log file 7 days (1 day for demo release4.1.0)
-    run_clean_data_job(job_name=JobType.CLEAN_LOG.name, folder=get_data_path(is_log=True), num_day_ago=7,
-                       job_repeat_sec=24 * 60 * 60)
+    add_job_zip_all_previous_log_files()
+    add_job_delete_old_zipped_log_files()
     add_idle_mornitoring_job()
+
+    # delete req_id created > 24h ago
+    add_job_delete_expired_request()
 
     # TODO : OSS
     # check and update R-Portable folder
@@ -100,10 +106,14 @@ if __name__ == '__main__':
     with app.app_context():
         bundle_assets(app)
 
+    if not app.config.get('TESTING'):
+        # hide close button of cmd
+        disable_terminal_close_btn()
+
     if env == 'dev':
         print('Development Flask server !!!')
         # use_reloader=False to avoid scheduler load twice
-        app.run(host="0.0.0.0", port=port, threaded=True, debug=is_debug, use_reloader=False)
+        app.run(host='0.0.0.0', port=port, threaded=True, debug=is_debug, use_reloader=False)
         # app.run(host="0.0.0.0", port=port, threaded=True, debug=is_debug)
     else:
         from waitress import serve

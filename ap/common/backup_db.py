@@ -1,16 +1,23 @@
 import os
 from datetime import datetime
-from pytz import utc
-from dateutil import tz
 
 from apscheduler.triggers.cron import CronTrigger
+from dateutil import tz
+from pytz import utc
 
-from ap import log_execution, dic_config, SQLITE_CONFIG_DIR, APP_DB_FILE, UNIVERSAL_DB_FILE, make_dir, \
-    get_basic_yaml_obj
+from ap import (
+    APP_DB_FILE,
+    SQLITE_CONFIG_DIR,
+    UNIVERSAL_DB_FILE,
+    dic_config,
+    get_basic_yaml_obj,
+    log_execution,
+    make_dir,
+)
 from ap.common.common_utils import copy_file
 from ap.common.constants import AUTO_BACKUP
 from ap.common.logger import log_execution_time
-from ap.common.scheduler import scheduler_app_context, JobType, add_job_to_scheduler
+from ap.common.scheduler import JobType, add_job_to_scheduler, scheduler_app_context
 from ap.setting_module.services.background_process import send_processing_info
 
 BACKUP_TRANS_DATA_INTERVAL_DAY = 7
@@ -50,7 +57,7 @@ def backup_dbs():
 
 @scheduler_app_context
 def backup_dbs_job(_job_id, _job_name, *args, **kwargs):
-    """ backup config database
+    """backup config database
 
     Keyword Arguments:
         _job_id {[type]} -- [description] (default: {None})
@@ -70,7 +77,15 @@ def add_backup_dbs_job(is_run_now=None):
     local_datetime = datetime(today.year, today.month, today.day, *backup_db_at)
     # convert to utc
     utc_datetime = local_datetime.astimezone(tz.tzutc())
-    trigger = CronTrigger(hour=utc_datetime.hour, minute=backup_db_at[1], second=backup_db_at[2], timezone=utc)
+    trigger = CronTrigger(
+        hour=utc_datetime.hour, minute=backup_db_at[1], second=backup_db_at[2], timezone=utc
+    )
     kwargs = dict(_job_id=job_name, _job_name=job_name)
-    add_job_to_scheduler(job_id=job_name, job_name=job_name, trigger=trigger, import_func=backup_dbs_job,
-                         run_now=is_run_now, dic_import_param=kwargs)
+    add_job_to_scheduler(
+        job_id=job_name,
+        job_name=job_name,
+        trigger=trigger,
+        import_func=backup_dbs_job,
+        run_now=is_run_now,
+        dic_import_param=kwargs,
+    )

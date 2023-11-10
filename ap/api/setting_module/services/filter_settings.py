@@ -1,6 +1,11 @@
 from ap.common.constants import CfgFilterType, RelationShip
-from ap.setting_module.models import CfgFilter, CfgFilterDetail, make_session, get_or_create, CfgProcess, \
-    insert_or_update_config, crud_config
+from ap.setting_module.models import (
+    CfgFilter,
+    CfgFilterDetail,
+    crud_config,
+    insert_or_update_config,
+    make_session,
+)
 
 
 def get_filter_request_data(params):
@@ -23,24 +28,46 @@ def get_filter_request_data(params):
     if not filter_detail_start_froms:
         filter_detail_start_froms = [None] * len(filter_detail_ids)
 
-    return [process_id, filter_id, filter_type, column_id,
-            filter_detail_ids, filter_detail_conds, filter_detail_names,
-            filter_parent_detail_ids, filter_detail_functions, filter_detail_start_froms, filter_name]
+    return [
+        process_id,
+        filter_id,
+        filter_type,
+        column_id,
+        filter_detail_ids,
+        filter_detail_conds,
+        filter_detail_names,
+        filter_parent_detail_ids,
+        filter_detail_functions,
+        filter_detail_start_froms,
+        filter_name,
+    ]
 
 
 def save_filter_config(params):
-    [process_id, filter_id, filter_type, column_id,
-     filter_detail_ids, filter_detail_conds, filter_detail_names, filter_parent_detail_ids,
-     filter_detail_functions, filter_detail_start_froms, filter_name] = get_filter_request_data(params)
+    [
+        process_id,
+        filter_id,
+        filter_type,
+        column_id,
+        filter_detail_ids,
+        filter_detail_conds,
+        filter_detail_names,
+        filter_parent_detail_ids,
+        filter_detail_functions,
+        filter_detail_start_froms,
+        filter_name,
+    ] = get_filter_request_data(params)
 
     with make_session() as meta_session:
-        cfg_filter = CfgFilter(**{
-            'id': int(filter_id) if filter_id else None,
-            'process_id': process_id,
-            'name': filter_name,
-            'column_id': column_id,
-            'filter_type': filter_type,
-        })
+        cfg_filter = CfgFilter(
+            **{
+                'id': int(filter_id) if filter_id else None,
+                'process_id': process_id,
+                'name': filter_name,
+                'column_id': column_id,
+                'filter_type': filter_type,
+            }
+        )
         cfg_filter = insert_or_update_config(meta_session, cfg_filter)
         meta_session.commit()
 
@@ -50,25 +77,29 @@ def save_filter_config(params):
         num_details = len(filter_detail_conds)
         filter_details = []
         for idx in range(num_details):
-            filter_detail = CfgFilterDetail(**{
-                'id': int(filter_detail_ids[idx]) if filter_detail_ids[idx] else None,
-                'filter_id': cfg_filter.id,
-                'name': filter_detail_names[idx],
-                'parent_detail_id': filter_parent_detail_ids[idx] or None,
-                'filter_condition': filter_detail_conds[idx],
-                'filter_function': filter_detail_functions[idx] or None,
-                'filter_from_pos': filter_detail_start_froms[idx] or None,
-            })
+            filter_detail = CfgFilterDetail(
+                **{
+                    'id': int(filter_detail_ids[idx]) if filter_detail_ids[idx] else None,
+                    'filter_id': cfg_filter.id,
+                    'name': filter_detail_names[idx],
+                    'parent_detail_id': filter_parent_detail_ids[idx] or None,
+                    'filter_condition': filter_detail_conds[idx],
+                    'filter_function': filter_detail_functions[idx] or None,
+                    'filter_from_pos': filter_detail_start_froms[idx] or None,
+                }
+            )
             filter_details.append(filter_detail)
 
-        crud_config(meta_session=meta_session,
-                    data=filter_details,
-                    model=CfgFilterDetail,
-                    key_names=CfgFilterDetail.id.key,
-                    parent_key_names=CfgFilterDetail.filter_id.key,
-                    parent_obj=cfg_filter,
-                    parent_relation_key=CfgFilter.filter_details.key,
-                    parent_relation_type=RelationShip.MANY)
+        crud_config(
+            meta_session=meta_session,
+            data=filter_details,
+            model=CfgFilterDetail,
+            key_names=CfgFilterDetail.id.key,
+            parent_key_names=CfgFilterDetail.filter_id.key,
+            parent_obj=cfg_filter,
+            parent_relation_key=CfgFilter.filter_details.key,
+            parent_relation_type=RelationShip.MANY,
+        )
     return filter_id
 
 

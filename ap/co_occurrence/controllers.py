@@ -9,11 +9,11 @@ co_occurrence_blueprint = Blueprint(
     __name__,
     template_folder=os.path.join('..', 'templates', 'co_occurrence'),
     static_folder=os.path.join('..', 'static', 'co_occurrence'),
-    url_prefix='/ap'
+    url_prefix='/ap',
 )
 
 
 @co_occurrence_blueprint.route('/cog')
 def index():
     output_dict = get_common_config_data(get_visualization_config=False)
-    return render_template("co_occurrence_csv.html", **output_dict)
+    return render_template('co_occurrence_csv.html', **output_dict)

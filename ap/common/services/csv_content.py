@@ -1,21 +1,25 @@
 # CSVコンテンツを生成するService
 # read(dic_form, local_params)が外向けの関数
+import codecs
 import csv
 import decimal
 import io
+
 # https://stackoverrun.com/ja/q/6869533
 import logging
 import math
 import re
-from datetime import datetime, date, time
+from datetime import date, datetime, time
 from itertools import islice
 from zipfile import ZipFile
 
+import numpy as np
+import pandas as pd
 from flask import Response
 from pandas import Series
 
-from ap.api.efa.services.etl import detect_file_delimiter
-from ap.common.common_utils import detect_encoding
+from ap.api.efa.services.etl import detect_file_stream_delimiter
+from ap.common.common_utils import detect_encoding, is_normal_zip, open_with_zip
 from ap.common.constants import *
 from ap.common.logger import log_execution_time
 from ap.common.services.normalization import normalize_list
@@ -23,9 +27,9 @@ from ap.common.services.normalization import normalize_list
 logger = logging.getLogger(__name__)
 
 
-def gen_csv_fname(export_type="csv"):
-    timestr = datetime.utcnow().strftime("%Y%m%d_%H%M%S.%f")[:-3]
-    csv_fname = "{0:s}_out.{1:s}".format(timestr, export_type)
+def gen_csv_fname(export_type='csv'):
+    timestr = datetime.utcnow().strftime('%Y%m%d_%H%M%S.%f')[:-3]
+    csv_fname = '{0:s}_out.{1:s}'.format(timestr, export_type)
     return csv_fname
 
 
@@ -35,12 +39,22 @@ def read_data(f_name, headers=None, skip_head=None, end_row=None, delimiter=',',
     else:
         normalize_func = lambda x: x
 
-    encoding = detect_encoding(f_name)
-    if not delimiter:
-        delimiter = detect_file_delimiter(f_name, ',')
+    with open_with_zip(f_name, 'rb') as f:
+        metadata = get_metadata(f, is_full_scan_metadata=True, default_csv_delimiter=',')
+        delimiter = metadata.get(DELIMITER_KW)
+        encoding = metadata.get(ENCODING_KW)
 
-    with open(f_name, "r", encoding=encoding) as f:
-        rows = csv.reader((line.replace('\0', '') for line in f), delimiter=delimiter)
+    with open_with_zip(f_name, 'r', encoding=encoding) as f:
+        _f = f
+        if is_normal_zip(f_name):
+            _f = codecs.iterdecode(f, encoding)
+        try:
+            rows = csv.reader(_f, delimiter=delimiter)
+        except Exception:
+            rows = csv.reader((line.replace('\0', '') for line in _f), delimiter=delimiter)
+
+        if isinstance(rows, bytes):
+            rows = rows.decode(encoding)
 
         # skip tail
         if end_row is not None:
@@ -60,12 +74,25 @@ def read_data(f_name, headers=None, skip_head=None, end_row=None, delimiter=',',
             yield normalize_func(row)
 
 
-def gen_data_types(data: Series):
+def gen_data_types(data: Series, is_v2=False):
     """
     check datatype of a list of columns
     :param data:
     :return:
     """
+
+    # try to convert dtypes from float to int
+    # if data=[1.0, 2.0] (to avoid wrong data-type prediction)
+    if is_v2:
+        try:
+            df = pd.DataFrame({COL_NAME: data})
+            df[COL_NAME] = df[COL_NAME].astype(str)
+            is_int_types = pd.Series(df[COL_NAME]).str.match(r'^\d*.0$').tolist()
+            if False not in is_int_types:
+                return DataType.INTEGER.value
+        except Exception:
+            pass
+
     data_types = [check_data_type(val) for val in data]
 
     if DataType.TEXT in data_types:
@@ -106,7 +133,9 @@ def check_float_type(data: Series):
 
     def count_inf(s: Series) -> int:
         s_str = preprocess(s)
-        return ((s == math.inf) | (s_str == INF_STR.lower())).sum() or ((s == -math.inf) | (s_str == MINUS_INF_STR.lower())).sum()
+        return ((s == math.inf) | (s_str == INF_STR.lower())).sum() or (
+            (s == -math.inf) | (s_str == MINUS_INF_STR.lower())
+        ).sum()
 
     cast_float = data[preprocess(data) != ''].astype(float)
 
@@ -145,6 +174,13 @@ def check_data_type(data):
     if str(data).lower() in [INF_STR.lower(), MINUS_INF_STR.lower()]:
         return DataType.REAL
 
+    # for 'nan'
+    try:
+        if np.isnan(float(data)):
+            return DataType.NULL
+    except ValueError:
+        pass
+
     try:
         if str(int(data)) == str(data):
             return check_large_int_type(data)
@@ -160,7 +196,7 @@ def check_data_type(data):
         pass
 
     try:
-        re_dt = r'^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}[\sT]\d{1,2}:\d{1,2}(:\d{1,2})?(\.\d{3,7})?((\s?([+-]?\d{1,2}:\d{2})?)|Z)?$'
+        re_dt = r'^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}[\sT]\d{1,2}:\d{1,2}(:\d{1,2})?(\.\d+)?((\s?([+-]?\d{1,2}:\d{2})?)|Z)?$'
         matches = re.match(re_dt, data)
         if matches:
             return DataType.DATETIME
@@ -218,6 +254,19 @@ def check_large_int_type(val):
 
 
 @log_execution_time()
+def check_exception_case(data_headers, data_rows):
+    # exception case 1&2 from factory data
+    # header: col_1,col2
+    # row (1 only) with trailing comma: val_1,val_2,
+    with_trailing_comma = False not in [row[-1] == '' for row in data_rows]
+    if with_trailing_comma:
+        is_exception_case = False not in [len(row) == (len(data_headers) + 1) for row in data_rows]
+        if is_exception_case:
+            return True
+    return False
+
+
+@log_execution_time()
 def is_normal_csv(f_name, delimiter=','):
     """
     check if csv is normal type
@@ -241,6 +290,10 @@ def is_normal_csv(f_name, delimiter=','):
     # if len(headers) != len(set(headers)):
     #     return False
 
+    is_exception = check_exception_case(headers, rows)
+    if is_exception:
+        return True
+
     # check column number of header vs data
     for row in rows:
         if len(row) != len(headers):
@@ -249,14 +302,45 @@ def is_normal_csv(f_name, delimiter=','):
     return True
 
 
-def zip_file_to_response(csv_data, file_names):
+def get_metadata(file_stream, is_full_scan_metadata, default_csv_delimiter):
+    # todo get_metadata.metadata --> maybe bug when run job ??
+    dict_metadata = getattr(get_metadata, 'metadata', None)
+    if not dict_metadata:
+        # methodname.variable : variable is not deleted after function call
+        get_metadata.metadata = {DELIMITER_KW: None, ENCODING_KW: None}  # trick for cache
+
+    if is_full_scan_metadata:
+        encoding = detect_encoding(file_stream)
+        file_delimiter = detect_file_stream_delimiter(file_stream, default_csv_delimiter, encoding)
+        get_metadata.metadata[ENCODING_KW] = encoding
+        get_metadata.metadata[DELIMITER_KW] = file_delimiter
+    else:
+        encoding = get_metadata.metadata.get(ENCODING_KW)
+        if not encoding:
+            encoding = detect_encoding(file_stream)
+            get_metadata.metadata[ENCODING_KW] = encoding
+        file_delimiter = get_metadata.metadata.get(DELIMITER_KW)
+        if not file_delimiter:
+            file_delimiter = detect_file_stream_delimiter(
+                file_stream, default_csv_delimiter, encoding
+            )
+            get_metadata.metadata[DELIMITER_KW] = file_delimiter
+
+    return get_metadata.metadata
+
+
+def zip_file_to_response(csv_data, file_names, export_type='csv'):
+    encoding = UTF8_WITH_BOM if export_type == 'csv' else UTF8_WITHOUT_BOM
     if len(csv_data) == 1:
         csv_data = csv_data[0]
-        csv_filename = gen_csv_fname()
-        response = Response(csv_data.encode("utf-8-sig"), mimetype="text/csv",
-                            headers={
-                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                            })
+        csv_filename = gen_csv_fname(export_type)
+        response = Response(
+            csv_data.encode(encoding),
+            mimetype=f'text/{export_type}',
+            headers={
+                'Content-Disposition': 'attachment;filename={}'.format(csv_filename),
+            },
+        )
     else:
         csv_filename = gen_csv_fname('zip')
         outfile = io.BytesIO()
@@ -265,10 +349,14 @@ def zip_file_to_response(csv_data, file_names):
                 zf.writestr(name, data)
 
         zip_dat = outfile.getvalue()
-        response = Response(zip_dat, mimetype="application/octet-stream",
-                            headers={
-                                "Content-Type": "application/octet-stream",
-                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                            })
+        response = Response(
+            zip_dat,
+            mimetype='application/octet-stream',
+            headers={
+                'Content-Type': 'application/octet-stream',
+                'Content-Disposition': 'attachment;filename={}'.format(csv_filename),
+            },
+        )
 
+    response.charset = encoding
     return response

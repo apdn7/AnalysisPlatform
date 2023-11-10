@@ -1,7 +1,8 @@
 import re
-
-import pandas as pd
 import unicodedata
+
+import numpy as np
+import pandas as pd
 from pandas import DataFrame
 
 from ap.common.logger import log_execution_time
@@ -10,9 +11,10 @@ NORMALIZE_FORM = 'NFKC'
 ZEN_SPACE = '　'
 HAN_SPACE = ' '
 REPLACE_PAIRS = (('°C', '℃'), ('°F', '℉'))
-DIC_IGNORE_NORMALIZATION = {'cfg_data_source_csv': ['directory', 'etl_func'],
-                            'cfg_data_source_db': ['host', 'dbname', 'schema', 'username', 'password']
-                            }
+DIC_IGNORE_NORMALIZATION = {
+    'cfg_data_source_csv': ['directory', 'etl_func'],
+    'cfg_data_source_db': ['host', 'dbname', 'schema', 'username', 'password'],
+}
 
 
 def unicode_normalize_nfkc(text):
@@ -58,6 +60,8 @@ def normalize_big_rows(rows, headers=None, strip_quote=True, return_dataframe=Tr
         if strip_quote:
             df[col] = df[col].astype(str).str.strip("'")
 
+        # for preview, show empty if there is NA
+        df[col] = df[col].fillna('')
         normalize_df(df, col)
 
     if return_dataframe:

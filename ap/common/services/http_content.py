@@ -6,7 +6,9 @@ from functools import singledispatch
 
 import numpy as np
 import pandas as pd
-from numpy import ndarray, int32, float64, int16, int8, float32, int64
+import simplejson
+from numpy import float32, float64, int8, int16, int32, int64, ndarray
+from orjson import OPT_NON_STR_KEYS, OPT_PASSTHROUGH_DATETIME, OPT_SERIALIZE_NUMPY, orjson
 from pandas import DataFrame, Series
 
 from ap.common.constants import DataType
@@ -91,3 +93,17 @@ def _(obj):
     if hasattr(obj, 'to_dict'):
         return obj.to_dict('list')
     return json.JSONEncoder.default(obj)
+
+
+def orjson_dumps(dic_data):
+    json_str = orjson.dumps(
+        dic_data,
+        option=OPT_NON_STR_KEYS | OPT_SERIALIZE_NUMPY | OPT_PASSTHROUGH_DATETIME,
+        default=json_serial,
+    )
+
+    return json_str
+
+
+def json_dumps(dic_data):
+    return simplejson.dumps(dic_data, ensure_ascii=False, default=json_serial, ignore_nan=True)

@@ -11,10 +11,6 @@
     margin: 10px 0;
 }
 
-.header-left {
-    float: left !important;
-}
-
 .vertical-center {
     align-items: center;
     display: flex;
@@ -360,7 +356,7 @@ td.pr-row {
     border-bottom: 1px solid #444 !important;
 }
 
-.jexcel > tbody > tr > td:nth-child(n+3):nth-child(-n+6) {
+.jexcel > tbody > tr > td:nth-child(n+3):nth-child(-n+5) {
     text-align: center !important;
 }
 
@@ -383,4 +379,55 @@ td.pr-row {
 
 .custom-checkbox .custom-control-input:disabled:checked ~ .custom-control-label::before {
     background-color: rgb(57 74 93);
+}
+.select2-search__field {
+    background-color: #222222 !important;
+}
+
+#procSettingModal .modal-header {
+    padding: 0.3rem 1rem;
+}
+#procSettingModal .modal-header .close {
+    padding: 0.3rem 0.3rem;
+    margin: 0 -0.3rem 0 auto;
+}
+#procSettingModal .modal-body {
+    padding: 0.3rem 1rem;
+}
+#procSettingModal .form-group {
+    margin-bottom: 0.3rem;
+}
+#procSettingModal .col-form-label {
+    padding-bottom: 0.3rem !important;
+}
+#procSettingModal .table th, #procSettingModal .table td {
+    padding: 0.2rem 0.75rem !important;
+}
+/* for header of preview table */
+#procSettingModal .table .thead-light th {
+    color: white;
+    background-color: #5a5959;
+    /*font-weight: lighter;*/
+}
+#procSettingModal .custom-control-input:disabled ~ .custom-control-label {
+    color: white;
+}
+#procSettingModal .btn-right {
+    margin: 0.3rem 0 !important;
+}
+#procSettingModal .setting-content-detail {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: flex-start;
+    justify-content: center;
+}
+#procSettingModal .modal-footer {
+    padding: 0.3rem 1rem;
+}
+
+.process-name-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 15px;
 }

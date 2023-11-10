@@ -26,7 +26,7 @@ class Databases {
         this.POLLING_FREQ = 0;
 
         // Default config
-        this.DEFAULT_CONFIGS = {
+        this.DB_CONFIGS = {
             POSTGRESQL: {
                 type: 'postgresql',
                 port: 5432,
@@ -74,6 +74,13 @@ class Databases {
             },
             CSV: {
                 type: 'csv',
+                directory: '',
+                delimiter: 'CSV',
+                'polling-frequency': 1,
+                use_os_timezone: false,
+            },
+            V2: {
+                type: 'v2',
                 directory: '',
                 delimiter: 'CSV',
                 'polling-frequency': 1,
@@ -157,8 +164,8 @@ class Databases {
             // get origin data item
             this.dbCfg = this.instances.db[id];
         } else {
-            const key = Object.keys(this.DEFAULT_CONFIGS).filter(k => this.DEFAULT_CONFIGS[k].type === type);
-            this.dbCfg = this.DEFAULT_CONFIGS[key];
+            const key = Object.keys(this.DB_CONFIGS).filter(k => this.DB_CONFIGS[k].type === type);
+            this.dbCfg = this.DB_CONFIGS[key];
         }
         return this.dbCfg;
     }

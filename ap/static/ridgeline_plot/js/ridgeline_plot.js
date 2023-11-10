@@ -9,10 +9,6 @@ let valueInfo = null;
 const graphStore = new GraphStore();
 const dicTabs = { '#byCategory': 'category', '#byCyclicTerm': 'cyclicTerm', '#byDirectTerm': 'directTerm' };
 let resData = null;
-const rlpCardSize = {
-    width: null,
-    height: null,
-};
 // const procMaster = getParam.proc_master;
 const eles = {
     varTabPrefix: 'category',
@@ -117,6 +113,9 @@ $(() => {
         isRequired: true,
         hasDiv: true,
         hideStrVariable: true,
+        showLabels: true,
+        labelAsFilter: true,
+        judge: true,
     });
     varEndProcItem(() => {
         onChangeDivInFacet();
@@ -250,11 +249,7 @@ const createEMDTrace = (emdGroup, emdData, emdColors) => ({
 });
 
 const createEMDByLine = (emdGroup, emdData, emdColors) => {
-    let sortedEmd = [...emdData].sort();
-    const start = Math.floor(sortedEmd.length * 0.05);
-    const end = sortedEmd.length - start;
-    sortedEmd = sortedEmd.slice(start, end);
-    const fmt = sortedEmd.length > 0 ? significantDigitFmt(Math.max(...sortedEmd)) : '';
+    const fmt = getFmtValueOfArrayTrim5Percent(emdData);
     const res = {
         line: { width: 1, color: '#444444' },
         marker: {
@@ -281,7 +276,16 @@ const rlpXAxis = {
     category: [],
     cyclicTerm: [],
     directTerm: [],
+    tickText: []
 };
+
+const judgeXAxis = {
+    category: [],
+    cyclicTerm: [],
+    directTerm: [],
+};
+
+let judgeLayout = [];
 
 const showRidgeLine = (res, eleIdPrefix = 'category', isFilterEmd = false) => {
     const rlpCard = $('#RLPCard');
@@ -291,13 +295,27 @@ const showRidgeLine = (res, eleIdPrefix = 'category', isFilterEmd = false) => {
     const numGraphs = res.array_plotdata.length;
 
     rlpXAxis[eleIdPrefix] = [];
+    judgeXAxis[eleIdPrefix] = [];
+    judgeLayout = [];
 
     const rlpItemHeight = `calc(15vw - 1rem)`;
-
+    const { emdType } = res;
     const { compareType } = res.COMMON;
     const startProc = res.COMMON.start_proc;
+    // check show axis label
+    const showXAxis = $('#showXAxis').is(':checked');
+
+    // generate mock judge data
+    let judgeIndex = 0
+    if (res.ng_rates) {
+        for (const judgeData of res.ng_rates) {
+            judgeData.x = res.rlp_xaxis;
+            renderJudgeChart(eleIdPrefix, rlpCard, judgeIndex, judgeData, startProc, emdType === EMDType.BOTH ? '1' : '', rlpItemHeight, showXAxis)
+            judgeIndex ++;
+        }
+    }
+
     Object.keys(res.array_plotdata).forEach((plotName, plotKey) => {
-        const { emdType } = res;
         let step = emdType === EMDType.BOTH ? 2 : 1;
         let fixedStep = 2;
         let emdIdx = plotKey * (isFilterEmd ? fixedStep : step);
@@ -310,15 +328,177 @@ const showRidgeLine = (res, eleIdPrefix = 'category', isFilterEmd = false) => {
                 showType = i === 1 ? '(Drift)' : '(Diff)';
             }
             renderRidgeLine(rlpCard, eleIdPrefix, res, plotName, startProc, numGraphs,
-                rlpItemHeight, compareType, showType, emdIdx);
+                rlpItemHeight, compareType, showType, emdIdx, showXAxis);
 
             emdIdx += 1;
         }
     });
 };
 
+const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emdType, rlpItemHeight, showXAxis) => {
+    const colId = judgeData.end_col_id;
+    const ngCondition = `${judgeData.NGCondition} ${judgeData.NGConditionValue}`
+    const [CTTile, fromStartProcClass, facetDetailHTML, titleStyle] = genCommonTitleChartInfo(colId, startProcId, judgeData.end_proc_id, judgeData.catExpBox, emdType);
+    const cardId = `judgeChart${colId}-${idx}`;
+    const cardGroupID = `judgeChartGroup${colId}-${idx}`;
+    const showName = `${judgeData.sensor_name}${CTTile} ${ngCondition}`;
+    rlpCard.append(`
+        <div class="ridgeLineItem judgeChart graph-navi${fromStartProcClass}" id="${cardGroupID}">
+             <div class="tschart-title-parent" style="${titleStyle}">
+                <div class="tschart-title" style="width: ${rlpItemHeight};">
+                   <span title="NG rate [%]">NG rate [%]</span>
+                   <span title="${showName}">${showName}</span>
+                   ${facetDetailHTML}
+               </div>
+              </div>
+           <div class="ridgeLineCard-full" id="${cardId}" style="height: ${rlpItemHeight};"></div>
+           <div class="pin-chart">
+               <span class="btn-anchor"
+                    data-pinned="false"
+                    onclick="pinChart('${cardGroupID}');"><i class="fas fa-anchor"></i></span>
+            </div>
+        </div>
+    `);
 
-const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGraphs, rlpItemHeight, compareType, emdType, emdIdx) => {
+    const noneIdxs = judgeData.y.map((rateVal, idx) => rateVal == null ? idx : null).filter(i => i);
+    judgeData.x = judgeData.x.filter((x, idx) => !noneIdxs.includes(idx));
+    judgeData.y = judgeData.y.filter((y, idx) => !noneIdxs.includes(idx));
+    judgeData.categories = judgeData.categories.filter((cat, idx) => !noneIdxs.includes(idx));
+    const [groupName, categories, datetimeCategory, tickTexts, tickVals] = genTickTextAndTickValue(eleIdPrefix, judgeData.categories, [], judgeData.x, 9);
+    judgeXAxis[eleIdPrefix].push(tickVals);
+    const data = [{
+        marker: {
+            colorscale: dnJETColorScale,
+            color: judgeData.y
+        },
+        mode: 'lines+markers',
+        type: 'scatter',
+        y: judgeData.y,
+        x: judgeData.x,
+        hoverinfo: 'none',
+        line: { width: 1, color: '#444444' },
+    }];
+
+    const layout = {
+        font: { color: 'white' },
+        yaxis: {
+            type: 'linear',
+            ticklen: 4,
+            tickmode: 'array',
+            showgrid: true,
+            gridcolor: '#444444',
+            autorange: true,
+            // range: [0, 100], // [0, 1]
+            gridwidth: 1,
+            zeroline: true,
+            nticks: 5,
+            showline: true, // show lines and border here
+            linecolor: '#757575',
+            linewidth: 0.5,
+            mirror: true,
+        },
+        xaxis: {
+            type: 'linear',
+            ticklen: 0,
+            autorange: false,
+            showgrid: true,
+            zeroline: true,
+            gridcolor: '#444444',
+            gridwidth: 1,
+            tickmode: 'array',
+            ticktext: generateTickAsDatetime(tickTexts),
+            tickvals: showXAxis ? tickVals : [],
+            nticks: 20,
+            tickfont: {
+                size: 9,
+            },
+            showline: true, // show lines and border here
+            linecolor: '#757575',
+            linewidth: 1,
+            mirror: true,
+            range: [0.05, 1.2]
+        },
+        margin: {
+            l: 64,
+            r: 10,
+            b: showXAxis ? 23 : 15,
+            t: 10,
+            pad: 5,
+        },
+        autosize: true,
+        showlegend: false,
+        plot_bgcolor: '#222222',
+        paper_bgcolor: '#222222',
+    }
+
+    judgeLayout.push(layout)
+
+    const judgePlot = document.getElementById(cardId);
+
+    Plotly.newPlot(
+        cardId,
+        data,
+        layout,
+        {
+            ...genPlotlyIconSettings(),
+            responsive: true, // responsive
+            useResizeHandler: true, // responsive
+            style: {width: '100%', height: 250}, // responsive
+        },
+    );
+
+    judgePlot.on('plotly_hover', (data) => {
+        const dataPoint = data.points && data.points[0];
+        const y = dataPoint.y;
+        const position =  {x: data.event.pageX - 120, y: data.event.pageY};
+        const pointIndex = dataPoint.pointIndex;
+        const catName = datetimeCategory.length ? 'Category' : 'Div';
+        const catVal = datetimeCategory.length ? datetimeCategory[pointIndex] : categories[pointIndex];
+        const hoverInfo = [
+            [judgeData.sensor_name, ngCondition],
+            ['NG rate', applySignificantDigit(y) + ' %']
+        ];
+        if (!datetimeCategory.length) {
+            hoverInfo.push(['Div', categories[pointIndex]]);
+        } else {
+            const [from, to] = datetimeCategory[pointIndex]
+                ? datetimeCategory[pointIndex].split(COMMON_CONSTANT.EN_DASH)
+                : [null, null];
+            if (from && to) {
+                hoverInfo.push(['From', from]);
+                hoverInfo.push(['To', to]);
+            }
+        }
+        genDataPointHoverTable(
+            genHoverDataTable(hoverInfo),
+            position,
+            120,
+            true,
+            cardId,
+        )
+    });
+
+    unHoverHandler(judgePlot);
+};
+
+const genCommonTitleChartInfo = (colId, startProcId, endProcId, catExpBox, emdType) => {
+    const cfgProcess = procConfigs[parseInt(endProcId)] || procConfigs[endProcId];
+    const column = cfgProcess.getColumnById(colId);
+    const isColCT = column.data_type === DataTypes.DATETIME.name;
+    const CTTile = isColCT ? ` (${DataTypes.DATETIME.short}) [sec]` : '';
+
+    catExpBox = catExpBox && _.isArray(catExpBox) ? catExpBox.join(' | ') : catExpBox;
+
+    const fromStartProcClass = String(startProcId) === String(endProcId) ? ' card-active' : '';
+    const facetLabel = catExpBox && catExpBox !== 'None' ? catExpBox : '';
+    const facetDetailHTML = facetLabel ? `<span class="show-detail cat-exp-box" title="${catExpBox}">${facetLabel}</span>` : '';
+    const titleStyle = facetLabel && emdType ? 'width: 80px' : (facetLabel && !emdType || !facetLabel && emdType) ? 'width: 65px' : '';
+
+    return [CTTile, fromStartProcClass, facetDetailHTML, titleStyle]
+};
+
+
+const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGraphs, rlpItemHeight, compareType, emdType, emdIdx, showXAxis) => {
     // const originalData = [];
     const ridgelineCardID = `${eleIdPrefix}RLPCard-${plotName}-${emdIdx}`;
     const rlpCardGroupID = `${eleIdPrefix}RLPCardGroup-${plotName}-${emdIdx}`;
@@ -326,10 +506,7 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
     const emdData = res.emd[emdIdx] || [];
     const sensorData = res.array_plotdata[plotName];
     const end_proc_id = sensorData.end_proc_id;
-    const cfgProcess = procConfigs[parseInt(end_proc_id)] || procConfigs[end_proc_id];
-    const column = cfgProcess.getColumnById(sensorData.sensor_id);
-    const isColCT = column.data_type === DataTypes.DATETIME.name;
-    const CTTile = isColCT ? ` (${DataTypes.DATETIME.short}) [sec]` : '';
+
     const transEMDFromRidgeline = (emdDat, ridgelines) => {
         const transEMD = [];
         let startkey = 0;
@@ -346,13 +523,10 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
     const emdColors = emdToColor(emdData);
     const rlpColors = [...emdColors];
     const transRLPColors = transEMDFromRidgeline(rlpColors, sensorData.ridgelines);
-    const catExpBox = sensorData.catExpBox && _.isArray(sensorData.catExpBox) ? sensorData.catExpBox.join(' | ') : sensorData.catExpBox;
 
-    const fromStartProcClass = String(startProc) === String(sensorData.end_proc_id) ? ' card-active' : '';
-    const facetLabel = catExpBox && catExpBox !== 'None' ? catExpBox : '';
-    const facetDetailHTML = facetLabel ? `<span class="show-detail cat-exp-box" title="${catExpBox}">${facetLabel}</span>` : '';
-    const titleStyle = facetLabel && emdType ? 'width: 80px' : (facetLabel && !emdType || !facetLabel && emdType) ? 'width: 65px' : '';
-    rlpCard.append(`<div class="ridgeLineItem graph-navi${fromStartProcClass}" id="${rlpCardGroupID}">
+    const [CTTile, fromStartProcClass, facetDetailHTML, titleStyle] = genCommonTitleChartInfo(sensorData.sensor_id, startProc, end_proc_id, sensorData.catExpBox, emdType);
+
+    rlpCard.append(`<div class="ridgeLineItem ridgeLineChart graph-navi${fromStartProcClass}" id="${rlpCardGroupID}">
              <div class="tschart-title-parent" style="${titleStyle}">
                 <div class="tschart-title" style="width: ${rlpItemHeight};">
                    <span title="${sensorData.proc_name}">${sensorData.proc_name}</span>
@@ -369,51 +543,21 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
             </div>
         </div>`);
 
-    // tmp groups for EMD zero case
-    let groupsName;
-    if (sensorData.categories.length === 1 && sensorData.categories.length < sensorData.ridgelines.length) {
-        groupsName = sensorData.ridgelines.map(rlp => rlp.cate_name);
-    } else {
-        groupsName = sensorData.categories;
-    }
-
-
-    const isNumber = value => !Number.isNaN(Number(value));
-
-    const datetimeCategory = [];
-    // convert local time if category is datetime
-    const categories = groupsName.map((group) => {
-        if (eleIdPrefix === eles.varTabPrefix) {
-            return group;
-        }
-        const DATETIME_FORMAT = 'YYYY-MM-DD HH:mm';
-        const timeRange = group.split(' |');
-        if (moment(timeRange[0]).isValid()) {
-            const startDt = timeRange[0];
-            const endDt = timeRange[1];
-            const startDateTime = formatDateTime(startDt, DATETIME_FORMAT);
-            const endDateTime = formatDateTime(endDt, DATETIME_FORMAT);
-            datetimeCategory.push(`${startDateTime} ${COMMON_CONSTANT.EN_DASH} ${endDateTime}${timeRange.slice(2).length ? ` | ${timeRange.slice(2).join(' | ')}` : ''}`);
-            return `${startDateTime}`;
-        }
-        return group;
-    });
-
     const props = {
         mBottom: 50,
     };
 
-    // check show axis label
-    const showXAxis = $('#showXAxis').is(':checked');
+    const { yMin, yMax } = getYSaleOption(sensorData);
+    const yRange = checkTrue(yMax) && checkTrue(yMax) ? [yMin, yMax] : sensorData.rlp_yaxis;
+
+    const [groupName, categories, datetimeCategory, tickTexts, tickVals] = genTickTextAndTickValue(eleIdPrefix, sensorData.categories, sensorData.ridgelines, sensorData.rlp_xaxis, 9);
 
     // rlp new layout
     const rlpLayout = rlpByLineTemplate(
         sensorData.sensor_name,
-        categories,
-        // originXAxis,
-        sensorData.rlp_xaxis,
-        sensorData.rlp_yaxis,
-        nticks = 9,
+        tickTexts, // categories
+        tickVals,
+        yRange,
         compareType,
         showXAxis,
         props,
@@ -488,7 +632,12 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
                     tblContent += genTRItems('From', from);
                     tblContent += genTRItems('To', to);
                 } else {
-                    tblContent += genTRItems('DIV', from);
+                    const divFmt = res.COMMON.divFormat;
+                    if (divFmt) {
+                        tblContent += genTRItems('DIV', applySignificantDigit(Number(from), undefined, divFmt));
+                    } else {
+                        tblContent += genTRItems('DIV', from);
+                    }
                 }
                 tblContent += genTRItems('N', yValue);
                 tblContent += '</tr>';
@@ -524,6 +673,48 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
     // report progress
     loadingUpdate(loadingProgressBackend + emdIdx * ((100 - loadingProgressBackend) / (numGraphs || 1)));
 };
+
+const genTickTextAndTickValue = (eleIdPrefix, categories, ridgelines, xAxisVals, nticks = 9) => {
+     // tmp groups for EMD zero case
+    let groupName = [];
+    if (categories.length === 1 && categories.length < ridgelines.length) {
+        groupName = ridgelines.map(rlp => rlp.cate_name);
+    } else {
+        groupName = categories;
+    }
+
+     const datetimeCategory = [];
+    // convert local time if category is datetime
+    categories = groupName.map((group) => {
+        if (eleIdPrefix === eles.varTabPrefix) {
+            return group;
+        }
+        const DATETIME_FORMAT = 'YYYY-MM-DD HH:mm';
+        const timeRange = group.split(' |');
+        if (moment(timeRange[0]).isValid()) {
+            const startDt = timeRange[0];
+            const endDt = timeRange[1];
+            const startDateTime = formatDateTime(startDt, DATETIME_FORMAT);
+            const endDateTime = formatDateTime(endDt, DATETIME_FORMAT);
+            datetimeCategory.push(`${startDateTime} ${COMMON_CONSTANT.EN_DASH} ${endDateTime}${timeRange.slice(2).length ? ` | ${timeRange.slice(2).join(' | ')}` : ''}`);
+            return `${startDateTime}`;
+        }
+        return group;
+    });
+
+     // re-scale groups in x-axes
+    let tickVals = [...xAxisVals];
+    let tickTexts = [...categories];
+    if (nticks > 0) {
+        const step = Math.ceil(tickTexts.length / nticks); // nticks = 20, groups = 100 -> step = 5
+        const tickIndexs = groupName.map((v, i) => ((i % step === 0) ? i : null)).filter(i => i !== null);
+        tickTexts = categories.filter((v, i) => tickIndexs.includes(i));
+        tickTexts = tickTexts.map(tick => (_.isString(tick) ? tick.replace('|', '<br>~') : tick));
+        tickVals = tickVals.filter((v, i) => tickIndexs.includes(i));
+    }
+
+    return [groupName, categories, datetimeCategory, tickTexts, tickVals];
+}
 
 const isRLPHasFewDataPoint = (res) => {
     let result = false;
@@ -594,7 +785,12 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
         return;
     }
 
+    if (clearOnFlyFilter) {
+        resetGraphSetting();
+    }
+
     showGraphCallApi('/ap/api/rlp/index', formData, REQUEST_TIMEOUT, async (res) => {
+        res = sortResponseData(res);
         resData = res;
         graphStore.setTraceData(_.cloneDeep(res));
         // Sprint73_#18.1 : array_xのlengthをチェックする
@@ -615,9 +811,6 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
         $('select[name=filterEmd]').val(res.emdType);
         $('select[name=filterEmd]').prop('disabled', isDisabledEMD);
 
-        // reset yScaleOption value to graph setting
-        $(formElements.yScaleOption).val(1);
-
         // show graphs
         showRidgeLine(res, eleIdPrefix);
         isGraphShown = true;
@@ -627,16 +820,6 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
 
         loadGraphSetings(clearOnFlyFilter);
 
-        // init filter modal
-        const { catExpBox, cat_on_demand } = res;
-        if (clearOnFlyFilter) {
-            clearGlobalDict();
-            initGlobalDict(catExpBox);
-            initGlobalDict(cat_on_demand);
-            initDicChecked(getDicChecked());
-            initUniquePairList(res.dic_filter);
-        }
-
         if (!autoUpdate) {
              $('html, body').animate({
                 scrollTop: $('#RLPCard').offset().top,
@@ -644,12 +827,51 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
         };
 
         // render cat, category label filer modal
-        fillDataToFilterModal(catExpBox || [], [], cat_on_demand, [], [], () => {
+        fillDataToFilterModal(res.filter_on_demand, () => {
             showGraph(false);
         });
 
         setPollingData(formData, showGraph, [false, true]);
     });
+};
+
+const sortResponseData = (res) => {
+    if (!latestSortColIds.length || !res.array_plotdata) return res;
+    // attach emd to each plotData
+    let index = 0;
+    for (let i = 0; i < res.array_plotdata.length; i += 1) {
+        res.array_plotdata[i].emd = []
+        if (res.emdType === 'both') {
+            for (let j = 0; j < 2; j+=1) {
+                res.array_plotdata[i].emd.push(res.emd[index]);
+                index ++;
+            }
+        } else {
+            res.array_plotdata[i].emd = [res.emd[i]];
+        }
+    }
+
+    res.array_plotdata = sortGraphs(res.array_plotdata, 'sensor_id', latestSortColIds);
+    res.emd = []
+    for (let i = 0; i < res.array_plotdata.length; i += 1) {
+        res.emd.push(...res.array_plotdata[i].emd);
+    }
+
+    return res;
+};
+
+const handleSortGraphPosition = () => {
+    loadingShow();
+    const eleIdPrefix = resData.COMMON.compareType;
+    resData = sortResponseData(resData);
+    showRidgeLine(resData, eleIdPrefix);
+    loadingHide();
+}
+
+
+const resetGraphSetting = () => {
+     // reset yScaleOption value to graph setting
+    $(formElements.yScaleOption).val(1);
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -666,6 +888,7 @@ const scrollRLPChart = (() => {
     let $stickies;
 
     const whenScrolling = () => {
+        if (!$stickies.closest('.card').length) return;
         const stickiesParentCard = $stickies.closest('.card')[0].id;
         const currentTerm = stickiesParentCard.split('RLPCard')[0];
 
@@ -718,7 +941,6 @@ const scrollRLPChart = (() => {
 const pinChart = (chartDOMId) => {
     const $activeItemDOM = $(`#${chartDOMId}`);
     const originWidth = $activeItemDOM.closest('.card').width();
-    const originHeight = $activeItemDOM.closest('.card').find('.ridgeLineItem').height();
 
     const anchor = $activeItemDOM.find('span.btn-anchor');
     const isPinned = anchor.attr('data-pinned');
@@ -749,10 +971,13 @@ const pinChart = (chartDOMId) => {
 const showXAxisLabel = (element) => {
     const isShowAxis = $(element).is(':checked');
     const comparetype = resData.COMMON.compareType;
-    $('#RLPCard .ridgeLineItem').find('.ridgeLineCard-full').each((i, card) => {
+    const divFormat = resData.COMMON.divFormat;
+    $('#RLPCard .ridgeLineChart').find('.ridgeLineCard-full').each((i, card) => {
+        const tickText = divFormat ? rlpXAxis.tickText[i].map(div => applySignificantDigit(Number(div), undefined, divFormat)) : rlpXAxis.tickText[i];
         const layout = {
             xaxis: {
                 tickvals: isShowAxis ? rlpXAxis[comparetype][i] : [],
+                ticktext: isShowAxis ? tickText : [],
             },
             margin: {
                 b: isShowAxis ? 23 : 15,
@@ -760,6 +985,24 @@ const showXAxisLabel = (element) => {
         };
         Plotly.relayout(card.id, layout);
     });
+
+    $('#RLPCard .judgeChart').find('.ridgeLineCard-full').each((i, card) => {
+        const layout = judgeLayout[i];
+        layout.xaxis.tickvals = isShowAxis ? judgeXAxis[comparetype][i] : [];
+        layout.margin.b = isShowAxis ? 23 : 15;
+        Plotly.relayout(card.id, layout);
+    });
+};
+
+const getYSaleOption = (scaleData) => {
+    const graphScaleSelected = $(formElements.yScaleOption).val();
+    const scaleOption = getScaleInfo(scaleData, graphScaleSelected);
+    const yMin = scaleOption ? scaleOption['y-min'] : undefined;
+    const yMax = scaleOption ? scaleOption['y-max'] : undefined;
+    return {
+        yMin,
+        yMax
+    }
 };
 
 const changeRLPScale = () => {
@@ -767,7 +1010,7 @@ const changeRLPScale = () => {
     const graphScaleSelected = $(formElements.yScaleOption).val();
     const isShowAxis = $(formElements.showXAxisOption).is(':checked');
     const comparetype = resData.COMMON.compareType;
-    $('#RLPCard .ridgeLineItem').find('.ridgeLineCard-full').each((i, card) => {
+    $('#RLPCard .ridgeLineChart').find('.ridgeLineCard-full').each((i, card) => {
         const variableIDx = Number(card.id.split('-')[1]);
         const layout = {
             xaxis: {
@@ -777,9 +1020,7 @@ const changeRLPScale = () => {
                 b: isShowAxis ? 23 : 15,
             },
         };
-        const scaleOption = getScaleInfo(resData.array_plotdata[variableIDx], graphScaleSelected);
-        const yMin = resData ? scaleOption['y-min'] : undefined;
-        const yMax = resData ? scaleOption['y-max'] : undefined;
+        const { yMin, yMax } = getYSaleOption(resData.array_plotdata[variableIDx])
         if (yMin !== undefined && yMax !== undefined) {
             layout.yaxis = {
                 range: [yMin, yMax],
@@ -812,15 +1053,15 @@ const dumpData = (type, exportFrom) => {
     formData.set('export_from', exportFrom);
 
     if (type === EXPORT_TYPE.CSV) {
-        exportData('/ap/api/rlp/csv_export', 'csv', formData);
+        exportData('/ap/api/rlp/data_export/csv', 'csv', formData);
     }
 
     if (type === EXPORT_TYPE.TSV) {
-        exportData('/ap/api/rlp/tsv_export', 'tsv', formData);
+        exportData('/ap/api/rlp/data_export/tsv', 'tsv', formData);
     }
 
     if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
-        tsvClipBoard('/ap/api/rlp/tsv_export', formData);
+        tsvClipBoard('/ap/api/rlp/data_export/tsv', formData);
     }
 };
 

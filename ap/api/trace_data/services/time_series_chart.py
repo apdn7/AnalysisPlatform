@@ -2,11 +2,11 @@ import itertools
 import json
 import re
 import traceback
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 from copy import deepcopy
 from itertools import groupby
 from math import ceil
-from typing import List, Dict
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -15,45 +15,96 @@ from pandas import DataFrame, Series
 from sqlalchemy import and_
 
 from ap import db
-from ap.api.common.services.services import convert_datetime_to_ct
+from ap.api.common.services.services import convert_datetime_to_ct, get_filter_on_demand_data
 from ap.api.trace_data.services.proc_link import TraceGraph
-from ap.api.trace_data.services.regex_infinity import validate_data_with_regex, get_changed_value_after_validate, \
-    validate_data_with_simple_searching, check_validate_target_column
-from ap.common.common_utils import as_list, get_debug_data, add_days, sql_regexp
-from ap.common.common_utils import start_of_minute, end_of_minute, convert_time, gen_sql_label, \
-    gen_sql_like_value, gen_python_regex, chunks, gen_abbr_name
+from ap.api.trace_data.services.regex_infinity import (
+    check_validate_target_column,
+    get_changed_value_after_validate,
+    validate_data_with_regex,
+    validate_data_with_simple_searching,
+)
+from ap.common.common_utils import (
+    add_days,
+    as_list,
+    chunk_two_list,
+    chunks,
+    convert_time,
+    end_of_minute,
+    gen_abbr_name,
+    gen_sql_label,
+    gen_sql_like_value,
+    get_debug_data,
+    sql_regexp,
+    start_of_minute,
+)
 from ap.common.constants import *
-from ap.common.logger import log_execution_time
-from ap.common.logger import logger
+from ap.common.logger import log_execution_time, logger
 from ap.common.memoize import memoize
-from ap.common.pydn.dblib.db_common import gen_select_col_str, PARAM_SYMBOL
+from ap.common.pydn.dblib.db_common import PARAM_SYMBOL, gen_select_col_str
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.ana_inf_data import calculate_kde_trace_data, detect_abnormal_count_values
 from ap.common.services.form_env import bind_dic_param_to_class
-from ap.common.services.request_time_out_handler import request_timeout_handling, abort_process_handler
+from ap.common.services.request_time_out_handler import (
+    abort_process_handler,
+    request_timeout_handling,
+)
 from ap.common.services.sse import notify_progress
-from ap.common.services.statistics import calc_summaries, get_mode, convert_series_to_number
-from ap.common.sigificant_digit import signify_digit, get_fmt_from_array
-from ap.common.trace_data_log import trace_log, TraceErrKey, EventAction, Target, EventType, save_df_to_file
-from ap.setting_module.models import CfgConstant, CfgProcess, CfgProcessColumn, CfgFilter, CfgFilterDetail, \
-    CfgVisualization, CfgTrace
-from ap.trace_data.models import find_cycle_class, GlobalRelation, Sensor, Cycle, find_sensor_class, ProcLink, \
-    SensorType
-from ap.trace_data.schemas import DicParam, EndProc, ConditionProc, CategoryProc
+from ap.common.services.statistics import calc_summaries, convert_series_to_number, get_mode
+from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
+from ap.common.trace_data_log import (
+    EventAction,
+    EventType,
+    Target,
+    TraceErrKey,
+    save_df_to_file,
+    trace_log,
+)
+from ap.setting_module.models import (
+    CfgConstant,
+    CfgFilter,
+    CfgFilterDetail,
+    CfgProcess,
+    CfgProcessColumn,
+    CfgTrace,
+    CfgVisualization,
+)
+from ap.trace_data.models import (
+    Cycle,
+    ProcLink,
+    Sensor,
+    SensorType,
+    find_cycle_class,
+    find_sensor_class,
+)
+from ap.trace_data.schemas import CategoryProc, ConditionProc, DicParam, EndProc
 
 
 @log_execution_time('[TRACE DATA]')
 @request_timeout_handling()
 @abort_process_handler()
-@trace_log((TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
-           (EventType.FPP, EventAction.PLOT, Target.GRAPH), send_ga=True)
+@trace_log(
+    (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
+    (EventType.FPP, EventAction.PLOT, Target.GRAPH),
+    send_ga=True,
+)
 @memoize(is_save_file=True)
 def gen_graph_fpp(dic_param, max_graph=None):
-    dic_param, cat_exp, cat_procs, dic_cat_filters, use_expired_cache, temp_serial_column, temp_serial_order, \
-        temp_serial_process, temp_x_option, *_ = customize_dic_param_for_reuse_cache(dic_param)
+    (
+        dic_param,
+        cat_exp,
+        cat_procs,
+        dic_cat_filters,
+        use_expired_cache,
+        temp_serial_column,
+        temp_serial_order,
+        temp_serial_process,
+        temp_x_option,
+        *_,
+    ) = customize_dic_param_for_reuse_cache(dic_param)
 
-    dic_param, df, orig_graph_param, graph_param, graph_param_with_cate = gen_df(dic_param, dic_cat_filters,
-                                                                                 use_expired_cache=use_expired_cache)
+    dic_param, df, orig_graph_param, graph_param, graph_param_with_cate = gen_df(
+        dic_param, dic_cat_filters, use_expired_cache=use_expired_cache
+    )
 
     convert_datetime_to_ct(df, graph_param)
 
@@ -76,19 +127,22 @@ def gen_graph_fpp(dic_param, max_graph=None):
     dic_proc_cfgs = get_procs_in_dic_param(graph_param)
 
     # order index with other param
-    df, dic_param = sort_df_by_x_option(df, dic_param, graph_param, dic_proc_cfgs, temp_x_option, temp_serial_process,
-                                        temp_serial_column, temp_serial_order)
+    df, dic_param = sort_df_by_x_option(
+        df,
+        dic_param,
+        graph_param,
+        dic_proc_cfgs,
+        temp_x_option,
+        temp_serial_process,
+        temp_serial_column,
+        temp_serial_order,
+    )
 
     graph_param = bind_dic_param_to_class(dic_param)
-    # distinct category for filter setting form
-    cate_col_ids = []
-    for proc in graph_param.common.cate_procs or []:
-        cate_col_ids += proc.col_ids
 
-    df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param, True,
-                                           cate_col_ids)
+    dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param, True)
 
-    dic_unique_cate = gen_unique_data(df, dic_proc_cfgs, cate_col_ids, True)
+    dic_unique_cate = gen_unique_data(df, dic_proc_cfgs, graph_param.common.cate_col_ids, True)
 
     # reset index (keep sorted position)
     df.reset_index(inplace=True, drop=True)
@@ -113,15 +167,19 @@ def gen_graph_fpp(dic_param, max_graph=None):
     calc_summaries(dic_param)
 
     # calc common scale y min max
-    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param.get(ARRAY_PLOTDATA, []), str_cols)
+    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(
+        dic_param.get(ARRAY_PLOTDATA, []), str_cols
+    )
 
     # get min max order columns
     output_orders = []
     x_option = graph_param.common.x_option
     if x_option == 'INDEX' and graph_param.common.serial_columns:
         group_col = '__group_col__'
-        dic_cfg_cols = {cfg_col.id: cfg_col for cfg_col in
-                        CfgProcessColumn.get_by_ids(graph_param.common.serial_columns)}
+        dic_cfg_cols = {
+            cfg_col.id: cfg_col
+            for cfg_col in CfgProcessColumn.get_by_ids(graph_param.common.serial_columns)
+        }
         dic_order_cols = {}
         for order_col_id in graph_param.common.serial_columns:
             cfg_col = dic_cfg_cols.get(order_col_id)
@@ -142,13 +200,19 @@ def gen_graph_fpp(dic_param, max_graph=None):
             df_order[group_col] = df_order.index // count_per_group
             df_order = df_order.dropna().groupby(group_col).agg(['min', 'max'])
             for sql_label, col in dic_order_cols.items():
-                output_orders.append(dict(name=col.name, min=df_order[(sql_label, 'min')].tolist(),
-                                          max=df_order[(sql_label, 'max')].tolist(),
-                                          id=col.id))
+                output_orders.append(
+                    dict(
+                        name=col.shown_name,
+                        min=df_order[(sql_label, 'min')].tolist(),
+                        max=df_order[(sql_label, 'max')].tolist(),
+                        id=col.id,
+                    )
+                )
         else:
             for sql_label, col in dic_order_cols.items():
-                output_orders.append(dict(name=col.name, value=df_order[sql_label].tolist(),
-                                          id=col.id))
+                output_orders.append(
+                    dict(name=col.shown_name, value=df_order[sql_label].tolist(), id=col.id)
+                )
 
     full_arrays = None
     if is_thin_data:
@@ -161,7 +225,9 @@ def gen_graph_fpp(dic_param, max_graph=None):
             add_serials_to_thin_df(dic_param, df)
 
         copy_dic_param_to_thin_dic_param(dic_param, dic_thin_param)
-        dic_param = gen_thin_dic_param(df, dic_thin_param, dic_proc_cfgs, dic_cat_exp_labels, dic_ranks)
+        dic_param = gen_thin_dic_param(
+            df, dic_thin_param, dic_proc_cfgs, dic_cat_exp_labels, dic_ranks
+        )
         dic_param['is_thin_data'] = is_thin_data
 
         for i, plot in enumerate(dic_param[ARRAY_PLOTDATA]):
@@ -179,7 +245,9 @@ def gen_graph_fpp(dic_param, max_graph=None):
     # add unique category values
     for dic_cate in dic_param.get(CATEGORY_DATA) or []:
         col_id = dic_cate['column_id']
-        dic_cate[UNIQUE_CATEGORIES] = dic_unique_cate[col_id][UNIQUE_CATEGORIES] if dic_unique_cate.get(col_id) else []
+        dic_cate[UNIQUE_CATEGORIES] = (
+            dic_unique_cate[col_id][UNIQUE_CATEGORIES] if dic_unique_cate.get(col_id) else []
+        )
         if len(set(dic_cate.get('data', []))) > CAT_UNIQUE_LIMIT:
             dic_cate[IS_OVER_UNIQUE_LIMIT] = True
         else:
@@ -187,15 +255,12 @@ def gen_graph_fpp(dic_param, max_graph=None):
 
     # dic_param[CAT_EXP_BOX] = cat_exp_list
     dic_param[INDEX_ORDER_COLS] = output_orders
-    dic_param['proc_name'] = {k: proc.name for (k, proc) in dic_proc_cfgs.items()}
+    dic_param['proc_name'] = {k: proc.shown_name for (k, proc) in dic_proc_cfgs.items()}
 
     # get order column data
     retrieve_order_setting(dic_param, dic_proc_cfgs)
-    # remove unnecessary data
-    # if graph_param.common.x_option == 'INDEX':
-    #     del dic_param[TIMES]
 
-    # gen_cat_data_for_ondemand(dic_param, dic_proc_cfgs)
+    dic_param = get_filter_on_demand_data(dic_param, remove_filter_data=True)
 
     return dic_param
 
@@ -247,20 +312,37 @@ def gen_group_filter_list(df, graph_param, dic_param, others=[]):
 
 def customize_dic_param_for_reuse_cache(dic_param):
     use_expired_cache = False
-    for name in (DIC_CAT_FILTERS, TEMP_CAT_EXP, TEMP_CAT_PROCS, TEMP_X_OPTION, TEMP_SERIAL_PROCESS, TEMP_SERIAL_COLUMN,
-                 TEMP_SERIAL_ORDER, MATRIX_COL, COLOR_ORDER):
+    for name in (
+        DIC_CAT_FILTERS,
+        TEMP_CAT_EXP,
+        TEMP_CAT_PROCS,
+        TEMP_X_OPTION,
+        TEMP_SERIAL_PROCESS,
+        TEMP_SERIAL_COLUMN,
+        TEMP_SERIAL_ORDER,
+        MATRIX_COL,
+        COLOR_ORDER,
+    ):
         if name in dic_param[COMMON]:
             use_expired_cache = True
             break
-    dic_cat_filters = json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {})) if isinstance(
-        dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str) else dic_param[COMMON].get(DIC_CAT_FILTERS, {})
+    dic_cat_filters = (
+        json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {}))
+        if isinstance(dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str)
+        else dic_param[COMMON].get(DIC_CAT_FILTERS, {})
+    )
     cat_exp = [int(id) for id in dic_param[COMMON].get(TEMP_CAT_EXP, []) if id]
     cat_procs = dic_param[COMMON].get(TEMP_CAT_PROCS, [])
     for name in (DIC_CAT_FILTERS, TEMP_CAT_EXP, TEMP_CAT_PROCS):
         if name in dic_param[COMMON]:
             dic_param[COMMON].pop(name)
-    dic_param, temp_x_option, temp_serial_process, temp_serial_column, temp_serial_order = \
-        prepare_temp_x_option(dic_param)
+    (
+        dic_param,
+        temp_x_option,
+        temp_serial_process,
+        temp_serial_column,
+        temp_serial_order,
+    ) = prepare_temp_x_option(dic_param)
 
     matrix_col = dic_param[COMMON].get(MATRIX_COL)
     if matrix_col and isinstance(matrix_col, (list, tuple)):
@@ -276,17 +358,28 @@ def customize_dic_param_for_reuse_cache(dic_param):
     else:
         color_order = ColorOrder.DATA
 
-    return dic_param, cat_exp, cat_procs, dic_cat_filters, use_expired_cache, temp_serial_column, temp_serial_order, \
-        temp_serial_process, temp_x_option, matrix_col, color_order
+    return (
+        dic_param,
+        cat_exp,
+        cat_procs,
+        dic_cat_filters,
+        use_expired_cache,
+        temp_serial_column,
+        temp_serial_order,
+        temp_serial_process,
+        temp_x_option,
+        matrix_col,
+        color_order,
+    )
 
 
-def filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param, has_na=False,
-                           label_col_id=None):
+def filter_cat_dict_common(
+    df, dic_param, cat_exp, cat_procs, graph_param, has_na=False, label_col_id=None
+):
     """
         filter cat_exp_box function common
     :param df:
-    :param dic_param:
-    :param dic_cat_filters:
+    :param dic_param;
     :param cat_exp:
     :param cat_procs:
     :param graph_param:
@@ -304,11 +397,7 @@ def filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, g
 
     dic_param = gen_cat_label_unique(df, dic_param, graph_param, has_na, label_col_id)
 
-    # filter df
-    # if not df.empty:
-    #     df = filter_df(df, dic_cat_filters)
-
-    return df, dic_param
+    return dic_param
 
 
 def gen_cat_label_unique(df, dic_param, graph_param, has_na=False, label_col_id=None):
@@ -328,17 +417,22 @@ def gen_cat_label_unique(df, dic_param, graph_param, has_na=False, label_col_id=
     if graph_param.common.color_var:
         color_vals.append(graph_param.common.color_var)
     if graph_param.common.agp_color_vars:
-        agp_color_vals = list(set(int(color) for color in graph_param.common.agp_color_vars.values()))
+        agp_color_vals = list(
+            set(int(color) for color in graph_param.common.agp_color_vars.values())
+        )
         color_vals += agp_color_vals
 
     exclude_col_id = cat_and_div
-    if label_col_id:
-        exclude_col_id += label_col_id
+    exclude_col_id += label_col_id or graph_param.common.cate_col_ids
+
     exclude_col_id += color_vals
 
     sensor_ids = [col for col in graph_param.common.sensor_cols if col not in exclude_col_id]
     dic_param[CAT_ON_DEMAND] = list(gen_unique_data(df, dic_proc_cfgs, sensor_ids, True).values())
     dic_param[UNIQUE_COLOR] = list(gen_unique_data(df, dic_proc_cfgs, color_vals, False).values())
+    dic_param[FILTER_DATA] = list(
+        gen_unique_data(df, dic_proc_cfgs, graph_param.common.cate_col_ids, True).values()
+    )
 
     dic_param = gen_group_filter_list(df, graph_param, dic_param)
 
@@ -347,16 +441,25 @@ def gen_cat_label_unique(df, dic_param, graph_param, has_na=False, label_col_id=
 
 @notify_progress(60)
 def gen_graph(dic_param, max_graph=None, use_export_df=False):
-    dic_param, cat_exp, cat_procs, dic_cat_filters, use_expired_cache, *_ = customize_dic_param_for_reuse_cache(
-        dic_param)
-    dic_param, df, orig_graph_param, graph_param, graph_param_with_cate = gen_df(dic_param, dic_cat_filters,
-                                                                                 add_dt_col=True,
-                                                                                 use_expired_cache=use_expired_cache)
+    (
+        dic_param,
+        cat_exp,
+        cat_procs,
+        dic_cat_filters,
+        use_expired_cache,
+        *_,
+    ) = customize_dic_param_for_reuse_cache(dic_param)
+    dic_param, df, orig_graph_param, graph_param, graph_param_with_cate = gen_df(
+        dic_param, dic_cat_filters, add_dt_col=True, use_expired_cache=use_expired_cache
+    )
 
-    df, dic_param = filter_cat_dict_common(df, dic_param, dic_cat_filters, cat_exp, cat_procs, graph_param)
+    dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
+
     export_df = df.copy()
     convert_datetime_to_ct(df, graph_param)
-    dic_data, is_graph_limited = gen_dic_data(df, orig_graph_param, graph_param_with_cate, max_graph)
+    dic_data, is_graph_limited = gen_dic_data(
+        df, orig_graph_param, graph_param_with_cate, max_graph
+    )
     dic_param = gen_dic_param(df, dic_param, dic_data)
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
 
@@ -371,13 +474,19 @@ def gen_dic_data(df, orig_graph_param, graph_param_with_cate, max_graph=None):
     cat_exp_cols = orig_graph_param.common.cat_exp
     is_graph_limited = False
     if cat_exp_cols:
-        dic_cfg_cat_exps = {cfg_col.id: cfg_col for cfg_col in CfgProcessColumn.get_by_ids(cat_exp_cols)}
-        dic_data, is_graph_limited = gen_dic_data_cat_exp_from_df(df, orig_graph_param, dic_cfg_cat_exps, max_graph)
+        dic_cfg_cat_exps = {
+            cfg_col.id: cfg_col for cfg_col in CfgProcessColumn.get_by_ids(cat_exp_cols)
+        }
+        dic_data, is_graph_limited = gen_dic_data_cat_exp_from_df(
+            df, orig_graph_param, dic_cfg_cat_exps, max_graph
+        )
         dic_cates = defaultdict(dict)
         for proc in orig_graph_param.common.cate_procs:
             for col_id, col_name in zip(proc.col_ids, proc.col_names):
                 sql_label = gen_sql_label(col_id, col_name)
-                dic_cates[proc.proc_id][col_id] = df[sql_label].tolist() if sql_label in df.columns else []
+                dic_cates[proc.proc_id][col_id] = (
+                    df[sql_label].tolist() if sql_label in df.columns else []
+                )
 
         dic_data[CATEGORY_DATA] = dic_cates
     else:
@@ -404,8 +513,8 @@ def prepare_temp_x_option(dic_param):
 @abort_process_handler()
 def gen_df(dic_param, dic_filter=None, add_dt_col=False, use_expired_cache=False):
     """tracing data to show graph
-        1 start point x n end point
-        filter by condition point
+    1 start point x n end point
+    filter by condition point
     """
     # bind dic_param
     orig_graph_param = bind_dic_param_to_class(dic_param)
@@ -443,22 +552,28 @@ def gen_df(dic_param, dic_filter=None, add_dt_col=False, use_expired_cache=False
 
     # get order columns
     if graph_param.common.x_option == 'INDEX':
-        for proc_id, col_id in zip(graph_param.common.serial_processes, graph_param.common.serial_columns):
+        for proc_id, col_id in zip(
+            graph_param.common.serial_processes, graph_param.common.serial_columns
+        ):
             if proc_id and col_id:
                 proc_id = int(proc_id)
                 col_id = int(col_id)
                 graph_param.add_proc_to_array_formval(proc_id, col_id)
 
     # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(graph_param, dic_filter,
-                                                               use_expired_cache=use_expired_cache)
+    df, actual_record_number, unique_serial = get_data_from_db(
+        graph_param, dic_filter, use_expired_cache=use_expired_cache
+    )
 
     # string columns
     df, str_cols = rank_str_cols(df, dic_proc_cfgs, orig_graph_param)
     dic_param[STRING_COL_IDS] = str_cols
     # check filter match or not ( for GUI show )
-    matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids = main_check_filter_detail_match_graph_data(
-        graph_param, df)
+    (
+        matched_filter_ids,
+        unmatched_filter_ids,
+        not_exact_match_filter_ids,
+    ) = main_check_filter_detail_match_graph_data(graph_param, df)
 
     # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
     dic_param[MATCHED_FILTER_IDS] = matched_filter_ids
@@ -478,8 +593,15 @@ def gen_df(dic_param, dic_filter=None, add_dt_col=False, use_expired_cache=False
 
 @log_execution_time()
 @abort_process_handler()
-def gen_dic_param(df, dic_param, dic_data, dic_proc_cfgs=None, dic_cates=None, dic_org_cates=None,
-                  is_get_chart_infos=True):
+def gen_dic_param(
+    df,
+    dic_param,
+    dic_data,
+    dic_proc_cfgs=None,
+    dic_cates=None,
+    dic_org_cates=None,
+    is_get_chart_infos=True,
+):
     if df is None or not len(df):
         dic_param[ARRAY_PLOTDATA] = []
         return dic_param
@@ -498,9 +620,12 @@ def gen_dic_param(df, dic_param, dic_data, dic_proc_cfgs=None, dic_cates=None, d
     if is_get_chart_infos:
         chart_infos, original_graph_configs = get_chart_infos(graph_param, dic_data, times)
 
-    dic_param[ARRAY_FORMVAL], dic_param[ARRAY_PLOTDATA] = gen_plotdata_fpp(graph_param, dic_data, chart_infos,
-                                                                           original_graph_configs)
-    dic_param[CATEGORY_DATA] = gen_category_data(dic_proc_cfgs, graph_param, dic_cates or dic_data, dic_org_cates)
+    dic_param[ARRAY_FORMVAL], dic_param[ARRAY_PLOTDATA] = gen_plotdata_fpp(
+        graph_param, dic_data, chart_infos, original_graph_configs
+    )
+    dic_param[CATEGORY_DATA] = gen_category_data(
+        dic_proc_cfgs, graph_param, dic_cates or dic_data, dic_org_cates
+    )
     dic_param[TIMES] = times
 
     if Cycle.id.key in df.columns:
@@ -513,12 +638,19 @@ def gen_dic_param(df, dic_param, dic_data, dic_proc_cfgs=None, dic_cates=None, d
 def rank_str_cols(df: DataFrame, dic_proc_cfgs, graph_param: DicParam):
     dic_str_cols = get_str_cols_in_end_procs(dic_proc_cfgs, graph_param)
     str_cols = []
+    sensors = graph_param.common.sensor_cols
     for sql_label, (before_rank_label, _, col_id, _, _) in dic_str_cols.items():
         if sql_label not in df.columns:
             continue
 
+        if str(col_id) == str(graph_param.common.judge_var) and col_id not in sensors:
+            # if sensor is judge_var but not target sensor
+            continue
+
         df[before_rank_label] = df[sql_label]
-        df[sql_label] = np.where(df[sql_label].isnull(), df[sql_label], df[sql_label].astype('category').cat.codes + 1)
+        df[sql_label] = np.where(
+            df[sql_label].isnull(), df[sql_label], df[sql_label].astype('category').cat.codes + 1
+        )
 
         df[sql_label] = df[sql_label].convert_dtypes()
         str_cols.append(col_id)
@@ -539,7 +671,13 @@ def get_str_cols_in_end_procs(dic_proc_cfgs, graph_param: DicParam):
 
             rank_col_name = gen_sql_label(col_id, col_name)
             before_rank_col_name = gen_sql_label(RANK_COL, rank_col_name)
-            dic_output[rank_col_name] = (before_rank_col_name, proc.proc_id, col_id, col_name, show_name)
+            dic_output[rank_col_name] = (
+                before_rank_col_name,
+                proc.proc_id,
+                col_id,
+                col_name,
+                show_name,
+            )
 
     return dic_output
 
@@ -627,8 +765,9 @@ def gen_ranking_to_dic_param(sensor_dat, dic_full_array_y, dic_ranks, org_ranks,
         total_counts = 0
 
         dic_cat_counter = Counter(full_dat)
-        dic_cat_counter = {key: dic_cat_counter[key] for key in
-                           list(dic_cat_counter.keys())[:MAX_CATEGORY_SHOW]}
+        dic_cat_counter = {
+            key: dic_cat_counter[key] for key in list(dic_cat_counter.keys())[:MAX_CATEGORY_SHOW]
+        }
         ranks = []
         before_ranks = []
         for rank_val, cat_count in dic_cat_counter.items():
@@ -677,14 +816,16 @@ def gen_ranking_to_dic_param(sensor_dat, dic_full_array_y, dic_ranks, org_ranks,
             N: non_na_count,
             N_PCTG: signify_digit(100 * non_na_count / n_total) if n_total else 0,
             N_NA: na_count,
-            N_NA_PCTG: signify_digit(100 * na_count / n_total) if n_total else 0
+            N_NA_PCTG: signify_digit(100 * na_count / n_total) if n_total else 0,
         }
         plot[CAT_DISTRIBUTE] = category_distributed
         plot[CAT_SUMMARY] = step_chart_summary
 
 
 @log_execution_time()
-def set_str_rank_to_dic_param(dic_param, dic_ranks, dic_str_cols, dic_full_array_y=None, is_stp=False):
+def set_str_rank_to_dic_param(
+    dic_param, dic_ranks, dic_str_cols, dic_full_array_y=None, is_stp=False
+):
     plotdata = dic_param[ARRAY_PLOTDATA]
     org_ranks = get_org_rank(dic_ranks, dic_str_cols)
     if not is_stp or type(plotdata) is list:
@@ -710,15 +851,35 @@ def gen_thin_dic_param(df, dic_param, dic_proc_cfgs, dic_cat_exp_labels=None, di
     graph_param = bind_dic_param_to_class(dic_param)
     dic_datetime_serial_cols = get_serials_and_date_col(graph_param, dic_proc_cfgs)
     dic_str_cols = get_str_cols_in_end_procs(dic_proc_cfgs, graph_param)
-    df_thin, dic_cates, dic_org_cates, group_counts, df_from_to_count, dic_min_med_max = reduce_data(df, graph_param,
-                                                                                                     dic_str_cols)
+    (
+        df_thin,
+        dic_cates,
+        dic_org_cates,
+        group_counts,
+        df_from_to_count,
+        dic_min_med_max,
+    ) = reduce_data(df, graph_param, dic_str_cols)
 
     # create output data
-    df_cat_exp = gen_df_thin_values(df, graph_param, df_thin, dic_str_cols, df_from_to_count, dic_min_med_max)
-    dic_data = gen_dic_data_from_df(df_cat_exp, graph_param, cat_exp_mode=True, dic_cat_exp_labels=dic_cat_exp_labels,
-                                    calculate_cycle_time=False)
-    dic_param = gen_dic_param(df_cat_exp, dic_param, dic_data, dic_proc_cfgs, dic_cates, dic_org_cates,
-                              is_get_chart_infos=False)
+    df_cat_exp = gen_df_thin_values(
+        df, graph_param, df_thin, dic_str_cols, df_from_to_count, dic_min_med_max
+    )
+    dic_data = gen_dic_data_from_df(
+        df_cat_exp,
+        graph_param,
+        cat_exp_mode=True,
+        dic_cat_exp_labels=dic_cat_exp_labels,
+        calculate_cycle_time=False,
+    )
+    dic_param = gen_dic_param(
+        df_cat_exp,
+        dic_param,
+        dic_data,
+        dic_proc_cfgs,
+        dic_cates,
+        dic_org_cates,
+        is_get_chart_infos=False,
+    )
     gen_dic_serial_data_from_df_thin(df_cat_exp, dic_param, dic_datetime_serial_cols, dic_ranks)
 
     # get start proc time
@@ -740,20 +901,30 @@ def gen_thin_dic_param(df, dic_param, dic_proc_cfgs, dic_cat_exp_labels=None, di
         if time_label in df_cat_exp.columns:
             plot[ARRAY_X] = df_cat_exp[time_label].replace({np.nan: None}).tolist()
             # get chart infos
-            plot[CHART_INFOS_ORG], plot[CHART_INFOS] = get_chart_info_detail(plot[ARRAY_X], plot[END_COL_ID],
-                                                                             threshold_filter_detail_ids,
-                                                                             plot[END_PROC_ID],
-                                                                             graph_param.common.start_proc,
-                                                                             start_tm, end_tm,
-                                                                             dic_param[TIMES])
+            plot[CHART_INFOS_ORG], plot[CHART_INFOS] = get_chart_info_detail(
+                plot[ARRAY_X],
+                plot[END_COL_ID],
+                threshold_filter_detail_ids,
+                plot[END_PROC_ID],
+                graph_param.common.start_proc,
+                start_tm,
+                end_tm,
+                dic_param[TIMES],
+            )
 
         if min_label in df_cat_exp.columns:
-            plot[ARRAY_Y_MIN] = df_cat_exp[min_label].replace(
-                {pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'}).tolist()
+            plot[ARRAY_Y_MIN] = (
+                df_cat_exp[min_label]
+                .replace({pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'})
+                .tolist()
+            )
 
         if max_label in df_cat_exp.columns:
-            plot[ARRAY_Y_MAX] = df_cat_exp[max_label].replace(
-                {pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'}).tolist()
+            plot[ARRAY_Y_MAX] = (
+                df_cat_exp[max_label]
+                .replace({pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'})
+                .tolist()
+            )
 
         if cycle_label in df_cat_exp.columns:
             plot[CYCLE_IDS] = df_cat_exp[cycle_label].tolist()
@@ -793,7 +964,9 @@ def get_summary_infos(dic_param):
 
 
 @log_execution_time()
-def check_and_order_data(df, dic_proc_cfgs, x_option='TIME', serial_processes=[], serial_cols=[], serial_orders=[]):
+def check_and_order_data(
+    df, dic_proc_cfgs, x_option='TIME', serial_processes=[], serial_cols=[], serial_orders=[]
+):
     if df is None or not len(df):
         return df
 
@@ -844,7 +1017,12 @@ def gen_blank_df_end_col(proc: EndProc, columns):
 def gen_blank_df_end_cols(procs: List[EndProc]):
     params = dict()
     for proc in procs:
-        params.update({gen_sql_label(col_id, proc.col_names[idx]): [] for idx, col_id in enumerate(proc.col_ids)})
+        params.update(
+            {
+                gen_sql_label(col_id, proc.col_names[idx]): []
+                for idx, col_id in enumerate(proc.col_ids)
+            }
+        )
         params.update({'{}{}'.format(Cycle.time.key, create_rsuffix(proc.proc_id)): []})
     params.update({Cycle.id.key: [], Cycle.global_id.key: [], Cycle.time.key: []})
 
@@ -862,7 +1040,9 @@ def gen_df_end(proc: EndProc, start_relate_ids=None, start_tm=None, end_tm=None)
     serials = [gen_sql_label(serial.id, serial.column_name) for serial in serials]
 
     # get sensor values
-    df_end = get_sensor_values(proc, start_relate_ids=start_relate_ids, start_tm=start_tm, end_tm=end_tm)
+    df_end = get_sensor_values(
+        proc, start_relate_ids=start_relate_ids, start_tm=start_tm, end_tm=end_tm
+    )
     if df_end.empty:
         df_end = gen_blank_df_end_col(proc, cfg_cols)
 
@@ -883,8 +1063,9 @@ def gen_df_end(proc: EndProc, start_relate_ids=None, start_tm=None, end_tm=None)
     return df_end
 
 
-def gen_df_end_same_with_start(proc: EndProc, start_proc_id, start_tm, end_tm, drop_duplicate=True,
-                               with_limit=None):
+def gen_df_end_same_with_start(
+    proc: EndProc, start_proc_id, start_tm, end_tm, drop_duplicate=True, with_limit=None
+):
     # proc_id = proc.proc_id
 
     # get serials
@@ -892,7 +1073,9 @@ def gen_df_end_same_with_start(proc: EndProc, start_proc_id, start_tm, end_tm, d
     serials = [gen_sql_label(serial.id, serial.column_name) for serial in serials]
 
     # get sensor values
-    df_end = get_sensor_values(proc, start_tm=start_tm, end_tm=end_tm, use_global_id=False, with_limit=with_limit)
+    df_end = get_sensor_values(
+        proc, start_tm=start_tm, end_tm=end_tm, use_global_id=False, with_limit=with_limit
+    )
     if df_end.empty:
         return pd.DataFrame()
 
@@ -913,8 +1096,16 @@ def create_rsuffix(proc_id):
 
 @log_execution_time()
 @notify_progress(30)
-def gen_graph_df(start_proc_id, start_tm, end_tm, end_procs: List[EndProc], cond_procs, duplicate_serial_show=None,
-                 duplicated_serial_count=None, _use_expired_cache=False):
+def gen_graph_df(
+    start_proc_id,
+    start_tm,
+    end_tm,
+    end_procs: List[EndProc],
+    cond_procs,
+    duplicate_serial_show=None,
+    duplicated_serial_count=None,
+    _use_expired_cache=False,
+):
     edges = CfgTrace.get_all()
 
     # graph object
@@ -928,7 +1119,9 @@ def gen_graph_df(start_proc_id, start_tm, end_tm, end_procs: List[EndProc], cond
 
     # get serials
     for proc in end_procs:
-        dic_serials = {serial.id: serial.column_name for serial in CfgProcessColumn.get_serials(proc.proc_id)}
+        dic_serials = {
+            serial.id: serial.column_name for serial in CfgProcessColumn.get_serials(proc.proc_id)
+        }
         for key, val in dic_serials.items():
             serial_labels.append(gen_sql_label(key, val))
         proc.add_cols(list(dic_serials), True)
@@ -942,28 +1135,53 @@ def gen_graph_df(start_proc_id, start_tm, end_tm, end_procs: List[EndProc], cond
     # condition information
     dic_conditions = defaultdict(list)
     for cond_proc in cond_procs:
-        conds = get_cond_data(cond_proc, SQL_LIMIT)
+        conds = get_cond_data(cond_proc, start_tm, end_tm, SQL_LIMIT)
         if conds:
             dic_conditions[cond_proc.proc_id].extend(conds)
 
     if len(short_procs) == 1:
-
-        df, actual_total_record = gen_graph_df_one_proc(start_proc_id, start_tm, end_tm, dic_mapping_col_n_sensor,
-                                                        end_procs, short_procs, dic_conditions, duplicate_serial_show)
+        df, actual_total_record = gen_graph_df_one_proc(
+            start_proc_id,
+            start_tm,
+            end_tm,
+            dic_mapping_col_n_sensor,
+            end_procs,
+            short_procs,
+            dic_conditions,
+            duplicate_serial_show,
+        )
 
         # count total record (with duplicate)
-        duplicated_option, for_count = is_show_duplicated_serials(duplicate_serial_show, duplicated_serial_count,
-                                                                  actual_total_record)
+        duplicated_option, for_count = is_show_duplicated_serials(
+            duplicate_serial_show, duplicated_serial_count, actual_total_record
+        )
         unique_record_number = actual_total_record
 
         if for_count:
-            _, actual_total_record = gen_graph_df_one_proc(start_proc_id, start_tm, end_tm, dic_mapping_col_n_sensor,
-                                                           end_procs, short_procs, dic_conditions, duplicated_option,
-                                                           for_count)
+            _, actual_total_record = gen_graph_df_one_proc(
+                start_proc_id,
+                start_tm,
+                end_tm,
+                dic_mapping_col_n_sensor,
+                end_procs,
+                short_procs,
+                dic_conditions,
+                duplicated_option,
+                for_count,
+            )
 
     else:
-        df, actual_total_record = gen_trace_procs_df(start_proc_id, start_tm, end_tm, graph, common_paths, short_procs,
-                                                     dic_mapping_col_n_sensor, dic_conditions, duplicate_serial_show)
+        df, actual_total_record = gen_trace_procs_df(
+            start_proc_id,
+            start_tm,
+            end_tm,
+            graph,
+            common_paths,
+            short_procs,
+            dic_mapping_col_n_sensor,
+            dic_conditions,
+            duplicate_serial_show,
+        )
 
         # cycle id
         df[Cycle.id.key] = df.index
@@ -990,15 +1208,27 @@ def gen_graph_df(start_proc_id, start_tm, end_tm, end_procs: List[EndProc], cond
             if not len(cycle_ids):
                 continue
 
-            df = gen_trace_sensors_df(col_ids, col_names, cycle_ids, df, dic_mapping_col_n_sensor, proc_id)
+            df = gen_trace_sensors_df(
+                col_ids, col_names, cycle_ids, df, dic_mapping_col_n_sensor, proc_id
+            )
 
         # count total record (with duplicate)
-        duplicated_option, for_count = is_show_duplicated_serials(duplicate_serial_show, duplicated_serial_count,
-                                                                  actual_total_record)
+        duplicated_option, for_count = is_show_duplicated_serials(
+            duplicate_serial_show, duplicated_serial_count, actual_total_record
+        )
         if for_count:
-            _, actual_total_record = gen_trace_procs_df(start_proc_id, start_tm, end_tm, graph, common_paths,
-                                                        short_procs, dic_mapping_col_n_sensor, dic_conditions,
-                                                        duplicated_option, for_count=True)
+            _, actual_total_record = gen_trace_procs_df(
+                start_proc_id,
+                start_tm,
+                end_tm,
+                graph,
+                common_paths,
+                short_procs,
+                dic_mapping_col_n_sensor,
+                dic_conditions,
+                duplicated_option,
+                for_count=True,
+            )
 
     if duplicated_option != DuplicateSerialShow.SHOW_BOTH:
         actual_total_record, unique_record_number = unique_record_number, actual_total_record
@@ -1029,18 +1259,24 @@ def gen_serial_from_link_value(df, dic_sensor_id_cfg_col, dic_mapping_col_n_sens
     link_val_col = proc_link_first_cls.link_value.key
     for col_name in df.columns:
         if str(col_name).startswith(link_val_col):
-            link_key_str = col_name[len(link_val_col) + 1:]
+            link_key_str = col_name[len(link_val_col) + 1 :]
             link_keys = str(link_key_str).split(TRACING_KEY_DELIMITER_SYMBOL)
             cfg_cols = []
             for sensor_id in link_keys:
                 cfg_col = dic_sensor_id_cfg_col[int(sensor_id)]
                 if cfg_col is None:
                     proc_id, orig_col_name = get_original_serial(sensor_id)
-                    cfg_col, _ = dic_mapping_col_n_sensor.get(proc_id, {}).get(orig_col_name, (None, None))
+                    cfg_col, _ = dic_mapping_col_n_sensor.get(proc_id, {}).get(
+                        orig_col_name, (None, None)
+                    )
 
                 cfg_cols.append(cfg_col)
 
-            col_labels = [gen_sql_label(cfg_col.id, cfg_col.column_name) for cfg_col in cfg_cols if cfg_col is not None]
+            col_labels = [
+                gen_sql_label(cfg_col.id, cfg_col.column_name)
+                for cfg_col in cfg_cols
+                if cfg_col is not None
+            ]
             if len(col_labels) == 0:
                 continue
             elif len(col_labels) == 1:
@@ -1048,7 +1284,9 @@ def gen_serial_from_link_value(df, dic_sensor_id_cfg_col, dic_mapping_col_n_sens
                     df[col_labels[0]] = df[col_name]
             else:
                 temp_df = pd.DataFrame(columns=col_labels, data=[])
-                temp_df[col_labels] = df[col_name].str.split(TRACING_KEY_DELIMITER_SYMBOL, expand=True)
+                temp_df[col_labels] = df[col_name].str.split(
+                    TRACING_KEY_DELIMITER_SYMBOL, expand=True
+                )
                 for label in col_labels:
                     if label not in df.columns:
                         df[label] = temp_df[label]
@@ -1057,25 +1295,68 @@ def gen_serial_from_link_value(df, dic_sensor_id_cfg_col, dic_mapping_col_n_sens
 
 
 @log_execution_time()
-def gen_trace_sensors_df(col_ids, col_names, cycle_ids, df, dic_mapping_col_n_sensor, proc_id):
+def gen_trace_sensors_df(
+    column_ids, column_names, cycle_ids, df, dic_mapping_col_n_sensor, proc_id
+):
+    df.set_index(proc_id, inplace=True)
     with DbProxy(gen_data_source_of_universal_db(), True, True) as db_instance:
         sql = gen_create_temp_table_sql()
         db_instance.execute_sql(sql)
         db_instance.bulk_insert(SHOW_GRAPH_TEMP_TABLE_NAME, [SHOW_GRAPH_TEMP_TABLE_COL], cycle_ids)
-        sql, params = gen_trace_sensors_sql(int(proc_id), col_names, dic_mapping_col_n_sensor,
-                                            SHOW_GRAPH_TEMP_TABLE_NAME, SHOW_GRAPH_TEMP_TABLE_COL)
-        _, rows = db_instance.run_sql(sql, params=params, row_is_dict=False)
-    labels = [gen_sql_label(_col_id, _col_name) for _col_id, _col_name in zip(col_ids, col_names)]
-    df_proc = pd.DataFrame(rows, columns=[SHOW_GRAPH_TEMP_TABLE_COL] + labels)
-    df_proc.set_index(SHOW_GRAPH_TEMP_TABLE_COL, inplace=True)
-    df.set_index(proc_id, inplace=True)
-    df = df.join(df_proc)
+
+        cfg_process: CfgProcess = CfgProcess.query.get(proc_id)
+        serial_cols = cfg_process.get_serials(column_name_only=False)
+        getdate_col = cfg_process.get_date_col(column_name_only=False)
+
+        for col_ids, col_names in chunk_two_list(column_ids, column_names, 50):
+            if getdate_col.id not in col_ids:
+                col_ids.append(getdate_col.id)
+                col_names.append(getdate_col.column_name)
+
+            for serial_col in serial_cols:
+                if serial_col.id not in col_ids:
+                    col_ids.append(serial_col.id)
+                    col_names.append(serial_col.column_name)
+
+            sql, params = gen_trace_sensors_sql(
+                int(proc_id),
+                col_names,
+                dic_mapping_col_n_sensor,
+                SHOW_GRAPH_TEMP_TABLE_NAME,
+                SHOW_GRAPH_TEMP_TABLE_COL,
+            )
+            _, rows = db_instance.run_sql(sql, params=params, row_is_dict=False)
+
+            labels = [
+                gen_sql_label(_col_id, _col_name) for _col_id, _col_name in zip(col_ids, col_names)
+            ]
+            df_proc = pd.DataFrame(rows, columns=[SHOW_GRAPH_TEMP_TABLE_COL] + labels)
+            df_proc.set_index(SHOW_GRAPH_TEMP_TABLE_COL, inplace=True)
+            # df = df.join(df_proc, rsuffix='_old_')
+            df = df.merge(
+                df_proc, how='left', left_index=True, right_index=True, suffixes=('', '_old_')
+            )
+
+            old_cols = [col for col in df.columns if str(col).endswith('_old_')]
+            if old_cols:
+                df.drop(old_cols, axis=1, inplace=True)
+
     return df
 
 
 @log_execution_time()
-def gen_trace_procs_df(start_proc_id, start_tm, end_tm, graph, common_paths, short_procs, dic_mapping_col_n_sensor,
-                       dic_conditions, duplicate_serial_show, for_count=False):
+def gen_trace_procs_df(
+    start_proc_id,
+    start_tm,
+    end_tm,
+    graph,
+    common_paths,
+    short_procs,
+    dic_mapping_col_n_sensor,
+    dic_conditions,
+    duplicate_serial_show,
+    for_count=False,
+):
     df = None
     blank_df = None
     if for_count:
@@ -1091,13 +1372,23 @@ def gen_trace_procs_df(start_proc_id, start_tm, end_tm, graph, common_paths, sho
 
             common_paths = reduced_path
 
-    with DbProxy(gen_data_source_of_universal_db(), True) as db_instance:
+    immediate_isolation_level = bool(dic_conditions)
+    with DbProxy(gen_data_source_of_universal_db(), True, immediate_isolation_level) as db_instance:
         for path, is_trace_forward in common_paths:
             if not is_trace_forward:
                 path = list(reversed(path))
 
-            res = gen_trace_procs_sql(path, graph, start_tm, end_tm, short_procs, dic_mapping_col_n_sensor,
-                                      dic_conditions, duplicate_serial_show, for_count)
+            res = gen_trace_procs_sql(
+                path,
+                graph,
+                start_tm,
+                end_tm,
+                short_procs,
+                dic_mapping_col_n_sensor,
+                dic_conditions,
+                duplicate_serial_show,
+                for_count,
+            )
 
             sql, params, table_name, link_key = res
             if dic_conditions:
@@ -1147,7 +1438,11 @@ def reduce_graph(end_procs, graph, start_proc_id):
         for _start_proc, _end_proc in ((start_proc_id, end_proc), (end_proc, start_proc_id)):
             is_trace_forward = _start_proc == start_proc_id
             _paths = graph.get_all_paths(_start_proc, _end_proc)
-            _paths = [(_path, is_trace_forward) for _path in _paths if len(_path) and _path[-1] == _end_proc]
+            _paths = [
+                (_path, is_trace_forward)
+                for _path in _paths
+                if len(_path) and _path[-1] == _end_proc
+            ]
             if _paths:
                 end_paths.extend(_paths)
                 break
@@ -1170,9 +1465,15 @@ def gen_cfg_col_n_sensor_pair(proc_id):
     cfg_columns = CfgProcessColumn.get_all_columns(proc_id)
     sensors = Sensor.get_sensors_by_proc_id(proc_id)
     dic_cfg_columns = {_cfg_col.column_name: _cfg_col for _cfg_col in cfg_columns}
-    dic_col_name = {_sensor.column_name: (dic_cfg_columns.get(_sensor.column_name), _sensor) for _sensor in sensors}
-    dic_cfg_col = {dic_cfg_columns.get(_sensor.column_name).id: _sensor for _sensor in sensors if
-                   dic_cfg_columns.get(_sensor.column_name)}
+    dic_col_name = {
+        _sensor.column_name: (dic_cfg_columns.get(_sensor.column_name), _sensor)
+        for _sensor in sensors
+    }
+    dic_cfg_col = {
+        dic_cfg_columns.get(_sensor.column_name).id: _sensor
+        for _sensor in sensors
+        if dic_cfg_columns.get(_sensor.column_name)
+    }
     dic_sensor = {_sensor.id: dic_cfg_columns.get(_sensor.column_name) for _sensor in sensors}
     return dic_col_name, dic_cfg_col, dic_sensor
 
@@ -1182,9 +1483,19 @@ def gen_create_temp_table_sql():
     return sql
 
 
-def gen_trace_sensors_sql(proc_id, col_names, dic_mapping_col_n_sensor, cycle_table_name, cycle_id_col, time_col=None,
-                          start_tm=None, end_tm=None, where_proc_id=False, dic_conditions=None,
-                          dup_serials_show=DuplicateSerialShow.SHOW_BOTH):
+def gen_trace_sensors_sql(
+    proc_id,
+    col_names,
+    dic_mapping_col_n_sensor,
+    cycle_table_name,
+    cycle_id_col,
+    time_col=None,
+    start_tm=None,
+    end_tm=None,
+    where_proc_id=False,
+    dic_conditions=None,
+    dup_serials_show=DuplicateSerialShow.SHOW_BOTH,
+):
     sql_joins = []
     select_cols = []
     params = []
@@ -1202,21 +1513,27 @@ def gen_trace_sensors_sql(proc_id, col_names, dic_mapping_col_n_sensor, cycle_ta
         sensor_cls = find_sensor_class(sensor.id, DataType(sensor.type))
         table_name = sensor_cls.__table__.name
         table_alias = f'{table_name}_{str(sensor.id)}'
-        serial_label = f'serial{index}'
-        serial_alias = f' as {serial_label}' if is_dup else ''
-        select_cols.append(f'{table_alias}.{SensorType.value.key}{serial_alias}')
 
+        serial_alias = ''
         if is_dup and col_name in serial_name:
+            serial_label = f'serial{index}'
+            serial_alias = f' as {serial_label}'
             serials_groups.append(serial_label)
             index += 1
 
+        select_cols.append(f'{table_alias}.{SensorType.value.key}{serial_alias}')
+
         left_join = f'LEFT JOIN {table_name} {table_alias}'
         left_join += f' ON {table_alias}.{SensorType.sensor_id.key} = ?'
-        left_join += f' AND {cycle_table_name}.{cycle_id_col} = {table_alias}.{SensorType.cycle_id.key}'
+        left_join += (
+            f' AND {cycle_table_name}.{cycle_id_col} = {table_alias}.{SensorType.cycle_id.key}'
+        )
         params.append(sensor.id)
         sql_joins.append(left_join)
 
-    select_cols = [f'{cycle_table_name}.{_col}' for _col in [cycle_id_col, time_col] if _col] + select_cols
+    select_cols = [
+        f'{cycle_table_name}.{_col}' for _col in [cycle_id_col, time_col] if _col
+    ] + select_cols
     select_col_str = gen_select_col_str(select_cols, is_add_double_quote=False)
     select_sql = f'SELECT {select_col_str}'
     from_sql = f' FROM {cycle_table_name} '
@@ -1233,7 +1550,11 @@ def gen_trace_sensors_sql(proc_id, col_names, dic_mapping_col_n_sensor, cycle_ta
 
     if is_dup:
         serials_groups = ','.join(serials_groups)
-        order = f'MIN({time_col})' if dup_serials_show == DuplicateSerialShow.SHOW_FIRST else f'MAX({time_col})'
+        order = (
+            f'MIN({time_col})'
+            if dup_serials_show == DuplicateSerialShow.SHOW_FIRST
+            else f'MAX({time_col})'
+        )
         group_by = f'GROUP BY {serials_groups} HAVING {order}' if serials_groups else ''
         sql = select_sql + from_sql + ' '.join(sql_joins) + where_sql
         dup_sql = f'{sql} {group_by}'
@@ -1274,13 +1595,13 @@ def gen_show_graph_distinct_sql(table_name, duplicate_serial_show):
 
     with_time_str = f'AND {time_col} >= {PARAM_SYMBOL} AND {time_col} < {PARAM_SYMBOL}'
 
-    sql = f"""
+    sql = f'''
         (SELECT {cycle_id_col}, {time_col}, {link_val_col}  
         FROM {table_name} 
         WHERE {proc_id_col} = {PARAM_SYMBOL}
           AND {link_key_col} = {PARAM_SYMBOL}
           {with_time_str})
-        """
+        '''
 
     if duplicate_serial_show in (DuplicateSerialShow.SHOW_FIRST, DuplicateSerialShow.SHOW_LAST):
         sql = f'(SELECT * FROM {sql} GROUP BY {link_val_col} {having})'
@@ -1305,8 +1626,17 @@ def gen_show_graph_distinct_sql(table_name, duplicate_serial_show):
 #     return sql
 
 
-def gen_trace_procs_sql(path, graph: TraceGraph, start_tm, end_tm, short_procs, dic_mapping_col_n_sensor,
-                        dic_conditions, duplicate_serial_show=None, for_count=False):
+def gen_trace_procs_sql(
+    path,
+    graph: TraceGraph,
+    start_tm,
+    end_tm,
+    short_procs,
+    dic_mapping_col_n_sensor,
+    dic_conditions,
+    duplicate_serial_show=None,
+    for_count=False,
+):
     sql_joins = []
     params = []
     done_link_keys = []
@@ -1341,7 +1671,9 @@ def gen_trace_procs_sql(path, graph: TraceGraph, start_tm, end_tm, short_procs, 
             edge_id = (to_proc, from_proc)
             edge = graph.dic_edges.get(edge_id)
 
-        self_sensor_ids, target_sensor_ids = gen_sensor_ids_from_trace_keys(edge, dic_mapping_col_n_sensor)
+        self_sensor_ids, target_sensor_ids = gen_sensor_ids_from_trace_keys(
+            edge, dic_mapping_col_n_sensor
+        )
 
         from_link_key = None
         if self_sensor_ids and all(self_sensor_ids):
@@ -1380,7 +1712,9 @@ def gen_trace_procs_sql(path, graph: TraceGraph, start_tm, end_tm, short_procs, 
                 elif link_key not in done_link_keys:
                     table_name = gen_show_graph_distinct_sql(table_name, duplicate_serial_show)
                     sql_join = f'LEFT JOIN {table_name} {table_alias}'
-                    sql_join += f' ON {table_alias}.{cycle_id_col} = {table_aliases[-1]}.{cycle_id_col}'
+                    sql_join += (
+                        f' ON {table_alias}.{cycle_id_col} = {table_aliases[-1]}.{cycle_id_col}'
+                    )
                     params.extend([proc_id, link_key, e_start_tm, e_end_tm])
                     sql_joins.append(sql_join)
                     not_select_cols.append(table_alias)
@@ -1446,7 +1780,7 @@ def get_common_longest_paths(paths):
         path, _ = path_obj
         is_new_branch = True
         for output_path, _ in output_paths:
-            if path == output_path[:len(path)]:
+            if path == output_path[: len(path)]:
                 is_new_branch = False
                 break
 
@@ -1482,15 +1816,24 @@ def get_df_from_db(graph_param: DicParam, is_save_df_to_file=False, _use_expired
     # add cat exp
     graph_param.add_cat_exp_to_array_formval()
 
+    # add NG column
+    graph_param.add_ng_condition_to_array_formval()
+
     # add color, cat_div
     # graph_param.add_column_to_array_formval(
     #     ele for ele in [graph_param.common.color_var, graph_param.common.div_by_cat] if ele)
     duplicate_serial_show = graph_param.common.duplicate_serial_show
     duplicated_serials_count = graph_param.common.duplicated_serials_count
 
-    df, serial_labels, actual_total_record, unique_record_number = \
-        gen_graph_df(graph_param.common.start_proc, start_tm, end_tm, graph_param.array_formval,
-                     graph_param.common.cond_procs, duplicate_serial_show, duplicated_serials_count)
+    df, serial_labels, actual_total_record, unique_record_number = gen_graph_df(
+        graph_param.common.start_proc,
+        start_tm,
+        end_tm,
+        graph_param.array_formval,
+        graph_param.common.cond_procs,
+        duplicate_serial_show,
+        duplicated_serials_count,
+    )
 
     # sort by time
     df[Cycle.time.key] = df[gen_proc_time_label(graph_param.common.start_proc)]
@@ -1503,8 +1846,9 @@ def get_df_from_db(graph_param: DicParam, is_save_df_to_file=False, _use_expired
 
     duplicated_serials_number = actual_total_record - unique_record_number
 
-    _, is_show_duplicated = is_show_duplicated_serials(duplicate_serial_show, duplicated_serials_count,
-                                                       actual_total_record)
+    _, is_show_duplicated = is_show_duplicated_serials(
+        duplicate_serial_show, duplicated_serials_count, actual_total_record
+    )
     if not is_show_duplicated:
         duplicated_serials_number = None
 
@@ -1532,10 +1876,17 @@ def get_df_from_db(graph_param: DicParam, is_save_df_to_file=False, _use_expired
 @notify_progress(40)
 @abort_process_handler()
 @log_execution_time()
-def get_data_from_db(graph_param: DicParam, dic_filter=None, is_save_df_to_file=False, use_expired_cache=False):
+def get_data_from_db(
+    graph_param: DicParam,
+    dic_filter=None,
+    is_save_df_to_file=False,
+    use_expired_cache=False,
+    with_categorized_real=False,
+):
     # DEBUG Function
-    df, actual_total_record, duplicated_serials_number = \
-        get_df_from_db(graph_param, is_save_df_to_file, _use_expired_cache=use_expired_cache)
+    df, actual_total_record, duplicated_serials_number = get_df_from_db(
+        graph_param, is_save_df_to_file, _use_expired_cache=use_expired_cache
+    )
 
     # check empty
     if df is None or not len(df):
@@ -1549,6 +1900,21 @@ def get_data_from_db(graph_param: DicParam, dic_filter=None, is_save_df_to_file=
     cfg_cols = CfgProcessColumn.get_by_ids(graph_param.common.sensor_cols)
     sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols]
 
+    if with_categorized_real:
+        for i, col in enumerate(cfg_cols):
+            if col.data_type == DataType.REAL.name and sensor_labels[i] in df.columns:
+                col_name = sensor_labels[i]
+                categorized_col_name = sensor_labels[i] + CATEGORIZED_SUFFIX
+                df[categorized_col_name] = df[col_name]
+                df[categorized_col_name] = df[categorized_col_name].replace(
+                    dict.fromkeys([np.inf, -np.inf, float('nan')], np.nan)
+                )
+                df[categorized_col_name][
+                    df[categorized_col_name].notna()
+                ] = discretize_float_data_equally(
+                    df[categorized_col_name][df[categorized_col_name].notna()]
+                )
+
     # on-demand filter
     if dic_filter:
         df = filter_df(df, dic_filter)
@@ -1561,12 +1927,16 @@ def get_data_from_db(graph_param: DicParam, dic_filter=None, is_save_df_to_file=
 
     if graph_param.common.remove_outlier_objective_var:
         objective_id = graph_param.common.objective_var
-        sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id == objective_id]
+        sensor_labels = [
+            gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id == objective_id
+        ]
         df = remove_outlier(df, sensor_labels, graph_param)
 
     if graph_param.common.remove_outlier_explanatory_var:
         objective_id = graph_param.common.objective_var
-        sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id != objective_id]
+        sensor_labels = [
+            gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id != objective_id
+        ]
         df = remove_outlier(df, sensor_labels, graph_param)
 
     df = cast_df_number(df, graph_param.array_formval)
@@ -1576,7 +1946,9 @@ def get_data_from_db(graph_param: DicParam, dic_filter=None, is_save_df_to_file=
 def cast_df_integer(df: DataFrame, end_procs: List[EndProc]) -> DataFrame:
     integer_column_ids = set()
     for proc in end_procs:
-        integer_column_ids.update((col.id for col in CfgProcessColumn.get_by_data_type(proc.proc_id, DataType.INTEGER)))
+        integer_column_ids.update(
+            (col.id for col in CfgProcessColumn.get_by_data_type(proc.proc_id, DataType.INTEGER))
+        )
     for col_id in integer_column_ids:
         col_name = CfgProcessColumn.gen_label_from_col_id(col_id)
         if col_name in df.columns:
@@ -1587,7 +1959,9 @@ def cast_df_integer(df: DataFrame, end_procs: List[EndProc]) -> DataFrame:
 def cast_df_real(df: DataFrame, end_procs: List[EndProc]) -> DataFrame:
     real_column_ids = set()
     for proc in end_procs:
-        real_column_ids.update((col.id for col in CfgProcessColumn.get_by_data_type(proc.proc_id, DataType.REAL)))
+        real_column_ids.update(
+            (col.id for col in CfgProcessColumn.get_by_data_type(proc.proc_id, DataType.REAL))
+        )
     for col_id in real_column_ids:
         col_name = CfgProcessColumn.gen_label_from_col_id(col_id)
         if col_name in df.columns:
@@ -1668,12 +2042,14 @@ def get_sample_df(df):
 
 
 @log_execution_time()
-def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_cols, df_from_to_count, dic_min_med_max):
+def gen_df_thin_values(
+    df: DataFrame, graph_param: DicParam, df_thin, dic_str_cols, df_from_to_count, dic_min_med_max
+):
     thin_idxs_len = len(df_thin)
     thin_boxes = [None] * thin_idxs_len
     df_cat_exp = pd.DataFrame({Cycle.time.key: thin_boxes}, index=df_thin.index)
 
-    # df_cat_exp[Cycle.time.key] = df_thin[Cycle.time.key]
+    df_cat_exp[Cycle.time.key] = df_thin[Cycle.time.key]
     if CAT_EXP_BOX in df_thin.columns:
         df_cat_exp[CAT_EXP_BOX] = df_thin[CAT_EXP_BOX]
 
@@ -1718,7 +2094,9 @@ def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_co
                 if Cycle.time.key in df.columns:
                     series[:] = None
                     series[idxs] = df.loc[med_idxs, Cycle.time.key].values
-                    df_cat_exp[Cycle.time.key] = np.where(series.isnull(), df_cat_exp[Cycle.time.key], series)
+                    df_cat_exp[Cycle.time.key] = np.where(
+                        series.isnull(), df_cat_exp[Cycle.time.key], series
+                    )
 
                 # time end proc
                 if time_col_alias in df.columns:
@@ -1750,8 +2128,13 @@ def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_co
 
 @log_execution_time()
 @abort_process_handler()
-def gen_dic_data_from_df(df: DataFrame, graph_param: DicParam, cat_exp_mode=None, dic_cat_exp_labels=None,
-                         calculate_cycle_time=True):
+def gen_dic_data_from_df(
+    df: DataFrame,
+    graph_param: DicParam,
+    cat_exp_mode=None,
+    dic_cat_exp_labels=None,
+    calculate_cycle_time=True,
+):
     """
     :param df:
     :param graph_param:
@@ -1791,7 +2174,9 @@ def gen_dic_data_from_df(df: DataFrame, graph_param: DicParam, cat_exp_mode=None
 
         time_col_alias = '{}_{}'.format(Cycle.time.key, proc.proc_id)
         if time_col_alias in df:
-            dic_data[proc.proc_id][Cycle.time.key] = df[time_col_alias].replace({np.nan: None}).tolist()
+            dic_data[proc.proc_id][Cycle.time.key] = (
+                df[time_col_alias].replace({np.nan: None}).tolist()
+            )
         else:
             dic_data[proc.proc_id][Cycle.time.key] = []
 
@@ -1812,7 +2197,9 @@ def get_fmt_str_from_dic_data(dic_data):
 
 
 @log_execution_time()
-def gen_dic_data_cat_exp_from_df(df: DataFrame, graph_param: DicParam, dic_cfg_cat_exps, max_graph=None):
+def gen_dic_data_cat_exp_from_df(
+    df: DataFrame, graph_param: DicParam, dic_cfg_cat_exps, max_graph=None
+):
     is_graph_limited = False
     dic_data = defaultdict(dict)
     if not len(df):
@@ -1836,13 +2223,17 @@ def gen_dic_data_cat_exp_from_df(df: DataFrame, graph_param: DicParam, dic_cfg_c
             is_graph_limited = True
             break
 
-        dic_datetime_cols = {cfg_col.id: cfg_col for cfg_col in
-                             CfgProcessColumn.get_by_data_type(proc.proc_id, DataType.DATETIME)}
+        dic_datetime_cols = {
+            cfg_col.id: cfg_col
+            for cfg_col in CfgProcessColumn.get_by_data_type(proc.proc_id, DataType.DATETIME)
+        }
         dic_none_idxs = defaultdict(list)
         dic_cat_exp_names = defaultdict(list)
         time_col_alias = '{}_{}'.format(Cycle.time.key, proc.proc_id)
         if time_col_alias in df:
-            dic_data[proc.proc_id][Cycle.time.key] = df[time_col_alias].replace({np.nan: None}).tolist()
+            dic_data[proc.proc_id][Cycle.time.key] = (
+                df[time_col_alias].replace({np.nan: None}).tolist()
+            )
         else:
             dic_data[proc.proc_id][Cycle.time.key] = []
 
@@ -1887,7 +2278,9 @@ def gen_dic_data_cat_exp_from_df(df: DataFrame, graph_param: DicParam, dic_cfg_c
 
                 plots.append(series.tolist())
                 dic_none_idxs[col_id].append(nan_series.index.tolist())
-                dic_cat_exp_names[col_id].append(NA_STR if cat_exp_val is None or pd.isna(cat_exp_val) else cat_exp_val)
+                dic_cat_exp_names[col_id].append(
+                    NA_STR if cat_exp_val is None or pd.isna(cat_exp_val) else cat_exp_val
+                )
 
                 graph_count += 1
 
@@ -1907,10 +2300,12 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
         serial_cols = proc_cfg.get_serials(column_name_only=False)
         datetime_col = proc_cfg.get_date_col(column_name_only=False)
         if datetime_col:
-            datetime_col = datetime_col.name
-        sql_labels = [gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols]
+            datetime_col = datetime_col.shown_name
+        sql_labels = [
+            gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols
+        ]
         before_rank_sql_labels = [gen_sql_label(RANK_COL, sql_label) for sql_label in sql_labels]
-        serial_cols = [serial_col.name for serial_col in serial_cols]
+        serial_cols = [serial_col.shown_name for serial_col in serial_cols]
         dic_param[COMMON_INFO][proc_id] = {
             DATETIME_COL: datetime_col or '',
             SERIAL_COLUMNS: serial_cols,
@@ -1924,7 +2319,9 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
 
         is_not_exist = set(cols) - set(list(df.columns))
         if not is_not_exist and cols:
-            dic_param[SERIAL_DATA][proc_id] = df[cols].replace({np.nan: ''}).to_records(index=False).tolist()
+            dic_param[SERIAL_DATA][proc_id] = (
+                df[cols].replace({np.nan: ''}).to_records(index=False).tolist()
+            )
         else:
             dic_param[SERIAL_DATA][proc_id] = []
 
@@ -1935,8 +2332,6 @@ def gen_dic_serial_data_from_df_thin(df: DataFrame, dic_param, dic_datetime_seri
 
     for plot in dic_param[ARRAY_PLOTDATA]:
         col_id = plot[END_COL_ID]
-        if col_id in dic_ranks:
-            continue
 
         proc_id = plot[END_PROC_ID]
         col_name = plot[END_COL_NAME]
@@ -1944,9 +2339,12 @@ def gen_dic_serial_data_from_df_thin(df: DataFrame, dic_param, dic_datetime_seri
         datetime_col, serial_cols = dic_datetime_serial_cols.get(proc_id, (None, None))
         if datetime_col:
             dic_param[COMMON_INFO][proc_id] = {
-                DATETIME_COL: datetime_col.name,
-                SERIAL_COLUMNS: [serial_col.name for serial_col in serial_cols],
+                DATETIME_COL: datetime_col.shown_name,
+                SERIAL_COLUMNS: [serial_col.shown_name for serial_col in serial_cols],
             }
+
+        if col_id in dic_ranks:
+            continue
 
         sql_label = gen_sql_label(col_id, col_name, cat_exp)
         sql_label = gen_sql_label(SERIAL_DATA, sql_label)
@@ -1954,35 +2352,6 @@ def gen_dic_serial_data_from_df_thin(df: DataFrame, dic_param, dic_datetime_seri
             plot[SERIAL_DATA] = df[sql_label].tolist()
         else:
             plot[SERIAL_DATA] = []
-
-
-@log_execution_time()
-def get_start_proc_data_with_relate_id(proc_id, start_tm, end_tm, with_limit=None):
-    """
-    inner join with relate table
-    :param proc_id:
-    :param start_tm:
-    :param end_tm:
-    :param with_limit:
-    :return:
-    """
-    # start proc subquery
-    cycle_cls = find_cycle_class(proc_id)
-    data = db.session.query(cycle_cls.id, GlobalRelation.relate_id.label(Cycle.global_id.key), cycle_cls.time,
-                            cycle_cls.is_outlier)
-    data = data.filter(cycle_cls.process_id == proc_id)
-    data = data.filter(cycle_cls.time >= start_tm)
-    data = data.filter(cycle_cls.time < end_tm)
-
-    # join global relation
-    data = data.join(GlobalRelation, GlobalRelation.global_id == cycle_cls.global_id)
-
-    if with_limit:
-        data = data.limit(with_limit)
-
-    data = data.all()
-
-    return data
 
 
 @log_execution_time()
@@ -1997,7 +2366,9 @@ def get_start_proc_data(proc_id, start_tm, end_tm, with_limit=None, with_time_or
     :return:
     """
     cycle_cls = find_cycle_class(proc_id)
-    cycle = db.session.query(cycle_cls.id, cycle_cls.global_id, cycle_cls.time, cycle_cls.is_outlier)
+    cycle = db.session.query(
+        cycle_cls.id, cycle_cls.global_id, cycle_cls.time, cycle_cls.is_outlier
+    )
     cycle = cycle.filter(cycle_cls.process_id == proc_id)
     cycle = cycle.filter(cycle_cls.time >= start_tm)
     cycle = cycle.filter(cycle_cls.time < end_tm)
@@ -2013,8 +2384,16 @@ def get_start_proc_data(proc_id, start_tm, end_tm, with_limit=None, with_time_or
     return cycle
 
 
-def get_sensor_values_chunk(data_query, chunk_sensor, dic_sensors, cycle_cls, start_relate_ids=None, start_tm=None,
-                            end_tm=None, with_limit=None):
+def get_sensor_values_chunk(
+    data_query,
+    chunk_sensor,
+    dic_sensors,
+    cycle_cls,
+    start_relate_ids=None,
+    start_tm=None,
+    end_tm=None,
+    with_limit=None,
+):
     for col_id, col_name in chunk_sensor:
         if col_name not in dic_sensors:
             continue
@@ -2024,7 +2403,7 @@ def get_sensor_values_chunk(data_query, chunk_sensor, dic_sensors, cycle_cls, st
 
         data_query = data_query.outerjoin(
             sensor_val_cls,
-            and_(sensor_val_cls.cycle_id == cycle_cls.id, sensor_val_cls.sensor_id == sensor.id)
+            and_(sensor_val_cls.cycle_id == cycle_cls.id, sensor_val_cls.sensor_id == sensor.id),
         )
 
         data_query = data_query.add_columns(sensor_val)
@@ -2049,17 +2428,27 @@ def get_sensor_values_chunk(data_query, chunk_sensor, dic_sensors, cycle_cls, st
         return pd.DataFrame(records)
     else:
         params = {gen_sql_label(col_id, col_name) for col_id, col_name in chunk_sensor}
-        params.update({
-            id_key: [],
-            Cycle.time.key: [],
-        })
-        df_chunk = pd.DataFrame({gen_sql_label(col_id, col_name): [] for col_id, col_name in chunk_sensor})
+        params.update(
+            {
+                id_key: [],
+                Cycle.time.key: [],
+            }
+        )
+        df_chunk = pd.DataFrame(
+            {gen_sql_label(col_id, col_name): [] for col_id, col_name in chunk_sensor}
+        )
         return df_chunk
 
 
 @log_execution_time()
-def get_sensor_values(proc: EndProc, start_relate_ids=None, start_tm=None, end_tm=None, use_global_id=True,
-                      with_limit=None):
+def get_sensor_values(
+    proc: EndProc,
+    start_relate_ids=None,
+    start_tm=None,
+    end_tm=None,
+    use_global_id=True,
+    with_limit=None,
+):
     """gen inner join sql for all column in 1 proc
 
     Arguments:
@@ -2078,43 +2467,60 @@ def get_sensor_values(proc: EndProc, start_relate_ids=None, start_tm=None, end_t
     dataframes = []
     all_sensors = list(zip(proc.col_ids, proc.col_names))
     for idx, chunk_sensor in enumerate(chunks(all_sensors, 50)):
-        df_chunk = get_sensor_values_chunk(data, chunk_sensor, dic_sensors, cycle_cls, start_relate_ids, start_tm,
-                                           end_tm, with_limit=with_limit)
+        df_chunk = get_sensor_values_chunk(
+            data,
+            chunk_sensor,
+            dic_sensors,
+            cycle_cls,
+            start_relate_ids,
+            start_tm,
+            end_tm,
+            with_limit=with_limit,
+        )
         if idx != 0 and Cycle.time.key in df_chunk.columns:
             df_chunk = df_chunk.drop(Cycle.time.key, axis=1)
         dataframes.append(df_chunk)
 
     df = pd.DataFrame()
     if dataframes:
-        df = pd.concat([dfc.set_index(dfc.columns[0]) for dfc in dataframes], ignore_index=False, axis=1).reset_index()
+        df = pd.concat(
+            [dfc.set_index(dfc.columns[0]) for dfc in dataframes], ignore_index=False, axis=1
+        ).reset_index()
     return df
 
 
 @log_execution_time()
-def get_cond_data(proc: ConditionProc, with_limit=None):
-    """generate subquery for every condition procs
-    """
+def get_cond_data(proc: ConditionProc, start_tm, end_tm, with_limit=None):
+    """generate subquery for every condition procs"""
     if not proc.dic_col_id_filters:
         return None
 
     conds = []
     # for filter_sensor in filter_sensors:
     for col_name, filters in proc.dic_col_name_filters.items():
-        sql, params = gen_sql_condition_per_column(proc.proc_id, col_name, filters, with_limit)
+        sql, params = gen_sql_condition_per_column(
+            proc.proc_id, start_tm, end_tm, col_name, filters, with_limit
+        )
         conds.append((sql, params))
 
     return conds
 
 
-def gen_sql_condition_per_column(proc_id, col_name, filters, with_limit=None):
+def gen_sql_condition_per_column(proc_id, start_tm, end_tm, col_name, filters, with_limit=None):
     sensor = Sensor.get_sensor_by_col_name(proc_id, col_name)
     sensor_val = find_sensor_class(sensor.id, DataType(sensor.type))
     and_conditions = gen_conditions_per_column(filters)
     params = []
+    cycle_cls = find_cycle_class(proc_id)
+    cycle_table_name = cycle_cls.__table__.name
 
     sql = f'SELECT {sensor_val.cycle_id.key} FROM {sensor_val.__table__.name}'
+    sql += f' LEFT JOIN {cycle_table_name} on {cycle_table_name}.id = {sensor_val.__table__.name}.cycle_id'
     sql += f' WHERE {sensor_val.sensor_id.key} = {PARAM_SYMBOL}'
+    sql += f' AND {cycle_table_name}.time >= {PARAM_SYMBOL} AND {cycle_table_name}.time < {PARAM_SYMBOL}'
     params.append(sensor.id)
+    params.append(start_tm)
+    params.append(end_tm)
     and_sql = ''
     for in_vals, like_vals, regex_vals in and_conditions:
         or_sql = ''
@@ -2132,7 +2538,7 @@ def gen_sql_condition_per_column(proc_id, col_name, filters, with_limit=None):
             for like_val in like_vals:
                 if or_sql:
                     or_sql += ' OR'
-                or_sql += f" {sensor_val.value.key} LIKE {PARAM_SYMBOL}"
+                or_sql += f' {sensor_val.value.key} LIKE {PARAM_SYMBOL}'
                 params.append(like_val)
 
         # REGEX
@@ -2165,11 +2571,19 @@ def gen_conditions_per_column(filters):
             val = cfg_filter_detail.filter_condition
             if cfg_filter_detail.filter_function == FilterFunc.REGEX.name:
                 comp_regexps.append(val)
-            elif not cfg_filter_detail.filter_function or cfg_filter_detail.filter_function == FilterFunc.MATCHES.name:
+            elif (
+                not cfg_filter_detail.filter_function
+                or cfg_filter_detail.filter_function == FilterFunc.MATCHES.name
+            ):
                 comp_ins.append(val)
             else:
-                comp_likes.extend(gen_sql_like_value(val, FilterFunc[cfg_filter_detail.filter_function],
-                                                     position=cfg_filter_detail.filter_from_pos))
+                comp_likes.extend(
+                    gen_sql_like_value(
+                        val,
+                        FilterFunc[cfg_filter_detail.filter_function],
+                        position=cfg_filter_detail.filter_from_pos,
+                    )
+                )
 
         ands.append((comp_ins, comp_likes, comp_regexps))
         # ands.append(
@@ -2184,41 +2598,46 @@ def gen_conditions_per_column(filters):
 
 def create_graph_config(cfgs: List[CfgVisualization] = []):
     if not cfgs:
-        return [{
-            THRESH_HIGH: None,
-            THRESH_LOW: None,
-            Y_MAX: None,
-            Y_MIN: None,
-            PRC_MAX: None,
-            PRC_MIN: None,
-            ACT_FROM: None,
-            ACT_TO: None,
-            'type': None,
-            'name': None,
-        }]
+        return [
+            {
+                THRESH_HIGH: None,
+                THRESH_LOW: None,
+                Y_MAX: None,
+                Y_MIN: None,
+                PRC_MAX: None,
+                PRC_MIN: None,
+                ACT_FROM: None,
+                ACT_TO: None,
+                'type': None,
+                'name': None,
+            }
+        ]
 
     list_cfgs = []
     for cfg in cfgs:
-        list_cfgs.append({
-            THRESH_HIGH: cfg.ucl,
-            THRESH_LOW: cfg.lcl,
-            Y_MAX: cfg.ymax,
-            Y_MIN: cfg.ymin,
-            PRC_MAX: cfg.upcl,
-            PRC_MIN: cfg.lpcl,
-            ACT_FROM: cfg.act_from,
-            ACT_TO: cfg.act_to,
-            'type': cfg.filter_column.name if cfg.filter_column else None,
-            'name': cfg.filter_detail.name if cfg.filter_detail else None,
-            'eng_name': cfg.filter_column.english_name if cfg.filter_column else None,
-        })
+        list_cfgs.append(
+            {
+                THRESH_HIGH: cfg.ucl,
+                THRESH_LOW: cfg.lcl,
+                Y_MAX: cfg.ymax,
+                Y_MIN: cfg.ymin,
+                PRC_MAX: cfg.upcl,
+                PRC_MIN: cfg.lpcl,
+                ACT_FROM: cfg.act_from,
+                ACT_TO: cfg.act_to,
+                'type': cfg.filter_column.shown_name if cfg.filter_column else None,
+                'name': cfg.filter_detail.name if cfg.filter_detail else None,
+                'eng_name': cfg.filter_column.name_en if cfg.filter_column else None,
+            }
+        )
     return list_cfgs
 
 
 def get_default_graph_config(col_id, start_tm, end_tm):
     # get sensor default cfg chart info
-    sensor_default_cfg: List[CfgVisualization] = CfgVisualization.get_sensor_default_chart_info(col_id, start_tm,
-                                                                                                end_tm) or []
+    sensor_default_cfg: List[CfgVisualization] = (
+        CfgVisualization.get_sensor_default_chart_info(col_id, start_tm, end_tm) or []
+    )
     return create_graph_config(sensor_default_cfg)
 
 
@@ -2226,14 +2645,18 @@ def get_col_graph_configs(col_id, filter_detail_ids, start_tm, end_tm):
     if not filter_detail_ids:
         return get_default_graph_config(col_id, start_tm, end_tm)
 
-    graph_configs = CfgVisualization.get_by_control_n_filter_detail_ids(col_id, filter_detail_ids, start_tm, end_tm)
+    graph_configs = CfgVisualization.get_by_control_n_filter_detail_ids(
+        col_id, filter_detail_ids, start_tm, end_tm
+    )
     if graph_configs:
         return create_graph_config(graph_configs)
 
     return get_default_graph_config(col_id, start_tm, end_tm)
 
 
-def convert_chart_info_time_range(chart_config, start_proc_times, end_proc_times, query_start_tm, query_end_tm):
+def convert_chart_info_time_range(
+    chart_config, start_proc_times, end_proc_times, query_start_tm, query_end_tm
+):
     last_idx = len(end_proc_times) - 1
     act_from = chart_config.get(ACT_FROM)
     act_to = chart_config.get(ACT_TO)
@@ -2308,8 +2731,9 @@ def get_chart_infos_by_stp_var(graph_param: DicParam):
     # query by var_col_id
     for end_col in get_end_cols:
         graph_configs[end_col] = {}
-        chart_infos: List[CfgVisualization] \
-            = CfgVisualization.get_all_by_control_n_filter_col_id(end_col, var_col_id, start_tm, end_tm)
+        chart_infos: List[CfgVisualization] = CfgVisualization.get_all_by_control_n_filter_col_id(
+            end_col, var_col_id, start_tm, end_tm
+        )
         for chart_info in chart_infos:
             filter_detail_id = chart_info.filter_detail_id
             if not graph_configs[end_col].get(filter_detail_id):
@@ -2317,19 +2741,6 @@ def get_chart_infos_by_stp_var(graph_param: DicParam):
             graph_configs[end_col][filter_detail_id].append(chart_info)
 
     return graph_configs
-
-
-@log_execution_time()
-def build_regex_index(var_col_id):
-    cfg_filter: CfgFilter = CfgFilter.get_filter_by_col_id(var_col_id)
-    cfg_filter_details = []
-    if cfg_filter:
-        cfg_filter_details = cfg_filter.filter_details or []
-
-    return {
-        cfg.id: gen_python_regex(cfg.filter_condition, FilterFunc[cfg.filter_function], cfg.filter_from_pos)
-        for cfg in cfg_filter_details
-    }
 
 
 @log_execution_time()
@@ -2342,7 +2753,9 @@ def map_stp_val_2_cfg_details(stp_value, map_filter_detail_2_regex={}):
 
 
 @log_execution_time()
-def get_chart_infos_by_stp_value(stp_value, end_col, dic_filter_detail_2_regex, chart_infos_by_stp_var):
+def get_chart_infos_by_stp_value(
+    stp_value, end_col, dic_filter_detail_2_regex, chart_infos_by_stp_var
+):
     mapped_cfg_detail_ids = map_stp_val_2_cfg_details(stp_value, dic_filter_detail_2_regex) or []
     chart_infos_for_stp_value = []
     sensor_chart_infos = chart_infos_by_stp_var.get(end_col) or {}
@@ -2371,9 +2784,17 @@ def get_chart_infos(graph_param: DicParam, dic_data=None, start_proc_times=None,
         end_proc = proc.proc_id
         end_proc_times = dic_data[proc.proc_id].get(Cycle.time.key) if dic_data else []
         for col_id in proc.col_ids:
-            orig_graph_cfg, graph_cfg = get_chart_info_detail(end_proc_times, col_id, threshold_filter_detail_ids,
-                                                              end_proc, start_proc, start_tm, end_tm, start_proc_times,
-                                                              no_convert=no_convert)
+            orig_graph_cfg, graph_cfg = get_chart_info_detail(
+                end_proc_times,
+                col_id,
+                threshold_filter_detail_ids,
+                end_proc,
+                start_proc,
+                start_tm,
+                end_tm,
+                start_proc_times,
+                no_convert=no_convert,
+            )
             original_graph_configs[proc.proc_id][col_id] = orig_graph_cfg
             graph_configs[proc.proc_id][col_id] = graph_cfg
 
@@ -2381,8 +2802,17 @@ def get_chart_infos(graph_param: DicParam, dic_data=None, start_proc_times=None,
 
 
 @log_execution_time()
-def get_chart_info_detail(end_proc_times, end_col, threshold_filter_detail_ids, end_proc=None, start_proc=None,
-                          start_tm=None, end_tm=None, start_proc_times=None, no_convert=False):
+def get_chart_info_detail(
+    end_proc_times,
+    end_col,
+    threshold_filter_detail_ids,
+    end_proc=None,
+    start_proc=None,
+    start_tm=None,
+    end_tm=None,
+    start_proc_times=None,
+    no_convert=False,
+):
     start_tm = convert_time(start_tm)
     end_tm = convert_time(end_tm)
     query_start_tm = start_tm
@@ -2397,14 +2827,24 @@ def get_chart_info_detail(end_proc_times, end_col, threshold_filter_detail_ids, 
         end_proc_times = end_proc_times.to_list()
 
     # get chart thresholds for each sensor
-    col_graph_configs = get_col_graph_configs(end_col, threshold_filter_detail_ids, start_tm, end_tm)
+    col_graph_configs = get_col_graph_configs(
+        end_col, threshold_filter_detail_ids, start_tm, end_tm
+    )
     orig_graph_cfgs = deepcopy(col_graph_configs)
 
-    if end_proc_times and start_proc and end_proc and start_proc != end_proc and not no_convert and start_proc_times:
+    if (
+        end_proc_times
+        and start_proc
+        and end_proc
+        and start_proc != end_proc
+        and not no_convert
+        and start_proc_times
+    ):
         # convert thresholds
         for chart_config in col_graph_configs:
-            act_from, act_to = convert_chart_info_time_range(chart_config, start_proc_times, end_proc_times,
-                                                             query_start_tm, query_end_tm)
+            act_from, act_to = convert_chart_info_time_range(
+                chart_config, start_proc_times, end_proc_times, query_start_tm, query_end_tm
+            )
             chart_config[ACT_FROM] = act_from
             chart_config[ACT_TO] = act_to
 
@@ -2432,7 +2872,12 @@ def order_end_proc_sensor(orig_graph_param: DicParam, reorder):
     dic_orders = {}
     for proc in orig_graph_param.array_formval:
         proc_id = proc.proc_id
-        orders = CfgConstant.get_value_by_type_name(type=CfgConstantType.TS_CARD_ORDER.name, name=proc_id) or '{}'
+        orders = (
+            CfgConstant.get_value_by_type_name(
+                type=CfgConstantType.TS_CARD_ORDER.name, name=proc_id
+            )
+            or '{}'
+        )
         orders = json.loads(orders)
         if orders:
             dic_orders[proc_id] = orders
@@ -2440,10 +2885,12 @@ def order_end_proc_sensor(orig_graph_param: DicParam, reorder):
     lst_proc_end_col = []
     for proc in orig_graph_param.array_formval:
         proc_id = proc.proc_id
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name, col_show_name in zip(
+            proc.col_ids, proc.col_names, proc.col_show_names
+        ):
             proc_order = dic_orders.get(proc_id) or {}
             order = proc_order.get(str(col_id)) or 999
-            lst_proc_end_col.append((proc_id, col_id, col_name, order))
+            lst_proc_end_col.append((proc_id, col_id, col_name, col_show_name, order))
 
     if not reorder:
         return lst_proc_end_col
@@ -2452,7 +2899,13 @@ def order_end_proc_sensor(orig_graph_param: DicParam, reorder):
 
 
 @log_execution_time()
-def gen_plotdata(orig_graph_param: DicParam, dic_data, chart_infos=None, original_graph_configs=None, reorder=True):
+def gen_plotdata(
+    orig_graph_param: DicParam,
+    dic_data,
+    chart_infos=None,
+    original_graph_configs=None,
+    reorder=True,
+):
     # re-order proc-sensors to show to UI
     lst_proc_end_col = order_end_proc_sensor(orig_graph_param, reorder)
 
@@ -2460,22 +2913,26 @@ def gen_plotdata(orig_graph_param: DicParam, dic_data, chart_infos=None, origina
     cat_exp_box_proc_name = []
     dic_procs, dic_cols = get_cfg_proc_col_info(cat_exp_box_cols)
     for col in cat_exp_box_cols:
-        cat_exp_box_proc_name.append(dic_cols[col].name)
+        cat_exp_box_proc_name.append(dic_cols[col].shown_name)
 
     plotdatas = []
     array_formval = []
-    for proc_id, col_id, col_name, _ in lst_proc_end_col:
+    for proc_id, col_id, col_name, col_show_name, _ in lst_proc_end_col:
         array_y = dic_data.get(proc_id, {}).get(col_id, [])
         array_x = dic_data.get(proc_id, {}).get(Cycle.time.key, [])
-        plotdata = {ARRAY_Y: array_y, ARRAY_X: array_x, END_PROC_ID: proc_id, END_COL_ID: col_id,
-                    END_COL_NAME: col_name, CAT_EXP_BOX_NAME: cat_exp_box_proc_name}
+        plotdata = {
+            ARRAY_Y: array_y,
+            ARRAY_X: array_x,
+            END_PROC_ID: proc_id,
+            END_COL_ID: col_id,
+            END_COL_NAME: col_name,
+            END_COL_SHOW_NAME: col_show_name,
+            CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
+        }
 
         plotdatas.append(plotdata)
 
-        array_formval.append({
-            END_PROC: proc_id,
-            GET02_VALS_SELECT: col_id
-        })
+        array_formval.append({END_PROC: proc_id, GET02_VALS_SELECT: col_id})
 
         # add chart info
         if chart_infos:
@@ -2485,15 +2942,21 @@ def gen_plotdata(orig_graph_param: DicParam, dic_data, chart_infos=None, origina
 
 
 @log_execution_time()
-def gen_plotdata_fpp(orig_graph_param: DicParam, dic_data, chart_infos=None, original_graph_configs=None,
-                     dic_cycle_ids=None, reorder=True):
+def gen_plotdata_fpp(
+    orig_graph_param: DicParam,
+    dic_data,
+    chart_infos=None,
+    original_graph_configs=None,
+    dic_cycle_ids=None,
+    reorder=True,
+):
     # re-order proc-sensors to show to UI
     lst_proc_end_col = order_end_proc_sensor(orig_graph_param, reorder)
 
     plotdatas = []
     array_formval = []
     dic_proc_name = gen_dict_procs([proc_id for proc_id, *_ in lst_proc_end_col])
-    for proc_id, col_id, col_name, _ in lst_proc_end_col:
+    for proc_id, col_id, col_name, col_show_name, _ in lst_proc_end_col:
         if proc_id not in dic_data or col_id not in dic_data.get(proc_id):
             continue
 
@@ -2510,16 +2973,22 @@ def gen_plotdata_fpp(orig_graph_param: DicParam, dic_data, chart_infos=None, ori
         cat_exp_box_proc_name = []
         dic_procs, dic_cols = get_cfg_proc_col_info(cat_exp_box_cols)
         for col in cat_exp_box_cols:
-            cat_exp_box_proc_name.append(dic_cols[col].name)
+            cat_exp_box_proc_name.append(dic_cols[col].shown_name)
 
         for idx, array_y in enumerate(y_list):
             if orig_graph_param.common.cat_exp and not array_y:
                 continue
 
-            plotdata = {ARRAY_Y: array_y, ARRAY_X: array_x, END_PROC_ID: proc_id,
-                        END_PROC_NAME: dic_proc_name[proc_id].name,
-                        END_COL_ID: col_id,
-                        END_COL_NAME: col_name, CAT_EXP_BOX_NAME: cat_exp_box_proc_name}
+            plotdata = {
+                ARRAY_Y: array_y,
+                ARRAY_X: array_x,
+                END_PROC_ID: proc_id,
+                END_PROC_NAME: dic_proc_name[proc_id].shown_name,
+                END_COL_ID: col_id,
+                END_COL_NAME: col_name,
+                END_COL_SHOW_NAME: col_show_name,
+                CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
+            }
 
             if cate_names:
                 plotdata.update({CAT_EXP_BOX: cate_names[idx]})
@@ -2535,10 +3004,7 @@ def gen_plotdata_fpp(orig_graph_param: DicParam, dic_data, chart_infos=None, ori
 
             plotdatas.append(plotdata)
 
-            array_formval.append({
-                END_PROC: proc_id,
-                GET02_VALS_SELECT: col_id
-            })
+            array_formval.append({END_PROC: proc_id, GET02_VALS_SELECT: col_id})
 
             # add chart info
             if chart_infos:
@@ -2575,8 +3041,9 @@ def set_chart_infos_to_plotdata(col_id, chart_infos, original_graph_configs, plo
 
 
 @log_execution_time()
-def gen_category_data(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicParam, dic_data,
-                      dic_org_cates=None):
+def gen_category_data(
+    dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicParam, dic_data, dic_org_cates=None
+):
     plotdatas = []
     cate_procs: List[CategoryProc] = graph_param.common.cate_procs
     if graph_param.common.cat_exp:
@@ -2592,7 +3059,10 @@ def gen_category_data(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicPara
 
         proc_cfg = dic_proc_cfgs[proc_id]
 
-        for col_id, column_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, column_name, col_show_name in zip(
+            proc.col_ids, proc.col_names, proc.col_show_names
+        ):
+            col_cfg = dic_proc_cfgs[proc_id].get_cols([col_id])[0]
             data = dic_proc.get(col_id)
             if not data:
                 continue
@@ -2604,10 +3074,20 @@ def gen_category_data(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicPara
 
             cate_summary = None
             if dic_org_cates:
-                cate_summary = dic_org_cates[proc_id].get(col_id) if dic_org_cates.get(proc_id) else None
+                cate_summary = (
+                    dic_org_cates[proc_id].get(col_id) if dic_org_cates.get(proc_id) else None
+                )
 
-            plotdata = dict(proc_name=proc_id, proc_master_name=proc_cfg.name, column_name=column_name,
-                            column_master_name=col_show_name, data=array_y, summary=cate_summary, column_id=col_id)
+            plotdata = dict(
+                proc_name=proc_id,
+                proc_master_name=proc_cfg.shown_name,
+                column_name=column_name,
+                column_master_name=col_show_name,
+                data=array_y,
+                summary=cate_summary,
+                column_id=col_id,
+                data_type=col_cfg.data_type,
+            )
             plotdatas.append(plotdata)
 
     return plotdatas
@@ -2615,7 +3095,7 @@ def gen_category_data(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicPara
 
 @log_execution_time()
 def clear_all_keyword(dic_param):
-    """ clear [All] keyword in selectbox
+    """clear [All] keyword in selectbox
 
     Arguments:
         dic_param {json} -- [params from client]
@@ -2626,14 +3106,18 @@ def clear_all_keyword(dic_param):
     for idx in range(len(dic_formval)):
         select_vals = dic_formval[idx][GET02_VALS_SELECT]
         if isinstance(select_vals, (list, tuple)):
-            dic_formval[idx][GET02_VALS_SELECT] = [val for val in select_vals if val not in [SELECT_ALL, NO_FILTER]]
+            dic_formval[idx][GET02_VALS_SELECT] = [
+                val for val in select_vals if val not in [SELECT_ALL, NO_FILTER]
+            ]
         else:
             dic_formval[idx][GET02_VALS_SELECT] = [select_vals]
 
     for idx in range(len(cate_procs)):
         select_vals = cate_procs[idx][GET02_CATE_SELECT]
         if isinstance(select_vals, (list, tuple)):
-            cate_procs[idx][GET02_CATE_SELECT] = [val for val in select_vals if val not in [SELECT_ALL, NO_FILTER]]
+            cate_procs[idx][GET02_CATE_SELECT] = [
+                val for val in select_vals if val not in [SELECT_ALL, NO_FILTER]
+            ]
         else:
             cate_procs[idx][GET02_CATE_SELECT] = [select_vals]
 
@@ -2649,41 +3133,6 @@ def clear_all_keyword(dic_param):
                 continue
 
             cond[key] = [val for val in vals if not val == SELECT_ALL]
-
-
-@log_execution_time()
-def update_outlier_flg(proc_id, cycle_ids, is_outlier):
-    """update outlier to t_cycle table
-
-    Arguments:
-        cycle_ids {[type]} -- [description]
-        is_outlier {[type]} -- [description]
-
-    Returns:
-        [type] -- [description]
-    """
-
-    # get global_ids linked to target cycles
-    cycle_cls = find_cycle_class(proc_id)
-    cycle_recs = cycle_cls.get_cycles_by_ids(cycle_ids)
-    if not cycle_recs:
-        return True
-
-    global_ids = []
-    for rec in cycle_recs:
-        if rec.global_id:
-            global_ids.append(rec.global_id)
-        else:
-            rec.is_outlier = is_outlier
-
-    target_global_ids = GlobalRelation.get_all_relations_by_globals(global_ids, set_done_globals=set())
-
-    # update outlier for linked global ids
-    # TODO: fix front end
-    cycle_cls.update_outlier_by_global_ids(list(target_global_ids), is_outlier)
-
-    db.session.commit()
-    return True
 
 
 @log_execution_time()
@@ -2737,8 +3186,11 @@ def get_non_sensor_cols(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicPa
 def get_cate_var(graph_param: DicParam):
     cate_procs = graph_param.common.cate_procs
     if cate_procs:
-        return {ele[CATE_PROC]: ele[GET02_CATE_SELECT] for ele in cate_procs if
-                ele.get(CATE_PROC) and ele.get(GET02_CATE_SELECT)}
+        return {
+            ele[CATE_PROC]: ele[GET02_CATE_SELECT]
+            for ele in cate_procs
+            if ele.get(CATE_PROC) and ele.get(GET02_CATE_SELECT)
+        }
 
     return None
 
@@ -2795,8 +3247,12 @@ def get_min_max_of_all_chart_infos(chart_infos):
 
 
 def get_threshold_min_max_chartinfo(chart_infos):
-    threshold_lows = [chart.get(THRESH_LOW) for chart in chart_infos if chart.get(THRESH_LOW) is not None]
-    threshold_high = [chart.get(THRESH_HIGH) for chart in chart_infos if chart.get(THRESH_HIGH) is not None]
+    threshold_lows = [
+        chart.get(THRESH_LOW) for chart in chart_infos if chart.get(THRESH_LOW) is not None
+    ]
+    threshold_high = [
+        chart.get(THRESH_HIGH) for chart in chart_infos if chart.get(THRESH_HIGH) is not None
+    ]
 
     vals = threshold_lows + threshold_high
     y_min = None
@@ -2833,9 +3289,11 @@ def calc_upper_lower_range(array_y: Series):
 def save_proc_sensor_order_to_db(orders):
     try:
         for proc_code, new_orders in orders.items():
-            CfgConstant.create_or_merge_by_type(const_type=CfgConstantType.TS_CARD_ORDER.name,
-                                                const_name=proc_code,
-                                                const_value=new_orders)
+            CfgConstant.create_or_merge_by_type(
+                const_type=CfgConstantType.TS_CARD_ORDER.name,
+                const_name=proc_code,
+                const_value=new_orders,
+            )
     except Exception as ex:
         traceback.print_exc()
         logger.error(ex)
@@ -2917,7 +3375,8 @@ def gen_blank_df():
     return pd.DataFrame(data)
 
 
-def fx(v): return pd.NA
+def fx(v):
+    return pd.NA
 
 
 @log_execution_time()
@@ -2927,12 +3386,18 @@ def apply_coef_text(df: DataFrame, graph_param: DicParam, dic_proc_cfgs: dict):
             end_col_ids = graph_param.get_end_cols(proc_id) or []
             end_cols: List[CfgProcessColumn] = proc_cfg.get_cols(end_col_ids) or []
             for end_col in end_cols:
-                if DataType[end_col.data_type] is DataType.TEXT \
-                        and end_col.coef is not None and end_col.operator == Operator.REGEX.value:
+                if (
+                    DataType[end_col.data_type] is DataType.TEXT
+                    and end_col.coef is not None
+                    and end_col.operator == Operator.REGEX.value
+                ):
                     col_label = gen_sql_label(end_col.id, end_col.column_name)
                     if col_label in df.columns:
-                        df[col_label] = df[col_label].astype('object').str \
-                            .replace('^(?!{})'.format(end_col.coef), fx, regex=True)
+                        df[col_label] = (
+                            df[col_label]
+                            .astype('object')
+                            .str.replace('^(?!{})'.format(end_col.coef), fx, regex=True)
+                        )
     return df
 
 
@@ -2952,7 +3417,9 @@ def get_filter_detail_ids(proc_ids, column_ids):
         df_col_name = gen_sql_label(cfg_column.id, cfg_column.column_name)
         for cfg_detail in cfg_filter.filter_details:
             if cfg_detail.filter_function == FilterFunc.MATCHES.name:
-                dic_col_filter_details[df_col_name].append((cfg_detail.id, cfg_detail.filter_condition))
+                dic_col_filter_details[df_col_name].append(
+                    (cfg_detail.id, cfg_detail.filter_condition)
+                )
             else:
                 not_exact_matches.append(cfg_detail.id)
 
@@ -2990,10 +3457,13 @@ def check_filter_detail_match_graph_data(dic_col_filter_details, dic_col_values)
 def main_check_filter_detail_match_graph_data(graph_param: DicParam, df: DataFrame):
     cond_proc_ids = [cond.proc_id for cond in graph_param.common.cond_procs]
     cond_col_ids = graph_param.get_all_end_col_ids()
-    dic_col_filter_details, not_exact_match_filter_ids = get_filter_detail_ids(cond_proc_ids, cond_col_ids)
+    dic_col_filter_details, not_exact_match_filter_ids = get_filter_detail_ids(
+        cond_proc_ids, cond_col_ids
+    )
     dic_col_values = gen_dic_uniq_value_from_df(df, dic_col_filter_details)
-    matched_filter_ids, unmatched_filter_ids = check_filter_detail_match_graph_data(dic_col_filter_details,
-                                                                                    dic_col_values)
+    matched_filter_ids, unmatched_filter_ids = check_filter_detail_match_graph_data(
+        dic_col_filter_details, dic_col_values
+    )
 
     return matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
 
@@ -3036,7 +3506,8 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
                 dic_cate_names[sql_label] = (proc.proc_id, col_id, col_name)
 
     all_cols = list(
-        set([Cycle.time.key] + list(dic_end_col_names) + list(dic_cate_names) + rank_cols))
+        set([Cycle.time.key] + list(dic_end_col_names) + list(dic_cate_names) + rank_cols)
+    )
     group_col = '__group_col__'
     index_col = '__index_col__'
     all_cols = [col for col in all_cols if col in df_orig.columns]
@@ -3125,7 +3596,11 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
 
     # remove blanks
     if x_option.upper() == 'TIME':
-        df_box.dropna(how="all", subset=cols + rank_cols, inplace=True)
+        df_box.dropna(how='all', subset=cols + rank_cols, inplace=True)
+
+    # in case of select category sensors only, it should be add "time" into df
+    if Cycle.time.key not in df_box.columns.tolist():
+        df_box[Cycle.time.key] = df_from_to_count['min']
 
     # remove blank category
     dic_cates = defaultdict(dict)
@@ -3261,10 +3736,12 @@ def detect_abnormal_data(series_x, series_y, none_idxs=None):
     if none_idxs is None:
         nones = series_y[series_y.isnull()].index.tolist()
 
-    return {UNLINKED_IDXS: series_x[series_x.isnull()].index.tolist(),
-            NONE_IDXS: nones,
-            INF_IDXS: series_y[series_y == float('inf')].index.tolist(),
-            NEG_INF_IDXS: series_y[series_y == float('-inf')].index.tolist()}
+    return {
+        UNLINKED_IDXS: series_x[series_x.isnull()].index.tolist(),
+        NONE_IDXS: nones,
+        INF_IDXS: series_y[series_y == float('inf')].index.tolist(),
+        NEG_INF_IDXS: series_y[series_y == float('-inf')].index.tolist(),
+    }
 
 
 def calc_auto_scale_y(plotdata, series_y):
@@ -3288,8 +3765,12 @@ def calc_auto_scale_y(plotdata, series_y):
         lower_range = p25 - 2.5 * iqr
         upper_range = p75 + 2.5 * iqr
 
-    lower_outlier_idxs = series_y[series_y < lower_range].index.tolist() if lower_range is not None else []
-    upper_outlier_idxs = series_y[series_y > upper_range].index.tolist() if upper_range is not None else []
+    lower_outlier_idxs = (
+        series_y[series_y < lower_range].index.tolist() if lower_range is not None else []
+    )
+    upper_outlier_idxs = (
+        series_y[series_y > upper_range].index.tolist() if upper_range is not None else []
+    )
 
     if upper_range == lower_range:
         lower_outlier_idxs = []
@@ -3303,9 +3784,12 @@ def calc_auto_scale_y(plotdata, series_y):
 
     lower_range, upper_range = extend_min_max(lower_range, upper_range)
 
-    return {Y_MIN: lower_range, Y_MAX: upper_range,
-            LOWER_OUTLIER_IDXS: lower_outlier_idxs,
-            UPPER_OUTLIER_IDXS: upper_outlier_idxs}
+    return {
+        Y_MIN: lower_range,
+        Y_MAX: upper_range,
+        LOWER_OUTLIER_IDXS: lower_outlier_idxs,
+        UPPER_OUTLIER_IDXS: upper_outlier_idxs,
+    }
 
 
 def calc_setting_scale_y(plotdata, series_y):
@@ -3340,7 +3824,12 @@ def calc_setting_scale_y(plotdata, series_y):
 
     ymin, ymax = extend_min_max(ymin, ymax)
 
-    return {Y_MIN: ymin, Y_MAX: ymax, LOWER_OUTLIER_IDXS: lower_outlier_idxs, UPPER_OUTLIER_IDXS: upper_outlier_idxs}
+    return {
+        Y_MIN: ymin,
+        Y_MAX: ymax,
+        LOWER_OUTLIER_IDXS: lower_outlier_idxs,
+        UPPER_OUTLIER_IDXS: upper_outlier_idxs,
+    }
 
 
 def calc_threshold_scale_y(plotdata, series_y):
@@ -3369,22 +3858,35 @@ def calc_threshold_scale_y(plotdata, series_y):
     lower_outlier_idxs = series_y[series_y < lower_margin_val].index.tolist()
     upper_outlier_idxs = series_y[series_y > upper_margin_val].index.tolist()
 
-    return {Y_MIN: thresh_low, Y_MAX: thresh_high,
-            LOWER_OUTLIER_IDXS: lower_outlier_idxs,
-            UPPER_OUTLIER_IDXS: upper_outlier_idxs}
+    return {
+        Y_MIN: thresh_low,
+        Y_MAX: thresh_high,
+        LOWER_OUTLIER_IDXS: lower_outlier_idxs,
+        UPPER_OUTLIER_IDXS: upper_outlier_idxs,
+    }
 
 
 @log_execution_time()
-def calc_scale_info(array_plotdata, min_max_list, all_graph_min, all_graph_max, string_col_ids=None, has_val_idxs=None,
-                    end_col_id=END_COL_ID, y_col=ARRAY_Y):
+def calc_scale_info(
+    array_plotdata,
+    min_max_list,
+    all_graph_min,
+    all_graph_max,
+    string_col_ids=None,
+    has_val_idxs=None,
+    end_col_id=END_COL_ID,
+    y_col=ARRAY_Y,
+):
     dic_datetime_cols = {}
     for idx, plotdata in enumerate(array_plotdata):
         # datetime column
         proc_id = plotdata.get(END_PROC_ID)
         col_id = plotdata.get(END_COL_ID)
         if proc_id and proc_id not in dic_datetime_cols:
-            dic_datetime_cols[proc_id] = {cfg_col.id: cfg_col for cfg_col in
-                                          CfgProcessColumn.get_by_data_type(proc_id, DataType.DATETIME)}
+            dic_datetime_cols[proc_id] = {
+                cfg_col.id: cfg_col
+                for cfg_col in CfgProcessColumn.get_by_data_type(proc_id, DataType.DATETIME)
+            }
 
         is_datetime_col = True if col_id in dic_datetime_cols.get(proc_id, {}) else False
 
@@ -3398,8 +3900,17 @@ def calc_scale_info(array_plotdata, min_max_list, all_graph_min, all_graph_max, 
 
         array_y = plotdata.get(ARRAY_Y)
         array_x = plotdata.get(ARRAY_X)
-        if (not len(array_y)) or (not len(array_x)) or (string_col_ids and plotdata[END_COL_ID] in string_col_ids):
-            dic_base_scale = {Y_MIN: y_min, Y_MAX: y_max, LOWER_OUTLIER_IDXS: [], UPPER_OUTLIER_IDXS: []}
+        if (
+            (not len(array_y))
+            or (not len(array_x))
+            or (string_col_ids and plotdata[END_COL_ID] in string_col_ids)
+        ):
+            dic_base_scale = {
+                Y_MIN: y_min,
+                Y_MAX: y_max,
+                LOWER_OUTLIER_IDXS: [],
+                UPPER_OUTLIER_IDXS: [],
+            }
             plotdata[SCALE_AUTO] = dic_base_scale
             plotdata[SCALE_SETTING] = dic_base_scale
             plotdata[SCALE_THRESHOLD] = dic_base_scale
@@ -3435,9 +3946,18 @@ def calc_scale_info(array_plotdata, min_max_list, all_graph_min, all_graph_max, 
 
         plotdata[SCALE_SETTING] = calc_setting_scale_y(plotdata, series_y)
         plotdata[SCALE_THRESHOLD] = calc_threshold_scale_y(plotdata, series_y)
-        plotdata[SCALE_COMMON] = {Y_MIN: all_graph_min, Y_MAX: all_graph_max, LOWER_OUTLIER_IDXS: [],
-                                  UPPER_OUTLIER_IDXS: []}
-        plotdata[SCALE_FULL] = {Y_MIN: y_min, Y_MAX: y_max, LOWER_OUTLIER_IDXS: [], UPPER_OUTLIER_IDXS: []}
+        plotdata[SCALE_COMMON] = {
+            Y_MIN: all_graph_min,
+            Y_MAX: all_graph_max,
+            LOWER_OUTLIER_IDXS: [],
+            UPPER_OUTLIER_IDXS: [],
+        }
+        plotdata[SCALE_FULL] = {
+            Y_MIN: y_min,
+            Y_MAX: y_max,
+            LOWER_OUTLIER_IDXS: [],
+            UPPER_OUTLIER_IDXS: [],
+        }
         if is_datetime_col:
             plotdata[SCALE_FULL][Y_MIN] = 0
 
@@ -3450,8 +3970,13 @@ def gen_kde_data_trace_data(dic_param, full_arrays=None):
     for num, plotdata in enumerate(array_plotdata):
         full_array_y = full_arrays[num] if full_arrays else None
         kde_list = calculate_kde_trace_data(plotdata, full_array_y=full_array_y)
-        plotdata[SCALE_SETTING][KDE_DATA], plotdata[SCALE_COMMON][KDE_DATA], plotdata[SCALE_THRESHOLD][KDE_DATA], \
-            plotdata[SCALE_AUTO][KDE_DATA], plotdata[SCALE_FULL][KDE_DATA] = kde_list
+        (
+            plotdata[SCALE_SETTING][KDE_DATA],
+            plotdata[SCALE_COMMON][KDE_DATA],
+            plotdata[SCALE_THRESHOLD][KDE_DATA],
+            plotdata[SCALE_AUTO][KDE_DATA],
+            plotdata[SCALE_FULL][KDE_DATA],
+        ) = kde_list
 
     calculate_histogram_count_common(array_plotdata)
 
@@ -3520,7 +4045,9 @@ def get_available_ratio(series: Series):
     na_counts = n_total - non_na_counts
     na_percentage = (100 * na_counts / n_total) if n_total else 0
     non_na_percentage = 100 - na_percentage
-    return dict(nTotal=n_total, nonNACounts=non_na_counts, nonNAPercentage=signify_digit(non_na_percentage))
+    return dict(
+        nTotal=n_total, nonNACounts=non_na_counts, nonNAPercentage=signify_digit(non_na_percentage)
+    )
 
 
 @log_execution_time()
@@ -3579,7 +4106,7 @@ def gen_unique_data(df, dic_proc_cfgs, col_ids, has_na=False):
     for col_id in col_ids:
         cfg_col = dic_cols.get(col_id)
         col_name = cfg_col.column_name
-        master_name = cfg_col.name
+        master_name = cfg_col.shown_name
         proc_id = cfg_col.process_id
         col_type = cfg_col.data_type
         if col_type not in [DataType.TEXT.name, DataType.INTEGER.name]:
@@ -3594,10 +4121,16 @@ def gen_unique_data(df, dic_proc_cfgs, col_ids, has_na=False):
             s = df[sql_label].value_counts(dropna=not has_na)
             unique_data = s.index.tolist()
 
-        cfg_proc_name = dic_proc_cfgs[proc_id].name
-        unique_data = {'proc_name': proc_id, 'proc_master_name': cfg_proc_name, 'column_name': col_name,
-                       'column_master_name': master_name, 'column_id': col_id,
-                       UNIQUE_CATEGORIES: unique_data}
+        cfg_proc_name = dic_proc_cfgs[proc_id].shown_name
+        unique_data = {
+            'proc_name': proc_id,
+            'proc_master_name': cfg_proc_name,
+            'column_name': col_name,
+            'column_master_name': master_name,
+            'column_id': col_id,
+            UNIQUE_CATEGORIES: unique_data,
+            COL_DATA_TYPE: cfg_col.data_type,
+        }
 
         dic_unique_cate[col_id] = unique_data
 
@@ -3654,6 +4187,7 @@ def filter_df(df, dic_filter):
 
         df[sql_label] = df[sql_label].replace(['nan', '<NA>'], np.nan)
 
+    df.reset_index(drop=True, inplace=True)
     return df
 
 
@@ -3719,10 +4253,20 @@ def get_outlier_info(remove_outlier_type):
     percent = 0.25  # default p25-p75
     actual_type = RemoveOutlierType.O6M
     distance = 0
-    if remove_outlier_type in [RemoveOutlierType.O6M, RemoveOutlierType.O6I, RemoveOutlierType.O6U, RemoveOutlierType.O6L]:
+    if remove_outlier_type in [
+        RemoveOutlierType.O6M,
+        RemoveOutlierType.O6I,
+        RemoveOutlierType.O6U,
+        RemoveOutlierType.O6L,
+    ]:
         distance = 2.5  # +- 2.5iqr
 
-    if remove_outlier_type in [RemoveOutlierType.O4M, RemoveOutlierType.O4I, RemoveOutlierType.O4U, RemoveOutlierType.O4L]:
+    if remove_outlier_type in [
+        RemoveOutlierType.O4M,
+        RemoveOutlierType.O4I,
+        RemoveOutlierType.O4U,
+        RemoveOutlierType.O4L,
+    ]:
         distance = 1.5  # +- 1.5iqr
 
     if remove_outlier_type in [RemoveOutlierType.OP1]:
@@ -3731,7 +4275,12 @@ def get_outlier_info(remove_outlier_type):
     if remove_outlier_type in [RemoveOutlierType.OP5]:
         percent = 0.05  # p5-p95
 
-    if remove_outlier_type in [RemoveOutlierType.O4M, RemoveOutlierType.O6M, RemoveOutlierType.OP1, RemoveOutlierType.OP5]:
+    if remove_outlier_type in [
+        RemoveOutlierType.O4M,
+        RemoveOutlierType.O6M,
+        RemoveOutlierType.OP1,
+        RemoveOutlierType.OP5,
+    ]:
         actual_type = RemoveOutlierType.Majority
 
     if remove_outlier_type in [RemoveOutlierType.O4I, RemoveOutlierType.O6I]:
@@ -3748,6 +4297,8 @@ def get_outlier_info(remove_outlier_type):
 
 @log_execution_time()
 def remove_outlier(df: DataFrame, sensor_labels, graph_param):
+    if df.empty:
+        return df
     remove_outlier_type = graph_param.common.remove_outlier_type
     is_real_only = graph_param.common.remove_outlier_real_only
 
@@ -3763,7 +4314,6 @@ def remove_outlier(df: DataFrame, sensor_labels, graph_param):
     else:
         numeric_cols = df.loc[:, valid_cols].select_dtypes('number').columns
     df_sub = df.loc[:, numeric_cols]
-
     for target_col in numeric_cols:
         series = df_sub[target_col].replace(dict.fromkeys([pd.NA], np.nan))
         lower, upper, q1, q3 = series.quantile([lower_limit, upper_limit, 0.25, 0.75])
@@ -3799,7 +4349,7 @@ def get_serial_and_datetime_data(df, graph_param, dic_proc_cfgs):
         if proc == graph_param.common.start_proc:
             start_proc = dic_proc_cfgs[proc]
             if start_proc:
-                start_proc_name = start_proc.name
+                start_proc_name = start_proc.shown_name
                 serial_cols = start_proc.get_serials(column_name_only=False)
                 datetime_col = start_proc.get_date_col(column_name_only=False)
                 datetime_id = datetime_col.id
@@ -3837,17 +4387,25 @@ def gen_sensor_ids_from_trace_keys(edge, dic_mapping_col_n_sensor):
     self_sensor_ids = []
     target_sensor_ids = []
     for key in edge.trace_keys:
-        self_name = get_substr_col_name(key.self_column.column_name, key.self_column_substr_from,
-                                        key.self_column_substr_to)
-        _, self_sensor = dic_mapping_col_n_sensor.get(edge.self_process_id, {}).get(self_name, (None, None))
+        self_name = get_substr_col_name(
+            key.self_column.column_name, key.self_column_substr_from, key.self_column_substr_to
+        )
+        _, self_sensor = dic_mapping_col_n_sensor.get(edge.self_process_id, {}).get(
+            self_name, (None, None)
+        )
         if self_sensor is None:
             self_sensor_ids.append(None)
         else:
             self_sensor_ids.append(self_sensor.id)
 
-        target_name = get_substr_col_name(key.target_column.column_name, key.target_column_substr_from,
-                                          key.target_column_substr_to)
-        _, target_sensor = dic_mapping_col_n_sensor.get(edge.target_process_id, {}).get(target_name, (None, None))
+        target_name = get_substr_col_name(
+            key.target_column.column_name,
+            key.target_column_substr_from,
+            key.target_column_substr_to,
+        )
+        _, target_sensor = dic_mapping_col_n_sensor.get(edge.target_process_id, {}).get(
+            target_name, (None, None)
+        )
         if target_sensor is None:
             target_sensor_ids.append(None)
         else:
@@ -3868,41 +4426,97 @@ def get_original_serial(sensor_id):
 
 
 @log_execution_time()
-def gen_graph_df_one_proc(start_proc_id, start_tm, end_tm, dic_mapping_col_n_sensor, end_procs, short_procs,
-                          dic_conditions, dup_show, for_count=False):
+def gen_graph_df_one_proc(
+    start_proc_id,
+    start_tm,
+    end_tm,
+    dic_mapping_col_n_sensor,
+    end_procs,
+    short_procs,
+    dic_conditions,
+    dup_show,
+    for_count=False,
+):
     valid_end_procs = [_proc for _proc in end_procs if _proc.proc_id in short_procs]
     if valid_end_procs:
         end_proc = valid_end_procs[0]
         end_proc_id = end_proc.proc_id
+        cfg_process: CfgProcess = CfgProcess.query.get(end_proc_id)
+        serial_cols = cfg_process.get_serials(column_name_only=False)
+        getdate_col = cfg_process.get_date_col(column_name_only=False)
         if for_count:
-            serial_cols = CfgProcessColumn.get_serials(end_proc_id)
-            col_ids = [serial_col.id for serial_col in serial_cols]
-            col_names = [serial_col.column_name for serial_col in serial_cols]
+            column_ids = end_proc.col_ids[:1]
+            column_names = end_proc.col_names[:1]
         else:
-            col_ids = end_proc.col_ids
-            col_names = end_proc.col_names
+            column_ids = end_proc.col_ids
+            column_names = end_proc.col_names
     else:
         end_proc_id = start_proc_id
-        col_ids = []
-        col_names = []
+        column_ids = []
+        column_names = []
 
     cycle_cls = find_cycle_class(end_proc_id)
     cycle_table_name = cycle_cls.__table__.name
-    sql, params = gen_trace_sensors_sql(end_proc_id, col_names, dic_mapping_col_n_sensor, cycle_table_name,
-                                        Cycle.id.key, Cycle.time.key, start_tm, end_tm, where_proc_id=True,
-                                        dic_conditions=dic_conditions, dup_serials_show=dup_show)
 
-    with DbProxy(gen_data_source_of_universal_db(), True) as db_instance:
+    immediate_isolation_level = bool(dic_conditions)
+    with DbProxy(gen_data_source_of_universal_db(), True, immediate_isolation_level) as db_instance:
         if dic_conditions:
             # add regular expression function to db
             db_instance.connection.create_function(SQL_REGEXP_FUNC, 2, sql_regexp)
 
-        _, rows = db_instance.run_sql(sql, params=params, row_is_dict=False)
+        dfs = []
+        for col_ids, col_names in chunk_two_list(column_ids, column_names, 50):
+            if getdate_col.id not in col_ids:
+                col_ids.append(getdate_col.id)
+                col_names.append(getdate_col.column_name)
 
-    labels = [gen_sql_label(_col_id, _col_name) for _col_id, _col_name in zip(col_ids, col_names)]
-    df = pd.DataFrame(rows, columns=[Cycle.id.key, gen_proc_time_label(end_proc_id)] + labels)
+            for serial_col in serial_cols:
+                if serial_col.id not in col_ids:
+                    col_ids.append(serial_col.id)
+                    col_names.append(serial_col.column_name)
 
-    actual_total_record = len(df)
+            sql, params = gen_trace_sensors_sql(
+                end_proc_id,
+                col_names,
+                dic_mapping_col_n_sensor,
+                cycle_table_name,
+                Cycle.id.key,
+                Cycle.time.key,
+                start_tm,
+                end_tm,
+                where_proc_id=True,
+                dic_conditions=dic_conditions,
+                dup_serials_show=dup_show,
+            )
+
+            _, rows = db_instance.run_sql(sql, params=params, row_is_dict=False)
+
+            labels = [
+                gen_sql_label(_col_id, _col_name) for _col_id, _col_name in zip(col_ids, col_names)
+            ]
+            _df = pd.DataFrame(
+                rows, columns=[Cycle.id.key, gen_proc_time_label(end_proc_id)] + labels
+            )
+
+            dfs.append(_df)
+
+        df = None
+        actual_total_record = 0
+        len_df = len(dfs)
+        if not len_df:
+            return df, actual_total_record
+
+        if len_df == 1:
+            df = dfs[0]
+        else:
+            idx_cols = dfs[0].columns.intersection(dfs[1].columns).tolist()
+            for _df in dfs:
+                _df.set_index(idx_cols, inplace=True)
+
+            df = pd.concat(dfs, axis='columns')
+            df.reset_index(inplace=True)
+
+        actual_total_record = len(df)
 
     return df, actual_total_record
 
@@ -3924,7 +4538,9 @@ def category_data_merging(cat_data={}, data=[]):
                 PROC_NAME: item[PROC_NAME],
                 PROC_MASTER_NAME: item[PROC_MASTER_NAME],
                 COL_NAME: item[COL_NAME],
-                COL_MASTER_NAME: item[COL_MASTER_NAME] if COL_MASTER_NAME in item else item[COL_NAME],
+                COL_MASTER_NAME: item[COL_MASTER_NAME]
+                if COL_MASTER_NAME in item
+                else item[COL_NAME],
                 COL_ID: item[COL_ID],
                 UNIQUE_CATEGORIES: unique_vals,
                 IS_OVER_UNIQUE_LIMIT: is_over_cat_limit,
@@ -3950,7 +4566,7 @@ def gen_cat_plotdata(plot_data, array_y=[], dic_proc_cfgs={}):
     col_id = plot_data[END_COL_ID] if END_COL_ID in plot_data else plot_data[END_COL]
     [column_data, *_] = dic_proc_cfgs[proc_id].get_cols([col_id])
     if column_data and column_data.data_type in [DataType.INTEGER.name, DataType.TEXT.name]:
-        col_name = column_data.name
+        col_name = column_data.shown_name
         cat_list = array_y or plot_data[ARRAY_Y]
         if ORG_ARRAY_Y in plot_data and plot_data[ORG_ARRAY_Y]:
             cat_list = plot_data[ORG_ARRAY_Y]
@@ -3970,7 +4586,7 @@ def gen_cat_plotdata(plot_data, array_y=[], dic_proc_cfgs={}):
                 unique_vals = org_value
         return {
             PROC_NAME: proc_id,
-            PROC_MASTER_NAME: dic_proc_cfgs[proc_id].name,
+            PROC_MASTER_NAME: dic_proc_cfgs[proc_id].shown_name,
             COL_NAME: col_name,
             COL_ID: col_id,
             UNIQUE_CATEGORIES: unique_vals,
@@ -3988,7 +4604,9 @@ def transform_array_plot_data(plot_datas, dic_proc_cfgs):
             array_y = []
             for plot_dat in plot_data:
                 array_y += plot_dat[ARRAY_Y]
-            cat_plot_data = gen_cat_plotdata(plot_data[0], array_y=array_y, dic_proc_cfgs=dic_proc_cfgs)
+            cat_plot_data = gen_cat_plotdata(
+                plot_data[0], array_y=array_y, dic_proc_cfgs=dic_proc_cfgs
+            )
             if cat_plot_data:
                 all_plots.append(cat_plot_data)
     else:
@@ -4039,11 +4657,25 @@ def retrieve_order_setting(dic_param, dic_proc_cfgs):
 
 
 @log_execution_time()
-def sort_df_by_x_option(df, dic_param, graph_param, dic_proc_cfgs, temp_x_option, temp_serial_process,
-                        temp_serial_column, temp_serial_order):
+def sort_df_by_x_option(
+    df,
+    dic_param,
+    graph_param,
+    dic_proc_cfgs,
+    temp_x_option,
+    temp_serial_process,
+    temp_serial_column,
+    temp_serial_order,
+):
     if temp_x_option:
-        df = check_and_order_data(df, dic_proc_cfgs, temp_x_option, temp_serial_process, temp_serial_column,
-                                  temp_serial_order)
+        df = check_and_order_data(
+            df,
+            dic_proc_cfgs,
+            temp_x_option,
+            temp_serial_process,
+            temp_serial_column,
+            temp_serial_order,
+        )
         dic_param[COMMON][X_OPTION] = temp_x_option
         dic_param[COMMON][SERIAL_PROCESS] = temp_serial_process
         dic_param[COMMON][SERIAL_COLUMN] = temp_serial_column
@@ -4053,6 +4685,46 @@ def sort_df_by_x_option(df, dic_param, graph_param, dic_proc_cfgs, temp_x_option
         serial_processes = graph_param.common.serial_processes or []
         serial_cols = graph_param.common.serial_columns or []
         serial_orders = graph_param.common.serial_orders or []
-        df = check_and_order_data(df, dic_proc_cfgs, x_option, serial_processes, serial_cols, serial_orders)
+        df = check_and_order_data(
+            df, dic_proc_cfgs, x_option, serial_processes, serial_cols, serial_orders
+        )
 
     return df, dic_param
+
+
+@log_execution_time()
+def discretize_float_data_equally(x, num_bins=10):
+    """Discretize an 1D-NumpyArray with dtype=float
+    Each value of x is replaced with the average value of its corresponding bin.
+    For example, if x = np.array([0.0, 1.0, 2.0, 3.0]) and num_bins=2,
+    this function will return [0.5, 0.5, 2.5, 2.5].
+    """
+
+    # NOTE:
+    # 1. This function returns error when np.nan/np.inf exists
+    # 2. x_discretized must have the same digits as x
+    #    (If x is 123.45, x_discretized must be like 120.12)
+
+    nuniq = len(np.unique(x))
+    if nuniq <= num_bins:
+        return x
+
+    # get edges to categorize the data
+    # +1 on the last elements ensures that the maximum value is included in the last bin
+    bin_edges = np.histogram_bin_edges(x, bins=num_bins)
+    bin_edges[-1] = bin_edges[-1] + 1
+    assert len(bin_edges) == num_bins + 1
+
+    # np.digitize returns bin number, starting from 1
+    # (-1 is to let the bin number start from 0)
+    bin_edges = np.array(bin_edges.tolist())
+    x_discretized = np.digitize(x, bins=bin_edges) - 1
+
+    # calculate sample size and sum of each x in each bin, then get averages
+    counts = np.bincount(x_discretized)
+    sums = np.bincount(x_discretized, weights=x)
+    averages = sums / counts
+
+    # replace the values of x to the average of its corresponding bin
+    x_discretized = averages[x_discretized]
+    return x_discretized

@@ -4,25 +4,36 @@ import timeit
 from zipfile import ZipFile
 
 import simplejson
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, Response, jsonify, request
 
 from ap.analyze.services.sensor_list import get_sensors_incrementally
-from ap.api.analyze.services.pca import run_pca, calculate_data_size
-from ap.api.trace_data.services.csv_export import split_graph_params, gen_csv_data, make_graph_param, to_csv
-from ap.api.trace_data.services.time_series_chart import get_data_from_db, filter_df
+from ap.api.analyze.services.pca import calculate_data_size, run_pca
+from ap.api.trace_data.services.csv_export import (
+    gen_csv_data,
+    make_graph_param,
+    split_graph_params,
+    to_csv,
+)
+from ap.api.trace_data.services.time_series_chart import filter_df, get_data_from_db
 from ap.common.constants import *
 from ap.common.services import csv_content
+from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import parse_multi_filter_into_one, parse_request_params
-from ap.common.services.http_content import json_serial
-from ap.common.services.import_export_config_n_data import get_dic_form_from_debug_info, \
-    set_export_dataset_id_to_dic_param
-from ap.common.trace_data_log import is_send_google_analytics, save_input_data_to_file, EventType, \
-    save_draw_graph_trace, trace_log_params
+from ap.common.services.http_content import orjson_dumps
+from ap.common.services.import_export_config_n_data import (
+    get_dic_form_from_debug_info,
+    set_export_dataset_id_to_dic_param,
+)
+from ap.common.trace_data_log import (
+    EventType,
+    is_send_google_analytics,
+    save_draw_graph_trace,
+    save_input_data_to_file,
+    trace_log_params,
+)
 
 api_analyze_module_blueprint = Blueprint(
-    'api_analyze_module',
-    __name__,
-    url_prefix='/ap/api/analyze'
+    'api_analyze_module', __name__, url_prefix='/ap/api/analyze'
 )
 
 
@@ -56,7 +67,7 @@ def pca_modelling():
     dic_data, errors = run_pca(dic_param, sample_no)
 
     if errors:
-        output = simplejson.dumps(dict(json_errors=errors), ensure_ascii=False, default=json_serial)
+        output = orjson_dumps(dict(json_errors=errors))
         return jsonify(output), 400
 
     plotly_jsons = dic_data[PLOTLY_JSON]
@@ -70,21 +81,25 @@ def pca_modelling():
     else:
         unique_serial = unique_serial_test + unique_serial_train
 
-    output_dict.update({
-        DATAPOINT_INFO: data_point_info,
-        SHORT_NAMES: dic_data.get(SHORT_NAMES),
-        UNIQUE_SERIAL_TRAIN: dic_data.get(UNIQUE_SERIAL_TRAIN),
-        UNIQUE_SERIAL_TEST: dic_data.get(UNIQUE_SERIAL_TEST),
-        ACTUAL_RECORD_NUMBER_TRAIN: dic_data.get(ACTUAL_RECORD_NUMBER_TRAIN),
-        ACTUAL_RECORD_NUMBER_TEST: dic_data.get(ACTUAL_RECORD_NUMBER_TEST),
-        ACTUAL_RECORD_NUMBER: dic_data.get(ACTUAL_RECORD_NUMBER_TRAIN, 0) + dic_data.get(ACTUAL_RECORD_NUMBER_TEST, 0),
-        UNIQUE_SERIAL: unique_serial,
-        REMOVED_OUTLIER_NAN_TRAIN: dic_data.get(REMOVED_OUTLIER_NAN_TRAIN),
-        REMOVED_OUTLIER_NAN_TEST: dic_data.get(REMOVED_OUTLIER_NAN_TEST),
-        ARRAY_PLOTDATA: dic_data.get(ARRAY_PLOTDATA),
-        CYCLE_IDS: dic_data.get(CYCLE_IDS),
-        COMMON: dic_param
-    })
+    output_dict.update(
+        {
+            DATAPOINT_INFO: data_point_info,
+            SHORT_NAMES: dic_data.get(SHORT_NAMES),
+            UNIQUE_SERIAL_TRAIN: dic_data.get(UNIQUE_SERIAL_TRAIN),
+            UNIQUE_SERIAL_TEST: dic_data.get(UNIQUE_SERIAL_TEST),
+            ACTUAL_RECORD_NUMBER_TRAIN: dic_data.get(ACTUAL_RECORD_NUMBER_TRAIN),
+            ACTUAL_RECORD_NUMBER_TEST: dic_data.get(ACTUAL_RECORD_NUMBER_TEST),
+            ACTUAL_RECORD_NUMBER: dic_data.get(ACTUAL_RECORD_NUMBER_TRAIN, 0)
+            + dic_data.get(ACTUAL_RECORD_NUMBER_TEST, 0),
+            UNIQUE_SERIAL: unique_serial,
+            REMOVED_OUTLIER_NAN_TRAIN: dic_data.get(REMOVED_OUTLIER_NAN_TRAIN),
+            REMOVED_OUTLIER_NAN_TEST: dic_data.get(REMOVED_OUTLIER_NAN_TEST),
+            ARRAY_PLOTDATA: dic_data.get(ARRAY_PLOTDATA),
+            CYCLE_IDS: dic_data.get(CYCLE_IDS),
+            COMMON: dic_param,
+            FILTER_ON_DEMAND: dic_data.get(FILTER_ON_DEMAND),
+        }
+    )
 
     # send google analytics changed flag
     if orig_send_ga_flg and not is_send_google_analytics:
@@ -100,19 +115,19 @@ def pca_modelling():
 
     output_dict['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.PCA))
 
-    output_dict = simplejson.dumps(output_dict, ensure_ascii=False, default=json_serial, ignore_nan=True)
+    output_dict = orjson_dumps(output_dict)
     return output_dict, 200
 
 
 @api_analyze_module_blueprint.route('/sensor', methods=['GET'])
 def pca():
     get_sensors_incrementally()
-    output_dict = simplejson.dumps({}, ensure_ascii=False, default=json_serial, ignore_nan=True)
+    output_dict = orjson_dumps({})
     return output_dict, 200
 
 
-@api_analyze_module_blueprint.route('/csv_export', methods=['GET'])
-def csv_export():
+@api_analyze_module_blueprint.route('/data_export/<export_type>', methods=['GET'])
+def data_export(export_type):
     """csv export
 
     Returns:
@@ -131,8 +146,11 @@ def csv_export():
         df, *_ = get_data_from_db(graph_param)
         # if export_type = plot -> use filter
         if dic_param[COMMON]['export_from'] == 'plot':
-            dic_cat_filters = json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {})) if isinstance(
-                dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str) else dic_param[COMMON].get(DIC_CAT_FILTERS, {})
+            dic_cat_filters = (
+                json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {}))
+                if isinstance(dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str)
+                else dic_param[COMMON].get(DIC_CAT_FILTERS, {})
+            )
             df = filter_df(df, dic_cat_filters)
         csv_name = 'train_data' if not i else 'test_data'
         csv_list_name.append('{}.{}'.format(csv_name, 'csv'))
@@ -140,25 +158,5 @@ def csv_export():
         csv_df = to_csv(df, dic_proc_cfgs, graph_param, client_timezone=client_timezone)
         csv_data.append(csv_df)
 
-    if len(csv_data) == 1:
-        csv_data = csv_data[0]
-        csv_filename = csv_content.gen_csv_fname()
-        response = Response(csv_data.encode("utf-8-sig"), mimetype="text/csv",
-                            headers={
-                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                            })
-    else:
-        csv_filename = csv_content.gen_csv_fname('zip')
-        outfile = io.BytesIO()
-        with ZipFile(outfile, 'w') as zf:
-            for name, data in zip(csv_list_name, csv_data):
-                zf.writestr(name, data)
-
-        zip_dat = outfile.getvalue()
-        response = Response(zip_dat, mimetype="application/octet-stream",
-                            headers={
-                                "Content-Type": "application/octet-stream",
-                                "Content-Disposition": "attachment;filename={}".format(csv_filename),
-                            })
-    response.charset = "utf-8-sig"
+    response = zip_file_to_response(csv_data, csv_list_name, export_type=export_type)
     return response

@@ -567,12 +567,16 @@ const nonNACalcuation = (cates) => {
 };
 
 
-const orderCategoryWithOrderSeries = (traceData) => {
+const orderCategoryWithOrderSeries = (traceData, clearOnFlyFilter) => {
+    const shouldOrderByIndexList = isShowIndexInGraphArea || clearOnFlyFilter;
+    if (!shouldOrderByIndexList) return traceData.filter_on_demand.category;
+
+    const { category } = traceData.filter_on_demand;
     const { indexOrderColumns } = traceData;
     const indexOrderColID = indexOrderColumns.map(col => col.id);
     let categoryDataAfterOrdering = [];
     const notMatchedCat = [];
-    traceData.category_data && traceData.category_data.forEach((cat) => {
+    category && category.forEach((cat) => {
         const idx = indexOrderColID.indexOf(cat.column_id);
         if (idx !== -1) {
             // matched
@@ -589,7 +593,8 @@ const orderCategoryWithOrderSeries = (traceData) => {
 }
 
 
-const produceCategoricalTable = (traceData, options = {}, clearOnFlyFilter) => {
+const produceCategoricalTable = (traceData, options = {}) => {
+    const { category } = traceData.filter_on_demand;
     // fix x-axis with datetime range
     const startDt = traceData.COMMON[CONST.STARTDATE];
     const startTm = traceData.COMMON[CONST.STARTTIME];
@@ -599,12 +604,12 @@ const produceCategoricalTable = (traceData, options = {}, clearOnFlyFilter) => {
     const uiStartTime = new Date(formatDateTime(`${startDt} ${startTm}`, fmt)).toISOString();
     const uiEndTime = new Date(formatDateTime(`${endDt} ${endTm}`, fmt)).toISOString();
     const {thinDataGroupCounts, indexOrderColumns, is_thin_data} = traceData;
-    // const categoryDataAfterOrdering = clearOnFlyFilter ? orderCategoryWithOrderSeries(traceData) : traceData.category_data;
+
     // calculate categorical boxes: start/end position, count, etc
     const dicAllCateBoxes = {};
     const cateNameHTMLs = [];
 
-    if (traceData.category_data.length) {
+    if (category) {
         cateNameHTMLs.push(`<table class="cate-table">
             <thead>
                 <tr class="cate-thead">
@@ -618,7 +623,7 @@ const produceCategoricalTable = (traceData, options = {}, clearOnFlyFilter) => {
 
     let isBoxCombined = false;
     const xAxisOption = traceData.COMMON.xOption;
-    traceData.category_data.forEach((dicCate) => {
+    category.forEach((dicCate) => {
         let boxes = null;
         if (!dicCate.isOverUniqueLimit) {
             if (xAxisOption === 'INDEX') {

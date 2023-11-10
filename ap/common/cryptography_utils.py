@@ -1,7 +1,9 @@
-from cryptography.fernet import Fernet
-from ap.common.constants import DBType, ENCODING_UTF_8
 import copy
+
+from cryptography.fernet import Fernet
+
 from ap import dic_config
+from ap.common.constants import ENCODING_UTF_8, DBType
 
 
 def generate_key():
@@ -78,15 +80,18 @@ def encrypt_db_password(dict_db_config):
     dict_db_config_hashed = copy.deepcopy(dict_db_config)
 
     if dict_db_config_hashed.get('db'):
-        for key in dict_db_config_hashed["db"]:
-            db_config = dict_db_config_hashed["db"][key]
-            if db_config and not db_config.get("hashed") \
-                    and db_config.get("type") != DBType.SQLITE.value:
-                plain_password = db_config.get("password")
+        for key in dict_db_config_hashed['db']:
+            db_config = dict_db_config_hashed['db'][key]
+            if (
+                db_config
+                and not db_config.get('hashed')
+                and db_config.get('type') != DBType.SQLITE.value
+            ):
+                plain_password = db_config.get('password')
                 if plain_password:
                     hashed_password = encrypt(plain_password)
-                    db_config["password"] = str(hashed_password, encoding="utf-8")
-                    db_config["hashed"] = True
+                    db_config['password'] = str(hashed_password, encoding='utf-8')
+                    db_config['hashed'] = True
 
     return dict_db_config_hashed
 
@@ -100,14 +105,14 @@ def decrypt_db_password(dict_db_config):
     dict_db_config_unhashed = copy.deepcopy(dict_db_config)
 
     if dict_db_config_unhashed and dict_db_config_unhashed.get('db'):
-        for key in dict_db_config_unhashed["db"]:
-            db_config = dict_db_config_unhashed["db"][key]
-            if db_config and db_config.get("hashed"):
-                hashed_password = db_config.get("password")
-                plain_password = b""
+        for key in dict_db_config_unhashed['db']:
+            db_config = dict_db_config_unhashed['db'][key]
+            if db_config and db_config.get('hashed'):
+                hashed_password = db_config.get('password')
+                plain_password = b''
                 if hashed_password:
                     plain_password = decrypt(hashed_password)
-                db_config["password"] = str(plain_password, encoding="utf-8")
-                db_config["hashed"] = False
+                db_config['password'] = str(plain_password, encoding='utf-8')
+                db_config['hashed'] = False
 
     return dict_db_config_unhashed

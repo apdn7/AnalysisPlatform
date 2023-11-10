@@ -117,7 +117,20 @@ const drawPCAPlotList = (res, clickOnChart, sampleNo = null) => {
     }
 };
 
-const getPCAPlotsFromBackend = (formData, clickOnChart = false, sampleNo = null, autoUpdate = false) => {
+const reselectPCAData = (fromShowGraphBtn=false, reselectBtn=true) => {
+    const formData = collectInputAsFormData();
+
+    // warning about integer column has_integer_col
+    if (formData.get('has_integer_col') === 'true') {
+        $(eles.msgContent).text(`${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`);
+        $(eles.msgModal).modal('show');
+    } else {
+        beforeShowGraphCommon();
+        getPCAPlotsFromBackend(formData, false, null, false, reselectBtn);
+    }
+};
+
+const getPCAPlotsFromBackend = (formData, clickOnChart = false, sampleNo = null, autoUpdate = false, reselect=false) => {
 
     const eleQCont = $(eles.qContributionChart);
     const eleT2Cont = $(eles.t2ContributionChart);
@@ -158,6 +171,10 @@ const getPCAPlotsFromBackend = (formData, clickOnChart = false, sampleNo = null,
         }
 
         showInfoTable(res[CONST.COMMON]);
+
+        fillDataToFilterModal(res.filter_on_demand, () => {
+            handleFilterOndemand();
+        });
 
         // show delete number of NAN records
         // const numSensors = countSelectedSensors(formData) || 1;
@@ -209,13 +226,20 @@ const getPCAPlotsFromBackend = (formData, clickOnChart = false, sampleNo = null,
         }
 
         setPollingData(formData, longPollingHandler, []);
-    }, { page: 'pca', clickOnChart });
+    }, { page: 'pca', clickOnChart, reselect });
 };
 
 const longPollingHandler = () => {
     const newFormData = lastUsedFormData;
     getPCAPlotsFromBackend(newFormData, false, null, true);
-}
+};
+
+const handleFilterOndemand = () => {
+    loadingShow();
+    let newFormData = lastUsedFormData;
+    newFormData = transformCatFilterParams(newFormData);
+    getPCAPlotsFromBackend(newFormData, false, null, false);
+};
 
 const isIntegerDatatype = (type) => {
     const NUMERIC_TYPE = ['int', 'long'];
@@ -441,6 +465,11 @@ $(() => {
     const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
         showDataType: true,
         isRequired: true,
+        showLabels: true,
+        labelAsFilter: true,
+        showStrColumn: true,
+        hideStrVariable: true,
+        hideCTCol: true,
     });
     endProcItem();
     updateSelectedItems();
@@ -510,15 +539,15 @@ const dumpData = (type) => {
     const exportFrom = getExportDataSrc();
     formData.set('export_from', exportFrom);
     if (type === EXPORT_TYPE.CSV) {
-        exportData('/ap/api/analyze/csv_export', 'csv', formData);
+        exportData('/ap/api/analyze/data_export/csv', 'csv', formData);
     }
 
     if (type === EXPORT_TYPE.TSV) {
-        exportData('/ap/api/analyze/tsv_export', 'tsv', formData);
+        exportData('/ap/api/analyze/data_export/tsv', 'tsv', formData);
     }
 
     if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
-        tsvClipBoard('/ap/api/analyze/tsv_export', formData);
+        tsvClipBoard('/ap/api/analyze/data_export/tsv', formData);
     }
 };
 const handleExportData = (type) => {

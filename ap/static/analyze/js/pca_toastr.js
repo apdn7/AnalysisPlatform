@@ -8,6 +8,28 @@ const showToastr = (errors) => {
             const msgContent = `<p>${MSG_MAPPING[error] || JSON.stringify(error)}</p>`;
             showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
         });
+    } else if (errors instanceof Object) {
+        const trainDataErr = {
+            is_err: errors.train_data.error,
+            is_all_na: errors.train_data.errors && errors.train_data.errors.includes('E_ALL_NA'),
+            is_zero_var: errors.train_data.errors && errors.train_data.errors.includes('E_ZERO_VARIANCE'),
+        };
+        const targetDataErr = {
+            is_err: errors.target_data.error,
+            is_all_na: errors.target_data.errors && errors.target_data.errors.includes('E_ALL_NA'),
+            is_zero_var: errors.target_data.errors && errors.target_data.errors.includes('E_ZERO_VARIANCE'),
+        };
+        let msgContent = '';
+        if (trainDataErr.is_all_na || targetDataErr.is_all_na) {
+            msgContent += `<p>${MSG_MAPPING.E_ALL_NA}</p>`;
+        }
+        if (trainDataErr.is_zero_var || targetDataErr.is_zero_var) {
+            msgContent += `<p>${MSG_MAPPING.E_ZERO_VARIANCE}</p>`;
+        }
+        if (!msgContent) {
+            msgContent = `<p>${MSG_MAPPING.E_ALL_NA}</p>`;
+        }
+        showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
     } else {
         const msgContent = `<p>${MSG_MAPPING[errors] || JSON.stringify(errors)}</p>`;
         showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);

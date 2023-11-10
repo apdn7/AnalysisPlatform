@@ -28,7 +28,9 @@ def to_romaji(input_str):
     # normalized_input = normalized_input.title()
 
     # remove space and tab
-    normalized_input = re.sub(r'[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]', '', normalized_input)
+    normalized_input = re.sub(
+        r"[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]", '', normalized_input
+    )
 
     # `[\(\)\[\]<>\{\}【】]` in string in `English Name` should be replaced into `_`.
     normalized_input = re.sub(r'[\(\)\[\]<>\{\}【】]', '_', normalized_input)
@@ -120,6 +122,6 @@ def change_duplicated_columns(columns):
         duplicated = True
         for col in columns:
             if col['romaji'] in duplicated_items:
-                col['romaji'] += "_" + str(idx)
+                col['romaji'] += '_' + str(idx)
                 idx += 1
     return columns, duplicated
