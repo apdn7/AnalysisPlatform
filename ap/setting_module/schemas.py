@@ -126,6 +126,7 @@ class ProcessColumnSchema(ma.SQLAlchemyAutoSchema):
     name_local = fields.String(required=False, allow_none=True)
     name_en = fields.String(required=False, allow_none=False)
     shown_name = fields.String(required=False, allow_none=True)
+    name = fields.String(required=False, allow_none=True)
 
     @post_load
     def make_obj(self, data, **kwargs):

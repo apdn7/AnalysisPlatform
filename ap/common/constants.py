@@ -60,6 +60,8 @@ MSP_AS_HEATMAP_FROM = 10
 AS_HEATMAP_MATRIX = 'as_heatmap_matrix'
 HEATMAP_MATRIX = 'heatmap_matrix'
 
+DUMMY_V2_PROCESS_NAME = 'DUMMY_V2_PROCESS_NAME'
+
 
 class ApLogLevel(Enum):
     DEBUG = auto()
@@ -371,6 +373,7 @@ HM_TRIM = 'remove_outlier'
 CELL_SUFFIX = '_cell'
 AGG_COL = 'agg_col'
 TIME_COL = 'time'
+TIME_COL_LOCAL = 'time_local'
 
 REQUEST_THREAD_ID = 'thread_id'
 SERIALS = 'serials'
@@ -940,29 +943,35 @@ class DataGroupType(BaseEnum):
     SUB_LOT_NO = 15
     SUB_TRAY_NO = 16
     SUB_SERIAL = 17
-    # generate equation
-    Femto_Date = 18
-    Femto_Mach = 19
-    Femto_Order = 20
-    Line = 21
-    Datetime = 22
-    Milling = 23
 
-    FACTORY_ID = 24
-    FACTORY_NAME = 25
-    PLANT_ID = 26
-    PLANT_NO = 27
-    DEPT_ID = 28
-    DEPT_NAME = 29
-    LINE_GROUP_ID = 30
-    LINE_GROUP_NAME = 31
-    PART_FULL = 32
-    EQUIP_ID = 33  # TODO CHECK
-    HORIZONTAL_DATA = 34  # Type for horizontal columns that are sensor columns
-
-    # PART_LOG
-    FORGING_DATE = 35
-    DELIVERY_ASSY_FASTEN_TORQUE = 36
+    # add new columns
+    WORK_TYPE = 18
+    QUALITY = 19
+    LOT_NO = 20
+    TRAY_NO = 21
+    # # generate equation
+    # Femto_Date = 18
+    # Femto_Mach = 19
+    # Femto_Order = 20
+    # Line = 21
+    # Datetime = 22
+    # Milling = 23
+    #
+    # FACTORY_ID = 24
+    # FACTORY_NAME = 25
+    # PLANT_ID = 26
+    # PLANT_NO = 27
+    # DEPT_ID = 28
+    # DEPT_NAME = 29
+    # LINE_GROUP_ID = 30
+    # LINE_GROUP_NAME = 31
+    # PART_FULL = 32
+    # EQUIP_ID = 33  # TODO CHECK
+    # HORIZONTAL_DATA = 34  # Type for horizontal columns that are sensor columns
+    #
+    # # PART_LOG
+    # FORGING_DATE = 35
+    # DELIVERY_ASSY_FASTEN_TORQUE = 36
 
     # PRODUCT_ID = 35
 
@@ -1001,6 +1010,9 @@ WELL_KNOWN_COLUMNS = {
         '子設備ID': DataGroupType.MACHINE_ID.value,
         '子設備名': DataGroupType.MACHINE_NAME.value,
         '品番': DataGroupType.PART_NO.value,
+        'ワーク種別': DataGroupType.WORK_TYPE.value,
+        'ロットNo': DataGroupType.LOT_NO.value,
+        'トレイNo': DataGroupType.TRAY_NO.value,
         'シリアルNo': DataGroupType.DATA_SERIAL.value,
         '計測日時': DataGroupType.DATA_TIME.value,
         '計測項目ID': DataGroupType.QUALITY_ID.value,
@@ -1015,6 +1027,10 @@ WELL_KNOWN_COLUMNS = {
         '子設備ID': DataGroupType.MACHINE_ID.value,
         '子設備': DataGroupType.MACHINE_NAME.value,
         '品番': DataGroupType.PART_NO.value,
+        'ワーク種別': DataGroupType.WORK_TYPE.value,
+        '良否': DataGroupType.QUALITY.value,
+        'ロットNo': DataGroupType.LOT_NO.value,
+        'トレイNo': DataGroupType.TRAY_NO.value,
         'シリアルNo': DataGroupType.DATA_SERIAL.value,
         '加工日時': DataGroupType.DATA_TIME.value,
         '測定項目名': DataGroupType.QUALITY_NAME.value,
@@ -1028,6 +1044,9 @@ WELL_KNOWN_COLUMNS = {
         '子設備ID': DataGroupType.MACHINE_ID.value,
         '子設備': DataGroupType.MACHINE_NAME.value,
         '品番': DataGroupType.PART_NO.value,
+        'ワーク種別': DataGroupType.WORK_TYPE.value,
+        'ロットNo': DataGroupType.LOT_NO.value,
+        'トレイNo': DataGroupType.TRAY_NO.value,
         'シリアルNo': DataGroupType.DATA_SERIAL.value,
         '加工日時': DataGroupType.DATA_TIME.value,
         '子部品品番': DataGroupType.SUB_PART_NO.value,
@@ -1046,6 +1065,9 @@ REVERSED_WELL_KNOWN_COLUMNS = {
         DataGroupType.MACHINE_ID.value: '子設備ID',
         DataGroupType.MACHINE_NAME.value: '子設備名',
         DataGroupType.PART_NO.value: '品番',
+        DataGroupType.WORK_TYPE.value: 'ワーク種別',
+        DataGroupType.LOT_NO.value: 'ロットNo',
+        DataGroupType.TRAY_NO.value: 'トレイNo',
         DataGroupType.DATA_SERIAL.value: 'シリアルNo',
         DataGroupType.DATA_TIME.value: '計測日時',
         DataGroupType.QUALITY_ID.value: '計測項目ID',
@@ -1061,6 +1083,10 @@ REVERSED_WELL_KNOWN_COLUMNS = {
         DataGroupType.MACHINE_NAME.value: '子設備',
         DataGroupType.PART_NO.value: '品番',
         DataGroupType.DATA_SERIAL.value: 'シリアルNo',
+        DataGroupType.WORK_TYPE.value: 'ワーク種別',
+        DataGroupType.QUALITY.value: '良否',
+        DataGroupType.LOT_NO.value: 'ロットNo',
+        DataGroupType.TRAY_NO.value: 'トレイNo',
         DataGroupType.DATA_TIME.value: '加工日時',
         DataGroupType.QUALITY_NAME.value: '測定項目名',
         DataGroupType.DATA_VALUE.value: '測定値',
@@ -1073,6 +1099,9 @@ REVERSED_WELL_KNOWN_COLUMNS = {
         DataGroupType.MACHINE_ID.value: '子設備ID',
         DataGroupType.MACHINE_NAME.value: '子設備',
         DataGroupType.PART_NO.value: '品番',
+        DataGroupType.WORK_TYPE.value: 'ワーク種別',
+        DataGroupType.LOT_NO.value: 'ロットNo',
+        DataGroupType.TRAY_NO.value: 'トレイNo',
         DataGroupType.DATA_SERIAL.value: 'シリアルNo',
         DataGroupType.DATA_TIME.value: '加工日時',
         DataGroupType.SUB_PART_NO.value: '子部品品番',
@@ -1090,6 +1119,9 @@ ABNORMAL_WELL_KNOWN_COLUMNS = {
         '子設備ID': DataGroupType.MACHINE_ID.value,
         '子設備名': DataGroupType.MACHINE_NAME.value,
         '品番': DataGroupType.PART_NO.value,
+        'ワーク種別': DataGroupType.WORK_TYPE.value,
+        'ロット番号': DataGroupType.LOT_NO.value,
+        'トレイ番号': DataGroupType.TRAY_NO.value,
         'シリアル番号': DataGroupType.DATA_SERIAL.value,
         '計測日時': DataGroupType.DATA_TIME.value,
         '計測項目ID': DataGroupType.QUALITY_ID.value,
@@ -1104,6 +1136,10 @@ ABNORMAL_WELL_KNOWN_COLUMNS = {
         '子設備ID': DataGroupType.MACHINE_ID.value,
         '子設備': DataGroupType.MACHINE_NAME.value,
         '品番': DataGroupType.PART_NO.value,
+        'ワーク種別': DataGroupType.WORK_TYPE.value,
+        '良否結果': DataGroupType.QUALITY.value,
+        'ロットNo': DataGroupType.LOT_NO.value,
+        'トレイNo': DataGroupType.TRAY_NO.value,
         'シリアルNo': DataGroupType.DATA_SERIAL.value,
         '加工日時': DataGroupType.DATA_TIME.value,
         '測定項目名': DataGroupType.QUALITY_NAME.value,
@@ -1117,6 +1153,9 @@ ABNORMAL_WELL_KNOWN_COLUMNS = {
         '子設備ID': DataGroupType.MACHINE_ID.value,
         '子設備名': DataGroupType.MACHINE_NAME.value,
         '品番': DataGroupType.PART_NO.value,
+        'ワーク種別': DataGroupType.WORK_TYPE.value,
+        'ロットNo': DataGroupType.LOT_NO.value,
+        'トレイNo': DataGroupType.TRAY_NO.value,
         'シリアルNo': DataGroupType.DATA_SERIAL.value,
         '計測日時': DataGroupType.DATA_TIME.value,
         '子部品品番': DataGroupType.SUB_PART_NO.value,
@@ -1125,6 +1164,7 @@ ABNORMAL_WELL_KNOWN_COLUMNS = {
         '子部品シリアルNo': DataGroupType.SUB_SERIAL.value,
     },
 }
+
 ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS = {
     DBType.V2.name: {
         DataGroupType.LINE_ID.value: 'ラインID',
@@ -1134,6 +1174,9 @@ ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS = {
         DataGroupType.MACHINE_ID.value: '子設備ID',
         DataGroupType.MACHINE_NAME.value: '子設備名',
         DataGroupType.PART_NO.value: '品番',
+        DataGroupType.WORK_TYPE.value: 'ワーク種別',
+        DataGroupType.LOT_NO.value: 'ロット番号',
+        DataGroupType.TRAY_NO.value: 'トレイ番号',
         DataGroupType.DATA_SERIAL.value: 'シリアル番号',
         DataGroupType.DATA_TIME.value: '計測日時',
         DataGroupType.QUALITY_ID.value: '計測項目ID',
@@ -1148,6 +1191,10 @@ ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS = {
         DataGroupType.MACHINE_ID.value: '子設備ID',
         DataGroupType.MACHINE_NAME.value: '子設備',
         DataGroupType.PART_NO.value: '品番',
+        DataGroupType.WORK_TYPE.value: 'ワーク種別',
+        DataGroupType.QUALITY.value: '良否結果',
+        DataGroupType.LOT_NO.value: 'ロットNo',
+        DataGroupType.TRAY_NO.value: 'トレイNo',
         DataGroupType.DATA_SERIAL.value: 'シリアルNo',
         DataGroupType.DATA_TIME.value: '加工日時',
         DataGroupType.QUALITY_NAME.value: '測定項目名',
@@ -1161,6 +1208,9 @@ ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS = {
         DataGroupType.MACHINE_ID.value: '子設備ID',
         DataGroupType.MACHINE_NAME.value: '子設備名',
         DataGroupType.PART_NO.value: '品番',
+        DataGroupType.WORK_TYPE.value: 'ワーク種別',
+        DataGroupType.LOT_NO.value: 'ロットNo',
+        DataGroupType.TRAY_NO.value: 'トレイNo',
         DataGroupType.DATA_SERIAL.value: 'シリアルNo',
         DataGroupType.DATA_TIME.value: '計測日時',
         DataGroupType.SUB_PART_NO.value: '子部品品番',
@@ -1175,6 +1225,48 @@ ABNORMAL_V2_COLS = {
     '子設備名': DataGroupType.MACHINE_NAME.value,
     '計測日時': DataGroupType.DATA_TIME.value,
     'シリアル番号': DataGroupType.DATA_SERIAL.value,
+    'ロット番号': DataGroupType.LOT_NO.value,
+    'トレイ番号': DataGroupType.TRAY_NO.value,
+}
+
+# for en column name from v2 files
+WELL_KNOWN_EN_COLUMNS = {
+    DBType.V2_MULTI.name: {
+        'line_id': DataGroupType.LINE_ID.value,
+        'line': DataGroupType.LINE_NAME.value,
+        'process_id': DataGroupType.PROCESS_ID.value,
+        'process': DataGroupType.PROCESS_NAME.value,
+        'equipment_id': DataGroupType.MACHINE_ID.value,
+        'equipment': DataGroupType.MACHINE_NAME.value,
+        'part_number': DataGroupType.PART_NO.value,
+        'work_type': DataGroupType.WORK_TYPE.value,
+        'quality': DataGroupType.QUALITY.value,
+        'lot_no': DataGroupType.LOT_NO.value,
+        'tray_no': DataGroupType.TRAY_NO.value,
+        'serial_no': DataGroupType.DATA_SERIAL.value,
+        'processed_date_time': DataGroupType.DATA_TIME.value,
+        'measurement_item_name': DataGroupType.QUALITY_NAME.value,
+        'measured_value': DataGroupType.DATA_VALUE.value,
+    },
+}
+REVERSED_WELL_KNOWN_EN_COLUMNS = {
+    DBType.V2_MULTI.name: {
+        DataGroupType.LINE_ID.value: 'line_id',
+        DataGroupType.LINE_NAME.value: 'line',
+        DataGroupType.PROCESS_ID.value: 'process_id',
+        DataGroupType.PROCESS_NAME.value: 'process',
+        DataGroupType.MACHINE_ID.value: 'equipment_id',
+        DataGroupType.MACHINE_NAME.value: 'equipment',
+        DataGroupType.PART_NO.value: 'part_number',
+        DataGroupType.WORK_TYPE.value: 'work_type',
+        DataGroupType.QUALITY.value: 'quality',
+        DataGroupType.LOT_NO.value: 'lot_no',
+        DataGroupType.TRAY_NO.value: 'tray_no',
+        DataGroupType.DATA_SERIAL.value: 'serial_no',
+        DataGroupType.DATA_TIME.value: 'processed_date_time',
+        DataGroupType.QUALITY_NAME.value: 'measurement_item_name',
+        DataGroupType.DATA_VALUE.value: 'measured_value',
+    },
 }
 
 SUB_PART_NO_DEFAULT_SUFFIX = '.'

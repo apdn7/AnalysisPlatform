@@ -19,6 +19,7 @@ from ap.api.setting_module.services.v2_etl_services import (
 from ap.common.common_utils import detect_encoding, get_csv_delimiter, get_latest_files
 from ap.common.constants import (
     DF_CHUNK_SIZE,
+    DUMMY_V2_PROCESS_NAME,
     MAXIMUM_PROCESSES_ORDER_FILES,
     REVERSED_WELL_KNOWN_COLUMNS,
     DataGroupType,
@@ -165,12 +166,12 @@ class AutoLinkReader:
 
     @log_execution_time(LOG_PREFIX)
     def __read_v2(self, file: Union[Path, str], processes: List[str], ids: List[int]):
-        datasource_type, is_abnormal_v2 = get_v2_datasource_type_from_file(file)
+        datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(file)
         if datasource_type not in [DBType.V2, DBType.V2_MULTI, DBType.V2_HISTORY]:
             return
 
         process_col = get_reversed_column_value_from_v2(
-            datasource_type.name, DataGroupType.PROCESS_NAME.value, is_abnormal_v2
+            datasource_type.name, DataGroupType.PROCESS_NAME.value, is_abnormal_v2, is_en_cols
         )
         serial_col = get_reversed_column_value_from_v2(
             datasource_type.name, DataGroupType.DATA_SERIAL.value, is_abnormal_v2
@@ -202,6 +203,8 @@ class AutoLinkReader:
                 file, chunksize=DF_CHUNK_SIZE, nrows=AUTOLINK_TOTAL_RECORDS_PER_SOURCE, **params
             ) as reader:
                 for df_chunk in reader:
+                    if DUMMY_V2_PROCESS_NAME in mapping_processes_id:
+                        df_chunk[process_col] = df_chunk[process_col].fillna(DUMMY_V2_PROCESS_NAME)
                     df_processes = df_chunk[df_chunk[process_col].isin(mapping_processes_id)]
                     df_processes = df_processes.rename(columns=rename_params)
 
@@ -226,6 +229,8 @@ class AutoLinkReader:
                 **params,
             ) as reader:
                 for df_chunk in reader:
+                    if DUMMY_V2_PROCESS_NAME in mapping_processes_id:
+                        df_chunk[process_col] = df_chunk[process_col].fillna(DUMMY_V2_PROCESS_NAME)
                     df_processes = df_chunk[df_chunk[process_col].isin(mapping_processes_id)]
                     df_processes = df_processes.rename(columns=rename_params)
 

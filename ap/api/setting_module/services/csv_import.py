@@ -62,7 +62,10 @@ from ap.common.disk_usage import get_ip_address
 from ap.common.logger import log_execution_time
 from ap.common.scheduler import JobType, scheduler_app_context
 from ap.common.services.csv_content import is_normal_csv, read_data
-from ap.common.services.csv_header_wrapr import add_suffix_if_duplicated
+from ap.common.services.csv_header_wrapr import (
+    add_suffix_if_duplicated,
+    transform_duplicated_col_suffix_to_pandas_col,
+)
 from ap.common.services.normalization import normalize_list, normalize_str
 from ap.common.timezone_utils import (
     add_days_from_utc,
@@ -245,6 +248,8 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
 
         # check missing columns
         if is_abnormal is False:
+            dic_csv_cols = None
+            dic_org_csv_cols = None
             csv_cols = headers
             # in case if v2, assume that there is not missing columns from v2 files
             if not is_v2_datasource:
@@ -256,9 +261,13 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
                     delimiter=transformed_file_delimiter,
                     do_normalize=False,
                 )
-                csv_cols = next(check_file)
-                csv_cols = normalize_list(csv_cols)
-                csv_cols = add_suffix_if_duplicated(csv_cols, True)
+                org_csv_cols = next(check_file)
+                csv_cols = normalize_list(org_csv_cols)
+                csv_cols, with_dupl_cols = add_suffix_if_duplicated(csv_cols, True)
+                dic_csv_cols = dict(zip(csv_cols, with_dupl_cols))
+                # add suffix to origin csv cols
+                org_csv_cols, _ = add_suffix_if_duplicated(org_csv_cols, True)
+                dic_org_csv_cols = dict(zip(csv_cols, org_csv_cols))
 
                 check_file.close()
             # missing_cols = set(dic_use_cols).difference(csv_cols)
@@ -266,7 +275,13 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
             valid_columns = list(set(dic_use_cols).intersection(csv_cols))
             # re-arrange cols
             valid_columns = [col for col in csv_cols if col in valid_columns]
+            dic_valid_csv_cols = dict(zip(valid_columns, [False] * len(valid_columns)))
             missing_cols = [] if len(valid_columns) else dic_use_cols
+
+            if not is_v2_datasource:
+                valid_with_dupl_cols = [dic_csv_cols[col] for col in valid_columns]
+                dic_valid_csv_cols = dict(zip(valid_columns, valid_with_dupl_cols))
+
             if DATETIME_DUMMY in missing_cols:
                 # remove dummy col before check
                 missing_cols.remove(DATETIME_DUMMY)
@@ -307,7 +322,10 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
                 continue
 
             # default_csv_param['usecols'] = [i for i, col in enumerate(valid_columns) if col]
-            default_csv_param['usecols'] = valid_columns
+            default_csv_param['usecols'] = transform_duplicated_col_suffix_to_pandas_col(
+                dic_valid_csv_cols,
+                dic_org_csv_cols,
+            )
             use_col_names = [col for col in valid_columns if col]
 
         # read csv file
@@ -318,7 +336,9 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
         }
 
         if is_v2_datasource:
-            datasource_type, is_abnormal_v2 = get_v2_datasource_type_from_file(transformed_file)
+            datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(
+                transformed_file
+            )
             if datasource_type == DBType.V2_HISTORY:
                 df_one_file = get_df_v2_process_single_file(
                     transformed_file,
@@ -332,6 +352,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, is_user_request=Non
                     process_name=data_src.process_name,
                     datasource_type=datasource_type,
                     is_abnormal_v2=is_abnormal_v2,
+                    is_en_cols=is_en_cols,
                 )
             else:
                 continue

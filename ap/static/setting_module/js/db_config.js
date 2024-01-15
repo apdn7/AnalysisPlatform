@@ -6,6 +6,7 @@ let v2DataSources = null;
 let MAX_NUMBER_OF_SENSOR = 100000000;
 let isV2ProcessConfigOpening = false;
 let v2ImportInterval = null;
+const DUMMY_V2_PROCESS_NAME = 'DUMMY_V2_PROCESS_NAME';
 // data type
 const originalTypes = {
     0: null,
@@ -319,10 +320,16 @@ const showResources = async () => {
             } else {
                 showLatestRecordsFromDS(res, true, true, !!res.v2_processes);
             }
+
+            if (isV2 && res.is_process_null) {
+                res.v2_processes = [DUMMY_V2_PROCESS_NAME];
+                res.v2_processes_shown_name = [$(dbConfigElements.csvDBSourceName).val()];
+            }
             // update process of V2
             if (res.v2_processes && res.v2_processes.length) {
                 const v2ProcessList = res.v2_processes;
-                addProcessList(v2ProcessList, v2ProcessList);
+                const v2ProcessShownNameList = res.v2_processes_shown_name || res.v2_processes;
+                addProcessList(v2ProcessList, v2ProcessShownNameList);
                 $('input[name="v2Process"]').on('change', () => {
                     const selectedProcess = getCheckedV2Processes();
                     if (selectedProcess.length) {
@@ -701,7 +708,7 @@ const saveCSVDataSource = (isV2=false) => {
             $(dbElements.saveDataSourceModal).modal('show');
             v2DataSources = v2DatasourceByProcess;
 
-        } else {
+        } else if (v2DatasourceByProcess.length == 1) {
             saveV2DataSource(v2DatasourceByProcess);
         }
     } else {
@@ -1703,7 +1710,8 @@ const getV2ProcessData = (dictDataSrc) => {
     if (v2SelectedProcess.length) {
         v2SelectedProcess.forEach(processName => {
             const subDatasourceByProcess = JSON.parse(JSON.stringify(dictDataSrc));
-            subDatasourceByProcess.name = `${subDatasourceByProcess.name}_${processName}`;
+            const suffix = processName === DUMMY_V2_PROCESS_NAME ? '' : `_${processName}`;
+            subDatasourceByProcess.name = `${subDatasourceByProcess.name}${suffix}`;
             subDatasourceByProcess.csv_detail.process_name = processName;
             subDatasourceByProcess.csv_detail.auto_link = false;
             v2Datasources.push(subDatasourceByProcess);

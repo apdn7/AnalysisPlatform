@@ -203,6 +203,17 @@ def check_data_type(data):
     except (ValueError, TypeError):
         pass
 
+    # try if there is not iso format of datetime
+    # eg: 20-09-2023 01:00
+    try:
+        is_datetime = datetime.fromisoformat(data)
+        if is_datetime:
+            return DataType.DATETIME
+    except (ValueError, TypeError):
+        valid_dt = detect_datetime(data)
+        if valid_dt:
+            return DataType.DATETIME
+
     return predict_eu_type(data)
 
 
@@ -360,3 +371,12 @@ def zip_file_to_response(csv_data, file_names, export_type='csv'):
 
     response.charset = encoding
     return response
+
+
+def detect_datetime(datetime_value):
+    try:
+        # try to read value as datetime
+        pd.to_datetime([datetime_value])
+        return True
+    except (ValueError, TypeError):
+        return False

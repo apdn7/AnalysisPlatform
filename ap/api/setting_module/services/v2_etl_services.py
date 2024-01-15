@@ -2,7 +2,7 @@ import csv
 import logging
 import re
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -16,11 +16,14 @@ from ap.common.constants import (
     ABNORMAL_V2_COLS,
     ABNORMAL_WELL_KNOWN_COLUMNS,
     DF_CHUNK_SIZE,
+    DUMMY_V2_PROCESS_NAME,
     REVERSED_WELL_KNOWN_COLUMNS,
+    REVERSED_WELL_KNOWN_EN_COLUMNS,
     SUB_PART_NO_DEFAULT_NO,
     SUB_PART_NO_DEFAULT_SUFFIX,
     SUB_PART_NO_NAMES,
     WELL_KNOWN_COLUMNS,
+    WELL_KNOWN_EN_COLUMNS,
     DataGroupType,
     DataType,
     DBType,
@@ -29,6 +32,7 @@ from ap.common.constants import (
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.services.csv_content import gen_data_types, get_metadata
+from ap.common.services.csv_header_wrapr import add_suffix_if_duplicated
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_str
 from ap.setting_module.models import (
@@ -124,14 +128,14 @@ def get_preview_processes_v2(
     found_processes = set()
     sorted_files = sorted_files[:maximum_files]
     for f_name in sorted_files:
-        datasource_type, is_abnormal_v2 = get_v2_datasource_type_from_file(f_name)
+        datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(f_name)
         if datasource_type not in [DBType.V2, DBType.V2_MULTI, DBType.V2_HISTORY]:
             continue
 
         process_col_name = get_reversed_column_value_from_v2(
-            datasource_type.name, DataGroupType.PROCESS_NAME.value, is_abnormal_v2
+            datasource_type.name, DataGroupType.PROCESS_NAME.value, is_abnormal_v2, is_en_cols
         )
-        params = build_read_csv_for_v2(f_name, datasource_type, is_abnormal_v2)
+        params = build_read_csv_for_v2(f_name, datasource_type, is_abnormal_v2, is_en_cols)
         # we only use process_col_name
         params.update(usecols=[process_col_name])
         try:
@@ -155,25 +159,32 @@ def get_preview_processes_v2(
 @log_execution_time()
 @memoize()
 def get_df_v2_process_single_file(
-    v2_file: str, process_name: str, datasource_type=None, is_abnormal_v2=False
+    v2_file: str,
+    process_name: str,
+    datasource_type=None,
+    is_abnormal_v2=False,
+    is_en_cols=False,
 ) -> DataFrame:
     df = pd.DataFrame()
 
     if not datasource_type:
-        datasource_type, is_abnormal_v2 = get_v2_datasource_type_from_file(v2_file)
+        datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(v2_file)
     assert datasource_type in [
         DBType.V2,
         DBType.V2_MULTI,
         DBType.V2_HISTORY,
     ], 'We only need to get process from v2'
     process_col_name = get_reversed_column_value_from_v2(
-        datasource_type.name, DataGroupType.PROCESS_NAME.value, is_abnormal_v2
+        datasource_type.name, DataGroupType.PROCESS_NAME.value, is_abnormal_v2, is_en_cols
     )
-    params = build_read_csv_for_v2(v2_file, datasource_type, is_abnormal_v2)
+    params = build_read_csv_for_v2(v2_file, datasource_type, is_abnormal_v2, is_en_cols)
     try:
         with pd.read_csv(v2_file, chunksize=DF_CHUNK_SIZE, **params) as reader:
             for df_chunk in reader:
-                df_process = df_chunk[df_chunk[process_col_name] == process_name]
+                if process_name == DUMMY_V2_PROCESS_NAME:
+                    df_process = df_chunk[df_chunk[process_col_name].isna()]
+                else:
+                    df_process = df_chunk[df_chunk[process_col_name] == process_name]
                 df_process = df_process.drop_duplicates()
                 df = pd.concat([df, df_process])
                 df = df.drop_duplicates()
@@ -182,7 +193,10 @@ def get_df_v2_process_single_file(
             v2_file, chunksize=DF_CHUNK_SIZE, quoting=csv.QUOTE_NONE, **params
         ) as reader:
             for df_chunk in reader:
-                df_process = df_chunk[df_chunk[process_col_name] == process_name]
+                if process_name == DUMMY_V2_PROCESS_NAME:
+                    df_process = df_chunk[df_chunk[process_col_name].isna()]
+                else:
+                    df_process = df_chunk[df_chunk[process_col_name] == process_name]
                 df_process = df_process.drop_duplicates()
                 df = pd.concat([df, df_process])
                 df = df.drop_duplicates()
@@ -191,7 +205,7 @@ def get_df_v2_process_single_file(
         pass
 
     # rename abnormal history name
-    if is_abnormal_v2:
+    if is_abnormal_v2 and datasource_type == DBType.V2_HISTORY:
         df = rename_abnormal_history_col_names_from_df(df, datasource_type)
     return df
 
@@ -208,39 +222,54 @@ def get_df_v2_process_multiple_files(v2_files: List[str], process_name: str) -> 
 
 
 @log_execution_time()
-def simple_convert_to_v2_vertical(df: DataFrame, datasource_type=None) -> DataFrame:
+def simple_convert_to_v2_vertical(
+    df: DataFrame, datasource_type=None, is_abnormal_v2=False, is_en_cols=False
+) -> DataFrame:
     if not datasource_type:
-        datasource_type, _ = get_v2_datasource_type_from_df(df)
+        datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_df(df)
     assert datasource_type in [
         DBType.V2,
         DBType.V2_MULTI,
     ], 'We only need to convert vertical from v2 and v2_multi'
 
-    # TODO: the logic isn't the same as bridge, add more conditions later
-    all_columns = WELL_KNOWN_COLUMNS[datasource_type.name].keys()
-    quality_id_col = REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name].get(
-        DataGroupType.QUALITY_ID.value
+    (
+        all_columns,
+        quality_id_col,
+        quality_name_col,
+        data_value_col,
+    ) = get_quality_and_data_value_from_v2(
+        datasource_type,
+        is_abnormal_v2,
+        is_en_cols,
     )
-    quality_name_col = REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name].get(
-        DataGroupType.QUALITY_NAME.value
-    )
-    data_value_col = REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name].get(
-        DataGroupType.DATA_VALUE.value
-    )
+
+    quality_name_like_cols = []
+    data_value_like_cols = []
+    normalized_cols = df.columns
     unique_cols = [
         col for col in all_columns if col not in [quality_name_col, data_value_col, quality_id_col]
     ]
+    if is_en_cols:
+        normalized_cols = normalize_column_name(normalized_cols)
 
-    quality_name_like_cols = [col for col in df.columns if col.startswith(quality_name_col)]
-
-    data_value_like_cols = []
-    for col in df.columns:
+    dict_normalized_cols = dict(zip(normalized_cols, df.columns))
+    for normalized_col, col in zip(normalized_cols, df.columns):
         # pandas will add suffix '.' to duplicated columns
-        if col == data_value_col or col.startswith(f'{data_value_col}.'):
+        if normalized_col == data_value_col or normalized_col.startswith(
+            (f'{data_value_col}.', f'{data_value_col}_')
+        ):
             data_value_like_cols.append(col)
+
+        if normalized_col.startswith(quality_name_col):
+            quality_name_like_cols.append(col)
 
     assert len(quality_name_like_cols) == len(data_value_like_cols)
     assert len(quality_name_like_cols) > 0
+
+    # get original columns name
+    quality_name_col = dict_normalized_cols[quality_name_col]
+    data_value_col = dict_normalized_cols[data_value_col]
+    unique_cols = [dict_normalized_cols[col] for col in unique_cols]
 
     # we don't need to melt if we don't have multiple quality_name + data_value columns
     if len(quality_name_like_cols) > 1:
@@ -249,6 +278,7 @@ def simple_convert_to_v2_vertical(df: DataFrame, datasource_type=None) -> DataFr
         temp_id_column = '__id__'
 
         stub_columns_to_be_converted = [quality_name_col, data_value_col]
+
         # add ".0" since the first columns does not have this suffix
         mapping = {col: f'{col}.0' for col in stub_columns_to_be_converted}
         df = df.rename(columns=mapping)
@@ -270,16 +300,39 @@ def simple_convert_to_v2_vertical(df: DataFrame, datasource_type=None) -> DataFr
 
     df = df.drop_duplicates(subset=unique_cols + [quality_name_col])
     df = df.dropna(subset=[quality_name_col])
+    # replace vertical cols
+    unique_vertical_cols = df[quality_name_col].unique().tolist()
+    normalized_vertical_cols = (
+        pd.Series(unique_vertical_cols)
+        .apply(normalize_str)
+        .replace(r'計測値:|measurement.', '', regex=True)
+    )
+
     df = df.pivot(index=unique_cols, columns=quality_name_col, values=data_value_col)
+    # find duplicate quality columns, compare with index of df
+    duplicated_cols = list(set(df.columns).intersection(unique_cols))
+    filter_cols = unique_cols + list(normalized_vertical_cols)
+    if len(duplicated_cols) or len(filter_cols):
+        df_columns, is_duplicated = add_suffix_if_duplicated(filter_cols, skip_zero=True)
+        # rename columns if there is duplicated measure item name
+        if True in is_duplicated:
+            normalized_vertical_cols = df_columns[len(unique_cols) :]
+    df.rename(columns=dict(zip(unique_vertical_cols, normalized_vertical_cols)), inplace=True)
     return df.reset_index()
 
 
 @log_execution_time()
 def get_vertical_df_v2_process_single_file(
-    file: str, process_name: str, datasource_type=None, is_abnormal_v2=False
+    file: str,
+    process_name: str,
+    datasource_type=None,
+    is_abnormal_v2=False,
+    is_en_cols=False,
 ) -> DataFrame:
-    df = get_df_v2_process_single_file(file, process_name, datasource_type, is_abnormal_v2)
-    df = simple_convert_to_v2_vertical(df, datasource_type)
+    df = get_df_v2_process_single_file(
+        file, process_name, datasource_type, is_abnormal_v2, is_en_cols
+    )
+    df = simple_convert_to_v2_vertical(df, datasource_type, is_abnormal_v2, is_en_cols)
     return df
 
 
@@ -292,7 +345,7 @@ def get_vertical_df_v2_process_multiple_files(v2_files: List[str], process_name:
 
 @log_execution_time()
 def build_read_csv_for_v2(
-    file_path: str, datasource_type: DBType = DBType.V2, is_abnormal_v2=False
+    file_path: str, datasource_type: DBType = DBType.V2, is_abnormal_v2=False, is_en_cols=False
 ):
     from ap.api.setting_module.services.data_import import NA_VALUES
 
@@ -305,11 +358,21 @@ def build_read_csv_for_v2(
     must_get_columns = tuple(WELL_KNOWN_COLUMNS[datasource_type.name].keys())
     if is_abnormal_v2:
         must_get_columns = tuple(ABNORMAL_WELL_KNOWN_COLUMNS[datasource_type.name].keys())
-    usecols = lambda x: x.startswith(must_get_columns)
+
+    if is_en_cols:
+        must_get_columns = tuple(WELL_KNOWN_EN_COLUMNS[datasource_type.name].keys())
+
+    def usecols(x):
+        return x.startswith(must_get_columns)
+
+    def usecols_with_normalization(x):
+        [normalized_x] = normalize_column_name([x])
+        return normalized_x.startswith(must_get_columns)
+
     dtype = 'str'
     params.update(
         dict(
-            usecols=usecols,
+            usecols=usecols if not is_en_cols else usecols_with_normalization,
             skipinitialspace=True,
             na_values=NA_VALUES,
             error_bad_lines=False,
@@ -371,7 +434,7 @@ def rename_sub_part_no(df: pd.DataFrame, datasource_type=None) -> Tuple[DataFram
         part_no_columns.append(partno)
 
     if not datasource_type:
-        datasource_type, _ = get_v2_datasource_type_from_df(df)
+        datasource_type, *_ = get_v2_datasource_type_from_df(df)
 
     if datasource_type != DBType.V2_HISTORY:
         # v2 measure
@@ -435,25 +498,39 @@ def find_remaining_columns(process_id, all_columns):
     return [col for col in all_columns if col not in used_columns]
 
 
-def get_v2_datasource_type_from_file(v2_file: Union[Path, str]) -> Optional[DBType]:
+def get_v2_datasource_type_from_file(v2_file: Union[Path, str]) -> tuple[Any, Any, Any]:
     """Check if this file is v2, v2 multi or v2 history"""
     df = pd.read_csv(v2_file, nrows=1)
-    return get_v2_datasource_type_from_df(df)
+    datasource_type, is_abnormal, is_en_cols = get_v2_datasource_type_from_df(df)
+    return datasource_type, is_abnormal, is_en_cols
 
 
-def get_v2_datasource_type_from_df(df: DataFrame) -> Tuple[Optional[DBType], bool]:
+def get_v2_datasource_type_from_df(
+    df: DataFrame,
+) -> Union[tuple[DBType, bool, bool], tuple[None, bool, bool]]:
     columns = set(col.strip() for col in df.columns)
     is_abnormal = False
+    is_en_cols = False
     for datasource_type in [DBType.V2_HISTORY, DBType.V2, DBType.V2_MULTI]:
         must_exist_columns = set(WELL_KNOWN_COLUMNS[datasource_type.name].keys())
         abnormal_must_exist_columns = set(ABNORMAL_WELL_KNOWN_COLUMNS[datasource_type.name].keys())
+        en_must_exist_columns = (
+            set(WELL_KNOWN_EN_COLUMNS[datasource_type.name].keys())
+            if datasource_type.name in WELL_KNOWN_EN_COLUMNS
+            else ()
+        )
         if columns >= must_exist_columns:
-            return datasource_type, is_abnormal
+            return datasource_type, is_abnormal, is_en_cols
 
         if columns >= abnormal_must_exist_columns:
             is_abnormal = True
-            return datasource_type, is_abnormal
-    return None, is_abnormal
+            return datasource_type, is_abnormal, is_en_cols
+
+        if len(en_must_exist_columns):
+            normalize_cols = set(normalize_column_name(columns))
+            if normalize_cols >= en_must_exist_columns:
+                return datasource_type, is_abnormal, True
+    return None, is_abnormal, is_en_cols
 
 
 @log_execution_time()
@@ -483,7 +560,7 @@ def prepare_to_import_v2_df(
     :return: transformed dataframe, has_new_columns
     """
     if not datasource_type:
-        datasource_type, _ = get_v2_datasource_type_from_df(df)
+        datasource_type, *_ = get_v2_datasource_type_from_df(df)
 
     col_names = {col: normalize_str(col) for col in df.columns}
     df = df.rename(columns=col_names)
@@ -497,12 +574,17 @@ def prepare_to_import_v2_df(
     return df, has_remaining_cols
 
 
-def get_reversed_column_value_from_v2(datasource_type, reversed_column_name, is_abnormal_v2):
+def get_reversed_column_value_from_v2(
+    datasource_type, reversed_column_name, is_abnormal_v2, is_en_cols=False
+):
     """
     :return: v2 normal column name
     """
     if is_abnormal_v2:
         return ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS[datasource_type][reversed_column_name]
+
+    if is_en_cols:
+        return REVERSED_WELL_KNOWN_EN_COLUMNS[datasource_type][reversed_column_name]
 
     return REVERSED_WELL_KNOWN_COLUMNS[datasource_type][reversed_column_name]
 
@@ -539,3 +621,62 @@ def rename_abnormal_history_col_names_from_df(df, datasource_type):
     if len(rename_headers.keys()):
         df.rename(columns=rename_headers, inplace=True)
     return df
+
+
+def normalize_column_name(columns_name):
+    # define to convert these symbols to underscore
+    convert_symbols = ['.', '/', ' ', '-']
+    normalize_cols = []
+    for column_name in columns_name:
+        col_name = column_name.lower()
+        for symbol in convert_symbols:
+            col_name = col_name.replace(symbol, '_')
+        if col_name[-1] == '_':
+            # remove last underscore of column name
+            # eg. serial_no_ -> serial_no
+            col_name = col_name[:-1]
+        normalize_cols.append(col_name)
+    return normalize_cols
+
+
+def get_quality_and_data_value_from_v2(datasource_type, is_abnormal_v2=False, is_en_cols=False):
+    """
+    :return: v2 quality and data value column
+    """
+    all_columns = WELL_KNOWN_COLUMNS[datasource_type.name].keys()
+    quality_id_col = REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name].get(
+        DataGroupType.QUALITY_ID.value
+    )
+    quality_name_col = REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name].get(
+        DataGroupType.QUALITY_NAME.value
+    )
+    data_value_col = REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name].get(
+        DataGroupType.DATA_VALUE.value
+    )
+
+    # for v2 which column is en.
+    if is_en_cols:
+        all_columns = WELL_KNOWN_EN_COLUMNS[datasource_type.name].keys()
+        quality_id_col = REVERSED_WELL_KNOWN_EN_COLUMNS[datasource_type.name].get(
+            DataGroupType.QUALITY_ID.value
+        )
+        quality_name_col = REVERSED_WELL_KNOWN_EN_COLUMNS[datasource_type.name].get(
+            DataGroupType.QUALITY_NAME.value
+        )
+        data_value_col = REVERSED_WELL_KNOWN_EN_COLUMNS[datasource_type.name].get(
+            DataGroupType.DATA_VALUE.value
+        )
+
+    if is_abnormal_v2:
+        all_columns = ABNORMAL_WELL_KNOWN_COLUMNS[datasource_type.name].keys()
+        quality_id_col = ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name].get(
+            DataGroupType.QUALITY_ID.value
+        )
+        quality_name_col = ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name].get(
+            DataGroupType.QUALITY_NAME.value,
+        )
+        data_value_col = ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name].get(
+            DataGroupType.DATA_VALUE.value
+        )
+
+    return all_columns, quality_id_col, quality_name_col, data_value_col
