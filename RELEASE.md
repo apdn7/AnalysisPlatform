@@ -2,6 +2,8 @@
 
 ## v4.5.1
 
+This version is a minor update including some bug fixes
+
 Improvements
 
 * Common
