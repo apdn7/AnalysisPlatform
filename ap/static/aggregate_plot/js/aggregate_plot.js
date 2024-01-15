@@ -277,7 +277,10 @@ const collectInputAsFormData = (clearOnFlyFilter, autoUpdate = false) => {
                 formData.set(CYCLIC_TERM.DIV_OFFSET, offsetH.toString());
             }
 
-            formData.set('divDates', JSON.stringify(divFromTo));
+            // convert divFromTo from local to UTC
+            const divDates = divFromTo.map(date => toUTCDateTime(date, null, true));
+
+            formData.set('divDates', JSON.stringify(divDates));
             formData.set('divFormats', JSON.stringify(divFormats))
         }
 

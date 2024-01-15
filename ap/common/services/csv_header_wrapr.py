@@ -540,7 +540,7 @@ def summarize_header_as_df(hdr: dict, info: dict):
     # translate
     head['main'] = _translate_wellknown_jp2en(head['main'])
     # if head$main has some same value, add _01, _02, ...
-    head['main'] = add_suffix_if_duplicated(head['main'])
+    head['main'], _ = add_suffix_if_duplicated(head['main'])
 
     df_head = pd.DataFrame(head, index=head['main'])
     return df_head
@@ -601,13 +601,11 @@ def _translate_wellknown_jp2en(x):
     return x
 
 
-def add_suffix_if_duplicated(x, skip_zero=False, with_dupl_cols=False):
-    is_dupl_cols = [False] * len(x)
-    duplicated = [k for k, v in Counter(x).items() if v > 1]
+def add_suffix_if_duplicated(names, skip_zero=False):
+    is_dupl_cols = [False] * len(names)
+    duplicated = [k for k, v in Counter(names).items() if v > 1]
     if len(duplicated) == 0:
-        if with_dupl_cols:
-            return x, is_dupl_cols
-        return x
+        return names, is_dupl_cols
 
     if not skip_zero:
         # [a_01, a_02, a_03]
@@ -616,18 +614,35 @@ def add_suffix_if_duplicated(x, skip_zero=False, with_dupl_cols=False):
         # [a, a_01, a_02]
         suffix_format = (f'_{str(x - 1).zfill(2)!s}' if x > 1 else '' for x in range(1, 100))
     dic_suffix = dict(zip(duplicated, tee(suffix_format, len(duplicated))))
-    for idx, s in enumerate(x):
+    for idx, s in enumerate(names):
         try:
             suffix = str(next(dic_suffix[s]))
         except KeyError:
             continue
         else:
-            x[idx] += suffix
-            is_dupl_cols[idx] = True
+            names[idx] += suffix
+            if suffix:
+                is_dupl_cols[idx] = True
 
-    if with_dupl_cols:
-        return x, is_dupl_cols
-    return x
+    return names, is_dupl_cols
+
+
+def transform_duplicated_col_suffix_to_pandas_col(dic_valid_csv_cols, dic_original_cols):
+    col_names = []
+    for col_name, is_add_suffix in dic_valid_csv_cols.items():
+        org_col_name = col_name if not dic_original_cols else dic_original_cols[col_name]
+        if is_add_suffix:
+            # [a, a_01, a_02] -> [a, a.1, a.2]
+            matched = org_col_name.split('_')
+            if len(matched) > 1 and matched[-1].isdigit():
+                s = '_'.join(matched[0:-1])
+                col_names.append(f'{s}.{int(matched[-1])}')
+            else:
+                col_names.append(org_col_name)
+        else:
+            col_names.append(org_col_name)
+
+    return col_names
 
 
 # =========================

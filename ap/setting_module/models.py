@@ -591,11 +591,11 @@ class CfgProcessColumn(db.Model):
 
     @classmethod
     def get_columns_by_process_id(cls, proc_id):
-        return (
-            cls.query.filter(cls.process_id == proc_id)
-            .with_entities(cls.id, cls.name, cls.data_type)
-            .all()
-        )
+        columns = cls.query.filter(cls.process_id == proc_id).all()
+        return [
+            {cls.id.name: col.id, 'name': col.shown_name, cls.data_type.name: col.data_type}
+            for col in columns
+        ]
 
 
 class CfgProcess(db.Model):
@@ -807,7 +807,8 @@ class CfgProcess(db.Model):
 
     @classmethod
     def get_list_of_process(cls):
-        return cls.query.with_entities(cls.id, cls.name).all()
+        processes = cls.query.order_by(cls.id).all()
+        return [{cls.id.name: proc.id, cls.name.name: proc.shown_name} for proc in processes]
 
 
 class CfgTraceKey(db.Model):

@@ -14,8 +14,6 @@ const procElements = {
     divProcConfig: '#accordionPC',
 };
 
-const serialNo = ['シリアルNo', 'シリアル']
-
 const i18n = {
     statusDone: $('#i18nStatusDone').text(),
     statusImporting: $('#i18nStatusImporting').text(),
@@ -138,7 +136,7 @@ const genColConfigHTML = (col, isAddNew = true) => {
 
     // if v2 col_name is シリアルNo -> auto check
     if (!isSerial && isAddNew) {
-        isSerial = serialNo.includes(col.column_name) ? 'checked' : '';
+        isSerial = /^.*シリアル|serial.*$/.test(col.column_name.toString().toLowerCase()) ? 'checked' : '';
     }
 
     return `<tr name="selectedColumn" id="selectedColumn${col.column_name}" uid="${col.column_name}">
@@ -171,7 +169,7 @@ const genColConfigHTML = (col, isAddNew = true) => {
                 <label class="custom-control-label" for="autoIncrementColumn${col.column_name}"></label>
             </div>
         </td>
-        <td class="pr-row"><input name="${procModalElements.englishName}" class="form-control" type="text" value="${isDateTime && !isDummyDatetime ? 'Datetime' : col.name_en}"></td>
+        <td class="pr-row"><input name="${procModalElements.englishName}" class="form-control" type="text" value="${isDateTime && !isDummyDatetime && isAddNew ? 'Datetime' : col.name_en}"></td>
         <td class="pr-row"><input name="${procModalElements.japaneseName}" data-shown-name="1" class="form-control" type="text" value="${col.name_jp || ''}"></td>
         <td class="pr-row"><input name="${procModalElements.localName}" data-shown-name="1" class="form-control" type="text" value="${col.name_local || ''}"></td>
         <td class="pr-row">

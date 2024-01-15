@@ -45,6 +45,7 @@ from ap.common.constants import (
     NA_STR,
     NOT_EXACT_MATCH_FILTER_IDS,
     TIME_COL,
+    TIME_COL_LOCAL,
     UNIQUE_CATEGORIES,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
@@ -138,7 +139,7 @@ def get_utc_offset(time_zone):
     return time_offset
 
 
-def limit_num_cells(df_cells: pd.DataFrame, end_tm, client_tz, limit=10000):
+def limit_num_cells(df_cells: pd.DataFrame, end_tm, limit=10000):
     """Limit number of cells to 10k including empty cells"""
     # is_res_limited = df_cells.index.size > limit
 
@@ -148,7 +149,7 @@ def limit_num_cells(df_cells: pd.DataFrame, end_tm, client_tz, limit=10000):
     # update new end_time to 10000 cells
     last_cell_time = list(df_cells.tail(1)[TIME_COL])[0]
     # end_tm is utc -> convert to local-time
-    end_tm_tz = pd.to_datetime(pd.Series([end_tm]), utc=True).dt.tz_convert(client_tz)
+    end_tm_tz = pd.to_datetime(pd.Series([end_tm]), utc=True)
     end_tm_tz = list(end_tm_tz)[0]
     new_end_time = np.minimum(end_tm_tz, last_cell_time)
     new_end_tm = new_end_time.strftime(DATE_FORMAT_QUERY)
@@ -376,21 +377,24 @@ def gen_plotly_data(
 
 @log_execution_time()
 @abort_process_handler()
-def gen_agg_col(df: pd.DataFrame, hm_mode, hm_step):
+def gen_agg_col(df: pd.DataFrame, hm_mode, hm_step, client_tz):
     """Aggregate data by time"""
     pd_step = convert_to_pandas_step(hm_step, hm_mode)
+    df[TIME_COL_LOCAL] = pd.to_datetime(df[TIME_COL], utc=True).dt.tz_convert(tz=client_tz)
     print(df.index.size)
     if hm_mode == 7:
         # .astype(str).str[:13] or 16 sometimes doesn't work as expected
-        df[AGG_COL] = df[TIME_COL].dt.floor(pd_step).dt.strftime('%Y-%m-%d %H')
+        df[AGG_COL] = df[TIME_COL_LOCAL].dt.floor(pd_step).dt.strftime('%Y-%m-%d %H')
     else:
-        df[AGG_COL] = df[TIME_COL].dt.floor(pd_step).dt.strftime('%Y-%m-%d %H:%M')
+        df[AGG_COL] = df[TIME_COL_LOCAL].dt.floor(pd_step).dt.strftime('%Y-%m-%d %H:%M')
     return df
 
 
 def gen_weekly_ticks(df: pd.DataFrame):
     # tick weekly, first day of week, sunday
-    df['x_label'] = df[TIME_COL] - (df[TIME_COL].dt.weekday % 7) * np.timedelta64(1, 'D')
+    df['x_label'] = df[TIME_COL_LOCAL] - (df[TIME_COL_LOCAL].dt.weekday % 7) * np.timedelta64(
+        1, 'D'
+    )
     df['x_label'] = (
         get_year_week_in_df_column(df['x_label'])
         + '<br>'
@@ -404,11 +408,11 @@ def gen_weekly_ticks(df: pd.DataFrame):
 def gen_daily_ticks(df: pd.DataFrame):
     # tick weekly, first day of week, sunday
     df['x_label'] = (
-        get_year_week_in_df_column(df[TIME_COL])
+        get_year_week_in_df_column(df[TIME_COL_LOCAL])
         + '<br>'
-        + df[TIME_COL].dt.month.astype(str).str.pad(2, fillchar='0')
+        + df[TIME_COL_LOCAL].dt.month.astype(str).str.pad(2, fillchar='0')
         + '-'
-        + df[TIME_COL].dt.day.astype(str).str.pad(2, fillchar='0')
+        + df[TIME_COL_LOCAL].dt.day.astype(str).str.pad(2, fillchar='0')
     )
     return df['x_label']
 
@@ -420,11 +424,6 @@ def get_year_week_in_df_column(column: pd.DataFrame.columns):
         + ', '
         + (column.dt.strftime('%U').astype(int)).astype(str).str.pad(2, fillchar='0')
     )
-
-
-def convert_cell_tz(df: pd.DataFrame, offset):
-    df[TIME_COL] = df[TIME_COL] + offset
-    return df
 
 
 @log_execution_time()
@@ -439,18 +438,18 @@ def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm):
     if hm_mode == 7:
         # gen y
         row_per_day = int(24 / hm_step)
-        df['dayofweek'] = df[TIME_COL].dt.day_name().astype(str).str[:3]
-        df['newdayofweek'] = (16 - df[TIME_COL].dt.dayofweek) % 10  # mon, tue... sat
+        df['dayofweek'] = df[TIME_COL_LOCAL].dt.day_name().astype(str).str[:3]
+        df['newdayofweek'] = (16 - df[TIME_COL_LOCAL].dt.dayofweek) % 10  # mon, tue... sat
         df['y'] = (
             int(24 / hm_step)
-            - (df[TIME_COL].dt.hour / hm_step).astype(int)
+            - (df[TIME_COL_LOCAL].dt.hour / hm_step).astype(int)
             + df['newdayofweek'] * row_per_day
         )
 
         # gen x
-        df['year'] = df[TIME_COL].dt.year
+        df['year'] = df[TIME_COL_LOCAL].dt.year
         min_year = df['year'].min()
-        df['x'] = df[TIME_COL].dt.strftime('%U').astype(int) + (df['year'] % min_year) * 53
+        df['x'] = df[TIME_COL_LOCAL].dt.strftime('%U').astype(int) + (df['year'] % min_year) * 53
 
         # x_label
         if num_days <= 140:
@@ -458,62 +457,64 @@ def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm):
         elif num_days <= 365 * 2:
             # tick monthly
             df['x_label'] = (
-                get_year_week_in_df_column(df[TIME_COL])
+                get_year_week_in_df_column(df[TIME_COL_LOCAL])
                 + '<br>'
-                + df[TIME_COL].dt.month.astype(str).str.pad(2, fillchar='0')
+                + df[TIME_COL_LOCAL].dt.month.astype(str).str.pad(2, fillchar='0')
                 + '-01'
             )
         else:
             # tick yearly
-            df['x_label'] = get_year_week_in_df_column(df[TIME_COL]) + '<br>01-01'
+            df['x_label'] = get_year_week_in_df_column(df[TIME_COL_LOCAL]) + '<br>01-01'
     else:
         # gen y
         num_rows = int(1440 / hm_step)
         row_per_hour = 60 / hm_step
-        df['dayofweek'] = df[TIME_COL].dt.day_name().astype(str).str[:3]
+        df['dayofweek'] = df[TIME_COL_LOCAL].dt.day_name().astype(str).str[:3]
         if hm_step > 60:
             df['y'] = num_rows - (
-                ((df[TIME_COL].dt.minute + df[TIME_COL].dt.hour * 60) / hm_step).astype(float)
+                ((df[TIME_COL_LOCAL].dt.minute + df[TIME_COL_LOCAL].dt.hour * 60) / hm_step).astype(
+                    float
+                )
             )
         else:
             df['y'] = num_rows - (
-                (df[TIME_COL].dt.minute / hm_step).astype(int)
-                + (df[TIME_COL].dt.hour * row_per_hour).astype(int)
+                (df[TIME_COL_LOCAL].dt.minute / hm_step).astype(int)
+                + (df[TIME_COL_LOCAL].dt.hour * row_per_hour).astype(int)
             )
 
         # gen x
-        df['year'] = df[TIME_COL].dt.year
+        df['year'] = df[TIME_COL_LOCAL].dt.year
         min_year = df['year'].min()
-        df['x'] = df[TIME_COL].dt.dayofyear + 366 * (df['year'] % min_year)
+        df['x'] = df[TIME_COL_LOCAL].dt.dayofyear + 366 * (df['year'] % min_year)
 
         # x_label
         if num_days <= 21:
             # tick daily
             df['x_label'] = (
-                get_year_week_in_df_column(df[TIME_COL])
+                get_year_week_in_df_column(df[TIME_COL_LOCAL])
                 + '<br>'
-                + df[TIME_COL].dt.date.astype(str).str[5:]
+                + df[TIME_COL_LOCAL].dt.date.astype(str).str[5:]
             )
         elif num_days <= 140:
             df['x_label'] = gen_daily_ticks(df)
         elif num_days <= 365 * 2:
             # tick monthly
             df['x_label'] = (
-                get_year_week_in_df_column(df[TIME_COL])
+                get_year_week_in_df_column(df[TIME_COL_LOCAL])
                 + '<br>'
-                + df[TIME_COL].dt.month.astype(str).str.pad(2, fillchar='0')
+                + df[TIME_COL_LOCAL].dt.month.astype(str).str.pad(2, fillchar='0')
                 + '-01'
             )
         else:
             # tick yearly
-            df['x_label'] = get_year_week_in_df_column(df[TIME_COL]) + '<br>01-01'
+            df['x_label'] = get_year_week_in_df_column(df[TIME_COL_LOCAL]) + '<br>01-01'
 
     time_fmt = '%Y-%m-%d %a %H:%M'
-    df['from'] = 'From: ' + df[TIME_COL].dt.strftime(time_fmt) + '<br>'
+    df['from'] = 'From: ' + df[TIME_COL_LOCAL].dt.strftime(time_fmt) + '<br>'
     unit = 'min' if hm_mode == 1 else 'h'
-    df['to_temp'] = df[TIME_COL] + pd.to_timedelta(hm_step, unit=unit)
+    df['to_temp'] = df[TIME_COL_LOCAL] + pd.to_timedelta(hm_step, unit=unit)
     df.loc[df['to_temp'].astype(str).str[11:16] == '00:00', 'to'] = (
-        df['to_temp'].astype(str).str[:8] + df[TIME_COL].dt.strftime('%d %a ') + '24:00'
+        df['to_temp'].astype(str).str[:8] + df[TIME_COL_LOCAL].dt.strftime('%d %a ') + '24:00'
     )
     df.loc[df['to_temp'].astype(str).str[11:16] != '00:00', 'to'] = df['to_temp'].dt.strftime(
         time_fmt
@@ -674,16 +675,26 @@ def convert_to_pandas_step(hm_step, hm_mode):
 
 @log_execution_time()
 @abort_process_handler()
-def create_agg_column(df, pd_step='4h', agg_col=AGG_COL, hm_mode=7, client_tz=tz.tzutc()):
+def create_agg_column(df, agg_col=AGG_COL, hm_mode=7, hm_step=4, df_cells=None):
     """Create aggregate column data"""
-    if hm_mode == 7:
-        length = 13
-    else:
-        length = 16
-    temp = pd.to_datetime(df[TIME_COL], format='%Y-%m-%dT%H:%M', utc=True).dt.tz_convert(
-        tz=client_tz
+    dt = pd.to_datetime(df[TIME_COL], format='%Y-%m-%dT%H:%M', utc=True)
+    df[agg_col] = None
+    #
+    group_list = df_cells[TIME_COL].tolist()
+    next_cell = (
+        group_list[-1] + pd.Timedelta(minutes=hm_step)
+        if hm_mode == 1
+        else group_list[-1] + pd.Timedelta(hours=hm_step)
     )
-    df[agg_col] = temp.dt.floor(pd_step).astype(str).str[:length]
+    group_list.append(next_cell)
+    group_list = pd.to_datetime(group_list, format='%Y-%m-%dT%H:%M', utc=True)
+
+    labels = df_cells[AGG_COL].tolist()
+    for i, label in enumerate(labels):
+        start_time = group_list[i]
+        end_time = group_list[i + 1]
+        start_index, end_index = dt.searchsorted([start_time, end_time])
+        df[start_index:end_index][agg_col] = label
     return df
 
 
@@ -819,14 +830,13 @@ def gen_heatmap_data_as_dict(
     df_cells = pd.DataFrame({TIME_COL: cells})
     # time_delta = calc_time_delta(hm_mode, hm_step, start_tm)
     if not df_cells.empty:
-        df_cells[TIME_COL] = pd.to_datetime(df_cells[TIME_COL], utc=True).dt.tz_convert(
-            tz=client_tz
-        )
-    df_cells = gen_agg_col(df_cells, hm_mode, hm_step)
+        df_cells[TIME_COL] = pd.to_datetime(df_cells[TIME_COL], utc=True)
+
+    df_cells = gen_agg_col(df_cells, hm_mode, hm_step, client_tz)
 
     # limit to 10000 cells
     dic_param.update({ACT_CELLS: df_cells.index.size})
-    df_cells, end_tm = limit_num_cells(df_cells, end_tm, client_tz)
+    df_cells, end_tm = limit_num_cells(df_cells, end_tm)
 
     # generate x, y, x_label, y_label
     df_cells = gen_x_y(df_cells, hm_mode, hm_step, start_tm, end_tm)
@@ -872,8 +882,7 @@ def gen_heatmap_data_as_dict(
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
     # gen aggregate end col
-    pd_step = convert_to_pandas_step(hm_step, hm_mode)
-    df: pd.DataFrame = create_agg_column(df, pd_step, AGG_COL, hm_mode, client_tz)
+    df: pd.DataFrame = create_agg_column(df, AGG_COL, hm_mode, hm_step, df_cells)
     agg_cols = gen_agg_col_names(var_agg_cols)  # move
 
     dic_df_proc = {}

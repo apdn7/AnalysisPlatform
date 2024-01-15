@@ -98,7 +98,7 @@ def gen_agp_data(dic_param: DicParam):
 
     graph_param: DicParam
     if graph_param.common.divide_format is not None:
-        df = convert_utc_to_local_time_and_offset(df, graph_param)
+        # df = convert_utc_to_local_time_and_offset(df, graph_param)
         df = gen_divide_format_column(
             df, graph_param.common.divide_calendar_dates, graph_param.common.divide_calendar_labels
         )
@@ -181,7 +181,7 @@ def gen_divide_format_column(
     if df.empty:
         return df
     df.sort_values(Cycle.time.key, inplace=True)
-    dt = df[Cycle.time.key]
+    dt = pd.to_datetime(df[Cycle.time.key])
     divide_calendar_dates = pd.to_datetime(divide_calendar_dates, utc=True)
     for i, label in enumerate(divide_calendar_labels):
         start_time = divide_calendar_dates[i]

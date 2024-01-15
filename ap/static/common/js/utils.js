@@ -1374,11 +1374,15 @@ const syncTraceDateTimeRange = (parentId = '', dtNames = {}, dtValues = {}) => {
     }
 };
 
-const toUTCDateTime = (localDate, localTime) => {
-    if (isEmpty(localDate) || isEmpty(localTime)) return {date: localDate, time: localTime};
+const toUTCDateTime = (localDate, localTime, withDateTime = false) => {
+    if (!withDateTime && (isEmpty(localDate) || isEmpty(localTime))) return {date: localDate, time: localTime};
 
-    const utcDT = moment.utc(moment(`${localDate} ${localTime}`, `${DATE_FORMAT} ${TIME_FORMAT}`));
+    const datetime = withDateTime ? localDate : `${localDate} ${localTime}`;
+    const utcDT = moment.utc(moment(datetime, `${DATE_FORMAT} ${TIME_FORMAT}`));
     if (utcDT.isValid()) {
+        if (withDateTime) {
+            return utcDT.format(DATE_TIME_FMT);
+        }
         return {
             date: utcDT.format(DATE_FORMAT),
             time: utcDT.format(TIME_FORMAT),

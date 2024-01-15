@@ -110,7 +110,7 @@ def get_latest_records(data_source_id, table_name, limit):
                 return_df=True,
                 max_records=1000,
             )
-        headers = dic_preview.get('header')
+        headers = normalize_list(dic_preview.get('header'))
         data_types = dic_preview.get('dataType')
         same_values = dic_preview.get('same_values')
         is_v2_history = dic_preview.get('v2_type') == DBType.V2_HISTORY
@@ -118,8 +118,9 @@ def get_latest_records(data_source_id, table_name, limit):
             cols_with_types = gen_cols_with_types(headers, data_types, same_values, is_v2_history)
 
         # sort columns
-        sorted_columns = sorted(csv_detail.csv_columns, key=lambda c: c.order or c.id)
-        cols = [col.column_name for col in sorted_columns if col.column_name in headers]
+        sorted(csv_detail.csv_columns, key=lambda c: c.order or c.id)
+        # cols = {col.column_name for col in sorted_columns if col.column_name in headers}
+        cols = headers
 
         # get rows
         df_rows = dic_preview.get('content', None)
@@ -495,7 +496,9 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
         file_data_idx = 0
         while file_data_idx >= 0:
             largest_file = sorted_files[file_data_idx]
-            datasource_type, is_abnormal_v2 = get_v2_datasource_type_from_file(largest_file)
+            datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(
+                largest_file
+            )
 
             if datasource_type == DBType.V2_HISTORY:
                 data_details = get_df_v2_process_single_file(
@@ -503,7 +506,7 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
                 )
             elif datasource_type in [DBType.V2, DBType.V2_MULTI]:
                 data_details = get_vertical_df_v2_process_single_file(
-                    largest_file, process_name, datasource_type, is_abnormal_v2
+                    largest_file, process_name, datasource_type, is_abnormal_v2, is_en_cols
                 )
             else:
                 raise NotImplementedError
@@ -550,7 +553,7 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
 
     # get DB Type and check if there is abnormal history
     if is_abnormal_v2 is None and not datasource_type:
-        datasource_type, is_abnormal_v2 = get_v2_datasource_type_from_file(csv_file)
+        datasource_type, is_abnormal_v2, _ = get_v2_datasource_type_from_file(csv_file)
     header_names = rename_abnormal_history_col_names(datasource_type, header_names, is_abnormal_v2)
     org_headers, header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
     df_data_details = normalize_big_rows(data_details, header_names)
@@ -626,6 +629,7 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
         'has_dupl_cols': has_dupl_cols,
         'org_headers': org_headers,
         'v2_type': datasource_type.value,
+        'is_process_null': not v2_process_names,
     }
 
 
@@ -744,6 +748,7 @@ def convert_utc_df(df_rows, cols, data_types, data_source, table_name):
 
 
 def transform_df_to_rows(cols, df_rows, limit):
+    df_rows.columns = normalize_list(df_rows.columns)
     return [
         dict(zip(cols, vals)) for vals in df_rows[0:limit][cols].to_records(index=False).tolist()
     ]
@@ -768,7 +773,7 @@ def gen_preview_data_check_dict(rows, previewed_files):
 @log_execution_time()
 def gen_colsname_for_duplicated(cols_name):
     org_cols_name = cols_name.copy()
-    cols_name, dup_cols = chw.add_suffix_if_duplicated(cols_name, True, True)
+    cols_name, dup_cols = chw.add_suffix_if_duplicated(cols_name, True)
     return org_cols_name, cols_name, dup_cols
 
 

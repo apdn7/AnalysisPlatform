@@ -1,5 +1,32 @@
 # Releases
 
+## v4.5.1
+
+This version is a minor update including some bug fixes
+
+Improvements
+
+* Common
+  * Support new format of datetime: 'dd/mm/YYYY'
+  * Detect serial column and auto-check in Process Config page
+
+* V2 data
+  * Enable importing 'WorkType, Quality, LotNo, TrayNo'
+  * Enable importing alphabetical column names
+  * Extract vertical data without measurement label in value: '計測値:|measurement.'
+  * Support to detect process name if there is no value
+  * Enable selecting/importing duplicated column names
+
+Bug fixes
+
+* Common
+  * Fixed to appropriately modify English Name of Process Config page
+  * Fixed an issue when importing same column name from CSV data
+  * Fixed an issue of AgP page about summarized data using tz_convert for datetime
+* V2 data
+  * Fixed to import abnormal columns
+  * Fixed issue of 'undefined' value when preview data from Process Config page
+
 ## v4.5.0
 
 Core changes
