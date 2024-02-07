@@ -71,6 +71,7 @@
         {{ macros.cat_label_filter_modal() }}
         {{ macros.end_col_order_modal() }}
         {{ macros.end_col_order_modal(graphArea='1') }}
+        {{ macros.jump_modal() }}
     </div>
     <br>
     <div id="CatePlotCards" style="display: none">
@@ -81,6 +82,7 @@
                 </div>
 				{{ macros.on_demand_filter() }}
                 {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSortGraphPosition();}') }}
+                {{ macros.jump_button() }}
 				{{ macros.scale_option(name='yScaleOption', className='ml-4', onChange='changeRLPScale()') }}
                 {{ macros.switch_button(id='showXAxis', label=_('Show x-axis labels'), cl='ml-4', onChange='showXAxisLabel(this)')}}
             </div>

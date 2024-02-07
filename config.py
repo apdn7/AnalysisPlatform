@@ -57,7 +57,6 @@ class Config(object):
     VERSION_FILE_PATH = resource_path('VERSION')
     BASE_DIR = basedir
     GA_TRACKING_ID = 'G-9DJ9TV72B5'
-    UA_TRACKING_ID = 'UA-156244372-2'
     PARTITION_NUMBER = 100
 
     COMPRESS_MIMETYPES = [

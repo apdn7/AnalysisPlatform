@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 from pandas import DataFrame
@@ -17,7 +17,6 @@ from ap.api.setting_module.services.data_import import (
     get_df_first_n_last,
     get_new_adding_columns,
     import_data,
-    save_proc_data_count,
     save_sensors,
     validate_datetime,
     write_duplicate_import,
@@ -31,6 +30,7 @@ from ap.common.common_utils import (
     add_days,
     add_double_quotes,
     add_years,
+    calculator_day_ago,
     convert_time,
 )
 from ap.common.constants import DATETIME_DUMMY, MSG_DB_CON_FAILED, DataType, JobStatus
@@ -147,7 +147,7 @@ def import_factory(proc_id):
     }
 
     # get factory max date
-    fac_max_date, is_tz_col = get_factory_max_date(proc_cfg)
+    fac_min_date, fac_max_date, is_tz_col = get_factory_min_max_date(proc_cfg)
 
     inserted_row_count = 0
     calc_range_days_func = calc_sql_range_days()
@@ -177,6 +177,15 @@ def import_factory(proc_id):
                 end_time, range_day=sql_day, is_tz_col=is_tz_col
             )
         else:
+            min_date = convert_time(fac_min_date, return_string=False)
+            min_date = min_date - timedelta(minutes=1)
+            max_date = convert_time(fac_max_date, return_string=False)
+            filter_time = get_future_import_first_time(min_date, max_date, is_tz_col)
+
+            if not filter_time:
+                limit_date = add_days(days=-SQL_DAYS_AGO)
+                limit_date = limit_date.replace(hour=0, minute=0, second=0, microsecond=0)
+                filter_time = convert_time(limit_date)
             start_time, end_time, filter_time = get_sql_range_time(filter_time, is_tz_col=is_tz_col)
 
         # no data in range, stop
@@ -338,18 +347,24 @@ def calc_sql_range_days():
 
 
 @log_execution_time()
-def get_sql_range_time(
-    filter_time=None, range_day=SQL_DAY, start_days_ago=SQL_DAYS_AGO, is_tz_col=False
-):
-    # if there is no data , this poling is the first time, so get data of n days ago.
-    limit_date = add_days(days=-start_days_ago)
-    limit_date = limit_date.replace(hour=0, minute=0, second=0, microsecond=0)
+def get_future_import_first_time(min_time, max_time, is_tz_col):
+    if not max_time:
+        return None
 
-    if filter_time:
-        filter_time = max(convert_time(filter_time), convert_time(limit_date))
-    else:
-        filter_time = convert_time(limit_date)
+    if calculator_day_ago(min_time, is_tz_col) <= SQL_DAYS_AGO:
+        return min_time
 
+    if calculator_day_ago(max_time, is_tz_col) < SQL_DAYS_AGO:
+        return None
+
+    if not min_time:
+        return None
+
+    return min_time
+
+
+@log_execution_time()
+def get_sql_range_time(filter_time=None, range_day=SQL_DAY, is_tz_col=False):
     # start time
     start_time = convert_time(filter_time, return_string=False)
 
@@ -443,13 +458,14 @@ def get_factory_data(proc_cfg, column_names, auto_increment_col, start_time, end
 
 
 @log_execution_time()
-def get_factory_max_date(proc_cfg):
+def get_factory_min_max_date(proc_cfg):
     """
     get factory max date
     """
 
     with DbProxy(proc_cfg.data_source) as db_instance:
         # gen sql
+        agg_results = []
         get_date_col = add_double_quotes(proc_cfg.get_auto_increment_col_else_get_date())
         orig_tblname = proc_cfg.table_name.strip('"')
         if not isinstance(db_instance, mysql.MySQL):
@@ -457,23 +473,24 @@ def get_factory_max_date(proc_cfg):
         else:
             table_name = orig_tblname
 
-        sql = f'select max({get_date_col}) from {table_name}'
-        if isinstance(db_instance, mssqlserver.MSSQLServer):
-            sql = f'select convert(varchar(30), max({get_date_col}), 127) from {table_name}'
-        _, rows = db_instance.run_sql(sql, row_is_dict=False)
+        for agg_func in ['MIN', 'MAX']:
+            sql = f'select {agg_func}({get_date_col}) from {table_name}'
+            if isinstance(db_instance, mssqlserver.MSSQLServer):
+                sql = f'select convert(varchar(30), {agg_func}({get_date_col}), 127) from {table_name}'
+            _, rows = db_instance.run_sql(sql, row_is_dict=False)
 
-        if not rows:
-            return None
+            if not rows:
+                return None
 
-        out = rows[0][0]
-
-        if out == DATETIME_DUMMY:
-            return None
-
+            agg_results.append(rows[0][0])
+        min_time, max_time = agg_results
+        if max_time == DATETIME_DUMMY:
+            return None, None, False
         is_tz_col = db_instance.is_timezone_hold_column(orig_tblname, get_date_col)
-        out = format_factory_date_to_meta_data(out, is_tz_col)
+        min_time = format_factory_date_to_meta_data(min_time, is_tz_col)
+        max_time = format_factory_date_to_meta_data(max_time, is_tz_col)
 
-    return out, is_tz_col
+    return min_time, max_time, is_tz_col
 
 
 SQL_PAST_DAYS_AGO = 1
@@ -638,7 +655,9 @@ def factory_past_data_transform(proc_id):
     cols = next(data)
     remain_rows = tuple()
     inserted_row_count = 0
+    has_data = False
     for rows in data:
+        has_data = True
         is_import, rows, remain_rows = gen_import_data(rows, remain_rows, auto_increment_idx)
         if not is_import:
             continue
@@ -719,7 +738,11 @@ def factory_past_data_transform(proc_id):
         log_str = 'FACTORY PAST DATA IMPORT SQL(days={}, records={}, range={}-{})'
         logger.info(log_str.format(SQL_PAST_DAYS_AGO, total_row, start_time, end_time))
 
-    yield 100
+    if not has_data:
+        gen_import_job_info(job_info, 0, start_time, end_time)
+        job_info.auto_increment_col_timezone = is_tz_col
+        job_info.percent = 100
+        yield job_info
 
 
 @log_execution_time()

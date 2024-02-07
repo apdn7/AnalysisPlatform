@@ -624,6 +624,15 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     $(`#checkbox-all-${id + parentId}`).change(function f() {
         $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop('checked', !$(this).prop('checked'));
         $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`).prop('checked', $(this).prop('checked'));
+
+        limitedCheckedList = [];
+        // find all check items
+        $(`#${parentId}`)
+            .parents()
+            .find('input[name^=GET02_VALS_SELECT]:checked')
+            .not('.checkbox-all')
+            .each((_, item) => limitedCheckedList.push(item));
+
         compareSettingChange();
     });
     // check all labels and filters
@@ -650,7 +659,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             parentRow.find('[name=objectiveVar]').prop('checked', false);
             thresholdBox.prop('checked', false);
             if (isCheckLimit) {
-                limitedCheckedList = limitedCheckedList.filter(el => el.val() !== $(this).val());
+                limitedCheckedList = limitedCheckedList.filter((el) => $(el).attr('id') !== $(this).attr('id'));
                 if (isShowColorCheckBox) {
                     $(this).removeAttr('data-sensor');
                     $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
@@ -686,8 +695,10 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         }
 
         // only allow selected 2 items in list
-        if (isCheckLimit && limitedCheckedList.length > MAX_NUMBER_OF_SENSOR) {
-            limitedCheckedList[0].prop('checked', false);
+        if (isCheckLimit && limitedCheckedList.length > MAX_NUMBER_OF_SENSOR && $(this).is(':checked')) {
+            // shift first item from list if $(this) is checked
+            // to avoid shift/uncheck 2 items at same time
+            $(limitedCheckedList[0]).prop('checked', false);
 
             if (isShowColorCheckBox) {
                 $(limitedCheckedList[0].closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);

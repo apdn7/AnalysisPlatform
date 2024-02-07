@@ -1,3 +1,4 @@
+{% import 'macros.html' as macros %}
 <div class="modal fade" id="jumpModal">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -10,6 +11,7 @@
                         <button type="button" class="btn btn-setting simple-btn" data-dismiss="modal" aria-label="Close" id="">Cancel</button>
                     </div>
                 </div>
+                {{ macros.alert_message("jumpAlertMsg") }}
                     <!--    body   -->
                 <div class="jump-content">
                     <div class="jump-page-list">
@@ -34,8 +36,8 @@
                         <h4 class="jump-sensor-list-header jump-sub-header">
                             <span class="hint-text" title="{{_('Variable setting hover')}}">{{ _('Variable setting') }}</span>
                         </h4>
-                        <div class="custom-control custom-checkbox custom-control-inline">
-                            <input type="checkbox" class="custom-control custom-control-input" id="jumpVariableSetting" onchange="bindChangeVariableOrdering(this)" checked>
+                        <div class="custom-control custom-checkbox custom-control-inline jump-check-box-option" data-for="skd">
+                            <input type="checkbox" class="custom-control custom-control-input" id="jumpVariableSetting" onchange="bindChangeVariableOrderingSKD(this)" checked>
                             <label class="custom-control-label" for="jumpVariableSetting">
                                 <span class="hint-text" title="{{ _('Select sensor hover') }}">{{ _('Select only the objective and top important variables (Max: 20)') }}</span>
                             </label>

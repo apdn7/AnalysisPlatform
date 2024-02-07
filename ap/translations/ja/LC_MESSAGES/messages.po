@@ -4049,3 +4049,11 @@ msgstr "日本語名"
 msgid "Local Name"
 msgstr "現地語名"
 
+#: ap/templates/i18n.html
+msgid "JumpWithoutTargetPageMsg"
+msgstr "ジャンプ先のページを選択してください。(例えば左側の “おすすめ“ から1つ選択してください)"
+
+#: ap/templates/i18n.html
+msgid "JumpWithDataframeMode"
+msgstr "可視化の設定を変更するには、ジャンプ元のページでグラフを修正し、再度ジャンプを行ってください。"
+

@@ -354,7 +354,7 @@ const showProcSettingModal = (procItem, dbsId = null) => {
     procModalElements.okBtn.removeAttr('data-has-ct');
 };
 const changeDataSource = (e) => {
-    const dsType = $(e).find(':selected').data('ds-type');
+    const dsType = $(e).find('option:selected').data('ds-type');
     if (dsType === 'CSV' || dsType === 'V2') {
         const tableDOM = $(e).parent().parent().find('select[name="tableName"]')[0];
         if (tableDOM) {

@@ -113,6 +113,7 @@ const callToBackEndAPI = (clearOnFlyFilter = true) => {
 
     showGraphCallApi('/ap/api/gl/plot', formData, REQUEST_TIMEOUT, async (res) => {
         resData = res;
+        graphStore.setTraceData(_.cloneDeep(res));
         showGraphicalLasso(res);
 
         $('html, body').animate({

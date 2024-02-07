@@ -3,7 +3,6 @@
 // term of use
 validateTerms();
 const GA_TRACKING_ID = 'G-9DJ9TV72B5';
-const UA_TRACKING_ID = 'UA-156244372-2';
 const HEART_BEAT_MILLI = 2500;
 const RE_HEART_BEAT_MILLI = HEART_BEAT_MILLI * 4;
 let scpSelectedPoint = null;

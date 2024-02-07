@@ -4,6 +4,7 @@ import re
 import traceback
 from collections import Counter, defaultdict
 from copy import deepcopy
+from datetime import datetime
 from itertools import groupby
 from math import ceil
 from typing import Dict, List
@@ -14,7 +15,7 @@ from numpy import quantile
 from pandas import DataFrame, Series
 from sqlalchemy import and_
 
-from ap import db
+from ap import db, dic_request_info
 from ap.api.common.services.services import convert_datetime_to_ct, get_filter_on_demand_data
 from ap.api.trace_data.services.proc_link import TraceGraph
 from ap.api.trace_data.services.regex_infinity import (
@@ -1883,6 +1884,9 @@ def get_data_from_db(
     use_expired_cache=False,
     with_categorized_real=False,
 ):
+    # the system is busy
+    dic_request_info[LAST_REQUEST_TIME] = datetime.utcnow()
+
     # DEBUG Function
     df, actual_total_record, duplicated_serials_number = get_df_from_db(
         graph_param, is_save_df_to_file, _use_expired_cache=use_expired_cache

@@ -32,11 +32,13 @@
 		<br>
 	</form>
 	{{ macros.cat_label_filter_modal() }}
+    {{ macros.jump_modal() }}
 </div>
 <div class="graph-navi plot-content" id="sctr-card">
     <div class="d-flex justify-content-between align-items-center mb-3" id="graph-settings-area">
         {{ macros.info_i_mark() }}
         {{ macros.on_demand_filter() }}
+        {{ macros.jump_button() }}
         {{ macros.graph_select_box(id='', name='show-var', label=_('Variables'), values=['all','number','real', 'categorized_real','category'],
             texts=[_('Real(Float) and categorical'), _('Real(Float) and Integer'), _('Real(Float) only'), _('Categorized Real'), _('Categorical only') ],
             onChange='showCategoryVarOnly(this)', cl='ml-4', defaultValue='all') }}
