@@ -1,5 +1,27 @@
 # Releases
 
+## v4.5.2
+
+This version includes below bufixes:
+
+* (Important) Fixed an issue where graph display was completely disabled (From Feb.5, 2024) in AP+DN7 version >=4.2.0
+* Fixed an issue where historical data older than one month was not being loaded from the database
+* Fixed an issue where AP+DN7 can not display graph after `Process Name` is edited
+* Fixed an issue about the limit of number of variables that can be selected in each visualization
+* Fixed an issue about data count when a column `process_id` exists in data source
+
+Please follow the instructions in the following manual to upgrade AP+DN7.
+
+* EN: [Upgrade Manual](https://github.com/apdn7/AnalysisPlatform/files/12557931/AP%2BDN7_upgrade_manual_En_v4.1.1_r2.pdf)
+* JP: [Upgrade Manual](https://github.com/apdn7/AnalysisPlatform/files/12557930/AP%2BDN7_upgrade_manual_Jp_v4.1.1_r2.pdf)
+
+Improvements
+
+* Common
+  * Implemented `Jump` function to all visualizations except PCA and COG
+    * Users can now experiment with various visualizations more easily than before  
+    <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/59cfc500-2d2d-41c7-9718-cb8ac8aea035" alt="JumpFunction" width="700"> 
+
 ## v4.5.1
 
 This version is a minor update including some bug fixes
