@@ -498,7 +498,7 @@ def bind_dic_param_to_class(dic_param):
 
     # use the first end proc as start proc
     if not common.start_proc:
-        common.start_proc = array_formval[0].proc_id
+        common.start_proc = array_formval[0].proc_id if array_formval else 0
 
     cyclic_terms = []
     out_param = DicParam(chart_count, common, array_formval, cyclic_terms)

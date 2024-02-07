@@ -99,3 +99,7 @@
 .over-lim-item {
     color: gray;
 }
+
+#jumpModal .alert strong {
+    font-size: large;
+}

@@ -32,6 +32,7 @@ from ap.common.constants import (
     EXTERNAL_API,
     INIT_APP_DB_FILE,
     INIT_BASIC_CFG_FILE,
+    LAST_REQUEST_TIME,
     LOG_LEVEL,
     PARTITION_NUMBER,
     REQUEST_THREAD_ID,
@@ -84,7 +85,7 @@ dic_config = {
 }
 
 # last request time
-dic_request_info = {'last_request_time': datetime.utcnow()}
+dic_request_info = {LAST_REQUEST_TIME: datetime.utcnow()}
 
 # ############## init application metadata db ###############
 db_engine = None
@@ -335,7 +336,6 @@ def create_app(object_name=None):
         )
 
         if not is_ignore_content and request.blueprint != EXTERNAL_API:
-            dic_request_info['last_request_time'] = datetime.utcnow()
             bind_user_info(request)
 
             if not dic_config.get(TESTING):

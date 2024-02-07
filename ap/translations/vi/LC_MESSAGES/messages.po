@@ -4508,6 +4508,18 @@ msgstr "Japanese Name"
 msgid "Local Name"
 msgstr "Local Name"
 
+#: ap/templates/i18n.html
+msgid "JumpWithoutTargetPageMsg"
+msgstr ""
+"Please select a page to jump to (For example, from the 'Recommend' area "
+"on the left)"
+
+#: ap/templates/i18n.html
+msgid "JumpWithDataframeMode"
+msgstr ""
+"To change the visualization settings, jump again after modifying the "
+"graph on the page from which you jumped"
+
 # ap/template/setting_module/master_config.html
 #~ msgid "Control item"
 #~ msgstr "Control item"

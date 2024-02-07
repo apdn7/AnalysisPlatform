@@ -149,7 +149,7 @@ def import_data(
     #     return commit_error
 
     if job_id:
-        save_proc_data_count(df, get_date_col, job_id)
+        save_proc_data_count(df, get_date_col, job_id, proc_id)
 
     return cycles_len
 
@@ -1448,9 +1448,11 @@ def get_df_first_n_last(df: DataFrame, first_count=10, last_count=10):
 
 
 @log_execution_time()
-def save_proc_data_count(df, get_date_col, job_id):
+def save_proc_data_count(df, get_date_col, job_id, proc_id):
     if not df.size:
         return None
+    # assign proc_id
+    df[ProcDataCount.process_id.key] = proc_id
     # group data by datetime time
     df[get_date_col] = df[get_date_col].apply(
         lambda x: '{}'.format(

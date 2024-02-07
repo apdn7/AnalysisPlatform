@@ -38,12 +38,13 @@ def transform_settings(mapping_groups):
 
 
 def transform_setting(src_vals, des_vals):
-    dic_src_checkboxes, dic_src_others = group_by_name(src_vals)
-    dic_des_checkboxes, dic_des_others = group_by_name(des_vals)
+    dic_src_checkboxes, dic_src_others, dic_src_datetime_picker = group_by_name(src_vals)
+    dic_des_checkboxes, dic_des_others, dic_des_datetime_picker = group_by_name(des_vals)
     checkbox_vals = mapping_checkbox_radio(dic_src_checkboxes, dic_des_checkboxes)
+    datetimepicker_vals = mapping_checkbox_radio(dic_src_datetime_picker, dic_des_datetime_picker)
     other_vals = mapping_others(dic_src_others, dic_des_others)
 
-    return other_vals + checkbox_vals
+    return other_vals + checkbox_vals + datetimepicker_vals
 
 
 def mapping_checkbox_radio(dic_src, dic_des):
@@ -118,6 +119,7 @@ def mapping_others(dic_src, dic_des):
 def group_by_name(vals):
     dic_checkboxes = defaultdict(list)
     dic_others = defaultdict(list)
+    dic_datetime_picker = defaultdict(list)
     for dic_vals in vals:
         setting = UserSettingDetail(dic_vals)
         if not setting.name:
@@ -127,6 +129,8 @@ def group_by_name(vals):
             if setting.name == 'cat_filter':
                 continue
             dic_checkboxes[setting.name.lower()].append(setting)
+        elif setting.name == 'DATETIME_RANGE_PICKER':
+            dic_datetime_picker[setting.id].append(setting)
         else:
             short_name, _ = split_str_and_last_number(setting.name)
             short_name = short_name.lower()
@@ -137,7 +141,7 @@ def group_by_name(vals):
     }
     dic_others = {key: sorted(vals, key=lambda x: x.name) for key, vals in dic_others.items()}
 
-    return dic_checkboxes, dic_others
+    return dic_checkboxes, dic_others, dic_datetime_picker
 
 
 def map_form(dic_src_vals, dic_des_vals):

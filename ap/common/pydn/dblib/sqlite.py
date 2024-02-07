@@ -17,11 +17,12 @@ logger = logging.getLogger(__name__)
 
 class SQLite3:
     def __init__(self, dbname, isolation_level=None):
-        from ap import SQLITE_CONFIG_DIR, dic_config
+        # from ap import SQLITE_CONFIG_DIR, dic_config
 
-        self.dbname = os.path.join(
-            dic_config[SQLITE_CONFIG_DIR], dbname or ''
-        )  # sqliteで言うdbnameはファイル名/
+        # self.dbname = os.path.join(
+        #     dic_config[SQLITE_CONFIG_DIR], dbname or ''
+        # )  # sqliteで言うdbnameはファイル名/
+        self.dbname = dbname
         self.is_connected = False
         self.connection = None
         self.cursor = None

@@ -11,11 +11,80 @@
   - agp
   - gl
 - tiles:
+    fpp:
+      recommends:
+        - rlp
+        - skd
+        - pcp
+        - msp
+      unavailable:
+        - pca
+    stp:
+      recommends:
+        - fpp
+        - rlp
+        - chm
+        - agp
+      unavailable:
+        - pca
+    chm:
+      recommends:
+        - fpp
+        - rlp
+      unavailable:
+        - pca
+    msp:
+      recommends:
+        - pcp
+        - fpp
+        - rlp
+        - skd
+      unavailable:
+        - pca
+    scp:
+      recommends:
+        - fpp
+        - chm
+        - agp
+      unavailable:
+        - pca
+    pcp:
+      recommends:
+        - fpp
+        - rlp
+        - chm
+        - stp
+      unavailable:
+        - pca
+    agp:
+      recommends:
+        - fpp
+        - rlp
+        - skd
+        - chm
+      unavailable:
+        - pca
+    gl:
+      recommends:
+        - pcp
+        - rlp
+        - fpp
+        - skd
+      unavailable:
+        - pca
     skd:
       recommends:
         - pcp
         - rlp
         - fpp
+        - gl
+      unavailable:
+        - pca
+    rlp:
+      recommends:
+        - skd
+        - pcp
+        - msp
         - gl
       unavailable:
         - pca

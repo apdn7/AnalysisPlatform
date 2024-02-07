@@ -1358,3 +1358,6 @@ class PagePath(Enum):
     PCP = 'ap/pcp'
     PCA = 'ap/analyze/anomaly_detection/pca'
     GL = 'ap/analyze/structure_learning/gl'
+
+
+LAST_REQUEST_TIME = 'last_request_time'

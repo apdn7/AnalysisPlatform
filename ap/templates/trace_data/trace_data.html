@@ -6,9 +6,6 @@
         gtag('config', GA_TRACKING_ID, {
             'page_title': '{{ _("Full-points Plot") }}',
         });
-        gtag('config', UA_TRACKING_ID, {
-            'page_title': '{{ _("Full-points Plot") }}',
-        });
 
         $(document).ready(function () {
             $("#tabs a").click(function (e) {
@@ -49,6 +46,7 @@
             {{ macros.end_col_order_modal(graphArea='1') }}
         </form>
         {{ macros.cat_label_filter_modal() }}
+        {{ macros.jump_modal() }}
     </div>
 
     {#	<div class="row" id="showOutlier">#}
@@ -63,6 +61,7 @@
             {{ macros.summary_option(prefix='', optionName='summaryOption', cl='ml-2') }}
 
             {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSubmit(false, false);}') }}
+            {{ macros.jump_button() }}
             <!--X axis for Histogram tab-->
             <div class="for-tab for-histogramsTab" style="display: none">
                 {{ macros.frequency_scale(cl='ml-4', defaultValue='2') }}

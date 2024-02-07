@@ -4514,6 +4514,18 @@ msgstr "Japanese Name"
 msgid "Local Name"
 msgstr "Local Name"
 
+#: ap/templates/i18n.html
+msgid "JumpWithoutTargetPageMsg"
+msgstr ""
+"Please select a page to jump to (For example, from the 'Recommend' area "
+"on the left)"
+
+#: ap/templates/i18n.html
+msgid "JumpWithDataframeMode"
+msgstr ""
+"To change the visualization settings, jump again after modifying the "
+"graph on the page from which you jumped"
+
 #~ msgid ""
 #~ "\"Inf\"/\"-Inf\" and their estimated values"
 #~ " are displayed on the graph as "

@@ -24,12 +24,14 @@
 		<br>
 	</form>
     {{ macros.cat_label_filter_modal() }}
+    {{ macros.jump_modal() }}
 </div>
 
 <div id="plot-card" class="plot-content" style="margin-top: 1rem; display: none;">
     <div class="mb-2 d-flex align-items-center position-relative">
         {{ macros.info_i_mark() }}
         {{ macros.on_demand_filter() }}
+        {{ macros.jump_button() }}
 		<div class="d-flex align-items-center ml-4">
 			<label for="sparsity" class="mr-2 mb-0 hint-text" title="{{ _('Sparsity Hover') }}">{{ _('Sparsity') }}</label>
             <div class="group-input-range">

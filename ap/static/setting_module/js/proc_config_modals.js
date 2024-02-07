@@ -1144,8 +1144,8 @@ const collectProcCfgData = (columnDataRaws) => {
     const procEnName = procModalElements.proc.val();
     const procLocalName = procModalElements.procLocalName.val() || null;
     const procJapaneseName = procModalElements.procJapaneseName.val() || null;
-    const dataSourceId = procModalElements.databases.find(':selected').val() || '';
-    const tableName = procModalElements.tables.find(':selected').val() || '';
+    const dataSourceId = procModalElements.databases.find('option:selected').val() || '';
+    const tableName = procModalElements.tables.find('option:selected').val() || '';
     const comment = procModalElements.comment.val();
     const procColumns = procColumnsData(columnDataRaws);
 
@@ -1812,13 +1812,13 @@ $(() => {
     });
 
     // load tables to modal combo box
-    loadTables(procModalElements.databases.find(':selected').val());
+    loadTables(procModalElements.databases.find('option:selected').val());
 
     // Databases onchange
     procModalElements.databases.change(() => {
         hideAlertMessages();
         isClickPreview = true;
-        const dsSelected = procModalElements.databases.find(':selected').val();
+        const dsSelected = procModalElements.databases.find('option:selected').val();
         loadTables(dsSelected);
     });
     // Tables onchange
@@ -1836,7 +1836,7 @@ $(() => {
         event.preventDefault();
         const currentShownTableName = $('select[name=tableName] option[selected=selected]').val() || null;
         const currentShownDataSouce = procModalElements.databases
-            .find(':selected')
+            .find('option:selected')
             .val() || null;
         const clearDataFlg = checkClearColumnsTable(Number(currentShownDataSouce), currentShownTableName);
         const procModalForm = $(procModalElements.formId);

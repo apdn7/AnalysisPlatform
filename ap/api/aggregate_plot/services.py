@@ -83,6 +83,9 @@ def gen_agp_data(dic_param: DicParam):
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
     export_data = df
 
+    # calculate cycle_time and replace target column
+    convert_datetime_to_ct(df, graph_param)
+
     # chunk data by cyclic terms
     if graph_param.common.cyclic_div_num:
         df = get_df_chunk_cyclic(df, dic_param)
@@ -157,8 +160,6 @@ def gen_df_direct_term(dic_param, dic_cat_filters, use_expired_cache):
 
         df_term[DIVIDE_FMT_COL] = f'{term[START_DT]} | {term[END_DT]}'
 
-        convert_datetime_to_ct(df_term, graph_param)
-
         if df is None:
             df = df_term.copy()
         else:
@@ -195,9 +196,6 @@ def gen_divide_format_column(
 def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam) -> List[Dict[Any, Any]]:
     plot_data = []
     target_vars = graph_param.common.sensor_cols
-
-    # calculate cycle_time and replace target column
-    convert_datetime_to_ct(df, graph_param)
 
     str_cols = []
 

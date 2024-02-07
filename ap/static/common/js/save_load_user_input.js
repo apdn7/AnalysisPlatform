@@ -560,14 +560,34 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                 data.genBtnId = el.getAttribute(DYNAMIC_ELE_ATTR);
             }
 
-            if (data.id === 'datetimeRangePicker' && data.name === 'DATETIME_RANGE_PICKER' && divideOption === divideOptions.cyclicTerm) {
-                // assign new data
-                serializeData.push({
-                    id: 'cyclicTermDatetimePicker',
-                    name: 'DATETIME_PICKER',
-                    type: 'text',
-                    value: data.value.split(DATETIME_PICKER_SEPARATOR)[0],
-                });
+           if (data.id === 'datetimeRangePicker' && data.name === 'DATETIME_RANGE_PICKER') {
+                if (divideOption === divideOptions.cyclicTerm) {
+                    // assign new data
+                    serializeData.push({
+                        id: 'cyclicTermDatetimePicker',
+                        name: 'DATETIME_PICKER',
+                        type: 'text',
+                        value: data.value.split(DATETIME_PICKER_SEPARATOR)[0],
+                    });
+                }
+
+                if (divideOption === divideOptions.dataNumberTerm) {
+                    serializeData.push({
+                        id: 'datetimeRangePickerdataNumberTerm',
+                        name: 'DATETIME_RANGE_PICKER',
+                        type: 'text',
+                        value: data.value,
+                    });
+                }
+
+                if (divideOption === divideOptions.cyclicCalender) {
+                    serializeData.push({
+                        id: 'datetimeRangePickercyclicCalender',
+                        name: 'DATETIME_RANGE_PICKER',
+                        type: 'text',
+                        value: data.value,
+                    });
+                }
             }
 
             serializeData.push(data);

@@ -5,7 +5,8 @@
 # Analysis Platform
 
 ```
-2024-01-15: Released version 4.5.1! see RELEASE.md for details.
+2024-02-07: (Hotfix) Released version 4.5.2, which fixes the issue where graph display was completely disabled.
+                     Please refer the "Upgrade" section to upgrade AP+DN7.
 ```
 
 Analysis Platform is an open source web application to import, connect and visualize factory IoT data. It helps to collect, link and integrate data from multiple data sources.

@@ -27,6 +27,7 @@
 		{{ macros.cat_label_filter_modal() }}
         {{ macros.end_col_order_modal() }}
         {{ macros.end_col_order_modal(graphArea='1') }}
+        {{ macros.jump_modal() }}
 	</div>
 
 	<div class="result-section" id="scaleOption" style="display: none;">
@@ -34,6 +35,7 @@
 			{{ macros.info_i_mark() }}
 			{{ macros.on_demand_filter() }}
             {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleShowHeatmapWithOrder();}') }}
+            {{ macros.jump_button() }}
 			<div class="d-flex align-items-center ml-4">
 				<span class="mr-2">Color</span>
 				<select class="form-control border-white scale-dropdown" name="heatmapScale">

@@ -14,7 +14,7 @@ from ap.api.setting_module.services.factory_import import (
 )
 from ap.api.setting_module.services.process_delete import add_del_proc_job
 from ap.common.common_utils import add_seconds
-from ap.common.constants import CfgConstantType, DBType
+from ap.common.constants import CfgConstantType, DBType, LAST_REQUEST_TIME
 from ap.common.logger import log_execution_time, logger
 from ap.common.scheduler import JobType, add_job_to_scheduler, remove_jobs, scheduler_app_context
 from ap.setting_module.models import CfgConstant, CfgProcess, JobManagement
@@ -85,7 +85,7 @@ def add_import_job(
 
     add_job_to_scheduler(job_id, job_name, trigger, import_func, run_now, dic_import_param)
 
-    add_idle_mornitoring_job()
+    # add_idle_mornitoring_job()
 
     # double check
     attempt = 0
@@ -131,7 +131,7 @@ def idle_monitoring(_job_id=None, _job_name=None):
 
     """
     # check last request > now() - 5 minutes
-    last_request_time = dic_request_info.get('last_request_time', datetime.utcnow())
+    last_request_time = dic_request_info.get(LAST_REQUEST_TIME, datetime.utcnow())
     if last_request_time > add_seconds(seconds=-5 * 60):
         return
 

@@ -2558,6 +2558,9 @@ class GraphStore {
         return this.traceDataResult;
     }
 
+    updateEndProc(endProc) {
+        this.traceDataResult.COMMON.end_proc = endProc;
+    }
     getDataAtIndex(dataIdx, dataPointIdx) {
         const plotDatas = getNode(this.traceDataResult, ['array_plotdata']) || [];
         const empty = {x: '', y: ''};
@@ -2615,22 +2618,26 @@ class GraphStore {
         return plotObj;
     }
 
-    getVariableOrdering(procConfig, useFeatureImportance=true) {
+    getVariableOrdering(procConfig, useFeatureImportance = true, loadByOrderIDs = false) {
         const ordering = [];
         let orderingID = [];
         const currentTrace = this.traceDataResult;
         const objectiveVariable = currentTrace.COMMON.objectiveVar ? Number(currentTrace.COMMON.objectiveVar[0]) : undefined;
+        const hasObjectiveVarInGUI = $('input[name=objectiveVar]:checked').length;
 
-        if (objectiveVariable) {
+        if (objectiveVariable && hasObjectiveVarInGUI) {
             orderingID.push(objectiveVariable);
         }
 
         let sensorList = [];
-        if (useFeatureImportance && currentTrace.importance_columns_ids.length) {
+        if (useFeatureImportance && currentTrace.importance_columns_ids && currentTrace.importance_columns_ids.length) {
             sensorList = currentTrace.importance_columns_ids;
         }
-        if (currentTrace.COMMON.GET02_VALS_SELECT.length && !useFeatureImportance) {
+        if (currentTrace.COMMON.GET02_VALS_SELECT && currentTrace.COMMON.GET02_VALS_SELECT.length && !useFeatureImportance) {
             sensorList = currentTrace.COMMON.GET02_VALS_SELECT;
+        }
+        if (loadByOrderIDs) {
+            sensorList = latestSortColIds.map(val => Number(val.split('-')[1]));
         }
         orderingID = [...orderingID, ...sensorList];
         orderingID = new Set(orderingID);
@@ -2639,11 +2646,11 @@ class GraphStore {
             orderingID.forEach(id => {
                 const targetProcID = currentTrace.COMMON.end_proc[id];
                 const targetProc = procConfig[targetProcID];
-                const targetCol = targetProc.dicColumns[id]
+                const targetCol = targetProc && targetProc.dicColumns[id]
                 if (targetCol) {
                     ordering.push({
                         id: id,
-                        shown_name: targetCol.shown_name,
+                        name: targetCol.shown_name,
                         proc_name: targetProc.shown_name,
                         type: targetCol.data_type,
                         proc_id: targetProc.id,

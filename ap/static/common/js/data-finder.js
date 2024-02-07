@@ -41,7 +41,7 @@ const DATE_TIME_FMT = 'YYYY-MM-DD HH:mm';
 let processId = null;
 
 const getColor = (max, count) => {
-    const per = Math.round(count / max * 100);
+    const per = count / max * 100
     let newPer = per;
     if (per > 0 && per <= 15) {
         newPer = 1;

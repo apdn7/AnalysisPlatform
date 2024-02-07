@@ -24,7 +24,7 @@ import pandas as pd
 import pyper
 
 # from charset_normalizer import detect
-from dateutil import parser
+from dateutil import parser, tz
 from dateutil.relativedelta import relativedelta
 from flask import g
 from flask_assets import Bundle, Environment
@@ -409,6 +409,16 @@ def add_miliseconds(time=None, milis=0):
         time = datetime.utcnow()
 
     return time + timedelta(milliseconds=milis)
+
+
+
+def calculator_day_ago(from_time, is_tz_col, to_time=None):
+    if not to_time:
+        to_time = datetime.now()
+        if is_tz_col:
+            to_time = datetime.utcnow().replace(tzinfo=tz.tzutc())
+    day_ago = (to_time - from_time).days
+    return day_ago
 
 
 def add_seconds(time=None, seconds=0):
