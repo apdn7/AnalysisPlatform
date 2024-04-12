@@ -158,6 +158,8 @@
     "js": [
       "common/js/libs/Chart.bundle.min.js",
       "common/js/libs/fSelect.js",
+      "parallel_plot/js/parallel_properties.js",
+      "parallel_plot/js/parallel_utils.js",
       "parallel_plot/js/parallel_plot.js",
       "common/js/cat_facet_label_filter_modal.js"
     ],

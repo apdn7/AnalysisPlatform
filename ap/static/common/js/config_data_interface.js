@@ -19,6 +19,17 @@ const DataTypes = Object.freeze({
         org_type: 'INTEGER',
         operator: ['', '+', '-', '*', '/'],
     },
+    INTEGER_CAT: {
+        name: 'INTEGER_CAT',
+        value: 1,
+        label: $('#i18nIntegerCat').text() || '整数(カテゴリ)',
+        i18nLabelID: 'i18nIntegerCat',
+        i18nAllLabel: 'i18nAllIntCatLabel',
+        short: 'Int(Cat)',
+        exp: 'i18nIntegerCat',
+        org_type: 'INTEGER',
+        operator: ['', '+', '-', '*', '/'],
+    },
     REAL: {
         name: 'REAL',
         value: 2,
@@ -111,8 +122,26 @@ const DataTypes = Object.freeze({
         value: 10,
         org_type: 'STRING',
         operator: ['', '+', '-', '*', '/'],
+    },
+    SERIAL: {
+        name: 'SERIAL',
+        short: 'Seri',
+    },
+    CATEGORY: {
+        name: 'CATEGORY',
+        short: 'Cat'
     }
 });
+
+const dataTypeShort = (col) => {
+    if (col.is_serial_no) {
+        return DataTypes.SERIAL.short;
+    }
+    if (col.is_int_category && !col.is_serial_no) {
+        return DataTypes.CATEGORY.short;
+    }
+    return DataTypes[col.data_type].short;
+};
 
 
 const filterTypes = {
@@ -143,15 +172,14 @@ class CfgColumn {
     column_type;
     data_type;
     name_en;
-
     name_jp;
-
     name_local;
-
     shown_name;
     is_auto_increment;
     is_get_date;
     is_serial_no;
+    is_int_category;
+    is_category;
     operator;
     coef;
     order;
@@ -213,6 +241,7 @@ class CfgProcess {
     name_local;
     shown_name;
     table_name;
+    file_name; // for data preview and data-type prediction
     data_source_id;
     data_source;
     order;
@@ -337,7 +366,6 @@ class CfgProcess {
         }
     }
 
-
     getColumnFromDB = async () => {
         const url = `/ap/api/setting/proc_config/${this.id}/columns`;
         const res = await fetchData(url, {}, 'GET');
@@ -350,6 +378,8 @@ class CfgProcess {
             }
         }
     }
+
+
 
     updateFilters = async () => {
         if (this.filters && this.filters.length) {

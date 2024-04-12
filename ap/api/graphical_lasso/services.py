@@ -5,19 +5,37 @@ import pandas as pd
 from sklearn.covariance import empirical_covariance, graphical_lasso, shrunk_covariance
 from sklearn.preprocessing import StandardScaler
 
-from ap.api.common.services.services import get_filter_on_demand_data
-from ap.api.trace_data.services.time_series_chart import (
+from ap.api.common.services.show_graph_services import (
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
     get_data_from_db,
-    get_procs_in_dic_param,
+    get_filter_on_demand_data,
+    is_nominal_check,
     main_check_filter_detail_match_graph_data,
 )
+from ap.api.sankey_plot.sankey_glasso.grplasso import labelencode_by_stat
 from ap.common.common_utils import gen_sql_label
-from ap.common.constants import *
+from ap.common.constants import (
+    ACTUAL_RECORD_NUMBER,
+    ARRAY_PLOTDATA,
+    CATEGORY_COLS,
+    COL_DATA_TYPE,
+    DATA_SIZE,
+    END_COL_NAME,
+    END_PROC_ID,
+    END_PROC_NAME,
+    IS_CATEGORY,
+    IS_INT_CATEGORY,
+    IS_SERIAL_NO,
+    MATCHED_FILTER_IDS,
+    NOT_EXACT_MATCH_FILTER_IDS,
+    SHOWN_NAME,
+    UNIQUE_SERIAL,
+    UNMATCHED_FILTER_IDS,
+    CacheType,
+)
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
-from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
@@ -33,8 +51,8 @@ from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey
     (EventType.GL, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True)
-def gen_graphical_lasso(dic_param):
+@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+def gen_graphical_lasso(graph_param, dic_param, df=None):
     (
         dic_param,
         cat_exp,
@@ -44,13 +62,21 @@ def gen_graphical_lasso(dic_param):
         *_,
     ) = customize_dic_param_for_reuse_cache(dic_param)
 
-    graph_param = bind_dic_param_to_class(dic_param)
-    # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(
-        graph_param, dic_cat_filters, use_expired_cache=use_expired_cache
-    )
+    if df is None:
+        # get data from database
+        df, actual_record_number, unique_serial = get_data_from_db(
+            graph_param,
+            dic_cat_filters,
+            use_expired_cache=use_expired_cache,
+        )
+        dic_param[UNIQUE_SERIAL] = unique_serial
+        dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
+
+    # get category sensors from df
+    cat_sensors = []
+    cat_ids = {}
 
     df_sensor = pd.DataFrame()
     sensor_names = []
@@ -58,21 +84,70 @@ def gen_graphical_lasso(dic_param):
     sensor_cols = graph_param.common.sensor_cols or []
     objective_var = graph_param.common.objective_var or None
     idx_target = None
+    cat_col_details = []
     for i, col_id in enumerate(sensor_cols):
         general_col_info = graph_param.get_col_info_by_id(col_id)
         label = gen_sql_label(col_id, general_col_info[END_COL_NAME])
+        if label not in df.columns:
+            continue
+
+        proc_cfg = graph_param.dic_proc_cfgs[general_col_info[END_PROC_ID]]
+        is_string_col = general_col_info[IS_CATEGORY]
+        if is_string_col:
+            cat_sensors.append(label)
+            col_detail = {
+                'col_id': col_id,
+                'col_shown_name': general_col_info[SHOWN_NAME],
+                'col_en_name': general_col_info[END_COL_NAME],
+                'data_type': general_col_info[COL_DATA_TYPE],
+                'proc_id': proc_cfg.id,
+                'proc_shown_name': proc_cfg.shown_name,
+                'proc_en_name': proc_cfg.name_en,
+                'is_category': True,
+                'is_checked': is_nominal_check(col_id, graph_param),
+                'is_serial_no': general_col_info[IS_SERIAL_NO],
+                'is_int_category': general_col_info[IS_INT_CATEGORY],
+            }
+            cat_col_details.append(col_detail)
+            cat_ids[col_id] = label
         if label in df.columns:
             df_sensor[label] = df[label]
             sensor_names.append(general_col_info[SHOWN_NAME])
             process_names.append(general_col_info[END_PROC_NAME])
-            if df_sensor[label].dtypes == 'object':
+            if df_sensor[label].dtypes == 'object' and not is_string_col:
                 df_sensor[label] = df_sensor[label].astype('Float64')
         if objective_var and col_id == objective_var:
             idx_target = i
 
-    alphas, best_alpha, threshold, dic_nodes, dic_edges = preprocess_glasso_page(
-        df_sensor, idx_target, process_names, sensor_names
-    )
+    nominal_vars = []
+    if graph_param.common.is_nominal_scale:
+        # nominal variables are category: string or int which unique value < 128
+        nominal_vars = cat_sensors
+    # if re-select from modal
+    if graph_param.common.nominal_vars is not None:
+        nominal_vars = graph_param.common.nominal_vars
+        # in case of GL, cat_sensors is label '__id__sensor_name'
+        # so need to convert nominal_vars (id)
+        nominal_labels = []
+        for sensor_id in nominal_vars:
+            if sensor_id in cat_ids.keys():
+                nominal_labels.append(cat_ids[sensor_id])
+        if len(nominal_labels):
+            nominal_vars = nominal_labels
+
+    alphas, best_alpha, threshold, dic_nodes, dic_edges = (None, None, None, None, None)
+    # drop NA and resample if necessary
+    df_sensor = df_sensor.dropna(how='any').reset_index(drop=True)
+
+    if not df_sensor.empty:
+        alphas, best_alpha, threshold, dic_nodes, dic_edges = preprocess_glasso_page(
+            df_sensor,
+            idx_target,
+            process_names,
+            sensor_names,
+            cat_cols=cat_sensors,
+            nominal_variables=nominal_vars,
+        )
 
     # check filter match or not ( for GUI show )
     (
@@ -86,9 +161,8 @@ def gen_graphical_lasso(dic_param):
     dic_param[UNMATCHED_FILTER_IDS] = unmatched_filter_ids
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = not_exact_match_filter_ids
     dic_param[DATA_SIZE] = df.memory_usage(deep=True).sum()
-    dic_param[UNIQUE_SERIAL] = unique_serial
-    dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
     dic_param[ARRAY_PLOTDATA] = [alphas, best_alpha, threshold, dic_nodes, dic_edges, process_names]
+    dic_param[CATEGORY_COLS] = cat_col_details
 
     dic_param = get_filter_on_demand_data(dic_param)
 
@@ -97,7 +171,7 @@ def gen_graphical_lasso(dic_param):
 
 @log_execution_time()
 @abort_process_handler()
-def preprocess_glasso_page(X, idx_target, groups: list, colnames: list):
+def preprocess_glasso_page(X, idx_target, groups: list, colnames: list, cat_cols=[], nominal_variables=[]):
     """
     Main function to generate data for GL page
 
@@ -111,6 +185,8 @@ def preprocess_glasso_page(X, idx_target, groups: list, colnames: list):
          A list of process names of each column (shown name)
     colnames : list
          A list of sensor names of each column (shown name)
+    cat_cols : list
+         A list of sensor names of categorical data
 
     Returns
     ----------
@@ -127,7 +203,7 @@ def preprocess_glasso_page(X, idx_target, groups: list, colnames: list):
     """
 
     # the graphical lasso
-    alphas, best_alpha, parcors, best_parcor = _fit_glasso(X, idx_target)
+    alphas, best_alpha, parcors, best_parcor = _fit_glasso(X, idx_target, cat_cols, nominal_variables)
 
     # store DataFrame of data to pass to sigma.js, for each alpha
     dic_nodes = {}
@@ -149,9 +225,9 @@ def preprocess_glasso_page(X, idx_target, groups: list, colnames: list):
 
 @log_execution_time()
 @abort_process_handler()
-def _fit_glasso(X, idx_target):
+def _fit_glasso(X, idx_target, cat_cols, nominal_variables):
     """Fit graphical lasso with reasonable alpha sequence"""
-    X = _clean_data_glasso(X)
+    X = _preprocess_glasso_data(X, idx_target, cat_cols, nominal_variables=nominal_variables)
 
     alphas = np.round(10 ** (np.linspace(-2, 0, num=10)), 2).tolist()
     ggm = GaussianGraphicalModel(alphas=alphas, idx_target=idx_target)
@@ -163,20 +239,31 @@ def _fit_glasso(X, idx_target):
 
 @log_execution_time()
 @abort_process_handler()
-def _clean_data_glasso(X, max_datapoints=10_000, verbose=True):
-    """drop Infs, NAs, resampling and zero-variance variables"""
+def _preprocess_glasso_data(X, idx_tgt, cat_cols, max_datapoints=10_000, verbose=True, nominal_variables=[]):
+    """drop Infs, NAs, resampling, convert string variables and zero-variance variables"""
 
-    X = X[np.isfinite(X).all(1)]
-    X = X.dropna(how='any').reset_index(drop=True)
     if X.shape[0] > max_datapoints:
         np.random.seed(1)
         X = X.sample(n=max_datapoints, replace=False)
         if verbose:
-            print(
-                'Number of data points exceeded {}. Data is automatically resampled. '.format(
-                    max_datapoints
-                )
+            print('Number of data points exceeded {}. Data is automatically resampled. '.format(max_datapoints))
+
+    # convert string variables
+    if (idx_tgt is not None) and (len(cat_cols) > 0):
+        y = X.iloc[:, idx_tgt].values.copy()
+        # convert y to np array with type is float
+        y = np.array(y, dtype='float64')
+        for col in cat_cols:
+            is_nominal_scale = col in nominal_variables
+            X.loc[:, col] = labelencode_by_stat(
+                X[col].astype(str).values.flatten(),
+                y.flatten(),
+                is_nominal_scale=is_nominal_scale,
             )
+
+    # drop infinite
+    X = X[np.isfinite(X).all(1)]
+
     # replace zero variance variable with an independent random variable
     is_zerovar = X.var(axis=0).values == 0
     if np.sum(is_zerovar > 0):
@@ -207,7 +294,7 @@ class GaussianGraphicalModel:
     """
 
     def __init__(self, alphas=None, idx_target=None):
-        self.alphas = [alphas] if type(alphas) != list else alphas
+        self.alphas = [alphas] if not isinstance(alphas, list) else alphas
         self.results = None
         self.idx_target = idx_target
 
@@ -237,16 +324,14 @@ class GaussianGraphicalModel:
                 dic_res['alpha'].append(alpha)
                 dic_res['parcor'].append(self._precision2parcor(pmat))
                 dic_res['ebic'].append(self._calc_extended_bic(pmat, emp_cov, X.shape[0]))
-            except:
+            except Exception:
                 print('Poorly conditioned on alpha={}. Skip'.format(alpha))
 
         self.results = dic_res
 
     def _precision2parcor(self, pmat):
         """Convert precision matrix to partial correlation matrix"""
-        parcor = -pmat / (
-            np.sqrt(np.diag(pmat)).reshape(-1, 1) @ np.sqrt(np.diag(pmat)).reshape(1, -1)
-        )
+        parcor = -pmat / (np.sqrt(np.diag(pmat)).reshape(-1, 1) @ np.sqrt(np.diag(pmat)).reshape(1, -1))
         np.fill_diagonal(parcor, 0.0)  # no self loops
         return parcor
 
@@ -278,9 +363,7 @@ class GaussianGraphicalModel:
             best_parcor = self.results['parcor'][idx]
         else:
             # if specified, select the results with the reasonable num of direclty connected nodes
-            d = self.results['parcor'][0].shape[
-                0
-            ]  # controlls the number of directly connected variables
+            d = self.results['parcor'][0].shape[0]  # controlls the number of directly connected variables
             obj_num = np.min([10, np.ceil((d - 1.0) / 3.0)])
 
             best_alpha = self.alphas[0]
@@ -319,9 +402,11 @@ def _gen_node_positions(parcor, idx_target=None):
                     y = np.linspace(1, -1, num_vars)
             else:
                 theta = np.pi
-                if (num_vars > 1) and (num_vars < 5):
+                min_num = 1
+                max_num = 5
+                if (num_vars > min_num) and (num_vars < max_num):
                     theta = np.linspace(7 / 8 * np.pi, 9 / 8 * np.pi, num_vars)
-                elif num_vars >= 5:
+                elif num_vars >= max_num:
                     theta = np.linspace(6 / 8 * np.pi, 10 / 8 * np.pi, num_vars)
                 x = 10 * np.cos(theta) + 10 - (layer - 1) * 5
                 y = 5 * np.sin(theta)
@@ -340,9 +425,7 @@ def _gen_node_positions(parcor, idx_target=None):
 
         def extract_connected_idx(parcor, from_idx, to_idx):
             """Extract index of directly connected nodes"""
-            idx_candidates = np.where(
-                parcor[np.ix_(from_idx, to_idx)].reshape(len(from_idx), len(to_idx)) != 0
-            )[0]
+            idx_candidates = np.where(parcor[np.ix_(from_idx, to_idx)].reshape(len(from_idx), len(to_idx)) != 0)[0]
             idx_connected = np.unique(idx_candidates)
             return from_idx[idx_connected]
 
@@ -357,9 +440,7 @@ def _gen_node_positions(parcor, idx_target=None):
             if verbose:
                 print('from: {}'.format(idx_remain))
                 print('to: {}'.format(idx_per_layer[i - 1]))
-            connected_idx = extract_connected_idx(
-                parcor, from_idx=idx_remain, to_idx=idx_per_layer[i - 1]
-            )
+            connected_idx = extract_connected_idx(parcor, from_idx=idx_remain, to_idx=idx_per_layer[i - 1])
             idx_remain = np.setdiff1d(idx_remain, connected_idx)
             if len(connected_idx) == 0:
                 break
@@ -394,8 +475,8 @@ def _gen_proc_colorcodes(procnames):
         """Random color generator (used to generate colors per process)"""
         HSVs = [(x * 1.0 / N, 0.5, 0.5) for x in range(N)]
         hex_colorcodes = []
-        for rgb in HSVs:
-            rgb = map(lambda x: int(x * 255), colorsys.hsv_to_rgb(*rgb))
+        for _rgb in HSVs:
+            rgb = (int(x * 255) for x in colorsys.hsv_to_rgb(*_rgb))
             hex_colorcodes.append('#%02x%02x%02x' % tuple(rgb))
         return hex_colorcodes
 
@@ -421,7 +502,7 @@ def _gen_df_nodes_sigmajs(x, y, colnames, groups):
             'x': x,
             'y': [-x for x in y],  # on sigmajs, (0, 0) is the upper left corner
             'color': node_colors,
-        }
+        },
     )
     return df_node
 
@@ -444,6 +525,6 @@ def _gen_df_edges_sigmajs(adj_mat):
             'hover_color': ['#00aeff'] * num_edges,
             'color': [color_edge_positive if x >= 0 else color_edge_negative for x in edge_values],
             'type': ['line'] * num_edges,
-        }
+        },
     )
     return df_edge

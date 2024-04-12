@@ -20,7 +20,9 @@ class Errors:
     errors: list[ErrorMessage] = dataclasses.field(default_factory=list)
 
     def add_error_message(
-        self, *, error_msg: Union[Optional[ErrorMessage], List[ErrorMessage]] = None
+        self,
+        *,
+        error_msg: Union[Optional[ErrorMessage], List[ErrorMessage]] = None,
     ) -> None:
         if error_msg is None:
             return
@@ -30,7 +32,7 @@ class Errors:
             for err in error_msg:
                 if not isinstance(error_msg, ErrorMessage):
                     raise RuntimeError(
-                        'Invalid usage: `error_msg` must be a list of `ErrorMessage`'
+                        'Invalid usage: `error_msg` must be a list of `ErrorMessage`',
                     )
                 self.errors.append(err)
 
@@ -62,7 +64,8 @@ class APIError(Exception):
         return self
 
     def add_error(
-        self, error_msg: Union[Optional[ErrorMessage], List[ErrorMessage]] = None
+        self,
+        error_msg: Union[Optional[ErrorMessage], List[ErrorMessage]] = None,
     ) -> 'APIError':
         self.errors.add_error_message(error_msg=error_msg)
         return self
@@ -86,5 +89,6 @@ class APIError(Exception):
     @classmethod
     def from_http_error(cls, e: HTTPException) -> APIError:
         return cls(
-            status_code=e.code, error_msg=ErrorMessage(reason=e.description, message=e.description)
+            status_code=e.code,
+            error_msg=ErrorMessage(reason=e.description, message=e.description),
         )

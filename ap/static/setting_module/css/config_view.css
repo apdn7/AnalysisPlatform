@@ -132,7 +132,6 @@ input[type=checkbox] {
 
 .csv-datatype-selection {
     margin-bottom: 10px;
-    background-color: #222222;
     color: #ffffff;
 }
 
@@ -245,11 +244,6 @@ a.histview-link {
 
 .icon-recent {
     color: #ffffff !important;
-}
-
-.custom-control-input:disabled ~ .custom-control-label::before {
-    cursor: not-allowed !important;
-    background-color: #444444;
 }
 
 /* process config table */
@@ -400,9 +394,6 @@ td.pr-row {
 #procSettingModal .col-form-label {
     padding-bottom: 0.3rem !important;
 }
-#procSettingModal .table th, #procSettingModal .table td {
-    padding: 0.2rem 0.75rem !important;
-}
 /* for header of preview table */
 #procSettingModal .table .thead-light th {
     color: white;
@@ -430,4 +421,31 @@ td.pr-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     column-gap: 15px;
+}
+
+.input-with-select-btn {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+}
+
+.file-encoding {
+    position: absolute;
+    /*top: 40px;*/
+    font-size: 18px;
+}
+
+.mg-minus-1 {
+    margin-top: -0.5rem !important;
+}
+
+.line-skip {
+    display: flex;
+    align-content: stretch;
+    align-items: center;
+}
+.line-skip-group {
+    top: -0.5rem;
 }

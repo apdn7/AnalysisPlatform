@@ -3,19 +3,45 @@ from copy import deepcopy
 
 from flask import Blueprint, request
 
-from ap.api.common.services.services import get_filter_on_demand_data
+from ap import max_graph_config
+from ap.api.common.services.show_graph_database import get_config_data
+from ap.api.common.services.show_graph_jump_function import convert_emd_data_to_df
+from ap.api.common.services.show_graph_services import get_filter_on_demand_data
 from ap.api.ridgeline_plot.services import (
     customize_dict_param,
     gen_emd_df,
     gen_rlp_data_by_term,
     gen_trace_data_by_categorical_var,
     gen_trace_data_by_cyclic,
-    save_input_data_to_file,
 )
 from ap.api.trace_data.services.csv_export import make_graph_param, to_csv
+from ap.common.constants import (
+    ARRAY_FORMVAL,
+    ARRAY_PLOTDATA,
+    CAT_EXP_BOX,
+    CLIENT_TIMEZONE,
+    COL_ID,
+    COL_MASTER_NAME,
+    COMMON,
+    COMPARE_TYPE,
+    DIV_BY_CAT,
+    EMD_TYPE,
+    END_PROC,
+    EXPORT_FROM,
+    PROC_MASTER_NAME,
+    REQUEST_THREAD_ID,
+    RL_CATEGORY,
+    RL_CYCLIC_TERM,
+    RL_DATA,
+    RL_DIRECT_TERM,
+    CSVExtTypes,
+    MaxGraphNumber,
+)
 from ap.common.logger import log_execution_time
+from ap.common.memoize import cache_jump_key
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
+    bind_dic_param_to_class,
     get_end_procs_param,
     parse_multi_filter_into_one,
     parse_request_params,
@@ -27,12 +53,9 @@ from ap.common.services.import_export_config_n_data import (
     get_dic_form_from_debug_info,
     set_export_dataset_id_to_dic_param,
 )
-from ap.common.trace_data_log import EventType, save_draw_graph_trace, trace_log_params
-from ap.common.yaml_utils import *
+from ap.common.trace_data_log import EventType, save_draw_graph_trace, save_input_data_to_file, trace_log_params
 
 api_ridgeline_plot_blueprint = Blueprint('api_ridgeline_plot', __name__, url_prefix='/ap/api/rlp')
-
-RLP_MAX_GRAPH = 20
 
 
 @api_ridgeline_plot_blueprint.route('/index', methods=['POST'])
@@ -51,36 +74,58 @@ def trace_data():
 
     customize_dict_param(dic_param)
 
+    dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+
     compare_type = dic_param.get(COMMON).get(COMPARE_TYPE)
 
-    org_dicparam = deepcopy(dic_param)
+    org_dic_param = deepcopy(dic_param)
     dic_params = get_end_procs_param(dic_param)
 
     for single_dic_param in dic_params:
+        root_graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
         if compare_type == RL_CATEGORY:
-            rlp_dat, _ = gen_trace_data_by_categorical_var(single_dic_param, RLP_MAX_GRAPH)
-        if compare_type == RL_CYCLIC_TERM:
-            rlp_dat, _ = gen_trace_data_by_cyclic(single_dic_param, RLP_MAX_GRAPH)
+            rlp_dat, _ = gen_trace_data_by_categorical_var(
+                root_graph_param,
+                single_dic_param,
+                max_graph_config[MaxGraphNumber.RLP_MAX_GRAPH.name],
+            )
+        elif compare_type == RL_CYCLIC_TERM:
+            rlp_dat, _ = gen_trace_data_by_cyclic(
+                root_graph_param,
+                single_dic_param,
+                max_graph_config[MaxGraphNumber.RLP_MAX_GRAPH.name],
+            )
         elif compare_type == RL_DIRECT_TERM:
-            rlp_dat, _ = gen_rlp_data_by_term(single_dic_param, RLP_MAX_GRAPH)
-        org_dicparam = update_data_from_multiple_dic_params(org_dicparam, rlp_dat)
-        org_dicparam = update_rlp_data_from_multiple_dic_params(org_dicparam, rlp_dat)
+            rlp_dat, _ = gen_rlp_data_by_term(
+                root_graph_param,
+                single_dic_param,
+                max_graph_config[MaxGraphNumber.RLP_MAX_GRAPH.name],
+            )
+        else:
+            rlp_dat = single_dic_param
+
+        org_dic_param = update_data_from_multiple_dic_params(org_dic_param, rlp_dat)
+        org_dic_param = update_rlp_data_from_multiple_dic_params(org_dic_param, rlp_dat)
 
     stop = timeit.default_timer()
-    org_dicparam['backend_time'] = stop - start
+    org_dic_param['backend_time'] = stop - start
 
     # export mode ( output for export mode )
-    set_export_dataset_id_to_dic_param(org_dicparam)
+    set_export_dataset_id_to_dic_param(org_dic_param)
 
     # remove raw data
-    for plot in org_dicparam[ARRAY_PLOTDATA]:
+    for plot in org_dic_param[ARRAY_PLOTDATA]:
         del plot[RL_DATA]
 
-    org_dicparam['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.RLP))
+    org_dic_param['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.RLP))
 
-    org_dicparam = get_filter_on_demand_data(org_dicparam)
-
-    out_dict = orjson_dumps(org_dicparam)
+    org_dic_param = get_filter_on_demand_data(org_dic_param)
+    out_dict = orjson_dumps(org_dic_param)
+    df, dic_param, new_dic_proc_cfgs = convert_emd_data_to_df(org_dic_param, root_graph_param)
+    if df is not None:
+        graph_param = bind_dic_param_to_class(new_dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+        # dic_param = bind_ng_rate_to_dic_param(graph_param, dic_param)
+        cache_jump_key(dic_form.get(REQUEST_THREAD_ID, [None])[0], dic_param, graph_param, df)
     return out_dict, 200
 
 
@@ -97,7 +142,7 @@ def data_export(export_type):
 
 
 @log_execution_time()
-def export_file(dic_form, export_type='csv'):
+def export_file(dic_form, export_type=CSVExtTypes.CSV.value):
     dic_param = parse_multi_filter_into_one(dic_form)
 
     # check if we run debug mode (import mode)
@@ -105,27 +150,44 @@ def export_file(dic_form, export_type='csv'):
 
     customize_dict_param(dic_param)
 
+    dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+
     compare_type = dic_param.get(COMMON).get(COMPARE_TYPE)
 
     dic_params = get_end_procs_param(dic_param)
 
     export_from = dic_param[COMMON].get(EXPORT_FROM, None) or dic_form.get(EXPORT_FROM, None)
-
-    delimiter = ',' if export_type == 'csv' else '\t'
+    delimiter = ',' if export_type == CSVExtTypes.CSV.value else '\t'
 
     csv_data = []
     csv_list_name = []
     for single_dic_param in dic_params:
-        graph_param, dic_proc_cfgs, client_timezone = make_graph_param(single_dic_param)
+        root_graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
+        graph_param, client_timezone = make_graph_param(root_graph_param, single_dic_param)
         if compare_type == RL_CATEGORY:
-            rlp_dat, csv_df = gen_trace_data_by_categorical_var(single_dic_param, RLP_MAX_GRAPH)
-        if compare_type == RL_CYCLIC_TERM:
-            rlp_dat, csv_df = gen_trace_data_by_cyclic(single_dic_param, RLP_MAX_GRAPH)
+            rlp_dat, csv_df = gen_trace_data_by_categorical_var(
+                root_graph_param,
+                single_dic_param,
+                max_graph_config[MaxGraphNumber.RLP_MAX_GRAPH.name],
+            )
+        elif compare_type == RL_CYCLIC_TERM:
+            rlp_dat, csv_df = gen_trace_data_by_cyclic(
+                root_graph_param,
+                single_dic_param,
+                max_graph_config[MaxGraphNumber.RLP_MAX_GRAPH.name],
+            )
         elif compare_type == RL_DIRECT_TERM:
-            rlp_dat, csv_df = gen_rlp_data_by_term(single_dic_param, RLP_MAX_GRAPH)
+            rlp_dat, csv_df = gen_rlp_data_by_term(
+                root_graph_param,
+                single_dic_param,
+                max_graph_config[MaxGraphNumber.RLP_MAX_GRAPH.name],
+            )
+        else:
+            rlp_dat = single_dic_param
+            csv_df = None
 
         end_proc_id = int(rlp_dat[ARRAY_FORMVAL][0][END_PROC])
-        proc_name = dic_proc_cfgs[end_proc_id].name
+        proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name
         csv_list_name.append('{}.{}'.format(proc_name, export_type))
 
         if export_from == 'plot':
@@ -145,13 +207,18 @@ def export_file(dic_form, export_type='csv'):
 
             client_tz = dic_param[COMMON][CLIENT_TIMEZONE]
             csv_dfs, csv_file_name = gen_emd_df(
-                rlp_dat, div_name, term_sep, client_tz, has_facet, export_type
+                graph_param,
+                rlp_dat,
+                div_name,
+                term_sep,
+                client_tz,
+                has_facet,
+                export_type,
             )
             emd_type = single_dic_param[COMMON][EMD_TYPE]
-            for csv_df in csv_dfs:
+            for _csv_df in csv_dfs:
                 csv_df = to_csv(
-                    csv_df,
-                    dic_proc_cfgs,
+                    _csv_df,
                     graph_param,
                     emd_type=emd_type,
                     div_col=div_name,
@@ -162,13 +229,7 @@ def export_file(dic_form, export_type='csv'):
             if len(csv_file_name) > 0:
                 csv_list_name = csv_file_name
         else:
-            csv_df = to_csv(
-                csv_df,
-                dic_proc_cfgs,
-                graph_param,
-                client_timezone=client_timezone,
-                delimiter=delimiter,
-            )
+            csv_df = to_csv(csv_df, graph_param, client_timezone=client_timezone, delimiter=delimiter)
             csv_data.append(csv_df)
 
     response = zip_file_to_response(csv_data, csv_list_name, export_type)

@@ -16,6 +16,8 @@ from ap.common.logger import log_execution_time
 # in this case send ga will be stoped in the next time
 is_send_google_analytics = True
 
+waiting_trace_records = []
+
 
 def _gen_dataset_id():
     from ap.setting_module.models import DataTraceLog
@@ -91,7 +93,7 @@ class Target(Enum):
 
 class Location(Enum):
     PYTHON = 'Mt'
-    JAVASCRIPT = 'Js'
+    # JAVASCRIPT = 'Js'
     R = 'R_'
 
 
@@ -102,7 +104,7 @@ class TraceErrKey(Enum):
     ACTION = 'event_action'
     LOCATION = 'location'
     TARGET = 'target'
-    CODE = 'return_code'
+    # CODE = 'return_code'
     MSG = 'message'
     DATETIME = 'date_time'
     EXE_TIME = 'exe_time'
@@ -110,7 +112,7 @@ class TraceErrKey(Enum):
     ROWS = 'rows'
     COLS = 'cols'
 
-    IS_OUTPUT = auto()
+    # IS_OUTPUT = auto()
     IS_EXPORT_MODE = auto()
 
 
@@ -121,7 +123,7 @@ class ReturnCode(Enum):
 
 class LogLevel(Enum):
     ERROR = 'ERROR'
-    WARNING = 'WARNING'
+    # WARNING = 'WARNING'
 
 
 def save_trace_log_db(is_err=False, data_frame=None):
@@ -159,8 +161,14 @@ def save_trace_log_db(is_err=False, data_frame=None):
 
     from ap.setting_module.models import make_session
 
-    with make_session() as meta_session:
-        meta_session.add(rec)
+    try:
+        with make_session() as meta_session:
+            for _rec in waiting_trace_records:
+                meta_session.add(_rec)
+
+            meta_session.add(rec)
+    except Exception:
+        waiting_trace_records.append(rec)
 
 
 def set_log_attr(keys, vals):
@@ -184,16 +192,13 @@ def get_log_attr(key, get_enum=False):
     if not val:
         return None
 
-    if not get_enum:
-        if isinstance(val, Enum):
-            return val.value
+    if not get_enum and isinstance(val, Enum):
+        return val.value
 
     return val
 
 
-def trace_log(
-    keys=None, vals=None, save_log=True, output_key=None, send_ga=False, method_key=False
-):
+def trace_log(keys=None, vals=None, save_log=True, output_key=None, send_ga=False):
     """
     decorator to manage trace data and trace log
     """
@@ -213,8 +218,8 @@ def trace_log(
                     result = _get_g_dict()[TraceErrKey.DATASET]
                 else:
                     set_log_attr(keys, vals)
-                et = time.time() + 0.005  # To avoid zero executive time, add 5 miliseconds
-                exec_time = round((et - st) * 1000)  # miliseconds
+                et = time.time() + 0.005  # To avoid zero executive time, add 5 milliseconds
+                exec_time = round((et - st) * 1000)  # milliseconds
 
                 if not keys and not vals:
                     exec_time = 0
@@ -300,16 +305,12 @@ def send_google_analytic():
     exe_time = get_log_attr(TraceErrKey.EXE_TIME)
     data_size = get_log_attr(TraceErrKey.DATA_SIZE)
 
-    send_result = send_gtag(
-        ec=EventCategory.EXEC_TIME.value, ea=event_type + '_et', el=event_label, ev=exe_time
-    )
+    send_result = send_gtag(ec=EventCategory.EXEC_TIME.value, ea=event_type + '_et', el=event_label, ev=exe_time)
 
     if not send_result:
         return False
 
-    send_result = send_gtag(
-        ec=EventCategory.INPUT_DATA.value, ea=event_type + '_ds', el=event_label, ev=data_size
-    )
+    send_result = send_gtag(ec=EventCategory.INPUT_DATA.value, ea=event_type + '_ds', el=event_label, ev=data_size)
 
     if not send_result:
         return False

@@ -114,3 +114,7 @@ span.text-option {
     min-width: 220px;
     left: 0px;
 }
+
+text.axis-title.fineSelect {
+    transform: translate(0px, -45px);
+}

@@ -6,6 +6,7 @@
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 18;
 const MAX_NUMBER_OF_SENSOR = 18;
+const MIN_NUMBER_OF_SENSOR = 0;
 tabID = null;
 let currentData = null;
 const graphStore = new GraphStore();
@@ -30,6 +31,7 @@ const formElements = {
     btnAddCondProc: '#btn-add-cond-proc',
     endProcItems: '#end-proc-row .end-proc',
     endProcSelectedItem: '#end-proc-row select',
+    condProcSelectedItem: '#cond-proc-row select',
     plotCardId: '#plot-cards',
     plotCard: $('#barplot-cards'),
     categoryForm: '#traceDataForm',
@@ -177,7 +179,6 @@ $(() => {
         endProcItem(() => {
             onChangeDivInFacet();
         });
-        updateSelectedItems();
         // checkAndHideStratifiedVar();
         addAttributeToElement();
     });
@@ -203,6 +204,8 @@ $(() => {
         keepValueEachDivision();
     }, 2000);
 
+    // validate and change to default and max value cyclic term
+    validateInputByNameWithOnchange(CYCLIC_TERM.DIV_NUM, { MAX: 1000, MIN: 1, DEFAULT: 120 });
 
     initializeDateTimeRangePicker();
     initializeDateTimePicker();
@@ -354,8 +357,6 @@ const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
         // show info table
         showInfoTable(res);
 
-        loadGraphSetings(clearOnFlyFilter);
-
         if (!autoUpdate) {
              $('html, body').animate({
                 scrollTop: $(formElements.agpCard).offset().top,
@@ -479,7 +480,7 @@ const onChangeDivideFormat = (e) => {
 const renderAgPChartLayout = (chartOption, chartHeight = '40vh', isCTCol = false) => {
     const { processName, columnName, facetLevel1, facetLevel2, chartId } = chartOption;
     let facet = [facetLevel1, facetLevel2].filter(f => checkTrue(f));
-    const levelTitle = facet.map((el, i) => `${el}${i}`).join(' | ');
+    const levelTitle = facet.map((el, i) => `${el}`).join(' | ');
     const CTLabel = isCTCol ? ` (${DataTypes.DATETIME.short}) [sec]` : ''
     const chartLayout = `
           <div class="card chart-row graph-navi" style="height: ${chartHeight};">

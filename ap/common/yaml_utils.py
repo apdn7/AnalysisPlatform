@@ -2,7 +2,7 @@ import os
 import traceback
 from collections import OrderedDict
 
-import ruamel.yaml as yaml
+from ruamel import yaml
 from ruamel.yaml import add_constructor, resolver
 
 from ap.common.common_utils import (
@@ -11,7 +11,7 @@ from ap.common.common_utils import (
     detect_encoding,
     dict_deep_merge,
 )
-from ap.common.constants import *
+from ap.common.constants import AP_TILE, DN7_TILE, SEARCH_USAGE, TILE_JUMP_CFG, TILE_MASTER
 
 # yaml config files name
 YAML_CONFIG_BASIC_FILE_NAME = 'basic_config.yml'
@@ -74,9 +74,7 @@ class YamlConfig:
 
         try:
             dict_obj = convert_json_to_ordered_dict(dict_obj)
-            with open(
-                self.fname_config_yaml if not output_file else output_file, 'w', encoding=encoding
-            ) as outfile:
+            with open(output_file if output_file else self.fname_config_yaml, 'w', encoding=encoding) as outfile:
                 yaml.dump(dict_obj, outfile, default_flow_style=False, allow_unicode=True)
 
             return True
@@ -99,8 +97,8 @@ class YamlConfig:
     def save_yaml(self):
         """
         save yaml object to file
-        Notice: This method will save exactly yaml obj to file, so in case many users save the same time, the last one will win.
-        so use update_yaml is better in these case. update_yaml only save changed node(key) only.
+        Notice: This method will save exactly yaml obj to file, so in case many users save the same time,
+        the last one will win. so use update_yaml is better in these case. update_yaml only save changed node(key) only.
         :return:
         """
 

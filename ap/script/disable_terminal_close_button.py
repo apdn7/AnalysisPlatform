@@ -1,7 +1,6 @@
-import win32console, win32gui, win32con
-
-
 def disable_terminal_close_btn():
+    import win32console, win32gui, win32con
+
     try:
         hwnd = win32console.GetConsoleWindow()
         if hwnd:
@@ -13,6 +12,8 @@ def disable_terminal_close_btn():
 
 
 def close_terminal():
+    import win32console, win32gui, win32con
+
     try:
         hwnd = win32console.GetConsoleWindow()
         if hwnd:

@@ -107,6 +107,8 @@ const onChangeSummaryEventHandler = (showScatterPlot) => {
         // get width of current Time Series chart
         setTimeout(() => {
             adjustCatetoryTableLength();
+            // Reposition cross line of label plot
+            resetPositionOfCrossLine();
         }, 500);
 
         // histogram tab, summary select menu

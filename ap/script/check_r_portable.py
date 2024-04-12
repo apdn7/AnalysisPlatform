@@ -105,6 +105,4 @@ def check_and_copy_r_portable():
     except Exception as ex:
         traceback.print_exc()
         end = time.time()
-        logger.error(
-            "ERROR updating R in {sec} seconds. Error: {err}".format(sec=(end - start), err=ex)
-        )
+        logger.error("ERROR updating R in {sec} seconds. Error: {err}".format(sec=(end - start), err=ex))

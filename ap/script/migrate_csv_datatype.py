@@ -8,9 +8,7 @@ update_datatype = """UPDATE cfg_process_column SET predict_type = data_type;"""
 def migrate_csv_datatype(app_db_src):
     app_db = sqlite.SQLite3(app_db_src)
     app_db.connect()
-    is_col_existing = app_db.is_column_existing(
-        CfgProcessColumn.__table__.name, CfgProcessColumn.predict_type.name
-    )
+    is_col_existing = app_db.is_column_existing(CfgProcessColumn.__table__.name, CfgProcessColumn.predict_type.name)
 
     if not is_col_existing:
         app_db.execute_sql(create_column)

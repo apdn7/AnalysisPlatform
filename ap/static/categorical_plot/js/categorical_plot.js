@@ -5,6 +5,7 @@
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 32;
 const MAX_NUMBER_OF_SENSOR = 8;
+const MIN_NUMBER_OF_SENSOR = 0;
 // eslint-disable-next-line prefer-const
 const dicTabs = {'#byVarCompare': 'var', '#byTermCompare': 'term', '#byCyclicTerm': 'cyclicTerm'};
 let currentTraceDataVar;
@@ -84,6 +85,7 @@ const formElements = {
     BY_CYCLIC: 'cyclicTerm',
     SCALE_DEFAULT_OPTION: 1,
     endProcSelectedItem: '#end-proc-row select',
+    condProcSelectedItem: '#varcond-proc-row select',
 };
 
 
@@ -137,6 +139,7 @@ $(() => {
         showStrColumn: true,
         showCatExp: true,
         isRequired: true,
+        showFilter: true,
     });
     varEndProcItem();
 
@@ -144,7 +147,6 @@ $(() => {
     // click even of end proc add button
     $('#btn-add-end-proc').click(() => {
         varEndProcItem();
-        updateSelectedItems();
         addAttributeToElement();
     });
 
@@ -292,6 +294,7 @@ const showTabsAndCharts = (
     genTab = true,
     onlySensorId = null,
 ) => {
+    if (data == null) return;
     let sensors = [];
     data.ARRAY_FORMVAL.forEach(arrayFormval => {
         sensors = [...sensors, ...arrayFormval.GET02_VALS_SELECT.map(val => Number(val))]
@@ -311,7 +314,7 @@ const showTabsAndCharts = (
         if (data.images && data.images.length > 0) {
             showViewerTab = true;
         }
-        showResultTabHTMLs(eleIdPrefix, data.ARRAY_FORMVAL, sensors, showViewerTab);
+        showResultTabHTMLs(eleIdPrefix, data, sensors, showViewerTab);
     }
 
     // /////////////// each sensor ////////////////////
@@ -334,14 +337,13 @@ const showTabsAndCharts = (
         }
         const numGraphs = sensorPlotDatas.length;
         // カラム名を取得する。
-        const endProc = getEndProcFromFormVal(sensors[sensorIdx], data.ARRAY_FORMVAL);
-        const displayColName = getColumnName(endProc, sensor);
-        const endProcName = procConfigs[endProc].shown_name;
-        const sensorType = procConfigs[endProc].dicColumns[sensor].data_type;
-        const allGroupNames = sensorType === DataTypes.TEXT.name
+        const displayColName = sensorPlotDatas[0].end_col_name;
+        const endProcName = sensorPlotDatas[0].end_proc_name;
+        const isCategory = sensorPlotDatas[0] ? sensorPlotDatas[0].is_category : false;
+        const allGroupNames = isCategory
             ? getAllGroupOfSensor(sensorPlotDatas) : [];
         const generalInfo = {
-            startProc, endProcName: endProc,
+            startProc, endProcName: endProcName,
         };
         const isCatLimited = sensorPlotDatas[0] ? sensorPlotDatas[0].is_cat_limited : false;
         if (isCatLimited) {
@@ -399,6 +401,10 @@ const showTabsAndCharts = (
                 </div>`;
             tabElement.append(cardHtml);
 
+            let yTitle = `${displayColName} | ${endProcName}`;
+            const canvasHeight = $(`#${histogramId}`).height();
+            yTitle = trimTextLengthByPixel(yTitle, canvasHeight - 100, 10);
+
             const plotData = sensorPlotDatas[i];
             const histParamObj = {
                 tabPrefix: eleIdPrefix,
@@ -413,7 +419,7 @@ const showTabsAndCharts = (
                 maxX,
                 minX,
                 sensorIdx,
-                yTitle: `${displayColName} | ${endProcName}`,
+                yTitle: yTitle,
                 chartInfos: latestChartInfo,
                 beforeRankValues,
                 plotData,
@@ -481,7 +487,6 @@ const collectFormDataFromGUI = (clearOnFlyFilter, autoUpdate = false) => {
         formData = transformFacetParams(formData);
         // reformat form data
         formData = reformatFormData(eleIdPrefix, formData);
-        formData = transformCategoryVariableParams(formData, procConfigs);
         formData = genDatetimeRange(formData);
         lastUsedFormData = formData;
         
@@ -537,8 +542,6 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
     
         // show info table
         showInfoTable(res);
-    
-        loadGraphSetings(clearOnFlyFilter);
     
         // Move screen to graph after pushing グラフ表示 button
         if (!autoUpdate) {

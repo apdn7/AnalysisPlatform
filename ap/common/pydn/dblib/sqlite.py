@@ -3,14 +3,14 @@
 # Author: Masato Yasuda (2019/04/10)
 
 import logging
-import os
 import sqlite3
 import traceback
 from datetime import datetime
 
 from dateutil import tz
 
-from ap.common.common_utils import strip_all_quote
+from ap.common.common_utils import sql_regexp, strip_all_quote
+from ap.common.constants import SQL_REGEXP_FUNC
 
 logger = logging.getLogger(__name__)
 
@@ -39,11 +39,11 @@ class SQLite3:
     def connect(self):
         try:
             if self.isolation_level:
-                self.connection = sqlite3.connect(
-                    self.dbname, timeout=60 * 5, isolation_level='IMMEDIATE'
-                )
+                self.connection = sqlite3.connect(self.dbname, timeout=60 * 5, isolation_level='IMMEDIATE')
             else:
                 self.connection = sqlite3.connect(self.dbname, timeout=60 * 5)
+
+            self.connection.create_function(SQL_REGEXP_FUNC, 2, sql_regexp)
 
             self.is_connected = True
             self.cursor = self.connection.cursor()
@@ -56,18 +56,18 @@ class SQLite3:
             print('>>> end of traceback <<<')
             return False
 
-    def is_sqlite(self):
-        """Check if dbname is actually a SQLite database file.
-
-        Returns:
-            boolean -- True if the file is SQLite database file, False otherwise.
-        """
-        if os.path.isfile(self.dbname):
-            if os.path.getsize(self.dbname) > 100:
-                with open(self.dbname, 'r', encoding='ISO-8859-1') as f:
-                    header = f.read(100)
-                    if header.startswith('SQLite format'):
-                        return True
+    # def is_sqlite(self):
+    #     """Check if dbname is actually a SQLite database file.
+    #
+    #     Returns:
+    #         boolean -- True if the file is SQLite database file, False otherwise.
+    #     """
+    #     if os.path.isfile(self.dbname):
+    #         if os.path.getsize(self.dbname) > 100:
+    #             with open(self.dbname, 'r', encoding='ISO-8859-1') as f:
+    #                 header = f.read(100)
+    #                 if header.startswith('SQLite format'):
+    #                     return True
 
     def disconnect(self):
         if not self._check_connection():
@@ -79,14 +79,14 @@ class SQLite3:
     def create_table(self, tblname, valtypes):
         if not self._check_connection():
             return False
-        sql = 'create table {0:s}('.format(tblname)
+
+        sql = f'create table if not exists {tblname}('
         for idx, val in enumerate(valtypes):
             if idx > 0:
                 sql += ','
 
             sql += val['name'] + ' ' + val['type']
         sql += ')'
-        print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
@@ -154,14 +154,14 @@ class SQLite3:
         return data_type[0] if data_type else None
 
     # list_table_columnsのうちcolumn nameだけ必要な場合
-    def list_table_colnames(self, tblname):
-        if not self._check_connection():
-            return False
-        columns = self.list_table_columns(tblname)
-        colnames = []
-        for column in columns:
-            colnames.append(column['name'])
-        return colnames
+    # def list_table_colnames(self, tblname):
+    #     if not self._check_connection():
+    #         return False
+    #     columns = self.list_table_columns(tblname)
+    #     colnames = []
+    #     for column in columns:
+    #         colnames.append(column['name'])
+    #     return colnames
 
     def is_column_existing(self, tblname, col_name):
         col_name = strip_all_quote(col_name)
@@ -194,7 +194,6 @@ class SQLite3:
                 sql += "'" + str(value[name]) + "'"
             sql += ')'
 
-        # print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
@@ -208,17 +207,16 @@ class SQLite3:
         if not self._check_connection():
             return False
         cur = self.connection.cursor()
-        print(sql)
         if not params:
             cur.execute(sql)
         else:
             # convert datetime type to str
-            _params = [
-                p.strftime('%Y-%m-%dT%H:%M:%S.%fZ') if isinstance(p, datetime) else p
-                for p in params
-            ]
-            print(_params)
-            cur.execute(sql, _params)
+            _params = [p.strftime('%Y-%m-%dT%H:%M:%S.%fZ') if isinstance(p, datetime) else p for p in params]
+            try:
+                cur.execute(sql, _params)
+            except Exception as e:
+                raise e
+
         # cursor.descriptionはcolumnの配列
         # そこから配列名(column[0])を取り出して配列columnsに代入
         if not cur.description:
@@ -228,10 +226,7 @@ class SQLite3:
         # columnsは取得したカラム名、rowはcolumnsをKeyとして持つ辞書型の配列
         # rowは取得したカラムに対応する値が順番にrow[0], row[1], ...として入っている
         # それをdictでまとめてrowsに取得
-        if row_is_dict:
-            rows = [dict(zip(cols, row)) for row in cur.fetchall()]
-        else:
-            rows = cur.fetchall()
+        rows = [dict(zip(cols, row)) for row in cur.fetchall()] if row_is_dict else cur.fetchall()
 
         cur.close()
         return (cols, rows)
@@ -241,9 +236,7 @@ class SQLite3:
             return False
 
         cur = self.connection.cursor()
-        print(sql)
         if params:
-            print(params)
             cur.execute(sql, params)
         else:
             cur.execute(sql)
@@ -268,15 +261,10 @@ class SQLite3:
             return False
 
         cur = self.connection.cursor()
-        print(sql)
         if not params:
-            res = cur.execute(sql)
+            cur.execute(sql)
         else:
-            _params = [
-                p.strftime('%Y-%m-%dT%H:%M:%S.%fZ') if isinstance(p, datetime) else p
-                for p in params
-            ]
-            print(_params)
+            _params = [p.strftime('%Y-%m-%dT%H:%M:%S.%fZ') if isinstance(p, datetime) else p for p in params]
             cur.execute(sql, _params)
 
         if not return_value:
@@ -296,13 +284,10 @@ class SQLite3:
         self.cursor.executemany(sql, rows)
 
     # 現時点ではSQLをそのまま実行するだけ
-    def select_table(self, sql):
-        return self.run_sql(sql)
-
     def get_timezone(self):
         try:
             return tz.tzlocal()
-        except:
+        except Exception:
             return None
 
     # private functions
@@ -341,7 +326,6 @@ class SQLite3:
             or_replace_str = 'OR REPLACE'
 
         sql = f'INSERT {or_replace_str} INTO {tblname} ({cols}) VALUES ({params})'
-        print(sql)
 
         cur = self.connection.cursor()
         cur.executemany(sql, rows)

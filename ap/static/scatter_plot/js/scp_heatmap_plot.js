@@ -9,6 +9,8 @@ const colorPalettes = [
     ['1', '#6dc3fd']];
 
 const generateHeatmapPlot = (prop, option, zoomRange) => {
+    prop.org_array_x = [...prop.array_x];
+    prop.org_array_y = [...prop.array_y];
     let xRange = null;
     let yRange = null;
     if (zoomRange) {
@@ -18,6 +20,23 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
         }
     }
 
+    // add prefix to change int to str type
+    const isXIntType = option.xDataType === DataTypes.INTEGER.name || Number(prop.array_x[0]) !== NaN;
+    const isYIntType = option.yDataType === DataTypes.INTEGER.name || Number(prop.array_y[0]) !== NaN;
+    option.isXIntType = isXIntType;
+    option.isYIntType = isYIntType;
+
+    if (isXIntType) {
+        const orgArrayX = [...prop.array_x];
+        prop.array_x = orgArrayX.map(val => `${STR_PREFIX}${val}`);
+        prop.org_array_x = orgArrayX;
+    }
+
+    if (isYIntType) {
+        const orgArrayY = [...prop.array_y];
+        prop.array_y = orgArrayY.map(val => `${STR_PREFIX}${val}`);
+        prop.org_array_y = orgArrayY;
+    }
     const data = [{
         x: prop.array_x,
         y: prop.array_y,
@@ -46,7 +65,7 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
             ticklen: 0,
             showline: true,
             tickmode: 'array',
-            ticktext: prop.array_y,
+            ticktext: prop.org_array_y,
             tickvals: prop.array_y,
             showgrid: true,
             tickfont: {
@@ -60,7 +79,7 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
             showgrid: true,
             tickangle: 0,
             tickmode: 'array',
-            ticktext: prop.array_x,
+            ticktext: prop.org_array_x,
             tickvals: prop.array_x,
             ticklen: 0,
             tickfont: {

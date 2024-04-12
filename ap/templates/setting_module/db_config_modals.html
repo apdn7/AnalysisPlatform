@@ -13,6 +13,7 @@
 				<div class="form-group row">
 					<div class="col-sm-12">
 						{{ macros.alert_message("alertMsgCheckFolder") }}
+                        {{ macros.alert_message("alertInternalError") }}
 						{{ macros.alert_message("alert-msg-csvDbname", on_top=True) }}
 					</div>
 				</div>
@@ -32,7 +33,7 @@
                 <div class="form-group row">
                     <label for="folderUrl" class="col-sm-3 col-form-label"><h5>{{ _("Source") }}</h5></label>
                     <div class="col-sm-6">
-                        <input type="text" name="folderUrl" class="form-control" id="folderUrl" placeholder="Z:\path\to\directory">
+                        <input type="text" name="folderUrl" class="form-control already-convert-hankaku" id="folderUrl" placeholder="Z:\path\to\directory">
                     </div>
                     <div class="col-sm-3 text-left">
                         <button class="btn btn-primary" id="connectResourceBtn">{{ _("Connect") }}</button>
@@ -59,7 +60,7 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="optionalFunction" class="col-sm-3 col-form-label"><h5>{{ _("File type") }}</h5></label>
+                    <label for="" class="col-sm-3 col-form-label"><h5>{{ _("File type") }}</h5></label>
                     <div class="col-sm-6">
                         <div class="custom-control custom-radio custom-control-inline">
                             <input type="radio" class="custom-control-input" id="fileTypeAuto" name="fileType" value="Auto">
@@ -77,11 +78,19 @@
                             <input type="radio" class="custom-control-input" id="fileTypeSMC" name="fileType" value="SMC">
                             <label class="custom-control-label" for="fileTypeSMC">Semicolon(;)SV</label>
                         </div>
+                        <div class="custom-control custom-control-inline float-right mr-0 line-skip-group">
+                            <label class="line-skip mr-2 mb-0" title="{{_('Skip line hover msg')}}" for="skipHead">
+                                <span class="hint-text">Skip</span>
+                            </label>
+                            <input type="number" id="skipHead" name="line_skip" class="form-control" min="0" max="99">
+                            <input type="hidden" name="isDummyHeader" value="">
+                        </div>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row mg-minus-1">
                     <label class="col-sm-3 col-form-label"><h5 title="{{ _('Specify datatype of columns Hover') }}">
 						<span class="hint-text">{{ _("Specify datatype of columns") }}</span></h5></label>
+                    <div class="col-sm-6"><div class="file-encoding" id="dbsEncoding"></div></div>
                 </div>
                 <div class="form-group row">
                     <div class="col-sm-3"><button class="btn btn-primary" id="showResources">{{ _("Show") }}</button></div>
@@ -95,7 +104,6 @@
                 <div class="form-group row">
                     <div class="col-sm-12">
                         <div id="csvDataTable" class="table-responsive" style="display: none;">
-                            <input id="skipHead" value="" hidden>
                             <input id="skipTail" value="" hidden>
                             <table class="table bg-secondary table-striped table-hover table-hover-light" name="" id="">
                                 <thead class="thead-dark">
@@ -166,7 +174,7 @@
                         <div class="form-group row">
                             <label for="sqlite_dbname" class="col-sm-3 col-form-label"><h5>{{ _("File name") }}</h5></label>
                             <div class="col-sm-9">
-                                <input type="text" name="sqlite_dbname" class="form-control" id="sqlite_dbname">
+                                <input type="text" name="sqlite_dbname" class="form-control already-convert-hankaku" id="sqlite_dbname">
                             </div>
                         </div>
                         {{ macros.input_hidden("sqlite_use_os_timezone", "", "sqlite_use_os_timezone") }}

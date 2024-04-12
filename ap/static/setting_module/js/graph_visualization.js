@@ -300,7 +300,7 @@ const visualModule = (() => {
             const searchText = $(e.currentTarget).val();
             const dataRowID = $(e.currentTarget).data('row-id');
             const filterType = $(`input[name=${eles.filterTypeOption}_${dataRowID}]:checked`).val();
-            let ulActived = '';
+            let ulActived;
             if (filterType === eles.filterTypeFromCfg.key) {
                 ulActived = eles.filterTypeFromCfg.value;
             } else {
@@ -582,7 +582,6 @@ const visualModule = (() => {
         // resort table
         dragDropRowInTable.sortRowInTable(filterElements.tblVisualConfig);
 
-        initializeDateTimePicker(null, true);
         addAttributeToElement();
     };
 
@@ -655,7 +654,7 @@ const visualModule = (() => {
         const rows = getEles();
         const actTimeObj = {};
         for (const row of rows) {
-            const [cfgId, controlColumn, filterTypeOption, filterColumn, filterValue, ucl, lcl,
+            const [, controlColumn,, filterColumn, filterValue, ucl, lcl,
                 prcMax, prcMin, ymax, ymin, actFromDate, actToDate] = row;
 
             if (!controlColumn) {
@@ -801,7 +800,7 @@ const visualModule = (() => {
 
     // edit row
     const editRow = (e, rowId = null) => {
-        let currentRowEle = null;
+        let currentRowEle;
         if (rowId) {
             currentRowEle = $(`#${rowId}`);
         } else {
@@ -820,9 +819,9 @@ const visualModule = (() => {
     };
 
     const initRowEvents = (currentRowEle) => {
-        initializeDateTimePicker(null, true);
         addAttributeToElement();
         const rowIdx = currentRowEle.attr('id');
+        initializeDateTimePicker(null, true, currentRowEle);
         onChangeControlColumn(rowIdx);
         onChangeFilterType(rowIdx);
         onSelectFilterTypeValue(rowIdx);
@@ -1014,12 +1013,12 @@ const visualModule = (() => {
                 filter_value: null, // todo: assign filter value in case of loading config from DB
                 filter_column_id: outputRow.filterColumnId,
                 filter_detail_id: outputRow.filterValue,
-                lcl: !isNaN(Number(outputRow.lcl)) ? outputRow.lcl : '',
-                ucl: !isNaN(Number(outputRow.ucl)) ? outputRow.ucl : '',
-                lpcl: !isNaN(Number(outputRow.prcMin)) ? outputRow.prcMin : '',
-                upcl: !isNaN(Number(outputRow.prcMax)) ? outputRow.prcMax : '',
-                ymax: !isNaN(Number(outputRow.ymax)) ? outputRow.ymax : '',
-                ymin: !isNaN(Number(outputRow.ymin)) ? outputRow.ymin : '',
+                lcl: !isNaN(Number(outputRow.lcl)) ? outputRow.lcl : convertNumberByThousandSep(outputRow.lcl),
+                ucl: !isNaN(Number(outputRow.ucl)) ? outputRow.ucl : convertNumberByThousandSep(outputRow.ucl),
+                lpcl: !isNaN(Number(outputRow.prcMin)) ? outputRow.prcMin : convertNumberByThousandSep(outputRow.prcMin),
+                upcl: !isNaN(Number(outputRow.prcMax)) ? outputRow.prcMax : convertNumberByThousandSep(outputRow.prcMax),
+                ymax: !isNaN(Number(outputRow.ymax)) ? outputRow.ymax : convertNumberByThousandSep(outputRow.ymax),
+                ymin: !isNaN(Number(outputRow.ymin)) ? outputRow.ymin : convertNumberByThousandSep(outputRow.ymin),
                 act_from: isValidDatetime(outputRow.actFromDateTime) ? `${outputRow.actFromDateTime}`.trim() : '',
                 act_to: isValidDatetime(outputRow.actToDateTime) ? `${outputRow.actToDateTime}`.trim() : '',
             });
@@ -1059,6 +1058,7 @@ const visualModule = (() => {
             data: configDat,
             colHeaders: tableHeadInfor.headerLabels.slice(1, numCols),
             colWidths: tableHeadInfor.colWidths.slice(1, numCols),
+            ...jspreadsheetCustomHooks(),
         });
     };
 
@@ -1144,6 +1144,9 @@ const visualModule = (() => {
                 } else if(intCols.includes(validationCol)) {
                     // eslint-disable-next-line no-restricted-globals
                     validator = !isNaN(Number(cellValue));
+                    if (!validator) {
+                        validator = !!(cellValue.match(THOUSAND_SEP_PATTERN));
+                    }
                 } else {
                     // datetime
                     validator = isValidDatetime(cellValue);
@@ -1189,7 +1192,6 @@ const visualModule = (() => {
         }
         $(eles.tblConfigBody).html(tblConfigDOM);
 
-        initializeDateTimePicker(null, true);
     };
 
     const showSpreadMode = (force = false) => {

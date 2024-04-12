@@ -79,7 +79,7 @@ class MSSQLServer:
                     self.is_connected = self._schema in schemas
 
             return self.connection
-        except:
+        except Exception:
             print('Cannot connect to db')
             print('>>> traceback <<<')
             traceback.print_exc()
@@ -183,8 +183,8 @@ class MSSQLServer:
 
         schema = f"'{self._schema}'" if self._schema else 'SCHEMA_NAME()'
         sql = f"""select o.name table_name,c.name column_name,type_name(c.user_type_id) column_type
-                 from sys.columns c 
-                 inner join sys.objects o on c.object_id = o.object_id 
+                 from sys.columns c
+                 inner join sys.objects o on c.object_id = o.object_id
                  where SCHEMA_NAME(o.schema_id)={schema} and o.name=N'{tblname}'"""
         print('sql', sql)
 
@@ -202,16 +202,6 @@ class MSSQLServer:
         cols = self.list_table_columns(tbl)
         data_type = [col['type'] for col in cols if col['name'] == col_name]
         return data_type[0] if data_type else None
-
-    # list_table_columnsのうちcolumn nameだけ必要な場合(元はtbl_get_colnames)
-    def list_table_colnames(self, tblname):
-        if not self._check_connection():
-            return False
-        columns = self.list_table_columns(tblname)
-        colnames = []
-        for column in columns:
-            colnames.append(column['name'])
-        return colnames
 
     def insert_table_records(self, tblname, names, values, add_comma_to_value=True):
         if not self._check_connection():
@@ -273,17 +263,13 @@ class MSSQLServer:
         cur = self.connection.cursor()
         sql = self._add_schema_to_sql(sql)
         cur.execute(sql, params=params)
-
         # cursor.descriptionはcolumnの配列
         # そこから配列名(column[0])を取り出して配列columnsに代入
         cols = [column[0] for column in cur.description]
         # columnsは取得したカラム名、rowはcolumnsをKeyとして持つ辞書型の配列
         # rowは取得したカラムに対応する値が順番にrow[0], row[1], ...として入っている
         # それをdictでまとめてrowsに取得
-        if row_is_dict:
-            rows = [dict(zip(cols, row)) for row in cur.fetchall()]
-        else:
-            rows = cur.fetchall()
+        rows = [dict(zip(cols, row)) for row in cur.fetchall()] if row_is_dict else cur.fetchall()
 
         cur.close()
         return cols, rows
@@ -307,19 +293,14 @@ class MSSQLServer:
         cur.close()
 
     # 現時点ではSQLをそのまま実行するだけ
-    def select_table(self, sql):
-        return self.run_sql(sql)
-
     def get_timezone(self):
         try:
             # rows = self.run_sql('SELECT SYSDATETIMEOFFSET() AS SYSDATETIME')
-            rows = self.run_sql(
-                "SELECT FORMAT(SYSDATETIMEOFFSET(), 'yyyy-MM-ddThh:mm:ss.fffK') AS SYSDATETIME"
-            )
+            rows = self.run_sql("SELECT FORMAT(SYSDATETIMEOFFSET(), 'yyyy-MM-ddThh:mm:ss.fffK') AS SYSDATETIME")
             sys_dt_str = rows[1][0]['SYSDATETIME']
             sys_datetime = parser.parse(sys_dt_str)
             return sys_datetime.tzinfo
-        except:
+        except Exception:
             return None
 
     # private functions

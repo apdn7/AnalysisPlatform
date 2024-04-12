@@ -37,6 +37,7 @@ def preprocess_skdpage(
     max_datapoints=5000,
     verbose=False,
     colids_x=[],
+    nominal_variables=[],
 ):
     """
     Main function to generate data for SkD page (with group lasso)
@@ -94,12 +95,11 @@ def preprocess_skdpage(
     # detect binary data
     is_binary = False
     y = y.flatten()
-    if np.issubdtype(type(y[0]), np.integer):
-        uniq_vals = np.unique(y)
-        if len(uniq_vals) == 2:
-            is_binary = True
-            y = y.astype(np.int64)
-            print('Detected integer with 2 values. Fitting logistic regression model')
+    uniq_vals = np.unique(y)
+    if np.issubdtype(type(y[0]), np.integer) and len(uniq_vals) == 2:
+        is_binary = True
+        y = y.astype(np.int64)
+        print('Detected integer with 2 values. Fitting logistic regression model')
 
     # resample data if exceed max_datapoints
     # - stratified sampling when binary
@@ -107,29 +107,27 @@ def preprocess_skdpage(
     idx = np.arange(X.shape[0])
     if X.shape[0] > max_datapoints:
         if is_binary:
-            _, X, _, y, _, idx = train_test_split(
-                X.copy(), y, idx, test_size=max_datapoints, stratify=y
-            )
+            _, X, _, y, _, idx = train_test_split(X.copy(), y, idx, test_size=max_datapoints, stratify=y, shuffle=False)
         else:
-            _, X, _, y, _, idx = train_test_split(X.copy(), y, idx, test_size=max_datapoints)
+            _, X, _, y, _, idx = train_test_split(X.copy(), y, idx, test_size=max_datapoints, shuffle=False)
         X = X.reset_index(drop=True)
         if verbose:
-            print(
-                'Number of data points exceeded {}. Data is automatically resampled. '.format(
-                    max_datapoints
-                )
-            )
+            print('Number of data points exceeded {}. Data is automatically resampled. '.format(max_datapoints))
     y = y.reshape(-1, 1)
 
     # group lasso and ridge regression
     coef, group_order, fitted_values, fitted_probs, r2 = calc_coef_and_group_order(
-        X, y, dic_groups, penalty_factors, is_binary, verbose=verbose
+        X,
+        y,
+        dic_groups,
+        penalty_factors,
+        is_binary,
+        verbose=verbose,
+        nominal_variables=nominal_variables,
     )
 
     # skd data
-    processor = GroupSankeyDataProcessor(
-        coef, dic_groups, group_order, max_vars=20, verbose=verbose
-    )
+    processor = GroupSankeyDataProcessor(coef, dic_groups, group_order, max_vars=20, verbose=verbose)
     dic_skd, dic_bar = processor.gen_dicts()
     dic_scp = {'actual': y.flatten(), 'fitted': fitted_values}
     if is_binary:
@@ -140,7 +138,13 @@ def preprocess_skdpage(
 
 
 def calc_coef_and_group_order(
-    X, y, dic_groups, penalty_factors=[0, 0.5, 1.0, 5.0], is_binary=False, verbose=False
+    X,
+    y,
+    dic_groups,
+    penalty_factors=[0, 0.5, 1.0, 5.0],
+    is_binary=False,
+    verbose=False,
+    nominal_variables=[],
 ):
     """
     Calculate connection strength from x to y, and importance order of groups.
@@ -174,17 +178,20 @@ def calc_coef_and_group_order(
 
     coef = np.zeros(X.shape[1])
     group_order = np.arange(dic_groups['num_grps'])
+    y_scaler = StandardScaler()
 
     # preprocessing
     for col in X.columns.values:
         if col in dic_groups['cat_cols']:
-            X.loc[:, col] = labelencode_by_median(X[col].values.flatten(), y.flatten())
-        else:
-            X.loc[:, col] = StandardScaler().fit_transform(
-                X[col].values.astype(float).reshape(-1, 1)
+            is_nominal_scale = col in nominal_variables
+            X.loc[:, col] = labelencode_by_stat(
+                X[col].astype(str).values.flatten(),
+                y.flatten(),
+                is_nominal_scale=is_nominal_scale,
             )
-    if is_binary == False:
-        y_scaler = StandardScaler()
+        X.loc[:, col] = StandardScaler().fit_transform(X[col].values.astype(float).reshape(-1, 1))
+
+    if is_binary is False:
         y = y_scaler.fit_transform(y)
     X = X.values
 
@@ -192,9 +199,7 @@ def calc_coef_and_group_order(
     idx_for_ridge = np.arange(X.shape[1])
     if dic_groups['num_grps'] > 1:
         # fit group lasso with various penalty factors (no L1 penalty)
-        coef_history, bic = fit_grplasso(
-            X, y.flatten(), dic_groups['idx_grps'], penalty_factors, is_binary, verbose
-        )
+        coef_history, bic = fit_grplasso(X, y.flatten(), dic_groups['idx_grps'], penalty_factors, is_binary, verbose)
         # determine order of groups
         group_order = determine_group_order(coef_history, dic_groups)
         # use selected columns ffor ridge regression
@@ -207,7 +212,9 @@ def calc_coef_and_group_order(
 
     # re-calculate coefficients with ridge regression
     coef[idx_for_ridge], fitted_values, fitted_probs, r2 = fit_ridge(
-        X[:, idx_for_ridge], y.flatten(), is_binary=is_binary
+        X[:, idx_for_ridge],
+        y.flatten(),
+        is_binary=is_binary,
     )
 
     if verbose:
@@ -216,25 +223,32 @@ def calc_coef_and_group_order(
         print('Index used for ridge: {}'.format(idx_for_ridge))
         print('Coef: {}'.format(coef))
 
-    if is_binary == False:
+    if is_binary is False:
         fitted_values = y_scaler.inverse_transform(fitted_values)
     return coef, group_order, fitted_values, fitted_probs, r2
 
 
-def labelencode_by_median(x, y):
-    """Label encode x by the median value of corresponding y"""
+def labelencode_by_stat(x, y, how='mean', is_nominal_scale=True):
+    """Label encode x by the mean/median of corresponding y"""
     df = pd.DataFrame({'y': y, 'x': x})
-    # cast int objective to float before apply aggregate func
-    df['y'] = df['y'].values.astype(float)
-    median_values = df.groupby(by='x').median().reset_index()
-    factor_orders = median_values.sort_values(by='y', ascending=True)['x'].values
+    df['y'] = df['y'].astype('float64')
+
+    if how == 'mean':
+        vals = df.groupby(by='x').mean().reset_index()
+    elif how == 'median':
+        vals = df.groupby(by='x').median().reset_index()
+    else:
+        print('Invalid value for argument "how". mean is used.')
+        vals = df.groupby(by='x').mean().reset_index()
+
+    factor_orders = vals['x'].values
+    if is_nominal_scale:
+        factor_orders = vals.sort_values(by='y', ascending=True)['x'].values
     x_encoded = df['x'].replace(factor_orders, np.arange(0, len(factor_orders)) + 1)
     return x_encoded.values
 
 
-def fit_grplasso(
-    X, y, grps, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_binary=False, verbose=False
-):
+def fit_grplasso(X, y, grps, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_binary=False, verbose=False):
     """
     Fit group lasso in each penalty factor.
 
@@ -353,9 +367,7 @@ def determine_group_order(coef_history, dic_groups):
         sum_coef_per_groups = np.bincount(dic_groups['idx_grps'], weights=abs_coef)
         zero_coef_groups = np.where(sum_coef_per_groups == 0)[0]
         new_zero_coef_groups = np.setdiff1d(zero_coef_groups, group_order)
-        ordered_new_zero_coef_groups = new_zero_coef_groups[
-            np.argsort(sum_coef_per_groups_old[new_zero_coef_groups])
-        ]
+        ordered_new_zero_coef_groups = new_zero_coef_groups[np.argsort(sum_coef_per_groups_old[new_zero_coef_groups])]
         group_order.extend(ordered_new_zero_coef_groups)
         sum_coef_per_groups_old = sum_coef_per_groups
 
@@ -396,10 +408,7 @@ def fit_ridge(X, y, alpha=0.05, is_binary=False):
         R square value
     """
 
-    if is_binary:
-        model = RidgeClassifier(alpha=alpha)
-    else:
-        model = Ridge(alpha=alpha)
+    model = RidgeClassifier(alpha=alpha) if is_binary else Ridge(alpha=alpha)
     model.fit(X, y)
     fitted_values = model.predict(X).flatten()
     coef = model.coef_.flatten()
@@ -510,7 +519,7 @@ class GroupSankeyDataProcessor:
                     self.dic_groups['colnames_x'][self.idx_col_remained],
                     self.dic_groups['uniq_grps'][self.idx_grp_remained],
                     self.dic_groups['colname_y'],
-                ]
+                ],
             ),
             'source': [],
             'target': [],
@@ -529,10 +538,7 @@ class GroupSankeyDataProcessor:
         # Barchart data. y-axis corresponds to sankey diagram.
         ord_sort = np.argsort(self.dic_skd['node_y'][: self.num_col_remained])
         # ord_sort = np.concatenate([ord_sort[:np.sum(self.coef_raw == 0.0)], ord_sort[np.sum(self.coef_raw == 0.0):]])
-        colors = [
-            self.color_link_negative if x < 0 else self.color_link_positive
-            for x in self.coef_remained[ord_sort]
-        ]
+        colors = [self.color_link_negative if x < 0 else self.color_link_positive for x in self.coef_remained[ord_sort]]
         # from IPython.core.debugger import Pdb; Pdb().set_trace()
         dic_bar = {
             'coef': self.coef_remained[ord_sort],
@@ -556,17 +562,15 @@ class GroupSankeyDataProcessor:
         # https://stackoverflow.com/questions/876853/generating-color-ranges-in-python
         HSV_tuples = [(x * 1.0 / N, 0.5, 0.5) for x in range(N)]
         hex_out = []
-        for rgb in HSV_tuples:
-            rgb = map(lambda x: int(x * 255), colorsys.hsv_to_rgb(*rgb))
+        for _rgb in HSV_tuples:
+            rgb = _rgb
+            rgb = (int(x * 255) for x in colorsys.hsv_to_rgb(*rgb))
             hex_out.append('#%02x%02x%02x' % tuple(rgb))
         return hex_out
 
     def _add_links_from_x_to_group(self):
         # Add links: x -> groups
-        edge_colors = [
-            self.color_link_positive if x > 0 else self.color_link_negative
-            for x in self.coef_remained
-        ]
+        edge_colors = [self.color_link_positive if x > 0 else self.color_link_negative for x in self.coef_remained]
         for i in range(self.num_col_remained):
             self.dic_skd['source'].append(i)
             self.dic_skd['target'].append(self._sensor_node_id_to_group_node_id(i))
@@ -608,9 +612,7 @@ class GroupSankeyDataProcessor:
         node_y = np.array([np.nan] * num_nodes)
 
         # generate node positions: groups
-        xvals_grp = np.linspace(
-            self.limits_groups['xmin'], self.limits_groups['xmax'], self.num_grp_remained
-        )
+        xvals_grp = np.linspace(self.limits_groups['xmin'], self.limits_groups['xmax'], self.num_grp_remained)
         wt_groups = self.coef_grps
         wt_sensor = np.abs(self.coef_raw)
 
@@ -623,9 +625,7 @@ class GroupSankeyDataProcessor:
             if grp_idx not in self.idx_grp_remained:
                 continue
 
-            grp_name = self.dic_groups['uniq_grps'][grp_idx]
             node_id = self._group_id_to_group_node_id(grp_idx)
-            node_label = self.dic_skd['node_labels'][node_id]
             wt = np.max([0.05, wt_groups[grp_idx]])
 
             node_x[node_id] = xvals_grp[cnt_grp]
@@ -633,9 +633,7 @@ class GroupSankeyDataProcessor:
             groups_y += wt
 
             # position of sensor nodes
-            idx_sensors_in_group = self.idx_col_remained[
-                self.dic_groups['idx_grps'][self.idx_col_remained] == grp_idx
-            ]
+            idx_sensors_in_group = self.idx_col_remained[self.dic_groups['idx_grps'][self.idx_col_remained] == grp_idx]
             for i, j in enumerate(idx_sensors_in_group):
                 wt = wt_sensor[j]
                 if self.verbose:
@@ -648,12 +646,8 @@ class GroupSankeyDataProcessor:
         # normalize y positions
         node_groups_on_graph = [self._group_id_to_group_node_id(x) for x in self.idx_grp_remained]
         node_sensor_on_graph = [self._sensor_id_to_sensor_node_id(x) for x in self.idx_col_remained]
-        node_y[node_groups_on_graph] = node_y[node_groups_on_graph] / np.max(
-            node_y[node_groups_on_graph]
-        )
-        node_y[node_sensor_on_graph] = node_y[node_sensor_on_graph] / np.max(
-            node_y[node_sensor_on_graph]
-        )
+        node_y[node_groups_on_graph] = node_y[node_groups_on_graph] / np.max(node_y[node_groups_on_graph])
+        node_y[node_sensor_on_graph] = node_y[node_sensor_on_graph] / np.max(node_y[node_sensor_on_graph])
         if self.num_grp_remained == 1:
             node_y[node_groups_on_graph] = 0.5
             node_x[node_groups_on_graph] = 0.5
@@ -668,8 +662,6 @@ class GroupSankeyDataProcessor:
             print('num_nodes: {}'.format(num_nodes))
             print(
                 'Node x, y positions in Skd:\n{}'.format(
-                    np.vstack(
-                        [self.dic_skd['node_labels'], np.round(node_x, 2), np.round(node_y, 2)]
-                    ).T
-                )
+                    np.vstack([self.dic_skd['node_labels'], np.round(node_x, 2), np.round(node_y, 2)]).T,
+                ),
             )

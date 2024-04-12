@@ -3,12 +3,125 @@ import logging
 import re
 from collections import defaultdict
 from copy import deepcopy
+from typing import Dict
 
+from ap.api.common.services.utils import TraceGraph
 from ap.common.common_utils import as_list
-from ap.common.constants import *
+from ap.common.constants import (
+    ABNORMAL_COUNT,
+    ACT_CELLS,
+    ACTUAL_RECORD_NUMBER,
+    AGP_COLOR_VARS,
+    ARRAY_FORMVAL,
+    ARRAY_PLOTDATA,
+    CAT_EXP_BOX,
+    CAT_ON_DEMAND,
+    CATE_PROC,
+    CATE_PROCS,
+    CATE_VALUE_MULTI,
+    CATE_VARIABLE,
+    CLIENT_TIMEZONE,
+    COLOR_ORDER,
+    COLOR_VAR,
+    COMMON,
+    COMPARE_TYPE,
+    COND_PROC,
+    COND_PROCS,
+    CYCLIC_DIV_NUM,
+    CYCLIC_INTERVAL,
+    CYCLIC_TERMS,
+    CYCLIC_TRACE_TIME,
+    CYCLIC_WINDOW_LEN,
+    DIC_CAT_FILTERS,
+    DIV_BY_CAT,
+    DIV_BY_DATA_NUM,
+    DIV_FROM_TO,
+    DIVIDE_CALENDAR_DATES,
+    DIVIDE_CALENDAR_LABELS,
+    DIVIDE_FMT,
+    DIVIDE_OFFSET,
+    DUPLICATE_SERIAL_SHOW,
+    DUPLICATED_SERIALS_COUNT,
+    EMD_TYPE,
+    END_DATE,
+    END_PROC,
+    END_TM,
+    EXPORT_FROM,
+    FILTER_DATA,
+    FILTER_ON_DEMAND,
+    FINE_SELECT,
+    FMT,
+    GET02_CATE_SELECT,
+    GET02_VALS_SELECT,
+    GRAPH_FILTER_DETAILS,
+    HM_FUNCTION_CATE,
+    HM_FUNCTION_REAL,
+    HM_MODE,
+    HM_STEP,
+    HM_TRIM,
+    ID,
+    IMAGES,
+    IS_DUMMY_DATETIME,
+    IS_EXPORT_MODE,
+    IS_GET_DATE,
+    IS_GRAPH_LIMITED,
+    IS_IMPORT_MODE,
+    IS_NOMINAL_SCALE,
+    IS_PROC_LINKED,
+    IS_REMOVE_OUTLIER,
+    IS_USE_DUMMY_DATETIME,
+    IS_VALIDATE_DATA,
+    JUDGE_VAR,
+    LIST_PROCS,
+    MATCHED_FILTER_IDS,
+    MATRIX_COL,
+    NAME,
+    NG_CONDITION,
+    NG_CONDITION_VALUE,
+    NG_RATES,
+    NO_FILTER,
+    NOMINAL_VARS,
+    NOT_EXACT_MATCH_FILTER_IDS,
+    OBJ_VAR,
+    PROCS,
+    REMOVE_OUTLIER_EXPLANATORY_VAR,
+    REMOVE_OUTLIER_OBJECTIVE_VAR,
+    REMOVE_OUTLIER_REAL_ONLY,
+    REMOVE_OUTLIER_TYPE,
+    REQ_ID,
+    RL_CATES,
+    RL_EMD,
+    RL_XAXIS,
+    SELECT_ALL,
+    SERIAL_COLUMN,
+    SERIAL_ORDER,
+    SERIAL_PROCESS,
+    START_DATE,
+    START_PROC,
+    START_TM,
+    TBLS,
+    TEMP_CAT_EXP,
+    TEMP_CAT_PROCS,
+    TEMP_SERIAL_COLUMN,
+    TEMP_SERIAL_ORDER,
+    TEMP_SERIAL_PROCESS,
+    TEMP_X_OPTION,
+    TERM_TRACE_TIME,
+    THRESHOLD_BOX,
+    TIME_CONDS,
+    TRACE_TIME,
+    UNIQUE_COLOR,
+    UNIQUE_SERIAL,
+    UNMATCHED_FILTER_IDS,
+    VAR_TRACE_TIME,
+    X_OPTION,
+    DuplicateSerialCount,
+    DuplicateSerialShow,
+    RemoveOutlierType,
+)
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.setting_module.models import CfgProcessColumn
+from ap.setting_module.models import CfgProcess, CfgProcessColumn
 from ap.setting_module.services.process_config import (
     get_all_process_no_nested,
     get_all_visualizations,
@@ -90,7 +203,10 @@ common_startwith_keys = (
     JUDGE_VAR,
     NG_CONDITION,
     NG_CONDITION_VALUE,
+    IS_NOMINAL_SCALE,
+    NOMINAL_VARS,
     REQ_ID,
+    FINE_SELECT,
 )
 
 conds_startwith_keys = ('filter-', 'cond_', 'machine_id_multi')
@@ -117,7 +233,7 @@ def parse(dic_form):
         array_formval.append({})
 
     # NUM_ELEMENT + 数字の形式のキーを取得
-    for key in dic_form.keys():
+    for key in dic_form:
         # array_value = dic_form.getlist(key)
 
         array_value = []
@@ -129,8 +245,8 @@ def parse(dic_form):
 
         value = array_value[0]
         # Keyの文字列を解析
-        m = re.match('(^.+)(\d+)$', key)
-        m2 = re.match('.+_multi\d+$', key)
+        m = re.match(r'(^.+)(\d+)$', key)
+        m2 = re.match(r'.+_multi\d+$', key)
         if m:
             matched_key = m.group(1)
             matched_idx = int(m.group(2)) - 1
@@ -167,7 +283,7 @@ def parse_multi_filter_into_one(dic_form):
         array_formval.append({})
 
     # NUM_ELEMENT + 数字の形式のキーを取得
-    for key in dic_form.keys():
+    for key in dic_form:
         raw_value = dic_form[key]
 
         value = remove_const_keyword(raw_value, [SELECT_ALL, None, ''])
@@ -176,22 +292,21 @@ def parse_multi_filter_into_one(dic_form):
             value = [NO_FILTER]
 
         # Keyの文字列を解析
-        m = re.match('(.*?)(\d+)$', key)
+        m = re.match(r'(.*?)(\d+)$', key)
 
         # common keys
         if key.startswith(common_startwith_keys):
             if key == DIC_CAT_FILTERS:
                 dic_cat_filters = json.loads(value)
                 if dic_cat_filters:
-                    dic_parsed[COMMON][key] = {
-                        int(col): vals for col, vals in dic_cat_filters.items()
-                    }
+                    dic_parsed[COMMON][key] = {int(col): vals for col, vals in dic_cat_filters.items()}
             elif key in (
                 TEMP_CAT_EXP,
                 TEMP_CAT_PROCS,
                 AGP_COLOR_VARS,
                 DIVIDE_CALENDAR_DATES,
                 DIVIDE_CALENDAR_LABELS,
+                NOMINAL_VARS,
             ):
                 dic_parsed[COMMON][key] = json.loads(value)
             elif key.startswith((VAR_TRACE_TIME, TRACE_TIME)):
@@ -226,9 +341,7 @@ def parse_multi_filter_into_one(dic_form):
 
             # キーの最後に"_multi"がついている場合は配列として扱う
             # マルチセレクタなどで使う
-            edit_value = remove_const_keyword(
-                value, [NO_FILTER], key.startswith(multiple_selections)
-            )
+            edit_value = remove_const_keyword(value, [NO_FILTER], key.startswith(multiple_selections))
             array_formval[matched_idx][matched_key] = edit_value
 
     # end procs
@@ -239,9 +352,7 @@ def parse_multi_filter_into_one(dic_form):
     dic_parsed[COMMON][COND_PROCS] = [ele for ele in cond_procs if ele]
 
     # category procs
-    dic_parsed[COMMON][CATE_PROCS] = [
-        ele for ele in cate_procs if ele and ele.get(GET02_CATE_SELECT)
-    ]
+    dic_parsed[COMMON][CATE_PROCS] = [ele for ele in cate_procs if ele and ele.get(GET02_CATE_SELECT)]
 
     dic_parsed[TBLS] = len(dic_parsed[ARRAY_FORMVAL])
 
@@ -249,89 +360,15 @@ def parse_multi_filter_into_one(dic_form):
     dic_parsed[COMMON][OBJ_VAR] = dic_form.get(OBJ_VAR) or []
 
     dic_parsed[COMMON][IS_REMOVE_OUTLIER] = dic_form.get(IS_REMOVE_OUTLIER, [0])[0]
-    dic_parsed[COMMON][REMOVE_OUTLIER_OBJECTIVE_VAR] = dic_form.get(
-        REMOVE_OUTLIER_OBJECTIVE_VAR, [0]
-    )[0]
-    dic_parsed[COMMON][REMOVE_OUTLIER_EXPLANATORY_VAR] = dic_form.get(
-        REMOVE_OUTLIER_EXPLANATORY_VAR, [0]
-    )[0]
-    is_start_proc_not_set = START_PROC in dic_parsed[COMMON] and isinstance(
-        dic_parsed[COMMON][START_PROC], list
-    )
+    dic_parsed[COMMON][REMOVE_OUTLIER_OBJECTIVE_VAR] = dic_form.get(REMOVE_OUTLIER_OBJECTIVE_VAR, [0])[0]
+    dic_parsed[COMMON][REMOVE_OUTLIER_EXPLANATORY_VAR] = dic_form.get(REMOVE_OUTLIER_EXPLANATORY_VAR, [0])[0]
+    is_start_proc_not_set = START_PROC in dic_parsed[COMMON] and isinstance(dic_parsed[COMMON][START_PROC], list)
     # set default start process
     if START_PROC not in dic_parsed[COMMON] or is_start_proc_not_set:
-        dic_parsed[COMMON][START_PROC] = dic_parsed[ARRAY_FORMVAL][0].get(END_PROC)
+        list_of_end_procs = [proc[END_PROC] if END_PROC in proc else None for proc in array_formval]
+        list_of_end_procs = list(filter(lambda end_proc: end_proc, list_of_end_procs))
+        dic_parsed[COMMON][START_PROC] = list_of_end_procs[0]
 
-    return dic_parsed
-
-
-def parse_form_param_stratified_plot(dic_form):
-    # count select cols of endpoint
-    num_tbls = len([key for key in dic_form if key.startswith('end_proc')])
-
-    # num_conds = max([key for key in dic_form if key.startswith('cond_proc')])
-    common_key = 'COMMON'
-    dic_parsed = {'TBLS': num_tbls, common_key: {}}
-    # dic_parsed[common_key][cond_procs_key] = [{}] * num_conds
-    cond_procs = [{}]
-    array_formval = []
-
-    # まずは空のキーで辞書の配列を初期化
-    for idx in range(int(num_tbls)):
-        array_formval.append({})
-
-    # NUM_ELEMENT + 数字の形式のキーを取得
-    for key in dic_form.keys():
-        # raw_value = dic_form.getlist(key)
-        raw_value = dic_form[key]
-
-        if isinstance(raw_value, (list, tuple)):
-            if len(raw_value) > 1:
-                value = raw_value
-            else:
-                value = raw_value[0]
-        else:
-            value = raw_value
-
-        # Keyの文字列を解析
-        m = re.match('(^.+)(\d+)$', key)
-
-        # common keys
-        if key.startswith(common_startwith_keys):
-            # condition
-            if m:
-                matched_key = m.group(1)
-                matched_idx = int(m.group(2)) - 1
-                for i in range(matched_idx - len(cond_procs) + 1):
-                    cond_procs.append({})
-                cond_procs[matched_idx][matched_key] = value
-            else:
-                dic_parsed[common_key][key] = value
-
-            continue
-
-        # end proc
-        if m:
-            matched_key = m.group(1)
-            matched_idx = int(m.group(2)) - 1
-            # debugstr = "matched_key= {}\n".format(matched_key)
-            # debugstr += "matched_idx= {}\n".format(matched_idx)
-            # 昔の不要な環境変数が残っている場合は無視
-            for i in range(matched_idx - len(array_formval) + 1):
-                array_formval.append({})
-            # キーの最後に"_multi"がついている場合は配列として扱う
-            # マルチセレクタなどで使う
-            array_formval[matched_idx][matched_key] = value
-
-    # end procs
-    dic_parsed['ARRAY_FORMVAL'] = [
-        ele for ele in array_formval if ele and ele.get('GET02_VALS_SELECT')
-    ]
-    dic_parsed['TBLS'] = len(dic_parsed['ARRAY_FORMVAL'])
-
-    # cond_procs
-    dic_parsed[common_key]['cond_procs'] = [ele for ele in cond_procs if ele]
-    # dic_parsed["debugstr"] = debugstr
     return dic_parsed
 
 
@@ -344,7 +381,7 @@ def parse_request_params(request):
     :return: Dictionary of key-value of request parameter.
     """
     dic_form = {}
-    for key in request.args.keys():
+    for key in request.args:
         values = request.args.getlist(key)
         if len(values) > 1:
             dic_form[key] = values
@@ -368,7 +405,8 @@ def remove_const_keyword(value, keywords, is_multiple_selection=False):
     return edit_value
 
 
-def bind_condition_procs(dic_param):
+def bind_condition_procs(dic_proc_cfgs: Dict[int, CfgProcess], dic_param):
+    dic_proc_filter_details = {}
     # condition
     cond_procs = []
     for dic_cond in dic_param[COMMON][COND_PROCS]:
@@ -383,12 +421,29 @@ def bind_condition_procs(dic_param):
         if not str(proc_id).isnumeric():
             continue
 
+        proc_id = int(proc_id)
         cond_details = []
-        for key, vals in dic_cond.items():
+        if proc_id not in dic_proc_filter_details:
+            dic_proc_filter_details[proc_id] = dic_proc_cfgs[proc_id].get_dic_filter_details()
+
+        for key, _vals in dic_cond.items():
+            vals = _vals
             if key == COND_PROC:
                 continue
 
-            cond_details.append(ConditionProcDetail(vals))
+            dic_filter_details = {}
+            if not isinstance(vals, (tuple, list)):
+                vals = [vals]
+
+            for val in vals:
+                if val in (SELECT_ALL, NO_FILTER):
+                    continue
+
+                cfg_filter_detail = dic_proc_filter_details[proc_id].get(int(val))
+                dic_filter_details[val] = cfg_filter_detail
+
+            if dic_filter_details:
+                cond_details.append(ConditionProcDetail(dic_filter_details))
 
         cond_proc = ConditionProc(proc_id, cond_details)
         cond_procs.append(cond_proc)
@@ -396,22 +451,22 @@ def bind_condition_procs(dic_param):
     return cond_procs
 
 
-def bind_dic_param_to_class(dic_param):
+# @memoize()
+def bind_dic_param_to_class(dic_proc_cfgs: Dict[int, CfgProcess], trace_graph: TraceGraph, dic_card_orders, dic_param):
     dic_common = dic_param[COMMON]
 
     # chart count
     chart_count = dic_param[TBLS]
 
     # conditions
-    cond_procs = bind_condition_procs(dic_param)
+    cond_procs = bind_condition_procs(dic_proc_cfgs, dic_param)
 
     # categories
     cate_procs = []
     if dic_common.get(CATE_PROCS):
-        # cate_procs = [CategoryProc(proc.get(CATE_PROC), proc[GET02_CATE_SELECT]) for proc in dic_common[CATE_PROCS]]
         for proc in dic_common[CATE_PROCS]:
             if proc.get(CATE_PROC) and proc.get(GET02_CATE_SELECT):
-                cat_info = CategoryProc(proc.get(CATE_PROC), proc[GET02_CATE_SELECT])
+                cat_info = CategoryProc(dic_proc_cfgs, proc.get(CATE_PROC), proc[GET02_CATE_SELECT])
                 if cat_info:
                     cate_procs.append(cat_info)
 
@@ -434,7 +489,7 @@ def bind_dic_param_to_class(dic_param):
 
     # array_formval
     array_formval = [
-        EndProc(proc.get(END_PROC), proc[GET02_VALS_SELECT]) for proc in dic_param[ARRAY_FORMVAL]
+        EndProc(dic_proc_cfgs[int(proc.get(END_PROC))], proc[GET02_VALS_SELECT]) for proc in dic_param[ARRAY_FORMVAL]
     ]
 
     sensor_cols = []
@@ -479,13 +534,11 @@ def bind_dic_param_to_class(dic_param):
         sensor_cols=sensor_cols,
         duplicate_serial_show=dic_common.get(DUPLICATE_SERIAL_SHOW, DuplicateSerialShow.SHOW_BOTH),
         is_export_mode=dic_common.get(IS_EXPORT_MODE, False),
-        duplicated_serials_count=dic_common.get(
-            DUPLICATED_SERIALS_COUNT, DuplicateSerialCount.AUTO.value
-        ),
+        duplicated_serials_count=dic_common.get(DUPLICATED_SERIALS_COUNT, DuplicateSerialCount.AUTO.value),
         divide_format=dic_common.get(DIVIDE_FMT, None),
         divide_offset=dic_common.get(DIVIDE_OFFSET, None),
         agp_color_vars=dic_common.get(AGP_COLOR_VARS, None),
-        is_latest=True if dic_common.get(TRACE_TIME, 'default') == 'recent' else False,
+        is_latest=dic_common.get(TRACE_TIME, 'default') == 'recent',
         divide_calendar_dates=dic_common.get(DIVIDE_CALENDAR_DATES, []),
         divide_calendar_labels=dic_common.get(DIVIDE_CALENDAR_LABELS, []),
         remove_outlier_type=dic_common.get(REMOVE_OUTLIER_TYPE, RemoveOutlierType.O6M.value),
@@ -494,6 +547,8 @@ def bind_dic_param_to_class(dic_param):
         ng_condition=dic_common.get(NG_CONDITION, None),
         ng_condition_val=dic_common.get(NG_CONDITION_VALUE, None),
         is_proc_linked=dic_common.get(IS_PROC_LINKED, False),
+        is_nominal_scale=dic_common.get(IS_NOMINAL_SCALE, True),
+        nominal_vars=dic_common.get(NOMINAL_VARS, None),
     )
 
     # use the first end proc as start proc
@@ -501,7 +556,15 @@ def bind_dic_param_to_class(dic_param):
         common.start_proc = array_formval[0].proc_id if array_formval else 0
 
     cyclic_terms = []
-    out_param = DicParam(chart_count, common, array_formval, cyclic_terms)
+    out_param = DicParam(
+        dic_proc_cfgs,
+        trace_graph,
+        dic_card_orders,
+        chart_count,
+        common,
+        array_formval,
+        cyclic_terms,
+    )
 
     # distinct category for filter setting form
     cate_col_ids = []
@@ -509,6 +572,14 @@ def bind_dic_param_to_class(dic_param):
         cate_col_ids += proc.col_ids
 
     out_param.common.cate_col_ids = cate_col_ids
+
+    if dic_param[COMMON].get(CYCLIC_TERMS):
+        out_param.cyclic_terms += dic_param[COMMON][CYCLIC_TERMS]
+
+    # add div and color
+    # out_param.add_column_to_array_formval(
+    #     [col for col in [out_param.common.color_var, out_param.common.div_by_cat] if col]
+    # )
 
     return out_param
 
@@ -520,9 +591,7 @@ def get_common_config_data(get_visualization_config=True):
         if not proc_data['name_en']:
             proc_data['name_en'] = to_romaji(proc_data[NAME])
         proc_cols = get_process_columns(proc_data[ID])
-        proc_data[IS_USE_DUMMY_DATETIME] = True in [
-            col[IS_GET_DATE] and col[IS_DUMMY_DATETIME] for col in proc_cols
-        ]
+        proc_data[IS_USE_DUMMY_DATETIME] = True in [col[IS_GET_DATE] and col[IS_DUMMY_DATETIME] for col in proc_cols]
 
     procs = [(proc.get(ID), proc.get('shown_name'), proc.get('name_en')) for proc in processes]
     graph_filter_detail_ids = []
@@ -536,33 +605,6 @@ def get_common_config_data(get_visualization_config=True):
     }
 
     return output_dict
-
-
-def bind_multiple_end_proc_rlp(dic_form):
-    multiple_dic_form = []
-    common_dic_form = dic_form.copy()
-    remove_keys = []
-    for key in common_dic_form:
-        # find end_proc from dic_form
-        if key.startswith('end_proc'):
-            [proc_idx] = re.findall('[0-9]+', key)
-            start_proc_key = START_PROC + str(proc_idx)
-            get_val_selects = GET02_VALS_SELECT + str(proc_idx)
-            dic_form_item = {
-                key: common_dic_form[key],
-                START_PROC: common_dic_form.get(start_proc_key) or common_dic_form.get(START_PROC),
-                get_val_selects: common_dic_form[get_val_selects],
-            }
-            multiple_dic_form.append(dic_form_item)
-            remove_keys.append(key)
-            remove_keys.append(start_proc_key)
-            remove_keys.append(get_val_selects)
-
-    common_dic_form = {k: v for k, v in common_dic_form.items() if k not in remove_keys}
-    for dform in multiple_dic_form:
-        dform.update(common_dic_form)
-
-    return multiple_dic_form
 
 
 def get_end_procs_param(dic_param):
@@ -603,8 +645,9 @@ def get_end_procs_param(dic_param):
             for key, cat_exp_box in cat_exp_boxs.items():
                 if cat_exp_box.process_id == int(end_proc):
                     single_param[COMMON][key] = cat_exp_box.id
-            dic_params.append(single_param)
+
             single_param[COMMON][IS_PROC_LINKED] = bool(start_proc)
+            dic_params.append(single_param)
     else:
         dic_param[COMMON][IS_PROC_LINKED] = bool(start_proc)
         dic_params = [dic_param]
@@ -633,6 +676,7 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
         FILTER_ON_DEMAND,
         FILTER_DATA,
         NG_RATES,
+        RL_CATES,
     ]
     for key in updated_keys:
         if key not in dic_param:
@@ -641,7 +685,7 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
             orig_dic_param[key] = dic_param[key]
         elif type(dic_param[key]) in [int, float, list]:
             if key not in orig_dic_param:
-                if type(dic_param[key]) is list:
+                if isinstance(dic_param[key], list):
                     orig_dic_param[key] = []
                 else:
                     orig_dic_param[key] = 0
@@ -649,7 +693,7 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
             if key is TIME_CONDS:
                 orig_dic_param[key] = []
             # in case of one is None, error
-            if orig_dic_param[key] is not None or dic_param[key] is not None:
+            if orig_dic_param[key] is not None and dic_param[key] is not None:
                 orig_dic_param[key] += dic_param[key]
             else:
                 orig_dic_param[key] = None
@@ -657,7 +701,7 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
             if key not in orig_dic_param:
                 orig_dic_param[key] = {}
             orig_dic_param[key].update(dic_param[key])
-        elif type(dic_param[key]) is bool:
+        elif isinstance(dic_param[key], bool):
             if key not in orig_dic_param:
                 orig_dic_param[key] = False
 
@@ -684,3 +728,55 @@ def update_rlp_data_from_multiple_dic_params(orig_dic_param, rlp_dat):
     if RL_XAXIS not in orig_dic_param:
         orig_dic_param[RL_XAXIS] = rlp_dat.get(RL_XAXIS, [])
     return orig_dic_param
+
+
+def bind_ng_rate_to_dic_param(graph_param: DicParam, dic_param):
+    if not dic_param:
+        return None
+
+    judge_id = graph_param.common.judge_var
+    if NG_RATES not in dic_param.keys() or not judge_id:
+        return dic_param
+
+    judge_id = int(judge_id)
+    judge_data = graph_param.get_col_cfg(judge_id)
+    judge_proc_id = judge_data.process_id
+    existing_end_cols = graph_param.get_all_end_col_ids()
+    existing_end_procs = graph_param.get_all_end_procs(id_only=True)
+    # update graph_param with judge column as target sensor
+    if judge_id not in existing_end_cols:
+        graph_param.add_ng_condition_to_array_formval(as_target_sensor=True)
+        if graph_param.common.sensor_cols:
+            graph_param.common.sensor_cols.append(judge_id)
+
+    # update dic_param with judge column as target sensor
+    if judge_id not in dic_param[COMMON][GET02_VALS_SELECT]:
+        dic_param[COMMON][GET02_VALS_SELECT].append(judge_id)
+        # update end_proc in dic_param
+        dic_param[COMMON][END_PROC][judge_id] = judge_proc_id
+        # update array_form_val in dic_param
+        if not len(existing_end_procs):
+            dic_param[ARRAY_FORMVAL].append({GET02_VALS_SELECT: [judge_id], END_PROC: judge_proc_id})
+        else:
+            for form_val in dic_param[ARRAY_FORMVAL]:
+                if form_val[END_PROC] == judge_proc_id:
+                    form_val[GET02_VALS_SELECT].append(judge_id)
+                    break
+    return dic_param
+
+
+def get_valid_order_array_formval(array_formvals, order_array_formvals):
+    if not order_array_formvals:
+        return array_formvals
+
+    dict_sort = {
+        f'{dic_val.get(END_PROC)}_{dic_val.get(GET02_VALS_SELECT)}': idx
+        for idx, dic_val in enumerate(order_array_formvals)
+    }
+
+    output_vals = sorted(
+        array_formvals,
+        key=lambda dic_val: dict_sort.get(f'{dic_val.get(END_PROC)}_{dic_val.get(GET02_VALS_SELECT)}', 999),
+    )
+
+    return output_vals

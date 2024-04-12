@@ -4,6 +4,8 @@
 let currentProcItem;
 const currentProcData = {};
 const IS_CONFIG_PAGE = true;
+let dicOriginDataType = {};
+let dicProcessCols = {};
 
 
 const procElements = {
@@ -12,6 +14,11 @@ const procElements = {
     tableProcList: '#tblProcConfig tbody',
     procListChild: '#tblProcConfig tbody tr',
     divProcConfig: '#accordionPC',
+    fileName: 'input[name=fileName]',
+    fileNameInput: '#fileNameInput',
+    fileNameBtn: '#fileNameBtn',
+    dbTableList: '#dbTableList',
+    fileInputPreview: '#fileInputPreview',
 };
 
 const i18n = {
@@ -148,7 +155,8 @@ const genColConfigHTML = (col, isAddNew = true) => {
         <td>
             <div class="custom-control custom-checkbox" style="text-align:center; vertical-align:middle">
                 <input id="datetimeColumn${col.column_name}"
-                    class="custom-control-input" is-dummy-datetime="${isDummyDatetime}" type="checkbox" name="${procModalElements.dateTime}" ${isDateTime} ${disableDatetime}>
+                    class="custom-control-input" is-dummy-datetime="${isDummyDatetime}" 
+                    type="checkbox" name="${procModalElements.dateTime}" ${isDateTime} ${disableDatetime}>
                 <label class="custom-control-label" for="datetimeColumn${col.column_name}"></label>
                 <input id="isDummyDatetime${col.column_name}" type="hidden" name="${procModalElements.isDummyDatetime}"
                     value="${isDummyDatetime}">
@@ -184,7 +192,6 @@ const genColConfigHTML = (col, isAddNew = true) => {
     </tr>`;
 };
 
-
 const getProcInfo = (procId) => {
     $.ajax({
         url: `api/setting/proc_config/${procId}`,
@@ -200,6 +207,7 @@ const getProcInfo = (procId) => {
             procModalElements.comment.val(res.data.comment);
             procModalElements.tables.val(res.data.table_name);
             procModalElements.dsID.val(res.data.data_source_id);
+            procModalElements.fileName.val(res.data.file_name);
             currentProcData.ds_id = res.data.data_source_id;
             currentProcData.table_name = res.data.table_name;
 
@@ -208,10 +216,16 @@ const getProcInfo = (procId) => {
                 $(`#procSettingModal select[name=databaseName] option[value="${res.data.data_source_id}"]`)
                     .prop('selected', true).change();
             }
+            resetDicOriginData();
+            let rowHtml = '';
             res.data.columns.forEach((row) => {
                 row['data_type'] = row['predict_type'];
-                procModalElements.seletedColumnsBody.append(genColConfigHTML(row, false));
+                dicOriginDataType[row.column_name] = row.data_type;
+                dicProcessCols[row.column_name] = row;
             });
+
+            validateSelectedColumnInput();
+
             if (res.tables.ds_type === DB.DB_CONFIGS.CSV.type) {
                 procModalElements.tables.append(
                     $('<option/>', {
@@ -241,7 +255,8 @@ const getProcInfo = (procId) => {
             validateAllCoefs();
 
             // handling english name onchange
-            handleEnglishNameChange();
+            handleEnglishNameChange(procModalElements.proc);
+            handleEnglishNameChange($(procModalElements.systemNameInput));
 
             // disable datetime + as key columns
             validateFixedColumns();
@@ -252,7 +267,7 @@ const getProcInfo = (procId) => {
             showHideReRegisterBtn();
 
             // update row number
-            updateTableRowNumber(null, $('table[name=selectedColumnsTable]'));
+            updateTableRowNumber(null, $('table[name=processColumnsTable]'));
 
             $('#procSettingModal').modal('show');
 
@@ -268,58 +283,31 @@ const getProcInfo = (procId) => {
 
 const showHideReRegisterBtn = () => {
     procModalElements.reRegisterBtn.css('display', 'none');
+    procModalElements.createOrUpdateProcCfgBtn.css('display', 'block');
     if (!isAddNewMode()) {
         procModalElements.reRegisterBtn.css('display', 'block');
+        procModalElements.createOrUpdateProcCfgBtn.css('display', 'none');
     }
 };
 
 const isAddNewMode = () => isEmpty(procModalElements.procID.val() || null);
 
-const setProcessInfo = (procItem) => {
-    const procDOM = $(procItem).parent().parent();
-    const procName = procDOM.find('input[name="processName"]')[0];
-    const dsName = procDOM.find('select[name="databaseName"]')[0];
-    const tableName = procDOM.find('input[name="tableName"]')[0];
-
-    if (procName) {
-        procModalElements.proc.val($(procName).val());
-    }
-};
 const showProcSettingModal = (procItem, dbsId = null) => {
     clearWarning();
-    // clear user editted input flag
-    userEditedProcName = false;
-
-    // clear old procInfo
-    currentProcColumns = null;
-    $(procModalElements.prcSM).html('');
-    $(procModalElements.settingContent).removeClass('hide');
-    $(procModalElements.prcSM).parent().addClass('hide');
+    cleanOldData();
+    showHideReRegisterBtn();
 
     currentProcItem = $(procItem).closest('tr');
     const procId = currentProcItem.data('proc-id');
     const loading = $('.loading');
 
     loading.show();
-
-    // TODO: clear old input from form
-    $(procModalElements.latestDataHeader).empty();
-    $(procModalElements.latestDataBody).empty();
-    $(procModalElements.seletedColumnsBody).empty();
-    procModalElements.comment.val('');
-    procModalElements.proc.val('');
-    procModalElements.procLocalName.val('');
-    procModalElements.procJapaneseName.val('');
-    procModalElements.procID.val('');
-    procModalElements.comment.val('');
-    procModalElements.databases.html('');
-    procModalElements.tables.html('');
-    procModalElements.tables.prop('disabled', false);
-    showHideReRegisterBtn();
+    handleEnglishNameChange(procModalElements.proc);
 
     if (procId) {
         getProcInfo(procId);
     } else {
+        resetDicOriginData();
         procModalElements.dsID.val('');
 
         $('#procSettingModal').modal('show');
@@ -329,8 +317,6 @@ const showProcSettingModal = (procItem, dbsId = null) => {
     const dataRowID = $(procItem).parent().parent().data('rowid');
     loadProcModal(procId, dataRowID, dbsId);
 
-    // set process name
-    // setProcessInfo(procItem);
 
     $('#processGeneralInfo select[name="tableName"]').select2(select2ConfigI18n);
 
@@ -353,8 +339,14 @@ const showProcSettingModal = (procItem, dbsId = null) => {
     // clear attr on buttons
     procModalElements.okBtn.removeAttr('data-has-ct');
 };
+
+const resetDicOriginData = () => {
+    dicOriginDataType = {};
+    dicProcessCols = {};
+};
+
 const changeDataSource = (e) => {
-    const dsType = $(e).find('option:selected').data('ds-type');
+    const dsType = $(e).find(':selected').data('ds-type');
     if (dsType === 'CSV' || dsType === 'V2') {
         const tableDOM = $(e).parent().parent().find('select[name="tableName"]')[0];
         if (tableDOM) {
@@ -375,7 +367,7 @@ const changeDataSource = (e) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-const addProcToTable = (procId = null, procName = null, procShownName = null, dbsId = null) => {
+const addProcToTable = (procId = null, procName = '', nameJP = '', nameLocal = '', procShownName = '', dbsId = null) => {
     // function to create proc_id
 
     const procConfigTextByLang = {
@@ -395,7 +387,7 @@ const addProcToTable = (procId = null, procName = null, procShownName = null, db
     <tr name="procInfo" ${procId ? `data-proc-id=${procId} id=proc_${procId}` : ''} ${dbsId ? `data-ds-id=${dbsId}` : ''} data-rowid="${dummyRowID}">
         <td class="col-number">${rowNumber + 1}</td>
         <td>
-            <input data-name-en="${procName}" name="processName" class="form-control" type="text"
+            <input data-name-en="${procName}" data-name-jp="${nameJP || ''}" data-name-local="${nameLocal || ''}" name="processName" class="form-control" type="text"
                 placeholder="${procConfigTextByLang.procName}" value="${procShownName || ''}" ${procName ? 'disabled' : ''} ${dragDropRowInTable.DATA_ORDER_ATTR}>
         </td>
         <td class="text-center">
@@ -436,27 +428,6 @@ const addProcToTable = (procId = null, procName = null, procShownName = null, db
     // updateTableRowNumber(procElements.tblProcConfig);
 };
 
-// handle searching process name
-const searchProcName = (element) => {
-    const inputProcName = element.currentTarget.value.trim();
-
-    // when input nothing or only white space characters, show all proc in list
-    if (inputProcName.length === 0) {
-        $('input[name="processName"]').each(function () {
-            $(this.closest('tr[name="procInfo"]')).show();
-        });
-
-        return;
-    }
-
-    // find and show proc who's name is same with user input
-    $('input[name="processName"]').each(function () {
-        const currentRow = $(this.closest('tr[name="procInfo"]'));
-        if (this.value.match(inputProcName)) currentRow.show();
-        else currentRow.hide();
-    });
-};
-
 $(() => {
     procModalElements.procModal.on('hidden.bs.modal', () => {
         $(procModalElements.selectAllColumn).css('display', 'none');
@@ -480,6 +451,22 @@ $(() => {
     dragDropRowInTable.sortRowInTable(procElements.tblProcConfig);
 
     // set table order
-    $(procElements.divProcConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
     $(procElements.divProcConfig)[0].addEventListener('mouseup', handleMouseUp, false);
+
+    // File name input by explorer
+    const $fileName = $(procElements.fileName);
+    const $selectFileBtn = $(procElements.fileNameBtn);
+    const $selectFileInput = $(procElements.fileNameInput);
+
+    $selectFileBtn.on('click', () => {
+        $selectFileInput.click();
+    });
+
+    $selectFileInput.on('change', function () {
+        const file = this.files[0];
+        console.log(file);
+        if (file) {
+            $fileName.val(file.name);
+        }
+    });
 });

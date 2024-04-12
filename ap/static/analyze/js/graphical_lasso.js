@@ -5,6 +5,7 @@
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_SENSOR = 60;
+const MIN_NUMBER_OF_SENSOR = 0;
 const graphStore = new GraphStore();
 let resData = null;
 let selectedThreshold = 0;
@@ -21,6 +22,7 @@ const formElements = {
     autoUpdateInterval: $('#autoUpdateInterval'),
     endProcItems: '#end-proc-row .end-proc',
     endProcSelectedItem: '#end-proc-row select',
+    condProcSelectedItem: '#cond-proc-row select',
     endProcCateSelectedItem: '#end-proc-cate-row select',
     condProcReg: /cond_proc/g,
     i18nAllSelection: $('#i18nAllSelection').text(),
@@ -52,10 +54,11 @@ $(() => {
         optionalObjective: true,
         objectiveHoverMsg: i18n.objectiveHoverMsg,
         showStrColumn: true,
-        hideStrVariable: true,
+        hideStrVariable: false, // select Str columns as target sensors
         hideCTCol: true,
-        showLabels: true,
-        labelAsFilter: true,
+        showFilter: true,
+        allowObjectiveForRealOnly: true,
+        disableSerialAsObjective: true,
     });
     endProcItem();
 
@@ -71,7 +74,6 @@ $(() => {
     // click even of end proc add button
     $('#btn-add-end-proc').click(() => {
         endProcItem();
-        updateSelectedItems();
         addAttributeToElement();
     });
 
@@ -103,7 +105,7 @@ const collectFromDataGL = (clearOnFlyFilter) => {
         formData = lastUsedFormData;
         formData = transformCatFilterParams(formData);
     }
-
+    formData = bindNominalSelection(formData, clearOnFlyFilter);
     return formData;
 };
 
@@ -113,7 +115,7 @@ const callToBackEndAPI = (clearOnFlyFilter = true) => {
 
     showGraphCallApi('/ap/api/gl/plot', formData, REQUEST_TIMEOUT, async (res) => {
         resData = res;
-        graphStore.setTraceData(_.cloneDeep(res));
+        graphStore.setTraceData(res)
         showGraphicalLasso(res);
 
         $('html, body').animate({
@@ -160,6 +162,8 @@ const showGraphicalLasso = (res, changedThreshold = null, alpha = null, inCurren
         dic_edges,
         processNames,
     ] = res.array_plotdata;
+
+    if (!dic_nodes) return;
 
     selectedThreshold = changedThreshold !== null ? changedThreshold : threshold;
     selectedSparsity = alpha !== null ? alpha : best_alpha;

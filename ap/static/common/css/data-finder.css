@@ -364,3 +364,100 @@
 button.for-data-finder {
     min-width: 55px;
 }
+
+.single-calendar {
+    width: 280px;
+    height: auto;
+    background-color: #222222;
+    color: #ffff;
+    padding: 10px 0px;
+    border-radius: 3px;
+    border: 1px solid #4444;
+}
+
+.single-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 15px;
+    margin-bottom: 18px;
+}
+
+.single-calendar-title {
+    font-weight: bold;
+}
+
+.single-calendar-action {
+}
+
+.single-calendar-action svg {
+    font-weight: normal;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.single-calendar-action .fa-arrow-up {
+    margin-right: 10px;
+}
+
+.single-calendar-body {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 0 5px;
+}
+
+.single-calendar-item {
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.single-calendar-body .in-week {
+    background-color: #00aeff52;
+}
+
+.single-calendar-body .in-week.last-item{
+    border-bottom-right-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.single-calendar-body .in-week.first-item {
+    border-bottom-left-radius: 3px;
+    border-top-left-radius: 3px;
+}
+
+.single-calendar-item.inactive {
+    color: #6e6e6e;
+}
+
+.single-calendar-item:not(.date-title):hover {
+    background-color: #00aeff;
+    border-radius: 3px;
+}
+
+.single-calendar-item.date-title {
+    font-weight: 500;
+}
+
+.single-calendar-bottom {
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    margin-top: 10px;
+}
+
+.single-calendar-bottom .action {
+    cursor: pointer;
+}
+
+.single-date-calendar {
+    width: 325px;
+}
+
+.single-date-calendar-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    padding: 0 5px;
+}

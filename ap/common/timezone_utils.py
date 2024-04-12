@@ -13,7 +13,6 @@ from ap.common.common_utils import (
     DATE_FORMAT,
     DATE_FORMAT_SIMPLE,
     DATE_FORMAT_STR,
-    DATE_FORMAT_STR_CSV,
     TERM_FORMAT,
     add_double_quotes,
 )
@@ -69,23 +68,6 @@ def convert_str_utc_by_timezone(time_zone, dt_str):
     return datetime.strftime(dt_obj, DATE_FORMAT_STR)
 
 
-def convert_dt_str_to_timezone(time_zone, dt_str):
-    """
-    timezone: timezone object. e.g. dateutil.tz.tzutc(), dateutil.tz.tzlocal()
-    dt_str: datetime string: e.g.2019-05-14T20:01:04.000000Z
-    """
-    if not dt_str:
-        return dt_str
-
-    try:
-        dt_obj = parser.parse(dt_str)
-        dt_obj = dt_obj.astimezone(time_zone)
-    except Exception:
-        return None
-
-    return datetime.strftime(dt_obj, DATE_FORMAT_STR_CSV)
-
-
 def convert_str_utc(dt_str):
     """
     dt_str: datetime string: e.g.2019-05-14T20:01:04.000000Z
@@ -99,29 +81,6 @@ def convert_str_utc(dt_str):
     return datetime.strftime(dt_obj, DATE_FORMAT_STR)
 
 
-def convert_date_utc_by_timezone(time_zone, date_obj):
-    """
-    timezone: timezone object. e.g. dateutil.tz.tzutc(), dateutil.tz.tzlocal()
-    date_obj: date object: e.g.2019-05-14
-    """
-    date_obj = datetime.combine(date_obj, datetime.min.time())
-    date_obj = date_obj.replace(tzinfo=time_zone)
-    date_obj = date_obj.astimezone(tz.tzutc())
-
-    return datetime.strftime(date_obj, DATE_FORMAT_STR)
-
-
-# def convert_dt_utc_by_timezone_pytz(time_zone: pytz.tzinfo.DstTzInfo, dt_obj):
-#     """
-#     timezone: pytz.tzinfo.DstTzInfo object. e.g. pytz.timezone('Asia/Tokyo')
-#     dt_obj: datetime object: e.g.2019-05-14T20:01:04.000000Z
-#     """
-#     dt_obj = time_zone.localize(dt_obj)
-#     dt_obj = dt_obj.astimezone(tz.tzutc())
-#
-#     return datetime.strftime(dt_obj, DATE_FORMAT_STR)
-#
-#
 def convert_dt_utc_by_timezone(time_zone, dt_obj):
     """
     timezone: timezone object. e.g. dateutil.tz.tzutc(), dateutil.tz.tzlocal()
@@ -186,11 +145,9 @@ def gen_sql(db_instance, table_name, get_date_col):
 
     sql = f'from {table_name} where {get_date_col} is not null'
     if isinstance(db_instance, mssqlserver.MSSQLServer):
-        sql = f'select TOP 1 CONVERT(VARCHAR(30), {get_date_col}, 127) {get_date_col}, 0 {sql}'
+        sql = f'select top 1 convert(varchar(30), {get_date_col}, 127) {get_date_col}, 0 {sql}'
     elif isinstance(db_instance, oracle.Oracle):
-        data_type = db_instance.get_data_type_by_colname(
-            table_name.strip('"'), get_date_col.strip('"')
-        )
+        data_type = db_instance.get_data_type_by_colname(table_name.strip('"'), get_date_col.strip('"'))
         format_str = 'TZR' if data_type and 'TIME ZONE' in data_type else None
         if format_str:
             sql = f"select {get_date_col}, to_char({get_date_col},'{format_str}') {sql} and rownum = 1"
@@ -240,13 +197,11 @@ def get_db_timezone(db_instance):
 
 def timezone_regex(tz_offset):
     if isinstance(tz_offset, str):
-        matches = re.match('^([+\-]?)(\d{1,2}):?(\d{2})?', tz_offset)
+        matches = re.match(r'^([+\-]?)(\d{1,2}):?(\d{2})?', tz_offset)
 
         if matches:
             sign, hours, minutes = matches.groups()
-            time_zone = timezone(
-                timedelta(hours=float('{}{}'.format(sign, hours)), minutes=float(minutes or 0))
-            )
+            time_zone = timezone(timedelta(hours=float('{}{}'.format(sign, hours)), minutes=float(minutes or 0)))
         else:
             time_zone = tz.gettz(tz_offset or None) or tz.tzlocal()
             # time_zone = pytz.timezone(tz_offset)
@@ -291,6 +246,7 @@ def get_time_info(date_val, time_zone=None):
         detected_timezone = time_zone or tz.tzlocal()
 
     utc_offset = get_utc_offset(detected_timezone)
+
     if not detected_timezone:
         detected_timezone = time_zone or tz.tzlocal()
     return is_timezone_inside, detected_timezone, utc_offset
@@ -338,9 +294,7 @@ def gen_dummy_datetime(df, start_date=None):
         # from is zero
         start_date = '{}-{}-01'.format(date.today().year, date.today().month)
     start_date = convert_dt_str_to_simple_local(start_date)
-    dummy_datetime = pd.date_range(
-        start=start_date, periods=df.shape[0], freq='10s', tz=tz.tzlocal()
-    )
+    dummy_datetime = pd.date_range(start=start_date, periods=df.shape[0], freq='10s', tz=tz.tzlocal())
     df.insert(loc=0, column=DATETIME_DUMMY, value=dummy_datetime)
     return df
 
@@ -383,35 +337,12 @@ def from_utc_to_localtime(input_datetime, local_timezone, is_simple_fmt=True):
     """
     fmt = DATE_FORMAT_SIMPLE if is_simple_fmt else DATE_FORMAT_STR
     try:
-        fmt = DATE_FORMAT_SIMPLE if is_simple_fmt else DATE_FORMAT_STR
-        return (
-            datetime.strptime(input_datetime, fmt)
-            .replace(tzinfo=tz.tzutc())
-            .astimezone(tz.gettz(local_timezone))
-        )
+        return datetime.strptime(input_datetime, fmt).replace(tzinfo=tz.tzutc()).astimezone(tz.gettz(local_timezone))
     except Exception:
         # try to use pandas
         time_value = pd.to_datetime(input_datetime, utc=True)
         time_value = time_value.tz_convert(local_timezone).strftime(fmt)
         return time_value
-
-
-def from_localtime_to_utc(input_datetime, local_timezone):
-    """
-    convert datetime to local time
-    Args:
-        input_datetime: 2019-12-31 15:00:00
-        local_timezone: Asia/Tokyo
-    Returns: 2020-01-01 00:00:00 (JST)
-    """
-    try:
-        return (
-            datetime.strptime(input_datetime, DATE_FORMAT_SIMPLE)
-            .replace(tzinfo=tz.gettz(local_timezone))
-            .astimezone(tz.tzutc())
-        )
-    except Exception:
-        return None
 
 
 def get_datetime_from_str(str_datetime):

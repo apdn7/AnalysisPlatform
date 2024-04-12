@@ -167,19 +167,19 @@ setTimeout(() => {
 }, 500);
 
 const endProcSortable = () => {
- $('.grouplist-checkbox-with-search').sortable({
-     update: function( event, ui ) {
-         const targetItem = $(ui.item);
-         const isChecked = targetItem.find('input[name^=GET02_VALS_SELECT]').prop('checked');
-         if (!isChecked) return;
-         // add order number
-         targetItem.parent().find('input[name^=GET02_VALS_SELECT]').removeAttr('order');
-         const checked = targetItem.parent().find('input[name^=GET02_VALS_SELECT]:checked');
-         checked.each((i,el) => {
-             $(el).attr('order', i);
-         })
-     }
- });
+    $('.grouplist-checkbox-with-search').sortable({
+        update: function (event, ui) {
+            const targetItem = $(ui.item);
+            const isChecked = targetItem.find('input[name^=GET02_VALS_SELECT]').prop('checked');
+            if (!isChecked) return;
+            // add order number
+            targetItem.parent().find('input[name^=GET02_VALS_SELECT]').removeAttr('order');
+            const checked = targetItem.parent().find('input[name^=GET02_VALS_SELECT]:checked');
+            checked.each((i, el) => {
+                $(el).attr('order', i);
+            })
+        }
+    });
 };
 const objectiveInputEventHandle = () => {
     $('input[name="objectiveVar"]').on('change', (e) => {
@@ -208,18 +208,18 @@ const inputCheckInlineEvents = (parentId) => {
             || childInput.name.includes('GET02_CATE_SELECT');
 
         if (isSecondaryCheckbox) {
-            $(e.target).find('input').each((idx, item) => {
+            $(e.target).find('input:visible').each((idx, item) => {
                 let inputStatus = true;
                 if (item.type === 'checkbox' || item.name == 'colorVar') {
                     inputStatus = !childInput.checked;
                 }
-                $(item).prop('checked',inputStatus ).trigger('change');
+                $(item).prop('checked', inputStatus).trigger('change');
             });
             return;
         }
         if (childInputElems.length || !isSecondaryCheckbox) {
             // if (childInputElems.length) {
-            $(e.currentTarget).find('input').each((idx, item) => {
+            $(e.currentTarget).find('input:visible').each((idx, item) => {
                 if ($(item).hasClass('checkbox-all-labels')) {
                     return;
                 }
@@ -227,7 +227,7 @@ const inputCheckInlineEvents = (parentId) => {
                 if ($(item).attr('data-autoselect') === 'false' || $(item).prop('disabled')) {
                     return;
                 }
-                if (item.type === 'radio' && item.name !== 'colorVar') {
+                if (item.type === 'radio' && !['colorVar', 'judgeVar'].includes(item.name)) {
                     item.checked = true;
                 } else if (item.type === 'checkbox') {
                     item.checked = !firstInputIsChecked;
@@ -248,7 +248,7 @@ const inputCheckInlineEvents = (parentId) => {
     });
 };
 
-const genColDOM = (isShow, label, description, textCenter = false, withCheckBox=false, id='', className = '') => {
+const genColDOM = (isShow, label, description, textCenter = false, withCheckBox = false, id = '', className = '') => {
     // todo: check nofilter option
     const filterClasses = (id !== '') ?
         'col custom-control custom-checkbox fit-item text-center pr-1 d-flex ' :
@@ -279,11 +279,12 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         color: 4,
         catExp: 5,
         objective: 6,
-        judge: 7
+        judge: 7,
+        filter: 8,
     };
     const isShowColorCheckBox = props ? (props.showColor && !props.colorAsDropdown) : false;
     const genDetailItem = (isHeader = false, chkBox, shownName = null, thresholdBox = null,
-        dataType = null, catExpBox = null, isGetDate = false,
+        dataType = null, colDataTypeShowName = null, catExpBox = null, isGetDate = false,
         objectiveSelectionDOM = null, categoryLabelDOM = null, colorDOM = null, judgeDOM = null) => {
         if (!chkBox) {
             return '';
@@ -310,9 +311,10 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         }
 
         if (shownName) {
-            const originalTotalCol = [chkBox, shownName, props.itemDataTypes, props.showLabel, props.showColor, props.showCatExp, props.showObjectiveInput, props.judge];
+            const isStrCol = dataType === DataTypes.STRING.name ? ' is-string-col' : '';
+            const originalTotalCol = [chkBox, shownName, props.itemDataTypes, props.showLabel, props.showColor, props.showCatExp, props.showObjectiveInput, props.judge, props.showFilter];
             html = `
-                <div class="col-sm-4 col-xs-4 show-name-col ${commonClass} shorten-name pr-1 search-col" title="${shownName}">
+                <div class="col-sm-4 col-xs-4 show-name-col ${commonClass} shorten-name pr-1 search-col${isStrCol}" title="${shownName}">
                     ${chkBox}
                 </div>
                 <div class="col-sm-4 col-xs-4 show-name-col ${masterNameClass} shorten-name pr-1 search-col" title="${shownName}">
@@ -324,17 +326,15 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     if (i === indexDic.dataType) {
                         // data type;
                         const title = $(`#${DataTypes[dataType].exp}`).text();
-                        const text = DataTypes[dataType].short;
                         const hiddenValue = DataTypes[dataType].short === DataTypes.DATETIME.short ? DataTypes.STRING.short : DataTypes[dataType].short;
                         const hiddenDataTypeInput = `<input id="dataType-${$(chkBox).val()}" value="${hiddenValue}" hidden disabled>`;
                         html += `<div class="col data-type fit-item type-item px-1 search-col" title="${title}">
-                                      ${text}${hiddenDataTypeInput}
+                                      ${colDataTypeShowName}${hiddenDataTypeInput}
                                  </div>`;
                     }
-                    if (i === indexDic.label) {
-                        // label
-                        const title = 'Label';
-                        html += `<div class="col ${checkboxClass} fit-item text-center small-col pr-1 d-flex" title="${title}">
+                    if (i === indexDic.label || i === indexDic.filter) {
+                        // label or Filter
+                        html += `<div class="col ${checkboxClass} fit-item text-center small-col pr-1 d-flex pl-5" title="${props.showFilter ? 'Filter' : 'Label'}">
                                     ${categoryLabelDOM || ''}
                                  </div>`;
                     }
@@ -434,12 +434,14 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         // data types and cat expansion
         let colDataType = null;
+        let colDataTypeShowName = null;
         let catExpBox = ''; // don't set null , it will show null on screen
         let catExpChkBoxId = null;
         if (props.itemDataTypes) {
             colDataType = DataTypes[props.itemDataTypes[i]].org_type;
+            colDataTypeShowName = props.itemDataTypeShownNames[i];
             catExpChkBoxId = `catExp-${chkBoxId}`;
-            if (props.showCatExp && [DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType)) {
+            if (props.showCatExp && [DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType) && colDataTypeShowName !== DataTypes.SERIAL.short) {
                 catExpBox = `<select name="catExpBox" id="catExpItem-${itemId}" onchange="changeFacetLevel(this);"
                                 data-load-level="2" class="form-control level-select">
                     <option value="">---</option>
@@ -453,18 +455,19 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         const isRequiredInput = props.isRequired ? 'required-input' : '';
         let objectiveSelectionDOM = '';
         const isCategoryVar = [DataTypes.DATETIME.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType);
-        const showObjInput = !props.allowObjectiveForRealOnly || (props.allowObjectiveForRealOnly && !isCategoryVar);
+        const showObjInput = !props.allowObjectiveForRealOnly || (props.allowObjectiveForRealOnly && !isCategoryVar) && !(props.disableSerialAsObjective && colDataTypeShowName === DataTypes.SERIAL.short);
         if (props.showObjectiveInput && showObjInput) {
             const objectiveChkBoxId = `objectiveVar-${itemId}`;
             const uncheckRadio = props.optionalObjective ? ' uncheck-when-click' : '';
-            objectiveSelectionDOM = `<input title="" type="radio" name="objectiveVar" onchange="compareSettingChange()"
+            objectiveSelectionDOM = `<input title="" type="radio" name="objectiveVar" onchange="changeObjectiveVarEvent()"
                 class="custom-control-input ${isRequiredInput}" value="${itemId}"
-                id="${objectiveChkBoxId}" data-autoselect="false">
+                id="${objectiveChkBoxId}" data-autoselect="false" 
+                data-is-target="${props.shouldObjectiveIsTarget || false}">
                 <label title="" class="custom-control-label${uncheckRadio}" for="${objectiveChkBoxId}"></label>`;
         }
 
         let categoryLabelDOM = null;
-        if (props.showLabel) {
+        if (props.showLabel || props.showFilter) {
             const clChkBoxId = `categoryLabel-${itemId}`;
             let clSelection = '';
             // todo: check category item
@@ -518,12 +521,12 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         }
 
         isChecked = (props.checkedIds && props.checkedIds.includes(itemId)) ? 'checked' : '';
-        const isHideCheckInput = props.hideStrVariable && colDataType === DataTypes.STRING.name;
+        const isHideCheckInput = (props.hideStrVariable && colDataType === DataTypes.STRING.name) || (props.disableSerialAsObjective && colDataTypeShowName === DataTypes.SERIAL.short);
         const hideClass = isHideCheckInput ? ' hidden-input' : '';
 
         const inputEl = !isHideCheckInput ? `<input type="${inputType}" name="${props.name}" ${isShowColorCheckBox ? 'data-order=2' : ''}
             class="custom-control-input check-item ${mainChkBoxClass} ${isRequiredInput}"  value="${itemId}"
-            id="${chkBoxId}" ${isChecked}>` : '';
+            id="${chkBoxId}" ${isChecked} data-proc-id="${props.procId || ''}">` : '';
 
         const option = `
             ${inputEl}
@@ -531,7 +534,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         const isGetDate = (itemId === props.getDateColID);
         itemList.push(
-            genDetailItem(false, option, itemName, threshold, colDataType, catExpBox,
+            genDetailItem(false, option, itemName, threshold, colDataType, colDataTypeShowName, catExpBox,
                 isGetDate, objectiveSelectionDOM, categoryLabelDOM, colorDOM, judgeDOM),
         );
     }
@@ -545,14 +548,10 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     const typeColDOM = genColDOM(props.itemDataTypes, 'Type', i18nHoverText.sensorExp, false, false, '', 'type-item');
     const objColDOM = genColDOM(props.showObjectiveInput, i18nHoverText.objectiveLabel, i18nHoverText.objectiveExpl, false, false, '', 'objective-item');
     const judgeTitle = genColDOM(props.judge, i18nHoverText.judgeLabel, i18nHoverText.judgeHoverMsg);
-    // todo: change filter hover msg
-    const labelProps = {
-        title: !props.labelAsFilter ? 'Label' : 'Filter',
-        i18n: !props.labelAsFilter ? i18nHoverText.labelExplain : i18nHoverText.filterLabelExplain
-    };
     // change Title on On-demand filter
-    $('#categoriesBoxTitle').text(labelProps.title);
-    const categoryLabelColDOM = genColDOM(props.showLabel, labelProps.title, labelProps.i18n, false, true, id, 'small-col');
+    $('#categoriesBoxTitle').text(!props.showFilter ? 'Label' : 'Filter');
+    const categoryLabelColDOM = genColDOM(props.showLabel, 'Label', i18nHoverText.labelExplain, true, false, '', 'small-col');
+    const filterColDOM = genColDOM(props.showFilter, 'Filter', i18nHoverText.filterLabelExplain, true, false, '', 'small-col');
     const catExpDOM = genColDOM(props.showCatExp, i18nHoverText.catExpLabel, i18nHoverText.catExp);
     const colorTile = genColDOM(props.showColor, 'Color', props.colorAsDropdown ? i18nCommon.agPColorExplanation : i18nCommon.colorExplanation, false);
     // const defaultColSize = '';
@@ -590,7 +589,8 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             ${colorTile}
             ${catExpDOM}
             ${objColDOM}
-            ${judgeTitle}`;
+            ${judgeTitle}
+            ${filterColDOM}`;
     }
 
     const labelClass = label ? 'flex-grow-1 border-gray-curve' : '';
@@ -621,10 +621,16 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
     // ADD EVENTS
     // check all event
-    $(`#checkbox-all-${id + parentId}`).change(function f() {
+    $(`#checkbox-all-${id + parentId}`).change(function f(e) {
         $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop('checked', !$(this).prop('checked'));
         $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`).prop('checked', $(this).prop('checked'));
-
+        if ($(this).is(':checked') === false) {
+            // reset objective
+            const objectiveEle = $(this.closest('ul.list-group')).find('input[name=objectiveVar]:checked');
+            if (objectiveEle.data('is-target')) {
+                objectiveEle.prop('checked', false);
+            }
+        }
         limitedCheckedList = [];
         // find all check items
         $(`#${parentId}`)
@@ -632,8 +638,9 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             .find('input[name^=GET02_VALS_SELECT]:checked')
             .not('.checkbox-all')
             .each((_, item) => limitedCheckedList.push(item));
-
+        countVariables(parentId, props.groupIDx);
         compareSettingChange();
+        createOrUpdateSensorOrdering(e, true);
     });
     // check all labels and filters
     $(`.checkbox-all-labels`).change(function f() {
@@ -648,7 +655,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     });
 
     // check event
-    $(`#${id} .check-item`).on('change', function f() {
+    $(`#${id} .check-item`).on('change', function f(e) {
         const checkboxNoFilter = $(`#${this.closest('.list-group').id} .checkbox-no-filter`);
         const thresholdBox = $(`#threshold-${this.id}`);
         const isCheckLimit = MAX_NUMBER_OF_SENSOR && /VALS_SELECT/.test($(this).attr('name'));
@@ -699,6 +706,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             // shift first item from list if $(this) is checked
             // to avoid shift/uncheck 2 items at same time
             $(limitedCheckedList[0]).prop('checked', false);
+            countTotalVariables();
 
             if (isShowColorCheckBox) {
                 $(limitedCheckedList[0].closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
@@ -726,6 +734,9 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
             compareSettingChange();
         }
+
+        countVariables(parentId, props.groupIDx);
+        createOrUpdateSensorOrdering(e);
     });
 
 
@@ -768,7 +779,36 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     }
     onchangeRequiredInput();
     objectiveInputEventHandle();
-    endProcSortable();
+    // endProcSortable();
+};
+
+const countVariables = (parentId, groupId) => {
+    const selectedVariablesCount = $(`#${parentId}`)
+        .find('input[name^=GET02_VALS_SELECT]:checked')
+        .not('.checkbox-all').length;
+    $(`#count-variables-${groupId}`).text(selectedVariablesCount);
+    countTotalVariables();
+};
+
+const countTotalVariables = () => {
+    let selectedVars = $('span[id^=count-variables-]').map((idx, ele) => parseInt($(ele).text()));
+    selectedVars = Array.from(selectedVars);
+    let countVars = 0;
+    if (selectedVars.length) {
+        countVars = selectedVars.reduce((a, b) => a + b);
+    }
+    $('#count-total-variables').text(countVars);
+    $('#max-variables').text(MAX_NUMBER_OF_SENSOR);
+    $('#variables-count').show();
+
+    // check validate
+    if (countVars > MAX_NUMBER_OF_SENSOR || (MIN_NUMBER_OF_SENSOR > 0 && countVars > 0 && countVars < MIN_NUMBER_OF_SENSOR)) {
+        $('#variables-count').css({
+            color: 'red',
+        })
+    } else {
+        $('#variables-count').removeAttr('style');
+    }
 };
 
 const onChangeFilterCheckBox = (e) => {
@@ -790,17 +830,19 @@ const onChangeFilterCheckBox = (e) => {
 
 const onchangeJudge = (e) => {
     const _this = $(e);
+    const parentRow = _this.parents('li');
+    const facetEl = parentRow.find('[name=catExpBox]');
     const isChecked = _this.prop('checked');
     const judgeConditionCard = $('#judgeConditionCard');
     const NGCondition = $('#NGCondition');
     const NGConditionValue = $('#NGConditionValue');
 
     if (isChecked) {
-         const dataType = _this.attr('data-type');
-         judgeConditionCard.show();
-         judgeConditionCard.find('input, select').prop('disabled', false);
+        const dataType = _this.attr('data-type');
+        judgeConditionCard.show();
+        judgeConditionCard.find('input, select').prop('disabled', false);
 
-         // show only =, != if type == str
+        // show only =, != if type == str
         if (dataType === DataTypes.STRING.name) {
             NGCondition.find('option[show-for=real]').attr('hidden', true);
             // off change, input event
@@ -814,9 +856,13 @@ const onchangeJudge = (e) => {
                 NGConditionValue.val(0)
             }
         }
+
+        // reset facet in row
+        facetEl.val('')
     } else {
         judgeConditionCard.hide();
         judgeConditionCard.find('input, select').prop('disabled', true);
+
     }
 
     compareSettingChange();
@@ -855,30 +901,34 @@ const handleSearchItems = (id) => {
         value = makeRegexForSearchCondition(value);
 
         const regex = new RegExp(value, 'i');
-
-        selectedEls = $(`#${searchEle.closest('.form-group').id} li`).filter(function () {
+        selectedEls = $(`#${searchEle.closest('.form-group').id} li`).filter(function f(index) {
             const searchEls = $(this).find('.search-col');
+            searchEls.removeClass('gray');
             const val = searchEls.text().toLowerCase();
-            $(this).show();
-            searchEls.each((i, el) => {
-                if (!regex.test($(el).text().toLowerCase())) {
-                    $(el).addClass('gray');
-                } else {
-                    $(el).removeClass('gray');
-                }
-            })
-            if (!value) return false;
+            // keep to show first (header) row as index = 0
+            if (index) {
+                $(this).toggle(regex.test(val));
 
-            return regex.test(val);
+                return regex.test(val);
+            }
+            return false;
         });
 
-
         if (event.keyCode === KEY_CODE.ENTER) {
-            $(`#${searchEle.closest('.form-group').id} li`).filter(function f(index) {
-                // keep to show first (header) row as index = 0
-                if (index) {
-                    $(this).toggle(regex.test($(this).find('.search-col').text().toLowerCase()));
-                }
+            $(`#${searchEle.closest('.form-group').id} li`).filter(function () {
+                const searchEls = $(this).find('.search-col');
+                const val = searchEls.text().toLowerCase();
+                $(this).show();
+                searchEls.each((i, el) => {
+                    if (!regex.test($(el).text().toLowerCase())) {
+                        $(el).addClass('gray');
+                    } else {
+                        $(el).removeClass('gray');
+                    }
+                })
+                if (!value) return false;
+
+                return regex.test(val);
             });
         }
     });
@@ -944,17 +994,17 @@ const showSensorAsFloatingList = (sensorListId) => {
             const windowWidth = $(window).width() - 100;
 
             if (dropDownWidth > dropDownWidthMin) {
-                $(that).css({ transform: `translateX(-${dropDownWidth - dropDownWidthMin}px)` });
+                $(that).css({transform: `translateX(-${dropDownWidth - dropDownWidthMin}px)`});
             }
-            $(that).css({ width: `${dropDownWidth}px` });
-            $(that).css({ maxWidth: `${windowWidth}px` });
+            $(that).css({width: `${dropDownWidth}px`});
+            $(that).css({maxWidth: `${windowWidth}px`});
             if (dropDownHeight > leftHeightFromCurrentPosition) {
-                $(that).css({ height: `${leftHeightFromCurrentPosition}px` });
+                $(that).css({height: `${leftHeightFromCurrentPosition}px`});
             } else {
-                $(that).css({ height: `${dropDownHeight}px` });
+                $(that).css({height: `${dropDownHeight}px`});
             }
 
-            parent.css({ height: `${parentHeight + 15}px` });
+            parent.css({height: `${parentHeight + 15}px`});
             isExpand = true;
         }, 50);
     });
@@ -1032,7 +1082,9 @@ const cardRemovalByClick = (parentId = '', callbackFunc = null, dicParams = null
                 card.fadeOut();
                 setTimeout(() => {
                     card.parent().remove();
+                    countTotalVariables();
                     updateSelectedItems();
+                    checkIfProcessesAreLinked();
                 }, 100);
             }
         } else if (cardId.endsWith('end-proc-cate-row') || cardId.endsWith('category-cond-proc-row')) {
@@ -1049,6 +1101,7 @@ const cardRemovalByClick = (parentId = '', callbackFunc = null, dicParams = null
                 card.fadeOut();
                 setTimeout(() => {
                     card.parent().remove();
+                    updateSelectedItems(false, $(formElements.condProcSelectedItem));
                 }, 100);
             }
         }
@@ -1090,7 +1143,7 @@ const getFilterByTypes = (process, filterType) => {
 };
 
 // Condition Line change event
-const condLineOnChange = async (selectedLines, count, prefix = '', parentFormId = '') => {
+const condLineOnChange = async (selectedLines, count, prefix = '', isNew = false) => {
     const selectedProc = $(`#${prefix}cond-proc-process-${count}`).val();
     if (selectedLines.length === 0) {
         $(`#${prefix}cond-proc-machine-div-${count}`).css('display', 'none');
@@ -1099,11 +1152,12 @@ const condLineOnChange = async (selectedLines, count, prefix = '', parentFormId 
         $(`#${prefix}cond-proc-machine-div-${count}`).css('display', 'block');
 
         const procInfo = procConfigs[selectedProc];
-
         const machineIds = [];
         const machineVals = [];
         const checkedIds = [];
         const parentId = `${prefix}cond-proc-machine-div-${count}`;
+        const elName = `machine_id_multi${count}`;
+        const elId = `${prefix}cond-proc-machine-${count}`;
 
         if (!isEmpty(procInfo)) {
             await procInfo.updateFilters();
@@ -1128,26 +1182,43 @@ const condLineOnChange = async (selectedLines, count, prefix = '', parentFormId 
             }
         }
 
-        // remove old elements
-        $(`#${prefix}cond-proc-machine-${count}`).remove();
+        // if new load all machine
+        if (isNew) {
+            // remove old elements
+            $(`#${prefix}cond-proc-machine-${count}`).remove();
 
-        // load machine multi checkbox to Condition Proc.
-        if (machineIds) {
-            const machineLabel = i18nCommon.mach || '';
-            const thresholdBoxes = [];
-            machineIds.forEach(e => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
-            addGroupListCheckboxWithSearch(
-                `${parentId}`,
-                `${prefix}cond-proc-machine-${count}`,
-                machineLabel,
-                machineIds,
-                machineVals, {
-                    checkedIds,
-                    name: `machine_id_multi${count}`,
-                    noFilter: true,
-                    thresholdBoxes
-                });
+            // load machine multi checkbox to Condition Proc.
+            if (machineIds) {
+                const machineLabel = i18nCommon.mach || '';
+                const thresholdBoxes = [];
+                machineIds.forEach(e => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
+                addGroupListCheckboxWithSearch(
+                    parentId,
+                    elId,
+                    machineLabel,
+                    machineIds,
+                    machineVals, {
+                        checkedIds,
+                        name: elName,
+                        noFilter: true,
+                        thresholdBoxes
+                    });
+            }
+        } else {
+            // hide and disabled show filter, not generate from scratch
+            if (machineIds) {
+                // hide all machine elements
+                const allInput = $(`input[name=${elName}]`).not(`[value=${CONST.NO_FILTER}],[value=All]`);
+                allInput.attr('disabled', true);
+                allInput.closest('li').hide();
+                for (const machineId of machineIds) {
+                    $(`input[name=${elName}][value=${machineId}]`).removeAttr('disabled');
+                    $(`input[name=${elName}][value=${machineId}]`).closest('li').show();
+                }
+            }
         }
+
+
     }
 };
 
@@ -1204,7 +1275,7 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '') => {
         });
 
         // default show all machine
-        condLineOnChange(['all'], count, prefix);
+        condLineOnChange(['all'], count, prefix, true);
     }
 
     const [partnoIds, partnoVals] = getFilterByTypes(procInfo, filterTypes.PART_NO);
@@ -1274,7 +1345,7 @@ const addCondProc = (procIds, procVals, prefix = '', parentFormId = '', dataGenB
         }
 
         const proc = `<div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
-                    <div class="card cond-proc table-bordered py-sm-3 filter-condition-card">
+                    <div class="card cond-proc dynamic-element table-bordered py-sm-3 filter-condition-card">
                         <span class="pull-right clickable close-icon" data-effect="fadeOut">
                             <i class="fa fa-times"></i>
                         </span>
@@ -1301,6 +1372,7 @@ const addCondProc = (procIds, procVals, prefix = '', parentFormId = '', dataGenB
         bindFilterRemoveEvents(`#${prefix}cond-proc-row div`);
         cardRemovalByClick(`#${prefix}cond-proc-row div`, bindRemoveFilterCondByCards);
         addAttributeToElement();
+        updateSelectedItems(false, $(formElements.condProcSelectedItem));
     };
     return innerFunc;
 };
@@ -1338,6 +1410,7 @@ const genTotalAndNonLinkedHTML = (summaryOption, generalInfo) => {
 };
 
 const changeFacetLevel = (e) => {
+    if (isSettingLoading) return;
     let currentLevelSet = $(e).val();
     if (currentLevelSet === null) {
         currentLevelSet = '';
@@ -1346,16 +1419,8 @@ const changeFacetLevel = (e) => {
     const currentSelectedID = $(e).attr('id');
     const formID = $(e).closest('form').attr('id');
     const currentTabID = '';
-    // if (formID.endsWith('CategoricalPlotForm')) {
-    //     [currentTabID] = $(e).closest('form').attr('id').split('CategoricalPlotForm');
-    //     currentTabID += '-';
-    // } else if (formID.endsWith('categoricalPlotForm')) {
-    //     // stp
-    //     currentTabID = 'var-';
-    // } else if (formID.startsWith('RLPForm')) {
-    //     // rlp
-    //     currentTabID = 'category-';
-    // }
+    const judgeEl = $(e).parents('li').find('[name=judgeVar]:checked');
+
     const findSameLevelSet = $(`#${currentTabID}end-proc-row select[name=catExpBox][id!=${currentSelectedID}]`);
     if (currentLevelSet === facetLevels.LV_1) {
         $(findSameLevelSet).each((_, sel) => {
@@ -1396,6 +1461,10 @@ const changeFacetLevel = (e) => {
         if (currentLevelSet && targetVarSelected) {
             targetVarDOM.prop('checked', false);
         }
+    }
+
+    if (currentLevelSet) {
+        judgeEl.prop('checked', false).trigger('change');
     }
     compareSettingChange();
     bindFacetChangeEvents();
@@ -1462,7 +1531,7 @@ const buildSummaryChartTitle = (catExpValue, catExpBoxCols, facetName, isShowDat
     const endTime = endLocalDt.format(TIME_FORMAT);
 
     const showFitlerClass = isShowFilterModal ? 'show-detail cat-exp-box' : '';
-    
+
     const timeText = `<span title="${startDate} ${startTime} - ${endDate} ${endTime}">
         ${startDate} ${startTime} -<br>${endDate} ${endTime}
     </span>`;
@@ -1555,4 +1624,112 @@ const genFullCategoryData = (categoryIds, stepChartDat, allGroupNames) => {
     });
 };
 
+const changeObjectiveVarEvent = () => {
+    const hasObjectiveCol = $('input[name=objectiveVar]:checked').length;
+    if (!hasObjectiveCol) {
+        // reset all Str cols which are already checked
+        $('.is-string-col input').removeClass('show-ele');
+        $('.is-string-col label').removeClass('show-ele');
+    } else {
+        $('.is-string-col input').addClass('show-ele');
+        $('.is-string-col label').addClass('show-ele');
+    }
+    compareSettingChange();
+};
 
+const isLinkedWithStartProcess = async (end_proc_id, start_proc_id) => {
+    const url = `/ap/api/setting/proc_config/${end_proc_id}/traces_with/${start_proc_id}`
+    const res = await fetchData(url, {}, 'GET');
+    return res.data;
+}
+
+const setColorRelativeStartEndProc = () => {
+
+    const startProc = $('select[name=start_proc]');
+    const startProcVal = startProc.val();
+    const endProcs = $('select[name^=end_proc]');
+    if (startProcVal === '0') {
+        // no data link -> start proc blue -> all end proc black
+        startProc.addClass('blue-color');
+        endProcs.removeClass('blue-color');
+
+    }
+
+    if (startProcVal === '') {
+        // start proc not set, default if first end proc is black end others is blue.
+        startProc.removeClass('blue-color');
+        endProcs.addClass('blue-color');
+        $(endProcs[0]).removeClass('blue-color');
+    }
+
+    if (startProcVal && startProcVal !== '0') {
+        // end proc is start proc is black and others is blue.
+        startProc.removeClass('blue-color');
+        endProcs.each((i, el) => {
+            if ($(el).val() === startProcVal) {
+                $(el).removeClass('blue-color');
+            } else if ($(el).val()) {
+                $(el).addClass('blue-color');
+            }
+        })
+    }
+};
+
+const checkIfProcessesAreLinked = async () => {
+    if(isSettingLoading){
+        return
+    }
+    const startProc = $('select[name=start_proc]');
+    const startProcVal = startProc.val();
+    const endProcs = $('select[name^=end_proc]');
+    const warningSigns = $('svg[id^=no-link-with-start-proc]')
+    warningSigns.css({display: 'none'});
+    hideAlertMessages();
+
+    if (startProcVal === '') {
+        const startProcId = $(endProcs[0]).val()
+        let displayAlert = false;
+        for (const el of endProcs) {
+            if(($(el).val() === startProcId) || !$(el).val()){
+                continue
+            }
+            const warningSign = $(el).siblings('svg[id^=no-link-with-start-proc]')
+            const hasLink = await isLinkedWithStartProcess($(el).val(), startProcId)
+            if (hasLink) {
+                warningSign.css({display: 'none'});
+            } else {
+                warningSign.css({display: 'block'});
+                displayAlert = true;
+            }
+        }
+        if (displayAlert) {
+            displayRegisterMessage("#alertNoLinkConfig", {
+                is_error: true,
+                message: $("#i18nNoLinkConfig").text(),
+            })
+        } else hideAlertMessages();
+    }
+
+    if (startProcVal && startProcVal !== '0') {
+        let displayAlert = false;
+        for (const el of endProcs) {
+            if(!$(el).val()){
+                continue
+            }
+            const warningSign = $(el).siblings('svg[id^=no-link-with-start-proc]');
+            const hasLink = await isLinkedWithStartProcess($(el).val(), startProcVal);
+            if (hasLink) {
+                warningSign.css({display: 'none'});
+            } else {
+                warningSign.css({display: 'block'});
+                displayAlert = true;
+            }
+        }
+        if (displayAlert) {
+            displayRegisterMessage("#alertNoLinkConfig", {
+                is_error: true,
+                message: $("#i18nNoLinkConfig").text(),
+            })
+        } else hideAlertMessages()
+    }
+}

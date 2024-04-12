@@ -15,30 +15,13 @@ echo:
 : Wait Setting for Network Check in [sec]
 set wait_netcheck_inst=10
 set wait_netcheck_appl=1
+set wait_netcheck=%wait_netcheck_appl%
 
 call :defSetting
-title Analysis Platform    Port: %port%  Lang: %lang%  %subtitle%  Path: %CD%
+set app_title=Analysis Platform    Port: %port%  Lang: %lang%  %subtitle%  Path: %CD%
+title %app_title%
 rem prompt AP:%port%$g
 
-: _____________________________________________________________________________
-: Check changed (folder + version updated)
-:CHECK_STATUS
-if not exist %file_status% echo: > %file_status%
-call :getAppStatus %file_temp%
-fc %file_temp% %file_status% > nul
-if errorlevel 1 (
-  set status=%status_install%
-  set wait_netcheck=%wait_netcheck_inst%
-  del %path_getpip%
-  mode con: cols=120 lines=60
-  powershell -command "&{$h=Get-Host;$w=$h.UI.RawUI;$s=$w.BufferSize;$s.height=5000;$w.BufferSize=$s;}"
-  echo Start Installation [Need Network or Proxy Connection]
-) else (
-  set status=%status_run_app%
-  set wait_netcheck=%wait_netcheck_appl%
-  echo Start Analysis Platform
-)
-echo:
 
 : Check Product Type
 if exist %file_prod% (
@@ -50,15 +33,35 @@ if exist %file_prod% (
 )
 echo:
 
+: Run start program
+: Close old start.exe before run
+call :stopLoadingApp
+start "" start.exe %port%
+echo.
+echo.> %stage_status%
+
+: Direct Startup Mode
+if %startup_mode% == 8 (
+  echo Direct Startup Mode === Force to bypass Installation ===
+  call :saveStartUpSetting
+  goto START_APP
+) else (
+  echo Normal Startup Mode === Check Network and Proxy ===
+)
+
 : _____________________________________________________________________________
 : Check Network & Proxy
 call :checkPort %port%
-if %valid_port% == 0 exit /b
+if %valid_port% == 0 (
+    echo 101> %stage_status%
+    exit /b
+)
 
 call :getDefaultProxy
 
 call :checkProxy %prxy% http
 if %valid_proxy% == 0 (
+  echo 102> %stage_status%
   exit /b
 ) else if %valid_proxy% == 2 (
   echo HTTP_PROXY   : %HTTP_PROXY%
@@ -67,6 +70,7 @@ set /a proxy=%valid_proxy%
 
 call :checkProxy %prxs% https
 if %valid_proxy% == 0 (
+  echo 102> %stage_status%
   exit /b
 ) else if %valid_proxy% == 2 (
   echo HTTPS_PROXY  : %HTTPS_PROXY%
@@ -86,7 +90,13 @@ echo Proxy: %proxy%
 echo:
 
 : Check Network Connection at No Proxy
-if %valid_proxy% == 1 Ping www.python.org -n 1 -w 1000 > nul
+rem if %valid_proxy% == 1 Ping www.python.org -n 1 -w 1000 > nul
+powershell -Command ^
+    try { ^
+        $response = Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -Method Head; ^
+        Write-Host 'Network is available.'; ^
+        Write-Host 'StatusCode:' $response.StatusCode ^
+    } catch { exit 1 }"
 if errorlevel 1 (
   set network_nck=True
   set /a error=%error%+%ErrorLevel%
@@ -96,9 +106,33 @@ if errorlevel 1 (
   set network_nck=False
 )
 
-call :saveStartUpSetting
-title Analysis Platform    Port: %port% [%proxy%]  Lang: %lang%  %subtitle%  Path: %CD%
+: _____________________________________________________________________________
+: Check changed (folder + version updated)
+:CHECK_STATUS
+if not exist %file_status% echo: > %file_status%
+call :getAppStatus %file_temp%
+fc %file_temp% %file_status% > nul
+if errorlevel 1 (
+  set status=%status_install%
+  set wait_netcheck=%wait_netcheck_inst%
+  if %network_nck% == False (
+    del %path_getpip%
+  )
+  mode con: cols=120 lines=60
+  powershell -command "&{$h=Get-Host;$w=$h.UI.RawUI;$s=$w.BufferSize;$s.height=5000;$w.BufferSize=$s;}"
+  echo Start Installation [Need Network or Proxy Connection]
+) else (
+  set status=%status_run_app%
+  set wait_netcheck=%wait_netcheck_appl%
+  echo Start Analysis Platform
+)
+echo:
 
+call :saveStartUpSetting
+title %app_title%
+
+: _____________________________________________________________________________
+: Check Installation Status
 rem for Debug
 :exit /b
 :set error=0
@@ -123,7 +157,9 @@ echo:
 if not exist %path_R% if %prod% == %product_dn% (
   echo %esc%[41m Make sure you have R-Portable folder before running this application. %esc%[0m
   echo Or prepare R-Portable folder and reboot AP before using R function
+  echo 999> %stage_status%
   timeout 10
+  exit /b
 )
 
 if exist %path_python% (echo Detect python) else goto PYTHON_EMBEDDED
@@ -133,12 +169,34 @@ if exist %path_oracle% (echo Detect oracle) else goto ORACLE_INSTANCE
 : install packages
 :: Get pip
 %path_python%\python.exe %path_getpip% --no-cache-dir --no-warn-script-location "pip < 22.3"
+
+: -----------------------------------------------------------------------------
+:ACTIVE_PYTHON_ENVIRONMENT
+:: Active virtual environment
+IF NOT EXIST %env_path% (
+  ECHO Initialize virtual environment
+  %path_python%\python -m pip install --no-cache-dir --no-warn-script-location virtualenv
+  %path_python%\python -m virtualenv %env_path%
+)
+ECHO Activate virtual environment
+
+CALL %env_path%\Scripts\activate & GOTO INSTALL_PYTHON_AND_R_PACKAGES
+: -----------------------------------------------------------------------------
+
+:INSTALL_PYTHON_AND_R_PACKAGES
+:: Set default python & components path to PATH environment
+set is_venv_activated=1
+set PATH=%lib_path%
+echo PATH=%PATH%
+echo:
+echo:
+
 :: Upgrade pip
 : %path_python%\python.exe -m pip install --upgrade pip
 if %prod% == %product_dn% (
-  %path_python%\Scripts\pip install --no-cache-dir --no-warn-script-location -r %file_prod%
+  pip install --no-cache-dir --no-warn-script-location -r %file_prod%
 ) else (
-  %path_python%\Scripts\pip install --no-cache-dir --no-warn-script-location -r %file_oss_prod%
+  pip install --no-cache-dir --no-warn-script-location -r %file_oss_prod%
 )
 IF exist %path_R% (
   %path_R%\bin\R CMD BATCH "r_install_packages.r"
@@ -174,23 +232,53 @@ if %only_install% == 1 (
 )
 if [%1]==[SKIP_RUN_MAIN] GOTO FINISH
 
+IF %is_venv_activated% == 0 (
+  GOTO ACTIVE_PYTHON_ENVIRONMENT
+  ECHO Activate virtual environment
+  CALL %env_path%\Scripts\activate & GOTO SET_PATH
+)
+: -----------------------------------------------------------------------------
+:SET_PATH
+:: Set default python & components path to PATH environment
+set is_venv_activated=1
+set PATH=%lib_path%
+echo PATH=%PATH%
+echo:
+echo:
+
+:: stop start.exe before run APDN7
+if errorlevel 0 (
+  : Close start.exe if there is no error
+  call :stopLoadingApp
+) else (
+  : stop program if error
+  exit /b
+)
+
 REM run application
 ECHO Starting Up Analysis Platform ...
-%path_python%\python.exe main.py
+python.exe main.py
 set /a error=%error%+%ErrorLevel%
 echo:
 echo:
 
 rem start
 : Close CMD.exe if no error
-if %error% neq 0 echo Some Error Detected  %error%
-:FINISH
+@REM if %error% neq 0 (
+@REM   echo Some Error Detected  %error%
+@REM   echo Auto restart
+@REM   GOTO START_APP
+@REM )
+@REM :FINISH
 rem echo %error%
 if %error% equ 0 if not %only_install% == 1 (
   timeout 5
-  exit
+  :: find current running cmd and stop it through title
+  for /f "usebackq tokens=2" %%a in (`tasklist /FO list /FI "WINDOWTITLE eq %app_title%*" ^| find /i "PID:"`) do (
+    taskkill /pid %%a
+  )
 )
-exit /b
+exit /b 0
 :goto FINISH
 
 
@@ -200,7 +288,7 @@ exit /b
 : _____________________________________________________________________________
 
 :CA_CERT
-curl "https://curl.se/ca/cacert-2023-08-22.pem" --output %ca_cert%
+powershell wget %ca_cert_url% -O %ca_cert%
 echo %ca_cert% file is downloaded.
 exit /b
 :end
@@ -213,15 +301,16 @@ exit /b
 
 :PYTHON_EMBEDDED
 echo Download python
-curl "https://www.python.org/ftp/python/3.9.0/python-3.9.0-embed-amd64.zip" --output ..\python_embedded_39.zip
+powershell wget %python39_url% -O %path_python_zip%
 if %errorlevel% == 35 (
   REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
   if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
-  curl --cacert %ca_cert% "https://www.python.org/ftp/python/3.9.0/python-3.9.0-embed-amd64.zip" --output %path_python_zip%
+  powershell wget -Certificate %ca_cert% -Uri %python39_url% -O %path_python_zip%
 )
 if errorlevel 1 (
-  echo %esc%[41m Error on Curl  Check network connection or use latest Win10 ^>1803 %esc%[0m
-  pause
+  echo %esc%[41m Error on Wget Check network connection or use latest Win10 ^>1803 %esc%[0m
+  echo 200 > %stage_status%
+  exit /b
 )
 
 echo Unzip python_embedded
@@ -232,15 +321,16 @@ GOTO CHECK_EXIST
 
 :PIP_DOWNLOAD
 echo Download pip
-curl "https://bootstrap.pypa.io/get-pip.py" --output %path_getpip%
+powershell wget %get_pip_url% -O %path_getpip%
 if %errorlevel% == 35 (
   REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
   if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
-  curl --cacert %ca_cert% "https://bootstrap.pypa.io/get-pip.py" --output %path_getpip%
+  powershell wget -Certificate %ca_cert% -Uri %get_pip_url% -O %path_getpip%
 )
 if errorlevel 1 (
   echo %esc%[41m Error on Curl  Check network connection or use latest Win10 ^>1803 %esc%[0m
-  pause
+  echo 201 > %stage_status%
+  exit /b
 )
 
 echo: > %file_status%
@@ -249,15 +339,16 @@ GOTO CHECK_EXIST
 
 :ORACLE_INSTANCE
 echo Download oracle instance
-curl "https://download.oracle.com/otn_software/nt/instantclient/213000/instantclient-basic-windows.x64-21.3.0.0.0.zip" --output %path_oracle_zip%
+powershell wget %oracle_instance_url% -O %path_oracle_zip%
 if %errorlevel% == 35 (
   REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
   if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
-  curl --cacert %ca_cert% "https://download.oracle.com/otn_software/nt/instantclient/213000/instantclient-basic-windows.x64-21.3.0.0.0.zip" --output %path_oracle_zip%
+  powershell wget -Certificate %ca_cert% -Uri %oracle_instance_url% -O %path_oracle_zip%
 )
 if errorlevel 1 (
-  echo %esc%[41m Error on Curl  Check network connection or use latest Win10 ^>1803 %esc%[0m
-  pause
+  echo %esc%[41m Error on Wget Check network connection or use latest Win10 ^>1803 %esc%[0m
+  echo 210 > %stage_status%
+  exit /b
 )
 
 echo unzip oracle instance
@@ -304,13 +395,24 @@ GOTO CHECK_EXIST
   :: Product Judge File dn or oss
   set file_prod=requirements\prod.txt
   set file_oss_prod=requirements\oss_prod.txt
-  set path_R=..\R-Portable
-  set ca_cert=..\cacert.pem
-  set path_python=..\python_embedded_39
-  set path_getpip=..\get-pip.py
-  set path_oracle=..\Oracle-Portable
-  set path_python_zip=..\python_embedded_39.zip
-  set path_oracle_zip=..\Oracle-Portable.zip
+  set path_R=%cd%\..\R-Portable
+  set ca_cert=%cd%\..\cacert.pem
+  set path_python=%cd%\..\python_embedded_39
+  set env_path=%cd%\..\env
+  set path_getpip=%cd%\..\get-pip.py
+  set path_oracle=%cd%\..\Oracle-Portable
+  set path_python_zip=%cd%\..\python_embedded_39.zip
+  set path_oracle_zip=%cd%\..\Oracle-Portable.zip
+  set lib_path=%path_oracle%\instantclient_21_3;%env_path%\Scripts;%env_path%\Lib;%SystemRoot%\System32;
+  :: Startup Error log file
+  set stage_status=stage_status.log
+  set is_venv_activated=0
+
+  : links
+  set ca_cert_url="https://curl.se/ca/cacert-2023-08-22.pem"
+  set python39_url="https://www.python.org/ftp/python/3.9.0/python-3.9.0-embed-amd64.zip"
+  set get_pip_url="https://bootstrap.pypa.io/get-pip.py"
+  set oracle_instance_url="https://download.oracle.com/otn_software/nt/instantclient/213000/instantclient-basic-windows.x64-21.3.0.0.0.zip"
 
   : Definition
   set error=0
@@ -354,17 +456,19 @@ exit /b
     echo %esc%[41m Warning: Bad Port Number %esc%[0m
     echo Only integers are allowed for port number
     echo Current Value: %1
+    echo 101 > %stage_status%
     exit /b
   ) else (
     set valid_port = 1
   )
 
-  : chack Range
+  : check Range
   if %var% geq 6000 if %var% lss 8000 if %var% neq 7070 set valid_port=2
   if %valid_port% neq 2 (
     echo %esc%[41m Warning Bad Port Number %esc%[0m
     echo Change Port Number from 6000 to 7999
     echo Current Value: %1
+    echo 101 > %stage_status%
     exit /b
   )
 exit /b
@@ -379,7 +483,7 @@ exit /b
   set basic_port=null
   set basic_proxy=null
   set basic_config=ap\config\basic_config.yml
-  if not exist %basic_config% set basic_config=histview2\config\basic_config.yml
+  if not exist %basic_config% set basic_config=ap\config\basic_config.yml
   for /F "tokens=2,3,4 delims=: " %%i in (%basic_config%) do (
     if %%i==version set basic_ver=%%j
     if %%i==port-no set basic_port=%%j
@@ -428,7 +532,7 @@ exit /b
   :: check format ip
   call :removeChar %chr_number%
   if %var% == ...: set /a valid_proxy=0x04
-  :: eheck format domain name
+  :: check format domain name
   call :convertCaseLower
   call :removeChar %chr_alphab%
   call :removeChar . -
@@ -438,6 +542,7 @@ exit /b
     echo %esc%[41m Warning Proxy Address/Domain Name %esc%[0m
     echo Modify %target_type% Proxy Address/Domain Name
     echo Current Value: %1  valid_proxy=%valid_proxy%
+    echo 102 > %stage_status%
     exit /b
   )
 
@@ -483,5 +588,12 @@ setlocal
   echo   - update_R: %update_R% >> %filename%
 
 endlocal
+exit /b
+:end
+
+:stopLoadingApp
+for /f "usebackq tokens=2" %%a in (`tasklist /FO list /FI "imagename eq start.exe" ^| find /i "PID:"`) do (
+  taskkill /F /pid %%a >nul 2>&1
+)
 exit /b
 :end

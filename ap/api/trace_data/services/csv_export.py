@@ -1,6 +1,5 @@
 import copy
 import json
-from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -14,25 +13,31 @@ from ap.api.categorical_plot.services import (
     gen_graph_param,
     produce_cyclic_terms,
 )
+from ap.api.common.services.show_graph_services import get_data_from_db
 from ap.api.heatmap.services import gen_heatmap_data_as_dict, gen_sub_df_from_heatmap
-from ap.api.trace_data.services.time_series_chart import (
-    filter_df,
-    get_data_from_db,
-    get_procs_in_dic_param,
-)
 from ap.common.common_utils import DATE_FORMAT_STR, DATE_FORMAT_STR_CSV, gen_sql_label
-from ap.common.constants import *
+from ap.common.constants import (
+    CLIENT_TIMEZONE,
+    COMMON,
+    COMPARE_TYPE,
+    DIC_CAT_FILTERS,
+    END_DATE,
+    END_DT,
+    END_TM,
+    EXPORT_FROM,
+    EXPORT_TERM_FROM,
+    RL_DIRECT_TERM,
+    SELECTED,
+    START_DATE,
+    START_DT,
+    START_TM,
+)
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
-from ap.common.services.form_env import bind_dic_param_to_class
-from ap.setting_module.models import CfgProcess
 from ap.trace_data.schemas import DicParam
 
 
 @log_execution_time()
-def gen_csv_data(
-    dic_param, delimiter=None, with_terms=False, by_cells=False
-):  # get the most cover flows
+def gen_csv_data(graph_param, dic_param, delimiter=None, with_terms=False, by_cells=False):
     """tracing data to show csv
     1 start point x n end point
     filter by condition points that between start point and end_point
@@ -49,26 +54,35 @@ def gen_csv_data(
 
     dic_param = split_graph_params(dic_param)
 
-    graph_param, dic_proc_cfgs, client_timezone = make_graph_param(dic_param)
+    graph_param, client_timezone = make_graph_param(graph_param, dic_param)
+
     if by_cells:
         # chm only
         dic_cat_filters = {}
-        graph_param, dic_proc_cfgs = gen_graph_param(dic_param, with_ct_col=True)
-        if dic_param[COMMON]['export_from'] == 'plot':
+        graph_param = gen_graph_param(graph_param, dic_param, with_ct_col=True)
+        if dic_param[COMMON][EXPORT_FROM] == 'plot':
             dic_cat_filters = (
                 json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {}))
                 if isinstance(dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str)
                 else dic_param[COMMON].get(DIC_CAT_FILTERS, {})
             )
         heatmap_data, _, _, dic_col_func, _, _, _, export_df = gen_heatmap_data_as_dict(
-            graph_param, dic_param, dic_proc_cfgs, dic_cat_filters
+            graph_param,
+            dic_param,
+            graph_param.dic_proc_cfgs,
+            dic_cat_filters,
         )
 
-        if dic_param[COMMON]['export_from'] == 'plot':
+        if dic_param[COMMON][EXPORT_FROM] == 'plot':
             if not delimiter:
                 delimiter = ','
             heatmap_zip_data, csv_list_name = gen_sub_df_from_heatmap(
-                heatmap_data, dic_param, dic_proc_cfgs, dic_col_func, delimiter, client_timezone
+                heatmap_data,
+                dic_param,
+                graph_param.dic_proc_cfgs,
+                dic_col_func,
+                delimiter,
+                client_timezone,
             )
 
             return heatmap_zip_data, csv_list_name
@@ -76,57 +90,63 @@ def gen_csv_data(
         if delimiter:
             csv_data = to_csv(
                 export_df,
-                dic_proc_cfgs,
                 graph_param,
                 delimiter=delimiter,
                 client_timezone=client_timezone,
                 terms=terms,
             )
         else:
-            csv_data = to_csv(
-                export_df, dic_proc_cfgs, graph_param, client_timezone=client_timezone, terms=terms
-            )
+            csv_data = to_csv(export_df, graph_param, client_timezone=client_timezone, terms=terms)
         return csv_data, None
+    else:
+        df = gen_df_export(graph_param, dic_param)
+        # client_timezone = tz.gettz(client_timezone or None) or tz.tzlocal()
+
+        if delimiter:
+            csv_data = to_csv(
+                df,
+                graph_param,
+                delimiter=delimiter,
+                client_timezone=client_timezone,
+                terms=terms,
+            )
+        else:
+            csv_data = to_csv(df, graph_param, client_timezone=client_timezone, terms=terms)
+
+        return csv_data
+
+
+@log_execution_time()
+def gen_df_export(graph_param, dic_param):
+    """
+        get data from db to export csv/tsv
+    :param graph_param:
+    :param dic_param:
+    :return: df
+    """
 
     # if export_type = plot -> use filter
     dic_cat_filters = {}
-    if dic_param[COMMON]['export_from'] == 'plot':
+    if dic_param[COMMON][EXPORT_FROM] == 'plot':
         dic_cat_filters = (
             json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {}))
             if isinstance(dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str)
             else dic_param[COMMON].get(DIC_CAT_FILTERS, {})
         )
 
-        # get data from database
+    # get data from database
     df, *_ = get_data_from_db(graph_param, dic_cat_filters)
-    # client_timezone = tz.gettz(client_timezone or None) or tz.tzlocal()
 
-    if delimiter:
-        csv_data = to_csv(
-            df,
-            dic_proc_cfgs,
-            graph_param,
-            delimiter=delimiter,
-            client_timezone=client_timezone,
-            terms=terms,
-        )
-    else:
-        csv_data = to_csv(
-            df, dic_proc_cfgs, graph_param, client_timezone=client_timezone, terms=terms
-        )
-
-    return csv_data
+    return df
 
 
-def make_graph_param(dic_param):
-    graph_param = bind_dic_param_to_class(dic_param)
-
-    dic_proc_cfgs = get_procs_in_dic_param(graph_param)
+def make_graph_param(graph_param: DicParam, dic_param):
+    graph_param.common.start_date = dic_param[COMMON][START_DATE]
+    graph_param.common.start_time = dic_param[COMMON][START_TM]
+    graph_param.common.end_date = dic_param[COMMON][END_DATE]
+    graph_param.common.end_time = dic_param[COMMON][END_TM]
 
     cat_exp_col = graph_param.common.cat_exp
-    # add start proc
-    # graph_param.add_start_proc_to_array_formval()
-
     # add category
     if cat_exp_col:
         graph_param.add_cat_exp_to_array_formval()
@@ -135,23 +155,24 @@ def make_graph_param(dic_param):
 
     # add color, cat_div for scp
     graph_param.add_column_to_array_formval(
-        [col for col in [graph_param.common.color_var, graph_param.common.div_by_cat] if col]
+        [col for col in [graph_param.common.color_var, graph_param.common.div_by_cat] if col],
     )
+    graph_param.add_ng_condition_to_array_formval()
 
     # get serials + date
     for proc in graph_param.array_formval:
-        proc_cfg = dic_proc_cfgs[proc.proc_id]
+        cfg_proc = graph_param.dic_proc_cfgs[proc.proc_id]
 
-        get_date = proc_cfg.get_date_col(column_name_only=False).id
+        get_date = cfg_proc.get_date_col(column_name_only=False).id
         proc.add_cols(get_date, append_first=True)
 
-        serial_ids = [serial.id for serial in proc_cfg.get_serials(column_name_only=False)]
+        serial_ids = [serial.id for serial in cfg_proc.get_serials(column_name_only=False)]
         proc.add_cols(serial_ids, append_first=True)
 
     client_timezone = dic_param[COMMON].get(CLIENT_TIMEZONE)
     client_timezone = pytz.timezone(client_timezone) if client_timezone else tz.tzlocal()
 
-    return graph_param, dic_proc_cfgs, client_timezone
+    return graph_param, client_timezone
 
 
 def gen_export_col_name(proc_name, col_name):
@@ -161,7 +182,6 @@ def gen_export_col_name(proc_name, col_name):
 @log_execution_time()
 def to_csv(
     df: DataFrame,
-    dic_proc_cfgs: Dict[int, CfgProcess],
     graph_param: DicParam,
     delimiter=None,
     client_timezone=None,
@@ -177,7 +197,7 @@ def to_csv(
     suffix = '...'
     dic_rename = {}
     for proc in graph_param.array_formval:
-        proc_cfg = dic_proc_cfgs[proc.proc_id] if proc.proc_id in dic_proc_cfgs else None
+        proc_cfg = graph_param.dic_proc_cfgs[proc.proc_id] if proc.proc_id in graph_param.dic_proc_cfgs else None
         if not proc_cfg:
             continue
 
@@ -198,17 +218,18 @@ def to_csv(
                     idx += 1
                 new_headers.append(new_name)
 
-            if emd_type:
-                new_name = new_name + '|Emd|{}'.format(emd_type)
             dic_rename[old_name] = new_name
+
+    if SELECTED in df:
+        dic_rename[SELECTED] = SELECTED
 
     # get only output columns
     if emd_type:
-        if 'From' in df.columns:
+        if EXPORT_TERM_FROM in df.columns:
             # keep From, TO in term of RLP export
-            output_cols = ['From', 'To'] + list(dic_rename.keys())
+            output_cols = df.columns.to_list()
         if div_col:
-            output_cols = [div_col] + list(dic_rename.keys())
+            output_cols = [div_col] + df.columns.to_list()
         df_csv = df[output_cols]
     else:
         df_csv = df[dic_rename]
@@ -222,7 +243,7 @@ def to_csv(
         start_ct_col = None
         start_proc_term_from = None
         start_proc_term_to = None
-        for proc_cfg in dic_proc_cfgs.values():
+        for proc_cfg in graph_param.dic_proc_cfgs.values():
             get_date_col = proc_cfg.get_date_col(column_name_only=False)
             get_date_name_in_df = gen_export_col_name(proc_cfg.shown_name, get_date_col.shown_name)
             get_dates.append(get_date_name_in_df)
@@ -252,24 +273,9 @@ def to_csv(
     return df_csv.to_csv(output_path, sep=delimiter, index=False)
 
 
-def sql_label_short(headers, length=10):
-    new_headers = []
-    suffix = '...'
-    for header in headers:
-        new_header = header[: length - len(suffix)] + suffix if len(header) > length else header
-
-        idx = 1
-        while new_header in new_headers:
-            new_header = f'{new_header[:-3]}({idx})'
-            idx += 1
-
-        new_headers.append(new_header)
-    return new_headers
-
-
 def find_term(value, terms, is_from):
     for term in terms:
-        if term[START_DT] <= value and value <= term[END_DT]:
+        if term[START_DT] <= value <= term[END_DT]:
             return term[START_DT] if is_from else term[END_DT]
     return value
 

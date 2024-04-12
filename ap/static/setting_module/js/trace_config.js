@@ -592,7 +592,7 @@ const initVisData = (processesArray) => {
         const procCopy = { ...processesArray[key] };
         procCopy.master = procCopy.shown_name;
         procCopy.font = { multi: 'html' };
-       procCopy.label = `${procCopy.shown_name}`;
+        procCopy.label = `${procCopy.shown_name}`;
         nodes.add(procCopy);
 
         const trace = procCopy.traces;
@@ -939,7 +939,7 @@ const syncVisData = (procs = []) => {
 const updateProcessEditModal = (procs = []) => {
     tracingElements.edgeBackProc.empty();
     procs.map((proc) => {
-       const option = new Option(proc.shown_name, proc.id, false, false);
+        const option = new Option(proc.shown_name, proc.id, false, false);
         if (proc.name_en) {
             option.setAttribute('title', proc.name_en);
         }
@@ -948,7 +948,7 @@ const updateProcessEditModal = (procs = []) => {
 
     tracingElements.edgeForwardProc.empty();
     procs.map((proc) => {
-         const option = new Option(proc.shown_name, proc.id, false, false);
+        const option = new Option(proc.shown_name, proc.id, false, false);
         if (proc.name_en) {
             option.setAttribute('title', proc.name_en);
         }
@@ -969,22 +969,36 @@ const reloadTraceConfigFromDB = (isUpdatePosition = true) => {
             // update new data
             const { procs } = JSON.parse(json.trace_config);
 
-            // redraw vis network
-            syncVisData(procs);
-
-            // update process list in modal edit
-            updateProcessEditModal(procs);
-
-            // calculate proc link count
-            setTimeout(() => {
-                realProcLink(isUpdatePosition);
-            }, 500);
-            treeCheckboxJs();
+            // broadcast to another tabs to update process information
+            bc.postMessage({
+                type: serverSentEventType.reloadTraceConfig,
+                data: { procs, isUpdatePosition },
+            });
+            doReloadTraceConfig(procs, isUpdatePosition);
         })
         .catch((e) => {
             console.log(e);
         });
 };
+
+/**
+ * Do reload trace configuration and process nodes
+ * @param {object} procs - dictionary that contains process information
+ * @param {boolean} isUpdatePosition - is do update position of processes
+ */
+function doReloadTraceConfig(procs, isUpdatePosition) {
+    // redraw vis network
+    syncVisData(procs);
+
+    // update process list in modal edit
+    updateProcessEditModal(procs);
+
+    // calculate proc link count
+    setTimeout(() => {
+        realProcLink(isUpdatePosition);
+    }, 500);
+    treeCheckboxJs();
+}
 
 const removeRelation = (colId) => {
     $(`#${colId}`).remove();

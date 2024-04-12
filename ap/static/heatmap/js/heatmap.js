@@ -6,6 +6,7 @@
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 18;
 const MAX_NUMBER_OF_SENSOR = 18;
+const MIN_NUMBER_OF_SENSOR = 0;
 tabID = null;
 let currentData = null;
 const graphStore = new GraphStore();
@@ -80,6 +81,7 @@ const formElements = {
     traceTimeOptions: $('input:radio[name="traceTime"]'),
     endProcItems: '#end-proc-row .end-proc',
     endProcSelectedItem: '#end-proc-row select',
+    condProcSelectedItem: '#cond-proc-row select',
     condProcReg: /cond_proc/g,
     i18nAllSelection: $('#i18nAllSelection').text(),
     i18nNoFilter: $('#i18nNoFilter').text(),
@@ -130,6 +132,9 @@ $(() => {
     const loading = $('.loading');
     loading.addClass('hide');
 
+    // remove week btn data finder
+    $('#dataFinderWeekBtn').remove();
+
     initializeDateTime();
 
     const endProcs = genProcessDropdownData(procConfigs);
@@ -140,6 +145,7 @@ $(() => {
         showStrColumn: true,
         showCatExp: true,
         isRequired: true,
+        showFilter: true,
     });
     endProcItem(endProcOnChange, checkAndHideStratifiedVar);
 
@@ -156,7 +162,6 @@ $(() => {
     // click even of end proc add button
     $('#btn-add-end-proc').click(() => {
         endProcItem(endProcOnChange, checkAndHideStratifiedVar);
-        updateSelectedItems();
         checkAndHideStratifiedVar();
         addAttributeToElement();
     });
@@ -286,65 +291,6 @@ const checkAndHideStratifiedVar = () => {
 
 const getFirstProcElement = () => $(eles.endProcSelectedItem).first();
 
-
-const cardRemovalByClickHeatMap = () => {
-    $('.close-icon').on('click', (e) => {
-        const card = $(e.currentTarget).closest('.card');
-        if (!card.parent().length) return;
-        const cardId = `${card.parent().get(0).id}`;
-
-        if (cardId.endsWith(eles.endProcRow)) {
-            if (card && card.parent().find('.card').length > 1) {
-                card.fadeOut();
-                card.remove();
-                setTimeout(() => {
-                    updateSelectedItems();
-                }, 100);
-            }
-        }
-        updateSelectedItems();
-        checkAndHideStratifiedVar();
-    });
-};
-
-
-// add condition proc
-const addStratifiedVarBox = (values, displayNames) => {
-    let id = 1;
-    let count = 0;
-
-    const addHtmlItem = () => {
-        if (count >= 2) {
-            return;
-        }
-        const itemList = [];
-        for (let i = 0; i < values.length; i++) {
-            const itemVal = values[i];
-            const itemName = displayNames[i];
-            itemList.push(`<option value="${itemVal}">${itemName}</option>`);
-        }
-        const selectId = `${eles.categoryVariableSelect}${id}`;
-        const proc = `<div class="col-lg-6 col-sm-12 col-12 card cond-proc table-bordered py-sm-4">
-                        <div id="${eles.condProcProcessDiv}${id}" name="${eles.condProcProcessDiv}">
-                            <select name="${eles.categoryVariableName}${id}"
-                                class="form-control select2-selection--single SVColumns"
-                                id="${selectId}" data-load-level="2">
-                                ${itemList.join(' ')}
-                            </select>
-                        </div>
-                        <div id="${eles.condMachinePartnoDiv}${id}">
-                        </div>
-                     </div>`;
-        $('#category-cond-proc-row div').last().before(proc);
-
-        id++;
-        count++;
-    };
-    return {
-        addHtmlItem,
-    };
-};
-
 const showHeatMap = (clearOnFlyFilter = true) => {
     requestStartedAt = performance.now();
     const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
@@ -444,8 +390,6 @@ const queryDataAndShowHeatMap = (clearOnFlyFilter = true, autoUpdate = false) =>
         // show info table
         showInfoTable(res);
 
-        loadGraphSetings(clearOnFlyFilter);
-
         checkAndShowToastr(res, clearOnFlyFilter);
 
         setPollingData(formData, queryDataAndShowHeatMap, [false, true]);
@@ -470,6 +414,23 @@ const sortArrayFormVal = (res) => {
     if (latestSortColIds && latestSortColIds.length) {
         res.ARRAY_FORMVAL = sortGraphs(res.ARRAY_FORMVAL, 'GET02_VALS_SELECT', latestSortColIds);
         res.array_plotdata = sortGraphs(res.array_plotdata, 'end_col', latestSortColIds);
+    }
+
+    // if has facet and facet > 1 and sensor > 1 break row
+    const sensors = [];
+    let unitFacet = [];
+    for (const plotdata of res.array_plotdata) {
+        if (!sensors.includes(plotdata.end_col)) {
+            sensors.push(plotdata.end_col)
+        }
+        if (plotdata.cate_value && !unitFacet.includes(plotdata.cate_value)) {
+            unitFacet.push(plotdata.cate_value)
+        }
+    }
+    res.row = 1; // default 1 row
+    res.sensors = sensors;
+    if (unitFacet.length > 1 && sensors.length > 1) {
+        res.row = sensors.length;
     }
 
     return res;
@@ -539,18 +500,21 @@ const drawHeatMapFromPlotData = (canvasId, plotData) => {
     createHeatMap(prop);
 };
 
-const createRowHTML = (length) => {
+const createRowHTML = (rowIdx, length) => {
     const lenClass = length <= 4 ? 'custom-height' : '';
-    const graphDiv = `<div id="plot-card-row" class="row no-gutters chm-row ui-sortable ${lenClass}"></div>`;
+    const rowCardId = `plot-card-row-${rowIdx}`;
+    const graphDiv = `<div id="${rowCardId}" class="row no-gutters chm-row ui-sortable ${lenClass}"></div>`;
     formElements.plotCard.append(graphDiv);
 
     // drag & drop for tables
     $('.ui-sortable').sortable({});
+
+    return rowCardId;
 };
 
-const createCardHTML = (graphId, title, facet, isCTCol) => {
+const createCardHTML = (rowCardId, graphId, title, facet, isCTCol) => {
     const CTLabel = isCTCol ? ` (${DataTypes.DATETIME.short}) [sec]` : ''
-    $('#plot-card-row').append(`
+    $(`#${rowCardId}`).append(`
         <div class="col-xl-4 col-lg-6 col-sm-6 col-12" style="padding: 4px">
             <div class="chm-col d-flex dark-bg">
                 <div class="chm-card-title-parent">
@@ -624,21 +588,19 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
     };
 
     const buildGraphTitle = (plotData, procId) => {
-        const cfgProcess = procConfigs[parseInt(procId)] || procConfigs[procId];
-        const sensorId = plotData.end_col;
-        const column = cfgProcess.getColumnById(sensorId);
-        const sensorName = column.shown_name || sensorId;
-        const isCTCol = column.data_type === DataTypes.DATETIME.name;
+        const { end_proc_name } = plotData;
+        const sensorName = plotData.end_col_show_name;
+        const isCTCol = plotData.data_type === DataTypes.DATETIME.name;
 
         const cateValue = plotData.cate_value;
         let facetTitle = '';
-        let title = `${cfgProcess.shown_name}: ${sensorName}`;
+        let title = `${end_proc_name}: ${sensorName}`;
         if (!isEmpty(cateValue)) {
             facetTitle = cateValue;
             if (Array.isArray(cateValue)) {
                 facetTitle = cateValue.length > 1 ? `${cateValue[0]} | ${cateValue[1]}` : cateValue[0];
             }
-            title = `${cfgProcess.shown_name}-${sensorName}`;
+            title = `${end_proc_name}-${sensorName}`;
         }
         return [title, sensorName, cateValue, facetTitle, isCTCol];
     };
@@ -648,24 +610,29 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
         setCommonScale(data, minZ, maxZ);
     }
 
-    createRowHTML(arrayPlotData.length);
-    for (const plotIdx in arrayPlotData) {
-        const plotData = arrayPlotData[plotIdx]
-        const procId = plotData.proc_id;
-        const [title, sensorName, cardValue, facet, isCTCol] = buildGraphTitle(plotData, procId);
-        plotData.sensorName = sensorName;
-        plotData.title = title;
-        plotData.cardValue = cardValue;
+    for (let rowIdx = 0; rowIdx < orgData.row; rowIdx++) {
+        const rowCardId = createRowHTML(rowIdx, arrayPlotData.length);
+        for (const plotIdx in arrayPlotData) {
 
-        createCardHTML(plotIdx, title, facet, isCTCol);
+            const plotData = arrayPlotData[plotIdx]
+            if (orgData.row > 1 && orgData.sensors[rowIdx] !== plotData.end_col) {
+                continue;
+            }
+            const procId = plotData.proc_id;
+            const [title, sensorName, cardValue, facet, isCTCol] = buildGraphTitle(plotData, procId);
+            plotData.sensorName = sensorName;
+            plotData.title = title;
+            plotData.cardValue = cardValue;
 
-        // draw heat map
-        const plotContainerId = `chm_${plotIdx}`;
-        drawHeatMapFromPlotData(plotContainerId, plotData, plotIdx);
+            createCardHTML(rowCardId, `${rowIdx}_${plotIdx}`, title, facet, isCTCol);
 
-        // coloring
-        colorGraph(plotContainerId,procId);
+            // draw heat map
+            const plotContainerId = `chm_${rowIdx}_${plotIdx}`;
+            drawHeatMapFromPlotData(plotContainerId, plotData);
 
+            // coloring
+            colorGraph(plotContainerId, procId);
+        }
     }
 
     if (!autoUpdate) {
@@ -741,7 +708,7 @@ const endProcOnChange = (async (event) => {
         );
     }
     
-    updateSelectedItems();
+    updateSelectedItems(false, $(formElements.endProcSelectedItem));
     
     getStratifiedVars(selectedEndProc).then(() => {
         $(eles.sVColumns).unbind('change');

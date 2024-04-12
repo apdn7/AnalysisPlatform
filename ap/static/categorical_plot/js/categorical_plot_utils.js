@@ -6,7 +6,6 @@ const cyclicEles = {
     datetimeRange: $('#i18nDatetimeRange').text(),
     timestamp: $('#i18nTimestamp').text(),
     windowLength: $('#i18nWindowLength').text(),
-    windowLengthHover: $('#i18nWindowLengthHover').text(),
     numRL: $('#i18nNumRL').text(),
     numRLHover: $('#i18nNumRLHover').text(),
     interval: $('#i18nInterval').text(),
@@ -46,7 +45,7 @@ const addLimitNumSensors = () => {
 
 
 // generate HTML for tabs
-const generateTabHTML = (eleIdPrefix, arrayFormVal, sensors, showViewer = false) => {
+const generateTabHTML = (eleIdPrefix, data, sensors, showViewer = false) => {
     const genNavItemHTML = (tabId, sensorMasterName, status = '', sensorID = null) => `<li class="nav-item ${status}">
             <a href="#${tabId}" class="nav-link ${status} tab-name" role="tab" data-toggle="tab" data-sensor-id="${sensorID}" data-original-title="${sensorMasterName}"
                 >${sensorMasterName}</a>
@@ -61,12 +60,12 @@ const generateTabHTML = (eleIdPrefix, arrayFormVal, sensors, showViewer = false)
 
     const navItemHTMLs = [];
     const tabContentHTMLs = [];
-    for (let sensorIdx = 0; sensorIdx < sensors.length; sensorIdx++) {
+    const existPlotData = !_.isEmpty(data.array_plotdata);
+    for (let sensorIdx = 0; existPlotData && sensorIdx < sensors.length; sensorIdx++) {
+        const sensorPlotDatas = eleIdPrefix !== 'directTerm' ? data.array_plotdata[sensors[sensorIdx]]
+            : data.array_plotdata.filter(plot => plot.end_col === Number(sensors[sensorIdx]));
         // カラム名を取得する。
-        const endProc = getEndProcFromFormVal(sensors[sensorIdx], arrayFormVal);
-        const sensorName = getColumnName(endProc, sensors[sensorIdx]);
-
-        const sensorMasterName = getNode(procConfigs, [endProc, 'value_master', sensorName], sensorName) || sensorName;
+        const sensorMasterName = sensorPlotDatas[0].end_col_name;
 
         let status = '';
         if (sensorIdx === 0) {
@@ -99,8 +98,8 @@ const generateTabHTML = (eleIdPrefix, arrayFormVal, sensors, showViewer = false)
     return stratifiedVarTabHTML;
 };
 
-const showResultTabHTMLs = (eleIdPrefix, arrayFormVal, sensors, showViewer = false) => {
-    const tabHTMLs = generateTabHTML(eleIdPrefix, arrayFormVal, sensors, showViewer);
+const showResultTabHTMLs = (eleIdPrefix, data, sensors, showViewer = false) => {
+    const tabHTMLs = generateTabHTML(eleIdPrefix, data, sensors, showViewer);
     const parentEle = `#${eles.categoryPlotCards}`;
 
     $(parentEle).html();

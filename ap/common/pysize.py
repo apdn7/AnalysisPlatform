@@ -23,7 +23,7 @@ def get_size(obj, seen=None):
                     break
         if isinstance(obj, dict):
             size += sum((get_size(v, seen) for v in obj.values()))
-            size += sum((get_size(k, seen) for k in obj.keys()))
+            size += sum((get_size(k, seen) for k in obj))
         elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
             size += sum((get_size(i, seen) for i in obj))
 
@@ -31,5 +31,5 @@ def get_size(obj, seen=None):
             size += sum(get_size(getattr(obj, s), seen) for s in obj.__slots__ if hasattr(obj, s))
 
         return size
-    except:
+    except Exception:
         return 0

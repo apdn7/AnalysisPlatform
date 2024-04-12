@@ -4,7 +4,7 @@ from functools import wraps
 
 from flask import g
 
-from ap.common.constants import AppEnv, FlaskGKey
+from ap.common.constants import ANALYSIS_INTERFACE_ENV, AppEnv, FlaskGKey
 
 api_request_threads = []
 
@@ -40,7 +40,7 @@ def request_timeout_handling(max_timeout=10):
         def wrapper(*args, **kwargs):
             result = fn(*args, **kwargs)
 
-            current_env = os.environ.get('ANALYSIS_INTERFACE_ENV', AppEnv.PRODUCTION.value)
+            current_env = os.environ.get(ANALYSIS_INTERFACE_ENV, AppEnv.PRODUCTION.value)
             if current_env == AppEnv.PRODUCTION.value:
                 start_func_time = time.time()
                 request_start_time = getattr(g, 'request_start_time', None)

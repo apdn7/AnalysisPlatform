@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import 'macros.html' as macros %}
 
 {% block asset %}
     <script>
@@ -22,7 +21,7 @@
 
 {% block midbody %}
     <div class="card">
-        <form id="traceDataForm" onSubmit="return false;">
+        <form class="GUIForm" id="traceDataForm" onSubmit="return false;">
             {{ macros.end_proc(procs,'', traceData=true, title=_('Enter target item of data (quantitative variable like measurement value) to be plotted on the graph. Select the process and item you want to plot on the graph.')) }}
             {{ macros.data_finder_card() }}
             {{ macros.start_proc(procs,'', traceData=true, showDataFinder=True) }}
@@ -94,7 +93,7 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="histogramsTab">
-                <div class="justify-content-center card cate-plot-cards chart-wrapper clearfix chart-margin ui-sortable" id="hist-cards"></div>
+
             </div>
         </div>
     </div>

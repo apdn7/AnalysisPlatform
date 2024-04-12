@@ -2,11 +2,10 @@ import queue
 from datetime import datetime
 from enum import Enum, auto
 from functools import wraps
-from types import GeneratorType
 
-from ap import json_dumps, logger
-from ap.common.constants import LISTEN_BACKGROUND_TIMEOUT
-from ap.common.logger import log_exec_time_inside_func
+from ap import dic_config, json_dumps, logger
+from ap.common.common_utils import get_multiprocess_queue_file, read_pickle_file
+from ap.common.constants import LISTEN_BACKGROUND_TIMEOUT, MAIN_THREAD, ListenNotifyType
 
 
 class AnnounceEvent(Enum):
@@ -25,28 +24,32 @@ class MessageAnnouncer:
 
     def __init__(self):
         self.dic_listeners = {}
+        self.dic_progress = None
 
-    def add_uuid(self, uuid: str, main_tab_uuid: str):
-        if uuid not in self.dic_listeners:
-            self.dic_listeners[uuid] = [None, None, {}, queue.Queue(maxsize=100)]
+    def init_stream_sse(self, uuid: str, main_tab_uuid: str):
+        try:
+            if uuid not in self.dic_listeners:
+                self.dic_listeners[uuid] = [None, None, {}, queue.Queue(maxsize=100)]
 
-        self.dic_listeners[uuid][0] = datetime.utcnow()
+            self.dic_listeners[uuid][0] = datetime.utcnow()
 
-        # if self.dic_listeners[uuid][1] and False:  # TODO: EdgeServer faced auto disconnect sse issue
-        if (
-            'main_tab_uuid' in self.dic_listeners[uuid][2]
-            and self.dic_listeners[uuid][2]['main_tab_uuid'] != main_tab_uuid
-        ):
-            try:
-                self.dic_listeners[uuid][1].close()
-            except ValueError:
-                # In case cannot close normally, add flag to generator will be break automatically later
-                self.dic_listeners[uuid][2]['is_close'] = True
+            if self.dic_listeners[uuid][1] is not None:
+                try:
+                    # In case cannot close normally, add flag to generator will be break automatically later
+                    self.dic_listeners[uuid][2]['is_close'] = True
+                    self.dic_listeners[uuid][2]['new_main_tab_uuid'] = main_tab_uuid
+                    self.dic_listeners[uuid][1].close()
+                except ValueError:
+                    pass
 
-            self.dic_listeners[uuid][2] = {}  # reset flag for new stream sse
+                self.dic_listeners[uuid][2] = {}  # reset flag for new stream sse
 
-        self.dic_listeners[uuid][2]['main_tab_uuid'] = main_tab_uuid
-        self.dic_listeners[uuid][1] = stream_sse(uuid, self.dic_listeners[uuid][2])
+            self.dic_listeners[uuid][2]['main_tab_uuid'] = main_tab_uuid
+            self.dic_listeners[uuid][1] = self._stream_sse(uuid, self.dic_listeners[uuid][2])
+
+            return self.dic_listeners[uuid][1]
+        except KeyError:  # in case key was deleted, re-init key
+            return self.init_stream_sse(uuid, main_tab_uuid)
 
     def remove_uuid(self, uuid: str, main_tab_uuid: str):
         if self.is_exist(uuid, main_tab_uuid):
@@ -61,9 +64,9 @@ class MessageAnnouncer:
         *_, listener = self._get_item(uuid)
         return listener
 
-    def get_stream_see(self, uuid: str) -> GeneratorType:
-        _, stream_sse_func, *_ = self._get_item(uuid)
-        return stream_sse_func
+    # def get_stream_see(self, uuid: str) -> GeneratorType:
+    #     _, stream_sse_func, *_ = self._get_item(uuid)
+    #     return stream_sse_func
 
     def get_start_date(self, uuid: str) -> datetime:
         start_date, *_ = self._get_item(uuid)
@@ -73,10 +76,7 @@ class MessageAnnouncer:
         if main_tab_uuid is None:
             return uuid in self.dic_listeners
         else:
-            return (
-                uuid in self.dic_listeners
-                and self.dic_listeners[uuid][2].get('main_tab_uuid') == main_tab_uuid
-            )
+            return uuid in self.dic_listeners and self.dic_listeners[uuid][2].get('main_tab_uuid') == main_tab_uuid
 
     @staticmethod
     def format_sse(data, event=None) -> str:
@@ -92,6 +92,14 @@ class MessageAnnouncer:
         return msg
 
     def announce(self, data, event):
+        if not dic_config[MAIN_THREAD]:
+            if self.dic_progress is None:
+                process_queue = read_pickle_file(get_multiprocess_queue_file())
+                self.dic_progress = process_queue[ListenNotifyType.JOB_PROGRESS.name]
+
+            self.dic_progress[event] = (data, event)
+            return
+
         # We go in reverse order because we might have to delete an element, which will shift the
         # indices backward
         msg = self.format_sse(data, event)
@@ -113,55 +121,58 @@ class MessageAnnouncer:
                     del self.dic_listeners[uuid]
                     logger.debug(f'[SSE]: [{uuid}] Clear queue')
 
+    @staticmethod
+    def _stream_sse(uuid: str, break_dic: dict):
+        messages = background_announcer.listen(uuid)
+        ping_msg = background_announcer.format_sse(None, event='ping')
+        timeout_msg = background_announcer.format_sse(None, event='timeout')
+        close_old_sse_msg = background_announcer.format_sse(None, event='close_old_sse')
+
+        logger.debug(f'[SSE]: UUID = {uuid}; ping')
+        yield ping_msg
+
+        while True:
+            try:
+                if break_dic.get('is_close'):
+                    break
+
+                msg = messages.get(timeout=LISTEN_BACKGROUND_TIMEOUT)
+                if break_dic.get('is_close'):
+                    messages.put_nowait(msg)
+                    break
+
+                yield msg
+            except queue.Empty:
+                yield timeout_msg
+            except GeneratorExit:
+                break
+
+        current_main_tab_uuid = break_dic.get('main_tab_uuid')
+        new_main_tab_uuid = break_dic.get('new_main_tab_uuid')
+        if current_main_tab_uuid != new_main_tab_uuid:
+            background_announcer.remove_uuid(uuid, current_main_tab_uuid)
+        logger.debug(f'[SSE]: UUID = {uuid}; Main Tab UUID = {current_main_tab_uuid}; Close old stream_sse')
+        return close_old_sse_msg
+
+    @staticmethod
+    def notify_progress(percent):
+        """Decorator to notify progress"""
+
+        def decorator(fn):
+            @wraps(fn)
+            def wrapper(*args, **kwargs):
+                try:
+                    result = fn(*args, **kwargs)
+                    background_announcer.announce(percent, AnnounceEvent.SHOW_GRAPH.name)
+                except Exception as e:
+                    raise e
+
+                return result
+
+            return wrapper
+
+        return decorator
+
 
 # background job status
 background_announcer = MessageAnnouncer()
-
-
-def notify_progress(percent):
-    """Decorator to notify progress"""
-
-    def decorator(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            try:
-                result = fn(*args, **kwargs)
-                background_announcer.announce(percent, AnnounceEvent.SHOW_GRAPH.name)
-            except Exception as e:
-                raise e
-
-            return result
-
-        return wrapper
-
-    return decorator
-
-
-def stream_sse(uuid: str, break_dic: dict):
-    messages = background_announcer.listen(uuid)
-    ping_msg = background_announcer.format_sse(None, event='ping')
-    timeout_msg = background_announcer.format_sse(None, event='timeout')
-    close_old_sse_msg = background_announcer.format_sse(None, event='close_old_sse')
-
-    logger.debug(f'[SSE]: UUID = {uuid}; ping')
-    yield ping_msg
-
-    while True:
-        func_log = log_exec_time_inside_func(f'[SSE]: UUID = {uuid};', 'messages.get()', True)
-        try:
-            if break_dic.get('is_close'):
-                break
-
-            msg = messages.get(timeout=LISTEN_BACKGROUND_TIMEOUT)
-            func_log(msg)
-            yield msg
-        except queue.Empty:
-            func_log('timeout')
-            yield timeout_msg
-        except GeneratorExit as _exit:
-            break
-
-    main_tab_uuid = break_dic.get('main_tab_uuid')
-    background_announcer.remove_uuid(uuid, main_tab_uuid)
-    logger.debug(f'[SSE]: UUID = {uuid}; Main Tab UUID = {main_tab_uuid}; Close old stream_sse')
-    return close_old_sse_msg

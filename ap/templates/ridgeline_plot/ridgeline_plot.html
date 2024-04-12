@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import 'macros.html' as macros %}
 
 {% block asset %}
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,14 +10,14 @@
 
 {% block midbody %}
     <div id="categoryTab" class="card no-top-border">
-        <form id="RLPForm" class="no-top-border">
+        <form id="RLPForm" class="no-top-border GUIForm">
             <!-- Process + sensor -->
             <div class="card-body table-bordered graph-navi no-top-border">
                 <div class="row">
                     <div class="col-xl-2 col-3 d-flex flex-column">
                         <div class="d-flex justify-content-between">
                             {{ macros.label(_("Show value"), title=_('RLP Show value Hover')) }}
-                            {{ macros.paste_btn() }}
+                            {{ macros.paste_btn(with_count=True) }}
                         </div>
                         <div class="mt-auto pl-3 pt-3">
                              {{ macros.start_proc_select(procs, no_link_data=true) }}

@@ -55,8 +55,9 @@ table#jobErrorDetailTable thead tr th {
 
 .job-id,
 .job-detail,
-.job-status {
-    text-align: center;
+.job-status,
+.job-duration{
+    text-align: center!important;
 }
 
 #jobDataTable {
@@ -70,6 +71,30 @@ table#jobErrorDetailTable thead tr th {
 .bootstrap-table .fixed-table-container .fixed-table-body {
     overflow-y: unset !important;
     overflow-x: unset !important;
+}
+
+.bootstrap-table .fixed-table-container .table thead th .sortable {
+    padding-right: 10px !important;
+}
+
+.bootstrap-table .fixed-table-container .large-col {
+    width: 17% !important;
+}
+
+.bootstrap-table .fixed-table-container .minimal-col {
+    width: 5.5% !important;
+}
+
+.bootstrap-table .fixed-table-container .medium-small-col {
+    width: 11% !important;
+}
+
+.bootstrap-table .fixed-table-container .duration-col {
+    width: 8.32% !important;
+}
+
+.bootstrap-table .fixed-table-container .detail-col {
+    width: 22% !important;
 }
 
 button.dropdown-toggle{
@@ -87,4 +112,8 @@ span.btn-group.dropdown {
 
 .fixed-table-loading {
     background: #333333 !important;
+}
+
+.fixed-table-loading.table.table-bordered.table-hover {
+    background-color: #303030 !important;
 }

@@ -1,13 +1,12 @@
-from functools import lru_cache
+from collections import defaultdict
 
-from ap.common.constants import *
+from ap.common.constants import PCA_SAMPLE_DATA, DataType
 from ap.common.logger import log_execution_time
+from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.common.sigificant_digit import signify_digit_pca_vector
 from ap.setting_module.models import CfgProcess
-from ap.trace_data.models import Sensor, find_sensor_class
-
-NUM_SENSOR = 11
+from ap.trace_data.transaction_model import TransactionData
 
 
 def get_checked_cols():
@@ -20,13 +19,13 @@ def get_checked_cols():
     for proc in procs:
         checked_cols = proc.columns or []
         for col in checked_cols:
-            yield dict(
-                proc_id=proc.id,
-                proc_name=proc.name,
-                col_id=col.id,
-                col_name=col.column_name,
-                col_type=col.data_type,
-            )
+            yield {
+                'proc_id': proc.id,
+                'proc_name': proc.name,
+                'col_id': col.id,
+                'col_name': col.column_name,
+                'col_type': col.data_type,
+            }
 
 
 def filter_data(data, filter_func):
@@ -72,7 +71,7 @@ def produce_sample_value_str(sensor_vals=[], effective_length=29, max_length=32)
     :param max_length:
     :return:
     """
-    sensor_vals = list(map(lambda x: str(x), sensor_vals))
+    sensor_vals = [str(x) for x in sensor_vals]
     sensor_vals_str = ', '.join(sensor_vals)
     len_vals = len(sensor_vals_str)
     if len_vals > effective_length:
@@ -85,10 +84,7 @@ def produce_sample_value_str(sensor_vals=[], effective_length=29, max_length=32)
 
 def produce_tool_tip_data(col_name='', lst_sensor_vals=[], num_head_tail=10):
     tooltip = [{'pos': '{col}:'.format(col=col_name), 'val': ''}]
-    head = [
-        {'pos': idx + 1, 'val': sample}
-        for idx, sample in enumerate(lst_sensor_vals[0:num_head_tail])
-    ]
+    head = [{'pos': idx + 1, 'val': sample} for idx, sample in enumerate(lst_sensor_vals[0:num_head_tail])]
     tooltip.extend(head)
 
     mid = [{'pos': '.', 'val': '.'}, {'pos': '.', 'val': '.'}, {'pos': '.', 'val': '.'}]
@@ -99,10 +95,7 @@ def produce_tool_tip_data(col_name='', lst_sensor_vals=[], num_head_tail=10):
         tail_sensors = lst_sensor_vals[num_head_tail + 3 :][-num_head_tail:]
         len_tail = len(tail_sensors)
 
-        tail = [
-            {'pos': num_sample + idx - len_tail + 1, 'val': sample}
-            for idx, sample in enumerate(tail_sensors)
-        ]
+        tail = [{'pos': num_sample + idx - len_tail + 1, 'val': sample} for idx, sample in enumerate(tail_sensors)]
         tooltip.extend(tail)
 
     return tooltip
@@ -120,50 +113,48 @@ def get_sample_data(columns, limit=None):
     """
     samples = []
     count = 1
+    dic_proc_cols = defaultdict(list)
     for col in columns:
         proc_id = col.get('proc_id')
         cfg_col_id = col.get('col_id')
         cfg_col_name = col.get('col_name')
-        sensor = Sensor.get_sensor_by_col_name(proc_id, cfg_col_name)
-        if not sensor:
-            continue
+        dic_proc_cols[proc_id].append(cfg_col_id)
 
-        sensor_id = sensor.id
-        sensor_type = sensor.type
-        sensor_vals = get_sensor_first_records(
-            cfg_col_id, cfg_col_name, sensor_id, sensor_type, limit
-        )
+    with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
+        for proc_id, col_ids in dic_proc_cols.items():
+            trans_data = TransactionData(proc_id)
+            table_col_names = [col.bridge_column_name for col in trans_data.cfg_process_columns if col.id in col_ids]
+            sensor_vals = trans_data.select_data(db_instance, table_col_names, limit=1000)
 
-        signified_sensor_vals = signify_digit_pca_vector(sensor_vals, sig_dig=4)
-        sensor_vals_str = produce_sample_value_str(signified_sensor_vals[0:11])
-        col['sample'] = sensor_vals_str
+            signified_sensor_vals = signify_digit_pca_vector(sensor_vals, sig_dig=4)
+            sensor_vals_str = produce_sample_value_str(signified_sensor_vals[0:11])
+            col['sample'] = sensor_vals_str
 
-        # produce tooltip
-        col['tooltip'] = produce_tool_tip_data(
-            col_name=cfg_col_name, lst_sensor_vals=signified_sensor_vals
-        )
-        samples.append(col)
-        if count % 60 == 0:
-            background_announcer.announce(samples, AnnounceEvent.PCA_SENSOR.name)
-            samples = []
+            # produce tooltip
+            col['tooltip'] = produce_tool_tip_data(col_name=cfg_col_name, lst_sensor_vals=signified_sensor_vals)
+            samples.append(col)
+            if count % 60 == 0:
+                background_announcer.announce(samples, AnnounceEvent.PCA_SENSOR.name)
+                samples = []
 
-        if count > 3000:
-            break
-        count += 1
+            if count > PCA_SAMPLE_DATA:
+                break
+
+            count += 1
 
     if samples:
         background_announcer.announce(samples, AnnounceEvent.PCA_SENSOR.name)
 
 
-@lru_cache(2000)
-def get_sensor_first_records(cfg_col_id, cfg_col_name, sensor_id, sensor_type, limit=100):
-    data_type = DataType(sensor_type)
-    sensor_val_cls = find_sensor_class(sensor_id, data_type)
-    sensor_val = sensor_val_cls.coef(cfg_col_id)
-    sensor_vals = sensor_val_cls.get_first_records(cfg_col_name, limit=limit, coef_col=sensor_val)
-    sensor_vals = [sensor_val[0] for sensor_val in sensor_vals]
-
-    return sensor_vals
+# @lru_cache(2000)
+# def get_sensor_first_records(cfg_col_id, cfg_col_name, sensor_id, sensor_type, limit=100):
+#     data_type = DataType(sensor_type)
+#     sensor_val_cls = find_sensor_class(sensor_id, data_type)
+#     sensor_val = sensor_val_cls.coef(cfg_col_id)
+#     sensor_vals = sensor_val_cls.get_first_records(cfg_col_name, limit=limit, coef_col=sensor_val)
+#     sensor_vals = [sensor_val[0] for sensor_val in sensor_vals]
+#
+#     return sensor_vals
 
 
 # def get_sensors(num_sensor=NUM_SENSOR):

@@ -33,6 +33,10 @@ const shouldChartBeRefreshed = (formData) => {
 
 const handleSourceListener = () => {
     const isAutoUpdate = shouldChartBeRefreshed(longPollingData.formData || new FormData());
+    if (isAutoUpdate) {
+        showDateTimeRangeValue();
+    }
+
     if (isAutoUpdate && longPollingData.callbackFuncName) {
         isSSEListening = true;
         longPollingData.callbackFuncName(...longPollingData.callbackParams);
@@ -46,4 +50,3 @@ const setPollingData = (formData, callbackFunc, params) => {
         callbackParams: params,
     };
 };
-

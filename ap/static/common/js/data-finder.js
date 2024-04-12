@@ -25,6 +25,9 @@ let isDataFinderShowing = false;
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const weekDays2 = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const jaWeekDays = ['月', '火', '水', '木', '金', '土', '日'];
+const enMonth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const enFullMonth = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const colorsData = ['#18324c', '#204465', '#2d5e88', '#3b7aae', '#56b0f4', '#6dc3fd'];
 const colorDic = {
     0: '#222222',
@@ -41,7 +44,7 @@ const DATE_TIME_FMT = 'YYYY-MM-DD HH:mm';
 let processId = null;
 
 const getColor = (max, count) => {
-    const per = count / max * 100
+    const per = count / max * 100;
     let newPer = per;
     if (per > 0 && per <= 15) {
         newPer = 1;
@@ -77,6 +80,19 @@ const dataFinderEls = {
     dataFinderBtn: 'button[name=dataFinderBtn]',
     startProc: 'select[name=start_proc]',
     dataFinderInputLabel: '#dataFinderInputLabel',
+    singleMonthCalendarShowYear: '#singleMonthCalendarShowYear',
+    singleMonthCalendarGoToNextYear: '#singleMonthCalendarGoToNextYear',
+    singleMonthCalendarGoToPrevYear: '#singleMonthCalendarGoToPrevYear',
+    singleMonthCalendarBody: '#singleMonthCalendarBody',
+    singleMonthCalendarThisWeek: '#singleMonthCalendarThisWeek',
+    singleDateCalendarShowYearMonth: '#singleDateCalendarShowYearMonth',
+    singleDateCalendarGoToNextMonth: '#singleDateCalendarGoToNextMonth',
+    singleDateCalendarGoToPrevMonth: '#singleDateCalendarGoToPrevMonth',
+    singleDateCalendarBody: '#singleDateCalendarBody',
+    singleDateCalendarThisDate: '#singleDateCalendarThisDate',
+    singleDateCalendar: '.single-date-calendar',
+    singleMonthCalendar: '.single-month-calendar',
+    showSingleYearCalendar: '#showSingleYearCalendar',
 };
 
 
@@ -309,30 +325,35 @@ const handleApplyYearInput = (from) => {
     }
 };
 
-const handleSetValueToDateRangePicker = () => {
+const handleSetValueToDateRangePicker = (inputVal = null, closeModal = true) => {
     // const [from, to] = getFromToInputByType(calenderTypes.week);
-    let inputVal = $(dataFinderEls.inputFromTo).val();
-    if (currentCalendarType === calenderTypes.month) {
-        // add default start time -> 00:00
-        // add default end time -> next day of 00:00
-        const d = splitDateTimeRange(inputVal)
-        const nextEndDate = moment(d.endDate).add(1, 'days').format(DATE_FMT);
-        inputVal = `${d.startDate} 00:00 ${DATETIME_PICKER_SEPARATOR} ${nextEndDate} 00:00`;
+    if (!inputVal) {
+        inputVal = $(dataFinderEls.inputFromTo).val();
+        if (currentCalendarType === calenderTypes.month) {
+            // add default start time -> 00:00
+            // add default end time -> next day of 00:00
+            const d = splitDateTimeRange(inputVal)
+            const nextEndDate = moment(d.endDate).add(1, 'days').format(DATE_FMT);
+            inputVal = `${d.startDate} 00:00 ${DATETIME_PICKER_SEPARATOR} ${nextEndDate} 00:00`;
+        }
+        if (currentCalendarType === calenderTypes.year) {
+            // add default start date time = first day of this month 00:00
+            // add default end date time = end day of this month 24:00
+            const d = splitDateTimeRange(inputVal)
+            const endDate = moment(`${d.endDate}-01`).endOf('month').format(DATE_FMT);
+            const nextEndDate = moment(endDate).add(1, 'days').format(DATE_FMT);
+            inputVal = `${d.startDate}-01 00:00 ${DATETIME_PICKER_SEPARATOR} ${nextEndDate} 00:00`
+        }
     }
-    if (currentCalendarType === calenderTypes.year) {
-        // add default start date time = first day of this month 00:00
-        // add default end date time = end day of this month 24:00
-        const d = splitDateTimeRange(inputVal)
-        const endDate = moment(`${d.endDate}-01`).endOf('month').format(DATE_FMT);
-        const nextEndDate = moment(endDate).add(1, 'days').format(DATE_FMT);
-        inputVal = `${d.startDate}-01 00:00 ${DATETIME_PICKER_SEPARATOR} ${nextEndDate} 00:00`
-    }
+
     if (!(typeof(currentDateRangeEl) == 'object')) {
         $('input[name=DATETIME_PICKER]').val(inputVal.split(` ${COMMON_CONSTANT.EN_DASH} `)[0]).trigger('change');
     } else {
         currentDateRangeEl.val(inputVal).trigger('change');
     }
-    closeCalenderModal();
+    if (closeModal) {
+        closeCalenderModal();
+    }
 };
 // handling function END
 
@@ -390,16 +411,15 @@ const createMonthTableView = (year, month, from = true) => {
         const cl = [5, 6].includes(index) ? 'inactive' : '';
         return `<th style="height: 36.5px" class="${cl}" weekday="${index}">${week}</th>`;
     }).join('');
-    const label = from ? 'From' : isCyclicTermTab ? '' : 'To';
     const table = `
         <table id="${id}">
              <thead>
                     <tr>
-                        <th>${label}</th>
+                        <th></th>
                         <th colspan="7">
                             <div class="calendar-go-to ${from ? 'from' : 'to'}-calendar-go-to">
                                 <button type="button" class="previous-month"><i class="fa fa-angle-left arrow"></i></button>
-                                <span>${year} - ${addZeroToNumber(month)}</span>
+                                <span class="showSingleCalendar" year="${year}" month="${month}" id="showSingleYearCalendar">${year} - ${addZeroToNumber(month)}</span>
                                 <button type="button" class="next-month"><i class="fa fa-angle-right arrow"></i></button>
                             </div>
                         </th>
@@ -461,6 +481,22 @@ const initMonthSelectors = (tableEl, year, month, isFrom) => {
 
         disableMonthArrowButton();
     });
+
+    tableEl.find('#showSingleYearCalendar').on('click', (e) => {
+        const _this = $(e.currentTarget);
+        const year = Number(_this.attr('year'));
+        const month = Number(_this.attr('month'));
+        generateSingleYearCalendar(year, month);
+
+        // show with this position
+        const  { clientX, clientY} = e.originalEvent;
+        $(dataFinderEls.singleMonthCalendar).css({
+            display: 'block',
+            top: `${clientY + 25}px`,
+            left: `${clientX - 45}px`,
+            zIndex: 90,
+        })
+    })
 };
 
 const generateMonthCalender = (year, month, isFrom = true, useFromInput = false) => {
@@ -470,12 +506,9 @@ const generateMonthCalender = (year, month, isFrom = true, useFromInput = false)
         setMonthFromTo(null, `${year}-${month}`);
     }
     const tableEl = createMonthTableView(year, month, isFrom);
-    const currentMonthDays = createDaysForCurrentMonth(year, month);
-    const previousMonthDays = createDaysForPreviousMonth(year, month, currentMonthDays[0]);
-    const remainingDays = 42 - (currentMonthDays.length + previousMonthDays.length);
-    const nextMonthDays = createDaysForNextMonth(year, month, remainingDays);
 
-    const days = [...previousMonthDays, ...currentMonthDays, ...nextMonthDays];
+    const days = getDaysOfMonth(year, month);
+
     let dayIndex = 0;
     const tbody = tableEl.find('tbody');
     for (let row = 1; row <= WEEKS; row += 1) {
@@ -500,6 +533,166 @@ const generateMonthCalender = (year, month, isFrom = true, useFromInput = false)
     rangeCell(calenderTypes.month);
 };
 
+
+const getDaysOfMonth = (year, month) => {
+    const currentMonthDays = createDaysForCurrentMonth(year, month);
+    const previousMonthDays = createDaysForPreviousMonth(year, month, currentMonthDays[0]);
+    const remainingDays = 42 - (currentMonthDays.length + previousMonthDays.length);
+    const nextMonthDays = createDaysForNextMonth(year, month, remainingDays);
+
+    const days = [...previousMonthDays, ...currentMonthDays, ...nextMonthDays];
+    return days;
+}
+
+
+const generateSingleMonthCalendar = (year = 2023, month = 1, startDate, endDate) => {
+    const days = getDaysOfMonth(year, month);
+    const locale = docCookies.getItem('locale') || 'en';
+    const showYearMonth = locale === 'ja' ? `${year}年${month}月` : `${enFullMonth[month - 1]} ${year}`;
+    $(dataFinderEls.singleDateCalendarShowYearMonth).text(showYearMonth);
+    $(dataFinderEls.singleDateCalendarBody).empty();
+
+    const showDayList = locale === 'ja' ? jaWeekDays : weekDays;
+    let daysHtml = showDayList.map(day => `<div class="single-date-calendar-item single-calendar-item date-title">${day}</div>`).join('');
+
+    for (const day of days) {
+        let isInThisSelectedWeek = false;
+        let firstItem = false;
+        let lastItem = false;
+        if (startDate && endDate) {
+            if (moment(day.date).isAfter(startDate) && moment(day.date).isBefore(endDate) || day.date === startDate || day.date === endDate) {
+                isInThisSelectedWeek = true;
+            }
+
+            if (day.date === startDate) {
+                firstItem = true;
+            }
+            if (day.date === endDate) {
+                lastItem = true;
+            }
+        }
+        daysHtml += `<div class="single-date-calendar-item single-calendar-item ${!day.isCurrentMonth ? 'inactive' : ''}${isInThisSelectedWeek ? ' in-week' : ''}${firstItem ? ' first-item': ''}${lastItem ? ' last-item' : ''}" data="${day.date}">${day.dayOfMonth}</div>`;
+    }
+    $(dataFinderEls.singleDateCalendarBody).append(daysHtml);
+    initGoToNextPrevMonth(year, month);
+};
+
+const initGoToNextPrevYear = (year) => {
+
+    $(dataFinderEls.singleMonthCalendarGoToNextYear).off('click');
+    $(dataFinderEls.singleMonthCalendarGoToNextYear).on('click', () => {
+        const nextYear = year + 1;
+        generateSingleYearCalendar(nextYear);
+    })
+
+    $(dataFinderEls.singleMonthCalendarGoToPrevYear).off('click');
+    $(dataFinderEls.singleMonthCalendarGoToPrevYear).on('click', () => {
+        const prevYear = year - 1;
+        generateSingleYearCalendar(prevYear);
+    })
+
+    $('.single-month-calendar-item').off('click');
+    $('.single-month-calendar-item').on('click', (e) => {
+        const _this = $(e.currentTarget);
+        const month = Number(_this.attr('month'));
+        const year = Number(_this.attr('year'));
+
+        const currentMonthDay = `${year}-${addZeroToNumber(month)}-01 00:00`;
+        const prevMonth = moment(currentMonthDay).subtract(1, 'months');
+        const nextMonth = moment(currentMonthDay).add(1, 'months').format(DATE_TIME_FMT);
+
+
+        generateMonthCalender(prevMonth.year(), prevMonth.month() + 1, true, false);
+        generateMonthCalender(year, month, false, false);
+
+        // set input
+        setValueFromToInput(currentMonthDay, nextMonth, calenderTypes.month);
+    })
+
+    $(dataFinderEls.singleMonthCalendarThisWeek).off('click');
+    $(dataFinderEls.singleMonthCalendarThisWeek).on('click', (e) => {
+        const currentDate = moment();
+        const startOfThisWeek = currentDate.startOf('isoWeek').format(DATE_TIME_FMT);
+        const lastWeek = moment(startOfThisWeek).subtract('7', 'days').format(DATE_TIME_FMT);
+        const endOfThisWeek = currentDate.endOf('isoWeek').add(1, 'days').format('YYYY-MM-DD 00:00');
+        setValueFromToInput(startOfThisWeek, endOfThisWeek, calenderTypes.month);
+        handleGoToCalender('week');
+        generateWeekCalender(startOfThisWeek, false);
+        generateWeekCalender(lastWeek, true);
+        setValueFromToInput(startOfThisWeek, endOfThisWeek, calenderTypes.week);
+        handleSetValueToDateRangePicker(null, false);
+        hideSingleCalendar();
+    });
+};
+
+const hideSingleCalendar = () => {
+    $('.single-calendar').hide();
+}
+
+const initGoToNextPrevMonth = (year, month) => {
+    $(dataFinderEls.singleDateCalendarGoToNextMonth).off('click');
+    $(dataFinderEls.singleDateCalendarGoToNextMonth).on('click', () => {
+        const nextMonth = moment(`${year}-${month}-01`).add(1, 'months');
+        generateSingleMonthCalendar(nextMonth.year(), nextMonth.month() + 1);
+    })
+
+    $(dataFinderEls.singleDateCalendarGoToPrevMonth).off('click');
+    $(dataFinderEls.singleDateCalendarGoToPrevMonth).on('click', () => {
+        const nextMonth = moment(`${year}-${month}-01`).subtract(1, 'months');
+        generateSingleMonthCalendar(nextMonth.year(), nextMonth.month() + 1);
+    })
+
+    $('.single-date-calendar-item').off('click');
+    $('.single-date-calendar-item').on('click', (e) => {
+        const _this = $(e.currentTarget);
+        const date = _this.attr('data');
+
+        const startWeekDate = moment(date).startOf('week').format(DATE_FMT);
+        const startOldWeekDate = moment(startWeekDate).subtract(1, 'days').startOf('week').format(DATE_FMT);
+
+
+        generateWeekCalender(startOldWeekDate, true);
+        generateWeekCalender(startWeekDate, false);
+
+        const from = moment(date).format('YYYY-MM-DD 00:00');
+        const to = moment(date).add(8, 'days').format('YYYY-MM-DD 00:00');
+
+        // set input
+        setValueFromToInput(from, to, calenderTypes.week);
+    })
+
+    $(dataFinderEls.singleDateCalendarThisDate).off('click');
+    $(dataFinderEls.singleDateCalendarThisDate).on('click', (e) => {
+       // * Weekly calendar has "今日(En: Today)" button. If user push the button, the app shows daily calendar and input today's "From to" on input box.
+        const from = moment().format('YYYY-MM-DD 00:00');
+        const to = moment().add(1, 'days').format('YYYY-MM-DD 00:00');
+
+        setValueFromToInput(from, to, calenderTypes.week);
+        setValueFromToInput(from, to, calenderTypes.month);
+        handleSetValueToDateRangePicker(`${from}${DATETIME_PICKER_SEPARATOR}${to}`, false);
+        handleBackToCalender('month');
+        hideSingleCalendar();
+    });
+}
+
+
+const generateSingleYearCalendar = (year = 2023, month) => {
+    const locale = docCookies.getItem('locale') || 'en';
+    const showYear = locale === 'ja' ? `${year} 年` : year;
+    $(dataFinderEls.singleMonthCalendarShowYear).text(showYear);
+    $(dataFinderEls.singleMonthCalendarBody).empty();
+    let html = '';
+    for (let i = 0; i <= 11; i++) {
+        const utcMonth = i + 1;
+        const showMonth = locale === 'ja' ? `${utcMonth}月` : enMonth[i];
+        html += `<div class="single-month-calendar-item single-calendar-item${utcMonth === month ? ' in-week last-item first-item' : ''}" month="${utcMonth}" year="${year}">${showMonth}</div>`;
+    }
+
+    $(dataFinderEls.singleMonthCalendarBody).append(html);
+
+    initGoToNextPrevYear(year);
+};
+
 const fillColorMonthCalender = async (from, to, isFrom) => {
     const { data, max_val } = await getDataByType(from, to, calenderTypes.month);
     if (!data) return;
@@ -514,7 +707,7 @@ const fillColorMonthCalender = async (from, to, isFrom) => {
         $(`#${id}`).css({
             backgroundColor: color,
         });
-        const hoverMsg = `Date: ${dateStr}BRCount: ${c}`;
+        const hoverMsg = `Date: ${dateStr}BRCount: ${applySignificantDigit(c)}`;
         $(`#${id}`).attr('hover-data', hoverMsg);
 
         nextDate = nextDate.add(1, 'days');
@@ -548,16 +741,15 @@ const createWeekTableView = (startDate, from = true) => {
         weekDaysEl += `<th class="${cl} p-0">${weekDays2[nextDate.dayOfWeeks]}</th>`;
         nextDate = getDateObject(moment(nextDate.date).add(1, 'days'));
     }
-    const label = from ? 'From' : isCyclicTermTab ? '' : 'To';
     const table = `
         <table id="${id}">
             <thead>
                     <tr>
-                        <th>${label}</th>
+                        <th></th>
                         <th colspan="7">
                             <div class="calendar-go-to ${from ? 'from' : 'to'}-calendar-go-to">
                                 <button type="button" class="previous-week"><i class="fa fa-angle-left arrow"></i></button>
-                                <span>${startDate.format(DATE_FMT)} ${DATETIME_PICKER_SEPARATOR} ${endDate.format(DATE_FMT)}</span>
+                                <span class="showSingleCalendar" id="showSingleMonthCalendar" start-date="${startDate.format(DATE_FMT)}" end-date="${endDate.format(DATE_FMT)}">${startDate.format(DATE_FMT)} ${DATETIME_PICKER_SEPARATOR} ${endDate.format(DATE_FMT)}</span>
                                 <button type="button" class="next-week"><i class="fa fa-angle-right arrow"></i></button>
                             </div>
                         </th>
@@ -612,6 +804,7 @@ const generateWeekCalender = (startDate, isFrom = true) => {
     } else {
         setWeekFromToStartDate(null, startDate);
     }
+    startDate = moment(startDate).startOf('isoWeek').format(DATE_FMT)
     const startDateMoment = moment(startDate);
     const [tableEl, days, endDate] = createWeekTableView(startDateMoment, isFrom);
 
@@ -649,7 +842,7 @@ const fillColorWeekCalender = async (fromDate, toDate, days, isFrom) => {
                 backgroundColor: color,
             });
             const nextH = h + 1;
-            const hoverMsg = `From:&nbsp;${currDate} ${addZeroToNumber(h)}:00BRTo:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${currDate} ${addZeroToNumber(nextH)}:00BRCount: ${count}`;
+            const hoverMsg = `From:&nbsp;${currDate} ${addZeroToNumber(h)}:00BRTo:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${currDate} ${addZeroToNumber(nextH)}:00BRCount: ${applySignificantDigit(count)}`;
             $(`#${id}`).attr('hover-data', hoverMsg);
         }
         nextDate = nextDate.add(1, 'days');
@@ -683,6 +876,22 @@ const initWeekSelectors = (tableEl, startDate, isFrom) => {
         generateWeekCalender(nextStartDate, isFrom);
         disableWeekArrowButton();
     });
+
+    tableEl.find('#showSingleMonthCalendar').on('click', (e) => {
+        const _this = $(e.currentTarget);
+        const startDate = _this.attr('start-date');
+        const endDate = _this.attr('end-date');
+        generateSingleMonthCalendar(Number(startDate.split('-')[0]), Number(startDate.split('-')[1]), startDate, endDate);
+
+         // show with this position
+        const  { clientX, clientY} = e.originalEvent;
+        $(dataFinderEls.singleDateCalendar).css({
+            display: 'block',
+            top: `${clientY + 25}px`,
+            left: `${clientX - 45}px`,
+            zIndex: 90,
+        })
+    })
 };
 // Weel calendar function END
 
@@ -764,7 +973,7 @@ const fillColorYear = async (startYear) => {
             const month = addZeroToNumber(i + 1);
             const id = `year-${nextYear}-${month}`;
             $(`#${id}`).css({ backgroundColor: color });
-            const hoverMsg = `Month: ${nextYear}-${month}BRCount: ${monthCount}`;
+            const hoverMsg = `Month: ${nextYear}-${month}BRCount: ${applySignificantDigit(monthCount)}`;
             $(`#${id}`).attr('hover-data', hoverMsg);
         });
         nextYear += 1;
@@ -1014,6 +1223,8 @@ $(() => {
         setProcessID();
         $(dataFinderEls.startProc).on('change', (e) => {
             setProcessID();
+            setColorRelativeStartEndProc();
+            checkIfProcessesAreLinked();
         });
     }, 2000);
 

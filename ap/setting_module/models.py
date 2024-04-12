@@ -2,26 +2,40 @@ import json
 from contextlib import contextmanager
 from typing import Dict, List, Union
 
+import pandas as pd
 from flask import g
 from flask_babel import get_locale
-from sqlalchemy import Index, and_, asc, desc, event, func, or_
+from sqlalchemy import asc, desc, event, func, or_
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import load_only
 
 from ap import Session, db
-from ap.common.common_utils import dict_deep_merge, gen_sql_label, get_current_timestamp
+from ap.common.common_utils import (
+    dict_deep_merge,
+    gen_bridge_column_name,
+    gen_data_count_table_name,
+    gen_import_history_table_name,
+    gen_sql_label,
+    gen_transaction_table_name,
+    get_current_timestamp,
+)
 from ap.common.constants import (
     DEFAULT_ERROR_DISK_USAGE,
     DEFAULT_WARNING_DISK_USAGE,
     EFA_HEADER_FLAG,
+    CacheType,
     CfgConstantType,
     CsvDelimiter,
+    CSVExtTypes,
+    DataColumnType,
     DataType,
     DiskUsageStatus,
     FlaskGKey,
     JobStatus,
+    MaxGraphNumber,
     RelationShip,
+    max_graph_number,
 )
 from ap.common.cryptography_utils import decrypt_pwd
 from ap.common.memoize import set_all_cache_expired
@@ -29,7 +43,6 @@ from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import model_normalize
 from ap.common.trace_data_log import Location, LogLevel, ReturnCode
-from ap.setting_module.forms import DataSourceCsvForm, ProcessCfgForm
 
 
 @contextmanager
@@ -37,7 +50,7 @@ def make_session():
     try:
         session = g.setdefault(FlaskGKey.APP_DB_SESSION, Session())
     except Exception:
-        # for unit test
+        # run without Flask context app
         session = Session()
 
     try:
@@ -49,7 +62,7 @@ def make_session():
 
 
 class JobManagement(db.Model):  # TODO change to new modal and edit job
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 't_job_management'
     __table_args__ = {'sqlite_autoincrement': True}
 
@@ -69,35 +82,12 @@ class JobManagement(db.Model):  # TODO change to new modal and edit job
     error_msg = db.Column(db.Text())
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
-
-    csv_imports = db.relationship('CsvImport', lazy='dynamic')
-    gen_global = db.relationship('GenGlobalId', lazy='dynamic')
-
-    @classmethod
-    def check_new_jobs(cls, from_job_id, target_job_types):
-        out = cls.query.options(load_only(cls.id))
-        return out.filter(cls.id > from_job_id).filter(cls.job_type.in_(target_job_types)).first()
-
-    @classmethod
-    def get_last_job_id_by_jobtype(cls, job_type):
-        out = cls.query.options(load_only(cls.id))
-        return out.filter(cls.job_type == job_type).order_by(cls.id.desc()).first()
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
     @classmethod
     def get_last_job_of_process(cls, proc_id, job_type):
         out = cls.query.options(load_only(cls.id))
-        return (
-            out.filter(cls.process_id == proc_id)
-            .filter(cls.job_type == job_type)
-            .order_by(cls.id.desc())
-            .first()
-        )
-
-    @classmethod
-    def get_error_jobs(cls, job_id):
-        infos = cls.query.filter(cls.id == job_id).filter(cls.status != str(JobStatus.DONE))
-        return infos.all()
+        return out.filter(cls.process_id == proc_id).filter(cls.job_type == job_type).order_by(cls.id.desc()).first()
 
     @classmethod
     def job_sorts(cls, order_method=''):
@@ -119,97 +109,16 @@ class JobManagement(db.Model):  # TODO change to new modal and edit job
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-
-class CsvImport(db.Model):
-    __bind_key__ = 'app_metadata'
-    __tablename__ = 't_csv_import'
-    __table_args__ = {'sqlite_autoincrement': True}
-
-    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    job_id = db.Column(db.Integer(), db.ForeignKey('t_job_management.id'), index=True)
-
-    process_id = db.Column(db.Integer())
-    file_name = db.Column(db.Text())
-
-    start_tm = db.Column(db.Text(), default=get_current_timestamp)
-    end_tm = db.Column(db.Text())
-    imported_row = db.Column(db.Integer(), default=0)
-    status = db.Column(db.Text())
-    error_msg = db.Column(db.Text())
-
-    created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
-
     @classmethod
-    def get_last_job_id(cls, process_id):
-        max_job = cls.query.filter(cls.process_id == process_id).with_entities(
-            func.max(cls.job_id).label('job_id')
-        )
-        return max_job
-
-    @classmethod
-    def get_last_fatal_import(cls, process_id):
-        max_job = cls.get_last_job_id(process_id).subquery()
-        csv_imports = cls.query.filter(
-            cls.job_id == max_job.c.job_id,
-            cls.status.in_([JobStatus.FATAL.name, JobStatus.PROCESSING.name]),
-        )
-        csv_imports = csv_imports.order_by(cls.id).all()
-
-        return csv_imports
-
-    @classmethod
-    def get_by_job_id(cls, job_id):
-        csv_imports = cls.query.filter(cls.job_id == job_id)
-        return csv_imports.all()
-
-    @classmethod
-    def get_error_jobs(cls, job_id):
-        csv_imports = cls.query.filter(cls.job_id == job_id).filter(
-            cls.status != str(JobStatus.DONE)
-        )
-        return csv_imports.all()
-
-    @classmethod
-    def get_latest_done_files(cls, process_id):
-        csv_files = cls.query.filter(
-            cls.process_id == process_id,
-            cls.status.in_([JobStatus.DONE.name, JobStatus.FAILED.name]),
-        )
-
-        csv_files = csv_files.with_entities(
-            cls.file_name,
-            func.max(cls.start_tm).label(cls.start_tm.key),
-            func.max(cls.imported_row).label(cls.imported_row.key),
-        )
-
-        csv_files = csv_files.group_by(cls.file_name).all()
-
-        return csv_files
-
-
-Index(
-    f'ix_t_csv_import_process_id_status_file_name',
-    CsvImport.process_id,
-    CsvImport.status,
-    CsvImport.file_name,
-)
-
-
-# TODO: remove
-class GenGlobalId(db.Model):
-    __bind_key__ = 'app_metadata'
-    __tablename__ = 't_gen_global_id'
-
-    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    job_id = db.Column(db.Integer(), db.ForeignKey('t_job_management.id'), index=True)
-
-    created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    def update_interrupt_jobs(cls):
+        with make_session() as meta_session:
+            meta_session.query(cls).filter(cls.status == JobStatus.PROCESSING.name).update(
+                {cls.status: JobStatus.KILLED.name},
+            )
 
 
 class ProcLinkCount(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 't_proc_link'
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
@@ -220,7 +129,7 @@ class ProcLinkCount(db.Model):
     matched_count = db.Column(db.Integer(), default=0)
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
     @classmethod
     def get_all(cls):
@@ -247,7 +156,7 @@ class ProcLinkCount(db.Model):
 
 
 class CfgConstant(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_constant'
     __table_args__ = {'sqlite_autoincrement': True}
 
@@ -265,19 +174,39 @@ class CfgConstant(db.Model):
         if not output:
             return None
 
-        return output.value if not parse_val else parse_val(output.value)
+        if parse_val:
+            try:
+                return parse_val(output.value)
+            except Exception:
+                return None
+        else:
+            return output.value
 
     @classmethod
     def get_value_by_type_name(cls, type, name, parse_val=None):
-        output = (
-            cls.query.options(load_only(cls.value))
-            .filter(cls.type == type, cls.name == name)
-            .first()
-        )
+        output = cls.query.options(load_only(cls.value)).filter(cls.type == type, cls.name == name).first()
         if not output:
             return None
 
-        return output.value if not parse_val else parse_val(output.value)
+        if parse_val:
+            try:
+                return parse_val(output.value)
+            except Exception:
+                return None
+        else:
+            return output.value
+
+    @classmethod
+    def get_value_by_type_names(cls, const_type, names, parse_val=None):
+        output = (
+            cls.query.options(load_only(cls.name, cls.value)).filter(cls.type == const_type, cls.name.in_(names)).all()
+        )
+        return output
+
+    @classmethod
+    def get_names_values_by_type(cls, const_type):
+        output = cls.query.options(load_only(cls.name, cls.value)).filter(cls.type == const_type).all()
+        return output
 
     @classmethod
     def create_or_update_by_type(cls, const_type=None, const_value=0, const_name=None):
@@ -300,11 +229,7 @@ class CfgConstant(db.Model):
     @classmethod
     def create_or_merge_by_type(cls, const_type=None, const_name=None, const_value=0):
         with make_session() as meta_session:
-            constant = (
-                meta_session.query(cls)
-                .filter(cls.type == const_type, cls.name == const_name)
-                .first()
-            )
+            constant = meta_session.query(cls).filter(cls.type == const_type, cls.name == const_name).first()
             if not constant:
                 constant = cls(type=const_type, name=const_name, value=json_dumps(const_value))
                 meta_session.add(constant)
@@ -317,7 +242,8 @@ class CfgConstant(db.Model):
     @classmethod
     def get_efa_header_flag(cls, data_source_id):
         efa_header_flag = cls.query.filter(
-            cls.type == CfgConstantType.EFA_HEADER_EXISTS.name, cls.name == data_source_id
+            cls.type == CfgConstantType.EFA_HEADER_EXISTS.name,
+            cls.name == data_source_id,
         ).first()
 
         if efa_header_flag and efa_header_flag.value and efa_header_flag.value == EFA_HEADER_FLAG:
@@ -327,13 +253,17 @@ class CfgConstant(db.Model):
     @classmethod
     def get_warning_disk_usage(cls) -> int:
         return cls.get_value_by_type_name(
-            CfgConstantType.DISK_USAGE_CONFIG.name, DiskUsageStatus.Warning.name, parse_val=int
+            CfgConstantType.DISK_USAGE_CONFIG.name,
+            DiskUsageStatus.Warning.name,
+            parse_val=int,
         )
 
     @classmethod
     def get_error_disk_usage(cls) -> int:
         return cls.get_value_by_type_name(
-            CfgConstantType.DISK_USAGE_CONFIG.name, DiskUsageStatus.Full.name, parse_val=int
+            CfgConstantType.DISK_USAGE_CONFIG.name,
+            DiskUsageStatus.Full.name,
+            parse_val=int,
         )
 
     @classmethod
@@ -349,21 +279,27 @@ class CfgConstant(db.Model):
         warning_percent = cls.get_warning_disk_usage()
         if not warning_percent:  # insert of not existing
             warning_percent = DEFAULT_WARNING_DISK_USAGE
-            cls.create_or_update_by_type(
-                constants_type, warning_percent, const_name=DiskUsageStatus.Warning.name
-            )
+            cls.create_or_update_by_type(constants_type, warning_percent, const_name=DiskUsageStatus.Warning.name)
 
         error_percent = cls.get_error_disk_usage()
         if not error_percent:  # insert of not existing
             error_percent = DEFAULT_ERROR_DISK_USAGE
 
-            cls.create_or_update_by_type(
-                constants_type, error_percent, const_name=DiskUsageStatus.Full.name
-            )
+            cls.create_or_update_by_type(constants_type, error_percent, const_name=DiskUsageStatus.Full.name)
+
+    @classmethod
+    def initialize_max_graph_constants(cls):
+        for constant in MaxGraphNumber:
+            db_constant = CfgConstant.get_value_by_type_first(constant.name, int)
+            if not db_constant:
+                cls.create_or_update_by_type(
+                    constant.name,
+                    const_value=max_graph_number[constant.name],
+                )
 
 
 class CfgDataSource(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_data_source'
     __table_args__ = {'sqlite_autoincrement': True}
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
@@ -374,10 +310,18 @@ class CfgDataSource(db.Model):
     created_at = db.Column(db.Text(), default=get_current_timestamp)
     updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
     db_detail = db.relationship(
-        'CfgDataSourceDB', lazy='subquery', backref='cfg_data_source', uselist=False, cascade='all'
+        'CfgDataSourceDB',
+        lazy='subquery',
+        backref='cfg_data_source',
+        uselist=False,
+        cascade='all',
     )
     csv_detail = db.relationship(
-        'CfgDataSourceCSV', lazy='subquery', backref='cfg_data_source', uselist=False, cascade='all'
+        'CfgDataSourceCSV',
+        lazy='subquery',
+        backref='cfg_data_source',
+        uselist=False,
+        cascade='all',
     )
     processes = db.relationship('CfgProcess', lazy='dynamic', cascade='all')
 
@@ -397,7 +341,7 @@ class CfgDataSource(db.Model):
 
     @classmethod
     def get_all_db_source(cls):
-        all_ds = cls.query.filter(cls.type != 'CSV').order_by(cls.order).all()
+        all_ds = cls.query.filter(cls.type != str(CSVExtTypes.CSV.value).upper()).order_by(cls.order).all()
         for ds in all_ds:
             db_detail: CfgDataSourceDB = ds.db_detail
             if db_detail and db_detail.hashed:
@@ -436,12 +380,10 @@ class CfgDataSource(db.Model):
 
 
 class CfgDataSourceDB(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_data_source_db'
     __table_args__ = {'sqlite_autoincrement': True}
-    id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE'), primary_key=True
-    )
+    id = db.Column(db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE'), primary_key=True)
     host = db.Column(db.Text())
     port = db.Column(db.Integer())
     dbname = db.Column(db.Text())
@@ -472,22 +414,20 @@ class CfgDataSourceDB(db.Model):
 
 
 class CfgCsvColumn(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_csv_column'
     __table_args__ = {'sqlite_autoincrement': True}
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    data_source_id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_data_source_csv.id', ondelete='CASCADE')
-    )
+    data_source_id = db.Column(db.Integer(), db.ForeignKey('cfg_data_source_csv.id', ondelete='CASCADE'))
     column_name = db.Column(db.Text())
     data_type = db.Column(db.Text())
     order = db.Column(db.Integer())
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
 
 class CfgProcessUnusedColumn(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_process_unused_column'
     __table_args__ = {'sqlite_autoincrement': True}
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
@@ -495,7 +435,7 @@ class CfgProcessUnusedColumn(db.Model):
     column_name = db.Column(db.Text())
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
     @classmethod
     def get_all_unused_columns_by_process_id(cls, process_id):
@@ -509,21 +449,22 @@ class CfgProcessUnusedColumn(db.Model):
 
 
 class CfgProcessColumn(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_process_column'
     __table_args__ = {'sqlite_autoincrement': True}
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     process_id = db.Column(db.Integer(), db.ForeignKey('cfg_process.id', ondelete='CASCADE'))
     column_name = db.Column(db.Text())
+    column_raw_name = db.Column(db.Text())  # raw name of column, from CSV file or DB table
     name_en = db.Column(db.Text())
     name_jp = db.Column(db.Text())
     name_local = db.Column(db.Text())
     data_type = db.Column(db.Text())
+    column_type = db.Column(db.Integer())
     predict_type = db.Column(db.Text())
     operator = db.Column(db.Text())
     coef = db.Column(db.Text())
-    column_type = db.Column(db.Integer())
     is_serial_no = db.Column(db.Boolean(), default=False)
     is_get_date = db.Column(db.Boolean(), default=False)
     is_dummy_datetime = db.Column(db.Boolean(), default=False)
@@ -531,7 +472,7 @@ class CfgProcessColumn(db.Model):
     order = db.Column(db.Integer())
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
     # TODO trace key, cfg_filter: may not needed
     # visualizations = db.relationship('CfgVisualization', lazy='dynamic', backref="cfg_process_column", cascade="all")
@@ -543,8 +484,6 @@ class CfgProcessColumn(db.Model):
                 return None
             if locale.language == 'ja':
                 return self.name_jp if self.name_jp else self.name_en
-            if locale.language == 'en':
-                return self.name_en
             else:
                 return self.name_local if self.name_local else self.name_en
         except Exception:
@@ -557,13 +496,27 @@ class CfgProcessColumn(db.Model):
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-    @classmethod
-    def get_by_col_name(cls, proc_id, col_name):
-        return cls.query.filter(cls.process_id == proc_id, cls.column_name == col_name).first()
+    # @classmethod
+    # def get_by_col_name(cls, proc_id, col_name):
+    #     return cls.query.filter(cls.process_id == proc_id, cls.column_name == col_name).first()
 
-    @classmethod
-    def get_by_data_type(cls, proc_id, data_type: DataType):
-        return cls.query.filter(cls.process_id == proc_id, cls.data_type == data_type.name).all()
+    # @classmethod
+    # def get_by_data_type(cls, proc_id, data_type: DataType):
+    #     return cls.query.filter(cls.process_id == proc_id, cls.data_type == data_type.name).all()
+
+    @hybrid_property
+    def bridge_column_name(self):
+        return gen_bridge_column_name(self.id, self.column_name)
+
+    @hybrid_property
+    def is_category(self):
+        return self.data_type == DataType.TEXT.name or self.is_int_category
+
+    @hybrid_property
+    def is_int_category(self):
+        return self.data_type == DataType.INTEGER.name and (
+            self.column_type in DataColumnType.category_int_types() or self.is_serial_no
+        )
 
     @classmethod
     def get_by_ids(cls, ids):
@@ -581,6 +534,11 @@ class CfgProcessColumn(db.Model):
         col_label = gen_sql_label(col.id, col.column_name)
         return col_label
 
+    def gen_sql_label(self, is_bridge: bool = False) -> str:
+        col_name = self.bridge_column_name if is_bridge else self.column_name
+        col_label = gen_sql_label(self.id, col_name)
+        return col_label
+
     @classmethod
     def get_serials(cls, proc_id):
         return cls.query.filter(cls.process_id == proc_id, cls.is_serial_no == 1).all()
@@ -592,14 +550,11 @@ class CfgProcessColumn(db.Model):
     @classmethod
     def get_columns_by_process_id(cls, proc_id):
         columns = cls.query.filter(cls.process_id == proc_id).all()
-        return [
-            {cls.id.name: col.id, 'name': col.shown_name, cls.data_type.name: col.data_type}
-            for col in columns
-        ]
+        return [{cls.id.name: col.id, 'name': col.shown_name, cls.data_type.name: col.data_type} for col in columns]
 
 
 class CfgProcess(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_process'
     __table_args__ = {'sqlite_autoincrement': True}
 
@@ -608,19 +563,21 @@ class CfgProcess(db.Model):
     name_jp = db.Column(db.Text())
     name_en = db.Column(db.Text())
     name_local = db.Column(db.Text())
-    data_source_id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE')
-    )
+    data_source_id = db.Column(db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE'))
     table_name = db.Column(db.Text())
     comment = db.Column(db.Text())
+    file_name = db.Column(db.Text())
 
     order = db.Column(db.Integer())
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
     # TODO check fetch all
     columns: List[CfgProcessColumn] = db.relationship(
-        'CfgProcessColumn', lazy='joined', backref='cfg_process', cascade='all'
+        'CfgProcessColumn',
+        lazy='joined',
+        backref='cfg_process',
+        cascade='all',
     )
     traces = db.relationship(
         'CfgTrace',
@@ -630,10 +587,24 @@ class CfgProcess(db.Model):
         cascade='all',
     )
     filters = db.relationship('CfgFilter', lazy='dynamic', backref='cfg_process', cascade='all')
-    visualizations = db.relationship(
-        'CfgVisualization', lazy='dynamic', backref='cfg_process', cascade='all'
-    )
+    visualizations = db.relationship('CfgVisualization', lazy='dynamic', backref='cfg_process', cascade='all')
+
     data_source = db.relationship('CfgDataSource', lazy='select')
+
+    @hybrid_property
+    def bridge_table_name(self):
+        name = gen_transaction_table_name(self.id)
+        return name
+
+    @hybrid_property
+    def data_count_table_name(self):
+        name = gen_data_count_table_name(self.id)
+        return name
+
+    @hybrid_property
+    def import_history_table_name(self):
+        name = gen_import_history_table_name(self.id)
+        return name
 
     def get_shown_name(self):
         try:
@@ -644,8 +615,6 @@ class CfgProcess(db.Model):
                 return None
             if locale.language == 'ja':
                 return self.name_jp if self.name_jp else self.name_en
-            if locale.language == 'en':
-                return self.name_en
             else:
                 return self.name_local if self.name_local else self.name_en
         except Exception:
@@ -728,6 +697,13 @@ class CfgProcess(db.Model):
         cols = [col for col in self.columns if col.id in col_ids]
         return cols
 
+    def get_col(self, col_id):
+        cols = [col for col in self.columns if col.id == col_id]
+        if cols:
+            return cols[0]
+        else:
+            return None
+
     def get_cols_by_data_type(self, data_type: DataType, column_name_only=True):
         """
         get date column
@@ -756,26 +732,11 @@ class CfgProcess(db.Model):
 
     @classmethod
     def get_procs(cls, ids):
-        return cls.query.filter(cls.id.in_(ids))
+        return cls.query.filter(cls.id.in_(ids)).all()
 
     @classmethod
-    def as_dict(cls):
-        return {c.name: getattr(cls, c.name) for c in cls.__table__.columns}
-
-    @classmethod
-    def save(cls, meta_session, form: ProcessCfgForm):
-        if not form.id.data:
-            row = cls()
-            meta_session.add(row)
-        else:
-            row = meta_session.query(cls).get(form.id.data)
-            # row.columns = [ProcessColumnsForm]
-            # for column in columns:
-            #     columObj = CfgProcessColumn(**column)
-            #     meta_session.add(columObj)
-        # form.populate_obj(row)
-        meta_session.commit()
-        return row
+    def get_proc_by_id(cls, proc_id):
+        return cls.query.filter(cls.id == proc_id).first()
 
     @classmethod
     def delete(cls, proc_id):
@@ -789,15 +750,13 @@ class CfgProcess(db.Model):
 
             # delete traces manually
             meta_session.query(CfgTrace).filter(
-                or_(CfgTrace.self_process_id == proc_id, CfgTrace.target_process_id == proc_id)
+                or_(CfgTrace.self_process_id == proc_id, CfgTrace.target_process_id == proc_id),
             ).delete()
 
             # delete linking prediction manually
-            meta_session.query(ProcLinkCount).filter(
-                or_(ProcLinkCount.process_id == proc_id, ProcLinkCount.target_process_id == proc_id)
-            ).delete()
-
-            meta_session.commit()
+            # meta_session.query(ProcLinkCount).filter(
+            #     or_(ProcLinkCount.process_id == proc_id, ProcLinkCount.target_process_id == proc_id),
+            # ).delete()
 
         return True
 
@@ -812,41 +771,35 @@ class CfgProcess(db.Model):
 
 
 class CfgTraceKey(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_trace_key'
     __table_args__ = {'sqlite_autoincrement': True}
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     trace_id = db.Column(db.Integer(), db.ForeignKey('cfg_trace.id', ondelete='CASCADE'))
     # TODO confirm PO delete
-    self_column_id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE')
-    )
+    self_column_id = db.Column(db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
     self_column_substr_from = db.Column(db.Integer())
     self_column_substr_to = db.Column(db.Integer())
 
-    target_column_id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE')
-    )
+    target_column_id = db.Column(db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
     target_column_substr_from = db.Column(db.Integer())
     target_column_substr_to = db.Column(db.Integer())
 
     order = db.Column(db.Integer())
 
     self_column = db.relationship('CfgProcessColumn', foreign_keys=[self_column_id], lazy='joined')
-    target_column = db.relationship(
-        'CfgProcessColumn', foreign_keys=[target_column_id], lazy='joined'
-    )
+    target_column = db.relationship('CfgProcessColumn', foreign_keys=[target_column_id], lazy='joined')
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class CfgTrace(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_trace'
     __table_args__ = {'sqlite_autoincrement': True}
 
@@ -856,7 +809,7 @@ class CfgTrace(db.Model):
     is_trace_backward = db.Column(db.Boolean(), default=False)
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
     trace_keys: List[CfgTraceKey] = db.relationship(
         'CfgTraceKey',
@@ -873,26 +826,68 @@ class CfgTrace(db.Model):
     def get_all(cls):
         return cls.query.all()
 
-    def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
     @classmethod
-    def get_cols_between_two(cls, proc_id1, proc_id2):
-        trace = cls.query.filter(
-            or_(
-                and_(cls.self_process_id == proc_id1, cls.target_process_id == proc_id2),
-                and_(cls.self_process_id == proc_id2, cls.target_process_id == proc_id1),
-            )
-        ).first()
+    def get_traces_of_proc(cls, proc_ids):
+        traces = cls.query.filter(or_(cls.self_process_id.in_(proc_ids), cls.target_process_id.in_(proc_ids))).all()
+        return traces
 
-        cols = set()
-        if trace:
-            [cols.update([key.self_column_id, key.target_column_id]) for key in trace.trace_keys]
-        return cols
+    def is_same_tracing(self, other):
+        """
+        True if same self process id, target process id, self column id list, target column id list.
+        :param other:
+        :return:
+        """
+        if not isinstance(other, CfgTrace):
+            return False
+        if (self.self_process_id, self.target_process_id) != (
+            other.self_process_id,
+            other.target_process_id,
+        ):
+            return False
+        if len(self.trace_keys) != len(other.trace_keys):
+            return False
+
+        keys = [
+            [
+                key.self_column_id,
+                key.self_column_substr_from,
+                key.self_column_substr_to,
+                key.target_column_id,
+                key.target_column_substr_from,
+                key.target_column_substr_to,
+            ]
+            for key in self.trace_keys
+        ]
+        other_keys = [
+            [
+                key.self_column_id,
+                key.self_column_substr_from,
+                key.self_column_substr_to,
+                key.target_column_id,
+                key.target_column_substr_from,
+                key.target_column_substr_to,
+            ]
+            for key in other.trace_keys
+        ]
+        cols = [
+            'self_column_id',
+            'self_column_substr_from',
+            'self_column_substr_to',
+            'target_column_id',
+            'target_column_substr_from',
+            'target_column_substr_to',
+        ]
+
+        self_trace_key_df = pd.DataFrame(keys, columns=cols)
+        other_trace_key_df = pd.DataFrame(other_keys, columns=cols)
+        if not self_trace_key_df.equals(other_trace_key_df):
+            return False
+
+        return True
 
 
 class CfgFilterDetail(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_filter_detail'
     __table_args__ = {'sqlite_autoincrement': True}
 
@@ -906,20 +901,9 @@ class CfgFilterDetail(db.Model):
 
     order = db.Column(db.Integer())
 
-    parent = db.relationship(
-        'CfgFilterDetail', lazy='joined', backref='cfg_children', remote_side=[id], uselist=False
-    )
+    parent = db.relationship('CfgFilterDetail', lazy='joined', backref='cfg_children', remote_side=[id], uselist=False)
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
-
-    def update_by_dict(self, **kwargs):
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-
-    @classmethod
-    def get_filters(cls, ids):
-        return cls.query.filter(cls.id.in_(ids))
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
     def __eq__(self, other):
         return (
@@ -934,33 +918,27 @@ class CfgFilterDetail(db.Model):
 
 
 class CfgFilter(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_filter'
     __table_args__ = {'sqlite_autoincrement': True}
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     process_id = db.Column(db.Integer(), db.ForeignKey('cfg_process.id', ondelete='CASCADE'))
     name = db.Column(db.Text())
-    column_id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE')
-    )  # TODO confirm PO
+    column_id = db.Column(db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE'))  # TODO confirm PO
     filter_type = db.Column(db.Text())
     parent_id = db.Column(
-        db.Integer(), db.ForeignKey(id, ondelete='CASCADE'), nullable=True
+        db.Integer(),
+        db.ForeignKey(id, ondelete='CASCADE'),
+        nullable=True,
     )  # TODO check if needed to self ref
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
-    parent = db.relationship(
-        'CfgFilter', lazy='joined', backref='cfg_children', remote_side=[id], uselist=False
-    )
-    column = db.relationship(
-        'CfgProcessColumn', lazy='joined', backref='cfg_filters', uselist=False
-    )
-    filter_details = db.relationship(
-        'CfgFilterDetail', lazy='joined', backref='cfg_filter', cascade='all'
-    )
+    parent = db.relationship('CfgFilter', lazy='joined', backref='cfg_children', remote_side=[id], uselist=False)
+    column = db.relationship('CfgProcessColumn', lazy='joined', backref='cfg_filters', uselist=False)
+    filter_details = db.relationship('CfgFilterDetail', lazy='joined', backref='cfg_filter', cascade='all')
 
     @classmethod
     def delete_by_id(cls, meta_session, filter_id):
@@ -968,39 +946,25 @@ class CfgFilter(db.Model):
         if cfg_filter:
             meta_session.delete(cfg_filter)
 
-    @classmethod
-    def get_filters(cls, ids):
-        return cls.query.filter(cls.id.in_(ids))
-
-    @classmethod
-    def get_filter_by_col_id(cls, column_id):
-        return cls.query.filter(cls.column_id == column_id).first()
-
-    @classmethod
-    def get_by_proc_n_col_ids(cls, proc_ids, column_ids):
-        return cls.query.filter(cls.process_id.in_(proc_ids), cls.column_id.in_(column_ids)).all()
-
 
 class CfgVisualization(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_visualization'
     __table_args__ = {'sqlite_autoincrement': True}
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     process_id = db.Column(db.Integer(), db.ForeignKey('cfg_process.id', ondelete='CASCADE'))
     # TODO confirm PO
-    control_column_id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE')
-    )
+    control_column_id = db.Column(db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
     filter_column_id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE'), nullable=True
+        db.Integer(),
+        db.ForeignKey('cfg_process_column.id', ondelete='CASCADE'),
+        nullable=True,
     )
     # filter_column_id = db.Column(db.Integer(), nullable=True)
     filter_value = db.Column(db.Text())
     is_from_data = db.Column(db.Boolean(), default=False)
-    filter_detail_id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_filter_detail.id', ondelete='CASCADE'), nullable=True
-    )
+    filter_detail_id = db.Column(db.Integer(), db.ForeignKey('cfg_filter_detail.id', ondelete='CASCADE'), nullable=True)
 
     ucl = db.Column(db.Float())
     lcl = db.Column(db.Float())
@@ -1015,99 +979,93 @@ class CfgVisualization(db.Model):
 
     order = db.Column(db.Integer())
 
-    control_column = db.relationship(
-        'CfgProcessColumn', foreign_keys=[control_column_id], lazy='joined'
-    )
-    filter_column = db.relationship(
-        'CfgProcessColumn', foreign_keys=[filter_column_id], lazy='joined'
-    )
+    control_column = db.relationship('CfgProcessColumn', foreign_keys=[control_column_id], lazy='joined')
+    filter_column = db.relationship('CfgProcessColumn', foreign_keys=[filter_column_id], lazy='joined')
     filter_detail = db.relationship('CfgFilterDetail', lazy='joined')
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
     deleted_at = db.Column(db.Text())
 
     @classmethod
     def get_filter_ids(cls):
         return db.session.query(cls.filter_detail_id).filter(cls.filter_detail_id > 0)
 
-    @classmethod
-    def get_by_control_n_filter_detail_ids(cls, col_id, filter_detail_ids, start_tm, end_tm):
-        return (
-            cls.query.filter(
-                and_(
-                    cls.control_column_id == col_id,
-                    cls.filter_detail_id.in_(filter_detail_ids),
-                )
-            )
-            .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
-            .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
-            .order_by(cls.act_from.desc())
-            .all()
-        )
+    # @classmethod
+    # def get_by_control_n_filter_detail_ids(cls, col_id, filter_detail_ids, start_tm, end_tm):
+    #     return (
+    #         cls.query.filter(
+    #             and_(
+    #                 cls.control_column_id == col_id,
+    #                 cls.filter_detail_id.in_(filter_detail_ids),
+    #             )
+    #         )
+    #         .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
+    #         .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
+    #         .order_by(cls.act_from.desc())
+    #         .all()
+    #     )
 
-    @classmethod
-    def get_sensor_default_chart_info(cls, col_id, start_tm, end_tm):
-        # TODO: not deleted, ...
-        return (
-            cls.query.filter(cls.control_column_id == col_id)
-            .filter(and_(cls.filter_detail_id.is_(None)))
-            .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
-            .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
-            .order_by(cls.act_from.desc())
-            .all()
-        )
+    # @classmethod
+    # def get_sensor_default_chart_info(cls, col_id, start_tm, end_tm):
+    #     # TODO: not deleted, ...
+    #     return (
+    #         cls.query.filter(cls.control_column_id == col_id)
+    #         .filter(and_(cls.filter_detail_id.is_(None)))
+    #         .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
+    #         .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
+    #         .order_by(cls.act_from.desc())
+    #         .all()
+    #     )
 
-    @classmethod
-    def get_by_control_n_filter_col_id(cls, col_id, filter_col_id, start_tm, end_tm):
-        # TODO: not deleted, ...
-        return (
-            cls.query.filter(
-                and_(
-                    cls.control_column_id == col_id,
-                    cls.filter_column_id == filter_col_id,
-                    cls.filter_value.is_(None),
-                    cls.filter_detail_id.is_(None),
-                )
-            )
-            .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
-            .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
-            .order_by(cls.act_from.desc())
-            .all()
-        )
+    # @classmethod
+    # def get_by_control_n_filter_col_id(cls, col_id, filter_col_id, start_tm, end_tm):
+    #     # TODO: not deleted, ...
+    #     return (
+    #         cls.query.filter(
+    #             and_(
+    #                 cls.control_column_id == col_id,
+    #                 cls.filter_column_id == filter_col_id,
+    #                 cls.filter_value.is_(None),
+    #                 cls.filter_detail_id.is_(None),
+    #             )
+    #         )
+    #         .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
+    #         .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
+    #         .order_by(cls.act_from.desc())
+    #         .all()
+    #     )
 
-    @classmethod
-    def get_all_by_control_n_filter_col_id(cls, col_id, filter_col_id, start_tm, end_tm):
-        # TODO: not deleted, ...
-        return (
-            cls.query.filter(
-                and_(
-                    cls.control_column_id == col_id,
-                    cls.filter_column_id == filter_col_id,
-                )
-            )
-            .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
-            .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
-            .order_by(cls.act_from.desc())
-            .all()
-        )
+    # @classmethod
+    # def get_all_by_control_n_filter_col_id(cls, col_id, filter_col_id, start_tm, end_tm):
+    #     # TODO: not deleted, ...
+    #     return (
+    #         cls.query.filter(
+    #             and_(
+    #                 cls.control_column_id == col_id,
+    #                 cls.filter_column_id == filter_col_id,
+    #             )
+    #         )
+    #         .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
+    #         .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
+    #         .order_by(cls.act_from.desc())
+    #         .all()
+    #     )
 
-    @classmethod
-    def get_by_filter_detail_id(cls, col_id, filter_detail_id, start_tm, end_tm):
-        # TODO: not deleted, ...
-        return (
-            cls.query.filter(
-                and_(cls.control_column_id == col_id, cls.filter_detail_id == filter_detail_id)
-            )
-            .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
-            .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
-            .order_by(cls.act_from.desc())
-            .all()
-        )
+    # @classmethod
+    # def get_by_filter_detail_id(cls, col_id, filter_detail_id, start_tm, end_tm):
+    #     # TODO: not deleted, ...
+    #     return (
+    #         cls.query.filter(and_(cls.control_column_id == col_id, cls.filter_detail_id == filter_detail_id))
+    #         .filter(or_(cls.act_from.is_(None), cls.act_from < end_tm, cls.act_from == ''))
+    #         .filter(or_(cls.act_to.is_(None), cls.act_to > start_tm, cls.act_to == ''))
+    #         .order_by(cls.act_from.desc())
+    #         .all()
+    #     )
 
 
 class DataTraceLog(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 't_data_trace_log'
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
@@ -1122,7 +1080,7 @@ class DataTraceLog(db.Model):
     cols = db.Column(db.Integer())
     dumpfile = db.Column(db.Text())
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
     @classmethod
     def get_max_id(cls):
@@ -1138,7 +1096,7 @@ class DataTraceLog(db.Model):
 
 
 class AbnormalTraceLog(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 't_abnormal_trace_log'
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
@@ -1152,64 +1110,11 @@ class AbnormalTraceLog(db.Model):
     message = db.Column(db.Text())
     dumpfile = db.Column(db.Text())
     created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
-
-
-class FactoryImport(db.Model):
-    __bind_key__ = 'app_metadata'
-    __tablename__ = 't_factory_import'
-    __table_args__ = {'sqlite_autoincrement': True}
-
-    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    job_id = db.Column(db.Integer(), db.ForeignKey('t_job_management.id'), index=True)
-
-    process_id = db.Column(db.Integer())
-    import_type = db.Column(db.Text())
-    import_from = db.Column(db.Text())
-    import_to = db.Column(db.Text())
-
-    start_tm = db.Column(db.Text(), default=get_current_timestamp)
-    end_tm = db.Column(db.Text())
-    imported_row = db.Column(db.Integer(), default=0)
-
-    status = db.Column(db.Text())
-    error_msg = db.Column(db.Text())
-
-    created_at = db.Column(db.Text(), default=get_current_timestamp)
-    updated_at = db.Column(db.Text(), default=get_current_timestamp)
-
-    @classmethod
-    def get_last_import(cls, process_id, import_type, is_first_id=False):
-        data = cls.query.filter(cls.process_id == process_id)
-        data = data.filter(cls.import_type == import_type)
-        data = data.filter(cls.status.in_([str(JobStatus.FAILED), str(JobStatus.DONE)]))
-        data = data.order_by(cls.job_id.desc())
-        if is_first_id:
-            data = data.order_by(cls.id)
-        else:
-            data = data.order_by(cls.id.desc())
-
-        data = data.first()
-
-        return data
-
-    @classmethod
-    def get_first_import(cls, process_id, import_type):
-        data = cls.query.filter(cls.process_id == process_id)
-        data = data.filter(cls.import_type == import_type)
-        data = data.filter(cls.status.in_([str(JobStatus.FAILED), str(JobStatus.DONE)]))
-        data = data.order_by(cls.id).first()
-
-        return data
-
-    @classmethod
-    def get_error_jobs(cls, job_id):
-        infos = cls.query.filter(cls.job_id == job_id).filter(cls.status != str(JobStatus.DONE))
-        return infos.all()
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
 
 
 class AppLog(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 't_app_log'
     __table_args__ = {'sqlite_autoincrement': True}
 
@@ -1287,10 +1192,9 @@ def insert_or_update_config(
         else:
             setattr(parent_obj, parent_relation_key, rec)
 
-    if isinstance(data, db.Model):
-        dict_data = {key: getattr(data, key) for key in data.__table__.columns.keys()}
-    else:
-        dict_data = data
+    dict_data = (
+        {key: getattr(data, key) for key in data.__table__.columns.keys()} if isinstance(data, db.Model) else data
+    )
 
     for key, val in dict_data.items():
         # primary keys
@@ -1302,7 +1206,7 @@ def insert_or_update_config(
             continue
 
         # check if valid columns
-        if key not in model.__table__.columns:
+        if key not in model.__table__.columns.keys():
             continue
 
         # avoid update None to primary key_names
@@ -1439,23 +1343,25 @@ def crud_config(
 
 
 class CfgDataSourceCSV(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_data_source_csv'
     __table_args__ = {'sqlite_autoincrement': True}
-    id = db.Column(
-        db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE'), primary_key=True
-    )
+    id = db.Column(db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE'), primary_key=True)
     directory = db.Column(db.Text())
     skip_head = db.Column(db.Integer(), default=0)
     skip_tail = db.Column(db.Integer(), default=0)
     delimiter = db.Column(db.Text(), default=CsvDelimiter.CSV.name)
     etl_func = db.Column(db.Text())
     process_name = db.Column(db.Text())
+    dummy_header = db.Column(db.Boolean(), default=False)
     created_at = db.Column(db.Text(), default=get_current_timestamp)
     updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
     # TODO check fetch all
     csv_columns: List[CfgCsvColumn] = db.relationship(
-        'CfgCsvColumn', backref='cfg_data_source_csv', lazy='subquery', cascade='all'
+        'CfgCsvColumn',
+        backref='cfg_data_source_csv',
+        lazy='subquery',
+        cascade='all',
     )
 
     def get_column_names_with_sorted(self, key=CfgCsvColumn.id.key):
@@ -1468,24 +1374,12 @@ class CfgDataSourceCSV(db.Model):
         return [col.column_name for col in self.csv_columns]
 
     @classmethod
-    def save(cls, form: DataSourceCsvForm):
-        if form.id:
-            row = cls()
-        else:
-            row = cls.query.filter(cls.id == form.id)
-
-        # create dataSource ins
-        form.populate_obj(row)
-
-        return row
-
-    @classmethod
     def delete(cls, id):
         cls.query.filter(cls.id == id).delete()
 
 
 class CfgUserSetting(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_user_setting'
     __table_args__ = {'sqlite_autoincrement': True}
 
@@ -1519,7 +1413,7 @@ class CfgUserSetting(db.Model):
                 cls.share_info,
                 cls.created_at,
                 cls.updated_at,
-            )
+            ),
         )
         data = data.order_by(cls.priority.desc(), cls.updated_at.desc()).all()
         return data
@@ -1536,19 +1430,11 @@ class CfgUserSetting(db.Model):
 
     @classmethod
     def get_top(cls, page):
-        return (
-            cls.query.filter(cls.page == page)
-            .order_by(cls.priority.desc(), cls.updated_at.desc())
-            .first()
-        )
+        return cls.query.filter(cls.page == page).order_by(cls.priority.desc(), cls.updated_at.desc()).first()
 
     @classmethod
     def get_by_title(cls, title):
-        return (
-            cls.query.filter(cls.title == title)
-            .order_by(cls.priority.desc(), cls.created_at.desc())
-            .all()
-        )
+        return cls.query.filter(cls.title == title).order_by(cls.priority.desc(), cls.created_at.desc()).all()
 
     @classmethod
     def get_bookmarks(cls):
@@ -1568,7 +1454,7 @@ class CfgUserSetting(db.Model):
 
 
 class CfgRequest(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_request'
 
     id = db.Column(db.Text(), primary_key=True)
@@ -1606,7 +1492,7 @@ class CfgRequest(db.Model):
 
 
 class CfgOption(db.Model):
-    __bind_key__ = 'app_metadata'
+    # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_option'
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
@@ -1625,32 +1511,57 @@ class CfgOption(db.Model):
         return cls.query.filter(cls.req_id == req_id).all()
 
 
+# class ProcDataCount(db.Model):
+#     __tablename__ = 't_proc_data_count'
+#     __table_args__ = {'sqlite_autoincrement': True}
+#     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+#     datetime = db.Column(db.Text(), index=True)
+#     process_id = db.Column(db.Integer(), index=True)
+#     job_id = db.Column(db.Integer())
+#     count = db.Column(db.Integer())
+#     created_at = db.Column(db.Text(), default=get_current_timestamp)
+#
+#     @classmethod
+#     def get_procs_count(cls):
+#         output = cls.query.with_entities(cls.process_id, func.sum(cls.count).label(cls.count.key))
+#         output = output.group_by(cls.process_id).all()
+#         return output
+#
+#     @classmethod
+#     def get_by_proc_id(cls, proc_id, start_date, end_date):
+#         result = cls.query.with_entities(cls.datetime, cls.count).filter(cls.process_id == proc_id)
+#         if start_date != end_date:
+#             result = result.filter(cls.datetime >= start_date, cls.datetime < end_date)
+#
+#         result = result.all()
+#         return result
+#
+#     @classmethod
+#     def delete_data_count_by_process_id(cls, proc_id):
+#         delete_query = cls.__table__.delete().where(cls.process_id == proc_id)
+#         db.session.execute(delete_query)
+#         db.session.commit()
+
+
 def get_models():
     all_sub_classes = db.Model.__subclasses__()
     return tuple([_class for _class in all_sub_classes if hasattr(_class, '__tablename__')])
 
 
 def make_f(model):
+    list_of_target = (CfgProcess, CfgProcessColumn, CfgFilter, CfgFilterDetail, CfgTrace, CfgTraceKey, CfgVisualization)
+
     @event.listens_for(model, 'before_insert')
-    def before_insert(mapper, connection, target):
+    def before_insert(_mapper, _connection, target):
         model_normalize(target)
+        if isinstance(target, list_of_target):
+            set_all_cache_expired(CacheType.CONFIG_DATA)
 
     @event.listens_for(model, 'before_update')
-    def before_update(mapper, connection, target):
+    def before_update(_mapper, _connection, target):
         model_normalize(target)
-        if isinstance(
-            target,
-            (
-                CfgProcess,
-                CfgProcessColumn,
-                CfgFilter,
-                CfgFilterDetail,
-                CfgTrace,
-                CfgTraceKey,
-                CfgVisualization,
-            ),
-        ):
-            set_all_cache_expired()
+        if isinstance(target, list_of_target):
+            set_all_cache_expired(CacheType.CONFIG_DATA)
 
 
 def add_listen_event():
@@ -1658,5 +1569,5 @@ def add_listen_event():
         make_f(model)
 
 
-# GUI normalization
+# add trigger in CRUD config data
 add_listen_event()

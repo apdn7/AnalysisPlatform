@@ -1,11 +1,8 @@
 from functools import lru_cache
 
-from sqlalchemy.sql import func
-
-from ap import db
-from ap.api.setting_module.services.v2_etl_services import save_unused_columns
-from ap.common.constants import DataType, DBType, ProcessCfgConst
-from ap.common.pydn.dblib.db_proxy import DbProxy
+from ap.api.setting_module.services.v2_etl_services import is_v2_data_source, save_unused_columns
+from ap.common.constants import ID, DataType, DBType, ProcessCfgConst
+from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.setting_module.models import (
     CfgDataSource,
@@ -24,7 +21,7 @@ from ap.setting_module.schemas import (
     ProcessSchema,
     ProcessVisualizationSchema,
 )
-from ap.trace_data.models import Sensor, find_cycle_class, find_sensor_class
+from ap.trace_data.transaction_model import TransactionData
 
 
 def get_all_process():
@@ -65,7 +62,7 @@ def get_process_visualizations(proc_id):
 
 
 def get_all_visualizations():
-    return list(set([cfg.filter_detail_id for cfg in CfgVisualization.get_filter_ids()]))
+    return list({cfg.filter_detail_id for cfg in CfgVisualization.get_filter_ids()})
 
 
 # def get_all_process_cfg_with_nested():
@@ -75,11 +72,23 @@ def get_all_visualizations():
 
 
 def create_or_update_process_cfg(proc_data, unused_columns):
-    sensors = []
+    need_to_deleted_cols = []
+    transaction_ds = gen_data_source_of_universal_db(proc_data[ID])
+    # get existing columns from transaction table
+    if proc_data[ID] and len(unused_columns) and is_v2_data_source(process_id=proc_data[ID]):
+        with DbProxy(transaction_ds, True, immediate_isolation_level=False):
+            origin_proc_data = TransactionData(proc_data[ID])
+            for col in unused_columns:
+                col_dat = origin_proc_data.get_cfg_column_by_name(col, is_compare_bridge_column_name=False)
+                if col_dat:
+                    need_to_deleted_cols.append(col_dat.bridge_column_name)
     with make_session() as meta_session:
         # save process config
-        process = insert_or_update_config(
-            meta_session=meta_session, data=proc_data, key_names=CfgProcess.id.key, model=CfgProcess
+        process: CfgProcess = insert_or_update_config(
+            meta_session=meta_session,
+            data=proc_data,
+            key_names=CfgProcess.id.key,
+            model=CfgProcess,
         )
         meta_session.commit()
 
@@ -98,17 +107,6 @@ def create_or_update_process_cfg(proc_data, unused_columns):
             if not proc_column.name_en:
                 proc_column.name_en = to_romaji(proc_column.column_name)
 
-            sensor = Sensor.get_sensor_by_col_name(process.id, proc_column.column_name)
-
-            if not sensor:
-                sensor = Sensor(
-                    process_id=process.id,
-                    column_name=proc_column.column_name,
-                    type=DataType[proc_column.data_type].value,
-                )
-
-            sensors.append(sensor)
-
         # save columns
         crud_config(
             meta_session=meta_session,
@@ -118,18 +116,21 @@ def create_or_update_process_cfg(proc_data, unused_columns):
             model=CfgProcessColumn,
         )
 
-        # save sensors
-        crud_config(
-            meta_session=db.session(),
-            data=sensors,
-            parent_key_names=Sensor.process_id.key,
-            key_names=Sensor.column_name.key,
-            model=Sensor,
-        )
+    # save uncheck cols of v2 only
+    save_unused_columns(process.id, unused_columns)
 
-        db.session.commit()
-        # save uncheck cols of v2 only
-        save_unused_columns(process.id, unused_columns)
+    # create table transaction_process
+    with DbProxy(transaction_ds, True, immediate_isolation_level=True) as db_instance:
+        trans_data = TransactionData(process.id)
+        trans_data.create_table(db_instance)
+        # delete unused columns
+        if len(need_to_deleted_cols):
+            # todo: upgrade sqlite3 into 3.40 to delete column
+            trans_data.delete_columns(db_instance, need_to_deleted_cols)
+    # cols = [{'name': col.bridge_column_name, 'type': col.data_type} for col in columns]
+    # with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
+    #     # create table for transaction data
+    #     db_instance.create_table(gen_transaction_table_name(process.id), cols)
 
     return process
 
@@ -140,7 +141,7 @@ def query_database_tables(db_id):
         if not data_source:
             return None
 
-        output = dict(ds_type=data_source.type, tables=[])
+        output = {'ds_type': data_source.type, 'tables': []}
         # return None if CSV
         if data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
             return output
@@ -162,18 +163,12 @@ def get_list_tables_and_views(data_source_id, updated_at=None):
     return tables
 
 
-def get_ds_tables(ds_id):
-    try:
-        tables = query_database_tables(ds_id)
-        return tables['tables'] or []
-    except Exception:
-        return []
-
-
-def get_datasource_and_tables(data_sources):
-    tables = []
-    ds_objects = {'list_ds': [convert2serialize(ds) for ds in data_sources], 'tables': tables}
-    return ds_objects
+# def get_ds_tables(ds_id):
+#     try:
+#         tables = query_database_tables(ds_id)
+#         return tables['tables'] or []
+#     except Exception:
+#         return []
 
 
 def convert2serialize(obj):
@@ -184,34 +179,31 @@ def convert2serialize(obj):
     elif not isinstance(obj, str) and hasattr(obj, '__iter__'):
         return [convert2serialize(v) for v in obj]
     elif hasattr(obj, '__dict__'):
-        return {
-            k: convert2serialize(v)
-            for k, v in obj.__dict__.items()
-            if not callable(v) and not k.startswith('_')
-        }
+        return {k: convert2serialize(v) for k, v in obj.__dict__.items() if not callable(v) and not k.startswith('_')}
     else:
         return obj
 
 
 def get_ct_range(proc_id, columns):
-    is_using_dummy_datetime = True in [
-        col['is_get_date'] and col['is_dummy_datetime'] for col in columns
-    ]
+    is_using_dummy_datetime = True in [col['is_get_date'] and col['is_dummy_datetime'] for col in columns]
 
     if not is_using_dummy_datetime:
         return []
 
     try:
-        cycle_cls = find_cycle_class(proc_id)
-        ct_range = (
-            db.session.query(cycle_cls.id, cycle_cls.time)
-            .filter(cycle_cls.process_id == proc_id)
-            .with_entities(
-                func.min(cycle_cls.time).label('min_time'),
-                func.max(cycle_cls.time).label('max_time'),
-            )
-            .first()
-        )
-        return list(ct_range)
+        with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
+            trans_data = TransactionData(proc_id)
+            ct_range = trans_data.get_ct_range(db_instance)
+        # cycle_cls = find_cycle_class(proc_id)
+        # ct_range = (
+        #     db.session.query(cycle_cls.id, cycle_cls.time)
+        #     .filter(cycle_cls.process_id == proc_id)
+        #     .with_entities(
+        #         func.min(cycle_cls.time).label('min_time'),
+        #         func.max(cycle_cls.time).label('max_time'),
+        #     )
+        #     .first()
+        # )
+        return ct_range
     except Exception:
         return []

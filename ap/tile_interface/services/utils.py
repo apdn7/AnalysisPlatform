@@ -32,9 +32,7 @@ def section_infor_with_lang(sections, language, is_usage, master_info):
     for section in sections:
         section[TITLE] = section[title_lang] if title_lang in section else section[default_lang]
         section[EXAMPLE] = (
-            section[eg_lang]
-            if eg_lang in section
-            else (section[eg_default_lang] if eg_default_lang in section else '')
+            section[eg_lang] if eg_lang in section else (section[eg_default_lang] if eg_default_lang in section else '')
         )
         section[ICON_PATH] = TILE_RESOURCE_URL + section[ICON_PATH] if ICON_PATH in section else ''
         tile_rows = 0
@@ -80,18 +78,18 @@ def section_infor_with_lang(sections, language, is_usage, master_info):
 
 def get_tile_master_with_lang(tile_master, current_lang):
     i18n_els = [TITLE, HOVER]
-    master_info = dict()
+    master_info = {}
     for page in tile_master:
         for ele in i18n_els:
             locale_key = f'{ele}_{current_lang}'
             if locale_key not in tile_master[page]:
                 locale_key = f'{ele}_{ENG}'  # default eng
             tile_master[page][ele] = tile_master[page][locale_key]
-        master_info[page] = dict(
-            title=tile_master[page][TITLE],
-            png_path=tile_master[page][PNG_PATH],
-            hover=tile_master[page][HOVER],
-            link_address=tile_master[page][LINK_ADD],
-        )
+        master_info[page] = {
+            'title': tile_master[page][TITLE],
+            'png_path': tile_master[page][PNG_PATH],
+            'hover': tile_master[page][HOVER],
+            'link_address': tile_master[page][LINK_ADD],
+        }
 
     return master_info

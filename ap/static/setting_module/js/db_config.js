@@ -3,10 +3,11 @@ let currentDSTR;
 let latestRecords;
 let useDummyDatetime;
 let v2DataSources = null;
-let MAX_NUMBER_OF_SENSOR = 100000000;
+const MAX_NUMBER_OF_SENSOR = 100000000;
+const MIN_NUMBER_OF_SENSOR = 0;
 let isV2ProcessConfigOpening = false;
 let v2ImportInterval = null;
-const DUMMY_V2_PROCESS_NAME = 'DUMMY_V2_PROCESS_NAME';
+const DUMMY_V2_PROCESS_NAME = 'DUMMY_V2_PROCESS_NAME'
 // data type
 const originalTypes = {
     0: null,
@@ -122,6 +123,7 @@ const i18nDBCfg = {
     noDatetimeColMsg: $('#i18nNoDatetimeCol')
         .text(),
     fileNotFound: $('#i18nFileNotFoundMsg'),
+    couldNotReadData: $('#i18nCouldNotReadData'),
 };
 
 const triggerEvents = {
@@ -160,11 +162,11 @@ const checkFolderResources = (folderUrl) => {
 };
 
 const changeBackgroundColor = (ele) => {
-    if ([DataTypes.STRING.value, DataTypes.REAL_SEP.value, DataTypes.EU_REAL_SEP].includes(Number(ele.value))) {
-        $(ele)
+    if ([DataTypes.STRING.name, DataTypes.REAL_SEP.name, DataTypes.EU_REAL_SEP.name].includes(ele.getAttribute('value'))) {
+        $(ele).closest('.config-data-type-dropdown').find('[name=dataType]')
             .css('color', 'orange');
     } else {
-        $(ele)
+        $(ele).closest('.config-data-type-dropdown').find('[name=dataType]')
             .css('color', 'white');
     }
 };
@@ -174,13 +176,16 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
     $(`${csvResourceElements.dataTbl} table thead tr`).html('');
     $(`${csvResourceElements.dataTbl} table tbody`).html('');
     $('#resourceLoading').hide();
+    if (res.is_dummy_header) {
+        $(csvResourceElements.dummyHeaderModal).modal('show');
+    }
     let hasDuplCols = false;
     const predictedDatatypes = res.dataType;
     const dummyDatetimeIdx = res.dummy_datetime_idx;
     const colsName = useSuffix ? res.header : res.org_headers;
     colsName.forEach((column, idx) => {
         let columnColor = dummyDatetimeIdx === idx ? ' dummy_datetime_col' : '';
-        const isDuplCol = res.same_values[idx].is_dupl;
+        const isDuplCol = res.has_dupl_cols ? res.same_values[idx].is_dupl : false;
         if (isDuplCol) {
             columnColor += ' dupl_col';
             hasDuplCols = true;
@@ -201,18 +206,14 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
         row.forEach((val, idx) => {
             const datatype = predictedDatatypes[idx];
             let columnColor = dummyDatetimeIdx === idx ? ' dummy_datetime_col' : '';
-            const isDuplCol = res.same_values[idx].is_dupl;
+            const isDuplCol = res.has_dupl_cols ? res.same_values[idx].is_dupl : false;
             if (isDuplCol) {
                 columnColor += ' dupl_col';
             }
             let formattedVal = val;
             formattedVal = trimBoth(String(formattedVal));
             if (datatype === DataTypes.DATETIME.value) {
-                formattedVal = moment(formattedVal)
-                    .format(DATE_FORMAT_TZ);
-                if (formattedVal === 'Invalid date') {
-                    formattedVal = '';
-                }
+               formattedVal = parseDatetimeStr(formattedVal);
             } else if (datatype === DataTypes.INTEGER.value) {
                 formattedVal = parseIntData(formattedVal);
                 if (isNaN(formattedVal)) {
@@ -242,6 +243,11 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
     if (hasDuplCols) {
         const msgContent = '';
         showToastrMsg(msgContent);
+    }
+
+    // show encoding
+    if (res.encoding) {
+        $('#dbsEncoding').text(`Encoding: ${res.encoding}`);
     }
 };
 
@@ -298,6 +304,8 @@ const showResources = async () => {
         $('#resourceLoading').hide();
         return;
     }
+    // get line skipping config
+    const lineSkipping = $('input[name=line_skip]').val();
     $.ajax({
         url: csvResourceElements.apiUrl,
         method: 'POST',
@@ -306,11 +314,19 @@ const showResources = async () => {
             url: folderUrl,
             etl_func: $('[name=optionalFunction]').val(),
             delimiter: $(csvResourceElements.delimiter).val(),
-            isV2
+            isV2,
+            line_skip: lineSkipping,
         }),
         contentType: 'application/json',
         success: (res) => {
+            $(csvResourceElements.alertInternalError).hide();
             showToastrMsgFailLimit(res);
+
+            // save dummy header flag
+            if (Object.keys(res).includes('is_dummy_header')) {
+                $(csvResourceElements.isDummyHeader).val(res.is_dummy_header);
+            }
+
             if (!res.has_ct_col) {
                 showDummyDatetimeModal(res);
                 latestRecords = res;
@@ -343,6 +359,14 @@ const showResources = async () => {
                 })
             }
         },
+        error: (error) => {
+            $('#resourceLoading').hide();
+            hideAlertMessages();
+            displayRegisterMessage(csvResourceElements.alertInternalError, {
+                message: i18nDBCfg.couldNotReadData.text(),
+                is_error: true,
+            });
+        }
     });
 };
 
@@ -482,6 +506,10 @@ const saveV2DataSource = (dsConfig) => {
     .then((json) => {
         $('#modal-db-csv').modal('hide');
         displayRegisterMessage('#alert-msg-db', json.flask_message);
+        if (json.flask_message.is_error) {
+            loading.hide();
+            return;
+        }
         const dataSources = json.data.map(da => JSON.parse(da.data_source));
         let index = 0;
         for (const dbs of dataSources) {
@@ -511,10 +539,6 @@ const saveV2DataSource = (dsConfig) => {
         // show v2 process config automatically
         const dbsIds = json.data.map(da => da.id);
         showAllV2ProcessConfigModal(dbsIds);
-    })
-    .catch((json) => {
-        displayRegisterMessage('#alert-msg-db', json.flask_message);
-        loading.hide();
     });
 }
 
@@ -639,6 +663,7 @@ const genCsvInfo = () => {
     const optionalFunction = $(csvResourceElements.optionalFunction)
         .val();
     const [columnNames, columnTypes, orders] = getCsvColumns();
+    const isDummyHeader = $(csvResourceElements.isDummyHeader).val();
 
     // Get csv Information
     const csvColumns = [];
@@ -651,6 +676,7 @@ const genCsvInfo = () => {
         etl_func: optionalFunction,
         delimiter,
         csv_columns: csvColumns,
+        dummy_header: isDummyHeader,
     };
 
     const dictDataSrc = {
@@ -707,7 +733,6 @@ const saveCSVDataSource = (isV2=false) => {
             // show modal messenger
             $(dbElements.saveDataSourceModal).modal('show');
             v2DataSources = v2DatasourceByProcess;
-
         } else if (v2DatasourceByProcess.length == 1) {
             saveV2DataSource(v2DatasourceByProcess);
         }
@@ -1118,72 +1143,6 @@ const parseFloatData = (v) => {
     return val;
 };
 
-const parseData = (ele, idx) => {
-    // change background color
-    changeBackgroundColor(ele);
-
-    const rows = $(`${csvResourceElements.dataTbl} table tbody tr`);
-    const vals = [];
-    for (const row of rows) {
-        vals.push($(row)
-            .find('td')
-            .eq(idx));
-    }
-
-    const attrName = 'data-original';
-
-    // get data type in case of change all cols from here
-    const changeColsTo = $(ele.options[ele.selectedIndex])
-        .data(triggerEvents.ALL);
-    if (changeColsTo) {
-        const allCols = $(ele)
-            .parent()
-            .parent()
-            .find(triggerEvents.SELECT);
-        for (let i = (idx); i < allCols.length; i++) {
-            $(`select#col-${i}`)
-                .val(changeColsTo)
-                .trigger(triggerEvents.CHANGE);
-        }
-    }
-
-    switch (Number(ele.value)) {
-    case DataTypes.INTEGER.value:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = parseIntData(val);
-            e.html(val);
-        }
-        break;
-    case DataTypes.REAL.value:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = parseFloatData(val);
-            e.html(val);
-        }
-        break;
-    case DataTypes.DATETIME.value:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = trimBoth(String(val));
-            val = moment(val)
-                .format(DATE_FORMAT_TZ);
-            if (val === 'Invalid date') {
-                val = '';
-            }
-            e.html(val);
-        }
-        break;
-    default:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = trimBoth(String(val));
-            e.html(val);
-        }
-        break;
-    }
-};
-
 const getDataTypeFromID = (dataTypeID) => {
     let currentDatType = '';
     Object.keys(DataTypes)
@@ -1224,7 +1183,7 @@ const changeSelectedColumnRaw = (ele, idx) => {
     // find column in setting table
     const columnName = $(`table[name="latestDataTable"] thead th:eq(${idx})`)
         .find('input')[0];
-    const columnInSelectedTable = columnName ? $('#selectedColumnsTable')
+    const columnInSelectedTable = columnName ? $('#processColumnsTable')
         .find(`tr[uid="${columnName.value}"]`)[0] : null;
 
     if (columnInSelectedTable) {
@@ -1275,42 +1234,24 @@ const changeSelectedColumnRaw = (ele, idx) => {
         .find('input')
         .attr('data-type', getDataTypeFromID(ele.value));
 };
+const updateSubmitBtn = () => {
+    let btnClass = ['btn-primary', 'btn-secondary'];
+    procModalElements.createOrUpdateProcCfgBtn.attr('data-has-ct', true);
+    procModalElements.createOrUpdateProcCfgBtn.removeClass(btnClass[1]);
+    procModalElements.createOrUpdateProcCfgBtn.addClass(btnClass[0]);
+    // hide err msg
+    $(procModalElements.alertProcessNameErrorMsg).css('display', 'none');
+};
 const parseDataType = (ele, idx) => {
     // change background color
     changeBackgroundColor(ele);
 
-    const rows = procModalElements.latestDataBody.find('tr');
-    const vals = [];
-    for (const row of rows) {
-        vals.push($(row)
-            .find('td')
-            .eq(idx));
-    }
+    const vals = [...procModalElements.processColumnsSampleDataTableBody.find(`tr:eq(${idx}) .sample-data`)].map(el => $(el));
 
     const attrName = 'data-original';
 
-    // get data type in case of change all cols from here
-    const changeColsTo = $(ele.options[ele.selectedIndex])
-        .data(triggerEvents.ALL);
-    if (changeColsTo) {
-        const seletedValue = $(`#dataTypeTemp-${idx}`)
-            .val();
-        const allCols = $(ele)
-            .parent()
-            .parent()
-            .find(triggerEvents.SELECT);
-        for (let i = idx; i < allCols.length; i++) {
-            $(`select#col-${i}`)
-                .val(seletedValue)
-                .trigger(triggerEvents.CHANGE);
-        }
-    } else {
-        $(`#dataTypeTemp-${idx}`)
-            .val(ele.value);
-    }
-
-    switch (Number(ele.value)) {
-    case DataTypes.INTEGER.value:
+    switch (ele.getAttribute('value')) {
+    case DataTypes.INTEGER.name:
         for (const e of vals) {
             let val = e.attr(attrName);
             const isBigInt = Boolean(e.attr('is-big-int'));
@@ -1320,26 +1261,21 @@ const parseDataType = (ele, idx) => {
             e.html(val);
         }
         break;
-    case DataTypes.REAL.value:
+    case DataTypes.REAL.name:
         for (const e of vals) {
             let val = e.attr(attrName);
             val = parseFloatData(val);
             e.html(val);
         }
         break;
-    case DataTypes.DATETIME.value:
+    case DataTypes.DATETIME.name:
         for (const e of vals) {
             let val = e.attr(attrName);
-            val = trimBoth(String(val));
-            val = moment(val)
-                .format(DATE_FORMAT_TZ);
-            if (val === 'Invalid date') {
-                val = '';
-            }
+            val = parseDatetimeStr(val);
             e.html(val);
         }
         break;
-    case DataTypes.REAL_SEP.value:
+    case DataTypes.REAL_SEP.name:
         for (const e of vals) {
             let val = e.attr(attrName);
             val = val.replaceAll(',', '');
@@ -1347,7 +1283,7 @@ const parseDataType = (ele, idx) => {
             e.html(val);
         }
         break;
-    case DataTypes.INTEGER_SEP.value:
+    case DataTypes.INTEGER_SEP.name:
         for (const e of vals) {
             let val = e.attr(attrName);
             val = val.replaceAll(',', '');
@@ -1355,7 +1291,7 @@ const parseDataType = (ele, idx) => {
             e.html(val);
         }
         break;
-    case DataTypes.EU_REAL_SEP.value:
+    case DataTypes.EU_REAL_SEP.name:
         for (const e of vals) {
             let val = e.attr(attrName);
             val = val.replaceAll('.', '');
@@ -1364,7 +1300,7 @@ const parseDataType = (ele, idx) => {
             e.html(val);
         }
         break;
-    case DataTypes.EU_INTEGER_SEP.value:
+    case DataTypes.EU_INTEGER_SEP.name:
         for (const e of vals) {
             let val = e.attr(attrName);
             val = val.replaceAll('.', '');
@@ -1381,7 +1317,8 @@ const parseDataType = (ele, idx) => {
         }
         break;
     }
-    changeSelectedColumnRaw(ele, idx);
+    // changeSelectedColumnRaw(ele, idx);
+    updateSubmitBtn();
 };
 
 const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
@@ -1447,6 +1384,11 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             } else {
                 $(csvResourceElements.fileTypeAuto)[0].checked = true;
             }
+            // line skipping
+            const skipHead = dictDataSrc.csv_detail.skip_head;
+            const isDummyHeader = dictDataSrc.csv_detail.dummy_header;
+            const lineSkip = skipHead == 0 && !isDummyHeader ? '' : skipHead;
+            $(csvResourceElements.skipHead).val(lineSkip);
 
             // load optional function
             if (dictDataSrc.csv_detail.etl_func) {
@@ -1470,6 +1412,8 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             $(dbElements.v2ProcessDiv).show();
             // change title to V2 CSV
             dbElements.CSVTitle.text(dbElements.CSVTitle.text().replace('CSV/TSV', 'V2 CSV'));
+            // hide skip line
+            $(csvResourceElements.skipHead).parent().hide();
             let processList = []
             if (dictDataSrc.csv_detail.process_name) {
                 processList.push(dictDataSrc.csv_detail.process_name)
@@ -1477,10 +1421,13 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             // add empty process
             addProcessList(processList, processList, processList);
             $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).attr('data-isV2', true);
+            $(`.saveDBInfoBtn`).attr('data-isV2', true);
             $(csvResourceElements.showResourcesBtnId).attr('data-isV2', true);
         } else {
             // change title to csv / tsv
             dbElements.CSVTitle.text(dbElements.CSVTitle.text().replace('V2 CSV', 'CSV/TSV'));
+            // show skip line
+            $(csvResourceElements.skipHead).parent().show();
         }
         break;
     }
@@ -1733,6 +1680,7 @@ $(() => {
 
     $(csvResourceElements.connectResourceBtn)
         .on('click', () => {
+            $(csvResourceElements.alertInternalError).hide();
             const folderUrl = $(csvResourceElements.folderUrlInput)
                 .val();
             checkFolderResources(folderUrl);
@@ -1770,7 +1718,6 @@ $(() => {
             addDBConfigRow();
         }
     }, 500);
-    $(dbElements.divDbConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
     $(dbElements.divDbConfig)[0].addEventListener('mouseup', handleMouseUp, false);
 
     $(dbConfigElements.csvDBSourceName)
@@ -1796,6 +1743,15 @@ $(() => {
     // add event to dbElements.txbSearchDataSourceName
     $(dbElements.txbSearchDataSourceName)
         .keyup(searchDataSourceName);
+
+    // convert skipHead to blank if value is out of range
+    $(csvResourceElements.skipHead)
+        .on('change', (ele) => {
+            const skipHead = $(ele.currentTarget);
+            if (skipHead.is(':out-of-range')) {
+                skipHead.val('');
+            }
+        });
 
     // searchDataSource
     onSearchTableContent('searchDataSource', 'tblDbConfig');

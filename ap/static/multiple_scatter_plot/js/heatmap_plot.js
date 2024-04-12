@@ -1,4 +1,4 @@
-const colorPallets = [
+const heatmapColorPallets = [
     ['0', '#1E90FF'],
     ['0.5', '#FFFFFF'],
     ['1', '#FF4433'],
@@ -25,7 +25,7 @@ const generateHeatmapPlot = (prop, tickLen) => {
                 size: 14,
             }
         },
-        colorscale: colorPallets,
+        colorscale: heatmapColorPallets,
     }];
 
     const layout = {
@@ -134,30 +134,4 @@ const getTickPixelSize = (tickTexts) => {
     }
 
     return Math.max(...tickSizes) + 35;
-}
-
-
-const visualTextLength = (text, textSize = 14) => {
-    const span = `<div class="hide-element" style="font-size: ${textSize}px; font-family: 'Arial'">${text}</div>`
-    $('html').append(span);
-    const width = $('.hide-element').width();
-    $('.hide-element').remove();
-
-    return Math.floor(width);
-};
-
-const trimTextLengthByPixel = (text, length = 150) => {
-    let tmp = text;
-    let trimmed = text;
-    if (visualTextLength(tmp) > length)
-    {
-        trimmed += "...";
-        while (visualTextLength(trimmed) > length)
-        {
-            tmp = tmp.substring(0, tmp.length-1);
-            trimmed = tmp + "...";
-        }
-    }
-
-    return trimmed;
 }

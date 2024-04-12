@@ -19,6 +19,8 @@ from ap.setting_module.models import (
     CfgVisualization,
 )
 
+EXCLUDE_COLS = ('updated_at', 'created_at')
+
 
 class CsvColumnSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -26,6 +28,7 @@ class CsvColumnSchema(ma.SQLAlchemyAutoSchema):
         include_fk = True
         unknown = True
         partial = True
+        exclude = EXCLUDE_COLS
 
     id = fields.Integer(required=False)
     data_source_id = fields.Integer(required=False)
@@ -40,6 +43,7 @@ class DataSourceDbSchema(ma.SQLAlchemyAutoSchema):
         model = CfgDataSourceDB
         include_fk = True
         unknown = True
+        exclude = EXCLUDE_COLS
 
     id = fields.Integer(required=False)
 
@@ -54,6 +58,7 @@ class DataSourceCsvSchema(ma.SQLAlchemyAutoSchema):
         include_fk = True
         unknown = True
         required = False
+        exclude = EXCLUDE_COLS
 
     id = fields.Integer(required=False)
     csv_columns = Nested(CsvColumnSchema, many=True)
@@ -67,6 +72,7 @@ class DataSourceSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgDataSource
         unknown = True
+        exclude = EXCLUDE_COLS
 
     id = fields.Integer(required=False, allow_none=True)
     csv_detail = Nested(DataSourceCsvSchema)
@@ -77,60 +83,76 @@ class DataSourceSchema(ma.SQLAlchemyAutoSchema):
         return CfgDataSource(**data)
 
 
-class TraceKeySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = CfgTraceKey
-        include_fk = True
-
-
-class TraceSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = CfgTrace
-        include_fk = True
-
-    trace_keys = Nested(TraceKeySchema, many=True)
-
-
 class FilterDetailSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgFilterDetail
         include_fk = True
-
-
-class FilterSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = CfgFilter
-        include_fk = True
-
-    filter_details = Nested(FilterDetailSchema, many=True)
-
-
-class VisualizationSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = CfgVisualization
-        include_fk = True
-
-    id = fields.Integer(required=False, allow_none=True)
-    filter_detail_id = fields.Integer(required=False, allow_none=True)
-
-    @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgVisualization(**data)
+        exclude = EXCLUDE_COLS
 
 
 class ProcessColumnSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgProcessColumn
+        include_fk = True
+        exclude = EXCLUDE_COLS
 
     name_jp = fields.String(required=False, allow_none=True)
     name_local = fields.String(required=False, allow_none=True)
     name_en = fields.String(required=False, allow_none=False)
     shown_name = fields.String(required=False, allow_none=True)
     name = fields.String(required=False, allow_none=True)
+    is_category = fields.Boolean(required=False, allow_none=True)
+    is_int_category = fields.Boolean(required=False, allow_none=True)
 
     @post_load
     def make_obj(self, data, **kwargs):
         return CfgProcessColumn(**data)
+
+
+class FilterSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CfgFilter
+        include_fk = True
+        exclude = EXCLUDE_COLS
+
+    filter_details = Nested(FilterDetailSchema, many=True)
+    column = Nested(ProcessColumnSchema, many=False)
+
+
+class VisualizationSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CfgVisualization
+        include_fk = True
+        exclude = EXCLUDE_COLS
+
+    id = fields.Integer(required=False, allow_none=True)
+    filter_detail_id = fields.Integer(required=False, allow_none=True)
+    control_column = Nested(ProcessColumnSchema, many=False)
+    filter_column = Nested(ProcessColumnSchema, many=False)
+    filter_detail = Nested(FilterDetailSchema, many=False)
+
+    @post_load
+    def make_obj(self, data, **kwargs):
+        return CfgVisualization(**data)
+
+
+class TraceKeySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CfgTraceKey
+        include_fk = True
+        exclude = EXCLUDE_COLS
+
+    self_column = Nested(ProcessColumnSchema)
+    target_column = Nested(ProcessColumnSchema)
+
+
+class TraceSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CfgTrace
+        include_fk = True
+        exclude = EXCLUDE_COLS
+
+    trace_keys = Nested(TraceKeySchema, many=True)
 
 
 class ProcessSchema(ma.SQLAlchemyAutoSchema):
@@ -138,15 +160,13 @@ class ProcessSchema(ma.SQLAlchemyAutoSchema):
         model = CfgProcess
         include_fk = True
         include_relationships = True
-        exclude = ('visualizations',)  # re-open the params if used
+        exclude = ('visualizations',) + EXCLUDE_COLS  # re-open the params if used
 
     id = fields.Integer(required=False, allow_none=True)
     columns = Nested(ProcessColumnSchema, many=True)
     traces = Nested(TraceSchema, many=True)
     filters = Nested(FilterSchema, many=True)
-    data_source = Nested(
-        lambda: DataSourceSchema(only=('id', 'name', 'type', 'csv_detail', 'db_detail'))
-    )
+    data_source = Nested(lambda: DataSourceSchema(only=('id', 'name', 'type', 'csv_detail', 'db_detail')))
     name_en = fields.String(required=False, allow_none=False)
     name_jp = fields.String(required=False, allow_none=True)
     name_local = fields.String(required=False, allow_none=True)
@@ -158,6 +178,7 @@ class ProcessFullSchema(ma.SQLAlchemyAutoSchema):
         model = CfgProcess
         include_fk = True
         include_relationships = True
+        exclude = EXCLUDE_COLS
 
     id = fields.Integer(required=False, allow_none=True)
     columns = Nested(ProcessColumnSchema, many=True)
@@ -166,13 +187,17 @@ class ProcessFullSchema(ma.SQLAlchemyAutoSchema):
     data_source = Nested(DataSourceSchema)
     visualizations = Nested(VisualizationSchema, many=True)
 
+    @post_load
+    def make_obj(self, data, **kwargs):
+        return CfgProcess(**data)
+
 
 class ProcessVisualizationSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgProcess
         include_fk = True
         include_relationships = True
-        exclude = ('data_source', 'traces')
+        exclude = ('data_source', 'traces') + EXCLUDE_COLS
 
     columns = Nested(ProcessColumnSchema, many=True)
     visualizations = Nested(VisualizationSchema, many=True)
@@ -182,7 +207,7 @@ class ProcessVisualizationSchema(ma.SQLAlchemyAutoSchema):
 class ProcessOnlySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgProcess
-        exclude = ('visualizations', 'columns', 'traces', 'filters')  # re-open the params if used
+        exclude = ('visualizations', 'columns', 'traces', 'filters') + EXCLUDE_COLS  # re-open the params if used
 
     shown_name = fields.String(required=False, allow_none=False)
 
@@ -190,6 +215,7 @@ class ProcessOnlySchema(ma.SQLAlchemyAutoSchema):
 class CfgUserSettingSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgUserSetting
+        exclude = ['created_at']
 
     id = fields.Integer(required=False, allow_none=True)
     function = fields.String(required=False, allow_none=True)
@@ -197,6 +223,24 @@ class CfgUserSettingSchema(ma.SQLAlchemyAutoSchema):
     @post_load
     def make_obj(self, data, **kwargs):
         return CfgUserSetting(**data)
+
+
+class ShowGraphSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CfgProcess
+        include_fk = True
+        include_relationships = True
+        # exclude = ('data_source', 'traces') + EXCLUDE_COLS
+        exclude = ('traces', 'comment', 'order') + EXCLUDE_COLS
+
+    id = fields.Integer(required=False, allow_none=True)
+    columns = Nested(ProcessColumnSchema, many=True)
+    traces = Nested(TraceSchema, many=True, allow_none=None)
+    filters = Nested(FilterSchema, many=True)
+    # data_source = Nested(DataSourceSchema, allow_none=None)
+    data_source = Nested(DataSourceSchema)
+    visualizations = Nested(VisualizationSchema, many=True)
+    shown_name = fields.String(required=True, allow_none=False)
 
 
 class CfgRequestSchema(ma.SQLAlchemyAutoSchema):

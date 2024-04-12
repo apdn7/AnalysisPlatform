@@ -34,3 +34,13 @@
 .cmt-2 {
     margin-top: 2px;
 }
+.is-string-col label.custom-control-label::before,
+.is-string-col label.custom-control-label::after,
+.is-string-col input {
+    visibility: hidden;
+}
+.is-string-col label.custom-control-label.show-ele::before,
+.is-string-col label.custom-control-label.show-ele::after,
+.is-string-col input.show-label {
+    visibility: visible;
+}

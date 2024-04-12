@@ -21,14 +21,13 @@ from ap.common.constants import (
     DF_CHUNK_SIZE,
     DUMMY_V2_PROCESS_NAME,
     MAXIMUM_PROCESSES_ORDER_FILES,
-    REVERSED_WELL_KNOWN_COLUMNS,
     DataGroupType,
     DBType,
 )
 from ap.common.logger import log_execution_time
 from ap.setting_module.models import CfgDataSource
 
-ID = 'id'
+AUTO_LINK_ID = 'id'
 PROCESS = 'process'
 DATE = 'date'
 SERIAL = 'serial'
@@ -145,7 +144,7 @@ class AutoLinkSourceDB(AutoLinkSourceBase):
 
 class AutoLinkReader:
     def __init__(self):
-        self.df = pd.DataFrame(columns=[ID, DATE, SERIAL])
+        self.df = pd.DataFrame(columns=[AUTO_LINK_ID, DATE, SERIAL])
 
     @staticmethod
     def drop_duplicates(df: DataFrame) -> DataFrame:
@@ -158,11 +157,9 @@ class AutoLinkReader:
             subset.append(PROCESS)
         if SERIAL in df.columns:
             subset.append(SERIAL)
-        if ID in df.columns:
-            subset.append(ID)
-        return (
-            df.sort_values(DATE).drop_duplicates(subset=subset, keep='last').reset_index(drop=True)
-        )
+        if AUTO_LINK_ID in df.columns:
+            subset.append(AUTO_LINK_ID)
+        return df.sort_values(DATE).drop_duplicates(subset=subset, keep='last').reset_index(drop=True)
 
     @log_execution_time(LOG_PREFIX)
     def __read_v2(self, file: Union[Path, str], processes: List[str], ids: List[int]):
@@ -171,13 +168,20 @@ class AutoLinkReader:
             return
 
         process_col = get_reversed_column_value_from_v2(
-            datasource_type.name, DataGroupType.PROCESS_NAME.value, is_abnormal_v2, is_en_cols
+            datasource_type.name,
+            DataGroupType.PROCESS_NAME.value,
+            is_abnormal_v2,
+            is_en_cols,
         )
         serial_col = get_reversed_column_value_from_v2(
-            datasource_type.name, DataGroupType.DATA_SERIAL.value, is_abnormal_v2
+            datasource_type.name,
+            DataGroupType.DATA_SERIAL.value,
+            is_abnormal_v2,
         )
         date_col = get_reversed_column_value_from_v2(
-            datasource_type.name, DataGroupType.DATA_TIME.value, is_abnormal_v2
+            datasource_type.name,
+            DataGroupType.DATA_TIME.value,
+            is_abnormal_v2,
         )
         cols = [process_col, serial_col, date_col]
 
@@ -200,7 +204,10 @@ class AutoLinkReader:
 
         try:
             with pd.read_csv(
-                file, chunksize=DF_CHUNK_SIZE, nrows=AUTOLINK_TOTAL_RECORDS_PER_SOURCE, **params
+                file,
+                chunksize=DF_CHUNK_SIZE,
+                nrows=AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
+                **params,
             ) as reader:
                 for df_chunk in reader:
                     if DUMMY_V2_PROCESS_NAME in mapping_processes_id:
@@ -213,7 +220,7 @@ class AutoLinkReader:
                         filtered_df: DataFrame = df_processes[df_processes[PROCESS] == process]
                         for idx in ids:
                             replaced_id_df = filtered_df.copy()
-                            replaced_id_df[ID] = replaced_id_df[PROCESS].replace(process, idx)
+                            replaced_id_df[AUTO_LINK_ID] = replaced_id_df[PROCESS].replace(process, idx)
                             replaced_id_df = replaced_id_df.drop(columns=[PROCESS])
                             replaced_id_df = self.drop_duplicates(replaced_id_df)
                             replaced_df = pd.concat([replaced_df, replaced_id_df])
@@ -239,7 +246,7 @@ class AutoLinkReader:
                         filtered_df: DataFrame = df_processes[df_processes[PROCESS] == process]
                         for idx in ids:
                             replaced_id_df = filtered_df.copy()
-                            replaced_id_df[ID] = replaced_id_df[PROCESS].replace(process, idx)
+                            replaced_id_df[AUTO_LINK_ID] = replaced_id_df[PROCESS].replace(process, idx)
                             replaced_id_df = replaced_id_df.drop(columns=[PROCESS])
                             replaced_id_df = self.drop_duplicates(replaced_id_df)
                             replaced_df = pd.concat([replaced_df, replaced_id_df])
@@ -272,8 +279,8 @@ class AutoLinkReader:
                 nrows=AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
                 encoding=encoding,
             ) as reader:
-                for df_chunk in reader:
-                    df_chunk = df_chunk.rename(columns=rename_params)
+                for _df_chunk in reader:
+                    df_chunk = _df_chunk.rename(columns=rename_params).dropna()
                     df = pd.concat([df, df_chunk])
                     df = self.drop_duplicates(df)
         except ParserError:
@@ -285,8 +292,8 @@ class AutoLinkReader:
                 quoting=csv.QUOTE_NONE,
                 encoding=encoding,
             ) as reader:
-                for df_chunk in reader:
-                    df_chunk = df_chunk.rename(columns=rename_params)
+                for _df_chunk in reader:
+                    df_chunk = _df_chunk.rename(columns=rename_params).dropna()
                     df = pd.concat([df, df_chunk])
                     df = self.drop_duplicates(df)
         return df
@@ -297,8 +304,7 @@ class AutoLinkReader:
             if source.dbtype in [DBType.V2, DBType.V2_MULTI]:
                 if len(source.processes) != len(source.ids):
                     raise RuntimeError(
-                        'We do not allow number of processes different with ids, '
-                        'this must be front-end bug.'
+                        'We do not allow number of processes different with ids, this must be front-end bug.',
                     )
                 self.__read_v2(file, source.processes, source.ids)
                 continue
@@ -310,7 +316,7 @@ class AutoLinkReader:
                 serial_col=source.serial_col,
                 delimiter=source.get_delimiter(file),
             )
-            df[ID] = source.process_id
+            df[AUTO_LINK_ID] = source.process_id
             self.df = pd.concat([self.df, df])
             self.df = self.drop_duplicates(self.df)
 
@@ -327,7 +333,7 @@ class AutoLinkReader:
             source.serial_col: SERIAL,
         }
         df = df[[source.date_col, source.serial_col]].rename(columns=rename_params)
-        df[ID] = source.process_id
+        df[AUTO_LINK_ID] = source.process_id
         self.df = pd.concat([self.df, df])
         self.df = self.drop_duplicates(self.df)
 
@@ -339,7 +345,7 @@ class SortAlgo:
 
     @staticmethod
     def verify(df: DataFrame) -> bool:
-        return {ID, DATE, SERIAL} == set(df.columns)
+        return {AUTO_LINK_ID, DATE, SERIAL} == set(df.columns)
 
     def get_count_by_serial(self, df: DataFrame) -> DataFrame:
         if not self.verify(df):
@@ -364,17 +370,16 @@ class SortByCountOrderKeep(SortAlgo):
             max_count = df[COUNT].max()
             df_count = df[df[COUNT] == max_count]
             df_count[ORDER] = (
-                df_count.sort_values([DATE, ID], ascending=[True, False]).groupby(SERIAL).cumcount()
-                + 1
+                df_count.sort_values([DATE, AUTO_LINK_ID], ascending=[True, False]).groupby(SERIAL).cumcount() + 1
             )
 
             # calculate mean of order against each process
             agg_params = {ORDER: 'mean', DATE: 'min'}
             current_ordered = (
-                df_count[[ID, DATE, ORDER]]
-                .groupby(ID)
+                df_count[[AUTO_LINK_ID, DATE, ORDER]]
+                .groupby(AUTO_LINK_ID)
                 .agg(agg_params)
-                .sort_values([ORDER, DATE, ID], ascending=[True, True, True])
+                .sort_values([ORDER, DATE, AUTO_LINK_ID], ascending=[True, True, True])
                 .index.to_list()
             )
             ordered_processes.extend(current_ordered)
@@ -383,7 +388,7 @@ class SortByCountOrderKeep(SortAlgo):
             if loop_count is not None and loop >= loop_count:
                 break
             # remove ordered processes
-            df = df[~df[ID].isin(current_ordered)]
+            df = df[~df[AUTO_LINK_ID].isin(current_ordered)]
 
         return ordered_processes
 
@@ -406,17 +411,15 @@ class SortByCountOrderKeepMean(SortAlgo):
         df = self.get_count_by_serial(df)
         mean = df[COUNT].mean()
         df = df[df[COUNT] >= mean]
-        df[ORDER] = (
-            df.sort_values([DATE, ID], ascending=[True, False]).groupby(SERIAL).cumcount() + 1
-        )
+        df[ORDER] = df.sort_values([DATE, AUTO_LINK_ID], ascending=[True, False]).groupby(SERIAL).cumcount() + 1
 
         # calculate mean of order against each process
         agg_params = {ORDER: 'mean', DATE: 'min'}
         return (
-            df[[ID, DATE, ORDER]]
-            .groupby(ID)
+            df[[AUTO_LINK_ID, DATE, ORDER]]
+            .groupby(AUTO_LINK_ID)
             .agg(agg_params)
-            .sort_values([ORDER, DATE, ID], ascending=[True, True, True])
+            .sort_values([ORDER, DATE, AUTO_LINK_ID], ascending=[True, True, True])
             .index.to_list()
         )
 
@@ -438,17 +441,17 @@ class SortByFunctionCountReversedOrder(SortAlgo):
     def _sorted_processes(self, df: DataFrame) -> List[str]:
         df = self.get_count_by_serial(df)
         df[REVERSED_ORDER] = (
-            df.sort_values([DATE, ID], ascending=[False, False]).groupby(SERIAL).cumcount() + 1
+            df.sort_values([DATE, AUTO_LINK_ID], ascending=[False, False]).groupby(SERIAL).cumcount() + 1
         )
         df[SCORE] = df[REVERSED_ORDER] * self.function_count(df[COUNT])
 
         # TODO: should we calculate score by sum or mean?
         agg_params = {SCORE: 'sum', DATE: 'min'}
         return (
-            df[[ID, DATE, SCORE]]
-            .groupby(ID)
+            df[[AUTO_LINK_ID, DATE, SCORE]]
+            .groupby(AUTO_LINK_ID)
             .agg(agg_params)
-            .sort_values([SCORE, DATE, ID], ascending=[False, True, True])
+            .sort_values([SCORE, DATE, AUTO_LINK_ID], ascending=[False, True, True])
             .index.to_list()
         )
 
@@ -485,16 +488,14 @@ class AutoLink:
 
     @staticmethod
     @log_execution_time(LOG_PREFIX)
-    def normal_grouping_processes(
-        reader: AutoLinkReader, ordered_processes: List[int]
-    ) -> List[List[int]]:
+    def normal_grouping_processes(reader: AutoLinkReader, ordered_processes: List[int]) -> List[List[int]]:
         """
         Separate ordered processes into groups of processes which can have same serials between link
         E.g: Suppose we have processes [1,2,3] but 2 can not link with 3 => result: [[1,2],[3]]
         """
         unique_serials: Dict[int, Set] = {}
         for process in ordered_processes:
-            unique_serials[process] = set(reader.df[reader.df[ID] == process][SERIAL])
+            unique_serials[process] = set(reader.df[reader.df[AUTO_LINK_ID] == process][SERIAL])
 
         reversed_ordered_processes = ordered_processes[::-1]
         groups = []
@@ -518,18 +519,16 @@ class AutoLink:
 
     @staticmethod
     @log_execution_time(LOG_PREFIX)
-    def smart_grouping_processes(
-        reader: AutoLinkReader, ordered_processes: List[int]
-    ) -> List[List[int]]:
+    def smart_grouping_processes(reader: AutoLinkReader, ordered_processes: List[int]) -> List[List[int]]:
         """Same with normal grouping processes
         However, we can find more processes in sorted chain and merge them into groups as well
         We just find if process has the same serial with other, we don't calculate how many intersect serials.
         This method might be a little bit heuristic.
         """
         unique_serials: Dict[int, Set] = {}
-        copy_ordered_processes = [p for p in ordered_processes]
+        copy_ordered_processes = list(ordered_processes)
         for process in copy_ordered_processes:
-            unique_serials[process] = set(reader.df[reader.df[ID] == process][SERIAL])
+            unique_serials[process] = set(reader.df[reader.df[AUTO_LINK_ID] == process][SERIAL])
         groups = []
         while len(copy_ordered_processes):
             current_group = [copy_ordered_processes[0]]
@@ -544,13 +543,11 @@ class AutoLink:
 
     @staticmethod
     @log_execution_time(LOG_PREFIX)
-    def smarter_grouping_processes(
-        reader: AutoLinkReader, ordered_processes: List[int]
-    ) -> List[List[int]]:
+    def smarter_grouping_processes(reader: AutoLinkReader, ordered_processes: List[int]) -> List[List[int]]:
         """Same with above grouping method, but we loop all over group"""
         unique_serials: Dict[int, Set] = {}
         for process in ordered_processes:
-            unique_serials[process] = set(reader.df[reader.df[ID] == process][SERIAL])
+            unique_serials[process] = set(reader.df[reader.df[AUTO_LINK_ID] == process][SERIAL])
         groups = []
         for process in ordered_processes:
             if not groups:

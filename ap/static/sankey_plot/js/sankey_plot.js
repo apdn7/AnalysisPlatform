@@ -5,6 +5,7 @@
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_SENSOR = 512;
+const MIN_NUMBER_OF_SENSOR = 0;
 const MAX_SENSORS_LIM = 100;
 let tabID = null;
 const graphStore = new GraphStore();
@@ -18,6 +19,7 @@ const formElements = {
     traceTimeOptions: $('input:radio[name="traceTime"]'),
     endProcItems: '#end-proc-row .end-proc',
     endProcSelectedItem: '#end-proc-row select',
+    condProcSelectedItem: '#cond-proc-row select',
     endProcCateSelectedItem: '#end-proc-cate-row select',
     condProcReg: /cond_proc/g,
     i18nAllSelection: $('#i18nAllSelection').text(),
@@ -76,10 +78,10 @@ $(() => {
         showObjective: true,
         objectiveHoverMsg: i18n.objectiveHoverMsg,
         hideStrVariable: false,
-        showLabels: true,
-        labelAsFilter: true,
+        showFilter: true,
         hideCTCol: true,
         allowObjectiveForRealOnly: true,
+        disableSerialAsObjective: true,
     });
     endProcItem();
 
@@ -95,7 +97,6 @@ $(() => {
     // click even of end proc add button
     $('#btn-add-end-proc').click(() => {
         endProcItem();
-        updateSelectedItems();
         addAttributeToElement();
     });
 
@@ -105,54 +106,6 @@ $(() => {
     initValidation(formElements.formID);
     initializeDateTimeRangePicker();
 });
-
-const endProcExplanatoryOnChange = async (count) => {
-    const selectedProc = $(`#end-proc-cate-process-${count}`).val();
-    const procInfo = procConfigs[selectedProc];
-
-    // remove old elements
-    $(`#end-proc-cate-val-${count}`).remove();
-    if (procInfo == null) {
-        updateSelectedItems(isCategoryItem = true);
-        return;
-    }
-    const ids = [];
-    const vals = [];
-    const names = [];
-    const checkedIds = [];
-    await procInfo.updateColumns(); // TODO refactor
-    const columns = procInfo.getColumns();
-
-    // eslint-disable-next-line no-restricted-syntax
-    const parentId = `end-proc-cate-val-div-${count}`;
-    for (const col of columns) {
-        if (CfgProcess_CONST.NUMERIC_TYPES.includes(col.data_type)) {
-            ids.push(col.id);
-            vals.push(col.column_name);
-            names.push(col.name);
-            // checkedIds.push(col.id);
-        }
-    }
-
-    // load machine multi checkbox to Condition Proc.
-    if (ids) {
-        addGroupListCheckboxWithSearch(
-            parentId,
-            `end-proc-cate-val-${count}`,
-            '',
-            ids,
-            vals,
-            {
-                checkedIds,
-                name: `GET02_CATE_SELECT${count}`,
-                itemNames: names,
-                isRequired: true
-            }
-        );
-    }
-    updateSelectedItems(isCategoryItem = true);
-    onchangeRequiredInput();
-};
 
 const sankeyTraceData = () => {
     requestStartedAt = performance.now();
@@ -571,6 +524,7 @@ const collectFormDataSkD = (clearOnFlyFilter = false) => {
         formData = lastUsedFormData;
         formData = transformCatFilterParams(formData);
     }
+    formData = bindNominalSelection(formData, clearOnFlyFilter);
     return formData;
 };
 
@@ -614,7 +568,7 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false) => {
                 };
                 reselectCallback = callToBackEndAPI;
             }
-            const errors = res.errors || [];
+            const errors = res.errors || []
             if (problematicData && errors.length) {
                 showRemoveProblematicColsMdl(problematicData);
             }

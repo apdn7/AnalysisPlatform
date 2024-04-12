@@ -15,12 +15,15 @@ const SQL_LIMIT = 50000;
 let dataSetID = null;
 let $closeAllToast = null;
 let showElapsedTime = null;
+const RLP_DUMMY_ID = 1000001;
+const EMD_DIFF_ID = 1000000;
 
 const localeConst = {
     JP: 'ja',
 }
 
 const DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+const THOUSAND_SEP_PATTERN = /^[0-9]{1,3}(,[0-9]{3})*(\.[0-9]+)?$/;
 
 const COMMON_CONSTANT = {
     NA: 'NA',
@@ -30,6 +33,10 @@ const COMMON_CONSTANT = {
     DEFAULT_SUB_TITLE: 'DN7QCTools',
     TAB: '&#09;',
     TICKS_ANGLE: 0,
+    NG_RATE: 'ng_rates',
+    NG_RATE_NAME: 'NG Rate',
+    EMD_DRIFT_NAME: 'EMD|Drift',
+    EMD_DIFF_NAME: 'EMD|Diff',
 };
 
 const MESSAGE_LEVEL = {
@@ -223,6 +230,7 @@ const CONST = {
     INF: 'inf',
     NEG_INF: '-inf',
     NO_LINKED: 'NoLinked',
+    LIMIT_SIZE_NAME: 14,
 };
 const chmColorPalettes = [['0', '#18324c'], ['0.2', '#204465'], ['0.4', '#2d5e88'],
     ['0.6', '#3b7aae'], ['0.8', '#56b0f4'], ['1', '#6dc3fd']];
@@ -312,7 +320,7 @@ const docCookies = {
         }
         return aKeys;
     },
-     getLocale() {
+    getLocale() {
         return this.getItem('locale') || 'en';
     },
     isJaLocale() {
@@ -863,7 +871,38 @@ const DATETIME_FORMAT_VALIDATE = DATE_FORMAT_VALIDATE.concat(
 // replace_date
 const formatDate = dt => dt.replaceAll('\/', '-');
 
-const formatDateTime = (dt, fm = DATE_FORMAT_WITHOUT_TZ) => moment.utc(dt).local().format(fm);
+const formatDateTime = (dt, fm = DATE_FORMAT_WITHOUT_TZ) => {
+    let formatStr = fm;
+    if (fm === DATE_FORMAT_WITHOUT_TZ) {
+        const milliSeconds = checkDatetimeHasMilliseconds(dt);
+        if (milliSeconds) {
+            formatStr = DATE_FORMAT_WITHOUT_TZ + milliSeconds;
+        }
+    }
+    return moment.utc(dt).local().format(formatStr);
+};
+
+const checkDatetimeHasMilliseconds = (datetimeStr) => {
+    const match = datetimeStr.match(/(\.\d*)/);
+    if (!match) {
+        return false;
+    }
+
+    return '.SSS';
+
+    const subMillisecond = match[0];
+    // .1, .12, .123 -> .SSS
+    if (/\.[1-9]{1,3}0*$/.test(subMillisecond)) {
+        return '.SSS';
+    }
+    // .1234 -> .SSSSSS
+    if (/\.[1-9]{1,}0*$/.test(subMillisecond)) {
+        return subMillisecond;
+    }
+
+    return false
+
+};
 
 const detectLocalTimezone = () => {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -1393,7 +1432,7 @@ const toUTCDateTime = (localDate, localTime, withDateTime = false) => {
 
 const getColumnName = (endProcName, getVal) => {
     const col = procConfigs[endProcName].getColumnById(getVal) || {};
-    return col.shown_name || getVal;
+    return col.name || getVal;
 };
 
 const isCycleTimeCol = (endProcId, colId) => {
@@ -1857,11 +1896,15 @@ const createHistogramParams = (scaleOption, arrayY,
     return [minY, maxY, globalRange, customBinSize];
 };
 
-const colorErrorCells = (jexcelDivId, errorCells) => {
+const colorErrorCells = (jexcelDivId, errorCells, requiredErrorEles=[]) => {
     if (isEmpty(errorCells)) return;
 
     const styleParams = errorCells.reduce((a, b) => ({...a, [b]: 'color:red;'}), {});
     document.getElementById(jexcelDivId).jspreadsheet.setStyle(styleParams);
+    if (requiredErrorEles.length) {
+        const emptyCellsParams = requiredErrorEles.reduce((a, b) => ({...a, [b]: 'background-color: red;'}), {});
+        document.getElementById(jexcelDivId).jspreadsheet.setStyle(emptyCellsParams);
+    }
 };
 
 const colorErrorCheckboxCells = (jexcelDivId, errorCells) => {
@@ -1976,6 +2019,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
     const procId = selectedProc[0].value;
     const procInfo = procConfigs[procId];
 
+    $(`#count-variables-${count}`).text(0);
+
     // remove old elements
     $(`#end-proc-val-${count}`).remove();
     if (procInfo == null) {
@@ -1987,6 +2032,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
     const names = [];
     const checkedIds = [];
     const dataTypes = [];
+    const dataTypeShownName = [];
     await procInfo.updateColumns();
     const procColumns = procInfo.getColumns();
 
@@ -2002,6 +2048,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
             vals.push(ctCol.name_en);
             names.push(ctCol.shown_name);
             dataTypes.push(ctCol.data_type);
+            dataTypeShownName.push(dataTypeShort(ctCol))
         }
         if (datetimeCols) {
             for (const dtCol of datetimeCols) {
@@ -2009,6 +2056,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
                 vals.push(dtCol.name_en);
                 names.push(dtCol.shown_name);
                 dataTypes.push(dtCol.data_type);
+                dataTypeShownName.push(dataTypeShort(dtCol))
             }
         }
     }
@@ -2024,6 +2072,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
             names.push(col.shown_name);
             // checkedIds.push(col.id);
             dataTypes.push(col.data_type);
+            dataTypeShownName.push(dataTypeShort(col))
         }
     }
 
@@ -2039,12 +2088,13 @@ const endProcMultiSelectOnChange = async (count, props) => {
             noFilter: false,
             itemNames: names,
             itemDataTypes: props.showDataType ? dataTypes : null,
+            itemDataTypeShownNames: props.showDataType ? dataTypeShownName : null,
             isRadio: !!props.radio,
             showCatExp: props.showCatExp,
             isRequired: props.isRequired,
             getDateColID,
             showObjectiveInput: props.showObjective,
-            showLabel: props.showLabels,
+            showLabel: props.showLabel,
             groupIDx: count,
             showColor: props.showColor,
             hasDiv: props.hasDiv,
@@ -2053,9 +2103,12 @@ const endProcMultiSelectOnChange = async (count, props) => {
             availableColorVars,
             optionalObjective: props.optionalObjective,
             objectiveHoverMsg: props.objectiveHoverMsg,
-            labelAsFilter: props.labelAsFilter,
+            showFilter: props.showFilter,
             allowObjectiveForRealOnly: props.allowObjectiveForRealOnly || false,
             judge: props.judge || false,
+            shouldObjectiveIsTarget: props.shouldObjectiveIsTarget || false,
+            disableSerialAsObjective: props.disableSerialAsObjective || false,
+            procId,
         };
         addGroupListCheckboxWithSearch(
             parentId,
@@ -2068,6 +2121,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
     updateSelectedItems();
     onchangeRequiredInput();
     setProcessID();
+    setColorRelativeStartEndProc();
+    checkIfProcessesAreLinked();
 };
 
 
@@ -2090,13 +2145,15 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
         const parentID = `end-proc-process-div-${count}-parent`;
 
         const proc = `<div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
-                <div class="card end-proc table-bordered py-sm-3" id="${parentID}">
+                <div class="card end-proc dynamic-element table-bordered py-sm-3" id="${parentID}">
                         <span class="pull-right clickable close-icon" data-effect="fadeOut">
                             <i class="fa fa-times"></i>
                         </span>
                         <div class="d-flex align-items-center" id="end-proc-process-div-${count}">
                             <span class="mr-2">${i18nCommon.process}</span>
-                            <div class="w-auto flex-grow-1">
+                            <div class="w-auto flex-grow-1 position-relative">
+                                <i id="no-link-with-start-proc-${count}" class="fas fa-triangle-exclamation position-absolute blink" style="top: 10px; right: 60px; z-index: 1; display: none; color:yellow;"></i>
+                                <span class="position-absolute count-variable-label" style="top: 7px; right: 40px; z-index: 1;" id="count-variables-${count}">0</span>
                                 <select class="form-control select2-selection--single
                                     ${props.isRequired ? 'required-input' : ''}
                                     select-n-columns" name="end_proc${count}"
@@ -2124,8 +2181,10 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
                 }
             });
         });
+        countTotalVariables();
 
         cardRemovalByClick('#end-proc-row div', onCloseCallbackFunc, onCloseCallbackDicParam);
+        updateSelectedItems();
     };
     return innerFunc;
 };
@@ -2388,6 +2447,7 @@ const errorHandling = (error, type = '') => {
     const timeout = error.statusText || error.message;
     if (timeout.toLowerCase().includes('timeout')) {
         abortProcess();
+        console.log('request timeout..');
         const i18nTexts = {
             abnormalGraphShow: type === 'front' ? $('#i18nFrontProcessTimeout').text() : $('#i18nRequestTimeout').text(),
         };
@@ -2561,6 +2621,7 @@ class GraphStore {
     updateEndProc(endProc) {
         this.traceDataResult.COMMON.end_proc = endProc;
     }
+
     getDataAtIndex(dataIdx, dataPointIdx) {
         const plotDatas = getNode(this.traceDataResult, ['array_plotdata']) || [];
         const empty = {x: '', y: ''};
@@ -2618,7 +2679,7 @@ class GraphStore {
         return plotObj;
     }
 
-    getVariableOrdering(procConfig, useFeatureImportance = true, loadByOrderIDs = false) {
+    getVariableOrdering(procConfig, useFeatureImportance=true, loadByOrderIDs = false) {
         const ordering = [];
         let orderingID = [];
         const currentTrace = this.traceDataResult;
@@ -2649,6 +2710,7 @@ class GraphStore {
                 const targetCol = targetProc && targetProc.dicColumns[id]
                 if (targetCol) {
                     ordering.push({
+                        ...targetCol,
                         id: id,
                         name: targetCol.shown_name,
                         proc_name: targetProc.shown_name,
@@ -2662,6 +2724,87 @@ class GraphStore {
             ordering,
             use_feature_importance: true
         };
+    }
+    genDfLabel(id, name, dfMode, mode, isNGRate=false, needToMultipleID=false) {
+        let labelID = id;
+        let modeLabel = mode.charAt(0).toUpperCase() + mode.slice(1);
+        modeLabel = `EMD|${modeLabel}`;
+        if (isNGRate) {
+            labelID = Number(id) * RLP_DUMMY_ID;
+            modeLabel = 'NG Rate';
+        } else if (needToMultipleID && mode == EMDType.DIFF) {
+            labelID = Number(id) * EMD_DIFF_ID;
+        }
+        const colName = dfMode ? `${name}|${modeLabel}` : name;
+        return [
+            labelID,
+            colName,
+            `__${labelID}__${name}|${modeLabel}`
+        ];
+    }
+    getTargetVariables(dfMode=true) {
+        const currentTrace = this.traceDataResult;
+        const targetVariables = [];
+        const RLPMode = currentTrace.emdType;
+        // ng rate append
+        if (dfMode && COMMON_CONSTANT.NG_RATE in currentTrace && currentTrace.ng_rates) {
+            currentTrace.ng_rates.forEach(sensorDat => {
+                const [colID, colName, colLabel] = this.genDfLabel(
+                    sensorDat.end_col_id,
+                    sensorDat.sensor_name,
+                    dfMode,
+                    RLPMode, true);
+                targetVariables.push({
+                    id: colID,
+                    org_id: sensorDat.end_col_id,
+                    name: colName,
+                    proc_id: sensorDat.end_proc_id,
+                    proc_name: sensorDat.end_proc_name,
+                    type: sensorDat.data_type.toUpperCase(),
+                    label: colLabel
+                });
+            });
+        }
+        // end variable append
+        currentTrace.array_plotdata.forEach(sensorDat => {
+            const sensor = procConfigs[sensorDat.end_proc_id].getColumnById(sensorDat.sensor_id);
+            if ([EMDType.BOTH, EMDType.DRIFT].includes(RLPMode)) {
+                const [colID, colName, colLabel] = this.genDfLabel(
+                    sensorDat.sensor_id,
+                    sensorDat.sensor_name,
+                    dfMode,
+                    EMDType.DRIFT);
+                targetVariables.push({
+                    id: colID,
+                    org_id: sensorDat.sensor_id,
+                    name: colName,
+                    proc_id: sensorDat.end_proc_id,
+                    proc_name: sensorDat.proc_name,
+                    type: sensor.data_type,
+                    label: colLabel
+                });
+            }
+            if (dfMode && [EMDType.BOTH, EMDType.DIFF].includes(RLPMode)) {
+                const needToMultipleID = RLPMode == EMDType.BOTH;
+                const [colID, colName, colLabel] = this.genDfLabel(
+                    sensorDat.sensor_id,
+                    sensorDat.sensor_name,
+                    dfMode,
+                    EMDType.DIFF,
+                    false,
+                    needToMultipleID);
+                targetVariables.push({
+                    id: colID,
+                    org_id: sensorDat.sensor_id,
+                    name: colName,
+                    proc_id: sensorDat.end_proc_id,
+                    proc_name: sensorDat.proc_name,
+                    type: sensor.data_type,
+                    label: colLabel
+                });
+            }
+        });
+        return targetVariables;
     }
 }
 
@@ -2697,7 +2840,30 @@ const applySignificantDigit = (val, sigDigit = 4, fmtStr = '') => {
         if (typeof val === 'string') return val;
         const fmt = fmtStr ? fmtStr : significantDigitFmt(val, sigDigit);
         if (!fmt) return val.toString();
-        if (fmt) return d3.format(fmt)(val);
+        if (fmt) {
+            const d3FormattedValue = d3.format(fmt)(val);
+            const stringValue = d3FormattedValue.toString();
+            // fix for case: 1.123456789e30 -> 1.1234e30
+
+            if (!stringValue.includes('e')) return stringValue;
+
+            const splittedNum = stringValue.split('.');
+            let returnValue = splittedNum[0];
+            if (splittedNum.length > 1) {
+                const decimalNum = splittedNum[1].split('e');
+                if (decimalNum[0].length > sigDigit) {
+                    returnValue += '.';
+                    returnValue += decimalNum[0].slice(0, sigDigit);
+                    if (decimalNum.length > 1) {
+                        returnValue += 'e';
+                        returnValue += decimalNum[1];
+                    }
+                    return returnValue;
+                }
+            }
+
+            return stringValue;
+        }
     } catch (e) {
         return val;
     }
@@ -2715,7 +2881,7 @@ const drawProcessingTime = (t0, t1, backendTime, rowNumber, uniqueSerial = null)
     const frontendTime = (t1 - t0) / 1000;
     const netTime = (t1 - (requestStartedAt || t0)) / 1000; // seconds
     const hasDuplicate = $('[name=duplicated_serial]').length > 0;
-    const duplicate = hasDuplicate ? `, Duplicate: ${uniqueSerial !== null ? applySignificantDigit(uniqueSerial) : ''}` : '';
+    const duplicate = hasDuplicate ? `, Duplicate: ${uniqueSerial !== null ? applySignificantDigit(rowNumber - uniqueSerial) : 'No checked'}` : '';
     let numberOfQueriedDat = checkTrue(rowNumber) ? `, Number of queried data : ${
         applySignificantDigit(rowNumber)
     }${
@@ -2933,27 +3099,6 @@ const transformDatetimeRange = (formData) => {
         });
     }
     // assign start/end datetime
-    return formData;
-};
-
-// bind catetory variable stp and rlp new gui
-const transformCategoryVariableParams = (formData, procConf) => {
-    // check devideOption
-    const devideOption = formData.get('compareType');
-    if (devideOption === 'var' || devideOption === 'category') {
-        const catExpVal = formData.get('catExpBox1') || formData.get('catExpBox2') || formData.get('catExpBox');
-        let endProcCate = null;
-        if (catExpVal) {
-            const [procObj] = Object.values(procConf).filter(proc => proc.getColumnById(catExpVal));
-            if (procObj) {
-                endProcCate = procObj.id;
-                formData.set('end_proc_cate1', endProcCate);
-            }
-            formData.set('GET02_CATE_SELECT1', catExpVal);
-            formData.set('categoryVariable1', catExpVal);
-        }
-        formData.set('categoryValueMulti1', 'NO_FILTER'); // default
-    }
     return formData;
 };
 
@@ -3555,8 +3700,8 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
             if (starting && ending) {
                 const [startDate, startTime] = starting && starting.split(' ');
                 const [endDate, endTime] = ending.split(' ');
-                const startUTCDt = toUTCDateTime(startDate, startTime);
-                const endUTCDt = toUTCDateTime(endDate, endTime);
+                const startUTCDt = toUTCDateTime(startDate, startTime || '00:00');
+                const endUTCDt = toUTCDateTime(endDate, endTime || '00:00');
                 formData.append(timeKeys[0], startUTCDt.date);
                 formData.append(timeKeys[1], startUTCDt.time);
                 formData.append(timeKeys[2], endUTCDt.date);
@@ -3595,7 +3740,7 @@ const generateDefaultNameExport = () => {
     const title = document.title ? document.title.split(' ')[0] : '';
     try {
         const endProc1 = $('select[name*=end_proc]')[0].value;
-        const endProc = endProc1 ? procConfigs[endProc1].shown_name : '';
+        const endProc = endProc1 ? procConfigs[endProc1].name : '';
         let dateTimeRange = '';
 
         const hasDivision = $('select[name=compareType]').length > 0;
@@ -3674,6 +3819,19 @@ const handleBeforeSendRequestToShowGraph = (jqXHR, formdata) => {
     xhr = jqXHR;
     xhr.thread_id = threadID;
     formdata.set('thread_id', threadID);
+    const jumpId = getParamFromUrl('jump_key');
+    const objectiveVar = getParamFromUrl('objective_var');
+    const excludedColumns = getParamFromUrl('excluded_columns');
+    if (jumpId) {
+        formdata.set('jump_key', jumpId);
+    }
+    if (objectiveVar) {
+        formdata.set('objective_var', objectiveVar);
+    }
+
+    if (excludedColumns) {
+        formdata.set('excluded_columns', excludedColumns);
+    }
     return formdata;
 };
 
@@ -3703,7 +3861,7 @@ const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBotto
 
         if (filterCols && filterCols.length > 0 && !hasFilterRow) {
             const hasFilter = filterCols.indexOf(i) !== -1;
-            const filterTh = `<th scope="col" class="search-box ${thClass}">${hasFilter ? `<input class="form-control filterCol" data-col-idx="${i}" placeholder="${i18nCommon.filter}...">` : ''}</th>`;
+            const filterTh = `<th scope="col" class="search-box ${thClass}">${hasFilter ? `<input class="form-control filterCol" data-col-idx="${i}" placeholder="${i18nCommon.search}...">` : ''}</th>`;
             ths.push(filterTh);
         }
     });
@@ -4019,9 +4177,9 @@ const bindFacetChangeEvents = () => {
     const isUseFilter = checkHasFilter();
 
     // if remove facet and has no filter,change from blank to データ紐付なし
-    if (!isUseFacet && !isUseFilter) {
-        changeNoDataLinkSelection(true);
-    }
+    // if (!isUseFacet && !isUseFilter) {
+    //     changeNoDataLinkSelection(true);
+    // }
 
     // if facet selected, change from データ紐付なし -> blank
     if (isUseFacet) {
@@ -4241,19 +4399,19 @@ const tsvClipBoard = async (url, formData) => {
     return false;
 };
 
-const handleExportDataCommon = (type, formData) => {
+const handleExportDataCommon = (type, formData, url = '/ap/api/common/data_export') => {
     const exportFrom = getExportDataSrc();
     formData.set('export_from', exportFrom);
     if (type === EXPORT_TYPE.CSV) {
-        exportData('/ap/api/common/data_export/csv', 'csv', formData);
+        exportData(`${url}/csv`, 'csv', formData);
     }
 
     if (type === EXPORT_TYPE.TSV) {
-        exportData('/ap/api/common/data_export/tsv', 'tsv', formData);
+        exportData(`${url}/tsv`, 'tsv', formData);
     }
 
     if (type === EXPORT_TYPE.TSV_CLIPBOARD) {
-        tsvClipBoard('/ap/api/common/data_export/tsv', formData);
+        tsvClipBoard(`${url}/tsv`, formData);
     }
 };
 
@@ -4414,7 +4572,14 @@ const reselectVariablesToShowGraph = () => {
         }
     });
     if (reselectCallback) {
-        reselectCallback(false, true);
+        const jumpKey = getParamFromUrl('jump_key');
+        if (jumpKey) {
+            const excludedColumns = [...$(domEles.problematicTbl).find('input[name^=selectedVar]:not(:checked)')].map(el => Number($(el).val()));
+            const url = new URL(window.location.href);
+            url.searchParams.set('excluded_columns', excludedColumns.join(','));
+            window.history.replaceState(null, null, url);
+        }
+        reselectCallback(true);
     }
 };
 
@@ -4579,7 +4744,7 @@ const getFmtValueOfArray = (array) => {
        }
     });
     const fmt = sortedArray.length > 0 ? significantDigitFmt(usageNum, sigDigit) : '';
-    return fmt;
+    return fmt === ',.1f' ? ',.2f' : fmt;
 }
 
 const alignLengthTickLabels = (ticks) => {
@@ -4610,3 +4775,168 @@ const alignLengthTickLabels = (ticks) => {
         return;
     }
 }
+const clearEmptyEndProcs = (formData) => {
+    const emptyEndProcKeys = [];
+    for (const pair of formData.entries()) {
+        if (pair[0].startsWith('end_proc') && !pair[1]) {
+            emptyEndProcKeys.push(pair[0]);
+        }
+    }
+    emptyEndProcKeys.forEach(ngKey => formData.delete(ngkey));
+
+    // add start proc key
+    if (!formData.get('start_proc')) {
+        formData.set('start_proc', []);
+    }
+    return formData;
+};
+
+const jspreadsheetCustomHooks = () => {
+    const onbeforechange = (instance, cell, x, y, value) => stringNormalization(value);
+    const onpaste = (instance) => {
+        const history = instance.jspreadsheet.history.at(-1);
+        const { oldStyle, records } = history;
+
+        const readOnlyStates = {};
+
+        // turn off readonly so we can modify style
+        for (const { x, y } of records) {
+            const cellName = jspreadsheet.getColumnNameFromId([x, y]);
+            readOnlyStates[cellName] = instance.jspreadsheet.isReadOnly(cellName);
+            instance.jspreadsheet.setReadOnly(cellName, false);
+        }
+
+        // rollback style
+        instance.jspreadsheet.setStyle(oldStyle);
+
+        // rollback read only state
+        for (const { x, y } of records) {
+            const cellName = jspreadsheet.getColumnNameFromId([x, y]);
+            instance.jspreadsheet.setReadOnly(cellName, readOnlyStates[cellName]);
+        }
+    };
+
+    return { onbeforechange, onpaste };
+};
+
+const bindNominalSelection = (formData, clearOnFlyFilter) => {
+    const nominalScaleInput = $('input[name=is_nominal_scale]');
+    formData.delete('nominal_vars');
+    // check if GUI has nominal input as first item
+    if (nominalScaleInput[0]) {
+        const isNominalScale = nominalScaleInput.is(':checked') ? '1' : '0';
+        formData.set('is_nominal_scale', isNominalScale);
+
+        // bind list of nominal variables from modal
+        const nominalVars = $('input[name=graph_nominal_scale]');
+        if (nominalVars.length && !clearOnFlyFilter) {
+            formData.delete('nominal_vars');
+            const nominalValues = []
+            let selectedNominalVars = [];
+            selectedNominalVars = Array.from(nominalVars.filter((i, item) => $(item).is(':checked')));
+            selectedNominalVars.forEach((item, i) => {
+                nominalValues.push($(item).val())
+            });
+            formData.set('nominal_vars', JSON.stringify(nominalValues));
+        }
+    }
+    return formData;
+};
+
+const showGraphWithNominalSetting = () => {
+    // hide nominal_scale setting modal
+    $('#nominalScaleModal').modal('hide');
+    callToBackEndAPI(false);
+};
+const convertDatetimePreview = (dateStr) => {
+    // YYYY-MM-DD => YYYY-MM-DD 00:00:00 (Done)
+    //
+    // MM-DD => YYYY-MM-DD 00:00:00 (YYYY=this year. Curretnly 2001.) ok
+    //
+    // YYYY/MM/DD => YYYY-MM-DD 00:00:00 ok
+    //
+    // MM/DD => YYYY-MM-DD 00:00:00 (YYYY=this year. Curretnly 2001.)
+    //
+    // YYYY年MM月DD日hh時mm分ss秒 => YYYY-MM-DD hh:mm:ss
+    //
+    // YYYY年MM月DD日 => YYYY-MM-DD 00:00:00
+    //
+    // YY年MM月DD日 => YYYY-MM-DD 00:00:00 (YYYY=this century.)
+    //
+    // MM月DD日 => YYYY-MM-DD 00:00:00 (YYYY=this year.) ←これはLubridateでは変換できなかった。 ok
+
+    // case 1: MM-DD/ MM月DD日/ MM/DD
+    // case 2: YYYY/MM/DD/ YYYY-MM-DD/ YYYY年MM月DD日
+    // case 3:  YYYY年MM月DD日hh時mm分ss秒
+    // case 4: YY年MM月DD日
+
+    const regex1 = /^(\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}|\d{1,2}月\d{1,2}日)$/;
+    const regex2 = /^(\d{4}-\d{1,2}-\d{1,2}|\d{4}\/\d{1,2}\/\d{1,2}|\d{4}年\d{1,2}月\d{1,2}日)$/;
+    const regex3 = /^\d{4}年\d{1,2}月\d{1,2}日\d{1,2}時\d{1,2}分\d{1,2}秒$/
+    const regex4 = /^(\d{1,2}-\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}\/\d{1,2}|\d{1,2}年\d{1,2}月\d{1,2}日)$/;
+
+    let dateFormat = dateStr;
+
+    const getMatched = (dateStr) => {
+        const matched = dateStr.split(/-|\/|月|日|年|時|分|秒/);
+        return matched.filter(v => v).map(v => addZeroToNumber(Number(v)));
+    }
+
+    if (regex1.test(dateStr)) {
+        const matched = getMatched(dateStr)
+        dateFormat = moment().format(`YYYY-${matched[0]}-${matched[1]} 00:00:00`);
+    }
+
+    if (regex2.test(dateStr)) {
+        const matched = getMatched(dateStr)
+        dateFormat = `${matched[0]}-${matched[1]}-${matched[2]} 00:00:00`;
+    }
+
+    if (regex3.test(dateStr)) {
+        const matched = getMatched(dateStr)
+        dateFormat = `${matched[0]}-${matched[1]}-${matched[2]} ${matched[3]}:${matched[4]}:${matched[5]}`;
+    }
+
+    if (regex4.test(dateStr)) {
+        const matched = getMatched(dateStr)
+        const YY = moment().format('YYYY').slice(0,2);
+        dateFormat = `${YY}${matched[0]}-${matched[1]}-${matched[2]} 00:00:00`;
+    }
+
+    return dateFormat;
+};
+
+
+
+const visualTextLength = (text, textSize = 14) => {
+    const span = `<div class="hide-element" style="font-size: ${textSize}px; font-family: 'Arial'">${text}</div>`
+    $('html').append(span);
+    const width = $('.hide-element').width();
+    $('.hide-element').remove();
+
+    return Math.floor(width);
+};
+
+const trimTextLengthByPixel = (text, length = 150, textSize = 14) => {
+    let tmp = text;
+    let trimmed = text;
+    if (visualTextLength(tmp, textSize) > length)
+    {
+        trimmed += "...";
+        while (visualTextLength(trimmed, textSize) > length)
+        {
+            tmp = tmp.substring(0, tmp.length-1);
+            trimmed = tmp + "...";
+        }
+    }
+
+    return trimmed;
+};
+
+const convertNumberByThousandSep = (numberValue) => {
+    const hasThousandSep = !!(numberValue.match(THOUSAND_SEP_PATTERN));
+    if (hasThousandSep) {
+        return numberValue.replaceAll(',', '');
+    }
+    return '';
+};

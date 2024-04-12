@@ -10,11 +10,11 @@ conv = cutlet.Cutlet()
 
 
 @lru_cache(maxsize=1000)
-def to_romaji(input_str):
+def to_romaji(input_str, convert_irregular_chars=True):
     normalized_input = input_str
     # normalize (also replace Full Space to Half Space)
     # normalized_input = jaconv.normalize(normalized_input)
-    normalized_input = normalize_str(normalized_input)
+    normalized_input = normalize_str(normalized_input, convert_irregular_chars)
 
     # `[μµ]` in `English Name` should be replaced in to `u`.
     # convert u before kakasi applied to keep u instead of M
@@ -27,10 +27,14 @@ def to_romaji(input_str):
     # snake to camel
     # normalized_input = normalized_input.title()
 
+    normalized_input = replace_special_symbols(normalized_input)
+    return normalized_input
+
+
+def replace_special_symbols(input_str):
+    normalized_input = input_str
     # remove space and tab
-    normalized_input = re.sub(
-        r"[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]", '', normalized_input
-    )
+    normalized_input = re.sub(r"[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]", '', normalized_input)
 
     # `[\(\)\[\]<>\{\}【】]` in string in `English Name` should be replaced into `_`.
     normalized_input = re.sub(r'[\(\)\[\]<>\{\}【】]', '_', normalized_input)

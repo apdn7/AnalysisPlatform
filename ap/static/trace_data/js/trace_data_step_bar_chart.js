@@ -50,7 +50,6 @@ const StepBarChart = ($, paramObj) => {
 
     // get origin step bar chart data
     const stepChartDat = categoryLabels.map(label => categoryDistributed[label].pctg);
-
     const shortCatLabels = categoryLabels.map(label => categoryDistributed[label].short_name);
     const data = {
         labels: isCatLimited ? [] : shortCatLabels,
@@ -65,6 +64,8 @@ const StepBarChart = ($, paramObj) => {
                 barPercentage: 0.5,
             },
         ],
+        rank_values: beforeRankValues || undefined,
+        cat_labels: categoryLabels,
     };
 
     const genDataTable = (catName, nTotal, ratio) => {
@@ -86,7 +87,8 @@ const StepBarChart = ($, paramObj) => {
         const topPosition = canvasOffset.top + positionY + tooltip.caretY;
         const dataIndex = tooltip.dataPoints[0].dataIndex;
         const plotData = graphStore.getArrayPlotData(chart.canvas.id);
-        const [cateName, count, ratio] = getStepChartHoverInfo(dataIndex, plotData)
+        const categoryName = categoryLabels ? categoryLabels[dataIndex] : null;
+        const [cateName, count, ratio] = getStepChartHoverInfo(dataIndex, categoryName, plotData)
         genDataPointHoverTable(
             genDataTable(cateName, count, ratio),
             {x: leftPosition - 192, y: topPosition},
@@ -227,16 +229,18 @@ const StepBarChart = ($, paramObj) => {
     };
 };
 
-const getStepChartHoverInfo = (categoryIndex, plotDat) => {
-    let count, categoryName, ratio = '';
-    if (plotDat.category_distributed) {
+const getStepChartHoverInfo = (categoryIndex, categoryName, plotDat) => {
+    let count, ratio = '';
+    if (!categoryName && plotDat.before_rank_values) {
         const beforeRankVals = [...plotDat.before_rank_values[0]];
         // because current we draw items from bot -> top,
         // so need to reversed to find cate name from rank value
-        const rankedValueSorted = beforeRankVals.sort().reverse();
+        const rankedValueSorted = beforeRankVals.sort((a, b) => b - a);
         const itemID = rankedValueSorted[categoryIndex];
         const rankedID = plotDat.before_rank_values[0].lastIndexOf(itemID);
         categoryName = plotDat.before_rank_values[1][rankedID];
+    }
+    if (plotDat.category_distributed) {
         const currentCate = plotDat.category_distributed[categoryName];
         count = currentCate.counts_org || '';
         ratio = currentCate.pctg || '';

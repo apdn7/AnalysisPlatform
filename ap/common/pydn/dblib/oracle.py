@@ -3,6 +3,7 @@ import re
 import traceback
 
 import cx_Oracle
+from dateutil import tz
 
 from ap.common.common_utils import strip_all_quote
 from ap.common.constants import ENCODING_UTF_8
@@ -41,7 +42,7 @@ class Oracle:
             )
             self.is_connected = True
             return self.connection
-        except:
+        except Exception:
             print('Cannot connect to db')
             print('>>> traceback <<<')
             traceback.print_exc()
@@ -135,14 +136,14 @@ class Oracle:
         return results
 
     # list_table_columnsのうちcolumn nameだけ必要な場合(元はtbl_get_colnames)
-    def list_table_colnames(self, tblname):
-        if not self._check_connection():
-            return False
-        columns = self.list_table_columns(tblname)
-        colnames = []
-        for column in columns:
-            colnames.append(column['name'])
-        return colnames
+    # def list_table_colnames(self, tblname):
+    #     if not self._check_connection():
+    #         return False
+    #     columns = self.list_table_columns(tblname)
+    #     colnames = []
+    #     for column in columns:
+    #         colnames.append(column['name'])
+    #     return colnames
 
     def divide_data_to_chunks(self, lst_data, n):
         """Devide a list to chunks of n elements.
@@ -227,10 +228,7 @@ class Oracle:
         # columnsは取得したカラム名、rowはcolumnsをKeyとして持つ辞書型の配列
         # rowは取得したカラムに対応する値が順番にrow[0], row[1], ...として入っている
         # それをdictでまとめてrowsに取得
-        if row_is_dict:
-            rows = [dict(zip(cols, row)) for row in cur.fetchall()]
-        else:
-            rows = cur.fetchall()
+        rows = [dict(zip(cols, row)) for row in cur.fetchall()] if row_is_dict else cur.fetchall()
 
         cursor.close()
         return cols, rows
@@ -274,20 +272,6 @@ class Oracle:
             cur.close()
         return True
 
-    # 現時点ではSQLをそのまま実行するだけ
-    def select_table(self, sql):
-        return self.run_sql(sql)
-
-    def get_timezone(self):
-        try:
-            _, rows = self.run_sql('SELECT DBTIMEZONE AS TZOFFSET FROM DUAL')
-            return str(rows[0]['TZOFFSET'])
-
-        except Exception as e:
-            print(e)
-
-        return None
-
     # private functions
     def _check_connection(self):
         if self.is_connected:
@@ -303,7 +287,7 @@ class Oracle:
         try:
             cur.execute("alter session set nls_date_format = 'YYYY-MM-DD HH24:MI:SS'")
             cur.execute("alter session set nls_timestamp_format = 'YYYY-MM-DD HH24:MI:SS.FF3'")
-        except:
+        except Exception:
             pass
 
         return cur
@@ -343,3 +327,12 @@ class Oracle:
             return True
 
         return False
+
+    def get_timezone(self):
+        try:
+            _, rows = self.run_sql('SELECT DBTIMEZONE FROM DUAL', row_is_dict=False)
+            timezone_val = rows[0][0]
+            timezone = tz.gettz(timezone_val)
+            return timezone
+        except Exception:
+            return None

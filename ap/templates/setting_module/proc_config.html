@@ -54,7 +54,7 @@
                                         data-proc-id="{{ proc_info.id }}">
                                         <td class="col-number">{{ loop.index }}</td>
                                         <td>
-                                            <input data-name-en="{{proc_info.name_en}}" name="processName" class="form-control" type="text"
+                                            <input data-name-en="{{proc_info.name_en}}" data-name-jp="{{proc_info.name_jp or ''}}" data-name-local="{{proc_info.name_local or ''}}" name="processName" class="form-control" type="text"
                                                    value="{{ proc_info.shown_name }}"
                                                    disabled
                                                    data-order>
@@ -106,12 +106,6 @@
             </div>
         </div>
         {% include "proc_config_modals.html" %}
-    </div>
-    <div>
-        <ul id="procContextMenu" name="contextMenu" class="context-menu" style="display:none;">
-            <li class="menu-item" onclick="maximizeCard('collapsePC')">{{ _("Maximize card") }}</li>
-            <li class="menu-item" onclick="minimizeCard('collapsePC')">{{ _("Minimize card") }}</li>
-        </ul>
     </div>
 </div>
 {% block js %}

@@ -1,32 +1,41 @@
+import contextlib
 import os
-import sys
 
-from ap import create_app, get_basic_yaml_obj, get_start_up_yaml_obj, init_db
-from ap.common.clean_expired_request import add_job_delete_expired_request
-from ap.common.clean_old_data import (
-    add_job_delete_old_zipped_log_files,
-    add_job_zip_all_previous_log_files,
-)
-from ap.common.constants import ANALYSIS_INTERFACE_ENV
-from ap.script.disable_terminal_close_button import disable_terminal_close_btn
-
-# main params
-param_cnt = len(sys.argv)
-port = None
+from ap import MAIN_THREAD, SHUTDOWN, create_app, max_graph_config
+from ap.common.constants import ANALYSIS_INTERFACE_ENV, PORT, PROCESS_QUEUE, ListenNotifyType
+from ap.common.logger import logger, set_log_config
+from ap.common.services.notify_listen import process_listen_job
 
 env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
 app = create_app('config.%sConfig' % env.capitalize())
+set_log_config()
 
 if __name__ == '__main__':
+    from datetime import datetime
+    from multiprocessing import Manager
+
+    from ap import dic_config, get_basic_yaml_obj, get_start_up_yaml_obj, scheduler
     from ap.common.backup_db import add_backup_dbs_job
     from ap.common.check_available_port import check_available_port
-    from ap.common.logger import set_log_config
+    from ap.common.clean_expired_request import add_job_delete_expired_request
+    from ap.common.clean_old_data import add_job_delete_old_zipped_log_files, add_job_zip_all_previous_log_files
+    from ap.common.common_utils import bundle_assets, get_multiprocess_queue_file, write_to_pickle
+    from ap.common.constants import APP_DB_FILE, CfgConstantType
     from ap.common.memoize import clear_cache
+    from ap.script.convert_user_setting import convert_user_setting_url
+    from ap.script.disable_terminal_close_button import disable_terminal_close_btn
+    from ap.script.hot_fix.fix_db_issues import unlock_db
 
-    set_log_config()
+    port = None
+
+    # delete scheduler db file because of old process queue inside
+    # try:
+    #     delete_file(app.config['SCHEDULER_FULL_PATH'])
+    # except Exception as e:
+    #     # reuse the scheduler file
+    #     logger.exception(e)
 
     # main params
-    param_cnt = len(sys.argv)
     dic_start_up = get_start_up_yaml_obj().dic_config
     if dic_start_up:
         port = get_start_up_yaml_obj().dic_config['setting_startup'].get('port', None)
@@ -37,37 +46,80 @@ if __name__ == '__main__':
 
     check_available_port(port)
 
+    dic_config[PORT] = int(port)
+
+    # processes queue
+    manager = Manager()
+    process_queue = manager.dict()
+    for notify_type in ListenNotifyType.__members__:
+        process_queue[notify_type] = manager.dict()
+
+    write_to_pickle(process_queue, get_multiprocess_queue_file())
+
+    dic_config[MAIN_THREAD] = True
+    dic_config[PROCESS_QUEUE] = process_queue
+
+    # update interrupt jobs by shutdown immediately
+    with app.app_context():
+        from ap.setting_module.models import JobManagement
+
+        with contextlib.suppress(Exception):
+            JobManagement.update_interrupt_jobs()
+
+    print('SCHEDULER START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+    scheduler.start()
+    process_listen_job()
+
     # Universal DB init
-    init_db(app)
+    # init_db(app)
 
-    # unlock db
     true_values = [True, 'true', '1', 1]
-    should_unlock_db = os.environ.get('UNLOCK_DB', 'false')
-    if str(should_unlock_db).lower() in true_values:
-        from ap.script.hot_fix.fix_db_issues import unlock_db
-
-        unlock_db(app.config['APP_DB_FILE'])
-        unlock_db(app.config['UNIVERSAL_DB_FILE'])
 
     # import yaml
     with app.app_context():
-        # trans_yaml = TransformYamlToDb()
-        # trans_yaml.transform()
-
         # init cfg_constants for usage_disk
+        from ap.api.setting_module.services.polling_frequency import (
+            add_idle_mornitoring_job,
+            change_polling_all_interval_jobs,
+        )
+        from ap.api.trace_data.services.proc_link import add_restructure_indexes_job
         from ap.setting_module.models import CfgConstant
 
+        # unlock db
+        try:
+            CfgConstant.create_or_update_by_type(
+                const_type=CfgConstantType.CHECK_DB_LOCK.name,
+                const_value=datetime.now(),
+            )
+            # raise Exception() # testing db lock
+        except Exception as e1:
+            logger.exception(e1)
+            try:
+                unlock_db(dic_config[APP_DB_FILE])
+            except Exception as e2:
+                logger.exception(e2)
+
+        # convert_user_setting()
+        convert_user_setting_url()
+
         CfgConstant.initialize_disk_usage_limit()
+        CfgConstant.initialize_max_graph_constants()
 
-    from ap.api.setting_module.services.polling_frequency import add_idle_mornitoring_job
-    from ap.common.common_utils import bundle_assets
+        for key, _ in max_graph_config.items():
+            max_graph_config[key] = CfgConstant.get_value_by_type_first(key, int)
 
-    add_job_zip_all_previous_log_files()
-    add_job_delete_old_zipped_log_files()
-    add_idle_mornitoring_job()
+        add_job_zip_all_previous_log_files()
+        add_job_delete_old_zipped_log_files()
+        add_idle_mornitoring_job()
+        add_restructure_indexes_job()
 
-    # delete req_id created > 24h ago
-    add_job_delete_expired_request()
+        interval_sec = CfgConstant.get_value_by_type_first(CfgConstantType.POLLING_FREQUENCY.name, int)
+        if interval_sec:
+            change_polling_all_interval_jobs(interval_sec, run_now=True)
+
+        # delete req_id created > 24h ago
+        add_job_delete_expired_request()
 
     # TODO : OSS
     # check and update R-Portable folder
@@ -110,13 +162,17 @@ if __name__ == '__main__':
         # hide close button of cmd
         disable_terminal_close_btn()
 
-    if env == 'dev':
-        print('Development Flask server !!!')
-        # use_reloader=False to avoid scheduler load twice
-        app.run(host='0.0.0.0', port=port, threaded=True, debug=is_debug, use_reloader=False)
-        # app.run(host="0.0.0.0", port=port, threaded=True, debug=is_debug)
-    else:
-        from waitress import serve
+    try:
+        if env == 'dev':
+            print('Development Flask server !!!')
+            # use_reloader=False to avoid scheduler load twice
+            app.run(host='0.0.0.0', port=port, threaded=True, debug=is_debug, use_reloader=False)
+            # app.run(host="0.0.0.0", port=port, threaded=True, debug=is_debug)
+        else:
+            from waitress import serve
 
-        print('Production Waitress server !!!')
-        serve(app, host='0.0.0.0', port=port, threads=20)
+            print('Production Waitress server !!!')
+            serve(app, host='0.0.0.0', port=port, threads=20)
+    finally:
+        dic_config[SHUTDOWN] = True
+        print('End server!!!')

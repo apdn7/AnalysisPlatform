@@ -99,9 +99,14 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         });
     }
 
-    const xData = !isCatLimited ? genFullCategoryData(categoryIds, stepChartDat, allGroupNames) : [];
+    const sortedCat = [...categoryIds].sort((a, b) => b - a);
+    const sortedGroups = {
+        id: sortedCat,
+        value: categoryLabels,
+    }
+    const xData = !isCatLimited ? genFullCategoryData(sortedCat, stepChartDat, sortedGroups) : [];
     const barChart = {
-        y: !isCatLimited ? allGroupNames.id : [],
+        y: !isCatLimited ? sortedCat : [],
         x: xData,
         orientation: 'h',
         marker: {
@@ -120,7 +125,7 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         customdata: {
             isbarchart: true,
             groupname: {
-                value: allGroupNames.value || [],
+                value: sortedGroups.value || [],
             }
         },
     };

@@ -11,6 +11,7 @@ const formElements = {
     endProcItems: '#end-proc-row .end-proc',
     endProcSelectedItem: '#end-proc-row select',
     endProcCateSelectedItem: '#end-proc-cate-row select',
+    condProcSelectedItem: '#cond-proc-row select',
 };
 
 const eles = {
@@ -243,7 +244,7 @@ const contributionChartLayout = (objData, type = 't2', sampleNo = null) => {
             size: 13.2835201328352,
         },
         title: {
-            text: `${type.toUpperCase()} Contribution of Sample No. ${sampleNo || 1}`,
+            text: `${type.toUpperCase()} Contribution of Index = ${sampleNo || 1}`,
             font: {
                 color: 'rgba(204,229,255,1)',
                 family: '',

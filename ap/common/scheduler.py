@@ -1,12 +1,12 @@
-from datetime import datetime, timedelta
-from enum import Enum
+from datetime import datetime
 from functools import wraps
 from threading import Lock
 
-from apscheduler.triggers import date
 from pytz import utc
 
-from ap import close_sessions, scheduler
+from ap import ListenNotifyType, close_sessions, scheduler
+from ap.common.common_utils import get_multiprocess_queue_file, read_pickle_file
+from ap.common.constants import JobType
 from ap.common.logger import log_execution_time
 
 # RESCHEDULE_SECONDS
@@ -15,32 +15,8 @@ RESCHEDULE_SECONDS = 5
 # max concurrent importing jobs
 MAX_CONCURRENT_JOBS = 10
 
-# running jobs dict
-dic_running_job = {}
-
 # multi thread lock
 lock = Lock()
-
-
-class JobType(Enum):
-    def __str__(self):
-        return str(self.name)
-
-    # 1,2 is priority
-    DEL_PROCESS = 1
-    CSV_IMPORT = 2
-    FACTORY_IMPORT = 3
-    GEN_GLOBAL = 4
-    CLEAN_DATA = 5
-    FACTORY_PAST_IMPORT = 6
-    IDLE_MORNITORING = 7
-    SHUTDOWN_APP = 8
-    BACKUP_DATABASE = 9
-    PROC_LINK_COUNT = 10
-    ZIP_LOG = 11
-    CLEAN_ZIP = 12
-    CLEAN_EXPIRED_REQUEST = 13
-
 
 PRIORITY_JOBS = [
     JobType.CSV_IMPORT.name,
@@ -54,29 +30,21 @@ PRIORITY_JOBS = [
 #       False: Don't need to check key between 2 job (key: job parameter).
 #       True: Need to check key between 2 job , if key is not the same , they can run parallel
 CONFLICT_PAIR = {
-    (JobType.DEL_PROCESS.name, JobType.DEL_PROCESS.name),
-    (JobType.DEL_PROCESS.name, JobType.CSV_IMPORT.name),
-    (JobType.DEL_PROCESS.name, JobType.FACTORY_IMPORT.name),
-    (JobType.DEL_PROCESS.name, JobType.GEN_GLOBAL.name),
-    (JobType.DEL_PROCESS.name, JobType.FACTORY_PAST_IMPORT.name),
-    # (JobType.CSV_IMPORT.name, JobType.CSV_IMPORT.name),
-    # (JobType.CSV_IMPORT.name, JobType.FACTORY_IMPORT.name),
-    (JobType.CSV_IMPORT.name, JobType.GEN_GLOBAL.name),
-    # (JobType.CSV_IMPORT.name, JobType.FACTORY_PAST_IMPORT.name),
-    # (JobType.FACTORY_IMPORT.name, JobType.FACTORY_IMPORT.name),
-    (JobType.FACTORY_IMPORT.name, JobType.GEN_GLOBAL.name),
-    # (JobType.FACTORY_IMPORT.name, JobType.FACTORY_PAST_IMPORT.name),
+    # (JobType.DEL_PROCESS.name, JobType.DEL_PROCESS.name),
+    # (JobType.DEL_PROCESS.name, JobType.GEN_GLOBAL.name),
+    # (JobType.DEL_PROCESS.name, JobType.RESTRUCTURE_INDEXES.name),
+    # (JobType.DEL_PROCESS.name, JobType.CSV_IMPORT.name),
+    # (JobType.DEL_PROCESS.name, JobType.FACTORY_IMPORT.name),
+    # (JobType.DEL_PROCESS.name, JobType.FACTORY_PAST_IMPORT.name),
     (JobType.GEN_GLOBAL.name, JobType.GEN_GLOBAL.name),
-    (JobType.GEN_GLOBAL.name, JobType.FACTORY_PAST_IMPORT.name),
-    # (JobType.FACTORY_PAST_IMPORT.name, JobType.FACTORY_PAST_IMPORT.name),
+    (JobType.GEN_GLOBAL.name, JobType.RESTRUCTURE_INDEXES.name),
+    # (JobType.GEN_GLOBAL.name, JobType.CSV_IMPORT.name),
+    # (JobType.GEN_GLOBAL.name, JobType.FACTORY_IMPORT.name),
+    # (JobType.GEN_GLOBAL.name, JobType.FACTORY_PAST_IMPORT.name),
+    # (JobType.RESTRUCTURE_INDEXES.name, JobType.CSV_IMPORT.name),
+    # (JobType.RESTRUCTURE_INDEXES.name, JobType.FACTORY_IMPORT.name),
+    # (JobType.RESTRUCTURE_INDEXES.name, JobType.FACTORY_PAST_IMPORT.name),
 }
-
-# Jobs that change universal data
-IMPORT_DATA_JOBS = [
-    JobType.CSV_IMPORT.name,
-    JobType.FACTORY_IMPORT.name,
-    JobType.FACTORY_PAST_IMPORT.name,
-]
 
 
 @log_execution_time(logging_exception=True)
@@ -92,29 +60,28 @@ def scheduler_app_context(fn):
 
     @wraps(fn)
     def inner(*args, **kwargs):
-        global dic_running_job
-        print(f'--------CHECK_BEFORE_RUN---------')
+        print('--------CHECK_BEFORE_RUN---------')
         job_id = kwargs.get('_job_id')
         job_name = kwargs.get('_job_name')
+        proc_id = kwargs.get('_proc_id') or kwargs.get('proc_id') or kwargs.get('process_id')
+        try:
+            process_queue = read_pickle_file(get_multiprocess_queue_file())
+            dic_running_job = process_queue[ListenNotifyType.RUNNING_JOB.name]
+            # dic_running_job = kwargs[PROCESS_QUEUE][ListenNotifyType.RUNNING_JOB.name]
+        except Exception:
+            dic_running_job = {}
 
         # check before run
-        with lock:
-            try:
-                scheduler.pause()
-                if scheduler_check_before_run(job_id, job_name, dic_running_job):
-                    dic_running_job[job_id] = [job_name, datetime.utcnow()]
-                else:
-                    reschedule_job(job_id, job_name, fn, args, kwargs)
-                    return None
-
-            finally:
-                scheduler.resume()
+        if not scheduler_check_before_run(job_id, job_name, proc_id, dic_running_job):
+            scheduler.reschedule_job(job_id, fn, kwargs)
+            return None
 
         flask_app = scheduler.app
         with flask_app.app_context():
             print(f'--------{job_id} START---------')
 
             try:
+                dic_running_job[job_id] = [job_name, proc_id, datetime.utcnow()]
                 result = fn(*args, **kwargs)
                 print(f'--------{job_id} END-----------')
             except Exception as e:
@@ -129,75 +96,76 @@ def scheduler_app_context(fn):
     return inner
 
 
-def is_running_jobs_over_limitation():
-    priority_jobs_running = []
-    for running_job_name, *_ in dic_running_job.values():
-        if running_job_name in PRIORITY_JOBS:
-            priority_jobs_running.append(running_job_name)
-    if len(priority_jobs_running) >= MAX_CONCURRENT_JOBS:
-        return True
-    return False
+# def is_running_jobs_over_limitation():
+#     priority_jobs_running = []
+#     for running_job_name, *_ in dic_running_job.values():
+#         if running_job_name in PRIORITY_JOBS:
+#             priority_jobs_running.append(running_job_name)
+#     if len(priority_jobs_running) >= MAX_CONCURRENT_JOBS:
+#         return True
+#     return False
 
 
-def scheduler_check_before_run(job_id, job_name, dic_running_job_param):
+def scheduler_check_before_run(job_id, job_name, proc_id, dic_running_job_param):
     """check if job can run parallel with other jobs"""
 
     print('job_id:', job_id)
     print('job_name:', job_name)
+    print('proc_id:', proc_id)
     print('RUNNING JOBS:', dic_running_job_param)
     if dic_running_job_param.get(job_id):
         print('The same job is running')
         return False
 
-    for running_job_name, *_ in dic_running_job_param.values():
-        if (job_name, running_job_name) in CONFLICT_PAIR or (
-            running_job_name,
-            job_name,
-        ) in CONFLICT_PAIR:
+    for running_job_name, running_proc_id, *_ in dic_running_job_param.values():
+        if (job_name, running_job_name) in CONFLICT_PAIR or (running_job_name, job_name) in CONFLICT_PAIR:
             print(f'{job_name} job can not run parallel with {running_job_name}')
             return False
+        if proc_id is not None and proc_id == running_proc_id:
+            return False
 
-    if is_running_jobs_over_limitation():
-        print(f'=== PENDING JOB: {job_id} ===')
-        return False
+    # multiprocess , so it not need anymore
+    # if is_running_jobs_over_limitation():
+    #     print(f'=== PENDING JOB: {job_id} ===')
+    #     return False
 
     return True
 
 
-def reschedule_job(job_id, job_name, fn, args, kwargs):
-    """let the job wait about n minutes
-
-    Arguments:
-        job_id {[type]} -- [description]
-        job_name {[type]} -- [description]
-        fn {function} -- [description]
-        args {[type]} -- [description]
-        kwargs {[type]} -- [description]
-    """
-
-    job = scheduler.get_job(job_id)
-    run_time = datetime.now().astimezone(utc) + timedelta(seconds=RESCHEDULE_SECONDS)
-    if job:
-        job.next_run_time = run_time
-        if job.trigger:
-            if type(job.trigger).__name__ == 'DateTrigger':
-                job.trigger.run_date = run_time
-            elif type(job.trigger).__name__ == 'IntervalTrigger':
-                job.trigger.start_date = run_time
-        job.reschedule(trigger=job.trigger)
-    else:
-        # for non-interval job , there is no job in scheduler anymore
-        # so we must add new job to scheduler.
-        job = scheduler.add_job(
-            job_id,
-            fn,
-            name=job_name,
-            trigger=date.DateTrigger(run_date=run_time, timezone=utc),
-            args=args,
-            kwargs=kwargs,
-        )
-    print('=== RESCHEDULED JOB ===')
-    print(job)
+# def reschedule_job(job_id, job_name, fn, args, kwargs):
+#     """let the job wait about n minutes
+#
+#     Arguments:
+#         job_id {[type]} -- [description]
+#         job_name {[type]} -- [description]
+#         fn {function} -- [description]
+#         args {[type]} -- [description]
+#         kwargs {[type]} -- [description]
+#     """
+#
+#     job = scheduler.get_job(job_id)
+#     run_time = datetime.now().astimezone(utc) + timedelta(seconds=RESCHEDULE_SECONDS)
+#     if job:
+#         job.next_run_time = run_time
+#         if job.trigger:
+#             if type(job.trigger).__name__ == 'DateTrigger':
+#                 job.trigger.run_date = run_time
+#             elif type(job.trigger).__name__ == 'IntervalTrigger':
+#                 job.trigger.start_date = run_time
+#         job.reschedule(trigger=job.trigger)
+#     else:
+#         # for non-interval job , there is no job in scheduler anymore
+#         # so we must add new job to scheduler.
+#         job = scheduler.add_job(
+#             job_id,
+#             fn,
+#             name=job_name,
+#             trigger=date.DateTrigger(run_date=run_time, timezone=utc),
+#             args=args,
+#             kwargs=kwargs,
+#         )
+#     print('=== RESCHEDULED JOB ===')
+#     print(job)
 
 
 @log_execution_time()
@@ -246,3 +214,17 @@ def add_job_to_scheduler(job_id, job_name, trigger, import_func, run_now, dic_im
             trigger=trigger,
             kwargs=dic_import_param,
         )
+
+
+def get_job_details(job_id):
+    job = scheduler.get_job(job_id)
+    if job is None:
+        return None
+    return {
+        'func': job.func,
+        'trigger': job.trigger,
+        'args': job.args,
+        'kwargs': job.kwargs,
+        'job_id': job.id,
+        'name': job.name,
+    }

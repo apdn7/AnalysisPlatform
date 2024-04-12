@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import 'macros.html' as macros %}
 
 {% block asset %}
 <!-- Common CSS -->
@@ -78,10 +77,10 @@
 									<span class="hint-text" title="{{_("Condition hover msg")}}">{{_("Condition")}}</span>
 								</th>
 								<th colspan="2" >
-									<span class="hint-text" title="{{_("Threshold config hover msg")}}">{{_("Threshold config")}}</span>
+									<span class="hint-text red" title="{{_("Threshold config hover msg")}}">{{_("Threshold config")}}</span>
 								</th>
 								<th colspan="2">
-									<span class="hint-text" title="{{_("Process threshold hover msg")}}">{{_("Process threshold")}}</span>
+									<span class="hint-text blue" title="{{_("Process threshold hover msg")}}">{{_("Process threshold")}}</span>
 								</th>
 								<th colspan="2">
 									{{_("Graph axis range")}}

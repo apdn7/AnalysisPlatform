@@ -8,7 +8,7 @@
 }
 
 .form-group .list-group-item {
-    padding: 0.2rem 1rem;
+    padding: 1px 1rem;
     font-size: 14px;
     border-left: none;
     border-right: none;
@@ -22,7 +22,7 @@
     text-overflow: ellipsis;
 }
 .fit-item {
-    max-width: 60px;
+    max-width: 55px;
 }
 
 .objective-item {
@@ -139,7 +139,7 @@
 
 .level-select {
     min-width: unset;
-    padding: 3px;
+    padding: 1px 3px;
     height: auto;
     width: 60px;
 }
@@ -237,4 +237,19 @@
      .type-item {
         width: 45px;
     }
+}
+
+.custom-control-input:disabled ~ .custom-control-label::before {
+    cursor: not-allowed !important;
+    background-color: #444444;
+}
+
+@keyframes blink-animation {
+    50% {
+        opacity: 0
+    }
+}
+
+.blink {
+    animation: blink-animation 1s linear infinite;
 }

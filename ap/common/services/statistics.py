@@ -3,7 +3,20 @@ import pandas as pd
 from pandas import Series
 
 from ap.common.common_utils import DATE_FORMAT_STR, calc_overflow_boundary, reformat_dt_str
-from ap.common.constants import *
+from ap.common.constants import (
+    ACT_FROM,
+    ACT_TO,
+    ARRAY_PLOTDATA,
+    ARRAY_X,
+    ARRAY_Y,
+    CHART_INFOS,
+    NONE_IDXS,
+    PRC_MAX,
+    PRC_MIN,
+    SUMMARIES,
+    THRESH_HIGH,
+    THRESH_LOW,
+)
 from ap.common.logger import log_execution_time
 from ap.common.sigificant_digit import signify_digit
 
@@ -21,11 +34,10 @@ def calc_summary_elements(plot):
     # must check None , because [] is no None value
     if none_ids is None:
         pass
+    elif none_ids:
+        df = df[(df[ARRAY_Y].notnull()) | (df.index.isin(none_ids))]
     else:
-        if none_ids:
-            df = df[(df[ARRAY_Y].notnull()) | (df.index.isin(none_ids))]
-        else:
-            df.dropna(subset=[ARRAY_Y], inplace=True)
+        df.dropna(subset=[ARRAY_Y], inplace=True)
 
     # chart_infos = plot.get(CHART_INFOS_ORG) or [{}]
     chart_infos = plot.get(CHART_INFOS) or [{}]
@@ -75,14 +87,10 @@ def calc_summary_elements(plot):
         if not act_to_formatted:
             act_to_formatted = reformat_dt_str('9999-01-01', DATE_FORMAT_STR)
 
-        if (not act_from and not act_to) or (
-            act_from_formatted <= min_x and max_x <= act_to_formatted
-        ):
+        if (not act_from and not act_to) or (act_from_formatted <= min_x and max_x <= act_to_formatted):
             df_threshold = df
         else:
-            df_threshold = df[
-                (df[ARRAY_X] >= act_from_formatted) & (df[ARRAY_X] < act_to_formatted)
-            ]
+            df_threshold = df[(df[ARRAY_X] >= act_from_formatted) & (df[ARRAY_X] < act_to_formatted)]
 
         count_unlinked = len(df_threshold[df_threshold[ARRAY_X].isnull()])
 
@@ -322,7 +330,7 @@ def calc_summary_elements(plot):
                     'upper_range_org': upper_range,
                     'mode': signify_digit(mode),
                 },
-            }
+            },
         )
 
     return summaries

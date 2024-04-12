@@ -2,10 +2,6 @@
 msgid "Saved"
 msgstr "Зачувано"
 
-#: ap/setting_module/controllers.py:122
-msgid "Error has been occurred"
-msgstr "Се појави грешка"
-
 #: ap/setting_module/controllers.py:129
 msgid "Application Configuration"
 msgstr "Конфигурација на апликација"
@@ -26,23 +22,6 @@ msgstr "Апликација за балинк и анализа"
 msgid "Choose language"
 msgstr "Изберете јазик"
 
-#: ap/templates/navbar.html:8
-msgid "Home"
-msgstr "Главен екран"
-
-#: ap/templates/navbar.html:13
-msgid "Setting"
-msgstr "Верификација на операцијата"
-
-#: ap/templates/navbar.html:13
-#: ap/templates/setting_module/performance_check.html
-msgid "Performance Check"
-msgstr "Верификација на операцијата"
-
-#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
-msgid "Basic Config"
-msgstr "Основна конфигурација"
-
 #: ap/templates/setting_module/basic_config.html:9
 #: ap/templates/setting_module/db_config.html:7
 msgid "Register"
@@ -56,10 +35,6 @@ msgstr "Освежете го"
 msgid "Integer"
 msgstr "Цел број"
 
-#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
-msgid "Real(Float)"
-msgstr "Вистински (плови)"
-
 #: ap/templates/setting_module/db_config.html
 msgid "Datetime"
 msgstr "Датум време"
@@ -71,18 +46,6 @@ msgstr "Низа"
 #: ap/templates/setting_module/basic_config.html:20
 msgid "Title"
 msgstr "Наслов"
-
-#: ap/templates/setting_module/basic_config.html:23
-msgid "Plant"
-msgstr "Растенија"
-
-#: ap/templates/setting_module/basic_config.html:26
-msgid "Factory"
-msgstr "Фабрика"
-
-#: ap/templates/setting_module/basic_config.html:29
-msgid "Line Group"
-msgstr "Линија"
 
 #: ap/templates/setting_module/config.html:39
 #: ap/templates/setting_module/db_config.html:144
@@ -174,22 +137,6 @@ msgstr "Дали сакате да го избришете овој рекорд
 msgid "Delete"
 msgstr "избриши"
 
-#: ap/templates/setting_module/performance_check.html:13
-msgid "Traceability"
-msgstr "Следливост"
-
-#: ap/templates/setting_module/performance_check.html:19
-msgid "Traceability Graph"
-msgstr "График за следливост"
-
-#: ap/templates/setting_module/performance_check.html:26
-msgid "Trace Testing"
-msgstr "Тестирање во трагови"
-
-#: ap/templates/setting_module/performance_check.html:43
-msgid "Start testing"
-msgstr "Започнете со тестирање"
-
 #: ap/templates/setting_module/performance_check.html
 msgid "Start Time"
 msgstr "Време на започнување"
@@ -198,50 +145,14 @@ msgstr "Време на започнување"
 msgid "End Time"
 msgstr "Време на крај"
 
-#: ap/templates/setting_module/performance_check.html
-msgid "Machine Id"
-msgstr "ID на машината (повеќекратни селекции)"
-
 #: ap/templates/filter_visualization.html
 #: ap/templates/setting_module/performance_check.html
 msgid "Line"
 msgstr "Линија"
 
-#: ap/templates/setting_module/performance_check.html
-msgid "Part Number"
-msgstr "Број на дел"
-
 #: ap/templates/setting_module/trace_config.html:3
 msgid "Data Link Config"
 msgstr "Конфигурирање на врската со податоци"
-
-#: ap/templates/setting_module/trace_config.html:5
-msgid "Please select a language"
-msgstr "Изберете јазик"
-
-#: ap/templates/setting_module/trace_config.html:7
-msgid "Japanese"
-msgstr "Јапонски"
-
-#: ap/templates/setting_module/trace_config.html:8
-msgid "English"
-msgstr "Англиски"
-
-#: ap/templates/setting_module/trace_config.html:13
-msgid "Node"
-msgstr "Јазол"
-
-#: ap/templates/setting_module/trace_config.html:16
-msgid "Node ID"
-msgstr "Јазол ID"
-
-#: ap/templates/setting_module/trace_config.html:20
-msgid "Label"
-msgstr "Етикета"
-
-#: ap/templates/setting_module/trace_config.html:24
-msgid "Master name"
-msgstr "Господар име"
 
 #: ap/templates/setting_module/trace_config.html:28
 msgid "Database"
@@ -364,6 +275,10 @@ msgid "English name is duplicated"
 msgstr "Англиското име е дуплирано."
 
 #: ap/templates/setting_module/proc_config_modals.html
+msgid "System is duplicated"
+msgstr "System is duplicated"
+
+#: ap/templates/setting_module/proc_config_modals.html
 msgid "Master name is duplicated"
 msgstr "Името на екранот е дуплирано."
 
@@ -386,38 +301,6 @@ msgstr "Увоз на податоци"
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Do you want to import data"
 msgstr "Дали сте сигурни да увезувате податоци?"
-
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "Confirm import data message 1"
-msgstr ""
-"Кога ќе го притиснете копчето OK, ќе увезете податоци од тековното време "
-"до еден месец пред тоа."
-
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "Confirm import data message 2"
-msgstr "Претходните податоци автоматски се увезуваат малку по малку."
-
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "Confirm import data message 3"
-msgstr ""
-"Ако сакате да ги увезете податоците по тековното време, повторно "
-"притиснете го копчето за читање на податоци или притиснете ја базата на "
-"податоци CSV Поставување на поставките на страницата за читање."
-
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "Confirm import data message 4"
-msgstr ""
-"Кога е поставено „циклус на ажурирање“ на „база на податоци / CSV "
-"поставување на читање“, тој автоматски ќе се увезува во периодот кога ќе "
-"се постават податоците по тековното време."
-
-#: ap/templates/setting_module/performance_check.html:13
-msgid "Trace Information"
-msgstr "Информации за трага"
-
-#: ap/templates/trace_data/trace_data.html:14
-msgid "Trace Data"
-msgstr "Податоци за трага"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Could not access"
@@ -587,45 +470,12 @@ msgid "CSV Export"
 msgstr "CSV извоз"
 
 #: ap/templates/setting_module/_filter_machine.html:48
-msgid "Process is required"
-msgstr "Потребен е процес"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Column name is required"
-msgstr "Потребно е име на колоната"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-#: ap/templates/templates/i18n.html
-msgid "Line is required"
-msgstr "Потребна е линија"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Master name is required"
-msgstr "Потребно е име на приказ"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Duplicated master name"
-msgstr "Името на екранот е дуплирано."
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Machine value is required"
-msgstr "Потребна е вредност на машината"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Duplicated machine value"
-msgstr "Дуплирана машина ID"
-
-#: ap/templates/setting_module/_filter_machine.html:48
 msgid "Save successfully"
 msgstr "Заштедете успешно"
 
 #: ap/templates/setting_module/_filter_machine.html:48
 msgid "Failed to save"
 msgstr "Не успеа да заштеди"
-
-#: ap/templates/setting_module/_filter_partno.html:48
-msgid "Part No column is required"
-msgstr "Дел Не е потребна колона"
 
 #: ap/templates/setting_module/_filter_partno.html:48
 msgid "Target column is required"
@@ -718,14 +568,6 @@ msgstr "Зачувани поставки за база на податоци."
 msgid "Database Setting failed to save"
 msgstr "Не успеа да ги зачувате поставките за базата на податоци."
 
-#: ap/api/setting_module/controllers.py
-msgid "Basic Config saved"
-msgstr "Зачувани основни поставки."
-
-#: ap/api/setting_module/controllers.py
-msgid "Basic Config failed to save"
-msgstr "Не успеа да ги зачува основните поставки."
-
 #: ap/templates/macros.html
 msgid "Test connection"
 msgstr "Тест врска"
@@ -799,18 +641,6 @@ msgid "Analyze"
 msgstr "Анализира"
 
 #: ap/templates/sidebar.html
-msgid "Under development"
-msgstr "Во фаза на развој"
-
-#: ap/templates/analyze/analyze.html
-msgid "Analyze: "
-msgstr "Анализирајте:"
-
-#: ap/templates/sidebar.html
-msgid "Waterfall Plot"
-msgstr "Заговор за водопади"
-
-#: ap/templates/sidebar.html
 msgid "Graphical LASSO"
 msgstr "Графички LASSO"
 
@@ -829,14 +659,6 @@ msgstr "Заговор со целосни точки"
 #: ap/templates/sidebar.html
 msgid "Data Visualization"
 msgstr "Визуелизација на податоците"
-
-#: ap/templates/sidebar.html
-msgid "Visualization"
-msgstr "Визуелизација"
-
-#: ap/templates/analyze/analyze.html
-msgid "Run"
-msgstr "Трчај"
 
 #: ap/templates/setting_module/db_config.html
 msgid "Please fill database name"
@@ -950,6 +772,10 @@ msgstr ""
 # ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "Список на работни места"
+
+# ap/setting_module/controllers.py
+msgid "Failed Job List"
+msgstr "Failed Job List"
 
 # ap/templates/setting_module/background_process.html
 msgid "Job ID"
@@ -1076,10 +902,6 @@ msgid "Scatter Plot display"
 msgstr "Распрскувачки заговор"
 
 #: ap/templates/trace_data/categorical_plot.html
-msgid "To visualize categorical variable"
-msgstr "Да се ​​визуелизира категорична променлива"
-
-#: ap/templates/trace_data/categorical_plot.html
 msgid "Stratify by variables"
 msgstr "Стратификација по променливи"
 
@@ -1099,10 +921,6 @@ msgstr "Цел период"
 #: ap/templates/trace_data/categorical_plot.html
 msgid "Frequency"
 msgstr "Фреквенција (броење)"
-
-#: ap/templates/trace_data/categorical_plot.html
-msgid "Density Estimation"
-msgstr "Проценка на густина"
 
 #: ap/templates/trace_data/categorical_plot.html
 msgid "Categorical variable"
@@ -1267,10 +1085,6 @@ msgstr "Фреквенција"
 #: ap/template/setting_module/performance_check.html
 msgid "End point"
 msgstr "Крајна точка"
-
-#: ap/template/setting_module/performance_check.html
-msgid "Show process"
-msgstr "Целен процес"
 
 #: ap/template/setting_module/performance_check.html
 msgid "Time Series"
@@ -1638,14 +1452,6 @@ msgstr ""
 " податоци. Одете на страницата за поставување, поставете ги колоните на "
 "податоците за увоз за да ги увезете податоците."
 
-# ap/template/setting_module/db_config_modals.html
-msgid "Element data is missing required attribute."
-msgstr "Не е потребен атрибут во податоците за елементите."
-
-# ap/template/setting_module/db_config_modals.html
-msgid "Element data is missing required attribute value."
-msgstr "Не е потребна вредност на атрибут за податоци за елементите."
-
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "2 or more variables should be selected for PCA"
 msgstr ""
@@ -1916,15 +1722,6 @@ msgstr ""
 "можете да ги проверите главните фактори во заговорот за придонеси."
 
 # ap/template/setting_module/categorical_plot.html
-msgid ""
-"This stratification variable divides the distribution into multiple "
-"graphs."
-msgstr ""
-"Дистрибуцијата е поделена на повеќе графикони со оваа променлива. "
-"Изберете променливи на категорија (квалитативни променливи), како што се "
-"броеви на делови и станици."
-
-# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Стратифициран филтер за категорија: ги ограничува податоците што треба да"
@@ -2175,6 +1972,10 @@ msgstr ""
 "повеќе. Изберете ја целната променлива."
 
 #: ap/templates/templates/i18n.html
+msgid "Real"
+msgstr "Вистински (плови)"
+
+#: ap/templates/templates/i18n.html
 msgid "Cat."
 msgstr "Освен вистински број"
 
@@ -2206,13 +2007,6 @@ msgstr ""
 "Ставка на податоци (како што е нумеричка варијабла или мерна вредност) "
 "што создава дистрибуција на податоци. Овие податоци се исцртуваат на "
 "заговор. Може да се изберат до 20 артикли."
-
-#: ap/templates/templates/i18n.html
-msgid "Stratify Variables Hover"
-msgstr ""
-"Оваа стратифицирана променлива ја дели дистрибуцијата на повеќе парцели и"
-" ја прикажува рамо до рамо. Изберете категорична променлива, како што е "
-"лот бр или серија бр."
 
 #: ap/templates/templates/i18n.html
 msgid "Start data & time Hover"
@@ -2335,11 +2129,11 @@ msgid "Variables"
 msgstr "Променливи"
 
 #: ap/templates/parallel_plot/parallel_plot.html
-msgid "Real(Float) and categorical"
+msgid "Real and categorical"
 msgstr "Само реални и категорични"
 
 #: ap/templates/parallel_plot/parallel_plot.html
-msgid "Real(Float) only"
+msgid "Real only"
 msgstr "Само реално"
 
 #: ap/templates/parallel_plot/parallel_plot.html
@@ -2618,19 +2412,6 @@ msgstr ""
 "Analysis Platform: Едноставна алатка за мапирање на податоци, "
 "визуелизација, статистичка анализа и учење машини."
 
-#: ap/templates/parallel_plot/parallel_plot.html
-#: ap/templates/scatter_plot/scatter_plot.html
-#: ap/templates/trace_data/trace_data.html
-msgid ""
-"Enter target item of data (quantitative variable like measurement value) "
-"to create data distributions. This data is plotted on the graph "
-"surrounded by a light blue frame."
-msgstr ""
-"Податоците поставени овде се користат како референца за поврзување на "
-"податоци и заговор. Поставките се користат во хоризонталната оска на "
-"заплетот. Покрај тоа, заплетот за потекло се прикажува со светло сина "
-"рамка."
-
 #: ap/templates/trace_data/trace_data.html
 msgid ""
 "Enter target item of data (quantitative variable like measurement value) "
@@ -2658,18 +2439,6 @@ msgid ""
 msgstr ""
 "Празен可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
 "品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
-
-#: ap/templates/heatmap/heatmap.html
-msgid ""
-"This stratification variable divides the distribution into multiple "
-"graphs and displays them side by side. Enter category variable "
-"(qualitative variable) such as part number, station number, etc. It can "
-"be selected up to 100 items."
-msgstr ""
-"Оваа променлива за стратификација ја дели шемата за да се визуелизира во "
-"повеќе парцели и ги прикажува рамо до рамо. Изберете категорични "
-"променливи, како што се бројот на дел и станицата бр. До 100 предмети "
-"може да се изберат."
 
 #: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
 #: ap/templates/scatter_plot/scatter_plot.html
@@ -2727,7 +2496,7 @@ msgid "Unselect all to the right"
 msgstr "Избирајте ги сите десно"
 
 #: ap/templates/templates/i18n.html
-msgid "All Real(Float) from here"
+msgid "All Real from here"
 msgstr "Сите реални (плови) од тука"
 
 #: ap/templates/templates/i18n.html
@@ -2826,14 +2595,6 @@ msgstr "Споделете ги поставките"
 #: ap/templates/modals.html
 msgid "Save"
 msgstr "Зачувај"
-
-#: ap/templates/i18n.html
-msgid ""
-"Available to select maximumn 4 sensors at time. Please check and retry "
-"again."
-msgstr ""
-"Можете да изберете од 2 до 7 целни променливи. Проверете го бројот на "
-"целни променливи и поправете ги поставките."
 
 #: ap/templates/i18n.html
 msgid ""
@@ -3288,33 +3049,6 @@ msgstr ""
 "Внесете го бројот на дистрибуции што треба да се прикажат (број на "
 "поделби). Внесете цел број од 1 или повеќе 32 или помалку."
 
-#: ap/templates/macros.html
-msgid "Division number Hover ScP"
-msgstr ""
-"Празен表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
-"Facet無効時：1以上49以下\n"
-"Facet有効時：1以上7以下"
-
-#: ap/templates/macros.html
-msgid "Interval Hover"
-msgstr ""
-"Празенプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
-"\n"
-"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
-
-#: ap/templates/macros.html
-msgid "Window length Hover"
-msgstr ""
-"Празен1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
-"\n"
-"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
-
-#: ap/templates/macros.html
-msgid "Window length Hover ScP"
-msgstr ""
-"Празен1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
-"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
-
 #: ap/templates/i18n.html
 msgid "Reduce number of violin messenger"
 msgstr "Има премногу виолини по заговор, така што автоматски беше ограничен."
@@ -3501,6 +3235,10 @@ msgid "Residuals"
 msgstr "Residuals"
 
 #: ap/templates/i18n.html
+msgid "Index vs Residuals"
+msgstr "Index vs Residuals"
+
+#: ap/templates/i18n.html
 msgid "Actual vs Fitted Values"
 msgstr "Actual vs Fitted Values"
 
@@ -3559,8 +3297,8 @@ msgid "Please enter a character string for the filter condition."
 msgstr "Please enter a character string for the filter condition."
 
 #: ap/templates/parallel_plot.html
-msgid "Real(Float) and Integer"
-msgstr "Real(Float) and Integer"
+msgid "Real and Integer"
+msgstr "Real and Integer"
 
 #: ap/templates/i18n.html
 msgid "Change divide confirm message"
@@ -4150,8 +3888,8 @@ msgstr "year"
 
 #: ap/templates/templates/i18n.html
 #, fuzzy
-msgid "The target is a variable whose data type is Real(Float)"
-msgstr "The target is a variable whose data type is 'Real(Float)'"
+msgid "The target is a variable whose data type is Real"
+msgstr "The target is a variable whose data type is 'Real'"
 
 #: ap/templates/templates/i18n.html
 msgid "SkD select over 100 sensor msg"
@@ -4519,7 +4257,8 @@ msgstr "Judge"
 msgid "Judge hover msg"
 msgstr ""
 "Used to calculate NG rate. Data of selected variable, that satisfies the "
-"conditional expression is regarded as NG."
+"conditional expression is regarded as NG.\n"
+"Can not select both Facet and Judge for one variable at the same time."
 
 #: ap/templates/i18n.html
 msgid "NG condition"
@@ -4530,6 +4269,31 @@ msgid "NG condition hover msg"
 msgstr ""
 "You can specify a condition of NGs for the variable selected as 'Judge'. "
 "For example, Temperature > 90, InspectionResult == 2"
+
+#: ap/templates/macros.html
+msgid "Pass EMD values to the new page"
+msgstr "Pass EMD values and NG rate (if calculated) to the new page"
+
+#: ap/templates/macros.html
+msgid "Pass EMD values to the new page hover msg"
+msgstr ""
+"Pass EMD that indicates the change of the distribution, to the new page.\n"
+"Also pass NG rate　(when 'Judge' is specified on the show value setting, "
+"and the NG rate is calculated).\n"
+"Especially effective for the data that do not have 1:1 data link. For "
+"example, data linked with Lot ID and Serial ID."
+
+#: ap/templates/macros.html
+msgid "This week"
+msgstr "This week"
+
+#: ap/templates/macros.html
+msgid "Set nominal scale and ordinal scale in categorical data."
+msgstr "Set nominal scale and ordinal scale in categorical data."
+
+#: ap/templates/macros.html
+msgid "Nominal/ordinal scale setting of categorical data"
+msgstr "Nominal/ordinal scale setting of categorical data"
 
 #: ap/templates/macros.html
 msgid "Japanese Name"
@@ -4551,58 +4315,288 @@ msgstr ""
 "To change the visualization settings, jump again after modifying the "
 "graph on the page from which you jumped"
 
-#~ msgid ""
-#~ "\"Inf\"/\"-Inf\" and their estimated values"
-#~ " are displayed on the graph as "
-#~ "\"NA\"."
-#~ msgstr ""
-#~ "\"Inf\"/\"-inf\" and their estimated values"
-#~ " are displayed on the graph as "
-#~ "\"NA\"."
+#: ap/templates/macros.html
+msgid "Nominal scale"
+msgstr "Ordinalize categorical values"
 
-#~ msgid "Top and bottom 5%: Replace to NA"
-#~ msgstr "Top and bottom 5%%: Replace to NA"
+#: ap/templates/macros.html
+msgid "Nominal scale hover msg"
+msgstr ""
+"By converting categorical data into an ordinal scale based on the "
+"objective variable, \n"
+"it becomes possible to have a clearer understanding of the relationship "
+"between device number or line number and the target variable. \n"
+"This enables the detection of differences between devices or lines. "
+"Similar to target encoding, \n"
+"each category is replaced with the average value of the corresponding "
+"objective variable."
 
-#~ msgid "All 2"
-#~ msgstr "All"
+msgid "In variable selected order"
+msgstr "In variable selected order"
 
-#~ msgid "Remove outlier hover msg"
-#~ msgstr "Top and bottom 5%%: Replace to NA"
+#: ap/templates/i18n.html
+msgid "main::Datetime"
+msgstr "main::Datetime"
 
-#~ msgid "The targets of removing outlier are Max, Mean Min, σ, and Range."
-#~ msgstr "Целите на отстранување на надворешните се Max, Mean, Min, σ и Range."
+#: ap/templates/i18n.html
+msgid "main::Serial:Int"
+msgstr "main::Serial:Int"
 
-#~ msgid "In order of corr."
-#~ msgstr "Во корелација коефициент. со цел"
+#: ap/templates/i18n.html
+msgid "main::Serial:Str"
+msgstr "main::Serial:Str"
 
-# ap/template/setting_module/master_config.html
-#~ msgid "Control item"
-#~ msgstr "Контролна ставка"
+#: ap/templates/i18n.html
+msgid "Datetime:key"
+msgstr "Datetime:key"
 
-#~ msgid "Control item Hover"
-#~ msgstr ""
-#~ "Изберете ја контролата на квалитетот или"
-#~ " предметите за контрола на опремата "
-#~ "користејќи ги во поставките за "
-#~ "графикони."
+#: ap/templates/i18n.html
+msgid "Serial:Int"
+msgstr "Serial:Int"
 
-#~ msgid "Type Hover"
-#~ msgstr ""
-#~ "Ве молиме, изберете го типот на "
-#~ "целта за управување, како што се "
-#~ "бројот на дел и опрема."
+#: ap/templates/i18n.html
+msgid "Serial:Str"
+msgstr "Serial:Str"
 
-#~ msgid "Name MCF Hover"
-#~ msgstr ""
-#~ "Изберете ја целта за управување, како"
-#~ " што е вредноста на бројот на "
-#~ "делот и вредноста на опремата."
+#: ap/templates/i18n.html
+msgid "LineName:Str"
+msgstr "LineName:Str"
 
-#~ msgid "Action from Hover"
-#~ msgstr ""
-#~ "Поставете го почетокот на DateTime за"
-#~ " поставките за графикони. (Потребно)"
+#: ap/templates/i18n.html
+msgid "LineNo:Int"
+msgstr "LineNo:Int"
 
-#~ msgid "Action to Hover"
-#~ msgstr "Поставете го крајниот DateTime за поставките за графикони. (Изборен)"
+#: ap/templates/i18n.html
+msgid "EqName:Str"
+msgstr "EqName:Str"
+
+#: ap/templates/i18n.html
+msgid "EqNo:Int"
+msgstr "EqNo:Int"
+
+#: ap/templates/i18n.html
+msgid "PartName:Str"
+msgstr "PartName:Str"
+
+#: ap/templates/i18n.html
+msgid "PartNo:Int"
+msgstr "PartNo:Int"
+
+#: ap/templates/i18n.html
+msgid "Copy to all below"
+msgstr "Copy to all below"
+
+#: ap/templates/i18n.html
+msgid "Copy to filtered"
+msgstr "Copy to filtered"
+
+#: ap/templates/i18n.html
+msgid "Column Raw Name"
+msgstr "Column Raw Name"
+
+#: ap/templates/i18n.html
+msgid "Sample Data"
+msgstr "Sample Data"
+
+#: ap/templates/i18n.html
+msgid "Special"
+msgstr "Special"
+
+#: ap/templates/i18n.html
+msgid "Filter (System)"
+msgstr "Filter (System)"
+
+#: ap/templates/i18n.html
+msgid "Multi Set"
+msgstr "Multi Set"
+
+#: ap/templates/setting_module/proc_config_modal.html
+msgid "ShowPreviewByFile"
+msgstr ""
+"If the sample data has many missing value and datatype estimation is not "
+"good, select a better reference file."
+
+#: ap/templates/i18n.html
+msgid "Integer(Cat)"
+msgstr "Integer(Cat)"
+
+msgid "SystemNameHoverMsg"
+msgstr ""
+"This is the variable name used in the system and is required.\n"
+"Characters that can be used:\n"
+"・Half-width alphanumeric characters\n"
+"・Hyphen'-',\n"
+"・Underbar '_'\n"
+
+#: ap/templates/i18n.html
+msgid "StNo:Int"
+msgstr "StNo:Int"
+
+#: ap/templates/i18n.html
+msgid "Could not read data"
+msgstr "Could not read data"
+
+#: ap/templates/setting_module/background_job.html
+msgid "Progress"
+msgstr "Progress"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Fine select hover msg"
+msgstr ""
+"You can set the range that can be filtered on the axis in detail. "
+"However, records containing NA (missing values) or Inf± (infinity) are "
+"removed."
+
+#: ap/templates/i18n.html
+msgid "LinkConfigurationNotExist"
+msgstr "The graph is not displayed because no linking settings have been made."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Japanese name is duplicated"
+msgstr "Japanese name is duplicated"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Local name is duplicated"
+msgstr "Local name is duplicated"
+
+#: ap/templates/macros.html
+msgid "DataFinderHoverMsg"
+msgstr ""
+"Target period for which there is data for the process selected at the "
+"Start point (or the first process) is displayed in light blue. You can "
+"check when the data is collected from each unit: yearly [Year] ⇔ monthly "
+"[Month] ⇔ (daily [Week]). Please input the target range by using the "
+"information. The first click specifies the starting point (From), and the"
+" second click specifies the ending point (To). Press [Set] to enter the "
+"last selected date and time into the target period."
+
+#: ap/templates/modal.html
+msgid "ZeroVarianceTitle"
+msgstr "The variable\\'s variance is zero (all data values are the same)"
+
+#: ap/templates/modal.html
+msgid "NARateTitle"
+msgstr "Data missing rate"
+
+msgid "Division number Hover AgP"
+msgstr ""
+"Enter the number of distributions (Number of Divisions) to display. "
+"Please enter an integer (1 ≦ int ≦ 1000)"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"Празен1つの分布を計算する際の時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より大きい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より小さい場合はデータの重なりが発生します。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Window length Hover AgP"
+msgstr ""
+"Enter the time width for calculating one plot or summary result. Please "
+"enter a number between 0.01 (=36 seconds) and less than 20,000 (=833 "
+"days). If it is equal to the interval, evaluate all data without overlap "
+"(recommended setting). If it is larger than the interval, data overlap "
+"will occur (effective when there is little data. However, since some of "
+"the same data is evaluated, there is a concern that changes may become "
+"slow). If the value is smaller than the interval, data will not overlap "
+"and some data will not be evaluated (effective when there is a large "
+"number of data. However, not recommended as some data will not be "
+"evaluated). \n"
+"e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"Празен1つのグラフの時間の幅を入力します。0.1以上、20,000(=833日)以下の数値を入力してください。\n"
+"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr ""
+"Празен表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
+"Facet無効時：1以上49以下\n"
+"Facet有効時：1以上7以下"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"Празенプロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.1以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
+
+#: ap/templates/macros.html
+msgid "Interval Hover AgP"
+msgstr ""
+"Enter the date and time interval when displaying plot or summary results "
+"by date and time. Please enter a number with an absolute value of 0.01 "
+"(36 seconds) or more and 720 (=30 days) or less. You can set the period "
+"backwards by entering a negative value. \n"
+"e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
+
+#: ap/templates/macros.html
+msgid "Interval Hover ScP"
+msgstr ""
+"Enter the date and time interval when displaying the graph by date and "
+"time. Please enter a number with an absolute value of 0.01 (36 seconds) "
+"or more and 720 (=30 days) or less. You can set the period backwards by "
+"entering a negative value. \n"
+"e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
+
+#: ap/templates/i18n.html
+msgid "Divide by category hover msg AgP RLP"
+msgstr ""
+"The variables selected for the Div are used on the horizontal axis, and "
+"are aggregated or aggregated by type of variable content."
+
+#: ap/templates/i18n.html
+msgid "Divide by category hover msg ScP"
+msgstr ""
+"The graph is divided according to the content of the variable selected in"
+" Div and arranged horizontally."
+
+#: ap/templates/i18n.html
+msgid "Stratify by variables hover msg StP"
+msgstr ""
+"The graph is divided according to the type of variable selected for Lv1 "
+"or Lv2 of Facet settings. If you select both Lv1/Lv2, the graph will be "
+"divided by the combination of the contents of the two selected variables."
+
+#: ap/templates/i18n.html
+msgid "Divide by term (Cyclic) hover msg"
+msgstr "Decomposes the graph in periodic time"
+
+#: ap/templates/i18n.html
+msgid "Divide by term (Direct) hover msg"
+msgstr ""
+"Directly enter the time period you want to visualize and break down the "
+"graph for each input time period."
+
+#: ap/templates/i18n.html
+msgid "Divide by data number (Cyclic) hover msg"
+msgstr "Break down the graph by the number of input data."
+
+#: ap/templates/i18n.html
+msgid "Divide by calender (Cyclic) hover msg"
+msgstr ""
+"Break down the scale of the horizontal axis by year, fiscal year, half "
+"year, quarter, month, week, day, and hour."
+
+#: ap/templates/setting_module/db_config_modal.html
+msgid "Skip line hover msg"
+msgstr ""
+"This item is set when the column name does not exist in the first row. "
+"You can enter a value between 0 and 100. \n"
+"If nothing is entered, the data will be loaded using the first row as "
+"column names. \n"
+"If 0, column names will be automatically generated. Also, if nothing is "
+"entered and there are many numbers in the first line, 0 will be entered "
+"automatically. \n"
+"If it is 1 or more, the data will be skipped to the row number of the "
+"entered value, and the data will be read using the next row as the column"
+" name."
+
+#: ap/templates/i18n.html
+msgid "There were no column names in the file, the AP created new column names."
+msgstr "There were no column names in the file, the AP created new column names."
 

@@ -8,6 +8,26 @@ const generateViolinPlot = (prop, zoomRange, option) => {
             yRange = zoomRange['yaxis.range[0]'] && zoomRange['yaxis.range[1]'] ? [zoomRange['yaxis.range[0]'], zoomRange['yaxis.range[1]']] : null;
         }
     }
+
+    prop.org_array_x = [...prop.array_x];
+    prop.org_array_y = [...prop.array_y];
+    // add prefix to change int to str type
+    const isXIntType = option.xDataType === DataTypes.INTEGER.name || option.xDataType === DataTypes.STRING.name && Number(prop.array_x[0]) !== NaN;
+    const isYIntType = option.yDataType === DataTypes.INTEGER.name || option.yDataType === DataTypes.STRING.name && Number(prop.array_y[0]) !== NaN;
+    option.isXIntType = isXIntType;
+    option.isYIntType = isYIntType;
+    if (isXIntType) {
+        const orgArrayX = [...prop.array_x];
+        prop.array_x = orgArrayX.map(val => `${STR_PREFIX}${val}`);
+        prop.org_array_x = orgArrayX;
+    }
+
+    if (isYIntType) {
+        const orgArrayY = [...prop.array_y];
+        prop.array_y = orgArrayY.map(val => `${STR_PREFIX}${val}`);
+        prop.org_array_y = orgArrayY;
+    }
+
     const dataCommon = {
         type: 'violin',
         box: {
@@ -50,10 +70,11 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     let data = [];
     if (prop.isHorizontal) {
         data = prop.uniqueColors.map((key) => {
-            const index = prop.array_y.indexOf(key);
+            const index = prop.org_array_y.indexOf(key);
             let orgLineColor = prop.isHideHover ? 'transparent'
                 : prop.styles.filter(style => style.target === key)[0].value.line.color;
             const lineColor = prop.is_resampling ? resamplingColor : orgLineColor;
+            key = isYIntType ? `${STR_PREFIX}${key}` : key;
             return {
                 ...dataCommon,
                 x: prop.array_x[index],
@@ -68,10 +89,11 @@ const generateViolinPlot = (prop, zoomRange, option) => {
         });
     } else {
         data = prop.uniqueColors.map((key) => {
-            const index = prop.array_x.indexOf(key);
+            const index = prop.org_array_x.indexOf(key);
             let orgLineColor = prop.isHideHover ? 'transparent'
                 : prop.styles.filter(style => style.target === key)[0].value.line.color;
             const lineColor = prop.is_resampling ? resamplingColor : orgLineColor;
+             key = isXIntType ? `${STR_PREFIX}${key}` : key;
             return {
                 ...dataCommon,
                 x0: key,
@@ -130,6 +152,14 @@ const generateViolinPlot = (prop, zoomRange, option) => {
         shapes: lines,
     };
 
+    if (prop.isHorizontal) {
+        layout.yaxis.ticktext = prop.org_array_y
+        layout.yaxis.tickvals = prop.array_y
+    } else {
+        layout.xaxis.ticktext = prop.org_array_x
+        layout.xaxis.tickvals = prop.array_x
+    }
+
     const config = {
         displayModeBar: false,
         responsive: true, // responsive histogram
@@ -145,6 +175,9 @@ const generateViolinPlot = (prop, zoomRange, option) => {
 };
 
 const makeHoverInfoBox = (prop, key, option, x, y) => {
+    if (option.isXIntType || option.isYIntType) {
+         key = key.replace(STR_PREFIX, '')
+    }
     if (!prop || !prop.summaries[key]) return;
     const sumaries = prop.summaries[key][0];
     const numberOfData = option.isShowNumberOfData ? prop.h_label : null;

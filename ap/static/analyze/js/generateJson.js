@@ -1063,7 +1063,7 @@ const generateBiplot = (json, jsonTrain, sampleNo = null) => {
                 size: 13.2835201328352,
             },
             title: {
-                text: `Biplot with Sample No. ${sampleNo || 1}`,
+                text: `Biplot with Index = ${sampleNo || 1}`,
                 font: {
                     color: 'rgba(204,229,255,1)',
                     family: '',

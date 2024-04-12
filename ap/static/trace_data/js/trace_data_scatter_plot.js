@@ -22,11 +22,11 @@ const scatterChart = (ctx, data, prop) => {
         let yName = '';
 
         if (prop.xProcName && prop.yProcName) {
-            xName = `${prop.sensorMasters[prop.xSensorIdx]}@${prop.xProcName}`;
-            yName = `${prop.sensorMasters[prop.ySensorIdx]}@${prop.yProcName}`;
+            xName = `${prop.xColumnName}@${prop.xProcName}`;
+            yName = `${prop.yColumnName}@${prop.yProcName}`;
         } else {
-            xName = `${prop.sensorMasters[prop.xSensorIdx]}`;
-            yName = `${prop.sensorMasters[prop.ySensorIdx]}`
+            xName = `${prop.xColumnName}`;
+            yName = `${prop.yColumnName}`
         }
 
         const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas;
@@ -57,7 +57,7 @@ const scatterChart = (ctx, data, prop) => {
             x: {
                 title: {
                     display: false,
-                    text: prop.sensorMasters[prop.xSensorIdx],
+                    text: prop.xColumnName,
                     font: {
                         family: 'Calibri Light',
                         size: 12,
@@ -148,8 +148,8 @@ const scatterChart = (ctx, data, prop) => {
             },
             scatterInsideTitle: {
                 color: genScatterTitleColor(prop.idx),
-                xContent: [prop.sensorMasters[prop.xSensorIdx]],
-                yContent: [prop.sensorMasters[prop.ySensorIdx]],
+                xContent: [prop.xColumnName],
+                yContent: [prop.yColumnName],
                 font: {
                     family: 'Calibri Light',
                     size: 12,
@@ -425,19 +425,18 @@ const getPlotData = (data, xSensorIdx, ySensorIdx) => {
     const xData = data.array_plotdata[xSensorIdx];
     const yData = data.array_plotdata[ySensorIdx];
 
-    let xProcName = '';
-    let yProcName = '';
-
-    if (xData.end_proc_id !== yData.end_proc_id) {
-        xProcName = data.proc_name[xData.end_proc_id] || '';
-        yProcName = data.proc_name[yData.end_proc_id] || '';
-    }
+    const xProcName = xData.end_proc_name;
+    const yProcName = yData.end_proc_name;
+    const xColumnName = xData.end_col_show_name;
+    const yColumnName = yData.end_col_show_name;
 
     return {
         xArr: xData.array_y,
         yArr: yData.array_y,
         xProcName,
+        xColumnName,
         yProcName,
+        yColumnName,
     };
 };
 
@@ -496,19 +495,6 @@ const getThresholdData = (data, xSensorIdx, ySensorIdx) => {
     };
 };
 
-// get sensor master names to show to legends
-const getSensorShowNames = (data) => {
-    const selectedSensors = data.ARRAY_FORMVAL || [];
-    const sensorMasters = selectedSensors.map((sensor) => {
-        const endProc = sensor.end_proc;
-        const sensorColId = sensor.GET02_VALS_SELECT;
-        const sensorMaster = getColumnName(endProc, sensorColId);
-        return sensorMaster;
-    });
-
-    return sensorMasters;
-};
-
 const produceScatterPlotCharts = (data, scaleOption = null) => {
     if (!data.array_plotdata.length) return;
 
@@ -521,7 +507,6 @@ const produceScatterPlotCharts = (data, scaleOption = null) => {
     }
 
     // get master names for sensors
-    const sensorMasters = getSensorShowNames(data);
     const dictCanvasId2Scatter = {};
 
     $('.sctr-plot-ts').each((k, his) => {
@@ -541,13 +526,14 @@ const produceScatterPlotCharts = (data, scaleOption = null) => {
         const prop = {
             uclThresholds,
             procThresholds,
-            sensorMasters,
             xSensorIdx,
             ySensorIdx,
             scaleMinMaxTicks,
             idx: k,
             xProcName: pdt.xProcName,
             yProcName: pdt.yProcName,
+            xColumnName: pdt.xColumnName,
+            yColumnName: pdt.yColumnName,
         };
 
         // produce scatter plot

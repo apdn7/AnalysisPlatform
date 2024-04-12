@@ -50,7 +50,7 @@ def parse_user_setting(params):
             'share_info': share_info,
             'save_graph_settings': save_graph_settings,
             'settings': settings,
-        }
+        },
     )
 
     return cfg_user_setting
@@ -83,4 +83,4 @@ def delete_user_setting_by_id(setting_id):
 
 def is_title_exist(title):
     user_settings = CfgUserSetting.get_by_title(title)
-    return True if user_settings else False
+    return bool(user_settings)

@@ -1,3 +1,4 @@
+import contextlib
 import hashlib
 import os
 import pickle
@@ -8,9 +9,9 @@ from copy import deepcopy
 from functools import wraps
 from threading import Lock
 
-from flask import g
 from flask_babel import get_locale
 
+from ap import MAIN_THREAD, PROCESS_QUEUE, ListenNotifyType, dic_config
 from ap.common.common_utils import (
     check_exist,
     delete_file,
@@ -19,12 +20,15 @@ from ap.common.common_utils import (
     resource_path,
     write_to_pickle,
 )
-from ap.common.constants import AbsPath, FlaskGKey, MemoizeKey
+from ap.common.constants import AbsPath, CacheType, FlaskGKey, MemoizeKey
 
-cache = OrderedDict()
+dic_config_cache = OrderedDict()
+dic_transaction_cache = OrderedDict()
+dic_jump_func_cache = OrderedDict()
+dic_other_cache = OrderedDict()
 lock = Lock()
-cache_max_size = 50
 USE_EXPIRED_CACHE_PARAM_NAME = '_use_expired_cache'
+JUMP_KEY_PARAM_NAME = 'jump_key'
 
 
 def is_obsolete(entry, duration=None):
@@ -49,7 +53,7 @@ def is_obsolete(entry, duration=None):
 #     return new_params
 
 
-def compute_key(fn, args, kwargs, locale=None):
+def compute_key(fn, args, kwargs=None, locale=None):
     key = pickle.dumps((fn.__name__, args, kwargs, locale))
     # try:
     #     key = pickle.dumps((fn.__name__, args, kwargs))
@@ -61,28 +65,30 @@ def compute_key(fn, args, kwargs, locale=None):
 
 def create_cache_file_path(key):
     file_path = resource_path(get_cache_path(), key, level=AbsPath.SHOW)
-    if not os.path.exists(os.path.dirname(file_path)):
-        os.makedirs(os.path.dirname(file_path))
-
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     return file_path
 
 
 def delete_cache_file(key):
-    try:
+    with contextlib.suppress(Exception):
         delete_file(key)
-    except Exception:
-        pass
 
 
 def clear_cache_files():
     folder_path = resource_path(get_cache_path(), level=AbsPath.SHOW)
-    try:
+    with contextlib.suppress(Exception):
         shutil.rmtree(folder_path)
-    except Exception:
-        pass
 
 
-def memoize(is_save_file=False, duration=None):
+def memoize(is_save_file=False, duration=None, cache_type: CacheType = CacheType.OTHER):
+    """
+    memoize function
+    :param is_save_file:
+    :param duration: seconds. if None , cache will be clear when db changed.
+    :param cache_type:
+    :return:
+    """
+
     def memoize1(fn):
         @wraps(fn)
         def memoize2(*args, **kwargs):
@@ -90,20 +96,40 @@ def memoize(is_save_file=False, duration=None):
             if USE_EXPIRED_CACHE_PARAM_NAME in kwargs:
                 kwargs.pop(USE_EXPIRED_CACHE_PARAM_NAME)
 
-            try:
-                locale = get_locale()
-            except Exception:
-                locale = None
+            if fn.__module__ == cache_jump_key.__module__ and fn.__name__ == cache_jump_key.__name__:
+                is_use_expired = True
+                is_stop_using_cache = False
+                jump_key = args[0] or kwargs.get(JUMP_KEY_PARAM_NAME)
 
-            key = compute_key(fn, args, kwargs, locale)
+                if jump_key is None:
+                    result = fn(*args, **kwargs)
+                    return result
+                else:
+                    if len(args) > 1:
+                        for val in args[1:]:
+                            if val is not None:
+                                is_stop_using_cache = True
+                                break
 
-            is_stop_using_cache = get_cache_attr(MemoizeKey.STOP_USING_CACHE)
-            if (
-                not is_stop_using_cache
-                and key in cache
-                and (is_use_expired or not is_obsolete(cache[key], duration))
-            ):
-                print('used cache')
+                    if len(kwargs):
+                        for val in kwargs.values():
+                            if val is not None:
+                                is_stop_using_cache = True
+                                break
+
+                    key = compute_key(fn, jump_key)
+            else:
+                try:
+                    locale = get_locale()
+                except Exception:
+                    locale = None
+
+                key = compute_key(fn, args, kwargs, locale)
+                is_stop_using_cache = get_cache_attr(MemoizeKey.STOP_USING_CACHE)
+
+            cache, cache_max_size = get_dic_cache_by_type(cache_type)
+            if not is_stop_using_cache and key in cache and (is_use_expired or not is_obsolete(cache[key], duration)):
+                print(f'used cache: {fn.__name__}')
                 if is_save_file:
                     file_name = cache[key]['file']
                     if check_exist(file_name):
@@ -117,10 +143,10 @@ def memoize(is_save_file=False, duration=None):
                 file_name = create_cache_file_path(key)
                 write_to_pickle(result, file_name)
                 with lock:
-                    cache[key] = dict(file=file_name, time=time.time())
+                    cache[key] = {'file': file_name, 'time': time.time()}
             else:
                 with lock:
-                    cache[key] = dict(value=deepcopy(result), time=time.time())
+                    cache[key] = {'value': deepcopy(result), 'time': time.time()}
 
             # resize
             while len(cache) > cache_max_size:
@@ -136,20 +162,58 @@ def memoize(is_save_file=False, duration=None):
 
 
 def clear_cache():
-    cache.clear()
+    """
+    delete physical cache file/data
+    :return:
+    """
+    for cache_type in CacheType:
+        cache, _ = get_dic_cache_by_type(cache_type)
+        cache.clear()
+
     clear_cache_files()
     print('CLEAR ALL CACHE')
 
 
-def set_all_cache_expired():
+def set_all_cache_expired(cache_type: CacheType):
+    """
+    delete logical cache file/data
+    :return:
+    """
+    if not dic_config[MAIN_THREAD]:
+        with contextlib.suppress(Exception):
+            dic_config[PROCESS_QUEUE][ListenNotifyType.CLEAR_CACHE.name][cache_type] = True
+
+        return
+
+    cache, _ = get_dic_cache_by_type(cache_type)
     for dic_val in cache.values():
         dic_val['expired'] = True
 
-    print('CACHE EXPIRED')
+    print(f'CACHE EXPIRED: {cache_type.name}')
+
+
+def get_dic_cache_by_type(cache_type: CacheType):
+    cache_max_size = 50
+    jump_cache_max_size = 200
+    if cache_type is CacheType.CONFIG_DATA:
+        return dic_config_cache, cache_max_size
+
+    if cache_type is CacheType.TRANSACTION_DATA:
+        return dic_transaction_cache, cache_max_size
+
+    if cache_type is CacheType.JUMP_FUNC:
+        return dic_jump_func_cache, jump_cache_max_size
+
+    return dic_other_cache, cache_max_size
 
 
 def get_cache_g_dict():
-    return g.setdefault(FlaskGKey.MEMOIZE, {})
+    from flask import g
+
+    try:
+        return g.setdefault(FlaskGKey.MEMOIZE, {})
+    except Exception:
+        return {}
 
 
 def set_cache_attr(key, data):
@@ -166,3 +230,16 @@ def get_cache_attr(key):
     g_debug = get_cache_g_dict()
     data = g_debug.get(key, None)
     return data
+
+
+@memoize(is_save_file=True, cache_type=CacheType.JUMP_FUNC)
+def cache_jump_key(jump_key, dic_param=None, graph_param=None, df=None):
+    """
+    :param df:
+    :param graph_param:
+    :param dic_param:
+    :param jump_key:
+    :return:
+    """
+    print('Jump Key:', jump_key)
+    return dic_param, graph_param, df

@@ -169,7 +169,7 @@ const bindChangeVariableOrderingSKD = (e) => {
     bindVariableOrderingToModal(changeStatus);
 };
 const genColTypeForJumpTbl = (variable) => {
-    let colType = DataTypes[variable.type].short;
+    let colType = dataTypeShort(variable);
     if (variable.name.includes(COMMON_CONSTANT.NG_RATE_NAME) ||
         variable.name.includes(COMMON_CONSTANT.EMD_DRIFT_NAME) ||
         variable.name.includes(COMMON_CONSTANT.EMD_DIFF_NAME)) {
@@ -223,6 +223,10 @@ const bindVariableOrderingToModal = (useFeatureImportance = true, loadByOrderIDs
 
         if (currenPage === 'skd') {
             varOrdering = graphStore.getVariableOrdering(procConfigs, useFeatureImportance, loadByOrderIDs);
+        }else if(currenPage === 'rlp') {
+            varOrdering = {
+                ordering: graphStore.getTargetVariables(true)
+            };
         } else {
             varOrdering = graphStore.getVariableOrdering(procConfigs, false, loadByOrderIDs);
         }
@@ -262,7 +266,7 @@ const handleClickOKJumpButton = (e) => {
     if (isJumpByEmd) {
         jumpKeyParams = `&jump_key=${jumpKey}`;
     } else {
-        jumpKey = getParamFromUrl('jump_key');
+        const jumpKey = getParamFromUrl('jump_key');
         if (jumpKey) {
             jumpKeyParams = `&jump_key=${jumpKey}`;
         }
@@ -288,9 +292,11 @@ const handleClickOKJumpButton = (e) => {
     let originColID = $(allColumnsTr[0]).attr('data-org-col-id');
     const originColDataType = $(allColumnsTr[0]).attr('data-type');
 
+    const canNotCheckObjectDataType = [DataTypes.STRING.short, DataTypes.DATETIME.short];
+
     if (isJumpByEmd) {
-        if (originColDataType === DataTypes.STRING.short) {
-            originColID = $([...allColumnsTr].filter(el => $(el).attr('data-type') !== DataTypes.STRING.short)[0]).attr('data-org-col-id');
+        if (canNotCheckObjectDataType.includes(originColDataType)) {
+            originColID = $([...allColumnsTr].filter(el => !canNotCheckObjectDataType.includes($(el).attr('data-type')))[0]).attr('data-org-col-id');
         }
 
         if (!jumpCheckedAllSensors.includes(originColID)) {
@@ -307,6 +313,9 @@ const handleClickOKJumpButton = (e) => {
     if (isJumpByEmd && excludeSensors.length > 0) {
         jumpKeyParams += `&excluded_columns=${excludeSensors.join(',')}`;
     }
+
+    // IGNORE CHECK ALL
+    excludeSensors.push('All')
 
     const setDefaultDivision = (targetPage) => {
         divideOption = ALL_DIVISION[targetPage].default;
@@ -368,6 +377,7 @@ const handleClickOKJumpButton = (e) => {
 
     $('button[name="copyPage"]').trigger('click');
     goToOtherPage(`${targetUrl}?from_jump_func=1${jumpKeyParams}`, false, true);
+    $(jumpEls.jumpModal).modal('hide');
 };
 
 const resetCommonJumpObj = () => {

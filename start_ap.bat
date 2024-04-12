@@ -32,6 +32,50 @@ echo  Analysis Platform + DN7
 echo ________________________________________________________________
 echo:
 
+: _____________________________________________________________________________
+: Make path list and verify application files
+:MAKE_PATH_LIST
+echo _____________________________________________________________________________
+echo.
+echo  Analysis Platform Tools: Create Path List
+echo _____________________________________________________________________________
+echo  Function:
+echo    This batch file gets the list of files needed to start AP+DN7.
+echo  Operating conditions:
+echo    It does not work after starting the main code (main.py) even once.
+echo _____________________________________________________________________________
+echo.
+
+:: Path list init
+set path_file=path_list_ini.log
+set original_path_file=_original_path_list.log
+set path_diff_file=path_diff.log
+set path_list_verifying=1
+
+call :checkFileExist instance\app.sqlite3
+call :checkFileExist startup.yaml
+call :checkFileExist __STATUS__
+echo.
+if %path_list_verifying% equ 0 (
+    echo Skipped path list verifying!
+) else (
+    powershell "Get-ChildItem -Recurse . -file | Resolve-Path -Relative | Where-Object { $_ -notmatch '__pycache__|.data$|.log$|cache|webassets-cache|.idea' } | Out-File -Encoding ASCII %path_file%"
+    echo Created path list Successfully.
+    echo.
+    powershell -Command "Compare-Object (Get-Content '%path_file%') (Get-Content '%original_path_file%') | Where-Object SideIndicator -eq '=>' | Out-File -Encoding ASCII .\%path_diff_file%"
+    for /f %%a in ('powershell -Command "(Get-Content '%path_diff_file%').Count"') do (
+        if %%a gtr 0 (
+            echo Some files are missing, please re-download the application and try again
+            echo Missing path count: %%a
+            echo.
+            pause
+            exit /b 1
+        )
+    )
+    echo Path list verified!
+)
+echo.
+
 : get status install or run AP (should be link in AnalysisPlatform.bat)
 set status_install=0
 set status_run_app=1
@@ -82,7 +126,7 @@ if not %launch_edge% == 0 start microsoft-edge:http://localhost:%port%
 echo Create Shortcut
 : make shortcut on DeskTop
 set shortcut_icon="ap\static\common\icons\AP+DN7.ico"
-if not exist %shortcut_icon% set shortcut_icon="histview2\static\common\icons\AP+DN7.ico"
+if not exist %shortcut_icon% set shortcut_icon="ap\static\common\icons\AP+DN7.ico"
 rem echo %shortcut_icon%
 if %subt% == null (
   set fname="%USERPROFILE%\Desktop\Analysis Platform AP+DN7 %port%|.url"
@@ -126,3 +170,13 @@ if %shortcut_web_pc% == 1 if %status% == %status_run_app% if %only_install% == 0
 if not %fpath% == skip if not exist %fpath% (
   powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%fpath%');$s.TargetPath='http://%pc%:%port%/';$s.Save()"
 )
+
+:checkFileExist
+if exist %1 (
+    set /a path_list_verifying=0
+    echo %1
+    echo Failed to create path list because it is not in the initial state.
+    echo.
+)
+exit /b 0
+:end

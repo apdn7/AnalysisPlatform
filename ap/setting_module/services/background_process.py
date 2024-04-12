@@ -2,23 +2,41 @@ import datetime as dt
 import math
 import re
 import traceback
+from typing import List
 
-from flask_babel import gettext as _
-
+from ap import PROCESS_QUEUE, ListenNotifyType, db, dic_config
+from ap.api.common.services.show_graph_database import DictToClass
 from ap.common.common_utils import (
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_FACTORY_DB,
-    DictToClass,
     convert_time,
+    get_current_timestamp,
+    get_multiprocess_queue_file,
+    read_pickle_file,
 )
-from ap.common.constants import *
+from ap.common.constants import (
+    ALMOST_COMPLETE_PERCENT,
+    COMPLETED_PERCENT,
+    ID,
+    UNKNOWN_ERROR_TEXT,
+    DiskUsageStatus,
+    JobStatus,
+    JobType,
+)
 from ap.common.disk_usage import get_disk_capacity_once
 from ap.common.logger import log_execution_time, logger
-from ap.common.scheduler import JobType, dic_running_job
-from ap.common.services.sse import AnnounceEvent, background_announcer
+from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.services.error_message_handler import ErrorMessageHandler
+from ap.common.services.sse import AnnounceEvent
 from ap.common.timezone_utils import choose_utc_convert_func
-from ap.setting_module.models import *
-from ap.setting_module.models import CsvImport, FactoryImport, JobManagement
+from ap.setting_module.models import (
+    CfgDataSource,
+    CfgProcess,
+    JobManagement,
+    ProcLinkCount,
+    make_session,
+)
+from ap.trace_data.transaction_model import TransactionData
 
 JOB_ID = 'job_id'
 JOB_NAME = 'job_name'
@@ -35,17 +53,19 @@ STATUS = 'status'
 PROCESS_MASTER_NAME = 'process_master_name'
 DETAIL = 'detail'
 DATA_TYPE_ERR = 'data_type_error'
+ERROR_MSG = 'error_msg'
 previous_disk_status = DiskUsageStatus.Normal
 
 
 @log_execution_time()
-def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignore_job_types=None):
+def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignore_job_types=None, error_page=False):
     """
     Get background jobs from JobManagement table
     """
 
-    dic_running_job_keys = set(dic_running_job.keys())
     jobs = JobManagement.query
+    if error_page:
+        jobs = jobs.filter(JobManagement.status.in_(JobStatus.failed_statuses()))
     if ignore_job_types:
         jobs = jobs.filter(JobManagement.job_type.notin_(ignore_job_types))
 
@@ -60,26 +80,16 @@ def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignor
     for _job in jobs.items:
         dic_job = _job.as_dict()
         job = DictToClass(**dic_job)
-        # check and force dangling jobs to be FAILED
-        if job.job_type in (
-            JobType.CSV_IMPORT.name,
-            JobType.FACTORY_IMPORT.name,
-            JobType.FACTORY_PAST_IMPORT.name,
-        ):
-            job_running_id = {f'{job.job_type}_{job.process_id}'}
-        elif job.job_type == JobType.GEN_GLOBAL.name:
-            job_running_id = {f'_{job.job_type}', f'{job.job_type}'}
-        else:
-            job_running_id = {job.job_type}
-
-        # status is PROCESSING but actually the job is not running -> forced to be FAILED
-        if not (job_running_id & dic_running_job_keys) and job.status == JobStatus.PROCESSING.name:
-            job.status = JobStatus.FAILED.name
-            job.error_msg = FORCED_TO_BE_FAILED
 
         # get job information and send to UI
-        job_name = _(job.job_type) if job.job_type else job.id
+        job_name = f'{job.job_type}_{job.process_id}' if job.process_id else job.job_type
 
+        # get process shown name
+        proc_cfg = CfgProcess.get_proc_by_id(_job.process_id)
+        if not error_page and not proc_cfg:
+            # do not show deleted process in job normal page -> show only job error page
+            continue
+        proc_name = proc_cfg.shown_name if proc_cfg else (job.process_name or '')
         row = {
             JOB_ID: job.id,
             JOB_NAME: job_name,
@@ -91,8 +101,9 @@ def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignor
             END_TM: job.end_tm or '',
             DURATION: round(job.duration, 2),
             STATUS: str(job.status),
-            PROCESS_MASTER_NAME: job.process_name or '',
+            PROCESS_MASTER_NAME: proc_name,
             DETAIL: '',
+            ERROR_MSG: job.error_msg,
         }
         rows.append(row)
 
@@ -108,6 +119,7 @@ def send_processing_info(
     process_name=None,
     after_success_func=None,
     is_check_disk=True,
+    **kwargs,
 ):
     """send percent, status to client
 
@@ -117,6 +129,11 @@ def send_processing_info(
     """
     # add new job
     global previous_disk_status
+    process_queue = read_pickle_file(get_multiprocess_queue_file())
+    dic_config[PROCESS_QUEUE] = process_queue
+    dic_progress = process_queue[ListenNotifyType.JOB_PROGRESS.name]
+    error_msg_handler = ErrorMessageHandler()
+
     start_tm = dt.datetime.utcnow()
     with make_session() as meta_session:
         job = JobManagement()
@@ -131,8 +148,8 @@ def send_processing_info(
         job.process_id = process_id
 
         # Yamlの代わりに、データベースからデータを取得する。
-        job.process_name = None
-        if process_name:
+        job.process_name = process_name
+        if not process_name:
             data_process: CfgProcess = CfgProcess.query.get(job.process_id)
             if data_process:
                 job.process_name = data_process.name
@@ -146,10 +163,10 @@ def send_processing_info(
     dic_res = {
         job.id: {
             JOB_ID: job.id,
-            JOB_NAME: job.job_type or job.id or '',
+            JOB_NAME: f'{job.job_type}_{job.process_id}' if job.process_id else job.job_type,
             JOB_TYPE: job.job_type,
             DB_CODE: job.db_code or '',
-            PROC_CODE: process_name or '',
+            PROC_CODE: job.process_name or '',
             PROC_ID: job.process_id or process_id or '',
             DB_MASTER_NAME: job.db_name or '',
             DONE_PERCENT: job.done_percent,
@@ -159,11 +176,9 @@ def send_processing_info(
             STATUS: str(job.status),
             PROCESS_MASTER_NAME: job.process_name or '',
             DETAIL: '',
-        }
+        },
     }
 
-    # time variable ( use for set start time in csv import)
-    anchor_tm = get_current_timestamp()
     prev_job_info = None
     notify_data_type_error_flg = True
     while True:
@@ -173,9 +188,8 @@ def send_processing_info(
 
                 if disk_capacity:
                     if previous_disk_status != disk_capacity.disk_status:
-                        background_announcer.announce(
-                            disk_capacity.to_dict(), AnnounceEvent.DISK_USAGE.name
-                        )
+                        # background_announcer.announce(disk_capacity.to_dict(), AnnounceEvent.DISK_USAGE.name)
+                        dic_progress[job.id] = (disk_capacity.to_dict(), AnnounceEvent.DISK_USAGE.name)
                         previous_disk_status = disk_capacity.disk_status
 
                     if disk_capacity.disk_status == DiskUsageStatus.Full:
@@ -192,61 +206,53 @@ def send_processing_info(
                 # job percent update
                 job.done_percent = job_info.percent
                 # update job details (csv_import...)
-                if job_type is JobType.CSV_IMPORT:
-                    insert_csv_import_info(job, anchor_tm, job_info)
-                    anchor_tm = get_current_timestamp()
 
+                # insert import history
+                if not job_info.import_type:
+                    job_info.import_type = job_type.name
+
+                if job_type is JobType.CSV_IMPORT and job_info.empty_files:
                     # empty files
-                    if job_info.empty_files:
-                        background_announcer.announce(
-                            job_info.empty_files, AnnounceEvent.EMPTY_FILE.name
-                        )
-
-                elif job_type in (JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT):
-                    insert_factory_import_info(job, anchor_tm, job_info)
-                    anchor_tm = get_current_timestamp()
+                    # background_announcer.announce(job_info.empty_files, AnnounceEvent.EMPTY_FILE.name,)
+                    # process_queue.put_nowait((job_info.empty_files, AnnounceEvent.EMPTY_FILE.name))
+                    # process_queue.send((job_info.empty_files, AnnounceEvent.EMPTY_FILE.name))
+                    dic_progress[job.id] = (job_info.empty_files, AnnounceEvent.EMPTY_FILE.name)
 
                 # job err msg
-                job, job_info = update_job_management_status_n_error(job, job_info)
-            else:
-                if job_type is JobType.GEN_GLOBAL:
-                    _, dic_cycle_ids, dic_edge_cnt = job_info
-                    save_proc_link_history(job.id, dic_cycle_ids, dic_edge_cnt)
+                update_job_management_status_n_error(job, job_info)
+            elif job_type is JobType.GEN_GLOBAL:
+                _, dic_cycle_ids, dic_edge_cnt = job_info
+                save_proc_link_count(job.id, dic_cycle_ids, dic_edge_cnt)
 
         except StopIteration:
             job = update_job_management(job)
 
             # emit successful import data
-            if prev_job_info and prev_job_info.has_record:
-                # call gen global id job
-                if after_success_func:
-                    proc_link_publish_flg = job_type in (
-                        JobType.FACTORY_IMPORT,
-                        JobType.CSV_IMPORT,
-                    )
-                    after_success_func(proc_link_publish_flg)
+            if prev_job_info and prev_job_info.has_record and after_success_func:
+                proc_link_publish_flg = job_type in (
+                    JobType.FACTORY_IMPORT,
+                    JobType.CSV_IMPORT,
+                )
+                after_success_func(publish=proc_link_publish_flg)
 
             # stop while loop
             break
         except Exception as e:
             # update job status
             db.session.rollback()
-            job = update_job_management(job, str(e))
+            message = error_msg_handler.msg_from_exception(exception=e)
+            job = update_job_management(job, message)
             logger.exception(str(e))
             traceback.print_exc()
             break
         finally:
-            with make_session() as meta_session:
-                _job = JobManagement(**job.__dict__)
-                meta_session.merge(_job)
-
             # notify if data type error greater than 100
-            if (
-                notify_data_type_error_flg
-                and prev_job_info
-                and prev_job_info.data_type_error_cnt > 100
-            ):
-                background_announcer.announce(job.db_name, AnnounceEvent.DATA_TYPE_ERR.name)
+            if notify_data_type_error_flg and prev_job_info and prev_job_info.data_type_error_cnt > COMPLETED_PERCENT:
+                # background_announcer.announce(job.db_name, AnnounceEvent.DATA_TYPE_ERR.name)
+                # process_queue.put_nowait((job.db_name, AnnounceEvent.DATA_TYPE_ERR.name))
+                # process_queue.send((job.db_name, AnnounceEvent.DATA_TYPE_ERR.name))
+                dic_progress[job.id] = (job.db_name, AnnounceEvent.DATA_TYPE_ERR.name)
+
                 dic_res[job.id][DATA_TYPE_ERR] = True
                 notify_data_type_error_flg = False
 
@@ -254,10 +260,16 @@ def send_processing_info(
             dic_res[job.id][DONE_PERCENT] = job.done_percent
             dic_res[job.id][END_TM] = job.end_tm
             dic_res[job.id][DURATION] = round((dt.datetime.utcnow() - start_tm).total_seconds(), 2)
-            background_announcer.announce(dic_res, AnnounceEvent.JOB_RUN.name)
+            # background_announcer.announce(dic_res, AnnounceEvent.JOB_RUN.name)
+            # process_queue.put_nowait((dic_res, AnnounceEvent.JOB_RUN.name))
+            # process_queue.send((dic_res, AnnounceEvent.JOB_RUN.name))
+            dic_progress[job.id] = (dic_res, AnnounceEvent.JOB_RUN.name)
 
     dic_res[job.id][STATUS] = str(job.status)
-    background_announcer.announce(dic_res, AnnounceEvent.JOB_RUN.name)
+    # background_announcer.announce(dic_res, AnnounceEvent.JOB_RUN.name)
+    # process_queue.put_nowait((dic_res, AnnounceEvent.JOB_RUN.name))
+    # process_queue.send((dic_res, AnnounceEvent.JOB_RUN.name))
+    dic_progress[job.id] = (dic_res, AnnounceEvent.JOB_RUN.name)
 
 
 def update_job_management(job, err=None):
@@ -267,93 +279,36 @@ def update_job_management(job, err=None):
         job {[type]} -- [description]
         done_percent {[type]} -- [description]
     """
+    with make_session() as meta_session:
+        job = JobManagement(**job.__dict__)
+        if (
+            not err
+            and not job.error_msg
+            and (
+                job.done_percent == COMPLETED_PERCENT or job.status in (JobStatus.PROCESSING.name, JobStatus.DONE.name)
+            )
+        ):
+            job.status = JobStatus.DONE.name
+            job.done_percent = 100
+            job.error_msg = None
+        else:
+            job.status = JobStatus.FATAL.name if job.status == JobStatus.FATAL else JobStatus.FAILED.name
+            job.error_msg = err or job.error_msg or UNKNOWN_ERROR_TEXT
 
-    if (
-        not err
-        and not job.error_msg
-        and (
-            job.done_percent == 100
-            or job.status in (JobStatus.PROCESSING.name, JobStatus.DONE.name)
+        job.duration = round(
+            (dt.datetime.utcnow() - dt.datetime.strptime(job.start_tm, DATE_FORMAT_STR)).total_seconds(),
+            2,
         )
-    ):
-        job.status = JobStatus.DONE.name
-        job.done_percent = 100
-        job.error_msg = None
-    else:
-        job.status = job.status or JobStatus.FAILED.name
-        job.error_msg = err or job.error_msg or 'An unidentified error has occurred'
+        job.end_tm = get_current_timestamp()
 
-    job.duration = round(
-        (
-            dt.datetime.utcnow() - dt.datetime.strptime(job.start_tm, DATE_FORMAT_STR)
-        ).total_seconds(),
-        2,
-    )
-    job.end_tm = get_current_timestamp()
+        meta_session.merge(job)
+        job = DictToClass(**job.as_dict())
 
     return job
 
 
-def insert_csv_import_info(job, start_tm, dic_detail):
-    """insert csv import information
-
-    Arguments:
-        job {[type]} -- [description]
-        file_name {[type]} -- [description]
-        imported_row {[type]} -- [description]
-        error_msg {[type]} -- [description]
-    """
-
-    with make_session() as meta_session:
-        csv_import_mana = CsvImport()
-        csv_import_mana.job_id = job.id
-        csv_import_mana.process_id = job.process_id
-        csv_import_mana.status = str(dic_detail.status)
-        csv_import_mana.file_name = dic_detail.target
-        csv_import_mana.imported_row = dic_detail.committed_count
-        csv_import_mana.error_msg = dic_detail.err_msg
-        csv_import_mana.start_tm = job.start_tm or start_tm
-        csv_import_mana.end_tm = job.end_tm or get_current_timestamp()
-        meta_session.add(csv_import_mana)
-
-    return True
-
-
-def insert_factory_import_info(job, start_tm, dic_detail):
-    """insert csv import information
-
-    Arguments:
-        job {[type]} -- [description]
-        file_name {[type]} -- [description]
-        imported_row {[type]} -- [description]
-        error_msg {[type]} -- [description]
-    """
-
-    with make_session() as meta_session:
-        import_frm = format_factory_date_to_meta_data(
-            dic_detail.first_cycle_time, dic_detail.auto_increment_col_timezone
-        )
-        import_to = format_factory_date_to_meta_data(
-            dic_detail.last_cycle_time, dic_detail.auto_increment_col_timezone
-        )
-
-        fac_import_mana = FactoryImport()
-        fac_import_mana.job_id = job.id
-        fac_import_mana.process_id = job.process_id
-        fac_import_mana.import_type = job.job_type
-        fac_import_mana.import_from = import_frm
-        fac_import_mana.import_to = import_to
-        fac_import_mana.status = str(dic_detail.status)
-        fac_import_mana.imported_row = dic_detail.committed_count
-        fac_import_mana.error_msg = dic_detail.err_msg
-        fac_import_mana.start_tm = job.start_tm or start_tm
-        fac_import_mana.end_tm = job.end_tm or get_current_timestamp()
-        meta_session.add(fac_import_mana)
-
-    return True
-
-
 class JobInfo:
+    job_id: int
     auto_increment_col_timezone: bool
     percent: int
     status: JobStatus
@@ -362,8 +317,13 @@ class JobInfo:
     has_record: bool
     exception: Exception
     empty_files: List[str]
+    dic_imported_row: dict
+    import_type: str
+    import_from: str
+    import_to: str
 
     def __init__(self):
+        self.job_id = None
         self.target = None
         self.percent = 0
         self.status = JobStatus.PROCESSING
@@ -384,6 +344,12 @@ class JobInfo:
         self.has_record = False
         self.has_error = None
         self.data_type_error_cnt = 0
+
+        # meta data for target files in chunk
+        self.dic_imported_row = None
+        self.import_type = None
+        self.import_from = None
+        self.import_to = None
 
     @property
     def committed_count(self):
@@ -419,10 +385,10 @@ class JobInfo:
         self._exception = val or None
 
     def calc_percent(self, row_count, total):
-        percent = row_count * 100 / total
+        percent = row_count * COMPLETED_PERCENT / total
         percent = math.floor(percent)
-        if percent >= 100:
-            percent = 99
+        if percent >= COMPLETED_PERCENT:
+            percent = ALMOST_COMPLETE_PERCENT
 
         self.percent = percent
 
@@ -433,10 +399,12 @@ def format_factory_date_to_meta_data(date_val, is_tz_col):
         date_val = convert_utc_func(date_val)
         date_val = date_val.replace('T', ' ')
         regex_str = r'(\.)(\d{3})(\d{3})'
-        date_val = re.sub(regex_str, f'\\1\\2', date_val)
+        date_val = re.sub(regex_str, '\\1\\2', date_val)
     else:
         date_val = convert_time(
-            date_val, format_str=DATE_FORMAT_STR_FACTORY_DB, only_milisecond=True
+            date_val,
+            format_str=DATE_FORMAT_STR_FACTORY_DB,
+            only_millisecond=True,
         )
 
     return date_val
@@ -451,18 +419,29 @@ def get_job_detail_service(job_id):
     """
     job = db.session.query(JobManagement).filter(JobManagement.id == job_id).first()
     job_details_as_dict = {}
-    if job:
-        if job.job_type == JobType.CSV_IMPORT.name:
-            job_details = CsvImport.get_error_jobs(job_id=job_id)
-        else:
-            job_details = FactoryImport.get_error_jobs(job_id=job_id)
+    if job and job.process_id:
+        job_details = []
+        try:
+            trans_data = TransactionData(job.process_id)
+            with DbProxy(
+                gen_data_source_of_universal_db(job.process_id),
+                True,
+                immediate_isolation_level=False,
+            ) as db_instance:
+                trans_data.create_table(db_instance)
+                job_details = trans_data.get_import_history_error_jobs(db_instance, job_id)
+        except Exception:
+            pass
+        if not isinstance(job_details, list):
+            job_details = [job_details]
 
         if job.error_msg:
             job_details = [job] + job_details
 
         for job_detail in job_details:
-            job_details_as_dict[job_detail.id] = row2dict(job_detail)
-
+            job_details_as_dict[job_id] = row2dict(job_detail) if not isinstance(job_detail, dict) else job_detail
+            if ID not in job_details_as_dict[job_id]:
+                job_details_as_dict[job_id][ID] = job_id
     return job_details_as_dict
 
 
@@ -480,7 +459,7 @@ def row2dict(row):
     return object_as_dict
 
 
-def save_proc_link_history(job_id, dic_cycle_ids, dic_edge_cnt):
+def save_proc_link_count(job_id, dic_cycle_ids, dic_edge_cnt):
     with make_session() as meta_session:
         for (start_proc_id, end_proc_id), matched_cnt in dic_edge_cnt.items():
             if not matched_cnt:

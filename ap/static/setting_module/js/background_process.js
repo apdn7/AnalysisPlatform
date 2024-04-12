@@ -18,6 +18,7 @@ const i18n = {
     statusPending: $('#i18nStatusPending').text(),
     process: $('#i18nProcess').text(),
     detail: $('#i18nDetail').text(),
+    failedJobPageTitle: $('#i18nFailedJobList').text(),
     DEL_PROCESS: $('#i18nDEL_PROCESS').text(),
     CSV_IMPORT: $('#i18nCSV_IMPORT').text(),
     FACTORY_IMPORT: $('#i18nFACTORY_IMPORT').text(),
@@ -31,38 +32,64 @@ const ids = {
     selectLanguage: '#select-language',
 };
 
+const pageTitleElement = $('.page-title h2')
+
+const isFailedJobPage = () => {
+    return pageTitleElement.text() === i18n.failedJobPageTitle;
+}
+
 const JOB_STATUS = {
     DONE: {
         title: i18n.statusDone,
         class: 'check green',
         'class-progress-bar': 'bg-success',
+        text: 'Done',
+        db_text: 'DONE'
     },
     FAILED: {
         title: i18n.statusFailed,
         class: 'exclamation-triangle yellow',
         'class-progress-bar': 'bg-warning',
+        text: 'Error',
+        db_text: 'ERROR'
     },
     KILLED: {
         title: i18n.statusFailed,
         class: 'exclamation-triangle yellow',
         'class-progress-bar': 'bg-warning',
+        text: 'Killed',
+        db_text: 'KILLED'
     },
     PROCESSING: {
         title: i18n.statusImporting,
         class: 'spinner fa-spin',
         'class-progress-bar': 'progress-bar-animated',
+        text: 'Processing',
+        db_text: 'PROCESSING'
     },
     PENDING: {
         title: i18n.statusPending,
         class: 'spinner fa-spin',
         'class-progress-bar': 'progress-bar-animated',
+        text: 'Pending',
+        db_text: 'PENDING'
     },
     FATAL: {
         title: i18n.statusFailed,
         class: 'exclamation-triangle yellow',
         'class-progress-bar': 'bg-warning',
+        text: 'Fatal',
+        db_text: 'FATAL'
     },
 };
+
+const NON_FAILED_JOB_STATUS = [
+    JOB_STATUS.PROCESSING.db_text,
+    JOB_STATUS.DONE.db_text,
+    JOB_STATUS.PENDING.db_text,
+    JOB_STATUS.KILLED.db_text,
+]
+
 const convertJobName = (jobName) => {
     const defaultJobNames = [
         'DEL_PROCESS',
@@ -97,11 +124,15 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
 
     const pageOptions = getPageOptionsFromGUI();
     const ignoreJobs = [];
+    const ignoreStatus = []
     if (!pageOptions.showProcLinkJob) {
         ignoreJobs.push('GEN_GLOBAL')
     }
     if (!pageOptions.showPastImportJob) {
         ignoreJobs.push('FACTORY_PAST_IMPORT')
+    }
+    if (pageOptions.errorPage) {
+        ignoreStatus.push(...NON_FAILED_JOB_STATUS)
     }
     rows.forEach((row) => {
         const statusClass = JOB_STATUS[row.status].class || JOB_STATUS.FAILED.class;
@@ -110,11 +141,7 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
         const statusProgressBar = JOB_STATUS[row.status]['class-progress-bar'] || JOB_STATUS.FAILED['class-progress-bar'];
         // const rowHtml = tableBody.find(`#job-${row.job_id}`);
         let rowHtml = dicTableRows[row.job_id];
-        const updatedStatus = `<div class="align-middle text-center" data-st="${statusClass}">
-            <div class="" data-toggle="tooltip" data-placement="top" title="${statusTooltip}">
-                <i class="fas fa-${statusClass} status-i"></i>
-            </div>
-        </div>`;
+        const updatedStatus = JOB_STATUS[row.status].text;
         const progress = `
         <div class="progress">
             <div class="progress-bar progress-bar-striped ${statusProgressBar}"
@@ -123,7 +150,13 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
         </div>`;
         let jobDetailHTML = `${row.detail}`;
         if (row.status === 'FAILED') {
-            jobDetailHTML = `<button id="" class="btn btn-warning btn-right" onclick="showJobErrorDetail(${row.job_id})"><i class="fas fa-info-circle"></i></button>`;
+            jobDetailHTML = `
+            <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; overflow: hidden;">
+                <span style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">${row.error_msg || ''}</span>
+                <button id="" class="btn btn-warning btn-right" onclick="showJobErrorDetail(${row.job_id})">
+                <i class="fas fa-info-circle"></i>
+                </button>
+            </div>`;
         }
         if (rowHtml) {
             rowHtml = $(rowHtml);
@@ -139,18 +172,19 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
             rowHtml.find('.job-detail').html(jobDetailHTML);
             rowHtml.find('.job-status').attr('data-status', row.status);
         } else {
-            if (pageOptions && pageOptions.pageNumber === 1 && !ignoreJobs.includes(row.job_name)) {
+            if (pageOptions && pageOptions.pageNumber === 1 && !ignoreJobs.includes(row.job_name)
+                && !ignoreStatus.includes(row.status)) {
                 tableBody.prepend(`
                 <tr id="job-${row.job_id}">
-                <td class="job-id">${row.job_id}</td>
-                <td class="job-name">${convertJobName(row.job_name) || ' '}</td>
-                <td class="job-db-name">${row.db_master_name}</td>
-                <td class="job-process-name">${row.process_master_name}</td>
-                <td class="job-start-time">${moment(row.start_tm).format(DATE_FORMAT_WITHOUT_TZ)}</td>
-                <td class="job-duration">${row.duration}</td>
-                <td class="job-progress">${progress}</td>
-                <td class="job-status" data-status="${row.status}">${updatedStatus}</td>
-                <td class="job-detail">${jobDetailHTML}</td>
+                <td class="job-id minimal-col">${row.job_id}</td>
+                <td class="job-name medium-small-col">${convertJobName(row.job_name) || ' '}</td>
+                <td class="job-db-name large-col">${row.db_master_name}</td>
+                <td class="job-process-name large-col">${row.process_master_name}</td>
+                <td class="job-start-time duration-col">${moment(row.start_tm).format(DATE_FORMAT_WITHOUT_TZ)}</td>
+                <td class="job-duration duration-col">${row.duration}</td>
+                <td class="job-progress minimal-col">${progress}</td>
+                <td class="job-status minimal-col" data-status="${row.status}">${updatedStatus}</td>
+                <td class="job-detail detail-col">${jobDetailHTML}</td>
                 </tr>`);
             }
         }
@@ -265,15 +299,21 @@ const updateFilterJobs = () => {
 
 
 const getPageOptionsFromGUI = () => {
-    const showPastImportJob = $('#factoryPassImport').is(':checked');
-    const showProcLinkJob = $('#genGlobalID').is(':checked');
+    let showPastImportJob = $('#factoryPassImport').is(':checked');
+    let showProcLinkJob = $('#genGlobalID').is(':checked');
     const jobDataTbl = $(ids.jobTable);
     const pageOptions = jobDataTbl.bootstrapTable('getOptions');
+    const errorPage = isFailedJobPage()
+    if(isFailedJobPage()){
+        showPastImportJob = true;
+        showProcLinkJob = true;
+    }
     const jobPageOptions = {
         pageSize: pageOptions.pageSize,
         pageNumber: pageOptions.pageNumber,
         showProcLinkJob: showProcLinkJob,
         showPastImportJob: showPastImportJob,
+        errorPage: errorPage,
     }
     return jobPageOptions;
 };
@@ -341,6 +381,7 @@ $(() => {
         paginationVAlign: 'both',
         pageSize: pageOptions ? pageOptions.pageSize : 50,
         locale: $('option:selected', $(ids.selectLanguage)).attr('bootstrap-locale'),
+        errorPage: isFailedJobPage(),
         // formatShowingRows() {
         //     return sprintf('');
         // },
@@ -403,6 +444,9 @@ function ajaxRequest(params) {
         // params.data.offset = (pageOptions.pageNumber - 1) * params.data.limit;
         params.data.show_proc_link_job = pageOptions.showProcLinkJob;
         params.data.show_past_import_job = pageOptions.showPastImportJob;
+        if (isFailedJobPage()) {
+            params.data.error_page = pageOptions.errorPage;
+        }
     }
     const json = fetch(url + '?' + $.param(params.data), {
         method: 'GET',
