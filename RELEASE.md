@@ -1,5 +1,143 @@
 # Releases
 
+## v4.6.0
+
+New features
+
+* Added Loading and Initiating Error pages when start application
+  * After the activation of the AP+DN7, screen will automatically change  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/b0232c8f-685b-4f86-8ac8-a33e976919e1" alt="startscreen" width="300"> 
+* Added Job Error page to show all failed jobs and detail information
+  * Now it is easier to find the details of job errors  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/759b39ed-d366-46dc-b93f-6735ddf347db" alt="failed jobs" width="300"> 
+* Added a feature to verify the linking process between start-process and target-process
+  * Warning is displayed in case when no data links. 
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/a8205057-b9a0-41c5-9f60-0a17cbb5a93b" alt="warn no links" width="500"> 
+* Modified GUI for Process config page.
+  * Added some column types: `main::Datetime`, `main::Serial` and other system types
+  * Added `Seri` data-type to show in process's target column  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/cfbe874f-9b6e-47ad-b1b9-f3ffd15a9e1a" alt="modify process config" width="500">
+* Added Ordinalize categorical values in SkD page
+  * This function enables to extract relations between categorical variables and numerical objective variable.  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/1ba0e0ed-5afe-409b-bf9b-16b27785f8ef" alt="ordinalize" width="300">
+* Added `Fine Select` feature to PCP to select range of value in dimension columns  
+  * Now it is easier to filter the shown data in detail  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/de93631b-b916-4a1e-9777-c32f2ebd9713" alt="fine select" width="600"> 
+* Added color to `threshold` (red), `Process threshold` (light-blue) setting in Threshold/Graph Config page  
+  * Now users can notice the correspondence between the settings and the line colors  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/6edc873b-d468-4e31-ac9f-c69e0cdde6df" alt="color to threshold config" width="500">
+* Added external API
+
+Improvements
+
+* (Common)
+  * Verify the app files by `path_list` information.
+  * Modified Japanese texts
+  * Removed unused message from `.po` files
+  * Show total of selected variables
+  * Launch the app in virtual environment (Python)
+  * Modified `Data-Finder` to start from Monday
+  * Order graphs by variable selection order (click event)
+* (Config)
+  * Now AP+DN7 generates columns name for non-header datasets (with `skip` setting in datasource config)
+  * Verified duplicated process name in System Name, Japanese Name and Local Name
+  * Changed camelCase to PascalCase and apply ASCII normalization in System Name/Local Name of Process config
+  * Removed `minimize` and `maximize` from context-menu in config pages
+  * Adjust text-size of bookmark modal
+  * Hide `DummyDatetime` if uncheck this column from Process Config page
+  * Support some kinds of datetime format (`MM月DD日, MM-DD, MM/DD, dd/mm/yy, ...`)
+  * Support V2 with horizontal columns: `Work Type, Quality, Lot No, Tray No`
+  * Now we can import V2 dataset with duplicated columns
+  * Now we can import V2 dataset without `process_name`
+  * Improved Filter Config page
+  * Improved performance of Job List page
+  * Detect EU format of number
+  * Support `SSV` dataset in COG page and data-importing
+  * Show encoding of dataset in Data-source config page
+  * Enhance the coefficient with K-Sep pattern
+  * Support showing data preview and import `all NA` column, as string
+* (FPP)
+  * Cast Int Category column and show them with Step-bar chart
+* (PCP)
+  * Improved ordering for category variables
+  * Changed default chart type in PCP by data types and target variables
+* (ScP)
+  * Show ticks on violin chart
+  * Change default color scale of ScP to `Auto Scale`
+* (AGP)
+  * Apply graph limitation
+* (CHM)
+  * Improved performance
+* (SkD/CHM)
+  * Aded `filter` checkbox
+* (SkD/RLP/PCA/GL)
+  * Hide checkbox and radio button of `Seri` variable
+* (RLP)
+  * Support `Jump with EMD and NG rate (Judge)`
+* (Internal logics)
+  * Improved `detect_abnormal_count` by random seed
+  * Improved performance of `sigificant_digit` by using `mode.use_inf_as_na` (pandas) instead of replace `inf` to `NA`
+  * Support launch the application by Direct Startup Mode
+  * Change packages downloading script use powershell instead of `CURL`
+  * Manage announcement event by multiple processing
+  * Now run the app by multiple processing
+  * Enhanced the data importing from the factory datasource to include one month's data at least (in past)
+  * Updated the init data with new process setting (`init/app.sqlite3`)
+  * Upgraded `gtag.js`
+  * Removed UA tracking
+  * Change the way to calculate cycle time
+  * Changed the `labelencode (labelencode_by_stat)` from median to mean as default, to be more sensitive to detect relations
+  * Restructured transaction database by process to improve performance
+  * Split `scheduler` to another database from `app.slite3`
+  * Upgraded flask-framework version to version `2.0.0`
+
+Bug fixes
+
+* (Common)
+  * Fix a bug for the APDN7 console to close after clicking the Shutdown button.
+  * Fix issue of checking selected column by `Set` button 
+  * Fixed a bug where locale does not change arcording to configuration in `startup.ini`
+  * Do not let the app auto-restart while error has occurred
+  * Change condition filter in GUI
+  * Fix the app to avoid connect database many times 
+  * Fix issue of database lock
+* (Config)
+  * Registering English column name and same-mean column name in the V2 datasource.
+  * Fix a bug for showing wrong name issue of column in Proc-link graph (config page)
+  * Validate valid files/folder in Datasource Config page
+  * Fix issue of `auto link` processes
+  * Do not normalize input path to `hankaku` characters
+  * Fix issue of coef with negative matching by regex
+* (FPP)
+  * Fix y-ticks for CT
+  * Inconsistent cross-hair showing at timeseries and histogram charts in FPP page
+  * Fix `N Total` in summary box in case of facet selection in FPP page
+* (SkD)
+  * Data-ordering in SkD page
+* (StP)
+  * Fix a bug StP could not show graph in `latest` mode
+* (MSP)
+  * Fix a bug for showing graph slowly in MSP
+* (PCP)
+  * Fixed chart showing with scrollbar
+* (ScP)
+  * Fix scale range for color in ScP page
+* AgP
+  * Fixed an issue of exporting data from AgP
+* (Internal logics)
+  * The import-data job is terminated by the ProcessPoolExecutor (`max_workers`=5).
+  * Fix a bug related to missing columns (`Key-Error`) and encoding while importing data
+  * Fixed to get time-range of factory-data incase of SQLite datasource
+  * Tracking import history as transaction data
+  * Bincount in discretize data feature does not accept minus numbers
+  * Fix a bug of failure to download python relevant to authentication by `CA_CERT`
+  * Fix bugs of factory data importing in `FACTORY_PAST_IMPORT` logic
+  * Fix issue of re-schedule job
+  * Fix duplicated records from factory data
+  * Fix issue of data-importing by `UnicodeDecodeError`
+  * Fix issue of `unknown idna` when retrieve hostname
+  * Adjust datetime in timezone with Summer time
+
 ## v4.5.2
 
 This version includes below bufixes:
