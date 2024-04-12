@@ -1,20 +1,21 @@
 import os
 import re
 import time
+from contextlib import suppress
 from functools import lru_cache
 from itertools import islice
 from typing import Any, List, Tuple
 
 import pandas as pd
+from flask_babel import get_locale
 
 from ap.api.efa.services.etl import detect_file_path_delimiter, preview_data
-from ap.api.setting_module.services.csv_import import convert_csv_timezone
+from ap.api.setting_module.services.csv_import import convert_csv_timezone, gen_dummy_header
 from ap.api.setting_module.services.data_import import (
     PANDAS_DEFAULT_NA,
     strip_special_symbol,
     validate_datetime,
 )
-from ap.api.setting_module.services.factory_import import get_tzoffset_of_random_record
 from ap.api.setting_module.services.v2_etl_services import (
     get_df_v2_process_single_file,
     get_preview_processes_v2,
@@ -29,10 +30,11 @@ from ap.common.common_utils import (
     get_sorted_files,
     get_sorted_files_by_size,
     get_sorted_files_by_size_and_time,
-    guess_data_types,
+    remove_non_ascii_chars,
 )
 from ap.common.constants import (
     DATETIME_DUMMY,
+    EMPTY_STRING,
     MAXIMUM_V2_PREVIEW_ZIP_FILES,
     PREVIEW_DATA_TIMEOUT,
     REVERSED_WELL_KNOWN_COLUMNS,
@@ -49,21 +51,24 @@ from ap.common.constants import (
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.pydn.dblib import mssqlserver, oracle
-from ap.common.pydn.dblib.db_proxy import DbProxy
+from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services import csv_header_wrapr as chw
 from ap.common.services.csv_content import (
     check_exception_case,
-    gen_data_types,
+    get_delimiter_encoding,
     is_normal_csv,
     read_data,
 )
+from ap.common.services.csv_header_wrapr import gen_colsname_for_duplicated
+from ap.common.services.data_type import gen_data_types
 from ap.common.services.jp_to_romaji_utils import change_duplicated_columns, to_romaji
 from ap.common.services.normalization import (
     normalize_big_rows,
     normalize_list,
-    unicode_normalize_nfkc,
+    normalize_str,
+    unicode_normalize,
 )
-from ap.common.timezone_utils import gen_dummy_datetime, get_time_info
+from ap.common.timezone_utils import gen_dummy_datetime
 from ap.setting_module.models import (
     CfgDataSource,
     CfgProcess,
@@ -73,17 +78,16 @@ from ap.setting_module.models import (
     make_session,
 )
 from ap.setting_module.schemas import VisualizationSchema
-from ap.trace_data.models import Sensor, find_sensor_class
+from ap.trace_data.transaction_model import TransactionData
 
 
-def get_latest_records(data_source_id, table_name, limit):
-    blank_output = dict(cols=[], rows=[])
+def get_latest_records(data_source_id, table_name, file_name=None, limit=5):
     if not data_source_id:
-        return blank_output
+        return None
 
     data_source = CfgDataSource.query.get(data_source_id)
     if not data_source:
-        return blank_output
+        return None
 
     previewed_files = None
     cols_with_types = []
@@ -100,8 +104,10 @@ def get_latest_records(data_source_id, table_name, limit):
                 limit,
                 return_df=True,
                 process_name=filtered_process_name,
+                file_name=file_name,
             )
         else:
+            line_skip = '' if (csv_detail.skip_head == 0 and not csv_detail.dummy_header) else csv_detail.skip_head
             dic_preview = preview_csv_data(
                 csv_detail.directory,
                 csv_detail.etl_func,
@@ -109,13 +115,17 @@ def get_latest_records(data_source_id, table_name, limit):
                 limit,
                 return_df=True,
                 max_records=1000,
+                file_name=file_name,
+                line_skip=line_skip,
             )
+        column_raw_name = dic_preview.get('org_headers')
         headers = normalize_list(dic_preview.get('header'))
+        headers = [normalize_str(col) for col in headers]
         data_types = dic_preview.get('dataType')
         same_values = dic_preview.get('same_values')
         is_v2_history = dic_preview.get('v2_type') == DBType.V2_HISTORY
         if headers and data_types:
-            cols_with_types = gen_cols_with_types(headers, data_types, same_values, is_v2_history)
+            cols_with_types = gen_cols_with_types(headers, data_types, same_values, is_v2_history, column_raw_name)
 
         # sort columns
         sorted(csv_detail.csv_columns, key=lambda c: c.order or c.id)
@@ -162,34 +172,38 @@ def get_latest_records(data_source_id, table_name, limit):
     if is_valid_list(df_rows):
         data_type_by_cols = {}
         for col_data in cols_with_types:
-            data_type_by_cols[col_data['name']] = col_data['type']
+            data_type_by_cols[col_data['column_name']] = col_data['data_type']
         # convert to correct dtypes
         for col in df_rows.columns:
             try:
                 if data_type_by_cols[col] == DataType.INTEGER.name:
                     df_rows[col] = df_rows[col].astype('float64').astype('Int64')
-            except:
+
+                if data_type_by_cols[col] == DataType.TEXT.name:
+                    # fill na to '' for string column
+                    df_rows[col] = df_rows[col].astype('string').fillna('')
+            except Exception:
                 continue
         rows = transform_df_to_rows(cols, df_rows, limit)
     return cols_with_types, rows, cols_duplicated, previewed_files, has_ct_col, dummy_datetime_idx
 
 
-def get_col_type_as_cast(col_type):
-    if col_type == DataType.TEXT.name:
-        return 'str'
+# def get_col_type_as_cast(col_type):
+#     if col_type == DataType.TEXT.name:
+#         return 'str'
+#
+#     if col_type == DataType.REAL.name:
+#         return 'float64'
+#
+#     if col_type == DataType.INTEGER.name:
+#         return 'int64'
+#
+#     return None
 
-    if col_type == DataType.REAL.name:
-        return 'float64'
 
-    if col_type == DataType.INTEGER.name:
-        return 'int64'
-
-    return None
-
-
-def gen_data_types_from_factory_type(cols, cols_with_types):
-    dic_col_type = {col.get('name'): guess_data_types(col.get('type')) for col in cols_with_types}
-    return [dic_col_type.get(col) for col in cols]
+# def gen_data_types_from_factory_type(cols, cols_with_types):
+#     dic_col_type = {col.get('name'): guess_data_types(col.get('type')) for col in cols_with_types}
+#     return [dic_col_type.get(col) for col in cols]
 
 
 @lru_cache(maxsize=20)
@@ -199,61 +213,29 @@ def get_info_from_db(data_source, table_name, sql_limit: int = 2000):
             return [], []
 
         if isinstance(db_instance, mssqlserver.MSSQLServer):
-            cols, rows = db_instance.run_sql(
-                'select TOP {}  * from "{}"'.format(sql_limit, table_name), False
-            )
+            cols, rows = db_instance.run_sql('select TOP {}  * from "{}"'.format(sql_limit, table_name), False)
         elif isinstance(db_instance, oracle.Oracle):
             cols, rows = db_instance.run_sql(
-                'select * from "{}" where rownum <= {}'.format(table_name, sql_limit), False
+                'select * from "{}" where rownum <= {}'.format(table_name, sql_limit),
+                False,
             )
         else:
-            cols, rows = db_instance.run_sql(
-                'select * from "{}" limit {}'.format(table_name, sql_limit), False
-            )
+            cols, rows = db_instance.run_sql('select * from "{}" limit {}'.format(table_name, sql_limit), False)
 
     cols = normalize_list(cols)
     df_rows = normalize_big_rows(rows, cols, strip_quote=False)
     return cols, df_rows
 
 
-def get_filter_col_data(proc_config: dict):
-    filter_cfgs = proc_config.get('filters') or []
-    cfg_col_ids = [filter_cfg.get('column_id') for filter_cfg in filter_cfgs]
-    if not cfg_col_ids:
-        return {}
-    sensor_data = {}
-    for col_id in cfg_col_ids:
-        sensor_data[col_id] = get_distinct_sensor_values(col_id)
-    return sensor_data
-
-
-@memoize()
-def get_distinct_sensor_values(cfg_col_id):
-    cfg_col: CfgProcessColumn = CfgProcessColumn.query.get(cfg_col_id)
-    if not cfg_col:
-        return []
-    sensor = Sensor.get_sensor_by_col_name(cfg_col.process_id, cfg_col.column_name)
-    sensor_vals = []
-    if sensor:
-        sensor_val_cls = find_sensor_class(sensor.id, DataType(sensor.type))
-        sensor_vals = sensor_val_cls.get_distinct_values(cfg_col.column_name, limit=1000)
-        sensor_vals = [sensor_val.value for sensor_val in sensor_vals]
-    return sensor_vals
-
-
-@memoize()
 @log_execution_time()
 def get_last_distinct_sensor_values(cfg_col_id):
     cfg_col: CfgProcessColumn = CfgProcessColumn.query.get(cfg_col_id)
-    if not cfg_col:
-        return []
-    sensor = Sensor.get_sensor_by_col_name(cfg_col.process_id, cfg_col.column_name)
-    unique_sensor_vals = set()
-    if sensor:
-        sensor_val_cls = find_sensor_class(sensor.id, DataType(sensor.type))
-        sensor_vals = sensor_val_cls.get_last_distinct_values(sensor.id, limit=1000)
-        unique_sensor_vals = sorted(set([sensor_val.value for sensor_val in sensor_vals]))
-    return list(unique_sensor_vals)
+    trans_data = TransactionData(cfg_col.process_id)
+    col_name = cfg_col.bridge_column_name
+    with DbProxy(gen_data_source_of_universal_db(cfg_col.process_id), True) as db_instance:
+        unique_sensor_vals = trans_data.select_distinct_data(db_instance, col_name, limit=1000)
+
+    return unique_sensor_vals
 
 
 def save_master_vis_config(proc_id, cfg_jsons):
@@ -278,13 +260,27 @@ def save_master_vis_config(proc_id, cfg_jsons):
 
 
 @log_execution_time()
-def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False, max_records=5):
+def preview_csv_data(
+    folder_url,
+    etl_func,
+    csv_delimiter,
+    limit,
+    return_df=False,
+    max_records=5,
+    file_name=None,
+    line_skip=None,
+):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
-    sorted_files = get_sorted_files(folder_url)
-    sorted_files = sorted_files[0:5]
 
+    if not file_name:
+        sorted_files = get_sorted_files(folder_url)
+        sorted_files = sorted_files[0:5]
+    else:
+        sorted_files = [file_name]
+
+    dummy_header = False
     csv_file = ''
-    skip_head = 0
+    skip_head = 0 if not line_skip else int(line_skip)
     skip_tail = 0
     header_names = []
     data_types = []
@@ -296,7 +292,7 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
             'header': header_names,
             'content': [] if return_df else data_details,
             'dataType': data_types,
-            'skip_head': skip_head,
+            'skip_head': line_skip,
             'skip_tail': skip_tail,
             'previewed_files': sorted_files,
             'same_values': same_values,
@@ -306,6 +302,7 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
 
     # call efa etl
     has_data_file = None
+    encoding = None
     if etl_func:
         # try to get file which has data to detect data types + get col names
         for file_path in sorted_files:
@@ -335,9 +332,13 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
 
                 if data_details:
                     break
-    elif is_normal_csv(csv_file, csv_delimiter):
-        header_names, data_details = retrieve_data_from_several_files(
-            folder_url, csv_delimiter, max_records
+    elif is_normal_csv(csv_file, csv_delimiter, skip_head=skip_head):
+        header_names, data_details, encoding = retrieve_data_from_several_files(
+            folder_url,
+            csv_delimiter,
+            max_records,
+            csv_file,
+            skip_head=skip_head,
         )
     else:
         # try to get file which has data to detect data types + get col names
@@ -381,9 +382,14 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
                 data_types += etl_headers[WR_TYPES]
                 data_details = chw.merge_etl_heads(etl_headers[WR_VALUES], data_details)
 
+    # generate column name if there is not header in file
+    org_header, header_names, dummy_header, data_details = gen_dummy_header(header_names, data_details, line_skip)
+
     # normalize data detail
     df_data_details, org_headers, header_names, dupl_cols, data_types = extract_data_detail(
-        header_names, data_details
+        header_names,
+        data_details,
+        org_header,
     )
     has_ct_col = True
     dummy_datetime_idx = None
@@ -407,10 +413,7 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
                 first_datetime_col_idx = header_names.index(col)
 
         df_data_details = df_data_details[0:limit]
-        if (
-            DataType.DATETIME.value not in data_types
-            and DATETIME_DUMMY not in df_data_details.columns
-        ):
+        if DataType.DATETIME.value not in data_types and DATETIME_DUMMY not in df_data_details.columns:
             dummy_datetime_idx = 0
             df_data_details = gen_dummy_datetime(df_data_details)
             data_types.insert(dummy_datetime_idx, DataType.DATETIME.value)
@@ -427,9 +430,8 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
 
         if not return_df:
             df_data_details = df_data_details.to_records(index=False).tolist()
-    else:
-        if not return_df:
-            df_data_details = []
+    elif not return_df:
+        df_data_details = []
 
     if csv_file:
         csv_file = csv_file.replace('/', os.sep)
@@ -450,25 +452,24 @@ def preview_csv_data(folder_url, etl_func, csv_delimiter, limit, return_df=False
         'header': header_names,
         'content': df_data_details,
         'dataType': data_types,
-        'skip_head': skip_head,
+        'skip_head': 0 if dummy_header else line_skip,
         'skip_tail': skip_tail,
         'previewed_files': sorted_files,
         'has_ct_col': has_ct_col,
         'dummy_datetime_idx': dummy_datetime_idx,
-        'same_values': [
-            {key: bool(value) for key, value in same_value.items()} for same_value in same_values
-        ],
-        'has_dupl_cols': has_dupl_cols,
+        'same_values': [{key: bool(value) for key, value in same_value.items()} for same_value in same_values],
+        'has_dupl_cols': False if dummy_header else has_dupl_cols,
         'org_headers': org_headers,
+        'encoding': encoding,
+        'is_dummy_header': dummy_header,
     }
 
 
 @log_execution_time()
-@memoize(is_save_file=True)
-def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_name=None):
+def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_name=None, file_name=None):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
-    sorted_files = get_sorted_files_by_size(folder_url)
-
+    sorted_files = get_sorted_files_by_size(folder_url) if not file_name else [file_name]
+    encoding = None
     csv_file = ''
     skip_head = 0
     skip_tail = 0
@@ -487,6 +488,7 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
             'skip_tail': skip_tail,
             'previewed_files': sorted_files,
             'same_values': same_values,
+            'encoding': encoding,
         }
 
     is_abnormal_v2 = None
@@ -496,17 +498,23 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
         file_data_idx = 0
         while file_data_idx >= 0:
             largest_file = sorted_files[file_data_idx]
-            datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(
-                largest_file
-            )
+            _, encoding = get_delimiter_encoding(largest_file, preview=True)
+            datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(largest_file)
 
             if datasource_type == DBType.V2_HISTORY:
                 data_details = get_df_v2_process_single_file(
-                    largest_file, process_name, datasource_type, is_abnormal_v2
+                    largest_file,
+                    process_name,
+                    datasource_type,
+                    is_abnormal_v2,
                 )
             elif datasource_type in [DBType.V2, DBType.V2_MULTI]:
                 data_details = get_vertical_df_v2_process_single_file(
-                    largest_file, process_name, datasource_type, is_abnormal_v2, is_en_cols
+                    largest_file,
+                    process_name,
+                    datasource_type,
+                    is_abnormal_v2,
+                    is_en_cols,
                 )
             else:
                 raise NotImplementedError
@@ -525,6 +533,7 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
         )
 
         csv_file = sorted_files[0]
+        _, encoding = get_delimiter_encoding(csv_file, preview=True)
         for i in range(2):
             data = None
             try:
@@ -544,6 +553,7 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
             if data_details:
                 break
 
+    org_headers = header_names.copy()
     # normalization
     header_names = normalize_list(header_names)
 
@@ -555,11 +565,15 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
     if is_abnormal_v2 is None and not datasource_type:
         datasource_type, is_abnormal_v2, _ = get_v2_datasource_type_from_file(csv_file)
     header_names = rename_abnormal_history_col_names(datasource_type, header_names, is_abnormal_v2)
-    org_headers, header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
+    header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
     df_data_details = normalize_big_rows(data_details, header_names)
     data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
     df_data_details, org_headers, header_names, dupl_cols, data_types = drop_null_header_column(
-        df_data_details, org_headers, header_names, dupl_cols, data_types
+        df_data_details,
+        org_headers,
+        header_names,
+        dupl_cols,
+        data_types,
     )
     has_ct_col = True
     dummy_datetime_idx = None
@@ -576,10 +590,7 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
             data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
 
         df_data_details = df_data_details[0:limit]
-        if (
-            DataType.DATETIME.value not in data_types
-            and DATETIME_DUMMY not in df_data_details.columns
-        ):
+        if DataType.DATETIME.value not in data_types and DATETIME_DUMMY not in df_data_details.columns:
             dummy_datetime_idx = 0
             df_data_details = gen_dummy_datetime(df_data_details)
             data_types.insert(dummy_datetime_idx, DataType.DATETIME.value)
@@ -591,9 +602,8 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
 
         if not return_df:
             df_data_details = df_data_details.to_records(index=False).tolist()
-    else:
-        if not return_df:
-            df_data_details = []
+    elif not return_df:
+        df_data_details = []
 
     if csv_file:
         csv_file = csv_file.replace('/', os.sep)
@@ -623,16 +633,16 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
         'previewed_files': sorted_files,
         'has_ct_col': has_ct_col,
         'dummy_datetime_idx': dummy_datetime_idx,
-        'same_values': [
-            {key: bool(value) for key, value in same_value.items()} for same_value in same_values
-        ],
+        'same_values': [{key: bool(value) for key, value in same_value.items()} for same_value in same_values],
         'has_dupl_cols': has_dupl_cols,
         'org_headers': org_headers,
         'v2_type': datasource_type.value,
+        'encoding': encoding,
         'is_process_null': not v2_process_names,
     }
 
 
+@log_execution_time()
 def check_same_values_in_df(df, cols):
     same_values = []
     len_df = len(df)
@@ -642,13 +652,13 @@ def check_same_values_in_df(df, cols):
         if null_count == len_df:
             is_null = True
         else:
-            null_count = (df[col] == '').sum()
+            null_count = (df[col].astype(str) == EMPTY_STRING).sum()
             if null_count == len_df:
                 is_null = True
 
         is_same = df[col].nunique() == 1
 
-        same_values.append(dict(is_null=is_null, is_same=is_same))
+        same_values.append({'is_null': is_null, 'is_same': is_same})
 
     return same_values
 
@@ -673,49 +683,63 @@ def get_etl_good_file(sorted_files):
 
             csv_file = file_path
             break
-    except IndexError as e:
+    except IndexError:
         pass
     return dic_file_info, csv_file
 
 
 @log_execution_time()
 def gen_v2_history_sub_part_no_column(column_name):
-    column_name = unicode_normalize_nfkc(column_name)
-    sub_part_no_idxs = re.findall('\d+', column_name)
+    column_name = unicode_normalize(column_name)
+    sub_part_no_idxs = re.findall(r'\d+', column_name)
     if sub_part_no_idxs:
         sub_part_no_idx = sub_part_no_idxs[0]
         [_, suffix_name] = column_name.split(sub_part_no_idx)
-        if (
-            REVERSED_WELL_KNOWN_COLUMNS[DBType.V2_HISTORY.name][DataGroupType.PART_NO.value]
-            == suffix_name
-        ):
+        if REVERSED_WELL_KNOWN_COLUMNS[DBType.V2_HISTORY.name][DataGroupType.PART_NO.value] == suffix_name:
             return SUB_PART_NO_PREFIX + sub_part_no_idx + SUB_PART_NO_SUFFIX
         return SUB_PART_NO_PREFIX + sub_part_no_idx + to_romaji(suffix_name)
     return to_romaji(column_name)
 
 
 @log_execution_time()
-def gen_cols_with_types(cols, data_types, same_values, is_v2_history=False):
+@memoize(is_save_file=False)
+def gen_cols_with_types(cols, data_types, same_values, is_v2_history=False, column_raw_name=[]):
+    ja_locale = False
+    with suppress(Exception):
+        ja_locale = get_locale().language == 'ja'
     cols_with_types = []
-    for col_name, data_type, same_value in zip(cols, data_types, same_values):
-        is_date = DataType(data_type) is DataType.DATETIME
+    has_is_get_date_col = False
+    if not column_raw_name:
+        column_raw_name = cols
+    for col_name, col_raw_name, data_type, same_value in zip(cols, column_raw_name, data_types, same_values):
+        is_date = False if has_is_get_date_col else DataType(data_type) is DataType.DATETIME
+        if is_date:
+            has_is_get_date_col = True
+
         is_big_int = DataType(data_type) is DataType.BIG_INT
         # add to output
         if col_name:
-            romaji_name = (
-                to_romaji(col_name)
-                if not is_v2_history
-                else gen_v2_history_sub_part_no_column(col_name)
-            )
+            if ja_locale:
+                system_name = to_romaji(col_name) if not is_v2_history else gen_v2_history_sub_part_no_column(col_name)
+            else:
+                system_name = (
+                    remove_non_ascii_chars(col_name)
+                    if not is_v2_history
+                    else gen_v2_history_sub_part_no_column(col_name)
+                )
             cols_with_types.append(
                 {
-                    'name': col_name,
-                    'type': DataType(data_type).name if not is_big_int else DataType.TEXT.name,
-                    'romaji': romaji_name,
-                    'is_date': is_date,
+                    'column_name': col_name,
+                    'data_type': DataType(data_type).name if not is_big_int else DataType.TEXT.name,
+                    'name_en': system_name,  # this is system_name
+                    'romaji': to_romaji(col_name),
+                    'is_get_date': is_date,
                     'check_same_value': same_value,
                     'is_big_int': is_big_int,
-                }
+                    'name_jp': col_name if ja_locale else '',
+                    'name_local': col_name if not ja_locale else '',
+                    'column_raw_name': col_raw_name,
+                },
             )
 
     return cols_with_types
@@ -728,14 +752,12 @@ def convert_utc_df(df_rows, cols, data_types, data_source, table_name):
         if not is_date:
             continue
 
-        # # convert utc
-        # date_val, tzoffset_str, db_timezone = get_tzoffset_of_random_record(
-        #     data_source, table_name, col_name
-        # )
+        # convert utc
+        # date_val, tzoffset_str, db_timezone = get_tzoffset_of_random_record(data_source, table_name, col_name)
 
-        # # use os timezone
-        # if data_source.db_detail.use_os_timezone:
-        #     db_timezone = None
+        # use os timezone
+        if data_source.db_detail.use_os_timezone:
+            pass
 
         # is_tz_inside, _, time_offset = get_time_info(date_val, db_timezone)
 
@@ -747,11 +769,10 @@ def convert_utc_df(df_rows, cols, data_types, data_source, table_name):
     return df_rows
 
 
+@log_execution_time()
 def transform_df_to_rows(cols, df_rows, limit):
     df_rows.columns = normalize_list(df_rows.columns)
-    return [
-        dict(zip(cols, vals)) for vals in df_rows[0:limit][cols].to_records(index=False).tolist()
-    ]
+    return [dict(zip(cols, vals)) for vals in df_rows[0:limit][cols].to_records(index=False).tolist()]
 
 
 @log_execution_time()
@@ -764,26 +785,18 @@ def gen_preview_data_check_dict(rows, previewed_files):
         file_name = os.path.basename(file_path)
         folder_path = os.path.dirname(file_path)
 
-    dic_preview_limit['reach_fail_limit'] = True if not rows and previewed_files else False
+    dic_preview_limit['reach_fail_limit'] = bool(not rows and previewed_files)
     dic_preview_limit['file_name'] = file_name
     dic_preview_limit['folder'] = folder_path
     return dic_preview_limit
 
 
-@log_execution_time()
-def gen_colsname_for_duplicated(cols_name):
-    org_cols_name = cols_name.copy()
-    cols_name, dup_cols = chw.add_suffix_if_duplicated(cols_name, True)
-    return org_cols_name, cols_name, dup_cols
-
-
 def is_valid_list(df_rows):
-    return (isinstance(df_rows, list) and len(df_rows)) or (
-        isinstance(df_rows, pd.DataFrame) and not df_rows.empty
-    )
+    return (isinstance(df_rows, list) and len(df_rows)) or (isinstance(df_rows, pd.DataFrame) and not df_rows.empty)
 
 
 # TODO: add test for this
+@log_execution_time()
 def drop_null_header_column(
     df: pd.DataFrame,
     original_headers: List[str],
@@ -822,23 +835,24 @@ def gen_v2_columns_with_types(v2_datasrc):
     )
     for i, column in enumerate(v2_data_preview.get('header')):
         data_type = int(v2_data_preview.get('dataType')[i])
-        v2_columns.append(
-            {'column_name': column, 'data_type': DataType(data_type).name, 'order': i}
-        )
+        v2_columns.append({'column_name': column, 'data_type': DataType(data_type).name, 'order': i})
     return v2_columns
 
 
 @log_execution_time()
-def retrieve_data_from_several_files(csv_files, csv_delimiter, max_record=1000):
+def retrieve_data_from_several_files(csv_files, csv_delimiter, max_record=1000, file_name=None, skip_head=None):
     header_names = []
     data_details = []
-    sorted_list = get_sorted_files_by_size_and_time(csv_files)
+    sorted_list = get_sorted_files_by_size_and_time(csv_files) if not file_name else [file_name]
     start_time = time.time()
+    encoding = None
     for i in range(len(sorted_list)):
         data = None
         csv_file = sorted_list[i]
         try:
-            data = read_data(csv_file, delimiter=csv_delimiter, do_normalize=False)
+            delimiter, encoding = get_delimiter_encoding(csv_file, preview=True)
+            csv_delimiter = csv_delimiter or delimiter
+            data = read_data(csv_file, delimiter=csv_delimiter, do_normalize=False, skip_head=skip_head)
             header_names = next(data)
             # strip special symbols
             if i == 0:
@@ -860,7 +874,7 @@ def retrieve_data_from_several_files(csv_files, csv_delimiter, max_record=1000):
         if is_exception:
             data_details = [row[:-1] for row in data_details]
 
-    return header_names, data_details
+    return header_names, data_details, encoding
 
 
 @log_execution_time()
@@ -871,12 +885,13 @@ def re_order_items_by_datetime_idx(datetime_idx: int, items: List) -> List:
 
 
 @log_execution_time()
-def extract_data_detail(header_names, data_details):
+# @memoize(is_save_file=False)
+def extract_data_detail(header_names, data_details, org_header=None):
+    org_headers = org_header or header_names.copy()
     # normalization
     header_names = normalize_list(header_names)
-    org_headers, header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
+    header_names = [normalize_str(col) for col in header_names]
+    header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
     df_data_details = normalize_big_rows(data_details, header_names)
     data_types = [gen_data_types(df_data_details[col]) for col in header_names]
-    return drop_null_header_column(
-        df_data_details, org_headers, header_names, dupl_cols, data_types
-    )
+    return drop_null_header_column(df_data_details, org_headers, header_names, dupl_cols, data_types)

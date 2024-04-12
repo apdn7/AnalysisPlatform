@@ -3,11 +3,18 @@ import timeit
 
 from flask import Blueprint, jsonify, request
 
+from ap import max_graph_config
+from ap.api.common.services.show_graph_database import get_config_data
+from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
 from ap.api.trace_data.services.data_count import get_data_count_by_time_range
-from ap.api.trace_data.services.time_series_chart import gen_graph_fpp, save_proc_sensor_order_to_db
-from ap.common.constants import DataCountType
+from ap.api.trace_data.services.time_series_chart import gen_graph_fpp
+from ap.common.constants import CfgConstantType, DataCountType, MaxGraphNumber
 from ap.common.logger import log_execution_time
-from ap.common.services.form_env import parse_multi_filter_into_one, parse_request_params
+from ap.common.services.form_env import (
+    bind_dic_param_to_class,
+    parse_multi_filter_into_one,
+    parse_request_params,
+)
 from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.import_export_config_n_data import (
     export_debug_info,
@@ -25,10 +32,9 @@ from ap.common.trace_data_log import (
     save_input_data_to_file,
     trace_log_params,
 )
+from ap.setting_module.models import CfgConstant
 
 api_trace_data_blueprint = Blueprint('api_trace_data', __name__, url_prefix='/ap/api/fpp')
-
-FPP_MAX_GRAPH = 20
 
 
 @request_timeout_handling()
@@ -39,31 +45,40 @@ def trace_data():
     return dictionary
     """
 
-    start = timeit.default_timer()
     dic_form = request.form.to_dict(flat=False)
-
     # save dic_form to pickle (for future debug)
     save_input_data_to_file(dic_form, EventType.FPP)
     dic_param = parse_multi_filter_into_one(dic_form)
 
+    cache_dic_param, graph_param, df = get_jump_emd_data(dic_form)
+
+    out_dict = show_graph_fpp(cache_dic_param or dic_param, graph_param, df)
+
+    return out_dict, 200
+
+
+def show_graph_fpp(dic_param, orig_graph_param=None, df=None):
+    start = timeit.default_timer()
     # check if we run debug mode (import mode)
     dic_param = get_dic_form_from_debug_info(dic_param)
+    if orig_graph_param is None:
+        dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+        orig_graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
 
-    dic_param = gen_graph_fpp(dic_param, FPP_MAX_GRAPH)
-    stop = timeit.default_timer()
-    dic_param['backend_time'] = stop - start
-
+    dic_param = gen_graph_fpp(
+        orig_graph_param,
+        dic_param,
+        max_graph_config[MaxGraphNumber.FPP_MAX_GRAPH.name],
+        df,
+    )
     # export mode ( output for export mode )
     set_export_dataset_id_to_dic_param(dic_param)
-
     dic_param['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.FPP))
-
+    stop = timeit.default_timer()
+    dic_param['backend_time'] = stop - start
     # trace_data.htmlをもとにHTML生成
-    try:
-        out_dict = orjson_dumps(dic_param)
-        return out_dict, 200
-    except Exception as e:
-        print(e)
+    out_dict = orjson_dumps(dic_param)
+    return out_dict
 
 
 @api_trace_data_blueprint.route('/zip_export', methods=['GET'])
@@ -106,7 +121,12 @@ def save_proc_sensor_order():
     """
     request_data = json.loads(request.data)
     orders = request_data.get('orders') or {}
-    save_proc_sensor_order_to_db(orders)
+    for proc_code, new_orders in orders.items():
+        CfgConstant.create_or_merge_by_type(
+            const_type=CfgConstantType.TS_CARD_ORDER.name,
+            const_name=proc_code,
+            const_value=new_orders,
+        )
 
     return jsonify({}), 200
 
@@ -135,8 +155,13 @@ def get_data_count():
         if from_date and to_date:
             start_date = get_date_from_type(from_date, query_type, local_tz)
             end_date = get_date_from_type(to_date, query_type, local_tz, True)
+
         data_count, min_val, max_val = get_data_count_by_time_range(
-            process_id, start_date, end_date, query_type, local_tz
+            process_id,
+            start_date,
+            end_date,
+            query_type,
+            local_tz,
         )
     out_dict = {
         'from': from_date,

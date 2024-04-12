@@ -1,13 +1,18 @@
 from collections import defaultdict
 from typing import Dict, List, Optional
 
+from ap.api.common.services.utils import TraceGraph, get_col_cfg
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     COL_DATA_TYPE,
+    DATA_GROUP_TYPE,
     END_COL_ID,
     END_COL_NAME,
     END_PROC_ID,
     END_PROC_NAME,
+    IS_CATEGORY,
+    IS_INT_CATEGORY,
+    IS_SERIAL_NO,
     NO_FILTER,
     SELECT_ALL,
     SHOWN_NAME,
@@ -15,8 +20,7 @@ from ap.common.constants import (
     DuplicateSerialShow,
     RemoveOutlierType,
 )
-from ap.common.logger import logger
-from ap.setting_module.models import CfgFilterDetail, CfgProcess, CfgProcessColumn
+from ap.setting_module.models import CfgFilterDetail, CfgProcess
 
 
 class EndProc:
@@ -26,13 +30,13 @@ class EndProc:
     col_show_names: List[str]
     col_sensor_only_ids: List[int]
 
-    def __init__(self, proc_id, cols):
-        if proc_id:
-            self.proc_id = int(proc_id)
+    def __init__(self, cfg_proc: CfgProcess, cols):
+        self.proc_id = cfg_proc.id
         self.col_ids = []
         self.col_names = []
         self.col_show_names = []
         self.col_sensor_only_ids = []
+        self.cfg_proc = cfg_proc
 
         if cols:
             self.add_cols(cols)
@@ -43,19 +47,21 @@ class EndProc:
             col_ids = [col_ids]
 
         ids = [int(col) for col in col_ids]
-
         for col_id in ids:
-            if col_id in self.col_ids:
-                idx = self.col_ids.index(col_id)
+            cfg_col = self.cfg_proc.get_col(col_id)
+            if not cfg_col:
+                continue
+
+            if cfg_col.id in self.col_ids:
+                idx = self.col_ids.index(cfg_col.id)
                 id = self.col_ids.pop(idx)
                 column_name = self.col_names.pop(idx)
                 name = self.col_show_names.pop(idx)
             else:
-                column = CfgProcessColumn.query.get(col_id)
-                id = column.id
-                column_name = column.column_name
-                name = column.shown_name
-                self.proc_id = column.process_id
+                id = cfg_col.id
+                column_name = cfg_col.column_name
+                name = cfg_col.shown_name
+                self.proc_id = cfg_col.process_id
 
             if append_first:
                 self.col_ids.insert(0, id)
@@ -88,7 +94,7 @@ class CategoryProc:
     col_names: List[str]
     col_show_names: List[str]
 
-    def __init__(self, proc, cols):
+    def __init__(self, dic_proc_cfgs, proc, cols):
         if proc:
             self.proc_id = int(proc)
 
@@ -99,8 +105,8 @@ class CategoryProc:
 
         self.col_names = []
         self.col_show_names = []
-        for id in self.col_ids:
-            column = CfgProcessColumn.query.get(id)
+        for col_id in self.col_ids:
+            column = get_col_cfg(dic_proc_cfgs, col_id)
             self.col_names.append(column.column_name)
             self.col_show_names.append(column.shown_name)
             self.proc_id = column.process_id
@@ -113,34 +119,27 @@ class ConditionProcDetail:
     column_id: int
     column_name: str
 
-    def __init__(self, filter_detail_ids):
+    def __init__(self, dic_filter_details):
         self.is_select_all = False
         self.is_no_filter = False
         self.cfg_filter_details = []
         self.column_id = None
         self.column_name = None
 
-        ids = filter_detail_ids
-        if not isinstance(filter_detail_ids, (list, tuple)):
-            ids = [filter_detail_ids]
-
         column = None
-        for id in ids:
-            if str(id).lower() == NO_FILTER.lower():
-                self.is_no_filter = True
-                continue
+        for id, filter_detail in dic_filter_details.items():
+            if filter_detail is None:
+                if str(id).lower() == NO_FILTER.lower():
+                    self.is_no_filter = True
+                    continue
 
-            if str(id).lower() == SELECT_ALL.lower():
-                self.is_select_all = True
-                continue
+                if str(id).lower() == SELECT_ALL.lower():
+                    self.is_select_all = True
+                    continue
 
-            filter_detail = CfgFilterDetail.query.get(id)
             self.cfg_filter_details.append(filter_detail)
-
-            # TODO: unsafe: if filter_detail_ids is wrong, filter_detail is None,
-            #  and filter_detail.cfg_filter.column occur error
             if column is None:
-                column = filter_detail.cfg_filter.column
+                column = filter_detail.column
                 if column:
                     self.column_id = column.id
                     self.column_name = column.column_name
@@ -199,6 +198,9 @@ class CommonParam:
     ng_condition: str
     ng_condition_val: str
 
+    is_nominal_scale: bool
+    nominal_vars: list
+
     def __init__(
         self,
         start_proc=None,
@@ -250,6 +252,8 @@ class CommonParam:
         ng_condition=None,
         ng_condition_val=None,
         is_proc_linked=False,
+        is_nominal_scale=True,
+        nominal_vars=[],
     ):
         self.start_proc = int(start_proc) if str(start_proc).isnumeric() else None
         self.start_date = start_date
@@ -271,9 +275,7 @@ class CommonParam:
 
         self.cond_procs = cond_procs
         self.cate_procs = cate_procs
-        self.threshold_boxes = [
-            int(filter_detail_id) for filter_detail_id in threshold_boxes if filter_detail_id
-        ]
+        self.threshold_boxes = [int(filter_detail_id) for filter_detail_id in threshold_boxes if filter_detail_id]
 
         if not cat_exp:
             self.cat_exp = []
@@ -324,13 +326,32 @@ class CommonParam:
         self.ng_condition_val = ng_condition_val
         self.is_proc_linked = is_proc_linked
 
+        # nominal scale
+        self.is_nominal_scale = bool(int(is_nominal_scale))
+        if isinstance(nominal_vars, list):
+            self.nominal_vars = [int(col_id) for col_id in nominal_vars]
+        else:
+            self.nominal_vars = [int(nominal_vars)] if nominal_vars else None
+
 
 class DicParam:
     chart_count: int
     common: CommonParam
     array_formval: List[EndProc]
+    dic_proc_cfgs: Dict[int, CfgProcess]
+    trace_graph: TraceGraph
+    dic_card_orders: Dict
 
-    def __init__(self, chart_count, common, array_formval, cyclic_terms=[]):
+    def __init__(
+        self,
+        dic_proc_cfgs: Dict[int, CfgProcess],
+        trace_graph: TraceGraph,
+        dic_card_orders,
+        chart_count,
+        common,
+        array_formval,
+        cyclic_terms=[],
+    ):
         self.array_formval = array_formval
         # for end_proc in array_formval or []:
         #     self.add_proc_to_array_formval(end_proc.proc_id, end_proc.col_ids)
@@ -338,6 +359,9 @@ class DicParam:
         self.common = common
         self.chart_count = chart_count
         self.cyclic_terms = cyclic_terms
+        self.dic_proc_cfgs = dic_proc_cfgs
+        self.trace_graph = trace_graph
+        self.dic_card_orders = dic_card_orders
 
     def search_end_proc(self, proc_id):
         for idx, proc in enumerate(self.array_formval):
@@ -347,20 +371,16 @@ class DicParam:
         return None, None
 
     def is_end_proc(self, proc_id):
-        for idx, proc in enumerate(self.array_formval):
-            if proc.proc_id == proc_id:
-                return True
-        return False
+        return any(proc.proc_id == proc_id for idx, proc in enumerate(self.array_formval))
 
-    def add_proc_to_array_formval(self, proc_id, col_ids, append_first=False):
+    def add_proc_to_array_formval(self, proc_id, col_ids, append_first=False, as_target_sensor=False):
         idx, proc = self.search_end_proc(proc_id)
-        if proc:
-            proc = self.array_formval.pop(idx)
-        else:
-            proc = EndProc(proc_id, [])
+        proc = self.array_formval.pop(idx) if proc else EndProc(self.dic_proc_cfgs[proc_id], [])
 
         proc.add_cols(col_ids)
-        # proc.add_sensor_col_ids(col_ids)
+
+        if as_target_sensor:
+            proc.add_sensor_col_ids(col_ids)
 
         if append_first:
             self.array_formval.insert(0, proc)
@@ -389,80 +409,29 @@ class DicParam:
 
     def add_cat_exp_to_array_formval(self):
         if self.common.cat_exp:
-            cfg_cat_exps = CfgProcessColumn.get_by_ids(self.common.cat_exp)
+            cfg_cat_exps = self.get_col_cfgs(self.common.cat_exp)
             for cfg_cat_exp in cfg_cat_exps:
                 self.add_proc_to_array_formval(cfg_cat_exp.process_id, cfg_cat_exp.id)
 
     def add_column_to_array_formval(self, col_ids):
         if col_ids:
-            cfg_cols = CfgProcessColumn.get_by_ids(col_ids)
+            cfg_cols = self.get_col_cfgs(col_ids)
             for cfg_col in cfg_cols:
                 self.add_proc_to_array_formval(cfg_col.process_id, cfg_col.id)
 
-    def get_all_proc_ids(self):
-        proc_ids = set()
-        proc_ids.add(self.common.start_proc)
-        proc_ids.update([proc.proc_id for proc in self.common.cond_procs])
-        proc_ids.update([proc.proc_id for proc in self.common.cate_procs])
-        proc_ids.update([proc.proc_id for proc in self.array_formval])
-
-        return list(proc_ids)
-
-    def get_cate_var_col_id(self):
-        try:
-            if len(self.common.cate_procs):
-                return self.common.cate_procs[0].col_ids[0]
-        except Exception as ex:
-            logger.error(ex)
-        return None
-
-    def get_cate_var_col_name(self):
-        try:
-            if len(self.common.cate_procs):
-                return self.common.cate_procs[0].col_names[0]
-        except Exception as ex:
-            logger.error(ex)
-        return None
-
-    def get_cate_var_filter_details(self, var_col_id):
-        candidate_sets = [set()]
-        if len(self.common.cond_procs):
-            # cate var column may be the same as filter column -> 2 cond procs created -> get all of them
-            for idx, cond in enumerate(self.common.cond_procs):
-                # cate var belong to start proc only
-                if cond.proc_id != self.common.start_proc:
-                    continue
-                dic_col_id_filters = cond.dic_col_id_filters or {}
-                for col_id, col_detail in dic_col_id_filters.items():
-                    # get filter details of var column only
-                    if col_id != var_col_id:
-                        continue
-                    set_filter_details = set(col_detail[0].cfg_filter_details or [])  # check idx
-                    candidate_sets.append(set_filter_details)
-
-        candidate_sets = [s for s in candidate_sets if len(s)]
-        if candidate_sets:
-            return list(set.intersection(*candidate_sets))
-        return []
-
     def get_end_cols(self, proc_id):
-        _, end_proc = self.search_end_proc(proc_id)
-        if isinstance(end_proc, EndProc):
-            return end_proc.get_col_ids() or []
-        return []
+        col_ids = []
+        for idx, proc in enumerate(self.array_formval):
+            if proc.proc_id == proc_id:
+                col_ids += [col_id for col_id in proc.get_col_ids() if col_id in self.common.sensor_cols]
+        return col_ids
 
     def get_all_end_col_ids(self):
         cols = []
         for proc in self.array_formval:
             cols += proc.col_ids
 
-        return cols
-
-    def get_sensor_cols(self, proc_id):
-        _, end_proc = self.search_end_proc(proc_id)
-        if isinstance(end_proc, EndProc):
-            return end_proc.get_sensor_col_ids() or []
-        return []
+        return [col for col in cols if col in self.common.sensor_cols]
 
     def get_start_proc(self):
         return self.common.start_proc
@@ -470,37 +439,26 @@ class DicParam:
     def get_client_timezone(self):
         return self.common.client_timezone
 
-    def not_only_start_in_cond_procs(self):
-        if not self.common.cond_procs:
-            return False
-
-        self.common.start_proc
-        cond_proc_ids = [proc.proc_id for proc in self.common.cond_procs]
-
-        if any([self.common.start_proc != cond_proc_id for cond_proc_id in cond_proc_ids]):
-            return True
-
-        return False
-
     def get_facet_var_cols_name(self):
         if self.common.cat_exp:
             cfg_cols = []
             for col_id in self.common.cat_exp:
-                cfg_cols.append(CfgProcessColumn.get_by_id(col_id))
+                cfg_cols.append(self.get_col_cfg(col_id))
             return cfg_cols
 
         return []
 
     def get_div_cols_label(self):
         if self.common.div_by_cat:
-            div_col = CfgProcessColumn.get_by_id(self.common.div_by_cat)
+            div_col = self.get_col_cfg(self.common.div_by_cat)
             return gen_sql_label(div_col.id, div_col.column_name)
         return None
 
     def add_datetime_col_to_start_proc(self):
         for proc in self.array_formval:
             if proc.proc_id and proc.proc_id == self.common.start_proc:
-                proc_cfg = CfgProcess.query.get(proc.proc_id)
+                # proc_cfg = CfgProcess.query.get(proc.proc_id)
+                proc_cfg = self.dic_proc_cfgs[proc.proc_id]
                 datetime_col = proc_cfg.get_date_col(column_name_only=False) or None
                 if datetime_col:
                     proc.add_cols(datetime_col.id)
@@ -508,18 +466,24 @@ class DicParam:
     def get_all_target_cols(self):
         target_cols = []
         for proc in self.array_formval:
-            for i, col_id in enumerate(proc.col_ids):
-                proc_cfg = CfgProcess.query.get(proc.proc_id)
-                col_info = CfgProcessColumn.get_by_ids([col_id])
+            # proc_cfg = CfgProcess.query.get(proc.proc_id)
+            proc_cfg = self.dic_proc_cfgs[proc.proc_id]
+            dic_cfg_cols = proc_cfg.get_dic_cols_by_ids(proc.col_ids)
+            for col_id, col_info in dic_cfg_cols.items():
+                # col_info = CfgProcessColumn.get_by_ids([col_id])
                 target_cols.append(
                     {
                         END_COL_ID: col_id,
-                        END_COL_NAME: col_info[0].column_name,
-                        SHOWN_NAME: col_info[0].shown_name,  # shown name of column
+                        END_COL_NAME: col_info.column_name,
+                        SHOWN_NAME: col_info.shown_name,  # shown name of column
                         END_PROC_ID: proc.proc_id,
                         END_PROC_NAME: proc_cfg.shown_name or '',
-                        COL_DATA_TYPE: col_info[0].data_type,
-                    }
+                        COL_DATA_TYPE: col_info.data_type,
+                        DATA_GROUP_TYPE: col_info.column_type,
+                        IS_CATEGORY: col_info.is_category,
+                        IS_SERIAL_NO: col_info.is_serial_no,
+                        IS_INT_CATEGORY: col_info.is_int_category,
+                    },
                 )
         return target_cols
 
@@ -527,9 +491,9 @@ class DicParam:
         if self.common.agp_color_vars:
             color_vars = list(self.common.agp_color_vars.values())
             # add col if not in current col_ids list
-            already_col_ids = [str(col_id) for col_id in self.get_all_end_col_ids()]
-            color_vars = [col_var for col_var in color_vars if str(col_var) not in already_col_ids]
-            cfg_color_cols = CfgProcessColumn.get_by_ids(color_vars)
+            already_col_ids = [int(col_id) for col_id in self.get_all_end_col_ids()]
+            color_vars = [int(col_var) for col_var in color_vars if int(col_var) not in already_col_ids]
+            cfg_color_cols = self.get_col_cfgs(color_vars)
             for cfg_col in cfg_color_cols:
                 # assign to list of target columns
                 self.add_proc_to_array_formval(cfg_col.process_id, cfg_col.id)
@@ -559,12 +523,37 @@ class DicParam:
 
         return color_col[SHOWN_NAME] or None
 
-    def add_ng_condition_to_array_formval(self):
+    def get_all_col_cfgs(self):
+        all_cols = []
+        for proc_id, proc in self.dic_proc_cfgs.items():
+            all_cols += proc.columns
+        return all_cols
+
+    def get_col_cfgs(self, col_ids):
+        return [col for col in self.get_all_col_cfgs() if col.id in col_ids]
+
+    def get_col_cfg(self, col_id):
+        cols = [col for col in self.get_all_col_cfgs() if col.id == col_id]
+        if cols:
+            return cols[0]
+        else:
+            return None
+
+    def gen_label_from_col_id(self, col_id):
+        col = self.get_col_cfg(col_id)
+        if not col:
+            return None
+        return gen_sql_label(col.id, col.column_name)
+
+    def add_ng_condition_to_array_formval(self, as_target_sensor=False):
         if self.common.judge_var:
-            judge_var = CfgProcessColumn.get_by_id(int(self.common.judge_var))
+            judge_var = self.get_col_cfg(int(self.common.judge_var))
             if judge_var:
-                self.add_proc_to_array_formval(judge_var.process_id, judge_var.id)
+                self.add_proc_to_array_formval(judge_var.process_id, judge_var.id, as_target_sensor=as_target_sensor)
 
     def get_process_by_id(self, proc_id):
         process = [proc for (_, proc) in self.dic_proc_cfgs.items() if proc.id == proc_id]
         return process[0] if process else None
+
+    def get_all_end_procs(self, id_only=False):
+        return [proc.proc_id if id_only else proc.cfg_proc for proc in self.array_formval]

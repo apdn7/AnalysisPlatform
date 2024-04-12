@@ -42,6 +42,12 @@
                                 <span class="hint-text" title="{{ _('Select sensor hover') }}">{{ _('Select only the objective and top important variables (Max: 20)') }}</span>
                             </label>
                         </div>
+                        <div class="custom-control custom-checkbox custom-control-inline jump-check-box-option" data-for="rlp">
+                            <input type="checkbox" class="custom-control custom-control-input" id="jumpByEmd" onchange="jumpWithEMDAndNGCols(this)" checked>
+                            <label class="custom-control-label" for="jumpByEmd">
+                                <span class="hint-text" title="{{ _('Pass EMD values to the new page hover msg') }}">{{ _('Pass EMD values to the new page') }}</span>
+                            </label>
+                        </div>
                         <div class="jump-sensor-table">
                             <div id="jumpSensorTbl_wrap" class="table-responsive" style="max-height: 73vh;">
                                 <table id="jumpSensorTbl" class="table table-bordered table-main table-bordered table-fixed table-dark table-striped table-hover table-hover-light">

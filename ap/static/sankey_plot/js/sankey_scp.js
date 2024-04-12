@@ -12,11 +12,13 @@ const i18nText = {
     i18nActual: $('#i18nActual').text(),
     i18nTargetVariable: $('#i18nTargetVariable').text(),
     i18nResiduals: $('#i18nResiduals').text(),
-    i18nIndex: $('#i18nIndex').text(),
+    i18nIndexVsResiduals: $('#i18nIndexVsResiduals').text(),
     i18nActualFittedValues: $('#i18nActualFittedValues').text(),
     i18nConfusionMatrix: $('#i18nConfustionMatrix').text(),
     i18DataCount: $('#i18DataCount').text(),
 };
+
+const INDEX_AXIS_LABEL = "Index"
 
 const drawScatterPlot = (canvasID, props, showLine = false) => {
     const data = [{
@@ -125,7 +127,7 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
         const dataPoint = data.points[0];
         const xValue = applySignificantDigit(dataPoint.data.x[dpIndex]);
         const yValue = applySignificantDigit(dataPoint.data.y[dpIndex]);
-        const datetime = formatDateTime(dataPoint.data.customdata.datetime[dpIndex]);
+        const datetime = dataPoint.data.customdata ? formatDateTime(dataPoint.data.customdata.datetime[dpIndex]) : '';
         const serials = getSerialsText(dpIndex, dataPoint.data.customdata.serials);
         const isHideX = props.hideX;
         const hoverData = []
@@ -355,8 +357,8 @@ const showScatterPlot = (dicScp) => {
     const indexResidualsProps = {
         x: index,
         y: residuals,
-        title: `${i18nText.i18nIndex} vs ${i18nText.i18nResiduals}`,
-        titleX: i18nText.i18nIndex,
+        title: i18nText.i18nIndexVsResiduals,
+        titleX: INDEX_AXIS_LABEL,
         titleY: `${i18nText.i18nResiduals} (${i18nText.i18nActual} - ${i18nText.i18nFitted})`,
         yFmt: residuals_fmt,
         xFmt: '',

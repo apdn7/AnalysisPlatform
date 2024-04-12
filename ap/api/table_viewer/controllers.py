@@ -6,12 +6,10 @@ from ap.common.pydn.dblib import mssqlserver, oracle
 from ap.common.pydn.dblib.db_proxy import DbProxy
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.common.services.sse import notify_progress
+from ap.common.services.sse import MessageAnnouncer
 from ap.setting_module.models import CfgDataSource
 
-api_table_viewer_blueprint = Blueprint(
-    'api_table_viewer', __name__, url_prefix='/ap/api/table_viewer'
-)
+api_table_viewer_blueprint = Blueprint('api_table_viewer', __name__, url_prefix='/ap/api/table_viewer')
 
 
 @api_table_viewer_blueprint.route('/column_names', methods=['GET'])
@@ -83,7 +81,7 @@ def get_table_records():
     return json_dumps(result)
 
 
-@notify_progress(50)
+@MessageAnnouncer.notify_progress(50)
 def query_data(db_instance, table_name, sort_column, sort_order, limit):
     sort_statement = ''
     if sort_column and sort_order:

@@ -1,3 +1,5 @@
+import os
+
 from flask import Blueprint, jsonify, request
 
 from ap.api.co_occurrence.services import (
@@ -9,8 +11,8 @@ from ap.api.co_occurrence.services import (
 )
 from ap.api.setting_module.services.csv_import import csv_to_df
 from ap.common.common_utils import get_csv_delimiter
+from ap.common.constants import AggregateBy
 from ap.common.services.http_content import orjson_dumps
-from ap.common.yaml_utils import *
 from ap.setting_module.models import CfgDataSourceCSV
 
 api_co_occurrence_blueprint = Blueprint('api_co_occurrence', __name__, url_prefix='/ap/api/cog')
@@ -26,14 +28,14 @@ def check_file():
                 'url': data,
                 'is_exists': os.path.isfile(data) and os.path.exists(data),
                 'dir': os.path.dirname(data),
-            }
+            },
         )
     except Exception:
         # raise
         return jsonify(
             {
                 'status': 500,
-            }
+            },
         )
 
 
@@ -84,6 +86,6 @@ def show_graph():
     nodes = add_node_coordinate(nodes, layout=layout)
     edges = filter_edge_by_threshold(edges, threshold)
 
-    result = dict(nodes=nodes, edges=edges, pareto=pareto)
+    result = {'nodes': nodes, 'edges': edges, 'pareto': pareto}
     out_dict = orjson_dumps(result)
     return out_dict, 200

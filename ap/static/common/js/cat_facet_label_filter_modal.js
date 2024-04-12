@@ -159,14 +159,6 @@ function fillDataToFilterModal(data = filterDataModal, callback) {
 
         if (event.keyCode === KEY_CODE.ENTER) {
             setTimeout(() => {
-                regexEnter(currentTypingCount);
-                event.preventDefault();
-            }, 500);
-            event.preventDefault();
-        } else {
-            setTimeout(() => {
-                currentRegexVal = stringNormalization(this.value);
-                currentRegexVal = makeRegexForSearchCondition(currentRegexVal);
                 searchRegEx(currentRegexVal, currentTypingCount);
                 filterPaging(dicCheckboxes);
 
@@ -177,6 +169,14 @@ function fillDataToFilterModal(data = filterDataModal, callback) {
                     onChangeAllOption();
                     onDemandFilterInputCheck();
                 }, 500);
+            }, 500);
+            event.preventDefault();
+
+        } else {
+            setTimeout(() => {
+                currentRegexVal = stringNormalization(this.value);
+                currentRegexVal = makeRegexForSearchCondition(currentRegexVal);
+                regexFilter(currentTypingCount);
             }, 500);
         }
     });
@@ -303,12 +303,13 @@ function fillDataToFilterModal(data = filterDataModal, callback) {
 
     function addHighLightToSelectedColumn(selectedColumnID) {
         if (selectedColumnID) {
+            const columnEl = modalEls.categoriesBox.find('.filter-data .column-datas');
             if (selectedColumnID === 'color') {
                 modalEls.colorBox.find('.filter-data .column-datas').addClass('active');
             } else if (selectedColumnID === 'x') {
-                modalEls.categoriesBox.find('.filter-data .column-datas')[0].classList.add('active');
+                columnEl.length && columnEl[0].classList.add('active');
             } else if (selectedColumnID === 'y') {
-                modalEls.categoriesBox.find('.filter-data .column-datas')[1].classList.add('active');
+                columnEl.length && columnEl.length > 1 &&columnEl[1].classList.add('active');
             } else {
                 modalEls.categoriesBox.find(`.filter-data .column-datas[data-id=${selectedColumnID}]`).addClass('active');
             }
@@ -639,7 +640,7 @@ const showCheckStatus = (dicTarget, parentEle = null) => {
     });
 };
 
-const regexEnter = (typingCount) => {
+const regexFilter= (typingCount) => {
     if (typingCount !== null && typingCount < globalTypingCount) {
         return;
     }

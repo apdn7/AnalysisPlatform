@@ -545,9 +545,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                         data.checked = false;
                     }
                 } else if (/GET02_VALS_SELECT/.test(data.name)) {
-                    if (jumpCheckedAllSensors.length && jumpCheckedAllSensors.includes(data.value)) {
-                        data.checked = true;
-                    } else if ((jumpCheckedAllSensors.length && !jumpCheckedAllSensors.includes(data.value)) || excludeSensors.includes(data.value)) {
+                    if (excludeSensors.length && excludeSensors.includes(data.value)) {
                         data.checked = false;
                     } else {
                         data.checked = el.checked;
@@ -560,7 +558,15 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                 data.genBtnId = el.getAttribute(DYNAMIC_ELE_ATTR);
             }
 
-           if (data.id === 'datetimeRangePicker' && data.name === 'DATETIME_RANGE_PICKER') {
+            // convert data.name === 'DATETIME_RANGE_PICKER'
+            if (data.name === 'DATETIME_RANGE_PICKER') {
+                const {startDate, startTime, endDate, endTime} = splitDateTimeRange(data.value);
+                if (!startTime && !endTime) {
+                    data.value = `${startDate} 00:00 ${DATETIME_PICKER_SEPARATOR} ${endDate} 00:00`
+                }
+            }
+
+            if (data.id === 'datetimeRangePicker' && data.name === 'DATETIME_RANGE_PICKER') {
                 if (divideOption === divideOptions.cyclicTerm) {
                     // assign new data
                     serializeData.push({
@@ -603,6 +609,10 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             })
         }
 
+        if (dumpedUserSetting.length) {
+            serializeData.push(...dumpedUserSetting);
+        }
+
         resetCommonJumpObj();
 
         tabPanes.forEach((el) => {
@@ -611,6 +621,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             };
             serializeData.push(data);
         });
+
 
         // sort checked judge
         const checkedJudge = serializeData.filter(setting => setting.name === 'judgeVar' && setting.checked === true);
@@ -722,7 +733,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
         for (const shownEle of shownEles) {
             if (!usedEleNames.includes(shownEle.name)) {
                 const target = form.querySelectorAll(`[name="${shownEle.name}"]`);
-                $(target).closest('.card').find('.close-icon').trigger('click');
+                $(target).closest('.dynamic-element').find('.close-icon').trigger('click');
             }
         }
     };
@@ -869,7 +880,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             }
             let input = null;
             let eleSelector;
-            if (v.name === CYCLIC_TERM.DIV_CALENDER) {
+            if (v.name === CYCLIC_TERM.DIV_CALENDER || v.name === "autoUpdateInterval") {
                 eleSelector = buildEleSelector(null, null, v.id);
             } else {
                 eleSelector = buildEleSelector(v.name);
@@ -1392,6 +1403,12 @@ const applyUserSetting = (userSetting, onlyLoad = null, isLoadNew = true) => {
 
     // show current loading setting label
     saveStateAndShowLabelSetting(userSetting);
+
+    // overwrite if there is column ordering
+    // fix cho nay
+    if (userInputs.column_ordering) {
+        latestSortColIds = userInputs.column_ordering;
+    }
 };
 
 // save current user setting on global variable, beside that it will show title & "Overwrite save" button on UI
@@ -1509,7 +1526,6 @@ const editSettings = async (userSettingId) => {
         $(settingModals.saveSettingConfirmBtn).attr('is-edit', 1);
         showSettingModal(res.data);
     }
-    ;
 };
 
 const autoFillUserSetting = () => {
@@ -1705,6 +1721,8 @@ const getSettingCommonInfo = () => {
         formSettingDat['graphSetting'] = graphSettings;
         formSettingDat['filter'] = filterData;
 
+        // update column ordering by user clicked
+        formSettingDat.column_ordering = latestSortColIds;
         settingCommonInfo.settings = JSON.stringify(formSettingDat);
     } else {
         settingCommonInfo.settings = previousSettingInfor;
@@ -2009,6 +2027,12 @@ const isSaveGraphSetting = () => {
     return currentLoadSetting && currentLoadSetting.save_graph_settings && !isSettingChanged;
 };
 
+const isSaveColumnOrdering = () => {
+    if (!currentLoadSetting) return false;
+    const settings = JSON.parse(currentLoadSetting.settings);
+    return !isSettingChanged && settings.column_ordering && settings.column_ordering.length;
+};
+
 const handleCopyUrlToClipBoard = async (e, userSettingId) => {
     const res = await getUserSettingById(userSettingId);
     let page = '';
@@ -2063,7 +2087,7 @@ const setFitlerIntoFormData = (formData) => {
     return formData;
 };
 
-const loadGraphSetings = (isFirstTime = false) => {
+const loadGraphSettings = (isFirstTime = false) => {
     if (!isFirstTime) return;
     if (!isSaveGraphSetting()) return;
     const graphSettings = getGraphSettings();
@@ -2077,30 +2101,43 @@ const loadGraphSetings = (isFirstTime = false) => {
         if (setting === 'XAxisOrder') continue;
         if (setting.name) {
             selectorStr = `[name=${setting.name}]`;
-            // el = graphArea.find(`[name=${setting.name}]`);
         } else {
-            // el = graphArea.find(`#${setting.id}`);
             selectorStr = `#${setting.id}`;
         }
 
-        let isTriggerChange = setting.defaultVal !== setting.value;
+        let defaultValue = null;
 
+        // get default value of element
         if (setting.type === 'radio') {
+            defaultValue = graphArea.find(`${selectorStr}:checked`).val();
             el = graphArea.find(`${selectorStr}[value=${setting.value}]`).prop('checked', true);
         } else if (setting.type === 'select') {
-            el = graphArea.find(`${selectorStr}`).val(setting.value);
+            el = graphArea.find(`${selectorStr}`);
+            defaultValue = el.val();
+            el.val(setting.value);
         } else if (setting.type === 'checkbox') {
-            el = graphArea.find(`${selectorStr}`).prop('checked', setting.checked);
-            isTriggerChange = setting.defaultVal !== setting.checked;
+            el = graphArea.find(`${selectorStr}`);
+            defaultValue = el.is('checked');
+            el.prop('checked', setting.checked);
+
         } else if (setting.type === 'text') {
-            el = graphArea.find(`${selectorStr}`).val(setting.value);
+            el = graphArea.find(`${selectorStr}`);
+            defaultValue = el.val();
+            el.val(setting.value);
+        }
+
+        let isTriggerChange = false;
+
+        if (setting.type === 'checkbox') {
+            isTriggerChange = defaultValue !== setting.checked;
+        } else {
+            isTriggerChange = defaultValue !== setting.value;
         }
 
         if (isTriggerChange) {
             el.trigger('change');
         }
-    }
-    ;
+    };
 };
 
 const getDicChecked = () => {

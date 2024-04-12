@@ -19,10 +19,13 @@
 {% endmacro %}
 
 
-{% macro alert_message(alertID, on_top=False) %}
+{% macro alert_message(alertID, on_top=False, header_warning=False) %}
 	{% set class = '' %}
 	{% if on_top %}
 		{% set class = ' alert-top-fixed' %}
+	{% endif %}
+    {% if header_warning %}
+		{% set class = ' alert-header' %}
 	{% endif %}
 	<div id="{{ alertID }}" class="alert alert-dismissible fade{{ class }}" style="text-align: left; display:none"
 		 role="alert">
@@ -170,7 +173,7 @@
             <div class="col-xl-10 col-9">
                <div class="row">
                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
-                       {{ start_proc_interval(showAutoUpdate=True) }}
+                       {{ start_proc_interval(showAutoUpdate=True, isShowTimePicker=False) }}
                        {{ heatmap_cycle() }}
                    </div>
                </div>
@@ -216,14 +219,17 @@
 {% endmacro %}
 
 <!-- end proc -->
-{% macro end_proc(procs, selected, label_i18n_key='Show value', title='', width=2, multiple_proc=true, traceData=false, dom_prefix='', showStartProc=false) %}
+{% macro end_proc(procs, selected, label_i18n_key='Show value', title='', width=2, multiple_proc=true, traceData=false, dom_prefix='', showStartProc=false, nominalScale=False) %}
     <div class="card-body table-bordered graph-navi"  id="endPrc">
         <div class="row">
             <div class="col-xl-{{ width }} col-3 d-flex flex-column">
                 <div class="d-flex justify-content-between">
                 {{ label(_(label_i18n_key), title=title) }}
-                {{ paste_btn() }}
+                {{ paste_btn(with_count=True) }}
                 </div>
+                {% if nominalScale %}
+                    {{ nominal_scale() }}
+                {% endif %}
                 {% if traceData or showStartProc %}
                     <div class="mt-auto pl-3 pt-3">
 						{% if traceData %}
@@ -259,7 +265,7 @@
             <div class="col-xl-{{ width }} col-3">
                 <div class="d-flex justify-content-between">
                 {{ label(_(label_i18n_key), title=title) }}
-                {{ paste_btn() }}
+                {{ paste_btn(with_count=True) }}
                 </div>
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
@@ -281,12 +287,12 @@
 			<div class="col-xl-{{ width }} col-3 d-flex flex-column">
 				<div class="d-flex justify-content-between">
 					{{ label(_('Show value'), title=title) }}
-					{{ paste_btn() }}
+					{{ paste_btn(with_count=True) }}
 				</div>
 				<div class="mt-auto pl-3">
                     <div class="row">
                         <div class="col">
-                            {{ sub_label(_('Real(Float)'), hl=' pb-0') }}
+                            {{ sub_label(_('Real'), hl=' pb-0') }}
                             <div class="d-flex justify-content-center">
                             <select id="hmFunctionReal" class="form-control mb-2" name="function_real">
                                 <option value="median">{{ _('CHMMedian') }}</option>
@@ -452,7 +458,7 @@
             <div class="col-xl-{{ width }} col-3 d-flex flex-column">
                 <div class="d-flex justify-content-between">
                 {{ label(_('Show value'), title=title) }}
-                {{ paste_btn() }}
+                {{ paste_btn(with_count=True) }}
                 </div>
                 {% if isShowMinMax %}
                     <label class="num-sensor-limit">
@@ -486,7 +492,7 @@
             <div class="col-xl-{{ width }} col-3 d-flex flex-column">
                 <div class="d-flex justify-content-between">
                 {{ label(_('Show value'), title=title) }}
-                {{ paste_btn() }}
+                {{ paste_btn(with_count=True) }}
                 </div>
                 <div class="mt-auto pl-3 pt-3">
                     {{ start_proc_select(procs) }}
@@ -566,11 +572,16 @@
 {% endmacro %}
 <!-- -->
 <!-- Page title -->
-{% macro paste_btn() %}
-    <button name="pasteCard" type="button" class="btn p-0 ml-1" data-toggle="tooltip" data-placement="top"
-            title="{{_('Paste config')}}">
-        <i class="fa fa-file-import"></i>
-    </button>
+{% macro paste_btn(with_count=False) %}
+    <div class="d-flex flex-column justify-content-between align-items-center">
+        <button name="pasteCard" type="button" class="btn p-0 ml-1" data-toggle="tooltip" data-placement="top"
+                title="{{_('Paste config')}}">
+            <i class="fa fa-file-import"></i>
+        </button>
+        {% if with_count %}
+            <div style="display: none" id="variables-count"><span id="count-total-variables"></span>/<span id="max-variables"></span></div>
+        {% endif %}
+    </div>
 {% endmacro %}
 <!-- -->
 <!-- Exception Estimation  -->
@@ -709,7 +720,7 @@
 {% endmacro %}
 
 <!--  対象期間　日時と最新入り替えボックス  -->
-{% macro start_proc_interval(showAutoUpdate=true, prefix='', disableLatest=false, name='traceTime', commonClass='', wrapID='target-period-wrapper', showDataFinder=True, cyclicCalender=False, dateRangeHoverMsg='') %}
+{% macro start_proc_interval(showAutoUpdate=true, prefix='', disableLatest=false, name='traceTime', commonClass='', wrapID='target-period-wrapper', showDataFinder=True, cyclicCalender=False, dateRangeHoverMsg='', isShowTimePicker=True) %}
     <div class="d-flex" id="{{wrapID}}">
         <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
             <input type="radio" name="{{name}}" onchange="handleChangeInterval(this, 'default-{{prefix}}')"
@@ -730,7 +741,7 @@
         <!-- switch content -->
         <div class="flex-grow-1">
             <div class="position-relative" id="for-default-{{prefix}}">
-                {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker' + prefix,noCoverDiv=True, dtClassName=commonClass) }}
+                {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker' + prefix,noCoverDiv=True, dtClassName=commonClass, isShowTimePicker=isShowTimePicker) }}
                 <input id="{{prefix}}startDate" class="datepicker hasdatepicker form-control category-plot-time"
                        data-date-format="yyyy-mm-dd" name="START_DATE" type="text" hidden>
                 <input name="START_TIME" class="form-control" id="{{prefix}}startTime" type="text" hidden>
@@ -834,24 +845,26 @@
 {% macro multiple_target_period(rlp=False, dataNumber=false, scp=false, DivisionNumberHover='', WindowLengthHover=_('Window length Hover'), IntervalHover=_('Interval Hover'), cyclicTermDefault=120, cyclicCalender=False, cyclicIntervalDefault=0.5) %}
     <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
         <div class="d-flex align-items-center">
-            <select class="form-control" id="divideOption" name="compareType" onchange="handleChangeDivideOption(this)" style="width: 200px">
-                {% if rlp %}
-                <option value="category">{{ _("Divide by category") if not scp else _('Non-Divided / Divide by Category') }}</option>
-                <option value="cyclicTerm" {{ 'selected' if rlp and not cyclicCalender and not scp }}>{{ _('Divide by term (Cyclic)') }}</option>
-                <option value="directTerm">{{_('Divide by term (Direct)')}}</option>
-                {% else %}
-                    <option value="var">{{ _("Stratify by variables") }}</option>
-                    <option value="cyclicTerm">{{ _('Stratify by term (Cyclic)') }}</option>
-                    <option value="directTerm">{{_('Stratify by term')}}</option>
-                {% endif %}
+             <div class="dn-custom-select" style="width: 200px">
+                <select class="form-control" id="divideOption" name="compareType" onchange="handleChangeDivideOption(this)">
+                    {% if rlp %}
+                    <option class="hint-text" title="{{_('Divide by category hover msg AgP RLP') if not scp else _('Divide by category hover msg ScP')}}" value="category">{{ _("Divide by category") if not scp else _('Non-Divided / Divide by Category') }}</option>
+                    <option title="{{_('Divide by term (Cyclic) hover msg')}}" value="cyclicTerm" {{ 'selected' if rlp and not cyclicCalender and not scp }}>{{ _('Divide by term (Cyclic)') }}</option>
+                    <option title="{{_('Divide by term (Direct) hover msg')}}" value="directTerm">{{_('Divide by term (Direct)')}}</option>
+                    {% else %}
+                        <option title="{{_('Stratify by variables hover msg StP')}}" value="var">{{ _("Stratify by variables") }}</option>
+                        <option title="{{_('Divide by term (Cyclic) hover msg')}}" value="cyclicTerm">{{ _('Stratify by term (Cyclic)') }}</option>
+                        <option title="{{_('Divide by term (Direct) hover msg')}}" value="directTerm">{{_('Stratify by term')}}</option>
+                    {% endif %}
 
-                {% if dataNumber %}
-                    <option value="dataNumberTerm">{{_('Divide by data number (Cyclic)')}}</option>
-                {% endif %}
-                {% if cyclicCalender %}
-                    <option value="cyclicCalender" selected>{{_('Divide by calender (Cyclic)')}}</option>
-                {% endif %}
-            </select>
+                    {% if dataNumber %}
+                        <option title="{{_('Divide by data number (Cyclic) hover msg')}}" value="dataNumberTerm">{{_('Divide by data number (Cyclic)')}}</option>
+                    {% endif %}
+                    {% if cyclicCalender %}
+                        <option title="{{_('Divide by calender (Cyclic) hover msg')}}" value="cyclicCalender" selected>{{_('Divide by calender (Cyclic)')}}</option>
+                    {% endif %}
+                </select>
+             </div>
             <span class="ml-2">
                 {{ _('Datetime Range') }} <span id="datetimeRangeShowValue"></span><span id="cyclicCalenderShowDiv"></span>
                 <span id="category-daterange" class="hide"></span>
@@ -1010,11 +1023,11 @@
 
                             </div>
                         </div>
-                        <div style="display: none;" class="align-items-center for-recent-cyclicCalender ml-2">
+                        <div style="display: none;" class="align-items-center for-recent-cyclicCalender ml-2 hide">
                             <label class="mr-2 mb-0" title="{{ _('Offset hover msg') }}">
                                 <span class="hint-text sub-label">{{ _('Offset') }} [hour]</span>
                             </label>
-                            <input type="text" class="form-control to-update-time-range" name="divideOffset" id="divideOffset" style="max-width: 80px" name="divideOffset" value="0">
+                            <input type="text" class="form-control to-update-time-range" name="divideOffset" id="divideOffset" style="max-width: 80px" name="divideOffset" value="0" disabled>
                         </div>
                     </div>
                 </div>
@@ -1334,25 +1347,31 @@
 				<span class="selection__arrow"><b></b></span>
 			</div>
 			<div class="custom-selection-content" id="ordering-content">
+                <div class="form-check">
+					<label class="form-check-label" for="sort-by-selected-order">
+						<input default-Value="correlation" class="form-check-input" id="sort-by-selected-order"
+                               type="radio" name="sort_by" value="selected_order" data-action="reload">
+						<span>{{ _('In variable selected order') }}</span>
+					</label>
+				</div>
 				<div class="form-check">
 					<label class="form-check-label" for="sort-by-setting">
-						<input default-Value="correlation" class="form-check-input" id="sort-by-setting" type="radio" name="sort_by" value="setting"
-							    data-action="reload">
+						<input default-Value="correlation" class="form-check-input" id="sort-by-setting"
+                               type="radio" name="sort_by" value="setting" data-action="reload">
 						<span>{{ _('In set order') }}</span>
 					</label>
 				</div>
 				<div class="form-check">
 					<label class="form-check-label" for="sort-by-proc">
-						<input class="form-check-input" default-Value="correlation" id="sort-by-proc" type="radio" name="sort_by" value="process"
-							   data-action="reload">
+						<input class="form-check-input" default-Value="correlation" id="sort-by-proc"
+                               type="radio" name="sort_by" value="process" data-action="reload">
 						<span>{{ _('In process order') }}</span>
 					</label>
 				</div>
 				<div class="form-check">
 					<label class="form-check-label" for="sort-by-corr">
-						<input class="form-check-input" default-Value="correlation" id="sort-by-corr" type="radio" name="sort_by"
-							   value="correlation"
-							   checked data-action="reload">
+						<input class="form-check-input" default-Value="correlation" id="sort-by-corr"
+                               type="radio" name="sort_by" value="correlation" checked data-action="reload">
 						<span>{{ _('In order of corr') }}</span>
 					</label>
 					<!-- 閾値 -->
@@ -1446,13 +1465,42 @@
                 </div>
                 <div class="action-button-group d-flex">
                     <button type="button" onclick="handleGoToCalender('month')" style="margin-right: 8px" class="btn btn-sm btn-primary for-data-finder for-data-finder-year">Month</button>
-                    <button type="button" onclick="handleGoToCalender('week')" style="margin-right: 8px" class="btn btn-sm btn-primary for-data-finder for-data-finder-month">Week</button>
+                    <button type="button" id="dataFinderWeekBtn" onclick="handleGoToCalender('week')" style="margin-right: 8px" class="btn btn-sm btn-primary for-data-finder for-data-finder-month">Week</button>
                     <button type="button" onclick="handleSetValueToDateRangePicker()" class="btn btn-sm btn-primary for-data-finder for-data-finder-week for-data-finder-month for-data-finder-year">Set</button>
                 </div>
             </div>
             </div>
 
         </div>
+    </div>
+</div>
+<div class="single-month-calendar single-calendar position-fixed" style="display: none">
+    <div class="single-month-calendar-header single-calendar-header">
+        <div class="single-month-calendar-title single-calendar-title" id="singleMonthCalendarShowYear"></div>
+        <div class="single-month-calendar-action single-calendar-action">
+            <i class="fa fa-arrow-up" id="singleMonthCalendarGoToNextYear"></i>
+            <i class="fa fa-arrow-down" id="singleMonthCalendarGoToPrevYear"></i>
+        </div>
+    </div>
+    <div class="single-month-calendar-body single-calendar-body" id="singleMonthCalendarBody">
+    </div>
+    <div class="single-month-calendar-bottom single-calendar-bottom">
+        <div class="action" id="singleMonthCalendarThisWeek">{{_('This week')}}</div>
+    </div>
+</div>
+
+<div class="single-date-calendar single-calendar position-fixed" style="display: none">
+    <div class="single-date-calendar-header single-calendar-header">
+        <div class="single-date-calendar-title single-calendar-title" id="singleDateCalendarShowYearMonth"></div>
+        <div class="single-date-calendar-action single-calendar-action">
+            <i class="fa fa-arrow-up" id="singleDateCalendarGoToNextMonth"></i>
+            <i class="fa fa-arrow-down" id="singleDateCalendarGoToPrevMonth"></i>
+        </div>
+    </div>
+    <div class="single-date-calendar-body single-calendar-body" id="singleDateCalendarBody">
+    </div>
+    <div class="single-date-calendar-bottom single-calendar-bottom">
+        <div class="action" id="singleDateCalendarThisDate">{{_('Today')}}</div>
     </div>
 </div>
 
@@ -1462,7 +1510,7 @@
 <div id="data-finder-card" class="card-body table-bordered graph-navi" style="display: none">
      <div class="row">
          <div class="col-xl-2 col-3">
-             {{ label(_('Data Finder')) }}
+             {{ label(_('Data Finder'), title=_('DataFinderHoverMsg')) }}
          </div>
          <div class="col-xl-10 col-9">
              {{ data_finder_modal() }}
@@ -1563,6 +1611,109 @@
                    </div>
                </div>
             </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro nominal_scale() %}
+<div class="pl-3 pt-3">
+    <div class="custom-control custom-checkbox custom-control-inline">
+        <input type="checkbox" id="nominalScale" name="is_nominal_scale" class="custom-control-input" value="1" checked>
+        <label class="custom-control-label hint-text" title="{{_('Nominal scale hover msg')}}" for="nominalScale">{{_('Nominal scale')}}</label>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro nominal_scale_setting() %}
+<div class="summary-menu ml-2">
+    <button onclick="showNominalScaleModal()" class="btn btn-sm border-white"
+            title="{{ _('Set nominal scale and ordinal scale in categorical data.')}}">
+        <i class="fa-solid fa-ruler"></i>
+    </button>
+</div>
+<div class="modal fade" id="nominalScaleModal">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                 <!--    head actions    -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h4></h4>
+                    <div class="d-flex">
+                        <div class="d-flex align-items-center mr-3 border-gray-curve p-1">
+                            <div class="mr-1">
+                                <input title="{{_('Filter search box hover msg')}}" placeholder="{{_('Search')}}"
+                                       id="searchNominalScaleInput" class="form-control">
+                            </div>
+                            <button class="btn simple-btn btn-setting mr-1" id="setNominalScaleInput">Set</button>
+                            <button class="btn simple-btn btn-setting" id="resetNominalScaleInput">Reset</button>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <button type="button" id="" class="btn btn-setting simple-btn mr-1" onclick="showGraphWithNominalSetting();">OK</button>
+                            <button type="button" class="btn btn-setting simple-btn" data-dismiss="modal" aria-label="Close"
+                                    id="">Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+<!--               No	工程名	列名	データ型	☑名義尺度-->
+<!--                1	Kakou 加工	Station ステーション	Int	☑-->
+<!--                2	Kakou 加工	Hinban 品番	Str	☑-->
+<!--                3	Kensa 検査	Hantei 判定	Int	☑-->
+<!--                4	Kensa 検査	Hinban 品番	Str	☑-->
+
+                <div class="mt-4">
+                    <h4>{{_('Nominal/ordinal scale setting of categorical data')}}</h4>
+                    <div class="mt-4">
+                        {% for p in _('Nominal scale hover msg').split('/n') %}
+                            <p class="mb-0" style="line-height: 1.5">{{p}}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div id="nominalScaleTable_wrap" style="max-height: 65vh" class="table-responsive mt-5 mb-4">
+                    <table class="table table-bordered table-fixed table-striped" id="nominalScaleTable">
+                   <thead>
+                        <tr>
+                            <th class="text-center">
+                                No
+                            </th>
+                            <th class="text-center">
+                                {{_('Process Name')}}
+                            </th>
+                            <th class="text-center">
+                                {{_('Column Name')}}
+                            </th>
+                            <th class="text-center">
+                                {{_('Data Type')}}
+                            </th>
+                            <th>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" id="nominalScaleAll" name="nominal_scale_all"
+                                           onclick="checkAllAsNominalScale(this);"
+                                           class="custom-control-input" checked>
+                                    <label class="custom-control-label" for="nominalScaleAll">{{_('Nominal scale')}}</label>
+                                </div>
+                            </th>
+                        </tr>
+                   </thead>
+                   <tbody>
+                   </tbody>
+               </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+{% macro input_and_select_btn(name, label, value='', placeholder='', type='text',label_block_cnt = 4,input_block_cnt = 8) %}
+	<div class="form-group row">
+		<label for="{{ name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
+            <h5>{{ _(label) }}</h5>
+        </label>
+        <div class="col-sm-{{ input_block_cnt }} input-with-select-btn">
+            <input type="{{ type }}" name="{{ name }}" class="form-control" value="{{ value | escape }}" id="{{ name }}" placeholder="{{ placeholder }}">
+{#            <button id="{{ name }}Btn" class="btn btn-light ml-1" style="width: 10%;">{{ _('Select') }}</button>#}
+{#            <input type="file" hidden id="{{ name }}Input"#}
+{#                   accept=".csv, .tsv, .ssv, .zip, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">#}
         </div>
     </div>
 {% endmacro %}

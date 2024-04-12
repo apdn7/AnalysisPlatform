@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
+from ap.common.constants import ID, INDEX, ROWID, TIME_COL
 from ap.common.logger import log_execution_time
-from ap.trace_data.models import Cycle
 
 PATTERN_POS_1 = re.compile(r'^(9{4,}(\.0+)?|9{1,3}\.9{3,}0*)$')
 # PATTERN_NEG_1 = re.compile(r'^-(9{4,}(\.0+)?|9{1,3}\.9{3,}0*)$')
@@ -22,7 +22,7 @@ PATTERN_NEG_2 = re.compile(r'^-((\d)\2{3,}(\.0+)?|([^36])\4{0,2}\.\4{3,}0*)$')
 PATTERN_3 = re.compile(r'^(-+|0+(\d)\2{3,}(\.0+)?|(.)\3{4,}0*)$')
 
 # regex filter exclude columns
-EXCLUDE_COLS = [Cycle.id.key, Cycle.global_id.key, Cycle.time.key, Cycle.is_outlier.key, 'index']
+EXCLUDE_COLS = [ID, TIME_COL, INDEX, ROWID]
 
 
 @log_execution_time()
@@ -190,10 +190,9 @@ def validate_data_with_simple_searching(df, checked_cols, dic_abnormal):
                 if not pd.isna(result):
                     conditions.append(df[col].isin(vals))
                     results.append(result)
-            else:
-                if pd.isna(result):
-                    conditions.append(df[col].isin(vals))
-                    results.append(result)
+            elif pd.isna(result):
+                conditions.append(df[col].isin(vals))
+                results.append(result)
 
         if conditions:
             df[col] = np.select(conditions, results, df[col])
@@ -205,7 +204,7 @@ def check_validate_target_column(col: str):
     if col in EXCLUDE_COLS:
         return False
 
-    if col.startswith(Cycle.time.key):
+    if col.startswith(TIME_COL):
         return False
 
     return True

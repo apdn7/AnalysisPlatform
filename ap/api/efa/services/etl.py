@@ -9,7 +9,7 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import CfgConstantType, CsvDelimiter
 from ap.common.logger import log_execution_time, logger
-from ap.common.services.sse import notify_progress
+from ap.common.services.sse import MessageAnnouncer
 from ap.script.r_scripts.wrapr import wrapr_utils
 from ap.setting_module.models import CfgConstant
 
@@ -54,7 +54,7 @@ def call_com_read(fname, out_dir):
 
     # define parameters
     dic_data = {}  # filecheckr does not need input data
-    dic_task = dict(func=target_func, file=FILE, fpath=fname)
+    dic_task = {'func': target_func, 'file': FILE, 'fpath': fname}
 
     # define and run pipeline
     try:
@@ -85,7 +85,7 @@ def call_com_read(fname, out_dir):
 
 
 @log_execution_time()
-@notify_progress(60)
+@MessageAnnouncer.notify_progress(60)
 def call_com_view(fname, out_dir):
     """call com view func to export image
 
@@ -127,7 +127,9 @@ def call_com_view(fname, out_dir):
 @log_execution_time()
 def save_etl_json(script_fname, json_str):
     CfgConstant.create_or_update_by_type(
-        const_type=CfgConstantType.ETL_JSON.name, const_value=json_str, const_name=script_fname
+        const_type=CfgConstantType.ETL_JSON.name,
+        const_value=json_str,
+        const_name=script_fname,
     )
 
 
@@ -139,9 +141,11 @@ def load_etl_json(script_fname):
 
 
 @log_execution_time()
-def detect_file_path_delimiter(file_path, default_delimiter):
+def detect_file_path_delimiter(file_path, default_delimiter, with_encoding=False):
     encoding = detect_encoding(file_path)
     with open_with_zip(file_path, 'r', encoding=encoding) as f:
+        if with_encoding:
+            return detect_file_stream_delimiter(f, default_delimiter, encoding=encoding), encoding
         return detect_file_stream_delimiter(f, default_delimiter, encoding=encoding)
 
 
@@ -158,9 +162,7 @@ def detect_file_stream_delimiter(file_stream, default_delimiter, encoding=None):
             break
 
         if line:
-            _, row_delimiter = max(
-                [(len(line.split(split_char)), split_char) for split_char in white_list]
-            )
+            _, row_delimiter = max([(len(line.split(split_char)), split_char) for split_char in white_list])
             candidates.append(row_delimiter)
 
     if candidates:

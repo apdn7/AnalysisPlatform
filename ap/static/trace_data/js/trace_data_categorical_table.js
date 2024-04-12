@@ -352,7 +352,7 @@ const createCateCard = (cateNameHTMLs, tableHTMLs, width, cols = {}, traceDat = 
             <div class="card-body p-2">
                  ${createAnchorHTML()}
                 <div class="row pt-3" style="margin-bottom: 0.5rem;">
-                    <div class="summary-col">
+                    <div class="summary-col label-plot-summary-col">
                     </div>
                     <div class="col-sm-12 ts-col no-padding">
                         <div class="row" style="justify-content: space-evenly;">

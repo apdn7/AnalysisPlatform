@@ -7,7 +7,27 @@ from urllib.parse import parse_qs, urlencode
 from dateutil import tz
 
 from ap.common.common_utils import API_DATETIME_FORMAT
-from ap.common.constants import *
+from ap.common.constants import (
+    BOOKMARK_ID,
+    COL_DATA_TYPE,
+    COL_ID,
+    COL_MASTER_NAME,
+    COLUMNS,
+    COMMON,
+    END_DATETIME,
+    EXAMPLE_VALUE,
+    FILTER_ON_DEMAND,
+    FUNCTION,
+    LATEST,
+    OBJECTIVE,
+    OD_FILTER,
+    OPTION_ID,
+    PROCESS_ID,
+    REQ_ID,
+    START_DATETIME,
+    UNIQUE_CATEGORIES,
+    PagePath,
+)
 from ap.common.logger import log_execution_time
 from ap.common.services.api_exceptions import APIError, ErrorMessage
 from ap.common.services.http_content import json_dumps
@@ -64,7 +84,7 @@ def cast_datetime_from_query_string(request_string):
     end_datetime = datetime.fromisoformat(end_datetime.replace('Z', '+00:00'))
     if not start_datetime.tzinfo:
         req[START_DATETIME] = start_datetime.replace(tzinfo=tz.tzutc()).strftime(
-            API_DATETIME_FORMAT
+            API_DATETIME_FORMAT,
         )
     if not end_datetime.tzinfo:
         req[END_DATETIME] = end_datetime.replace(tzinfo=tz.tzutc()).strftime(API_DATETIME_FORMAT)
@@ -78,19 +98,23 @@ class ErrorTypeDetail:
 
 
 class ExternalErrorMessage:
-    invalid_datetime_msg = "Invalid format: '{}' must be in ISO8601 format (without seconds or time). For example, '2022-03-01T07:00', '2022-03-01'."
+    invalid_datetime_msg = "Invalid format: '{}' must be in ISO8601 format (without seconds or time). For example, '2022-03-01T07:00', '2022-03-01'."  # noqa
 
     invalid_id_format_msg = "Invalid format: '{}' must be a positive integer. For example, {}."
 
-    invalid_option_id_msg = 'Invalid value: option_id={} not found. Make sure you are using the req_id and option_id returned from /options.'
+    invalid_option_id_msg = 'Invalid value: option_id={} not found. Make sure you are using the req_id and option_id returned from /options.'  # noqa
 
-    invalid_req_id_msg = 'Invalid value: req_id={} not found. Make sure you are using the req_id passed to /bookmark or /dn7.'
+    invalid_req_id_msg = (
+        'Invalid value: req_id={} not found. Make sure you are using the req_id passed to /bookmark or /dn7.'
+    )
 
-    invalid_latest_msg = "Invalid format: 'latest' must be a positive number, between 0.01 and 20000. For example, 24 (=1day), 0.5 (=30min)."
+    invalid_latest_msg = "Invalid format: 'latest' must be a positive number, between 0.01 and 20000. For example, 24 (=1day), 0.5 (=30min)."  # noqa
 
-    invalid_od_filter_msg = "Invalid format: 'od_filter' must be a dictionary with column id as keys and an array of filter values as values. For example, {2: ['OK'], 3: ['Machine01', 'Machine02']}."
+    invalid_od_filter_msg = "Invalid format: 'od_filter' must be a dictionary with column id as keys and an array of filter values as values. For example, {2: ['OK'], 3: ['Machine01', 'Machine02']}."  # noqa
 
-    invalid_function_msg = "Invalid format: 'function' must be a text string of one of: 'fpp', 'pcp', 'rlp', 'skd', 'msp', 'chm'."
+    invalid_function_msg = (
+        "Invalid format: 'function' must be a text string of one of: 'fpp', 'pcp', 'rlp', 'skd', 'msp', 'chm'."
+    )
 
     unexpected_error_msg = 'Unexpected error occured. Error message: {}'
 
@@ -174,7 +198,8 @@ class ExternalErrorMessage:
         """
         return (
             ErrorMessage(
-                reason=ErrorType.id_notfound.reason, message=cls.invalid_req_id_msg.format(req_id)
+                reason=ErrorType.id_notfound.reason,
+                message=cls.invalid_req_id_msg.format(req_id),
             ),
             ErrorType.id_notfound.status,
         )
@@ -317,7 +342,6 @@ class Validation:
             if not self.request.get(param):
                 msg_er, status = ExternalErrorMessage.missing_field(param)
                 self._add_api_error(status, msg_er)
-        return
 
     def validate_duplicated_req_id(self):
         req_id = self.request.get(REQ_ID)
@@ -354,11 +378,11 @@ class Validation:
         if od_filter:
             try:
                 for key, values in od_filter.items():
-                    key = int(key)
+                    int(key)
                     for value in values:
                         continue
 
-            except:
+            except Exception:
                 msg_er, status = ExternalErrorMessage.invalid_odf_filter()
                 self._add_api_error(status, msg_er)
 
@@ -366,13 +390,9 @@ class Validation:
         is_valid = True
         range_err = False
         try:
-            if not list_allow:
-                value = [value]
-            else:
-                # extract number from list
-                value = value.split(',')
-            for val in value:
-                val = int(val)
+            value = [value] if not list_allow else value.split(',')
+            for v in value:
+                val = int(v)
                 if positive_only and val <= 0:
                     is_valid = False
                     return is_valid, range_err
@@ -390,19 +410,15 @@ class Validation:
         is_valid = True
         range_err = False
         try:
-            if not list_allow:
-                value = [value]
-            else:
-                # extract number from list
-                value = value.split(',')
-            for val in value:
-                val = float(val)
+            value = [value] if not list_allow else value.split(',')
+            for v in value:
+                val = float(v)
                 if range_value and (val < range_value[0] or val > range_value[1]):
                     is_valid = False
                     range_err = True
                     return is_valid, range_err
             return is_valid, range_err
-        except:
+        except Exception:
             is_valid = False
             return is_valid, range_err
 
@@ -417,10 +433,9 @@ class Validation:
                     is_valid = False
                     out_of_accept_list = True
             return is_valid, out_of_accept_list
-        except:
+        except Exception:
             is_valid = False
             return is_valid, out_of_accept_list
-            pass
 
     def validate_format(self):
         for param in self.params.keys():
@@ -463,7 +478,8 @@ class Validation:
 
             if format == self._STR:
                 is_valid, value_not_in_accepted_list = self._validate_str(
-                    param_value, accept_list=accept_items_from_list
+                    param_value,
+                    accept_list=accept_items_from_list,
                 )
                 if value_not_in_accepted_list:
                     msg_er, status = ExternalErrorMessage.invalid_function_format()
@@ -474,7 +490,9 @@ class Validation:
 
             if format == self._REAL:
                 is_valid, range_err = self._validate_real(
-                    param_value, list_allow=list_allow, range_value=range_value
+                    param_value,
+                    list_allow=list_allow,
+                    range_value=range_value,
                 )
                 if range_err:
                     msg_er, status = ExternalErrorMessage.out_of_range(param, range_value)
@@ -493,17 +511,15 @@ class Validation:
                         # validate iso8601 format
                         # iso8601 accepts Z but should only be '.000Z', but app can accept 00:00Z
                         datetime.fromisoformat(param_value.replace('Z', '+00:00'))
-                except:
+                except Exception:
                     is_valid = False
                     msg_er, status = ExternalErrorMessage.invalid_datetime_format(param)
-                    pass
 
             if not is_valid:
                 if not msg_er:
                     msg_er, status = ExternalErrorMessage.invalid_id_format(param, example_value)
 
                 self._add_api_error(status, msg_er)
-        return
 
     def bookmark(self):
         # init rules for each param of /bookmark API
@@ -511,7 +527,7 @@ class Validation:
             {
                 self._REQUIRED: True,
                 self._DUPLICATED: True,  # not allow duplicate when not option_id
-            }
+            },
         )
         bookmark_id_rules = ValidationRules(
             {
@@ -560,7 +576,7 @@ class Validation:
             {
                 self._REQUIRED: True,
                 self._DUPLICATED: True,  # not allow duplicate when not option_id
-            }
+            },
         )
         function_rules = ValidationRules(
             {
@@ -594,7 +610,8 @@ class Validation:
             self._ISO_DATETIME,
         )
         objective_rules = ValidationRules(
-            {self._REQUIRED: False, self._FORMAT: True}, self._SMALL_INT
+            {self._REQUIRED: False, self._FORMAT: True},
+            self._SMALL_INT,
         )
         latest_rules = ValidationRules(
             {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
@@ -646,13 +663,13 @@ class Validation:
         req_id_rules = ValidationRules(
             {
                 self._REQUIRED: True,
-            }
+            },
         )
 
         odf_rules = ValidationRules(
             {
                 self._REQUIRED: True,
-            }
+            },
         )
 
         self.params = {
@@ -672,7 +689,7 @@ class Validation:
         req_id_rules = ValidationRules(
             {
                 self._REQUIRED: True,
-            }
+            },
         )
 
         self.params = {REQ_ID: req_id_rules}
@@ -692,4 +709,3 @@ class Validation:
     def validate(self):
         if self.api_error:
             self.api_error.check_error()
-        return

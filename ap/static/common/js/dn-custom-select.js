@@ -20,8 +20,11 @@ const initCustomSelect = () => {
             const option = $(op);
             const value = option.val();
             const text = option.text();
+            const title = option.attr('title');
             options += `
-                <div class="dn-custom-select--select--list--item" data-value="${value}">${text}</div>
+                <div class="dn-custom-select--select--list--item" data-value="${value}">
+                    <span class="${title ? 'underline-item' : ''}" ${title ? `title="${title}"` : ''}>${text}</span>
+                </div>
             `;
         })
 

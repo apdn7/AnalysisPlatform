@@ -32,7 +32,19 @@ const findIndex = (array, value) => {
 };
 
 const sortGraphs = (array, ColKey, sortedColIds) => {
+    let endCols = [];
+    array.forEach(data => {
+        const endCol = data[ColKey];
+        let singleColID = [endCol];
+        if (Array.from(endCol).length) {
+            // CHM there is an array of cols id
+            singleColID = endCol;
+        }
+        endCols = [...endCols, ...singleColID];
+    })
+    endCols = endCols.map(id => Number(id));
     sortedColIds = sortedColIds.map(col => Number(col.split('-')[1]));
+    const notOrderCols = [...array].filter(colDat => !sortedColIds.includes(colDat[ColKey]));
     const graph_sort_key = 'graph_sort_value';
     const removeIndexes = [];
     for (let i = 0; i < array.length; i++) {
@@ -49,7 +61,8 @@ const sortGraphs = (array, ColKey, sortedColIds) => {
         array.splice(idx, 1);
     }
 
-    return sortListByKey(array, graph_sort_key);
+    const sortedCols = sortListByKey(array, graph_sort_key);
+    return [...sortedCols, ...notOrderCols]
 };
 
 const getSelectedEndColIds = () => {
@@ -71,13 +84,17 @@ const generateSortOrderColumn = (sortList, graphArea) => {
         sortList = [...latestSortColIds];
     }
     let isReset = true;
+    if (!sortList.length) {
+        $(`${orderingEls.endColOrderTable + graphArea} tbody`).empty();
+    }
     for (const col of sortList) {
         const [procId, colId] = col.split('-');
         const cfgProc = procConfigs[procId];
         const dicCols = cfgProc.dicColumns;
+        if (!dicCols || dicCols && !dicCols[colId]) continue;
         const colShowName = dicCols[colId].shown_name;
         const columnName = dicCols[colId].name_en;
-        const dataType = dicCols[colId].data_type;
+        const dataType = dataTypeShort(dicCols[colId]);
         const procEnName = cfgProc.name_en;
         showColOrderingSetting(orderingEls.endColOrderTable + graphArea, colId, cfgProc.id, cfgProc.shown_name, procEnName, colShowName, columnName, dataType, isReset, graphArea);
         isReset = false;
@@ -88,9 +105,14 @@ const isDropDownChanged = () => {
     const originalSelected = getSelectedEndColIds().sort();
     return JSON.stringify(originalSelected) !== JSON.stringify([...sortedColIds].sort());
 }
+//
+const getSensorOrderFromGUI = (sortedIds=[]) => {
+    const selectedSensors = getSelectedEndColIds();
+    return sortedIds.filter(id => selectedSensors.includes(id));
+};
 
 const loadDataSortColumnsToModal = (graphAreaSuffix = '', force = false, callback = null) => {
-    sortedColIds = isDropDownChanged() ? getSelectedEndColIds() : sortedColIds;
+    sortedColIds = isDropDownChanged() ? getSensorOrderFromGUI(latestSortColIds) : sortedColIds;
     if (force) {
         const sortedCols = localStorage.getItem(sortedColumnsKey);
         if (sortedCols) {
@@ -159,13 +181,19 @@ const showSortColModal = (graphArea = null, callback) => {
 const initShowGraphCommon = () => {
     $('button.show-graph').on('click', () => {
         clearOnFlyFilter = true;
+        const useEMD = getParamFromUrl('jump_key');
         if (isDropDownChanged()) {
             sortedColIds = [];
         }
         if (!sortedColIds.length) {
-            sortedColIds = getSelectedEndColIds();
+            sortedColIds = getSensorOrderFromGUI(latestSortColIds);
         }
-        latestSortColIds = [...sortedColIds];
+        if (!useEMD && !isSaveColumnOrdering()) {
+            latestSortColIds = [...sortedColIds];
+        } else {
+            // filer checked sensor with latest records
+            latestSortColIds = getSensorOrderFromGUI(latestSortColIds);
+        }
     });
 };
 
@@ -175,7 +203,7 @@ const htmlEndColOrderRowTemplate = (priority, colId, procId, processName, procEn
         <td style="padding: 2px 5px 2px 15px;"> ${processName} </td>
         <td style="padding: 2px 5px 2px 15px;"> ${colName} </td>
         <td style="padding: 2px 5px 2px 15px;"> ${showName} </td>
-        <td class="position-relative" style="padding: 2px 5px 2px 15px;"> ${DataTypes[dataType].short} 
+        <td class="position-relative" style="padding: 2px 5px 2px 15px;"> ${dataType} 
             <span title="Move to top" onclick="handleGoToTopRow(this)" class="go-top-icon"><i class="fas fa-step-forward"></i></span>
             <span title="Move to bottom" onclick="handleGoToTopRow(this, 'bottom')" class="go-top-icon bottom"><i class="fas fa-backward-step"></i></span>
         </td>
@@ -226,3 +254,28 @@ const handleGoToTopRow = (e, type='top') => {
     const tableId = _this.parents('table').attr("id");
     updatePriority(`#${tableId}`)
 }
+
+const createOrUpdateSensorOrdering = (event, checkAll=false) => {
+    const selectedEndCols = getSelectedEndColIds();
+    if (!$(event.target).attr('name').includes('GET02_VALS_SELECT')) {
+        return;
+    }
+    // if click All input, use default ordering by GUI
+    if (checkAll) {
+        latestSortColIds = selectedEndCols;
+        return;
+    }
+
+    const columnID = $(event.target).val();
+    const procID = $(event.target).data('proc-id');
+    if (procID) {
+        const orderingID = `${procID}-${columnID}`;
+        const isAdd = $(event.target).is(':checked');
+        if (isAdd && !latestSortColIds.includes(orderingID) && selectedEndCols.includes(orderingID)) {
+            latestSortColIds.push(orderingID);
+        }
+        if (!isAdd) {
+            latestSortColIds = latestSortColIds.filter(col => col !== orderingID);
+        }
+    }
+};

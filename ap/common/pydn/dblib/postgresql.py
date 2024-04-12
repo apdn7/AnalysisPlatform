@@ -49,9 +49,7 @@ class PostgreSQL:
 
             if self.schema:
                 cur.execute(
-                    "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{}';".format(
-                        self.schema
-                    )
+                    "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{}';".format(self.schema),
                 )
                 if cur.rowcount:
                     cur.execute('SET search_path TO {0:s}'.format(self.schema))
@@ -66,7 +64,7 @@ class PostgreSQL:
                 self.schema = default_schema[0]
             cur.close()
             return self.connection
-        except:
+        except Exception:
             print('Cannot connect to db')
             print('>>> traceback <<<')
             traceback.print_exc()
@@ -156,7 +154,6 @@ class PostgreSQL:
         if not self._check_connection():
             return False
 
-        columns = []
         sql = 'select * from information_schema.columns '
         sql += "where table_schema = '{0}' and table_name = '{1}'".format(self.schema, tblname)
         cur = self.connection.cursor()
@@ -184,14 +181,14 @@ class PostgreSQL:
         return data_type[0] if data_type else None
 
     # list_table_columnsのうちcolumn nameだけ必要な場合
-    def list_table_colnames(self, tblname):
-        if not self._check_connection():
-            return False
-        columns = self.list_table_columns(tblname)
-        colnames = []
-        for column in columns:
-            colnames.append(column['name'])
-        return colnames
+    # def list_table_colnames(self, tblname):
+    #     if not self._check_connection():
+    #         return False
+    #     columns = self.list_table_columns(tblname)
+    #     colnames = []
+    #     for column in columns:
+    #         colnames.append(column['name'])
+    #     return colnames
 
     # 元はinsert_table関数
     def insert_table_records(self, tblname, names, values, add_comma_to_value=True):
@@ -256,10 +253,7 @@ class PostgreSQL:
         # columnsは取得したカラム名、rowはcolumnsをKeyとして持つ辞書型の配列
         # rowは取得したカラムに対応する値が順番にrow[0], row[1], ...として入っている
         # それをdictでまとめてrowsに取得
-        if row_is_dict:
-            rows = [dict(zip(cols, row)) for row in cur.fetchall()]
-        else:
-            rows = cur.fetchall()
+        rows = [dict(zip(cols, row)) for row in cur.fetchall()] if row_is_dict else cur.fetchall()
 
         cur.close()
         return cols, rows
@@ -298,9 +292,6 @@ class PostgreSQL:
         return res
 
     # 現時点ではSQLをそのまま実行するだけ
-    def select_table(self, sql):
-        return self.run_sql(sql)
-
     def get_timezone(self):
         try:
             _, rows = self.run_sql('show timezone')

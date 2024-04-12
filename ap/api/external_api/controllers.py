@@ -8,7 +8,17 @@ from ap.api.external_api.services import (
     cast_datetime_from_query_string,
     save_request_option,
 )
-from ap.common.constants import *
+from ap.common.constants import (
+    BOOKMARK_ID,
+    BOOKMARKS,
+    COLUMNS,
+    FUNCTION,
+    OPTION_ID,
+    PROCESS_ID,
+    PROCESSES,
+    REQ_ID,
+    PagePath,
+)
 from ap.common.services.api_exceptions import APIError
 from ap.common.services.http_content import json_dumps
 from ap.setting_module.models import (
@@ -128,7 +138,7 @@ def send_a_list_options():
         **{
             'option': request.data,
             'req_id': req_id,
-        }
+        },
     )
 
     option = save_request_option(cfg_option)

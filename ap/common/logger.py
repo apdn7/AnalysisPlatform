@@ -24,7 +24,6 @@ WRITE_BY_BUFFER = 1000
 WRITE_BY_TIME = 60
 # time interval (seconds) to rotate log file
 # default is 86400 (1 day)
-ROTATE_BY_TIME = 86400
 
 ROTATE_BY_SIZE = 50 * 1024 * 1024  # 50MB
 BACKUP_COUNT_FOR_SIZE_ROTATED = 1000
@@ -43,6 +42,9 @@ ZIP_FILENAME_FORMAT = '%Yw%W_%m%d'
 
 ZIP_LOG_INTERVAL = 60 * 60 * 24 * 7  # 7 day
 CLEAN_ZIP_INTERVAL = 60 * 60 * 24 * 7 * 4  # 4 weeks
+
+# loglevel for chardet encoding detect
+logging.getLogger('chardet.charsetprober').setLevel(logging.INFO)
 
 
 def shift_date_to_monday(dt: datetime) -> datetime:
@@ -121,11 +123,6 @@ class ZipFileHandler:
         return str(parent / zip_filename)
 
     @staticmethod
-    def get_current_datetime_from_zip_filename(zip_filename: str) -> datetime:
-        zip_filename_without_ext = get_filename_without_ext_from_abspath(zip_filename)
-        return datetime.strptime(zip_filename_without_ext, ZIP_FILENAME_FORMAT)
-
-    @staticmethod
     def zip_all_files(files: List[str], zip_filename: str):
         """Zip all the files into a zip"""
         if not files:
@@ -146,7 +143,7 @@ class ZipFileHandler:
         return current_date_monday - creation_date_monday >= timedelta(weeks=1)
 
     @staticmethod
-    def zip_all_previous_files(path: Path):
+    def zip_all_previous_files(path: Path, **kwargs):
         """Zip all previous files which in the same week into a single zip file"""
         # only run this if we have log files to be zipped
         current_date = datetime.now()
@@ -368,9 +365,7 @@ def log_execution(prefix='', logging_exception=True):
             log_args = str(args)
             log_kwargs = str(kwargs)
             try:
-                logger.info(
-                    '{0}{1}; START; {2}; {3}'.format(prefix, fn.__name__, log_args, log_kwargs)
-                )
+                logger.info(f'{prefix}{fn.__name__}; START; {log_args}; {log_kwargs}')
                 result = fn(*args, **kwargs)
             except Exception as e:
                 if logging_exception:
@@ -379,14 +374,14 @@ def log_execution(prefix='', logging_exception=True):
             finally:
                 end = perf_counter()
                 count_time = end - start
-                if count_time >= 1:
-                    log_func = logger.info
-                else:
-                    log_func = logger.debug
+                log_func = logger.info if count_time >= 1 else logger.debug
                 log_func(
                     '{0}Function: {1}; START: {2}; ExecTime: {3:.6f}s;'.format(
-                        prefix, fn.__name__, start_dt, end - start
-                    )
+                        prefix,
+                        fn.__name__,
+                        start_dt,
+                        end - start,
+                    ),
                 )
             return result
 
@@ -430,15 +425,17 @@ def log_execution_time(prefix='', logging_exception=True):
             finally:
                 end = perf_counter()
                 count_time = end - start
-                if count_time >= 1:
-                    log_func = logger.info
-                else:
-                    log_func = logger.debug
+                log_func = logger.info if count_time >= 1 else logger.debug
 
                 log_func(
                     '{0}Function: {1}; START: {2}; ExecTime: {3:.6f}s; {4}; {5}'.format(
-                        prefix, fn.__name__, start_dt, end - start, log_args, log_kwargs
-                    )
+                        prefix,
+                        fn.__name__,
+                        start_dt,
+                        end - start,
+                        log_args,
+                        log_kwargs,
+                    ),
                 )
             return result
 
@@ -462,7 +459,13 @@ def log_exec_time_inside_func(prefix, func_name, is_log_debug=False):
         end = perf_counter()
         end_dt = datetime.utcnow()
         message = '{0} Function Name: {1}; START: {2}; END: {3}; Execution Time: {4:.6f}s; {5}; {6}'.format(
-            prefix, func_name, start_dt, end_dt, end - start, msg, ''
+            prefix,
+            func_name,
+            start_dt,
+            end_dt,
+            end - start,
+            msg,
+            '',
         )
         if is_log_debug:
             logger.debug(message)

@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, send_from_directory
 from flask_babel import get_locale
 
 from ap.common.common_utils import resource_path
-from ap.common.constants import *
+from ap.common.constants import SEARCH_USAGE, SECTIONS, TILE_MASTER, AbsPath
 from ap.common.yaml_utils import TileInterfaceYaml, YamlConfig
 from ap.tile_interface.services.utils import section_infor_with_lang
 
@@ -34,9 +34,7 @@ def tile_interface(tile_type=None):
 
     sections = YamlConfig.get_node(dic_config, [SECTIONS])
     if sections:
-        sections = section_infor_with_lang(
-            sections, current_lang, is_usage=is_usage, master_info=master_info
-        )
+        sections = section_infor_with_lang(sections, current_lang, is_usage=is_usage, master_info=master_info)
 
     output_dict = {'title': 'Analysis Platform', 'sections': sections}
     if is_usage:

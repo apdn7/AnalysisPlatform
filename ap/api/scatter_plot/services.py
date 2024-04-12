@@ -7,25 +7,26 @@ from typing import List
 import numpy as np
 import pandas as pd
 from numpy import matrix
-from pandas import Index, RangeIndex, Series
+from pandas import DataFrame, Index, RangeIndex, Series
 
+from ap import max_graph_config
 from ap.api.categorical_plot.services import (
     gen_dic_param_terms,
     gen_time_conditions,
     produce_cyclic_terms,
 )
-from ap.api.common.services.services import convert_datetime_to_ct, get_filter_on_demand_data
-from ap.api.trace_data.services.time_series_chart import (
+from ap.api.common.services.show_graph_services import (
     calc_raw_common_scale_y,
     calc_scale_info,
+    convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
     gen_group_filter_list,
-    gen_unique_data,
     get_chart_info_detail,
     get_data_from_db,
-    get_procs_in_dic_param,
+    get_filter_on_demand_data,
     get_serial_and_datetime_data,
+    is_categorical_col,
     main_check_filter_detail_match_graph_data,
 )
 from ap.common.common_utils import gen_sql_label
@@ -35,7 +36,6 @@ from ap.common.constants import (
     ARRAY_X,
     ARRAY_Y,
     ARRAY_Z,
-    CAT_EXP_BOX,
     CHART_INFOS,
     CHART_TYPE,
     COLORS,
@@ -55,6 +55,7 @@ from ap.common.constants import (
     N_TOTAL,
     NOT_EXACT_MATCH_FILTER_IDS,
     ORIG_ARRAY_Z,
+    ROWID,
     SCALE_AUTO,
     SCALE_COLOR,
     SCALE_COMMON,
@@ -69,13 +70,11 @@ from ap.common.constants import (
     START_PROC,
     START_TM,
     SUMMARIES,
+    TIME_COL,
     TIME_MAX,
     TIME_MIN,
     TIME_NUMBERINGS,
     TIMES,
-    UNIQUE_CATEGORIES,
-    UNIQUE_COLOR,
-    UNIQUE_DIV,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
     V_LABEL,
@@ -84,10 +83,13 @@ from ap.common.constants import (
     X_THRESHOLD,
     Y_SERIAL,
     Y_THRESHOLD,
+    CacheType,
     ChartType,
     ColorOrder,
     DataType,
+    MaxGraphNumber,
 )
+from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.services.ana_inf_data import resample_preserve_min_med_max
 from ap.common.services.form_env import bind_dic_param_to_class
@@ -95,15 +97,14 @@ from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
 )
-from ap.common.services.sse import notify_progress
+from ap.common.services.sse import MessageAnnouncer
 from ap.common.services.statistics import calc_summary_elements
 from ap.common.sigificant_digit import get_fmt_from_array
-from ap.common.trace_data_log import *
+from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 from ap.setting_module.models import CfgProcessColumn
-from ap.trace_data.models import Cycle
+from ap.trace_data.schemas import DicParam
 
 DATA_COUNT_COL = '__data_count_col__'
-MAX_PLOT = 49
 MATRIX = 7
 SCATTER_PLOT_TOTAL_POINT = 50_000
 SCATTER_PLOT_MAX_POINT = 10_000
@@ -114,24 +115,23 @@ TOTAL_VIOLIN_PLOT = 200
 @log_execution_time('[SCATTER PLOT]')
 @request_timeout_handling()
 @abort_process_handler()
-@notify_progress(60)
+@MessageAnnouncer.notify_progress(60)
 @trace_log(
     (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
     (EventType.SCP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True)
-def gen_scatter_plot(dic_param):
+@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     """tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
     """
     recent_flg = False
     for key in dic_param[COMMON]:
-        if str(key).startswith(VAR_TRACE_TIME):
-            if dic_param[COMMON][key] == 'recent':
-                recent_flg = True
-                break
+        if str(key).startswith(VAR_TRACE_TIME) and dic_param[COMMON][key] == 'recent':
+            recent_flg = True
+            break
 
     is_data_limited = False
     # for caching
@@ -156,7 +156,12 @@ def gen_scatter_plot(dic_param):
         terms = gen_dic_param_terms(dic_param)
 
     # get x,y,color, levels, cat_div information
-    orig_graph_param = bind_dic_param_to_class(dic_param)
+    orig_graph_param = bind_dic_param_to_class(
+        root_graph_param.dic_proc_cfgs,
+        root_graph_param.trace_graph,
+        root_graph_param.dic_card_orders,
+        dic_param,
+    )
     threshold_filter_detail_ids = orig_graph_param.common.threshold_boxes
     scatter_xy_ids = []
     scatter_xy_names = []
@@ -179,15 +184,15 @@ def gen_scatter_plot(dic_param):
     cat_div_id = orig_graph_param.common.div_by_cat
     level_ids = cat_exp if cat_exp else orig_graph_param.common.cat_exp
     col_ids = [col for col in list(set([x_id, y_id, color_id, cat_div_id] + level_ids)) if col]
-    dic_cols = {cfg_col.id: cfg_col for cfg_col in CfgProcessColumn.get_by_ids(col_ids)}
+    dic_cols = {cfg_col.id: cfg_col for cfg_col in root_graph_param.get_col_cfgs(col_ids)}
 
     color_label = gen_sql_label(color_id, dic_cols[color_id].column_name) if color_id else None
     level_labels = [gen_sql_label(id, dic_cols[id].column_name) for id in level_ids]
-    cat_div_label = (
-        gen_sql_label(cat_div_id, dic_cols[cat_div_id].column_name) if cat_div_id else None
-    )
+    cat_div_label = gen_sql_label(cat_div_id, dic_cols[cat_div_id].column_name) if cat_div_id else None
 
-    chart_type = get_chart_type(x_id, y_id, dic_cols)
+    chart_type = None
+    x_category = False
+    y_category = False
     if orig_graph_param.common.compare_type == 'directTerm':
         matched_filter_ids = []
         unmatched_filter_ids = []
@@ -197,48 +202,59 @@ def gen_scatter_plot(dic_param):
 
         dic_dfs = {}
         terms = gen_time_conditions(dic_param)
-        df = None
-        for term in terms:
-            # create dic_param for each term from original dic_param
-            term_dic_param = deepcopy(dic_param)
-            term_dic_param[COMMON][START_DATE] = term[START_DATE]
-            term_dic_param[COMMON][START_TM] = term[START_TM]
-            term_dic_param[COMMON][END_DATE] = term[END_DATE]
-            term_dic_param[COMMON][END_TM] = term[END_TM]
-            h_keys = (term[START_DATE], term[START_TM], term[END_DATE], term[END_TM])
+        if df is None:
+            for term in terms:
+                # create dic_param for each term from original dic_param
+                term_dic_param = deepcopy(dic_param)
+                term_dic_param[COMMON][START_DATE] = term[START_DATE]
+                term_dic_param[COMMON][START_TM] = term[START_TM]
+                term_dic_param[COMMON][END_DATE] = term[END_DATE]
+                term_dic_param[COMMON][END_TM] = term[END_TM]
+                h_keys = (term[START_DATE], term[START_TM], term[END_DATE], term[END_TM])
 
-            # query data and gen df
-            df_term, graph_param, record_number, _is_res_limited = gen_df(
-                term_dic_param, dic_cat_filters, _use_expired_cache=use_expired_cache
-            )
+                # query data and gen df
+                df_term, graph_param, record_number, _is_res_limited = gen_df(
+                    orig_graph_param,
+                    term_dic_param,
+                    dic_cat_filters,
+                    _use_expired_cache=use_expired_cache,
+                )
 
-            convert_datetime_to_ct(df_term, graph_param)
+                convert_datetime_to_ct(df_term, graph_param)
 
-            if df is None:
-                df = df_term.copy()
-            else:
-                df = pd.concat([df, df_term])
+                df = df_term.copy() if df is None else pd.concat([df, df_term])
 
-            if _is_res_limited is None:
-                unique_serial = None
-            if unique_serial is not None:
-                unique_serial += _is_res_limited
+                chart_type, x_category, y_category = get_chart_type(df, x_id, y_id, dic_cols)
 
-            # check filter match or not ( for GUI show )
-            filter_ids = main_check_filter_detail_match_graph_data(graph_param, df_term)
+                if _is_res_limited is None:
+                    unique_serial = None
+                if unique_serial is not None:
+                    unique_serial += _is_res_limited
 
-            # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids, actual records
-            actual_record_number += record_number
-            matched_filter_ids += filter_ids[0]
-            unmatched_filter_ids += filter_ids[1]
-            not_exact_match_filter_ids += filter_ids[2]
+                # check filter match or not ( for GUI show )
+                filter_ids = main_check_filter_detail_match_graph_data(graph_param, df_term)
 
-            dic_dfs[h_keys] = df_term
+                # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids, actual records
+                actual_record_number += record_number
+                matched_filter_ids += filter_ids[0]
+                unmatched_filter_ids += filter_ids[1]
+                not_exact_match_filter_ids += filter_ids[2]
+
+                dic_dfs[h_keys] = df_term
+        else:
+            for idx, term in enumerate(terms):
+                h_keys = (term[START_DATE], term[START_TM], term[END_DATE], term[END_TM])
+                dic_dfs[h_keys] = pd.DataFrame(df.iloc[idx]).T
+
+            graph_param = root_graph_param
+            actual_record_number = dic_param.get(ACTUAL_RECORD_NUMBER)
+            unique_serial = dic_param.get(UNIQUE_SERIAL)
 
         dic_param = filter_cat_dict_common(df, dic_param, cat_exp, [], graph_param)
 
         # gen scatters
         output_graphs, output_times = gen_scatter_by_direct_term(
+            root_graph_param.dic_proc_cfgs,
             matrix_col,
             dic_dfs,
             x_proc_id,
@@ -251,11 +267,21 @@ def gen_scatter_plot(dic_param):
         )
     else:
         # query data and gen df
-        df, graph_param, actual_record_number, unique_serial = gen_df(
-            dic_param, dic_cat_filters, _use_expired_cache=use_expired_cache
-        )
+        if df is None:
+            df, graph_param, actual_record_number, unique_serial = gen_df(
+                root_graph_param,
+                dic_param,
+                dic_cat_filters,
+                _use_expired_cache=use_expired_cache,
+            )
+        else:
+            graph_param = root_graph_param
+            actual_record_number = dic_param.get(ACTUAL_RECORD_NUMBER)
+            unique_serial = dic_param.get(UNIQUE_SERIAL)
 
         convert_datetime_to_ct(df, graph_param)
+
+        chart_type, x_category, y_category = get_chart_type(df, x_id, y_id, dic_cols)
 
         dic_param = filter_cat_dict_common(df, dic_param, cat_exp, [], graph_param)
 
@@ -268,6 +294,7 @@ def gen_scatter_plot(dic_param):
 
         if orig_graph_param.common.div_by_data_number:
             output_graphs, output_times = gen_scatter_data_count(
+                root_graph_param.dic_proc_cfgs,
                 matrix_col,
                 df,
                 x_proc_id,
@@ -282,6 +309,7 @@ def gen_scatter_plot(dic_param):
             )
         elif orig_graph_param.common.cyclic_div_num:
             output_graphs, output_times = gen_scatter_by_cyclic(
+                root_graph_param.dic_proc_cfgs,
                 matrix_col,
                 df,
                 x_proc_id,
@@ -295,6 +323,7 @@ def gen_scatter_plot(dic_param):
             )
         else:
             output_graphs, output_times = gen_scatter_cat_div(
+                root_graph_param.dic_proc_cfgs,
                 matrix_col,
                 df,
                 x_proc_id,
@@ -312,8 +341,9 @@ def gen_scatter_plot(dic_param):
         return dic_param
 
     # get proc configs
-    dic_proc_cfgs = get_procs_in_dic_param(orig_graph_param)
+    dic_proc_cfgs = root_graph_param.dic_proc_cfgs
 
+    color_scale = []
     # chart type
     series_keys = [ARRAY_X, ARRAY_Y, COLORS, TIMES]
     dic_param[CHART_TYPE] = chart_type
@@ -341,9 +371,7 @@ def gen_scatter_plot(dic_param):
             array_z = array_z[sorted_cols]
 
             missing_data = [None] * len(missing_y)
-            df_missing = pd.DataFrame(
-                {col: missing_data for col in array_z.columns}, index=missing_y
-            )
+            df_missing = pd.DataFrame({col: missing_data for col in array_z.columns}, index=missing_y)
             array_z = pd.concat([array_z, df_missing])
             array_z.sort_index(inplace=True)
 
@@ -375,7 +403,6 @@ def gen_scatter_plot(dic_param):
         # gen scatter matrix
         n_graph = len(output_graphs) or 1
         data_per_graph = math.floor(min(SCATTER_PLOT_TOTAL_POINT / n_graph, SCATTER_PLOT_MAX_POINT))
-        color_scale = []
         for graph, (x_times, y_times) in zip(output_graphs, output_times):
             # limit and sort by color
             df_graph, _is_data_limited = gen_df_limit_data(graph, series_keys, data_per_graph)
@@ -385,8 +412,10 @@ def gen_scatter_plot(dic_param):
             if graph[X_SERIAL]:
                 # serial_col = graph[X_SERIAL][0]['col_name']
                 df_graph['x_serial_dat'] = graph[X_SERIAL][0]['data'][:data_per_graph]
-            # to sort serial and cycle_ids before assign again
-            df_graph[CYCLE_IDS] = graph[CYCLE_IDS][:data_per_graph]
+
+            if graph[CYCLE_IDS]:
+                # to sort serial and cycle_ids before assign again
+                df_graph[CYCLE_IDS] = graph[CYCLE_IDS][:data_per_graph]
 
             # sort by color (high frequency first)
             color_col = ELAPSED_TIME
@@ -415,24 +444,28 @@ def gen_scatter_plot(dic_param):
 
             # chart infos
             x_chart_infos, _ = get_chart_info_detail(
-                x_times or graph[TIMES][:data_per_graph], x_id, threshold_filter_detail_ids
+                root_graph_param.dic_proc_cfgs,
+                x_times or graph[TIMES][:data_per_graph],
+                x_id,
+                threshold_filter_detail_ids,
             )
             graph[X_THRESHOLD] = x_chart_infos[-1] if x_chart_infos else None
             y_chart_infos, _ = get_chart_info_detail(
-                y_times or graph[TIMES][:data_per_graph], y_id, threshold_filter_detail_ids
+                root_graph_param.dic_proc_cfgs,
+                y_times or graph[TIMES][:data_per_graph],
+                y_id,
+                threshold_filter_detail_ids,
             )
             graph[Y_THRESHOLD] = y_chart_infos[-1] if y_chart_infos else None
 
             # to show plotview
             graph['end_col_id'] = x_id
             graph['end_proc_id'] = x_proc_id
-            dic_param['color_fmt'] = (
-                get_fmt_from_array(df[color_label].to_list()) if color_label else ''
-            )
+            dic_param['color_fmt'] = get_fmt_from_array(df[color_label].to_list()) if color_label else ''
     else:
         group_by_cols = []
         unique_data_cols = [cat_div_id, color_id]
-        if DataType[dic_cols[x_id].data_type] is DataType.TEXT:
+        if x_category:
             str_col = ARRAY_X
             number_col = ARRAY_Y
             group_by_cols.append(str_col)
@@ -449,10 +482,12 @@ def gen_scatter_plot(dic_param):
             if color_id and color_id != y_id:
                 group_by_cols.append(COLORS)
 
-        number_of_graph = min(len(output_graphs), MAX_PLOT) or 1
+        number_of_graph = min(len(output_graphs), max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name]) or 1
         limit_violin_per_graph = math.floor(TOTAL_VIOLIN_PLOT / number_of_graph)
         most_vals, is_reduce_violin_number = get_most_common_in_graphs(
-            output_graphs, group_by_cols, limit_violin_per_graph
+            output_graphs,
+            group_by_cols,
+            limit_violin_per_graph,
         )
         number_of_violin = (len(most_vals) * number_of_graph) or 1
         max_n_per_violin = math.floor(10_000 / number_of_violin)
@@ -479,15 +514,14 @@ def gen_scatter_plot(dic_param):
             dic_summaries = {}
             str_col_vals = []
             num_col_vals = []
-            for key, df_sub in df_graph.groupby(group_by_cols):
+            for _key, df_sub in df_graph.groupby(group_by_cols):
+                key = _key
                 if isinstance(key, (list, tuple)):
-                    key = '|'.join(key)
+                    key = '|'.join([str(v) for v in key])
 
                 vals = df_sub[number_col].tolist()
                 try:
-                    dic_summaries[key] = calc_summary_elements(
-                        {ARRAY_X: df_sub[TIMES].tolist(), ARRAY_Y: vals}
-                    )
+                    dic_summaries[key] = calc_summary_elements({ARRAY_X: df_sub[TIMES].tolist(), ARRAY_Y: vals})
                 except Exception:
                     dic_summaries[key] = {'count': {}, 'basic_statistics': {}, 'non_parametric': {}}
 
@@ -525,12 +559,18 @@ def gen_scatter_plot(dic_param):
 
             if number_col == ARRAY_X:
                 x_chart_infos, _ = get_chart_info_detail(
-                    x_times or graph[TIMES], x_id, threshold_filter_detail_ids
+                    root_graph_param.dic_proc_cfgs,
+                    x_times or graph[TIMES],
+                    x_id,
+                    threshold_filter_detail_ids,
                 )
                 graph[X_THRESHOLD] = x_chart_infos[-1] if x_chart_infos else None
             else:
                 y_chart_infos, _ = get_chart_info_detail(
-                    y_times or graph[TIMES], y_id, threshold_filter_detail_ids
+                    root_graph_param.dic_proc_cfgs,
+                    y_times or graph[TIMES],
+                    y_id,
+                    threshold_filter_detail_ids,
                 )
                 graph[Y_THRESHOLD] = y_chart_infos[-1] if y_chart_infos else None
 
@@ -567,13 +607,11 @@ def gen_scatter_plot(dic_param):
     dic_param['color_type'] = dic_cols[color_id].data_type if color_id else None
     dic_param['div_name'] = dic_cols[cat_div_id].shown_name if cat_div_id else None
     dic_param['div_data_type'] = dic_cols[cat_div_id].data_type if cat_div_id else None
-    dic_param['level_names'] = (
-        [dic_cols[level_id].shown_name for level_id in level_ids] if level_ids else None
-    )
+    dic_param['level_names'] = [dic_cols[level_id].shown_name for level_id in level_ids] if level_ids else None
     dic_param['is_show_v_label'] = is_show_v_label
     dic_param['is_show_h_label'] = is_show_h_label
     dic_param['is_show_first_h_label'] = is_show_first_h_label
-    dic_param['is_filtered'] = True if dic_cat_filters else False
+    dic_param['is_filtered'] = bool(dic_cat_filters)
     dic_param['x_fmt'] = get_fmt_from_array(df[x_label].to_list())
     dic_param['y_fmt'] = get_fmt_from_array(df[y_label].to_list())
 
@@ -584,35 +622,53 @@ def gen_scatter_plot(dic_param):
     # min, max color
     # TODO: maybe we need to get chart infor for color to get ymax ymin of all chart infos
     if color_order is ColorOrder.DATA:
-        dic_scale_color = calc_scale(df, color_id, color_label, dic_cols)
+        dic_scale_color = calc_scale(
+            root_graph_param.dic_proc_cfgs,
+            df,
+            color_id,
+            color_label,
+            dic_cols,
+            force_outlier=True,
+        )
     else:
-        df_color_scale = pd.DataFrame({color_col: color_scale})
-        dic_scale_color = calc_scale(df_color_scale, None, color_col, dic_cols)
+        df_color_scale = pd.DataFrame({color_label: color_scale})
+        dic_scale_color = calc_scale(
+            root_graph_param.dic_proc_cfgs,
+            df_color_scale,
+            None,
+            color_label,
+            dic_cols,
+            force_outlier=True,
+        )
 
     dic_param[SCALE_COLOR] = dic_scale_color
 
     # y scale
-    y_chart_configs = [graph[Y_THRESHOLD] for graph in output_graphs if graph.get(Y_THRESHOLD)]
-    dic_scale_y = calc_scale(df, y_id, y_label, dic_cols, y_chart_configs)
-    dic_param[SCALE_Y] = dic_scale_y
+    if not y_category:
+        y_chart_configs = [graph[Y_THRESHOLD] for graph in output_graphs if graph.get(Y_THRESHOLD)]
+        dic_scale_y = calc_scale(root_graph_param.dic_proc_cfgs, df, y_id, y_label, dic_cols, y_chart_configs)
+        dic_param[SCALE_Y] = dic_scale_y
 
     # x scale
-    x_chart_configs = [graph[X_THRESHOLD] for graph in output_graphs if graph.get(X_THRESHOLD)]
-    dic_scale_x = calc_scale(df, x_id, x_label, dic_cols, x_chart_configs)
-    dic_param[SCALE_X] = dic_scale_x
+    if not x_category:
+        x_chart_configs = [graph[X_THRESHOLD] for graph in output_graphs if graph.get(X_THRESHOLD)]
+        dic_scale_x = calc_scale(root_graph_param.dic_proc_cfgs, df, x_id, x_label, dic_cols, x_chart_configs)
+        dic_param[SCALE_X] = dic_scale_x
 
     # output graphs
     dic_param[ARRAY_PLOTDATA] = [convert_series_to_list(graph) for graph in output_graphs]
-    if chart_type != ChartType.SCATTER.value and Cycle.id.key in df.columns:
-        dic_param[CYCLE_IDS] = df.id.tolist()
+    if chart_type != ChartType.SCATTER.value and ROWID in df.columns:
+        dic_param[CYCLE_IDS] = df.rowid.tolist()
     else:
         dic_param[CYCLE_IDS] = []
 
     dic_param[IS_DATA_LIMITED] = is_data_limited
+    dic_param['is_x_category'] = x_category
+    dic_param['is_y_category'] = y_category
+    dic_param['x_data_type'] = dic_cols[x_id].data_type
+    dic_param['y_data_type'] = dic_cols[y_id].data_type
 
-    serial_data, datetime_data, start_proc_name = get_serial_and_datetime_data(
-        df, graph_param, dic_proc_cfgs
-    )
+    serial_data, datetime_data, start_proc_name = get_serial_and_datetime_data(df, graph_param, dic_proc_cfgs)
     dic_param[SERIALS] = serial_data
     dic_param[DATETIME] = datetime_data
     dic_param[START_PROC] = start_proc_name
@@ -624,7 +680,7 @@ def gen_scatter_plot(dic_param):
 
 @log_execution_time()
 @abort_process_handler()
-def calc_scale(df, col_id, col_label, dic_cols, chart_configs=None):
+def calc_scale(dic_proc_cfgs, df, col_id, col_label, dic_cols, chart_configs=None, force_outlier=False):
     if not col_id and not col_label:
         return None
 
@@ -642,7 +698,7 @@ def calc_scale(df, col_id, col_label, dic_cols, chart_configs=None):
         plot = {
             END_PROC_ID: cfg_col.process_id,
             END_COL_ID: col_id,
-            ARRAY_X: df[Cycle.time.key],
+            ARRAY_X: df[TIME_COL],
             ARRAY_Y: df[col_label],
         }
     else:
@@ -652,7 +708,7 @@ def calc_scale(df, col_id, col_label, dic_cols, chart_configs=None):
         plot[CHART_INFOS] = chart_configs
 
     min_max_list, all_min, all_max = calc_raw_common_scale_y([plot])
-    calc_scale_info([plot], min_max_list, all_min, all_max)
+    calc_scale_info(dic_proc_cfgs, [plot], min_max_list, all_min, all_max, force_outlier=force_outlier)
 
     dic_scale = {
         scale_name: plot.get(scale_name)
@@ -673,9 +729,14 @@ def convert_series_to_list(graph):
 
 @log_execution_time()
 @abort_process_handler()
-def gen_df(dic_param, dic_filter, _use_expired_cache=False):
+def gen_df(root_graph_param: DicParam, dic_param, dic_filter, _use_expired_cache=False):
     # bind dic_param
-    graph_param = bind_dic_param_to_class(dic_param)
+    graph_param = bind_dic_param_to_class(
+        root_graph_param.dic_proc_cfgs,
+        root_graph_param.trace_graph,
+        root_graph_param.dic_card_orders,
+        dic_param,
+    )
 
     # add start proc
     # graph_param.add_start_proc_to_array_formval()
@@ -685,9 +746,7 @@ def gen_df(dic_param, dic_filter, _use_expired_cache=False):
     # add level
     # graph_param.add_cat_exp_to_array_formval()
     # add color, cat_div
-    graph_param.add_column_to_array_formval(
-        [graph_param.common.color_var, graph_param.common.div_by_cat]
-    )
+    graph_param.add_column_to_array_formval([graph_param.common.color_var, graph_param.common.div_by_cat])
 
     # get serials
     # dic_proc_cfgs = get_procs_in_dic_param(graph_param)
@@ -702,23 +761,27 @@ def gen_df(dic_param, dic_filter, _use_expired_cache=False):
 
     # get data from database
     df, actual_record_number, is_res_limited = get_data_from_db(
-        graph_param, dic_filter, use_expired_cache=_use_expired_cache
+        graph_param,
+        dic_filter,
+        use_expired_cache=_use_expired_cache,
     )
     return df, graph_param, actual_record_number, is_res_limited
 
 
 @log_execution_time()
 @abort_process_handler()
-def get_chart_type(x_id, y_id, dic_cols):
-    number_types = (DataType.INTEGER, DataType.REAL, DataType.DATETIME)
-    x_type = DataType[dic_cols[x_id].data_type]
-    y_type = DataType[dic_cols[y_id].data_type]
-    if x_type in number_types and y_type in number_types:
-        return ChartType.SCATTER.value
-    elif x_type is DataType.TEXT and y_type is DataType.TEXT:
-        return ChartType.HEATMAP.value
+def get_chart_type(df: DataFrame, x_id, y_id, dic_cols):
+    cfg_col_x = dic_cols[x_id]
+    cfg_col_y = dic_cols[y_id]
+    x_category = is_categorical_col(cfg_col_x)
+    y_category = is_categorical_col(cfg_col_y)
+
+    if x_category and y_category:
+        return ChartType.HEATMAP.value, x_category, y_category
+    elif not x_category and not y_category:
+        return ChartType.SCATTER.value, x_category, y_category
     else:
-        return ChartType.VIOLIN.value
+        return ChartType.VIOLIN.value, x_category, y_category
 
 
 @log_execution_time()
@@ -761,17 +824,15 @@ def group_by_df(
 
     # sort desc
     if sort_key_func:
-        sort_func = lambda x: sort_key_func(x[0])
-    else:
-        all_numeric = all([str(key).isnumeric() for key, df_group in df_groups])
-        if all_numeric:
-            sort_func = lambda x: int(x[0])
-        else:
-            sort_func = lambda x: str(x[0])
 
-    groups = sorted(
-        [(key, df_group) for key, df_group in df_groups], key=sort_func, reverse=reverse
-    )
+        def sort_func(x):
+            return sort_key_func(x[0])
+
+    else:
+        all_numeric = all(str(key).isnumeric() for key, df_group in df_groups)
+        sort_func = (lambda x: int(x[0])) if all_numeric else lambda x: str(x[0])
+
+    groups = sorted(df_groups, key=sort_func, reverse=reverse)
     groups = groups[:max_group]
     if get_from_last:
         groups.reverse()
@@ -832,6 +893,7 @@ def calc_elapsed_times(df_data, time_col):
 @log_execution_time()
 @abort_process_handler()
 def gen_scatter_data_count(
+    dic_proc_cfgs,
     matrix_col,
     df: DataFrame,
     x_proc_id,
@@ -861,8 +923,8 @@ def gen_scatter_data_count(
         levels = []
 
     # time column
-    time_col = Cycle.time.key
-    # time_col = [col for col in df.columns if col.startswith(Cycle.time.key)][0]
+    time_col = TIME_COL
+    # time_col = [col for col in df.columns if col.startswith(TIME_COL)][0]
 
     # remove missing data
     df = drop_missing_data(df, [x, y, color] + levels)
@@ -872,17 +934,17 @@ def gen_scatter_data_count(
     v_group_cols = [col for col in levels if col and col != h_group_col]
 
     # graph number is depend on facet
-    max_graph = matrix_col if v_group_cols else MAX_PLOT
+    max_graph = matrix_col if v_group_cols else max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name]
 
     # facet
     dic_groups = {}
     dic_temp_groups = group_by_df(df, v_group_cols)
-    row_count = math.ceil(MAX_PLOT / matrix_col)
+    row_count = math.ceil(max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name] / matrix_col)
     facet_keys = [key for key, _ in Counter(dic_temp_groups.keys()).most_common(row_count)]
-    for key, df_group in dic_temp_groups.items():
+    for key, _df_group in dic_temp_groups.items():
         if key not in facet_keys:
             continue
-
+        df_group = _df_group
         df_group = split_data_by_number(df_group, data_count_div)
         df_group = reduce_data_by_number(df_group, max_graph, recent_flg)
 
@@ -898,11 +960,8 @@ def gen_scatter_data_count(
         facet_keys.append(key)
 
     # serials
-    x_serial_cols = CfgProcessColumn.get_serials(x_proc_id)
-    if y_proc_id == x_proc_id:
-        y_serial_cols = None
-    else:
-        y_serial_cols = CfgProcessColumn.get_serials(y_proc_id)
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
+    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
 
     output_graphs = []
     output_times = []
@@ -910,7 +969,8 @@ def gen_scatter_data_count(
         if v_keys not in facet_keys:
             continue
 
-        for idx, (h_key, df_data) in enumerate(dic_group.items()):
+        for idx, (_h_key, df_data) in enumerate(dic_group.items()):
+            h_key = _h_key
             if recent_flg:
                 h_key = idx
 
@@ -920,21 +980,17 @@ def gen_scatter_data_count(
             # elapsed_times = calc_elapsed_times(df_data, time_col)
 
             # v_label : name ( not id )
-            dic_data = gen_dic_graphs(
-                df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_key=h_key
-            )
+            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_key=h_key)
 
             # serial
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
             dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
-            if Cycle.id.key in df_data.columns and chart_type == ChartType.SCATTER.value:
-                dic_data[CYCLE_IDS] = df_data.id.tolist()
+            if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
+                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
             else:
                 dic_data[CYCLE_IDS] = []
 
-            output_times.append(
-                (get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id))
-            )
+            output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
             output_graphs.append(dic_data)
 
     return output_graphs, output_times
@@ -943,7 +999,7 @@ def gen_scatter_data_count(
 @log_execution_time()
 @abort_process_handler()
 def get_proc_times(df, proc_id):
-    col_name = f'{Cycle.time.key}_{proc_id}'
+    col_name = f'{TIME_COL}_{proc_id}'
     if col_name in df.columns:
         return df[col_name].tolist()
 
@@ -953,6 +1009,7 @@ def get_proc_times(df, proc_id):
 @log_execution_time()
 @abort_process_handler()
 def gen_scatter_by_cyclic(
+    dic_proc_cfgs,
     matrix_col,
     df: DataFrame,
     x_proc_id,
@@ -981,14 +1038,14 @@ def gen_scatter_by_cyclic(
         levels = []
 
     # time column
-    time_col = Cycle.time.key
-    # time_col = [col for col in df.columns if col.startswith(Cycle.time.key)][0]
+    time_col = TIME_COL
+    # time_col = [col for col in df.columns if col.startswith(TIME_COL)][0]
 
     # remove missing data
     df = drop_missing_data(df, [x, y, color] + levels)
 
     dic_df_chunks = {}
-    df.set_index(Cycle.time.key, inplace=True, drop=False)
+    df.set_index(TIME_COL, inplace=True, drop=False)
     for term_id, term in enumerate(terms):
         start_dt = term['start_dt']
         end_dt = term['end_dt']
@@ -998,25 +1055,19 @@ def gen_scatter_by_cyclic(
     v_group_cols = [col for col in levels if col]
 
     # graph number is depend on facet
-    max_graph = matrix_col if v_group_cols else MAX_PLOT
+    max_graph = matrix_col if v_group_cols else max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name]
     dic_groups = split_df_by_time_range(dic_df_chunks, max_graph)
 
     # facet
     dic_groups = {key: group_by_df(df_group, v_group_cols) for key, df_group in dic_groups.items()}
-    row_count = math.ceil(MAX_PLOT / matrix_col)
+    row_count = math.ceil(max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name] / matrix_col)
     facet_keys = [
-        key
-        for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(
-            row_count
-        )
+        key for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(row_count)
     ]
 
     # serials
-    x_serial_cols = CfgProcessColumn.get_serials(x_proc_id)
-    if y_proc_id == x_proc_id:
-        y_serial_cols = None
-    else:
-        y_serial_cols = CfgProcessColumn.get_serials(y_proc_id)
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
+    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
 
     output_graphs = []
     output_times = []
@@ -1036,14 +1087,12 @@ def gen_scatter_by_cyclic(
             # serial
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
             dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
-            if Cycle.id.key in df_data.columns and chart_type == ChartType.SCATTER.value:
-                dic_data[CYCLE_IDS] = df_data.id.tolist()
+            if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
+                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
             else:
                 dic_data[CYCLE_IDS] = []
 
-            output_times.append(
-                (get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id))
-            )
+            output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
             output_graphs.append(dic_data)
 
     return output_graphs, output_times
@@ -1052,6 +1101,7 @@ def gen_scatter_by_cyclic(
 @log_execution_time()
 @abort_process_handler()
 def gen_scatter_cat_div(
+    dic_proc_cfgs,
     matrix_col,
     df: DataFrame,
     x_proc_id,
@@ -1080,39 +1130,32 @@ def gen_scatter_cat_div(
         levels = []
 
     # time column
-    time_col = Cycle.time.key
-    # time_col = [col for col in df.columns if col.startswith(Cycle.time.key)][0]
+    time_col = TIME_COL
+    # time_col = [col for col in df.columns if col.startswith(TIME_COL)][0]
 
     # remove missing data
     df = drop_missing_data(df, [x, y, cat_div, color] + levels)
 
     h_group_col = cat_div
-    if not h_group_col:
-        if len(levels) > 1:
-            h_group_col = levels[-1]
+    if not h_group_col and len(levels) > 1:
+        h_group_col = levels[-1]
 
     v_group_cols = [col for col in levels if col and col != h_group_col]
 
     # graph number is depend on facet
-    max_graph = matrix_col if v_group_cols else MAX_PLOT
+    max_graph = matrix_col if v_group_cols else max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name]
     dic_groups = group_by_df(df, h_group_col, max_graph)
 
     # facet
     dic_groups = {key: group_by_df(df_group, v_group_cols) for key, df_group in dic_groups.items()}
-    row_count = math.ceil(MAX_PLOT / matrix_col)
+    row_count = math.ceil(max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name] / matrix_col)
     facet_keys = [
-        key
-        for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(
-            row_count
-        )
+        key for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(row_count)
     ]
 
     # serials
-    x_serial_cols = CfgProcessColumn.get_serials(x_proc_id)
-    if y_proc_id == x_proc_id:
-        y_serial_cols = None
-    else:
-        y_serial_cols = CfgProcessColumn.get_serials(y_proc_id)
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
+    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
 
     output_graphs = []
     output_times = []
@@ -1132,14 +1175,12 @@ def gen_scatter_cat_div(
             # serial
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
             dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
-            if Cycle.id.key in df_data.columns and chart_type == ChartType.SCATTER.value:
-                dic_data[CYCLE_IDS] = df_data.id.tolist()
+            if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
+                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
             else:
                 dic_data[CYCLE_IDS] = []
 
-            output_times.append(
-                (get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id))
-            )
+            output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
             output_graphs.append(dic_data)
 
     return output_graphs, output_times
@@ -1148,7 +1189,16 @@ def gen_scatter_cat_div(
 @log_execution_time()
 @abort_process_handler()
 def gen_scatter_by_direct_term(
-    matrix_col, dic_df_chunks, x_proc_id, y_proc_id, x, y, color=None, levels=None, chart_type=None
+    dic_proc_cfgs,
+    matrix_col,
+    dic_df_chunks,
+    x_proc_id,
+    y_proc_id,
+    x,
+    y,
+    color=None,
+    levels=None,
+    chart_type=None,
 ):
     """
     split by terms
@@ -1166,7 +1216,7 @@ def gen_scatter_by_direct_term(
         levels = []
 
     # time column
-    time_col = Cycle.time.key
+    time_col = TIME_COL
 
     # remove missing data
     for key, df in dic_df_chunks.items():
@@ -1175,24 +1225,18 @@ def gen_scatter_by_direct_term(
     v_group_cols = [col for col in levels if col]
 
     # graph number is depend on facet
-    max_graph = matrix_col if v_group_cols else MAX_PLOT
+    max_graph = matrix_col if v_group_cols else max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name]
     dic_groups = split_df_by_time_range(dic_df_chunks, max_graph)
 
     # facet
     dic_groups = {key: group_by_df(df_group, v_group_cols) for key, df_group in dic_groups.items()}
-    row_count = math.ceil(MAX_PLOT / matrix_col)
+    row_count = math.ceil(max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name] / matrix_col)
     facet_keys = [
-        key
-        for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(
-            row_count
-        )
+        key for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(row_count)
     ]
     # serials
-    x_serial_cols = CfgProcessColumn.get_serials(x_proc_id)
-    if y_proc_id == x_proc_id:
-        y_serial_cols = None
-    else:
-        y_serial_cols = CfgProcessColumn.get_serials(y_proc_id)
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
+    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
 
     output_graphs = []
     output_times = []
@@ -1212,14 +1256,12 @@ def gen_scatter_by_direct_term(
             # serial
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
             dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
-            if Cycle.id.key in df_data.columns and chart_type == ChartType.SCATTER.value:
-                dic_data[CYCLE_IDS] = df_data.id.tolist()
+            if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
+                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
             else:
                 dic_data[CYCLE_IDS] = []
 
-            output_times.append(
-                (get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id))
-            )
+            output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
             output_graphs.append(dic_data)
 
     return output_graphs, output_times
@@ -1281,12 +1323,7 @@ def sort_df(df, columns):
 def get_most_common_in_graphs(graphs, columns, first_most_common):
     data = []
     for graph in graphs:
-        vals = (
-            pd.DataFrame({col: graph[col] for col in columns})
-            .drop_duplicates()
-            .to_records(index=False)
-            .tolist()
-        )
+        vals = pd.DataFrame({col: graph[col] for col in columns}).drop_duplicates().to_records(index=False).tolist()
         data += vals
 
     original_vals = [key for key, _ in Counter(data).most_common(None)]
@@ -1336,24 +1373,6 @@ def get_proc_serials(df: DataFrame, serial_cols: List[CfgProcessColumn]):
             serials.append(dic_serial)
 
     return serials
-
-
-@log_execution_time()
-@abort_process_handler()
-def resample_by_sort(x, max_n=10):
-    """
-    Sort data first, then extract rows (equal interval)
-    Inputs:
-        x: Pandas series
-        max_n: Maximum number of rows
-    Returns:
-        x: pandas series of length min(x.shape[0], max_n)
-    """
-    if x.shape[0] > max_n:
-        x = np.sort(x)
-        idx = np.linspace(0, len(x) - 1, max_n, dtype=int)
-        x = x[idx]
-    return x
 
 
 @log_execution_time()

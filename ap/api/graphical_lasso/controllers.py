@@ -2,8 +2,10 @@ import timeit
 
 from flask import Blueprint, request
 
+from ap.api.common.services.show_graph_database import get_config_data
+from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
 from ap.api.graphical_lasso.services import gen_graphical_lasso
-from ap.common.services.form_env import parse_multi_filter_into_one
+from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one
 from ap.common.services.http_content import orjson_dumps
 from ap.common.services.import_export_config_n_data import (
     get_dic_form_from_debug_info,
@@ -35,7 +37,13 @@ def graphical_lasso():
     # check if we run debug mode (import mode)
     dic_param = get_dic_form_from_debug_info(dic_param)
 
-    dic_param = gen_graphical_lasso(dic_param)
+    cache_dic_param, graph_param, df = get_jump_emd_data(dic_form)
+
+    if not graph_param:
+        dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+        graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+
+    dic_param = gen_graphical_lasso(graph_param, dic_param, df)
 
     stop = timeit.default_timer()
     dic_param['backend_time'] = stop - start

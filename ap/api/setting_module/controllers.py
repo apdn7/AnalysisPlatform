@@ -1,14 +1,13 @@
 import json
 import os
 import traceback
-from datetime import datetime
 
-from apscheduler.triggers.date import DateTrigger
+import flask
 from flask import Blueprint, Response, jsonify, request
 from flask_babel import gettext as _
-from pytz import utc
 
-from ap import background_jobs
+from ap import background_jobs, dic_config
+from ap.api.common.services.show_graph_services import check_path_exist
 from ap.api.setting_module.services.autolink import SortMethod, get_processes_id_order
 from ap.api.setting_module.services.common import (
     delete_user_setting_by_id,
@@ -20,7 +19,6 @@ from ap.api.setting_module.services.common import (
     save_user_settings,
 )
 from ap.api.setting_module.services.data_import import (
-    add_shutdown_app_job,
     check_db_con,
     update_or_create_constant_by_type,
 )
@@ -46,26 +44,37 @@ from ap.api.setting_module.services.show_latest_record import (
     preview_v2_data,
     save_master_vis_config,
 )
-from ap.api.trace_data.services.proc_link import gen_global_id_job, show_proc_link_info
+from ap.api.setting_module.services.shutdown_app import shut_down_app
+from ap.api.trace_data.services.proc_link import add_gen_proc_link_job, add_restructure_indexes_job, show_proc_link_info
 from ap.api.trace_data.services.proc_link_simulation import sim_gen_global_id
-from ap.common.backup_db import add_backup_dbs_job
-from ap.common.common_utils import add_seconds, get_hostname, is_empty, parse_int_value
+from ap.common.backup_db import backup_config_db
+from ap.common.common_utils import (
+    add_seconds,
+    get_files,
+    get_hostname,
+    is_empty,
+    parse_int_value,
+    remove_non_ascii_chars,
+)
 from ap.common.constants import (
     ANALYSIS_INTERFACE_ENV,
     FISCAL_YEAR_START_MONTH,
-    LISTEN_BACKGROUND_TIMEOUT,
     OSERR,
+    SHUTDOWN,
     UI_ORDER_DB,
     WITH_IMPORT_OPTIONS,
     Action,
     AppEnv,
     CfgConstantType,
+    CSVExtTypes,
+    DataColumnType,
+    JobType,
     ProcessCfgConst,
     RelationShip,
 )
 from ap.common.cryptography_utils import encrypt
 from ap.common.logger import logger
-from ap.common.scheduler import JobType, lock, scheduler
+from ap.common.scheduler import lock
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.sse import background_announcer
@@ -81,10 +90,7 @@ from ap.setting_module.models import (
     make_session,
 )
 from ap.setting_module.schemas import CfgUserSettingSchema, DataSourceSchema, ProcessSchema
-from ap.setting_module.services.background_process import (
-    get_background_jobs_service,
-    get_job_detail_service,
-)
+from ap.setting_module.services.background_process import get_background_jobs_service, get_job_detail_service
 from ap.setting_module.services.process_config import (
     create_or_update_process_cfg,
     get_ct_range,
@@ -97,12 +103,10 @@ from ap.setting_module.services.process_config import (
 from ap.setting_module.services.trace_config import (
     gen_cfg_trace,
     get_all_processes_traces_info,
-    save_trace_config_to_db,
+    trace_config_crud,
 )
 
-api_setting_module_blueprint = Blueprint(
-    'api_setting_module', __name__, url_prefix='/ap/api/setting'
-)
+api_setting_module_blueprint = Blueprint('api_setting_module', __name__, url_prefix='/ap/api/setting')
 
 
 @api_setting_module_blueprint.route('/update_polling_freq', methods=['POST'])
@@ -113,15 +117,11 @@ def update_polling_freq():
 
     # save/update POLLING_FREQUENCY to db
     freq_sec = freq_min * 60
-    update_or_create_constant_by_type(
-        const_type=CfgConstantType.POLLING_FREQUENCY.name, value=freq_sec
-    )
+    update_or_create_constant_by_type(const_type=CfgConstantType.POLLING_FREQUENCY.name, value=freq_sec)
 
-    is_user_request = True if with_import_option and freq_min == 0 else False
+    is_user_request = bool(with_import_option and freq_min == 0)
     # re-set trigger time for all jobs
-    change_polling_all_interval_jobs(
-        interval_sec=freq_sec, run_now=with_import_option, is_user_request=is_user_request
-    )
+    change_polling_all_interval_jobs(interval_sec=freq_sec, run_now=with_import_option, is_user_request=is_user_request)
 
     message = {'message': _('Database Setting saved.'), 'is_error': False}
 
@@ -138,13 +138,12 @@ def save_datasource_cfg():
 
         with make_session() as meta_session:
             # data source
-            data_src_rec = insert_or_update_config(
-                meta_session, data_src, exclude_columns=[CfgDataSource.order.key]
-            )
+            data_src_rec = insert_or_update_config(meta_session, data_src, exclude_columns=[CfgDataSource.order.key])
 
             # csv detail
             csv_detail = data_src.csv_detail
             if csv_detail:
+                # csv_detail.dummy_header = csv_detail.dummy_header == 'true' if csv_detail.dummy_header else None
                 csv_columns = data_src.csv_detail.csv_columns
                 csv_columns = [col for col in csv_columns if not is_empty(col.column_name)]
                 data_src.csv_detail.csv_columns = csv_columns
@@ -210,13 +209,16 @@ def save_v2_datasource_cfg():
             v2_columns = gen_v2_columns_with_types(v2_data_src)
             # update data_source columns
             v2_data_src['csv_detail']['csv_columns'] = v2_columns
+            v2_data_src['csv_detail']['dummy_header'] = False
 
             data_src: CfgDataSource = DataSourceSchema().load(v2_data_src)
 
             with make_session() as meta_session:
                 # data source
                 data_src_rec = insert_or_update_config(
-                    meta_session, data_src, exclude_columns=[CfgDataSource.order.key]
+                    meta_session,
+                    data_src,
+                    exclude_columns=[CfgDataSource.order.key],
                 )
 
                 # csv detail
@@ -249,7 +251,7 @@ def save_v2_datasource_cfg():
                 ds_schema = DataSourceSchema()
                 ds = CfgDataSource.get_ds(data_src_rec.id)
                 ds = ds_schema.dumps(ds)
-                v2_datasources.append(dict(id=data_src_rec.id, data_source=ds))
+                v2_datasources.append({'id': data_src_rec.id, 'data_source': ds})
 
         message = {'message': _('Database Setting saved.'), 'is_error': False}
         return jsonify(data=v2_datasources, flask_message=message), 200
@@ -308,7 +310,11 @@ def check_db_connection():
     username = params.get('username')
     password = params.get('password')
 
-    result = check_db_con(db_type, host, port, dbname, schema, username, password)
+    result = None
+    try:
+        result = check_db_con(db_type, host, port, dbname, schema, username, password)
+    except Exception as e:
+        logger.exception(e)
 
     if result:
         message = {'db_type': db_type, 'message': _('Connected'), 'connected': True}
@@ -326,27 +332,40 @@ def show_latest_records():
         [type] -- [description]
     """
     dic_form = request.form.to_dict()
-    data_source_id = dic_form.get('databaseName')
-    table_name = dic_form.get('tableName')
-    limit = parse_int_value(dic_form.get('limit')) or 5
-    latest_rec = get_latest_records(data_source_id, table_name, limit)
-    (
-        cols_with_types,
-        rows,
-        cols_duplicated,
-        previewed_files,
-        has_ct_col,
-        dummy_datetime_idx,
-    ) = latest_rec
-    dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
+    data_source_id = dic_form.get('databaseName') or dic_form.get('processDsID')
+    table_name = dic_form.get('tableName') or None
+    file_name = dic_form.get('fileName') or None
+    limit = parse_int_value(dic_form.get('limit')) or 10
+    latest_rec = get_latest_records(data_source_id, table_name, file_name, limit)
+
     result = {
-        'cols': cols_with_types,
-        'rows': rows,
-        'cols_duplicated': cols_duplicated,
-        'fail_limit': dic_preview_limit,
-        'has_ct_col': has_ct_col,
-        'dummy_datetime_idx': dummy_datetime_idx,
+        'cols': [],
+        'rows': [],
+        'cols_duplicated': [],
+        'fail_limit': None,
+        'has_ct_col': None,
+        'dummy_datetime_idx': None,
     }
+    if latest_rec:
+        (
+            cols_with_types,
+            rows,
+            cols_duplicated,
+            previewed_files,
+            has_ct_col,
+            dummy_datetime_idx,
+        ) = latest_rec
+        dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
+        data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
+        result = {
+            'cols': cols_with_types,
+            'rows': rows,
+            'cols_duplicated': cols_duplicated,
+            'fail_limit': dic_preview_limit,
+            'has_ct_col': has_ct_col,
+            'dummy_datetime_idx': dummy_datetime_idx,
+            'data_group_type': data_group_type,
+        }
 
     return json_dumps(result)
 
@@ -357,17 +376,18 @@ def get_csv_resources():
     etl_func = request.json.get('etl_func')
     csv_delimiter = request.json.get('delimiter')
     isV2_datasource = request.json.get('isV2')
+    line_skip = request.json.get('line_skip') or ''
 
     if isV2_datasource:
         dic_output = preview_v2_data(folder_url, csv_delimiter, 5)
     else:
-        dic_output = preview_csv_data(folder_url, etl_func, csv_delimiter, limit=5)
+        dic_output = preview_csv_data(folder_url, etl_func, csv_delimiter, line_skip=line_skip, limit=5)
     rows = dic_output['content']
     previewed_files = dic_output['previewed_files']
     dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
     dic_output['fail_limit'] = dic_preview_limit
 
-    return Response(json_dumps(dic_output), mimetype='application/json')
+    return jsonify(dic_output), 200
 
 
 @api_setting_module_blueprint.route('/job', methods=['POST'])
@@ -375,9 +395,7 @@ def get_background_jobs():
     return jsonify(background_jobs), 200
 
 
-@api_setting_module_blueprint.route(
-    '/listen_background_job/<is_force>/<uuid>/<main_tab_uuid>', methods=['GET']
-)
+@api_setting_module_blueprint.route('/listen_background_job/<is_force>/<uuid>/<main_tab_uuid>', methods=['GET'])
 def listen_background_job(is_force: str, uuid: str, main_tab_uuid: str):
     is_reject = False
     is_force = int(is_force)
@@ -392,21 +410,18 @@ def listen_background_job(is_force: str, uuid: str, main_tab_uuid: str):
             elif not background_announcer.is_exist(uuid, main_tab_uuid=main_tab_uuid):
                 is_reject = True
 
+        logger.debug(
+            f'[SSE] {"Rejected" if is_reject else "Accepted"}: UUID = {uuid}; main_tab_uuid = {main_tab_uuid};'
+            f' is_force = {is_force}; compare_time = {compare_time}; start_time = {start_time};',
+        )
+
         if is_reject:
-            logger.debug(
-                f'[SSE] Rejected: UUID = {uuid}; main_tab_uuid = {main_tab_uuid}; is_force = {is_force};'
-                f' compare_time = {compare_time}; start_time = {start_time};'
-            )
             return Response('SSE Rejected', status=202)
 
-        # add new uuid
-        logger.debug(
-            f'[SSE] Accepted: UUID = {uuid}; main_tab_uuid = {main_tab_uuid}; is_force = {is_force};'
-            f' compare_time = {compare_time}; start_time = {start_time};'
+        return Response(
+            background_announcer.init_stream_sse(uuid, main_tab_uuid),
+            mimetype='text/event-stream',
         )
-        background_announcer.add_uuid(uuid, main_tab_uuid)
-
-        return Response(background_announcer.get_stream_see(uuid), mimetype='text/event-stream')
 
 
 @api_setting_module_blueprint.route('/check_folder', methods=['POST'])
@@ -414,7 +429,15 @@ def check_folder():
     try:
         data = request.json.get('url')
         is_existing = os.path.isdir(data) and os.path.exists(data)
-        is_not_empty = bool(len(os.listdir(data)))
+        os.listdir(data)
+        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value]
+        is_not_empty = False
+        files = get_files(data, depth_from=1, depth_to=100, extension=extension)
+        for file in files:
+            is_not_empty = any(file.lower().endswith(ext) for ext in extension)
+            if is_not_empty:
+                break
+
         is_valid = is_existing and is_not_empty
         err_msg = _('File not found')  # empty folder
         return jsonify(
@@ -426,7 +449,7 @@ def check_folder():
                 'not_empty_dir': is_not_empty,
                 'is_valid': is_valid,
                 'err_msg': err_msg if not is_valid else '',
-            }
+            },
         )
     except OSError as e:
         # raise
@@ -448,11 +471,12 @@ def delete_proc_from_db():
     # get proc_id
     params = json.loads(request.data)
     proc_id = params.get('proc_id')
+    proc_id = int(proc_id) or None
 
     # delete config and add job to delete data
     delete_proc_cfg_and_relate_jobs(proc_id)
 
-    return jsonify(result=dict()), 200
+    return jsonify(result={}), 200
 
 
 @api_setting_module_blueprint.route('/save_order/<order_name>', methods=['POST'])
@@ -500,34 +524,27 @@ def stop_jobs():
             t_app_log.action = Action.SHUTDOWN_APP.name
             t_app_log.description = request.user_agent.string
             meta_session.add(t_app_log)
+
+        # backup database now
+        # add_backup_dbs_job(True)
+        backup_config_db()
     except Exception as ex:
         traceback.print_exc()
         logger.error(ex)
 
-    # backup database now
-    add_backup_dbs_job(True)
-
     # add a job to check for shutdown time
-    add_shutdown_app_job()
+    # add_shutdown_app_job()
+    shut_down_app()
 
     return jsonify({}), 200
 
 
 @api_setting_module_blueprint.route('/shutdown', methods=['POST'])
 def shutdown():
-    if not is_local_client(request):
-        return jsonify({}), 403
-
-    logger.info('SHUTTING DOWN...')
-
-    from ap.script.disable_terminal_close_button import close_terminal
-
-    # close terminal
-    close_terminal()
-
-    os._exit(14)
-
-    return jsonify({}), 200
+    dic_config[SHUTDOWN] = True
+    response = flask.make_response(jsonify({}))
+    response.set_cookie('locale', '', 0)
+    return response, 200
 
 
 @api_setting_module_blueprint.route('/proc_config', methods=['POST'])
@@ -548,7 +565,7 @@ def post_proc_config():
                         {
                             'status': 404,
                             'message': 'Not found {}'.format(proc_id),
-                        }
+                        },
                     ),
                     200,
                 )
@@ -568,7 +585,7 @@ def post_proc_config():
                 {
                     'status': 200,
                     'data': process_json,
-                }
+                },
             ),
             200,
         )
@@ -579,7 +596,7 @@ def post_proc_config():
                 {
                     'status': 500,
                     'message': str(ex),
-                }
+                },
             ),
             500,
         )
@@ -607,25 +624,17 @@ def save_trace_configs():
     """[Summary] Save trace_configs to DB
     Returns: 200/500
     """
-    try:
-        params = json.loads(request.data)
-        save_trace_config_to_db(params)
 
-        job_id = JobType.GEN_GLOBAL.name
-        scheduler.add_job(
-            job_id,
-            gen_global_id_job,
-            replace_existing=True,
-            trigger=DateTrigger(datetime.now().astimezone(utc), timezone=utc),
-            kwargs=dict(
-                _job_id=job_id, _job_name=job_id, is_new_data_check=False, is_user_request=True
-            ),
-        )
+    try:
+        traces = json.loads(request.data)
+        trace_config_crud(traces)
+        add_restructure_indexes_job()
+        add_gen_proc_link_job(is_user_request=True)
     except Exception:
         traceback.print_exc()
-        return jsonify({}), 500
+        return json_dumps({}), 500
 
-    return jsonify({}), 200
+    return json_dumps({}), 200
 
 
 @api_setting_module_blueprint.route('/ds_load_detail/<ds_id>', methods=['GET'])
@@ -644,7 +653,7 @@ def del_proc_config(proc_id):
                 'data': {
                     'proc_id': proc_id,
                 },
-            }
+            },
         ),
         200,
     )
@@ -674,7 +683,7 @@ def get_proc_config_filter_data(proc_id):
                     'status': 200,
                     'data': process,
                     'filter_col_data': filter_col_data,
-                }
+                },
             ),
             200,
         )
@@ -685,7 +694,7 @@ def get_proc_config_filter_data(proc_id):
                     'status': 404,
                     'data': {},
                     'filter_col_data': {},
-                }
+                },
             ),
             200,
         )
@@ -700,7 +709,7 @@ def get_proc_column_config(proc_id):
                 {
                     'status': 200,
                     'data': columns,
-                }
+                },
             ),
             200,
         )
@@ -710,7 +719,7 @@ def get_proc_column_config(proc_id):
                 {
                     'status': 404,
                     'data': [],
-                }
+                },
             ),
             200,
         )
@@ -725,7 +734,7 @@ def get_proc_ct_range(proc_id):
             {
                 'status': 200,
                 'data': ct_range,
-            }
+            },
         ),
         200,
     )
@@ -740,7 +749,7 @@ def get_proc_filter_config(proc_id):
                 {
                     'status': 200,
                     'data': filters,
-                }
+                },
             ),
             200,
         )
@@ -757,12 +766,28 @@ def get_proc_visualization_config(proc_id):
                 {
                     'status': 200,
                     'data': proc_with_visual_settings,
-                }
+                },
             ),
             200,
         )
     else:
         return jsonify({'status': 404, 'data': []}), 200
+
+
+@api_setting_module_blueprint.route('/proc_config/<proc_id>/traces_with/<start_proc_id>', methods=['GET'])
+def get_proc_traces_with_start_proc(proc_id, start_proc_id):
+    start_proc_id = int(start_proc_id) if str(start_proc_id).isnumeric() else None
+    proc_id = int(proc_id) if str(proc_id).isnumeric() else None
+    has_traces_with_start_proc = check_path_exist(proc_id, start_proc_id)
+    if has_traces_with_start_proc:
+        return jsonify(
+            {
+                'status': 200,
+                'data': True,
+            },
+        )
+    else:
+        return jsonify({'status': 404, 'data': False})
 
 
 @api_setting_module_blueprint.route('/filter_config', methods=['POST'])
@@ -805,7 +830,7 @@ def get_sensor_distinct_values(cfg_col_id):
             jsonify(
                 {
                     'data': sensor_data,
-                }
+                },
             ),
             200,
         )
@@ -823,7 +848,7 @@ def post_master_visualizations_config(proc_id):
                 {
                     'status': 200,
                     'data': proc_with_visual_settings,
-                }
+                },
             ),
             200,
         )
@@ -834,7 +859,7 @@ def post_master_visualizations_config(proc_id):
                 {
                     'status': 500,
                     'message': str(ex),
-                }
+                },
             ),
             500,
         )
@@ -891,6 +916,15 @@ def list_to_english():
     romaji_english_names = [to_romaji(raw_name) for raw_name in raw_english_names]
 
     return jsonify({'status': 200, 'data': romaji_english_names}), 200
+
+
+@api_setting_module_blueprint.route('/list_normalize_ascii', methods=['POST'])
+def list_normalize_ascii():
+    request_json = request.json
+    raw_input_names = request_json.get('names') or []
+    normalized_names = [remove_non_ascii_chars(raw_name) for raw_name in raw_input_names]
+
+    return jsonify({'status': 200, 'data': normalized_names}), 200
 
 
 @api_setting_module_blueprint.route('/user_setting', methods=['POST'])
@@ -962,7 +996,7 @@ def delete_user_setting(setting_id):
 
 @api_setting_module_blueprint.route('/get_env', methods=['GET'])
 def get_current_env():
-    current_env = os.environ.get('ANALYSIS_INTERFACE_ENV', AppEnv.PRODUCTION.value)
+    current_env = os.environ.get(ANALYSIS_INTERFACE_ENV, AppEnv.PRODUCTION.value)
     return jsonify({'status': 200, 'env': current_env}), 200
 
 
@@ -1019,9 +1053,7 @@ def check_exist_title_setting():
 def get_v2_auto_link_ordered_processes():
     try:
         params = json.loads(request.data)
-        groups_processes = get_processes_id_order(
-            params, method=SortMethod.FunctionCountReversedOrder
-        )
+        groups_processes = get_processes_id_order(params, method=SortMethod.FunctionCountReversedOrder)
         return jsonify({'status': 'ok', 'ordered_processes': groups_processes}), 200
     except Exception as ex:
         logger.exception(ex)
@@ -1036,6 +1068,7 @@ def get_jobs():
     order = request.args.get('order')
     show_past_import_job = request.args.get('show_past_import_job')
     show_proc_link_job = request.args.get('show_proc_link_job')
+    error_page = request.args.get('error_page')
     ignore_job_types = []
     if not show_proc_link_job or show_proc_link_job == 'false':
         ignore_job_types.append(JobType.GEN_GLOBAL.name)
@@ -1051,7 +1084,7 @@ def get_jobs():
         per_page = 50
 
     dic_jobs = {}
-    rows, jobs = get_background_jobs_service(page, per_page, sort, order, ignore_job_types)
+    rows, jobs = get_background_jobs_service(page, per_page, sort, order, ignore_job_types, error_page)
     dic_jobs['rows'] = rows
     dic_jobs['total'] = jobs.total
 

@@ -559,8 +559,12 @@ ul#visnMn li a {
     border-bottom: 1px solid white;
 }
 
+.blue-color + .select2-container--default .select2-selection--single {
+    background-color: rgb(40, 65, 92)!important;
+}
+
 .select2-container--default .select2-selection--single {
-    background-color: #222 !important;
+    background-color: #222!important;
 }
 
 .select2-results {
@@ -700,6 +704,10 @@ form[name=otherFilter] td,
 #tblVisualConfig td
 {
     padding: 2px !important;
+}
+#tblVisualConfig tbody td
+{
+    position: static;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__clear {
@@ -1734,7 +1742,7 @@ input:disabled + .slider {
 .summary-card-title-content {
     text-align: center;
     color: #89b368;
-    /*max-width: 50%;*/
+    width: 50%;
     white-space: nowrap;
 }
 
@@ -1936,6 +1944,17 @@ span.deleteicon input {
     margin-left: 15px;
 }
 
+.alert-header {
+    z-index: 9999;
+    position: fixed;
+    left: calc(50% + 25px);
+    transform: translateX(-50%);
+    width: calc(100% - 50px);
+    top: 0;
+    height: 64px;
+    padding-top: 20px;
+}
+
 .custom-selection-section {
     position: relative;
 }
@@ -2132,8 +2151,8 @@ span.deleteicon input {
     width: 29px;
 }
 
-.table-hover-light tbody tr:hover {
-    outline: thin solid white;
+.table-hover-light tbody tr:hover{
+    outline: thin solid white !important;
 }
 table.table-hover-light {
     border-collapse: separate;
@@ -2312,7 +2331,8 @@ label.checkbox-all-label h6 {
     height: 28px !important;
 }
 .col.fit-item > .select2-container--default .select2-selection--single .select2-selection__placeholder {
-    margin-left: -25px;
+    margin-left: -10px;
+    font-size: 12px;
 }
 #jumpSensorTbl tr {
     width: 800px !important;
@@ -2368,3 +2388,79 @@ svg.svg-inline--fa.fa-circle-right {
 .order-row-table:hover .go-top-icon {
     display: block;
 }
+
+/*dn custom select*/
+.dn-custom-select--select {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dn-custom-select {
+    position: relative;
+    width: 140px;
+    display: inline-block;
+}
+.dn-custom-select > select {
+    display: none;
+}
+
+.dn-custom-select--select:after {
+    position: absolute;
+    content: "";
+    top: 14px;
+    right: 10px;
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 0px;
+    border-left: 3px solid transparent;
+    /*border: 6px 3px 0 3px solid transparent;*/
+    border-color: #fff transparent transparent transparent;
+}
+
+
+.dn-custom-select--select--list div {
+    line-height: 1;
+    padding: 2px 4px!important;
+}
+
+.dn-custom-select--select--list div, .dn-custom-select--select {
+    color: #ffffff;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1.3;
+}
+
+.dn-custom-select--select--list div:hover {
+    background-color: dodgerblue;
+}
+
+.dn-custom-select--select--list {
+    position: absolute;
+    background-color: #222222;
+    border: 1px solid #444444;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+}
+
+.dn-custom-select .selected-item {
+    background-color: dodgerblue;
+}
+
+.dn-custom-select .select-hide {
+    display: none;
+}
+
+.dn-custom-select--select--list .underline-item {
+    padding-bottom: 1px !important;
+    border-bottom: 1px solid white !important;
+}
+
+/*dn custom select*/

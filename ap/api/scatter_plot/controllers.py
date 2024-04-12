@@ -2,9 +2,11 @@ import timeit
 
 from flask import Blueprint, request
 
+from ap.api.common.services.show_graph_database import get_config_data
+from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
 from ap.api.scatter_plot.services import gen_scatter_plot
 from ap.common.pysize import get_size
-from ap.common.services.form_env import parse_multi_filter_into_one
+from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one
 from ap.common.services.http_content import orjson_dumps
 from ap.common.services.import_export_config_n_data import (
     get_dic_form_from_debug_info,
@@ -37,7 +39,16 @@ def trace_data():
 
     # if universal call gen_dframe else gen_results
     orig_send_ga_flg = is_send_google_analytics
-    dic_param = gen_scatter_plot(dic_param)
+
+    cache_dic_param, graph_param, df = get_jump_emd_data(dic_form)
+
+    if not graph_param:
+        dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+        graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+    else:
+        dic_param = cache_dic_param
+
+    dic_param = gen_scatter_plot(graph_param, dic_param, df)
 
     # send Google Analytics changed flag
     if orig_send_ga_flg and not is_send_google_analytics:

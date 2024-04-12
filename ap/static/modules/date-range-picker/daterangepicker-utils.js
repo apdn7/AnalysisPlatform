@@ -557,6 +557,19 @@ const initializeDateTimeRangePicker = (dtId = null, isClassName = false) => {
                 $(element).on('cancel.daterangepicker', function(ev, picker) {
                     $(this).val('');
                 });
+
+                $(element).on('change.daterangepicker', function(ev, picker) {
+                    // validate time range
+                    const oldValue = $(this).attr('old-value');
+                    const currentValue = $(this).val();
+                    if (!currentValue) return;
+                    const [startDt, endDt] = currentValue.split(DATETIME_PICKER_SEPARATOR);
+                    if (!moment(startDt).isValid() || !moment(endDt).isValid()) {
+                        $(this).val(oldValue)
+                    } else {
+                        $(this).attr('old-value', currentValue);
+                    }
+                });
             }
 
             initShowData(element);
@@ -587,7 +600,7 @@ const initializeDateTimeRangePicker = (dtId = null, isClassName = false) => {
     * <b>Note:</b>
     * - Based on the "is-show-time-picker" attribute of the input tag, it will initialize the date picker with time or not
     */
-const initializeDateTimePicker = (dtId = null, isClassName = false) => {
+const initializeDateTimePicker = (dtId = null, isClassName = false, parentEl = null) => {
     let ranges = {};
     ranges[`${getI18nDateTimePicker().today}`] = [moment(), moment()];
     ranges[`${getI18nDateTimePicker().yesterday}`] = [moment().subtract(1, 'days'), moment().subtract(1, 'days')];
@@ -606,8 +619,9 @@ const initializeDateTimePicker = (dtId = null, isClassName = false) => {
         updateCalendarUI(element, isShowTimePicker);
     };
 
-    const initByClassName = (className, isClassName = false) => {
-        const datetimeRangeControls = isClassName ? $(`.${className}`) : $(`input[name="${className}"]`);
+    const initByClassName = (className, isClassName = false, parentEl = null) => {
+        const datetimeRangeSelector = isClassName ? `.${className}` : `input[name="${className}"]`;
+        const datetimeRangeControls = parentEl ? parentEl.find(datetimeRangeSelector) : $(datetimeRangeSelector);
         initDateTimePickerInner(datetimeRangeControls);
     };
 
@@ -695,8 +709,8 @@ const initializeDateTimePicker = (dtId = null, isClassName = false) => {
     if (dtId) {
         initById(dtId)
     } else {
-        initByClassName(DATETIME_PICKER_CLASS, isClassName);
-        initByClassName(DATE_PICKER_CLASS, isClassName);
+        initByClassName(DATETIME_PICKER_CLASS, isClassName, parentEl);
+        initByClassName(DATE_PICKER_CLASS, isClassName, parentEl);
     }
 };
 

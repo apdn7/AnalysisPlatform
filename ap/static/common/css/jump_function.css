@@ -100,6 +100,21 @@
     color: gray;
 }
 
+.gui-overlay {
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #30303096;
+    z-index: 10;
+    border-radius: 3px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #65c5f1;
+}
+
 #jumpModal .alert strong {
     font-size: large;
 }

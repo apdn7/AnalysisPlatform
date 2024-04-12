@@ -2,7 +2,7 @@
 	width: 100% !important;
 	border-collapse: collapse;
 	background: #303030;
-	font-size: 0.8vw;
+	font-size: 16px;
 }
 
 #tblUserSetting thead {
@@ -33,6 +33,7 @@
     /*min-width: 50px;*/
     /*text-align: center;*/
 	border: 1px solid #444;
+	position: static;
 }
 #tblUserSetting tbody td.action {
 	text-align: center;
@@ -61,7 +62,7 @@
 
 #tblUserSetting td:nth-child(5){
     /*width: 180px !important;*/
-	font-size: 0.8vw;
+	font-size: 16px;
 }
 .col-date {
     width: 150px;
@@ -81,7 +82,7 @@
 }
 
 #tblUserSetting select {
-	font-size: 0.8vw;
+	font-size: 16px;
 }
 
 #tblUserSetting td:nth-child(1),

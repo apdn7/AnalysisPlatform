@@ -1,24 +1,43 @@
-import io
 import json
 import timeit
-from zipfile import ZipFile
 
-import simplejson
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, request
 
 from ap.analyze.services.sensor_list import get_sensors_incrementally
 from ap.api.analyze.services.pca import calculate_data_size, run_pca
+from ap.api.common.services.show_graph_database import get_config_data
+from ap.api.common.services.show_graph_services import filter_df, get_data_from_db
 from ap.api.trace_data.services.csv_export import (
-    gen_csv_data,
     make_graph_param,
     split_graph_params,
     to_csv,
 )
-from ap.api.trace_data.services.time_series_chart import filter_df, get_data_from_db
-from ap.common.constants import *
-from ap.common.services import csv_content
+from ap.common.constants import (
+    ACTUAL_RECORD_NUMBER,
+    ACTUAL_RECORD_NUMBER_TEST,
+    ACTUAL_RECORD_NUMBER_TRAIN,
+    ARRAY_PLOTDATA,
+    COMMON,
+    CYCLE_IDS,
+    DATAPOINT_INFO,
+    DIC_CAT_FILTERS,
+    FILTER_ON_DEMAND,
+    PLOTLY_JSON,
+    REMOVED_OUTLIER_NAN_TEST,
+    REMOVED_OUTLIER_NAN_TRAIN,
+    SHORT_NAMES,
+    START_PROC,
+    UNIQUE_SERIAL,
+    UNIQUE_SERIAL_TEST,
+    UNIQUE_SERIAL_TRAIN,
+    CSVExtTypes,
+)
 from ap.common.services.csv_content import zip_file_to_response
-from ap.common.services.form_env import parse_multi_filter_into_one, parse_request_params
+from ap.common.services.form_env import (
+    bind_dic_param_to_class,
+    parse_multi_filter_into_one,
+    parse_request_params,
+)
 from ap.common.services.http_content import orjson_dumps
 from ap.common.services.import_export_config_n_data import (
     get_dic_form_from_debug_info,
@@ -32,9 +51,7 @@ from ap.common.trace_data_log import (
     trace_log_params,
 )
 
-api_analyze_module_blueprint = Blueprint(
-    'api_analyze_module', __name__, url_prefix='/ap/api/analyze'
-)
+api_analyze_module_blueprint = Blueprint('api_analyze_module', __name__, url_prefix='/ap/api/analyze')
 
 
 @api_analyze_module_blueprint.route('/pca', methods=['POST'])
@@ -49,10 +66,7 @@ def pca_modelling():
             return
 
     sample_no = dic_form.get('sampleNo')
-    if sample_no:
-        sample_no = int(sample_no[0]) - 1
-    else:
-        sample_no = 0
+    sample_no = int(sample_no[0]) - 1 if sample_no else 0
 
     # save dic_form to pickle (for future debug)
     save_input_data_to_file(dic_form, EventType.PCA)
@@ -64,11 +78,13 @@ def pca_modelling():
 
     # run PCA script
     orig_send_ga_flg = is_send_google_analytics
-    dic_data, errors = run_pca(dic_param, sample_no)
+    dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+    graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+    dic_data, errors = run_pca(graph_param, dic_param, sample_no)
 
     if errors:
-        output = orjson_dumps(dict(json_errors=errors))
-        return jsonify(output), 400
+        output = orjson_dumps({'json_errors': errors})
+        return output, 400
 
     plotly_jsons = dic_data[PLOTLY_JSON]
     data_point_info = dic_data[DATAPOINT_INFO]
@@ -98,10 +114,10 @@ def pca_modelling():
             CYCLE_IDS: dic_data.get(CYCLE_IDS),
             COMMON: dic_param,
             FILTER_ON_DEMAND: dic_data.get(FILTER_ON_DEMAND),
-        }
+        },
     )
 
-    # send google analytics changed flag
+    # send Google Analytics changed flag
     if orig_send_ga_flg and not is_send_google_analytics:
         output_dict.update({'is_send_ga_off': True})
 
@@ -135,13 +151,14 @@ def data_export(export_type):
     """
     dic_form = parse_request_params(request)
     dic_params = parse_multi_filter_into_one(dic_form)
-
+    dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
     dic_params = split_graph_params(dic_params)
 
     csv_data = []
     csv_list_name = []
     for i, dic_param in enumerate(dic_params):
-        graph_param, dic_proc_cfgs, client_timezone = make_graph_param(dic_param)
+        graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+        graph_param, client_timezone = make_graph_param(graph_param, dic_param)
         # get data from database
         df, *_ = get_data_from_db(graph_param)
         # if export_type = plot -> use filter
@@ -151,11 +168,10 @@ def data_export(export_type):
                 if isinstance(dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str)
                 else dic_param[COMMON].get(DIC_CAT_FILTERS, {})
             )
-            df = filter_df(df, dic_cat_filters)
+            df = filter_df(graph_param.dic_proc_cfgs, df, dic_cat_filters)
         csv_name = 'train_data' if not i else 'test_data'
-        csv_list_name.append('{}.{}'.format(csv_name, 'csv'))
-        client_tz = dic_param[COMMON][CLIENT_TIMEZONE]
-        csv_df = to_csv(df, dic_proc_cfgs, graph_param, client_timezone=client_timezone)
+        csv_list_name.append('{}.{}'.format(csv_name, CSVExtTypes.CSV.value))
+        csv_df = to_csv(df, graph_param, client_timezone=client_timezone)
         csv_data.append(csv_df)
 
     response = zip_file_to_response(csv_data, csv_list_name, export_type=export_type)

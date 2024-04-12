@@ -1,11 +1,12 @@
 import atexit
+import contextlib
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import wtforms_json
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.date import DateTrigger
 from flask import Flask, Response, g, render_template
 from flask_apscheduler import STATE_STOPPED, APScheduler
 from flask_babel import Babel
@@ -22,20 +23,25 @@ from ap.common.common_utils import (
     NoDataFoundException,
     check_client_browser,
     check_exist,
+    count_file_in_folder,
     find_babel_locale,
     init_config,
     make_dir,
-    set_sqlite_params,
 )
 from ap.common.constants import (
     APP_DB_FILE,
+    DB_SECRET_KEY,
     EXTERNAL_API,
+    HTML_CODE_304,
     INIT_APP_DB_FILE,
     INIT_BASIC_CFG_FILE,
     LAST_REQUEST_TIME,
     LOG_LEVEL,
-    PARTITION_NUMBER,
+    MAIN_THREAD,
+    PORT,
+    PROCESS_QUEUE,
     REQUEST_THREAD_ID,
+    SHUTDOWN,
     SQLITE_CONFIG_DIR,
     TESTING,
     UNIVERSAL_DB_FILE,
@@ -46,10 +52,11 @@ from ap.common.constants import (
     YAML_CONFIG_VERSION,
     YAML_START_UP,
     ApLogLevel,
-    AppEnv,
     AppGroup,
     AppSource,
     FlaskGKey,
+    ListenNotifyType,
+    MaxGraphNumber,
 )
 from ap.common.logger import log_execution, logger
 from ap.common.services.http_content import json_dumps
@@ -64,9 +71,82 @@ from ap.common.yaml_utils import (
     BasicConfigYaml,
 )
 
+dic_config = {
+    MAIN_THREAD: None,
+    PROCESS_QUEUE: None,
+    DB_SECRET_KEY: None,
+    SQLITE_CONFIG_DIR: None,
+    APP_DB_FILE: None,
+    UNIVERSAL_DB_FILE: None,
+    TESTING: None,
+    SHUTDOWN: None,
+    PORT: None,
+}
+
+max_graph_config = {
+    MaxGraphNumber.AGP_MAX_GRAPH.name: None,
+    MaxGraphNumber.FPP_MAX_GRAPH.name: None,
+    MaxGraphNumber.RLP_MAX_GRAPH.name: None,
+    MaxGraphNumber.CHM_MAX_GRAPH.name: None,
+    MaxGraphNumber.SCP_MAX_GRAPH.name: None,
+    MaxGraphNumber.MSP_MAX_GRAPH.name: None,
+    MaxGraphNumber.STP_MAX_GRAPH.name: None,
+}
+
+
+class CustomizeScheduler(APScheduler):
+    RESCHEDULE_SECONDS = 30
+
+    @staticmethod
+    def manage_pipe():
+        if not dic_config[MAIN_THREAD]:
+            return
+
+        # parent_pipe, child_pipe = dic_config[MANAGER].Pipe()
+        # parent_pipe, child_pipe = Pipe()
+        # dic_config[PROCESS_QUEUE][job_id] = parent_pipe
+
+        # return child_pipe
+        return dic_config[PROCESS_QUEUE]
+
+    @staticmethod
+    def _notify_info(notify_type: ListenNotifyType, id, func, **kwargs):
+        # kwargs = codecs.encode(pickle.dumps(kwargs), 'base64').decode()
+        func_module = func.__module__
+        func_name = func.__qualname__
+        with contextlib.suppress(Exception):
+            dic_config[PROCESS_QUEUE][notify_type.name][id] = (id, func_module, func_name, kwargs)
+
+    def add_job(self, id, func, **kwargs):
+        if not dic_config[MAIN_THREAD]:
+            self._notify_info(ListenNotifyType.ADD_JOB, id, func, **kwargs)
+            return
+
+        super().add_job(id, func, **kwargs)
+
+    def reschedule_job(self, id, func, func_params):
+        if not dic_config[MAIN_THREAD]:
+            self._notify_info(ListenNotifyType.RESCHEDULE_JOB, id, func, **func_params)
+            return
+
+        job = scheduler.get_job(id)
+        run_time = datetime.now().astimezone(utc) + timedelta(seconds=self.RESCHEDULE_SECONDS)
+        if job:
+            job.next_run_time = run_time
+            if job.trigger:
+                if type(job.trigger).__name__ == 'DateTrigger':
+                    job.trigger.run_date = run_time
+                elif type(job.trigger).__name__ == 'IntervalTrigger':
+                    job.trigger.start_date = run_time
+            job.reschedule(trigger=job.trigger)
+        else:
+            trigger = DateTrigger(run_date=run_time, timezone=utc)
+            super().add_job(id, func, trigger=trigger, replace_existing=True, kwargs=func_params)
+
+
 db = SQLAlchemy(session_options={'autoflush': False})
 migrate = Migrate()
-scheduler = APScheduler(BackgroundScheduler(timezone=utc))
+scheduler = CustomizeScheduler(BackgroundScheduler(timezone=utc))
 ma = Marshmallow()
 wtforms_json.init()
 
@@ -74,15 +154,7 @@ background_jobs = {}
 
 LOG_IGNORE_CONTENTS = ('.html', '.js', '.css', '.ico', '.png')
 # yaml config files
-dic_yaml_config_file = dict(basic=None, db=None, proc=None, ap=None, version=0)
-dic_config = {
-    'db_secret_key': None,
-    SQLITE_CONFIG_DIR: None,
-    PARTITION_NUMBER: None,
-    APP_DB_FILE: None,
-    UNIVERSAL_DB_FILE: None,
-    TESTING: None,
-}
+dic_yaml_config_file = {'basic': None, 'db': None, 'proc': None, 'ap': None, 'version': 0}
 
 # last request time
 dic_request_info = {LAST_REQUEST_TIME: datetime.utcnow()}
@@ -101,15 +173,19 @@ def init_engine(app, uri, **kwargs):
     db.create_all(app=app)
     db_engine = create_engine(uri, **kwargs)
 
-    @event.listens_for(db_engine, 'connect')
-    def do_connect(dbapi_conn, connection_record):
-        set_sqlite_params(dbapi_conn)
+    # @event.listens_for(db_engine, 'connect')
+    # def do_connect(dbapi_conn, _connection_record):
+    #     set_sqlite_params(dbapi_conn)
+
+    @event.listens_for(db_engine, 'begin')
+    def do_begin(dbapi_conn):
+        dbapi_conn.execute('BEGIN IMMEDIATE')
 
     return db_engine
 
 
 Session = scoped_session(
-    lambda: create_session(bind=db_engine, autoflush=True, autocommit=False, expire_on_commit=True)
+    lambda: create_session(bind=db_engine, autoflush=False, autocommit=False, expire_on_commit=True),
 )
 
 
@@ -131,10 +207,8 @@ def close_sessions():
         pass
 
     # Flask g
-    try:
+    with contextlib.suppress(Exception):
         g.pop(FlaskGKey.APP_DB_SESSION)
-    except Exception:
-        pass
 
 
 # ##########################################################
@@ -156,11 +230,15 @@ def create_app(object_name=None):
     from .ridgeline_plot import create_module as ridgeline_create_module
     from .sankey_plot import create_module as sankey_create_module
     from .scatter_plot import create_module as scatter_plot_create_module
-    from .script.convert_user_setting import convert_user_setting_url
     from .script.migrate_cfg_data_source_csv import migrate_cfg_data_source_csv
     from .script.migrate_csv_datatype import migrate_csv_datatype
     from .script.migrate_csv_dummy_datetime import migrate_csv_dummy_datetime
     from .script.migrate_csv_save_graph_settings import migrate_csv_save_graph_settings
+    from .script.migrate_process_file_name_column import (
+        migrate_cfg_process_add_file_name,
+        migrate_cfg_process_column_add_column_raw_name,
+        migrate_cfg_process_column_add_column_type,
+    )
     from .setting_module import create_module as setting_create_module
     from .table_viewer import create_module as table_viewer_create_module
     from .tile_interface import create_module as tile_interface_create_module
@@ -169,13 +247,9 @@ def create_app(object_name=None):
     app = Flask(__name__)
     app.config.from_object(object_name)
 
-    app.config.update(
-        SCHEDULER_JOBSTORES={
-            'default': SQLAlchemyJobStore(url=app.config['SQLALCHEMY_DATABASE_APP_URI'])
-        },
-    )
-    # table partition number
-    dic_config[PARTITION_NUMBER] = app.config[PARTITION_NUMBER]
+    # app.config.update(
+    #     SCHEDULER_JOBSTORES={'default': SQLAlchemyJobStore(url=app.config['SQLALCHEMY_DATABASE_APP_URI'])},
+    # )
 
     # db directory
     dic_config[SQLITE_CONFIG_DIR] = app.config[SQLITE_CONFIG_DIR]
@@ -183,6 +257,7 @@ def create_app(object_name=None):
     # db files
     dic_config[APP_DB_FILE] = app.config[APP_DB_FILE]
     dic_config[UNIVERSAL_DB_FILE] = app.config[UNIVERSAL_DB_FILE]
+    make_dir(dic_config[UNIVERSAL_DB_FILE])
 
     # testing param
     dic_config[TESTING] = app.config.get(TESTING, None)
@@ -192,7 +267,7 @@ def create_app(object_name=None):
         make_dir(dic_config[SQLITE_CONFIG_DIR])
 
     should_reset_import_history = False
-    if not check_exist(app.config['UNIVERSAL_DB_FILE']):
+    if not count_file_in_folder(app.config['UNIVERSAL_DB_FILE']):
         should_reset_import_history = True
 
     # check and copy appDB to instance if not existing
@@ -201,7 +276,7 @@ def create_app(object_name=None):
     db.init_app(app)
     migrate.init_app(app, db)
     ma.init_app(app)
-    init_engine(app, app.config['SQLALCHEMY_DATABASE_APP_URI'])
+    init_engine(app, app.config['SQLALCHEMY_DATABASE_URI'])
     # reset import history when no universal db
     if should_reset_import_history:
         from ap.script.hot_fix.fix_db_issues import reset_import_history
@@ -210,13 +285,9 @@ def create_app(object_name=None):
 
     # yaml files path
     yaml_config_dir = app.config.get('YAML_CONFIG_DIR')
-    dic_yaml_config_file[YAML_CONFIG_BASIC] = os.path.join(
-        yaml_config_dir, YAML_CONFIG_BASIC_FILE_NAME
-    )
+    dic_yaml_config_file[YAML_CONFIG_BASIC] = os.path.join(yaml_config_dir, YAML_CONFIG_BASIC_FILE_NAME)
     dic_yaml_config_file[YAML_CONFIG_DB] = os.path.join(yaml_config_dir, YAML_CONFIG_DB_FILE_NAME)
-    dic_yaml_config_file[YAML_CONFIG_PROC] = os.path.join(
-        yaml_config_dir, YAML_CONFIG_PROC_FILE_NAME
-    )
+    dic_yaml_config_file[YAML_CONFIG_PROC] = os.path.join(yaml_config_dir, YAML_CONFIG_PROC_FILE_NAME)
     dic_yaml_config_file[YAML_CONFIG_AP] = os.path.join(yaml_config_dir, YAML_CONFIG_AP_FILE_NAME)
     dic_yaml_config_file[YAML_START_UP] = os.path.join(os.getcwd(), YAML_START_UP_FILE_NAME)
 
@@ -224,7 +295,7 @@ def create_app(object_name=None):
     init_config(dic_yaml_config_file[YAML_CONFIG_BASIC], app.config[INIT_BASIC_CFG_FILE])
 
     # db secret key
-    dic_config['DB_SECRET_KEY'] = app.config['DB_SECRET_KEY']
+    dic_config[DB_SECRET_KEY] = app.config[DB_SECRET_KEY]
 
     # sqlalchemy echo flag
     app.config['SQLALCHEMY_ECHO'] = app.config.get('DEBUG')
@@ -276,30 +347,32 @@ def create_app(object_name=None):
     version_file = app.config.get('VERSION_FILE_PATH') or os.path.join(os.getcwd(), 'VERSION')
     with open(version_file) as f:
         rows = f.readlines()
-        app_ver = rows[0]
+        rows.reverse()
+        app_ver = rows.pop()
         if '%%VERSION%%' in app_ver:
             app_ver = 'v00.00.000.00000000'
 
-        dic_yaml_config_file[YAML_CONFIG_VERSION] = rows[1] if len(rows) > 1 else '0'
+        config_ver = rows.pop() if len(rows) else '0'
 
-        app_source = rows[2] if len(rows) > 2 else ''
-        app_source = str(app_source).strip('\n')
-        app_source = app_source if app_source != '' else AppSource.DN.value
+        dic_yaml_config_file[YAML_CONFIG_VERSION] = config_ver
+
+        app_source = str(rows.pop()).strip('\n') if len(rows) else AppSource.DN.value
+        app_source = app_source if app_source else AppSource.DN.value
 
         user_group = os.environ.get('group', AppGroup.Dev.value)
         user_group = get_app_group(app_source, user_group)
 
     # Universal DB init
-    init_db(app)
+    # init_db(app)
 
     # migrate csv datatype
-    migrate_csv_datatype(app.config['APP_DB_FILE'])
-    migrate_csv_dummy_datetime(app.config['APP_DB_FILE'])
-    migrate_csv_save_graph_settings(app.config['APP_DB_FILE'])
-    migrate_cfg_data_source_csv(app.config['APP_DB_FILE'])
-
-    # convert_user_setting()
-    convert_user_setting_url()
+    migrate_csv_datatype(app.config[APP_DB_FILE])
+    migrate_csv_dummy_datetime(app.config[APP_DB_FILE])
+    migrate_csv_save_graph_settings(app.config[APP_DB_FILE])
+    migrate_cfg_data_source_csv(app.config[APP_DB_FILE])
+    migrate_cfg_process_add_file_name(app.config[APP_DB_FILE])
+    migrate_cfg_process_column_add_column_raw_name(app.config[APP_DB_FILE])
+    migrate_cfg_process_column_add_column_type(app.config[APP_DB_FILE])
 
     # start scheduler (Notice: start scheduler at the end , because it may run job before above setting info was set)
     if scheduler.state != STATE_STOPPED:
@@ -310,15 +383,15 @@ def create_app(object_name=None):
         # all job will run in UTC instead of local time
         app.config['SCHEDULER_TIMEZONE'] = utc
     scheduler.init_app(app)
-    print('SCHEDULER START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    scheduler.start()
 
     # Shut down the scheduler when exiting the app
     atexit.register(
-        lambda: scheduler.shutdown()
-        if scheduler.state != STATE_STOPPED
-        else print('Scheduler is already shutdown')
+        lambda: scheduler.shutdown() if scheduler.state != STATE_STOPPED else print('Scheduler is already shutdown'),
     )
+
+    @app.route('/ping')
+    def ping():
+        return 'Pong!', 200
 
     @app.before_request
     def before_request_callback():
@@ -331,10 +404,7 @@ def create_app(object_name=None):
         set_request_g_dict(thread_id)
 
         resource_type = request.base_url or ''
-        is_ignore_content = any(
-            resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS
-        )
-
+        is_ignore_content = any(resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS)
         if not is_ignore_content and request.blueprint != EXTERNAL_API:
             bind_user_info(request)
 
@@ -383,16 +453,14 @@ def create_app(object_name=None):
 
         # check everytime (acceptable performance)
         # response.cache_control.no_cache = True
-
+        response.direct_passthrough = False
         response.add_etag()
         response.make_conditional(request)
-        if response.status_code == 304:
+        if response.status_code == HTML_CODE_304:
             return response
 
         resource_type = request.base_url or ''
-        is_ignore_content = any(
-            resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS
-        )
+        is_ignore_content = any(resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS)
         if not is_ignore_content:
             bind_user_info(request, response)
             response.set_cookie('log_level', str(is_default_log_level))
@@ -417,9 +485,7 @@ def create_app(object_name=None):
         close_sessions()
         logger.exception(e)
 
-        response = json_dumps(
-            {'code': e.code, 'message': str(e), 'dataset_id': get_log_attr(TraceErrKey.DATASET)}
-        )
+        response = json_dumps({'code': e.code, 'message': str(e), 'dataset_id': get_log_attr(TraceErrKey.DATASET)})
         status = 500
         return Response(response=response, status=status)
         # return render_template('500.html'), 500
@@ -462,7 +528,7 @@ def create_app(object_name=None):
             {
                 'code': e.status_code,
                 'message': e.message,
-            }
+            },
         )
         return Response(response=response, status=408)
 
@@ -481,7 +547,7 @@ def init_db(app):
     init db with some parameter
     :return:
     """
-    from .common.common_utils import set_sqlite_params, sql_regexp
+    from .common.common_utils import set_sqlite_params
 
     db.create_all(app=app)
     # Universal DB init
@@ -490,12 +556,12 @@ def init_db(app):
     universal_engine = db.get_engine(app)
 
     @event.listens_for(universal_engine, 'connect')
-    def do_connect(dbapi_conn, connection_record):
+    def do_connect(dbapi_conn, _connection_record):
         set_sqlite_params(dbapi_conn)
 
-    @event.listens_for(universal_engine, 'begin')
-    def do_begin(dbapi_conn):
-        dbapi_conn.connection.create_function('REGEXP', 2, sql_regexp)
+    # @event.listens_for(universal_engine, 'begin')
+    # def do_begin(dbapi_conn):
+    #     dbapi_conn.connection.create_function(SQL_REGEXP_FUNC, 2, sql_regexp)
 
 
 @log_execution()
@@ -511,15 +577,12 @@ def get_start_up_yaml_obj():
 def get_app_group(app_source, user_group):
     if user_group and user_group.lower() == AppGroup.Dev.value.lower():
         user_group = AppGroup.Dev.value
-    else:
-        if app_source:
-            if app_source == AppSource.DN.value:
-                user_group = AppGroup.DN.value
-            elif user_group.lower() == AppGroup.DN.value.lower():
-                user_group = AppGroup.DN.value
-            else:
-                user_group = AppGroup.Ext.value
+    elif app_source:
+        if app_source == AppSource.DN.value or user_group.lower() == AppGroup.DN.value.lower():
+            user_group = AppGroup.DN.value
         else:
-            user_group = AppGroup.Dev.value
+            user_group = AppGroup.Ext.value
+    else:
+        user_group = AppGroup.Dev.value
 
     return user_group

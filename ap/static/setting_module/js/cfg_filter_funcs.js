@@ -1077,6 +1077,7 @@ const filterCfgGenerator = ((cardId, filterType = filterTypes.OTHER) => {
             colHeaders: tableHeadInfor.headerLabels.slice(1, numCols),
             colWidths: tableHeadInfor.colWidths.slice(1, numCols),
             defaultColAlign: 'left',
+            ...jspreadsheetCustomHooks(),
         });
     };
 

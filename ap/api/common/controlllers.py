@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request
 from flask_babel import get_locale
 
 from ap.api.common.services.plot_view import gen_graph_plot_view
-from ap.api.common.services.services import update_draw_data_trace_log
+from ap.api.common.services.show_graph_database import get_config_data
+from ap.api.common.services.show_graph_services import update_draw_data_trace_log
 from ap.api.trace_data.services.csv_export import gen_csv_data
 from ap.common.constants import (
     ALL_TILES,
@@ -11,9 +12,14 @@ from ap.common.constants import (
     TILE_MASTER,
     TILES,
     UN_AVAILABLE,
+    CSVExtTypes,
 )
 from ap.common.services.csv_content import zip_file_to_response
-from ap.common.services.form_env import parse_multi_filter_into_one, parse_request_params
+from ap.common.services.form_env import (
+    bind_dic_param_to_class,
+    parse_multi_filter_into_one,
+    parse_request_params,
+)
 from ap.common.services.http_content import orjson_dumps
 from ap.common.services.request_time_out_handler import api_request_threads
 from ap.common.yaml_utils import TileInterfaceYaml
@@ -53,7 +59,28 @@ def save_draw_plot_executed_time():
 def plot_view():
     dic_form = parse_request_params(request)
 
-    dic_param, stats_table = gen_graph_plot_view(dic_form)
+    dic_param = parse_multi_filter_into_one(dic_form)
+    cycle_id = int(dic_form.get('cycle_id'))
+    point_time = dic_form.get('time')
+    target_id = int(dic_form.get('sensor_id'))
+
+    dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+    graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+    cfg_col = None
+    for proc_id, cfg_proc in dic_proc_cfgs.items():
+        cfg_col = cfg_proc.get_col(target_id)
+        if cfg_col:
+            break
+
+    dic_param, stats_table = gen_graph_plot_view(
+        graph_param,
+        dic_param,
+        dic_form,
+        cycle_id,
+        point_time,
+        proc_id,
+        cfg_col.id,
+    )
 
     output_dict = stats_table
     return render_template('plot_view/plot_view.html', **output_dict)
@@ -68,8 +95,10 @@ def data_export(export_type):
     """
     dic_form = parse_request_params(request)
     dic_param = parse_multi_filter_into_one(dic_form)
-    delimiter = ',' if export_type == 'csv' else '\t'
-    csv_str = gen_csv_data(dic_param, delimiter=delimiter)
+    dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+    graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+    delimiter = ',' if export_type == CSVExtTypes.CSV.value else '\t'
+    csv_str = gen_csv_data(graph_param, dic_param, delimiter=delimiter)
 
     response = zip_file_to_response([csv_str], None, export_type=export_type)
     return response
@@ -91,7 +120,5 @@ def get_jump_cfg(source_page):
         all = tile_jump_cfg.get(ALL_TILES) or []
 
     master_info = get_tile_master_with_lang(tile_master, current_lang)
-    out_dict = orjson_dumps(
-        dict(all=all, recommended=recommended, unavailable=unavailable, master=master_info)
-    )
+    out_dict = orjson_dumps({'all': all, 'recommended': recommended, 'unavailable': unavailable, 'master': master_info})
     return out_dict, 200

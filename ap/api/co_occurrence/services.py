@@ -3,12 +3,13 @@ import itertools
 import numpy as np
 import pandas as pd
 from flask_babel import gettext as _
+from pandas import DataFrame
 
-from ap.common.constants import *
+from ap.common.constants import CUM_RATIO_VALUE, AggregateBy
 from ap.common.logger import logger
 from ap.common.services.request_time_out_handler import abort_process_handler
-from ap.common.services.sse import notify_progress
-from ap.common.trace_data_log import *
+from ap.common.services.sse import MessageAnnouncer
+from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 from ap.common.yaml_utils import YamlConfig
 
 dic_colors = {
@@ -68,7 +69,7 @@ def validate_csv_data(df: DataFrame):
     return True
 
 
-@notify_progress(60)
+@MessageAnnouncer.notify_progress(60)
 @abort_process_handler()
 def calc_csv_graph_data(df: DataFrame, aggregate_by: AggregateBy, pareto=None):
     if pareto is None:
@@ -79,24 +80,21 @@ def calc_csv_graph_data(df: DataFrame, aggregate_by: AggregateBy, pareto=None):
 
     df.set_index(date_time_col, inplace=True)
 
-    if aggregate_by is AggregateBy.HOUR:
-        freq = 'H'
-    else:
-        freq = 'D'
+    freq = 'H' if aggregate_by is AggregateBy.HOUR else 'D'
 
     df_sum = df.groupby(pd.Grouper(freq=freq)).sum()
     nodes_cum_rate_80 = YamlConfig.get_node(pareto, ['bar', 'highlight_bars'], set()) or set()
     nodes = []
     for key, val in df_sum.sum().to_dict().items():
         color = dic_colors['bar_highlight'] if key in nodes_cum_rate_80 else ''
-        nodes.append(dict(id=key, label=key, size=int(val), color=color))
+        nodes.append({'id': key, 'label': key, 'size': int(val), 'color': color})
 
     edges = []
     for source, target in itertools.combinations(data_cols, 2):
         edge = [source, target]
         size = int(df_sum[edge].min(axis=1).sum())
         edge_id = '-'.join([str(node_id) for node_id in edge])
-        dic_edge = dict(id=edge_id, label=size, source=source, target=target)
+        dic_edge = {'id': edge_id, 'label': size, 'source': source, 'target': target}
         edges.append(dic_edge)
 
     return nodes, edges
@@ -147,7 +145,7 @@ def filter_edge_by_threshold(edges, threshold=100):
     return edges
 
 
-@notify_progress(30)
+@MessageAnnouncer.notify_progress(30)
 @abort_process_handler()
 @trace_log(
     (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
@@ -159,9 +157,7 @@ def calc_pareto(df: pd.DataFrame):
 
     # ----- summarize -----
     # sort with descending order and take cumsum for pareto chart
-    total_occurrences = (
-        df.drop(drop_col, axis='columns').sum(axis='index').sort_values(ascending=False)
-    )
+    total_occurrences = df.drop(drop_col, axis='columns').sum(axis='index').sort_values(ascending=False)
     cum_occurrences_ratio = total_occurrences.cumsum() / total_occurrences.sum()
     alarm_names = total_occurrences.index.values
     print('alarm names: ', alarm_names[:5], '...')
@@ -170,13 +166,10 @@ def calc_pareto(df: pd.DataFrame):
 
     # change color of bar (highlight cumulative ratio <= 80%)
     # note that this list is not in the original column order.
-    # bar_colors = [dic_colors["bar_highlight"] if x <= 0.8 else dic_colors["bar_normal"] for x in cum_occurrences_ratio]
     highlight_bars = set()
     bar_colors = []
-    for alarm_name, cum_ratio_value in list(
-        zip(cum_occurrences_ratio.index, cum_occurrences_ratio)
-    ):
-        if cum_ratio_value <= 0.8:
+    for alarm_name, cum_ratio_value in list(zip(cum_occurrences_ratio.index, cum_occurrences_ratio)):
+        if cum_ratio_value <= CUM_RATIO_VALUE:
             color = dic_colors['bar_highlight']
             highlight_bars.add(alarm_name)
         else:

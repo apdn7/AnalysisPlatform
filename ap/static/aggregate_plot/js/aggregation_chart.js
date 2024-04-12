@@ -106,6 +106,7 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
         const { x, y, name, type, isOutlier, colorName, outlierVal } = data.points[0].data;
         const xVal = x[dpIndex].slice(1);
         const color = colorName || name;
+        const hasColor = !!color_name;
         const nByXAndColor = y[dpIndex];
         let dataTable = '';
         const isShowFromTo = div.length === useDivFromTo.length - 1;
@@ -144,7 +145,9 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
             const nByX = showPercent ? '100%' : countByXAxis[xVal];
             const NByColor = showPercent ? `${applySignificantDigit(nByXAndColor * 100)}%` : applySignificantDigit(nByXAndColor);
 
-            dataTable = genHoverDataTable([['x', xVal], ...period, ['Color', color], ['N by x and Color', NByColor], ['N by x', applySignificantDigit(nByX)], ...fromTo]);
+            const NByColorHover = hasColor ? [['N by x and Color', NByColor]] : [];
+
+            dataTable = genHoverDataTable([['x', xVal], ...period, ['Color', color], ...NByColorHover, ['N by x', applySignificantDigit(nByX)], ...fromTo]);
         }
         genDataPointHoverTable(
             dataTable,

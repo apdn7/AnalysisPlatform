@@ -1,15 +1,13 @@
+import contextlib
 import itertools
 from datetime import datetime, timedelta
-from typing import List
 
 import numpy as np
 import pandas as pd
 import pytz
 from dateutil import parser, tz
 
-from ap.api.trace_data.services.graph_search import GraphUtil
-from ap.api.trace_data.services.proc_link import order_before_mapping_data
-from ap.api.trace_data.services.time_series_chart import (
+from ap.api.common.services.show_graph_services import (
     create_graph_config,
     create_rsuffix,
     gen_blank_df_end_cols,
@@ -17,7 +15,6 @@ from ap.api.trace_data.services.time_series_chart import (
     gen_plotdata,
     get_chart_infos,
     get_data_from_db,
-    get_procs_in_dic_param,
 )
 from ap.common.common_utils import DATE_FORMAT, DATE_FORMAT_STR_CSV, TIME_FORMAT, gen_sql_label
 from ap.common.constants import (
@@ -25,59 +22,53 @@ from ap.common.constants import (
     ACT_TO,
     ARRAY_FORMVAL,
     ARRAY_PLOTDATA,
-    CYCLE_IDS,
     END_PROC,
     GET02_VALS_SELECT,
     PRC_MAX,
     PRC_MIN,
+    ROWID,
     SUMMARIES,
     THRESH_HIGH,
     THRESH_LOW,
+    TIME_COL,
 )
 from ap.common.logger import log_execution_time
 from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one
 from ap.common.services.statistics import calc_summaries
 from ap.common.timezone_utils import get_datetime_from_str
 from ap.common.yaml_utils import YamlConfig
-from ap.setting_module.models import CfgProcess, CfgProcessColumn, CfgTrace
-from ap.trace_data.models import Cycle
-from ap.trace_data.schemas import EndProc
+from ap.setting_module.models import CfgProcessColumn
+from ap.trace_data.schemas import DicParam, EndProc
 
 
 @log_execution_time()
-def gen_graph_plot_view(dic_form):
+def gen_graph_plot_view(graph_param: DicParam, dic_param, dic_form, cycle_id, point_time, target_proc_id, target_id):
     """tracing data to show graph
     1 start point x n end point
     filter by condition point
     https://files.slack.com/files-pri/TJHPR9BN3-F01GG67J84C/image.pngnts that between start point and end_point
     """
-    dic_param = parse_multi_filter_into_one(dic_form)
-    cycle_id = int(dic_form.get('cycle_id'))
-    point_time = dic_form.get('time')
-    target_id = int(dic_form.get('sensor_id'))
-    sensor = CfgProcessColumn.query.get(target_id)
-    target_proc_id = sensor.process_id
 
-    # bind graph_param
-    graph_param, dic_proc_cfgs = build_graph_param(dic_param)
+    # for cfg_proc in orig_graph_param.dic
 
     # get data from database
     df, _, _ = get_data_from_db(graph_param)
-    target_serial_cols = get_serial_cols(dic_proc_cfgs)
+    target_serial_cols = get_serial_cols(graph_param.dic_proc_cfgs[target_proc_id])
 
     # create output data
-    orig_graph_param = bind_dic_param_to_class(dic_param)
-    orig_graph_param.add_cate_procs_to_array_formval()
-    dic_data = gen_dic_data_from_df(df, orig_graph_param)
-    orig_graph_param = bind_dic_param_to_class(dic_param)
-    times = df[Cycle.time.key].tolist() or []
+    cate_graph_param = bind_dic_param_to_class(
+        graph_param.dic_proc_cfgs,
+        graph_param.trace_graph,
+        graph_param.dic_card_orders,
+        dic_param,
+    )
+    cate_graph_param.add_cate_procs_to_array_formval()
+    dic_data = gen_dic_data_from_df(df, cate_graph_param)
+    times = df[TIME_COL].tolist() or []
 
     # get chart infos
-    chart_infos, original_graph_configs = get_chart_infos(orig_graph_param, dic_data, times)
-
-    _, dic_param[ARRAY_PLOTDATA] = gen_plotdata(
-        orig_graph_param, dic_data, chart_infos, original_graph_configs
-    )
+    chart_infos, original_graph_configs = get_chart_infos(graph_param, dic_data, times)
+    _, dic_param[ARRAY_PLOTDATA] = gen_plotdata(graph_param, dic_data, chart_infos, original_graph_configs)
 
     # calculate_summaries
     calc_summaries(dic_param)
@@ -87,7 +78,7 @@ def gen_graph_plot_view(dic_form):
     temp = df.copy()
     if df.empty:
         df = gen_blank_df_end_cols(graph_param.array_formval)
-        add_cols = list(set(list(temp.columns)) - set(list(df.columns)))
+        add_cols = list(set(temp.columns) - set(df.columns))
         for add_col in add_cols:
             df[add_col] = None
         df[df.columns] = df[df.columns].to_numpy()
@@ -97,11 +88,17 @@ def gen_graph_plot_view(dic_form):
     client_timezone = pytz.timezone(client_timezone)
 
     # List table
-    list_tbl_header, list_tbl_rows = gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone)
+    list_tbl_header, list_tbl_rows = gen_list_table(graph_param, df, client_timezone)
+
+    # all paths
+    paths = graph_param.trace_graph.get_all_paths(target_proc_id)
+    path_proc_ids = []
+    if paths:
+        path_proc_ids = [proc_id for proc_ids in paths for proc_id in proc_ids]
 
     # Stats table
     stats_tbl_header, stats_tbl_data = gen_stats_table(
-        dic_proc_cfgs,
+        path_proc_ids,
         graph_param,
         df,
         dic_param,
@@ -113,11 +110,17 @@ def gen_graph_plot_view(dic_form):
     )
 
     # Full link table
-    start_proc_local_time = df[Cycle.time.key][0]
+    start_proc_local_time = df[TIME_COL][0]
     serial_value = df[target_serial_cols[0]][0] if target_serial_cols else ''
     dic_param = build_dic_param_plot_view(dic_form, start_proc_local_time)
-    graph_param, dic_proc_cfgs = build_graph_param(dic_param, full_link=True)
-    full_target_serial_cols = get_serial_cols(dic_proc_cfgs)
+
+    graph_param = build_graph_param(graph_param, paths=paths)
+
+    full_target_serial_cols = []
+    for nodes in paths:
+        for proc_id in nodes:
+            full_target_serial_cols.extend(get_serial_cols(graph_param.dic_proc_cfgs[proc_id]))
+
     df_full, _, _ = get_data_from_db(graph_param)
     _df_full = df_full.copy()
     # use df when df_full is None
@@ -136,9 +139,7 @@ def gen_graph_plot_view(dic_form):
         df_blank[df.columns] = df[df.columns].to_numpy()
         df_full = df.merge(df_blank)
 
-    full_link_tbl_header, full_link_tbl_rows = gen_list_table(
-        dic_proc_cfgs, graph_param, df_full, client_timezone
-    )
+    full_link_tbl_header, full_link_tbl_rows = gen_list_table(graph_param, df_full, client_timezone)
 
     return dic_param, {
         'stats_tbl_header': stats_tbl_header,
@@ -151,8 +152,8 @@ def gen_graph_plot_view(dic_form):
 
 
 def extract_cycle(df: pd.DataFrame, cycle_id):
-    if Cycle.id.key in df.columns:
-        df = df[df.id == cycle_id].reset_index()
+    if ROWID in df.columns:
+        df = df[df.rowid == cycle_id].reset_index()
     elif 'cycle_id' in df.columns:
         df = df[df.cycle_id == cycle_id].reset_index()
     else:
@@ -168,18 +169,14 @@ def extract_serial(df: pd.DataFrame, serial_cols, serial_value):
     return df.replace({np.nan: ''})
 
 
-def get_serial_cols(dic_proc_cfgs):
-    serials = []
-    for proc_id, proc in dic_proc_cfgs.items():
-        serial_cols = proc.get_serials(column_name_only=False)
-        serials += [
-            gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols
-        ]
+def get_serial_cols(cfg_proc):
+    serial_cols = cfg_proc.get_serials(column_name_only=False)
+    serials = [gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols]
     return serials
 
 
 def gen_stats_table(
-    dic_proc_cfgs,
+    proc_ids,
     graph_param,
     df,
     dic_param,
@@ -189,18 +186,19 @@ def gen_stats_table(
     target_id,
     target_proc_id,
 ):
-    proc_ids = dic_proc_cfgs.keys()
-    proc_ids = order_proc_as_trace_config(proc_ids)
+    # proc_ids = graph_param.dic_proc_cfgs.keys()
+    # proc_ids = order_proc_as_trace_config(proc_ids)
 
     stats_tbl_data = []
     max_num_serial = 1
-    for proc_id, proc_cfg in dic_proc_cfgs.items():
+    for proc_id in proc_ids:
+        proc_cfg = graph_param.dic_proc_cfgs[proc_id]
         serial_col_cfgs = proc_cfg.get_serials(column_name_only=False)
         if len(serial_col_cfgs) >= max_num_serial:
             max_num_serial = len(serial_col_cfgs)
 
     for proc_order, proc_id in enumerate(proc_ids):
-        proc_cfg = dic_proc_cfgs.get(proc_id)
+        proc_cfg = graph_param.dic_proc_cfgs[proc_id]
         end_proc: EndProc = graph_param.search_end_proc(proc_id)[1]
         if end_proc is None:
             continue
@@ -224,7 +222,7 @@ def gen_stats_table(
                 serial_vals.append('')
 
         # Datetime
-        time_col_name = str(Cycle.time.key) + create_rsuffix(proc_id)
+        time_col_name = str(TIME_COL) + create_rsuffix(proc_id)
         time_val = ''
         if time_col_name in df.columns and not df.empty:
             time_val = df.loc[0][time_col_name]
@@ -235,7 +233,9 @@ def gen_stats_table(
             else:
                 time_val = ''
 
-        for col_idx, col_id in enumerate(col_ids):
+        for _col_idx, _col_id in enumerate(col_ids):
+            col_idx = _col_idx
+            col_id = _col_id
             if col_id in serial_ids:
                 continue
 
@@ -277,9 +277,7 @@ def gen_stats_table(
             threshold = {}
             if col_thresholds:
                 point_time = time_val or start_time_val
-                threshold, latest_idx = get_latest_threshold(
-                    col_thresholds, point_time, client_timezone
-                )
+                threshold, latest_idx = get_latest_threshold(col_thresholds, point_time, client_timezone)
             th_type = threshold.get('type') or ''
             th_name = threshold.get('name') or ''
             if col_idx is not None:
@@ -295,10 +293,7 @@ def gen_stats_table(
             if col_idx is not None and latest_idx is not None:
                 plotdata = dic_param[ARRAY_PLOTDATA][col_idx]
                 summaries = plotdata[SUMMARIES] or []
-                if isinstance(summaries, dict):
-                    summary = summaries
-                else:
-                    summary = summaries[latest_idx]
+                summary = summaries if isinstance(summaries, dict) else summaries[latest_idx]
 
                 row.extend(build_summary_cells(summary))
             else:
@@ -307,7 +302,7 @@ def gen_stats_table(
             stats_tbl_data.append(row)
 
     stats_tbl_data = sorted(stats_tbl_data, key=lambda x: int(x[0]))
-    stats_tbl_data = list(map(lambda x: x[1:], stats_tbl_data))
+    stats_tbl_data = [x[1:] for x in stats_tbl_data]
 
     stats_tbl_header = build_stats_header(max_num_serial)
 
@@ -334,11 +329,10 @@ def get_latest_threshold(col_thresholds, point_time, client_timezone):
                 act_from = client_timezone.localize(act_from)
             if act_to and act_to.tzinfo is None:
                 act_to = client_timezone.localize(act_to)
-            if act_from <= point_time <= act_to:
-                if latest_act_to < act_to:
-                    latest_threshold = th
-                    latest_idx = idx
-                    latest_act_to = act_to
+            if act_from <= point_time <= act_to and latest_act_to < act_to:
+                latest_threshold = th
+                latest_idx = idx
+                latest_act_to = act_to
         return latest_threshold, latest_idx
     else:
         latest_idx = 0
@@ -374,7 +368,7 @@ def build_stats_header(max_num_serial):
             'P25 Q1',
             'P5',
             'IQR',
-        ]
+        ],
     )
     return stats_tbl_header
 
@@ -386,54 +380,51 @@ def build_empty_summary_cells():
 def build_summary_cells(summary):
     bstats = summary['basic_statistics'] or {}
     non_pt = summary['non_parametric'] or {}
-    return list(
-        map(
-            lambda x: '' if x is None else x,
-            [
-                bstats.get('n_stats'),
-                bstats.get('average'),
-                bstats.get('sigma_3'),
-                bstats.get('Cp'),
-                bstats.get('Cpk'),
-                bstats.get('sigma'),
-                bstats.get('Max'),
-                bstats.get('Min'),
-                non_pt.get('median'),
-                non_pt.get('p95'),
-                non_pt.get('p75'),
-                non_pt.get('p25'),
-                non_pt.get('p5'),
-                non_pt.get('iqr'),
-            ],
-        )
-    )
+    return [
+        '' if x is None else x
+        for x in [
+            bstats.get('n_stats'),
+            bstats.get('average'),
+            bstats.get('sigma_3'),
+            bstats.get('Cp'),
+            bstats.get('Cpk'),
+            bstats.get('sigma'),
+            bstats.get('Max'),
+            bstats.get('Min'),
+            non_pt.get('median'),
+            non_pt.get('p95'),
+            non_pt.get('p75'),
+            non_pt.get('p25'),
+            non_pt.get('p5'),
+            non_pt.get('iqr'),
+        ]
+    ]
 
 
 def convert_and_format(time_val, client_timezone, out_format=DATE_FORMAT_STR_CSV):
-    try:
+    with contextlib.suppress(Exception):
         dt_obj = pd.Timestamp(time_val, tz='UTC').astimezone(client_timezone)
-    except Exception:
-        pass
+
     if out_format is None:
         return dt_obj
 
     return datetime.strftime(dt_obj, out_format)
 
 
-def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
+def gen_list_table(graph_param, df, client_timezone):
     # proc_ids = dic_proc_cfgs.keys()
     list_tbl_data = []
     list_tbl_header = []
     for proc in graph_param.array_formval:
         proc_id = proc.proc_id
-        proc_cfg = dic_proc_cfgs.get(proc_id)
+        proc_cfg = graph_param.dic_proc_cfgs[proc_id]
         list_tbl_header.extend(['Item', 'Name', 'Value'])
         # col_ids = [col.id for col in dic_proc_cfgs[proc_id].columns]
         # end_proc: EndProc = graph_param.search_end_proc(proc_id)[1]
         col_ids = proc.col_ids
-        get_date_col: CfgProcessColumn = proc_cfg.get_date_col(column_name_only=False)
+        get_date_col: CfgProcessColumn = graph_param.dic_proc_cfgs[proc_id].get_date_col(column_name_only=False)
         dic_id_col = {col.id: col for col in proc_cfg.columns}
-        serial_col_cfgs = proc_cfg.get_serials(column_name_only=False)
+        serial_col_cfgs = graph_param.dic_proc_cfgs[proc_id].get_serials(column_name_only=False)
         serial_ids = []
         serial_vals = []
         proc_rows = []
@@ -448,7 +439,7 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
             proc_rows.append([serial.column_name, serial.shown_name, serial_val])
 
         # Datetime
-        time_col_name = str(Cycle.time.key) + create_rsuffix(proc_id)
+        time_col_name = str(TIME_COL) + create_rsuffix(proc_id)
         time_val = ''
         if time_col_name in df.columns and not df.empty:
             time_val = df[time_col_name][0]
@@ -504,9 +495,7 @@ def gen_list_table(dic_proc_cfgs, graph_param, df, client_timezone):
 
     list_tbl_rows = []
     for row in itertools.zip_longest(*list_tbl_data):
-        list_tbl_rows.append(
-            list(itertools.chain.from_iterable([r if r else ['', '', ''] for r in row]))
-        )
+        list_tbl_rows.append(list(itertools.chain.from_iterable([r if r else ['', '', ''] for r in row])))
 
     return list_tbl_header, list_tbl_rows
 
@@ -537,71 +526,31 @@ def build_dic_param_plot_view(dic_form, start_proc_local_time):
     return dic_param
 
 
-def order_proc_as_trace_config(proc_ids):
-    edges = CfgTrace.get_all()
-    ordered_edges: List[CfgTrace] = order_before_mapping_data(edges)
-    ordered_proc_ids = [(edge.self_process_id, edge.target_process_id) for edge in ordered_edges]
-    ordered_proc_ids = list(itertools.chain.from_iterable(ordered_proc_ids))
-    reversed_proc_ids = list(reversed(ordered_proc_ids))
-    ordered_proc_ids = []
-    for proc_id in reversed_proc_ids:
-        if proc_id in proc_ids and proc_id not in ordered_proc_ids:
-            ordered_proc_ids.append(proc_id)
-    return list(reversed(ordered_proc_ids)) or proc_ids
+# def order_proc_as_trace_config(proc_ids):
+#     edges = CfgTrace.get_all()
+#     ordered_edges: List[CfgTrace] = order_before_mapping_data(edges)
+#     ordered_proc_ids = [(edge.self_process_id, edge.target_process_id) for edge in ordered_edges]
+#     ordered_proc_ids = list(itertools.chain.from_iterable(ordered_proc_ids))
+#     reversed_proc_ids = list(reversed(ordered_proc_ids))
+#     ordered_proc_ids = []
+#     for proc_id in reversed_proc_ids:
+#         if proc_id in proc_ids and proc_id not in ordered_proc_ids:
+#             ordered_proc_ids.append(proc_id)
+#     return list(reversed(ordered_proc_ids)) or proc_ids
 
 
-def get_linked_procs(proc_id):
-    processes = CfgProcess.get_all()
-    nodes = [proc.id for proc in processes]
-
-    edges: List[CfgTrace] = CfgTrace.get_all()
-
-    graph_util = GraphUtil(nodes)
-    for edge in edges:
-        graph_util.add_edge(edge.self_process_id, edge.target_process_id)
-        graph_util.add_edge(edge.target_process_id, edge.self_process_id)
-
-    linked_procs = graph_util.find_linked_processes(proc_id)
-
-    return linked_procs
-
-
-def build_graph_param(dic_param, full_link=False):
-    # bind dic_param
-    graph_param = bind_dic_param_to_class(dic_param)
-
+def build_graph_param(graph_param, paths=None):
     # add relevant procs
-    if full_link:
-        relevant_procs = get_linked_procs(graph_param.get_start_proc())
-        for proc_id in relevant_procs:
-            graph_param.add_proc_to_array_formval(proc_id, [])
+    if paths:
+        for nodes in paths:
+            for proc_id in nodes:
+                graph_param.add_proc_to_array_formval(proc_id, [])
 
-    dic_proc_cfgs = get_procs_in_dic_param(graph_param)
-
-    # add start proc
-    # graph_param.add_start_proc_to_array_formval()
-
-    # add condition procs
-    # graph_param.add_cond_procs_to_array_formval()
-
-    # add category
-    # graph_param.add_cate_procs_to_array_formval()
-
-    # get serials
-    if full_link:
         for proc in graph_param.array_formval:
-            proc_cfg = dic_proc_cfgs[proc.proc_id]
+            proc_cfg = graph_param.dic_proc_cfgs[proc.proc_id]
             # columns = proc_cfg.get_serials(column_name_only=False)
             columns = proc_cfg.columns
             col_ids = [col.id for col in columns]
             proc.add_cols(col_ids)
 
-    return graph_param, dic_proc_cfgs
-
-
-def add_plot_view_params(dic_param):
-    cycle_ids = dic_param.get(CYCLE_IDS) or None
-    if not cycle_ids:
-        cycle_ids = []
-        dic_param[CYCLE_IDS] = cycle_ids
-    return dic_param
+    return graph_param

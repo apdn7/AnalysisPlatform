@@ -295,7 +295,7 @@ const drawTimeSeriesT2ChartFromObj = (objData, jsonDtTest = {}, chartConfig = {}
             zeroline: false,
             anchor: 'y',
             title: {
-                text: 'Sample No.',
+                text: INDEX_AXIS_LABEL,
                 font: {
                     color: 'rgba(255,255,255,1)',
                     family: '',
@@ -497,7 +497,7 @@ const drawTimeSeriesQChartFromObj = (objData, jsonDtTest = {}, chartConfig = {},
             zeroline: false,
             anchor: 'y',
             title: {
-                text: 'Sample No.',
+                text: INDEX_AXIS_LABEL,
                 font: {
                     color: 'rgba(255,255,255,1)',
                     family: '',

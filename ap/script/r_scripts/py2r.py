@@ -1,9 +1,8 @@
-import os
 import time
-import pyper
-import csv
 import pickle
+import time
 
+import pyper
 
 r = pyper.R(use_dict=True)
 r('source("./ap/script/r_scripts/common.r")')
@@ -20,8 +19,8 @@ def ext():
             st = time.time()
             result = fn(*args, **kwargs)
             et = time.time() + 0.005
-            exec_time = round((et - st) * 1000)  # miliseconds
-            print("Function `{:s}` executed in {:f} miliseconds!".format(fn.__name__, exec_time))
+            exec_time = round((et - st) * 1000)  # milliseconds
+            print("Function `{:s}` executed in {:f} milliseconds!".format(fn.__name__, exec_time))
             return result
 
         return wrapper

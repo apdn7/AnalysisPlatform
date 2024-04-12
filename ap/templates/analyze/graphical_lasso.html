@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import 'macros.html' as macros %}
 
 {% block header %}
     {{ macros.page_title(key='GL', title=_('Graphical Lasso'), hint=_('GL Page Title'), hasAction=true) }}
@@ -7,8 +6,8 @@
 
 {% block midbody %}
 <div class="card">
-	<form id="traceDataForm">
-		{{ macros.end_proc(procs, width=2, label_i18n_key='Show value', multiple_proc=true, showStartProc=true, title=_('GL target variable')) }}
+	<form class="GUIForm" id="traceDataForm">
+		{{ macros.end_proc(procs, width=2, label_i18n_key='Show value', multiple_proc=true, showStartProc=true, title=_('GL target variable'), nominalScale=True) }}
 		{{ macros.data_finder_card() }}
 		{{ macros.start_proc(showAutoUpdate=false) }}
 		{{ macros.cond_proc(width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
@@ -28,9 +27,10 @@
 </div>
 
 <div id="plot-card" class="plot-content" style="margin-top: 1rem; display: none;">
-    <div class="mb-2 d-flex align-items-center position-relative">
+    <div class="mb-2 d-flex align-items-center position-relative" id="graph-settings-area">
         {{ macros.info_i_mark() }}
         {{ macros.on_demand_filter() }}
+        {{ macros.nominal_scale_setting() }}
         {{ macros.jump_button() }}
 		<div class="d-flex align-items-center ml-4">
 			<label for="sparsity" class="mr-2 mb-0 hint-text" title="{{ _('Sparsity Hover') }}">{{ _('Sparsity') }}</label>

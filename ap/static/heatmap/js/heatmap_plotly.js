@@ -6,54 +6,6 @@ const funcTitle = {
     'Count/Hour': 'Count<br><sub>(Hour)</sub>',
     'Count/Min': 'Count<br><sub>(Min)</sub>',
 };
-const reverseScale = (colorScale) => {
-    const keys = colorScale.map(color => color[0]);
-    const val = [...colorScale.map(color => color[1])].reverse();
-    return keys.map((k, i) => [k, val[i]]);
-};
-
-const colorPallets = {
-    BLUE: {
-        isRev: false,
-        scale: [
-            ['0.0', 'rgb(33, 59, 77)'],
-            ['0.1666', 'rgb(47, 85, 110)'],
-            ['0.3333', 'rgb(59, 106, 138)'],
-            ['0.5', 'rgb(71, 128, 166)'],
-            ['0.6666', 'rgb(83, 150, 194)'],
-            ['0.8333', 'rgb(95, 171, 222)'],
-            ['1.0', 'rgb(107, 193, 250)']
-        ]
-    },
-    BLUE_REV: {
-        isRev: true,
-        scale: [
-            ['0.0', 'rgb(107, 193, 250)'],
-            ['0.1666', 'rgb(95, 171, 222)'],
-            ['0.3333', 'rgb(83, 150, 194)'],
-            ['0.5', 'rgb(71, 128, 166)'],
-            ['0.6666', 'rgb(59, 106, 138)'],
-            ['0.8333', 'rgb(47, 85, 110)'],
-            ['1.0', 'rgb(33, 59, 77)']
-        ]
-    },
-    JET: {
-        isRev: false,
-        scale: dnJETColorScale
-    },
-    JET_REV: {
-        isRev: true,
-        scale: reverseScale(dnJETColorScale)
-    },
-    JET_ABS: {
-        isRev: false,
-        scale: null
-    },
-    JET_ABS_REV: {
-        isRev: true,
-        scale: null
-    },
-};
 
 const getHalfOfScale = (colorScale, firstHalf=false) => {
     const centerIdx = colorScale.length / 2;

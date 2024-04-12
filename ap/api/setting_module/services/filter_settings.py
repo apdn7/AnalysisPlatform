@@ -1,4 +1,4 @@
-from ap.common.constants import CfgFilterType, RelationShip
+from ap.common.constants import RelationShip
 from ap.setting_module.models import (
     CfgFilter,
     CfgFilterDetail,
@@ -66,7 +66,7 @@ def save_filter_config(params):
                 'name': filter_name,
                 'column_id': column_id,
                 'filter_type': filter_type,
-            }
+            },
         )
         cfg_filter = insert_or_update_config(meta_session, cfg_filter)
         meta_session.commit()
@@ -86,7 +86,7 @@ def save_filter_config(params):
                     'filter_condition': filter_detail_conds[idx],
                     'filter_function': filter_detail_functions[idx] or None,
                     'filter_from_pos': filter_detail_start_froms[idx] or None,
-                }
+                },
             )
             filter_details.append(filter_detail)
 

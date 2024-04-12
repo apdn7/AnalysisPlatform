@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import 'macros.html' as macros %}
 
 {% block asset %}
 
@@ -22,6 +21,8 @@
           type="text/css"/>
     <link rel="stylesheet" type="text/css"
           href="{{ url_for('setting_module.static', filename = 'css/trace_config.css') }}">
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('setting_module.static', filename = 'css/proc_config_modal.css') }}">
 {% endblock %}
 
 {% block header %}

@@ -1,12 +1,11 @@
 {% extends "base.html" %}
-{% import 'macros.html' as macros %}
 {% block header %}
     {{ macros.page_title(key='ScP', title=_('Scatter Plot'), hint=_('SCP Page title description'), hasAction=true) }}
 {% endblock %}
-
 {% block midbody %}
+
 <div class="card">
-    <form id="traceDataForm">
+    <form id="traceDataForm" class="GUIForm">
         {{macros.scatter_end_proc(procs,'', title=_('SCP show value description'), isShowMinMax=false)}}
         {{ macros.data_finder_card() }}
         <!-- Date range -->
@@ -20,7 +19,7 @@
                 </div>
                 <div class="col-xl-10 col-9">
                     <div class="row">
-                        {{macros.multiple_target_period(rlp=true, dataNumber=true, scp=true, DivisionNumberHover=_('Division number Hover ScP'), WindowLengthHover=_('Window length Hover ScP'), cyclicTermDefault=49, cyclicIntervalDefault=1)}}
+                        {{macros.multiple_target_period(rlp=true, dataNumber=true, scp=true, DivisionNumberHover=_('Division number Hover ScP'), WindowLengthHover=_('Window length Hover ScP'), cyclicTermDefault=49, cyclicIntervalDefault=1, IntervalHover=_('Interval Hover ScP'))}}
                     </div>
                 </div>
             </div>

@@ -91,9 +91,7 @@ class GaussianGraphicalModel:
         # precision matrix
         pmat = graphical_lasso(emp_cov, alpha)[1]
         # presicion matrix and partial correlation matrix
-        parcor = -pmat / (
-            np.sqrt(np.diag(pmat)).reshape(-1, 1) @ np.sqrt(np.diag(pmat)).reshape(1, -1)
-        )
+        parcor = -pmat / (np.sqrt(np.diag(pmat)).reshape(-1, 1) @ np.sqrt(np.diag(pmat)).reshape(1, -1))
         # no self-loops
         np.fill_diagonal(parcor, 0.0)
         return parcor
@@ -154,73 +152,3 @@ class GaussianGraphicalModel:
         for i in range(len(idx_tgt)):
             num_directs.append(len(np.where(np.abs(parcor[idx_tgt[i], :]) > 0)[0]))
         return min(num_directs)
-
-
-def remove_unnecessary_edges(parcor, idx_tgt, num_layers=2):
-    """
-    Remove unnecessary edges from partial correlation matrix
-
-    Inputs:
-    ----------
-    parcor : 2d NumpyArray
-        partial correlation matrix (num_cols x num_cols)
-
-    idx_tgt : list
-        index list of target column(s)
-
-    num_layers : int, default=2
-        number of layers (not including target variables) to extract
-
-    Returns:
-    ----------
-    adj_mat : 2d NumpyArray which indicate adjacency matrix.
-        This array is strictly upper triangular, and
-            (j, i) th element indicate partial correlation between (j, i).
-    """
-
-    def extract_connected_idx(parcor, source_idx, from_idx):
-        """Extract index of directly connected nodes"""
-        idx_connected = []
-        for i in range(len(source_idx)):
-            idx_cand = np.where(np.abs(parcor[:, source_idx[i]]) > 0)[0]
-            idx_connected.extend(from_idx[idx_cand])
-        idx_connected = np.unique(idx_connected)
-        return idx_connected
-
-    def parcor2adj(parcor, dic_idx, num_layers):
-        """Convert partial correlation matrix to adjacency matrix"""
-        # remove all paths inside each layer (including target)
-        adj_mat = parcor.copy()
-        for i in range(num_layers + 1):
-            idx_curr_layer = dic_idx['idx_layer' + str(i)]
-            if len(idx_curr_layer) > 0:
-                adj_mat[np.ix_(idx_curr_layer, idx_curr_layer)] = 0.0
-
-        # remove all path from/to remaining nodes
-        if len(dic_idx['idx_remain']) > 0:
-            adj_mat[dic_idx['idx_remain'], :] = 0.0
-            adj_mat[:, dic_idx['idx_remain']] = 0.0
-
-        # we only need upper triangularelements
-        adj_mat = np.triu(adj_mat)
-        return adj_mat
-
-    # recursively extract directly correlated variables starting from target variables
-    idx_all = np.arange(0, parcor.shape[0], 1)
-    dic_idx = {
-        'idx_all': idx_all,
-        'idx_layer0': idx_tgt,
-        'idx_remain': np.setdiff1d(idx_all, idx_tgt),
-    }
-
-    for i in range(num_layers):
-        parcor_ = parcor[dic_idx['idx_remain'], :]
-        prev_layer = 'idx_layer' + str(i)
-        curr_layer = 'idx_layer' + str(i + 1)
-        dic_idx[curr_layer] = extract_connected_idx(
-            parcor_, dic_idx[prev_layer], dic_idx['idx_remain']
-        )
-        dic_idx['idx_remain'] = np.setdiff1d(dic_idx['idx_remain'], dic_idx[curr_layer])
-
-    adj_mat = parcor2adj(parcor, dic_idx, num_layers)
-    return adj_mat

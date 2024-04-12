@@ -7,6 +7,9 @@
 
 let avoidMultiClickCntTS = 0;
 const THIN_DATA_COUNT = 4000;
+// limit category label to show as substring
+// and three dots ('JP0123...')
+const CAT_LABEL_LIMIT = 12;
 
 
 function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIME') {
@@ -314,7 +317,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
             if (isEmpty(x)) {
                 return {name: '', value: ''};
             }
-            const xLabel = moment(moment.utc(x).toDate()).format('YYYY-MM-DD HH:mm:ss'); // convert to localtime
+            const xLabel = formatDateTime(x); // convert to localtime
             return {name: datetimeCol, value: xLabel};
         };
         const getSerialObj = (dataPoint) => {
@@ -609,9 +612,13 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                                 showVal = (`0${Number(showVal)}`).slice(-2);
                                 showVal = showVal.padEnd(5);
                                 const onlyVal = beforeRankValues[value];
+                                const isNeedToAddDotSymbol = String(onlyVal).length > CAT_LABEL_LIMIT;
                                 if (onlyVal !== undefined) {
                                     showVal = `Cat${showVal}`;
-                                    showVal += String(onlyVal).substr(0, 10);
+                                    showVal += String(onlyVal).substring(0, CAT_LABEL_LIMIT);
+                                    if (isNeedToAddDotSymbol) {
+                                        showVal += '...';
+                                    }
                                 }
                             } else {
                                 // align number to right

@@ -524,6 +524,25 @@
 		</div>
 	</div>
 </div>
+
+<div id="dummyHeaderModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog modal-confirm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">{{ _('Please confirm') }}</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			</div>
+			<div class="modal-body">
+				<p class="modal-inform modal-msg">{{ _('There were no column names in the file, the AP created new column names.') }}</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary"
+						data-dismiss="modal">{{ _('OK') }}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="removeErrorColumnMdl" class="modal fade in" data-backdrop="static" data-keyboard="false">
 	<div class="modal-dialog modal-confirm modal-lg">
 		<div class="modal-content">
@@ -538,8 +557,8 @@
                         <tr>
                             <th></th>
                             <th>{{ _('Selected Variables') }}</th>
-                            <th>{{ _('Zero Variance') }}</th>
-                            <th>{{ _('NA rate')}}</th>
+                            <th><span class="hint-text" title="{{ _('ZeroVarianceTitle') }}">{{ _('Zero Variance') }}</span></th>
+                            <th><span class="hint-text" title="{{ _('NARateTitle') }}">{{ _('NA rate')}}</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -550,10 +569,10 @@
                         <tr>
                             <th></th>
                             <th>{{ _('Selected Variables') }}</th>
-                            <th>{{ _('Zero Variance') }}(Train data)</th>
-                            <th>{{ _('NA rate')}}(Train data)</th>
-                            <th>{{ _('Zero Variance') }}(Target data)</th>
-                            <th>{{ _('NA rate')}}(Target data)</th>
+                            <th><span class="hint-text" title="{{ _('ZeroVarianceTitle') }}">{{ _('Zero Variance') }}(Train data)</span></th>
+                            <th><span class="hint-text" title="{{ _('NARateTitle') }}">{{ _('NA rate')}}(Train data)</span></th>
+                            <th><span class="hint-text" title="{{ _('ZeroVarianceTitle') }}">{{ _('Zero Variance') }}(Target data)</span></th>
+                            <th><span class="hint-text" title="{{ _('NARateTitle') }}">{{ _('NA rate')}}(Target data)</span></th>
                         </tr>
                     </thead>
                     <tbody>

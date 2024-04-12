@@ -71,11 +71,7 @@ class CallR:
             expr = base64.b64encode(str(expr).encode("utf8"))
             expr = str(expr.decode())
             print("with base64 encoding. expr={}".format(expr))
-            expr = (
-                "e <- try(expr <- rawToChar(base64enc::base64decode('"
-                + expr
-                + "')), silent = TRUE)"
-            )
+            expr = "e <- try(expr <- rawToChar(base64enc::base64decode('" + expr + "')), silent = TRUE)"
             self.r_session(expr)
             expr = "e <- try(Encoding(expr) <- 'UTF-8', silent = TRUE)"
             self.r_session(expr)
@@ -143,10 +139,8 @@ class RPipeline:
         self.use_pkl = use_pkl
         self.use_r_portable = use_r_portable
 
-        self.rportable_path = os.environ.get("R-PORTABLE")
-        self.dir_log = (
-            "." if self.rportable_path is None else os.path.join(self.rportable_path, "../log")
-        )
+        self.rportable_path = os.environ.get('R-PORTABLE')
+        self.dir_log = "." if self.rportable_path is None else os.path.join(self.rportable_path, "../log")
         self.dir_log = self.dir_log if os.path.exists(self.dir_log) else "."
         self.ptime_sec = {}
 

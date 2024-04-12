@@ -1,6 +1,4 @@
 import copy
-import csv
-import fnmatch
 import functools
 import json
 import locale
@@ -14,14 +12,13 @@ import zipfile
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from io import IOBase
-from itertools import chain, islice, permutations
+from itertools import permutations
 from pathlib import Path
-from typing import IO, List, Optional, TextIO, Union
+from typing import IO, List, TextIO, Union
 
 import chardet
 import numpy as np
 import pandas as pd
-import pyper
 
 # from charset_normalizer import detect
 from dateutil import parser, tz
@@ -31,32 +28,31 @@ from flask_assets import Bundle, Environment
 from pandas import DataFrame
 
 from ap.common.constants import (
+    ANALYSIS_INTERFACE_ENV,
     ENCODING_ASCII,
     ENCODING_SHIFT_JIS,
     ENCODING_UTF_8,
     ENCODING_UTF_8_BOM,
     LANGUAGES,
-    R_PORTABLE,
     SAFARI_SUPPORT_VER,
     SQL_COL_PREFIX,
-    YAML_AUTO_INCREMENT_COL,
+    UNIVERSAL_DB_FILE,
     AbsPath,
     AppEnv,
     CsvDelimiter,
-    DataType,
+    CSVExtTypes,
     FilterFunc,
     FlaskGKey,
 )
-from ap.common.logger import log_execution_time, logger
-from ap.common.services.normalization import unicode_normalize_nfkc
+from ap.common.logger import log_execution_time
+from ap.common.services.jp_to_romaji_utils import replace_special_symbols, to_romaji
+from ap.common.services.normalization import NORMALIZE_FORM_NFKD, normalize_str, unicode_normalize
 
-INCLUDES = ['*.csv', '*.tsv']
 TXT_FILE_TYPE = '.txt'
-DATE_FORMAT_STR_SQLITE = '%Y-%m-%dT%H:%M:%S.%fZ'
 DATE_FORMAT_STR = '%Y-%m-%dT%H:%M:%S.%fZ'
+DATE_FORMAT_SQLITE_STR = '%Y-%m-%dT%H:%M:%S'
 DATE_FORMAT_QUERY = '%Y-%m-%dT%H:%M:%S.%f'
 DATE_FORMAT_STR_CSV = '%Y-%m-%d %H:%M:%S.%f'
-DATE_FORMAT_STR_CSV_FOLDER = '%Y%m%d'
 DATE_FORMAT_STR_FACTORY_DB = '%Y-%m-%d %H:%M:%S.%f'
 DATE_FORMAT_STR_ONLY_DIGIT = '%Y%m%d%H%M%S.%f'
 DATE_FORMAT = '%Y-%m-%d'
@@ -80,14 +76,18 @@ def parse_int_value(value):
     :param value:
     :return: parsed integral value.
     """
-    if type(value) is str:
-        value = unicode_normalize_nfkc(value)
+    if isinstance(value, str):
+        value = unicode_normalize(value, convert_irregular_chars=False)
         if value.isdigit():
             return int(value)
-    elif type(value) is int:
+    elif isinstance(value, int):
         return value
 
     return None
+
+
+def gen_sql_cast_text_no_as(col):
+    return f'CAST({col} AS TEXT)'
 
 
 def dict_deep_merge(source, destination):
@@ -128,114 +128,14 @@ def convert_json_to_ordered_dict(json):
     return json
 
 
-def get_columns_selected(histview_cfg, proc_cfg):
-    date_col = ''
-    result = serial_cols = alias_names = column_names = master_names = operators = coefs = []
-    check_columns = proc_cfg.get('checked-columns', {})
-
-    # Get date-column
-    if histview_cfg.get('date-column'):
-        date_col = re.sub(r'(["*\/\'\s]+)', '', re.split(' as ', histview_cfg['date-column'])[0])
-        # date_col = re.sub(r'(["*\/\'\s]+)', '', re.split(r'[-+*/]\d+', hvc['date-column'])[0])
-
-    # Get serial column
-    if histview_cfg.get('serial-column'):
-        serial_cols = list(
-            map(
-                lambda x: re.sub(r'(["*\/\'\s]+)', '', re.split(' as ', x)[0]),
-                histview_cfg['serial-column'],
-            )
-        )
-
-    # Get serial column
-    auto_increment_col = histview_cfg.get(YAML_AUTO_INCREMENT_COL)
-
-    # Get params from checked-columns
-    if check_columns:
-        alias_names = check_columns.get('alias-names', []) or []
-        column_names = check_columns.get('column-names', []) or []
-        master_names = check_columns.get('master-names', []) or []
-        operators = check_columns.get('operators', []) or []
-        coefs = check_columns.get('coefs', []) or []
-        data_types = check_columns.get('data-types', []) or []
-
-    # Merge params to result dict
-    for key, value in enumerate(column_names):
-        column_name = re.sub(r'(["*\/\'\s]+)', '', value)
-        alias = alias_names[key]
-        master_name = master_names[key]
-        operator = operators[key]
-        coef = coefs[key]
-        data_type = data_types[key]
-
-        is_datetime = True if (value == date_col) else False
-        is_serial = True if (value in serial_cols) else False
-        is_auto_increment = value == auto_increment_col
-
-        result.append(
-            {
-                'master_name': master_name,
-                'column_name': column_name,
-                'alias': alias,
-                'operator': operator,
-                'coef': coef,
-                'is_datetime': is_datetime,
-                'is_serial': is_serial,
-                'is_auto_increment': is_auto_increment,
-                'data_type': data_type,
-            }
-        )
-    return result
-
-
-def _excludes(root, folders):
-    fd = folders[:]
-    ex = []
-    try:
-        for folder in fd:
-            if datetime.strptime(folder, '%Y%m%d'):
-                ex.append(folder)
-    except Exception:
-        pass
-    ex.sort()
-
-    if len(fd) > 0:
-        fd.remove(ex[-1])
-    return map(lambda d: os.path.join(root, d), fd)
-
-
-def _filter(paths, excludes):
-    matches = []
-    for path in paths:
-        append = None
-
-        for include in INCLUDES:
-            if os.path.isdir(path):
-                append = True
-                break
-
-            if fnmatch.fnmatch(path, include):
-                append = True
-                break
-
-        for exclude in excludes:
-            if os.path.isdir(path) and path == exclude:
-                append = False
-                break
-
-            if fnmatch.fnmatch(path, exclude):
-                append = False
-                break
-
-        if append:
-            matches.append(path)
-
-    return matches
-
-
 def get_latest_file(root_name):
     try:
-        latest_files = get_files(root_name, depth_from=1, depth_to=100, extension=['csv', 'tsv'])
+        latest_files = get_files(
+            root_name,
+            depth_from=1,
+            depth_to=100,
+            extension=[CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value],
+        )
         latest_files.sort()
         return latest_files[-1].replace(os.sep, '/')
     except Exception:
@@ -244,7 +144,9 @@ def get_latest_file(root_name):
 
 def get_sorted_files(root_name, is_allow_zip: bool = True) -> List[str]:
     try:
-        extension = ['csv', 'tsv', 'zip'] if is_allow_zip else ['csv', 'tsv']
+        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
+        if is_allow_zip:
+            extension.append(CSVExtTypes.ZIP.value)
         latest_files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
         latest_files = [file_path.replace(os.sep, '/') for file_path in latest_files]
         latest_files.sort(reverse=True)
@@ -272,7 +174,9 @@ def get_sorted_files_in_list(files: List[str]) -> List[str]:
 
 def get_sorted_files_by_size(root_name: str, is_allow_zip: bool = True) -> List[str]:
     try:
-        extension = ['csv', 'tsv', 'zip'] if is_allow_zip else ['csv', 'tsv']
+        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
+        if is_allow_zip:
+            extension.append(CSVExtTypes.ZIP.value)
         files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
         largest_files = get_largest_files_in_list(files)
         return largest_files
@@ -282,7 +186,9 @@ def get_sorted_files_by_size(root_name: str, is_allow_zip: bool = True) -> List[
 
 def get_sorted_files_by_size_and_time(root_name: str, is_allow_zip: bool = True) -> List[str]:
     try:
-        extension = ['csv', 'tsv', 'zip'] if is_allow_zip else ['csv', 'tsv']
+        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
+        if is_allow_zip:
+            extension.append(CSVExtTypes.ZIP.value)
         files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
         largest_files = get_sorted_files_in_list(files)
         return largest_files
@@ -293,7 +199,10 @@ def get_sorted_files_by_size_and_time(root_name: str, is_allow_zip: bool = True)
 def get_latest_files(root_name: Union[Path, str]) -> List[str]:
     try:
         files = get_files(
-            str(root_name), depth_from=1, depth_to=100, extension=['csv', 'tsv', 'zip']
+            str(root_name),
+            depth_from=1,
+            depth_to=100,
+            extension=[CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value],
         )
         files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
         files = [f.replace(os.sep, '/') for f in files]
@@ -302,32 +211,16 @@ def get_latest_files(root_name: Union[Path, str]) -> List[str]:
         return []
 
 
-@log_execution_time()
-def get_maximum_file_in_zip(file: str) -> Optional[str]:
-    if not is_normal_zip(file):
-        return file
-    with zipfile.ZipFile(file) as zf:
-        largest_file = None
-        for zfile in zf.filelist:
-            if largest_file is None:
-                largest_file = zfile
-            else:
-                largest_file = zfile if zfile.file_size > largest_file.file_size else largest_file
-        if largest_file is None:
-            return None
-        return largest_file.filename
-
-
-def start_of_minute(start_date, start_tm, delimeter='T'):
+def start_of_minute(start_date, start_tm, delimiter='T'):
     if start_date is None or start_tm is None:
         return None
     if start_tm and len(start_tm) == 5:
         start_tm = start_tm + ':00'
 
-    return '{}{}{}'.format(start_date.replace('/', '-'), delimeter, start_tm)
+    return '{}{}{}'.format(start_date.replace('/', '-'), delimiter, start_tm)
 
 
-def end_of_minute(start_date, start_tm, delimeter='T'):
+def end_of_minute(start_date, start_tm, delimiter='T'):
     if start_date is None or start_tm is None:
         return None
     if start_tm and len(start_tm) == 5:
@@ -336,7 +229,7 @@ def end_of_minute(start_date, start_tm, delimeter='T'):
     # start_tm = start_tm[:8] + '.999999'
     start_tm = start_tm[:8]
 
-    return '{}{}{}'.format(start_date.replace('/', '-'), delimeter, start_tm)
+    return '{}{}{}'.format(start_date.replace('/', '-'), delimiter, start_tm)
 
 
 def clear_special_char(target):
@@ -370,13 +263,7 @@ def universal_db_exists():
 
 
 # convert time before save to database YYYY-mm-DDTHH:MM:SS.NNNNNNZ
-def convert_time(
-    time=None,
-    format_str=DATE_FORMAT_STR,
-    return_string=True,
-    only_milisecond=False,
-    remove_ms=False,
-):
+def convert_time(time=None, format_str=DATE_FORMAT_STR, return_string=True, only_millisecond=False, remove_ms=False):
     if not time:
         time = datetime.utcnow()
     elif isinstance(time, str):
@@ -384,32 +271,11 @@ def convert_time(
 
     if return_string:
         time = time.strftime(format_str)
-        if only_milisecond:
+        if only_millisecond:
             time = time[:-3]
         elif remove_ms:
             time = time[:-8]
     return time
-
-
-def fast_convert_time(time, format_str=DATE_FORMAT_STR):
-    return parser.parse(time).strftime(format_str)
-
-
-def add_miliseconds(time=None, milis=0):
-    """add miliseconds
-
-    Keyword Arguments:
-        time {[type]} -- [description] (default: {datetime.now()})
-        days {int} -- [description] (default: {0})
-
-    Returns:
-        [type] -- [description]
-    """
-    if not time:
-        time = datetime.utcnow()
-
-    return time + timedelta(milliseconds=milis)
-
 
 
 def calculator_day_ago(from_time, is_tz_col, to_time=None):
@@ -485,7 +351,7 @@ def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_onl
         raise FileNotFoundError('Folder not found!')
 
     root_depth = directory.count(os.path.sep)
-    for root, dirs, files in os.walk(directory):
+    for root, _, files in os.walk(directory):
         # limit depth of recursion
         current_depth = root.count(os.path.sep) + 1
         # assume that directory depth is 1, sub folders are 2, 3, ...
@@ -496,7 +362,7 @@ def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_onl
         # list files with extension
         for file in files:
             # Check file is modified in [in_modified_days] days or not
-            if any([file.endswith(ext) for ext in extension]):
+            if any(file.lower().endswith(ext) for ext in extension):
                 if file_name_only:
                     output_files.append(file)
                 else:
@@ -522,35 +388,7 @@ def add_double_quotes(instr: str):
     return f'"{instr}"'
 
 
-def guess_data_types(instr: str):
-    """guess data type of all kind of databases to 4 type (INTEGER,REAL,DATETIME,TEXT)
-
-    Arguments:
-        instr {str} -- [description]
-
-    Returns:
-        [type] -- [description]
-    """
-    dates = ['date', 'time']
-    ints = ['int', 'bit', r'num.*\([^,]+$', r'num.*\(.*,\ *0']
-    reals = ['num', 'real', 'float', 'double', 'long', 'dec', 'money']
-
-    instr = instr.lower()
-    for data_type in dates:
-        if re.search(data_type, instr):
-            return DataType.DATETIME
-
-    for data_type in ints:
-        if re.search(data_type, instr):
-            return DataType.INTEGER
-
-    for data_type in reals:
-        if re.search(data_type, instr):
-            return DataType.REAL
-    return DataType.TEXT
-
-
-def resource_path(*relative_path, level=None):
+def resource_path(*relative_path, level=AbsPath.SHOW):
     """make absolute path
 
     Keyword Arguments:
@@ -565,113 +403,91 @@ def resource_path(*relative_path, level=None):
 
     if level is AbsPath.SHOW:
         basedir = show_path
-    elif level is AbsPath.HIDE:
+    elif level is AbsPath.HIDE or getattr(sys, 'frozen', False):
         basedir = hide_path
     else:
-        if getattr(sys, 'frozen', False):
-            basedir = hide_path
-        else:
-            basedir = show_path
+        basedir = show_path
 
     return os.path.join(basedir, *relative_path)
 
 
-class RUtils:
-    def __init__(self, package, *args, **kwargs):
-        # r instance
-        r_portable_env = os.environ.get('R-PORTABLE')
-        if r_portable_env:
-            self.r_exe = os.path.join(r_portable_env, 'bin', 'R.exe')
-            self.r_library = os.path.join(r_portable_env, 'library')
-        else:
-            self.r_exe = resource_path(R_PORTABLE, 'bin', 'R.exe', level=AbsPath.SHOW)
-            self.r_library = resource_path(R_PORTABLE, 'library', level=AbsPath.SHOW)
-
-        # specify R-Portable execution
-        self.r = pyper.R(RCMD=self.r_exe, *args, **kwargs)
-        logger.info(self.r('Sys.getenv()'))
-
-        # specify R-Portable library
-        self.r(f'.libPaths(c(""))')
-        self.r(f'.libPaths(c("{self.r_library}"))')
-        logger.info(self.r('.libPaths()'))
-
-        # R package folder
-        self.source = resource_path('ap', 'script', 'r_scripts', package)
-        self.r(f'source("{self.source}")')
-
-    def __call__(self, func, *args, _number_of_recheck_r_output=1000, **kwargs) -> object:
-        """call funtion with parameters
-
-        Arguments:
-            func {[string]} -- R function name
-
-        Keyword Arguments:
-            _number_of_recheck_r_output {int} -- [R function may take time to return output, Python must check many
-            time to get final output] (default: {100})
-
-        Returns:
-            [type] -- [R output]
-        """
-        args_prefix = 'args__'
-        kwargs_prefix = 'kwargs__'
-        output_var = 'output__'
-
-        r_args = []
-        for i, val in enumerate(args):
-            para = f'{args_prefix}{i}'
-            self.r.assign(para, val)
-            r_args.append(para)
-
-        r_kwargs = []
-        for i, (key, val) in enumerate(kwargs.items()):
-            para = f'{kwargs_prefix}{i}'
-            self.r.assign(para, val)
-            r_kwargs.append(f'{key}={para}')
-
-        final_args = ','.join(chain(r_args, r_kwargs))
-
-        self.r(f'{output_var} = {func}({final_args})')
-
-        # wait for R return an output
-        output = None
-        while (not output) and _number_of_recheck_r_output:
-            output = self.r.get(output_var)
-            _number_of_recheck_r_output -= 1
-
-        print(_number_of_recheck_r_output, output)
-        return output
-
-
-def get_file_size(f_name):
-    """get file size
-
-    Arguments:
-        f_name {[type]} -- [description]
-
-    Returns:
-        [type] -- [description]
-    """
-    return os.path.getsize(f_name)
+# class RUtils:
+#     def __init__(self, package, *args, **kwargs):
+#         # r instance
+#         r_portable_env = os.environ.get('R-PORTABLE')
+#         if r_portable_env:
+#             self.r_exe = os.path.join(r_portable_env, 'bin', 'R.exe')
+#             self.r_library = os.path.join(r_portable_env, 'library')
+#         else:
+#             self.r_exe = resource_path(R_PORTABLE, 'bin', 'R.exe', level=AbsPath.SHOW)
+#             self.r_library = resource_path(R_PORTABLE, 'library', level=AbsPath.SHOW)
+#
+#         # specify R-Portable execution
+#         self.r = pyper.R(RCMD=self.r_exe, *args, **kwargs)
+#         logger.info(self.r('Sys.getenv()'))
+#
+#         # specify R-Portable library
+#         self.r('.libPaths(c(""))')
+#         self.r(f'.libPaths(c("{self.r_library}"))')
+#         logger.info(self.r('.libPaths()'))
+#
+#         # R package folder
+#         self.source = resource_path('ap', 'script', 'r_scripts', package)
+#         self.r(f'source("{self.source}")')
+#
+#     def __call__(self, func, *args, _number_of_recheck_r_output=1000, **kwargs) -> object:
+#         """call funtion with parameters
+#
+#         Arguments:
+#             func {[string]} -- R function name
+#
+#         Keyword Arguments:
+#             _number_of_recheck_r_output {int} -- [R function may take time to return output, Python must check many
+#             time to get final output] (default: {100})
+#
+#         Returns:
+#             [type] -- [R output]
+#         """
+#         args_prefix = 'args__'
+#         kwargs_prefix = 'kwargs__'
+#         output_var = 'output__'
+#
+#         r_args = []
+#         for i, val in enumerate(args):
+#             para = f'{args_prefix}{i}'
+#             self.r.assign(para, val)
+#             r_args.append(para)
+#
+#         r_kwargs = []
+#         for i, (key, val) in enumerate(kwargs.items()):
+#             para = f'{kwargs_prefix}{i}'
+#             self.r.assign(para, val)
+#             r_kwargs.append(f'{key}={para}')
+#
+#         final_args = ','.join(chain(r_args, r_kwargs))
+#
+#         self.r(f'{output_var} = {func}({final_args})')
+#
+#         # wait for R return an output
+#         output = None
+#         while (not output) and _number_of_recheck_r_output:
+#             output = self.r.get(output_var)
+#             _number_of_recheck_r_output -= 1
+#
+#         print(_number_of_recheck_r_output, output)
+#         return output
 
 
-def write_csv_file(data, file_path, headers, delimiter='\t'):
-    """save csv, tsv file
-
-    Arguments:
-        data {[type]} -- [description]
-        file_path {[type]} -- [description]
-        headers {[type]} -- [description]
-
-    Keyword Arguments:
-        delimiter {str} -- [description] (default: {'\t'})
-    """
-    make_dir_from_file_path(file_path)
-
-    with open(file_path, 'w', newline='') as f:
-        writer = csv.writer(f, delimiter=delimiter)
-        for row in chain([headers], data):
-            writer.writerow(row)
+# def get_file_size(f_name):
+#     """get file size
+#
+#     Arguments:
+#         f_name {[type]} -- [description]
+#
+#     Returns:
+#         [type] -- [description]
+#     """
+#     return os.path.getsize(f_name)
 
 
 def create_file_path(prefix, suffix='.tsv', dt=None):
@@ -698,26 +514,26 @@ def copy_file(source, target):
     return True
 
 
-def path_split_all(path):
-    """split all part of a path
-
-    Arguments:
-        path {[string]} -- [full path]
-    """
-    allparts = []
-    while True:
-        parts = os.path.split(path)
-        if parts[0] == path:  # sentinel for absolute paths
-            allparts.insert(0, parts[0])
-            break
-        elif parts[1] == path:  # sentinel for relative paths
-            allparts.insert(0, parts[1])
-            break
-        else:
-            path = parts[0]
-            allparts.insert(0, parts[1])
-
-    return allparts
+# def path_split_all(path):
+#     """split all part of a path
+#
+#     Arguments:
+#         path {[string]} -- [full path]
+#     """
+#     allparts = []
+#     while True:
+#         parts = os.path.split(path)
+#         if parts[0] == path:  # sentinel for absolute paths
+#             allparts.insert(0, parts[0])
+#             break
+#         elif parts[1] == path:  # sentinel for relative paths
+#             allparts.insert(0, parts[1])
+#             break
+#         else:
+#             path = parts[0]
+#             allparts.insert(0, parts[1])
+#
+#     return allparts
 
 
 def get_data_path(abs=True, is_log=False):
@@ -729,17 +545,6 @@ def get_data_path(abs=True, is_log=False):
     folder_name = 'data'
     if is_log:
         folder_name = 'log'
-    return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
-
-
-# TODO : delete
-def get_import_error_path(abs=True):
-    """get import folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'error'
     return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
 
 
@@ -787,10 +592,7 @@ def get_terms_of_use_md_file(current_locale):
     get about markdown file path
     """
     folder_name = 'about'
-    if current_locale.language == 'ja':
-        file_name = 'terms_of_use_jp.md'
-    else:
-        file_name = 'terms_of_use_en.md'
+    file_name = 'terms_of_use_jp.md' if current_locale.language == 'ja' else 'terms_of_use_en.md'
     return resource_path(folder_name, file_name, level=AbsPath.SHOW)
 
 
@@ -801,7 +603,7 @@ def get_wrapr_path():
         [type] -- [description]
     """
     folder_names = ['ap', 'script', 'r_scripts', 'wrapr']
-    return resource_path(*folder_names, level=AbsPath.HIDE)
+    return resource_path(*folder_names, level=AbsPath.SHOW)
 
 
 def get_temp_path():
@@ -860,13 +662,13 @@ def get_etl_path(*sub_paths):
     return resource_path(data_folder, folder_name, *sub_paths, level=AbsPath.SHOW)
 
 
-def df_chunks(df, size):
-    """Yield n-sized chunks from dataframe."""
-    if df.columns.size == 0:
-        return df
-
-    for i in range(0, df.shape[0], size):
-        yield df.iloc[i : i + size]
+# def df_chunks(df, size):
+#     """Yield n-sized chunks from dataframe."""
+#     if df.columns.size == 0:
+#         return df
+#
+#     for i in range(0, df.shape[0], size):
+#         yield df.iloc[i: i + size]
 
 
 def chunk_two_list(lst1, lst2, size):
@@ -881,10 +683,10 @@ def chunks(lst, size):
         yield lst[i : i + size]
 
 
-def chunks_dic(data, size):
-    it = iter(data)
-    for i in range(0, len(data), size):
-        yield {k: data[k] for k in islice(it, size)}
+# def chunks_dic(data, size):
+#     it = iter(data)
+#     for i in range(0, len(data), size):
+#         yield {k: data[k] for k in islice(it, size)}
 
 
 def get_base_dir(path, is_file=True):
@@ -903,30 +705,8 @@ def get_basename(path):
     return os.path.basename(path)
 
 
-def get_datetime_without_timezone(time):
-    """remove timezone string from time
-
-    Args:
-        time ([type]): [description]
-    """
-    regex_str = r'(\d{4}[-\/]\d{2}[-\/]\d{2}\s\d{2}:\d{2}:\d{2}(.\d{1,6})?)'
-    res = re.search(regex_str, time)
-    if res:
-        return convert_time(res.group())
-
-    return None
-
-
-def strip_quote_csv(instr):
-    return str(instr).strip("'").strip()
-
-
 def strip_all_quote(instr):
     return str(instr).strip("'").strip('"')
-
-
-def strip_space(instr):
-    return str(instr).strip()
 
 
 def get_csv_delimiter(csv_delimiter):
@@ -951,7 +731,7 @@ def sql_regexp(expr, item):
 
 def set_sqlite_params(conn):
     cursor = conn.cursor()
-    cursor.execute(f'PRAGMA journal_mode=WAL')
+    cursor.execute('PRAGMA journal_mode=WAL')
     cursor.execute('PRAGMA synchronous=NORMAL')
     cursor.execute('PRAGMA cache_size=10000')
     cursor.execute('pragma mmap_size = 30000000000')
@@ -960,9 +740,7 @@ def set_sqlite_params(conn):
 
 
 def gen_sql_label(*args):
-    return SQL_COL_PREFIX + SQL_COL_PREFIX.join(
-        [str(name).strip(SQL_COL_PREFIX) for name in args if name is not None]
-    )
+    return SQL_COL_PREFIX + SQL_COL_PREFIX.join([str(name).strip(SQL_COL_PREFIX) for name in args if name is not None])
 
 
 def gen_sql_like_value(val, func: FilterFunc, position=None):
@@ -991,26 +769,6 @@ def gen_sql_like_value(val, func: FilterFunc, position=None):
     return []
 
 
-def gen_python_regex(val, func: FilterFunc, position=None):
-    if func is FilterFunc.MATCHES:
-        return '^' + val + '$'
-
-    if func is FilterFunc.STARTSWITH:
-        return '^' + val
-
-    if func is FilterFunc.ENDSWITH:
-        return val + '$'
-
-    if func is FilterFunc.CONTAINS:
-        return '.*' + val + '.*'
-
-    if func is FilterFunc.SUBSTRING:
-        if position is None:
-            position = 1
-        return '^' + '.' * max(0, (position - 1)) + val
-    return val
-
-
 def make_dir_from_file_path(file_path):
     dirname = os.path.dirname(file_path)
     # make dir
@@ -1034,16 +792,14 @@ def check_exist(file_path):
     return os.path.exists(file_path)
 
 
-def any_not_none_in_dict(dict_input):
-    """
-    check any not None in a list of dictionary
-    :param dict_input:  [{'a': None, 'b': None}, {'a': 1, 'b': 2}]
-    :return: boolean
-    """
-    return True in [any(k is not None for k in v.values()) for _, v in enumerate(dict_input)]
+def count_file_in_folder(folder_path):
+    if not check_exist(folder_path):
+        return 0
+
+    return len([name for name in os.listdir(folder_path) if name.endswith('.sqlite3')])
 
 
-def calc_overflow_boundary(arr, remove_non_real=False):
+def calc_overflow_boundary(arr):
     if len(arr):
         q1, q3 = np.quantile(arr, [0.25, 0.75], interpolation='midpoint')
         iqr = q3 - q1
@@ -1095,7 +851,7 @@ def detect_encoding_from_list(data):
             if str_data:
                 encoding = ecd
                 return encoding
-        except:
+        except Exception:
             continue
 
     if encoding is None:
@@ -1140,7 +896,7 @@ def check_detected_encoding(encoding, data):
     if encoding:
         try:
             data.decode(encoding)
-        except:
+        except Exception:
             encoding = detect_encoding_from_list(data)
     else:
         encoding = detect_encoding_from_list(data)
@@ -1149,14 +905,6 @@ def check_detected_encoding(encoding, data):
         encoding = ENCODING_UTF_8
 
     return encoding
-
-
-def is_eof(f):
-    cur = f.tell()  # save current position
-    f.seek(0, os.SEEK_END)
-    end = f.tell()  # find the size of file
-    f.seek(cur, os.SEEK_SET)
-    return cur == end
 
 
 def replace_str_in_file(file_name, search_str, replace_to_str):
@@ -1199,6 +947,10 @@ def read_pickle_file(file):
 
 
 def write_to_pickle(data, file):
+    dir_path = os.path.dirname(file)
+    if not check_exist(dir_path):
+        make_dir(dir_path)
+
     with open(file, 'wb') as f:
         pickle.dump(data, f)
     return file
@@ -1268,7 +1020,7 @@ def bundle_assets(_app):
     bundle assets when application be started at the first time
     for commnon assets (all page), and single page
     """
-    env = os.environ.get('ANALYSIS_INTERFACE_ENV')
+    env = os.environ.get(ANALYSIS_INTERFACE_ENV)
     # bundle js files
     assets_path = os.path.join('ap', 'common', 'assets', 'assets.json')
     with open(assets_path, 'r') as f:
@@ -1278,7 +1030,7 @@ def bundle_assets(_app):
     if env != AppEnv.PRODUCTION.value:
         assets.debug = True
 
-    for page in _assets.keys():
+    for page in _assets:
         js_assets = _assets[page].get('js') or []
         css_assets = _assets[page].get('css') or []
         js_asset_name = f'js_{page}'
@@ -1333,9 +1085,7 @@ def check_client_browser(client_request):
 
     request_env = client_request.headers.environ
     http_ch_ua = request_env.get('HTTP_SEC_CH_UA') if request_env else None
-    http_user_agent = (
-        request_env.get('HTTP_USER_AGENT') if request_env else client_request.user_agent
-    )
+    http_user_agent = request_env.get('HTTP_USER_AGENT') if request_env else client_request.user_agent
 
     # Windows
     if http_ch_ua:
@@ -1366,21 +1116,71 @@ def check_client_browser(client_request):
                     v2 = versions[1]
 
                 is_valid_version = (int(v1) > int(safari_support_version[0])) or (
-                    int(v1) == int(safari_support_version[0])
-                    and int(v2) >= int(safari_support_version[1])
+                    int(v1) == int(safari_support_version[0]) and int(v2) >= int(safari_support_version[1])
                 )
 
     return is_valid_browser, is_valid_version
 
 
-class DictToClass:
-    # TODO: clear updated_at , created_at to reduce memory
-    def __init__(self, **entries):
-        self.__dict__.update(entries)
-        for key, value in self.__dict__.items():
-            if isinstance(value, (list, tuple)):
-                self.__dict__[key] = [
-                    DictToClass(**val) if isinstance(val, dict) else val for val in value
-                ]
-            elif isinstance(value, dict):
-                self.__dict__[key] = DictToClass(**value)
+def gen_transaction_table_name(proc_id: int):
+    return f't_process_{proc_id}'
+
+
+def gen_data_count_table_name(proc_id: int):
+    return f't_data_finder_{proc_id}'
+
+
+def gen_import_history_table_name(proc_id: int):
+    return f't_import_history_{proc_id}'
+
+
+def gen_bridge_column_name(id, name):
+    name = to_romaji(name)
+    return f"_{id}_{name.replace('-', '_').lower()}"[:50]
+
+
+def gen_end_proc_start_end_time(start_tm, end_tm, return_string: bool = True, buffer_days=14):
+    end_proc_start_tm = convert_time(
+        add_days(convert_time(start_tm, return_string=False), -buffer_days),
+        return_string=return_string,
+    )
+    end_proc_end_tm = convert_time(
+        add_days(convert_time(end_tm, return_string=False), buffer_days),
+        return_string=return_string,
+    )
+    return end_proc_start_tm, end_proc_end_tm
+
+
+def gen_sqlite3_file_name(proc_id=None):
+    from ap import dic_config
+
+    file_name = f't_process_{proc_id}.sqlite3' if proc_id else 'universal.sqlite3'
+    return os.path.join(dic_config[UNIVERSAL_DB_FILE], file_name)
+
+
+def get_multiprocess_queue_file():
+    return os.path.join(get_data_path(), 'process_queue.pickle')
+
+
+def remove_non_ascii_chars(string, convert_irregular_chars=True):
+    # special case for vietnamese: đ letter
+    normalized_input = re.sub(r'[đĐ]', 'd', string)
+
+    # pascal case
+    normalized_input = normalized_input.title()
+
+    # `[μµ]` in `English Name` should be replaced in to `u`.
+    # convert u before kakasi applied to keep u instead of M
+    normalized_input = re.sub(r'[μµ]', 'uu', normalized_input)
+
+    # normalize with NFKD
+    normalized_input = normalize_str(
+        normalized_input,
+        convert_irregular_chars=convert_irregular_chars,
+        normalize_form=NORMALIZE_FORM_NFKD,
+    )
+
+    normalized_input = replace_special_symbols(normalized_input)
+
+    normalized_string = normalized_input.encode(ENCODING_ASCII, 'ignore').decode()
+    return normalized_string

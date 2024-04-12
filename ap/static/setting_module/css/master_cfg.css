@@ -232,7 +232,7 @@
 
 .sticky-col, .sticky-rcol {
     background-color: #303030;
-    z-index: 999;
+    z-index: 99;
 }
 
 .sticky-col {
@@ -317,4 +317,10 @@
 
 #sidebar {
     z-index: 9999;
+}
+.red {
+    color: rgb(255,4,4);
+}
+.blue {
+    color: rgb(109,205,250);
 }

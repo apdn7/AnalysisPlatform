@@ -2,19 +2,17 @@
 import io
 import os
 import pickle
-from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import pandas as pd
 from flask import make_response
 
-from ap.api.trace_data.services.time_series_chart import get_proc_ids_in_dic_param
+from ap.api.common.services.show_graph_database import get_proc_ids_in_graph_param
 from ap.common.common_utils import (
     delete_file,
     get_basename,
     get_export_path,
     read_pickle_file,
-    resource_path,
     set_debug_data,
 )
 from ap.common.constants import (
@@ -25,7 +23,6 @@ from ap.common.constants import (
     IS_EXPORT_MODE,
     IS_IMPORT_MODE,
     USER_SETTING_NAME,
-    AbsPath,
     CsvDelimiter,
     DebugKey,
     MemoizeKey,
@@ -111,12 +108,12 @@ def set_export_dataset_id_to_dic_param(dic_param):
     return True
 
 
-def create_export_file_path(key):
-    file_path = resource_path(get_export_path(), key, level=AbsPath.SHOW)
-    if not os.path.exists(os.path.dirname(file_path)):
-        os.makedirs(os.path.dirname(file_path))
-
-    return file_path
+# def create_export_file_path(key):
+#     file_path = resource_path(get_export_path(), key, level=AbsPath.SHOW)
+#     if not os.path.exists(os.path.dirname(file_path)):
+#         os.makedirs(os.path.dirname(file_path))
+#
+#     return file_path
 
 
 def gen_config_json(graph_param):
@@ -126,7 +123,7 @@ def gen_config_json(graph_param):
     :return:
     """
     process_schema = ProcessFullSchema()
-    proc_ids = get_proc_ids_in_dic_param(graph_param)
+    proc_ids = get_proc_ids_in_graph_param(graph_param)
     processes = CfgProcess.get_procs(proc_ids)
     return process_schema.dump(processes, many=True)
 
@@ -149,10 +146,7 @@ def zip_a_file(zip_file, target_file_paths, target_file_names=None):
             if not target_file:
                 continue
 
-            if target_file_names:
-                file_name = target_file_names[idx]
-            else:
-                file_name = get_basename(target_file)
+            file_name = target_file_names[idx] if target_file_names else get_basename(target_file)
 
             if isinstance(target_file, io.BytesIO):
                 zipf.writestr(file_name, target_file.getvalue())
@@ -309,11 +303,6 @@ def insert_data_to_table(model, records):
         meta_session.execute(model.__table__.insert(), records)
 
     return True
-
-
-def extract_zip(zip_file):
-    input_zip = ZipFile(zip_file)
-    return {Path(name).stem: input_zip.read(name) for name in input_zip.namelist()}
 
 
 def extract_one_file(zip_file, file_name):

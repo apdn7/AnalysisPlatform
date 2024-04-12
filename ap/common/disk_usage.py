@@ -1,3 +1,4 @@
+import logging
 import shutil
 import socket
 
@@ -7,11 +8,14 @@ from ap.common.memoize import memoize
 from ap.common.services.http_content import json_dumps
 from ap.setting_module.models import CfgConstant
 
+# Workaround for unnecessarily failing gethostbyname from a worker thread (https://bugs.python.org/issue29288)
+u''.encode('idna')
+
 
 class DiskUsageInterface:
     @classmethod
     def get_disk_usage(cls, path=None):
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class MainDiskUsage(DiskUsageInterface):
@@ -50,9 +54,8 @@ def get_disk_usage_percent(path=None):
         usage = checker.get_disk_usage(path)
         used_percent = round(usage.used / usage.total * 100)
         for measure in sorted(dict_status_measures.keys()):
-            if measure:
-                if used_percent >= measure:
-                    status = dict_status_measures.pop(measure)
+            if measure and used_percent >= measure:
+                status = dict_status_measures.pop(measure)
         if not dict_status_measures:
             break
 
@@ -82,8 +85,11 @@ def get_disk_capacity():
             f'reached {dict_limit_capacity.get(DiskUsageStatus.Warning)}%.'
         )
 
-    server_info = get_ip_address()
-    message = message.replace('__SERVER_INFO__', server_info)
+    server_info = ''
+    if disk_status in [DiskUsageStatus.Full, DiskUsageStatus.Warning]:
+        server_info = get_ip_address()
+        message = message.replace('__SERVER_INFO__', server_info)
+
     return DiskCapacityException(
         disk_status,
         used_percent,
@@ -175,7 +181,10 @@ def add_disk_capacity_into_response(response, disk_capacity):
 @log_execution_time()
 @memoize(duration=60)
 def get_ip_address():
-    hostname = socket.gethostname()
-    ip_addr = socket.gethostbyname(hostname)
-
-    return ip_addr
+    try:
+        hostname = socket.gethostname()
+        ip_addr = socket.gethostbyname(hostname)
+        return ip_addr
+    except LookupError as e:
+        logging.error(e)
+        return ''

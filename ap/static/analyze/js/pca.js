@@ -23,6 +23,9 @@ const i18n = {
 };
 
 const MAX_NUMBER_OF_SENSOR = 60;
+const MIN_NUMBER_OF_SENSOR = 0;
+
+const INDEX_AXIS_LABEL = "Index"
 
 const MSG_MAPPING = {
     E_ALL_NA: $('#i18nE01AllNA').text(),
@@ -465,20 +468,17 @@ $(() => {
     const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
         showDataType: true,
         isRequired: true,
-        showLabels: true,
-        labelAsFilter: true,
+        showFilter: true,
         showStrColumn: true,
         hideStrVariable: true,
         hideCTCol: true,
+        disableSerialAsObjective: true,
     });
     endProcItem();
-    updateSelectedItems();
-    addAttributeToElement();
 
     // click even of end proc add button
     $('#btn-add-end-proc').click(() => {
         endProcItem();
-        updateSelectedItems();
         addAttributeToElement();
     });
 

@@ -243,3 +243,8 @@ div.table_description {
     /*padding-left: 32px;*/
 }
 
+
+.column-name-invalid {
+    border: 1px solid red;
+}
+

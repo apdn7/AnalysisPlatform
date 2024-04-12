@@ -5,21 +5,22 @@ from scipy.signal import convolve2d
 from scipy.stats import binned_statistic_2d, gaussian_kde
 from sklearn.preprocessing import StandardScaler
 
-from ap.api.common.services.services import get_filter_on_demand_data
-from ap.api.setting_module.services.data_import import ALL_SYMBOLS
-from ap.api.trace_data.services.time_series_chart import (
+from ap.api.common.services.show_graph_services import (
     calc_raw_common_scale_y,
     calc_scale_info,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
-    gen_dic_data_from_df,
     gen_plotdata,
     get_chart_infos,
     get_data_from_db,
-    get_procs_in_dic_param,
+    get_filter_on_demand_data,
     get_serial_and_datetime_data,
     main_check_filter_detail_match_graph_data,
     make_irregular_data_none,
+)
+from ap.api.setting_module.services.data_import import ALL_SYMBOLS
+from ap.api.trace_data.services.time_series_chart import (
+    gen_dic_data_from_df,
 )
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
@@ -29,18 +30,17 @@ from ap.common.constants import (
     ARRAY_Y,
     AS_HEATMAP_MATRIX,
     COL_DETAIL,
-    COL_TYPE,
     CORR,
     CORRS,
     CYCLE_IDS,
     DATETIME,
     END_COL_ID,
-    END_COL_NAME,
     END_COL_SHOW_NAME,
     END_PROC,
     END_PROC_ID,
     GET02_VALS_SELECT,
     HEATMAP_MATRIX,
+    IS_INT_CATEGORY,
     KDE_DATA,
     MATCHED_FILTER_IDS,
     MSP_AS_HEATMAP_FROM,
@@ -51,6 +51,7 @@ from ap.common.constants import (
     ORG_ARRAY_Y,
     PCORR,
     PROC_NAME,
+    ROWID,
     SCALE_AUTO,
     SCALE_COMMON,
     SCALE_FULL,
@@ -58,11 +59,12 @@ from ap.common.constants import (
     SCALE_THRESHOLD,
     SERIALS,
     START_PROC,
+    TIME_COL,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
-    DataTypeEncode,
+    CacheType,
 )
-from ap.common.logger import logger
+from ap.common.logger import log_execution_time, logger
 from ap.common.memoize import memoize
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
@@ -70,23 +72,22 @@ from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
 )
-from ap.common.services.sse import notify_progress
+from ap.common.services.sse import MessageAnnouncer
 from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
-from ap.common.trace_data_log import *
-from ap.trace_data.models import Cycle
+from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 
 
 @log_execution_time('[MULTI SCATTER PLOT]')
 @request_timeout_handling()
 @abort_process_handler()
-@notify_progress(60)
+@MessageAnnouncer.notify_progress(60)
 @trace_log(
     (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
     (EventType.MSP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True)
-def gen_scatter_plot(dic_param):
+@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+def gen_scatter_plot(graph_param, dic_param, df=None):
     """tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
@@ -99,10 +100,8 @@ def gen_scatter_plot(dic_param):
         use_expired_cache,
         *_,
     ) = customize_dic_param_for_reuse_cache(dic_param)
-    # bind dic_param
-    graph_param = bind_dic_param_to_class(dic_param)
 
-    dic_proc_cfgs = get_procs_in_dic_param(graph_param)
+    dic_proc_cfgs = graph_param.dic_proc_cfgs
 
     # add datetime col
     graph_param.add_datetime_col_to_start_proc()
@@ -112,10 +111,15 @@ def gen_scatter_plot(dic_param):
         proc_cfg = dic_proc_cfgs[proc.proc_id]
         dic_proc_name[proc.proc_id] = proc_cfg.shown_name
 
-    # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(
-        graph_param, dic_cat_filters, use_expired_cache=use_expired_cache
-    )
+    if df is None:
+        # get data from database
+        df, actual_record_number, unique_serial = get_data_from_db(
+            graph_param,
+            dic_cat_filters,
+            use_expired_cache=use_expired_cache,
+        )
+        dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
+        dic_param[UNIQUE_SERIAL] = unique_serial
 
     dic_param = filter_cat_dict_common(
         df,
@@ -139,35 +143,38 @@ def gen_scatter_plot(dic_param):
     dic_param[PROC_NAME] = dic_proc_name
 
     # create output data
-    orig_graph_param = bind_dic_param_to_class(dic_param)
+    orig_graph_param = bind_dic_param_to_class(
+        graph_param.dic_proc_cfgs,
+        graph_param.trace_graph,
+        graph_param.dic_card_orders,
+        dic_param,
+    )
     dic_data = gen_dic_data_from_df(df, orig_graph_param)
-    times = df[Cycle.time.key].tolist() or []
+    times = df[TIME_COL].tolist() or []
 
     # get chart infos
     chart_infos, chart_infos_org = get_chart_infos(orig_graph_param, dic_data, times)
 
     dic_param[ARRAY_FORMVAL], dic_param[ARRAY_PLOTDATA] = gen_plotdata(
-        orig_graph_param, dic_data, chart_infos, chart_infos_org, reorder=False
+        orig_graph_param,
+        dic_data,
+        chart_infos,
+        chart_infos_org,
+        reorder=False,
     )
-    dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
-    if Cycle.id.key in df.columns:
-        dic_param[CYCLE_IDS] = df.id.tolist()
-
-    # flag to show that trace result was limited
-    dic_param[UNIQUE_SERIAL] = unique_serial
+    if ROWID in df.columns:
+        dic_param[CYCLE_IDS] = df.rowid.tolist()
 
     # convert irregular data
     make_irregular_data_none(dic_param)
 
-    gen_scale_info(dic_param)
+    gen_scale_info(graph_param.dic_proc_cfgs, dic_param)
 
     # partial correlation
     calc_partial_corr(dic_param)
 
-    serial_data, datetime_data, start_proc_name = get_serial_and_datetime_data(
-        df, graph_param, dic_proc_cfgs
-    )
+    serial_data, datetime_data, start_proc_name = get_serial_and_datetime_data(df, graph_param, dic_proc_cfgs)
     dic_param[SERIALS] = serial_data
     dic_param[DATETIME] = datetime_data
     dic_param[START_PROC] = start_proc_name
@@ -183,33 +190,7 @@ def gen_scatter_plot(dic_param):
 
 @log_execution_time()
 @abort_process_handler()
-def remove_none_data(dic_param):
-    num_sensors = len(dic_param.get(ARRAY_PLOTDATA) or [])
-    if (
-        not num_sensors
-        or not dic_param[ARRAY_PLOTDATA][0]
-        or not len(dic_param[ARRAY_PLOTDATA][0].get(ARRAY_Y) or [])
-    ):
-        return
-
-    # find none vals
-    array_ys = zip(*[dic_param[ARRAY_PLOTDATA][ss].get(ARRAY_Y) or [] for ss in range(num_sensors)])
-    list_nones = [
-        idx for idx, vals in enumerate(array_ys) if any([v is None or np.isnan(v) for v in vals])
-    ]
-
-    # remove none vals
-    num_points = len(dic_param[ARRAY_PLOTDATA][0].get(ARRAY_Y) or [])
-    for ss in range(num_sensors):
-        array_y = dic_param[ARRAY_PLOTDATA][ss][ARRAY_Y]
-        dic_param[ARRAY_PLOTDATA][ss][ARRAY_Y] = [
-            array_y[i] for i in range(num_points) if i not in list_nones
-        ]
-
-
-@log_execution_time()
-@abort_process_handler()
-def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, show_contour_limit):
+def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, is_show_contour_only):
     # parameters
     num_bins = 50  # 50 x 50 cells
     outlier_ratio = 0.05  # ratio for number of points to plot
@@ -220,11 +201,13 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
         'array_y1': array_y1,
         'array_y2': array_y2,
         DATETIME: dic_param[DATETIME],
-        CYCLE_IDS: dic_param[CYCLE_IDS],
     }
 
     if len(dic_param[SERIALS]) > 0:
         data[SERIALS] = dic_param[SERIALS][0]
+
+    if CYCLE_IDS in dic_param:
+        data[CYCLE_IDS] = dic_param[CYCLE_IDS]
 
     df = pd.DataFrame(data)
     df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna()
@@ -232,12 +215,13 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
     array_y2 = df['array_y2'].to_numpy()
     datetime = df[DATETIME].to_numpy()
     serials = df[SERIALS].to_numpy() if SERIALS in df.columns else []
-    cycle_ids = df[CYCLE_IDS].to_numpy()
+    cycle_ids = df[CYCLE_IDS].to_numpy() if CYCLE_IDS in df.columns else []
 
     contour_data = {'x': [], 'y': [], 'z': [], 'contours_coloring': 'heatmap', 'line_width': 0}
     scatter_data = {'x': [], 'y': [], 'mode': 'markers'}
 
-    if len(array_y1) < 2 or len(array_y2) < 2:
+    limit_min = 2
+    if len(array_y1) < limit_min or len(array_y2) < limit_min:
         return [contour_data, scatter_data]
 
     try:
@@ -249,7 +233,7 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
         # for contour: store x-y value and density of each gridpoints
         # dic_contour = {'x': x_grid, 'y': y_grid, 'z': kde_gridpoints.ravel()} # TODO comment out for now
 
-        if len(array_y1) < show_contour_limit and not use_contour:
+        if not is_show_contour_only and not use_contour:
             # return full point
             scatter_data = {
                 'x': array_y1,
@@ -262,7 +246,7 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
                 'mode': 'markers',
             }
 
-        if len(array_y1) >= show_contour_limit or use_contour:
+        if is_show_contour_only or use_contour:
             # return contour;
             num_outliers = np.min([int(len(array_y1) * outlier_ratio), max_num_points])
             flg_outlier = get_outlier_flg(hist, kde_gridpoints, num_outliers, num_bins)
@@ -358,17 +342,16 @@ def add_jitter_for_kde(x, y):
     yrng = np.nanmax(y) - np.nanmin(y)
 
     add_jitter = False
-    if (xrng == 0.0) or (yrng == 0.0):
-        add_jitter = True
-    elif np.abs(np.corrcoef(x, y)[0, 1]) > 0.999:
-        # corrcoef returns nan if y or x is constant
+    min_val = 0.0
+    max_val = 0.999
+    if xrng == min_val or yrng == min_val or np.abs(np.corrcoef(x, y)[0, 1]) > max_val:
         add_jitter = True
 
     if add_jitter:
         x_offset = xrng / 50
         y_offset = yrng / 50
-        x_offset = x_offset if xrng > 0.0 else 0.01
-        y_offset = y_offset if yrng > 0.0 else 0.01
+        x_offset = x_offset if xrng > min_val else 0.01
+        y_offset = y_offset if yrng > min_val else 0.01
         x_ = x + np.random.uniform(-x_offset, x_offset, len(x))
         y_ = y + np.random.uniform(-y_offset, y_offset, len(y))
         return x_, y_
@@ -415,7 +398,12 @@ def calc_2d_hist(x, y, num_bins):
     # 2D histogram. TypeError when values=None
     # https://stackoverflow.com/questions/60623899/why-is-binned-statistic-2d-now-throwing-typeerror
     hist = binned_statistic_2d(
-        x=x, y=y, values=x, statistic='count', bins=num_bins, range=[[xmin, xmax], [ymin, ymax]]
+        x=x,
+        y=y,
+        values=x,
+        statistic='count',
+        bins=num_bins,
+        range=[[xmin, xmax], [ymin, ymax]],
     )  # noqa
     return hist
 
@@ -509,6 +497,8 @@ def gen_scatter_n_contour_data(dic_param: dict, dic_data, use_contour):
     adjust = MSP_CONTOUR_ADJUST
     combi_count = num_sensor * (num_sensor - 1) / 2
     show_contour_limit = round(NORMAL_MODE_MAX_RECORD / (pow(combi_count, adjust) or 1))
+
+    is_show_contour_only = len(dic_param[DATETIME]) >= show_contour_limit
     for i in range(num_sensor - 1):
         c_idx = i + 1
         array_formval_i = array_formval[i]
@@ -524,7 +514,11 @@ def gen_scatter_n_contour_data(dic_param: dict, dic_data, use_contour):
             array_y_k = dic_data[proc_id_k][col_id_k]
 
             contour_data, scatter_data = gen_scatter_n_contour_data_pair(
-                dic_param, array_y_i, array_y_k, use_contour, show_contour_limit
+                dic_param,
+                array_y_i,
+                array_y_k,
+                use_contour,
+                is_show_contour_only,
             )
             scatter_contours['{}-{}'.format(r_idx, c_idx)] = {
                 'contour_data': contour_data,
@@ -535,7 +529,7 @@ def gen_scatter_n_contour_data(dic_param: dict, dic_data, use_contour):
                 'col_id_y': col_id_k,
             }
 
-    return scatter_contours, show_contour_limit
+    return scatter_contours, is_show_contour_only
 
 
 def partial_corr(data, corr_only=False):
@@ -568,12 +562,8 @@ def get_org_plotdat(plotdat):
         return []
 
     data = plotdat[ARRAY_Y]
-    # use origin data for integer column only
-    if (
-        COL_DETAIL in plotdat
-        and ORG_ARRAY_Y in plotdat
-        and plotdat[COL_DETAIL][COL_TYPE] == DataTypeEncode.INTEGER.name
-    ):
+    # use origin data for integer column only (unique<=128)
+    if COL_DETAIL in plotdat and ORG_ARRAY_Y in plotdat and plotdat[COL_DETAIL][IS_INT_CATEGORY]:
         data = plotdat[ORG_ARRAY_Y]
 
     return data
@@ -616,32 +606,19 @@ def calc_partial_corr(dic_param):
             data = scaler.fit_transform(df_pair)
             _, corr_mat = partial_corr(data, corr_only=True)
             corrs[CORR][col][row] = corr_mat[0][1]
-            corrs[PCORR][col][row] = (
-                signify_digit(p_corr_mat[k][i]) if p_corr_mat is not None else None
-            )
+            corrs[PCORR][col][row] = signify_digit(p_corr_mat[k][i]) if p_corr_mat is not None else None
             corrs[NTOTALS][col][row] = df_pair.shape[0]
 
     dic_param[CORRS] = corrs
     return dic_param
 
 
-def remove_unused_params(dic_param):
-    for plot_data in dic_param[ARRAY_PLOTDATA]:
-        del plot_data[ARRAY_X]
-        del plot_data[ARRAY_Y]
-
-    # del dic_param[SERIAL_DATA]
-    # del dic_param[TIMES]
-
-    return dic_param
-
-
-def gen_scale_info(dic_param):
+def gen_scale_info(dic_proc_cfgs, dic_param):
     # generate kde for each trace output array
     # dic_param = gen_kde_data_trace_data(dic_param)
     array_plotdata = dic_param.get(ARRAY_PLOTDATA, [])
     min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(array_plotdata)
-    calc_scale_info(array_plotdata, min_max_list, all_graph_min, all_graph_max)
+    calc_scale_info(dic_proc_cfgs, array_plotdata, min_max_list, all_graph_min, all_graph_max)
 
     if len(array_plotdata) <= MSP_AS_HEATMAP_FROM:
         for plotdata in array_plotdata:
@@ -656,8 +633,10 @@ def gen_scale_info(dic_param):
 
 def clear_unused_data(dic_param):
     for plot_data in dic_param.get(ARRAY_PLOTDATA, []):
-        del plot_data[ARRAY_Y]
-        del plot_data[ARRAY_X]
+        if ARRAY_Y in plot_data:
+            del plot_data[ARRAY_Y]
+        if ARRAY_X in plot_data:
+            del plot_data[ARRAY_X]
     return dic_param
 
 
@@ -666,13 +645,11 @@ def gen_heatmap_data_from_msp(dic_param, dic_proc_cfgs):
     dic_param[AS_HEATMAP_MATRIX] = False
     if len(dic_param[ARRAY_PLOTDATA]) > MSP_AS_HEATMAP_FROM:
         dic_param[AS_HEATMAP_MATRIX] = True
-        x, y, z = [], [], []
+        x, z = [], []
         sensor_ids = [sensor[END_COL_ID] for sensor in dic_param[ARRAY_PLOTDATA]]
         y_sensor_ids = reversed(sensor_ids)
         for sensor_data in dic_param[ARRAY_PLOTDATA]:
-            x_label = '{} | {}'.format(
-                sensor_data[END_COL_SHOW_NAME], dic_proc_cfgs[sensor_data[END_PROC_ID]].shown_name
-            )
+            x_label = '{} | {}'.format(sensor_data[END_COL_SHOW_NAME], dic_proc_cfgs[sensor_data[END_PROC_ID]].name)
             x.append(x_label)
 
             # remove unused data
@@ -688,4 +665,4 @@ def gen_heatmap_data_from_msp(dic_param, dic_proc_cfgs):
             z_data = [corr_data[_id] if _id != id else None for _id in sensor_ids]
             z.append(z_data)
 
-        dic_param[HEATMAP_MATRIX] = dict(x=x, y=x[::-1], z=z)
+        dic_param[HEATMAP_MATRIX] = {'x': x, 'y': x[::-1], 'z': z}

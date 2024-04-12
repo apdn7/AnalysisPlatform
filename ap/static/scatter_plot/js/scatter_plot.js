@@ -5,6 +5,7 @@
 /* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_SENSOR = 2;
+const MIN_NUMBER_OF_SENSOR = 2;
 let tabID = null;
 const graphStore = new GraphStore();
 let response = null;
@@ -12,6 +13,7 @@ let response = null;
 const MAX_PLOT = 49;
 const MAX_MATRIX = 7;
 let currentMatrix = MAX_MATRIX;
+const STR_PREFIX = '*_/&＠*_$%#'
 
 const formElements = {
     formID: '#traceDataForm',
@@ -23,6 +25,7 @@ const formElements = {
     traceTimeOptions: $('input:radio[name="traceTime"]'),
     endProcItems: '#end-proc-row .end-proc',
     endProcSelectedItem: '#end-proc-row select',
+    condProcSelectedItem: '#cond-proc-row select',
     condProcReg: /cond_proc/g,
     NO_FILTER: 'NO_FILTER',
 };
@@ -301,7 +304,6 @@ $(() => {
             endProcItem(() => {
                 onChangeDivInFacet();
             });
-            updateSelectedItems();
             addAttributeToElement();
         });
 
@@ -564,6 +566,10 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
     }
     let minColorRange = minColorVal;
     let maxColorRange = maxColorVal;
+
+    if (!colorScaleOption) {
+        colorScaleOption = colorScales.AUTO;
+    }
     if (colorScaleOption) {
         const scaleColorSettings = res.scale_color ? res.scale_color[colorScaleOption] : {};
         const minSettingColorVal = scaleColorSettings['y-min'];
@@ -1071,12 +1077,13 @@ const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName
     if (!vLabels || vLabels.length === 0) {
         return;
     }
+    figSize -= 3;
     let vLabelHtml = '';
-    const step = (chartHeight - 30) / vLabels.length;
-    const spaceY = chartHeight * SCATTER_MARGIN.Y_NORMAL;
+    const t = figSize / 2 + 50;
+    const spaceY = (chartHeight - 200) * SCATTER_MARGIN.Y_NORMAL;
     vLabels.forEach((vLabel, i) => {
-        const top = i === 0 ? spaceY + 30 : (i * step + spaceY);
-        vLabelHtml += `<div id="scp-vlabel-${i}" class="matrix-level cat-exp-box position-absolute scp-html-tag" i="${i}" style="height: calc(100% / ${vLabels.length} - 100px);left: 60px; top: ${top}px;"><span class="show-detail" style="max-width: 70px; line-height: 1">${vLabel}</span></div>`;
+        const top = i === 0 ? t : (i * (figSize + spaceY) + t);
+        vLabelHtml += `<div id="scp-vlabel-${i}" class="matrix-level cat-exp-box position-absolute scp-html-tag" i="${i}" style="height: 0px;left: ${figSize / 2 * -1 + 50}px; top: ${top}px;"><span class="show-detail" style="line-height: 1; text-overflow: ellipsis; overflow: hidden;">${vLabel}</span></div>`;
     });
 
     $(`#${parentId}`)
@@ -1085,9 +1092,8 @@ const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName
     // set width of label <= fig size
     vLabels.forEach((vla, i) => {
        const s = $(`#scp-vlabel-${i} span`);
-       if (s.width() > figSize - 20) {
-           s.width(figSize - 20)
-       }
+       s.width(figSize);
+       s.parent().width(figSize);
     });
 };
 
@@ -1235,6 +1241,8 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     isShowFacet: res.is_show_v_label,
                     isShowDiv: res.div_name !== null,
                     hasLv2: res.level_names && res.level_names.length >= 2,
+                    xDataType: res.x_data_type,
+                    yDataType: res.y_data_type,
                 };
                 genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
                     zoomRange = event;
@@ -1255,6 +1263,10 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     yName: res.y_name,
                     xFmt: res.x_fmt,
                     yFmt: res.y_fmt,
+                    isXCategory: res.is_x_category,
+                    isYCategory: res.is_y_category,
+                    xDataType: res.x_data_type,
+                    yDataType: res.y_data_type,
                 };
                 genViolinPlots(scpMatrix, option, res.scale_x, res.scale_y, settings.chartScale || chartScales[1], zoomRange, (event) => {
                     zoomRange = event;
@@ -1504,6 +1516,7 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
         let allYValue = [];
         row.forEach((item) => {
             if (item) {
+                item.array_y = item.array_y.map(val => val.toString());
                 allYValue = [...allYValue, ...item.array_y];
                 item.array_z.forEach((z) => {
                     allColorValSets = [...allColorValSets, ...z.map(y => y)];
@@ -1520,7 +1533,10 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
         let allXValue = [];
         for (let j = 0; j < totalRow; j++) {
             const item = scpData[j][i];
-            if (item) allXValue = [...allXValue, ...item.array_x];
+            if (item) {
+                item.array_x = item.array_x.map(val => val.toString());
+                allXValue = [...allXValue, ...item.array_x];
+            }
         }
         allXValues.push(allXValue.filter(onlyUniqueFilter));
     }
@@ -1530,6 +1546,8 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
             const canvasID = `scp-${i}-${j}`;
             const graphDiv = document.getElementById(canvasID);
             if (item) {
+                item.array_y = item.array_y.map(val => val.toString());
+                item.array_x = item.array_x.map(val => val.toString());
                 item.zmax = zmax;
                 item.zmin = zmin;
                 item.isShowY = j === 0;
@@ -1600,9 +1618,9 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
     scpData.forEach((row, i) => {
         row.forEach((item) => {
             if (item) {
-                const itemColors = getColors(item);
+                const itemColors = getColors(item, option.isXCategory);
                 allColors = [...allColors, ...itemColors];
-                isHorizontalViolin = _.isString(item.array_y[0]);
+                isHorizontalViolin = option.isYCategory;
                 if (!yThreshold) yThreshold = item.y_threshold;
                 if (!xThreshold) xThreshold = item.x_threshold;
             }
@@ -1639,6 +1657,7 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
                             item.array_y.push([0]);
                         }
                     });
+                    item.array_x = item.array_x.map(val => val.toString())
                 } else {
                     uniqueColors.forEach((value) => {
                         if (item.array_y.indexOf(value) === -1) {
@@ -1646,6 +1665,7 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
                             item.array_x.push([0]);
                         }
                     });
+                    item.array_y = item.array_y.map(val => val.toString())
                 }
                 generateViolinPlot(item, zoomRange, option);
             } else if (!item) {
@@ -1705,11 +1725,11 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
     genColorBarForViolin(uniqueColors, styles);
 };
 
-const getColors = (data) => {
+const getColors = (data, xCategory) => {
     // if (data.colors && data.colors.length > 0) {
     //     return data.colors;
     // }
-    if (_.isString(data.array_x[0])) {
+    if (xCategory) {
         return data.array_x;
     }
     return data.array_y;
@@ -1871,6 +1891,7 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
         if (!validateXYColorType(formData)) {
             showToastrMsg(i18n.colorWarningMessage);
         }
+        formData = clearEmptyEndProcs(formData);
         lastUsedFormData = formData;
     } else {
         formData = lastUsedFormData;
@@ -1920,8 +1941,6 @@ const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
 
         // show info table
         showInfoTable(res);
-
-        loadGraphSetings(clearOnFlyFilter);
 
         setPollingData(formData, handleSetPollingData, []);
     });

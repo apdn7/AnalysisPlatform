@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import 'macros.html' as macros %}
 
 {% block header %}
     {{ macros.page_title(key='AgP', title=_('Aggregation Plot'), hint=_('Aggregation Plot info'), hasAction=true) }}
@@ -7,7 +6,7 @@
 
 {% block midbody %}
     <div class="card">
-        <form id="traceDataForm">
+        <form class="GUIForm" id="traceDataForm">
             {{ macros.heatmap_end_proc(title=_('AgP target variables'), procs=procs, no_link_data=true, cat_count=false) }}
             {{ macros.data_finder_card() }}
             <!-- Date range -->
@@ -21,7 +20,7 @@
                     </div>
                     <div class="col-xl-10 col-9">
                         <div class="row">
-                            {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover StP'), rlp=True, cyclicCalender=True, dataNumber=True)}}
+                            {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover AgP'), rlp=True, cyclicCalender=True, dataNumber=True, WindowLengthHover=_('Window length Hover AgP'), IntervalHover=_('Interval Hover AgP'))}}
                         </div>
                     </div>
                 </div>
@@ -30,7 +29,7 @@
             <br class="graph-navi graph-navi-top-down">
             <div class="d-flex align-items-center justify-content-center show-graph-div">
                  {{ macros.order_btn() }}
-                {{ macros.preprocess_options(isRealOnlyMsg=_('The target is a variable whose data type is Real(Float)')) }}
+                {{ macros.preprocess_options(isRealOnlyMsg=_('The target is a variable whose data type is Real')) }}
                 <button id="showGraphBtn" type="button" value="{{ _('Display graph') }}"
                         onClick="showAgP();" class="btn btn-primary show-graph ml-3" title="Shortcut key: Ctrl+Enter">
                     <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>

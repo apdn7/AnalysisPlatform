@@ -1,6 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pandas as pd
+import pytz
 from pandas import DataFrame
 
 from ap.api.setting_module.services.csv_import import remove_duplicates
@@ -9,15 +10,13 @@ from ap.api.setting_module.services.data_import import (
     convert_df_col_to_utc,
     convert_df_datetime_to_str,
     data_pre_processing,
-    gen_dic_sensor_n_cls,
     gen_duplicate_output_df,
     gen_error_output_df,
     gen_import_job_info,
-    gen_substring_column_info,
     get_df_first_n_last,
-    get_new_adding_columns,
     import_data,
-    save_sensors,
+    save_failed_import_history,
+    save_import_history,
     validate_datetime,
     write_duplicate_import,
     write_error_import,
@@ -30,23 +29,32 @@ from ap.common.common_utils import (
     add_days,
     add_double_quotes,
     add_years,
-    calculator_day_ago,
     convert_time,
 )
-from ap.common.constants import DATETIME_DUMMY, MSG_DB_CON_FAILED, DataType, JobStatus
+from ap.common.constants import (
+    DATA_TYPE_DUPLICATE_MSG,
+    DATA_TYPE_ERROR_EMPTY_DATA,
+    DATA_TYPE_ERROR_MSG,
+    DATETIME_DUMMY,
+    MSG_DB_CON_FAILED,
+    PAST_IMPORT_LIMIT_DATA_COUNT,
+    DataType,
+    JobStatus,
+    JobType,
+)
 from ap.common.disk_usage import get_ip_address
 from ap.common.logger import log_execution_time, logger
-from ap.common.pydn.dblib import mssqlserver, mysql, oracle
-from ap.common.pydn.dblib.db_proxy import DbProxy
-from ap.common.scheduler import JobType, scheduler_app_context
+from ap.common.pydn.dblib import mssqlserver, mysql, oracle, sqlite
+from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.scheduler import scheduler_app_context
 from ap.common.timezone_utils import detect_timezone, gen_sql, get_db_timezone, get_time_info
-from ap.setting_module.models import CfgDataSourceDB, CfgProcess, FactoryImport, JobManagement
+from ap.setting_module.models import CfgDataSourceDB, CfgProcess, JobManagement
 from ap.setting_module.services.background_process import (
     JobInfo,
     format_factory_date_to_meta_data,
     send_processing_info,
 )
-from ap.trace_data.models import Process, find_cycle_class
+from ap.trace_data.transaction_model import TransactionData
 
 MAX_RECORD = 1_000_000
 SQL_FACTORY_LIMIT = 5_000_000
@@ -55,12 +63,20 @@ SQL_DAYS_AGO = 30
 FETCH_MANY_SIZE = 20_000
 SQL_FACTORY_LIMIT_DAYS = 16
 
-pd.options.mode.chained_assignment = None  # default='warn'
+
+# pd.options.mode.chained_assignment = None  # default='warn'
 
 
 @scheduler_app_context
 def import_factory_job(
-    _job_id, _job_name, _db_id, _proc_id, _proc_name, is_user_request: bool = False, *args, **kwargs
+    _job_id,
+    _job_name,
+    _db_id,
+    _proc_id,
+    _proc_name,
+    proc_id,
+    is_user_request: bool = False,
+    **kwargs,
 ):
     """scheduler job import factory data
 
@@ -70,10 +86,9 @@ def import_factory_job(
     """
 
     def _add_gen_proc_link_job(*_args, **_kwargs):
-        add_gen_proc_link_job(is_user_request=is_user_request, *_args, **_kwargs)
+        add_gen_proc_link_job(process_id=proc_id, is_user_request=is_user_request, *_args, **_kwargs)
 
-    kwargs.pop('is_user_request', None)
-    gen = import_factory(*args, **kwargs)
+    gen = import_factory(proc_id)
     send_processing_info(
         gen,
         JobType.FACTORY_IMPORT,
@@ -81,6 +96,7 @@ def import_factory_job(
         process_id=_proc_id,
         process_name=_proc_name,
         after_success_func=_add_gen_proc_link_job,
+        **kwargs,
     )
 
 
@@ -104,46 +120,31 @@ def import_factory(proc_id):
     # check db connection
     check_db_connection(data_src)
 
-    # process info
-    proc = Process.get_or_create_proc(proc_id=proc_id, proc_name=proc_cfg.name)
+    trans_data = TransactionData(proc_cfg.id)
+    with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
+        trans_data.create_table(db_instance)
+        # last import date
+        last_import = trans_data.get_import_history_last_import(db_instance, JobType.FACTORY_IMPORT.name)
 
     # columns info
     proc_name = proc_cfg.name
     column_names = [col.column_name for col in proc_cfg.columns]
     auto_increment_col = proc_cfg.get_auto_increment_col_else_get_date()
     auto_increment_idx = column_names.index(auto_increment_col)
-    dic_use_cols = {col.column_name: col.data_type for col in proc_cfg.columns}
-
-    # cycle class
-    cycle_cls = find_cycle_class(proc_id)
-
-    # check new adding column, save.
-    missing_sensors = get_new_adding_columns(proc, dic_use_cols)
-    save_sensors(missing_sensors)
-
-    # sensor classes
-    dic_sensor, dic_sensor_cls = gen_dic_sensor_n_cls(proc_id, dic_use_cols)
-
-    # substring sensors info
-    dic_substring_sensors = gen_substring_column_info(proc_id, dic_sensor)
+    dic_use_cols = {col.column_name: col for col in proc_cfg.columns}
+    cfg_columns = proc_cfg.columns
 
     # get date time column
     get_date_col = proc_cfg.get_date_col()
 
-    # last import date
-    last_import = FactoryImport.get_last_import(proc.id, JobType.FACTORY_IMPORT.name)
-
-    if last_import:
-        filter_time = last_import.import_to
-    else:
-        # the first time import data : get minimum time of factory db
-        filter_time = None
+    # the first time import data : get minimum time of factory db
+    filter_time = last_import.import_to if last_import else None
 
     # convert utc function
     dic_tz_info = {
         col: handle_time_zone(proc_cfg, col)
-        for col, dtype in dic_use_cols.items()
-        if DataType[dtype] is DataType.DATETIME
+        for col, cfg_col in dic_use_cols.items()
+        if DataType[cfg_col.data_type] is DataType.DATETIME or col == get_date_col
     }
 
     # get factory max date
@@ -160,12 +161,12 @@ def import_factory(proc_id):
     job_info.target = proc_cfg.name
 
     # get current job id
-    t_job_management: JobManagement = JobManagement.get_last_job_of_process(
-        proc_id, JobType.FACTORY_IMPORT.name
-    )
+    t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.FACTORY_IMPORT.name)
     job_id = str(t_job_management.id) if t_job_management else ''
+    job_info.job_id = job_id
     data_source_name = proc_cfg.data_source.name
     table_name = proc_cfg.table_name
+    has_data = True
 
     while inserted_row_count < MAX_RECORD and is_import:
         # get sql range
@@ -174,22 +175,22 @@ def import_factory(proc_id):
                 sql_day = calc_range_days_func(sql_day, total_row)
 
             start_time, end_time, filter_time = get_sql_range_time(
-                end_time, range_day=sql_day, is_tz_col=is_tz_col
+                end_time,
+                range_day=sql_day,
+                fac_max_date=fac_max_date,
+                is_tz_col=is_tz_col,
             )
         else:
-            min_date = convert_time(fac_min_date, return_string=False)
-            min_date = min_date - timedelta(minutes=1)
-            max_date = convert_time(fac_max_date, return_string=False)
-            filter_time = get_future_import_first_time(min_date, max_date, is_tz_col)
-
-            if not filter_time:
-                limit_date = add_days(days=-SQL_DAYS_AGO)
-                limit_date = limit_date.replace(hour=0, minute=0, second=0, microsecond=0)
-                filter_time = convert_time(limit_date)
-            start_time, end_time, filter_time = get_sql_range_time(filter_time, is_tz_col=is_tz_col)
+            start_time, end_time, filter_time = get_sql_range_time(
+                filter_time,
+                fac_max_date=fac_max_date,
+                is_tz_col=is_tz_col,
+                is_first_time=True,
+            )
 
         # no data in range, stop
         if start_time > fac_max_date:
+            has_data = False
             break
 
         # validate import date range
@@ -200,12 +201,14 @@ def import_factory(proc_id):
         # get data from factory
         data = get_factory_data(proc_cfg, column_names, auto_increment_col, start_time, end_time)
         if not data:
+            has_data = False
             break
 
         cols = next(data)
-        remain_rows = tuple()
-        for rows in data:
-            is_import, rows, remain_rows = gen_import_data(rows, remain_rows, auto_increment_idx)
+        remain_rows = ()
+        error_type = None
+        for _rows in data:
+            is_import, rows, remain_rows = gen_import_data(_rows, remain_rows, auto_increment_idx)
             if not is_import:
                 continue
 
@@ -214,11 +217,14 @@ def import_factory(proc_id):
 
             # no records
             if not len(df):
+                error_type = DATA_TYPE_ERROR_EMPTY_DATA
+                save_failed_import_history(proc_id, job_info, error_type)
                 continue
 
             # Convert UTC time
-            for col, dtype in dic_use_cols.items():
-                if DataType[dtype] is not DataType.DATETIME:
+            for col, cfg_col in dic_use_cols.items():
+                dtype = cfg_col.data_type
+                if DataType[dtype] is not DataType.DATETIME and col != get_date_col:
                     continue
 
                 null_is_error = False
@@ -241,40 +247,52 @@ def import_factory(proc_id):
             if df_error_cnt:
                 factory_data_name = f'{proc_id}_{proc_name}'
                 df_error_trace = gen_error_output_df(
-                    factory_data_name, dic_sensor, get_df_first_n_last(df_error), df_error.head()
+                    factory_data_name,
+                    dic_use_cols,
+                    get_df_first_n_last(df_error),
+                    df_error.head(),
                 )
                 write_error_trace(df_error_trace, proc_cfg.name)
                 write_error_import(df_error, proc_cfg.name)
+                error_type = DATA_TYPE_ERROR_MSG
 
             # no records
             if not len(df):
+                error_type = DATA_TYPE_ERROR_EMPTY_DATA
+                save_failed_import_history(proc_id, job_info, error_type)
                 continue
 
             # remove duplicate records which exists DB
-            df_duplicate = remove_duplicates(df, orig_df, proc_id, get_date_col)
+            df_duplicate = remove_duplicates(df, orig_df, df_error, proc_id, get_date_col, cfg_columns)
             df_duplicate_cnt = len(df_duplicate)
             if df_duplicate_cnt:
                 write_duplicate_records_to_file_factory(
-                    df_duplicate, data_source_name, table_name, dic_use_cols, proc_cfg.name, job_id
+                    df_duplicate,
+                    data_source_name,
+                    table_name,
+                    dic_use_cols,
+                    proc_cfg.name,
+                    job_id,
                 )
+                error_type = DATA_TYPE_DUPLICATE_MSG
 
             # import data
-            save_res = import_data(
-                df,
-                proc_id,
-                get_date_col,
-                cycle_cls,
-                dic_sensor,
-                dic_sensor_cls,
-                dic_substring_sensors,
-                job_id,
-            )
+            job_info.import_type = JobType.FACTORY_IMPORT.name
 
-            # update job info
+            # to save into import history
             imported_end_time = rows[-1][auto_increment_idx]
-            gen_import_job_info(
-                job_info, save_res, start_time, imported_end_time, err_cnt=df_error_cnt
-            )
+
+            # to save into
+            job_info.import_from = start_time
+            job_info.import_to = imported_end_time
+
+            job_info.status = JobStatus.DONE.name
+            if error_type:
+                job_info.status = JobStatus.FAILED.name
+                job_info.err_msg = error_type
+            save_res = import_data(df, proc_id, get_date_col, cfg_columns, job_info)
+
+            gen_import_job_info(job_info, save_res, start_time, imported_end_time, err_cnt=df_error_cnt)
 
             # total row of one job
             total_row = job_info.row_count
@@ -290,8 +308,20 @@ def import_factory(proc_id):
 
             # calc range of days to gen sql
             logger.info(
-                f'FACTORY DATA IMPORT SQL(days = {sql_day}, records = {total_row}, range = {start_time} - {end_time})'
+                f'FACTORY DATA IMPORT SQL(days = {sql_day}, records = {total_row}, range = {start_time} - {end_time})',
             )
+
+    if not has_data:
+        # save record into factory import to start job FACTORY PAST
+        gen_import_job_info(job_info, 0, start_time, start_time)
+        job_info.auto_increment_col_timezone = is_tz_col
+        job_info.percent = 100
+        # insert import history
+        job_info.import_type = JobType.FACTORY_IMPORT.name
+        job_info.import_from = start_time
+        job_info.import_to = start_time
+        save_import_history(proc_id, job_info=job_info)
+        yield job_info
 
 
 @log_execution_time()
@@ -346,25 +376,35 @@ def calc_sql_range_days():
     return _calc_sql_range_days
 
 
-@log_execution_time()
-def get_future_import_first_time(min_time, max_time, is_tz_col):
-    if not max_time:
-        return None
-
-    if calculator_day_ago(min_time, is_tz_col) <= SQL_DAYS_AGO:
-        return min_time
-
-    if calculator_day_ago(max_time, is_tz_col) < SQL_DAYS_AGO:
-        return None
-
-    if not min_time:
-        return None
-
-    return min_time
+def get_limit_date(from_date=None, start_days_ago=SQL_DAYS_AGO):
+    if not from_date:
+        from_date = datetime.utcnow()
+    return add_days(time=from_date, days=-start_days_ago).replace(hour=0, minute=0, second=0, microsecond=0)
 
 
 @log_execution_time()
-def get_sql_range_time(filter_time=None, range_day=SQL_DAY, is_tz_col=False):
+def get_sql_range_time(
+    filter_time=None,
+    range_day=SQL_DAY,
+    start_days_ago=SQL_DAYS_AGO,
+    fac_max_date=None,
+    is_tz_col=False,
+    is_first_time=False,
+):
+    # if there is no data , this poling is the first time, so get data of n days ago.
+    limit_date = get_limit_date(start_days_ago=start_days_ago)
+    # first time of importing but fac_max_date in past
+    # --|//////|----|<-limit_date---now->|----
+    if fac_max_date:
+        max_date = convert_time(fac_max_date, return_string=False)
+        max_date_utc = max_date.replace(tzinfo=pytz.utc)
+        limit_date_utc = limit_date.replace(tzinfo=pytz.utc)
+        if max_date_utc < limit_date_utc:
+            limit_date = get_limit_date(max_date)
+
+    # start time
+    filter_time = max(convert_time(filter_time), convert_time(limit_date)) if filter_time else convert_time(limit_date)
+
     # start time
     start_time = convert_time(filter_time, return_string=False)
 
@@ -372,13 +412,9 @@ def get_sql_range_time(filter_time=None, range_day=SQL_DAY, is_tz_col=False):
     end_time = add_days(start_time, days=range_day)
 
     # convert to string
-    start_time = convert_time(
-        start_time, format_str=DATE_FORMAT_STR_FACTORY_DB, only_milisecond=True
-    )
-    end_time = convert_time(end_time, format_str=DATE_FORMAT_STR_FACTORY_DB, only_milisecond=True)
-    filter_time = convert_time(
-        filter_time, format_str=DATE_FORMAT_STR_FACTORY_DB, only_milisecond=True
-    )
+    start_time = convert_time(start_time, format_str=DATE_FORMAT_STR_FACTORY_DB, only_millisecond=True)
+    end_time = convert_time(end_time, format_str=DATE_FORMAT_STR_FACTORY_DB, only_millisecond=True)
+    filter_time = convert_time(filter_time, format_str=DATE_FORMAT_STR_FACTORY_DB, only_millisecond=True)
 
     if is_tz_col:
         start_time += 'Z'
@@ -389,22 +425,17 @@ def get_sql_range_time(filter_time=None, range_day=SQL_DAY, is_tz_col=False):
 
 
 @log_execution_time('[FACTORY DATA IMPORT SELECT SQL]')
-def get_data_by_range_time(
-    db_instance, get_date_col, column_names, table_name, start_time, end_time, sql_limit
-):
+def get_data_by_range_time(db_instance, get_date_col, column_names, table_name, start_time, end_time, sql_limit):
     if isinstance(db_instance, mysql.MySQL):
         sel_cols = ','.join(column_names)
     else:
         table_name = add_double_quotes(table_name)
-
         if isinstance(db_instance, mssqlserver.MSSQLServer):
             sel_cols = ','.join(
                 [
-                    add_double_quotes(col)
-                    if col != get_date_col
-                    else f'convert(varchar(30), "{col}", 127) "{col}"'
+                    add_double_quotes(col) if col != get_date_col else f'convert(varchar(30), "{col}", 127) "{col}"'
                     for col in column_names
-                ]
+                ],
             )
         else:
             sel_cols = ','.join([add_double_quotes(col) for col in column_names])
@@ -412,6 +443,10 @@ def get_data_by_range_time(
 
     # sql
     sql = f"{sel_cols} FROM {table_name} WHERE {get_date_col} > '{start_time}' AND {get_date_col} <= '{end_time}'"
+    if isinstance(db_instance, sqlite.SQLite3):
+        # compare datetime for sqlite case only
+        sql = f"{sel_cols} FROM {table_name} WHERE datetime({get_date_col}) > datetime('{start_time}') "
+        sql += f"AND datetime({get_date_col}) <= datetime('{end_time}')"
     sql = f'{sql} ORDER BY {get_date_col}'
 
     if isinstance(db_instance, mssqlserver.MSSQLServer):
@@ -468,11 +503,7 @@ def get_factory_min_max_date(proc_cfg):
         agg_results = []
         get_date_col = add_double_quotes(proc_cfg.get_auto_increment_col_else_get_date())
         orig_tblname = proc_cfg.table_name.strip('"')
-        if not isinstance(db_instance, mysql.MySQL):
-            table_name = add_double_quotes(orig_tblname)
-        else:
-            table_name = orig_tblname
-
+        table_name = add_double_quotes(orig_tblname) if not isinstance(db_instance, mysql.MySQL) else orig_tblname
         for agg_func in ['MIN', 'MAX']:
             sql = f'select {agg_func}({get_date_col}) from {table_name}'
             if isinstance(db_instance, mssqlserver.MSSQLServer):
@@ -480,12 +511,18 @@ def get_factory_min_max_date(proc_cfg):
             _, rows = db_instance.run_sql(sql, row_is_dict=False)
 
             if not rows:
-                return None
+                break
 
             agg_results.append(rows[0][0])
+            # out = rows[0][0]
+            #
+            # if out == DATETIME_DUMMY:
+            #     return None, False
+
         min_time, max_time = agg_results
         if max_time == DATETIME_DUMMY:
             return None, None, False
+
         is_tz_col = db_instance.is_timezone_hold_column(orig_tblname, get_date_col)
         min_time = format_factory_date_to_meta_data(min_time, is_tz_col)
         max_time = format_factory_date_to_meta_data(max_time, is_tz_col)
@@ -515,23 +552,26 @@ def get_tzoffset_of_random_record(data_source, table_name, get_date_col):
 
 
 @scheduler_app_context
-def factory_past_data_transform_job(
-    _job_id, _job_name, _db_id, _proc_id, _proc_name, *args, **kwargs
-):
+def factory_past_data_transform_job(_job_id, _job_name, _db_id, _proc_id, _proc_name, proc_id, **kwargs):
     """scheduler job import factory data
 
     Keyword Arguments:
         _job_id {[type]} -- [description] (default: {None})
         _job_name {[type]} -- [description] (default: {None})
     """
-    gen = factory_past_data_transform(*args, **kwargs)
+
+    def _add_gen_proc_link_job(*_args, **_kwargs):
+        add_gen_proc_link_job(process_id=proc_id, *_args, **_kwargs)
+
+    gen = factory_past_data_transform(proc_id)
     send_processing_info(
         gen,
         JobType.FACTORY_PAST_IMPORT,
         db_code=_db_id,
         process_id=_proc_id,
         process_name=_proc_name,
-        after_success_func=add_gen_proc_link_job,
+        after_success_func=_add_gen_proc_link_job,
+        **kwargs,
     )
 
 
@@ -555,39 +595,25 @@ def factory_past_data_transform(proc_id):
     # check db connection
     check_db_connection(data_src)
 
-    proc = Process.get_or_create_proc(proc_id=proc_id)
-
     # columns info
     proc_name = proc_cfg.name
     column_names = [col.column_name for col in proc_cfg.columns]
     auto_increment_col = proc_cfg.get_auto_increment_col_else_get_date()
     auto_increment_idx = column_names.index(auto_increment_col)
-    dic_use_cols = {col.column_name: col.data_type for col in proc_cfg.columns}
-
-    # cycle class
-    cycle_cls = find_cycle_class(proc_id)
-
-    # check new adding column, save.
-    missing_sensors = get_new_adding_columns(proc, dic_use_cols)
-    save_sensors(missing_sensors)
-
-    # sensor classes
-    dic_sensor, dic_sensor_cls = gen_dic_sensor_n_cls(proc_id, dic_use_cols)
-
-    # substring sensors info
-    dic_substring_sensors = gen_substring_column_info(proc_id, dic_sensor)
+    dic_use_cols = {col.column_name: col for col in proc_cfg.columns}
+    cfg_columns = proc_cfg.columns
 
     # get date time column
     get_date_col = proc_cfg.get_date_col()
 
-    # last import date
-    last_import = FactoryImport.get_last_import(
-        proc.id, JobType.FACTORY_PAST_IMPORT.name, is_first_id=True
-    )
+    trans_data = TransactionData(proc_id)
+    with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
+        # last import date
+        last_import = trans_data.get_import_history_last_import(db_instance, JobType.FACTORY_PAST_IMPORT.name)
 
-    if not last_import:
-        # check if first time factory import was DONE !
-        last_import = FactoryImport.get_first_import(proc.id, JobType.FACTORY_IMPORT.name)
+        if not last_import:
+            # check if first time factory import was DONE !
+            last_import = trans_data.get_import_history_first_import(db_instance, JobType.FACTORY_IMPORT.name)
 
         # the first time import data
         if not last_import:
@@ -596,12 +622,15 @@ def factory_past_data_transform(proc_id):
 
     filter_time = last_import.import_from
 
-    if filter_time < convert_time(add_years(years=-1)):
+    if not filter_time or filter_time < convert_time(add_years(years=-1)):
         yield 100
         return
 
     # return if already inserted 2 millions
-    if cycle_cls.get_count_by_proc_id(proc.id) > 2_000_000:
+    with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
+        data_cnt = trans_data.count_data(db_instance)
+
+    if data_cnt > PAST_IMPORT_LIMIT_DATA_COUNT:
         yield 100
         return
 
@@ -623,8 +652,8 @@ def factory_past_data_transform(proc_id):
     # convert utc function
     dic_tz_info = {
         col: handle_time_zone(proc_cfg, col)
-        for col, dtype in dic_use_cols.items()
-        if DataType[dtype] is DataType.DATETIME
+        for col, cfg_col in dic_use_cols.items()
+        if DataType[cfg_col.data_type] is DataType.DATETIME
     }
 
     # job info
@@ -644,21 +673,21 @@ def factory_past_data_transform(proc_id):
         return
 
     # get current job id
-    t_job_management: JobManagement = JobManagement.get_last_job_of_process(
-        proc_id, JobType.FACTORY_PAST_IMPORT.name
-    )
+    t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.FACTORY_PAST_IMPORT.name)
     job_id = str(t_job_management.id) if t_job_management else ''
+    job_info.job_id = job_id
     data_source_name = proc_cfg.data_source.name
     table_name = proc_cfg.table_name
 
     # start import data
     cols = next(data)
-    remain_rows = tuple()
+    remain_rows = ()
     inserted_row_count = 0
     has_data = False
-    for rows in data:
+    error_type = None
+    for _rows in data:
         has_data = True
-        is_import, rows, remain_rows = gen_import_data(rows, remain_rows, auto_increment_idx)
+        is_import, rows, remain_rows = gen_import_data(_rows, remain_rows, auto_increment_idx)
         if not is_import:
             continue
 
@@ -667,11 +696,14 @@ def factory_past_data_transform(proc_id):
 
         # no records
         if not len(df):
+            error_type = DATA_TYPE_ERROR_EMPTY_DATA
+            save_failed_import_history(proc_id, job_info, error_type)
             continue
 
         # Convert UTC time
-        for col, dtype in dic_use_cols.items():
-            if DataType[dtype] is not DataType.DATETIME:
+        for col, cfg_col in dic_use_cols.items():
+            dtype = cfg_col.data_type
+            if DataType[dtype] is not DataType.DATETIME and col != get_date_col:
                 continue
 
             null_is_error = False
@@ -694,33 +726,45 @@ def factory_past_data_transform(proc_id):
         if df_error_cnt:
             factory_data_name = f'{proc_id}_{proc_name}'
             df_error_trace = gen_error_output_df(
-                factory_data_name, dic_sensor, get_df_first_n_last(df_error), df_error.head()
+                factory_data_name,
+                dic_use_cols,
+                get_df_first_n_last(df_error),
+                df_error.head(),
             )
             write_error_trace(df_error_trace, proc_cfg.name)
             write_error_import(df_error, proc_cfg.name)
+            error_type = DATA_TYPE_ERROR_MSG
 
         # remove duplicate records which exists DB
-        df_duplicate = remove_duplicates(df, orig_df, proc_id, get_date_col)
+        df_duplicate = remove_duplicates(df, orig_df, df_error, proc_id, get_date_col, cfg_columns)
         df_duplicate_cnt = len(df_duplicate)
         if df_duplicate_cnt:
             write_duplicate_records_to_file_factory(
-                df_duplicate, data_source_name, table_name, dic_use_cols, proc_cfg.name, job_id
+                df_duplicate,
+                data_source_name,
+                table_name,
+                dic_use_cols,
+                proc_cfg.name,
+                job_id,
             )
+            error_type = DATA_TYPE_DUPLICATE_MSG
 
         # import data
-        save_res = import_data(
-            df,
-            proc_id,
-            get_date_col,
-            cycle_cls,
-            dic_sensor,
-            dic_sensor_cls,
-            dic_substring_sensors,
-            job_id,
-        )
+        job_info.import_type = JobType.FACTORY_PAST_IMPORT.name
+
+        imported_end_time = rows[-1][auto_increment_idx]
+        # to save into import history
+        job_info.import_from = start_time
+        job_info.import_to = imported_end_time
+
+        job_info.status = JobStatus.DONE.name
+        if error_type:
+            # save import history
+            job_info.status = JobStatus.FAILED.name
+            job_info.err_msg = error_type
+        save_res = import_data(df, proc_id, get_date_col, cfg_columns, job_info)
 
         # update job info
-        imported_end_time = rows[-1][auto_increment_idx]
         gen_import_job_info(job_info, save_res, start_time, imported_end_time, err_cnt=df_error_cnt)
 
         # total row of one job
@@ -742,6 +786,10 @@ def factory_past_data_transform(proc_id):
         gen_import_job_info(job_info, 0, start_time, end_time)
         job_info.auto_increment_col_timezone = is_tz_col
         job_info.percent = 100
+        job_info.import_type = JobType.FACTORY_PAST_IMPORT.name
+        job_info.import_from = start_time
+        job_info.import_to = end_time
+        save_import_history(proc_id, job_info)
         yield job_info
 
 
@@ -749,7 +797,9 @@ def factory_past_data_transform(proc_id):
 def handle_time_zone(proc_cfg, get_date_col):
     # convert utc time func
     get_date, tzoffset_str, db_timezone = get_tzoffset_of_random_record(
-        proc_cfg.data_source, proc_cfg.table_name, get_date_col
+        proc_cfg.data_source,
+        proc_cfg.table_name,
+        get_date_col,
     )
 
     if tzoffset_str:
@@ -802,16 +852,22 @@ def gen_import_data(rows, remain_rows, auto_increment_idx):
 
 
 def write_duplicate_records_to_file_factory(
-    df_duplicate: DataFrame, data_source_name, table_name, dic_use_cols, proc_name, job_id=None
+    df_duplicate: DataFrame,
+    data_source_name,
+    table_name,
+    dic_use_cols,
+    proc_name,
+    job_id=None,
 ):
-    error_msg = 'Duplicate Record'
+    error_msg = DATA_TYPE_DUPLICATE_MSG
     time_str = convert_time(datetime.now(), format_str=DATE_FORMAT_STR_ONLY_DIGIT)[4:-3]
     ip_address = get_ip_address()
 
     df_output = gen_duplicate_output_df(
-        dic_use_cols, get_df_first_n_last(df_duplicate), table_name=table_name, error_msgs=error_msg
+        dic_use_cols,
+        get_df_first_n_last(df_duplicate),
+        table_name=table_name,
+        error_msgs=error_msg,
     )
 
-    write_duplicate_import(
-        df_output, [proc_name, data_source_name, 'Duplicate', job_id, time_str, ip_address]
-    )
+    write_duplicate_import(df_output, [proc_name, data_source_name, 'Duplicate', job_id, time_str, ip_address])

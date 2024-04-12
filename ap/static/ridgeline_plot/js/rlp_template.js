@@ -856,7 +856,6 @@ const rlpByLineTemplate = (title, groupName, xaxisValue, yaxisValue, compareType
     let valTicks = xaxisValue;
     // save categories to show/hide by button
     rlpXAxis[compareType].push(valTicks);
-    rlpXAxis.tickText.push(textTicks);
 
     const layout = {
         font: { color: 'white' },
@@ -876,7 +875,7 @@ const rlpByLineTemplate = (title, groupName, xaxisValue, yaxisValue, compareType
             showline: true, // show lines and border here
             linecolor: '#757575',
             mirror: true,
-            tickformat: tickFmt,
+            tickformat: tickFmt.includes('e') ? '.1e' : '',
         },
         yaxis2: {
             domain: [0.7, 1],
@@ -900,7 +899,7 @@ const rlpByLineTemplate = (title, groupName, xaxisValue, yaxisValue, compareType
             autorange: false,
             ticklen: 4,
             showgrid: true,
-            ticktext: generateTickAsDatetime(textTicks),
+            ticktext: textTicks,
             tickvals: showXAxis ? valTicks : [],
             // tickangle: -15,
             zeroline: true,

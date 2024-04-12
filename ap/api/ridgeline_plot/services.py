@@ -5,23 +5,20 @@ from copy import deepcopy
 import numpy as np
 import pandas
 import pandas as pd
-import pytz
-from dateutil import tz
 
+from ap import TraceErrKey
 from ap.api.categorical_plot.services import (
-    category_bind_dic_param_to_class,
     customize_dict_param_common,
-    gen_graph_param,
     gen_trace_data_by_cyclic_common,
     split_data_by_condition,
     split_data_by_div,
 )
-from ap.api.common.services.services import convert_datetime_to_ct
-from ap.api.trace_data.services.time_series_chart import (
+from ap.api.common.services.show_graph_services import (
     calc_auto_scale_y,
     calc_raw_common_scale_y,
     calc_setting_scale_y,
     calc_threshold_scale_y,
+    convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     detect_abnormal_data,
     extend_min_max,
@@ -29,17 +26,95 @@ from ap.api.trace_data.services.time_series_chart import (
     gen_cat_label_unique,
     gen_dic_data_from_df,
     gen_graph,
-    gen_new_dic_param,
     get_cfg_proc_col_info,
     get_chart_infos,
     get_data_from_db,
     get_min_max_of_all_chart_infos,
-    get_non_sensor_cols,
-    get_procs_in_dic_param,
     main_check_filter_detail_match_graph_data,
 )
 from ap.common.common_utils import end_of_minute, gen_sql_label, start_of_minute
-from ap.common.constants import *
+from ap.common.constants import (
+    ACTUAL_RECORD_NUMBER,
+    ARRAY_FORMVAL,
+    ARRAY_PLOTDATA,
+    ARRAY_X,
+    ARRAY_Y,
+    CAT_EXP_BOX,
+    CHART_INFOS,
+    CHART_INFOS_ORG,
+    COL_DATA_TYPE,
+    COMMON,
+    COUNT,
+    EMD_TYPE,
+    END_COL_ID,
+    END_COL_NAME,
+    END_DATE,
+    END_DT,
+    END_PROC,
+    END_PROC_ID,
+    END_PROC_NAME,
+    END_TM,
+    EXPORT_NG_RATE,
+    EXPORT_TERM_FROM,
+    EXPORT_TERM_TO,
+    FMT,
+    GET02_VALS_SELECT,
+    GROUP,
+    IS_GRAPH_LIMITED,
+    JUDGE_LABEL,
+    LOWER_OUTLIER_IDXS,
+    MATCHED_FILTER_IDS,
+    NG_CONDITION,
+    NG_CONDITION_VALUE,
+    NG_RATES,
+    NONE_IDXS,
+    NOT_EXACT_MATCH_FILTER_IDS,
+    PROC_NAME,
+    RATE,
+    RL_CATE_NAME,
+    RL_CATES,
+    RL_DATA,
+    RL_DATA_COUNTS,
+    RL_DEN_VAL,
+    RL_EMD,
+    RL_GROUPS,
+    RL_HIST_LABELS,
+    RL_KDE,
+    RL_ORG_DEN,
+    RL_RIDGELINES,
+    RL_SENSOR_NAME,
+    RL_TRANS_DEN,
+    RL_TRANS_VAL,
+    RL_XAXIS,
+    RL_YAXIS,
+    SCALE_AUTO,
+    SCALE_COMMON,
+    SCALE_FULL,
+    SCALE_SETTING,
+    SCALE_THRESHOLD,
+    SENSOR_ID,
+    START_DATE,
+    START_DT,
+    START_TM,
+    TIME_COL,
+    TIME_CONDS,
+    TIMES,
+    TRUE_MATCH,
+    UNIQUE_SERIAL,
+    UNMATCHED_FILTER_IDS,
+    UPPER_OUTLIER_IDXS,
+    Y_MAX,
+    Y_MIN,
+    YAML_DATA_TYPES,
+    CacheType,
+    CSVExtTypes,
+    DataType,
+    EMDType,
+    NGCondition,
+    X,
+    Y,
+)
+from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.services.ana_inf_data import calculate_kde_for_ridgeline, get_bound, get_grid_points
 from ap.common.services.form_env import bind_dic_param_to_class
@@ -47,13 +122,10 @@ from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
 )
-from ap.common.services.sse import notify_progress
 from ap.common.sigificant_digit import get_fmt_from_array
-from ap.common.timezone_utils import convert_dt_str_to_timezone, from_utc_to_localtime
-from ap.common.trace_data_log import *
+from ap.common.timezone_utils import from_utc_to_localtime
+from ap.common.trace_data_log import EventAction, EventType, Target, trace_log
 from ap.setting_module.models import CfgProcess, CfgProcessColumn
-from ap.trace_data.models import Cycle
-from ap.trace_data.schemas import DicParam
 
 
 @log_execution_time()
@@ -64,23 +136,24 @@ from ap.trace_data.schemas import DicParam
     (EventType.RLP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True)
-def gen_trace_data_by_cyclic(dic_param, max_graph=None):
-    dic_param, export_df = gen_trace_data_by_cyclic_common(dic_param)
+@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+def gen_trace_data_by_cyclic(graph_param, dic_param, max_graph=None):
+    dic_param, export_df = gen_trace_data_by_cyclic_common(graph_param, dic_param)
     term_groups = [gen_term_groups(term) for term in dic_param.get('time_conds')] or []
     dic_plotdata = defaultdict(list)
     for plotdata in dic_param[ARRAY_PLOTDATA]:
         dic_plotdata[plotdata['end_col']].append(plotdata)
 
     dic_param[ARRAY_PLOTDATA], dic_param[IS_GRAPH_LIMITED] = gen_cyclic_term_plotdata(
-        dic_plotdata, dic_param, max_graph
+        dic_plotdata,
+        dic_param,
+        max_graph,
     )
 
     # calc common scale y min max
-    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(
-        dic_param[ARRAY_PLOTDATA], y_col='data'
-    )
+    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA], y_col='data')
     calc_rlp_scale_info(
+        graph_param.dic_proc_cfgs,
         dic_param[ARRAY_PLOTDATA],
         min_max_list,
         all_graph_min,
@@ -90,10 +163,10 @@ def gen_trace_data_by_cyclic(dic_param, max_graph=None):
 
     # calculate emd data
     cal_emd_data(dic_param)
-    gen_rlp_kde(dic_param, term_groups)
+    gen_rlp_kde(dic_param)
     # compute ng rate for groups (terms/divs)
-    graph_param = bind_dic_param_to_class(dic_param)
     compute_ng_rate(export_df, dic_param, graph_param, groups=term_groups)
+    dic_param[RL_CATES] = term_groups
 
     return dic_param, export_df
 
@@ -106,8 +179,8 @@ def gen_trace_data_by_cyclic(dic_param, max_graph=None):
     (EventType.RLP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True)
-def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
+@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None):
     """tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
@@ -122,7 +195,7 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
         *_,
     ) = customize_dic_param_for_reuse_cache(dic_param)
     # gen graph_param
-    graph_param, dic_proc_cfgs = gen_graph_param(dic_param, with_ct_col=True)
+    dic_proc_cfgs = graph_param.dic_proc_cfgs
 
     cat_div_id = graph_param.common.div_by_cat
     if cat_div_id:
@@ -130,7 +203,9 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
 
     # get data from database
     df, actual_record_number, unique_serial = get_data_from_db(
-        graph_param, dic_cat_filters, use_expired_cache=use_expired_cache
+        graph_param,
+        dic_cat_filters,
+        use_expired_cache=use_expired_cache,
     )
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
@@ -151,7 +226,14 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = not_exact_match_filter_ids
 
     # gen dic_data
-    dic_data = gen_dic_data_from_df(df, graph_param, calculate_cycle_time=False)
+    dic_data = gen_dic_data_from_df(df, graph_param)
+
+    graph_param = bind_dic_param_to_class(
+        dic_proc_cfgs,
+        graph_param.trace_graph,
+        graph_param.dic_card_orders,
+        dic_param,
+    )
 
     # flag to show that trace result was limited
     dic_param[UNIQUE_SERIAL] = unique_serial
@@ -159,34 +241,30 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
     # convert proc to cols dic
     # transform raw data to graph data
     # create output data
-    orig_graph_param: DicParam = category_bind_dic_param_to_class(dic_param)
-    dic_data, is_graph_limited, div_names = split_data_by_condition(
-        dic_data, orig_graph_param, max_graph
-    )
+    dic_data, is_graph_limited, div_names = split_data_by_condition(dic_data, graph_param, max_graph)
 
     # split data by div
     if cat_div_id:
         dic_data = split_data_by_div(dic_data, div_names)
 
-    end_cols = []
-    for param in orig_graph_param.array_formval:
-        end_cols += param.col_ids
-
     dic_param[ARRAY_PLOTDATA], is_graph_limited = gen_custom_plotdata(
-        dic_data, end_cols, cat_div_id, max_graph
+        dic_proc_cfgs,
+        dic_data,
+        graph_param.common.sensor_cols,
+        cat_div_id,
+        max_graph,
     )
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
-    dic_param[TIMES] = df[Cycle.time.key].tolist()
+    dic_param[TIMES] = df[TIME_COL].tolist()
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
 
     # get visualization setting
-    add_threshold_configs(dic_param, orig_graph_param)
+    add_threshold_configs(dic_param, graph_param)
 
     # calc common scale y min max
-    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(
-        dic_param[ARRAY_PLOTDATA], y_col='data'
-    )
+    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA], y_col='data')
     calc_rlp_scale_info(
+        dic_proc_cfgs,
         dic_param[ARRAY_PLOTDATA],
         min_max_list,
         all_graph_min,
@@ -196,8 +274,9 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
 
     # calculate emd data
     cal_emd_data(dic_param)
-    gen_rlp_kde(dic_param, div_names)
+    gen_rlp_kde(dic_param)
     compute_ng_rate(export_df, dic_param, graph_param, groups=div_names)
+    dic_param[RL_CATES] = div_names
 
     return dic_param, export_df
 
@@ -210,8 +289,8 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
     (EventType.RLP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True)
-def gen_rlp_data_by_term(dic_param, max_graph=None):
+@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+def gen_rlp_data_by_term(graph_param, dic_param, max_graph=None):
     """rlp data to show graph
     filter by condition points that between start point and end_point
     """
@@ -238,12 +317,14 @@ def gen_rlp_data_by_term(dic_param, max_graph=None):
         term_dic_param[COMMON][END_TM] = term[END_TM]
 
         # get data from database + visual setting from yaml
-        term_result, export_df, graph_param = gen_graph(term_dic_param, use_export_df=True)
+        term_result, export_df, graph_param_with_cate = gen_graph(
+            graph_param,
+            term_dic_param,
+            rank_value=False,
+            use_export_df=True,
+        )
 
-        if df is None:
-            df = export_df.copy()
-        else:
-            df = pd.concat([df, export_df])
+        df = export_df.copy() if df is None else pd.concat([df, export_df])
 
         # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
         dic_param[MATCHED_FILTER_IDS] += term_result.get(MATCHED_FILTER_IDS, [])
@@ -263,19 +344,16 @@ def gen_rlp_data_by_term(dic_param, max_graph=None):
     # rpl_array_data
     dic_rlp, is_graph_limited = transform_data_to_rlp(term_results, max_graph, terms)
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
-    dic_param[ARRAY_PLOTDATA] = [
-        plotdata for dic_cat_exp in dic_rlp.values() for plotdata in dic_cat_exp.values()
-    ]
+    dic_param[ARRAY_PLOTDATA] = [plotdata for dic_cat_exp in dic_rlp.values() for plotdata in dic_cat_exp.values()]
     # get list cat_exp_box
     dic_param = gen_cat_label_unique(df, dic_param, graph_param)
 
     term_groups = [gen_term_groups(term) for term in terms]
 
     # calc common scale y min max
-    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(
-        dic_param[ARRAY_PLOTDATA], y_col='data'
-    )
+    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA], y_col='data')
     calc_rlp_scale_info(
+        graph_param.dic_proc_cfgs,
         dic_param[ARRAY_PLOTDATA],
         min_max_list,
         all_graph_min,
@@ -285,9 +363,10 @@ def gen_rlp_data_by_term(dic_param, max_graph=None):
 
     # calculate emd data
     cal_emd_data(dic_param)
-    gen_rlp_kde(dic_param, term_groups)
+    gen_rlp_kde(dic_param)
     # compute ng rate for groups (terms/divs)
     compute_ng_rate(df, dic_param, graph_param, groups=term_groups)
+    dic_param[RL_CATES] = term_groups
 
     return dic_param, df
 
@@ -299,13 +378,7 @@ def transform_data_to_rlp(term_results, max_graph=None, terms=[]):
     dic_plots = defaultdict(dict)
     count = 0
     for term_result in term_results:
-        time_range = (
-            term_result[TIME_CONDS][0][START_DT]
-            + 'Z'
-            + ' | '
-            + term_result[TIME_CONDS][0][END_DT]
-            + 'Z'
-        )
+        time_range = term_result[TIME_CONDS][0][START_DT] + 'Z' + ' | ' + term_result[TIME_CONDS][0][END_DT] + 'Z'
         for dic_plot in term_result[ARRAY_PLOTDATA]:
             selected_sensor = int(dic_plot[END_COL_ID])
             array_y = dic_plot[ARRAY_Y]
@@ -348,12 +421,12 @@ def transform_data_to_rlp(term_results, max_graph=None, terms=[]):
 
             plotdata[RL_DATA].extend(array_y)
             plotdata[RL_GROUPS].extend([time_range] * len(array_y))
-            rlpdata = dict(array_x=array_y, cate_name=time_range)
+            rlpdata = {'array_x': array_y, 'cate_name': time_range}
             plotdata[RL_RIDGELINES].append(rlpdata)
             plotdata[END_PROC_ID] = dic_plot[END_PROC_ID]
 
     for sensor_id, sensor_dat in dic_plots.items():
-        for cat_id, plotdat in sensor_dat.items():
+        for plotdat in sensor_dat.values():
             plotdat['ridgelines'] = merge_data_by_direct_terms(plotdat['ridgelines'], terms)
 
     return dic_plots, is_graph_limited
@@ -369,57 +442,13 @@ def merge_dict(dict1, dict2):
     dict3 = {**dict1, **dict2}
     for key, value in dict3.items():
         if key in dict1 and key in dict2:
-            if isinstance(value, str) or isinstance(value, int):
+            if isinstance(value, (int, str)):
                 dict3[key] = value
             elif isinstance(value, list):
                 dict3[key] = value + dict1[key]
             else:
                 dict3[key] = merge_dict(value, dict1[key])
     return dict3
-
-
-@log_execution_time()
-def get_data(trace, dic_param):
-    """get data from database
-
-    Arguments:
-        dic_param {[type]} -- [description]
-
-    Returns:
-        [type] -- [description]
-    """
-    db_code = trace.proc_yaml.get_db_id(dic_param[COMMON][START_PROC])
-    is_efa = trace.db_yaml.get_etl_func(db_code)
-    compare_type = dic_param[COMMON][COMPARE_TYPE]
-
-    dic_cate_var = None
-    if is_efa:
-        # get all checked cols
-        dic_non_sensor = get_checked_cols(trace, dic_param)
-    else:
-        # get serials + date
-        dic_non_sensor = get_non_sensor_cols(trace, dic_param)
-        # get category var and val
-
-        if compare_type == RL_CATEGORY:
-            dic_cate_var = get_cate_var(dic_param)
-
-    # edit dic_param
-    edited_dic_param = gen_new_dic_param(dic_param, dic_non_sensor)
-
-    # cate var and val
-    if dic_cate_var:
-        edited_dic_param = gen_new_dic_param(edited_dic_param, dic_cate_var)
-
-    if compare_type == RL_CATEGORY:
-        edited_dic_param = add_cond_to_dic_param(edited_dic_param)
-
-    # get data from database
-    dic_data, times, _, _, actual_record_number, is_res_limited = get_data_from_db(
-        trace, edited_dic_param
-    )
-
-    return dic_data, times, actual_record_number, is_res_limited
 
 
 @log_execution_time()
@@ -440,7 +469,7 @@ def customize_dict_param(dic_param):
     end_dates = dic_param.get(COMMON).get(END_DATE)
     end_times = dic_param.get(COMMON).get(END_TM)
 
-    if type(start_dates) is not list and type(start_dates) is not tuple:
+    if not isinstance(start_dates, list) and not isinstance(start_dates, tuple):
         start_dates = [start_dates]
         start_times = [start_times]
         end_dates = [end_dates]
@@ -454,9 +483,7 @@ def customize_dict_param(dic_param):
         and len(start_dates) == len(start_times) == len(end_dates) == len(end_times)
     ):
         names = [START_DATE, START_TM, END_DATE, END_TM]
-        lst_datetimes = [
-            dict(zip(names, row)) for row in zip(start_dates, start_times, end_dates, end_times)
-        ]
+        lst_datetimes = [dict(zip(names, row)) for row in zip(start_dates, start_times, end_dates, end_times)]
         for idx, time_cond in enumerate(lst_datetimes):
             start_dt = start_of_minute(time_cond.get(START_DATE), time_cond.get(START_TM))
             end_dt = end_of_minute(time_cond.get(END_DATE), time_cond.get(END_TM))
@@ -469,75 +496,12 @@ def customize_dict_param(dic_param):
 
 def convert_end_cols_to_array(dic_param):
     end_col_alias = dic_param[COMMON][GET02_VALS_SELECT]
-    if type(end_col_alias) == str:
+    if isinstance(end_col_alias, str):
         dic_param[COMMON][GET02_VALS_SELECT] = [end_col_alias]
 
     from_end_col_alias = dic_param[ARRAY_FORMVAL][0][GET02_VALS_SELECT]
-    if type(from_end_col_alias) == str:
+    if isinstance(from_end_col_alias, str):
         dic_param[ARRAY_FORMVAL][0][GET02_VALS_SELECT] = [from_end_col_alias]
-
-
-@log_execution_time()
-def split_data_by_cyclic_terms(dic_data, times, dic_param):
-    """split data by condition
-
-    Arguments:
-        data {[type]} -- [description]
-
-    Returns:
-        [type] -- [description]
-    """
-
-    proc_id = dic_param.common.start_proc
-    cyclic_terms = dic_param.cyclic_terms
-    dic_output = {}
-
-    end_col_ids = dic_param.array_formval[0].col_ids
-    for end_col in end_col_ids:
-        dic_output[end_col] = {term: [] for term in cyclic_terms}
-
-    for idx, t_cycle_time in enumerate(times):
-        for end_col in end_col_ids:
-            end_col_data = dic_data[proc_id][end_col]
-            for cyclic_term in cyclic_terms:
-                if cyclic_term[0] <= t_cycle_time <= cyclic_term[1]:
-                    dic_output[end_col][cyclic_term].append(end_col_data[idx])
-
-    return dic_output
-
-
-def get_cate_var(dic_param):
-    cate_vars = dic_param[COMMON].get(f'{CATE_VARIABLE}1', [])
-    if not isinstance(cate_vars, (list, tuple)):
-        cate_vars = [cate_vars]
-
-    return {dic_param[COMMON][START_PROC]: cate_vars}
-
-
-def add_cond_to_dic_param(dic_param):
-    cate_var = dic_param[COMMON].get(f'{CATE_VARIABLE}1')
-    cate_vals = dic_param[COMMON].get(f'{CATE_VALUE_MULTI}1', [])
-    if not isinstance(cate_vals, (list, tuple)):
-        cate_vals = [cate_vals]
-
-    edited_dic_param = deepcopy(dic_param)
-
-    # start proc
-    proc_name = dic_param[COMMON][START_PROC]
-
-    cond_proc = None
-    for ele in edited_dic_param[COMMON][COND_PROCS]:
-        if ele[COND_PROC] == proc_name:
-            cond_proc = ele
-            break
-
-    if cond_proc:
-        cond_proc.update({cate_var: cate_vals})
-    else:
-        cond_proc = {COND_PROC: proc_name, cate_var: cate_vals}
-        edited_dic_param[COMMON][COND_PROCS].append(cond_proc)
-
-    return edited_dic_param
 
 
 @log_execution_time()
@@ -568,9 +532,7 @@ def cal_emd_data(dic_param):
         emd_stacked_without_nan = df.to_numpy()
         for diff in emd_value:
             if emd_stacked_without_nan.size:
-                emd_array = calc_emd_for_ridgeline(
-                    emd_stacked_without_nan, np.array(group_ids), num_bins, diff=diff
-                )
+                emd_array = calc_emd_for_ridgeline(emd_stacked_without_nan, np.array(group_ids), num_bins, diff=diff)
                 if len(emd_array) > 0:
                     emds.append(np.stack(emd_array, axis=-1).tolist()[0])
                 else:
@@ -643,9 +605,7 @@ def calc_emd_for_ridgeline(data, group_id, num_bins, signed=True, diff=False):
                 # https://en.wikipedia.org/wiki/Earth_mover%27s_distance#Computing_the_EMD
                 emd_1d = np.zeros(num_bins + 1)
                 for bin_idx in range(1, num_bins + 1):
-                    emd_1d[bin_idx] = (
-                        ref_density[g, bin_idx - 1] - dens_mat[g, bin_idx - 1] + emd_1d[bin_idx - 1]
-                    )
+                    emd_1d[bin_idx] = ref_density[g, bin_idx - 1] - dens_mat[g, bin_idx - 1] + emd_1d[bin_idx - 1]
                 emd[g] = np.sum(np.abs(emd_1d))
 
         # scale emd to have original unit
@@ -727,7 +687,7 @@ def gen_cyclic_term_plotdata(dic_data, dic_param, max_graph=None):
 
                 plotdata[RL_DATA].extend(array_y)
                 plotdata[RL_GROUPS].extend([cate_name_str] * len(array_y))
-                rlpdata = dict(array_x=array_y, cate_name=cate_name_str)
+                rlpdata = {'array_x': array_y, 'cate_name': cate_name_str}
                 plotdata[RL_RIDGELINES].append(rlpdata)
                 plotdata[END_PROC_ID] = dic_plot[END_PROC_ID]
 
@@ -741,12 +701,12 @@ def gen_cyclic_term_plotdata(dic_data, dic_param, max_graph=None):
 
 
 @log_execution_time()
-def gen_custom_plotdata(dic_data, sensors, cat_div_id, max_graph):
+def gen_custom_plotdata(dic_proc_cfgs, dic_data, sensors, cat_div_id, max_graph):
     is_graph_limited = False
     plotdatas = []
     if not dic_data:
         return plotdatas, is_graph_limited
-    dic_procs, dic_cols = get_cfg_proc_col_info(sensors)
+    dic_procs, dic_cols = get_cfg_proc_col_info(dic_proc_cfgs, sensors)
     for sensor_id in sensors:
         if max_graph and len(plotdatas) >= max_graph:
             is_graph_limited = True
@@ -766,7 +726,7 @@ def gen_custom_plotdata(dic_data, sensors, cat_div_id, max_graph):
                 array_y = dic_plot[ARRAY_Y]
                 plotdata[RL_DATA].extend(array_y)
                 plotdata[RL_GROUPS].extend([cate_name] * len(array_y))
-                rlpdata = dict(array_x=array_y, cate_name=cate_name)
+                rlpdata = {'array_x': array_y, 'cate_name': cate_name}
                 plotdata[RL_RIDGELINES].append(rlpdata)
             plotdatas.append(plotdata)
         else:
@@ -786,7 +746,7 @@ def gen_custom_plotdata(dic_data, sensors, cat_div_id, max_graph):
                     array_y = div_data[ARRAY_Y]
                     plotdata[RL_DATA].extend(array_y)
                     plotdata[RL_GROUPS].extend([div_name] * len(array_y))
-                    rlpdata = dict(array_x=array_y, cate_name=div_name, div_name=div_name)
+                    rlpdata = {'array_x': array_y, 'cate_name': div_name, 'div_name': div_name}
                     plotdata[RL_RIDGELINES].append(rlpdata)
 
                 plotdatas.append(plotdata)
@@ -816,153 +776,8 @@ def get_checked_cols(trace, dic_param):
 
 
 @log_execution_time()
-@notify_progress(75)
-def csv_export_dispatch(dic_param):
-    proc_name = list(set(dic_param.get(COMMON).get(END_PROC).values()))
-    time_conds = dic_param.get(TIME_CONDS)
-    compare_type = dic_param.get(COMMON).get(COMPARE_TYPE)
-    emd_type = dic_param[COMMON][EMD_TYPE] or EMDType.drift.name
-
-    if not proc_name or not time_conds:
-        return False, None
-
-    # convert to array to query data for many sensors
-    convert_end_cols_to_array(dic_param)
-    cate_var = None
-    if compare_type == RL_CATEGORY:
-        cate_var = dic_param[COMMON].get(DIV_BY_CAT)
-        if not cate_var:
-            return False, None
-
-        if isinstance(cate_var, (list, tuple)):
-            cate_var = cate_var[0]
-
-        dic_param, export_df = gen_trace_data_by_categorical_var(dic_param)
-    if compare_type == RL_CYCLIC_TERM:
-        cate_var = RL_PERIOD
-        dic_param, export_df = gen_trace_data_by_cyclic(dic_param)
-    elif compare_type == RL_DIRECT_TERM:
-        cate_var = RL_PERIOD
-        dic_param, export_df = gen_rlp_data_by_term(dic_param)
-
-    # cate name for emd
-    cate_vals = [
-        dic_ridge[RL_CATE_NAME] for dic_ridge in dic_param[ARRAY_PLOTDATA][0][RL_RIDGELINES]
-    ]
-    sensors = dic_param[COMMON][GET02_VALS_SELECT]
-    emds = dic_param[RL_EMD]
-    if emd_type == EMDType.both.name:
-        emds = np.array_split(emds, len(emds) / 2)
-    dic_data = {proc_name[0]: {cate_var: cate_vals, **dict(zip(sensors, emds))}}
-
-    return dic_data, export_df
-
-
-@log_execution_time()
-def gen_csv_data(
-    dic_param, dic_data, sensors, client_tz, delimiter=None
-):  # get the most cover flows
-    """tracing data to show csv
-    1 start point x n end point
-    filter by condition points that between start point and end_point
-    """
-
-    if delimiter:
-        csv_data = to_csv(dic_param, dic_data, sensors, client_tz, delimiter=delimiter)
-    else:
-        csv_data = to_csv(dic_param, dic_data, sensors, client_tz)
-
-    return csv_data
-
-
-@log_execution_time()
-def to_csv(dic_param, dic_data, sensors, client_tz=None, newline='\n', delimiter=','):
-    """generate csv export string
-
-    Arguments:
-        trace {[Trace]} -- [tracing information]
-        dic_data {[dictionary]} -- [export data]
-
-    Keyword Arguments:
-        newline {str} -- [description] (default: {'\n'})
-        delimiter {str} -- [description] (default: {','})
-
-    Returns:
-        [type] -- [description]
-    """
-    out_str = ''
-
-    graph_param = category_bind_dic_param_to_class(dic_param)
-    dic_proc_cfgs = get_procs_in_dic_param(graph_param)
-    emd_type = dic_param[COMMON][EMD_TYPE] or EMDType.drift.name
-    emd_value = ['|diff' if diff is True else '|drift' for diff in EMDType[emd_type].value]
-
-    # get columns
-    cols = []
-    for proc_id, data in dic_data.items():
-        # get master name of proc
-        proc_cfg: CfgProcess = dic_proc_cfgs[int(proc_id)]
-
-        for col in data:
-            if col == RL_PERIOD:
-                dt_frm, dt_to = col.split('|')
-                cols.append(f'{proc_cfg.shown_name}|{dt_frm}')
-                cols.append(f'{proc_cfg.shown_name}|{dt_to}')
-            else:
-                column = CfgProcessColumn.query.get(int(col))
-
-                for diff in emd_value:
-                    show_col = column.shown_name
-                    show_col += '|emd'
-                    if col in sensors:
-                        show_col += diff
-
-                    # col_name = CfgProcessColumn.get_by_col_name(proc_id,col)
-                    cols.append(f'{proc_cfg.shown_name}|{show_col}')
-
-    out_str += delimiter.join(cols)
-    out_str += newline
-
-    # get rows
-    merged_rows = []
-    for proc_id, proc_values in dic_data.items():
-        for col_name, col_values in proc_values.items():
-            if col_name == RL_PERIOD:
-                # get client timezone
-                client_timezone = pytz.timezone(client_tz) if client_tz else tz.tzlocal()
-                # client_timezone = tz.gettz(client_tz or None) or tz.tzlocal()
-
-                arr_from = []
-                arr_to = []
-                for val in col_values:
-                    dt_frm, dt_to = val.split('|')
-                    arr_from.append(convert_dt_str_to_timezone(client_timezone, dt_frm))
-                    arr_to.append(convert_dt_str_to_timezone(client_timezone, dt_to))
-
-                merged_rows.append(arr_from)
-                merged_rows.append(arr_to)
-            else:
-                if emd_type == EMDType.both.name:
-                    if type(col_values) == list:
-                        merged_rows.append(col_values)
-                    else:
-                        for val in col_values:
-                            merged_rows.append(val)
-                else:
-                    merged_rows.append(col_values)
-
-    for row in zip(*merged_rows):
-        if row[0] == '':
-            continue
-        out_str += delimiter.join([str(i) for i in row])
-        out_str += newline
-
-    return out_str
-
-
-@log_execution_time()
 @abort_process_handler()
-def gen_rlp_kde(dic_param, div_names=[]):
+def gen_rlp_kde(dic_param):
     # retrieve the ridge-lines from array_plotdata
     array_plotdata = dic_param.get(ARRAY_PLOTDATA)
     fmt = {}
@@ -976,7 +791,7 @@ def gen_rlp_kde(dic_param, div_names=[]):
         # default_scale_ymin, default_scale_ymax = plotdata[SCALE_SETTING]['y-min'], plotdata[SCALE_SETTING]['y-max']
         default_scale_ymin = plotdata[SCALE_SETTING]['y-min']
         default_scale_ymax = plotdata[SCALE_SETTING]['y-max']
-        if default_scale_ymin != None and default_scale_ymax != None:
+        if default_scale_ymin is not None and default_scale_ymax is not None:
             # tailed = (default_scale_ymax - default_scale_ymin) * 0.25
             # use tail range for ridgeline to show smoothly RLP line
             tailed = 0
@@ -987,19 +802,17 @@ def gen_rlp_kde(dic_param, div_names=[]):
         for num, ridgeline in enumerate(plotdata_rlp):
             array_x = ridgeline.get(ARRAY_X)
             fmt[sensor_id] += array_x
-            ridgeline[RL_KDE] = calculate_kde_for_ridgeline(
-                array_x, grid_points, height=3, use_hist_counts=True
-            )
+            ridgeline[RL_KDE] = calculate_kde_for_ridgeline(array_x, grid_points, height=3, use_hist_counts=True)
 
-    for idx in fmt.keys():
+    for idx in fmt:
         fmt[idx] = get_fmt_from_array(fmt[idx])
     dic_param[FMT] = fmt
-    res = transform_rlp_kde(dic_param, div_names)
+    res = transform_rlp_kde(dic_param)
     return res
 
 
 @log_execution_time()
-def transform_rlp_kde(dic_param, div_names):
+def transform_rlp_kde(dic_param):
     default_hist_bins = 128
     # retrieve the ridge-lines from array_plotdata
     array_plotdata = dic_param.get(ARRAY_PLOTDATA)
@@ -1014,18 +827,11 @@ def transform_rlp_kde(dic_param, div_names):
         start_value = 0.1
         # calculate the step value between 2 line
         total_lines = len(plotdata_rlp)
-
-        if total_lines > 1:
-            line_steps = 1 / (total_lines - 1)
-        else:
-            # if data have one ridge line only, the first line will be draw from x=0.1 in xaxis
-            line_steps = 0.1
+        line_steps = 1 / (total_lines - 1) if total_lines > 1 else 0.1
 
         plotdata[RL_XAXIS] = []
         # distinct groups
-        plotdata[RL_CATES] = (
-            div_names if len(div_names) else list(dict.fromkeys(plotdata[RL_GROUPS]))
-        )
+        # plotdata[RL_CATES] = div_names if len(div_names) else list(dict.fromkeys(plotdata[RL_GROUPS]))
         # plotdata['categories'] = distinct_rlp_groups(plotdata['groups'])
         rlp_range_min = []
         rlp_range_max = []
@@ -1056,10 +862,7 @@ def transform_rlp_kde(dic_param, div_names):
 
             # devide by maximum value of density, except max = 0
             max_den_val = trans_val_df[RL_ORG_DEN].max()
-            if max_den_val:
-                trans_kde_val = trans_val_df[RL_ORG_DEN] / max_den_val
-            else:
-                trans_kde_val = trans_val_df[RL_ORG_DEN]
+            trans_kde_val = trans_val_df[RL_ORG_DEN] / max_den_val if max_den_val else trans_val_df[RL_ORG_DEN]
 
             # convert to new value with line by steps and scale ratio
             new_kde_df = (trans_kde_val * scale_ratio) + trans_val_df[RL_TRANS_VAL]
@@ -1073,29 +876,16 @@ def transform_rlp_kde(dic_param, div_names):
             plotdata[RL_XAXIS].append(trans_val)
 
             # get min/max range from numpy array kde_data
-            if kde_data[RL_DEN_VAL]:
-                if kde_data[RL_HIST_LABELS]:
-                    rlp_range_min.append(min(kde_data[RL_HIST_LABELS]))
-                    rlp_range_max.append(max(kde_data[RL_HIST_LABELS]))
+            if kde_data[RL_DEN_VAL] and kde_data[RL_HIST_LABELS]:
+                rlp_range_min.append(min(kde_data[RL_HIST_LABELS]))
+                rlp_range_max.append(max(kde_data[RL_HIST_LABELS]))
 
             # delete un-use params in rigdeline node
             ridgeline[RL_DATA_COUNTS] = len(ridgeline[ARRAY_X])
             del ridgeline[ARRAY_X]
             # del ridgeline[RL_KDE][RL_HIST_COUNTS]
             del ridgeline[RL_KDE][RL_DEN_VAL]
-        if rlp_range_min:
-            rlp_yaxis_min = (
-                round(min(rlp_range_min)) if len(rlp_range_min) > 1 else round(rlp_range_min[0])
-            )
-        else:
-            rlp_yaxis_min = 0
 
-        if rlp_range_max:
-            rlp_yaxis_max = (
-                round(min(rlp_range_max)) if len(rlp_range_max) > 1 else round(rlp_range_max[0])
-            )
-        else:
-            rlp_yaxis_max = 0
         # use tail range for ridgeline to show smoothly RLP line
         # tailed = (plotdata[SCALE_SETTING]['y-max'] - plotdata[SCALE_SETTING]['y-min']) * 0.25
         tailed = 0
@@ -1107,25 +897,8 @@ def transform_rlp_kde(dic_param, div_names):
 
         # delete groups
         del plotdata[RL_GROUPS]
-
         dic_param[RL_XAXIS] = plotdata[RL_XAXIS]
-
     return dic_param
-
-
-def distinct_rlp_groups(groups):
-    unique_groups = []
-    for group_name in groups:
-        if group_name not in unique_groups:
-            unique_groups.append(group_name)
-    return unique_groups
-
-
-def merge_multiple_dic_params(dic_params):
-    if len(dic_params) > 1:
-        merged_dic_params = merge_dict(*dic_params)
-        return merged_dic_params
-    return dic_params[0]
 
 
 def gen_blank_rlp_plot(proc_name='', proc_id='', sensor_name='', sensor_id='', group_name=''):
@@ -1141,33 +914,19 @@ def gen_blank_rlp_plot(proc_name='', proc_id='', sensor_name='', sensor_id='', g
     }
 
 
-def convert_list_to_dict_multiple_data_proc(datas):
-    dict_data = {}
-    for data in datas:
-        dict_data = {**dict_data, **data}
-
-    return dict_data
-
-
 @log_execution_time()
-def add_threshold_configs(dic_param, orig_graph_param):
+def add_threshold_configs(dic_param, graph_param):
     try:
-        chart_infos_by_cond_procs, chart_infos_org = get_chart_infos(
-            orig_graph_param, no_convert=True
-        )
+        chart_infos_by_cond_procs, chart_infos_org = get_chart_infos(graph_param, no_convert=True)
         if chart_infos_by_cond_procs:
             for plotdata in dic_param[ARRAY_PLOTDATA]:
                 end_col = plotdata['sensor_id']
                 # TODO proc_id, col_id are str vs int
                 chart_info_cond_proc = (
-                    chart_infos_by_cond_procs[int(dic_param[COMMON][END_PROC][end_col])].get(
-                        int(end_col)
-                    )
-                    or {}
+                    chart_infos_by_cond_procs[int(dic_param[COMMON][END_PROC][end_col])].get(int(end_col)) or {}
                 )
                 chart_info_cond_proc_org = (
-                    chart_infos_org[int(dic_param[COMMON][END_PROC][end_col])].get(int(end_col))
-                    or {}
+                    chart_infos_org[int(dic_param[COMMON][END_PROC][end_col])].get(int(end_col)) or {}
                 )
                 y_min, y_max = get_min_max_of_all_chart_infos(chart_info_cond_proc)
                 plotdata[CHART_INFOS] = chart_info_cond_proc
@@ -1180,6 +939,7 @@ def add_threshold_configs(dic_param, orig_graph_param):
 
 @log_execution_time()
 def calc_rlp_scale_info(
+    dic_proc_cfgs,
     array_plotdata,
     min_max_list,
     all_graph_min,
@@ -1194,13 +954,14 @@ def calc_rlp_scale_info(
         # datetime column
         proc_id = plotdata.get(END_PROC_ID)
         col_id = plotdata.get(end_col_id)
+        proc_cfg = dic_proc_cfgs[proc_id]
         if proc_id and proc_id not in dic_datetime_cols:
             dic_datetime_cols[proc_id] = {
                 cfg_col.id: cfg_col
-                for cfg_col in CfgProcessColumn.get_by_data_type(proc_id, DataType.DATETIME)
+                for cfg_col in proc_cfg.get_cols_by_data_type(DataType.DATETIME, column_name_only=False)
             }
 
-        is_datetime_col = True if col_id in dic_datetime_cols.get(proc_id, {}) else False
+        is_datetime_col = col_id in dic_datetime_cols.get(proc_id, {})
 
         y_min = min_max_list[idx][0] if min_max_list else None
         y_min = all_graph_min if y_min is None else y_min
@@ -1276,7 +1037,7 @@ def gen_emd_df(
     term_sep,
     client_tz='Asia/Tokyo',
     has_facet=False,
-    file_extension='csv',
+    file_extension=CSVExtTypes.CSV.value,
     with_judge=True,
 ):
     csv_data = []
@@ -1287,11 +1048,10 @@ def gen_emd_df(
     ng_rate_data = rlp_data.get(NG_RATES, None)
     if has_facet:
         for rlp in rlp_data[ARRAY_PLOTDATA]:
-            file_name = '{}_{}_{}.{}'.format(
-                rlp[PROC_NAME], rlp[RL_SENSOR_NAME], rlp[CAT_EXP_BOX], file_extension
-            )
+            file_name = '{}_{}_{}.{}'.format(rlp[PROC_NAME], rlp[RL_SENSOR_NAME], rlp[CAT_EXP_BOX], file_extension)
             csv_name.append(file_name)
 
+    limit = 8
     emd_index = 0
     step = 2 if emd_type == EMDType.both.name else 1
     for i, rlp in enumerate(rlp_data[ARRAY_PLOTDATA]):
@@ -1302,8 +1062,9 @@ def gen_emd_df(
         for emd_value in emd_values:
             index = 0
             repaired_emd[emd_value] = []
+
             for rl in rlp[RL_RIDGELINES]:
-                if rl[RL_DATA_COUNTS] < 8 or len(rl[RL_KDE][RL_HIST_LABELS]) == 0:
+                if rl[RL_DATA_COUNTS] < limit or len(rl[RL_KDE][RL_HIST_LABELS]) == 0:
                     repaired_emd[emd_value].append(None)
                 else:
                     repaired_emd[emd_value].append(rlp_data[RL_EMD][emd_idx][index])
@@ -1316,21 +1077,17 @@ def gen_emd_df(
             rlp_emd[div_name] = [ridge[RL_CATE_NAME] for ridge in rlp[RL_RIDGELINES]]
         elif term_sep:
             rlp_emd[EXPORT_TERM_FROM] = [
-                from_utc_to_localtime(
-                    ridge[RL_CATE_NAME].split(' | ')[0], client_tz, is_simple_fmt=True
-                )
+                from_utc_to_localtime(ridge[RL_CATE_NAME].split(' | ')[0], client_tz, is_simple_fmt=True)
                 for ridge in rlp[RL_RIDGELINES]
                 if ridge[RL_CATE_NAME]
             ]
             rlp_emd[EXPORT_TERM_TO] = [
-                from_utc_to_localtime(
-                    ridge[RL_CATE_NAME].split(' | ')[1], client_tz, is_simple_fmt=True
-                )
+                from_utc_to_localtime(ridge[RL_CATE_NAME].split(' | ')[1], client_tz, is_simple_fmt=True)
                 for ridge in rlp[RL_RIDGELINES]
                 if ridge[RL_CATE_NAME]
             ]
 
-        col = CfgProcessColumn.get_by_id(rlp[SENSOR_ID])
+        col = graph_param.get_col_cfgs([rlp[SENSOR_ID]])[0]
         for emd_value in emd_values:
             rlp_emd[f'{rlp[PROC_NAME]}|{col.column_name}|{emd_value}'] = repaired_emd[emd_value]
 
@@ -1411,16 +1168,14 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
     judge_var = int(graph_param.common.judge_var)
     is_process_linked = graph_param.common.is_proc_linked
     div_label = graph_param.get_div_cols_label()
-    judge_col_data = CfgProcessColumn.get_by_id(judge_var)
-    judge_proc = CfgProcess.query.get(judge_col_data.process_id)
+    judge_col_data = graph_param.get_col_cfg(judge_var)
+    judge_proc = graph_param.get_process_by_id(judge_col_data.process_id)
     # 紐付けなし
     if not is_process_linked and (graph_param.common.start_proc != judge_col_data.process_id):
         return
 
-    judge_col_name = CfgProcessColumn.gen_label_from_col_id(judge_var)
-    facets_label = [
-        gen_sql_label(col.id, col.column_name) for col in graph_param.get_facet_var_cols_name()
-    ]
+    judge_col_name = graph_param.gen_label_from_col_id(judge_var)
+    facets_label = [gen_sql_label(col.id, col.column_name) for col in graph_param.get_facet_var_cols_name()]
 
     columns = [TIME_COL] + facets_label + [judge_col_name]
     if div_label:
@@ -1463,15 +1218,18 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
                 COL_DATA_TYPE: judge_col_data.data_type,
                 NG_CONDITION: ng_condition,
                 NG_CONDITION_VALUE: ng_condition_val,
-                RL_CATES: groups,
                 Y: [],
                 X: [],
+                COUNT: [],
             }
             for group in groups:
                 y_value = None
+                count = 0
                 if group in ng_df.index:
                     y_value = ng_df.loc[group].rate
+                    count = ng_df.loc[group].true
                 ng_info[Y].append(y_value)
+                ng_info[COUNT].append(count)
             ng_rates.append(ng_info)
     else:
         # use terms
@@ -1487,9 +1245,9 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
                 COL_DATA_TYPE: judge_col_data.data_type,
                 NG_CONDITION: ng_condition,
                 NG_CONDITION_VALUE: ng_condition_val,
-                RL_CATES: groups,
                 Y: [],
                 X: [],
+                COUNT: [],
             }
             for term in groups:
                 [start, end] = term.split(' | ')
@@ -1500,5 +1258,6 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
                 true = get_ng_true_value(term_df, judge_col_name, ng_condition, ng_condition_val)
                 rate = np.nan if count == 0 else 100 * true / count
                 ng_info[Y].append(rate)
+                ng_info[COUNT].append(true)
             ng_rates.append(ng_info)
     dic_param[NG_RATES] = ng_rates

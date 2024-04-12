@@ -154,7 +154,6 @@
     <span id="i18nInterval">{{ _('Interval') }} [hour]</span>
     <span id="i18nIntervalHover">{{ _('Interval Hover') }}</span>
     <span id="i18nWindowLength">{{ _('Window length') }} [hour]</span>
-    <span id="i18nWindowLengthHover">{{ _('Window length Hover') }}</span>
     <span id="i18nNumRL">{{ _('Division number') }}</span>
     <span id="i18nNumRLHover">{{ _('Division number Hover') }}</span>
     <span id="i18nFewDataPointInRLP">{{ _('Few data point in a category in RLP') }}</span>
@@ -184,7 +183,8 @@
 
     <!-- CSV data type -->
     <span id="i18nInteger">{{ _("Integer") }}</span>
-    <span id="i18nFloat">{{ _("Real(Float)") }}</span>
+    <span id="i18nIntegerCat">{{ _("Integer(Cat)") }}</span>
+    <span id="i18nFloat">{{ _("Real") }}</span>
     <span id="i18nDateTime">{{ _("Datetime") }}</span>
     <span id="i18nString">{{ _("String") }}</span>
     <span id="i18nDirNotExist">{{ _("Folder does not exist") }}</span>
@@ -209,7 +209,28 @@
     <span id="i18nIntSep">{{_('K sep: Int')}}</span>
     <span id="i18nEURealSep">{{_('K sep: EU Real')}}</span>
     <span id="i18nEUIntSep">{{_('K sep: EU int')}}</span>
-    <span id="i18nCopyToAllRightColumn">{{_('Copy to all right column')}}</span>
+    <span id="i18nMainDatetime">{{ _('main::Datetime') }}</span>
+    <span id="i18nMainSerialInt">{{ _('main::Serial:Int') }}</span>
+    <span id="i18nMainSerialStr">{{ _('main::Serial:Str') }}</span>
+    <span id="i18nDatetimeKey">{{ _('Datetime:key') }}</span>
+    <span id="i18nSerialInt">{{ _('Serial:Int') }}</span>
+    <span id="i18nSerialStr">{{ _('Serial:Str') }}</span>
+    <span id="i18nLineNameStr">{{ _('LineName:Str') }}</span>
+    <span id="i18nLineNoInt">{{ _('LineNo:Int') }}</span>
+    <span id="i18nEqNameStr">{{ _('EqName:Str') }}</span>
+    <span id="i18nEqNoInt">{{ _('EqNo:Int') }}</span>
+    <span id="i18nPartNameStr">{{ _('PartName:Str') }}</span>
+    <span id="i18nPartNoInt">{{ _('PartNo:Int') }}</span>
+    <span id="i18nStNoInt">{{ _('StNo:Int') }}</span>
+    <span id="i18nCopyToAllBelow">{{ _('Copy to all below') }}</span>
+    <span id="i18nCopyToFiltered">{{ _('Copy to filtered') }}</span>
+    <span id="i18nColumnRawName">{{ _('Column Raw Name') }}</span>
+    <span id="i18nSampleData">{{ _('Sample Data') }}</span>
+    <span id="i18nSpecial">{{ _('Special') }}</span>
+    <span id="i18nFilterSystem">{{ _('Filter (System)') }}</span>
+    <span id="i18nMultiset">{{ _('Multi Set') }}</span>
+    <span id="i18nDatatype">{{ _('Data Type') }}</span>
+    <span id="i18nNoLinkConfig">{{ _('LinkConfigurationNotExist') }}</span>
 
     <!-- DB config -->
     <span id="i18nWarnEmptyType">{{ _("Columns whose datatypes are not specified will not be imported.") }}</span>
@@ -217,8 +238,6 @@
     <span id="i18nErrorNoGetdate">{{ _("At least one datetime column is required.") }}</span>
     <span id="i18nConfirmMsg">{{ _("Continue?") }}</span>
     <span id="i18nWarnDeleteCSV">{{ _("Imported data will be deleted. (Data will not be deleted until register button is clicked)") }}</span>
-    <span id="i18nMISSING_ATTRS">{{ _("Element data is missing required attribute.") }}</span>
-    <span id="i18nMISSING_VALUE">{{ _("Element data is missing required attribute value.") }}</span>
 
     <!-- Process config -->
     <span id="i18nProcName">{{ _("Process Name") }}</span>
@@ -254,7 +273,8 @@
     <span id="i18nCreateEdgeErr">{{ _("Create Edge Error") }}</span>
     <span id="i18nDeleteClusterErr">{{ _("Delete Cluster Error") }}</span>
     <span id="i18nEditClusterErr">{{ _("Edit Cluster Error") }}</span>
-    <span id="i18nJobList">{{ _("Job list") }}</span>
+    <span id="i18nJobList">{{ _("Job List") }}</span>
+    <span id="i18nFailedJobList">{{ _("Failed Job List") }}</span>
     <span id="i18nStartLink">{{ _('Linking data was started.') }}</span>
     <span id="i18nCheckProgress">{{ _('You can check the progress from the link below.') }}</span>
     <span id="i18nNoColumn">{{ _('Please choose at least one column') }}</span>
@@ -343,7 +363,7 @@
     <span
 		id="i18nFilterLabelExplain">{{ _('Filter label hover msg') }}</span>
 
-	<span id="i18nAllReal">{{ _('All Real(Float) from here') }}</span>
+	<span id="i18nAllReal">{{ _('All Real from here') }}</span>
     <span id="i18nAllInt">{{ _('All Integer from here') }}</span>
     <span id="i18nAllStr">{{ _('All String from here') }}</span>
 
@@ -367,7 +387,6 @@
     <span id="i18nUse">{{ _('Use') }}</span>
     <span id="i18nLoad">{{ _('Load') }}</span>
 
-    <span id="i18nSensorLimitationMSP">{{ _('Available to select maximumn 4 sensors at time. Please check and retry again.') }}</span>
     <span id="i18nFileSizeMsg">{{ _('The maximum file size is 10MB. Please reduce the file size and retry again.') }}</span>
     <span id="i18nShared">{{ _('Shared') }}</span>
     <span id="i18nPrivate">{{ _('Private') }}</span>
@@ -429,6 +448,7 @@
 	<span id="i18nTargetVariable">{{ _('Target variable') }}</span>
 	<span id="i18nResiduals">{{ _('Residuals') }}</span>
 	<span id="i18nActualFittedValues">{{ _('Actual vs Fitted Values') }}</span>
+    <span id="i18nIndexVsResiduals">{{ _('Index vs Residuals') }}</span>
 	<span id="i18nConfustionMatrix">{{ _('Confusion Matrix') }}</span>
 	<span id="i18DataCount">{{ _("Data Count") }}</span>
 
@@ -490,6 +510,7 @@
     <span id="i18nGLObjectiveHoverMsg">{{ _('GL objective hover messenger') }}</span>
 
     <span id="i18nFileNotFoundMsg">{{ _('File not found') }}</span>
+    <span id="i18nCouldNotReadData">{{ _('Could not read data') }}</span>
 
     <span id="i18nBrowserInvalidVersion">{{ _('InvalidBrowserVersion') }}</span>
     <span id="i18nJumpWithoutTargetPageMsg">{{ _('JumpWithoutTargetPageMsg') }}</span>

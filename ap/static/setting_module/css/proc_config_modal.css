@@ -1,0 +1,211 @@
+﻿/* Process config modal CSS */
+
+.proc-config-content {
+    display: flex;
+}
+
+#processColumnsTable {
+    position: sticky;
+    left: 0;
+    z-index: 999;
+}
+
+#processColumnsTableSampleData {
+    position: relative;
+    z-index: 0;
+}
+
+.proc-config-content table thead th {
+    text-align: center;
+}
+
+.proc-config-content table th.column-raw-name {
+    min-width: 180px;
+}
+
+.proc-config-content table {
+    background-color: #222222;
+}
+
+.proc-config-content table tbody tr,
+.proc-config-content table tbody tr td {
+    height: 27px;
+    min-height: 27px;
+    max-height: 27px;
+    font-size: 0.9375rem;
+}
+
+.proc-config-content table th.data-type {
+    min-width: 100px;
+}
+
+.proc-config-content table.table-hover-light {
+    border-collapse: collapse;
+}
+
+.proc-config-content .form-control,
+.proc-config-content .form-control:focus,
+.proc-config-content .form-control {
+    height: 25px;
+    padding: 0px 4px;
+}
+
+.proc-config-content table th.system,
+.proc-config-content table th.japanese-name,
+.proc-config-content table th.local-name {
+    /*min-width: 200px;*/
+}
+
+.proc-config-content table tbody td input:not([name=coef]) {
+    width: fit-content;
+}
+
+.proc-config-content table th.operator {
+    min-width: 75px;
+}
+
+.proc-config-content table th.column-order {
+    min-width: 30px;
+}
+
+.proc-config-content table th {
+    padding: 4px 0px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.proc-config-content table td.show-raw-text {
+    padding: 0px 8px;
+}
+
+.proc-config-content table td {
+    padding: 0;
+}
+
+.proc-config-content table th.sample-data-column {
+    text-align: left;
+    padding-left: 8px;
+}
+
+.proc-config-content table tbody tr.hovered {
+    outline: thin solid white !important;
+}
+
+.data-type-selection {
+    background-color: #222222;
+    flex-direction: row;
+    width: fit-content;
+    border-radius: 3px;
+    display: none;
+    border: 1px solid #444444;
+}
+
+.data-type-selection.dropdown-menu.show {
+    display: flex!important;
+}
+
+.data-type-selection-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.data-type-selection-title {
+    text-align: left;
+    padding: 4px 4px 0px;
+    font-weight: bold;
+    color: grey;
+    display: inline-block;
+    border-bottom: 2px solid grey;
+    width: 100%;
+}
+
+.data-type-selection-box ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 4px;
+}
+
+.data-type-selection-box ul li {
+    padding: 0px 8px;
+    cursor: pointer;
+}
+
+.data-type-selection-box ul li:is([disabled="disabled"]) {
+    color: grey!important;
+}
+
+.data-type-selection-box ul li.active {
+    background-color: dodgerblue;
+}
+
+.gray .data-type-selection-content li {
+    color: white!important;
+}
+
+.data-type-selection-box ul li:not([disabled="disabled"]):hover {
+    background-color: dodgerblue;
+}
+
+.config-data-type-dropdown {
+    height: 25px;
+}
+
+
+.multi-level-dropdown > button {
+    width: 100% !important;
+    text-align: inherit;
+    position: sticky;
+}
+
+.config-data-type-dropdown button {
+    width: 100%;
+    padding: 0 15px 0 4px;
+    text-align: left;
+    position: relative;
+    height: 25px;
+}
+
+.row-item:not([checked="checked"]) {
+    color: gray !important;
+}
+
+.total-checked-columns {
+    border-bottom: 1px solid white;
+}
+
+.gray .config-data-type-dropdown button,
+.gray .config-data-type-dropdown button span {
+    color: gray;
+}
+
+.scroll-content {
+    position: absolute;
+    width: 111px;
+    display: flex;
+    align-items: center;
+    right: 140px;
+    justify-content: space-between;
+    top: 48px;
+    z-index: 99;
+}
+
+.scroll-content span:hover {
+    color: #999999;
+    transition: all .2s;
+}
+
+.scroll-content span {
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/*editmode css*/
+.editor input, .jdropdown-default .jdropdown-content {
+    background-color: #303030;
+}
+.jdropdown-item {
+    color: #ffffff;
+}
+.jexcel > tbody > tr > td:nth-child(n+3):nth-child(-n+5) {
+    text-align: left !important;
+}

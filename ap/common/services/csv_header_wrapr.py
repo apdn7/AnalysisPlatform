@@ -1,7 +1,6 @@
 import datetime
 import io
 import itertools
-import pickle
 import re
 import unicodedata
 from collections import Counter
@@ -10,14 +9,9 @@ from itertools import tee
 import numpy as np
 import pandas as pd
 
-from ap.common.constants import *
+from ap.common.constants import WR_CTGY, WR_HEAD, WR_HEADER_NAMES, WR_RPLC, WR_TYPES, WR_VALUES, DataType
 from ap.common.logger import logger
 from ap.common.services.normalization import normalize_list
-
-
-def load_pkl(filename):
-    with open(filename, 'rb') as f:
-        return pickle.load(f)
 
 
 def get_file_info_py(target_file):
@@ -147,10 +141,7 @@ def get_etl_headers(wrapr):
     for val in values:
         try:
             int(val)
-            if '.' in str(val):
-                dtype = DataType.REAL.value
-            else:
-                dtype = DataType.INTEGER.value
+            dtype = DataType.REAL.value if '.' in str(val) else DataType.INTEGER.value
         except Exception:
             dtype = DataType.TEXT.value
 
@@ -182,7 +173,7 @@ def filechecker(fpath: str, nrows_to_check=20) -> dict:
         - ctgy  (pd.DataFrame) Category info. (Machine, Line, Process)
     """
 
-    results = dict(info=None, head=None, type=None, ctgy=None)
+    results = {'info': None, 'head': None, 'type': None, 'ctgy': None}
 
     # read as list
     encd = guess_encoding_simply(fpath)
@@ -198,7 +189,7 @@ def filechecker(fpath: str, nrows_to_check=20) -> dict:
     nas = guess_na_str(arr_dat)
 
     # parse header
-    info = dict(encd=encd, sepr=sep_str, ncol=ncols, na_s=nas['str'], expt=nas['exc'])
+    info = {'encd': encd, 'sepr': sep_str, 'ncol': ncols, 'na_s': nas['str'], 'expt': nas['exc']}
     hdr = parse_header(dlist, arr_dat, info)
     if len(hdr['row']) == 0:
         print('No header detected')
@@ -213,7 +204,7 @@ def filechecker(fpath: str, nrows_to_check=20) -> dict:
     dtypes = guess_datatypes(df)
     head['escp'] = guess_escape_strings(df)
 
-    results = dict(info=info, head=head, type=dtypes, ctgy=ctgy)
+    results = {'info': info, 'head': head, 'type': dtypes, 'ctgy': ctgy}
     return results
 
 
@@ -266,12 +257,11 @@ def read_first_nrows_as_array(fpath: str, nrows: int, ncols: int, sep_str: str, 
                 dat[row, : len(vals)] = np.array(_remove_newline_str(vals))
         except StopIteration:
             dat = dat[:row, :]
-            pass
     return dat
 
 
 def _remove_newline_str(x: list, newline_str='\n') -> list:
-    x = [x.rstrip(newline_str) for x in x]
+    x = [x.rstrip(newline_str).strip('\"') for x in x]
     return x
 
 
@@ -336,7 +326,7 @@ def parse_header(x, arr_dat, info: dict) -> dict:
     values[:] = np.full(len(values), 1)
     values[np.where(lengths != 1)] = '0'
 
-    hdm = dict(uni=np.equal(inverse_rle(values, lengths), np.array('1', dtype=object)))
+    hdm = {'uni': np.equal(inverse_rle(values, lengths), np.array('1', dtype=object))}
     hdr['hdm'] = hdm
 
     # Get special dsv header information
@@ -353,24 +343,24 @@ def parse_header(x, arr_dat, info: dict) -> dict:
 
 
 def guess_where_header_is(x: list, info: dict) -> dict:
-    dic_hdr = dict(
-        lst=None,
-        msk=None,
-        str=None,
-        nch=None,
-        flg=None,
-        top=0,
-        end=0,
-        main=None,
-        skip=0,
-        is_header_detected=None,
-        ctg=None,
-        inf=None,
-        act=None,
-        hdm=None,
-        uni=None,
-        sb0=None,
-    )
+    dic_hdr = {
+        'lst': None,
+        'msk': None,
+        'str': None,
+        'nch': None,
+        'flg': None,
+        'top': 0,
+        'end': 0,
+        'main': None,
+        'skip': 0,
+        'is_header_detected': None,
+        'ctg': None,
+        'inf': None,
+        'act': None,
+        'hdm': None,
+        'uni': None,
+        'sb0': None,
+    }
 
     header_starts_from = guess_where_header_starts(x, delimeter=info['sepr'], ncols=info['ncol'])
     row_idx_candidate = np.arange(header_starts_from, len(x))
@@ -443,9 +433,8 @@ def seems_like_header(nchars_in_each_row):
     flg = [x < 0 for x in nchars_in_each_row]
     med = np.median(nchars_in_each_row)
     # in case with header
-    if med > 0:
-        if (np.max(nchars_in_each_row) / med) > 1.5:
-            flg = nchars_in_each_row > med
+    if med > 0 and (np.max(nchars_in_each_row) / med) > 1.5:
+        flg = nchars_in_each_row > med
     return flg
 
 
@@ -454,7 +443,6 @@ def guess_number_of_informative_cols(x: list, delimeter: str) -> list:
     Here, informative means that a value is stored in an element.
     """
     reg_nul = '(' + delimeter + ' *' + delimeter + '|' + delimeter + ' *$)'
-    nsep = [len(re.findall(delimeter, text)) for text in x]
     dsv = [re.sub(reg_nul, '', text) for text in x]
     ncol = [len(re.findall(delimeter, text)) + 1 for text in dsv]
     return ncol
@@ -464,10 +452,7 @@ def is_known_header(x) -> bool:
     known_header = ['検索期間', 'ライン', '工程', '設備', '特性名', '', '']
     if len(x) < len(known_header):
         return False
-    for i in range(len(known_header)):
-        if x[i] != known_header[i]:
-            return False
-    return True
+    return all(x[i] == known_header[i] for i in range(len(known_header)))
 
 
 def parse_known_header(hdr, inf, info) -> dict:
@@ -481,11 +466,11 @@ def parse_known_header(hdr, inf, info) -> dict:
         if machine_values[i] == '':
             machine_values[i] = machine_values[i - 1]
 
-    ctg = dict(
-        mac=inverse_rle(machine_values, machine_lengths),
-        lin=np.full(info['ncol'], re.sub('#N/A', '-', inf[1, 1])),
-        prc=np.full(info['ncol'], re.sub('#N/A', '-', inf[2, 1])),
-    )
+    ctg = {
+        'mac': inverse_rle(machine_values, machine_lengths),
+        'lin': np.full(info['ncol'], re.sub('#N/A', '-', inf[1, 1])),
+        'prc': np.full(info['ncol'], re.sub('#N/A', '-', inf[2, 1])),
+    }
 
     hdr['ctg'] = ctg
     hdr['uni'] = inf[5, :]
@@ -510,10 +495,10 @@ def summarize_header_as_df(hdr: dict, info: dict):
     If Column names are duplicated, suffix is added (e.g. _01)
     """
     # header information
-    head = dict(
-        base=hdr['inf'][hdr['main'], :].flatten(),
-        rplc=np.logical_and(np.logical_not(hdr['hdm']['uni']), hdr['act']),
-    )
+    head = {
+        'base': hdr['inf'][hdr['main'], :].flatten(),
+        'rplc': np.logical_and(np.logical_not(hdr['hdm']['uni']), hdr['act']),
+    }
 
     if np.sum(head['rplc']) > 0:
         head['main'] = head['base'].copy()
@@ -548,13 +533,13 @@ def summarize_header_as_df(hdr: dict, info: dict):
 
 def summarize_category_as_df(hdr: dict, info: dict, col_names: list):
     """Summarize category (Machine, Line, Process) info to data frame"""
-    ctgy = dict(
-        Machine=np.full(info['ncol'], ''),
-        Line=np.full(info['ncol'], ''),
-        Process=np.full(info['ncol'], ''),
-    )
+    ctgy = {
+        'Machine': np.full(info['ncol'], ''),
+        'Line': np.full(info['ncol'], ''),
+        'Process': np.full(info['ncol'], ''),
+    }
 
-    if hdr['ctg'] != None:
+    if hdr['ctg'] is not None:
         if len(hdr['ctg']['mac']) > 0:
             ctgy['Machine'] = hdr['ctg']['mac']
         if len(hdr['ctg']['lin']) > 0:
@@ -567,7 +552,7 @@ def summarize_category_as_df(hdr: dict, info: dict, col_names: list):
 
 
 def _split_colnames_from_unit(x) -> dict:
-    units = dict(raw=x, colname=x, unit=np.full(len(x), ''), suffix=np.full(len(x), ''))
+    units = {'raw': x, 'colname': x, 'unit': np.full(len(x), ''), 'suffix': np.full(len(x), '')}
     x_split = [re.split(' \\[|\\] |\\[|\\]', text) for text in x]
     is_unit_detected = np.max([len(split) for split in x_split]) > 0
     if is_unit_detected:
@@ -578,23 +563,23 @@ def _split_colnames_from_unit(x) -> dict:
 
 
 def _translate_wellknown_jp2en(x):
-    fromto = dict(
-        製品='Product',
-        ロット='Lot',
-        内='Internal',
-        日時='DateTime',
-        時間='Time',
-        品番='PartsNo',
-        シリアル='Serial',
-        ナンバー='Number',
-        実績種別='ResultCategory',
-        番号='No',
-        コード='Code',
-        トレー='Tray',
-        測定値='Measurement',
-        判定='Result',
-        作業者='Worker',
-    )
+    fromto = {
+        '製品': 'Product',
+        'ロット': 'Lot',
+        '内': 'Internal',
+        '日時': 'DateTime',
+        '時間': 'Time',
+        '品番': 'PartsNo',
+        'シリアル': 'Serial',
+        'ナンバー': 'Number',
+        '実績種別': 'ResultCategory',
+        '番号': 'No',
+        'コード': 'Code',
+        'トレー': 'Tray',
+        '測定値': 'Measurement',
+        '判定': 'Result',
+        '作業者': 'Worker',
+    }
 
     for key, val in fromto.items():
         x = [text.replace(key, val) for text in x]
@@ -612,7 +597,7 @@ def add_suffix_if_duplicated(names, skip_zero=False):
         suffix_format = (f'_{str(x).zfill(2)!s}' for x in range(1, 100))
     else:
         # [a, a_01, a_02]
-        suffix_format = (f'_{str(x - 1).zfill(2)!s}' if x > 1 else '' for x in range(1, 100))
+        suffix_format = (f'_{str(x - 1).zfill(2)!s}' if x > 1 else '' for x in range(1, 1000))
     dic_suffix = dict(zip(duplicated, tee(suffix_format, len(duplicated))))
     for idx, s in enumerate(names):
         try:
@@ -681,9 +666,7 @@ def guess_datatypes(df) -> list:
         real.append(_can_parse_as_numeric(uniq_vals))
         dati.append(_can_parse_as_datetime(uniq_vals))
 
-    types = pd.DataFrame(
-        {'class': dtypes, 'intg': intg, 'real': real, 'dati': dati}, index=df.columns.values
-    )
+    types = pd.DataFrame({'class': dtypes, 'intg': intg, 'real': real, 'dati': dati}, index=df.columns.values)
     return types
 
 
@@ -703,11 +686,11 @@ def _guess_datatype(uniq_vals) -> str:
     try:
         _ = uniq_vals.astype('int')
         return 'integer'
-    except:
+    except Exception:
         try:
             _ = pd.to_numeric(uniq_vals)
             return 'numeric'
-        except:
+        except Exception:
             return 'string'
 
 
@@ -716,8 +699,8 @@ def _leading_zero_exists(uniq_vals) -> bool:
     Detects: 000123, 0123
     Not detects: 123, 0.123
     """
-    reg_lead_zero = '^0+[0-9]+(?!\.)'
-    is_leading_zero = np.any([re.search(reg_lead_zero, str(val)) != None for val in uniq_vals])
+    reg_lead_zero = r'^0+[0-9]+(?!\.)'
+    is_leading_zero = np.any([re.search(reg_lead_zero, str(val)) is not None for val in uniq_vals])
     return is_leading_zero
 
 
@@ -725,7 +708,7 @@ def _can_parse_as_numeric(uniq_vals) -> bool:
     try:
         _ = pd.to_numeric(uniq_vals)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -733,7 +716,7 @@ def _can_parse_as_integer(uniq_vals) -> bool:
     try:
         _ = uniq_vals.astype('int')
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -741,7 +724,7 @@ def _can_parse_as_datetime(uniq_vals) -> bool:
     try:
         _ = pd.to_datetime(uniq_vals)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -771,7 +754,7 @@ def _is_date(x) -> bool:
         try:
             dttm(x, fmt)
             date_detected = True
-        except:
+        except Exception:
             continue
 
     return date_detected
@@ -829,7 +812,7 @@ def _is_dati(x) -> bool:
         try:
             dttm(x, fmt)
             date_detected = True
-        except:
+        except Exception:
             continue
 
     return date_detected
@@ -863,7 +846,7 @@ def inverse_rle(vals, lens):
 def guess_na_str(arr_dat) -> dict:
     """Guess NA strings included in the data"""
 
-    dic_nas = dict(lst=None, exc=None, sts=None, str=None)
+    dic_nas = {'lst': None, 'exc': None, 'sts': None, 'str': None}
 
     # count occurrence of each item
     counter = Counter(arr_dat.flatten())
@@ -911,11 +894,14 @@ def _extract_escape_str(col) -> str:
     vals_more_than_once = np.array(cnts.index[cnts > 1])
     if len(vals_more_than_once) == 0:
         return ''
-    is_escape_str_detected = np.array(
-        [re.search('^(9+\\.?9*)$', str(val)) != None for val in vals_more_than_once]
-    )
+    is_escape_str_detected = np.array([re.search('^(9+\\.?9*)$', str(val)) is not None for val in vals_more_than_once])
     detected_str = vals_more_than_once[is_escape_str_detected]
     if len(detected_str) == 0:
         return ''
     else:
         return detected_str[0]
+
+
+def gen_colsname_for_duplicated(cols_name):
+    cols_name, dup_cols = add_suffix_if_duplicated(cols_name, True)
+    return cols_name, dup_cols

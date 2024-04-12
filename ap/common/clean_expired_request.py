@@ -1,17 +1,15 @@
 from datetime import datetime, timedelta
 
 import pytz
-from apscheduler.triggers import interval
-from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.triggers.cron import CronTrigger
 
 from ap import db, scheduler
-from ap.common.constants import CLEAN_REQUEST_INTERVAL
+from ap.common.constants import JobType
 from ap.common.logger import log_execution_time
-from ap.common.scheduler import JobType, scheduler_app_context
-from ap.setting_module.models import CfgOption, CfgProcess, CfgRequest
+from ap.common.scheduler import scheduler_app_context
+from ap.setting_module.models import CfgRequest
 
 
-@scheduler_app_context
 def get_expired_reqs():
     now = datetime.now().astimezone(pytz.utc)
     expired_time = now + timedelta(days=-1)
@@ -32,26 +30,36 @@ def delete_old_requests(_job_id=None, _job_name=None):
     else:
         print('-------- NO REQUEST TO DELETE --------')
 
-    add_job_delete_expired_request(run_now=False)
+    # add_job_delete_expired_request(run_now=False)
 
 
 @log_execution_time()
 def add_job_delete_expired_request(run_now=True):
     print(f'-------- ADD JOB {JobType.CLEAN_EXPIRED_REQUEST.name} --------')
-    interval_trigger = interval.IntervalTrigger(hours=CLEAN_REQUEST_INTERVAL, minutes=0, seconds=0)
-    run_time = datetime.now()
-    if not run_now:
-        run_time = run_time.replace(hour=0, minute=0, second=0, microsecond=0)
-        run_time += timedelta(days=1)
-    run_time = run_time.astimezone(pytz.utc)
+
+    run_time = (0, 0, 0)
+    # generate datetime of today
+    today = datetime.today()
+    local_datetime = datetime(today.year, today.month, today.day, *run_time)
+
+    # convert to utc
+    utc_datetime = local_datetime.astimezone(pytz.utc)
+    trigger = CronTrigger(hour=utc_datetime.hour, minute=run_time[1], second=run_time[2], timezone=pytz.utc)
+
+    dic_params = {}
+    if run_now:
+        run_time = datetime.utcnow()
+        dic_params = {'next_run_time': run_time}
+
     scheduler.add_job(
         JobType.CLEAN_EXPIRED_REQUEST.name,
         delete_old_requests,
-        trigger=interval_trigger,
-        next_run_time=run_time,
+        trigger=trigger,
         replace_existing=True,
-        kwargs=dict(
-            _job_id=JobType.CLEAN_EXPIRED_REQUEST.name, _job_name=JobType.CLEAN_EXPIRED_REQUEST.name
-        ),
+        kwargs={
+            '_job_id': JobType.CLEAN_EXPIRED_REQUEST.name,
+            '_job_name': JobType.CLEAN_EXPIRED_REQUEST.name,
+        },
+        **dic_params,
     )
     return True

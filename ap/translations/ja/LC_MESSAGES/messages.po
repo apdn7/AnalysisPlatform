@@ -2,10 +2,6 @@
 msgid "Saved"
 msgstr "保存しました。"
 
-#: ap/setting_module/controllers.py:122
-msgid "Error has been occurred"
-msgstr "エラーが発生しました。"
-
 #: ap/setting_module/controllers.py:129
 msgid "Application Configuration"
 msgstr "アプリケーション設定"
@@ -26,23 +22,6 @@ msgstr "データ紐付け＆分析アプリ"
 msgid "Choose language"
 msgstr "言語を選択"
 
-#: ap/templates/navbar.html:8
-msgid "Home"
-msgstr "メイン画面"
-
-#: ap/templates/navbar.html:13
-msgid "Setting"
-msgstr "動作検証"
-
-#: ap/templates/navbar.html:13
-#: ap/templates/setting_module/performance_check.html
-msgid "Performance Check"
-msgstr "動作検証"
-
-#: ap/templates/setting_module/basic_config.html:7 ap/templates/sidebar.html
-msgid "Basic Config"
-msgstr "基本設定"
-
 #: ap/templates/setting_module/basic_config.html:9
 #: ap/templates/setting_module/db_config.html:7
 msgid "Register"
@@ -56,10 +35,6 @@ msgstr "再読込み"
 msgid "Integer"
 msgstr "整数"
 
-#: ap/templates/setting_module/db_config.html ap/templates/templates/i18n.html
-msgid "Real(Float)"
-msgstr "実数"
-
 #: ap/templates/setting_module/db_config.html
 msgid "Datetime"
 msgstr "日時"
@@ -72,18 +47,6 @@ msgstr "文字列"
 msgid "Title"
 msgstr "タイトル"
 
-#: ap/templates/setting_module/basic_config.html:23
-msgid "Plant"
-msgstr "製作所"
-
-#: ap/templates/setting_module/basic_config.html:26
-msgid "Factory"
-msgstr "工場"
-
-#: ap/templates/setting_module/basic_config.html:29
-msgid "Line Group"
-msgstr "ライン"
-
 #: ap/templates/setting_module/config.html:39
 #: ap/templates/setting_module/db_config.html:144
 #: ap/templates/setting_module/trace_config.html:81
@@ -94,7 +57,7 @@ msgstr "確認してください。"
 msgid ""
 "Do you want to save changes and start to import data with configure at "
 "Process Config page?"
-msgstr "データを保存し、工程設定ページで設定した内容でデータのインポートを開始しますか。"
+msgstr "データを保存し、プロセス設定ページで設定した内容でデータの読み込みを開始しますか。"
 
 #: ap/templates/setting_module/config.html:46
 #: ap/templates/setting_module/db_config.html:133
@@ -172,22 +135,6 @@ msgstr "このレコードを削除しますか？"
 msgid "Delete"
 msgstr "削除"
 
-#: ap/templates/setting_module/performance_check.html:13
-msgid "Traceability"
-msgstr "紐付け設定"
-
-#: ap/templates/setting_module/performance_check.html:19
-msgid "Traceability Graph"
-msgstr "データ紐付けのグラフ"
-
-#: ap/templates/setting_module/performance_check.html:26
-msgid "Trace Testing"
-msgstr "紐付けテスト"
-
-#: ap/templates/setting_module/performance_check.html:43
-msgid "Start testing"
-msgstr "テスト開始"
-
 #: ap/templates/setting_module/performance_check.html
 msgid "Start Time"
 msgstr "開始時刻"
@@ -196,50 +143,14 @@ msgstr "開始時刻"
 msgid "End Time"
 msgstr "終了時刻"
 
-#: ap/templates/setting_module/performance_check.html
-msgid "Machine Id"
-msgstr "設備<br>(複数選択可)"
-
 #: ap/templates/filter_visualization.html
 #: ap/templates/setting_module/performance_check.html
 msgid "Line"
 msgstr "ライン"
 
-#: ap/templates/setting_module/performance_check.html
-msgid "Part Number"
-msgstr "品番"
-
 #: ap/templates/setting_module/trace_config.html:3
 msgid "Data Link Config"
 msgstr "紐付設定"
-
-#: ap/templates/setting_module/trace_config.html:5
-msgid "Please select a language"
-msgstr "言語を選択"
-
-#: ap/templates/setting_module/trace_config.html:7
-msgid "Japanese"
-msgstr "日本語"
-
-#: ap/templates/setting_module/trace_config.html:8
-msgid "English"
-msgstr "英語"
-
-#: ap/templates/setting_module/trace_config.html:13
-msgid "Node"
-msgstr "ノード"
-
-#: ap/templates/setting_module/trace_config.html:16
-msgid "Node ID"
-msgstr "ノードID"
-
-#: ap/templates/setting_module/trace_config.html:20
-msgid "Label"
-msgstr "ラベル"
-
-#: ap/templates/setting_module/trace_config.html:24
-msgid "Master name"
-msgstr "マスタ名"
 
 #: ap/templates/setting_module/trace_config.html:28
 msgid "Database"
@@ -247,11 +158,11 @@ msgstr "データベース"
 
 #: ap/templates/setting_module/trace_config.html:70
 msgid "Import"
-msgstr "インポート"
+msgstr "データ読込"
 
 #: ap/templates/setting_module/trace_config.html:71
 msgid "Export"
-msgstr "エクスポート"
+msgstr "データ書出"
 
 #: ap/templates/setting_module/db_config.html:170
 msgid "Host name"
@@ -283,16 +194,16 @@ msgstr "&#10005; 失敗しました。"
 
 #: ap/templates/setting_module/proc_config.html:5
 msgid "Process Config"
-msgstr "工程設定"
+msgstr "プロセス設定"
 
 #: ap/templates/templates/sidebar.html
 msgid "Process"
-msgstr "工程設定"
+msgstr "プロセス"
 
 #: ap/template/analyze/hotelling_tsquare.html
 #: ap/templates/setting_module/proc_config.html:15
 msgid "Process Name"
-msgstr "工程名"
+msgstr "プロセス名"
 
 #: ap/templates/setting_module/proc_config.html:17
 msgid "Table Name"
@@ -318,7 +229,7 @@ msgstr "設定内容"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Column Name"
-msgstr "列名"
+msgstr "変数名"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "English Name"
@@ -362,6 +273,10 @@ msgid "English name is duplicated"
 msgstr "英語名が重複しています。"
 
 #: ap/templates/setting_module/proc_config_modals.html
+msgid "System is duplicated"
+msgstr "System上で使用される変数名が重複しています。System項目で重複がないように変更してください。"
+
+#: ap/templates/setting_module/proc_config_modals.html
 msgid "Master name is duplicated"
 msgstr "表示名が重複しています。"
 
@@ -383,31 +298,7 @@ msgstr "データ読込"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Do you want to import data"
-msgstr "データをインポートしてよろしいですか？"
-
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "Confirm import data message 1"
-msgstr "OKボタンを押すと、現時刻から1ヶ月前までのデータをインポートします。"
-
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "Confirm import data message 2"
-msgstr "それ以前のデータは、その後自動で少しずつインポートします。"
-
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "Confirm import data message 3"
-msgstr "現時刻以降のデータをインポートしたい場合、再度、データ読込ボタンを押すか、データベース・CSV読み込み設定ページの 設定保存ボタンを押してください。"
-
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "Confirm import data message 4"
-msgstr "「データベース・CSV読み込み設定」の「更新周期」を設定すると、現時刻以降のデータを設定した周期で自動でインポートします。"
-
-#: ap/templates/setting_module/performance_check.html:13
-msgid "Trace Information"
-msgstr "動作検証"
-
-#: ap/templates/trace_data/trace_data.html:14
-msgid "Trace Data"
-msgstr "データ紐付け"
+msgstr "データを読み込みしてもよろしいですか？"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Could not access"
@@ -419,23 +310,23 @@ msgstr "修正するにはここをクリックしてください。"
 
 #: ap/templates/setting_module/trace_config.html:67
 msgid "Edit Edge"
-msgstr "紐付けを編集"
+msgstr "紐付編集"
 
 #: ap/templates/setting_module/trace_config.html:73
 msgid "Prev Process"
-msgstr "前工程"
+msgstr "前のプロセス"
 
 #: ap/templates/setting_module/trace_config.html:77
 msgid "Prev Column"
-msgstr "紐付けする値"
+msgstr "紐付する変数"
 
 #: ap/templates/setting_module/trace_config.html:84
 msgid "Post Process"
-msgstr "後工程"
+msgstr "後のプロセス"
 
 #: ap/templates/setting_module/trace_config.html:88
 msgid "Post Column"
-msgstr "紐付けする値"
+msgstr "紐付する変数"
 
 #: ap/templates/setting_module/proc_config_modals.html:69
 msgid "As Datetime"
@@ -455,7 +346,7 @@ msgstr "既に登録されています"
 
 #: ap/templates/macros.html
 msgid "Fill in process name"
-msgstr "工程名を入力してください"
+msgstr "プロセス名を入力してください"
 
 #: ap/templates/filter_visualization.html
 msgid "Filter/Graph"
@@ -471,7 +362,7 @@ msgstr "ラインフィルタ設定"
 
 #: ap/templates/filter_visualization.html
 msgid "Line Column"
-msgstr "ラインの列"
+msgstr "ラインの変数"
 
 #: ap/templates/filter_visualization.html
 msgid "N/A"
@@ -487,7 +378,7 @@ msgstr "設備フィルタ設定"
 
 #: ap/templates/filter_visualization.html
 msgid "Machine ID Column"
-msgstr "設備の列"
+msgstr "設備の変数"
 
 #: ap/templates/filter_visualization.html
 msgid "Part No Filter Config"
@@ -495,7 +386,7 @@ msgstr "品番フィルタ設定"
 
 #: ap/templates/filter_visualization.html
 msgid "Part No Column"
-msgstr "品番の列"
+msgstr "品番の変数"
 
 #: ap/templates/filter_visualization.html
 msgid "Filter Name"
@@ -511,7 +402,7 @@ msgstr "その他フィルタ設定"
 
 #: ap/templates/filter_visualization.html
 msgid "Target Column"
-msgstr "対象の列"
+msgstr "対象の変数"
 
 #: ap/templates/filter_visualization.html
 msgid "Visualization Config"
@@ -519,19 +410,19 @@ msgstr "可視化設定"
 
 #: ap/templates/filter_visualization.html
 msgid "Lower threshold"
-msgstr "下限閾値"
+msgstr "下限閾値 CL"
 
 #: ap/templates/filter_visualization.html
 msgid "Upper threshold"
-msgstr "上限閾値"
+msgstr "上限閾値 CL"
 
 #: ap/templates/filter_visualization.html
 msgid "Lower process threshold"
-msgstr "下限工程内閾値"
+msgstr "下限閾値 AL"
 
 #: ap/templates/filter_visualization.html
 msgid "Upper process threshold"
-msgstr "上限工程内閾値"
+msgstr "上限閾値 AL"
 
 #: ap/templates/filter_visualization.html
 msgid "y-axes range: min"
@@ -577,35 +468,6 @@ msgid "CSV Export"
 msgstr "CSVの出力"
 
 #: ap/templates/setting_module/_filter_machine.html:48
-msgid "Process is required"
-msgstr "工程を入力してください"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Column name is required"
-msgstr "列の名称を入力してください。"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-#: ap/templates/templates/i18n.html
-msgid "Line is required"
-msgstr "ラインの列を入力してください。"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Master name is required"
-msgstr "表示名を入力してください。"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Duplicated master name"
-msgstr "表示名が重複しています。"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Machine value is required"
-msgstr "値を入力してください。"
-
-#: ap/templates/setting_module/_filter_machine.html:48
-msgid "Duplicated machine value"
-msgstr "値が重複しています。"
-
-#: ap/templates/setting_module/_filter_machine.html:48
 msgid "Save successfully"
 msgstr "データを保存しました。"
 
@@ -614,12 +476,8 @@ msgid "Failed to save"
 msgstr "データを保存できませんでした。"
 
 #: ap/templates/setting_module/_filter_partno.html:48
-msgid "Part No column is required"
-msgstr "品番を入力してください。"
-
-#: ap/templates/setting_module/_filter_partno.html:48
 msgid "Target column is required"
-msgstr "対象列を入力してください。"
+msgstr "対象変数を入力してください。"
 
 #: ap/templates/setting_module/_filter_partno.html:48
 msgid "Filter name is required"
@@ -643,7 +501,7 @@ msgstr "デフォルト"
 
 #: ap/templates/setting_module/filter_visualization.html
 msgid "Process name"
-msgstr "工程"
+msgstr "プロセス"
 
 #: ap/templates/setting_module/_filter_others.html
 msgid "Add other filter"
@@ -708,14 +566,6 @@ msgstr "データベース設定を保存しました。"
 msgid "Database Setting failed to save"
 msgstr "データベース設定の保存に失敗しました。"
 
-#: ap/api/setting_module/controllers.py
-msgid "Basic Config saved"
-msgstr "基本設定を保存しました。"
-
-#: ap/api/setting_module/controllers.py
-msgid "Basic Config failed to save"
-msgstr "基本設定の保存に失敗しました。"
-
 #: ap/templates/macros.html
 msgid "Test connection"
 msgstr "テスト接続"
@@ -754,7 +604,7 @@ msgstr "時間"
 
 #: ap/templates/macros.html
 msgid "Show value"
-msgstr "ターゲット変数"
+msgstr "可視化する変数"
 
 #: ap/templates/macros.html
 msgid "Filter"
@@ -770,11 +620,11 @@ msgstr "時系列"
 
 #: ap/templates/macros.html
 msgid "Index"
-msgstr "インデックス"
+msgstr "インデックス(Index)"
 
 #: ap/templates/categorical_plot/categorical_plot_by_var.html
 msgid "Stratify Variables"
-msgstr "層別したい変数"
+msgstr "層別(グループ分け)したい変数"
 
 #: ap/templates/categorical_plot/categorical_plot_by_term.html
 msgid "Filters"
@@ -787,18 +637,6 @@ msgstr "データベース設定"
 #: ap/templates/sidebar.html
 msgid "Analyze"
 msgstr "分析"
-
-#: ap/templates/sidebar.html
-msgid "Under development"
-msgstr "開発中"
-
-#: ap/templates/analyze/analyze.html
-msgid "Analyze: "
-msgstr "分析:"
-
-#: ap/templates/sidebar.html
-msgid "Waterfall Plot"
-msgstr "Waterfallプロット"
 
 #: ap/templates/sidebar.html
 msgid "Graphical LASSO"
@@ -820,14 +658,6 @@ msgstr "全数プロット"
 msgid "Data Visualization"
 msgstr "データ見える化"
 
-#: ap/templates/sidebar.html
-msgid "Visualization"
-msgstr "可視化"
-
-#: ap/templates/analyze/analyze.html
-msgid "Run"
-msgstr "実行"
-
 #: ap/templates/setting_module/db_config.html
 msgid "Please fill database name"
 msgstr "データベース名を入力してください。"
@@ -838,11 +668,11 @@ msgstr "データソース名を入力してください。"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Columns whose datatypes are not specified will not be imported."
-msgstr "データ形式が設定されていない列は、読み込まれません。"
+msgstr "データ形式が設定されていない変数は、読み込まれません。"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "At least one datetime column is required."
-msgstr "日付の列を指定してください。"
+msgstr "日付の変数を指定してください。"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "'{col}' is used for x-axis on charts."
@@ -938,6 +768,10 @@ msgstr "読み込んだデータは削除されます。よろしいですか？
 msgid "Job List"
 msgstr "ジョブ一覧"
 
+# ap/setting_module/controllers.py
+msgid "Failed Job List"
+msgstr "エラージョブ一覧"
+
 # ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "ジョブID"
@@ -956,23 +790,23 @@ msgstr "紐付ID生成のジョブを表示"
 
 # ap/templates/setting_module/background_process.html
 msgid "DEL_PROCESS"
-msgstr "工程情報の削除"
+msgstr "プロセス情報の削除"
 
 # ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
-msgstr "製造データのインポート"
+msgstr "直近データの読み込み"
 
 # ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
-msgstr "過去の製造データのインポート"
+msgstr "過去データの読み込み"
 
 # ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
-msgstr "過去データインポートのジョブを表示"
+msgstr "過去データ読み込みのジョブを表示"
 
 # ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
-msgstr "CSVデータのインポート"
+msgstr "CSVデータの読み込み"
 
 # ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
@@ -996,7 +830,7 @@ msgstr "進捗状況"
 
 # ap/templates/setting_module/background_process.html
 msgid "Process "
-msgstr "工程"
+msgstr "プロセス"
 
 # ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
@@ -1063,10 +897,6 @@ msgid "Scatter Plot display"
 msgstr "散布図表示"
 
 #: ap/templates/trace_data/categorical_plot.html
-msgid "To visualize categorical variable"
-msgstr "カテゴリデータの見える化"
-
-#: ap/templates/trace_data/categorical_plot.html
 msgid "Stratify by variables"
 msgstr "変数層別"
 
@@ -1086,10 +916,6 @@ msgstr "対象期間"
 #: ap/templates/trace_data/categorical_plot.html
 msgid "Frequency"
 msgstr "度数 [カウント]"
-
-#: ap/templates/trace_data/categorical_plot.html
-msgid "Density Estimation"
-msgstr "確率密度 (KDE)"
 
 #: ap/templates/trace_data/categorical_plot.html
 msgid "Categorical variable"
@@ -1177,11 +1003,11 @@ msgstr "欠損値が全レコードの50%%よりも多く存在する変数が�
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "NoneNumeric"
-msgstr "数値以外のデータが含まれているため分析できません。文字列やカテゴリ値などを含む列を選択していないか確認してください。"
+msgstr "数値以外のデータが含まれているため分析できません。文字列やカテゴリ値などを含む変数を選択していないか確認してください。"
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "ZeroVariance"
-msgstr "分散が0になるデータが含まれているため分析できません。一つの値だけの列が選択されていないか確認してください。"
+msgstr "分散が0(データの中身が全て同じ値)になる変数が含まれているため分析できません。そのような変数が選択されていないか確認してください。"
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "IntegerData"
@@ -1239,10 +1065,6 @@ msgid "End point"
 msgstr "終点"
 
 #: ap/template/setting_module/performance_check.html
-msgid "Show process"
-msgstr "ターゲット工程"
-
-#: ap/template/setting_module/performance_check.html
 msgid "Time Series"
 msgstr "時系列"
 
@@ -1272,7 +1094,7 @@ msgstr "バック"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Add Node"
-msgstr "ノードを追加"
+msgstr "ノード(緑円)を追加"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Add Edge"
@@ -1280,23 +1102,23 @@ msgstr "紐付けを追加"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Edit Node"
-msgstr "ノードを編集"
+msgstr "ノード(緑円)を編集"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Add Description"
-msgstr "空のスペースをクリックして、新しいノードを配置します。"
+msgstr "空のスペースをクリックして、新しいノード(緑円)を配置します。"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Edge Description"
-msgstr "ノードをクリックし、エッジを別のノードにドラッグしてそれらを接続します。"
+msgstr "ノード(緑円)をクリックし、ドラッグしながら別のノードへエッジ(線)を接続します。"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Edit Edge Description"
-msgstr "コントロールポイントをクリックし、ノードにドラッグして接続します。"
+msgstr "コントロールポイントをクリックし、ノード(緑円)にドラッグして接続します。"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Create Edge Error"
-msgstr "エッジは追加できません。"
+msgstr "エッジ(線)は追加できません。"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Delete Cluster Error"
@@ -1316,7 +1138,7 @@ msgstr "表示名と値を入力してください。"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Line is required to save!"
-msgstr "ライン列を入力してください。"
+msgstr "ラインの変数を入力してください。"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Hour(s)"
@@ -1368,7 +1190,7 @@ msgstr "ダウンロード"
 
 #: ap/template/base.html
 msgid "AbnormalGraphShowMsg"
-msgstr "グラフを表示できない原因は以下が考えられます。BREAK_LINE状況を確認してください。BREAK_LINE・データがインポートされていない、あるいはインポートの途中。BREAK_LINE・データの紐づけがされていない、あるいは紐づけの途中。BREAK_LINE・グラフの設定が不適切。"
+msgstr "グラフを表示できない原因は以下が考えられます。BREAK_LINE状況を確認してください。BREAK_LINE・データが読み込みされていない、あるいは読み込みの途中。BREAK_LINE・データの紐づけがされていない、あるいは紐づけの途中。BREAK_LINE・グラフの設定が不適切。"
 
 #: ap/template/setting_module/db-config.html
 msgid "Warning"
@@ -1376,11 +1198,11 @@ msgstr "注意"
 
 #: ap/template/setting_module/db-config.html
 msgid "Invalid data in datetime column"
-msgstr "日付データの列に無効なデータが含まれるレコードはインポートされません。"
+msgstr "日時データに無効なデータが含まれるレコードは読み込みされません。"
 
 #: ap/template/setting_module/db-config.html
 msgid "Refer data file"
-msgstr "インポートできなかったデータは以下のフォルダー内のファイルから参照できます。"
+msgstr "読み込みできなかったデータは以下のフォルダー内のファイルから参照できます。"
 
 #: ap/template/scatter_plot/scatter_plot.html
 msgid "The Application do not connect internet and unable to upload usage."
@@ -1412,11 +1234,11 @@ msgstr "最後に登録した紐付け設定に戻します。"
 
 #: ap/template/setting_module/db_config.html
 msgid "Importing data was started."
-msgstr "データのインポートを始めました。"
+msgstr "データの読み込みを始めました。"
 
 #: ap/template/setting_module/db_config.html
 msgid "You can check the progress from the link below."
-msgstr "以下のリンクからインポートの進捗状況を確認できます。"
+msgstr "以下のリンクからデータ読み込みの進捗状況を確認できます。"
 
 #: ap/template/setting_module/db_config.html
 msgid "CheckErrorJob"
@@ -1490,11 +1312,11 @@ msgstr "ヒストグラム縦軸"
 
 #: ap/template/base.html
 msgid "Pn_proc"
-msgstr "工程内Pn"
+msgstr "プロセス内Pn"
 
 #: ap/template/base.html
 msgid "P_proc"
-msgstr "工程内P"
+msgstr "プロセス内P"
 
 #: ap/template/base.html
 msgid "maxValue"
@@ -1534,7 +1356,7 @@ msgstr "ビュー"
 
 # ap/template/setting_module/config.html
 msgid "ImportData"
-msgstr "インポートデータ"
+msgstr "読み込みデータ"
 
 # ap/template/setting_module/trace_config.html
 msgid ""
@@ -1552,7 +1374,7 @@ msgstr "紐付けするデータが多い場合に時間がかかる場合があ
 msgid ""
 "(For data that is automatically and regularly imported, the ID for "
 "linking is automatically generated.)"
-msgstr "※自動で定期的にインポートされるデータに対しては、自動で紐付け用のIDが生成されます。"
+msgstr "※自動で定期的に読み込まれるデータに対しては、自動で紐付け用のIDが生成されます。"
 
 # ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
@@ -1576,15 +1398,7 @@ msgstr "詳細設定"
 
 #: ap/templates/setting_module/config.html:43
 msgid "ProceedToProcessConfig"
-msgstr "データをインポートするデータベース/CSVファイルの設定を保存しました。工程設定ページに進み、データをインポートする列を設定し、データをインポートしてください。"
-
-# ap/template/setting_module/db_config_modals.html
-msgid "Element data is missing required attribute."
-msgstr "要素データに必要な属性がありません。"
-
-# ap/template/setting_module/db_config_modals.html
-msgid "Element data is missing required attribute value."
-msgstr "要素データに必要な属性値がありません。"
+msgstr "データを読み込むデータベース/CSVファイルの設定を保存しました。プロセス設定ページに進み、読み込むデータの変数を設定し、データを読み込んでください。"
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "2 or more variables should be selected for PCA"
@@ -1592,7 +1406,7 @@ msgstr "PCAによる異常検知は変数が最低2つ必要です。変数を2�
 
 #: ap/templates/setting_module/trace_config.html:43
 msgid "Please choose at least one column"
-msgstr "少なくとも1つの列を選択してください"
+msgstr "少なくとも1つの変数を選択してください"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Category value with narrow width of box is not shown."
@@ -1627,7 +1441,7 @@ msgstr "データソース読込み設定"
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
-msgstr "個の文字型の列が見つかりました。数値型の列等が誤認識されている可能性があるので、確認してください。"
+msgstr "項目の文字型の変数が見つかりました。数値型の変数等が誤認識されている可能性があるので、確認してください。"
 
 # ap/template/setting_module/master_config.html
 msgid "Filter Item"
@@ -1639,11 +1453,11 @@ msgstr "フィルタ値"
 
 # ap/template/setting_module/master_config.html
 msgid "Valid from"
-msgstr "有効期限(開始)"
+msgstr "有効期間(開始)"
 
 # ap/template/setting_module/master_config.html
 msgid "Valid to"
-msgstr "有効期限(終了)"
+msgstr "有効期間(終了)"
 
 #: ap/templates/templates/sidebar.html
 msgid "Master"
@@ -1651,7 +1465,7 @@ msgstr "マスタ"
 
 #: ap/templates/templates/base.html
 msgid "Data Type Error Warning"
-msgstr "カラムのデータ型の設定ミスによりデータのインポートができませんでした。データソース名__param__のCSV/TSV読み込み設定ページのデータのプレビューでデータ型の設定を確認してください。インポートできなかった工程設定を削除し、設定をし直してください。"
+msgstr "変数のデータ型(Type)の設定ミスによりデータの読み込みができませんでした。データソース名__param__のCSV/TSV読み込み設定ページのデータのプレビューでデータ型(Type)の設定を確認してください。読み込みができなかったプロセス設定を削除し、設定し直してください。"
 
 #: ap/templates/templates/base.html
 msgid "Import Empty File Warning"
@@ -1731,7 +1545,7 @@ msgstr "入力したデータベース名が存在しています"
 
 #: ap/templates/templates/i18n.html
 msgid "CSV Template is error when import"
-msgstr "データソース内のカラム名が異なるファイルが検出されたため、データを正常にインポートできませんでした。ファイルを内容を確認し、再度データソース読込み設定を行ってください。"
+msgstr "データソース内の変数名が異なるファイルが検出されたため、データを正常に読み込むことができませんでした。ファイルを内容を確認し、再度データソース読込み設定を行ってください。"
 
 #: ap/templates/templates/i18n.html
 msgid "Predicted number of records to be linked"
@@ -1754,7 +1568,7 @@ msgstr "相関係数"
 
 #: ap/templates/templates/i18n.html
 msgid "Please name the folder in which csv/tsv files are saved as \"YYYYMMDD\""
-msgstr "CSV/TSVファイルを保存するフォルダの名称は\"YYYYMMDD\"のように日付で作成してください。"
+msgstr "CSV/TSVファイルを保存するフォルダの名称はYYYYMMDDのように日付で作成してください。"
 
 #: ap/templates/setting_module/trace_config.html
 msgid "Prediction"
@@ -1792,41 +1606,35 @@ msgstr "IPアドレス"
 msgid ""
 "Compare data distribution with histograms and estimated density lines. "
 "Split the graph with  stratified variables."
-msgstr "データの分布をヒストグラムおよび密度推定で比較します。層別変数によって、グラフを分割します。Facetによって、グラフを分割します。"
+msgstr "データの分布をヒストグラムおよび密度推定で比較します。Facet設定で選択された変数の中身の種類ごとにグラフを分割します。"
 
 #: ap/templates/sidebar.html
 msgid "Plot all data points with time axis or ID axis."
-msgstr "時間軸もしくはID軸で全数のデータをプロットします。"
+msgstr "時系列もしくはその他の変数で並びかえた横軸に、全数のデータをプロットします。"
 
 #: ap/templates/sidebar.html
 msgid ""
 "Displays a scatter chart matrix. You can create a matrix between up to "
 "four target variables."
-msgstr "散布図行列を表示します。最小2, 最大7つのターゲット変数間の行列を作成できます。"
+msgstr "変数間の関係を散布図行列で可視化します。"
 
 #: ap/templates/sidebar.html
 msgid ""
 "This function visualizes “unusual” and analyzes its factors by Principal "
 "Component Analysis."
-msgstr "主成分分析によって、”普段と違う”の可視化とその要因分析を行います。正常なデータを教師データとして入力し、現在のデータがその正常なデータと同じ状況か否かを見える化します(T2/Q)。もし異なる状況になった場合は、寄与度のグラフでその主要因を確認できます。"
-
-# ap/template/setting_module/categorical_plot.html
-msgid ""
-"This stratification variable divides the distribution into multiple "
-"graphs."
-msgstr "この層別変数によって、分布を複数のグラフに分割します。品番・ステーションなどのカテゴリ変数(質的変数)を選択します。"
+msgstr "主成分分析によって、”普段と違う”の可視化とその要因分析を行います。正常なデータ群を教師データとして入力し、現在のデータがその正常なデータ群と同じ状況か否かを見える化します(T2/Q)。T2/Qの値が大きいものは中心条件から外れている可能性があります。もしそのような状況になった場合は、寄与度のグラフでその主要因を確認でき、そこに表示されている変数が外れた要因です。"
 
 # ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
-msgstr "層別変数として登録したカテゴリ変数(品番・ステーションなど)の中で、表示するデータを一部に限定します。"
+msgstr "Facetで選択されたカテゴリ変数(品番・ステーションNoなど)の中で、表示するデータを一部に限定します。"
 
 # ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
-msgstr "グラフのプロットの上部にラベルとして表示されるカテゴリ変数(品番・ステーションNoなど)で、質的変数の変化点(品番切替など)を可視化します。データ型がInt(整数)とStr(文字列)の項目を選択できます。"
+msgstr "カテゴリ変数(品番・ステーションNoなど)の状況をグラフ上部に水色のラベルで表示します。ラベルの切り替わりが変化点(品番切替など)になります。データ型(Type)がカテゴリ(Cat)と文字列(Str)とシリアル(Seri)の変数を選択できます。"
 
 # ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
-msgstr "グラフを表示するターゲット変数の中で、表示するデータを一部に限定します。"
+msgstr "可視化する変数の中で、表示するデータを一部に限定します。"
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
@@ -1838,7 +1646,7 @@ msgstr "判定したいデータを設定します。"
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
-msgstr "グラフを表示するターゲット変数の中で、解析・表示するデータを一部に限定します。"
+msgstr "可視化する変数の中で、解析・表示するデータを一部に限定します。"
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid ""
@@ -1890,11 +1698,11 @@ msgstr "NA(欠損値)・NaN(非数)・Inf±(無限大)を含む、選択した�
 
 #: ap/templates/templates/i18n.html
 msgid "OutCL"
-msgstr "Out of Control Line: 選択した期間における、上下限閾値の外にあるデータの割合(そのデータ数)"
+msgstr "Out of Control Line: 選択した期間における、管理線(CL)内の外にあるデータの割合(そのデータ数)"
 
 #: ap/templates/templates/i18n.html
 msgid "OutAL"
-msgstr "Out of Action Line: 選択した期間における、上下限工程内閾値の外にあるデータの割合(そのデータ数)"
+msgstr "Out of Action Line: 選択した期間における、アクションライン(AL)内の外にあるデータの割合(そのデータ数)"
 
 #: ap/templates/templates/i18n.html
 msgid "PNA"
@@ -2006,7 +1814,11 @@ msgstr "カレンダヒートマップ"
 
 #: ap/templates/templates/i18n.html
 msgid "Too Many Sensors"
-msgstr "ターゲット変数はMAX_NUM_SENSOR個以上選択できません。ターゲット変数を選択しなおしてください。"
+msgstr "可視化する変数はMAX_NUM_SENSOR項目以上選択できません。可視化する変数を選択しなおしてください。"
+
+#: ap/templates/templates/i18n.html
+msgid "Real"
+msgstr "実数"
 
 #: ap/templates/templates/i18n.html
 msgid "Cat."
@@ -2014,7 +1826,7 @@ msgstr "実数以外"
 
 #: ap/templates/templates/i18n.html
 msgid "RidgeLine Plot Hover"
-msgstr "実数の以外カテゴリ変数(質的変数、ロットNo等)や日時ごとに分布を算出し、それらを並べて表示することで、分布の変化を見える化します。個別IDがないデータの群間分析(ロット間比較や日間、シフト間比較等)を可能にする可視化方法です。"
+msgstr "実数以外のカテゴリ変数(ロットNo等)や日時ごとに分布を描画し、それらを横に並べて表示することで、分布の変化を可視化します。シリアルがないデータの群間分析(ロット間比較や日間、シフト間比較等)を可能にする可視化方法です。"
 
 #: ap/templates/templates/i18n.html
 msgid "Master Config Hover"
@@ -2022,15 +1834,11 @@ msgstr "グラフに規格線を引く際の閾値の設定を行います。"
 
 #: ap/templates/templates/i18n.html
 msgid "Scatter Plot display Hover"
-msgstr "散布図表示をONにすると、散布図も一緒に描画できます。自項目とすぐ下の工程の散布図が描画され、それぞれのグラフのカードをマウスでドラッグ&ドロップすると、散布図のX軸・Y軸が切り替わります。"
+msgstr "散布図表示をONにすると、散布図も一緒に描画できます。自変数を縦軸、すぐ下の変数を横軸としたの散布図が描画され、それぞれのグラフのカードをマウスでドラッグ&ドロップすると、散布図の横軸・縦軸が切り替わります。"
 
 #: ap/templates/templates/i18n.html
 msgid "RLP Show value Hover"
 msgstr "データの分布を作成するデータ(量的変数：測定値など)の項目です。このデータがグラフにプロットされます。最大20項目選択できます。"
-
-#: ap/templates/templates/i18n.html
-msgid "Stratify Variables Hover"
-msgstr "この層別変数によって、分布を複数のグラフに分割し、並べて表示します。LotNoやBatchNoなどのカテゴリ変数(質的変数)を選択します。"
 
 #: ap/templates/templates/i18n.html
 msgid "Start data & time Hover"
@@ -2042,7 +1850,7 @@ msgstr "リッジラインプロットを日時ごとに表示する際の期間
 
 #: ap/templates/templates/i18n.html
 msgid "Optional function Hover"
-msgstr "CSV/TSVファイルからデータをインポートする際に、データ構造の変換等の特別な処理が必要な場合にオプションを選択できます。"
+msgstr "CSV/TSVファイルからデータを読み込む際に、データ構造の変換等の特別な処理が必要な場合にオプションを選択できます。"
 
 #: ap/templates/templates/i18n.html
 msgid "Specify datatype of columns Hover"
@@ -2054,7 +1862,7 @@ msgstr "データの紐付け条件として使用する紐付IDを選択しま�
 
 #: ap/templates/templates/i18n.html
 msgid "As Key (Option) Hover"
-msgstr "データを定期インポートする際にアプリが日時を記憶するのに使うキーとして優先的に使われる日時データのカラムを選択できます。"
+msgstr "データを定期読み込みする際にアプリが日時を記憶するのに使うキーとして優先的に使われる日時データの変数を選択できます。"
 
 #: ap/templates/templates/i18n.html
 msgid "Operator Hover"
@@ -2098,19 +1906,19 @@ msgstr "最小"
 
 #: ap/templates/templates/macros.html
 msgid "Show value (Real/Float)"
-msgstr "ターゲット変数(実数)"
+msgstr "可視化する変数(実数)"
 
 #: ap/templates/templates/macros.html
 msgid "Show value (Category)"
-msgstr "ターゲット変数(カテゴリ)"
+msgstr "可視化する変数(カテゴリ)"
 
 #: ap/templates/templates/i18n.html
 msgid "Index ordering"
-msgstr "インデックスの順序設定"
+msgstr "横軸の順序設定"
 
 #: ap/templates/templates/i18n.html
 msgid "Column"
-msgstr "使用する列"
+msgstr "使用する変数"
 
 #: ap/templates/i18n.html
 msgid "Order"
@@ -2129,11 +1937,11 @@ msgid "Variables"
 msgstr "変数"
 
 #: ap/templates/parallel_plot/parallel_plot.html
-msgid "Real(Float) and categorical"
+msgid "Real and categorical"
 msgstr "実数とカテゴリの変数"
 
 #: ap/templates/parallel_plot/parallel_plot.html
-msgid "Real(Float) only"
+msgid "Real only"
 msgstr "実数の変数のみ"
 
 #: ap/templates/parallel_plot/parallel_plot.html
@@ -2142,11 +1950,11 @@ msgstr "カテゴリの変数のみ"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid "In set order"
-msgstr "設定した順番"
+msgstr "プロセス設定での登録順"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid "In process order"
-msgstr "工程順"
+msgstr "プロセス順"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid "In order of corr"
@@ -2267,7 +2075,7 @@ msgstr "優先度"
 msgid ""
 "A same column name was found in the English name column and was handled "
 "automatically. Please check the column names."
-msgstr "英語名に重複が見つかったため、自動で通し番号を追加しました。カラム名を確認してください。"
+msgstr "英語名に重複が見つかったため、自動で通し番号を追加しました。変数名を確認してください。"
 
 #: ap/templates/templates/i18n.html
 msgid "Aggregate by"
@@ -2295,7 +2103,7 @@ msgstr "100%%未満の値を選択すると、回数が小さい共起関係を�
 msgid ""
 "Identify and visualize directly/indirectly correlated variables of "
 "objective(s)"
-msgstr "目的変数に直接/間接的に相関のある変数を特定し、可視化します。"
+msgstr "目的変数(その要因を明らかにしたい変数)に直接/間接的に相関のある変数を特定し、可視化します。"
 
 #: ap/templates/templates/sankey_plot/sankey_plot.html
 msgid ""
@@ -2308,7 +2116,7 @@ msgstr ""
 
 #: ap/templates/templates/sankey_plot/sankey_plot.html
 msgid "Candidate variables that are correlated with objective variable(s)."
-msgstr "目的変数に相関する変数の候補です。"
+msgstr "目的変数(その要因を明らかにしたい変数)に相関する変数の候補です。"
 
 #: ap/templates/templates/i18n.html
 msgid "of all edges"
@@ -2353,13 +2161,13 @@ msgstr "累積比率 [%]"
 msgid ""
 "Visualize long-term data such as annual variations in processes and "
 "parameters that can vary depending on days of the week or shifts, etc."
-msgstr "工程での年間変動など長期間のデータや曜日・シフトなどで変動しうるパラメータを可視化します。"
+msgstr "プロセスでの年間変動など長期間のデータや曜日・シフトなどで変動しうるパラメータを可視化します。"
 
 #: ap/templates/sidebar.html
 msgid ""
 "Visualize the correlation between a large number of variables with "
 "respect to target variable."
-msgstr "目的変数に関して、大量の変数間の相関関係を可視化します。"
+msgstr "目的変数(その要因を明らかにしたい変数)に関して、大量の変数間の相関関係を可視化します。"
 
 #: ap/templates/sidebar.html
 msgid ""
@@ -2381,21 +2189,12 @@ msgid ""
 "statistical analysis, and machine learning."
 msgstr "Analysis Platform : データの紐付け・見える化・統計分析・機械学習を手軽に行うためのツール。"
 
-#: ap/templates/parallel_plot/parallel_plot.html
-#: ap/templates/scatter_plot/scatter_plot.html
-#: ap/templates/trace_data/trace_data.html
-msgid ""
-"Enter target item of data (quantitative variable like measurement value) "
-"to create data distributions. This data is plotted on the graph "
-"surrounded by a light blue frame."
-msgstr "ここで設定したデータを基準として、紐づけやグラフ表示を行います。ここで設定した内容は、グラフの横軸に表示されます。また、起点のグラフは水色の枠で囲まれて表示されます。"
-
 #: ap/templates/trace_data/trace_data.html
 msgid ""
 "Enter target item of data (quantitative variable like measurement value) "
 "to be plotted on the graph. Select the process and item you want to plot "
 "on the graph."
-msgstr "グラフにプロットするデータ(量的変数：測定値など)を指定します。グラフにプロットする対象工程と対象項目を選択します。最大20項目選択できます。"
+msgstr "グラフにプロットするデータ(量的変数：測定値など)を指定します。グラフにプロットする対象プロセスと対象項目を選択します。最大20項目選択できます。"
 
 #: ap/templates/categorical_plot/categorical_plot.html
 msgid ""
@@ -2408,17 +2207,7 @@ msgid ""
 "Enter target item of data (quantitative variable like measurement value "
 "and category variable like part number) to visualize pattern. This data "
 "is plotted on the graph. It can be selected up to ten items."
-msgstr ""
-"可視化したいパターンを生成するデータ(量的変数：測定値など、カテゴリ変数 : "
-"品番など)の項目です。このデータがグラフにプロットされます。最大18項目選択できます。"
-
-#: ap/templates/heatmap/heatmap.html
-msgid ""
-"This stratification variable divides the distribution into multiple "
-"graphs and displays them side by side. Enter category variable "
-"(qualitative variable) such as part number, station number, etc. It can "
-"be selected up to 100 items."
-msgstr "この層別変数によって、可視化したいパターンを複数のグラフに分割し、並べて表示します。品番・ステーションなどのカテゴリ変数(質的変数)を選択します。最大100項目選択できます。"
+msgstr "可視化する変数(量的変数：測定値など、カテゴリ変数 : 品番など)を選択する項目です。この変数がグラフにプロットされます。最大18項目選択できます。"
 
 #: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
 #: ap/templates/scatter_plot/scatter_plot.html
@@ -2426,14 +2215,14 @@ msgid ""
 "Enter target item of data (quantitative variable like measurement value) "
 "to visualize the correlation between variables. This data is plotted on "
 "the graph. It can be selected up to four items."
-msgstr "変数間の相関関係を可視化するデータ(量的変数：測定値など)の項目です。このデータがグラフにプロットされます。最小2, 最大64項目選択できます。"
+msgstr "変数間の相関関係を可視化するデータ(量的変数：測定値など)の選択項目です。2項目以上の変数間の行列を作成できます。10項目より多い場合はヒートマップを表示します。"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid ""
 "Enter target item of quantitative variable (like measurement value) in "
 "data to visualize the correlation between variables. This data is plotted"
 " on the graph."
-msgstr "変数間の相関関係を可視化する項目を選択します。このデータがグラフにプロットされます。最大60項目選択できます。"
+msgstr "変数間の相関関係を可視化する変数を選択します。最大60項目選択できます。"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid ""
@@ -2467,7 +2256,7 @@ msgid "Unselect all to the right"
 msgstr "右側をすべて選択しない"
 
 #: ap/templates/templates/i18n.html
-msgid "All Real(Float) from here"
+msgid "All Real from here"
 msgstr "ここから全て実数"
 
 #: ap/templates/templates/i18n.html
@@ -2546,7 +2335,7 @@ msgstr "読出"
 
 #: ap/templates/templates/i18n.html
 msgid "Ratio of availability of data link"
-msgstr "起点の工程と紐付けができなかったデータ数 (紐付け可否の割合)"
+msgstr "起点のプロセスと紐付けができなかったデータ数 (紐付け可否の割合)"
 
 #: ap/templates/modals.html
 msgid "Save Date & Time"
@@ -2559,12 +2348,6 @@ msgstr "設定の共有"
 #: ap/templates/modals.html
 msgid "Save"
 msgstr "保存する"
-
-#: ap/templates/i18n.html
-msgid ""
-"Available to select maximumn 4 sensors at time. Please check and retry "
-"again."
-msgstr "選択できるターゲット変数の数は最小2, 最大7です。ターゲット変数の数を確認し、設定を修正してください。"
 
 #: ap/templates/i18n.html
 msgid ""
@@ -2670,7 +2453,7 @@ msgstr "フルレンジ"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Index Ordering Setting"
-msgstr "インデックス順序設定"
+msgstr "横軸の順序設定"
 
 #: ap/templates/i18n.html
 msgid "Open"
@@ -2696,7 +2479,14 @@ msgstr "Facet"
 msgid ""
 "Category expansion is performed to divide the graph using the data of the"
 " selected item."
-msgstr "選択した項目のデータを使ってグラフを分割するカテゴリ展開を行います。データ型がInt(整数)とStr(文字列)の項目を選択できます。"
+msgstr ""
+"選択した変数の中身の種類ごとにグラフを分割します。データ型(Type)がカテゴリ(Cat)と文字列(Str)の項目を選択できます。\n"
+"Lv1あるいはLv2だけ選択すると、選択された変数の種類ごとにグラフが分割されます。\n"
+"Lv1,Lv2両方選択すると、選択された2変数の中身の種類の組み合わせでグラフが分割されます。\n"
+"\n"
+"*RLP,AgP,ScPページではLv1,Lv2の他にDivが選択できます。Divの役割は以下の通りです\n"
+"・RLP,AgP:選択した変数が横軸に使用され、変数の中身の種類ごとに集約もしくは集計されます\n"
+"・ScP:Lv1,Lv2と同様にグラフが分割されますが、Lv1,Lv2は縦方向、Divは横方向に分割されたグラフが並びます。"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Exception Estimation"
@@ -2829,7 +2619,7 @@ msgstr ""
 
 #: ap/templates/i18n.html
 msgid "Search process name"
-msgstr "工程検索"
+msgstr "プロセス検索"
 
 #: ap/tenplates/header.html
 msgid "Bookmark"
@@ -2839,10 +2629,12 @@ msgstr "ブックマーク"
 msgid "Sensor Type Explanation"
 msgstr ""
 "以下のデータ型を示します。\n"
-"    ・CT [sec] : サイクルタイム\n"
 "    ・Real : 実数(Floatと同じ意味)\n"
-"    ・Int : 整数(Integer)\n"
-"    ・Str : 文字列(String)\n"
+"    ・Int  : 整数(Integer)\n"
+"    ・Str  : 文字列(String)\n"
+"    ・Cat  : カテゴリ値(Category)\n"
+"    ・Seri : シリアル(Serial)\n"
+"    ・CT   : サイクルタイム[sec]\n"
 
 #: ap/templates/i18n.html
 msgid "Cycle time"
@@ -2858,7 +2650,7 @@ msgstr "目的変数"
 
 #: ap/templates/i18n.html
 msgid "Objective Explain"
-msgstr "ここで指定された変数を目的変数として、各変数の相関係数が計算されます。また、ここで指定されたターゲット変数はグラフの一番右側にカラーバーと一緒に表示されます。グラフ上でターゲット変数を変更したい場合は、各変数名の上で右クリックをすることで、ターゲット変数を切り替えることができます。"
+msgstr "ここで指定された変数を目的変数(その要因を明らかにしたい変数)として、各変数の相関係数が計算されます。選択された目的変数はグラフの一番右側にカラーバーと一緒に表示されます。グラフ上で目的変数を変更したい場合は、各変数名の上で右クリックをすることで、目的変数に切り替えることができます。"
 
 #: ap/templates/i18n.html
 msgid "Category limited MSG"
@@ -2892,7 +2684,7 @@ msgstr "設定ペースト"
 msgid ""
 "If you do not select start process, the process of the first target "
 "variable will be start process."
-msgstr "起点の工程を選択しない場合は、最初のターゲット変数の工程が起点になります。"
+msgstr "対象期間を決めるプロセスを選択できます。選択しない場合は、先頭(左上)のプロセスが設定されます。"
 
 #: ap/templates/macros.html
 msgid "Export data"
@@ -2925,9 +2717,10 @@ msgstr "分解"
 #: ap/templates/i18n.html
 msgid "Color explanation"
 msgstr ""
-"グラフにプロットされた点の色は、選択したアイテムのデータを使用して色分けされます。ただし、以下の場合は色分けできません。\n"
-"(i) ｘもしくはyのどちら一方のデータタイプが文字列で、色分けで選択した変数のデータタイプが文字列でない場合\n"
-"(ii)ｘとy両方のデータタイプが文字列の場合"
+"選択した変数の値に基づいてプロットされる点が色分けされます。\n"
+"\n"
+"バイオリンプロット\n"
+"縦軸または横軸のどちらか一方の変数のデータ型(Type)がカテゴリ(Cat)あるいは文字列(Str)の場合は、バイオリンプロットが表示されます。その際はカテゴリ(Cat)、文字列(Str)以外の変数は無視されます。"
 
 #: ap/templates/i18n.html
 msgid "Objective variable is NOT selected."
@@ -2944,7 +2737,7 @@ msgstr "散布図"
 
 #: ap/templates/i18n.html
 msgid "SCP choose color variable warning message"
-msgstr "ｘもしくはyのどちら一方のデータタイプが文字列の場合、色分けに文字列以外の変数は使用できません。"
+msgstr "バイオリンプロットの場合、色分けにカテゴリ(Cat)、文字列(Str)以外の変数は無視されます。"
 
 #: ap/templates/i18n.html
 msgid "Changed to the max number division automatically."
@@ -2972,7 +2765,7 @@ msgstr "`__SERVER_INFO__`のハードディスクの容量が__LIMIT_PERCENT__%%
 
 #: ap/templates/i18n.html
 msgid "Error Full Disk"
-msgstr "`__SERVER_INFO__`のハードディスクの容量が__LIMIT_PERCENT__%%に達したため、データインポートを停止しました。不要なデータを削除し空容量が増えるとデータインポートを再開します。"
+msgstr "`__SERVER_INFO__`のハードディスクの容量が__LIMIT_PERCENT__%%に達したため、データ読み込みを停止しました。不要なデータを削除し空き容量が増えるとデータの読み込みを再開します。"
 
 #: ap/templates/macros.html
 msgid "Division number Hover RLP"
@@ -2981,33 +2774,6 @@ msgstr "表示する分布の数(分割数)を入力します。2以上240以下
 #: ap/templates/macros.html
 msgid "Division number Hover StP"
 msgstr "表示する分布の数(分割数)を入力します。1以上32以下の整数を入力してください。"
-
-#: ap/templates/macros.html
-msgid "Division number Hover ScP"
-msgstr ""
-"表示するグラフ数(分割数)を入力します。1以上7もしくは49以下の整数を入力してください。\n"
-"Facet無効時：1以上49以下\n"
-"Facet有効時：1以上7以下"
-
-#: ap/templates/macros.html
-msgid "Interval Hover"
-msgstr ""
-"プロットを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.01以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
-"\n"
-"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
-
-#: ap/templates/macros.html
-msgid "Window length Hover"
-msgstr ""
-"1つの分布を計算する際の時間の幅を入力します。0.01以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価し、間隔より小さい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります。間隔より大きい場合はデータの重なりが発生します。"
-"\n"
-"e.g.) 1 week = 168, 30 days = 720, a half year = 4320, one year = 8760"
-
-#: ap/templates/macros.html
-msgid "Window length Hover ScP"
-msgstr ""
-"1つのグラフの時間の幅を入力します。0.01以上、20,000(=833日)以下の数値を入力してください。\n"
-"e.g.) 1週間 = 168, 30日 = 720, 半年 = 4320, 1年 = 8760"
 
 #: ap/templates/i18n.html
 msgid "Reduce number of violin messenger"
@@ -3039,7 +2805,7 @@ msgstr "グラフ列数"
 
 #: ap/templates/i18n.html
 msgid "Label Variable Description"
-msgstr "グラフのプロットの上部にラベルとして表示されるカテゴリ変数(品番・ステーションNoなど)で、質的変数の変化点(品番切替など)を可視化します。データ型がInt(整数)とStr(文字列)の項目を選択できます。"
+msgstr "カテゴリ変数(品番・ステーションNoなど)の状況をグラフ上部に水色のラベルで表示します。ラベルの切り替わりが変化点(品番切替など)になります。データ型(Type)がカテゴリ(Cat)と文字列(Str)とシリアル(Seri)の変数を選択できます。"
 
 #: hisview2/templates/analyze/hotelling_tsquare.html
 msgid "PCA Target Variable Explain"
@@ -3063,24 +2829,27 @@ msgstr "1つのタブに表示するグラフの数をNUMBER個に制限して�
 
 #: ap/templates/i18n.html
 msgid "Available to select min and max sensors at time"
-msgstr "選択できるターゲット変数の数は最小MIN、 最大MAXです。ターゲット変数の数を確認し、設定を修正してください。"
+msgstr "選択できる変数の数は最小MIN、最大MAXです。選択した変数の数を確認し、設定を修正してください。"
 
 #: ap/templates/i18n.html
 msgid "Available to select max sensors at time"
-msgstr "選択できるターゲット変数の数はMAXつまでです。ターゲット変数の数を確認し、設定を修正してください。"
+msgstr "選択できる変数の数はMAX項目までです。変数の数を確認し、設定を修正してください。"
 
 #: ap/templates/scatter_plot/scatter_plot.html
 msgid "SCP Page title description"
-msgstr "変数間の関係を散布図やバイオリンプロット、カレンダーヒートマップで可視化できます。"
+msgstr "変数間の関係を散布図やバイオリンプロット、カレンダヒートマップで可視化できます。"
 
 #: ap/templates/scatter_plot/scatter_plot.html
 msgid "SCP show value description"
 msgstr ""
 "変数間の関係を可視化するx, yを選択する項目です。それぞれ1つずつ選択できます。最初に選択した変数がxとなります。\n"
-"選択したデータのTypeによって描写方法が変わります。\n"
-"x, y両変数ともInt or Real　　　　　　→ 散布図\n"
-"x, yの一方がInt or Real、もう一方がStr　→ バイオリンプロット\n"
-"x, y両変数ともStr　　　　　　　　　→ ヒートマップ "
+"選択した変数のデータ型(Type)によって描写方法が変わります。\n"
+"x, y両変数とも整数(Int) or 実数(Real)\n"
+"→ 散布図\n"
+"x, yの一方が整数(Int) or 実数(Real)、もう一方がカテゴリ(Cat) or 文字列(Str)\n"
+"→ バイオリンプロット\n"
+"x, y両変数ともカテゴリ(Cat) or 文字列(Str)\n"
+"→ ヒートマップ "
 
 #: ap/template/header.html
 msgid "New"
@@ -3096,7 +2865,7 @@ msgstr "保存しない"
 
 #: ap/templates/i18n.html
 msgid "Violins with a large amount of data are drawn by thinning out the data."
-msgstr "データ数が多いバイオリンはデータを間引いて描写しています。"
+msgstr "データ数が多いバイオリンプロットはデータを間引いて描写しています。"
 
 #: ap/templates/i18n.html
 msgid "Front end process timeout message"
@@ -3120,7 +2889,7 @@ msgstr "保存した設定のタイトル、作成者、説明などの編集を
 
 #: ap/templates/i18n.html
 msgid "Unselect Facet In Variable Division StP"
-msgstr "ターゲット変数のプルダウンメニュー内で\"Facet\"の項目を選択すると、選択した項目を使ってグラフを層別できます。"
+msgstr "Facet項目で選択された変数の中身の種類ごとにグラフを層別(グループ分け)できます。"
 
 #: ap/templates/i18n.html
 msgid "Daterangepicker ranges hover message"
@@ -3169,6 +2938,10 @@ msgid "Residuals"
 msgstr "残差"
 
 #: ap/templates/i18n.html
+msgid "Index vs Residuals"
+msgstr "インデックス(Index) vs 残差"
+
+#: ap/templates/i18n.html
 msgid "Actual vs Fitted Values"
 msgstr "実測値 vs 当てはめ値"
 
@@ -3206,7 +2979,7 @@ msgstr ""
 msgid "R2Info"
 msgstr ""
 "0から1の値をとり、大きいほどモデルの当てはまりがよいことを示します。\n"
-"通常の決定係数は単純い説明変数の数を増やすほど大きくなってしまうので、\n"
+"通常の決定係数は単純に説明変数の数を増やすほど大きくなってしまうので、\n"
 "変数の数で調整を行ったものが自由度調整済み決定係数です。"
 
 # ap/templates/trace_data/list_of_histograms.html
@@ -3223,7 +2996,7 @@ msgid "Please enter a character string for the filter condition."
 msgstr "フィルタ条件となる文字列を入力してください。"
 
 #: ap/templates/parallel_plot.html
-msgid "Real(Float) and Integer"
+msgid "Real and Integer"
 msgstr "数字の変数のみ"
 
 #: ap/templates/i18n.html
@@ -3248,30 +3021,30 @@ msgstr "平行座標プロット"
 msgid ""
 "There is no datetime column. If there is no datetime column, the "
 "application generates a dummy data for datetime."
-msgstr "日時の列がありません。日時の列がない場合は、日時のダミーデータを生成します。"
+msgstr "日時の変数がありません。日時の変数がない場合は、日時のダミーデータを生成します。"
 
 #: ap/templates/i18n.html
 msgid ""
 "Since there is no datetime column, the application generates a dummy data"
 " for datetime."
-msgstr "日時の列がないため、日時のダミーデータを生成しました。"
+msgstr "日時の変数がないため、日時のダミーデータを生成しました。"
 
 #: ap/templates/templates/i18n.html
 msgid "K sep type notification"
-msgstr "千区切りを含む実数あるいは整数のカラムのデータ型は文字列(Str)等異なる型に推定される場合があるので、推定されたデータ型の確認をしてください。"
+msgstr "千区切りを含む実数あるいは整数の変数のデータ型(Type)は文字列(Str)等異なる型に推定される場合があるので、推定されたデータ型(Type)の確認をしてください。"
 
 #: ap/templates/i18n.html
 msgid "Preview same value message"
-msgstr "プレビューしたデータに同じ値しかない列があります。データを読み込む対象列に設定するか確認してください。"
+msgstr "プレビューしたデータの中身が全て同じ変数があります。データを読み込む変数に設定するか確認してください。"
 
 #: ap/templates/i18n.html
 msgid "Preview null value message"
-msgstr "プレビューしたデータに値が一つも存在しない列があります。データを読み込む対象列に設定する場合は、チェックをして適切なデータ型を指定してください。"
+msgstr "プレビューしたデータの中身が一つも存在しない変数があります。データを読み込む変数に設定する場合は、チェックをして適切なデータ型(Type)を指定してください。"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Dummy Datetime Generate On DS Confirm Message"
 msgstr ""
-"対象のファイルに日時の列がありません。\n"
+"対象のファイルに日時の変数がありません。\n"
 "システム上、日時データが必須のため、日時のダミーデータ(DatetimeDummy)を 生成して、設定を続けますか?\n"
 "\n"
 "日時のダミーデータは以下のように生成されます。<ul><li>最初の対象ファイルの先頭行に、今月の1日 "
@@ -3280,9 +3053,9 @@ msgstr ""
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Dummy Datetime Generate On Proc Confirm Message"
 msgstr ""
-"対象のファイルに日時の列がないため、日時のダミーデータ(DatetimeDummy)が生成されました。\n"
+"対象のファイルに日時の変数がないため、日時のダミーデータ(DatetimeDummy)が生成されました。\n"
 "\n"
-"生成されたダミーデータを確認し、\"日時\"のチェックを付けた状態でインポートしてください。\n"
+"生成されたダミーデータを確認し、日時のチェックを付けた状態で読み込みしてください。\n"
 "\n"
 "日時のダミーデータは以下のように生成されています。<ul><li>最初の対象ファイルの先頭行に、今月の1日 "
 "00:00からレコードごとに10秒ずつ日時が加算された日時データを生成。</li><li>次の対象ファイルの先頭行に、翌日の00:00からレコードごとに10秒ずつ日時が加算された日時データを生成。</li></ul>"
@@ -3303,7 +3076,7 @@ msgstr "カーソル消去(クリック/ダブルクリック)"
 msgid ""
 "The target file does not have a datetime column. Please prepare a "
 "datetime column or consider using dummy datetime (DatetimeDummy)."
-msgstr "対象のファイルに日時の列がありません。日時の列を用意するか、日時のダミーデータ(DatetimeDummy)の利用を検討してください。"
+msgstr "対象のファイルに日時の変数がありません。日時の変数を用意するか、日時のダミーデータ(DatetimeDummy)の利用を検討してください。"
 
 #: ap/tenplates/i18n.html
 msgid "MSP Hide Contour MSG"
@@ -3311,13 +3084,13 @@ msgstr "1つのグラフに描画されるデータ点数が多いため、高�
 
 #: ap/templates/i18n.html
 msgid "InfCastValue"
-msgstr "\"Inf\"/\"-Inf\"およびそれらに推定された値は\"NA\"としてグラフに表示されます。"
+msgstr "±Infおよびそれらに推定された値はNAとしてグラフに表示されます。"
 
 #: ap/templates/macros.html
 msgid ""
 "Values those have pulsed number of occurrences compared to the neighbors:"
 " Replace to NA"
-msgstr "突発値: 周辺に対して突発的にデータ数が多い値=> NAに置換"
+msgstr "突発値: 分布を描画した際、周辺に対して突発的にデータ数が多い値(パルス的な分布が存在)=> NAに置換"
 
 #: ap/templates/macros.html
 msgid "Cleansing"
@@ -3387,7 +3160,7 @@ msgstr ""
 
 #: ap/templates/macros.html
 msgid "Serial series"
-msgstr "シリアル系列"
+msgstr "その他"
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Mode hover msg"
@@ -3403,7 +3176,7 @@ msgstr "各分布の変動度合い(EMD)を計算する際に、直前の分布�
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Both hover msg"
-msgstr "\"Drift\"と\"Diff\"の2つのモードで計算した結果を表示します。"
+msgstr "DriftとDiffの2つのモードで計算した結果を表示します。"
 
 #: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
 msgid "Contour hover msg"
@@ -3451,11 +3224,11 @@ msgstr "閾値"
 
 #: ap/templates/i18n.html
 msgid "Proc. limit"
-msgstr "工程内閾値"
+msgstr "プロセス内閾値"
 
 #: ap/templates/i18n.html
 msgid "Valid"
-msgstr "有効期限"
+msgstr "有効期間"
 
 #: ap/templates/i18n.html
 msgid "ValidFrom"
@@ -3469,7 +3242,7 @@ msgstr "終了"
 msgid ""
 "Because duplicate column names exist, a numeric suffix  added to the "
 "duplicate column names."
-msgstr "列名の重複が存在しているため、重複している列名に数字の接尾辞を付加しました。"
+msgstr "変数名の重複が存在しているため、重複している変数名に数字の接尾辞を付加しました。"
 
 #: ap/templates/i18n.html
 msgid "Error Msg Common"
@@ -3499,8 +3272,8 @@ msgstr "重複シリアル"
 #: ap/templates/i18n.html
 msgid "Duplicate serial hover message"
 msgstr ""
-"工程設定ページで紐付IDに設定した項目に重複レコードがある場合に表示するレコードを選択できます。\n"
-"工程間のデータ紐付けをする場合は、重複シリアルは強制的に最新日時のレコードで紐付けされます。"
+"プロセス設定ページで紐付IDに設定した項目に重複レコードがある場合に表示するレコードを選択できます。\n"
+"プロセス間のデータ紐付けをする場合は、重複シリアルは強制的に最新日時のレコードで紐付けされます。"
 
 #: ap/templates/i18n.html
 msgid "Remove duplicated records message"
@@ -3516,7 +3289,7 @@ msgstr "グラフ描画に用いたカテゴリデータのフィルタを行い
 
 #: ap/templates/i18n.html
 msgid "TourSelectTargetVar"
-msgstr "工程を選択し、その中からグラフ化したい変数をいくつか選択しましょう。右上の+ボタンを押すことで、複数の工程を選択することができます。BREAK_LINEBREAK_LINEラベルプロット、ファセット分割を行う変数も選択できます。BREAK_LINE"
+msgstr "プロセスを選択し、その中からグラフ化したい変数をいくつか選択しましょう。右上の+ボタンを押すことで、複数のプロセスを選択することができます。BREAK_LINEBREAK_LINEラベルプロット、Facet分割を行う変数も選択できます。BREAK_LINE"
 
 #: ap/templates/i18n.html
 msgid "TourSelectTargetVarDesc"
@@ -3539,7 +3312,7 @@ msgstr "問題ありません。「Data Finder」ボタンをクリックする�
 
 #: ap/templates/i18n.html
 msgid "TourWithDatafinder"
-msgstr "この画面から、いつのデータがどのくらい読み込まれているかを見ながら、日時範囲を選択することができます。BREAK_LINEBREAK_LINEデータが存在する場合は該当のセルが青く表示され、データ量が多いほど明るい青になります。このデータの有無は、「ターゲット変数を選択」ステップではじめに選択された工程、または「SPAN_TAG起点SPAN_END_TAG」に指定された工程のデータを参照します。"
+msgstr "この画面から、いつのデータがどのくらい読み込まれているかを見ながら、日時範囲を選択することができます。BREAK_LINEBREAK_LINEデータが存在する場合は該当のセルが青く表示され、データ量が多いほど明るい青になります。このデータの有無は、「可視化する変数を選択」ステップではじめに選択されたプロセス、または「SPAN_TAG起点SPAN_END_TAG」に指定されたプロセスのデータを参照します。"
 
 #: ap/templates/i18n.html
 msgid "TourUseFilter"
@@ -3590,7 +3363,7 @@ msgstr "ツアーを終了"
 
 #: ap/templates/i18n.html
 msgid "TourSelectTargetVarTitle"
-msgstr "ターゲット変数 (可視化したい変数) を選択"
+msgstr "可視化する変数を選択"
 
 #: ap/templates/i18n.html
 msgid "TourSelectTargetPeriodTitle"
@@ -3671,7 +3444,7 @@ msgstr ""
 
 #: ap/templates/macros.html
 msgid "AgP color hover msg"
-msgstr "この設定は選択した変数内のグループで色分けされる。"
+msgstr "選択した変数の中身の種類で色分けされます。"
 
 #: ap/templates/aggregate_plot/aggregate_plot.html
 msgid "Aggregation Plot info"
@@ -3679,7 +3452,7 @@ msgstr "生産量、不良数などの集計結果とセンサーデータの時
 
 #: ap/templates/aggregate_plot/aggregate_plot.html
 msgid "AgP target variables"
-msgstr "グラフにプロットするデータを指定します。データのTypeがStrやIntの場合は集計結果を表示し、RealやCTの場合は線分プロットを表示します。"
+msgstr "可視化する変数のデータ型(Type)がカテゴリ(Cat)あるいは文字列(Str)の場合は集計結果を表示し、実数(Real)や整数(Int),サイクルタイム(CT)の場合は線分プロットを表示します。"
 
 #: ap/templates/sidebar.html
 msgid "Aggregation Plot"
@@ -3694,8 +3467,8 @@ msgid "Latest year"
 msgstr "年"
 
 #: ap/templates/templates/i18n.html
-msgid "The target is a variable whose data type is Real(Float)"
-msgstr "対象はデータ型が実数の変数です。"
+msgid "The target is a variable whose data type is Real"
+msgstr "対象はデータ型(Type)が実数(Real)の変数です。"
 
 #: ap/templates/templates/i18n.html
 msgid "SkD select over 100 sensor msg"
@@ -3765,7 +3538,7 @@ msgstr "センサ名"
 msgid "GL Page Title"
 msgstr ""
 "変数間の偏相関関係をネットワーク図で可視化することで、互いに相関している変数を見つけることができます。\n"
-"目的の変数を指定することで、それに直接相関する変数と、間接的に相関する変数とを分かりやすく可視化することができ。"
+"目的変数(その要因を明らかにしたい変数)を指定することで、それに直接相関する変数と、間接的に相関する変数とを分かりやすく可視化することができます。"
 
 #: ap/templates/analyze/graphical_lasso.html
 msgid "Sparsity Hover"
@@ -3777,12 +3550,12 @@ msgstr "偏相関係数の絶対値がこの値より小さい場合、関係性
 
 #: ap/templates/analyze/graphical_lasso.html
 msgid "GL Process name"
-msgstr "工程名"
+msgstr "プロセス名"
 
 #: ap/templates/templates/macros.html
 msgid "SkD objective hover messenger"
 msgstr ""
-"ここにマークした変数を目的変数と呼び、\n"
+"ここにマークした変数を目的変数(その要因を明らかにしたい変数)と呼び、\n"
 "残りの指定した変数でこれをうまく説明 (推定) できるような回帰モデルを作成します。"
 
 #: ap/templates/templates/macros.html
@@ -3796,7 +3569,7 @@ msgstr ""
 #: ap/templates/templates/macros.html
 msgid "GL objective hover messenger"
 msgstr ""
-"(任意) ここにマークした変数を目的変数と呼び、\n"
+"(任意) ここにマークした変数を目的変数(その要因を明らかにしたい変数)と呼び、\n"
 "目的変数に対する他の変数の偏相関関係がより読み取りやすいよう、可視化のレイアウトを調整します。"
 
 #: ap/templates/templates/co_occurence.html
@@ -3805,7 +3578,7 @@ msgstr "全ノードのラベルを表示"
 
 #: ap/templates/templates/macros.html
 msgid "Generate proc link information msg"
-msgstr "インポートしたレコード数や紐付け対象のレコード数を更新したい場合は、\"再読込み\"ボタンを押してください。"
+msgstr "読み込みしたレコード数や紐付け対象のレコード数を更新したい場合は、再読込みボタンを押してください。"
 
 #: ap/templates/templates/sidebar.html
 msgid "in new tab"
@@ -3842,7 +3615,7 @@ msgstr "実数 カテゴリ化"
 
 #: ap/templates/templates/modal.html
 msgid "Generate several v2 data sources msg"
-msgstr "複数のデータソース設定を自動生成しますか? そうでない場合は、工程を一つだけ選択してください?"
+msgstr "複数のデータソース設定を自動生成しますか? そうでない場合は、プロセスを一つだけ選択してください?"
 
 #: ap/templates/tile_interface/tile_search_by_use.html
 msgid "For example"
@@ -3854,7 +3627,7 @@ msgstr "用途から探す"
 
 #: ap/templates/i18n.html
 msgid "Filter label hover msg"
-msgstr "チェックをつけたカテゴリ変数をグラフ内でのオンデマンドフィルタの項目として利用できます。データ型がInt(整数)とStr(文字列)の項目を選択できます。"
+msgstr "チェックをつけたカテゴリ変数をグラフ内でのオンデマンドフィルタの項目として利用できます。データ型(Type)がカテゴリ(Cat)あるいは文字列(Str)の項目を選択できます。"
 
 #: ap/templates/macros.html
 msgid "Link"
@@ -3918,7 +3691,7 @@ msgstr "変数設定"
 
 #: ap/templates/macros.html
 msgid "Select only the objective and top important variables (Max: 20)"
-msgstr "目的変数と、重要度が高い変数 (最大20個) を選択"
+msgstr "目的変数(その要因を明らかにしたい変数)と、重要度が高い変数 (最大20項目) を選択"
 
 #: ap/templates/macros.html
 msgid "Variable setting hover"
@@ -3928,7 +3701,7 @@ msgstr ""
 
 #: ap/templates/macros.html
 msgid "Select sensor hover"
-msgstr "目的変数と、それに関連する重要変数のみを別の可視化で分析できます。"
+msgstr "目的変数(その要因を明らかにしたい変数)と、それに関連する重要変数のみを別の可視化で分析できます。"
 
 #: ap/templates/macros.html
 msgid "ALL"
@@ -3944,7 +3717,7 @@ msgstr "おすすめ"
 
 #: ap/templates/i18n.html
 msgid "Threshold/Graph Config"
-msgstr "閾値/グラフ設定"
+msgstr "表示設定"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Target"
@@ -3952,7 +3725,7 @@ msgstr "対象"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Target hover msg"
-msgstr "対象のデータ名を選択します。(必須)"
+msgstr "対象の変数を選択します。(必須)"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Condition"
@@ -3960,33 +3733,33 @@ msgstr "条件"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Condition hover msg"
-msgstr "品番や設備により閾値やグラフ軸の設定を変えたい場合に、設定を変更する条件となるデータ名とその値を選択できます。"
+msgstr "品番や設備により閾値やグラフ軸の設定を変えたい場合に、設定を変更する条件となる変数とその値を選択できます。"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Threshold config"
-msgstr "閾値"
+msgstr "管理線(CL)"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Threshold config hover msg"
 msgstr ""
-"対象データの閾値を入力します。\n"
-"設定した閾値を超えたデータの割合とその数(outCL)の算出や、工程能力の算出に利用します。\n"
+"対象データの管理値を入力します。\n"
+"設定した管理線(CL)を超えたデータの割合とその数(outCL)の算出や、製造業の工程能力Cp/Cpkの算出に利用します。\n"
 "また、グラフ上に赤線で描画されます。"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Process threshold"
-msgstr "工程内閾値"
+msgstr "アクションライン(AL)"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Process threshold hover msg"
 msgstr ""
-"対象データの工程内閾値を入力します。\n"
-"設定した工程内閾値を超えたデータの割合とその数(outAL)の算出に利用します。\n"
+"対象データのアクションライン値を入力します。\n"
+"設定したアクションライン(AL)を超えたデータの割合とその数(outAL)の算出に利用します。\n"
 "また、グラフ上に青線で描画されます。"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Graph axis range"
-msgstr "グラフ軸範囲"
+msgstr "軸レンジ"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Valid hover msg"
@@ -4004,7 +3777,7 @@ msgstr "最小値"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Data Name"
-msgstr "データ名"
+msgstr "変数名"
 
 msgid "InvalidBrowserTitle"
 msgstr "お使いのブラウザーはサポートされていません。"
@@ -4031,7 +3804,9 @@ msgstr "判定"
 
 #: ap/templates/i18n.html
 msgid "Judge hover msg"
-msgstr "不良率の計算に使用します。選択した変数に対して条件式を適用し、それを満たしたデータをNGとして扱います。"
+msgstr ""
+"不良率の計算に使用します。選択した変数に対して条件式を適用し、それを満たしたデータをNGとして扱います。\n"
+"同じ変数に対して、Facetと判定を同時に指定することはできません。"
 
 #: ap/templates/i18n.html
 msgid "NG condition"
@@ -4040,6 +3815,29 @@ msgstr "NG条件"
 #: ap/templates/i18n.html
 msgid "NG condition hover msg"
 msgstr "'判定' で指定した変数に対して、NGが満たす条件を定義します (例: 温度 > 90、検査結果 == 2)"
+
+#: ap/templates/macros.html
+msgid "Pass EMD values to the new page"
+msgstr "ジャンプ先にEMDとNG率 (計算した場合) の値を渡す"
+
+#: ap/templates/macros.html
+msgid "Pass EMD values to the new page hover msg"
+msgstr ""
+"データ分布の動きを定量化した、EMDの値をジャンプ先に渡します。\n"
+"また、NG率もジャンプ先に渡します (可視化する変数に対して '判定' が選択され、NG率が計算されていた場合)。\n"
+"ロットIDと個別IDとの紐付けデータ等、1:1で紐付かないデータに対して特に有効です。"
+
+#: ap/templates/macros.html
+msgid "This week"
+msgstr "今週"
+
+#: ap/templates/macros.html
+msgid "Set nominal scale and ordinal scale in categorical data."
+msgstr "カテゴリデータの中で、名義尺度と順序尺度の設定を行います。"
+
+#: ap/templates/macros.html
+msgid "Nominal/ordinal scale setting of categorical data"
+msgstr "カテゴリデータの名義尺度/順序設定"
 
 #: ap/templates/macros.html
 msgid "Japanese Name"
@@ -4056,4 +3854,242 @@ msgstr "ジャンプ先のページを選択してください。(例えば左�
 #: ap/templates/i18n.html
 msgid "JumpWithDataframeMode"
 msgstr "可視化の設定を変更するには、ジャンプ元のページでグラフを修正し、再度ジャンプを行ってください。"
+
+#: ap/templates/macros.html
+msgid "Nominal scale"
+msgstr "カテゴリ変数の順序尺度化"
+
+#: ap/templates/macros.html
+msgid "Nominal scale hover msg"
+msgstr ""
+"カテゴリデータを目的変数に基づく順序尺度に変換することで、装置番号やライン番号と目的変数との関係性をより明確に把握することが可能になります。\n"
+"これにより、装置間差やライン間差を検出することができます。\n"
+"ターゲットエンコーディングに似た手法で、各カテゴリは、それに対応する目的変数の平均値に基づいて順位付けされます。"
+
+msgid "In variable selected order"
+msgstr "変数を選択した順番"
+
+#: ap/templates/i18n.html
+msgid "main::Datetime"
+msgstr "main::日時"
+
+#: ap/templates/i18n.html
+msgid "main::Serial:Int"
+msgstr "main::シリアル:Int"
+
+#: ap/templates/i18n.html
+msgid "main::Serial:Str"
+msgstr "main::シリアル:Str"
+
+#: ap/templates/i18n.html
+msgid "Datetime:key"
+msgstr "Datetime:key"
+
+#: ap/templates/i18n.html
+msgid "Serial:Int"
+msgstr "シリアル:Int"
+
+#: ap/templates/i18n.html
+msgid "Serial:Str"
+msgstr "シリアル:Str"
+
+#: ap/templates/i18n.html
+msgid "LineName:Str"
+msgstr "ライン名:Str"
+
+#: ap/templates/i18n.html
+msgid "LineNo:Int"
+msgstr "ラインNo:Int"
+
+#: ap/templates/i18n.html
+msgid "EqName:Str"
+msgstr "設備名:Str"
+
+#: ap/templates/i18n.html
+msgid "EqNo:Int"
+msgstr "設備No:Int"
+
+#: ap/templates/i18n.html
+msgid "PartName:Str"
+msgstr "品名:Str"
+
+#: ap/templates/i18n.html
+msgid "PartNo:Int"
+msgstr "品番:Int"
+
+#: ap/templates/i18n.html
+msgid "Copy to all below"
+msgstr "ここから下にコピー"
+
+#: ap/templates/i18n.html
+msgid "Copy to filtered"
+msgstr "フィルタ選択項目にコピー"
+
+#: ap/templates/i18n.html
+msgid "Column Raw Name"
+msgstr "列名"
+
+#: ap/templates/i18n.html
+msgid "Sample Data"
+msgstr "サンプルデータ"
+
+#: ap/templates/i18n.html
+msgid "Special"
+msgstr "特殊"
+
+#: ap/templates/i18n.html
+msgid "Filter (System)"
+msgstr "フィルタ(規定)"
+
+#: ap/templates/i18n.html
+msgid "Multi Set"
+msgstr "設定複写"
+
+#: ap/templates/setting_module/proc_config_modal.html
+msgid "ShowPreviewByFile"
+msgstr "Sampleデータが欠損が多くデータ型推定が適切でない場合は、適切な参照先ファイルを入力"
+
+#: ap/templates/i18n.html
+msgid "Integer(Cat)"
+msgstr "整数(カテゴリ)"
+
+msgid "SystemNameHoverMsg"
+msgstr ""
+"システムで使用される変数名で、入力が必須です。\n"
+"使用できる文字:\n"
+"・半角英数字,\n"
+"・ハイフン'-',\n"
+"・アンダーバー'_'"
+
+#: ap/templates/i18n.html
+msgid "StNo:Int"
+msgstr "ステーションNo:Int"
+
+#: ap/templates/i18n.html
+msgid "Could not read data"
+msgstr "ファイルの読み込みに失敗しました"
+
+#: ap/templates/setting_module/background_job.html
+msgid "Progress"
+msgstr "進捗"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Fine select hover msg"
+msgstr "軸上でフィルタリングできる範囲を細かく設定できます。ただし、NA(欠損値)やInf±(無限大)を含むレコードは除去されます。"
+
+#: ap/templates/i18n.html
+msgid "LinkConfigurationNotExist"
+msgstr "紐付け設定がされていないため、グラフが表示されません。"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Japanese name is duplicated"
+msgstr "日本語名上で使用される変数名が重複しています。日本語名項目で重複がないように変更してください。"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Local name is duplicated"
+msgstr "現地語名上で使用される変数名が重複しています。現地語名項目で重複がないように変更してください。"
+
+#: ap/templates/macros.html
+msgid "DataFinderHoverMsg"
+msgstr ""
+"起点(もしくは一番最初のプロセス)で選んだプロセスのデータがある期間を水色で表示します。年単位[year]⇔月単位[Month]⇔日単位[Week]の各視点でデータがどこにあるを調べられます。この情報を目安にして、データがある範囲を入力してください。"
+" 1度目のクリックで始点(From)を、2度目のクリックで終点(To)を指定します。 "
+"最後に選択した日時を対象期間に入力するには[Set]を押してください。"
+
+#: ap/templates/modal.html
+msgid "ZeroVarianceTitle"
+msgstr "分散が0(データの中身が全て同じ)になる変数"
+
+#: ap/templates/modal.html
+msgid "NARateTitle"
+msgstr "データ欠損率"
+
+msgid "Division number Hover AgP"
+msgstr "表示する横軸の目盛数(分割数)を入力します。1以上1000以下の整数を入力してください。"
+
+#: ap/templates/macros.html
+msgid "Window length Hover"
+msgstr ""
+"1つの分布を計算する際の時間の幅を入力します。0.01(=36秒)以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価します(推奨設定)。間隔より大きい場合はデータの重なりが発生します(データが少ないときに有効です。ただし一部同じデータを評価するため、変化が鈍化する懸念あります)。間隔より小さい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります(データ数が多いときに有効です。しかし、一部のデータを評価しないため非推奨)。"
+"\n"
+"e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
+
+#: ap/templates/macros.html
+msgid "Window length Hover AgP"
+msgstr ""
+"1つのプロットあるいは集計結果を計算する際の時間の幅を入力します。0.01(=36秒)以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価します(推奨設定)。間隔より大きい場合はデータの重なりが発生します(データが少ないときに有効です。ただし一部同じデータを評価するため、変化が鈍化する懸念あります)。間隔より小さい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります(データ数が多いときに有効です。しかし、一部のデータを評価しないため非推奨)。"
+"\n"
+"e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
+
+#: ap/templates/macros.html
+msgid "Window length Hover ScP"
+msgstr ""
+"1つのグラフの時間の幅を入力します。0.01(36秒)以上、20,000(=833日)以下の数値を入力してください。間隔と等しい場合は、すべてのデータを重なりなく評価します(推奨設定)。間隔より大きい場合はデータの重なりが発生します(データが少ないときに有効です。ただし一部同じデータを評価するため、変化が鈍化する懸念あります)。間隔より小さい値の場合はデータの重なりがなくなり一部のデータは評価されなくなります(データ数が多いときに有効です。しかし、一部のデータを評価しないため非推奨)。"
+"\n"
+"e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
+
+#: ap/templates/macros.html
+msgid "Division number Hover ScP"
+msgstr "表示するグラフ数(分割数)を入力します。Facet有効時は7以下、Facet無効時は49以下の整数を入力してください。"
+
+#: ap/templates/macros.html
+msgid "Interval Hover"
+msgstr ""
+"分布を日時ごとに表示する際の日時の間隔を入力します。絶対値が0.01(36秒)以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
+
+#: ap/templates/macros.html
+msgid "Interval Hover AgP"
+msgstr ""
+"プロットあるいは集計結果を日時ごとに表示する際の日時の間隔を入力します。絶対値が0.01(36秒)以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
+
+#: ap/templates/macros.html
+msgid "Interval Hover ScP"
+msgstr ""
+"グラフを日時ごとに表示する際の日時の間隔を入力します。絶対値が0.01(36秒)以上、720(=30日)以下の数値を入力してください。マイナスの値を入力すると、過去にさかのぼる方向に期間を設定できます。"
+"\n"
+"e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
+
+#: ap/templates/i18n.html
+msgid "Divide by category hover msg AgP RLP"
+msgstr "Divに選択した変数が横軸に使用され、変数の中身の種類ごとに集約もしくは集計されます"
+
+#: ap/templates/i18n.html
+msgid "Divide by category hover msg ScP"
+msgstr "Divに選択した変数の中身の種類ごとにグラフが分割され、横方向に並びます"
+
+#: ap/templates/i18n.html
+msgid "Stratify by variables hover msg StP"
+msgstr "Facet設定のLv1あるいはLv2に選択された変数の種類ごとにグラフが分割されます。Lv1/Lv2両方選択すると、選択された2変数の中身の種類の組み合わせでグラフが分割されます"
+
+#: ap/templates/i18n.html
+msgid "Divide by term (Cyclic) hover msg"
+msgstr "周期的な時間でグラフを分解します"
+
+#: ap/templates/i18n.html
+msgid "Divide by term (Direct) hover msg"
+msgstr "可視化したい時間帯を直接入力し、入力した時間帯毎にグラフを分解します"
+
+#: ap/templates/i18n.html
+msgid "Divide by data number (Cyclic) hover msg"
+msgstr "入力したデータ数毎にグラフを分解します"
+
+#: ap/templates/i18n.html
+msgid "Divide by calender (Cyclic) hover msg"
+msgstr "年・年度・半期・四半期・月・週・日・時毎に横軸の目盛を分解します"
+
+#: ap/templates/setting_module/db_config_modal.html
+msgid "Skip line hover msg"
+msgstr ""
+"列名が1行目に存在しない場合に設定する項目です。0以上100未満の値を入力できます。\n"
+"何も入力されていない場合は、1行目を列名としてデータを読み込みます。\n"
+"0の場合は、自動で列名が生成されます。また、何も入力されておらず、1行目に数字が多い場合は自動で0が入力されます。\n"
+"1以上の場合は、入力した値の行番号までデータの読み込みをスキップし、次の行を列名としてデータを読み込みます。"
+
+#: ap/templates/i18n.html
+msgid "There were no column names in the file, the AP created new column names."
+msgstr "ファイルに列名がなかったので、新しく列名を作成しました。"
 

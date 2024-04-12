@@ -105,9 +105,9 @@ $(() => {
 
         // get process configuration from YML
         if (!isEmpty(currentProcessId)) {
-            setTimeout(() => {
+            setTimeout(async () => {
+                await showProcessSettings(currentProcessId); // visible
                 filterElements.loading.hide();
-                showProcessSettings(currentProcessId); // visible
                 filterElements.detailCards.css('visibility', 'visible');
             }, 50);
         } else {

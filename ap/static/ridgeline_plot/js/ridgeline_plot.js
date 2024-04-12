@@ -5,10 +5,12 @@
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 20;
 const MAX_NUMBER_OF_SENSOR = 20;
+const MIN_NUMBER_OF_SENSOR = 0;
 let valueInfo = null;
 const graphStore = new GraphStore();
 const dicTabs = { '#byCategory': 'category', '#byCyclicTerm': 'cyclicTerm', '#byDirectTerm': 'directTerm' };
 let resData = null;
+let judgeScaleData = {};
 // const procMaster = getParam.proc_master;
 const eles = {
     varTabPrefix: 'category',
@@ -60,6 +62,7 @@ const formElements = {
     NO_FILTER: 'NO_FILTER',
     mainForm: '#RLPForm',
     endProcSelectedItem: '#end-proc-row select',
+    condProcSelectedItem: '#categorycond-proc-row select',
     yScaleOption: 'select[name=yScaleOption]',
     showXAxisOption: '#showXAxis',
 };
@@ -86,7 +89,6 @@ const i18n = {
     interval: $('#i18nInterval').text(),
     intervalHover: $('#i18nIntervalHover').text(),
     windowLength: $('#i18nWindowLength').text(),
-    windowLengthHover: $('#i18nWindowLengthHover').text(),
     numRL: $('#i18nNumRL').text(),
     numRLHover: $('#i18nNumRLHover').text(),
     selectFacet: $('#i18nSelectCatExpBox').text(),
@@ -113,9 +115,9 @@ $(() => {
         isRequired: true,
         hasDiv: true,
         hideStrVariable: true,
-        showLabels: true,
-        labelAsFilter: true,
+        showFilter: true,
         judge: true,
+        disableSerialAsObjective: true,
     });
     varEndProcItem(() => {
         onChangeDivInFacet();
@@ -126,7 +128,6 @@ $(() => {
         varEndProcItem(() => {
              onChangeDivInFacet();
         });
-        updateSelectedItems();
         addAttributeToElement();
     });
 
@@ -208,7 +209,26 @@ const reformatFormData = (eleIdPrefix, formData) => {
     return formatedFormData;
 };
 
-
+const ngRateToColor = (ngRateArray, yScaleFixed=false) => {
+    if (ngRateArray) {
+        let maxValue = yScaleFixed ? 100 : Math.max(...ngRateArray.map(i => Math.abs(i)));
+        let minValue =  yScaleFixed ? 0 : Math.min(...ngRateArray);
+        if (maxValue === minValue) {
+            maxValue = 100;
+            minValue = 0;
+        }
+        return ngRateArray.map((ngRateValue) => {
+            hValue = 120 * (1 - ((ngRateValue - minValue) / (maxValue - minValue)));
+            const hsv = {
+                h: hValue,
+                s: 1,
+                v: 1,
+            };
+            return hsv2rgb(hsv);
+        });
+    }
+    return [];
+};
 const emdToColor = (emdArray) => {
     if (emdArray) {
         const maxValue = Math.max(...emdArray.map(i => Math.abs(i)));
@@ -248,7 +268,7 @@ const createEMDTrace = (emdGroup, emdData, emdColors) => ({
     showlegend: false,
 });
 
-const createEMDByLine = (emdGroup, emdData, emdColors) => {
+const createEMDByLine = (emdGroup, emdData, emdColors, nTotalList, labelList) => {
     const fmt = getFmtValueOfArrayTrim5Percent(emdData);
     const res = {
         line: { width: 1, color: '#444444' },
@@ -262,11 +282,13 @@ const createEMDByLine = (emdGroup, emdData, emdColors) => {
         x: emdGroup,
         xaxis: 'x2',
         yaxis: 'y2',
-        text: emdData,
+        text: labelList,
         name: '', // hoverstring: yvalue + name
-        hovertemplate: `<b>%{text:${fmt}}</b>`,
+        hoverinfo: 'none',
         customdata: {
             isridgline: false,
+            count: nTotalList,
+            fmt: fmt,
         },
     };
     return [res, fmt];
@@ -276,7 +298,6 @@ const rlpXAxis = {
     category: [],
     cyclicTerm: [],
     directTerm: [],
-    tickText: []
 };
 
 const judgeXAxis = {
@@ -363,18 +384,25 @@ const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emd
     const noneIdxs = judgeData.y.map((rateVal, idx) => rateVal == null ? idx : null).filter(i => i);
     judgeData.x = judgeData.x.filter((x, idx) => !noneIdxs.includes(idx));
     judgeData.y = judgeData.y.filter((y, idx) => !noneIdxs.includes(idx));
-    judgeData.categories = judgeData.categories.filter((cat, idx) => !noneIdxs.includes(idx));
-    const [groupName, categories, datetimeCategory, tickTexts, tickVals] = genTickTextAndTickValue(eleIdPrefix, judgeData.categories, [], judgeData.x, 9);
+    judgeData.count = judgeData.count.filter((c, idx) => !noneIdxs.includes(idx));
+    // judgeData.categories = judgeData.categories.filter((cat, idx) => !noneIdxs.includes(idx));
+    let [groupName, categories, datetimeCategory, tickTexts, tickVals] = genTickTextAndTickValue(eleIdPrefix, resData.categories, [], resData.rlp_xaxis, 9);
+    categories =  categories.filter((y, idx) => !noneIdxs.includes(idx));
+    datetimeCategory = datetimeCategory.filter((y, idx) => !noneIdxs.includes(idx));
     judgeXAxis[eleIdPrefix].push(tickVals);
+
+    const markerColor = ngRateToColor(judgeData.y);
     const data = [{
         marker: {
-            colorscale: dnJETColorScale,
-            color: judgeData.y
+            color: markerColor
+            // colorscale: dnJETColorScale,
+            // color: judgeData.y
         },
         mode: 'lines+markers',
         type: 'scatter',
         y: judgeData.y,
         x: judgeData.x,
+        text: judgeData.count,
         hoverinfo: 'none',
         line: { width: 1, color: '#444444' },
     }];
@@ -388,7 +416,7 @@ const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emd
             showgrid: true,
             gridcolor: '#444444',
             autorange: true,
-            // range: [0, 100], // [0, 1]
+            // range: [0, 100],
             gridwidth: 1,
             zeroline: true,
             nticks: 5,
@@ -406,7 +434,7 @@ const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emd
             gridcolor: '#444444',
             gridwidth: 1,
             tickmode: 'array',
-            ticktext: generateTickAsDatetime(tickTexts),
+            ticktext: tickTexts,
             tickvals: showXAxis ? tickVals : [],
             nticks: 20,
             tickfont: {
@@ -432,6 +460,12 @@ const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emd
     }
 
     judgeLayout.push(layout)
+    // judgeScaleData[cardId].layout = layout;
+    judgeScaleData[cardId] = {
+        color: judgeData.y,
+        layout,
+        data,
+    };
 
     const judgePlot = document.getElementById(cardId);
 
@@ -450,13 +484,14 @@ const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emd
     judgePlot.on('plotly_hover', (data) => {
         const dataPoint = data.points && data.points[0];
         const y = dataPoint.y;
+        const count = dataPoint.text;
         const position =  {x: data.event.pageX - 120, y: data.event.pageY};
         const pointIndex = dataPoint.pointIndex;
         const catName = datetimeCategory.length ? 'Category' : 'Div';
         const catVal = datetimeCategory.length ? datetimeCategory[pointIndex] : categories[pointIndex];
         const hoverInfo = [
             [judgeData.sensor_name, ngCondition],
-            ['NG rate', applySignificantDigit(y) + ' %']
+            ['NG rate', applySignificantDigit(y) + ' %'],
         ];
         if (!datetimeCategory.length) {
             hoverInfo.push(['Div', categories[pointIndex]]);
@@ -469,6 +504,7 @@ const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emd
                 hoverInfo.push(['To', to]);
             }
         }
+        hoverInfo.push(['N', count]);
         genDataPointHoverTable(
             genHoverDataTable(hoverInfo),
             position,
@@ -550,7 +586,7 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
     const { yMin, yMax } = getYSaleOption(sensorData);
     const yRange = checkTrue(yMax) && checkTrue(yMax) ? [yMin, yMax] : sensorData.rlp_yaxis;
 
-    const [groupName, categories, datetimeCategory, tickTexts, tickVals] = genTickTextAndTickValue(eleIdPrefix, sensorData.categories, sensorData.ridgelines, sensorData.rlp_xaxis, 9);
+    const [groupName, categories, datetimeCategory, tickTexts, tickVals] = genTickTextAndTickValue(eleIdPrefix, resData.categories, sensorData.ridgelines, sensorData.rlp_xaxis, 9);
 
     // rlp new layout
     const rlpLayout = rlpByLineTemplate(
@@ -568,6 +604,8 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
     const rlpData = [];
     const exceptIdx = [];
     const rlpLengh = sensorData.ridgelines.length - 1;
+    let nTotalList = [];
+    let labelList = [];
     for (let k = 0; k <= rlpLengh; k++) {
         if (sensorData.ridgelines[k].trans_kde.length > -1) {
             const histLabels = sensorData.ridgelines[k].kde_data.hist_labels;
@@ -575,6 +613,8 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
             const transKDE = sensorData.ridgelines[k].trans_kde;
             const lineColor = (sensorData.ridgelines[k].data_counts >= 8) ? transRLPColors[k] : '#808080';
             const rlpLabel = datetimeCategory.length ? datetimeCategory[k] : categories[k];
+            nTotalList.push(ntotal);
+            labelList.push(rlpLabel);
             const rlpInst = rlpSingleLine(
                 histLabels,
                 transKDE,
@@ -598,13 +638,15 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
     }).filter(i => i);
     // EMD and color will be excluding the ridgeline which data counts < 8
     const validEMDDat = emdData.filter((v, i) => !inValidEMDIdx.includes(i));
+    nTotalList = nTotalList.filter((v, i) => !exceptIdx.includes(i));
+    labelList = labelList.filter((v, i) => !exceptIdx.includes(i));
     const validRLPXAxis = sensorData.rlp_xaxis.filter((v, i) => !exceptIdx.includes(i)
         && sensorData.ridgelines[i].trans_kde.length);
     const validEMDColor = emdColors.filter((v, i) => !inValidEMDIdx.includes(i));
 
     // remove emdData in case of data point less than 8
     if (validEMDDat) {
-        const [rlpEMD, fmt] = createEMDByLine(validRLPXAxis, validEMDDat, validEMDColor);
+        const [rlpEMD, fmt] = createEMDByLine(validRLPXAxis, validEMDDat, validEMDColor, nTotalList, labelList);
         rlpLayout.template.layout.yaxis2.tickformat = fmt.includes('e') ? '.1e' : '';
         // push emd to data list
         rlpData.push(rlpEMD);
@@ -624,46 +666,58 @@ const renderRidgeLine = (rlpCard, eleIdPrefix, res, plotName, startProc, numGrap
     const hdPlot = document.getElementById(ridgelineCardID);
     const rlpDataTable = (data) => {
         const isRLP = data.points[0].data.customdata.isridgline;
-        if (isRLP) {
-            const genDataTable = (from, to, yValue) => {
-                const isDIV = to === undefined;
-                let tblContent = '<tr>';
-                if (!isDIV) {
-                    tblContent += genTRItems('From', from);
-                    tblContent += genTRItems('To', to);
-                } else {
-                    const divFmt = res.COMMON.divFormat;
-                    if (divFmt) {
-                        tblContent += genTRItems('DIV', applySignificantDigit(Number(from), undefined, divFmt));
-                    } else {
-                        tblContent += genTRItems('DIV', from);
-                    }
-                }
-                tblContent += genTRItems('N', yValue);
-                tblContent += '</tr>';
-                return tblContent;
-            };
-            const dpIndex = ('pointIndex' in data.points[0])
-                ? data.points[0].pointIndex
-                : data.points[0].pointIndices[0];
-            // "2022-03-15 07:00 – 2022-03-17 07:00"
-            let textValue = '';
-            if (data.points[0].data.text) {
-                textValue = String(data.points[0].data.text);
+        const dpIndex = ('pointIndex' in data.points[0])
+            ? data.points[0].pointIndex
+            : data.points[0].pointIndices[0];
+
+        // "2022-03-15 07:00 – 2022-03-17 07:00"
+        let textValue = '';
+        const text = data.points[0].data.text;
+        if (data.points[0].data.text) {
+            if (_.isArray(text)) {
+                textValue = String(text[dpIndex]);
+            } else {
+                textValue = String(text);
             }
-            const label = textValue.split(' – ');
-            const yValue = data.points[0].data.customdata.count || 0;
-            const dataTable = genDataTable(label[0], label[1], yValue);
-            genDataPointHoverTable(
-                dataTable,
-                {
-                    x: data.event.pageX - 120, y: data.event.pageY,
-                },
-                175,
-                true,
-                ridgelineCardID,
-            );
         }
+        const label = textValue.split(' – ');
+        let dataTable = '';
+        const genDataTable = (from, to, yValue, emd = null) => {
+            const isDIV = to === undefined;
+            let tblContent = '<tr>';
+            if (emd) {
+                tblContent += genTRItems('EMD', emd);
+            }
+            if (!isDIV) {
+                tblContent += genTRItems('From', from);
+                tblContent += genTRItems('To', to);
+            } else {
+                tblContent += genTRItems('DIV', from);
+            }
+            tblContent += genTRItems('N', yValue);
+            tblContent += '</tr>';
+            return tblContent;
+        };
+        if (isRLP) {
+            const yValue = data.points[0].data.customdata.count || 0;
+            dataTable = genDataTable(label[0], label[1], yValue);
+
+        } else {
+            const count = data.points[0].data.customdata.count[dpIndex];
+            const fmt = data.points[0].data.customdata.fmt;
+            const emd = applySignificantDigit(data.points[0].y, 4, fmt);
+            dataTable = genDataTable(label[0], label[1], count, emd);
+        }
+
+        genDataPointHoverTable(
+            dataTable,
+            {
+                x: data.event.pageX - 120, y: data.event.pageY,
+            },
+            175,
+            true,
+            ridgelineCardID,
+        );
     };
     hdPlot.on('plotly_hover', (data) => {
         rlpDataTable(data);
@@ -739,7 +793,6 @@ const collectRLPFormData = (clearOnFlyFilter, eleIdPrefix, autoUpdate = false) =
         // reformat formdata
         formData = reformatFormData(eleIdPrefix, formData);
         formData = transformFacetParams(formData);
-        formData = transformCategoryVariableParams(formData, procConfigs);
         formData = transformCategoryTraceTime(formData, eleIdPrefix);
         formData = genDatetimeRange(formData);
         lastUsedFormData = formData;
@@ -747,6 +800,15 @@ const collectRLPFormData = (clearOnFlyFilter, eleIdPrefix, autoUpdate = false) =
         formData = lastUsedFormData;
         formData = transformCatFilterParams(formData);
     }
+
+    // set key for jump_func
+    formData.set('function_real', 'median');
+    formData.set('mode', '7');
+    formData.set('step', '4');
+    formData.set('function_cate', 'median');
+    formData.set('function_real', 'median');
+    formData.set('client_timezone', detectLocalTimezone());
+
     return formData;
 };
 
@@ -817,8 +879,6 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
 
         // show info table
         showInfoTable(res);
-
-        loadGraphSetings(clearOnFlyFilter);
 
         if (!autoUpdate) {
              $('html, body').animate({
@@ -971,13 +1031,10 @@ const pinChart = (chartDOMId) => {
 const showXAxisLabel = (element) => {
     const isShowAxis = $(element).is(':checked');
     const comparetype = resData.COMMON.compareType;
-    const divFormat = resData.COMMON.divFormat;
     $('#RLPCard .ridgeLineChart').find('.ridgeLineCard-full').each((i, card) => {
-        const tickText = divFormat ? rlpXAxis.tickText[i].map(div => applySignificantDigit(Number(div), undefined, divFormat)) : rlpXAxis.tickText[i];
         const layout = {
             xaxis: {
                 tickvals: isShowAxis ? rlpXAxis[comparetype][i] : [],
-                ticktext: isShowAxis ? tickText : [],
             },
             margin: {
                 b: isShowAxis ? 23 : 15,
@@ -1044,6 +1101,21 @@ const changeRLPScale = () => {
             };
         }
         Plotly.relayout(card.id, layout);
+    });
+    // for NG rate
+    $('#RLPCard .judgeChart ').find('.ridgeLineCard-full').each((i, card) => {
+        let {layout, color} = judgeScaleData[card.id];
+        // deeply clone origin data with colorscale
+        let data = _.cloneDeep(judgeScaleData[card.id].data);
+        // set default y axis range
+        layout.yaxis.autorange = true;
+        let isCommonScale = scaleOptionConst.COMMON === graphScaleSelected;
+        if (isCommonScale) {
+            layout.yaxis.autorange = false;
+            layout.yaxis.range = [0, 100];
+            data[0].marker.color = ngRateToColor(color, isCommonScale);
+        }
+        Plotly.react(card.id, data, layout);
     });
 };
 

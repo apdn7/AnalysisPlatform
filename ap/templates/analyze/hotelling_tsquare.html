@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import 'macros.html' as macros %}
 
 {% block header %}
    {{ macros.page_title(key='PCA', title=_('Principal Component Analysis'), hint=_('This function visualizes “unusual” and analyzes its factors by Principal Component Analysis.'), hasAction=true) }}
@@ -7,14 +6,14 @@
 
 {% block midbody %}
     <div class="card">
-        <form id="traceDataForm">
+        <form class="GUIForm" id="traceDataForm">
             <!-- end proc -->
             <div class="card-body table-bordered graph-navi table-bordered">
                 <div class="row">
                     <div class="col-xl-2 col-3 d-flex flex-column">
                     	<div class="d-flex justify-content-between">
 							{{ macros.label(_('Show value'), title=_('PCA Target Variable Explain')) }}
-							{{ macros.paste_btn() }}
+							{{ macros.paste_btn(with_count=True) }}
 						</div>
 						<div class="mt-auto pl-3 pt-3">
 							<!-- start proc  -->
@@ -72,7 +71,7 @@
     </div>
     <div class="plot-content">
         <div class="card graph-navi" id="plot-cards" style="display: none;">
-        <div class="mb-2 d-flex align-items-center">
+        <div class="mb-2 d-flex align-items-center" id="graph-settings-area">
             {{ macros.info_i_mark() }}
             {{ macros.on_demand_filter() }}
         </div>

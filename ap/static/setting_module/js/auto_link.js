@@ -243,8 +243,8 @@ const generateTreeCheckBoxs = (processObj) => {
                 const proc = procs[i];
                 child += `
                    <li class="custom-control custom-checkbox">
-                        <input type="checkbox" dbs-type="${proc.data_source.type}" dbs-id="${proc.data_source.id}" data-path="${path}" id="${path}-${proc.shown_name}" ${proc.isChecked ? 'checked' : ''} name="process" class="custom-control-input" value="${proc.id}">
-                        <label for="${path}-${proc.shown_name}" class="custom-control-label">${proc.shown_name}</label>
+                        <input type="checkbox" dbs-type="${proc.data_source.type}" dbs-id="${proc.data_source.id}" data-path="${path}" id="${path}-${proc.name_en}" ${proc.isChecked ? 'checked' : ''} name="process" class="custom-control-input" value="${proc.id}">
+                        <label for="${path}-${proc.name_en}" class="custom-control-label">${proc.shown_name}</label>
                    </li>
                 `;
             }

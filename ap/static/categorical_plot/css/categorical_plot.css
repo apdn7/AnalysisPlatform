@@ -317,7 +317,7 @@ canvas {
 .stp-tab li {
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: calc((100% - 494px) / 8);
+    max-width: calc((100% - 530px) / 8);
 }
 
 .stp-tab {

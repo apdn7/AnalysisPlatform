@@ -8,6 +8,7 @@ const REQUEST_TIMEOUT = setRequestTimeOut();
 
 const MAX_NUMBER_OF_GRAPH = 20;
 const MAX_NUMBER_OF_SENSOR = 20;
+const MIN_NUMBER_OF_SENSOR = 0;
 let tabID = null;
 const graphStore = new GraphStore();
 let isValid = false;
@@ -27,6 +28,7 @@ const formElements = {
     traceTimeOptions: $('input:radio[name="traceTime"]'),
     endProcItems: '#end-proc-row .end-proc',
     endProcSelectedItem: '#end-proc-row select',
+    condProcSelectedItem: '#cond-proc-row select',
     endProcCateSelectedItem: '#end-proc-cate-row select',
     condProcReg: /cond_proc/g,
     NO_FILTER: 'NO_FILTER',
@@ -166,14 +168,13 @@ $(() => {
         showStrColumn: true,
         showCatExp: true,
         isRequired: true,
-        showLabels: true,
+        showLabel: true,
     });
     endProcItem();
 
     // click even of end proc add button
     $('#btn-add-end-proc').click(() => {
         endProcItem();
-        updateSelectedItems();
         addAttributeToElement();
     });
 
@@ -237,56 +238,9 @@ $(() => {
     initializeDateTimeRangePicker();
 
     startProcChangeEvents();
-    initCustomSelect();
 
     bindScatterPlotEvents();
 });
-
-
-const endProcCateOnChange = async (count) => {
-    const selectedProc = $(`#end-proc-cate-process-${count}`).val();
-    const procInfo = procConfigs[selectedProc];
-
-    // remove old elements
-    $(`#end-proc-cate-val-${count}`).remove();
-    if (procInfo == null) {
-        updateSelectedItems(isCategoryItem = true);
-        return;
-    }
-    const ids = [];
-    const vals = [];
-    const names = [];
-    const checkedIds = [];
-    await procInfo.updateColumns();
-    const columns = procInfo.getColumns();
-
-    // eslint-disable-next-line no-restricted-syntax
-    const parentId = `end-proc-cate-val-div-${count}`;
-    for (const col of columns) {
-        if (CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)) {
-            ids.push(col.id);
-            vals.push(col.column_name);
-            names.push(col.name);
-        }
-    }
-
-    // load machine multi checkbox to Condition Proc.
-    if (ids) {
-        addGroupListCheckboxWithSearch(
-            parentId,
-            `end-proc-cate-val-${count}`,
-            '',
-            ids,
-            vals,
-            {
-                checkedIds,
-                name: `GET02_CATE_SELECT${count}`,
-                itemNames: names
-            }
-        );
-    }
-    updateSelectedItems(isCategoryItem = true);
-};
 
 const autoScrollToChart = (milisec = 100) => {
     // Move screen to graph after pushing グラフ表示 button
@@ -299,7 +253,7 @@ const autoScrollToChart = (milisec = 100) => {
 const buildTimeSeriesCardHTML = (chartOption, cssName) => {
     const {index} = chartOption;
     const {endProcName} = chartOption;
-    const {sensorName} = chartOption;
+    const {sensorId} = chartOption;
     const {getProc} = chartOption;
     const {getVal} = chartOption;
     const {catExpBox} = chartOption;
@@ -324,7 +278,7 @@ const buildTimeSeriesCardHTML = (chartOption, cssName) => {
     });
 
     const cardHtml = `<div class="row chart-row graph-navi" id="area${index}"
-                proc="${endProcName}" sensor="${sensorName}">
+                proc="${endProcName}" sensor="${sensorId}">
                 <div class="cursor-hint"></div>
                 <div class="${cssName} shadow-sm">
                     <div class="card-body">
@@ -381,9 +335,7 @@ const calcContainerWidth = (showScatterPlot = false) => {
 };
 
 const buildGraphContainerHTML = (chartOption) => {
-    const {numCards} = chartOption;
     const {endProcName} = chartOption;
-    const {sensorName} = chartOption;
     const {index} = chartOption;
     const {tsCanvasId} = chartOption;
     const {histCanvasId} = chartOption;
@@ -394,7 +346,6 @@ const buildGraphContainerHTML = (chartOption) => {
     const {getVal} = chartOption;
     const {catExpBox} = chartOption;
     const {dicScatterXY} = chartOption;
-    const {beforeRankValues} = chartOption;
     const {isCTCol} = chartOption;
     let graphCanvasHTML = '';
     let catExpBoxHTML = '';
@@ -411,7 +362,7 @@ const buildGraphContainerHTML = (chartOption) => {
     graphCanvasHTML += `
         <div class="tschart-title-parent">
             <div class="tschart-title">
-                <span title="${procConfigs[endProcName].shown_name}">${procConfigs[endProcName].shown_name}</span>
+                <span title="${endProcName}">${endProcName}</span>
                 <span title="${getVal}">${getVal} ${CTLabel}</span>
                 ${catExpBoxHTML}
              </div>
@@ -671,10 +622,11 @@ const traceDataChart = (data, clearOnFlyFilter) => {
     const startProc = data.COMMON.start_proc;
     const histObjs = [];
     for (let i = 0; i < data.array_plotdata.length; i++) {
+        const plotData = data.array_plotdata[i];
         const formVal = data.ARRAY_FORMVAL[i];
         // マスタが存在するならマスタ情報を適用
-        const endProcId = formVal.end_proc;
-        const sensorId = formVal.GET02_VALS_SELECT;
+        const endProcId = plotData.end_proc_id;
+        const sensorId = plotData.end_col_id;
         const isHideNonePoint = isHideNoneDataPoint(endProcId, sensorId, data.COMMON.remove_outlier);
 
         const formCommon = data.COMMON;
@@ -729,7 +681,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
 
 
         // カラム名を取得する。
-        const columnName = getColumnName(endProcId, sensorId);
+        const columnName = plotData.end_col_show_name;
         let {catExpBox} = data.array_plotdata[i];
         if (catExpBox === null) {
             catExpBox = COMMON_CONSTANT.NA;
@@ -773,9 +725,11 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             startTime: formCommon.START_TIME,
             endDate: formCommon.END_DATE,
             endTime: formCommon.END_TIME,
-            endProcName: endProcId,
-            sensorName: sensorId,
-            getProc: procConfigs[endProcId].shown_name,
+            endProcId: endProcId,
+            endProcName: plotData.end_proc_name,
+            sensorName: plotData.end_col_show_name,
+            sensorId: sensorId,
+            getProc: plotData.end_proc_name,
             procId: endProcId,
             startProc,
             getVal: columnName,
@@ -854,7 +808,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             maxY: chartOption.yMax,
             prcMin: chartOption.prcMin,
             prcMax: chartOption.prcMax,
-            title: `${procConfigs[endProcId].shown_name} ${columnName}`,
+            title: `${plotData.end_proc_name} ${columnName}`,
             isThinData,
             categoryDistributed,
             xAxisOption,
@@ -863,7 +817,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
 
         // 今回はAjaxでupdateが必要が無いのでオブジェクトを返さない
         const chartLabels = data.ARRAY_FORMVAL.map(
-            fv => `${procConfigs[fv.end_proc].shown_name} ${columnName}`,
+            fv => `${procConfigs[fv.end_proc].name} ${columnName}`,
         );
 
         const tsChartObject = YasuTsChart($, chartParamObj, chartLabels, tabID, xaxis = xAxisOption, isStepChart = beforeRankValues);
@@ -929,105 +883,147 @@ const sendGAEvent = (startTime, sizeOfData) => {
     });
 };
 
+const getRowAndSensors = (data) => {
+    const unitFacet = [];
+    const sensors = [];
+
+    for (const plotdata of data.array_plotdata) {
+        if (!sensors.includes(plotdata.end_col_id)) {
+            sensors.push(plotdata.end_col_id);
+        }
+
+        const facet = plotdata.catExpBox ? plotdata.catExpBox.join(' | ') : ''
+
+        if (facet && !unitFacet.includes(facet)) {
+            unitFacet.push(facet);
+        }
+    }
+
+    data.row = 1;
+    data.sensors = sensors;
+    data.unitFacet = unitFacet.sort();
+    if (unitFacet.length > 1 && sensors.length > 1) {
+        data.row = sensors.length;
+    }
+
+    return data;
+};
+
 
 // build histogram tab
 const drawHistogramsTab = (data, scaleOption = fppScaleOption.yAxis, isReset = true, frequencyOption = fppScaleOption.xAxis) => {
-    $(formElements.histPlotCards).empty();
-    $(formElements.histPlotCards).css('display', 'block');
+    $(formElements.histogramTab).empty();
+    $(formElements.histogramTab).css('display', 'block');
+
+    data = getRowAndSensors(data);
 
     const isThinData = data.is_thin_data;
     const startProc = data.COMMON.start_proc;
     const numChart = data.array_plotdata.length;
-    for (let i = 0; i < numChart; i++) {
-        const formVal = data.ARRAY_FORMVAL[i];
-        const beforeRankValues = data.array_plotdata[i].before_rank_values;
-        const plotdata = data.array_plotdata[i] || {};
-        const filterCond = data.array_plotdata[i].catExpBox
-            ? (Array.isArray(data.array_plotdata[i].catExpBox)
-                ? data.array_plotdata[i].catExpBox : [data.array_plotdata[i].catExpBox])
-            : null;
-        const [chartInfos, chartInfosOrg] = getChartInfo(data.array_plotdata[i], 'TIME', filterCond);
-        const [latestChartInfo, latestChartInfoIdx] = chooseLatestThresholds(chartInfos, chartInfosOrg);
+    for (let rowIdx = 0; rowIdx < data.row; rowIdx++) {
+        // add row
+        const rowID = `hist-cards-${rowIdx}`;
+        $(formElements.histogramTab).append(`<div className="justify-content-center card cate-plot-cards chart-wrapper clearfix chart-margin ui-sortable" style="display: flex; flex-wrap: wrap" id="${rowID}"></div>`);
+        for (let i = 0; i < numChart; i++) {
+            const formVal = data.ARRAY_FORMVAL[i];
+            const beforeRankValues = data.array_plotdata[i].before_rank_values;
+            const plotdata = data.array_plotdata[i] || {};
 
-        const scaleInfo = getScaleInfo(data.array_plotdata[i], scaleOption);
-        // y_min/max are defined in backend -> get only
-        const kdeData = scaleInfo.kde_data;
-        const [minY, maxY] = calMinMaxYScale(scaleInfo['y-min'], scaleInfo['y-max'], scaleOption)
-        const minX = frequencyOption === frequencyOptions.COMMON ? scaleInfo['x-min'] : null;
-        const maxX = frequencyOption === frequencyOptions.COMMON ? scaleInfo['x-max'] : null;
+            if (data.row > 1 && data.sensors[rowIdx] !== plotdata.end_col_id) {
+                continue;
+            }
 
-        const endProcName = formVal.end_proc;
-        const getVal = formVal.GET02_VALS_SELECT;
-        let {catExpBox} = plotdata;
-        if (catExpBox === null) {
-            catExpBox = COMMON_CONSTANT.NA;
-        }
-        if (typeof (catExpBox) === 'object') {
-            catExpBox.map(val => (val === null ? COMMON_CONSTANT.NA : val));
-            catExpBox = catExpBox.join(' | ');
-        }
+            const filterCond = data.array_plotdata[i].catExpBox
+                ? (Array.isArray(data.array_plotdata[i].catExpBox)
+                    ? data.array_plotdata[i].catExpBox : [data.array_plotdata[i].catExpBox])
+                : null;
+            const [chartInfos, chartInfosOrg] = getChartInfo(data.array_plotdata[i], 'TIME', filterCond);
+            const [latestChartInfo, latestChartInfoIdx] = chooseLatestThresholds(chartInfos, chartInfosOrg);
 
-        // カラム名を取得する。
-        const historyColumnName = getColumnName(endProcName, getVal);
+            const scaleInfo = getScaleInfo(data.array_plotdata[i], scaleOption);
+            // y_min/max are defined in backend -> get only
+            const kdeData = scaleInfo.kde_data;
+            const [minY, maxY] = calMinMaxYScale(scaleInfo['y-min'], scaleInfo['y-max'], scaleOption)
+            const minX = frequencyOption === frequencyOptions.COMMON ? scaleInfo['x-min'] : null;
+            const maxX = frequencyOption === frequencyOptions.COMMON ? scaleInfo['x-max'] : null;
 
-        const stepChartSummary = data.array_plotdata[i].cat_summary || null;
+            const endProcId = data.array_plotdata[i].end_proc_id;
+            const getVal = data.array_plotdata[i].end_col_id;
+            let {catExpBox} = plotdata;
+            if (catExpBox === null) {
+                catExpBox = COMMON_CONSTANT.NA;
+            }
+            if (typeof (catExpBox) === 'object') {
+                catExpBox.map(val => (val === null ? COMMON_CONSTANT.NA : val));
+                catExpBox = catExpBox.join(' | ');
+            }
 
-        // create summaries HTMLs
-        const {end_col_id, end_proc_id, summaries} = plotdata;
-        const isHideNonePoint = isHideNoneDataPoint(end_proc_id, end_col_id, data.COMMON.remove_outlier);
-        const summaryData = calculateSummaryData(summaries, latestChartInfoIdx, isHideNonePoint);
-        const sensorType = procConfigs[end_proc_id].dicColumns[end_col_id].data_type;
-        const allGroupNames = sensorType === DataTypes.TEXT.name
-            ? getAllGroupOfSensor(data.array_plotdata.filter(
-                plot => plot.end_col_id === plotdata.end_col_id
-            )) : [];
+            // カラム名を取得する。
+            const historyColumnName = data.array_plotdata[i].end_col_show_name;
 
-        const isLimitCat = plotdata.is_cat_limited || (sensorType === DataTypes.TEXT.name && allGroupNames.id.length >= 29);
-        const generalInfo = {
-            getVal, startProc, endProcName,
-        };
-        const summariesHTML = buildSummaryResultsHTML(summaryData, i + 1, generalInfo, beforeRankValues, stepChartSummary);
+            const stepChartSummary = data.array_plotdata[i].cat_summary || null;
 
-        const catExpBoxCols = [data.COMMON['catExpBox1'], data.COMMON['catExpBox2']].filter(c => c);
+            // create summaries HTMLs
+            const {end_col_id, end_proc_id, summaries, data_type} = plotdata;
+            const isHideNonePoint = isHideNoneDataPoint(end_proc_id, end_col_id, data.COMMON.remove_outlier);
+            const summaryData = calculateSummaryData(summaries, latestChartInfoIdx, isHideNonePoint);
+            const isCategory = plotdata.is_category;
+            const allGroupNames = isCategory
+                ? getAllGroupOfSensor(data.array_plotdata.filter(
+                    plot => plot.end_col_id === plotdata.end_col_id
+                )) : [];
 
-        const chartTitle = buildSummaryChartTitle(catExpBox, catExpBoxCols, plotdata.catExpBoxName, false, {}, true);
+            const isLimitCat = plotdata.is_cat_limited || (isCategory && allGroupNames.id.length >= 29);
+            const generalInfo = {
+                getVal, startProc, endProcId,
+            };
+            const summariesHTML = buildSummaryResultsHTML(summaryData, `${rowIdx}-${i + 1}`, generalInfo, beforeRankValues, stepChartSummary);
 
-        // create histogram HTMLs
-        const hisCardBorder = (String(endProcName) === String(startProc)) ? 'his-active' : '';
-        const cardHtml = `<div class="his graph-navi position-relative">
+            const catExpBoxCols = [data.COMMON['catExpBox1'], data.COMMON['catExpBox2']].filter(c => c);
+
+            const chartTitle = buildSummaryChartTitle(catExpBox, catExpBoxCols, plotdata.catExpBoxName, false, {}, true);
+
+            // create histogram HTMLs
+            const hisCardBorder = (String(endProcId) === String(startProc)) ? 'his-active' : '';
+            const canvasId = `${formElements.histograms}-${rowIdx}-${i + 1}`
+            const cardHtml = `<div class="his graph-navi position-relative">
             <div class="his-content ${hisCardBorder}">
                  ${chartTitle}
-                <div id="${formElements.histograms}${i + 1}" class="hd-plot"
+                <div id="${canvasId}" class="hd-plot"
                     style="width: ${GRAPH_CONST.histWidth}; height: ${GRAPH_CONST.histHeight};"></div>
-                <div id="${formElements.histograms}${i + 1}Summary" class="hist-summary"
+                <div id="${canvasId}Summary" class="hist-summary"
                     style="width: ${GRAPH_CONST.histWidth}; height: ${GRAPH_CONST.histSummaryHeight};">
                     ${summariesHTML}
                 </div>
             </div>
-            <div class="limitCatMessage" id="${formElements.histograms}${i + 1}message">${i18n.catLimitMsg}</div>
+            <div class="limitCatMessage" id="${canvasId}message">${i18n.catLimitMsg}</div>
         </div>`;
-        $(formElements.histPlotCards).append(cardHtml);
+            $(`#${rowID}`).append(cardHtml);
 
-        const procName = procConfigs[endProcName].shown_name;
+            const procName = plotdata.end_proc_name;
+            const canvasHeight = $(`#${canvasId}`).height();
+            let yTitle = `${historyColumnName} | ${procName}`;
+            yTitle = trimTextLengthByPixel(yTitle, canvasHeight - 100, 10);
 
-        const histParam = {
-            canvasId: `${formElements.histograms}${i + 1}`,
-            // kdeData: !beforeRankValues ? kdeData : [],
-            kdeData,
-            plotdata,
-            beforeRankValues,
-            isThinData,
-            minY,
-            maxY,
-            minX,
-            maxX,
-            yTitle: `${historyColumnName} | ${procName}`,
-            chartInfos: latestChartInfo,
-            isCatLimited: isLimitCat,
-            allGroupNames: isLimitCat ? [] : allGroupNames,
-            labelFmt: scaleInfo.label_fmt,
-        };
-        HistogramWithDensityCurve($, histParam);
+            const histParam = {
+                canvasId: canvasId,
+                // kdeData: !beforeRankValues ? kdeData : [],
+                kdeData,
+                plotdata,
+                beforeRankValues,
+                isThinData,
+                minY,
+                maxY,
+                minX,
+                maxX,
+                yTitle: yTitle,
+                chartInfos: latestChartInfo,
+                isCatLimited: isLimitCat,
+                allGroupNames: isLimitCat ? [] : allGroupNames,
+                labelFmt: scaleInfo.label_fmt,
+            };
+            HistogramWithDensityCurve($, histParam);
+        }
     }
 
     // Init filter modal
@@ -1171,8 +1167,6 @@ const traceData = (clearOnFlyFilter, autoUpdate) => {
         setGraphSetting();
         // draw + show data to graphs
         traceDataChart(res, clearOnFlyFilter);
-
-        loadGraphSetings(clearOnFlyFilter);
 
         showInfoTable(res);
 

@@ -5,6 +5,7 @@ MATCHED_FILTER_IDS = 'matched_filter_ids'
 UNMATCHED_FILTER_IDS = 'unmatched_filter_ids'
 NOT_EXACT_MATCH_FILTER_IDS = 'not_exact_match_filter_ids'
 STRING_COL_IDS = 'string_col_ids'
+DIC_STR_COLS = 'dic_str_cols'
 
 SQL_COL_PREFIX = '__'
 SQL_LIMIT = 5_000_000
@@ -25,17 +26,12 @@ YAML_TILE_INTERFACE_DN7 = 'ti_dn7'
 YAML_TILE_INTERFACE_AP = 'ti_analysis_platform'
 TILE_RESOURCE_URL = '/ap/tile_interface/resources/'
 DB_BACKUP_SUFFIX = '_old'
-DB_BACKUP_FOLDER = 'backup'
-IN_MODIFIED_DAYS = 30
 NORMAL_MODE_MAX_RECORD = 10000
 MAX_COL_IN_TILES = 4
 MAX_COL_IN_USAGE = 3
 
 DEFAULT_WARNING_DISK_USAGE = 80
 DEFAULT_ERROR_DISK_USAGE = 90
-
-TRIM_DATA_UPPER_LIMIT = 0.95
-TRIM_DATA_LOWER_LIMIT = 0.05
 
 TRACING_KEY_DELIMITER_SYMBOL = '___'
 SHOW_GRAPH_TEMP_TABLE_NAME = 'tmp_show_graph'
@@ -59,8 +55,14 @@ MSP_CONTOUR_ADJUST = 0.4227
 MSP_AS_HEATMAP_FROM = 10
 AS_HEATMAP_MATRIX = 'as_heatmap_matrix'
 HEATMAP_MATRIX = 'heatmap_matrix'
+MAX_INT_CAT_VALUE = 128
 
 DUMMY_V2_PROCESS_NAME = 'DUMMY_V2_PROCESS_NAME'
+MIN_DATETIME_LEN = 10
+
+DATA_NAME_V2_SUFFIX = '01'
+CONSTRAINT_RANGE = 'constraint_range'
+SELECTED = 'selected'
 
 
 class ApLogLevel(Enum):
@@ -166,11 +168,11 @@ YAML_TRACE_MATCH_SELF = 'self-substr'
 YAML_TRACE_MATCH_TARGET = 'target-substr'
 YAML_DB = 'db'
 YAML_UNIVERSAL_DB = 'universal_db'
-YAML_ETL_FUNC = 'etl_func'
+# YAML_ETL_FUNC = 'etl_func'
 YAML_PROC_ID = 'proc_id'
 YAML_PASSWORD = 'password'
 YAML_HASHED = 'hashed'
-YAML_DELIMITER = 'delimiter'
+# YAML_DELIMITER = 'delimiter'
 
 # JSON Keywords
 GET02_VALS_SELECT = 'GET02_VALS_SELECT'
@@ -190,20 +192,21 @@ ARRAY_Y_TYPE = 'array_y_type'
 SLOT_FROM = 'slot_from'
 SLOT_TO = 'slot_to'
 SLOT_COUNT = 'slot_count'
-IQR = 'iqr'
+# IQR = 'iqr'
 ARRAY_X = 'array_x'
 Y_MAX = 'y-max'
 Y_MIN = 'y-min'
-Y_MAX_ORG = 'y_max_org'
-Y_MIN_ORG = 'y_min_org'
-TIME_RANGE = 'time_range'
-TOTAL = 'total'
+# Y_MAX_ORG = 'y_max_org'
+# Y_MIN_ORG = 'y_min_org'
+# TIME_RANGE = 'time_range'
+# TOTAL = 'total'
 EMD_TYPE = 'emdType'
 DUPLICATE_SERIAL_SHOW = 'duplicated_serial'
 DUPLICATED_SERIALS_COUNT = 'dup_check'
 
 UNLINKED_IDXS = 'unlinked_idxs'
 NONE_IDXS = 'none_idxs'
+ORG_NONE_IDXS = 'org_none_idxs'
 INF_IDXS = 'inf_idxs'
 NEG_INF_IDXS = 'neg_inf_idxs'
 UPPER_OUTLIER_IDXS = 'upper_outlier_idxs'
@@ -240,6 +243,7 @@ REMOVE_OUTLIER_EXPLANATORY_VAR = 'remove_outlier_explanatory_var'
 REMOVE_OUTLIER_TYPE = 'remove_outlier_type'
 REMOVE_OUTLIER_REAL_ONLY = 'is_remove_outlier_real_only'
 ABNORMAL_COUNT = 'abnormal_count'
+FINE_SELECT = 'fine_select'
 TBLS = 'TBLS'
 FILTER_PARTNO = 'filter-partno'
 FILTER_MACHINE = 'machine_id'
@@ -268,7 +272,7 @@ UNIQUE_SERIAL = 'unique_serial'
 UNIQUE_SERIAL_TRAIN = 'unique_serial_train'
 UNIQUE_SERIAL_TEST = 'unique_serial_test'
 WITH_IMPORT_OPTIONS = 'with_import'
-GET_PARAM = 'get_param'
+# GET_PARAM = 'get_param'
 PROCS = 'procs'
 CLIENT_TIMEZONE = 'client_timezone'
 DATA_SIZE = 'data_size'
@@ -289,6 +293,8 @@ DF_ALL_COLUMNS = 'dfColumns'
 CHART_TYPE = 'chartType'
 EXPORT_FROM = 'export_from'
 AVAILABLE_ORDERS = 'available_ordering_columns'
+IS_NOMINAL_SCALE = 'is_nominal_scale'
+NOMINAL_VARS = 'nominal_vars'
 
 # CATEGORICAL PLOT
 CATE_VARIABLE = 'categoryVariable'
@@ -297,15 +303,15 @@ PART_NO = 'PART_NO'
 MACHINE_ID = 'MACHINE_ID'
 COMPARE_TYPE = 'compareType'
 CATEGORICAL = 'var'
-TERM = 'term'
+# TERM = 'term'
 RL_CATEGORY = 'category'
 RL_CYCLIC_TERM = 'cyclicTerm'
 RL_DIRECT_TERM = 'directTerm'
 TIME_CONDS = 'time_conds'
-CATE_CONDS = 'cate_conds'
-LINE_NO = 'LINE_NO'
-YAML_LINE_LIST = 'line-list'
-FILTER_OTHER = 'filter-other'
+# CATE_CONDS = 'cate_conds'
+# LINE_NO = 'LINE_NO'
+# YAML_LINE_LIST = 'line-list'
+# FILTER_OTHER = 'filter-other'
 THRESH_HIGH = 'thresh-high'
 THRESH_LOW = 'thresh-low'
 PRC_MAX = 'prc-max'
@@ -345,7 +351,7 @@ DIV_BY_CAT = 'div'
 COLOR_VAR = 'colorVar'
 IS_DATA_LIMITED = 'isDataLimited'
 COL_DETAIL = 'col_detail'
-RANK_VAL = 'rank_value'
+# RANK_VAL = 'rank_value'
 COL_TYPE = 'type'
 ORG_ARRAY_Y = 'org_array_y'
 CAT_ON_DEMAND = 'cat_on_demand'
@@ -374,6 +380,7 @@ CELL_SUFFIX = '_cell'
 AGG_COL = 'agg_col'
 TIME_COL = 'time'
 TIME_COL_LOCAL = 'time_local'
+INDEX = 'index'
 
 REQUEST_THREAD_ID = 'thread_id'
 SERIALS = 'serials'
@@ -389,6 +396,11 @@ SHOWN_NAME = 'shown_name'
 COL_DATA_TYPE = 'data_type'
 DIVIDE_CALENDAR_DATES = 'divDates'
 DIVIDE_CALENDAR_LABELS = 'divFormats'
+
+#  data group type of column
+DATA_GROUP_TYPE = 'data_group_type'
+IS_SERIAL_NO = 'is_serial_no'
+IS_INT_CATEGORY = 'is_int_category'
 
 
 class HMFunction(Enum):
@@ -449,6 +461,13 @@ class JobStatus(Enum):
     FAILED = 4
     FATAL = 5  # error when insert to db commit, file lock v...v ( we need re-run these files on the next job)
 
+    @classmethod
+    def failed_statuses(cls):
+        return [
+            cls.FAILED.name,
+            cls.FATAL.name,
+        ]
+
 
 class Outliers(Enum):
     NOT_OUTLIER = 0
@@ -493,20 +512,21 @@ class CfgConstantType(Enum):
     TS_CARD_ORDER = auto()
     EFA_HEADER_EXISTS = auto()
     DISK_USAGE_CONFIG = auto()
+    CHECK_DB_LOCK = auto()
+    CONVERTED_USER_SETTING_URL = auto()
+    MAX_GRAPH_NUMBER = auto()
 
 
 # UI order types
 UI_ORDER_DB = 'tblDbConfig'
-UI_ORDER_PROC = 'tblProcConfig'
+# UI_ORDER_PROC = 'tblProcConfig'
 
 # SQL
-SQL_PERCENT = '%'
+# SQL_PERCENT = '%'
 SQL_REGEX_PREFIX = 'RAINBOW7_REGEX:'
 SQL_REGEXP_FUNC = 'REGEXP'
 
 # DATA TRACE LOG CONST
-EXECTIME = 'ExecTime'
-INPUTDATA = 'InputData'
 # Measurement Protocol Server
 MPS = 'www.google-analytics.com'
 R_PORTABLE = 'R-Portable'
@@ -514,6 +534,7 @@ R_LIB_VERSION = 'R_LIB_VERSION'
 
 # Message
 MSG_DB_CON_FAILED = 'Database connection failed! Please check your database connection information'
+MSG_NOT_SUPPORT_DB = 'This application does not support this type of database!'
 
 # encoding
 ENCODING_SHIFT_JIS = 'cp932'
@@ -522,20 +543,9 @@ ENCODING_UTF_8_BOM = 'utf-8-sig'
 ENCODING_ASCII = 'ascii'
 
 # Web socket
-SOCKETIO = 'socketio'
-PROC_LINK_DONE_PUBSUB = '/proc_link_done_pubsub'
-PROC_LINK_DONE_SUBSCRIBE = 'proc_link_subscribe'
-PROC_LINK_DONE_PUBLISH = 'proc_link_publish'
-SHUTDOWN_APP_DONE_PUBSUB = '/shutdown_app_done_pubsub'
-SHUTDOWN_APP_DONE_PUBLISH = 'shutdown_app_publish'
-BACKGROUND_JOB_PUBSUB = '/job'
 LISTEN_BACKGROUND_TIMEOUT = 10  # seconds
 
-# JOB_STATUS_PUBLISH = 'job_status_publish'
-# JOB_INFO_PUBLISH = 'res_background_job'
-
 # Dictionary Key
-HAS_RECORD = 'has_record'
 
 # WRAPR keys
 WR_CTGY = 'ctgy'
@@ -550,9 +560,9 @@ RL_EMD = 'emd'
 RL_DATA = 'data'
 RL_RIDGELINES = 'ridgelines'
 SENSOR_ID = 'sensor_id'
-RL_ARRAY_X = 'array_x'
+# RL_ARRAY_X = 'array_x'
 RL_CATE_NAME = 'cate_name'
-RL_PERIOD = 'From|To'
+# RL_PERIOD = 'From|To'
 RL_SENSOR_NAME = 'sensor_name'
 PROC_NAME = 'proc_name'
 PROC_MASTER_NAME = 'proc_master_name'
@@ -569,10 +579,10 @@ RL_DATA_COUNTS = 'data_counts'
 RL_CATES = 'categories'
 
 # SkD
-SKD_TARGET_PROC_CLR = '#65c5f1'
+# SKD_TARGET_PROC_CLR = '#65c5f1'
 
 # tile interface
-TILE_INTERFACE = 'tile_interface'
+# TILE_INTERFACE = 'tile_interface'
 SECTIONS = 'sections'
 DN7_TILE = 'dn7'
 AP_TILE = 'analysis_platform'
@@ -583,7 +593,7 @@ RCMDS = 'recommends'
 UN_AVAILABLE = 'unavailable'
 ALL_TILES = 'all'
 TILES = 'tiles'
-UNDER_SCORE = '_'
+# UNDER_SCORE = '_'
 TITLE = 'title'
 HOVER = 'hover'
 DESCRIPTION = 'description'
@@ -613,16 +623,6 @@ class YType(Enum):
     OUTLIER = 3
     NEG_OUTLIER = -3
     UNLINKED = -4
-
-
-class CfgFilterType(Enum):
-    def __str__(self):
-        return str(self.name)
-
-    LINE = auto()
-    MACHINE_ID = auto()
-    PART_NO = auto()
-    OTHER = auto()
 
 
 class ProcessCfgConst(Enum):
@@ -659,16 +659,41 @@ class AggregateBy(Enum):
 
 
 # App Config keys
+DB_SECRET_KEY = 'DB_SECRET_KEY'
 SQLITE_CONFIG_DIR = 'SQLITE_CONFIG_DIR'
-PARTITION_NUMBER = 'PARTITION_NUMBER'
 UNIVERSAL_DB_FILE = 'UNIVERSAL_DB_FILE'
 APP_DB_FILE = 'APP_DB_FILE'
 INIT_APP_DB_FILE = 'INIT_APP_DB_FILE'
 INIT_BASIC_CFG_FILE = 'INIT_BASIC_CFG_FILE'
 TESTING = 'TESTING'
 
-DATA_TYPE_ERROR_MSG = 'Data Type Error'
-DATA_TYPE_DUPLICATE_MSG = 'Duplicate Record'
+DATA_TYPE_ERROR_MSG = 'There is an error with the data type.'
+DATA_TYPE_DUPLICATE_MSG = 'There are duplicate records in the data file.'
+DATA_TYPE_ERROR_EMPTY_DATA = 'The data file is empty.'
+
+
+class DataImportErrorTypes(Enum):
+    COL_NOT_FOUND = 1
+    TABLE_NOT_FOUND = 2
+    EMPTY_DATA_FILE = 3
+    DB_LOCKED = 4
+
+    UNKNOWN = 100
+
+
+UNKNOWN_ERROR_TEXT = 'An unknown error occurred'
+
+ErrorMsgText = {
+    DataImportErrorTypes.COL_NOT_FOUND: 'It is possible that a column could not be found.',
+    DataImportErrorTypes.TABLE_NOT_FOUND: 'The table could not be found.',
+    DataImportErrorTypes.EMPTY_DATA_FILE: 'The data file is empty.',
+    DataImportErrorTypes.DB_LOCKED: 'The database is locked and data cannot be written.',
+}
+
+ErrorMsgFromDB = {
+    DataImportErrorTypes.DB_LOCKED: 'database is locked',
+    DataImportErrorTypes.TABLE_NOT_FOUND: 'no such table',
+}
 
 AUTO_BACKUP = 'auto-backup-universal'
 ANALYSIS_INTERFACE_ENV = 'ANALYSIS_INTERFACE_ENV'
@@ -688,9 +713,6 @@ CORRS = 'corrs'
 CORR = 'corr'
 PCORR = 'pcorr'
 NTOTALS = 'ntotals'
-DUPLICATE_COUNT_COLUMN = (
-    '__DUPLICATE_COUNT__'  # A column that store duplicate count of current data row
-)
 
 # Heatmap
 MAX_TICKS = 8
@@ -702,12 +724,15 @@ X_TICKVAL = 'x_tickvals'
 Y_TICKTEXT = 'y_ticktext'
 Y_TICKVAL = 'y_tickvals'
 ACT_CELLS = 'actual_num_cell'
-MAX_GRAPHS = 18
 
 OBJ_VAR = 'objectiveVar'
+JUMP_WITH_OBJ_ID = 'objective_var'
+EXCLUDED_COLUMNS = 'excluded_columns'
 
 CAT_TOTAL = 'cat_total'
 IS_CAT_LIMITED = 'is_cat_limited'
+IS_CATEGORY = 'is_category'
+IS_INT_CATEGORY = 'is_int_category'
 MAX_CATEGORY_SHOW = 30
 
 # PCA
@@ -741,8 +766,6 @@ DIC_FORM_NAME = 'dic_form'
 DF_NAME = 'df'
 CONFIG_DB_NAME = 'config_db'
 USER_SETTING_NAME = 'user_setting'
-USER_SETTING_VERSION = 0
-EN_DASH = '–'
 
 
 # Disk usage warning level
@@ -751,6 +774,26 @@ class DiskUsageStatus(Enum):
     Warning = 1
     Full = 2
 
+
+class MaxGraphNumber(Enum):
+    AGP_MAX_GRAPH = auto()
+    FPP_MAX_GRAPH = auto()
+    RLP_MAX_GRAPH = auto()
+    CHM_MAX_GRAPH = auto()
+    SCP_MAX_GRAPH = auto()
+    MSP_MAX_GRAPH = auto()
+    STP_MAX_GRAPH = auto()
+
+
+max_graph_number = {
+    MaxGraphNumber.AGP_MAX_GRAPH.name: 18,
+    MaxGraphNumber.FPP_MAX_GRAPH.name: 20,
+    MaxGraphNumber.RLP_MAX_GRAPH.name: 20,
+    MaxGraphNumber.CHM_MAX_GRAPH.name: 18,
+    MaxGraphNumber.SCP_MAX_GRAPH.name: 49,
+    MaxGraphNumber.MSP_MAX_GRAPH.name: 100,
+    MaxGraphNumber.STP_MAX_GRAPH.name: 32,
+}
 
 # debug mode
 IS_EXPORT_MODE = 'isExportMode'
@@ -826,7 +869,6 @@ LANGUAGES = [
     'tr',
 ]
 
-MAXIMUM_V2_PREVIEW_PROCESSES = 20
 MAXIMUM_V2_PREVIEW_ZIP_FILES = 5
 MAXIMUM_PROCESSES_ORDER_FILES = 3
 DF_CHUNK_SIZE = 1_000_000
@@ -846,6 +888,7 @@ COL_MASTER_NAME = 'column_master_name'
 PROC_ID = 'proc_id'
 COL_DETAIL_NAME = 'name'
 NAME = 'name'
+INT_AS_CAT = 'int_as_cat'
 
 
 class DataCountType(Enum):
@@ -895,12 +938,15 @@ class RemoveOutlierType(Enum):
 
 
 ID = 'id'
+ROWID = 'rowid'
 IS_USE_DUMMY_DATETIME = 'is_use_dummy_datetime'
 ENG_NAME = 'en_name'
 IS_GET_DATE = 'is_get_date'
 IS_DUMMY_DATETIME = 'is_dummy_datetime'
 LIST_PROCS = 'list_procs'
 GRAPH_FILTER_DETAILS = 'graph_filter_detail_ids'
+
+EMPTY_STRING = ''
 
 
 class BaseEnum(Enum):
@@ -923,7 +969,7 @@ class BaseEnum(Enum):
 class DataGroupType(BaseEnum):
     """
     Enum supports for handling in system.
-    Because user can mapping this type with some other column name. Should use get_primary_groups instead.
+    Because user can map this type with some other column name. Should use get_primary_groups instead.
     """
 
     LINE_ID = 1
@@ -933,7 +979,7 @@ class DataGroupType(BaseEnum):
     QUALITY_ID = 5
     DATA_TIME = 6
     DATA_VALUE = 7
-    AUTO_INCREMENTAL = 8
+    # AUTO_INCREMENTAL = 8
     DATA_SERIAL = 9
     LINE_NAME = 10
     PROCESS_NAME = 11
@@ -949,14 +995,15 @@ class DataGroupType(BaseEnum):
     QUALITY = 19
     LOT_NO = 20
     TRAY_NO = 21
-    # # generate equation
-    # Femto_Date = 18
+
+    # generate equation
+
     # Femto_Mach = 19
     # Femto_Order = 20
     # Line = 21
     # Datetime = 22
     # Milling = 23
-    #
+
     # FACTORY_ID = 24
     # FACTORY_NAME = 25
     # PLANT_ID = 26
@@ -966,39 +1013,65 @@ class DataGroupType(BaseEnum):
     # LINE_GROUP_ID = 30
     # LINE_GROUP_NAME = 31
     # PART_FULL = 32
-    # EQUIP_ID = 33  # TODO CHECK
+    # EQUIP_ID = 33
     # HORIZONTAL_DATA = 34  # Type for horizontal columns that are sensor columns
-    #
-    # # PART_LOG
+
+    # PART_LOG
     # FORGING_DATE = 35
     # DELIVERY_ASSY_FASTEN_TORQUE = 36
 
     # PRODUCT_ID = 35
 
-    GENERATED = 99
-    GENERATED_EQUATION = 100  # unused
+    # GENERATED = 99
+    # GENERATED_EQUATION = 100  # unused
+
+    # @classmethod
+    # def get_transaction_data_groups(cls):  # columns were stored in t_master_data
+    #     return [cls.DATA_SERIAL, cls.GENERATED]
+
+    # @classmethod
+    # def get_master_data_groups(cls):  # columns were stored in t_master_data
+    #     return [
+    #         cls.LINE_ID,
+    #         cls.PROCESS_ID,
+    #         cls.PART_NO,
+    #         cls.MACHINE_ID,
+    #         cls.QUALITY_ID,
+    #         cls.LINE_NAME,
+    #         cls.PROCESS_NAME,
+    #         cls.MACHINE_NAME,
+    #         cls.QUALITY_NAME,
+    #     ]
+
+    # @classmethod
+    # def get_all_reserved_groups(cls):
+    #     return tuple(cls.__members__.keys())
 
     @classmethod
-    def get_transaction_data_groups(cls):  # columns were stored in t_master_data
-        return [cls.DATA_SERIAL, cls.GENERATED]
-
-    @classmethod
-    def get_master_data_groups(cls):  # columns were stored in t_master_data
+    def v2_pivottable_group(cls) -> list['DataGroupType']:
         return [
-            cls.LINE_ID,
-            cls.PROCESS_ID,
-            cls.PART_NO,
-            cls.MACHINE_ID,
-            cls.QUALITY_ID,
-            cls.LINE_NAME,
-            cls.PROCESS_NAME,
-            cls.MACHINE_NAME,
-            cls.QUALITY_NAME,
+            group_type
+            for group_type in cls
+            if group_type
+            not in [
+                DataGroupType.WORK_TYPE,
+                DataGroupType.QUALITY,
+                DataGroupType.LOT_NO,
+                DataGroupType.TRAY_NO,
+                DataGroupType.QUALITY_ID,
+                DataGroupType.QUALITY_NAME,
+                DataGroupType.DATA_VALUE,
+            ]
         ]
 
     @classmethod
-    def get_all_reserved_groups(cls):
-        return tuple(cls.__members__.keys())
+    def v2_horizontal_group(cls) -> list['DataGroupType']:
+        return [
+            DataGroupType.WORK_TYPE,
+            DataGroupType.QUALITY,
+            DataGroupType.LOT_NO,
+            DataGroupType.TRAY_NO,
+        ]
 
 
 WELL_KNOWN_COLUMNS = {
@@ -1055,7 +1128,6 @@ WELL_KNOWN_COLUMNS = {
         '子部品シリアルNo': DataGroupType.SUB_SERIAL.value,
     },
 }
-
 REVERSED_WELL_KNOWN_COLUMNS = {
     DBType.V2.name: {
         DataGroupType.LINE_ID.value: 'ラインID',
@@ -1164,7 +1236,6 @@ ABNORMAL_WELL_KNOWN_COLUMNS = {
         '子部品シリアルNo': DataGroupType.SUB_SERIAL.value,
     },
 }
-
 ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS = {
     DBType.V2.name: {
         DataGroupType.LINE_ID.value: 'ラインID',
@@ -1227,6 +1298,14 @@ ABNORMAL_V2_COLS = {
     'シリアル番号': DataGroupType.DATA_SERIAL.value,
     'ロット番号': DataGroupType.LOT_NO.value,
     'トレイ番号': DataGroupType.TRAY_NO.value,
+    'トレー番号': DataGroupType.TRAY_NO.value,
+    'トレーNo': DataGroupType.TRAY_NO.value,
+    '子部品トレーNo': DataGroupType.SUB_TRAY_NO.value,
+}
+
+V2_SAME_COL_DIC = {
+    'トレーNo': 'トレイNo',
+    '子部品トレーNo': '子部品トレイNo',
 }
 
 # for en column name from v2 files
@@ -1303,7 +1382,6 @@ NG_CONDITION = 'NGCondition'
 NG_CONDITION_VALUE = 'NGConditionValue'
 X = 'x'
 Y = 'y'
-FACET_SEP = ' | '
 NG_RATES = 'ng_rates'
 GROUP = 'group'
 COUNT = 'count'
@@ -1325,8 +1403,63 @@ class NGCondition(Enum):
     NOT_EQUAL_TO = '!='
 
 
-CLEAN_REQUEST_INTERVAL = 24  # 1 day interval
+class CacheType(Enum):
+    CONFIG_DATA = 1
+    TRANSACTION_DATA = 2
+    JUMP_FUNC = 3
+    OTHER = 4
 
+
+FACET_PER_ROW = 8
+FACET_ROW = 'facet_row'
+SENSORS = 'sensors'
+
+CREATED_AT = 'created_at'
+UPDATED_AT = 'updated_at'
+
+
+class RawDataTypeDB(BaseEnum):  # data type user select
+    NULL = DataType.NULL.value
+    INTEGER = DataType.INTEGER.value
+    REAL = DataType.REAL.value
+    TEXT = DataType.TEXT.value
+    DATETIME = DataType.DATETIME.value
+
+    # SMALL_INT = 's_i'
+    # BIG_INT = 'b_i'
+    # CATEGORY_INTEGER = 'I'
+    # CATEGORY_TEXT = 'T'
+
+    @staticmethod
+    def is_text_data_type(data_type_db_value: str):
+        return data_type_db_value in (RawDataTypeDB.TEXT.name, RawDataTypeDB.DATETIME.name)
+
+
+SQL_PARAM_SYMBOL = '?'
+# encoding
+SHIFT_JIS_NAME = 'Shift-JIS'
+SHIFT_JIS = 'shift_jis'
+WINDOWS_31J = 'windows_31j'
+CP932 = 'cp932'
+UTF8_WITH_BOM_NAME = 'utf-8-bom'
+
+LAST_REQUEST_TIME = 'last_request_time'
+
+# nominal selection modal
+CATEGORY_COLS = 'category_cols'
+
+HTML_CODE_304 = 304
+PCA_SAMPLE_DATA = 3000
+CUM_RATIO_VALUE = 0.8
+RL_MIN_DATA_COUNT = 8
+MAX_GRAPH_COUNT = 20
+HM_WEEK_MODE = 7
+HM_WEEK_MODE_DAYS = 140
+COMPLETED_PERCENT = 100
+ALMOST_COMPLETE_PERCENT = 99
+PAST_IMPORT_LIMIT_DATA_COUNT = 2_000_000
+
+CLEAN_REQUEST_INTERVAL = 24  # 1 day interval
 
 # External API request params
 REQ_ID = 'req_id'
@@ -1360,4 +1493,112 @@ class PagePath(Enum):
     GL = 'ap/analyze/structure_learning/gl'
 
 
-LAST_REQUEST_TIME = 'last_request_time'
+PROCESS_QUEUE = '_queue'
+MAIN_THREAD = 'MAIN_THREAD'
+SHUTDOWN = 'SHUTDOWN'
+PORT = 'PORT'
+
+
+# class DicConfig(BaseEnum):
+#     PROCESS_QUEUE = auto()
+#     DB_SECRET_KEY = auto()
+#     SQLITE_CONFIG_DIR = auto()
+#     APP_DB_FILE = auto()
+#     UNIVERSAL_DB_FILE = auto()
+#     TESTING = auto()
+
+
+class ListenNotifyType(BaseEnum):
+    JOB_PROGRESS = auto()
+    ADD_JOB = auto()
+    RESCHEDULE_JOB = auto()
+    RUNNING_JOB = auto()
+    CLEAR_CACHE = auto()
+
+
+class JobType(Enum):
+    def __str__(self):
+        return str(self.name)
+
+    # 1,2 is priority
+    DEL_PROCESS = 1
+    CSV_IMPORT = 2
+    FACTORY_IMPORT = 3
+    GEN_GLOBAL = 4
+    # CLEAN_DATA = 5
+    FACTORY_PAST_IMPORT = 6
+    IDLE_MORNITORING = 7
+    SHUTDOWN_APP = 8
+    BACKUP_DATABASE = 9
+    PROC_LINK_COUNT = 10
+    ZIP_LOG = 11
+    CLEAN_ZIP = 12
+    RESTRUCTURE_INDEXES = 13
+    CLEAN_EXPIRED_REQUEST = 14
+    PROCESS_COMMUNICATE = 15
+
+
+SEQUENCE_CACHE = 1000
+
+
+class DuplicateMode(BaseEnum):
+    FIRST = auto()
+    LAST = auto()
+    BOTH = auto()
+
+
+class CSVExtTypes(Enum):
+    CSV = 'csv'
+    TSV = 'tsv'
+    SSV = 'ssv'
+    ZIP = 'zip'
+
+
+class DataColumnType(BaseEnum):
+    DATETIME = 1
+    MAIN_SERIAL = 2
+    SERIAL = 3
+    DATETIME_KEY = 4
+
+    INT_CATE = 10
+
+    LINE_NAME = 20
+    LINE_NO = 21
+    EQ_NAME = 22
+    EQ_NO = 23
+    PART_NAME = 24
+    PART_NO = 25
+    ST_NO = 26
+
+    @classmethod
+    def category_int_types(cls):
+        return [
+            cls.INT_CATE.value,
+            cls.MAIN_SERIAL.value,
+            cls.SERIAL.value,
+            cls.LINE_NO.value,
+            cls.EQ_NO.value,
+            cls.PART_NO.value,
+            cls.ST_NO.value,
+        ]
+
+
+NOTIFY_DELAY_TIME = 3  # seconds
+
+
+class ColumnDTypeToSQLiteDType(BaseEnum):
+    NULL = 'null'
+    INTEGER = 'integer'
+    REAL = 'real'
+    TEXT = 'text'
+    DATETIME = 'text'
+    REAL_SEP = 'real'
+    INTEGER_SEP = 'integer'
+    EU_REAL_SEP = 'real'
+    EU_INTEGER_SEP = 'integer'
+    K_SEP_NULL = 'null'
+    BIG_INT = 'string'
+
+
+# if nchar(header) > 90%: generate column name
+NUM_CHARS_THRESHOLD = 90

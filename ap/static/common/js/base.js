@@ -22,6 +22,7 @@ let isGraphShown = false;
 let requestStartedAt;
 let handleHeartbeat;
 let isDirectFromJumpFunction = false;
+let isLoadingUserSetting = false;
 
 const serverSentEventType = {
     ping: 'ping',
@@ -35,6 +36,7 @@ const serverSentEventType = {
     pcaSensor: 'PCA_SENSOR',
     showGraph: 'SHOW_GRAPH',
     diskUsage: 'DISK_USAGE',
+    reloadTraceConfig: 'RELOAD_TRACE_CONFIG'
 };
 
 const KEY_CODE = {
@@ -56,6 +58,7 @@ const baseEles = {
     i18nWarningFullDiskMsg: '#i18nWarningFullDiskMsg',
     i18nErrorFullDiskMsg: '#i18nErrorFullDiskMsg',
     i18nCommonErrorMsg: '#i18nCommonErrorMsg',
+    showGraphBtn: 'button.show-graph',
 };
 
 const GRAPH_CONST = {
@@ -74,6 +77,54 @@ const dnJETColorScale = [
     ['0.8333', 'rgb(255,127,0)'],
     ['1.0', 'rgb(255,0,0)']
 ];
+const reverseScale = (colorScale) => {
+    const keys = colorScale.map(color => color[0]);
+    const val = [...colorScale.map(color => color[1])].reverse();
+    return keys.map((k, i) => [k, val[i]]);
+};
+
+const colorPallets = {
+    BLUE: {
+        isRev: false,
+        scale: [
+            ['0.0', 'rgb(33, 59, 77)'],
+            ['0.1666', 'rgb(47, 85, 110)'],
+            ['0.3333', 'rgb(59, 106, 138)'],
+            ['0.5', 'rgb(71, 128, 166)'],
+            ['0.6666', 'rgb(83, 150, 194)'],
+            ['0.8333', 'rgb(95, 171, 222)'],
+            ['1.0', 'rgb(107, 193, 250)']
+        ]
+    },
+    BLUE_REV: {
+        isRev: true,
+        scale: [
+            ['0.0', 'rgb(107, 193, 250)'],
+            ['0.1666', 'rgb(95, 171, 222)'],
+            ['0.3333', 'rgb(83, 150, 194)'],
+            ['0.5', 'rgb(71, 128, 166)'],
+            ['0.6666', 'rgb(59, 106, 138)'],
+            ['0.8333', 'rgb(47, 85, 110)'],
+            ['1.0', 'rgb(33, 59, 77)']
+        ]
+    },
+    JET: {
+        isRev: false,
+        scale: dnJETColorScale
+    },
+    JET_REV: {
+        isRev: true,
+        scale: reverseScale(dnJETColorScale)
+    },
+    JET_ABS: {
+        isRev: false,
+        scale: null
+    },
+    JET_ABS_REV: {
+        isRev: true,
+        scale: null
+    },
+};
 
 const channelType = {
     heartBeat: 'heart-beat',
@@ -92,12 +143,11 @@ let bc = {
 };
 
 try {
-   bc = new BroadcastChannel('sse');
-} catch(e) {
+    bc = new BroadcastChannel('sse');
+} catch (e) {
     // Broadcast is not support safari version less than 15.4
     console.log(e)
 }
-
 
 function postHeartbeat() {
     // send heart beat
@@ -180,16 +230,23 @@ const handleSSEMessage = (event) => {
                 handleSourceListener();
             }
         }
+
+        if (type === serverSentEventType.reloadTraceConfig) {
+            if (typeof doReloadTraceConfig !== 'undefined') {
+                const { procs: procs, isUpdatePosition: isUpdatePosition } = data;
+                doReloadTraceConfig(procs, isUpdatePosition);
+            }
+        }
     }
 };
 
-const delayPostHeartBeat = (() => (ms=0, ...args) => {
+const delayPostHeartBeat = (() => (ms = 0, ...args) => {
     if (this.__heartBeatIntervalID__) clearInterval(this.__heartBeatIntervalID__);
     this.__heartBeatIntervalID__ = setInterval(postHeartbeat, ms || 0, ...args);
 })();
 const isDebugMode = localStorage.getItem('DEBUG') ? localStorage.getItem('DEBUG').trim().toLowerCase() === 'true' : false;
 
-const consoleLogDebug = (msg='') => {
+const consoleLogDebug = (msg = '') => {
     // If you want to show log, you must set DEBUG=true on localStorage first !!!
     if (!isDebugMode) return;
     console.debug(msg);
@@ -522,22 +579,6 @@ const getMinMaxCard = (collapseId, clickEle = null, name = false) => {
     return targetCards;
 };
 
-const maximizeCard = (collapseId, clickEle = null, name = false) => {
-    const targetCards = getMinMaxCard(collapseId, clickEle, name);
-    targetCards.addClass('show');
-    targetCards.each((_, e) => {
-        toggleToMinIcon(e.id);
-    });
-};
-
-const minimizeCard = (collapseId, clickEle = null, name = false) => {
-    const targetCards = getMinMaxCard(collapseId, clickEle, name);
-    targetCards.removeClass('show');
-    targetCards.each((_, e) => {
-        toggleToMaxIcon(e.id);
-    });
-};
-
 const baseRightClickHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -651,7 +692,8 @@ const openNewPage = () => {
 const isLoadingFromTitleInterface = useTileInterface().get();
 
 $(async () => {
-    isDirectFromJumpFunction = !!getParamFromUrl(goToFromJumpFunction) && localStorage.getItem(sortedColumnsKey);
+    isDirectFromJumpFunction = !!(getParamFromUrl(goToFromJumpFunction) && localStorage.getItem(sortedColumnsKey));
+    isLoadingUserSetting = !!localStorage.getItem('loadingSetting')
     // hide userBookmarkBar
     $('#userBookmarkBar').hide();
 
@@ -799,24 +841,23 @@ $(async () => {
     // showGraph ctrl+Enter
     document.addEventListener('keydown', (event) => {
         if (event.ctrlKey && event.key == "Enter") {
-            const showGraphBtn = $('button.show-graph');
-            $(showGraphBtn).click();
+            $(baseEles.showGraphBtn).click();
             clearLoadingSetting();
         }
     });
 
     showBrowserSupportMsg();
+
+    initCustomSelect();
 });
 
 const autoClickShowGraphButton = (loadingSetting, userSettingId) => {
-        checkShownGraphInterval = setInterval(() => {
+    checkShownGraphInterval = setInterval(() => {
         // if show graph btn is active
         const isValid = !!$('button.show-graph.valid-show-graph').length;
-        if (isValid && (!isSettingLoading || isDirectFromJumpFunction)) {
+        if (isValid && !isSettingLoading) {
             if (isDirectFromJumpFunction) {
                 loadDataSortColumnsToModal('', true);
-            } else {
-                latestSortColIds = [];
             }
             handleAutoClickShowGraph(loadingSetting, userSettingId);
             clearInterval(checkShownGraphInterval);
@@ -826,7 +867,6 @@ const autoClickShowGraphButton = (loadingSetting, userSettingId) => {
 };
 
 const handleAutoClickShowGraph = (loadingSetting, userSettingId) => {
-    const showGraphBtn = $('button.show-graph');
     if (loadingSetting) {
         // debug mode
         const loadingSettingObj = JSON.parse(loadingSetting);
@@ -836,7 +876,7 @@ const handleAutoClickShowGraph = (loadingSetting, userSettingId) => {
             input.setAttribute('name', 'isExportMode');
             input.setAttribute('value', loadingSettingObj.settingID);
             // append to form element that you want .
-            $(showGraphBtn).after(input);
+            $(baseEles.showGraphBtn).after(input);
         }
 
         if (loadingSettingObj.isImportMode) {
@@ -845,7 +885,7 @@ const handleAutoClickShowGraph = (loadingSetting, userSettingId) => {
             input.setAttribute('name', 'isImportMode');
             input.setAttribute('value', loadingSettingObj.isImportMode);
             // append to form element that you want .
-            $(showGraphBtn).after(input);
+            $(baseEles.showGraphBtn).after(input);
         }
     }
 
@@ -854,7 +894,7 @@ const handleAutoClickShowGraph = (loadingSetting, userSettingId) => {
         // before click, check params in url to modify GUI input
         modifyGUIInput();
 
-        $(showGraphBtn).click();
+        $(baseEles.showGraphBtn).click();
         clearLoadingSetting();
     }
 };
@@ -883,19 +923,20 @@ const onSearchTableContent = (inputID, tbID, inputElement = null) => {
 
     inputEl.on('input', (e) => {
         const value = stringNormalization(e.currentTarget.value);
-        searchTableContent(tbID, value, false);
+        searchTableContent(tbID, value, true);
     });
 
     inputEl.on('change', (e) => {
         handleInputTextZenToHanEvent(e);
         const {value} = e.currentTarget;
-        searchTableContent(tbID, value, true);
+        searchTableContent(tbID, value, false);
     });
 };
 
 const searchTableContent = (tbID, value, isFilter = true) => {
     const newValue = makeRegexForSearchCondition(value);
     const regex = new RegExp(newValue.toLowerCase(), 'i');
+    const matchedIndex = []
     $(`#${tbID} tbody tr`).filter(function () {
         let text = '';
         $(this).find('td').each((i, td) => {
@@ -913,10 +954,19 @@ const searchTableContent = (tbID, value, isFilter = true) => {
                 text += textArea.text();
             }
 
-            if (textArea.length === 0 && input.length === 0 && selects.length === 0) {
+            const searchClass = $(td).find('.for-search');
+            if (searchClass.length > 0) {
+                text += searchClass.text();
+            }
+
+            if (textArea.length === 0 && input.length === 0 && selects.length === 0 && searchClass.length === 0) {
                 text += $(td).text();
             }
         });
+
+        if (regex.test(text)) {
+            matchedIndex.push($(this).index());
+        }
 
         if (isFilter) {
             $(this).toggle(regex.test(text.toLowerCase()));
@@ -929,6 +979,8 @@ const searchTableContent = (tbID, value, isFilter = true) => {
             }
         }
     });
+
+    return matchedIndex;
 };
 
 
@@ -946,11 +998,13 @@ const handleChangeInterval = (e, to) => {
         }
         if (e.value === 'default') {
             $('.for-recent-cyclicCalender').find('input').prop('disabled', true);
+            $('.for-recent-cyclicCalender').addClass('hide');
             $('.for-recent-cyclicCalender').hide();
 
         }
         if (e.value === 'recent') {
             $('.for-recent-cyclicCalender').find('input').prop('disabled', false);
+            $('.for-recent-cyclicCalender').removeClass('hide');
             $('.for-recent-cyclicCalender').show();
         }
 
@@ -1027,6 +1081,7 @@ const handleOnfocusEmptyDatetimeRange = (e) => {
     const value = _this.val();
     if (value) return;
     const aboveSiblingValue = _this.parent().prev().find('input[name=DATETIME_RANGE_PICKER]').val();
+    _this.attr('old-value', aboveSiblingValue);
     _this.val(aboveSiblingValue).trigger('change');
 };
 
@@ -1419,7 +1474,9 @@ const cleansingHandling = () => {
             contentDOM.hide();
         } else {
             contentDOM.show();
-            selectContent.dispatchEvent(openEvent);
+            if (selectContent) {
+                selectContent.dispatchEvent(openEvent);
+            }
         }
     });
     window.addEventListener('click', function (e) {
@@ -1438,6 +1495,16 @@ const cleansingHandling = () => {
         if (!e.target.closest('.custom-selection-content') && !e.target.closest('.custom-selection')) {
             $('.custom-selection-content').hide();
         }
+
+        // hide single calendar
+        if (!e.target.closest('.single-calendar') && !e.target.closest('.showSingleCalendar')) {
+            $('.single-calendar').hide();
+        }
+
+        // hide single calendar
+        if (!e.target.closest('.config-data-type-dropdown') && !e.target.closest('.config-data-type-dropdown button')) {
+            $('.data-type-selection').hide();
+        }
     });
 };
 
@@ -1454,7 +1521,7 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
     }
 
     // set req_id and filter on-demand value if there is option_id in URL params
-    const { req_id, option_id } = getRequestParamsForShowGraph();
+    const {req_id, option_id} = getRequestParamsForShowGraph();
 
     if (req_id) {
         formData.set('req_id', req_id);
@@ -1464,7 +1531,7 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
         // get option from db
         const option = await fetchData(`/ap/api/v1/option?option_id=${option_id}`, {}, 'GET')
         if (option) {
-            const { od_filter } = JSON.parse(option.option)
+            const {od_filter} = JSON.parse(option.option)
             if (od_filter) {
                 formData.set('dic_cat_filters', JSON.stringify(od_filter))
             }
@@ -1486,11 +1553,20 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
 
     // send GA mode "Auto update mode" or "Normal mode"
     const GAMode = isSSEListening ? 'AutoUpdate' : 'Normal';
+    let showGraphMethod = ""
+    if(isLoadingUserSetting) {
+        showGraphMethod = 'Bookmark'
+    } else if (isDirectFromJumpFunction){
+        showGraphMethod = 'Jump'
+    } else {
+        showGraphMethod = "Normal"
+    }
     gtag('event', 'apdn7_events_tracking', {
         dn_app_version: app_version,
         dn_app_source: app_source,
         dn_app_group: user_group,
         dn_app_show_graph_mode: GAMode,
+        dn_app_show_graph_method: showGraphMethod,
     });
 
     $.ajax({
@@ -1501,6 +1577,10 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
         success: async (res) => {
             try {
                 const responsedAt = performance.now();
+                // if (!res.array_plotdata || isEmpty(res.array_plotdata)) {
+                //     showToastrAnomalGraph();
+                //     return false;
+                // }
                 if (!isSSEListening) {
                     loadingShow(true);
                     await removeAbortButton(res);
@@ -1511,10 +1591,14 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
                     initGlobalDict(res.filter_on_demand);
                     initDicChecked(getDicChecked());
                     initUniquePairList(res.dic_filter);
-                    clearOnFlyFilter = false;
+                    jumpKey = formData.get('thread_id');
                 }
 
                 await callback(res);
+
+                // load saved graph setting area
+                loadGraphSettings(clearOnFlyFilter);
+                clearOnFlyFilter = false;
 
                 isGraphShown = true;
 
@@ -1540,6 +1624,7 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
         },
         error: (res) => {
             loadingHide();
+            clearOnFlyFilter = false;
             // export mode
             handleZipExport(res);
 
@@ -1555,7 +1640,7 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
                 }
 
                 if (res.responseJSON) {
-                    const resJson = JSON.parse(res.responseJSON) || {};
+                    const resJson = res.responseJSON || {};
 
                     if (!additionalOption.reselect) {
                         // click show graph
@@ -1590,6 +1675,7 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
     }).then(() => {
         afterRequestAction();
         isSSEListening = false;
+        disableGUIFormElement();
     });
 };
 
@@ -1636,6 +1722,7 @@ const getExampleFormatOfDate = (targetDate, format) => {
 }
 
 const changeFormatAndExample = (formatEl) => {
+    // offset is show only in mode latest and unit != hour
     const currentTarget = $(formatEl);
     if (!currentTarget.prop('checked')) return;
     const formatValue = currentTarget.val();
@@ -1645,7 +1732,7 @@ const changeFormatAndExample = (formatEl) => {
 
     // hide offset input when hour is selected
     const unit = currentTarget.attr('data-unit');
-    const offsetIsDisabled = $(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`).prop('disabled');
+    const offsetIsDisabled = $(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`).parent().hasClass('hide');
     if (!offsetIsDisabled) {
         if (unit === DivideFormatUnit.Hour) {
             $('.for-recent-cyclicCalender').hide();
@@ -1666,7 +1753,7 @@ const handleTimeUnitOnchange = (e) => {
     showDateTimeRangeValue();
 }
 
-const collapsingTiles = (collapsing=true) => {
+const collapsingTiles = (collapsing = true) => {
     const toggle = collapsing ? 'hide' : 'show';
     $('.section-content').collapse(toggle);
 };
@@ -1724,7 +1811,7 @@ const getRequestParamsForShowGraph = () => {
 
 
 const modifyGUIInput = () => {
-    let { start_datetime, end_datetime, bookmark_id, datetimeRange, latest } = getRequestParamsForShowGraph();
+    let {start_datetime, end_datetime, bookmark_id, datetimeRange, latest} = getRequestParamsForShowGraph();
     if (start_datetime && end_datetime && bookmark_id) {
         const dateTimeRangeInput = $('input[name=DATETIME_RANGE_PICKER]:not(:disabled)');
         const dateTimeInput = $('input[name=DATETIME_PICKER]:not(:disabled)');
@@ -1774,7 +1861,7 @@ const makeUserSettingFromParams = async () => {
             })
         }
     }
-    if (datetimeRange && ! divideOption.length) {
+    if (datetimeRange && !divideOption.length) {
         settings.push({
             id: 'radioDefaultInterval',
             name: 'traceTime',
@@ -1841,7 +1928,7 @@ const makeUserSettingFromParams = async () => {
             type: 'checkbox'
         })
 
-         settings.push({
+        settings.push({
             id: 'timeUnit',
             name: 'timeUnit',
             type: 'select-one',
@@ -1874,6 +1961,70 @@ const makeUserSettingFromParams = async () => {
 };
 
 const needToLoaUserSettingsFromUrl = () => {
-    const { loadGUIFromURL } = getRequestParamsForShowGraph();
+    const {loadGUIFromURL} = getRequestParamsForShowGraph();
     return loadGUIFromURL;
+}
+
+const showNominalScaleModal = () => {
+    $('#nominalScaleModal').modal('show');
+    loadNominalSensors(graphStore.getTraceData());
+};
+
+const loadNominalSensors = (resData) => {
+    let trs = '';
+    let index = 1;
+    for (const sensor of resData.category_cols) {
+        trs += `
+            <tr>
+                <td style="padding: 2px 5px 2px 5px; text-align: center">${index}</td>
+                <td style="padding: 2px 5px 2px 0.75rem;">${sensor.proc_shown_name || sensor.proc_en_name}</td>
+                <td style="padding: 2px 5px 2px 0.75rem;">${sensor.col_shown_name || sensor.col_en_name}</td>
+                <td style="padding: 2px 5px 2px 0.75rem;">${dataTypeShort(sensor)}</td>
+                <td style="padding: 2px 5px 2px 0.75rem;">
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                         <input type="checkbox" id="nominalScaleGraph${index}" name="graph_nominal_scale" 
+                            class="custom-control-input" ${sensor.is_checked ? 'checked' : ''}
+                            onchange="checkAsNominalScale()" value="${sensor.col_id}">
+                         <label class="custom-control-label" title="" for="nominalScaleGraph${index}"></label>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        index++;
+    }
+    $('#nominalScaleTable tbody').html(trs);
+    onSearchNominalScale();
+    checkAsNominalScale();
+};
+
+const onSearchNominalScale = () => {
+    onSearchTableContent('searchNominalScaleInput', 'nominalScaleTable');
+
+
+    $('#setNominalScaleInput').off('click');
+    $('#setNominalScaleInput').on('click', (e) => {
+        e.preventDefault();
+        const matchedEls = $('#nominalScaleTable tbody tr:not(.gray)');
+        matchedEls.find('input[name=graph_nominal_scale]').prop('checked', true).trigger('change');
+    });
+
+    $('#resetNominalScaleInput').off('click');
+    $('#resetNominalScaleInput').on('click', (e) => {
+        e.preventDefault();
+        const matchedEls = $('#nominalScaleTable tbody tr:not(.gray)');
+        matchedEls.find('input[name=graph_nominal_scale]').prop('checked', false).trigger('change');
+    });
+
+};
+const checkAllAsNominalScale = (e) => {
+    const isCheckAll = $(e).is(':checked');
+    $('input[name=graph_nominal_scale]').prop('checked', isCheckAll);
+}
+
+const checkAsNominalScale = () => {
+    const nomialScaleItems = $('input[name=graph_nominal_scale]:checked').length;
+    const allItems = $('input[name=graph_nominal_scale]').length;
+    const checkAll = nomialScaleItems == allItems;
+    $('input[name=nominal_scale_all]').prop('checked', checkAll);
 }

@@ -1,30 +1,40 @@
 [tool.black]
-line-length = 100
+line-length = 120
 skip-string-normalization = 1
 
 [tool.ruff]
-target-version = "py37" # rainbow-version
-line-length = 100
-exclude = [".venv", "ap/script"]
+target-version = "py39"
+line-length = 120
+exclude = [
+    # some people use env instead of venv
+    "env",
+    ".env",
+    "ap/script",
+    # we don't use grpc
+    "grpc_src",
+    "grpc_server",
+    "tests/integration/*_io.py", # input files for bridge testing
+]
+
 fixable = ["ALL"]
 select = [
-#    "C4", # comprehensions
-#    "COM", # trailing comma
-#    "E", # style errors
-#    "EXE", # shebang
-#    "F", # flakes
-#    "G", # logging format
+    "C4", # comprehensions
+    "COM", # trailing comma
+    "E", # style errors
+    "EXE", # shebang
+    "F", # flakes
+    "G", # logging format
     "I", # import sorting
-#    "INT", # gettext
-#    "ISC", # string concatenation
-#    "PIE", # miscellaneous
-#    "PL", # pylint
+    "INT", # gettext
+    "ISC", # string concatenation
+    "PIE", # miscellaneous
+    "PL", # pylint
     "Q", # quotes
-#    "RSE", # raise
-#    "SIM", # simplify
-#    "T10", # debugger
-#    "W", # style warnings
-#    "YTT", # sys.version
+    "RSE", # raise
+    "SIM", # simplify
+    "T10", # debugger
+    "W", # style warnings
+    "YTT", # sys.version
     "N801",
     "N802",
     "N804",
@@ -34,46 +44,58 @@ select = [
     "N999",
 ]
 ignore = [
-    "C416",
-
-    "E402",
-    "E501",
-    "E711", # Comparison with None
-
-    "F405",
-    "F403",
-    "F821",
-    "E722",
-    "F811", # Redefinition of unused
-
-    "G001",
-    "G002",
-    "G004",
-
-    "SIM102",
-    "SIM105",
-    "SIM108",
-    "SIM112",
-    "SIM114",
-    "SIM115",
-    "SIM118",
-    "PIE804", # Unnecessary `dict` kwargs
-    "PLC0208", # Use a sequence type instead of a `set` when iterating over values
-
-    "PLR0124", # Name compared with itself
+    "E711", # MUST IGNORE , because == vs None in numpy, sqlalquemy
+    "SIM118", #  MUST IGNORE , because data.__table__.columns.keys()
     "PLR0911",
     "PLR0912",
     "PLR0913",
     "PLR0915",
-    "PLR2004",
-    "PLR5501",
-
-    "PLW0120", # `else` clause on loop without a `break` statement
-    "PLW0602",
+    "G004",
+    "SIM115",
+    "PLR2004", # magic must fix
     "PLW0603",
-    "PLW2901",
-
+    "PLW0602",
+    "SIM112",
+    "PIE804",
+    "PLW0603",
 ]
+#ignore = [
+#    "C416",
+#    "E402",
+#    "E501",
+#    "E711", # Comparison with None
+#
+#    "F405",
+#    "F403",
+#    "F821",
+#    "E722",
+#    "F811", # Redefinition of unused
+#
+#    "G001",
+#    "G002",
+#    "G004",
+#    "SIM102",
+#    "SIM105",
+#    "SIM108",
+#    "SIM112",
+#    "SIM114",
+#    "SIM115",
+#    "SIM118",
+#    "PIE804", # Unnecessary `dict` kwargs
+#    "PLC0208", # Use a sequence type instead of a `set` when iterating over values
+#
+#    "PLR0124", # Name compared with itself
+#    "PLR0911",
+#    "PLR0912",
+#    "PLR0913",
+#    "PLR0915",
+#    "PLR2004",
+#    "PLR5501",
+#    "PLW0120", # `else` clause on loop without a `break` statement
+#    "PLW0602",
+#    "PLW0603",
+#    "PLW2901",
+#]
 
 
 [tool.ruff.extend-per-file-ignores]
@@ -86,3 +108,14 @@ ignore = [
 docstring-quotes = "double"
 inline-quotes = "single"
 multiline-quotes = "single"
+
+[tool.vulture]
+exclude = ["env/", "venv/", "migrations","manage.py","config.py", "constants.py"]
+ignore_decorators = ["@event.*","@pytest.*","@app.*" ,"@*.route", "@post_load"]
+
+ignore_names = ["__exit__", "Meta", "BaseEnum", "binary_location","max_age","public","must_revalidate", "baseFilename"]
+#make_whitelist = true
+min_confidence = 60
+#paths = ["myscript.py", "mydir"]
+sort_by_size = true
+#verbose = true

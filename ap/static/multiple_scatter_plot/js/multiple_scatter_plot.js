@@ -21,6 +21,7 @@ const formElements = {
     traceTimeOptions: $('input:radio[name="traceTime"]'),
     endProcItems: '#end-proc-row .end-proc',
     endProcSelectedItem: '#end-proc-row select',
+    condProcSelectedItem: '#cond-proc-row select',
     condProcReg: /cond_proc/g,
     i18nAllSelection: $('#i18nAllSelection').text(),
     i18nNoFilter: $('#i18nNoFilter').text(),
@@ -90,8 +91,7 @@ $(() => {
         showStrColumn: true,
         isRequired: true,
         hideStrVariable: true,
-        showLabels: true,
-        labelAsFilter: true,
+        showFilter: true,
         hideCTCol: true,
     });
     endProcItem();
@@ -108,7 +108,6 @@ $(() => {
     // click even of end proc add button
     $('#btn-add-end-proc').click(() => {
         endProcItem();
-        updateSelectedItems();
         addAttributeToElement();
     });
 
@@ -226,9 +225,6 @@ const calculateMaxCorr = (data) => {
 const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
     // clear old chart title
     clearOldChartTitles();
-
-    // save global
-    graphStore.setTraceData(_.cloneDeep(data));
     // share global var to base.js
     formDataQueried = lastUsedFormData;
     const sensors = data.array_plotdata;
@@ -254,13 +250,14 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
     sensors.forEach((_pd, k) => {
         let row = `<div class="chart-row" data-pos=${k}>`;
         const endProc = _pd.end_proc_id;
+        const endProcName = _pd.end_proc_name;
         for (let i = 0; i < plotDataCount; i++) {
             const iProcId = sensors[i].end_col_id;
             const kProcId = sensors[k].end_col_id;
-            const iProcInfo = procConfigs[endProc] ? procConfigs[endProc].shown_name : '';
-            const kProcInfo = procConfigs[sensors[k].end_proc_id] ? procConfigs[sensors[k].end_proc_id].shown_name : '';
-            const chartXLabel = `${iProcInfo}|${_pd.end_col_name}`;
-            const chartYLabel = `${kProcInfo}|${sensors[i].end_col_name}`;
+            const iProcInfo = endProcName;
+            const kProcInfo = sensors[k].end_proc_name;
+            const chartXLabel = `${iProcInfo}|${_pd.end_col_show_name}`;
+            const chartYLabel = `${kProcInfo}|${sensors[i].end_col_show_name}`;
             if (i === k) {
                 if (String(endProc) === String(startProc)) {
                     row += `<div class="hist-item chart-column-border graph-navi"
@@ -312,12 +309,7 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
         const xrange = [scaleInfo['y-min'], scaleInfo['y-max']];
         const { xThreshold } = getThresholdData(cId, data, xScaleOption, yScaleOption);
 
-        const procId = data.ARRAY_FORMVAL[k].end_proc;
-        const colId = data.ARRAY_FORMVAL[k].GET02_VALS_SELECT;
-        const procInfo = procConfigs[procId];
-        const procName = procInfo.shown_name;
-        const colName = procInfo.getColumnById(colId).shown_name;
-        const chartLabel = `${procName}|${colName}`;
+        const chartLabel = $(his).parent().attr('data-x-title');
 
         const [histTrace, fmt] = genHistogramTrace(plotData, xScaleOption);
         const histLayout = genHistogramLayout(xrange, false, fmt, isLargeOfSensors, chartLabel);
@@ -481,6 +473,8 @@ const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false
 
     showGraphCallApi('/ap/api/msp/plot', formData, REQUEST_TIMEOUT, async (res) => {
         resultData = res;
+         // save global
+        graphStore.setTraceData(_.cloneDeep(res));
 
         if (res.is_send_ga_off) {
             showGAToastr(true);
@@ -523,8 +517,6 @@ const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false
 
         // show info table
         showInfoTable(res);
-
-        loadGraphSetings(clearOnFlyFilter);
 
         // render cat, category label filer modal
         fillDataToFilterModal(res.filter_on_demand, () => {

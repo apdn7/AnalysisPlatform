@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error on AP+DN7</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: medium;
+            text-align: center;
+        }
+        .center-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            flex-direction: column;
+        }
+        .title {
+            font-size:3em;
+            line-height:0.95em;
+            font-weight:bold;
+            color: #ffffff;
+            text-shadow: 0 0.05em 0.08em rgba(0,0,0,0.7);
+        }
+        .links {
+            display: flex;
+            flex-direction: row;
+            gap: 2em;
+        }
+        a {
+            color:#888;
+            text-decoration: none;
+            position: relative;
+            display: inline-block;
+            transition: .5s;
+        }
+        a::after {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            content: '';
+            width: 0;
+            height: 2px;
+            background-color: dodgerblue;
+            transition: .5s;
+            transform: translateX(-50%);
+        }
+        a:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="center-screen">
+        <h1 class="title">
+            <img src="ap\static\common\images\logo.png"  style="height: 0.8em;">
+            <span id="header1"></span>
+        </h1>
+        <h2 id="header2"></h2>
+        <h2>Error Code: <span id="error_code">101</span></h2>
+        <p id="warning"></p>
+        <p></p>
+        <a href="https://github.com/apdn7/AnalysisPlatform?tab=readme-ov-file#getting-started">See Analysis Platform documentation on GitHub</a>
+        <div class="links">
+            <a href="https://sites.google.com/view/analysisplatform-dn7/fixit">Fix it (in Jp)</a>
+            <a href="https://sites.google.com/view/analysisplatform-dn7/start#h.ab616dox4xxa">About startup.ini (in Jp)</a>
+        </div>
+    </div>
+    <script>
+        // 適宜コメントアウトを外してみてください
+        var title = "Initial State Error";
+        var header = 'Port is not available\nポートが開いていません';
+        var message = 'Check the port availability. \nStop applications using the same port if you can. \nAlternatively, change the port setting in startup.ini to boot this AP+DN7 on a different port.\n\nポートの空きを確認してください。\n同じポートを使用しているアプリケーションを停止できる場合は、停止してください。\nもしくは、このAP+DN7を別ポートで起動するようにstartup.iniのPort設定を変更してください。';
+
+        document.getElementById("header1").innerText = title;
+        document.getElementById("header2").innerText = header;
+        document.getElementById("warning").innerText = message;
+    </script>
+</body>
+</html>

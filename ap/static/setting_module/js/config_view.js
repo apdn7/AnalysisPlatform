@@ -20,6 +20,7 @@ const csvResourceElements = {
     okBtn: '#okBtn',
     csvFileName: '',
     alertMsgCheckFolder: '#alertMsgCheckFolder',
+    alertInternalError: '#alertInternalError',
     alertDSErrMsgContent: '#alertMsgCheckFolder-content',
     directoryResource: 'input[name="directory-csv"]',
     dataTypeSelector: '.csv-datatype-selection',
@@ -52,6 +53,8 @@ const csvResourceElements = {
     dummyDatetimeProcModal: '#dummyDatetimeProcConfirmationModal',
     csvSubmitBtn: 'button.saveDBInfoBtn[data-csv="1"]',
     duplColsModal: '#duplColsModal',
+    dummyHeaderModal: '#dummyHeaderModal',
+    isDummyHeader: 'input[name=isDummyHeader]',
 };
 
 const eles = {
@@ -188,6 +191,11 @@ const clearOldValue = () => {
     // clear datasource type in modal
     $(`.saveDBInfoBtn`).attr('data-isV2', false);
     $(`#showResources`).attr('data-isV2', false);
+
+    $('#dbsEncoding').text('');
+
+    // clear edited flag
+    userEditedDSName = false;
 
     // show btn-secondary as disabled button, and
     // add prevent submit handling to button
@@ -369,7 +377,8 @@ const handleSearchTraceList = () => {
 
         const regex = new RegExp(value, 'i');
 
-        selectedEls = $(parent).find(`li`).filter(function () {
+        selectedEls = $(parent).find(`li`).filter(function (index) {
+            if (!index) return;
             const val = $(this).text().toLowerCase();
 
             $(this).show();
@@ -384,8 +393,10 @@ const handleSearchTraceList = () => {
 
 
         if (event.keyCode === KEY_CODE.ENTER) {
-            $(parent).find(`li`).filter(function f() {
-                $(this).toggle(regex.test($(this).find('label').text().toLowerCase()));
+            $(parent).find(`li`).filter(function f(index) {
+                if (index) {
+                    $(this).toggle(regex.test($(this).find('label').text().toLowerCase()));
+                }
             });
         }
     });
@@ -400,8 +411,11 @@ const handleSearchTraceList = () => {
 
     // handle on click reset selected items button
     $(`#resetBtnSearch-searchTraceList`).on('click', function () {
-        $(parent).find('input[name=process]')
-            .prop('checked', false)
-            .change();
+        if (selectedEls.length) {
+            // reset only searched element
+            $(selectedEls).find('input[name=process]')
+                .prop('checked', false)
+                .change();
+        }
     });
 };

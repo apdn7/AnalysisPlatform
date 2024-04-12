@@ -7,29 +7,28 @@ import pandas as pd
 from dateutil import tz
 from pandas import DataFrame
 
-from ap.api.common.services.services import convert_datetime_to_ct
-from ap.api.efa.services.etl import FILE as FILE_ETL_SPRAY_SHAPE
-from ap.api.efa.services.etl import call_com_view
-from ap.api.trace_data.services.time_series_chart import (
-    apply_coef_text,
+from ap.api.common.services.show_graph_services import (
     calc_raw_common_scale_y,
     calc_scale_info,
     calculate_histogram_count_common,
+    convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
     gen_before_rank_dict,
     gen_cat_label_unique,
-    gen_dic_data_from_df,
     get_cfg_proc_col_info,
     get_chart_infos,
     get_data_from_db,
     get_min_max_of_all_chart_infos,
-    get_procs_in_dic_param,
-    get_str_cols_in_end_procs,
     main_check_filter_detail_match_graph_data,
-    rank_str_cols,
+    rank_categorical_cols,
     set_chart_infos_to_plotdata,
     set_str_rank_to_dic_param,
+)
+from ap.api.efa.services.etl import FILE as FILE_ETL_SPRAY_SHAPE
+from ap.api.efa.services.etl import call_com_view
+from ap.api.trace_data.services.time_series_chart import (
+    gen_dic_data_from_df,
 )
 from ap.common.common_utils import (
     DATE_FORMAT,
@@ -45,7 +44,58 @@ from ap.common.common_utils import (
     make_dir_from_file_path,
     start_of_minute,
 )
-from ap.common.constants import *
+from ap.common.constants import (
+    ACTUAL_RECORD_NUMBER,
+    ARRAY_FORMVAL,
+    ARRAY_PLOTDATA,
+    ARRAY_X,
+    ARRAY_Y,
+    CAT_EXP_BOX,
+    CAT_EXP_BOX_NAME,
+    CHART_INFOS,
+    CHART_INFOS_ORG,
+    COL_DATA_TYPE,
+    COMMON,
+    CYCLIC_DIV_NUM,
+    CYCLIC_INTERVAL,
+    CYCLIC_TERMS,
+    CYCLIC_WINDOW_LEN,
+    DATA_SIZE,
+    DIC_STR_COLS,
+    END_COL,
+    END_COL_NAME,
+    END_DATE,
+    END_DT,
+    END_PROC,
+    END_PROC_ID,
+    END_PROC_NAME,
+    END_TM,
+    GET02_VALS_SELECT,
+    IS_GRAPH_LIMITED,
+    KDE_DATA,
+    MATCHED_FILTER_IDS,
+    NA_STR,
+    NOT_EXACT_MATCH_FILTER_IDS,
+    SCALE_AUTO,
+    SCALE_COMMON,
+    SCALE_FULL,
+    SCALE_SETTING,
+    SCALE_THRESHOLD,
+    START_DATE,
+    START_DT,
+    START_TM,
+    TIME_COL,
+    TIME_CONDS,
+    UNIQUE_SERIAL,
+    UNMATCHED_FILTER_IDS,
+    Y_MAX,
+    Y_MIN,
+    YAML_DATA_TYPES,
+    CacheType,
+    CsvDelimiter,
+    DataType,
+    DBType,
+)
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
@@ -54,21 +104,17 @@ from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
 )
-from ap.common.services.sse import notify_progress
+from ap.common.services.sse import MessageAnnouncer
 from ap.common.services.statistics import calc_summaries, calc_summaries_cate_var
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
-from ap.setting_module.models import CfgDataSource, CfgProcess, CfgProcessColumn
-from ap.trace_data.models import Cycle
+from ap.setting_module.models import CfgDataSource, CfgProcess
 
 
 @log_execution_time()
 @abort_process_handler()
-def gen_graph_param(dic_param, with_ct_col=False):
+def gen_graph_param(graph_param, dic_param, with_ct_col=False):
     # bind dic_param
-    graph_param = category_bind_dic_param_to_class(dic_param)
-
-    # add start proc
-    # graph_param.add_start_proc_to_array_formval()
+    graph_param = category_bind_dic_param_to_class(graph_param, dic_param)
 
     # add category
     graph_param.add_cate_procs_to_array_formval()
@@ -81,50 +127,43 @@ def gen_graph_param(dic_param, with_ct_col=False):
 
     # add div and color
     graph_param.add_column_to_array_formval(
-        [col for col in [graph_param.common.color_var, graph_param.common.div_by_cat] if col]
+        [col for col in [graph_param.common.color_var, graph_param.common.div_by_cat] if col],
     )
 
     # must get dic_proc_cfgs after above add proc to array_formval
-    dic_proc_cfgs = get_procs_in_dic_param(graph_param)
-    proc_cfg = dic_proc_cfgs[graph_param.common.start_proc]
+    proc_cfg = graph_param.dic_proc_cfgs[graph_param.common.start_proc]
 
     non_sensor_cols = []
     if use_etl_spray_shape(proc_cfg):
         # get all checked cols
-        non_sensor_cols = [
-            column.id for column in proc_cfg.columns if not column.data_type == DataType.REAL.name
-        ]
+        non_sensor_cols = [column.id for column in proc_cfg.columns if column.data_type != DataType.REAL.name]
 
     # get serials
     for proc in graph_param.array_formval:
-        proc_cfg = dic_proc_cfgs[proc.proc_id]
-        # proc_sensor_ids = proc.col_sensor_only_ids
-        # proc_col_ids = proc.col_ids.copy()
-
         if with_ct_col:
-            get_date = proc_cfg.get_date_col(column_name_only=False).id
+            get_date = graph_param.dic_proc_cfgs[proc.proc_id].get_date_col(column_name_only=False).id
             proc.add_cols(get_date, append_first=True)
 
-        serial_ids = [serial.id for serial in proc_cfg.get_serials(column_name_only=False)]
+        serial_ids = [
+            serial.id for serial in graph_param.dic_proc_cfgs[proc.proc_id].get_serials(column_name_only=False)
+        ]
         proc.add_cols(serial_ids, True)
         proc.add_cols(non_sensor_cols)
-        # if len(proc_sensor_ids) != len(proc_col_ids):
-        #     proc.add_sensor_col_ids(proc_col_ids)
 
-    return graph_param, dic_proc_cfgs
+    return graph_param
 
 
 @abort_process_handler()
 @request_timeout_handling()
 @log_execution_time()
-@notify_progress(50)
+@MessageAnnouncer.notify_progress(50)
 @trace_log(
     (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
     (EventType.STP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True)
-def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
+@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None, df=None):
     """tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
@@ -138,12 +177,17 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
         *_,
     ) = customize_dic_param_for_reuse_cache(dic_param)
     # gen graph_para_
-    graph_param, dic_proc_cfgs = gen_graph_param(dic_param)
+    dic_proc_cfgs = graph_param.dic_proc_cfgs
 
-    # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(
-        graph_param, dic_cat_filters, use_expired_cache=use_expired_cache
-    )
+    if df is None:
+        # get data from database
+        df, actual_record_number, unique_serial = get_data_from_db(
+            graph_param,
+            dic_cat_filters,
+            use_expired_cache=use_expired_cache,
+        )
+        dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
+        dic_param[UNIQUE_SERIAL] = unique_serial
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
 
@@ -154,24 +198,25 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
         not_exact_match_filter_ids,
     ) = main_check_filter_detail_match_graph_data(graph_param, df)
 
-    # apply coef for text
-    df = apply_coef_text(df, graph_param, dic_proc_cfgs)
-
     convert_datetime_to_ct(df, graph_param)
 
     # convert proc to cols dic
     # transform raw data to graph data
     # create output data
-    graph_param_with_cate = category_bind_dic_param_to_class(dic_param)
+    graph_param_with_cate = bind_dic_param_to_class(
+        dic_proc_cfgs,
+        graph_param.trace_graph,
+        graph_param.dic_card_orders,
+        dic_param,
+    )
     graph_param_with_cate.add_cate_procs_to_array_formval()
     graph_param_with_cate.add_cat_exp_to_array_formval()
-    orig_graph_param = category_bind_dic_param_to_class(dic_param)
-    df, str_cols = rank_str_cols(df, dic_proc_cfgs, orig_graph_param)
-    dic_str_cols = get_str_cols_in_end_procs(dic_proc_cfgs, orig_graph_param)
+    df, dic_param = rank_categorical_cols(df, graph_param, dic_param)
+    dic_str_cols = dic_param.get(DIC_STR_COLS, {})
     dic_ranks = gen_before_rank_dict(df, dic_str_cols)
     dic_data = gen_dic_data_from_df(df, graph_param_with_cate)
-    dic_data, is_graph_limited, _ = split_data_by_condition(dic_data, orig_graph_param, max_graph)
-    dic_plots = gen_plotdata_for_var(dic_data, graph_param.common.cat_exp)
+    dic_data, is_graph_limited, _ = split_data_by_condition(dic_data, graph_param, max_graph)
+    dic_plots = gen_plotdata_for_var(graph_param.dic_proc_cfgs, dic_data, graph_param.common.cat_exp)
     for col_id, plots in dic_plots.items():
         if max_graph and max_graph < len(plots):
             is_graph_limited = True
@@ -179,10 +224,6 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
 
     dic_param[ARRAY_PLOTDATA] = dic_plots
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
-    dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
-
-    # flag to show that trace result was limited
-    dic_param[UNIQUE_SERIAL] = unique_serial
 
     # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
     dic_param[MATCHED_FILTER_IDS] = matched_filter_ids
@@ -191,7 +232,7 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
     set_str_rank_to_dic_param(dic_param, dic_ranks, dic_str_cols, is_stp=True)
 
     # get visualization setting
-    add_threshold_configs(dic_param, orig_graph_param)
+    add_threshold_configs(dic_param, graph_param)
 
     # calculating the summaries information
     calc_summaries_cate_var(dic_param)
@@ -199,7 +240,7 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
     # calc common scale y min max
     for end_col, plotdatas in dic_param[ARRAY_PLOTDATA].items():
         min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(plotdatas)
-        calc_scale_info(plotdatas, min_max_list, all_graph_min, all_graph_max)
+        calc_scale_info(dic_proc_cfgs, plotdatas, min_max_list, all_graph_min, all_graph_max)
 
     # generate kde for each trace output array
     dic_param = gen_kde_data_cate_var(dic_param)
@@ -218,21 +259,15 @@ def gen_trace_data_by_categorical_var(dic_param, max_graph=None):
 @log_execution_time()
 def add_threshold_configs(dic_param, orig_graph_param):
     try:
-        chart_infos_by_cond_procs, chart_infos_org = get_chart_infos(
-            orig_graph_param, no_convert=True
-        )
+        chart_infos_by_cond_procs, chart_infos_org = get_chart_infos(orig_graph_param, no_convert=True)
         if chart_infos_by_cond_procs:
             for end_col, plotdatas in dic_param[ARRAY_PLOTDATA].items():
                 # TODO proc_id, col_id are str vs int
                 chart_info_cond_proc = (
-                    chart_infos_by_cond_procs[int(dic_param[COMMON][END_PROC][end_col])].get(
-                        int(end_col)
-                    )
-                    or {}
+                    chart_infos_by_cond_procs[int(dic_param[COMMON][END_PROC][end_col])].get(int(end_col)) or {}
                 )
                 chart_info_cond_proc_org = (
-                    chart_infos_org[int(dic_param[COMMON][END_PROC][end_col])].get(int(end_col))
-                    or {}
+                    chart_infos_org[int(dic_param[COMMON][END_PROC][end_col])].get(int(end_col)) or {}
                 )
                 for plotdata in plotdatas:
                     selected_chart_infos = chart_info_cond_proc
@@ -253,9 +288,9 @@ def add_threshold_configs(dic_param, orig_graph_param):
     (EventType.STP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True)
-def gen_trace_data_by_cyclic(dic_param, max_graph=None):
-    dic_param, _ = gen_trace_data_by_cyclic_common(dic_param, max_graph)
+@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+def gen_trace_data_by_cyclic(graph_param, dic_param, max_graph=None, df=None):
+    dic_param, _ = gen_trace_data_by_cyclic_common(graph_param, dic_param, max_graph, df)
 
     dic_plotdata = defaultdict(list)
     for plotdata in dic_param[ARRAY_PLOTDATA]:
@@ -268,7 +303,7 @@ def gen_trace_data_by_cyclic(dic_param, max_graph=None):
     # calc common scale y min max
     for end_col, plotdatas in dic_param[ARRAY_PLOTDATA].items():
         min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(plotdatas)
-        calc_scale_info(plotdatas, min_max_list, all_graph_min, all_graph_max)
+        calc_scale_info(graph_param.dic_proc_cfgs, plotdatas, min_max_list, all_graph_min, all_graph_max)
 
     # generate kde for each trace output array
     dic_param = gen_kde_data_cate_var(dic_param)
@@ -281,8 +316,8 @@ def gen_trace_data_by_cyclic(dic_param, max_graph=None):
 
 @log_execution_time()
 @abort_process_handler()
-@notify_progress(75)
-def gen_trace_data_by_cyclic_common(dic_param, max_graph=None):
+@MessageAnnouncer.notify_progress(75)
+def gen_trace_data_by_cyclic_common(graph_param, dic_param, max_graph=None, df=None):
     """tracing data to show graph
     filter by condition points that between start point and end_point
     """
@@ -290,7 +325,7 @@ def gen_trace_data_by_cyclic_common(dic_param, max_graph=None):
     produce_cyclic_terms(dic_param)
     terms = gen_dic_param_terms(dic_param)
 
-    dic_param, export_df = gen_graph_cyclic(dic_param, terms, max_graph)
+    dic_param, export_df = gen_graph_cyclic(graph_param, dic_param, terms, max_graph, df)
     dic_param[TIME_CONDS] = terms
     return dic_param, export_df
 
@@ -314,14 +349,14 @@ def gen_dic_param_terms(dic_param):
 @log_execution_time()
 @abort_process_handler()
 @request_timeout_handling()
-@notify_progress(75)
+@MessageAnnouncer.notify_progress(75)
 @trace_log(
     (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
     (EventType.STP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True)
-def gen_trace_data_by_term(dic_param, max_graph=None):
+@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+def gen_trace_data_by_term(graph_param, dic_param, max_graph=None, df_cache=None):
     """tracing data to show graph
     filter by condition points that between start point and end_point
     """
@@ -339,7 +374,6 @@ def gen_trace_data_by_term(dic_param, max_graph=None):
         is_graph_limited = True
 
     df = None
-
     for term_id, term in enumerate(terms):
         # create dic_param for each term from original dic_param
         term_dic_param = deepcopy(dic_param)
@@ -351,11 +385,8 @@ def gen_trace_data_by_term(dic_param, max_graph=None):
         term_dic_param['term_id'] = term_id
 
         # get data from database + visual setting from yaml
-        term_result, df_term, graph_param = gen_graph_term(term_dic_param, max_graph)
-        if df is None:
-            df = df_term.copy()
-        else:
-            df = pd.concat([df, df_term])
+        term_result, df_term, graph_param = gen_graph_term(graph_param, term_dic_param, max_graph, df_cache)
+        df = df_term.copy() if df is None else pd.concat([df, df_term])
 
         if term_result.get(IS_GRAPH_LIMITED):
             is_graph_limited = True
@@ -375,12 +406,9 @@ def gen_trace_data_by_term(dic_param, max_graph=None):
         # update term data to original dic_param
         dic_param[ARRAY_PLOTDATA].extend(term_result.get(ARRAY_PLOTDATA))
 
-    dic_param[ARRAY_PLOTDATA], is_graph_limited_second = limit_graph_per_tab(
-        dic_param[ARRAY_PLOTDATA], max_graph
-    )
+    dic_param[ARRAY_PLOTDATA], is_graph_limited_second = limit_graph_per_tab(dic_param[ARRAY_PLOTDATA], max_graph)
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited or is_graph_limited_second
 
-    graph_param = bind_dic_param_to_class(dic_param)
     # get list cat_exp_box
     dic_param = gen_cat_label_unique(df, dic_param, graph_param)
 
@@ -389,7 +417,13 @@ def gen_trace_data_by_term(dic_param, max_graph=None):
 
     # calc common scale y min max
     min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA])
-    calc_scale_info(dic_param[ARRAY_PLOTDATA], min_max_list, all_graph_min, all_graph_max)
+    calc_scale_info(
+        graph_param.dic_proc_cfgs,
+        dic_param[ARRAY_PLOTDATA],
+        min_max_list,
+        all_graph_min,
+        all_graph_max,
+    )
 
     # generate kde for each trace output array
     dic_param = gen_kde_data(dic_param)
@@ -437,9 +471,7 @@ def gen_time_conditions(dic_param):
         and len(start_dates) == len(start_times) == len(end_dates) == len(end_times)
     ):
         names = [START_DATE, START_TM, END_DATE, END_TM]
-        lst_datetimes = [
-            dict(zip(names, row)) for row in zip(start_dates, start_times, end_dates, end_times)
-        ]
+        lst_datetimes = [dict(zip(names, row)) for row in zip(start_dates, start_times, end_dates, end_times)]
         for idx, time_cond in enumerate(lst_datetimes):
             start_dt = start_of_minute(time_cond.get(START_DATE), time_cond.get(START_TM))
             end_dt = end_of_minute(time_cond.get(END_DATE), time_cond.get(END_TM))
@@ -452,11 +484,11 @@ def gen_time_conditions(dic_param):
 @log_execution_time()
 def convert_end_cols_to_array(dic_param):
     end_col_alias = dic_param[COMMON][GET02_VALS_SELECT]
-    if type(end_col_alias) == str:
+    if isinstance(end_col_alias, str):
         dic_param[COMMON][GET02_VALS_SELECT] = [end_col_alias]
 
     from_end_col_alias = dic_param[ARRAY_FORMVAL][0][GET02_VALS_SELECT]
-    if type(from_end_col_alias) == str:
+    if isinstance(from_end_col_alias, str):
         dic_param[ARRAY_FORMVAL][0][GET02_VALS_SELECT] = [from_end_col_alias]
 
 
@@ -516,6 +548,7 @@ def split_data_by_condition(dic_data, graph_param, max_graph=None):
     group_names = []
     cat_exp_cols = graph_param.common.cat_exp
     group_cols = cat_exp_cols.copy()
+    sensor_cols = graph_param.common.sensor_cols
     if graph_param.common.div_by_cat:
         group_cols.append(graph_param.common.div_by_cat)
 
@@ -525,10 +558,14 @@ def split_data_by_condition(dic_data, graph_param, max_graph=None):
     for proc in graph_param.array_formval:
         group_names = []
         proc_id = proc.proc_id
-        end_cols = proc.col_ids
+        end_cols = [end_col for end_col in proc.col_ids if end_col in sensor_cols]
+        end_col_args = {}
+        for end_col in end_cols:
+            if end_col in dic_data[proc_id]:
+                end_col_args[end_col] = dic_data[proc_id][end_col]
         dic_data_for_df = {
-            Cycle.time.key: dic_data[proc_id][Cycle.time.key],
-            **{end_col: dic_data[proc_id][end_col] for end_col in end_cols},
+            TIME_COL: dic_data[proc_id][TIME_COL] if TIME_COL in dic_data[proc_id] else [],
+            **end_col_args,
         }
         group_by_cols = []
         for col in group_cols or []:
@@ -588,7 +625,7 @@ def split_data_by_div(dic_data, div_names):
 
 def gen_plotdata_without_group_by(df, end_cols):
     dic_output = {}
-    array_x = df[Cycle.time.key].to_list()
+    array_x = df[TIME_COL].to_list()
     for end_col in end_cols:
         dic_cate = defaultdict(dict)
         dic_output[end_col] = dic_cate
@@ -606,12 +643,11 @@ def gen_plotdata_with_group_by(df, end_cols, group_by_cols):
     for end_col in limit_cols:
         dic_cate = defaultdict(dict)
         dic_output[end_col] = dic_cate
-        for group_name, idxs in df_group.groups.items():
+        for _group_name, idxs in df_group.groups.items():
+            group_name = _group_name
             div_group = group_name
             if isinstance(group_name, (list, tuple)):
-                group_name = ' | '.join(
-                    [str(NA_STR if pd.isna(val) else val) for val in group_name]
-                )
+                group_name = ' | '.join([str(NA_STR if pd.isna(val) else val) for val in group_name])
                 div_group = div_group[-1]
 
             rows = df.loc[idxs, end_col]
@@ -621,25 +657,25 @@ def gen_plotdata_with_group_by(df, end_cols, group_by_cols):
             if div_group not in group_names:
                 group_names.append(div_group)
             dic_cate[group_name] = {
-                ARRAY_X: df.loc[idxs, Cycle.time.key].to_list(),
+                ARRAY_X: df.loc[idxs, TIME_COL].to_list(),
                 ARRAY_Y: rows.to_list(),
             }
 
     return dic_output, group_names
 
 
-def gen_plotdata_for_var(dic_data, cat_exp_box_cols):
+def gen_plotdata_for_var(dic_proc_cfgs, dic_data, cat_exp_box_cols):
     plotdatas = {}
     cat_exp_box_proc_name = []
     col_ids = list(dic_data.keys()) + cat_exp_box_cols
-    dic_procs, dic_cols = get_cfg_proc_col_info(col_ids)
+    dic_procs, dic_cols = get_cfg_proc_col_info(dic_proc_cfgs, col_ids)
     for col in cat_exp_box_cols:
         cat_exp_box_proc_name.append(dic_cols[col].shown_name)
 
     for end_col, cat_exp_data in dic_data.items():
         plotdatas[end_col] = []
-        cfg_col: CfgProcessColumn = dic_cols[end_col]
-        cfg_proc: CfgProcess = dic_procs[cfg_col.process_id]
+        cfg_col = dic_cols[end_col]
+        cfg_proc = dic_procs[cfg_col.process_id]
         for cat_exp_value, data in cat_exp_data.items():
             if not data:
                 continue
@@ -653,23 +689,24 @@ def gen_plotdata_for_var(dic_data, cat_exp_box_cols):
                 END_COL_NAME: cfg_col.shown_name,
                 CAT_EXP_BOX: cat_exp_value,
                 CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
+                COL_DATA_TYPE: cfg_col.data_type,
             }
             plotdatas[end_col].append(plotdata)
 
     return plotdatas
 
 
-def gen_plotdata_one_proc(dic_data, cat_exp_box_cols=[]):
+def gen_plotdata_one_proc(dic_proc_cfgs, dic_data, cat_exp_box_cols=[]):
     plotdatas = []
     cat_exp_box_proc_name = []
     col_ids = list(dic_data.keys()) + cat_exp_box_cols
-    dic_procs, dic_cols = get_cfg_proc_col_info(col_ids)
+    dic_procs, dic_cols = get_cfg_proc_col_info(dic_proc_cfgs, col_ids)
     for col in cat_exp_box_cols:
         cat_exp_box_proc_name.append(dic_cols[col].shown_name)
 
     for end_col, cat_exp_data in dic_data.items():
-        cfg_col: CfgProcessColumn = dic_cols[end_col]
-        cfg_proc: CfgProcess = dic_procs[cfg_col.process_id]
+        cfg_col = dic_cols[end_col]
+        cfg_proc = dic_procs[cfg_col.process_id]
         for cat_exp_value, data in cat_exp_data.items():
             cat_value = cat_exp_value if cat_exp_value is not None else ''
             plotdata = {
@@ -681,6 +718,7 @@ def gen_plotdata_one_proc(dic_data, cat_exp_box_cols=[]):
                 END_COL_NAME: cfg_col.shown_name,
                 CAT_EXP_BOX: cat_value,
                 CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
+                COL_DATA_TYPE: cfg_col.data_type,
             }
             plotdatas.append(plotdata)
 
@@ -734,7 +772,7 @@ def get_checked_cols(trace, dic_param):
 @log_execution_time()
 def use_etl_spray_shape(proc: CfgProcess):
     data_source: CfgDataSource = proc.data_source
-    if data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
+    if data_source.type.lower() in {DBType.CSV.name.lower(), DBType.V2.name.lower()}:
         etl_func = data_source.csv_detail.etl_func
         if etl_func == FILE_ETL_SPRAY_SHAPE:
             return True
@@ -742,8 +780,7 @@ def use_etl_spray_shape(proc: CfgProcess):
 
 
 @log_execution_time()
-def category_bind_dic_param_to_class(dic_param):
-    graph_param = bind_dic_param_to_class(dic_param)
+def category_bind_dic_param_to_class(graph_param, dic_param):
     if dic_param[COMMON].get(CYCLIC_TERMS):
         graph_param.cyclic_terms += dic_param[COMMON][CYCLIC_TERMS]
 
@@ -751,7 +788,7 @@ def category_bind_dic_param_to_class(dic_param):
 
 
 @log_execution_time()
-def gen_graph_cyclic(dic_param, terms, max_graph=None):
+def gen_graph_cyclic(graph_param, dic_param, terms, max_graph=None, df=None):
     """tracing data to show graph
     1 start point x n end point
     filter by condition point
@@ -767,30 +804,34 @@ def gen_graph_cyclic(dic_param, terms, max_graph=None):
         *_,
     ) = customize_dic_param_for_reuse_cache(dic_param)
 
-    # bind dic_param
-    orig_graph_param = bind_dic_param_to_class(dic_param)
-
-    graph_param_with_cat_exp = bind_dic_param_to_class(dic_param)
+    graph_param_with_cat_exp = bind_dic_param_to_class(
+        graph_param.dic_proc_cfgs,
+        graph_param.trace_graph,
+        graph_param.dic_card_orders,
+        dic_param,
+    )
     graph_param_with_cat_exp.add_cat_exp_to_array_formval()
     graph_param_with_cat_exp.add_ng_condition_to_array_formval()
 
-    graph_param = bind_dic_param_to_class(dic_param)
-
     # get serials
-    dic_proc_cfgs = get_procs_in_dic_param(graph_param)
 
-    # get data from database
-    get_df_graph_param, _ = gen_graph_param(dic_param, with_ct_col=True)
-    df, actual_record_number, unique_serial = get_data_from_db(
-        get_df_graph_param, dic_cat_filters, use_expired_cache=use_expired_cache
-    )
+    if df is None:
+        # get data from database
+        df, actual_record_number, unique_serial = get_data_from_db(
+            graph_param,
+            dic_cat_filters,
+            use_expired_cache=use_expired_cache,
+        )
+        dic_param[UNIQUE_SERIAL] = unique_serial
+        dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
 
-    df, str_cols = rank_str_cols(df, dic_proc_cfgs, orig_graph_param)
+    df, dic_param = rank_categorical_cols(df, graph_param, dic_param)
+    dic_str_cols = dic_param.get(DIC_STR_COLS, {})
+
     export_df = df.copy()
-    convert_datetime_to_ct(df, get_df_graph_param)
-    dic_str_cols = get_str_cols_in_end_procs(dic_proc_cfgs, orig_graph_param)
+    convert_datetime_to_ct(df, graph_param)
     dic_ranks = gen_before_rank_dict(df, dic_str_cols)
     # check filter match or not ( for GUI show )
     (
@@ -804,19 +845,13 @@ def gen_graph_cyclic(dic_param, terms, max_graph=None):
     dic_param[UNMATCHED_FILTER_IDS] = unmatched_filter_ids
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = not_exact_match_filter_ids
 
-    # apply coef for text
-    df = apply_coef_text(df, orig_graph_param, dic_proc_cfgs)
-
     # flag to show that trace result was limited
     dic_param[DATA_SIZE] = int(df.memory_usage(deep=True).sum())
-    dic_param[UNIQUE_SERIAL] = unique_serial
-
-    dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
     # create output dataJOIN
     dic_param[ARRAY_PLOTDATA] = []
-    end_procs = orig_graph_param.array_formval
-    df.set_index(Cycle.time.key, inplace=True, drop=False)
+    end_procs = graph_param.array_formval
+    df.set_index(TIME_COL, inplace=True, drop=False)
     all_plots = []
     is_graph_limited = False
     for term_id, term in enumerate(terms):
@@ -825,34 +860,28 @@ def gen_graph_cyclic(dic_param, terms, max_graph=None):
             continue
 
         dic_data = gen_dic_data_from_df(df_chunk, graph_param_with_cat_exp)
-        dic_data, _is_graph_limited, _ = split_data_by_condition(
-            dic_data, orig_graph_param, max_graph
-        )
+        dic_data, _is_graph_limited, _ = split_data_by_condition(dic_data, graph_param, max_graph)
         if _is_graph_limited:
             is_graph_limited = True
 
         cat_exp_box_cols = graph_param.common.cat_exp or []
-        plots = gen_plotdata_one_proc(dic_data, cat_exp_box_cols)
+        plots = gen_plotdata_one_proc(graph_param.dic_proc_cfgs, dic_data, cat_exp_box_cols)
         # get graph configs
-        times = df_chunk[Cycle.time.key].tolist() or []
+        times = df_chunk[TIME_COL].tolist() or []
         dic_data_for_graph_configs = {}
         for end_proc in end_procs:
-            time_col_alias = f'{Cycle.time.key}_{end_proc.proc_id}'
+            time_col_alias = f'{TIME_COL}_{end_proc.proc_id}'
             end_col_time = df_chunk[time_col_alias].to_list()
-            dic_data_for_graph_configs[end_proc.proc_id] = {Cycle.time.key: end_col_time}
+            dic_data_for_graph_configs[end_proc.proc_id] = {TIME_COL: end_col_time}
 
-        chart_infos, original_graph_configs = get_chart_infos(
-            orig_graph_param, dic_data_for_graph_configs, times
-        )
+        chart_infos, original_graph_configs = get_chart_infos(graph_param, dic_data_for_graph_configs, times)
         for plot in plots:
             plot['term_id'] = term_id
             set_chart_infos_to_plotdata(plot[END_COL], chart_infos, original_graph_configs, plot)
 
         all_plots += plots
 
-    dic_param[ARRAY_PLOTDATA], dic_param[IS_GRAPH_LIMITED] = limit_graph_per_tab(
-        all_plots, max_graph
-    )
+    dic_param[ARRAY_PLOTDATA], dic_param[IS_GRAPH_LIMITED] = limit_graph_per_tab(all_plots, max_graph)
 
     set_str_rank_to_dic_param(dic_param, dic_ranks, dic_str_cols, is_stp=True)
 
@@ -866,7 +895,7 @@ def gen_graph_cyclic(dic_param, terms, max_graph=None):
 
 @abort_process_handler()
 @log_execution_time()
-def gen_graph_term(dic_param, max_graph=None):
+def gen_graph_term(graph_param, dic_param, max_graph=None, df=None):
     """tracing data to show graph
     1 start point x n end point
     filter by condition point
@@ -882,88 +911,79 @@ def gen_graph_term(dic_param, max_graph=None):
         *_,
     ) = customize_dic_param_for_reuse_cache(dic_param)
 
-    # bind dic_param
-    orig_graph_param = bind_dic_param_to_class(dic_param)
-
-    graph_param_with_cat_exp = bind_dic_param_to_class(dic_param)
+    graph_param_with_cat_exp = bind_dic_param_to_class(
+        graph_param.dic_proc_cfgs,
+        graph_param.trace_graph,
+        graph_param.dic_card_orders,
+        dic_param,
+    )
     graph_param_with_cat_exp.add_cat_exp_to_array_formval()
 
-    graph_param = bind_dic_param_to_class(dic_param)
-
-    # add start proc
-    # graph_param.add_start_proc_to_array_formval()
-
-    # add condition procs
-    # graph_param.add_cond_procs_to_array_formval()
-
-    # add cat exp (use for category page)
-    # graph_param.add_cat_exp_to_array_formval()
-
-    # get serials
-    dic_proc_cfgs = get_procs_in_dic_param(graph_param)
-    # for proc in graph_param.array_formval:
-    #     proc_cfg = dic_proc_cfgs[proc.proc_id]
-    #     serial_ids = [serial.id for serial in proc_cfg.get_serials(column_name_only=False)]
-    #     proc.add_cols(serial_ids)
-
-    # get data from database
-    df, actual_record_number, unique_serial = get_data_from_db(
-        graph_param, dic_cat_filters, use_expired_cache=use_expired_cache
+    show_graph_param = bind_dic_param_to_class(
+        graph_param.dic_proc_cfgs,
+        graph_param.trace_graph,
+        graph_param.dic_card_orders,
+        dic_param,
     )
 
-    dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
+    # get serials
+    dic_proc_cfgs = graph_param.dic_proc_cfgs
 
-    convert_datetime_to_ct(df, graph_param)
+    if df is None:
+        # get data from database
+        df, actual_record_number, unique_serial = get_data_from_db(
+            show_graph_param,
+            dic_cat_filters,
+            use_expired_cache=use_expired_cache,
+        )
+        dic_param[UNIQUE_SERIAL] = unique_serial
+        dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
-    df, str_cols = rank_str_cols(df, dic_proc_cfgs, orig_graph_param)
-    dic_str_cols = get_str_cols_in_end_procs(dic_proc_cfgs, orig_graph_param)
+    dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, show_graph_param)
+
+    convert_datetime_to_ct(df, show_graph_param)
+
+    df, dic_param = rank_categorical_cols(df, graph_param, dic_param)
+    dic_str_cols = dic_param.get(DIC_STR_COLS, {})
     dic_ranks = gen_before_rank_dict(df, dic_str_cols)
     # check filter match or not ( for GUI show )
     (
         matched_filter_ids,
         unmatched_filter_ids,
         not_exact_match_filter_ids,
-    ) = main_check_filter_detail_match_graph_data(graph_param, df)
+    ) = main_check_filter_detail_match_graph_data(show_graph_param, df)
 
     # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
     dic_param[MATCHED_FILTER_IDS] = matched_filter_ids
     dic_param[UNMATCHED_FILTER_IDS] = unmatched_filter_ids
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = not_exact_match_filter_ids
 
-    # apply coef for text
-    df = apply_coef_text(df, orig_graph_param, dic_proc_cfgs)
-
     # flag to show that trace result was limited
     dic_param[DATA_SIZE] = int(df.memory_usage(deep=True).sum())
-    dic_param[UNIQUE_SERIAL] = unique_serial
 
     # create output data
-    cat_exp_box_cols = graph_param.common.cat_exp or []
+    cat_exp_box_cols = show_graph_param.common.cat_exp or []
     dic_data = gen_dic_data_from_df(df, graph_param_with_cat_exp)
-    dic_data, is_graph_limited, _ = split_data_by_condition(dic_data, orig_graph_param, max_graph)
+    dic_data, is_graph_limited, _ = split_data_by_condition(dic_data, show_graph_param, max_graph)
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
-    dic_param[ARRAY_PLOTDATA] = gen_plotdata_one_proc(dic_data, cat_exp_box_cols)
+    dic_param[ARRAY_PLOTDATA] = gen_plotdata_one_proc(dic_proc_cfgs, dic_data, cat_exp_box_cols)
     set_str_rank_to_dic_param(dic_param, dic_ranks, dic_str_cols, is_stp=True)
     # get graph configs
-    times = df[Cycle.time.key].tolist() or []
-    end_procs = orig_graph_param.array_formval
+    times = df[TIME_COL].tolist() or []
+    end_procs = show_graph_param.array_formval
     dic_data_for_graph_configs = {}
     for end_proc in end_procs:
         if not len(df):
             continue
-        time_col_alias = f'{Cycle.time.key}_{end_proc.proc_id}'
+        time_col_alias = f'{TIME_COL}_{end_proc.proc_id}'
         end_col_time = df[time_col_alias].to_list()
-        dic_data_for_graph_configs[end_proc.proc_id] = {Cycle.time.key: end_col_time}
+        dic_data_for_graph_configs[end_proc.proc_id] = {TIME_COL: end_col_time}
 
-    chart_infos, original_graph_configs = get_chart_infos(
-        orig_graph_param, dic_data_for_graph_configs, times
-    )
+    chart_infos, original_graph_configs = get_chart_infos(show_graph_param, dic_data_for_graph_configs, times)
 
     for plot in dic_param[ARRAY_PLOTDATA]:
         plot['term_id'] = dic_param['term_id']
         set_chart_infos_to_plotdata(plot[END_COL], chart_infos, original_graph_configs, plot)
-
-    dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
     return dic_param, df, graph_param
 
@@ -1029,7 +1049,7 @@ def gen_direct_terms(dic_param):
     list_dt = []
     terms = []
     start_dt = dic_param[COMMON][START_DATE]
-    if type(start_dt) is list:
+    if isinstance(start_dt, list):
         for k, dt in enumerate(start_dt):
             start_date = dt
             start_time = dic_param[COMMON][START_TM][k]
@@ -1038,9 +1058,7 @@ def gen_direct_terms(dic_param):
             start_datetime = '{}T{}'.format(start_date, start_time)  # '2020/11/01T00:00'
             end_datetime = '{}T{}'.format(end_date, end_time)
             prev_start = datetime.strptime(start_datetime, RL_DATETIME_FORMAT)
-            start_utc_str = datetime.strftime(
-                prev_start.replace(tzinfo=tz.tzutc()), DATE_FORMAT_STR
-            )
+            start_utc_str = datetime.strftime(prev_start.replace(tzinfo=tz.tzutc()), DATE_FORMAT_STR)
             prev_end = datetime.strptime(end_datetime, RL_DATETIME_FORMAT)
             end_utc_str = datetime.strftime(prev_end.replace(tzinfo=tz.tzutc()), DATE_FORMAT_STR)
             terms.append(
@@ -1051,17 +1069,21 @@ def gen_direct_terms(dic_param):
                     END_DATE: convert_time(end_date, DATE_FORMAT),
                     END_TM: convert_time(end_time, TIME_FORMAT),
                     END_DT: end_utc_str,
-                }
+                },
             )
             list_dt.append(start_datetime)
             list_dt.append(end_datetime)
 
     # reassign startpoint endpoint of datetime range for dic_param
-    list_dt.sort()
-    dic_param[COMMON][START_DATE] = list_dt[0].split('T')[0]
-    dic_param[COMMON][START_TM] = list_dt[0].split('T')[1]
-    dic_param[COMMON][END_DATE] = list_dt[-1].split('T')[0]
-    dic_param[COMMON][END_TM] = list_dt[-1].split('T')[1]
+    if list_dt:
+        list_dt.sort()
+        first_date = convert_time(list_dt[0], return_string=False)
+        last_date = convert_time(list_dt[-1], return_string=False)
+        dic_param[COMMON][START_DATE] = str(first_date.date())
+        dic_param[COMMON][START_TM] = str(first_date.time())
+        dic_param[COMMON][END_DATE] = str(last_date.date())
+        dic_param[COMMON][END_TM] = str(last_date.time())
+
     return terms
 
 
@@ -1088,7 +1110,7 @@ def remove_array_x_y_cyclic(dic_param):
 
 
 @log_execution_time()
-@notify_progress(75)
+@MessageAnnouncer.notify_progress(75)
 def dump_img_files(df, graph_param, dic_proc_cfgs):
     # TODO: minor trick to resolve nested-trace_log problem
     img_files = []

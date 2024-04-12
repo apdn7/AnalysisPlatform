@@ -16,15 +16,11 @@ class UserSettingDetail:
         self.original_obj = dic_vals
 
     def convert_to_obj(self):
-        dic_vals = {
-            key: val
-            for key, val in self.__dict__.items()
-            if key != 'original_obj' and val is not None
-        }
+        dic_vals = {key: val for key, val in self.__dict__.items() if key != 'original_obj' and val is not None}
         return dic_vals
 
     def is_checkbox_or_radio(self):
-        return True if self.type in ('checkbox', 'radio') else False
+        return self.type in ('checkbox', 'radio')
 
 
 def transform_settings(mapping_groups):
@@ -66,15 +62,14 @@ def get_pair_names(target_name, dic_vals):
 
     target_name = remove_non_str(target_name)
     target_name = target_name.lower()
-    for name, vals in dic_vals.items():
-        name = remove_non_str(name)
+    for _name, vals in dic_vals.items():
+        name = remove_non_str(_name)
         name = name.lower()
         if vals and 'select' in vals[0].type:
             if name == target_name:
                 return vals
-        else:
-            if name in target_name or target_name in name:
-                return vals
+        elif name in target_name or target_name in name:
+            return vals
 
     return []
 
@@ -96,12 +91,11 @@ def mapping_others(dic_src, dic_des):
         first_des_val = des_vals[0]
         des_id_str, _ = split_str_and_last_number(first_des_val.id)
         des_name_str, _ = split_str_and_last_number(first_des_val.name)
-        for src_val, des_val in zip_longest(src_vals, des_vals):
+        for src_val, _ in zip_longest(src_vals, des_vals):
             if src_val is None:
                 continue
 
             src_val: UserSettingDetail
-            des_val: UserSettingDetail
 
             _, src_name_num = split_str_and_last_number(src_val.name)
             _, src_id_num = split_str_and_last_number(src_val.id)
@@ -136,9 +130,7 @@ def group_by_name(vals):
             short_name = short_name.lower()
             dic_others[short_name].append(setting)
 
-    dic_checkboxes = {
-        key: sorted(vals, key=lambda x: x.name) for key, vals in dic_checkboxes.items()
-    }
+    dic_checkboxes = {key: sorted(vals, key=lambda x: x.name) for key, vals in dic_checkboxes.items()}
     dic_others = {key: sorted(vals, key=lambda x: x.name) for key, vals in dic_others.items()}
 
     return dic_checkboxes, dic_others, dic_datetime_picker
@@ -155,28 +147,6 @@ def map_form(dic_src_vals, dic_des_vals):
     for src_name, des_name in names:
         mapping_groups.append((des_name, dic_src_vals[src_name], dic_des_vals[des_name]))
 
-    return mapping_groups
-
-
-def map_form_bk(dic_src_vals, dic_des_vals):
-    mapping_groups = []
-    if len(dic_src_vals) == len(dic_des_vals):
-        names = zip(list(dic_src_vals), list(dic_des_vals))
-        for src_name, des_name in names:
-            mapping_groups.append((des_name, dic_src_vals[src_name], dic_des_vals[des_name]))
-        return mapping_groups
-
-    for form_name, vals in dic_des_vals.items():
-        if form_name in dic_src_vals:
-            mapping_groups.append((form_name, dic_src_vals[form_name], vals))
-        else:
-            src_vals = [
-                (len(set(form_name) & set(_form_name)), _vals)
-                for _form_name, _vals in dic_src_vals.items()
-            ]
-            src_vals = sorted(src_vals, key=lambda x: x[0])[-1]
-
-            mapping_groups.append((form_name, src_vals[1], vals))
     return mapping_groups
 
 
