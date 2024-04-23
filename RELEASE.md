@@ -1,5 +1,29 @@
 # Releases
 
+## v4.6.1
+
+New features
+
+* Added `Register by File` page
+  * Now users can import CSV/TSV/SSV data more easily.
+  * By providing folder path or file path, data source config and process config are registered with the default setting,  
+  and CHM is automatically visualized after the first data file is imported.  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/640d9476-ca63-42dc-99c7-df8672429827" alt="registerbyfile" width="300">
+
+Improvements
+
+* Updated English texts
+* Improved log handler
+* Improved to show the `Terms of Use` in each version.
+* (JA) Change text of Data-type selection from Japanese to short type of English
+  * (整数 -> Int, 文字列 -> Str, 実数 -> Real, 日時 -> Datetime)
+
+Bugfixes
+
+* Fixed an issue of visualizing COG page
+* Fixed an issue that Jump modal is not shown in RLP page.
+* Fixed a bug related to data import. AP+DN7 wikk import data of get_date column including NaN value.
+
 ## v4.6.0
 
 New features
