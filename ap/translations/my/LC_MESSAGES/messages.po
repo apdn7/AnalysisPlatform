@@ -4576,3 +4576,95 @@ msgstr ""
 msgid "There were no column names in the file, the AP created new column names."
 msgstr "There were no column names in the file, the AP created new column names."
 
+#: ap/templates/register_by_file.html
+msgid "NavButtonRegisterByFile"
+msgstr "Register by File"
+
+#: ap/templates/register_by_file.html
+msgid "TitleRegisterByFile"
+msgstr "Register from Data File"
+
+#: ap/templates/register_by_file.html
+msgid "RegisterDataSource"
+msgstr "Source"
+
+#: ap/templates/register_by_file.html
+msgid "Folder"
+msgstr "Folder"
+
+#: ap/templates/register_by_file.html
+msgid "File"
+msgstr "File"
+
+#: ap/templates/register_by_file.html
+msgid "ReferenceFileLabel"
+msgstr "Reference File"
+
+#: ap/templates/register_by_file.html
+msgid "BrowseButton"
+msgstr "Browse"
+
+#: ap/templates/register_by_file.html
+msgid "FolderBrowsePlaceholder"
+msgstr "Z:\\path\\to\\folder (File size: Unlimited)"
+
+#: ap/templates/register_by_file.html
+msgid "FileBrowsePlaceholder"
+msgstr "Z:\\path\\to\\datafile.csv"
+
+#: ap/templates/register_by_file.html
+msgid "RefFilePlaceholder"
+msgstr "(Optional) Data file used to estimate data types"
+
+#: ap/templates/register_by_file.html
+msgid "SourceExplanation"
+msgstr ""
+"If the source is a folder, all files in the folder will be loaded; if the"
+" source is a file, only that file will be loaded.\n"
+"If multiple files are to be loaded or additional data is to be loaded "
+"automatically, please specify a folder as the reference.\n"
+"All files (CSV, TSV, SSV) must have the same column name."
+
+#: ap/templates/register_by_file.html
+msgid "ProcNameExplanation"
+msgstr ""
+"The following items are automatically generated from the folder name.\n"
+"If you wish to set an arbitrary name, please modify the following before "
+"clicking the Register button."
+
+#: ap/templates/register_by_file.html
+msgid "RegisterDataFileButton"
+msgstr "Register Data"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressSourceSelected"
+msgstr "Source is selected"
+
+#: ap/templates/register_by_file.html
+msgid "ProcessRegisterStart"
+msgstr "Register start"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressFolderCheck"
+msgstr "Folder structure check"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressImportingData"
+msgstr "Importing data"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressFinished"
+msgstr "Finished"
+
+#: ap/templates/register_by_file.html
+msgid "File is selected"
+msgstr "File is selected"
+
+#: ap/templates/register_by_file.html
+msgid "Process Name is already registered"
+msgstr "Process name is already registered"
+
+#: ap/templates/register_by_file.html
+msgid "Data Source Name is already registered"
+msgstr "Data Source Name is already registered"
+

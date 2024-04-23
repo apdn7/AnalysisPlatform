@@ -362,6 +362,11 @@ class CfgDataSource(db.Model):
     def update_order(cls, meta_session, data_source_id, order):
         meta_session.query(cls).filter(cls.id == data_source_id).update({cls.order: order})
 
+    @classmethod
+    def check_duplicated_name(cls, dbs_name):
+        dbs = cls.query.filter(cls.name == dbs_name).all()
+        return len(dbs) != 0
+
     # @classmethod
     # def get_detail(cls, id):
     #     ds = cls.query.get(id)
@@ -768,6 +773,13 @@ class CfgProcess(db.Model):
     def get_list_of_process(cls):
         processes = cls.query.order_by(cls.id).all()
         return [{cls.id.name: proc.id, cls.name.name: proc.shown_name} for proc in processes]
+
+    @classmethod
+    def check_duplicated_name(cls, name_en, name_jp, name_local):
+        check_name_en = len(cls.query.filter(cls.name_en == name_en).all()) != 0
+        check_name_jp = len(cls.query.filter(cls.name_jp == name_jp).all()) != 0
+        check_name_local = len(cls.query.filter(cls.name_local == name_local).all()) != 0
+        return check_name_en, check_name_jp, check_name_local
 
 
 class CfgTraceKey(db.Model):

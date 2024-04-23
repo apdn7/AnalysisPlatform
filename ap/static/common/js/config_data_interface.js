@@ -18,6 +18,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nInteger',
         org_type: 'INTEGER',
         operator: ['', '+', '-', '*', '/'],
+        selectionBoxDisplay: 'Int',
     },
     INTEGER_CAT: {
         name: 'INTEGER_CAT',
@@ -29,6 +30,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nIntegerCat',
         org_type: 'INTEGER',
         operator: ['', '+', '-', '*', '/'],
+        selectionBoxDisplay: 'Int(Cat)',
     },
     REAL: {
         name: 'REAL',
@@ -40,6 +42,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nFloatTypeExplain',
         org_type: 'REAL',
         operator: ['', '+', '-', '*', '/'],
+        selectionBoxDisplay: 'Real',
     },
     STRING: {
         name: 'TEXT',
@@ -51,6 +54,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nString',
         org_type: 'TEXT',
         operator: ['', 'Valid-like'],
+        selectionBoxDisplay: 'Str',
     },
     DATETIME: {
         name: 'DATETIME',
@@ -61,6 +65,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nCTTypeExplain',
         org_type: 'DATETIME',
         operator: [''],
+        selectionBoxDisplay: 'Datetime'
     },
     TEXT: {
         name: 'TEXT',
@@ -72,6 +77,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nString',
         org_type: 'TEXT',
         operator: ['', 'Valid-like'],
+        selectionBoxDisplay: "Str",
     },
     REAL_SEP: {
         name: 'REAL_SEP',
@@ -140,7 +146,8 @@ const dataTypeShort = (col) => {
     if (col.is_int_category && !col.is_serial_no) {
         return DataTypes.CATEGORY.short;
     }
-    return DataTypes[col.data_type].short;
+    const dataType = col.data_type || col.type;
+    return dataType ? DataTypes[dataType].short : '';
 };
 
 

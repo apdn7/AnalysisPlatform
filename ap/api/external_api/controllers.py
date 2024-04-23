@@ -217,3 +217,12 @@ def open_a_page():
     target_url = f'{host_url}{page}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
 
     return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/register/datafile', methods=['GET'])
+def register_datafile():
+    page = PagePath.REGISTER_DATA_FILE.value
+    host_url = request.host_url
+    request_string = request.query_string.decode('utf-8')
+    target_url = f'{host_url}{page}?{request_string}&load_gui_from_url=1'
+    return redirect(target_url)

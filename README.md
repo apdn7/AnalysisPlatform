@@ -5,7 +5,7 @@
 # Analysis Platform
 
 ```
-2024-04-12: Released version 4.6.0
+2024-04-23: Released version 4.6.1
 ```
 
 Analysis Platform is an open source web application to import, connect and visualize factory IoT data. It helps to collect, link and integrate data from multiple data sources.
@@ -74,8 +74,8 @@ Windows embeddable package, running the batch file is regarded as you agreed to 
 
 For detailed instruction, please refer below documents (PDF):
 
-* EN: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/14956644/AP%2BDN7_getting_started_oss_En.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/14956649/AP%2BDN7_Setting_Manual_460_En.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806413/AP%2BDN7_User_Manual_FPP_En.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
-* JP: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/14956642/AP%2BDN7_getting_started_oss_Jp.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/14956647/AP%2BDN7_Setting_Manual_460_jp.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806414/AP-DN7_FPP_Jp0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
+* EN: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/14956644/AP%2BDN7_getting_started_oss_En.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15073708/AP%2BDN7_Setting_Manual_461_En.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806413/AP%2BDN7_User_Manual_FPP_En.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
+* JA: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/14956642/AP%2BDN7_getting_started_oss_Jp.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15073710/AP%2BDN7_Setting_Manual_461_jp.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806414/AP-DN7_FPP_Jp0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
 
 ### For users: Run the Analysis Platform with Windows embeddable package
 
@@ -153,7 +153,7 @@ press shut down button on bottom of sidebar
 To upgrade the Analysis Platform to a new version, see below document:
 
 * EN: [Upgrade Manual](https://github.com/apdn7/AnalysisPlatform/files/12557931/AP%2BDN7_upgrade_manual_En_v4.1.1_r2.pdf)
-* JP: [Upgrade Manual](https://github.com/apdn7/AnalysisPlatform/files/12557930/AP%2BDN7_upgrade_manual_Jp_v4.1.1_r2.pdf)
+* JA: [Upgrade Manual](https://github.com/apdn7/AnalysisPlatform/files/12557930/AP%2BDN7_upgrade_manual_Jp_v4.1.1_r2.pdf)
 
 ## Uninstall
 
@@ -210,4 +210,4 @@ You can check [release notes](RELEASE.md) for new features and bugfixes.
 * The Analysis Platforms fails to activate with an error message:  
 ImportError: DLL load failed: The specified module could not be found.
   * You might need to install the "Microsoft Visual C++ runtime library".
-  * Documents: [EN](https://github.com/apdn7/AnalysisPlatform/files/10956076/AP%2BDN7_troubleshooting_ImportError_DLL_load_failed_En.pdf) / [JP](https://github.com/apdn7/AnalysisPlatform/files/10956075/AP%2BDN7_troubleshooting_ImportError_DLL_load_failed_Jp.pdf)
+  * Documents: [EN](https://github.com/apdn7/AnalysisPlatform/files/10956076/AP%2BDN7_troubleshooting_ImportError_DLL_load_failed_En.pdf) / [JA](https://github.com/apdn7/AnalysisPlatform/files/10956075/AP%2BDN7_troubleshooting_ImportError_DLL_load_failed_Jp.pdf)

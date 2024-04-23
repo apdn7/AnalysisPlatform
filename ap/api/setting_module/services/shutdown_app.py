@@ -22,4 +22,5 @@ def shut_down_app():
     shutdown_function = request.environ.get('werkzeug.server.shutdown')
     if shutdown_function is not None:
         shutdown_function()
+
     os._exit(0)

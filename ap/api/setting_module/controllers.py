@@ -68,6 +68,7 @@ from ap.common.constants import (
     CfgConstantType,
     CSVExtTypes,
     DataColumnType,
+    JobStatus,
     JobType,
     ProcessCfgConst,
     RelationShip,
@@ -77,7 +78,7 @@ from ap.common.logger import logger
 from ap.common.scheduler import lock
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.common.services.sse import background_announcer
+from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.setting_module.models import (
     AppLog,
     CfgCsvColumn,
@@ -100,6 +101,7 @@ from ap.setting_module.services.process_config import (
     get_process_visualizations,
     query_database_tables,
 )
+from ap.setting_module.services.register_from_file import get_chm_url_to_redirect
 from ap.setting_module.services.trace_config import (
     gen_cfg_trace,
     get_all_processes_traces_info,
@@ -336,7 +338,8 @@ def show_latest_records():
     table_name = dic_form.get('tableName') or None
     file_name = dic_form.get('fileName') or None
     limit = parse_int_value(dic_form.get('limit')) or 10
-    latest_rec = get_latest_records(data_source_id, table_name, file_name, limit)
+    folder = dic_form.get('folder') or None
+    latest_rec = get_latest_records(data_source_id, table_name, file_name, folder, limit)
 
     result = {
         'cols': [],
@@ -428,18 +431,25 @@ def listen_background_job(is_force: str, uuid: str, main_tab_uuid: str):
 def check_folder():
     try:
         data = request.json.get('url')
-        is_existing = os.path.isdir(data) and os.path.exists(data)
-        os.listdir(data)
+        is_file = request.json.get('isFile') or False
+        is_existing = os.path.isfile(data) if is_file else (os.path.isdir(data) and os.path.exists(data))
         extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value]
-        is_not_empty = False
-        files = get_files(data, depth_from=1, depth_to=100, extension=extension)
-        for file in files:
-            is_not_empty = any(file.lower().endswith(ext) for ext in extension)
-            if is_not_empty:
-                break
+        is_valid_file = True
+        if not is_file:
+            os.listdir(data)
+            is_not_empty = False
+            files = get_files(data, depth_from=1, depth_to=100, extension=extension)
+            for file in files:
+                is_not_empty = any(file.lower().endswith(ext) for ext in extension)
+                if is_not_empty:
+                    break
+        else:
+            is_valid_file = any(data.lower().endswith(ext) for ext in extension)
+            is_not_empty = True
 
         is_valid = is_existing and is_not_empty
         err_msg = _('File not found')  # empty folder
+        file_not_valid = _('File not valid')
         return jsonify(
             {
                 'status': 200,
@@ -448,7 +458,8 @@ def check_folder():
                 'dir': os.path.dirname(data),
                 'not_empty_dir': is_not_empty,
                 'is_valid': is_valid,
-                'err_msg': err_msg if not is_valid else '',
+                'err_msg': err_msg if not is_valid else file_not_valid if not is_valid_file else '',
+                'is_valid_file': is_valid_file,
             },
         )
     except OSError as e:
@@ -1089,3 +1100,110 @@ def get_jobs():
     dic_jobs['total'] = jobs.total
 
     return jsonify(dic_jobs), 200
+
+
+# @api_setting_module_blueprint.route('/browser/<resource_type>', methods=['GET'])
+# def open_browser(resource_type):
+#     selected_path, path_kind = browse(resource_type)
+#     return jsonify({'path': selected_path, 'kind': path_kind}), 200
+
+
+@api_setting_module_blueprint.route('/check_duplicated_db_source', methods=['POST'])
+def check_duplicated_db_source_name():
+    dbs_name = json.loads(request.data).get('name', '')
+    is_duplicated = CfgDataSource.check_duplicated_name(dbs_name)
+    return jsonify({'is_duplicated': is_duplicated}), 200
+
+
+@api_setting_module_blueprint.route('/check_duplicated_process_name', methods=['POST'])
+def check_duplicated_process_name():
+    params = json.loads(request.data)
+    name_en = params.get('name_en', '')
+    name_jp = params.get('name_jp', '')
+    name_local = params.get('name_local', '')
+    is_duplicated_en, is_duplicated_jp, is_duplicated_local = CfgProcess.check_duplicated_name(
+        name_en,
+        name_jp,
+        name_local,
+    )
+    return jsonify({'is_duplicated': [is_duplicated_en, is_duplicated_jp, is_duplicated_local]}), 200
+
+
+@api_setting_module_blueprint.route('/register_source_and_proc', methods=['POST'])
+def register_source_and_proc():
+    input_json = request.json
+    with make_session() as meta_session:
+        try:
+            data_src: CfgDataSource = DataSourceSchema().load(input_json.get('csv_info'))
+
+            # data source
+            data_src_rec = insert_or_update_config(meta_session, data_src, exclude_columns=[CfgDataSource.order.key])
+
+            # csv detail
+            csv_detail = data_src.csv_detail
+            if csv_detail:
+                # csv_detail.dummy_header = csv_detail.dummy_header == 'true' if csv_detail.dummy_header else None
+                csv_columns = data_src.csv_detail.csv_columns
+                csv_columns = [col for col in csv_columns if not is_empty(col.column_name)]
+                data_src.csv_detail.csv_columns = csv_columns
+                csv_detail_rec = insert_or_update_config(
+                    meta_session,
+                    csv_detail,
+                    parent_obj=data_src_rec,
+                    parent_relation_key=CfgDataSource.csv_detail.key,
+                    parent_relation_type=RelationShip.ONE,
+                )
+
+                # CRUD
+                csv_columns = csv_detail.csv_columns
+                crud_config(
+                    meta_session,
+                    csv_columns,
+                    CfgCsvColumn.data_source_id.key,
+                    CfgCsvColumn.column_name.key,
+                    parent_obj=csv_detail_rec,
+                    parent_relation_key=CfgDataSourceCSV.csv_columns.key,
+                    parent_relation_type=RelationShip.MANY,
+                )
+            process_schema = ProcessSchema()
+            proc_config = request.json.get('proc_config')
+            proc_config['data_source_id'] = data_src_rec.id
+            proc_data = process_schema.load(proc_config)
+            unused_columns = request.json.get('unused_columns', [])
+            should_import_data = request.json.get('import_data')
+
+            process = create_or_update_process_cfg(proc_data, unused_columns)
+
+            # create process json
+            process_schema = ProcessSchema()
+            process_json = process_schema.dump(process) or {}
+
+            # import data
+            if should_import_data:
+                add_import_job(process, run_now=True, is_user_request=True)
+        except Exception as e:
+            logger.exception(e)
+            meta_session.rollback()
+            message = {'message': _('Database Setting failed to save'), 'is_error': True}
+            return jsonify(flask_message=message), 500
+
+    message = {'message': _('Database Setting saved.'), 'is_error': False}
+    ds = None
+    if data_src_rec and data_src_rec.id and process:
+        ds_schema = DataSourceSchema()
+        ds = CfgDataSource.get_ds(data_src_rec.id)
+        ds = ds_schema.dumps(ds)
+
+        data_register_data = {
+            'status': JobStatus.PROCESSING.name,
+            'process_id': process.id,
+            'is_first_imported': False,
+        }
+        background_announcer.announce(data_register_data, AnnounceEvent.DATA_REGISTER.name)
+    return jsonify(id=data_src_rec.id, data_source=ds, process_info=process_json, flask_message=message), 200
+
+
+@api_setting_module_blueprint.route('/redirect_to_chm_page/<proc_id>', methods=['GET'])
+def redirect_to_chm_page(proc_id):
+    target_url = get_chm_url_to_redirect(request, proc_id)
+    return jsonify(url=target_url), 200

@@ -20,6 +20,7 @@ let isClickPreview = false;
 let allProcessColumns = []
 let errCells = [];
 let dataGroupType = {};
+let checkOnFocus = true;
 
 const procModalElements = {
     procModal: $('#procSettingModal'),
@@ -499,7 +500,7 @@ const genColumnWithCheckbox = (cols, rows, dummyDatetimeIdx) => {
     showConfirmSameAndNullValueInColumn(cols);
 };
 
-const generateProcessList = (cols, rows, dummyDatetimeIdx, fromRegenerate = false, force=false) => {
+const generateProcessList = (cols, rows, dummyDatetimeIdx, fromRegenerate = false, force = false, autoCheckSerial = false) => {
     if (!cols || !cols.length) return;
 
     if (!fromRegenerate && Object.values(dicProcessCols).length) {
@@ -612,7 +613,7 @@ const generateProcessList = (cols, rows, dummyDatetimeIdx, fromRegenerate = fals
         const isDummyDatetimeCol = dummyDatetimeIdx === i;
         const isDummyDatetime = col.is_dummy_datetime ? true : false;
          // if v2 col_name is シリアルNo -> auto check
-        if (!registerCol && !fromRegenerate) {
+        if ((!registerCol && !fromRegenerate) || autoCheckSerial) {
             const isSerial = /^.*シリアル|serial.*$/.test(col.column_name.toString().toLowerCase()) && [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(col.data_type);
             if (isSerial && hasMainSerialCol) {
                 col.is_serial_no = true;
@@ -1237,6 +1238,7 @@ const showBorderRedForDuplicatedInput = (inputName, values) => {
 };
 
 const checkDuplicateProcessName = (attr = 'data-name-en', isShowMsg = true, errorMsg = $(procModalElements.msgProcNameAlreadyExist).text()) => {
+    if (!checkOnFocus) return;
     // get current list of (process-mastername)
     const existingProcIdMasterNames = {};
     $('#tblProcConfig tr').each(function f() {
@@ -2319,8 +2321,7 @@ const datatypeI18nText = {
     is_part_no: $(procModali18n.i18nPartNoInt).text(),
     is_st_no: $(procModali18n.i18nStNoInt).text(),
     is_auto_increment: $(procModali18n.i18nDatetimeKey).text(),
-    is_int_cat: $(`#${DataTypes.INTEGER_CAT.i18nLabelID}`).text(),
-
+    is_int_cat: DataTypes.INTEGER_CAT.selectionBoxDisplay,
 };
 
 const DataTypeAttrs = ['is_get_date', 'is_serial_no', 'is_main_serial_no', 'is_auto_increment', 'is_line_name', 'is_line_no', 'is_eq_name', 'is_eq_no', 'is_part_name', 'is_part_no', 'is_st_no', 'is_int_cat'];
@@ -2423,12 +2424,23 @@ const DataTypeSelection = {
     },
     generateHtml: (idx = 0, defaultValue = datatypeDefaultObject, getKey) => {
         let text = '';
+        const englishDataTypes = [
+            DataTypes.REAL.name,
+            DataTypes.INTEGER.name,
+            DataTypes.INTEGER_CAT.name,
+            DataTypes.STRING.name,
+            DataTypes.DATETIME.name,
+            DataTypes.TEXT.name,
+        ]
         if (getKey) {
             text = datatypeI18nText[getKey];
             if (_.isObject(text)) {
                 text = text[defaultValue.value];
             }
-        } else {
+        } else if(englishDataTypes.includes(defaultValue.value)) {
+            text = DataTypes[defaultValue.value].selectionBoxDisplay
+        }
+        else {
             text = $('#' + DataTypes[defaultValue.value].i18nLabelID).text();
         }
         const attrKey = getKey ? `${getKey}="true" column_type=${dataGroupType[mappingDataGroupType[getKey]]} data-attr-key=${getKey}` : '';
@@ -2467,11 +2479,11 @@ const DataTypeSelection = {
                             <div class="data-type-selection-box">
                                 <span class="data-type-selection-title">${$(procModali18n.i18nDatatype).text()}</span>
                                 <ul>
-                                    <li class="dataTypeSelection" only-datatype value="${DataTypes.REAL.name}" data-type="${DataTypes.REAL.name}">${$('#' + DataTypes.REAL.i18nLabelID).text()}</li>
-                                    <li class="dataTypeSelection" only-datatype value="${DataTypes.INTEGER.name}" data-type="${DataTypes.INTEGER.name}">${$('#' +DataTypes.INTEGER.i18nLabelID).text()}</li>
-                                    <li class="dataTypeSelection" is_int_cat value="${DataTypes.INTEGER.name}" data-type="${DataTypes.INTEGER.name}">${$('#' +DataTypes.INTEGER_CAT.i18nLabelID).text()}</li>
-                                    <li class="dataTypeSelection" only-datatype value="${DataTypes.TEXT.name}" data-type="${DataTypes.TEXT.name}">${$('#' +DataTypes.TEXT.i18nLabelID).text()}</li>
-                                    <li class="dataTypeSelection" only-datatype value="${DataTypes.DATETIME.name}" data-type="${DataTypes.DATETIME.name}">${$('#' +DataTypes.DATETIME.i18nLabelID).text()}</li>
+                                    <li class="dataTypeSelection" only-datatype value="${DataTypes.REAL.name}" data-type="${DataTypes.REAL.name}">${DataTypes.REAL.selectionBoxDisplay}</li>
+                                    <li class="dataTypeSelection" only-datatype value="${DataTypes.INTEGER.name}" data-type="${DataTypes.INTEGER.name}">${DataTypes.INTEGER.selectionBoxDisplay}</li>
+                                    <li class="dataTypeSelection" is_int_cat value="${DataTypes.INTEGER.name}" data-type="${DataTypes.INTEGER.name}">${DataTypes.INTEGER_CAT.selectionBoxDisplay}</li>
+                                    <li class="dataTypeSelection" only-datatype value="${DataTypes.TEXT.name}" data-type="${DataTypes.TEXT.name}">${DataTypes.STRING.selectionBoxDisplay}</li>
+                                    <li class="dataTypeSelection" only-datatype value="${DataTypes.DATETIME.name}" data-type="${DataTypes.DATETIME.name}">${DataTypes.DATETIME.selectionBoxDisplay}</li>
                                     <li class="dataTypeSelection" only-datatype value="${DataTypes.REAL_SEP.name}" data-type="${DataTypes.REAL.name}">${$('#' +DataTypes.REAL_SEP.i18nLabelID).text()}</li>
                                     <li class="dataTypeSelection" only-datatype value="${DataTypes.INTEGER_SEP.name}" data-type="${DataTypes.INTEGER.name}">${$('#' +DataTypes.INTEGER_SEP.i18nLabelID).text()}</li>
                                     <li class="dataTypeSelection" only-datatype value="${DataTypes.EU_REAL_SEP.name}" data-type="${DataTypes.REAL.name}">${$('#' +DataTypes.EU_REAL_SEP.i18nLabelID).text()}</li>

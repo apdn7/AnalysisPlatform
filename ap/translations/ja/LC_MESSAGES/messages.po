@@ -2947,19 +2947,19 @@ msgstr "実測値 vs 当てはめ値"
 
 #: ap/templates/i18n.html
 msgid "K sep: Real"
-msgstr "千区切り(,) 実数"
+msgstr "千区切り(,) Real"
 
 #: ap/templates/i18n.html
 msgid "K sep: Int"
-msgstr "千区切り(,) 整数"
+msgstr "千区切り(,) Int"
 
 #: ap/templates/i18n.html
 msgid "K sep: EU Real"
-msgstr "千区切り(.) 実数"
+msgstr "千区切り(.) Real"
 
 #: ap/templates/i18n.html
 msgid "K sep: EU int"
-msgstr "千区切り(.) 整数"
+msgstr "千区切り(.) Int"
 
 #: ap/templates/templates/i18n.html
 msgid "Copy to all right column"
@@ -3871,7 +3871,7 @@ msgstr "変数を選択した順番"
 
 #: ap/templates/i18n.html
 msgid "main::Datetime"
-msgstr "main::日時"
+msgstr "main::Datetime"
 
 #: ap/templates/i18n.html
 msgid "main::Serial:Int"
@@ -4092,4 +4092,93 @@ msgstr ""
 #: ap/templates/i18n.html
 msgid "There were no column names in the file, the AP created new column names."
 msgstr "ファイルに列名がなかったので、新しく列名を作成しました。"
+
+#: ap/templates/register_by_file.html
+msgid "NavButtonRegisterByFile"
+msgstr "ファイルから登録"
+
+#: ap/templates/register_by_file.html
+msgid "TitleRegisterByFile"
+msgstr "データファイルから自動登録"
+
+#: ap/templates/register_by_file.html
+msgid "RegisterDataSource"
+msgstr "参照先"
+
+#: ap/templates/register_by_file.html
+msgid "Folder"
+msgstr "フォルダ"
+
+#: ap/templates/register_by_file.html
+msgid "File"
+msgstr "ファイル"
+
+#: ap/templates/register_by_file.html
+msgid "ReferenceFileLabel"
+msgstr "型推定ファイル"
+
+#: ap/templates/register_by_file.html
+msgid "BrowseButton"
+msgstr "参照"
+
+#: ap/templates/register_by_file.html
+msgid "FolderBrowsePlaceholder"
+msgstr "Z:\\path\\to\\folder (ファイルサイズ:　無制限)"
+
+#: ap/templates/register_by_file.html
+msgid "FileBrowsePlaceholder"
+msgstr "Z:\\path\\to\\datafile.csv"
+
+#: ap/templates/register_by_file.html
+msgid "RefFilePlaceholder"
+msgstr "(任意)  データ型を推定するために使用するデータファイルを指定可能"
+
+#: ap/templates/register_by_file.html
+msgid "SourceExplanation"
+msgstr ""
+"参照先がフォルダの場合、そのフォルダ内の全ファイルが読み込まれ、 ファイルの場合、そのファイルのみ読み込まれます。\n"
+"複数のファイルを読込む、もしくは追加データを自動読込する場合は、参照先にフォルダを指定してください。\n"
+"全てが同じ列名のファイル (CSV, TSV, SSV) である必要があります。"
+
+#: ap/templates/register_by_file.html
+msgid "ProcNameExplanation"
+msgstr ""
+"以下の項目はフォルダ名から自動的に生成されます。\n"
+"任意の名前を設定したい場合は登録ボタンを押す前に以下を修正してください。"
+
+#: ap/templates/register_by_file.html
+msgid "RegisterDataFileButton"
+msgstr "データ登録"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressSourceSelected"
+msgstr "参照先が選択されました"
+
+#: ap/templates/register_by_file.html
+msgid "ProcessRegisterStart"
+msgstr "データ登録開始"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressFolderCheck"
+msgstr "フォルダ構造チェック"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressImportingData"
+msgstr "データ読込中"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressFinished"
+msgstr "読込完了"
+
+#: ap/templates/register_by_file.html
+msgid "File is selected"
+msgstr "ファイルが選択されました"
+
+#: ap/templates/register_by_file.html
+msgid "Process Name is already registered"
+msgstr "プロセス名は既に登録されています"
+
+#: ap/templates/register_by_file.html
+msgid "Data Source Name is already registered"
+msgstr "データソース名は既に登録されています"
 

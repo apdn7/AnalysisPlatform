@@ -231,6 +231,7 @@ const CONST = {
     NEG_INF: '-inf',
     NO_LINKED: 'NoLinked',
     LIMIT_SIZE_NAME: 14,
+    IS_ADMIN: 'is_admin',
 };
 const chmColorPalettes = [['0', '#18324c'], ['0.2', '#204465'], ['0.4', '#2d5e88'],
     ['0.6', '#3b7aae'], ['0.8', '#56b0f4'], ['1', '#6dc3fd']];
@@ -2761,6 +2762,7 @@ class GraphStore {
                     proc_id: sensorDat.end_proc_id,
                     proc_name: sensorDat.end_proc_name,
                     type: sensorDat.data_type.toUpperCase(),
+                    data_type: sensorDat.data_type.toUpperCase(),
                     label: colLabel
                 });
             });
@@ -2781,6 +2783,7 @@ class GraphStore {
                     proc_id: sensorDat.end_proc_id,
                     proc_name: sensorDat.proc_name,
                     type: sensor.data_type,
+                    data_type: sensor.data_type,
                     label: colLabel
                 });
             }
@@ -2800,6 +2803,7 @@ class GraphStore {
                     proc_id: sensorDat.end_proc_id,
                     proc_name: sensorDat.proc_name,
                     type: sensor.data_type,
+                    data_type: sensor.data_type,
                     label: colLabel
                 });
             }

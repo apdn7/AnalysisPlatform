@@ -1,4 +1,5 @@
 import math
+import os.path
 import re
 from datetime import datetime
 from io import BytesIO
@@ -75,6 +76,7 @@ from ap.common.services.csv_header_wrapr import (
     transform_duplicated_col_suffix_to_pandas_col,
 )
 from ap.common.services.normalization import normalize_list, normalize_str
+from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.common.timezone_utils import (
     add_days_from_utc,
     gen_dummy_datetime,
@@ -233,6 +235,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
     dummy_datetime_from = latest_record
     df_db_latest_records = None
 
+    is_first_chunk = True
     error_type = None
     chunk_size = record_per_commit * 100
     for idx, (csv_file_name, transformed_file) in enumerate(import_targets):
@@ -293,7 +296,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
             # re-arrange cols
             valid_columns = [col for col in csv_cols if col in valid_columns]
             dic_valid_csv_cols = dict(zip(valid_columns, [False] * len(valid_columns)))
-            missing_cols = [] if len(valid_columns) else dic_use_cols
+            missing_cols = [] if len(valid_columns) else list(dic_use_cols.keys())
 
             if not is_v2_datasource:
                 valid_with_dupl_cols = [dic_csv_cols[col] for col in valid_columns]
@@ -446,6 +449,14 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
         job_info.import_type = JobType.CSV_IMPORT.name
         # do import
         save_res, df_error, df_duplicate = import_df(proc_id, df, dic_use_cols, get_date_col, job_info)
+        if is_first_chunk:
+            data_register_data = {
+                'status': JobStatus.PROCESSING.name,
+                'process_id': proc_id,
+                'is_first_imported': True,
+            }
+            background_announcer.announce(data_register_data, AnnounceEvent.DATA_REGISTER.name)
+            is_first_chunk = False
 
         df_error_cnt = len(df_error)
         if df_error_cnt:
@@ -483,6 +494,14 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
         job_info.dic_imported_row = dic_imported_row
         job_info.import_type = JobType.CSV_IMPORT.name
         save_res, df_error, df_duplicate = import_df(proc_id, df, dic_use_cols, get_date_col, job_info)
+
+        if is_first_chunk:
+            data_register_data = {
+                'status': JobStatus.PROCESSING.name,
+                'process_id': proc_id,
+                'is_first_imported': True,
+            }
+            background_announcer.announce(data_register_data, AnnounceEvent.DATA_REGISTER.name)
 
         df_error_cnt = len(df_error)
         if df_error_cnt:
@@ -581,7 +600,7 @@ def validate_columns(checked_cols, csv_cols, use_dummy_datetime):
     """
     # ng_cols = set(csv_cols) - set(checked_cols)
     valid_cols = list(set(checked_cols).intersection(csv_cols))
-    ng_cols = [] if len(valid_cols) else csv_cols
+    ng_cols = [] if len(valid_cols) else list(csv_cols)
     # remove dummy datetime columns from set to skip validate this column
     if use_dummy_datetime and DATETIME_DUMMY in ng_cols:
         ng_cols.remove(DATETIME_DUMMY)
@@ -669,21 +688,28 @@ def csv_to_df(
     if data_src.skip_tail and len(df):
         df.drop(df.tail(data_src.skip_tail).index, inplace=True)
 
-    # extract columns of df same as data-source
-    sub_cols = [col for col in dic_use_cols.keys() if col in df.columns]
-    df = df[sub_cols]
+    if dic_use_cols:
+        # extract columns of df same as data-source
+        sub_cols = [col for col in dic_use_cols.keys() if col in df.columns]
+        df = df[sub_cols]
     return df
 
 
 @log_execution_time()
 def get_import_target_files(proc_id, data_src, trans_data, db_instance):
     dic_success_file, dic_error_file = get_last_csv_import_info(trans_data, db_instance)
-    csv_files = get_files(
-        data_src.directory,
-        depth_from=1,
-        depth_to=100,
-        extension=[CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value],
-    )
+    valid_extensions = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value]
+    csv_files = []
+    if os.path.isfile(data_src.directory):
+        if any(data_src.directory.lower().endswith(ext) for ext in valid_extensions):
+            csv_files.append(data_src.directory)
+    else:
+        csv_files = get_files(
+            data_src.directory,
+            depth_from=1,
+            depth_to=100,
+            extension=valid_extensions,
+        )
 
     # transform csv files (pre-processing)
     is_transform = False
@@ -931,7 +957,13 @@ def import_df(proc_id, df, dic_use_cols, get_date_col, job_info=None):
         convert_csv_timezone(df, col)
 
     # data pre-processing
-    df_error = data_pre_processing(df, orig_df, dic_use_cols, exclude_cols=[get_date_col, FILE_IDX_COL, INDEX_COL])
+    df_error = data_pre_processing(
+        df,
+        orig_df,
+        dic_use_cols,
+        exclude_cols=[get_date_col, FILE_IDX_COL, INDEX_COL],
+        get_date_col=get_date_col,
+    )
     # job status
     job_info.status = JobStatus.FAILED.name if len(df_error) else JobStatus.DONE.name
 

@@ -41,6 +41,7 @@ from ap.common.constants import (
     PORT,
     PROCESS_QUEUE,
     REQUEST_THREAD_ID,
+    SERVER_ADDR,
     SHUTDOWN,
     SQLITE_CONFIG_DIR,
     TESTING,
@@ -432,12 +433,19 @@ def create_app(object_name=None):
             from ap.common.disk_usage import (
                 add_disk_capacity_into_response,
                 get_disk_capacity_to_load_ui,
+                get_ip_address,
             )
 
             dict_capacity = get_disk_capacity_to_load_ui()
             add_disk_capacity_into_response(response, dict_capacity)
             if not request.cookies.get('locale'):
                 response.set_cookie('locale', lang)
+
+            server_ip = get_ip_address()
+            server_ip = [server_ip] + SERVER_ADDR
+            client_ip = request.remote_addr
+            is_admin = int(client_ip in server_ip)
+            response.set_cookie('is_admin', str(is_admin))
             response.set_cookie('sub_title', sub_title)
             response.set_cookie('user_group', user_group)
 

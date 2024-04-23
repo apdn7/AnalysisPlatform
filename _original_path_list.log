@@ -222,6 +222,7 @@
 .\ap\setting_module\services\about.py
 .\ap\setting_module\services\background_process.py
 .\ap\setting_module\services\process_config.py
+.\ap\setting_module\services\register_from_file.py
 .\ap\setting_module\services\trace_config.py
 .\ap\static\aggregate_plot\css\aggregate_plot.css
 .\ap\static\aggregate_plot\js\aggregate_plot.js
@@ -549,6 +550,7 @@
 .\ap\static\setting_module\css\master_cfg.css
 .\ap\static\setting_module\css\master_config.css
 .\ap\static\setting_module\css\proc_config_modal.css
+.\ap\static\setting_module\css\register_from_file.css
 .\ap\static\setting_module\css\setting_view.css
 .\ap\static\setting_module\css\top_view.css
 .\ap\static\setting_module\css\trace_config.css
@@ -579,6 +581,7 @@
 .\ap\static\setting_module\js\predict_data_type.js
 .\ap\static\setting_module\js\proc_config.js
 .\ap\static\setting_module\js\proc_config_modals.js
+.\ap\static\setting_module\js\register_from_file.js
 .\ap\static\setting_module\js\trace_config.js
 .\ap\static\table_viewer\css\table_viewer.css
 .\ap\static\table_viewer\js\table_viewer.js
@@ -636,6 +639,7 @@
 .\ap\templates\setting_module\master_config_modals.html
 .\ap\templates\setting_module\proc_config.html
 .\ap\templates\setting_module\proc_config_modals.html
+.\ap\templates\setting_module\register_by_file.html
 .\ap\templates\setting_module\terms_of_use.html
 .\ap\templates\setting_module\trace_config.html
 .\ap\templates\setting_module\_filter_line.html

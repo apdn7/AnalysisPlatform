@@ -758,7 +758,7 @@ def return_inf_vals(data_type):
 
 
 @log_execution_time()
-def data_pre_processing(df, orig_df, dic_use_cols, na_values=None, exclude_cols=None):
+def data_pre_processing(df, orig_df, dic_use_cols, na_values=None, exclude_cols=None, get_date_col=None):
     if exclude_cols is None:
         exclude_cols = []
     if na_values is None:
@@ -780,7 +780,16 @@ def data_pre_processing(df, orig_df, dic_use_cols, na_values=None, exclude_cols=
 
     # If there are all invalid values in one row, the row will be invalid and not be imported to database
     # Otherwise, invalid values will be set nan in the row and be imported normally
-    is_error_row_series = df.eval(f'{IS_ERROR_COL} == 1') & df[set(df.columns) - set(exclude_cols)].isnull().all(axis=1)
+    if get_date_col:
+        # datetime_col as string, but value is 'nan' -> could not filter by isnull
+        datetime_series = pd.to_datetime(df[get_date_col])
+        is_error_row_series = df.eval(f'{IS_ERROR_COL} == 1') & (
+            datetime_series.isnull() | df[set(df.columns) - set(exclude_cols)].isnull().all(axis=1)
+        )
+    else:
+        is_error_row_series = df.eval(f'{IS_ERROR_COL} == 1') & df[set(df.columns) - set(exclude_cols)].isnull().all(
+            axis=1,
+        )
     df_error = orig_df.loc[is_error_row_series]
     df_error[ERR_COLS_NAME] = df.loc[is_error_row_series][ERR_COLS_NAME]
 

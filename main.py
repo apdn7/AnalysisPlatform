@@ -8,7 +8,12 @@ from ap.common.services.notify_listen import process_listen_job
 
 env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
 app = create_app('config.%sConfig' % env.capitalize())
-set_log_config()
+
+pid = os.getpid()
+if __name__ == '__main__':
+    pid = f'{pid}_main'
+
+set_log_config(suffix=pid)
 
 if __name__ == '__main__':
     from datetime import datetime
