@@ -143,3 +143,8 @@ def master_config():
         'procs': processes,
     }
     return render_template('master_cfg.html', **output_dict)
+
+
+@setting_module_blueprint.route('/register_by_file')
+def register_by_file_page():
+    return render_template('register_by_file.html')

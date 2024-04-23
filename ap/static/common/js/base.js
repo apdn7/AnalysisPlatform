@@ -23,6 +23,7 @@ let requestStartedAt;
 let handleHeartbeat;
 let isDirectFromJumpFunction = false;
 let isLoadingUserSetting = false;
+let isAdmin = false;
 
 const serverSentEventType = {
     ping: 'ping',
@@ -36,7 +37,8 @@ const serverSentEventType = {
     pcaSensor: 'PCA_SENSOR',
     showGraph: 'SHOW_GRAPH',
     diskUsage: 'DISK_USAGE',
-    reloadTraceConfig: 'RELOAD_TRACE_CONFIG'
+    reloadTraceConfig: 'RELOAD_TRACE_CONFIG',
+    dataRegister: 'DATA_REGISTER',
 };
 
 const KEY_CODE = {
@@ -235,6 +237,13 @@ const handleSSEMessage = (event) => {
             if (typeof doReloadTraceConfig !== 'undefined') {
                 const { procs: procs, isUpdatePosition: isUpdatePosition } = data;
                 doReloadTraceConfig(procs, isUpdatePosition);
+            }
+        }
+
+        // for data register page
+        if (type === serverSentEventType.dataRegister) {
+            if (typeof updateDataRegisterStatus !== 'undefined') {
+                updateDataRegisterStatus({type, data});
             }
         }
     }
@@ -451,6 +460,35 @@ const notifyStatusSSE = () => {
         }
 
     }, false);
+
+    // for data register page
+    serverSentEventCon.addEventListener(serverSentEventType.dataRegister, (event) => {
+        const data = JSON.parse(event.data);
+        consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.dataRegister}\n${true}`);
+        const postDat = {type: serverSentEventType.dataRegister, data: data};
+        bc.postMessage(postDat);
+        if (typeof updateDataRegisterStatus !== 'undefined') {
+            updateDataRegisterStatus(postDat);
+        }
+    }, false);
+    // serverSentEventCon.addEventListener(serverSentEventType.dataRegister, (event) => {
+    //     const data = JSON.parse(event.data);
+    //     consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.dataRegister}\n${true}`);
+    //     const postDat = {type: serverSentEventType.dataRegister, data: data};
+    //     bc.postMessage(postDat);
+    //     if (typeof updateDataRegisterStatus !== 'undefined') {
+    //         updateDataRegisterStatus(postDat);
+    //     }
+    // }, false);
+    // serverSentEventCon.addEventListener(serverSentEventType.dataRegisterFinished, (event) => {
+    //     const data = JSON.parse(event.data);
+    //     consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.dataRegisterFinished}\n${true}`);
+    //     const postDat = {type: serverSentEventType.dataRegisterFinished, data: data};
+    //     bc.postMessage(postDat);
+    //     if (typeof updateDataRegisterStatus !== 'undefined') {
+    //         updateDataRegisterStatus(postDat);
+    //     }
+    // }, false);
 };
 
 const checkDiskCapacity = (data) => {
@@ -602,9 +640,17 @@ const baseRightClickHandler = (e) => {
     return false;
 };
 
+const setUserRule = () => {
+    isAdmin = docCookies.getItem(CONST.IS_ADMIN);
+    isAdmin = isAdmin ? parseInt(isAdmin) : false;
+};
+
 const showHideShutDownButton = () => {
-    const hostName = window.location.hostname;
-    if (!['localhost', '127.0.0.1'].includes(hostName)) {
+    // const hostName = window.location.hostname;
+    // if (!['localhost', '127.0.0.1'].includes(hostName)) {
+    //     $(baseEles.shutdownApp).css('display', 'none');
+    // }
+    if (!isAdmin) {
         $(baseEles.shutdownApp).css('display', 'none');
     }
 };
@@ -786,6 +832,7 @@ $(async () => {
         onChangeForDateTimeGroup();
     }, 1000);
 
+    setUserRule();
     showHideShutDownButton();
 
     sidebarCollapseHandle();
@@ -1775,7 +1822,7 @@ const getRequestParamsForShowGraph = () => {
     const reqId = getParamFromUrl('req_id');
     const bookmarkId = getParamFromUrl('bookmark_id');
     const startDateTime = getParamFromUrl('start_datetime');
-    const endDateTime = getParamFromUrl('end_datetime');
+    let endDateTime = getParamFromUrl('end_datetime');
     const optionId = getParamFromUrl('option_id');
     let columns = getParamFromUrl('columns');
     const objective = getParamFromUrl('objective');
@@ -1783,13 +1830,21 @@ const getRequestParamsForShowGraph = () => {
     let procs = getParamFromUrl('end_procs');
     const loadGUIFromURL = !!getParamFromUrl('load_gui_from_url');
     const latest = getParamFromUrl('latest')
+    const page = getParamFromUrl('page');
 
     columns = columns ? columns.split(',') : []
     procs = procs ? JSON.parse(procs) : []
 
     let datetimeRange = '';
     if (startDateTime && endDateTime) {
-        datetimeRange = `${formatDateTime(startDateTime, DATE_TIME_FMT)}${DATETIME_PICKER_SEPARATOR}${formatDateTime(endDateTime, DATE_TIME_FMT)}`
+        if (page && page === 'chm') {
+            const formattedStartDt = formatDateTime(startDateTime, DATE_FORMAT);
+            let formattedEndDt = formatDateTime(endDateTime, DATE_FORMAT);
+            if (formattedStartDt === formattedEndDt) {
+                endDateTime = moment(endDateTime).add(1, 'days');
+            }
+        }
+        datetimeRange = `${formatDateTime(startDateTime, DATE_TIME_FMT)}${DATETIME_PICKER_SEPARATOR}${formatDateTime(endDateTime, DATE_TIME_FMT)}`;
     }
 
 
@@ -1841,7 +1896,7 @@ const makeUserSettingFromParams = async () => {
         columns,
         endProcs,
         start_datetime,
-        latest
+        latest,
     } = getRequestParamsForShowGraph();
     const settings = []
     const divideOption = $('select[name=compareType]');

@@ -242,7 +242,13 @@ def import_factory(proc_id):
             orig_df = df.copy()
 
             # data pre-processing
-            df_error = data_pre_processing(df, orig_df, dic_use_cols, exclude_cols=[get_date_col])
+            df_error = data_pre_processing(
+                df,
+                orig_df,
+                dic_use_cols,
+                exclude_cols=[get_date_col],
+                get_date_col=get_date_col,
+            )
             df_error_cnt = len(df_error)
             if df_error_cnt:
                 factory_data_name = f'{proc_id}_{proc_name}'
@@ -721,7 +727,13 @@ def factory_past_data_transform(proc_id):
         orig_df = df.copy()
 
         # data pre-processing
-        df_error = data_pre_processing(df, orig_df, dic_use_cols, exclude_cols=[get_date_col])
+        df_error = data_pre_processing(
+            df,
+            orig_df,
+            dic_use_cols,
+            exclude_cols=[get_date_col],
+            get_date_col=get_date_col,
+        )
         df_error_cnt = len(df_error)
         if df_error_cnt:
             factory_data_name = f'{proc_id}_{proc_name}'

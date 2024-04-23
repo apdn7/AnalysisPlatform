@@ -81,42 +81,50 @@ from ap.setting_module.schemas import VisualizationSchema
 from ap.trace_data.transaction_model import TransactionData
 
 
-def get_latest_records(data_source_id, table_name, file_name=None, limit=5):
-    if not data_source_id:
-        return None
-
-    data_source = CfgDataSource.query.get(data_source_id)
-    if not data_source:
-        return None
-
+def get_latest_records(data_source_id, table_name, file_name=None, directory=None, limit=5):
+    is_v2_datasource = False
     previewed_files = None
     cols_with_types = []
-    is_v2_datasource = is_v2_data_source(ds_type=data_source.type)
-    is_csv_or_v2 = data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]
-    if is_csv_or_v2:
+    filtered_process_name = False
+    delimiter = 'Auto'
+    skip_head = ''
+    etl_func = ''
+
+    if data_source_id:
+        data_source = CfgDataSource.query.get(data_source_id)
+        if not data_source_id:
+            return None
+        is_v2_datasource = is_v2_data_source(ds_type=data_source.type)
+        is_csv_or_v2 = data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]
         csv_detail = data_source.csv_detail
         filtered_process_name = csv_detail.process_name or False
+        directory = csv_detail.directory
+        delimiter = csv_detail.delimiter
+        etl_func = csv_detail.etl_func
+        skip_head = '' if (csv_detail.skip_head == 0 and not csv_detail.dummy_header) else csv_detail.skip_head
+    else:
+        is_csv_or_v2 = True
 
+    if is_csv_or_v2:
         if is_v2_datasource:
             dic_preview = preview_v2_data(
-                csv_detail.directory,
-                csv_detail.delimiter,
+                directory,
+                delimiter,
                 limit,
                 return_df=True,
                 process_name=filtered_process_name,
                 file_name=file_name,
             )
         else:
-            line_skip = '' if (csv_detail.skip_head == 0 and not csv_detail.dummy_header) else csv_detail.skip_head
             dic_preview = preview_csv_data(
-                csv_detail.directory,
-                csv_detail.etl_func,
-                csv_detail.delimiter,
+                directory,
+                etl_func,
+                delimiter,
                 limit,
                 return_df=True,
                 max_records=1000,
                 file_name=file_name,
-                line_skip=line_skip,
+                line_skip=skip_head,
             )
         column_raw_name = dic_preview.get('org_headers')
         headers = normalize_list(dic_preview.get('header'))
@@ -128,7 +136,7 @@ def get_latest_records(data_source_id, table_name, file_name=None, limit=5):
             cols_with_types = gen_cols_with_types(headers, data_types, same_values, is_v2_history, column_raw_name)
 
         # sort columns
-        sorted(csv_detail.csv_columns, key=lambda c: c.order or c.id)
+        # sorted(csv_detail.csv_columns, key=lambda c: c.order or c.id)
         # cols = {col.column_name for col in sorted_columns if col.column_name in headers}
         cols = headers
 

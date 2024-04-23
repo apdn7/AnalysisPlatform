@@ -840,6 +840,10 @@ footer {
     border: 1px solid white;
 }
 
+.register-by-file-btn {
+    background-color: #182738;
+}
+
 .li-grey {
     color: grey;
 }
@@ -2464,3 +2468,7 @@ svg.svg-inline--fa.fa-circle-right {
 }
 
 /*dn custom select*/
+
+.column-name-invalid {
+    border: 1px solid red;
+}

@@ -10,10 +10,14 @@
                 title="{{ _('Analysis Platform : That makes it easy to data link, visualize, statistical analysis, and machine learning.') }}">
 				Analysis Platform
 			</a>
-            <a class="btn tile-menus header-btn go-to-page" data-tile="#usage"
+            <a class="btn tile-menus header-btn mr-2 go-to-page" data-tile="#usage"
                 href="{{ url_for('tile_interface.tile_interface', tile_type='usage') }}"
                 title="{{ _('You can find the recommended pages and their settings from what you want to do.') }}">
 				{{ _('Search by Usage') }}
+			</a>
+            <a class="btn tile-menus header-btn register-by-file-btn go-to-page" data-tile="#register_by_file"
+                href="{{ url_for('setting_module.register_by_file_page') }}">
+				{{ _('NavButtonRegisterByFile') }}
 			</a>
 			<div class="pl-3" style="color: #90d1ff; font-size: 1.3em;">
 				<span class="page-title-character" id="page-sub-title"></span>

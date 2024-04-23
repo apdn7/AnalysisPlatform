@@ -17,6 +17,7 @@ class AnnounceEvent(Enum):
     PCA_SENSOR = auto()
     SHOW_GRAPH = auto()
     DISK_USAGE = auto()
+    DATA_REGISTER = auto()
 
 
 class MessageAnnouncer:

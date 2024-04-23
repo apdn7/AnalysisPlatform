@@ -1491,6 +1491,7 @@ class PagePath(Enum):
     PCP = 'ap/pcp'
     PCA = 'ap/analyze/anomaly_detection/pca'
     GL = 'ap/analyze/structure_learning/gl'
+    REGISTER_DATA_FILE = 'ap/register_by_file'
 
 
 PROCESS_QUEUE = '_queue'
@@ -1602,3 +1603,22 @@ class ColumnDTypeToSQLiteDType(BaseEnum):
 
 # if nchar(header) > 90%: generate column name
 NUM_CHARS_THRESHOLD = 90
+
+
+# register data from file
+class RegisterDatasourceType(BaseEnum):
+    DIRECTORY = 'directory'
+    FILE = 'file'
+    REFERENCE_FILE = 'reference_file'
+
+
+SERVER_ADDR = [
+    'localhost',
+    '127.0.0.1',
+]
+
+
+class DataRegisterStage(BaseEnum):
+    FIRST_IMPORTED = 'first_imported'
+    DURING = 'during'
+    FINISHED = 'finished'

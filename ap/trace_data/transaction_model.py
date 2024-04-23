@@ -523,6 +523,12 @@ class TransactionData:
         _, rows = db_instance.run_sql(sql, row_is_dict=True)
         return rows[0].get(max_time)
 
+    def get_min_date_time_by_process_id(self, db_instance: Union[PostgreSQL, SQLite3]):
+        min_time = 'min_time'
+        sql = f'SELECT min({self.getdate_column.bridge_column_name}) as {min_time} FROM {self.table_name}'
+        _, rows = db_instance.run_sql(sql, row_is_dict=True)
+        return rows[0].get(min_time)
+
     def get_latest_records_by_process_id(self, db_instance: Union[PostgreSQL, SQLite3], limit=5):
         sql = f'SELECT * FROM {self.table_name} ORDER BY {self.getdate_column.bridge_column_name} LIMIT {limit}'
         cols, rows = db_instance.run_sql(sql, row_is_dict=False)

@@ -65,15 +65,19 @@ def get_datetime_from_file(filename: str, fmt: str) -> datetime:
     return datetime.strptime(file_without_ext, fmt)
 
 
-def create_log_filename_from_datetime(dt: Union[datetime, ddate]) -> str:
-    return dt.strftime(BASE_FILENAME_FORMAT) + '.log'
+def create_log_filename_from_datetime(dt: Union[datetime, ddate], suffix=None) -> str:
+    file_name = dt.strftime(BASE_FILENAME_FORMAT)
+    if suffix:
+        file_name = f'{file_name}_{suffix}'
+
+    return file_name + '.log'
 
 
-def get_base_filename(basedir):
+def get_base_filename(basedir, suffix=None):
     """Generate log file basename"""
     if not basedir:
         basedir = 'log'
-    return os.path.join(basedir, create_log_filename_from_datetime(datetime.now()))
+    return os.path.join(basedir, create_log_filename_from_datetime(datetime.now(), suffix))
 
 
 def namer(name: str) -> str:
@@ -306,7 +310,7 @@ class BatchAndRotatingHandler(TimedRotatingFileHandler, RotatingFileHandler):
             self.handleError(record)
 
 
-def set_log_config():
+def set_log_config(suffix=None):
     import ap
     from ap import get_basic_yaml_obj
     from ap.common.common_utils import make_dir
@@ -320,7 +324,7 @@ def set_log_config():
     log_dir = ap.dic_config.get('INIT_LOG_DIR')
     # initiate log dir if not existing
     make_dir(log_dir)
-    log_file = get_base_filename(log_dir)
+    log_file = get_base_filename(log_dir, suffix)
 
     file_handler = BatchAndRotatingHandler(
         log_file,

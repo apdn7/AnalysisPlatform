@@ -19,12 +19,14 @@ from ap.common.constants import (
     COMPLETED_PERCENT,
     ID,
     UNKNOWN_ERROR_TEXT,
+    CacheType,
     DiskUsageStatus,
     JobStatus,
     JobType,
 )
 from ap.common.disk_usage import get_disk_capacity_once
 from ap.common.logger import log_execution_time, logger
+from ap.common.memoize import memoize
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.error_message_handler import ErrorMessageHandler
 from ap.common.services.sse import AnnounceEvent
@@ -57,6 +59,11 @@ ERROR_MSG = 'error_msg'
 previous_disk_status = DiskUsageStatus.Normal
 
 
+@memoize(cache_type=CacheType.CONFIG_DATA)
+def get_all_proc_shown_names():
+    return {proc.id: proc.shown_name for proc in CfgProcess.get_all()}
+
+
 @log_execution_time()
 def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignore_job_types=None, error_page=False):
     """
@@ -66,6 +73,7 @@ def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignor
     jobs = JobManagement.query
     if error_page:
         jobs = jobs.filter(JobManagement.status.in_(JobStatus.failed_statuses()))
+
     if ignore_job_types:
         jobs = jobs.filter(JobManagement.job_type.notin_(ignore_job_types))
 
@@ -76,6 +84,7 @@ def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignor
         jobs = jobs.order_by(JobManagement.id.desc())
 
     jobs = jobs.paginate(page, per_page, error_out=False)
+    dic_procs = get_all_proc_shown_names()
     rows = []
     for _job in jobs.items:
         dic_job = _job.as_dict()
@@ -84,12 +93,15 @@ def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignor
         # get job information and send to UI
         job_name = f'{job.job_type}_{job.process_id}' if job.process_id else job.job_type
 
-        # get process shown name
-        proc_cfg = CfgProcess.get_proc_by_id(_job.process_id)
-        if not error_page and not proc_cfg:
+        if not error_page and job.process_id is not None and job.process_id not in dic_procs:
             # do not show deleted process in job normal page -> show only job error page
             continue
-        proc_name = proc_cfg.shown_name if proc_cfg else (job.process_name or '')
+
+        # get process shown name
+        proc_name = dic_procs.get(job.process_id)
+        if not proc_name:
+            proc_name = job.process_name or ''
+
         row = {
             JOB_ID: job.id,
             JOB_NAME: job_name,
@@ -270,6 +282,13 @@ def send_processing_info(
     # process_queue.put_nowait((dic_res, AnnounceEvent.JOB_RUN.name))
     # process_queue.send((dic_res, AnnounceEvent.JOB_RUN.name))
     dic_progress[job.id] = (dic_res, AnnounceEvent.JOB_RUN.name)
+    if job.job_type == JobType.CSV_IMPORT.name:
+        dic_register_progress = {
+            'status': job.status,
+            'process_id': job.process_id,
+            'is_first_imported': False,
+        }
+        dic_progress[job.id] = (dic_register_progress, AnnounceEvent.DATA_REGISTER.name)
 
 
 def update_job_management(job, err=None):

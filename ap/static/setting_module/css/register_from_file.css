@@ -1,0 +1,78 @@
+.section {
+    background-color: #303030;
+    padding: 20px 2vw 20px 6vw;
+}
+
+.section table {
+    margin-bottom: 2px;
+}
+
+.btn-browse {
+    background-color: #FFFFFF;
+    color: #000000;
+}
+
+.data-source-config {
+    flex: 1;
+    margin-right: 50px
+}
+
+.file-folder-browser {
+    padding: 10px;
+    height: 105px;
+}
+
+.border-dash-gray {
+    border-style: dashed;
+    border-color: #999999;
+    border-width: 1px;
+}
+
+.progress-display {
+    height: fit-content;
+    padding: 20px;
+    min-width: 180px;
+    min-height: 105px;
+}
+
+.folder-browser {
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.directory-form {
+   flex: 1;
+}
+
+.register-datasource-button {
+    width: 150px;
+    padding: 10px 20px;
+    background-color: #375a7f;
+}
+
+.fa-check {
+    color:greenyellow;
+    margin-right: 5px;
+}
+
+.fa-triangle-exclamation {
+    color: yellow;
+    margin-right: 5px;
+}
+
+.fa-spinner {
+    color: white;
+    margin-right: 5px;
+}
+
+.process-name-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 15px;
+}
+
+.scroll-content {
+    top: 4px!important;
+}

@@ -263,7 +263,13 @@ def universal_db_exists():
 
 
 # convert time before save to database YYYY-mm-DDTHH:MM:SS.NNNNNNZ
-def convert_time(time=None, format_str=DATE_FORMAT_STR, return_string=True, only_millisecond=False, remove_ms=False):
+def convert_time(
+    time: object = None,
+    format_str: object = DATE_FORMAT_STR,
+    return_string: object = True,
+    only_millisecond: object = False,
+    remove_ms: object = False,
+) -> object:
     if not time:
         time = datetime.utcnow()
     elif isinstance(time, str):

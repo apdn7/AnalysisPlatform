@@ -231,7 +231,7 @@ msgstr "Setting Content"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Column Name"
-msgstr "Column Name"
+msgstr "Variable Name"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "English Name"
@@ -276,7 +276,9 @@ msgstr "English name is duplicated"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "System is duplicated"
-msgstr "System is duplicated"
+msgstr ""
+"Duplicate variable names used on System. Please change the System items "
+"so that there are no duplicates."
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Master name is duplicated"
@@ -320,7 +322,7 @@ msgstr "Prev Process"
 
 #: ap/templates/setting_module/trace_config.html:77
 msgid "Prev Column"
-msgstr "Prev Column"
+msgstr "Prev Variable"
 
 #: ap/templates/setting_module/trace_config.html:84
 msgid "Post Process"
@@ -328,7 +330,7 @@ msgstr "Post Process"
 
 #: ap/templates/setting_module/trace_config.html:88
 msgid "Post Column"
-msgstr "Post Column"
+msgstr "Post Variable"
 
 #: ap/templates/setting_module/proc_config_modals.html:69
 msgid "As Datetime"
@@ -364,7 +366,7 @@ msgstr "Line Filter Config"
 
 #: ap/templates/filter_visualization.html
 msgid "Line Column"
-msgstr "Line Column"
+msgstr "Line Variable"
 
 #: ap/templates/filter_visualization.html
 msgid "N/A"
@@ -380,7 +382,7 @@ msgstr "Machine Filter Config"
 
 #: ap/templates/filter_visualization.html
 msgid "Machine ID Column"
-msgstr "Machine ID Column"
+msgstr "Machine ID Variable"
 
 #: ap/templates/filter_visualization.html
 msgid "Part No Filter Config"
@@ -388,7 +390,7 @@ msgstr "Part No Filter Config"
 
 #: ap/templates/filter_visualization.html
 msgid "Part No Column"
-msgstr "Part No Column"
+msgstr "Part No Variable"
 
 #: ap/templates/filter_visualization.html
 msgid "Filter Name"
@@ -404,7 +406,7 @@ msgstr "Others Filter Config"
 
 #: ap/templates/filter_visualization.html
 msgid "Target Column"
-msgstr "Target Column"
+msgstr "Target Variable"
 
 #: ap/templates/filter_visualization.html
 msgid "Visualization Config"
@@ -412,19 +414,19 @@ msgstr "Visualization Config"
 
 #: ap/templates/filter_visualization.html
 msgid "Lower threshold"
-msgstr "Lower threshold"
+msgstr "Lower threshold CL"
 
 #: ap/templates/filter_visualization.html
 msgid "Upper threshold"
-msgstr "Upper threshold"
+msgstr "Upper threshold CL"
 
 #: ap/templates/filter_visualization.html
 msgid "Lower process threshold"
-msgstr "Lower process threshold"
+msgstr "Lower threshold AL"
 
 #: ap/templates/filter_visualization.html
 msgid "Upper process threshold"
-msgstr "Upper process threshold"
+msgstr "Upper threshold AL"
 
 #: ap/templates/filter_visualization.html
 msgid "y-axes range: min"
@@ -479,7 +481,7 @@ msgstr "Failed to save"
 
 #: ap/templates/setting_module/_filter_partno.html:48
 msgid "Target column is required"
-msgstr "Target column is required"
+msgstr "Target variable is required"
 
 #: ap/templates/setting_module/_filter_partno.html:48
 msgid "Filter name is required"
@@ -606,7 +608,7 @@ msgstr "hours"
 
 #: ap/templates/macros.html
 msgid "Show value"
-msgstr "Show value"
+msgstr "Display variable"
 
 #: ap/templates/macros.html
 msgid "Filter"
@@ -626,7 +628,7 @@ msgstr "Index"
 
 #: ap/templates/categorical_plot/categorical_plot_by_var.html
 msgid "Stratify Variables"
-msgstr "Stratify Variables"
+msgstr "Stratify (Grouping) Variables"
 
 #: ap/templates/categorical_plot/categorical_plot_by_term.html
 msgid "Filters"
@@ -670,11 +672,11 @@ msgstr "Please fill data source name"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Columns whose datatypes are not specified will not be imported."
-msgstr "Columns of which datatypes are not specified will not be imported."
+msgstr "Variables of which datatypes are not specified will not be imported."
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "At least one datetime column is required."
-msgstr "At least one datetime column is required."
+msgstr "At least one datetime variable is required."
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "'{col}' is used for x-axis on charts."
@@ -798,7 +800,7 @@ msgstr "Delete Process"
 
 # ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
-msgstr "Import Factory Data"
+msgstr "Import Recent Data"
 
 # ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
@@ -1011,14 +1013,14 @@ msgstr ""
 msgid "NoneNumeric"
 msgstr ""
 "Data-set contains non-numeric data and analysis cannot be executed. "
-"Please check whether you selected column that include character string, "
-"etc. (Category Value)."
+"Please check whether you selected variable that include character string,"
+" etc. (Category Value)."
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "ZeroVariance"
 msgstr ""
-"Data-set contains zero-variance data. Please check whether you selected "
-"column that include identical values."
+"It cannot be analyzed because it contains variables with a variance of 0 "
+"(all data have the same value). Check if such a variable is selected."
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "IntegerData"
@@ -1114,7 +1116,7 @@ msgstr "Back"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Add Node"
-msgstr "Add Node"
+msgstr "Add Node (green circle)"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Add Edge"
@@ -1122,23 +1124,23 @@ msgstr "Add Edge"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Edit Node"
-msgstr "Edit node"
+msgstr "Edit node (green circle)"
 
 #: ap/template/setting_module/trace_config.html
 msgid "Add Description"
-msgstr "Click an empty space to place a new node."
+msgstr "Click an empty space to place a new node (green circle)."
 
 #: ap/template/setting_module/trace_config.html
 msgid "Edge Description"
-msgstr "Click nodes and drag edges to other nodes to connect them."
+msgstr "Click nodes (green circle) and drag edges to other nodes to connect them."
 
 #: ap/template/setting_module/trace_config.html
 msgid "Edit Edge Description"
-msgstr "Click a control point and drag it to a node to connect it."
+msgstr "Click a control point and drag it to a node (green circle) to connect it."
 
 #: ap/template/setting_module/trace_config.html
 msgid "Create Edge Error"
-msgstr "Cluster cannot be created."
+msgstr "Edges (lines) cannot be added."
 
 #: ap/template/setting_module/trace_config.html
 msgid "Delete Cluster Error"
@@ -1224,7 +1226,7 @@ msgstr "Warning"
 #: ap/template/setting_module/db-config.html
 msgid "Invalid data in datetime column"
 msgstr ""
-"Records that include invalid data in date-time column will be 'NOT' "
+"Records that include invalid data in date-time variable will be 'NOT' "
 "imported."
 
 #: ap/template/setting_module/db-config.html
@@ -1438,8 +1440,8 @@ msgstr "Advanced Setting"
 #: ap/templates/setting_module/config.html:43
 msgid "ProceedToProcessConfig"
 msgstr ""
-"Saved database / CSV settings. Please proceed to process settings, "
-"configure columns, and start importing."
+"Saved database / CSV settings. Please proceed to process config, "
+"configure variables, and start importing."
 
 #: ap/template/analyze/hotelling_tsquare.html
 msgid "2 or more variables should be selected for PCA"
@@ -1447,7 +1449,7 @@ msgstr "2 or more variables should be selected for PCA"
 
 #: ap/templates/setting_module/trace_config.html:43
 msgid "Please choose at least one column"
-msgstr "Please choose at least one column"
+msgstr "Please choose at least one variable"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Category value with narrow width of box is not shown."
@@ -1490,8 +1492,8 @@ msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
 msgstr ""
-"string columns are detected. There is a possibility that numeric columns "
-"are mis-estimated. Please check data type."
+"string variables are detected. There is a possibility that numeric "
+"variables are mis-estimated. Please check data type."
 
 # ap/template/setting_module/master_config.html
 msgid "Filter Item"
@@ -1516,10 +1518,10 @@ msgstr "Master"
 #: ap/templates/templates/base.html
 msgid "Data Type Error Warning"
 msgstr ""
-"Data could not be imported due to column data type setting error. Please "
-"check the data type setting in the data preview on the CSV / TSV import "
-"setting page with the data source name __param__. Please delete the "
-"process config that could not be imported and set it again."
+"Data could not be imported due to variable data type setting error. "
+"Please check the data type setting in the data preview on the CSV / TSV "
+"import setting page with the data source name __param__. Please delete "
+"the process config that could not be imported and set it again."
 
 #: ap/templates/templates/base.html
 msgid "Import Empty File Warning"
@@ -1546,7 +1548,7 @@ msgstr "Divide by term (Direct)"
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Invalid Cyclic Term Interval"
 msgstr ""
-"Specified `Interval` is invalid. Value must be between 0.01 and 720, or "
+"Specified `Step size` is invalid. Value must be between 0.01 and 720, or "
 "between -720 and -0.01."
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
@@ -1565,7 +1567,7 @@ msgstr "Start data & time"
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Interval"
-msgstr "Interval"
+msgstr "Step size"
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Window length"
@@ -1608,9 +1610,9 @@ msgstr "Specified `Data Source Name` already exists."
 #: ap/templates/templates/i18n.html
 msgid "CSV Template is error when import"
 msgstr ""
-"Data could not be imported normally because the column names in the data "
-"source are different to each other. Please check the contents of the file"
-" and set the data source import config again."
+"Data could not be imported normally because the variable names in the "
+"data source are different to each other. Please check the contents of the"
+" file and set the data source import config again."
 
 #: ap/templates/templates/i18n.html
 msgid "Predicted number of records to be linked"
@@ -1674,47 +1676,53 @@ msgid ""
 "Compare data distribution with histograms and estimated density lines. "
 "Split the graph with  stratified variables."
 msgstr ""
-"Compare data distribution with histograms and estimated density lines. "
-"Split the graph with 'Facet'."
+"Compare the distribution of the data with histograms and estimated "
+"density lines. Splits the graph by variable contents selected in the "
+"facet settings."
 
 #: ap/templates/sidebar.html
 msgid "Plot all data points with time axis or ID axis."
-msgstr "Plot all data points with time axis or ID axis"
+msgstr ""
+"Plot all data on the horizontal axis sorted by time series or other "
+"variables."
 
 #: ap/templates/sidebar.html
 msgid ""
 "Displays a scatter chart matrix. You can create a matrix between up to "
 "four target variables."
-msgstr ""
-"Displays a scatter chart matrix. You can create a matrix between a "
-"minimum of 2 and a maximum of 7 target variables."
+msgstr "Visualize relationships between variables with a scatter chart matrix."
 
 #: ap/templates/sidebar.html
 msgid ""
 "This function visualizes “unusual” and analyzes its factors by Principal "
 "Component Analysis."
 msgstr ""
-"This function visualizes “unusual” and analyzes its factors by Principal "
-"Component Analysis. Input normal situation data (w/o NG data) as training"
-" data, and visualize whether the current data is in the same situation as"
-" the normal (T2/Q). If unusual situations occurs, you can check the major"
-" factors of its in contribution plots."
+"Principal Component Analysis is used to visualize 'unusual' and analyze "
+"its causes. Input a normal data group (w/o NG data) as training data and "
+"visualize whether the current data is in the same situation as the normal"
+" data group (T2/Q). Large values of T2/Q may deviate from the central "
+"condition. If such a situation occurs, you can check the main factors in "
+"contribution plots, and the variables displayed there are the factors "
+"that caused the deviation."
 
 # ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
-msgstr "Stratified Category Filter: Limits data to be displayed to a subset."
+msgstr ""
+"Limits the data to be displayed to some of the categorical variables "
+"(product number, station number, etc.) selected in Facet."
 
 # ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
-"Category variables (part number, station number, etc.) that appears as a "
-"label at the head of graphs to visualize changing points (part numbers "
-"switching, etc.) of the qualitative variable. You can select items whose "
-"data types are Int(Integer) and Str(String)."
+"The status of categorical variables (product number, station number, "
+"etc.) is displayed in light blue labels at the top of the graph. The "
+"change in label is the point of change (product number change, etc.). You"
+" can select variables whose data type (Type) is category (Cat), string "
+"(Str), or serial (Seri)."
 
 # ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
-msgstr "Graph Filter: Limits data to be displayed to a subset."
+msgstr "Limit the data to be displayed among the Display variable."
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
@@ -1729,7 +1737,7 @@ msgstr "Set test data to be judged."
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
-msgstr "Item Filter: Limits data (analyse & display) to be displayed to a subset."
+msgstr "Limit the data to be analyzed and displayed among the Display variable."
 
 # ap/template/analyze/hotelling_tsquare.html
 msgid ""
@@ -1807,13 +1815,13 @@ msgstr ""
 #: ap/templates/templates/i18n.html
 msgid "OutCL"
 msgstr ""
-"Out of Control Line. Percentage of data outside the upper and lower "
+"Out of Control Line (CL). Percentage of data outside the upper and lower "
 "thresholds for the selected time period (number of that data)"
 
 #: ap/templates/templates/i18n.html
 msgid "OutAL"
 msgstr ""
-"Out of Action Line. Percentage of data outside the upper and lower "
+"Out of Action Line (AL). Percentage of data outside the upper and lower "
 "process thresholds for the selected time period (number of that data)"
 
 #: ap/templates/templates/i18n.html
@@ -1942,8 +1950,8 @@ msgstr "Calendar Heat Map"
 #: ap/templates/templates/i18n.html
 msgid "Too Many Sensors"
 msgstr ""
-"More than MAX_NUM_SENSOR show values can not be selected. Show value "
-"should be selected again."
+"More than MAX_NUM_SENSOR Display variable can not be selected. Display "
+"variable should be selected again."
 
 #: ap/templates/templates/i18n.html
 msgid "Real"
@@ -1960,7 +1968,7 @@ msgstr ""
 "the distribution for each category variable (qualitative variable, lot "
 "numbers, etc.) or date & time and displaying them side by side. A "
 "visualization method that enables cross-group analysis (Lot to lot, day "
-"to day, shift to shift comparisons, etc.) of data without ID."
+"to day, shift to shift comparisons, etc.) of data without serial."
 
 #: ap/templates/templates/i18n.html
 msgid "Master Config Hover"
@@ -2010,7 +2018,7 @@ msgstr ""
 #: ap/templates/templates/i18n.html
 msgid "As Key (Option) Hover"
 msgstr ""
-"(Special Option) You can select a column of datetime that will be used "
+"(Special Option) You can select a variable of datetime that will be used "
 "preferentially as a key to store the datetime when it periodically "
 "imports data."
 
@@ -2069,19 +2077,19 @@ msgstr "Min"
 
 #: ap/templates/templates/macros.html
 msgid "Show value (Real/Float)"
-msgstr "Show value (Real/Float)"
+msgstr "Display variable (Real/Float)"
 
 #: ap/templates/templates/macros.html
 msgid "Show value (Category)"
-msgstr "Show value (Category)"
+msgstr "Display variable (Category)"
 
 #: ap/templates/templates/i18n.html
 msgid "Index ordering"
-msgstr "Index ordering"
+msgstr "Horizontal axis order setting"
 
 #: ap/templates/templates/i18n.html
 msgid "Column"
-msgstr "Column"
+msgstr "Variable"
 
 #: ap/templates/i18n.html
 msgid "Order"
@@ -2113,7 +2121,7 @@ msgstr "Categorical only"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid "In set order"
-msgstr "In set order"
+msgstr "In set order in process config"
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid "In process order"
@@ -2246,8 +2254,8 @@ msgid ""
 "A same column name was found in the English name column and was handled "
 "automatically. Please check the column names."
 msgstr ""
-"A same column name was found in the English name column and was handled "
-"automatically. Please check the column names."
+"A same variable name was found in the English name variable and was "
+"handled automatically. Please check the variable names."
 
 #: ap/templates/templates/i18n.html
 msgid "Aggregate by"
@@ -2281,8 +2289,9 @@ msgid ""
 "Identify and visualize directly/indirectly correlated variables of "
 "objective(s)"
 msgstr ""
-"Identify and visualize directly/indirectly correlated variables of "
-"objective(s)"
+"Identify and visualize variables that are directly or indirectly "
+"correlated with the objective (variable that you want to clarify the "
+"factors). "
 
 #: ap/templates/templates/sankey_plot/sankey_plot.html
 msgid ""
@@ -2297,7 +2306,9 @@ msgstr ""
 
 #: ap/templates/templates/sankey_plot/sankey_plot.html
 msgid "Candidate variables that are correlated with objective variable(s)."
-msgstr "Candidate variables that are correlated with objective variable(s)."
+msgstr ""
+"Candidate variables that are correlated with objective (variable that you"
+" want to clarify the factors)."
 
 #: ap/templates/templates/i18n.html
 msgid "of all edges"
@@ -2353,8 +2364,8 @@ msgid ""
 "Visualize the correlation between a large number of variables with "
 "respect to target variable."
 msgstr ""
-"Visualize the correlation between a large number of variables with "
-"respect to target variable."
+"Visualizes the correlation between a large number of variables for the "
+"objective (variable that you want to clarify the factors)."
 
 #: ap/templates/sidebar.html
 msgid ""
@@ -2405,9 +2416,10 @@ msgid ""
 "and category variable like part number) to visualize pattern. This data "
 "is plotted on the graph. It can be selected up to ten items."
 msgstr ""
-"Enter target item of data (quantitative variable like measurement value "
-"and category variable like part number) to visualize pattern. This data "
-"is plotted on the graph. It can be selected up to eighteen items."
+"This is an item of data (quantitative variable: measured value, etc., "
+"categorical variable: product number, etc.) that generates the pattern "
+"you want to visualize. This data is plotted on a graph. You can select up"
+" to 18 items."
 
 #: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
 #: ap/templates/scatter_plot/scatter_plot.html
@@ -2416,9 +2428,10 @@ msgid ""
 "to visualize the correlation between variables. This data is plotted on "
 "the graph. It can be selected up to four items."
 msgstr ""
-"Enter target item of data (quantitative variable like measurement value) "
-"to visualize the correlation between variables. This data is plotted on "
-"the graph. It can be selected a minimum of 2 and a maximum of 64 items."
+"This is a selection item for data (quantitative variables: measured "
+"values, etc.) that visualizes the correlation between variables. You can "
+"create a matrix between two or more variables. If there are more than 10 "
+"items, a heat map will be displayed."
 
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid ""
@@ -2549,7 +2562,9 @@ msgstr "Load"
 
 #: ap/templates/templates/i18n.html
 msgid "Ratio of availability of data link"
-msgstr "Ratio of availability of data link"
+msgstr ""
+"Number of data that could not be linked to the Start point process "
+"(percentage of linkability)"
 
 #: ap/templates/modals.html
 msgid "Save Date & Time"
@@ -2672,7 +2687,7 @@ msgstr "Full range"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Index Ordering Setting"
-msgstr "Index Ordering Setting"
+msgstr "Horizontal axis order setting"
 
 #: ap/templates/i18n.html
 msgid "Open"
@@ -2703,9 +2718,20 @@ msgid ""
 "Category expansion is performed to divide the graph using the data of the"
 " selected item."
 msgstr ""
-"Category expansion is performed to divide the graph using the data of the"
-" selected item. You can select items whose data types are Int(Integer) "
-"and Str(String)."
+"Divide the graph by the contents of the selected variable. You can select"
+" items whose data type (Type) is category (Cat) or string (Str). \n"
+"If you select only Lv1 or Lv2, the graph will be divided by the contents "
+"of selected variable.\n"
+"If you select both Lv1 and Lv2, the graph will be divided according to "
+"the combination of the contents of the two selected variables.\n"
+"\n"
+"*RLP, AgP, and ScP pages, you can select Div in addition to Lv1 and Lv2. "
+"The roles of Div are as follows\n"
+"・RLP,AgP: The selected variable is used on the horizontal axis, and the "
+"contents of the variable are aggregated by contents.\n"
+"・ScP: The graph is divided in the same way as Lv1 and Lv2, but the "
+"divided graphs are arranged vertically for Lv1 and Lv2, and horizontally "
+"for Div."
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Exception Estimation"
@@ -2878,11 +2904,11 @@ msgstr "Objective"
 msgid "Objective Explain"
 msgstr ""
 "The correlation coefficient of each variable is calculated with the "
-"variable specified here as the objective variable. Also, the objective "
-"variable specified here is displayed with the color bar on the far right "
-"of the graph. If you want to change the objective variable on the graph, "
-"you can switch the objective variable by right-clicking on each variable "
-"name."
+"variable specified here as the objective (variable that you want to "
+"clarify the factors). Also, the objective variable specified here is "
+"displayed with the color bar on the far right of the graph. If you want "
+"to change the objective variable on the graph, you can switch the "
+"objective variable by right-clicking on each variable name."
 
 #: ap/templates/i18n.html
 msgid "Category limited MSG"
@@ -2919,8 +2945,8 @@ msgid ""
 "If you do not select start process, the process of the first target "
 "variable will be start process."
 msgstr ""
-"If you do not select start process, the process of the first target "
-"variable will be start process."
+"You can select the process that determines the Target period. If not "
+"selected, the first (upper left) process will be set."
 
 #: ap/templates/macros.html
 msgid "Export data"
@@ -2953,12 +2979,13 @@ msgstr "Div"
 #: ap/templates/i18n.html
 msgid "Color explanation"
 msgstr ""
-"The color of the points plotted on the graph is color coded using the "
-"data of the selected item. However, it cannot be color-coded in the "
-"following cases.\n"
-"(i) When either x or y data type is string and the data type of the "
-"variable selected by color coding is not string.\n"
-"(ii) When both the x and y data types are strings."
+"The plotted points are colored based on the value of the selected "
+"variable. \n"
+"\n"
+"Violin Plot\n"
+"If the data type (Type) of the variable on either the vertical or "
+"horizontal axis is category (Cat) or string (Str), a violin plot will be "
+"displayed. Variables other than (Str) are ignored."
 
 #: ap/templates/i18n.html
 msgid "Objective variable is NOT selected."
@@ -2976,8 +3003,8 @@ msgstr "Scatter Plot"
 #: ap/templates/i18n.html
 msgid "SCP choose color variable warning message"
 msgstr ""
-"If either x or y data type is  string, variables other than the string "
-"cannot be used for color plot."
+"In the case of violin plots, variables other than categories (Cat) and "
+"strings (Str) are ignored for color coding."
 
 #: ap/templates/i18n.html
 msgid "Changed to the max number division automatically."
@@ -3061,10 +3088,11 @@ msgstr "Col num"
 #: ap/templates/i18n.html
 msgid "Label Variable Description"
 msgstr ""
-"Category variables (part number, station number, etc.) that appears as a "
-"label at the head of graphs to visualize changing points (part numbers "
-"switching, etc.) of the qualitative variable. You can select items whose "
-"data types are Int(Integer) and Str(String)."
+"The status of categorical variables (product number, station number, "
+"etc.) is displayed in light blue labels at the top of the graph. The "
+"change in label is the point of change (product number change, etc.). You"
+" can select variables whose data type (Type) is category (Cat), string "
+"(Str), or serial (Seri)."
 
 #: hisview2/templates/analyze/hotelling_tsquare.html
 msgid "PCA Target Variable Explain"
@@ -3119,12 +3147,17 @@ msgstr ""
 msgid "SCP show value description"
 msgstr ""
 "This item selects x and y to visualize the relationship between "
-"variables. You can select one for each. The first variable selected is x."
-"\n"
-"The plot method changes depending on the type of the selected variables.\n"
-"Both x and y variables are Int or Real           → Scatter plot\n"
-"One of x and y is Int or Real, the other is Str  → Violin plot\n"
-"Both x and y variables Str                       → Heat map"
+"variables. You can select one of each. The first variable selected is x."
+" \n"
+"The depiction method changes depending on the data type of the selected "
+"variable.\n"
+"Both x and y variables are integers (Int) or real numbers (Real)\n"
+"→ Scatter plot\n"
+"One of x and y is an integer (Int) or real number (Real), and the other "
+"is a category (Cat) or string (Str)\n"
+"→ Violin plot\n"
+"Both x and y variables are category (Cat) or string (Str)\n"
+"→ Heat map"
 
 #: ap/template/header.html
 msgid "New"
@@ -3140,7 +3173,9 @@ msgstr "Don't save"
 
 #: ap/templates/i18n.html
 msgid "Violins with a large amount of data are drawn by thinning out the data."
-msgstr "Violins with a large amount of data are drawn by thinning out the data."
+msgstr ""
+"Violin plots with a large amount of data are drawn by thinning out the "
+"data."
 
 #: ap/templates/i18n.html
 msgid "Front end process timeout message"
@@ -3167,8 +3202,8 @@ msgstr "Edit the title, priority, description, etc. of the saved settings."
 #: ap/templates/i18n.html
 msgid "Unselect Facet In Variable Division StP"
 msgstr ""
-"If you select \"Facet\" item in pull-down menu of show value, you can "
-"stratify the graph using the selected item."
+"You can stratify (grouping) the graph by the variable contents selected "
+"in the Facet item."
 
 #: ap/templates/i18n.html
 msgid "Daterangepicker ranges hover message"
@@ -3314,33 +3349,33 @@ msgid ""
 "Since there is no datetime column, the application generates a dummy data"
 " for datetime."
 msgstr ""
-"Since there is no datetime column, the application generates a dummy data"
-" for datetime."
+"Since there is no datetime variable, the application will generate a "
+"dummy data for datetime."
 
 #: ap/templates/templates/i18n.html
 msgid "K sep type notification"
 msgstr ""
-"The data type of a real or integer column that includes a thousands "
+"The data type of a real or integer variable that includes a thousands "
 "separator may be presumed to a different type such as string(Str), so "
 "check the presumed data type."
 
 #: ap/templates/i18n.html
 msgid "Preview same value message"
 msgstr ""
-"There are columns with only the same values in the previewed data. Please"
-" check whether it is set as the target column to import data."
+"There are variables with only the same values in the previewed data. "
+"Please check whether it is set as the variable to import data."
 
 #: ap/templates/i18n.html
 msgid "Preview null value message"
 msgstr ""
-"There are columns in the previewed data that do not have any values. If "
-"you want to set the target column to import data, please check and "
-"specify the appropriate data type."
+"There are variables in the previewed data that do not have any values. If"
+" you want to set the variable to import data, please check and specify "
+"the appropriate data type."
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Dummy Datetime Generate On DS Confirm Message"
 msgstr ""
-"The target file does not have a datetime column.\n"
+"The target file does not have a datetime variable.\n"
 "The system requires datetime, so are you sure to generate dummy "
 "datetime(DatetimeDummy) and continue setting?\n"
 "\n"
@@ -3355,10 +3390,10 @@ msgstr ""
 msgid "Dummy Datetime Generate On Proc Confirm Message"
 msgstr ""
 "Dummy datetime (DatetimeDummy) was generated because there is no datetime"
-" column in the target file.\n"
+" variable in the target file.\n"
 "\n"
-"Please check the generated dummy datetime and import it with \"As "
-"Datetime\" checked.\n"
+"Please check the generated dummy datetime and import it with As Datetime "
+"checked.\n"
 "\n"
 "Dummy datetime is generated as follows.<ul><li>Generate initial datetime "
 "on the first record of the target file which is 00:00 on the 1st day of "
@@ -3383,7 +3418,7 @@ msgid ""
 "The target file does not have a datetime column. Please prepare a "
 "datetime column or consider using dummy datetime (DatetimeDummy)."
 msgstr ""
-"There is no datetime column. If there is no datetime column, the "
+"There is no datetime variable. If there is no datetime variable, the "
 "application generates a dummy data for datetime."
 
 #: ap/tenplates/i18n.html
@@ -3396,17 +3431,16 @@ msgstr ""
 
 #: ap/templates/i18n.html
 msgid "InfCastValue"
-msgstr ""
-"\"Inf\"/\"-Inf\" and their estimated values are displayed on the graph as"
-" \"NA\"."
+msgstr "±Inf and their estimated values are displayed on the graph as NA."
 
 #: ap/templates/macros.html
 msgid ""
 "Values those have pulsed number of occurrences compared to the neighbors:"
 " Replace to NA"
 msgstr ""
-"Values those have pulsed number of occurrences compared to the neighbors:"
-" Replace to NA"
+"Pulsed: When drawing a distribution, a value that suddenly has a large "
+"number of data relative to the surrounding area (pulse-like distribution "
+"exists) => Replaced with NA"
 
 #: ap/templates/macros.html
 msgid "Cleansing"
@@ -3485,7 +3519,7 @@ msgstr ""
 
 #: ap/templates/macros.html
 msgid "Serial series"
-msgstr "Serial series"
+msgstr "Others"
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Mode hover msg"
@@ -3507,7 +3541,7 @@ msgstr ""
 
 #: ap/templates/ridgeline_plot/ridgeline_plot.html
 msgid "Both hover msg"
-msgstr "Display the results calculated in both modes of \"Drift\" and \"Diff\"."
+msgstr "Display the results calculated in both modes of Drift and Diff."
 
 #: ap/templates/multiple_scatter_plot/multiple_scatter_plot.html
 msgid "Contour hover msg"
@@ -3586,8 +3620,8 @@ msgid ""
 "Because duplicate column names exist, a numeric suffix  added to the "
 "duplicate column names."
 msgstr ""
-"Because duplicate column names exist, a numeric suffix  added to the "
-"duplicate column names."
+"Because duplicate variable names exist, a numeric suffixes are added to "
+"the duplicate variable names."
 
 #: ap/templates/i18n.html
 msgid "Error Msg Common"
@@ -3675,10 +3709,10 @@ msgstr ""
 msgid "TourWithDatafinder"
 msgstr ""
 "With the data finder, you can select a datetime range while seeing when "
-"and how much data is being imported.BREAK_LINEBREAK_LINEIf data are "
-"exist, the corresponding cell is displayed in blue; the greater the "
-"amount of data, the brighter the blue. The existence of this data refers "
-"to the data for the process selected first in the step \"Select target "
+"and how much data is being imported.BREAK_LINEBREAK_LINEIf data exists, "
+"the corresponding cell is displayed in blue; the greater the amount of "
+"data, the brighter the blue. The existence of this data refers to the "
+"data for the process selected first in the step \"Select Display "
 "variable\" or the process specified as theSPAN_TAG\"Start "
 "point\"SPAN_END_TAG"
 
@@ -3747,7 +3781,7 @@ msgstr "Quit tour"
 
 #: ap/templates/i18n.html
 msgid "TourSelectTargetVarTitle"
-msgstr "Select target variables"
+msgstr "Select Display variables"
 
 #: ap/templates/i18n.html
 msgid "TourSelectTargetPeriodTitle"
@@ -3846,9 +3880,10 @@ msgstr ""
 #: ap/templates/aggregate_plot/aggregate_plot.html
 msgid "AgP target variables"
 msgstr ""
-"Specifies the data to plot on the graph. If the data type is Str or Int, "
-"aggregate results will be displayed, and if the data type is Real or CT, "
-"line plots will be displayed."
+"If the data type (Type) of the variable to be visualized is category "
+"(Cat) or string (Str), the aggregation result is displayed, and if it is "
+"a real number (Real), integer (Int), or cycle time (CT), line plots is "
+"displayed."
 
 #: ap/templates/sidebar.html
 msgid "Aggregation Plot"
@@ -3937,9 +3972,9 @@ msgstr "Sensor name"
 msgid "GL Page Title"
 msgstr ""
 "Visualizes partial correlations of variables with network graph.\n"
-"By specifing the objective variable, you can visualize the directly "
-"correlated variables and the in-directly correlated variables in more "
-"easy to understand layout."
+"By specifing the objective (variable that you want to clarify the "
+"factors), you can visualize the directly correlated variables and the in-"
+"directly correlated variables in more easy to understand layout."
 
 #: ap/templates/analyze/graphical_lasso.html
 msgid "Sparsity Hover"
@@ -3958,7 +3993,8 @@ msgstr "Process name"
 #: ap/templates/templates/macros.html
 msgid "SkD objective hover messenger"
 msgstr ""
-"The variable selected here is called 'Objective variable',\n"
+"The variable selected here is called 'Objective variable (variable that "
+"you want to clarify the factors)',\n"
 "which we will fit a regression model to estimate the objective variable "
 "using other selected variables."
 
@@ -3977,7 +4013,8 @@ msgstr ""
 #: ap/templates/templates/macros.html
 msgid "GL objective hover messenger"
 msgstr ""
-"(optional) The variable selected here is called 'Objective variable', \n"
+"(optional) The variable selected here is called 'Objective variable "
+"(variable that you want to clarify the factors)', \n"
 "which we will adjust the visualization to get a more easy to understand "
 "layout."
 
@@ -4109,13 +4146,16 @@ msgstr "Variable setting"
 
 #: ap/templates/macros.html
 msgid "Select only the objective and top important variables (Max: 20)"
-msgstr "Select only the objective and top important variables (Max: 20)"
+msgstr ""
+"Select only the objective (variable that you want to clarify the factors)"
+" and top important variables (Max: 20)"
 
 #: ap/templates/macros.html
 msgid "Variable setting hover"
 msgstr ""
 "You can specify the variables to pass to the new page.\n"
-"If the new page has 'Objective' setting, the first variable is used."
+"If the new page has 'Objective (variable that you want to clarify the "
+"factors)' setting, the first variable is used."
 
 #: ap/templates/macros.html
 msgid "Select sensor hover"
@@ -4137,7 +4177,7 @@ msgstr "Recommended"
 
 #: ap/templates/i18n.html
 msgid "Threshold/Graph Config"
-msgstr "Threshold/Graph Config"
+msgstr "Display Config"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Target"
@@ -4145,7 +4185,7 @@ msgstr "Target"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Target hover msg"
-msgstr "Select the target data name. (Required)"
+msgstr "Select the target variable name. (Required)"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Condition"
@@ -4161,26 +4201,26 @@ msgstr ""
 
 #: ap/templates/setting_module/master_config.html
 msgid "Threshold config"
-msgstr "Threshold"
+msgstr "Control Line (CL)"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Threshold config hover msg"
 msgstr ""
-"Enter the threshold for the target data.\n"
-"It is used to calculate the ratio and number of data exceeding the set "
-"threshold (outCL) and process capability. \n"
-"It is drawn as a red line on the graph."
+"Enter the control value for the target data.\n"
+"It is used to calculate the ratio and number (outCL) of data exceeding "
+"the set Control Line (CL) and process capability Cp/Cpk in manufacturing "
+"industry."
 
 #: ap/templates/setting_module/master_config.html
 msgid "Process threshold"
-msgstr "Process threshold"
+msgstr "Action Line (AL)"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Process threshold hover msg"
 msgstr ""
-"Enter the in-process threshold for the target data. \n"
-"It is used to calculate the percentage of data exceeding the set in-"
-"process threshold and the number (outAL).\n"
+"Enter the Action Line value for the target data. \n"
+"It is used to calculate the ratio and number (outAL) of data exceeding "
+"the set Action Line (AL).\n"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Graph axis range"
@@ -4205,7 +4245,7 @@ msgstr "Min"
 
 #: ap/templates/setting_module/master_config.html
 msgid "Data Name"
-msgstr "DataName"
+msgstr "Variable Name"
 
 msgid "InvalidBrowserTitle"
 msgstr "Your browser does not support"
@@ -4259,10 +4299,10 @@ msgstr "Pass EMD values and NG rate (if calculated) to the new page"
 msgid "Pass EMD values to the new page hover msg"
 msgstr ""
 "Pass EMD that indicates the change of the distribution, to the new page.\n"
-"Also pass NG rate　(when 'Judge' is specified on the show value setting, "
-"and the NG rate is calculated).\n"
+"Also pass NG rate　(when 'Judge' is specified on the Display variable "
+"setting, and the NG rate is calculated).\n"
 "Especially effective for the data that do not have 1:1 data link. For "
-"example, data linked with Lot ID and Serial ID."
+"example, data linked with Lot No and Serial No."
 
 #: ap/templates/macros.html
 msgid "This week"
@@ -4453,11 +4493,11 @@ msgstr ""
 
 #: ap/templates/modal.html
 msgid "ZeroVarianceTitle"
-msgstr "ZeroVarianceTitle"
+msgstr "A variable whose variance is 0 (all data are the same)."
 
 #: ap/templates/modal.html
 msgid "NARateTitle"
-msgstr "NARateTitle"
+msgstr "Missing data rate"
 
 msgid "Division number Hover AgP"
 msgstr ""
@@ -4469,13 +4509,14 @@ msgid "Window length Hover"
 msgstr ""
 "Enter the time width for calculating one distribution. Please enter a "
 "number between 0.01 (=36 seconds) and less than 20,000 (=833 days). If it"
-" is equal to the interval, evaluate all data without overlap (recommended"
-" setting). If it is larger than the interval, data overlap will occur "
-"(effective when there is little data. However, since some of the same "
-"data is evaluated, there is a concern that changes may become slow). If "
-"the value is smaller than the interval, data will not overlap and some "
-"data will not be evaluated (effective when there is a large number of "
-"data. However, not recommended as some data will not be evaluated). \n"
+" is equal to the step size, evaluate all data without overlap "
+"(recommended setting). If it is larger than the step size, data overlap "
+"will occur (effective when there is little data. However, since some of "
+"the same data is evaluated, there is a concern that changes may become "
+"slow). If the value is smaller than the step size, data will not overlap "
+"and some data will not be evaluated (effective when there is a large "
+"number of data. However, not recommended as some data will not be "
+"evaluated). \n"
 "e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
 
 #: ap/templates/macros.html
@@ -4483,11 +4524,11 @@ msgid "Window length Hover AgP"
 msgstr ""
 "Enter the time width for calculating one plot or summary result. Please "
 "enter a number between 0.01 (=36 seconds) and less than 20,000 (=833 "
-"days). If it is equal to the interval, evaluate all data without overlap "
-"(recommended setting). If it is larger than the interval, data overlap "
+"days). If it is equal to the step size, evaluate all data without overlap"
+" (recommended setting). If it is larger than the step size, data overlap "
 "will occur (effective when there is little data. However, since some of "
 "the same data is evaluated, there is a concern that changes may become "
-"slow). If the value is smaller than the interval, data will not overlap "
+"slow). If the value is smaller than the step size, data will not overlap "
 "and some data will not be evaluated (effective when there is a large "
 "number of data. However, not recommended as some data will not be "
 "evaluated). \n"
@@ -4497,12 +4538,12 @@ msgstr ""
 msgid "Window length Hover ScP"
 msgstr ""
 "Enter the time width for one graph. Please enter a number between 0.01 "
-"(36 seconds) and 20,000 (=833 days). If it is equal to the interval, "
+"(36 seconds) and 20,000 (=833 days). If it is equal to the step size, "
 "evaluate all data without overlap (recommended setting). If it is larger "
-"than the interval, data overlap will occur (effective when there is "
+"than the step size, data overlap will occur (effective when there is "
 "little data. However, since some of the same data is evaluated, there is "
 "a concern that changes may become slow). If the value is smaller than the"
-" interval, data will not overlap and some data will not be evaluated "
+" step size, data will not overlap and some data will not be evaluated "
 "(effective when there is a large number of data. However, not recommended"
 " as some data will not be evaluated). \n"
 "e.g.) 1 week = 168h, 30 days = 720h, a half year = 4320h, one year = 8760h"
@@ -4597,4 +4638,99 @@ msgstr ""
 #: ap/templates/i18n.html
 msgid "There were no column names in the file, the AP created new column names."
 msgstr "There were no column names in the file, the AP created new column names."
+
+#: ap/templates/register_by_file.html
+msgid "NavButtonRegisterByFile"
+msgstr "Register by File"
+
+#: ap/templates/register_by_file.html
+msgid "TitleRegisterByFile"
+msgstr "Register from Data File"
+
+#: ap/templates/register_by_file.html
+msgid "RegisterDataSource"
+msgstr "Source"
+
+#: ap/templates/register_by_file.html
+msgid "Folder"
+msgstr "Folder"
+
+#: ap/templates/register_by_file.html
+msgid "File"
+msgstr "File"
+
+#: ap/templates/register_by_file.html
+msgid "ReferenceFileLabel"
+msgstr "Reference File"
+
+#: ap/templates/register_by_file.html
+msgid "BrowseButton"
+msgstr "Browse"
+
+#: ap/templates/register_by_file.html
+msgid "FolderBrowsePlaceholder"
+msgstr "Z:\\path\\to\\folder (File size: Unlimited)"
+
+#: ap/templates/register_by_file.html
+msgid "FileBrowsePlaceholder"
+msgstr "Z:\\path\\to\\datafile.csv"
+
+#: ap/templates/register_by_file.html
+msgid "RefFilePlaceholder"
+msgstr "(Optional) Data file used to estimate data types"
+
+#: ap/templates/register_by_file.html
+msgid "SourceExplanation"
+msgstr ""
+"If the source is a folder, all files in the folder will be loaded; if the"
+" source is a file, only that file will be loaded.\n"
+"If multiple files are to be loaded or additional data is to be loaded "
+"automatically, please specify a folder as the reference.\n"
+"All files (CSV, TSV, SSV) must have the same column name."
+
+#: ap/templates/register_by_file.html
+msgid "ProcNameExplanation"
+msgstr ""
+"The following items are automatically generated from the folder name.\n"
+"If you wish to set an arbitrary name, please modify the following before "
+"clicking the Register button."
+
+#: ap/templates/register_by_file.html
+msgid "RegisterDataFileButton"
+msgstr "Register Data"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressSourceSelected"
+msgstr "Source is selected"
+
+#: ap/templates/register_by_file.html
+msgid "ProcessRegisterStart"
+msgstr "Register start"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressFolderCheck"
+msgstr "Folder structure check"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressImportingData"
+msgstr "Importing data"
+
+#: ap/templates/register_by_file.html
+msgid "ProgressFinished"
+msgstr "Finished"
+
+#: ap/templates/register_by_file.html
+msgid "File is selected"
+msgstr "File is selected"
+
+#: ap/templates/register_by_file.html
+msgid "Process Name is already registered"
+msgstr "Process name is already registered"
+
+#: ap/templates/register_by_file.html
+msgid "Data Source Name is already registered"
+msgstr "Data Source Name is already registered"
+
+#~ msgid "Please name the folder in which csv/tsv files are saved as YYYYMMDD"
+#~ msgstr "Please name the folder in which csv/tsv files are saved as YYYYMMDD"
 
