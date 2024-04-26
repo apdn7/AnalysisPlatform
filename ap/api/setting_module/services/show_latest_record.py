@@ -92,16 +92,17 @@ def get_latest_records(data_source_id, table_name, file_name=None, directory=Non
 
     if data_source_id:
         data_source = CfgDataSource.query.get(data_source_id)
-        if not data_source_id:
+        if not data_source:
             return None
         is_v2_datasource = is_v2_data_source(ds_type=data_source.type)
         is_csv_or_v2 = data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]
-        csv_detail = data_source.csv_detail
-        filtered_process_name = csv_detail.process_name or False
-        directory = csv_detail.directory
-        delimiter = csv_detail.delimiter
-        etl_func = csv_detail.etl_func
-        skip_head = '' if (csv_detail.skip_head == 0 and not csv_detail.dummy_header) else csv_detail.skip_head
+        if is_csv_or_v2:
+            csv_detail = data_source.csv_detail
+            filtered_process_name = csv_detail.process_name or False
+            directory = csv_detail.directory
+            delimiter = csv_detail.delimiter
+            etl_func = csv_detail.etl_func
+            skip_head = '' if (csv_detail.skip_head == 0 and not csv_detail.dummy_header) else csv_detail.skip_head
     else:
         is_csv_or_v2 = True
 
@@ -156,13 +157,13 @@ def get_latest_records(data_source_id, table_name, file_name=None, directory=Non
     cols_with_types, cols_duplicated = change_duplicated_columns(cols_with_types)
     has_ct_col = True
     dummy_datetime_idx = None
-    if DataType.DATETIME.value not in data_types:
+    if is_csv_or_v2 and DataType.DATETIME.value not in data_types:
         dummy_datetime_idx = 0
         cols_with_types.insert(
             dummy_datetime_idx,
             {
-                'name': DATETIME_DUMMY,
-                'type': DataType.DATETIME.name,
+                'column_name': DATETIME_DUMMY,
+                'data_type': DataType.DATETIME.name,
                 'romaji': DATETIME_DUMMY,
                 'is_date': True,
                 'check_same_value': {'is_null': False, 'is_same': False},
@@ -193,7 +194,9 @@ def get_latest_records(data_source_id, table_name, file_name=None, directory=Non
             except Exception:
                 continue
         rows = transform_df_to_rows(cols, df_rows, limit)
-    return cols_with_types, rows, cols_duplicated, previewed_files, has_ct_col, dummy_datetime_idx
+
+    is_rdb = not is_csv_or_v2
+    return cols_with_types, rows, cols_duplicated, previewed_files, has_ct_col, dummy_datetime_idx, is_rdb
 
 
 # def get_col_type_as_cast(col_type):
@@ -713,9 +716,9 @@ def gen_v2_history_sub_part_no_column(column_name):
 @memoize(is_save_file=False)
 def gen_cols_with_types(cols, data_types, same_values, is_v2_history=False, column_raw_name=[]):
     ja_locale = False
+    cols_with_types = []
     with suppress(Exception):
         ja_locale = get_locale().language == 'ja'
-    cols_with_types = []
     has_is_get_date_col = False
     if not column_raw_name:
         column_raw_name = cols

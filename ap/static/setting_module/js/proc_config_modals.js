@@ -1111,7 +1111,7 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
             showToastrMsgFailLimit(json);
             const isEditPrc = currentProcItem.data('proc-id') !== undefined;
             // show gen dummy datetime col for new proces only
-            if (!isEditPrc && !json.has_ct_col) {
+            if (!isEditPrc && !json.has_ct_col && !json.is_rdb) {
                 showDummyDatetimeModal(json, true);
             } else {
                 showLatestRecordsFromPrc(json);

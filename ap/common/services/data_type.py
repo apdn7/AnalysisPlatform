@@ -11,6 +11,8 @@ from pandas import Series
 from ap.common.constants import COL_NAME, INF_STR, MAX_SAFE_INTEGER, MIN_DATETIME_LEN, MINUS_INF_STR, DataType
 from ap.common.logger import log_execution_time
 
+na_values = [None, '', 'nan', 'NA', np.nan, np.inf, -np.inf, np.NAN]
+
 
 @log_execution_time()
 def gen_data_types(series: Series, is_v2=False):
@@ -21,6 +23,8 @@ def gen_data_types(series: Series, is_v2=False):
     :return:
     """
     series = series.drop_duplicates().dropna()
+    # drop 'NA' in series if series is ('1.1', 'NA')
+    series = series.replace(na_values, pd.NA).dropna()
 
     # try to convert dtypes from float to int
     # if data=[1.0, 2.0] (to avoid wrong data-type prediction)
@@ -87,7 +91,9 @@ def count_inf_in_float_series(s: Series) -> int:
 
 
 def check_data_type(data):
-    if data is None or data == '':
+    if data in na_values or data is pd.NA:
+        # pd.NA should be compare value without check in na_value list
+        # to avoid error of NA is ambiguous
         return DataType.NULL
 
     if isinstance(data, datetime):
