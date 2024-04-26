@@ -348,6 +348,7 @@ def show_latest_records():
         'fail_limit': None,
         'has_ct_col': None,
         'dummy_datetime_idx': None,
+        'is_rdb': False,
     }
     if latest_rec:
         (
@@ -357,6 +358,7 @@ def show_latest_records():
             previewed_files,
             has_ct_col,
             dummy_datetime_idx,
+            is_rdb,
         ) = latest_rec
         dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
         data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
@@ -366,8 +368,9 @@ def show_latest_records():
             'cols_duplicated': cols_duplicated,
             'fail_limit': dic_preview_limit,
             'has_ct_col': has_ct_col,
-            'dummy_datetime_idx': dummy_datetime_idx,
+            'dummy_datetime_idx': None if is_rdb else dummy_datetime_idx,
             'data_group_type': data_group_type,
+            'is_rdb': is_rdb,
         }
 
     return json_dumps(result)
