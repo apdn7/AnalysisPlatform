@@ -1,5 +1,12 @@
 # Releases
 
+## v4.6.2
+
+Hotfix
+
+* Fixed an issue that data preview does not appear on data source config, when importing from database
+* Improved data type estimation to correctly estimate Real type data with `Null` values
+
 ## v4.6.1
 
 New features
