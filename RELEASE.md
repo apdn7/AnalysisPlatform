@@ -1,5 +1,74 @@
 # Releases
 
+## v4.7.0
+
+Now you can install/upgrade AP+DN7 with installer (batch file).  
+See documentation "Getting Started" for more details.  
+
+Core changes
+
+- Added "Function" to Process Config, allowing users to apply preprocessing to imported data.
+  - Users can specify transformation functions applied to imported data. 
+  - Currntly, functions can be specified after data import. 
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/17cec83a-f7c6-4662-9f2b-fafd84d239e2" alt="Function" width="600">      
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/7b5c07a4-b860-4dee-9470-a91e4d9cb7b6" alt="FunctionRegex" width="600">  
+  (An example of extracting machine number from machine name)
+  - Additionally, specifying number of rows to read / transposing the data / importing file name as a column is supported.  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/de31e416-102d-4df6-ad61-d6f2f4f0c5b9" alt="nRowsTranspose" width="600">  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/6e55126f-43ae-416e-947c-2d1e51b9e9d0" alt="JumpPageSelectVariables" width="600">
+
+New features
+
+- (Process Config)
+  - Support Date and Time on seperate columns. Those are merged to from Datetime column.  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/e5e8909c-74f7-433a-93f1-80c75735546f" alt="DateandTime" width="600">
+  - Added link with time: Now Datetime columns can be used for linking the data.   
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/f2d9a084-e06d-49a0-b2ed-d58fe803653e" alt="LinkWithTime" width="600">
+- (Jump function)
+  - Now user can select additional variables / select objective variable before jumping to new page.  
+  <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/a503bc1c-e874-427b-a847-6960307e731e" alt="JumpPageSelectVariables" width="600">
+
+Improvements
+
+- (Common)
+  - Variables with data type: `Serial` can now be used as a facet variable.
+  - Improved title of the confirmation modal.
+- (AgP)
+  - Now shows line chart for data type: `Integer` and bar chart for `Integer (Category)`.
+  - Now calculates / displays percentage per facet.
+- (Register by File)
+  - Now removes double quotes (") from file paths pasted to textbox.
+- (Display Config)
+  - When using fill handle of the Spreadsheet editing mode, now copies values instead of incrementing them.
+- (API)
+  - Added `POST /bookmark` API. This API saves a bookmark based on parameters from /dn7 and /options.
+  - Added parameters `facet` and `filter` to `POST /dn7` API.
+    - `POST /dn7` now can be used for AgP, ScP, StP.
+- (Backend)
+  - Improved logic for skipping lines when reading CSV/TSV/SSV.
+ 
+Bugfixes
+
+- (AgP)
+  - Fixed an issue where ticks and their significant digits are shown incorrectly.
+- (CHM)
+  - Fixed an issue that tooltip on the chart displayed the wrong date, on the last day of a month.
+- (SkD)
+  - Fixed a case where error occurs when objective variable is binary variable and number of data point is large.
+- (Process Config)
+  - Fixed an issue where data is displayed wrongly when there are columns with empty names in CSV files.
+- (Filter Config)
+  - Fixed an issue where filter values are not shown when there are NA values in the column.
+- (Bookmark)
+  - Fixed a case where time period is loaded incorrectly.
+- (Backend)
+  - Fixeda an issue where multiple browser tabs are opened when starting the application.
+  - Fixed an issue where hexademical data parsed incorrectly.
+  - Fixed a bug where APDN7 is unable to start after its containing folder (and virtual environment) has been moved to another directory.
+  - Fixed a bug where APDN7 is unable to start in PC which has Conda installed.
+  - Fixed a bug where Japanese column and process names are parsed into romaji incorrectly.
+  - Fixed an issue where the application's process pool is terminated abruptly when a job fails.
+
 ## v4.6.2
 
 Hotfix
@@ -42,7 +111,7 @@ New features
   * Now it is easier to find the details of job errors  
   <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/759b39ed-d366-46dc-b93f-6735ddf347db" alt="failed jobs" width="300"> 
 * Added a feature to verify the linking process between start-process and target-process
-  * Warning is displayed in case when no data links. 
+  * Warning is displayed in case when no data links.  
   <img src="https://github.com/apdn7/AnalysisPlatform/assets/106378158/a8205057-b9a0-41c5-9f60-0a17cbb5a93b" alt="warn no links" width="500"> 
 * Modified GUI for Process config page.
   * Added some column types: `main::Datetime`, `main::Serial` and other system types
