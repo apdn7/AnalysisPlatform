@@ -564,9 +564,13 @@ def split_data_by_condition(dic_data, graph_param, max_graph=None):
             if end_col in dic_data[proc_id]:
                 end_col_args[end_col] = dic_data[proc_id][end_col]
         dic_data_for_df = {
-            TIME_COL: dic_data[proc_id][TIME_COL] if TIME_COL in dic_data[proc_id] else [],
             **end_col_args,
         }
+
+        # In case there is no time column in dic_data[proc_id], do not create time column in dataframe
+        if TIME_COL in dic_data[proc_id]:
+            dic_data_for_df[TIME_COL] = dic_data[proc_id][TIME_COL]
+
         group_by_cols = []
         for col in group_cols or []:
             group_by_cols.append(col)

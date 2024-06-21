@@ -35,12 +35,16 @@ class ParallelProps {
     static catTypes = [
         DataTypes.STRING.name,
     ];
+    static datetimeType = [
+        DataTypes.DATETIME.name,
+    ]
     // valid data types init
     static validDataTypes = {
         all: [
             ...this.realTypes,
             ...this.intTypes,
-            ...this.catTypes
+            ...this.catTypes,
+            ...this.datetimeType,
         ],
         real: this.realTypes,
         number: [
@@ -55,6 +59,9 @@ class ParallelProps {
             ...this.realTypes,
             ...this.intTypes,
             ...this.catTypes,
+        ],
+        datetime: [
+            ...this.datetimeType,
         ]
     };
 

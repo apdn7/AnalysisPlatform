@@ -74,6 +74,7 @@ class EventType(Enum):
     AGP = 'AGP'
     COG = 'COG'
     GL = 'GL'
+    HMP = 'HMp'
 
 
 class EventAction(Enum):

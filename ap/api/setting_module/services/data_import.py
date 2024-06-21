@@ -18,6 +18,7 @@ from ap.common.common_utils import (
     get_basename,
     get_csv_delimiter,
     get_current_timestamp,
+    get_error_cast_path,
     get_error_duplicate_path,
     get_error_import_path,
     get_error_trace_path,
@@ -26,6 +27,7 @@ from ap.common.common_utils import (
     split_path_to_list,
 )
 from ap.common.constants import (
+    CAST_DATA_TYPE_ERROR_MSG,
     DATA_TYPE_DUPLICATE_MSG,
     DATA_TYPE_ERROR_MSG,
     DATETIME,
@@ -97,13 +99,14 @@ PANDAS_DEFAULT_NA = {
     'null',
 }
 NA_VALUES = {'na', '-', '--', '---', '#NULL!', '#REF!', '#VALUE!', '#NUM!', '#NAME?', '0/0'}
+PREVIEW_ALLOWED_EXCEPTIONS = {'-', '--', '---'}
 INF_VALUES = {'Inf', 'Infinity', '1/0', '#DIV/0!', float('inf')}
 INF_NEG_VALUES = {'-Inf', '-Infinity', '-1/0', float('-inf')}
 
 ALL_SYMBOLS = set(PANDAS_DEFAULT_NA | NA_VALUES | INF_VALUES | INF_NEG_VALUES)
 # let app can show preview and import all na column, as string
 NORMAL_NULL_VALUES = {'NA', 'na', 'null'}
-SPECIAL_SYMBOLS = ALL_SYMBOLS - NORMAL_NULL_VALUES - {'-'}
+SPECIAL_SYMBOLS = ALL_SYMBOLS - NORMAL_NULL_VALUES - PREVIEW_ALLOWED_EXCEPTIONS
 IS_ERROR_COL = '___ERR0R___'
 ERR_COLS_NAME = '___ERR0R_C0LS___'
 
@@ -271,6 +274,80 @@ def get_latest_records(proc_id):
 
     df = pd.DataFrame(rows, columns=[dic_cols[col_name] for col_name in cols])
     return df
+
+
+@log_execution_time()
+def write_error_cast_data_types(process: CfgProcess, failed_column_data: dict[CfgProcessColumn, list[object]]):
+    """
+    Export to csv file that contain all failed convert data for all
+    :param process: a process object
+    :param failed_column_data: a list of columns that failed convert data type
+    """
+    if not failed_column_data:
+        return
+
+    # Create file path & folder
+    time_str = convert_time(datetime.now(), format_str=DATE_FORMAT_STR_ONLY_DIGIT)[4:-3]
+    ip_address = get_ip_address()
+    ip_address = f'_{ip_address}' if ip_address else ''
+    file_name = f'{process.name}_{time_str}{ip_address}{TXT_FILE_TYPE}'
+    full_path = os.path.join(get_error_cast_path(), file_name)
+    make_dir_from_file_path(full_path)
+
+    df = pd.DataFrame()
+    for column, data in failed_column_data.items():
+        column_name = column.bridge_column_name
+        df[column_name] = pd.Series(data, dtype=np.object.__name__)
+    df = gen_error_cast_output_df(process, df)
+
+    # write data to file
+    df.to_csv(full_path, sep=CsvDelimiter.TSV.value, header=None, index=False)
+
+    return full_path
+
+
+def gen_error_cast_output_df(process: CfgProcess, df_error: DataFrame) -> DataFrame:
+    """
+    Generate a dataframe with title & error data
+    :param process: a process object
+    :param df_error: a dataframe containing error data
+    :return: a dataframe with title & error data
+    """
+
+    df_output = df_error.copy()
+    new_row = df_error.columns.tolist()
+    columns = df_error.columns.tolist()
+    if len(columns) == 1:
+        columns.append('')
+        new_row.append('')
+        df_output[''] = ''
+
+    df_output = add_row_to_df(df_output, columns, new_row)
+
+    if len(columns) > 1:
+        columns = columns[:2]
+
+    new_row = ('', '')
+    df_output = add_row_to_df(df_output, columns, new_row)
+
+    new_row = ('Table Name', process.table_name)
+    df_output = add_row_to_df(df_output, columns, new_row)
+
+    new_row = ('Process Name', process.name)
+    df_output = add_row_to_df(df_output, columns, new_row)
+
+    new_row = ('', '')
+    df_output = add_row_to_df(df_output, columns, new_row)
+
+    new_row = ('', '')
+    df_output = add_row_to_df(df_output, columns, new_row)
+
+    error_type = CAST_DATA_TYPE_ERROR_MSG
+    # error_type += '(!: Target column)'
+    new_row = ('Error Type', error_type)
+    df_output = add_row_to_df(df_output, columns, new_row)
+
+    return df_output
 
 
 def gen_error_output_df(csv_file_name, dic_cols, df_error, df_db, error_msgs=None):
@@ -446,7 +523,7 @@ def csv_data_with_headers(csv_file_name, data_src):
             csv_delimiter = get_csv_delimiter(data_src.delimiter)
 
             # read file directly to get Line, Machine, Process
-            csv_reader = read_data(csv_file_name, end_row=5, delimiter=csv_delimiter, do_normalize=False)
+            csv_reader = read_data(csv_file_name, limit=5, delimiter=csv_delimiter, do_normalize=False)
             next(csv_reader)
 
             row_line = next(csv_reader)  # 2nd row
@@ -599,7 +676,7 @@ def gen_import_job_info(job_info, save_res, start_time=None, end_time=None, impo
         else:
             msg = err_msgs
 
-        if job_info.err_msg:
+        if job_info.err_msg and msg:
             job_info.err_msg += msg
         else:
             job_info.err_msg = msg

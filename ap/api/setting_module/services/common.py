@@ -19,9 +19,9 @@ def is_local_client(req):
 def save_user_settings(request_params):
     with make_session() as meta_session:
         cfg_user_setting = parse_user_setting(request_params)
-        insert_or_update_config(meta_session, cfg_user_setting)
+        new_setting = insert_or_update_config(meta_session, cfg_user_setting)
         meta_session.commit()
-    return cfg_user_setting
+    return new_setting
 
 
 def parse_user_setting(params):
@@ -84,3 +84,14 @@ def delete_user_setting_by_id(setting_id):
 def is_title_exist(title):
     user_settings = CfgUserSetting.get_by_title(title)
     return bool(user_settings)
+
+
+def get_datetime_val(datetime_col):
+    """
+    Gets a random datetime value support to convert UTC
+    :return:
+    """
+    # Check one by one until get well-formatted datetime string
+    valid_datetime_idx = datetime_col.first_valid_index()
+    datetime_val = datetime_col.loc[valid_datetime_idx] if valid_datetime_idx is not None else None
+    return datetime_val

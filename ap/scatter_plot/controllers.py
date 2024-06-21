@@ -17,3 +17,9 @@ scatter_plot_blueprint = Blueprint(
 def index():
     output_dict = get_common_config_data()
     return render_template('scatter_plot.html', **output_dict)
+
+
+@scatter_plot_blueprint.route('/hmp')
+def heatmap():
+    output_dict = get_common_config_data()
+    return render_template('heatmap.html', **output_dict)

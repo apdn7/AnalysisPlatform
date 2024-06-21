@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 import os.path
 import re
@@ -38,10 +40,13 @@ from ap.api.setting_module.services.v2_etl_services import (
     get_vertical_df_v2_process_single_file,
     is_v2_data_source,
     prepare_to_import_v2_df,
+    remove_timezone_inside,
 )
 from ap.api.trace_data.services.proc_link import add_gen_proc_link_job
 from ap.common.common_utils import (
+    DATE_FORMAT,
     DATE_FORMAT_STR_ONLY_DIGIT,
+    TIME_FORMAT_WITH_SEC,
     convert_time,
     detect_encoding,
     detect_file_encoding,
@@ -58,6 +63,8 @@ from ap.common.constants import (
     DATA_TYPE_ERROR_EMPTY_DATA,
     DATA_TYPE_ERROR_MSG,
     DATETIME_DUMMY,
+    EMPTY_STRING,
+    FILE_NAME,
     NUM_CHARS_THRESHOLD,
     CSVExtTypes,
     DataType,
@@ -69,7 +76,12 @@ from ap.common.disk_usage import get_ip_address
 from ap.common.logger import log_execution_time, logger
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import scheduler_app_context
-from ap.common.services.csv_content import is_normal_csv, read_data
+from ap.common.services.csv_content import (
+    get_number_of_reading_lines,
+    is_normal_csv,
+    read_csv_with_transpose,
+    read_data,
+)
 from ap.common.services.csv_header_wrapr import (
     add_suffix_if_duplicated,
     gen_colsname_for_duplicated,
@@ -193,10 +205,18 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
     default_csv_param = {}
     use_col_names = []
     skip_head = data_src.skip_head if data_src else None
+    n_rows = data_src.n_rows if data_src else None
+    is_transpose = data_src.is_transpose if data_src else False
     if (
         not data_src.etl_func
         and import_targets
-        and not is_normal_csv(import_targets[-1][0], csv_delimiter, skip_head=skip_head)
+        and not is_normal_csv(
+            import_targets[-1][0],
+            csv_delimiter,
+            skip_head=skip_head,
+            n_rows=n_rows,
+            is_transpose=is_transpose,
+        )
     ):
         is_abnormal = True
         default_csv_param['names'] = headers
@@ -263,13 +283,11 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
             # in case if v2, assume that there is not missing columns from v2 files
             if not is_v2_datasource:
                 # check missing columns
-                end_row = 1
-                if data_src.skip_head:
-                    end_row = data_src.skip_head + end_row
                 check_file = read_data(
                     transformed_file,
                     skip_head=data_src.skip_head,
-                    end_row=end_row,
+                    n_rows=data_src.n_rows,
+                    is_transpose=data_src.is_transpose,
                     delimiter=transformed_file_delimiter,
                     do_normalize=False,
                 )
@@ -277,16 +295,21 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
 
                 if data_src.dummy_header:
                     # generate column name if there is not header in file
-                    org_csv_cols, csv_cols, _, _ = gen_dummy_header(org_csv_cols)
+                    org_csv_cols, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols, line_skip=data_src.skip_head)
                     csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
                 else:
-                    csv_cols = normalize_list(org_csv_cols)
+                    # need to convert header in case of transposed
+                    if data_src.is_transpose:
+                        _, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols)
+                        csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
+                    else:
+                        csv_cols = normalize_list(org_csv_cols)
                     # try to convert ➊ irregular number from csv columns
                     csv_cols = [normalize_str(col) for col in csv_cols]
-                csv_cols, with_dupl_cols = add_suffix_if_duplicated(csv_cols, True)
+                csv_cols, with_dupl_cols = add_suffix_if_duplicated(csv_cols)
                 dic_csv_cols = dict(zip(csv_cols, with_dupl_cols))
                 # add suffix to origin csv cols
-                org_csv_cols, _ = add_suffix_if_duplicated(org_csv_cols, True)
+                org_csv_cols, _ = add_suffix_if_duplicated(org_csv_cols)
                 dic_org_csv_cols = dict(zip(csv_cols, org_csv_cols))
 
                 check_file.close()
@@ -360,6 +383,12 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
             if col in use_col_names and col_cfg.data_type == DataType.TEXT.name
         }
 
+        # add more dtype columns in usecols
+        if 'usecols' in default_csv_param:
+            for col_name in default_csv_param['usecols']:
+                if col_name not in default_csv_param['dtype']:
+                    default_csv_param['dtype'][col_name] = 'string'
+
         if is_v2_datasource:
             datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(transformed_file)
             if datasource_type == DBType.V2_HISTORY:
@@ -408,6 +437,9 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
 
         file_record_count = len(df_one_file)
 
+        if dic_use_cols.get(FILE_NAME):
+            add_column_file_name(df_one_file, transformed_file)
+
         # no records
         if not file_record_count:
             job_info.status = JobStatus.DONE
@@ -448,7 +480,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
         job_info.dic_imported_row = dic_imported_row
         job_info.import_type = JobType.CSV_IMPORT.name
         # do import
-        save_res, df_error, df_duplicate = import_df(proc_id, df, dic_use_cols, get_date_col, job_info)
+        save_res, df_error, df_duplicate = import_df(proc_id, df, dic_use_cols, get_date_col, job_info, trans_data)
         if is_first_chunk:
             data_register_data = {
                 'status': JobStatus.PROCESSING.name,
@@ -493,7 +525,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
     if len(df):
         job_info.dic_imported_row = dic_imported_row
         job_info.import_type = JobType.CSV_IMPORT.name
-        save_res, df_error, df_duplicate = import_df(proc_id, df, dic_use_cols, get_date_col, job_info)
+        save_res, df_error, df_duplicate = import_df(proc_id, df, dic_use_cols, get_date_col, job_info, trans_data)
 
         if is_first_chunk:
             data_register_data = {
@@ -628,7 +660,22 @@ def csv_to_df(
     if default_csv_param:
         read_csv_param.update(default_csv_param)
 
-    read_csv_param.update({'skiprows': head_skips + list(range(data_first_row, skip_row + data_first_row))})
+    read_csv_param.update(
+        {
+            'skiprows': head_skips + list(range(data_first_row, skip_row + data_first_row)),
+        },
+    )
+    if len(head_skips) and data_src.dummy_header:
+        # to avoid issue of header be duplicated at first row
+        read_csv_param.update(
+            {
+                'header': 0,
+            },
+        )
+
+    # assign n_rows
+    nrows = get_number_of_reading_lines(n_rows=data_src.n_rows)
+    read_csv_param.update({'nrows': nrows})
 
     # get encoding
     if not encoding:
@@ -638,31 +685,23 @@ def csv_to_df(
         else:
             encoding = detect_encoding(transformed_file)
 
+    read_csv_param.update(
+        {
+            'sep': csv_delimiter,
+            'skipinitialspace': True,
+            'na_values': NA_VALUES,
+            'error_bad_lines': False,
+            'encoding': encoding,
+            'skip_blank_lines': True,
+            'index_col': False,
+        },
+    )
     # load csv data to dataframe
     try:
-        df = pd.read_csv(
-            transformed_file,
-            sep=csv_delimiter,
-            skipinitialspace=True,
-            na_values=NA_VALUES,
-            error_bad_lines=False,
-            encoding=encoding,
-            skip_blank_lines=True,
-            index_col=False,
-            **read_csv_param,
-        )
+        df = read_csv_with_transpose(transformed_file, is_transpose=data_src.is_transpose, **read_csv_param)
     except UnicodeDecodeError:
-        df = pd.read_csv(
-            transformed_file,
-            sep=csv_delimiter,
-            skipinitialspace=True,
-            na_values=NA_VALUES,
-            error_bad_lines=False,
-            encoding='unicode_escape',
-            skip_blank_lines=True,
-            index_col=False,
-            **read_csv_param,
-        )
+        read_csv_param.update({'encoding': 'unicode_escape'})
+        df = read_csv_with_transpose(transformed_file, is_transpose=data_src.is_transpose, **read_csv_param)
 
     df.dropna(how='all', inplace=True)
 
@@ -780,14 +819,14 @@ def remove_duplicates(
     with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
         trans_data = TransactionData(proc_id)
         cols, rows = trans_data.get_data_for_check_duplicate(db_instance, start_tm, end_tm)
-        col_dtypes = trans_data.get_column_dtype(db_instance, cols)
+        dic_col_dtypes = trans_data.get_column_dtype(db_instance, cols)
 
     df_db = pd.DataFrame(rows, columns=[dic_cols[col] for col in cols])
 
     # remove duplicate df vs df_db
     index_col = add_new_col_to_df(df, '__df_index_column__', df.index)
-    col_dtypes = {dic_cols[col]: dtype for col, dtype in col_dtypes.items()}
-    idxs = get_duplicate_info(df, df_db, index_col, col_dtypes=col_dtypes)
+    dic_col_dtypes = {dic_cols[col]: dtype for col, dtype in dic_col_dtypes.items()}
+    idxs = get_duplicate_info(df, df_db, index_col, col_dtypes=dic_col_dtypes)
 
     if idxs:
         df.drop(idxs, inplace=True)
@@ -859,7 +898,7 @@ def get_duplicate_info(df_csv: DataFrame, df_db: DataFrame, df_index_col, col_dt
 
 
 @log_execution_time()
-def datetime_transform(datetime_series):
+def datetime_transform(datetime_series, date_only=False):
     # MM-DD | MM月DD日 | MM/DD -> current year -MM-DD 00:00:00
     regex1 = r'^(?P<m>\d{1,2})(-|\/|月)(?P<d>\d{1,2})日?$'
     # YYYY/MM/DD | YYYY-MM-DD | YYYY年MM月DD日 | YY-MM-DD | YY/MM/DD | YY年MM月DD日-> YYYY-MM-DD 00:00:00
@@ -870,16 +909,26 @@ def datetime_transform(datetime_series):
     current_year = datetime.now().strftime('%Y')
 
     def without_year_datetime(m: re.match) -> str:
-        return f"{current_year}-{m.group('m')}-{m.group('d')} 00:00:00"
+        result = f"{current_year}-{m.group('m')}-{m.group('d')}"
+        if not date_only:
+            result += ' 00:00:00'
+        return result
 
     def full_datetime(m: re.match) -> str:
         if len(m.group('y')) == 4:
-            return f"{m.group('y')}-{m.group('m')}-{m.group('d')} 00:00:00"
-        # if there is 2 digit of year, convert to full year
-        return f"{current_year[0:2]}{m.group('y')}-{m.group('m')}-{m.group('d')} 00:00:00"
+            result = f"{m.group('y')}-{m.group('m')}-{m.group('d')}"
+        else:
+            # if there is 2 digit of year, convert to full year
+            result = f"{current_year[0:2]}{m.group('y')}-{m.group('m')}-{m.group('d')}"
+        if not date_only:
+            result += ' 00:00:00'
+        return result
 
     def actual_datetime(m: re.match) -> str:
-        return f"{m.group('y')}-{m.group('m')}-{m.group('d')} {m.group('h')}:{m.group('min')}:{m.group('s')}"
+        result = f"{m.group('y')}-{m.group('m')}-{m.group('d')}"
+        if not date_only:
+            result += f" {m.group('h')}:{m.group('min')}:{m.group('s')}"
+        return result
 
     # convert special datetime string to iso-format
     datetime_series = datetime_series.str.replace(regex1, without_year_datetime, regex=True)
@@ -892,13 +941,16 @@ def datetime_transform(datetime_series):
 @log_execution_time()
 def convert_datetime_format(df, dic_use_cols):
     for col, cfg_col in dic_use_cols.items():
-        if cfg_col.data_type == DataType.DATETIME.name:
+        if col not in df.columns:
+            continue
+        if cfg_col.data_type in [DataType.DATETIME.name, DataType.DATE.name]:
             dtype_name = df[col].dtype.name
             if dtype_name == 'object':
                 df[col] = df[col].astype(str)
             elif dtype_name != 'string':
                 continue
-            df[col] = datetime_transform(df[col])
+            date_only = cfg_col.data_type == DataType.DATE.name
+            df[col] = datetime_transform(df[col], date_only=date_only)
 
     return df
 
@@ -926,7 +978,7 @@ def datetime_processing(df, dic_use_cols, get_date_col, null_is_error=True):
 
 
 @log_execution_time()
-def import_df(proc_id, df, dic_use_cols, get_date_col, job_info=None):
+def import_df(proc_id, df, dic_use_cols, get_date_col, job_info=None, trans_data=None):
     if not len(df):
         return 0, None, None
 
@@ -935,6 +987,15 @@ def import_df(proc_id, df, dic_use_cols, get_date_col, job_info=None):
 
     # convert datatime type 2023年01月02日 -> 2023-01-02 00:00:00
     df = convert_datetime_format(df, dic_use_cols)
+
+    # make datetime main from date:main and time:main
+    if trans_data and trans_data.main_date_column and trans_data.main_time_column:
+        merge_is_get_date_from_date_and_time(
+            df,
+            trans_data.getdate_column.column_raw_name,
+            trans_data.main_date_column.column_raw_name,
+            trans_data.main_time_column.column_raw_name,
+        )
 
     # original df
     orig_df = copy_df(df)
@@ -979,6 +1040,22 @@ def import_df(proc_id, df, dic_use_cols, get_date_col, job_info=None):
     df = df[list(valid_cols)]
     # remove duplicate records in csv file which exists in csv or DB
     cfg_columns = list(dic_use_cols.values())
+
+    # merge mode
+    cfg_proc: CfgProcess = CfgProcess.get_proc_by_id(proc_id)
+    parent_id = cfg_proc.parent_id
+    if parent_id:
+        cfg_parent_proc: CfgProcess = CfgProcess.get_proc_by_id(parent_id)
+        dic_parent_cfg_cols = {cfg_col.id: cfg_col for cfg_col in cfg_parent_proc.columns}
+        dic_cols = {cfg_col.column_name: cfg_col.parent_id for cfg_col in cfg_columns}
+        dic_rename = {col: dic_parent_cfg_cols[dic_cols[col]].column_name for col in df.columns}
+        df = df.rename(columns=dic_rename)
+        orig_df = orig_df.rename(columns=dic_rename)
+        df_error = df_error.rename(columns=dic_rename)
+        proc_id = parent_id
+        cfg_columns = cfg_parent_proc.columns
+        get_date_col = cfg_parent_proc.get_date_col()
+
     df_duplicate = remove_duplicates(df, orig_df, df_error, proc_id, get_date_col, cfg_columns)
     save_res = import_data(df, proc_id, get_date_col, cfg_columns, job_info)
 
@@ -1094,21 +1171,82 @@ def get_same_cols_from_dfs(all_cols, df_cols):
     return list(all_cols)
 
 
-def gen_dummy_header(header_names, data_details=None, line_skip=''):
-    line_skip = int(line_skip) if line_skip != '' else line_skip
-    dummy_header = False
-    nchars = 0
-    org_header = header_names.copy()
-    if len(header_names) and line_skip == '':
-        first_row = ''.join(header_names)
-        total_num = len(first_row)
-        subst_num = len(re.findall(r'[\d\s\t,.:;\-/ ]', first_row))
-        nchars = subst_num * 100 / total_num
+def is_header_contains_invalid_chars(header_names: list[str]) -> bool:
+    first_row = ''.join(header_names)
+    total_num = len(first_row)
+    subst_num = len(re.findall(r'[\d\s\t,.:;\-/ ]', first_row))
+    nchars = subst_num * 100 / total_num
+    return nchars > NUM_CHARS_THRESHOLD
 
-    if nchars > NUM_CHARS_THRESHOLD or line_skip == 0:
+
+def gen_dummy_header(header_names, data_details=None, line_skip=''):
+    """Generate dummy header for current data source
+    - if line_skip is not provided (None or '') or line_skip > 0:
+        generate dummy header if and only if number of invalid chars > 90%
+    - if line_skip = 0:
+        always generate dummy header
+    @param header_names:
+    @param data_details:
+    @param line_skip:
+    @return:
+    """
+    dummy_header = False
+    partial_dummy_header = False
+    org_header = header_names.copy()
+
+    is_blank = line_skip is None or line_skip == EMPTY_STRING
+    is_auto_generate_dummy_header = is_header_contains_invalid_chars(header_names)
+
+    # auto generate dummy header rules
+    is_gen_from_blank_skip = is_blank and is_auto_generate_dummy_header
+    is_gen_from_zero_skip = not is_blank and int(line_skip) == 0
+    is_gen_from_number_skip = not is_blank and int(line_skip) > 0 and is_auto_generate_dummy_header
+    if is_gen_from_blank_skip or is_gen_from_zero_skip or is_gen_from_number_skip:
         if data_details:
             data_details = [header_names] + data_details
         header_names = ['col'] * len(header_names)
         dummy_header = True
 
-    return org_header, header_names, dummy_header, data_details
+    if EMPTY_STRING in header_names:
+        header_names = [name or 'col' for name in header_names]
+        partial_dummy_header = True
+
+    return org_header, header_names, dummy_header, partial_dummy_header, data_details
+
+
+def merge_is_get_date_from_date_and_time(df, get_date_col, date_main_col, time_main_col, is_csv_or_v2=True):
+    from ap.api.setting_module.services.data_import import convert_df_col_to_utc
+
+    series_x = df[date_main_col]
+    series_y = df[time_main_col]
+    is_x_string = not pd.api.types.is_datetime64_any_dtype(series_x)
+    is_y_string = not pd.api.types.is_datetime64_any_dtype(series_y)
+
+    result_format = f'{DATE_FORMAT}{TIME_FORMAT_WITH_SEC}'
+
+    # extract date format
+    if not is_x_string:
+        series_x = series_x.dt.strftime(DATE_FORMAT)
+
+    # extract time format
+    if not is_y_string:
+        series_y = series_y.dt.strftime(TIME_FORMAT_WITH_SEC)
+
+    get_date_series = pd.to_datetime(
+        series_x + series_y,
+        format=result_format,
+        exact=True,
+        errors='coerce',
+    )
+    df[get_date_col] = get_date_series
+    # convert csv timezone
+    if is_csv_or_v2:  # TODO: Confirm convert db timezone
+        datetime_val = get_datetime_val(df[get_date_col])
+        is_timezone_inside, csv_timezone, utc_offset = get_time_info(datetime_val, None)
+        df[get_date_col] = convert_df_col_to_utc(df, get_date_col, is_timezone_inside, csv_timezone, utc_offset)
+        df[get_date_col] = remove_timezone_inside(df[get_date_col], is_timezone_inside)
+
+
+def add_column_file_name(df, file_path):
+    file_name = os.path.basename(file_path)
+    df[FILE_NAME] = file_name

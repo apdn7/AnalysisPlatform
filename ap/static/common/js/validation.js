@@ -97,6 +97,12 @@ function updateStyleButtonByCheckingValid() {
     btn.removeAttr('disable');
     btn.removeAttr('style');
     const isValid = checkValidations();
+    if($(formElements.showCT_Time).length) {
+        if ($(formElements.showCT_Time)[0].ready === true) {
+            $(formElements.showCT_Time).attr('disabled', false);
+            $(formElements.showCT_Time)[0].ready = null;
+        }
+    }
     if (!isValid) {
         btn.addClass('btn-secondary');
         btn.removeClass('btn-primary valid-show-graph');

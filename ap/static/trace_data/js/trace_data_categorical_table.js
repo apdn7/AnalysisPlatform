@@ -765,6 +765,8 @@ const initIndexModal = () => {
             showSerialModal(formElements.serialTableModal2);
             setSelect2Selection(formElements.serialTable2)
             bindDragNDrop($(`${formElements.serialTable2} tbody`), formElements.serialTable2, name.serial);
+            disableUnselectedOption(selectedSerials, name.serial);
+            disableUnselectedOption(selectedProcess, name.process);
 
             $(formElements.btnAddSerial2).unbind('click');
             $(formElements.btnAddSerial2).on('click', () => {

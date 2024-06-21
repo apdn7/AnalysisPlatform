@@ -20,6 +20,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import create_session, scoped_session
 
 from ap.common.common_utils import (
+    DATE_FORMAT_STR,
     NoDataFoundException,
     check_client_browser,
     check_exist,
@@ -29,6 +30,7 @@ from ap.common.common_utils import (
     make_dir,
 )
 from ap.common.constants import (
+    ANNOUNCE_UPDATE_TIME,
     APP_DB_FILE,
     DB_SECRET_KEY,
     EXTERNAL_API,
@@ -36,6 +38,7 @@ from ap.common.constants import (
     INIT_APP_DB_FILE,
     INIT_BASIC_CFG_FILE,
     LAST_REQUEST_TIME,
+    LIMIT_CHECKING_NEWER_VERSION_TIME,
     LOG_LEVEL,
     MAIN_THREAD,
     PORT,
@@ -71,6 +74,9 @@ from ap.common.yaml_utils import (
     YAML_START_UP_FILE_NAME,
     BasicConfigYaml,
 )
+from ap.equations.error import FunctionErrors, FunctionFieldError
+from ap.script.migrate_delta_time import migrate_delta_time_in_cfg_trace_key
+from ap.script.migrate_m_function import migrate_m_function_data
 
 dic_config = {
     MAIN_THREAD: None,
@@ -215,13 +221,14 @@ def close_sessions():
 # ##########################################################
 
 
-def create_app(object_name=None):
+def create_app(object_name=None, is_main=False):
     """Create and configure an instance of the Flask application."""
     from flask import request
 
     from .aggregate_plot import create_module as agp_create_module
     from .analyze import create_module as analyze_create_module
     from .api import create_module as api_create_module
+    from .calendar_heatmap import create_module as calendar_heatmap_create_module
     from .categorical_plot import create_module as categorical_create_module
     from .co_occurrence import create_module as co_occurrence_create_module
     from .common.logger import bind_user_info
@@ -232,6 +239,7 @@ def create_app(object_name=None):
     from .sankey_plot import create_module as sankey_create_module
     from .scatter_plot import create_module as scatter_plot_create_module
     from .script.migrate_cfg_data_source_csv import migrate_cfg_data_source_csv
+    from .script.migrate_cfg_process import migrate_cfg_process_add_is_show_file_name
     from .script.migrate_csv_datatype import migrate_csv_datatype
     from .script.migrate_csv_dummy_datetime import migrate_csv_dummy_datetime
     from .script.migrate_csv_save_graph_settings import migrate_csv_save_graph_settings
@@ -239,6 +247,7 @@ def create_app(object_name=None):
         migrate_cfg_process_add_file_name,
         migrate_cfg_process_column_add_column_raw_name,
         migrate_cfg_process_column_add_column_type,
+        migrate_cfg_process_column_add_parent_id,
     )
     from .setting_module import create_module as setting_create_module
     from .table_viewer import create_module as table_viewer_create_module
@@ -308,6 +317,7 @@ def create_app(object_name=None):
 
     api_create_module(app)
     scatter_plot_create_module(app)
+    calendar_heatmap_create_module(app)
     heatmap_create_module(app)
     setting_create_module(app)
     trace_data_create_module(app)
@@ -366,14 +376,22 @@ def create_app(object_name=None):
     # Universal DB init
     # init_db(app)
 
-    # migrate csv datatype
-    migrate_csv_datatype(app.config[APP_DB_FILE])
-    migrate_csv_dummy_datetime(app.config[APP_DB_FILE])
-    migrate_csv_save_graph_settings(app.config[APP_DB_FILE])
-    migrate_cfg_data_source_csv(app.config[APP_DB_FILE])
-    migrate_cfg_process_add_file_name(app.config[APP_DB_FILE])
-    migrate_cfg_process_column_add_column_raw_name(app.config[APP_DB_FILE])
-    migrate_cfg_process_column_add_column_type(app.config[APP_DB_FILE])
+    if is_main:
+        # migrate csv datatype
+        migrate_csv_datatype(app.config[APP_DB_FILE])
+        migrate_csv_dummy_datetime(app.config[APP_DB_FILE])
+        migrate_csv_save_graph_settings(app.config[APP_DB_FILE])
+        migrate_cfg_data_source_csv(app.config[APP_DB_FILE])
+        migrate_cfg_process_add_file_name(app.config[APP_DB_FILE])
+        migrate_cfg_process_column_add_column_raw_name(app.config[APP_DB_FILE])
+        migrate_cfg_process_column_add_column_type(app.config[APP_DB_FILE])
+        migrate_cfg_process_column_add_parent_id(app.config[APP_DB_FILE])
+        migrate_cfg_process_add_is_show_file_name(app.config[APP_DB_FILE])
+
+        # migrate function data
+        migrate_m_function_data(app.config[APP_DB_FILE])
+        # migrate delta_time
+        migrate_delta_time_in_cfg_trace_key(app.config[APP_DB_FILE])
 
     # start scheduler (Notice: start scheduler at the end , because it may run job before above setting info was set)
     if scheduler.state != STATE_STOPPED:
@@ -479,6 +497,13 @@ def create_app(object_name=None):
         response.set_cookie('invalid_browser_version', '0')
         if hasattr(g, 'is_valid_version') and g.is_valid_version:
             response.set_cookie('invalid_browser_version', '1')
+        if app.config.get('app_startup_time'):
+            response.set_cookie(
+                'app_startup_time',
+                str(app.config.get('app_startup_time').strftime(DATE_FORMAT_STR)),
+            )
+        response.set_cookie('announce_update_time', str(ANNOUNCE_UPDATE_TIME))
+        response.set_cookie('limit_checking_newer_version_time', str(LIMIT_CHECKING_NEWER_VERSION_TIME))
 
         return response
 
@@ -539,6 +564,18 @@ def create_app(object_name=None):
             },
         )
         return Response(response=response, status=408)
+
+    @app.errorhandler(FunctionFieldError)
+    def function_field_api_error(e: FunctionFieldError):
+        status = 400
+        response = json_dumps(e.parse())
+        return Response(response=response, status=status)
+
+    @app.errorhandler(FunctionErrors)
+    def functions_api_error(e: FunctionErrors):
+        status = 400
+        response = json_dumps(e.parse())
+        return Response(response=response, status=status)
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):

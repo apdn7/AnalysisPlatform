@@ -4,15 +4,13 @@ from decimal import Decimal
 from fractions import Fraction
 from functools import singledispatch
 
-import numpy as np
 import pandas as pd
 import simplejson
 from numpy import float32, float64, int8, int16, int32, int64, ndarray
-from orjson import OPT_NON_STR_KEYS, OPT_PASSTHROUGH_DATETIME, OPT_SERIALIZE_NUMPY, orjson
+from orjson import OPT_NON_STR_KEYS, OPT_PASSTHROUGH_DATETIME, OPT_SERIALIZE_NUMPY, OPT_SORT_KEYS, orjson
 from pandas import DataFrame, Series
 
 from ap.common.constants import DataType
-from ap.common.logger import logger
 
 
 @singledispatch
@@ -20,23 +18,16 @@ def json_serial(obj):
     try:
         # call toJSON method in customize class.
         # create toJSON method in your class
-        return obj.toJSON()
+        if hasattr(obj, '__table__'):
+            cols = [col.name for col in list(obj.__table__.columns)]
+            return {col: obj.__dict__.get(col) for col in cols}
+        elif hasattr(obj, '__dict__'):
+            return obj.__dict__
+
+        return str(obj)
+
     except AttributeError:
-        if pd.isnull(obj):
-            return None
-
-        if np.isnan(obj):
-            return None
-
-        logger.warning('failed - trying to use vars...', obj)
-        print('\tfailed - trying to use vars...', obj)
-
-        try:
-            return vars(obj)
-        except TypeError:
-            logger.warning('failed - using string representation...', obj)
-            print('\tfailed - using string representation...', obj)
-            return str(obj)
+        return str(obj)
 
 
 @json_serial.register(date)
@@ -95,10 +86,34 @@ def _(obj):
     return json.JSONEncoder.default(obj)
 
 
-def orjson_dumps(dic_data):
+@json_serial.register(type(pd.NA))
+@json_serial.register(type(pd.NaT))
+def _(obj):
+    return None
+
+
+def build_dic_data(*args, **kwargs):
+    if len(args) == 1 and args[0] is None:
+        dic_data = {}
+    else:
+        try:
+            dic_data = dict(*args)
+        except Exception as e:
+            if len(args) == 1:
+                dic_data = args[0]
+                return dic_data
+            else:
+                raise e
+
+    dic_data.update(kwargs)
+    return dic_data
+
+
+def orjson_dumps(*args, **kwargs):
+    dic_data = build_dic_data(*args, **kwargs)
     json_str = orjson.dumps(
         dic_data,
-        option=OPT_NON_STR_KEYS | OPT_SERIALIZE_NUMPY | OPT_PASSTHROUGH_DATETIME,
+        option=OPT_NON_STR_KEYS | OPT_SERIALIZE_NUMPY | OPT_PASSTHROUGH_DATETIME | OPT_SORT_KEYS,
         default=json_serial,
     )
 

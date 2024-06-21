@@ -61,7 +61,7 @@
                 </div>
                 <div class="form-group row">
                     <label for="" class="col-sm-3 col-form-label"><h5>{{ _("File type") }}</h5></label>
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 file-type-area">
                         <div class="custom-control custom-radio custom-control-inline">
                             <input type="radio" class="custom-control-input" id="fileTypeAuto" name="fileType" value="Auto">
                             <label class="custom-control-label" for="fileTypeAuto">Auto</label>
@@ -78,12 +78,57 @@
                             <input type="radio" class="custom-control-input" id="fileTypeSMC" name="fileType" value="SMC">
                             <label class="custom-control-label" for="fileTypeSMC">Semicolon(;)SV</label>
                         </div>
-                        <div class="custom-control custom-control-inline float-right mr-0 line-skip-group">
-                            <label class="line-skip mr-2 mb-0" title="{{_('Skip line hover msg')}}" for="skipHead">
+                        <div class="custom-control custom-checkbox custom-control-inline float-right transpose-div">
+                            <input
+                                type="checkbox"
+                                class="custom-control-input already-convert-hankaku"
+                                id="csvIsTranspose"
+                                name="csvIsTranspose"
+                            />
+                            <label
+                                class="custom-control-label"
+                                for="csvIsTranspose"
+                                title="{{ _('Transpose hover msg') }}"
+                            >{{ _('Transpose') }}</label
+                            >
+                        </div>
+                        <div class="custom-control custom-control-inline float-right line-skip-group nrows-div">
+                            <label
+                                class="line-skip mr-2 mb-0"
+                                title="{{ _('Num rows hover msg') }}"
+                                for="csvNRows"
+                            >
+                                <span class="hint-text">nRows</span>
+                            </label>
+                            <input
+                                type="number"
+                                id="csvNRows"
+                                name="csvNRows"
+                                class="form-control csvNRows"
+                                min="0"
+                            />
+                        </div>
+                        <div class="custom-control custom-control-inline float-right line-skip-group skip-div">
+                            <label
+                                class="line-skip mr-2 mb-0"
+                                title="{{ _('Skip line hover msg') }}"
+                                for="skipHead"
+                            >
                                 <span class="hint-text">Skip</span>
                             </label>
-                            <input type="number" id="skipHead" name="line_skip" class="form-control" min="0" max="99">
-                            <input type="hidden" name="isDummyHeader" value="">
+                            <input
+                                type="number"
+                                id="skipHead"
+                                name="line_skip"
+                                class="form-control"
+                                min="0"
+                                max="99"
+                            />
+                            <input
+                                type="hidden"
+                                name="isDummyHeader"
+                                value=""
+                            />
                         </div>
                     </div>
                 </div>
@@ -129,7 +174,7 @@
 	<div class="modal-dialog modal-confirm">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">{{ _("Please confirm") }}</h4>
+				<h4 class="modal-title">{{ _("Confirmation") }}</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -364,7 +409,7 @@
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">{{ _('Please confirm') }}</h4>
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">

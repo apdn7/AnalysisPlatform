@@ -1,11 +1,12 @@
 
 const COLOR_DEFAULT = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22']
 
-const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvasId, yScale, showPercent, divFromTo) => {
+const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvasId, yScale, yAxisDisplayMode, divFromTo) => {
     const { agg_function, color_name, unique_color, fmt, shown_name } = plotData;
 
     const isLineChart = agg_function && agg_function.toLowerCase() !== 'count';
-    showPercent = showPercent && !isLineChart;
+    const showPercent = [AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL, AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET].includes(yAxisDisplayMode)
+        && !isLineChart;
     let xTitles = data[0] ? [...data[0].x] : [];
     const tickLen = xTitles.length ? xTitles[0].length : 0;
     const tickSize =  tickLen > 5 ? 10 : 12;
@@ -56,7 +57,8 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
             spikethickness: 1,
             spikedash: 'solid',
             spikecolor: 'rgb(255, 0, 0)',
-            tickformat: showPercent ? ',.0%' : fmt ? (fmt.includes('e') ? '.1e' : fmt) : '',
+            // tickformat: showPercent ? ',.0%' : fmt ? (fmt.includes('e') ? '.1e' : fmt) : '',
+            tickformat: '',
             range: showPercent ? [0, 1] : yScale ? [yMin, yMax] : null,
             autorange: yScale ? false : true,
         },
@@ -83,7 +85,12 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
         }
     };
 
-
+    if (showPercent) {
+        layout.yaxis.ticksuffix = '%'
+        data.forEach(item => {
+            item.y = item.y.map(i => i*100)
+        })
+    }
 
     if (isLineChart) {
         layout.xaxis.range = [-0.5, div.length - 0.5];
@@ -103,7 +110,7 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
 
     agPPlot.on('plotly_hover', (data) => {
         const dpIndex = getDataPointIndex(data);
-        const { x, y, name, type, isOutlier, colorName, outlierVal } = data.points[0].data;
+        const { x, y, name, type, isOutlier, colorName, outlierVal, colId } = data.points[0].data;
         const xVal = x[dpIndex].slice(1);
         const color = colorName || name;
         const hasColor = !!color_name;
@@ -142,8 +149,8 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
             }
             dataTable = genHoverDataTable([['x', xVal], ...period, ['Color', color], ...showVal, ...fromTo]);
         } else {
-            const nByX = showPercent ? '100%' : countByXAxis[xVal];
-            const NByColor = showPercent ? `${applySignificantDigit(nByXAndColor * 100)}%` : applySignificantDigit(nByXAndColor);
+            const nByX = showPercent ? '100%' : countByXAxis[colId][xVal];
+            const NByColor = showPercent ? `${applySignificantDigit(nByXAndColor)}%` : applySignificantDigit(nByXAndColor);
 
             const NByColorHover = hasColor ? [['N by x and Color', NByColor]] : [];
 

@@ -1,14 +1,26 @@
 from functools import lru_cache
+from typing import Union
+
+from sqlalchemy.orm import scoped_session
 
 from ap.api.setting_module.services.v2_etl_services import is_v2_data_source, save_unused_columns
-from ap.common.constants import ID, DataType, DBType, ProcessCfgConst
+from ap.common.constants import (
+    ID,
+    DataColumnType,
+    DataType,
+    DBType,
+    ProcessCfgConst,
+)
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.postgresql import PostgreSQL
 from ap.common.services.jp_to_romaji_utils import to_romaji
+from ap.equations.utils import get_all_functions_info
 from ap.setting_module.models import (
     CfgDataSource,
     CfgFilter,
     CfgProcess,
     CfgProcessColumn,
+    CfgProcessFunctionColumn,
     CfgVisualization,
     crud_config,
     insert_or_update_config,
@@ -24,14 +36,20 @@ from ap.setting_module.schemas import (
 from ap.trace_data.transaction_model import TransactionData
 
 
-def get_all_process():
-    process = CfgProcess.get_all() or []
+def get_all_process(with_parent=True):
+    process = CfgProcess.get_all(with_parent) or []
     return process
 
 
-def get_all_process_no_nested():
+def get_all_functions():
+    all_functions_info = get_all_functions_info()
+    all_functions_info = [function_info.model_dump() for function_info in all_functions_info]
+    return all_functions_info
+
+
+def get_all_process_no_nested(with_parent=True):
     process_only_schema = ProcessOnlySchema(many=True)
-    processes = CfgProcess.get_all() or []
+    processes = CfgProcess.get_all(with_parent) or []
     return process_only_schema.dump(processes, many=True)
 
 
@@ -46,6 +64,11 @@ def get_process_cfg(proc_id):
 def get_process_columns(proc_id):
     proc_col_schema = ProcessColumnSchema(many=True)
     columns = CfgProcessColumn.query.filter(CfgProcessColumn.process_id == proc_id).all() or []
+    for column in columns:
+        # modify data type based on function column
+        if column.function_details and column.function_details[-1].return_type:
+            column.data_type = column.function_details[-1].return_type
+
     return proc_col_schema.dump(columns)
 
 
@@ -106,6 +129,18 @@ def create_or_update_process_cfg(proc_data, unused_columns):
             # transform english name
             if not proc_column.name_en:
                 proc_column.name_en = to_romaji(proc_column.column_name)
+
+            # modify column_type (DataColumnType) for main::date and main::time
+            # if proc_column.data_type in DataColumnType.get_keys():
+            #     proc_column.column_type = DataColumnType[proc_column.data_type].value
+
+        # re-fill function columns to avoid deleting it
+        function_columns = CfgProcessColumn.get_by_column_types(
+            [DataColumnType.GENERATED_EQUATION.value],
+            proc_ids=[process.id],
+            session=meta_session,
+        )
+        columns.extend(function_columns)
 
         # save columns
         crud_config(
@@ -207,3 +242,35 @@ def get_ct_range(proc_id, columns):
         return ct_range
     except Exception:
         return []
+
+
+def gen_function_column(process_columns, session: Union[scoped_session, PostgreSQL]):
+    for process_column in process_columns:
+        if process_column.function_config is None:
+            continue
+
+        dict_function_column = {
+            'function_id': process_column.function_config.get('function_id'),
+            'var_x': process_column.function_config.get('var_x'),
+            'var_y': process_column.function_config.get('var_y'),
+            'coe_a_n_s': process_column.function_config.get('coe_a_n_s'),
+            'coe_b_k_t': process_column.function_config.get('coe_b_k_t'),
+            'coe_c': process_column.function_config.get('coe_c'),
+            'return_type': process_column.function_config.get('return_type'),
+            'note': process_column.function_config.get('note'),
+        }
+
+        if process_column.function_config.get('function_column_id'):  # In case of exist record
+            dict_function_column['id'] = process_column.function_config.get('function_column_id')
+
+        select_cols = []
+        rows = []
+        for col, value in dict_function_column.items():
+            select_cols.append(col)
+            rows.append(value if value != '' else None)
+        rows = [tuple(rows)]
+
+        if isinstance(session, scoped_session):
+            CfgProcessFunctionColumn.insert_records(select_cols, rows, session)
+        else:
+            session.bulk_insert(CfgProcessFunctionColumn.get_table_name(), select_cols, rows)

@@ -17,18 +17,6 @@ const SCATTER_MARGIN = {
 // unique filters
 const onlyUniqueFilter = (value, index, self) => self.indexOf(value) === index;
 
-const getNValueInArray = (array, n) => {
-    if (n > array.length) return array;
-    const nextIndex = array.length / n < 2 ? 2 : Math.floor(array.length / n);
-    const res = [];
-    let i = 0;
-    while (i < array.length) {
-        res.push(array[i]);
-        i += nextIndex;
-    }
-
-    return res;
-};
 
 const buildCategoryColors = (colorData) => {
     const uniqueColorData = colorData.filter(onlyUniqueFilter);

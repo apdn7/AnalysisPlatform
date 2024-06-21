@@ -2,29 +2,27 @@ import contextlib
 import os
 
 from ap import MAIN_THREAD, SHUTDOWN, create_app, max_graph_config
-from ap.common.constants import ANALYSIS_INTERFACE_ENV, PORT, PROCESS_QUEUE, ListenNotifyType
+from ap.common.constants import ANALYSIS_INTERFACE_ENV, PORT, PROCESS_QUEUE
 from ap.common.logger import logger, set_log_config
 from ap.common.services.notify_listen import process_listen_job
 
 env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
-app = create_app('config.%sConfig' % env.capitalize())
 
-pid = os.getpid()
-if __name__ == '__main__':
-    pid = f'{pid}_main'
+is_main = __name__ == '__main__'
 
-set_log_config(suffix=pid)
+app = create_app('config.%sConfig' % env.capitalize(), is_main)
 
-if __name__ == '__main__':
+set_log_config(is_main)
+
+if is_main:
     from datetime import datetime
-    from multiprocessing import Manager
 
     from ap import dic_config, get_basic_yaml_obj, get_start_up_yaml_obj, scheduler
     from ap.common.backup_db import add_backup_dbs_job
     from ap.common.check_available_port import check_available_port
     from ap.common.clean_expired_request import add_job_delete_expired_request
     from ap.common.clean_old_data import add_job_delete_old_zipped_log_files, add_job_zip_all_previous_log_files
-    from ap.common.common_utils import bundle_assets, get_multiprocess_queue_file, write_to_pickle
+    from ap.common.common_utils import bundle_assets, init_process_queue
     from ap.common.constants import APP_DB_FILE, CfgConstantType
     from ap.common.memoize import clear_cache
     from ap.script.convert_user_setting import convert_user_setting_url
@@ -47,22 +45,15 @@ if __name__ == '__main__':
 
     if not port:
         basic_config_yaml = get_basic_yaml_obj()
-        port = basic_config_yaml.dic_config['info'].get('port-no') or app.config.get('PORT')
+        port = basic_config_yaml.dic_config['info'].get('port-no') or app.config.get(PORT)
 
     check_available_port(port)
 
     dic_config[PORT] = int(port)
 
     # processes queue
-    manager = Manager()
-    process_queue = manager.dict()
-    for notify_type in ListenNotifyType.__members__:
-        process_queue[notify_type] = manager.dict()
-
-    write_to_pickle(process_queue, get_multiprocess_queue_file())
-
     dic_config[MAIN_THREAD] = True
-    dic_config[PROCESS_QUEUE] = process_queue
+    dic_config[PROCESS_QUEUE] = init_process_queue()
 
     # update interrupt jobs by shutdown immediately
     with app.app_context():
@@ -168,6 +159,7 @@ if __name__ == '__main__':
         disable_terminal_close_btn()
 
     try:
+        app.config.update({'app_startup_time': datetime.utcnow()})
         if env == 'dev':
             print('Development Flask server !!!')
             # use_reloader=False to avoid scheduler load twice

@@ -53,6 +53,12 @@ msgstr "ចមនងចើង"
 msgid "Please confirm"
 msgstr "សូម​បញ្ជាក់។"
 
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Confirmation"
+msgstr "Confirmation"
+
 #: ap/templates/setting_module/config.html:43
 msgid ""
 "Do you want to save changes and start to import data with configure at "
@@ -124,7 +130,7 @@ msgstr "ឈ្មោះ​ឯកសារ"
 msgid "Select"
 msgstr "រេចីសរើស"
 
-#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html:148
 #: ap/templates/setting_module/trace_config.html:85
 msgid "Do you want to delete this record?"
 msgstr "តើអ្នកចង់លុបកំណត់ត្រានេះទេ?"
@@ -291,6 +297,22 @@ msgstr "វាលដែលមាន \"ឈ្មោះអង់គ្លេសទ
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Select All"
 msgstr "ជ្រើសរើស​ទាំងអស់"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Copy All"
+msgstr "Copy All"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Paste All"
+msgstr "Paste All"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Copy"
+msgstr "Copy"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Set"
+msgstr "Set"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Import Data"
@@ -721,6 +743,10 @@ msgstr "តួអក្សរទី 1"
 # ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "ការជ្រើសរើសខ្ទង់ដែនមិនត្រឹមត្រូវ"
+
+# ap/templates/setting_module/trace_config.html
+msgid "i18nInvalidDeltaTime"
+msgstr "Delta time and cut off must be Integer"
 
 # ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
@@ -2095,6 +2121,10 @@ msgstr "កម្រិតនៃការជាប់ទាក់ទងគ្ន
 msgid "Response variable"
 msgstr "ជ្រើសរើសអថេរគោលបំណង"
 
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Cycle Time Analysis"
+msgstr "Cycle Time Analysis"
+
 #: ap/templates/templates/i18n.html
 msgid "Objective variable"
 msgstr "អថេរគោលបំណង"
@@ -2972,6 +3002,10 @@ msgstr "ខ្ញុំ​ទទួល​យក"
 #: ap/templates/i18n.html
 msgid "Decline"
 msgstr "ការបដិសេធ"
+
+#: ap/templates/i18n.html
+msgid "Download New Version"
+msgstr "Download New Version"
 
 #: ap/templates/scatter_plot/scatter_plot.html
 msgid "Backwards"
@@ -4213,6 +4247,12 @@ msgstr ""
 "To change the visualization settings, jump again after modifying the "
 "graph on the page from which you jumped"
 
+#: ap/templates/i18n.html
+msgid "JumpWithoutObjectiveVariableMsg"
+msgstr ""
+"Please select target variable. (Target variable to examine influencing "
+"factors.)"
+
 #: ap/templates/macros.html
 msgid "Nominal scale"
 msgstr "Ordinalize categorical values"
@@ -4494,9 +4534,25 @@ msgstr ""
 "entered value, and the data will be read using the next row as the column"
 " name."
 
+#: ap/templates/setting_module/db_config_modal.html
+msgid "Num rows hover msg"
+msgstr ""
+"Limits the number of lines to be read. No input or 0 will read all lines,"
+" a positive number will read only the specified number of lines."
+
+#: ap/templates/setting_module/db_config_modal.html
+msgid "Transpose hover msg"
+msgstr "Transpose the data, which swaps the rows and columns."
+
 #: ap/templates/i18n.html
 msgid "There were no column names in the file, the AP created new column names."
 msgstr "There were no column names in the file, the AP created new column names."
+
+#: ap/templates/i18n.html
+msgid "PartialDummyHeaderGenerated"
+msgstr ""
+"New column names are created for columns in the file that did not have "
+"names."
 
 #: ap/templates/register_by_file.html
 msgid "NavButtonRegisterByFile"
@@ -4589,4 +4645,122 @@ msgstr "Process name is already registered"
 #: ap/templates/register_by_file.html
 msgid "Data Source Name is already registered"
 msgstr "Data Source Name is already registered"
+
+#: ap/templates/register_by_file.html
+msgid "Table viewer title hover msg"
+msgstr ""
+"You can check the original data (contents of data files such as databases"
+" and CSV) for each process.\n"
+"For data files such as CSV, the contents of the latest file will be "
+"displayed."
+
+#: ap/templates/heatmap/heatmap.html
+msgid "Heatmap Plot Page Title"
+msgstr "Heat Map"
+
+#: ap/templates/heatmap/heatmap.html
+msgid "Heatmap Page title description"
+msgstr "The relationship between variables can be visualized with a heat map."
+
+#: ap/templates/heatmap/heatmap.html
+msgid "HMp show value description"
+msgstr ""
+"The data types of x and y to be selected are both categorical or integer "
+"only."
+
+#: ap/templates/heatmap/heatmap.html
+msgid "HMp color hover msg"
+msgstr ""
+"Specify the calculation method for the values of the color map (z-axis). "
+"For numerical values, statistical values such as average, and for "
+"categorical values, counting, etc."
+
+#: ap/templates/i18n.html
+msgid "If both x and y data types are categorical, please draw with HMP."
+msgstr "If both x and y data types are categorical, please draw with HMP."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "CopyButtonFunctionHoverMessage"
+msgstr "Open a modal that contains registered functions of this process."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "SetButtonFunctionHoverMessage"
+msgstr ""
+"Add a new function column that fully be inputted and defined into below "
+"table."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "NewButtonFunctionHoverMessage"
+msgstr "Open a modal that contains all functions with description."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "DeleteButtonFunctionHoverMessage"
+msgstr "Delete selected function columns."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "RegisterButtonFunctionHoverMessage"
+msgstr "Register all function columns in table into system."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ReloadButtonFunctionHoverMessage"
+msgstr "Reload to get all function columns of the process into system."
+
+#: ap/templates/i18n.html
+msgid "main::Date"
+msgstr "main::Date"
+
+#: ap/templates/i18n.html
+msgid "main::Time"
+msgstr "main::Time"
+
+#: ap/templates/i18n.html
+msgid "generateDatetimeCol"
+msgstr "Generate a Datetime column from main::Date and main::time"
+
+#: ap/templates/i18n.html
+msgid "requestSelectDateAndTime"
+msgstr "Please set both main::Date and main::Time columns"
+
+#: ap/templates/setting_modules/proc_config_modals.html
+msgid "Merge Mode"
+msgstr "Merge Mode"
+
+#: ap/templates/macros.html
+msgid "numericLabel"
+msgstr "Numeric"
+
+#: ap/templates/macros.html
+msgid "nonNumericLabel"
+msgstr "Others"
+
+#: ap/templates/macros.html
+msgid "numericHoverMsg"
+msgstr "Real and Integer (Numeric) Data"
+
+#: ap/templates/macros.html
+msgid "nonNumericHoverMsg"
+msgstr "Non-numeric Data"
+
+#: ap/templates/i18n.html
+msgid "warnDeleteMergedProc"
+msgstr ""
+"This dataset is a merged dataset. If you delete this dataset, the parent "
+"dataset and other merged datasets will also be deleted at the same time. "
+"Are you sure you want to delete them all?"
+
+#: ap/templates/i18n.html
+msgid ""
+"Cast error: There are some columns that cannot be cast to another data "
+"type. Please check the real data of the columns listed below: You can "
+"also see the data that will be exported and stored in file path {0}"
+msgstr ""
+"Cast error: There are some columns that cannot be cast to another data "
+"type. Please check the real data of the columns listed below: You can "
+"also see the data that will be exported and stored in file path {0}"
+
+msgid "LinkWithTime"
+msgstr "Link with time: diff [sec]"
+
+msgid "i18nCutOff"
+msgstr "CutOff: [msec]"
 

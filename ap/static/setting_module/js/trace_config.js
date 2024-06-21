@@ -64,6 +64,8 @@ const i18nNames = {
     edgeLinkTitleReal: $('#i18nEdgeLinkTitleReal').text(),
     nodeLinkTitlePred: $('#i18nNodeLinkTitlePred').text(),
     nodeLinkTitleReal: $('#i18nNodeLinkTitleReal').text(),
+    linkWithTime: $('#i18nLinkWithTime').text(),
+    i18nCutOff: $('#i18nCutOff').text(),
 };
 const locale = docCookies.getItem('locale') === 'ja' ? 'jp' : docCookies.getItem('locale');
 const locales = {};
@@ -96,6 +98,12 @@ const tracingElements = {
     edgeForwardProc: $('#edgeForwardProc'),
     edgeSelects: $('#trace_link_procs select'),
     alertProcLink: '#alert-register-proc-link',
+    edgeConfigDatetime: '.trace-config-datetime',
+    edgeConfigSerial: '.trace-config-serial',
+    deltaDatetime: '#delta-datetime',
+    deltaDatetimeVisible: '#delta-datetime:visible',
+    inputDeltaDatetime: '.deltaDatetime',
+    inputCutOff: '.cutOff',
 };
 
 const destroy = () => {
@@ -267,6 +275,7 @@ let targetColCandidateMasters = [];
 let selectedTargetCols = [];
 let targetSubStrOpt = [];
 let targetColNames = [];
+let targetDataTypes = [];
 
 let selfProc = null;
 let selfSubStrOpt = [];
@@ -274,6 +283,9 @@ let selectedSelfCols = [];
 let selfColCandidates = [];
 let selfColCandidateMasters = [];
 let selfColNames = [];
+let selfDataTypes = [];
+let deltaTimes = '';
+let cutOffs = '';
 
 const layoutOption = () => {
     if (hierarchicalDirection !== NORMAL_TYPE) {
@@ -546,6 +558,72 @@ const onChangeProcs = (edgeData) => {
         }
     });
 };
+const masterInnerOrder = [
+    masterDataGroup.LINE_NAME,
+    masterDataGroup.LINE_NO,
+    masterDataGroup.EQ_NAME,
+    masterDataGroup.EQ_NO,
+    masterDataGroup.PART_NAME,
+    masterDataGroup.PART_NO,
+    masterDataGroup.ST_NO
+];
+
+const reOrderLinkCols = (linkingCols) => {
+    let serialCols = [];
+    let getDateCols = [];
+    let dateTimeCols = [];
+    let mainDateCols = [];
+    let dateCols = [];
+    let mainTimeCols = [];
+    let timeCols = [];
+    let masterCols = [];
+    let catCols = [];
+    let stringCols = [];
+    let intCols = [];
+    for (const linkingCol of linkingCols) {
+        if (linkingCol.is_serial_no) {
+            serialCols.push(linkingCol)
+        } else if (linkingCol.is_get_date) {
+            getDateCols.push(linkingCol)
+        } else if (linkingCol.data_type === DataTypes.DATETIME.name) {
+            dateTimeCols.push(linkingCol)
+        } else if (linkingCol.data_type === DataTypes.DATE.name) {
+            mainDateCols.push(linkingCol)
+        } else if (linkingCol.data_type === DataTypes.TIME.name) {
+            mainTimeCols.push(linkingCol)
+        } else if (masterInnerOrder.includes(linkingCol.column_type)) {
+            masterCols.push(linkingCol)
+        } else if (linkingCol.is_int_category && linkingCol.data_type === DataTypes.INTEGER.name) {
+            catCols.push(linkingCol)
+        } else if (linkingCol.data_type === DataTypes.STRING.name) {
+            stringCols.push(linkingCol)
+        } else if (linkingCol.data_type === DataTypes.INTEGER.name){
+            intCols.push(linkingCol)
+        }
+    }
+    getDateCols.sort((a, b) => a.order - b.order);
+    dateTimeCols.sort((a, b) => a.order - b.order);
+    mainDateCols.sort((a, b) => a.order - b.order);
+    dateCols.sort((a, b) => a.order - b.order);
+    mainTimeCols.sort((a, b) => a.order - b.order);
+    timeCols.sort((a, b) => a.order - b.order);
+    masterCols.sort((a, b) => a.column_type - b.column_type);
+    catCols.sort((a, b) => a.order - b.order);
+    stringCols.sort((a, b) => a.order - b.order);
+    intCols.sort((a, b) => a.order - b.order);
+    // push serial at top of dropdown in linking modal
+    return [...serialCols,
+        ...getDateCols,
+        ...dateTimeCols,
+        ...mainDateCols,
+        ...dateCols,
+        ...mainTimeCols,
+        ...timeCols,
+        ...masterCols,
+        ...catCols,
+        ...stringCols,
+        ...intCols];
+};
 
 const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
     if (typeof edgeData.self_col !== 'object') {
@@ -554,10 +632,11 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
         selectedSelfCols = [...edgeData.self_col];
     }
 
-    const selfSerialColumns = processes[selfProcId].columns.filter(e => e.is_serial_no);
+    const selfSerialColumns = reOrderLinkCols(processes[selfProcId].columns.filter(e => e.is_linking_column));
     selfColCandidates = selfSerialColumns.map(e => e.id);
     selfColCandidateMasters = selfSerialColumns.map(e => e.shown_name);
     selfColNames = selfSerialColumns.map(e => e.name_en);
+    selfDataTypes = selfSerialColumns.map(e => e.data_type);
 
     if (typeof edgeData.target_col !== 'object') {
         selectedTargetCols = [edgeData.target_col];
@@ -565,16 +644,19 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
         selectedTargetCols = [...edgeData.target_col];
     }
 
-    const targetSerialColumns = processes[targetProcId].columns.filter(e => e.is_serial_no);
+    const targetSerialColumns = reOrderLinkCols(processes[targetProcId].columns.filter(e => e.is_linking_column));
     targetColCandidates = targetSerialColumns.map(e => e.id);
     targetColCandidateMasters = targetSerialColumns.map(e => e.shown_name);
     targetColNames = targetSerialColumns.map(e => e.name_en);
+    targetDataTypes = targetSerialColumns.map(e => e.data_type);
     targetChosenTraceKeys = [];
     selfChosenTraceKeys = [];
 
     // substring option selected
     targetSubStrOpt = edgeData.target_substr;
     selfSubStrOpt = edgeData.self_substr;
+    deltaTimes = edgeData.delta_time;
+    cutOffs = edgeData.cut_off;
 };
 
 
@@ -617,6 +699,8 @@ const initVisData = (processesArray) => {
             target_col: trace.trace_keys.map(key => key.target_column_id),
             self_substr: trace.trace_keys.map(key => [key.self_column_substr_from, key.self_column_substr_to]),
             target_substr: trace.trace_keys.map(key => [key.target_column_substr_from, key.target_column_substr_to]),
+            delta_time: trace.trace_keys.map(key => key.delta_time),
+            cut_off: trace.trace_keys.map(key => key.cut_off),
         };
         const edgeKey = `${trace.self_process_id}-${trace.target_process_id}`;
         mapIdFromIdTo2Edge[edgeKey] = edge;
@@ -655,7 +739,7 @@ const addAutoCheckPartialMatch = () => {
 
 const addGroupListSelection = (parentId, id, itemName, itemVals, itemOrgCols = null, itemAliases = null,
     checkedVals = null, itemDisplayNames = [], subStrOpt = [], forwardCol = null, clearOption = true,
-    columnNames = [], chosenOption = []) => {
+    columnNames = [], dataTypes = [], chosenOption = []) => {
     if (clearOption) $(`#${parentId}`).empty();
 
     if (checkedVals.length == 0) {
@@ -690,7 +774,7 @@ const addGroupListSelection = (parentId, id, itemName, itemVals, itemOrgCols = n
         const toOptions = digitOptions(endDigit).join('');
         let options = itemAliases.map((v, k) => {
             const selected = `${v}` === `${selector}` ? ' selected="selected"' : '';
-            return `<option value="${v}"${selected} alias="${itemAliases[k]}"
+            return `<option value="${v}"${selected} alias="${itemAliases[k]}" data-type="${dataTypes[k]}"
                    original="${itemOrgCols[k]}" title="${columnNames[k]}">${itemDisplayNames[k]}</option>`;
         },
         selector,
@@ -699,52 +783,56 @@ const addGroupListSelection = (parentId, id, itemName, itemVals, itemOrgCols = n
         if (isNullOption) {
             options = '';
         }
-        itemList.push(`<div class="col-sm-6 ${forwardCol ? 'pl-4' : 'pr-4'}" id="${id}">
-                   <div class="form-group" id="list-${id}${i}">
-                   <div class="">
-                      <select class="form-control select2-selection--single select-n-columns" name="${itemName}"
-                           id="checkbox-${itemId}"
-                           original="${itemOrgCol}"
-                           onChange="updateSelectedColumns()">
-                           ${options}
-                       </select>
-                   </div>
-                   <div class="form-check" style="margin-top: 10px;">
-                       <div class="custom-control custom-radio custom-control">
-                           <input type="radio" id="subStrOpt-${itemId}"
-                               name="subStrOpt-${itemId}"
-                               class="custom-control-input" value="0" ${defaultSelected}>
-                           <label class="custom-control-label" for="subStrOpt-${itemId}">
-                               ${i18nNames.allDigits}
-                           </label>
-                       </div>
-                   </div>
-                   <div class="form-check" style="margin-top: 10px;">
-                       <div class="custom-control custom-radio custom-control-inline partial-option">
-                           <input type="radio" id="subStrOpt2-${itemId}"
-                               name="subStrOpt-${itemId}"
-                               class="custom-control-input partial-radio" value="1" ${subSelected}>
-                           <label class="custom-control-label" for="subStrOpt2-${itemId}">
-                               ${i18nNames.partialMatch}
-                           </label>
-                           <div class="col-auto">
-                               <select class="form-control select2-selection--single partial-digit"
-                                    name="fromDigit-${itemId}">${fromOptions}</select>
-                           </div>
-                           <div class="col-auto">
-                               <h5>${COMMON_CONSTANT.EN_DASH}</h5>
-                           </div>
-                           <div class="col-auto">
-                               <select class="form-control select2-selection--single partial-digit"
-                                    name="toDigit-${itemId}">${toOptions}</select>
-                           </div>
-                           <div class="col-auto">
-                               <label for="select-">${i18nNames.thCharacter}</label>
-                           </div>
-                      </div>
-                   </div>
-               </div>
-        </div>`);
+        itemList.push(`
+        <div class="col-sm-6 ${forwardCol ? 'pl-4' : 'pr-4'}" id="${id}">
+            <div class="form-group" id="list-${id}${i}">
+                <div class="">
+                    <select class="form-control select2-selection--single select-n-columns" name="${itemName}"
+                            id="checkbox-${itemId}"
+                            original="${itemOrgCol}"
+                            onChange="updateSelectedColumns()">
+                        ${options}
+                    </select>
+                </div>
+                <div id="trace-config-serial-${id}" class="trace-config-serial">
+                    <div class="form-check" style="margin-top: 10px;">
+                        <div class="custom-control custom-radio custom-control">
+                            <input type="radio" id="subStrOpt-${itemId}"
+                                   name="subStrOpt-${itemId}"
+                                   class="custom-control-input" value="0" ${defaultSelected}>
+                            <label class="custom-control-label" for="subStrOpt-${itemId}">
+                                ${i18nNames.allDigits}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-check" style="margin-top: 10px;">
+                        <div class="custom-control custom-radio custom-control-inline partial-option">
+                            <input type="radio" id="subStrOpt2-${itemId}"
+                                   name="subStrOpt-${itemId}"
+                                   class="custom-control-input partial-radio" value="1" ${subSelected}>
+                            <label class="custom-control-label" for="subStrOpt2-${itemId}">
+                                ${i18nNames.partialMatch}
+                            </label>
+                            <div class="col-auto">
+                                <select class="form-control select2-selection--single partial-digit"
+                                        name="fromDigit-${itemId}">${fromOptions}</select>
+                            </div>
+                            <div class="col-auto">
+                                <h5>${COMMON_CONSTANT.EN_DASH}</h5>
+                            </div>
+                            <div class="col-auto">
+                                <select class="form-control select2-selection--single partial-digit"
+                                        name="toDigit-${itemId}">${toOptions}</select>
+                            </div>
+                            <div class="col-auto">
+                                <label for="select-">${i18nNames.thCharacter}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `);
     });
     // const groupList = itemList.join(' ');
 
@@ -775,7 +863,7 @@ const updateSelectedColumns = (isForce = false) => {
     const allChosenTargetCols = getSelectedColumns(allSelectedTargetColElements);
     const allSelectedTargetCols = allSelectedTargetColElements.get();
     targetChosenTraceKeys = allChosenTargetCols;
-
+    let targetColIndex = 0;
     Array.prototype.forEach.call(allSelectedTargetCols, (selected) => {
         const currentCardSelector = $(selected).val();
         $.each($(selected).find('option'), (key, option) => {
@@ -786,6 +874,8 @@ const updateSelectedColumns = (isForce = false) => {
                 $(option).removeAttr('disabled');
             }
         });
+        updateTraceConfig(selected, targetColIndex);
+        targetColIndex++;
     });
 
 
@@ -793,7 +883,7 @@ const updateSelectedColumns = (isForce = false) => {
     const allChosenSelfCols = getSelectedColumns(allSelectedSelfColElements);
     const allSelectedSelfCols = allSelectedSelfColElements.get();
     selfChosenTraceKeys = allChosenSelfCols;
-
+    let selfColIndex = 0;
     Array.prototype.forEach.call(allSelectedSelfCols, (selected) => {
         const currentCardSelector = $(selected).val();
         $.each($(selected).find('option'), (key, option) => {
@@ -804,6 +894,8 @@ const updateSelectedColumns = (isForce = false) => {
                 $(option).removeAttr('disabled');
             }
         });
+        updateTraceConfig(selected, selfColIndex);
+        selfColIndex++;
     });
 
     // disable ADD button if all columns are selected
@@ -843,7 +935,9 @@ const addTraceKey = (isNew = false) => {
         subStrOpt = isNew ? [] : targetSubStrOpt,
         forwardCol = true,
         clearOption = !isNew,
-        columnNames = targetColNames, targetChosenTraceKeys);
+        columnNames = targetColNames,
+        columnDataTypes = targetDataTypes,
+        targetChosenTraceKeys);
 
     const bwdColumns = addGroupListSelection('edgeBackColParent', `edgeBackCol${idPostfix}`, 'backCol',
         selfColCandidates,
@@ -854,7 +948,9 @@ const addTraceKey = (isNew = false) => {
         subStrOpt = isNew ? [] : selfSubStrOpt,
         forwardCol = false,
         clearOption = !isNew,
-        columnNames = selfColNames, selfChosenTraceKeys);
+        columnNames = selfColNames,
+        columnDataTypes = targetDataTypes,
+        selfChosenTraceKeys);
 
     for (let i = 0; i < fwdColumns.length; i++) {
         if (bwdColumns[i] && fwdColumns[i]) {
@@ -881,6 +977,9 @@ const addTraceKey = (isNew = false) => {
 
     // update selected columns to disable selected columns
     updateSelectedColumns();
+    if (!isNew) {
+        updateDeltaTime();
+    }
 
     addAttributeToElement();
 };
@@ -1274,12 +1373,18 @@ const getEdgeFromUI = () => {
     const targetOrgCols = [];
     const targetSubStrs = [];
     $('div[id^="edgeForwardCol-"]').find('.form-group').each(function f(idx) {
+        const isOptionDateTime = $(this).find(tracingElements.edgeConfigDatetime).length;
         const colElement = $(this).find('select[name=forwardCol]');
-        targetSubStrs.push(getMatchingDigits($(this)));
         const colAlias = $('option:selected', colElement).attr('alias');
         const colOrg = $('option:selected', colElement).attr('original');
         if (!isEmpty(colAlias)) targetCols.push(colAlias);
         if (!isEmpty(colOrg)) targetOrgCols.push(colOrg);
+
+        if (isOptionDateTime === 0) {
+            targetSubStrs.push(getMatchingDigits($(this)));
+            return;
+        }
+        targetSubStrs.push([]);
     });
     edgeData.target_col = targetCols;
     edgeData.target_orig_col = targetOrgCols;
@@ -1292,18 +1397,53 @@ const getEdgeFromUI = () => {
     const selfCols = [];
     const selfOrgCols = [];
     const selfSubStrs = [];
-    $('div[id^="edgeBackCol-"]').find('.form-group').each(function f(idx) {
-        const colElement = $(this).find('select[name=backCol]');
-        selfSubStrs.push(getMatchingDigits($(this)));
-        const colAlias = $('option:selected', colElement).attr('alias');
-        const colOrg = $('option:selected', colElement).attr('original');
-        if (!isEmpty(colAlias)) selfCols.push(colAlias);
-        if (!isEmpty(colOrg)) selfOrgCols.push(colOrg);
-    });
+    const deltaTimes = [];
+    const cutOffs = [];
+    $('div[id^="edgeBackCol-"]')
+        .find('.form-group')
+        .each(function f(idx) {
+            const isOptionDateTime = $(this).find(
+                tracingElements.edgeConfigDatetime,
+            ).length;
+            const colElement = $(this).find('select[name=backCol]');
+            const colAlias = $('option:selected', colElement).attr('alias');
+            const colOrg = $('option:selected', colElement).attr('original');
+            const columnType = $('option:selected', colElement).attr(
+                'column-type',
+            );
+            if (!isEmpty(colAlias)) selfCols.push(colAlias);
+            if (!isEmpty(colOrg)) selfOrgCols.push(colOrg);
+            if (!isEmpty(columnType)) selfColumnTypes.push(columnType);
+
+            if (isOptionDateTime === 0) {
+                selfSubStrs.push(getMatchingDigits($(this)));
+                deltaTimes.push(0);
+                cutOffs.push(0);
+            } else {
+                selfSubStrs.push([]);
+                const deltaTime = $(this)
+                    .parent()
+                    .parent()
+                    .find('input[name="deltaDatetime"]')
+                    .first()
+                    .val()
+                    .trim();
+                deltaTimes.push(deltaTime);
+                const cutOff = $(this)
+                    .parent()
+                    .parent()
+                    .find('input[name="cutOff"]')
+                    .first()
+                    .val()
+                    .trim();
+                cutOffs.push(cutOff);
+            }
+        });
     edgeData.self_col = selfCols;
     edgeData.back_orig_col = selfOrgCols;
     edgeData.self_substr = selfSubStrs;
-
+    edgeData.delta_time = deltaTimes;
+    edgeData.cut_off = cutOffs;
     return edgeData;
 };
 
@@ -1311,25 +1451,41 @@ const saveEditEdge = () => {
     const edgeData = getEdgeFromUI();
     const selfCols = edgeData.self_col;
     const targetCols = edgeData.target_col;
+    const deltaDatetimes = edgeData.delta_time;
+    const cutOffs = edgeData.cut_off;
     // validate: choose at least 1 column to trace
     if (selfCols.length === 0 || targetCols.length === 0) {
-        displayRegisterMessage(
-            '#alertMsgCheckSubStr', {
-                message: i18nNames.i18nNoColumn,
-                is_error: true,
-            },
-        );
+        displayRegisterMessage('#alertMsgCheckSubStr', {
+            message: i18nNames.i18nNoColumn,
+            is_error: true,
+        });
         return;
     }
 
     validEdge = validateSubStr(edgeData.self_substr, edgeData.target_substr);
     if (!validEdge.is_valid) {
-        displayRegisterMessage(
-            '#alertMsgCheckSubStr', {
-                message: validEdge.message,
-                is_error: true,
-            },
-        );
+        displayRegisterMessage('#alertMsgCheckSubStr', {
+            message: validEdge.message,
+            is_error: true,
+        });
+        return;
+    }
+    // validate delta time
+    const isValidDeltaTimes = deltaDatetimes.every((element) => {
+        if (element === '') return true;
+        const number = Number(element);
+        return Number.isInteger(number);
+    });
+    const isValidCutOffs = cutOffs.every((element) => {
+        if (element === '') return true;
+        const number = Number(element);
+        return Number.isInteger(number);
+    });
+    if (!isValidDeltaTimes || !isValidCutOffs) {
+        displayRegisterMessage('#alertMsgCheckSubStr', {
+            message: $('#i18nInvalidDeltaTime').text(),
+            is_error: true,
+        });
         return;
     }
 
@@ -1395,3 +1551,71 @@ const handleSwitchTraceConfig = (e) => {
     });
 };
 
+const updateTraceConfig = (element, index) => {
+    const optionSelected = $(element).find(':selected');
+    if (!optionSelected.length) {
+        return;
+    }
+    const dataType = optionSelected.attr('data-type');
+    const targetColParent = optionSelected.parents().eq(2);
+    const elementParent = targetColParent.parents().eq(1);
+
+    if (dataType === DataTypes.DATETIME.name) {
+        const inputElement = `<div id="trace-config-datetime" class="trace-config-datetime mt-2 d-none">
+                        <span class="deleteicon d-block"><input id="tracingConfigDatetime" class="form-control" placeholder="Datetime..."><span class="remove-config-datetime">x</span></span>
+                   </div>`
+
+        if (targetColParent.find(tracingElements.edgeConfigDatetime).length === 0) {
+            targetColParent.append(inputElement);
+        }
+
+        targetColParent.find(tracingElements.edgeConfigSerial).hide();
+
+        if (
+            $(elementParent).find(tracingElements.edgeConfigDatetime).length >=
+            2
+        ) {
+            if ($(elementParent).find(`.trace-config-delta-time`).length >= 1) {
+                return;
+            }
+            const innerHTML = `
+            <div id="delta-datetime" class="container trace-config-delta-time pb-2" name="trace-config-delta-time-${index}">
+                <div class="form-group">
+                    <div class="row form-group col-md-5 mx-auto align-items-center">
+                        <span class="col-7">${i18nNames.linkWithTime}</span><input name="deltaDatetime" class="form-control col-5">
+                    </div>
+                    <div class="row form-group col-md-5 mx-auto align-items-center d-none">
+                        <span class="col-7">${i18nNames.i18nCutOff}</span><input name="cutOff" class="form-control col-5">
+                    </div>
+                </div>
+            </div>
+            `;
+            $(elementParent).append(innerHTML);
+        }
+        return;
+    }
+
+    if (dataType !== DataTypes.DATETIME.name) {
+        targetColParent.find(tracingElements.edgeConfigDatetime).remove();
+        targetColParent.parents().eq(1).find(tracingElements.deltaDatetime).remove();
+        targetColParent.find(tracingElements.edgeConfigSerial).show();
+    }
+}
+
+const updateDeltaTime = () => {
+    deltaTimes.forEach(function (deltaTime, index) {
+        const traceDeltaTimeEle = $('#traceInfoModal').find(
+            `div[name="trace-config-delta-time-${index + 1}"]`,
+        );
+        if (traceDeltaTimeEle.length) {
+            traceDeltaTimeEle
+                .find('input[name="deltaDatetime"]')
+                .first()
+                .val(deltaTime);
+            traceDeltaTimeEle
+                .find('input[name="cutOff"]')
+                .first()
+                .val(cutOffs[index]);
+        }
+    });
+};

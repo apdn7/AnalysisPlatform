@@ -91,7 +91,8 @@
                                     </label>
                                 </div>
                             </div>
-                            <div id="traceInfoModal"></div>
+                            <div id="traceInfoModal">
+                            </div>
                             <button id="btnAddNewTraceKey" class="btn btn-success icon-btn"><i class="fas fa-plus-circle"></i>
                             </button>
                         </div>
@@ -180,28 +181,28 @@
 			</div>
 		</div>
 
-		<div id="confirmReloadModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
-			<div class="modal-dialog modal-confirm">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title">{{ _("Please confirm") }}</h4>
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-					</div>
-					<div class="modal-body">
-						<p class="modal-inform modal-msg">
-							{{ _("Confirm to return to the linking settings you registered the last time") }}
-						</p>
-					</div>
-					<div class="modal-footer">
-						<div>
-							<button id="confirmReloadBtn" class="btn btn-primary confirm-btn">{{ _("OK") }}</button>
-							<button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div id="confirmReloadModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-confirm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="modal-inform modal-msg">
+                            {{ _("Confirm to return to the linking settings you registered the last time") }}
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <div>
+                            <button id="confirmReloadBtn" class="btn btn-primary confirm-btn">{{ _("OK") }}</button>
+                            <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 	</div>
 </div>

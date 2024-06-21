@@ -164,7 +164,7 @@
                 </div>
         </div>
     </div>
-    <div class="preview-section position-relative">
+    <div class="preview-section position-relative" id="procPreviewSection" style="display: none">
         <div class="scroll-content">
             <span id="sampleDataScrollToLeft"><i class="fa fa-angle-double-left"></i></span>
             <span id="sampleDataScrollToLeftOneStep"><i class="fa fa-angle-left"></i></span>
@@ -217,7 +217,6 @@
 {% endblock %}
 
 {% block js %}
-<script src="{{ url_for('tile_interface.static', filename = 'js/tile_interface.js') }}"></script>
 <script src="{{ url_for('setting_module.static', filename = 'js/register_from_file.js') }}"></script>
 <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_modals.js') }}"></script>
 <!--<script src="{{ url_for('setting_module.static', filename = 'js/background_process.js') }}"></script>-->

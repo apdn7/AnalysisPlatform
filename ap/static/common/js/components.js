@@ -433,15 +433,15 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         }
 
         // data types and cat expansion
-        let colDataType = null;
-        let colDataTypeShowName = null;
+        let colDataType = '';
+        let colDataTypeShowName = '';
         let catExpBox = ''; // don't set null , it will show null on screen
         let catExpChkBoxId = null;
         if (props.itemDataTypes) {
             colDataType = DataTypes[props.itemDataTypes[i]].org_type;
             colDataTypeShowName = props.itemDataTypeShownNames[i];
             catExpChkBoxId = `catExp-${chkBoxId}`;
-            if (props.showCatExp && [DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType) && colDataTypeShowName !== DataTypes.SERIAL.short) {
+            if (props.showCatExp && [DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType)) {
                 catExpBox = `<select name="catExpBox" id="catExpItem-${itemId}" onchange="changeFacetLevel(this);"
                                 data-load-level="2" class="form-control level-select">
                     <option value="">---</option>
@@ -521,12 +521,12 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         }
 
         isChecked = (props.checkedIds && props.checkedIds.includes(itemId)) ? 'checked' : '';
-        const isHideCheckInput = (props.hideStrVariable && colDataType === DataTypes.STRING.name) || (props.disableSerialAsObjective && colDataTypeShowName === DataTypes.SERIAL.short);
+        const isHideCheckInput = (props.hideStrVariable && colDataType === DataTypes.STRING.name) || (props.disableSerialAsObjective && colDataTypeShowName === DataTypes.SERIAL.short) || (props.hideRealVariable && [DataTypes.REAL.short, DataTypes.DATETIME.short].includes(colDataTypeShowName));
         const hideClass = isHideCheckInput ? ' hidden-input' : '';
 
         const inputEl = !isHideCheckInput ? `<input type="${inputType}" name="${props.name}" ${isShowColorCheckBox ? 'data-order=2' : ''}
             class="custom-control-input check-item ${mainChkBoxClass} ${isRequiredInput}"  value="${itemId}"
-            id="${chkBoxId}" ${isChecked} data-proc-id="${props.procId || ''}">` : '';
+            id="${chkBoxId}" ${isChecked} data-proc-id="${props.procId || ''}" data-type-shown-name="${colDataTypeShowName}">` : '';
 
         const option = `
             ${inputEl}
@@ -705,8 +705,12 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         if (isCheckLimit && limitedCheckedList.length > MAX_NUMBER_OF_SENSOR && $(this).is(':checked')) {
             // shift first item from list if $(this) is checked
             // to avoid shift/uncheck 2 items at same time
+            // we should also remove count total variables from process which had a checkbox removed
+            const idStart = 'end-proc-val-div-';
+            let removedItemParentId = limitedCheckedList[0].closest(`div[id^=${idStart}`).attr('id');
+            let removedItemGroupIdx = removedItemParentId.replace(idStart, '');
             $(limitedCheckedList[0]).prop('checked', false);
-            countTotalVariables();
+            countVariables(removedItemParentId, removedItemGroupIdx);
 
             if (isShowColorCheckBox) {
                 $(limitedCheckedList[0].closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);

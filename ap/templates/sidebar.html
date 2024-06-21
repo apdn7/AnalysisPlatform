@@ -37,7 +37,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('heatmap.index') }}" class="go-to-page"
+                    <a href="{{ url_for('calendar_heatmap.index') }}" class="go-to-page"
                        title="{{ _('Visualize long-term data such as annual variations in processes and parameters that can vary depending on days of the week or shifts, etc.') }}">
                         <span class="page-character">CHM</span>
                         <span class="nav-text hint-text">{{ _('Calendar Heat Map') }}</span>
@@ -62,6 +62,12 @@
                        title="{{ _('SCP Page title description') }}">
                         <span class="page-character">ScP</span>
                         <span class="nav-text hint-text">{{ _('Scatter Plot') }}</span></a>
+                </li>
+                <li>
+                    <a href="{{ url_for('heatmap.index') }}" class="go-to-page"
+                       title="{{ _('Heatmap Page title description') }}">
+                        <span class="page-character">HMp</span>
+                        <span class="nav-text hint-text">{{ _('Heatmap Plot Page Title') }}</span></a>
                 </li>
                 <li>
                     <a href="{{ url_for('parallel_plot.index') }}" class="go-to-page"

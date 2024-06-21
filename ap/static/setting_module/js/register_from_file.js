@@ -246,6 +246,7 @@ const handleOnChangeFolderAndFileUrl = async () => {
     // remove add red border
     [registerFromFileEles.fileUrl, registerFromFileEles.folderUrl, registerFromFileEles.refFileUrl].forEach(el => {
         removeBorderFromInvalidInput($(el));
+        removeQuotesfromInputAndUpdate($(el));
     })
     const isFile = $(registerFromFileEles.checkedDirectoryRadio).val() !== 'folder';
     let url = '';
@@ -260,6 +261,7 @@ const handleOnChangeFolderAndFileUrl = async () => {
         fileUrl = $(registerFromFileEles.refFileUrl).val().trim();
         // clear file input
         $(registerFromFileEles.fileUrl).val('');
+        hiddenPreviewContentData();
     }
 
     resetProgressBar();
@@ -269,7 +271,8 @@ const handleOnChangeFolderAndFileUrl = async () => {
         return;
     };
     enableRegisterDataFileBtn();
-    
+    displayPreviewContentData();
+
     const checkResult = await checkFolder(url, isFile)
 
     if (!checkResult.is_valid || !checkResult.is_valid_file) {
@@ -277,8 +280,10 @@ const handleOnChangeFolderAndFileUrl = async () => {
         addMessengerToProgressBar(checkResult.err_msg, ICON_STATUS.WARNING);
         if (isFile) {
             addBorderToInvalidInput($(registerFromFileEles.fileUrl));
+            disableRegisterDataFileBtn();
         } else {
             addBorderToInvalidInput($(registerFromFileEles.folderUrl));
+            disableRegisterDataFileBtn();
         }
         resetPreviewTableContent();
         return;
@@ -292,6 +297,7 @@ const handleOnChangeFolderAndFileUrl = async () => {
             // show error msg to the right side
             addMessengerToProgressBar(checkFileName.err_msg, ICON_STATUS.WARNING);
             addBorderToInvalidInput($(registerFromFileEles.refFileUrl));
+            disableRegisterDataFileBtn();
             resetPreviewTableContent();
             return;
         }
@@ -318,10 +324,23 @@ const handleOnChangeFolderAndFileUrl = async () => {
 
 const fillDsNameAndProcessName = (url, isFile) => {
     checkOnFocus = false;
-    const {loadGUIFromUrl} = getRequestParams();
-    if (loadGUIFromUrl) return;
-    // fill data source name
     const folderName = getDbSourceAndProcessNameFromUrl(url, isFile);
+    // loading from external api
+    const params = getRequestParams();
+    if (params.loadGUIFromUrl) {
+        // fill datasource and proc name fields if not provided
+        if(!params.dataSourceName) {
+            const folderName = getDbSourceAndProcessNameFromUrl(url, isFile);
+            registerFromFileEles.databaseName.val(folderName);
+        }
+        if (isJPLocale && !params.procesNameJp) {
+            registerFromFileEles.processJapaneseName.val(folderName).trigger('change');
+        } else if (!isJPLocale && !params.processNameLocal) {
+            registerFromFileEles.processLocalName.val(folderName).trigger('change');
+        }
+        return;
+    }
+    // fill data source name
     registerFromFileEles.databaseName.val(folderName);
     if (isJPLocale) {
         registerFromFileEles.processJapaneseName.val(folderName).trigger('change');
@@ -551,6 +570,7 @@ const saveDataSourceAndProc = async () => {
         csv_info: dictCsvInfo,
     }
     try {
+        $(registerFromFileEles.registerButton).prop('disabled', true).removeClass("btn-primary").addClass("btn-secondary");
         const response = await fetchData('/ap/api/setting/register_source_and_proc', JSON.stringify(data), 'POST');
         processInfo = response.process_info;
         registeredProcessId = processInfo.id;
@@ -675,11 +695,19 @@ const handleLoadGUiFromExternalAPIRequest = () => {
         }
     }, 500);
 
-    setTimeout(() => {
-        // click register data
-        $(registerFromFileEles.registerButton).trigger('click');
-    }, 1000);
+    clickRegisterButtonWhenEnabled()
 };
+
+function clickRegisterButtonWhenEnabled() {
+    // poll until all values are filled and button is enabled
+    if($(registerFromFileEles.registerButton).hasOwnProperty('disabled') ||
+        !($(registerFromFileEles.processEnName).val())){
+        setTimeout(clickRegisterButtonWhenEnabled, 500);
+    } else {
+        // click register data
+        $(registerFromFileEles.registerButton).click();
+    }
+}
 
 const disableRegisterDataFileBtn = () => {
     $(registerFromFileEles.registerButton).prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary');
@@ -688,6 +716,19 @@ const disableRegisterDataFileBtn = () => {
 const enableRegisterDataFileBtn = () => {
     $(registerFromFileEles.registerButton).prop('disabled', false).removeClass('btn-secondary').addClass('btn-primary');
 };
+
+const removeQuotesfromInputAndUpdate = (inputEl) => {
+    const url = $(inputEl).val().replace(/"/g, "");
+    $(inputEl).val(url);
+}
+
+const displayPreviewContentData = () => {
+    $(procModalElements.procPreviewSection).show();
+}
+
+const hiddenPreviewContentData = () => {
+    $(procModalElements.procPreviewSection).hide();
+}
 
 $(document).ready(() => {
      checkOnFocus = false;

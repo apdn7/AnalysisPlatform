@@ -61,7 +61,7 @@ previous_disk_status = DiskUsageStatus.Normal
 
 @memoize(cache_type=CacheType.CONFIG_DATA)
 def get_all_proc_shown_names():
-    return {proc.id: proc.shown_name for proc in CfgProcess.get_all()}
+    return {proc.id: proc.shown_name for proc in CfgProcess.get_all(with_parent=True)}
 
 
 @log_execution_time()

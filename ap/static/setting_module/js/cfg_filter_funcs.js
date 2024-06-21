@@ -1074,6 +1074,7 @@ const filterCfgGenerator = ((cardId, filterType = filterTypes.OTHER) => {
         const numCols = tableHeadInfor.headerLabels.length;
         jspreadsheet(document.getElementById(`${spreadTableDOM}`), {
             data: configDat,
+            autoIncrement: false,
             colHeaders: tableHeadInfor.headerLabels.slice(1, numCols),
             colWidths: tableHeadInfor.colWidths.slice(1, numCols),
             defaultColAlign: 'left',

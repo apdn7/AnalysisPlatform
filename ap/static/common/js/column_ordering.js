@@ -4,6 +4,7 @@ let latestSortColIds = [];
 let showOrderModalClick = 0;
 let showOrderModalGraphAreaClick = 0;
 let removeColIds = [];
+let latestSortColIdsJumpPage = [];
 
 const orderingEls = {
     endColOrderTable: '#endColOrderTable',
@@ -77,6 +78,15 @@ const getSelectedEndColIds = () => {
         });
     });
     return colIds;
+};
+
+const getSelectedEndProcIds = () => {
+    const procIds = [];
+    $('#end-proc-row .end-proc').each((_, endProc) => {
+        const procId = $(endProc).find('[name*="end_proc"] option:selected').val();
+        procIds.push(procId)
+    });
+    return procIds;
 };
 
 const generateSortOrderColumn = (sortList, graphArea) => {

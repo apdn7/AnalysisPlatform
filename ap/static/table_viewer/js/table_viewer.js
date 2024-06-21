@@ -6,7 +6,7 @@ let dataTableInstance = null;
 let DB_TABLES = [];
 
 const ele = {
-    dbSelection: $('#dbSelection'),
+    procSelection: $('#procSelection'),
     tableSelection: $('#tableSelection'),
     sortSelection: $('#sortSelection'),
     btnRadioSortDesc: $('#btnRadioSortDesc'),
@@ -18,18 +18,13 @@ const ele = {
     loadingScreen: $('#loadingScreen'),
     formUserInput: $('#formUserInput'),
     tblViewerSpinner: '#tblViewerSpinner',
+    dbsCodeInput: $('input[name=databaseCode]'),
+    tableNameInput: $('input[name=tableSelection]'),
 };
 
-const buildOptionHTML = (value = '', text = '') => {
+const buildOptionHTML = (value = '', text = '', title = '') => {
     if (value) {
-        return `<option value="${value.id}">${text}</option>`;
-    }
-    return '<option value="">---</option>';
-};
-
-const buildTableOptionHTML = (value = '', text = '') => {
-    if (value) {
-        return `<option value="${value}">${text}</option>`;
+        return `<option ${title ? `title="${title}"` : ''} value="${value}">${text}</option>`;
     }
     return '<option value="">---</option>';
 };
@@ -45,55 +40,6 @@ const getAllDatabaseConfigTbView = async () => {
         .catch();
 
     return json;
-};
-
-const showDatabase = async () => {
-    const dbInfo = await getAllDatabaseConfigTbView();
-
-    // show tables
-    DB_TABLES = dbInfo;
-
-    let dbSelectionHTML = '';
-    dbSelectionHTML += buildOptionHTML('');
-    dbInfo.forEach((dbCode) => {
-        if (dbCode.db_detail) {
-            const dbMasterName = dbCode.name;
-            const dbType = dbCode.type;
-            const dbHost = dbCode.db_detail.host || dbCode.db_detail.dbname;
-            dbSelectionHTML += buildOptionHTML(dbCode, `${dbMasterName} (${dbType}, ${dbHost})`);
-        }
-    });
-    ele.dbSelection.empty();
-    ele.dbSelection.append(dbSelectionHTML);
-};
-
-const showTables = (dbCode) => {
-    if (!dbCode) {
-        const tableSelectionHTML = buildOptionHTML('');
-        ele.tableSelection.empty();
-        ele.tableSelection.append(tableSelectionHTML);
-        return;
-    }
-
-    let tables;
-    // APIを呼び出し
-    $.ajax({
-        url: `api/setting/database_table/${dbCode}`,
-        method: 'GET',
-        cache: false,
-    }).done((res) => {
-        tables = res.tables;
-
-        // テーブルがあるのかをチェックする。
-        ele.tableSelection.empty();
-        if (tables) {
-            let tableSelectionHTML = '';
-            tables.forEach((table) => {
-                tableSelectionHTML += buildTableOptionHTML(table, table);
-            });
-            ele.tableSelection.append(tableSelectionHTML);
-        }
-    });
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -129,29 +75,36 @@ const getColumnNames = async (database, tableName) => {
     return json.cols || [];
 };
 
-const showSortColumnOptions = async (tblCode) => {
-    if (!tblCode) {
+const showSortColumnOptions = async (procId) => {
+    if (!procId) {
         const sortSelectionHTML = buildOptionHTML('');
         ele.sortSelection.empty();
         ele.sortSelection.append(sortSelectionHTML);
         return;
-    }
+    };
 
-    const selectedDB = ele.dbSelection.val();
-    const selectedTable = ele.tableSelection.val();
-    const columns = await getColumnNames(selectedDB, selectedTable);
+    const res = await fetchData(`/ap/api/setting/proc_filter_config/${procId}`, {}, 'GET');
+    const procCfg = res.data;
+    const procColumns = res.data.columns;
+
+    const tableName = procCfg.data_source.db_detail ? procCfg.table_name : '';
+
+    setDbsAndTableInfo(procCfg.data_source.id, tableName)
+    // show loading icon
+    $(ele.tblViewerSpinner).toggleClass('spinner-grow');
 
     let sortSelectionHTML = '';
     sortSelectionHTML += buildOptionHTML('');
-    if (columns) {
-        columns.forEach((col) => {
-            // sortSelectionHTML += buildOptionHTML(col, col);
-            sortSelectionHTML += buildTableOptionHTML(col.name, col.name);
+    if (procColumns.length) {
+        procColumns.forEach((col) => {
+            const columnName = col.column_raw_name || col.column_name;
+            sortSelectionHTML += buildOptionHTML(col.column_name, col.shown_name, columnName);
         });
     }
 
     ele.sortSelection.empty();
     ele.sortSelection.append(sortSelectionHTML);
+    addAttributeToElement();
 };
 
 const queryRecordsFromDB = ((databaseCode, tableName,
@@ -186,15 +139,20 @@ const queryRecordsFromDB = ((databaseCode, tableName,
         });
 });
 
+const setDbsAndTableInfo = (dbsCode, tableName) => {
+    ele.dbsCodeInput.val(dbsCode);
+    ele.tableNameInput.val(tableName);
+};
+
 const getFormInput = () => {
     // get form data
     const formData = new FormData(ele.formUserInput[0]);
 
-    databaseCode = formData.get('dbSelection');
-    tableName = formData.get('tableSelection');
-    sortColumn = formData.get('sortSelection');
-    sortOrder = formData.get('btnRadioSortOrder');
-    limit = formData.get('rowLimitSelection');
+    const databaseCode = formData.get('databaseCode');
+    const tableName = formData.get('tableSelection');
+    const sortColumn = formData.get('sortSelection');
+    const sortOrder = formData.get('btnRadioSortOrder');
+    const limit = formData.get('rowLimitSelection');
 
     return {
         databaseCode,
@@ -294,36 +252,15 @@ $(() => {
             return 'SEARCHING';
         },
     });
-    // init state
-    setTimeout(() => {
-        // get tables + show tables
-        showDatabase();
-    }, 0);
-    showTables(ele.dbSelection.val());
-
+    ele.procSelection.val('');
     // on change database selection
-    ele.dbSelection.change(function f() {
-        const selectedDB = this.value;
-
+    ele.procSelection.change(async function f() {
+        const selectedProcId = this.value;
+        if (!selectedProcId) return;
         // show loading icon
         $(ele.tblViewerSpinner).toggleClass('spinner-grow');
 
-        setTimeout(() => {
-            showTables(selectedDB);
-            // hide loading icon
-            $(ele.tblViewerSpinner).toggleClass('spinner-grow');
-        }, 1000);
-
-        // get default table and show sort columns
-        setTimeout(() => {
-            const selectedTable = ele.tableSelection.val();
-            showSortColumnOptions(selectedTable);
-        }, 3000);
-    });
-    // on change table selection
-    ele.tableSelection.change(function f() {
-        const selectedTable = this.value;
-        showSortColumnOptions(selectedTable);
+        await showSortColumnOptions(selectedProcId);
     });
 
     // on button click
@@ -339,7 +276,7 @@ $(() => {
             limit,
         } = getFormInput();
 
-        if (!databaseCode || !tableName) {
+        if (!databaseCode) {
             setTimeout(loadingHide, 0);
             return;
         }

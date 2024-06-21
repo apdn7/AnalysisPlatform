@@ -1,5 +1,7 @@
 # CSVコンテンツを生成するService
 # read(dic_form, local_params)が外向けの関数
+from __future__ import annotations
+
 import codecs
 import csv
 import io
@@ -10,6 +12,8 @@ from datetime import datetime
 from itertools import islice
 from zipfile import ZipFile
 
+import numpy as np
+import pandas as pd
 from flask import Response
 
 from ap.api.efa.services.etl import detect_file_stream_delimiter
@@ -17,6 +21,7 @@ from ap.common.common_utils import detect_encoding, is_normal_zip, open_with_zip
 from ap.common.constants import (
     CP932,
     DELIMITER_KW,
+    EMPTY_STRING,
     ENCODING_KW,
     SHIFT_JIS,
     SHIFT_JIS_NAME,
@@ -49,8 +54,10 @@ def get_encoding_name(encoding):
     return encoding
 
 
-def get_delimiter_encoding(f_name, preview=False):
+def get_delimiter_encoding(f_name, preview=False, skip_line: int | None = None):
     with open_with_zip(f_name, 'rb') as f:
+        if skip_line is not None and skip_line != 0:
+            f.readlines(skip_line)
         metadata = get_metadata(f, is_full_scan_metadata=True, default_csv_delimiter=',')
         delimiter = metadata.get(DELIMITER_KW)
         encoding = metadata.get(ENCODING_KW)
@@ -60,10 +67,42 @@ def get_delimiter_encoding(f_name, preview=False):
         return delimiter, encoding
 
 
-def read_data(f_name, headers=None, skip_head=None, end_row=None, delimiter=',', do_normalize=True):
+def get_number_of_reading_lines(n_rows: int | None = None, limit: int | None = None) -> int | None:
+    """
+    @param n_rows:
+    @param limit:
+    @return: The number of rows we need to read
+    If we specify n_rows, we must use these instead.
+    Otherwise, we should use user_limit
+    However if n_rows is 0, we will read all the rows (return None)
+    """
+    if n_rows is not None:
+        if n_rows == 0:
+            return None
+        return n_rows
+
+    if limit is not None:
+        # include the header
+        return limit + 1
+
+    return None
+
+
+def read_data(
+    f_name,
+    headers=None,
+    skip_head=None,
+    n_rows: int | None = None,
+    limit: int | None = None,
+    is_transpose: bool = False,
+    delimiter=',',
+    do_normalize=True,
+):
+    nrows = get_number_of_reading_lines(n_rows, limit)
+
     normalize_func = normalize_list if do_normalize else lambda x: x
 
-    delimiter, encoding = get_delimiter_encoding(f_name)
+    delimiter, encoding = get_delimiter_encoding(f_name, skip_line=skip_head)
 
     with open_with_zip(f_name, 'r', encoding=encoding) as f:
         _f = f
@@ -80,8 +119,13 @@ def read_data(f_name, headers=None, skip_head=None, end_row=None, delimiter=',',
             rows = islice(rows, skip_head, None)
 
         # skip tail
-        if end_row is not None:
-            rows = islice(rows, end_row + 1)
+        if nrows is not None:
+            rows = islice(rows, nrows)
+
+        if is_transpose:
+            rows = filter_blank_row(rows)
+            rows = list(rows)
+            rows = map(list, zip(*rows))
 
         # use specify header( maybe get from yaml config)
         csv_headers = next(rows)
@@ -92,6 +136,39 @@ def read_data(f_name, headers=None, skip_head=None, end_row=None, delimiter=',',
         # send data
         for row in rows:
             yield normalize_func(row)
+
+
+def read_csv_with_transpose(file_path: str, is_transpose: bool = False, **pd_params) -> pd.DataFrame:
+    if is_transpose:
+        params = pd_params.copy()
+        params.pop('index_col', None)
+        params.pop('header', None)
+        use_cols = params.pop('usecols', [])
+        dtypes = params.pop('dtype', [])
+        df = pd.read_csv(file_path, **params, index_col=0, header=None).T
+
+        # rename columns
+        df_headers = df.columns
+        parsed_headers = df.columns.to_series().replace({np.nan: ''}).to_list()
+
+        dropped_columns = []
+        renamed_columns = {}
+        for df_header, parsed_header in zip(df_headers, parsed_headers):
+            if parsed_header not in use_cols:
+                dropped_columns.append(df_header)
+            else:
+                renamed_columns[df_header] = parsed_header
+        df = df.drop(dropped_columns, axis=1)
+        df = df.rename(columns=renamed_columns)
+
+        # cast datatype
+        for col_name, dtype in dtypes.items():
+            if col_name in df:
+                df[col_name] = df[col_name].astype(dtype)
+
+        return df
+
+    return pd.read_csv(file_path, **pd_params)
 
 
 # check special float type
@@ -116,27 +193,43 @@ def check_exception_case(data_headers, data_rows):
     # exception case 1&2 from factory data
     # header: col_1,col2
     # row (1 only) with trailing comma: val_1,val_2,
-    with_trailing_comma = False not in [row[-1] == '' for row in data_rows]
+    def row_has_trailing_comma(row: list[str]):
+        return row and row[-1] == EMPTY_STRING
+
+    with_trailing_comma = all(map(row_has_trailing_comma, data_rows))
+
+    def row_equal_data_headers(row: list[str]):
+        return len(row) == len(data_headers) + 1
+
     if with_trailing_comma:
-        is_exception_case = False not in [len(row) == (len(data_headers) + 1) for row in data_rows]
+        is_exception_case = all(map(row_equal_data_headers, data_rows))
         if is_exception_case:
             return True
     return False
 
 
 @log_execution_time()
-def is_normal_csv(f_name, delimiter=',', skip_head=None):
+def is_normal_csv(f_name, delimiter=',', skip_head=None, n_rows: int | None = None, is_transpose: bool = False):
     """
-    check if csv is normal type
-    :param f_name:
-    :param delimiter:
-    :return:
+    @param f_name:
+    @param delimiter:
+    @param skip_head:
+    @param n_rows:
+    @param is_transpose:
+    @return:
     """
     if not delimiter:
         delimiter, _ = get_delimiter_encoding(f_name)
-    data = read_data(f_name, end_row=20, delimiter=delimiter, do_normalize=False, skip_head=skip_head)
-    data = filter_blank_row(data)
 
+    data = read_data(
+        f_name,
+        n_rows=n_rows,
+        delimiter=delimiter,
+        do_normalize=False,
+        skip_head=skip_head,
+        is_transpose=is_transpose,
+        limit=20,
+    )
     data = list(data)
     if not data:
         return True

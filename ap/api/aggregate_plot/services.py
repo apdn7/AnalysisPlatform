@@ -6,6 +6,7 @@ from dateutil.tz import tz
 from pandas.core.groupby import DataFrameGroupBy
 from scipy.stats import iqr
 
+from ap.api.calendar_heatmap.services import agg_func_with_na, get_function_i18n, range_func
 from ap.api.categorical_plot.services import (
     gen_dic_param_terms,
     gen_graph_param,
@@ -21,7 +22,6 @@ from ap.api.common.services.show_graph_services import (
     get_data_from_db,
     get_filter_on_demand_data,
 )
-from ap.api.heatmap.services import agg_func_with_na, get_function_i18n, range_func
 from ap.api.scatter_plot.services import gen_df
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
@@ -42,6 +42,7 @@ from ap.common.constants import (
     END_DT,
     END_TM,
     FMT,
+    IS_CATEGORY,
     IS_GRAPH_LIMITED,
     RL_CATEGORY,
     RL_DIRECT_TERM,
@@ -247,13 +248,19 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             return plot_data, str_cols, is_graph_limited
 
         general_col_info = graph_param.get_col_info_by_id(target_var)
-        is_real_data = general_col_info[COL_DATA_TYPE] in [
-            DataType.REAL.name,
-            DataType.DATETIME.name,
-        ]
-        if not is_real_data:
+        # bar chart for category, line chart for real, integer, datetime
+        is_numeric = (
+            general_col_info[COL_DATA_TYPE]
+            in [
+                DataType.REAL.name,
+                DataType.DATETIME.name,
+                DataType.INTEGER.name,
+            ]
+            and not general_col_info[IS_CATEGORY]
+        )
+        if not is_numeric:
             str_cols.append(target_var)
-        agg_func = graph_param.common.hm_function_real if is_real_data else HMFunction.count.name
+        agg_func = graph_param.common.hm_function_real if is_numeric else HMFunction.count.name
         agg_func_show = get_function_i18n(agg_func)
 
         summarized_df, sorted_colors = summarize_redundant_groups_into_others(
@@ -264,7 +271,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             OTHER_KEY,
             OTHER_COL,
         )
-        df_groupby = gen_groupby_from_target_var(summarized_df, graph_param, target_var, is_real_data)
+        df_groupby = gen_groupby_from_target_var(summarized_df, graph_param, target_var, is_numeric)
 
         # get unique sorted div
         div_col_name = get_div_col_name(graph_param)
@@ -287,7 +294,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
         }
         general_col_info.update(agp_obj)
 
-        if is_real_data:
+        if is_numeric:
             target_var_label = graph_param.gen_label_from_col_id(target_var)
             agg_df = get_agg_lamda_func(df_groupby, target_var_label, agg_func)
         else:
@@ -304,7 +311,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             data, array_y = get_data_for_target_var_without_facets(
                 agg_df,
                 graph_param,
-                is_real_data,
+                is_numeric,
                 target_var,
                 sorted_colors,
             )
@@ -331,7 +338,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
                 data, array_y = get_data_for_target_var_without_facets(
                     agg_df.xs(facet),
                     graph_param,
-                    is_real_data,
+                    is_numeric,
                     target_var,
                     sorted_colors,
                 )
@@ -364,7 +371,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
                         data, array_y = get_data_for_target_var_without_facets(
                             sub_sub_df,
                             graph_param,
-                            is_real_data,
+                            is_numeric,
                             target_var,
                             sorted_colors,
                         )

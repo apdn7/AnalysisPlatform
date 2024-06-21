@@ -9,6 +9,7 @@ const MIN_NUMBER_OF_SENSOR = 2;
 let tabID = null;
 const graphStore = new GraphStore();
 let response = null;
+let heatmapData = {};
 
 const MAX_PLOT = 49;
 const MAX_MATRIX = 7;
@@ -34,6 +35,7 @@ const scpChartType = {
     SCATTER: 'scatter',
     HEATMAP: 'heatmap',
     VIOLIN: 'violin',
+    HEATMAP_BY_INT: 'heatmap_by_int'
 };
 
 const chartScales = {
@@ -72,6 +74,14 @@ const plotTypeConst = {
         name: 'ALL',
         mode: 'lines+markers',
     },
+    MAP_XY: {
+        name: 'MAP_XY',
+        mode: 'markers',
+    },
+    MAP_XY_N: {
+        name: 'MAP_XY_N',
+        mode: 'markers',
+    }
 }
 
 const els = {
@@ -124,6 +134,7 @@ const i18n = {
         .text(),
     traceTimeLatestWarning: $('#i18nDivByNumberAndLatest').text(),
     isResampleMsg: $('#i18nViolinResampleMsg').text(),
+    i18nGotoHMpMsg: $('#i18nGotoHMpMsg').text(),
 };
 
 const sortMatrixFunc = (a, b, asc = false, key = 'sort_key') => {
@@ -345,6 +356,9 @@ const scpTracing = () => {
     updateStyleOfInvalidElements();
 
     if (!isValid) return;
+
+    const isGotoHmpMsg = showErrorMsgHeatMapChart();
+    if (isGotoHmpMsg) return;
     // close sidebar
     beforeShowGraphCommon();
 
@@ -359,6 +373,17 @@ const scpTracing = () => {
     // mockup SCP result
     $('#sctr-card')
         .html('');
+};
+
+const showErrorMsgHeatMapChart = () => {
+    const categoryTypes = [DataTypes.SERIAL.short, DataTypes.INTEGER_CAT.short, DataTypes.TEXT.short];
+    const checkedVariablesType = [...$('input[name^=GET02_VALS_SELECT]:checked')].map(el => categoryTypes.includes($(el).attr('data-type-shown-name')));
+    if (!checkedVariablesType.includes(false)) {
+        // show error msg
+        showToastrMsg(i18n.i18nGotoHMpMsg, MESSAGE_LEVEL.ERROR);
+        return true;
+    }
+    return false;
 };
 
 const colorTransform = (colorValSets, colorRange, dummyColorSet = false) => {
@@ -1234,7 +1259,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                 });
             }
             const divNumber = res.div_name && res.div_data_type === DataTypes.INTEGER.name;
-            if (chartType === scpChartType.HEATMAP) {
+            if ([scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(chartType)) {
                 genHTMLContentMatrix(scpMatrix, 'sctr-card', xName, yName, isShowFirstLabelH, isShowDate, divNumber);
                 const option = {
                     isShowNumberOfData: res.COMMON.compareType === els.dataNumberTerm,
@@ -1243,7 +1268,11 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     hasLv2: res.level_names && res.level_names.length >= 2,
                     xDataType: res.x_data_type,
                     yDataType: res.y_data_type,
+                    chartType,
+                    colorName: res.color_name,
+                    use_map_xy: false
                 };
+                heatmapData = {scpMatrix, option, zoomRange};
                 genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
                     zoomRange = event;
                     const sets = getCurrentSettings();
@@ -1273,6 +1302,12 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     const sets = getCurrentSettings();
                     showGraph(sets);
                 });
+            }
+
+            // remove map_xy and map_xy_n if there is not heatmap by int
+            if (chartType !== scpChartType.HEATMAP_BY_INT) {
+                $(`#${els.selectPlotType} option[value=MAP_XY]`).remove();
+                $(`#${els.selectPlotType} option[value=MAP_XY_N]`).remove();
             }
 
             // hide loadding icon
@@ -1518,9 +1553,13 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
             if (item) {
                 item.array_y = item.array_y.map(val => val.toString());
                 allYValue = [...allYValue, ...item.array_y];
-                item.array_z.forEach((z) => {
-                    allColorValSets = [...allColorValSets, ...z.map(y => y)];
-                });
+                if (item.array_z) {
+                    item.array_z.forEach((z) => {
+                        allColorValSets = [...allColorValSets, ...z.map(y => y)];
+                    });
+                } else {
+                    allColorValSets = item.colors;
+                }
             }
         });
         allYValues.push(allYValue.filter(onlyUniqueFilter));
@@ -1600,7 +1639,8 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
         });
     });
 
-    genColorScaleBar(allColorValSets, 'Ratio[%]', colorPalettes);
+    const colorBarTitle = option.use_map_xy ? option.colorName : 'Ratio[%]';
+    genColorScaleBar(allColorValSets, colorBarTitle, colorPalettes);
 };
 
 const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScales[1], zoomRange = null, callback) => {

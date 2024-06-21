@@ -1,973 +1,1374 @@
 import math
-from datetime import datetime, timedelta
-from typing import Dict
+import re
+from collections import Counter
+from copy import deepcopy
+from typing import List
 
 import numpy as np
 import pandas as pd
-from dateutil import parser
-from dateutil.tz import tz
-from flask_babel import gettext as _
-from scipy.stats import iqr
+from numpy import matrix
+from pandas import DataFrame, Index, RangeIndex, Series
 
 from ap import max_graph_config
-from ap.api.categorical_plot.services import gen_graph_param
+from ap.api.aggregate_plot.services import get_agg_lamda_func
+from ap.api.categorical_plot.services import (
+    gen_dic_param_terms,
+    gen_time_conditions,
+    produce_cyclic_terms,
+)
 from ap.api.common.services.show_graph_services import (
+    calc_raw_common_scale_y,
+    calc_scale_info,
     convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
+    gen_group_filter_list,
     get_data_from_db,
     get_filter_on_demand_data,
+    get_serial_and_datetime_data,
+    is_categorical_col,
     main_check_filter_detail_match_graph_data,
 )
-from ap.common.common_utils import (
-    DATE_FORMAT_QUERY,
-    DATE_FORMAT_STR,
-    DATE_FORMAT_STR_CSV,
-    end_of_minute,
-    gen_sql_label,
-    start_of_minute,
-)
+from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
-    ACT_CELLS,
     ACTUAL_RECORD_NUMBER,
-    AGG_COL,
-    AGG_FUNC,
     ARRAY_PLOTDATA,
-    CATE_VAL,
-    CELL_SUFFIX,
-    COL_DATA_TYPE,
-    DATA_SIZE,
-    END_COL,
-    END_COL_SHOW_NAME,
+    ARRAY_X,
+    ARRAY_Y,
+    ARRAY_Z,
+    CHART_INFOS,
+    CHART_TYPE,
+    COLOR_BAR_TTTLE,
+    COLORS,
+    COLORS_ENCODE,
+    COMMON,
+    CYCLE_IDS,
+    CYCLIC_DIV_NUM,
+    DATETIME,
+    ELAPSED_TIME,
+    END_COL_ID,
+    END_DATE,
     END_PROC_ID,
-    END_PROC_NAME,
-    HM_WEEK_MODE,
-    HM_WEEK_MODE_DAYS,
+    END_TM,
+    FULL_DIV,
+    H_LABEL,
+    HEATMAP_MATRIX,
+    IS_CAT_COLOR,
+    IS_DATA_LIMITED,
     MATCHED_FILTER_IDS,
-    MAX_TICKS,
-    NA_STR,
+    N_TOTAL,
     NOT_EXACT_MATCH_FILTER_IDS,
+    ORIG_ARRAY_Z,
+    ROWID,
+    SCALE_AUTO,
+    SCALE_COLOR,
+    SCALE_COMMON,
+    SCALE_FULL,
+    SCALE_SETTING,
+    SCALE_THRESHOLD,
+    SCALE_X,
+    SCALE_Y,
+    SERIALS,
+    SORT_KEY,
+    START_DATE,
+    START_PROC,
+    START_TM,
     TIME_COL,
-    TIME_COL_LOCAL,
+    TIME_MAX,
+    TIME_MIN,
+    TIMES,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
-    X_TICKTEXT,
-    X_TICKVAL,
-    Y_TICKTEXT,
-    Y_TICKVAL,
+    V_LABEL,
+    VAR_TRACE_TIME,
+    X_NAME,
+    X_SERIAL,
+    X_THRESHOLD,
+    Y_NAME,
+    Y_SERIAL,
+    Y_THRESHOLD,
     CacheType,
+    ChartType,
+    ColorOrder,
     DataType,
     HMFunction,
     MaxGraphNumber,
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
+from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
 )
-from ap.common.services.sse import AnnounceEvent, MessageAnnouncer, background_announcer
-from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
+from ap.common.services.sse import MessageAnnouncer
+from ap.common.sigificant_digit import get_fmt_from_array
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
-from ap.setting_module.models import CfgProcess
+from ap.setting_module.models import CfgProcessColumn
 from ap.trace_data.schemas import DicParam
 
-CHM_AGG_FUNC = [HMFunction.median.name, HMFunction.mean.name, HMFunction.std.name]
+DATA_COUNT_COL = '__data_count_col__'
+MATRIX = 7
+SCATTER_PLOT_TOTAL_POINT = 50_000
+SCATTER_PLOT_MAX_POINT = 10_000
+HEATMAP_COL_ROW = 100
+TOTAL_VIOLIN_PLOT = 200
 
 
-@log_execution_time()
+@log_execution_time('[SCATTER PLOT]')
 @request_timeout_handling()
 @abort_process_handler()
-@MessageAnnouncer.notify_progress(75)
+@MessageAnnouncer.notify_progress(60)
 @trace_log(
     (TraceErrKey.TYPE, TraceErrKey.ACTION, TraceErrKey.TARGET),
-    (EventType.CHM, EventAction.PLOT, Target.GRAPH),
+    (EventType.HMP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
 @memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
-def gen_heatmap_data(root_graph_param, dic_param, df=None):
+def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
+    """tracing data to show graph
+    1 start point x n end point
+    filter by condition points that between start point and end_point
+    """
+    recent_flg = False
+    for key in dic_param[COMMON]:
+        if str(key).startswith(VAR_TRACE_TIME) and dic_param[COMMON][key] == 'recent':
+            recent_flg = True
+            break
+
+    is_data_limited = False
+    # for caching
     (
         dic_param,
         cat_exp,
-        cat_procs,
-        dic_cat_filters,
-        use_expired_cache,
-        *_,
-    ) = customize_dic_param_for_reuse_cache(dic_param)
-
-    # gen graph_param
-    graph_param = gen_graph_param(root_graph_param, dic_param, with_ct_col=True)
-
-    (
-        dic_df_proc,
-        hm_mode,
-        hm_step,
-        dic_col_func,
-        df_cells,
-        var_agg_cols,
-        target_var_data,
         _,
-    ) = gen_heatmap_data_as_dict(
-        graph_param,
-        dic_param,
-        graph_param.dic_proc_cfgs,
         dic_cat_filters,
-        cat_exp,
-        cat_procs,
-        df,
         use_expired_cache,
-    )
+        temp_serial_column,
+        temp_serial_order,
+        *_,
+        matrix_col,
+        color_order,
+    ) = customize_dic_param_for_reuse_cache(dic_param)
+    matrix_col = matrix_col if matrix_col else MATRIX
 
-    # gen plotly data + gen array_plotdata from here
-    dic_param = gen_plotly_data(
-        graph_param,
+    # cyclic
+    terms = None
+    if dic_param[COMMON].get(CYCLIC_DIV_NUM):
+        produce_cyclic_terms(dic_param)
+        terms = gen_dic_param_terms(dic_param)
+
+    # get x,y,color, levels, cat_div information
+    orig_graph_param = bind_dic_param_to_class(
+        root_graph_param.dic_proc_cfgs,
+        root_graph_param.trace_graph,
+        root_graph_param.dic_card_orders,
         dic_param,
-        dic_df_proc,
-        hm_mode,
-        hm_step,
-        dic_col_func,
-        df_cells,
-        var_agg_cols,
     )
+    scatter_xy_ids = []
+    scatter_xy_names = []
+    scatter_proc_ids = []
+    for proc in orig_graph_param.array_formval:
+        scatter_proc_ids.append(proc.proc_id)
+        scatter_xy_ids = scatter_xy_ids + proc.col_ids
+        scatter_xy_names = scatter_xy_names + proc.col_names
+
+    x_proc_id = scatter_proc_ids[0]
+    y_proc_id = scatter_proc_ids[-1]
+    x_id = scatter_xy_ids[0]
+    y_id = scatter_xy_ids[-1]
+    x_name = scatter_xy_names[0]
+    y_name = scatter_xy_names[-1]
+    x_label = gen_sql_label(x_id, x_name)
+    y_label = gen_sql_label(y_id, y_name)
+
+    color_id = orig_graph_param.common.color_var
+    cat_div_id = orig_graph_param.common.div_by_cat
+    level_ids = cat_exp if cat_exp else orig_graph_param.common.cat_exp
+    col_ids = [col for col in list(set([x_id, y_id, color_id, cat_div_id] + level_ids)) if col]
+    dic_cols = {cfg_col.id: cfg_col for cfg_col in root_graph_param.get_col_cfgs(col_ids)}
+
+    color_label = gen_sql_label(color_id, dic_cols[color_id].column_name) if color_id else None
+    level_labels = [gen_sql_label(id, dic_cols[id].column_name) for id in level_ids]
+    cat_div_label = gen_sql_label(cat_div_id, dic_cols[cat_div_id].column_name) if cat_div_id else None
+
+    chart_type = None
+    x_category = False
+    y_category = False
+    if orig_graph_param.common.compare_type == 'directTerm':
+        matched_filter_ids = []
+        unmatched_filter_ids = []
+        not_exact_match_filter_ids = []
+        actual_record_number = 0
+        unique_serial = 0
+
+        dic_dfs = {}
+        terms = gen_time_conditions(dic_param)
+        if df is None:
+            for term in terms:
+                # create dic_param for each term from original dic_param
+                term_dic_param = deepcopy(dic_param)
+                term_dic_param[COMMON][START_DATE] = term[START_DATE]
+                term_dic_param[COMMON][START_TM] = term[START_TM]
+                term_dic_param[COMMON][END_DATE] = term[END_DATE]
+                term_dic_param[COMMON][END_TM] = term[END_TM]
+                h_keys = (term[START_DATE], term[START_TM], term[END_DATE], term[END_TM])
+
+                # query data and gen df
+                df_term, graph_param, record_number, _is_res_limited = gen_df(
+                    orig_graph_param,
+                    term_dic_param,
+                    dic_cat_filters,
+                    _use_expired_cache=use_expired_cache,
+                )
+
+                convert_datetime_to_ct(df_term, graph_param)
+
+                df = df_term.copy() if df is None else pd.concat([df, df_term])
+
+                chart_type, x_category, y_category = get_chart_type(df, x_id, y_id, dic_cols)
+
+                if _is_res_limited is None:
+                    unique_serial = None
+                if unique_serial is not None:
+                    unique_serial += _is_res_limited
+
+                # check filter match or not ( for GUI show )
+                filter_ids = main_check_filter_detail_match_graph_data(graph_param, df_term)
+
+                # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids, actual records
+                actual_record_number += record_number
+                matched_filter_ids += filter_ids[0]
+                unmatched_filter_ids += filter_ids[1]
+                not_exact_match_filter_ids += filter_ids[2]
+
+                dic_dfs[h_keys] = df_term
+        else:
+            for idx, term in enumerate(terms):
+                h_keys = (term[START_DATE], term[START_TM], term[END_DATE], term[END_TM])
+                dic_dfs[h_keys] = pd.DataFrame(df.iloc[idx]).T
+
+            graph_param = root_graph_param
+            actual_record_number = dic_param.get(ACTUAL_RECORD_NUMBER)
+            unique_serial = dic_param.get(UNIQUE_SERIAL)
+
+        dic_param = filter_cat_dict_common(df, dic_param, cat_exp, [], graph_param)
+
+        # gen scatters
+        output_graphs, output_times = gen_scatter_by_direct_term(
+            root_graph_param.dic_proc_cfgs,
+            matrix_col,
+            dic_dfs,
+            x_proc_id,
+            y_proc_id,
+            x_label,
+            y_label,
+            color_label,
+            level_labels,
+            chart_type,
+        )
+    else:
+        # query data and gen df
+        if df is None:
+            df, graph_param, actual_record_number, unique_serial = gen_df(
+                root_graph_param,
+                dic_param,
+                dic_cat_filters,
+                _use_expired_cache=use_expired_cache,
+            )
+        else:
+            graph_param = root_graph_param
+            actual_record_number = dic_param.get(ACTUAL_RECORD_NUMBER)
+            unique_serial = dic_param.get(UNIQUE_SERIAL)
+
+        convert_datetime_to_ct(df, graph_param)
+
+        chart_type, x_category, y_category = get_chart_type(df, x_id, y_id, dic_cols)
+
+        dic_param = filter_cat_dict_common(df, dic_param, cat_exp, [], graph_param)
+
+        # check filter match or not ( for GUI show )
+        (
+            matched_filter_ids,
+            unmatched_filter_ids,
+            not_exact_match_filter_ids,
+        ) = main_check_filter_detail_match_graph_data(graph_param, df)
+
+        if orig_graph_param.common.div_by_data_number:
+            output_graphs, output_times = gen_scatter_data_count(
+                root_graph_param.dic_proc_cfgs,
+                matrix_col,
+                df,
+                x_proc_id,
+                y_proc_id,
+                x_label,
+                y_label,
+                orig_graph_param.common.div_by_data_number,
+                color_label,
+                level_labels,
+                recent_flg,
+                chart_type,
+            )
+        elif orig_graph_param.common.cyclic_div_num:
+            output_graphs, output_times = gen_scatter_by_cyclic(
+                root_graph_param.dic_proc_cfgs,
+                matrix_col,
+                df,
+                x_proc_id,
+                y_proc_id,
+                x_label,
+                y_label,
+                terms,
+                color_label,
+                level_labels,
+                chart_type,
+            )
+        else:
+            output_graphs, output_times = gen_scatter_cat_div(
+                root_graph_param.dic_proc_cfgs,
+                matrix_col,
+                df,
+                x_proc_id,
+                y_proc_id,
+                x_label,
+                y_label,
+                cat_div_label,
+                color_label,
+                level_labels,
+                chart_type,
+            )
+
+    # check graphs
+    if not output_graphs:
+        return dic_param
+
+    # get proc configs
+    dic_proc_cfgs = root_graph_param.dic_proc_cfgs
+
+    color_scale = []
+    # chart type
+    dic_param[CHART_TYPE] = chart_type
+
+    # get agg function from GUI
+    agg_func, color_bar_title, is_cat_color = get_color_agg_func(graph_param, color_id)
+    # set title for heatmap color bar
+    dic_param[COLOR_BAR_TTTLE] = color_bar_title
+    dic_param[IS_CAT_COLOR] = is_cat_color
+
+    other_cols = [int(col) for col in [x_id, y_id, cat_div_id] if col]
+    dic_param = gen_group_filter_list(df, graph_param, dic_param, other_cols)
+    is_heatmap_by_int = chart_type != ChartType.HEATMAP.value
+
+    # gen matrix
+    if is_heatmap_by_int:
+        all_x, all_y = get_heatmap_range_with_steps(output_graphs)
+    else:
+        all_x, all_y = get_heatmap_distinct(output_graphs)
+
+    # to apply the arrange-graph feature if data divided by div
+    if cat_div_id:
+        [div_col_data] = graph_param.get_col_cfgs([cat_div_id])
+        if cat_div_label in df.columns and not div_col_data.is_category:
+            div_min = df[cat_div_label].min()
+            div_max = df[cat_div_label].max()
+            # find step of div range
+            [div_step] = df[cat_div_label].diff().shift(-1).mode()
+            dic_param[FULL_DIV] = np.arange(div_min, div_max + 1, div_step).tolist()
+
+    # encode the colors which category variable be selected as colors
+    color_encode = dict(enumerate(pd.Series(df[color_label]).astype('category').cat.categories))
+    inv_encode = {v: k for k, v in color_encode.items()}
+    for graph in output_graphs:
+        # handle x, y, z data
+        array_x = graph[ARRAY_X]
+        array_y = graph[ARRAY_Y]
+        unique_x = set(array_x.drop_duplicates().tolist())
+        unique_y = set(array_y.drop_duplicates().tolist())
+
+        missing_x = all_x - unique_x
+        missing_y = all_y - unique_y
+
+        if is_cat_color:
+            graph[COLORS_ENCODE] = color_encode
+            # encode origin colors
+            graph[COLORS] = [inv_encode[_color_val] for _color_val in graph[COLORS]]
+
+        array_z = gen_color_by_agg_func(array_y, array_x, graph[COLORS], aggfunc=agg_func)
+        for key in missing_x:
+            array_z[key] = None
+            # map_xy_array_z[key] = None
+
+        sorted_cols = sorted(array_z.columns)
+
+        array_z = array_z[sorted_cols]
+
+        missing_data = [None] * len(missing_y)
+        df_missing = pd.DataFrame({col: missing_data for col in array_z.columns}, index=missing_y)
+        array_z = pd.concat([array_z, df_missing])
+        array_z.sort_index(inplace=True)
+
+        # limit 10K cells
+        if array_z.size > HEATMAP_COL_ROW * HEATMAP_COL_ROW:
+            array_z = array_z[:HEATMAP_COL_ROW][array_z.columns[:HEATMAP_COL_ROW]]
+
+        graph[ARRAY_X] = array_z.columns
+        graph[ARRAY_Y] = array_z.index
+        graph[ORIG_ARRAY_Z] = matrix(array_z)
+        graph[ARRAY_Z] = matrix(array_z)
+        # reduce sending data to browser
+        graph[X_SERIAL] = []
+        graph[Y_SERIAL] = []
+        graph[TIMES] = []
+        graph[ELAPSED_TIME] = []
+
+        if is_heatmap_by_int:
+            graph[X_NAME] = x_name
+            graph[Y_NAME] = y_name
+            graph[HEATMAP_MATRIX] = {
+                'z': matrix(array_z).tolist(),
+                'x': all_x,
+                'y': all_y,
+            }
+
+    # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
+    dic_param[MATCHED_FILTER_IDS] = matched_filter_ids
+    dic_param[UNMATCHED_FILTER_IDS] = unmatched_filter_ids
+    dic_param[NOT_EXACT_MATCH_FILTER_IDS] = not_exact_match_filter_ids
+
+    # flag to show that trace result was limited
+    dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
+    dic_param[UNIQUE_SERIAL] = unique_serial
+
+    # check show col and row labels
+    is_show_h_label = False
+    is_show_v_label = False
+    is_show_first_h_label = False
+    v_labels = list({graph[V_LABEL] for graph in output_graphs})
+    h_labels = list({graph[H_LABEL] for graph in output_graphs})
+    if len(h_labels) > 1 or (h_labels and h_labels[0]):
+        is_show_h_label = True
+
+        if len(output_graphs) > len(h_labels):
+            is_show_first_h_label = True
+
+    if len(v_labels) > 1 or (v_labels and v_labels[0]):
+        is_show_v_label = True
+
+    # column names
+    dic_param['x_name'] = dic_cols[x_id].shown_name if x_id else None
+    dic_param['y_name'] = dic_cols[y_id].shown_name if y_id else None
+    dic_param['color_name'] = dic_cols[color_id].shown_name if color_id else None
+    dic_param['color_type'] = dic_cols[color_id].data_type if color_id else None
+    dic_param['div_name'] = dic_cols[cat_div_id].shown_name if cat_div_id else None
+    dic_param['div_data_type'] = dic_cols[cat_div_id].data_type if cat_div_id else None
+    dic_param['level_names'] = [dic_cols[level_id].shown_name for level_id in level_ids] if level_ids else None
+    dic_param['is_show_v_label'] = is_show_v_label
+    dic_param['is_show_h_label'] = is_show_h_label
+    dic_param['is_show_first_h_label'] = is_show_first_h_label
+    dic_param['is_filtered'] = bool(dic_cat_filters)
+    dic_param['x_fmt'] = get_fmt_from_array(df[x_label].to_list())
+    dic_param['y_fmt'] = get_fmt_from_array(df[y_label].to_list())
+
+    # add proc name for x and y column
+    dic_param['x_proc'] = dic_proc_cfgs[dic_cols[x_id].process_id].shown_name if x_id else None
+    dic_param['y_proc'] = dic_proc_cfgs[dic_cols[y_id].process_id].shown_name if y_id else None
+
+    # min, max color
+    # TODO: maybe we need to get chart infor for color to get ymax ymin of all chart infos
+    if color_order is ColorOrder.DATA:
+        dic_scale_color = calc_scale(
+            root_graph_param.dic_proc_cfgs,
+            df,
+            color_id,
+            color_label,
+            dic_cols,
+            force_outlier=True,
+        )
+    else:
+        df_color_scale = pd.DataFrame({color_label: color_scale})
+        dic_scale_color = calc_scale(
+            root_graph_param.dic_proc_cfgs,
+            df_color_scale,
+            None,
+            color_label,
+            dic_cols,
+            force_outlier=True,
+        )
+
+    dic_param[SCALE_COLOR] = dic_scale_color
+
+    # y scale
+    if not y_category:
+        y_chart_configs = [graph[Y_THRESHOLD] for graph in output_graphs if graph.get(Y_THRESHOLD)]
+        dic_scale_y = calc_scale(root_graph_param.dic_proc_cfgs, df, y_id, y_label, dic_cols, y_chart_configs)
+        dic_param[SCALE_Y] = dic_scale_y
+
+    # x scale
+    if not x_category:
+        x_chart_configs = [graph[X_THRESHOLD] for graph in output_graphs if graph.get(X_THRESHOLD)]
+        dic_scale_x = calc_scale(root_graph_param.dic_proc_cfgs, df, x_id, x_label, dic_cols, x_chart_configs)
+        dic_param[SCALE_X] = dic_scale_x
+
+    # output graphs
+    dic_param[ARRAY_PLOTDATA] = [convert_series_to_list(graph) for graph in output_graphs]
+    if ROWID in df.columns:
+        dic_param[CYCLE_IDS] = df.rowid.tolist()
+    else:
+        dic_param[CYCLE_IDS] = []
+
+    dic_param[IS_DATA_LIMITED] = is_data_limited
+    dic_param['is_x_category'] = x_category
+    dic_param['is_y_category'] = y_category
+    dic_param['x_data_type'] = dic_cols[x_id].data_type
+    dic_param['y_data_type'] = dic_cols[y_id].data_type
+
+    serial_data, datetime_data, start_proc_name = get_serial_and_datetime_data(df, graph_param, dic_proc_cfgs)
+    dic_param[SERIALS] = serial_data
+    dic_param[DATETIME] = datetime_data
+    dic_param[START_PROC] = start_proc_name
 
     dic_param = get_filter_on_demand_data(dic_param)
 
     return dic_param
 
 
-def get_utc_offset(time_zone):
-    """
-    get utc time offset
-    :param time_zone: str, timezone object
-    :return: timedelta(seconds)
-    """
-    if isinstance(time_zone, str):
-        time_zone = tz.gettz(time_zone)
-
-    time_in_tz = datetime.now(tz=time_zone)
-    time_offset = time_in_tz.utcoffset().seconds
-    time_offset = timedelta(seconds=time_offset)
-
-    return time_offset
-
-
-def limit_num_cells(df_cells: pd.DataFrame, end_tm, limit=10000):
-    """Limit number of cells to 10k including empty cells"""
-    # is_res_limited = df_cells.index.size > limit
-
-    # print("///// is_res_limited: ", is_res_limited, ': ', df_cells.index.size)
-    df_cells: pd.DataFrame = df_cells.loc[:limit]
-
-    # update new end_time to 10000 cells
-    last_cell_time = list(df_cells.tail(1)[TIME_COL])[0]
-    # end_tm is utc -> convert to local-time
-    end_tm_tz = pd.to_datetime(pd.Series([end_tm]), utc=True)
-    end_tm_tz = list(end_tm_tz)[0]
-    new_end_time = np.minimum(end_tm_tz, last_cell_time)
-    new_end_tm = new_end_time.strftime(DATE_FORMAT_QUERY)
-
-    return df_cells, new_end_tm
-
-
 @log_execution_time()
 @abort_process_handler()
-def gen_cells(start_tm, end_tm, hm_mode, hm_step):
-    """Generate cells of heatmap"""
-    floor_start_tm = pd.Timestamp(start_tm)
-    floor_end_tm = pd.Timestamp(end_tm).replace(microsecond=0)
-    cells = [floor_start_tm]
-    prev = floor_start_tm
-    while prev < floor_end_tm:
-        next_cell = prev + pd.Timedelta(minutes=hm_step) if hm_mode == 1 else prev + pd.Timedelta(hours=hm_step)
-        cells.append(next_cell)
-        prev = next_cell
+def calc_scale(dic_proc_cfgs, df, col_id, col_label, dic_cols, chart_configs=None, force_outlier=False):
+    if not col_id and not col_label:
+        return None
 
-    return cells[:-1]
+    if col_id:
+        cfg_col = dic_cols.get(col_id)
+        if not cfg_col:
+            return None
 
+        if df is None or not len(df):
+            return None
 
-@log_execution_time()
-@abort_process_handler()
-def fill_empty_cells(df_cells: pd.DataFrame, dic_df_proc, var_agg_col=None):
-    """Some cells don't have data -> need to fill"""
-    for proc_id, proc_data in dic_df_proc.items():
-        for end_col in proc_data:
-            df_sensor: pd.DataFrame = dic_df_proc[proc_id][end_col].set_index(AGG_COL)
-            if var_agg_col:
-                dic_df_proc[proc_id][end_col] = {}
+        if DataType[cfg_col.data_type] not in (DataType.REAL, DataType.INTEGER, DataType.DATETIME):
+            return None
 
-                dic_df_cate = {
-                    NA_STR if cate_value in ['nan', '<NA>'] else cate_value: df_cate
-                    for cate_value, df_cate in df_sensor.groupby(var_agg_col, dropna=False)
-                }
-                df_cates = list(dic_df_cate.items())[:30]
-                for cate_value, df_cate in df_cates:
-                    dic_df_proc[proc_id][end_col][cate_value] = (
-                        df_cells.set_index(AGG_COL)
-                        .join(df_cate, how='left', lsuffix=CELL_SUFFIX)
-                        .replace({np.nan: None})
-                    )
-            else:
-                dic_df_proc[proc_id][end_col] = (
-                    df_cells.set_index(AGG_COL).join(df_sensor, how='left', lsuffix=CELL_SUFFIX).replace({np.nan: None})
-                )
-    return dic_df_proc
-
-
-@log_execution_time()
-@abort_process_handler()
-def gen_y_ticks(hm_mode, hm_step):
-    """Generate ticks of y-axis"""
-    if hm_mode == HM_WEEK_MODE:
-        ticktext = ['Sun', 'Sat', 'Fri', 'Thu', 'Wed', 'Tue', 'Mon']
-        row_per_day = int(24 / hm_step)
-        tickvals = [(i + 1) * row_per_day for i in range(len(ticktext))]
+        plot = {
+            END_PROC_ID: cfg_col.process_id,
+            END_COL_ID: col_id,
+            ARRAY_X: df[TIME_COL],
+            ARRAY_Y: df[col_label],
+        }
     else:
-        ticktext = [
-            '24:00',
-            '22:00',
-            '20:00',
-            '18:00',
-            '16:00',
-            '14:00',
-            '12:00',
-            '10:00',
-            ' 8:00',
-            ' 6:00',
-            ' 4:00',
-            ' 2:00',
-            ' 0:00',
-        ]
-        row_per_2hour = 120 / hm_step
-        tickvals = [i * row_per_2hour for i in range(len(ticktext))]
+        plot = {END_PROC_ID: None, END_COL_ID: None, ARRAY_X: [None], ARRAY_Y: df[col_label]}
 
-    return ticktext, tickvals
+    if chart_configs:
+        plot[CHART_INFOS] = chart_configs
 
+    min_max_list, all_min, all_max = calc_raw_common_scale_y([plot])
+    calc_scale_info(dic_proc_cfgs, [plot], min_max_list, all_min, all_max, force_outlier=force_outlier)
 
-@log_execution_time()
-@abort_process_handler()
-def get_x_ticks(df: pd.DataFrame):
-    """Generate ticks of x-axis"""
-    df_ticks = df.drop_duplicates('x', keep='last')
-    df_ticks = df_ticks.drop_duplicates('x_label', keep='first')
-    size = df_ticks.index.size
-    if size <= MAX_TICKS:
-        return df_ticks['x'].tolist(), df_ticks['x_label'].tolist()
-
-    step = math.ceil(size / MAX_TICKS)
-    indices = np.array(range(size))
-    selected_indices = indices[0:-1:step]
-    df_ticks = df_ticks.reset_index()
-    df_ticks = df_ticks.loc[df_ticks.index.intersection(selected_indices)]
-    return df_ticks['x'].tolist(), df_ticks['x_label'].tolist()
-
-
-def build_hover(df, end_col, hm_function):
-    df['hover'] = (
-        df['from'].astype(str)
-        + df['to'].astype(str)
-        + hm_function
-        + ': '
-        + df[end_col].apply(signify_digit).astype(str).str.replace(r'None|nan', NA_STR, regex=True)
-        + '<br>'
-    )
-    return df['hover'].to_list()
-
-
-def build_plot_data(df, end_col, hm_function):
-    """Build data for heatmap trace of Plotly"""
-    df = df.sort_values(by=['x', 'y'])
-    df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan))
-    df = df.where(pd.notnull(df), None)
-
-    x = df['x'].to_list()
-    y = df['y'].to_list()
-    z = df[end_col].to_list()
-
-    # build color scale
-    z_min = df[end_col].dropna().min()
-    if np.isnan(z_min):
-        z_min = None
-    z_max = df[end_col].dropna().max()
-    if np.isnan(z_max):
-        z_max = None
-
-    hover_texts = build_hover(df, end_col, hm_function)
-
-    return {
-        'x': x,
-        'y': y,
-        'z': z,
-        'z_fmt': get_fmt_from_array(z),
-        'z_min': z_min or 0,
-        'z_max': z_max or 0,
-        'hover': hover_texts,
+    dic_scale = {
+        scale_name: plot.get(scale_name)
+        for scale_name in (SCALE_SETTING, SCALE_COMMON, SCALE_THRESHOLD, SCALE_AUTO, SCALE_FULL)
     }
-
-
-def get_function_i18n(hm_function):
-    """Generate i18n aggregate function name"""
-    return _('CHM' + hm_function.replace('_', ' ').title().replace(' ', ''))
+    return dic_scale
 
 
 @log_execution_time()
 @abort_process_handler()
-@MessageAnnouncer.notify_progress(60)
-def gen_plotly_data(graph_param, dic_param, dic_df_proc, hm_mode, hm_step, dic_col_func, df_cells, var_agg_col=None):
-    dic_param[ARRAY_PLOTDATA] = {}
+def convert_series_to_list(graph):
+    for key, series in graph.items():
+        if isinstance(series, (Series, np.ndarray, RangeIndex, Index)):
+            graph[key] = series.tolist()
 
-    # gen x-axis ticks: ticktexts + tickvals daily, weekly, monthly, yearly
-    x_tickvals, x_ticktext = get_x_ticks(df_cells)
-
-    # gen y-axis ticks: ticktexts + tickvals
-    y_ticktext, y_tickvals = gen_y_ticks(hm_mode, hm_step)
-    plot_count = 0
-
-    dic_proc_cfgs = graph_param.dic_proc_cfgs
-
-    # target variables list
-    # [11,14,15,16,18,19,20,21,22,6]
-    target_vars = graph_param.common.sensor_cols
-    for proc_id, proc_data in dic_df_proc.items():
-        dic_param[ARRAY_PLOTDATA][proc_id] = []
-        for end_col, end_col_data in proc_data.items():
-            if end_col in target_vars:
-                hm_function = get_function_i18n(dic_col_func[proc_id][end_col].name)
-                col_cfg = dic_proc_cfgs[proc_id].get_col(end_col)
-                if var_agg_col:
-                    for cate_value, df_cate in end_col_data.items():
-                        df_sensor_agg: pd.DataFrame = df_cate
-                        plotdata: dict = build_plot_data(df_sensor_agg, end_col, hm_function)
-                        plotdata.update(
-                            {
-                                AGG_FUNC: hm_function,
-                                CATE_VAL: cate_value,
-                                END_COL: end_col,
-                                END_COL_SHOW_NAME: col_cfg.shown_name,
-                                END_PROC_ID: proc_id,
-                                END_PROC_NAME: dic_proc_cfgs[proc_id].shown_name,
-                                COL_DATA_TYPE: col_cfg.data_type if col_cfg else None,
-                                X_TICKTEXT: x_ticktext,
-                                X_TICKVAL: x_tickvals,
-                                Y_TICKTEXT: y_ticktext,
-                                Y_TICKVAL: y_tickvals,
-                            },
-                        )
-                        dic_param[ARRAY_PLOTDATA][proc_id].append(plotdata)
-                else:
-                    df_sensor_agg: pd.DataFrame = end_col_data
-                    plotdata: dict = build_plot_data(df_sensor_agg, end_col, hm_function)
-                    plotdata.update(
-                        {
-                            AGG_FUNC: hm_function,
-                            END_COL: end_col,
-                            COL_DATA_TYPE: col_cfg.data_type if col_cfg else None,
-                            END_COL_SHOW_NAME: col_cfg.shown_name,
-                            END_PROC_ID: proc_id,
-                            END_PROC_NAME: dic_proc_cfgs[proc_id].shown_name,
-                            X_TICKTEXT: x_ticktext,
-                            X_TICKVAL: x_tickvals,
-                            Y_TICKTEXT: y_ticktext,
-                            Y_TICKVAL: y_tickvals,
-                        },
-                    )
-                    dic_param[ARRAY_PLOTDATA][proc_id].append(plotdata)
-
-        plot_count += len(dic_param[ARRAY_PLOTDATA][proc_id])
-
-    graph_limit = max_graph_config[MaxGraphNumber.CHM_MAX_GRAPH.name]
-    # limit to show only 30 graphs
-    if plot_count > graph_limit:
-        remain = graph_limit
-        for proc_id, plot_datas in dic_param[ARRAY_PLOTDATA].items():
-            num_plot = len(plot_datas)
-            keep = min(remain, num_plot)
-            dic_param[ARRAY_PLOTDATA][proc_id] = plot_datas[:keep]
-            remain -= keep
-            remain = max(0, remain)
-
-    return dic_param
+    return graph
 
 
 @log_execution_time()
 @abort_process_handler()
-def gen_agg_col(df: pd.DataFrame, hm_mode, hm_step, client_tz):
-    """Aggregate data by time"""
-    pd_step = convert_to_pandas_step(hm_step, hm_mode)
-    df[TIME_COL_LOCAL] = pd.to_datetime(df[TIME_COL], utc=True).dt.tz_convert(tz=client_tz)
-    print(df.index.size)
-    if hm_mode == HM_WEEK_MODE:
-        # .astype(str).str[:13] or 16 sometimes doesn't work as expected
-        df[AGG_COL] = df[TIME_COL_LOCAL].dt.floor(pd_step, ambiguous='infer').dt.strftime('%Y-%m-%d %H')
-    else:
-        df[AGG_COL] = df[TIME_COL_LOCAL].dt.floor(pd_step, ambiguous='infer').dt.strftime('%Y-%m-%d %H:%M')
+def gen_df(root_graph_param: DicParam, dic_param, dic_filter, _use_expired_cache=False):
+    # bind dic_param
+    graph_param = bind_dic_param_to_class(
+        root_graph_param.dic_proc_cfgs,
+        root_graph_param.trace_graph,
+        root_graph_param.dic_card_orders,
+        dic_param,
+    )
+
+    # add start proc
+    # graph_param.add_start_proc_to_array_formval()
+
+    # add condition procs
+    # graph_param.add_cond_procs_to_array_formval()
+    # add level
+    # graph_param.add_cat_exp_to_array_formval()
+    # add color, cat_div
+    graph_param.add_column_to_array_formval([graph_param.common.color_var, graph_param.common.div_by_cat])
+
+    # get serials
+    # dic_proc_cfgs = get_procs_in_dic_param(graph_param)
+    # for proc in graph_param.array_formval:
+    #     proc_cfg = dic_proc_cfgs[proc.proc_id]
+    #     serial_ids = [serial.id for serial in proc_cfg.get_serials(column_name_only=False)]
+    #     proc.add_cols(serial_ids)
+
+    # add datetime col
+    graph_param.add_datetime_col_to_start_proc()
+    graph_param.add_agp_color_vars()
+
+    # get data from database
+    df, actual_record_number, is_res_limited = get_data_from_db(
+        graph_param,
+        dic_filter,
+        use_expired_cache=_use_expired_cache,
+    )
+    return df, graph_param, actual_record_number, is_res_limited
+
+
+@log_execution_time()
+@abort_process_handler()
+def get_chart_type(df: DataFrame, x_id, y_id, dic_cols):
+    cfg_col_x = dic_cols[x_id]
+    cfg_col_y = dic_cols[y_id]
+    x_category = is_categorical_col(cfg_col_x)
+    y_category = is_categorical_col(cfg_col_y)
+
+    chart_type = ChartType.VIOLIN.value
+    if cfg_col_x.data_type == DataType.INTEGER.name and cfg_col_y.data_type == DataType.INTEGER.name:
+        # todo: confirm to apply for unique(distinct) < 128
+        chart_type = ChartType.HEATMAP_BY_INT.value
+    elif x_category and y_category:
+        chart_type = ChartType.HEATMAP.value
+    elif not x_category and not y_category:
+        chart_type = ChartType.SCATTER.value
+
+    return chart_type, x_category, y_category
+
+
+@log_execution_time()
+def split_data_by_number(df: DataFrame, count):
+    df[DATA_COUNT_COL] = df.reset_index().index // count
     return df
 
 
-def gen_weekly_ticks(df: pd.DataFrame):
-    # tick weekly, first day of week, sunday
-    df['x_label'] = df[TIME_COL_LOCAL] - (df[TIME_COL_LOCAL].dt.weekday % 7) * np.timedelta64(
-        1,
-        'D',
-    )
-    df['x_label'] = (
-        get_year_week_in_df_column(df['x_label'])
-        + '<br>'
-        + df['x_label'].dt.month.astype(str).str.pad(2, fillchar='0')
-        + '-'
-        + df['x_label'].dt.day.astype(str).str.pad(2, fillchar='0')
-    )
-    return df['x_label']
+@log_execution_time()
+@abort_process_handler()
+def sort_data_count_key(key):
+    new_key = re.match(r'^\d+', str(key))
+    if new_key is not None:
+        return int(new_key[0])
 
-
-def gen_daily_ticks(df: pd.DataFrame):
-    # tick weekly, first day of week, sunday
-    df['x_label'] = (
-        get_year_week_in_df_column(df[TIME_COL_LOCAL])
-        + '<br>'
-        + df[TIME_COL_LOCAL].dt.month.astype(str).str.pad(2, fillchar='0')
-        + '-'
-        + df[TIME_COL_LOCAL].dt.day.astype(str).str.pad(2, fillchar='0')
-    )
-    return df['x_label']
-
-
-def get_year_week_in_df_column(column: pd.DataFrame.columns):
-    """get year and week with format 'yy,w' -> '22, 20'"""
-    return (
-        column.dt.year.astype(str).str[-2:]
-        + ', '
-        + (column.dt.strftime('%U').astype(int)).astype(str).str.pad(2, fillchar='0')
-    )
+    return key
 
 
 @log_execution_time()
 @abort_process_handler()
-def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm):
-    """Generate x, y values and text labels of x and y axes"""
-    start_dt = parser.parse(start_tm)
-    end_dt = parser.parse(end_tm)
-    diff: timedelta = end_dt - start_dt
-    num_days = diff.days
+def group_by_df(
+    df: DataFrame,
+    cols,
+    max_group=None,
+    max_record_per_group=None,
+    sort_key_func=None,
+    reverse=True,
+    get_from_last=None,
+):
+    dic_groups = {}
+    if df is None or not len(df):
+        return dic_groups
 
-    if hm_mode == HM_WEEK_MODE:
-        # gen y
-        row_per_day = int(24 / hm_step)
-        df['dayofweek'] = df[TIME_COL_LOCAL].dt.day_name().astype(str).str[:3]
-        df['newdayofweek'] = (16 - df[TIME_COL_LOCAL].dt.dayofweek) % 10  # mon, tue... sat
-        df['y'] = (
-            int(24 / hm_step) - (df[TIME_COL_LOCAL].dt.hour / hm_step).astype(int) + df['newdayofweek'] * row_per_day
+    if not cols:
+        dic_groups[None] = df.head(max_record_per_group)
+        return dic_groups
+
+    df_groups = df.groupby(cols)
+    max_group = max_group or len(df_groups.groups)
+
+    # sort desc
+    if sort_key_func:
+
+        def sort_func(x):
+            return sort_key_func(x[0])
+
+    else:
+        all_numeric = all(str(key).isnumeric() for key, df_group in df_groups)
+        sort_func = (lambda x: int(x[0])) if all_numeric else lambda x: str(x[0])
+
+    groups = sorted(df_groups, key=sort_func, reverse=reverse)
+    groups = groups[:max_group]
+    if get_from_last:
+        groups.reverse()
+
+    for key, df_group in groups:
+        dic_groups[key] = df_group.head(max_record_per_group)
+
+    return dic_groups
+
+
+@log_execution_time()
+@abort_process_handler()
+def split_df_by_time_range(dic_df_chunks, max_group=None, max_record_per_group=None):
+    dic_groups = {}
+    max_group = max_group or len(dic_df_chunks)
+
+    count = 0
+    for key, df_group in dic_df_chunks.items():
+        # for key, df_group in df_groups.groups.items():
+        if count >= max_group:
+            break
+
+        dic_groups[key] = df_group.head(max_record_per_group)
+        count += 1
+
+    return dic_groups
+
+
+@log_execution_time()
+def drop_missing_data(df: DataFrame, cols):
+    if df is not None and len(df):
+        df.dropna(subset=[col for col in cols if col], inplace=True)
+        df = df.convert_dtypes()
+    return df
+
+
+@log_execution_time()
+def get_v_keys_str(v_keys):
+    if v_keys is None:
+        v_keys_str = None
+    elif isinstance(v_keys, (list, tuple)):
+        v_keys_str = '|'.join([str(key) for key in v_keys])
+    else:
+        v_keys_str = v_keys
+    return v_keys_str
+
+
+@log_execution_time()
+def calc_elapsed_times(df_data, time_col):
+    elapsed_times = pd.to_datetime(df_data[time_col]).sort_values()
+    elapsed_times = elapsed_times.iloc[0:] - elapsed_times.iat[0]
+    elapsed_times = elapsed_times.dt.total_seconds().fillna(0)
+    elapsed_times = elapsed_times.sort_index()
+    elapsed_times = elapsed_times.convert_dtypes()
+    return elapsed_times
+
+
+@log_execution_time()
+@abort_process_handler()
+def gen_scatter_data_count(
+    dic_proc_cfgs,
+    matrix_col,
+    df: DataFrame,
+    x_proc_id,
+    y_proc_id,
+    x,
+    y,
+    data_count_div,
+    color=None,
+    levels=None,
+    recent_flg=None,
+    chart_type=None,
+):
+    """
+    spit by data count
+    :param matrix_col:
+    :param df:
+    :param x_proc_id:
+    :param y_proc_id:
+    :param x:
+    :param y:
+    :param data_count_div:
+    :param color:
+    :param levels:
+    :return:
+    """
+    if levels is None:
+        levels = []
+
+    # time column
+    time_col = TIME_COL
+    # time_col = [col for col in df.columns if col.startswith(TIME_COL)][0]
+
+    # remove missing data
+    df = drop_missing_data(df, [x, y, color] + levels)
+
+    h_group_col = DATA_COUNT_COL
+
+    v_group_cols = [col for col in levels if col and col != h_group_col]
+
+    # graph number is depend on facet
+    max_graph = matrix_col if v_group_cols else max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name]
+
+    # facet
+    dic_groups = {}
+    dic_temp_groups = group_by_df(df, v_group_cols)
+    row_count = math.ceil(max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name] / matrix_col)
+    facet_keys = [key for key, _ in Counter(dic_temp_groups.keys()).most_common(row_count)]
+    for key, _df_group in dic_temp_groups.items():
+        if key not in facet_keys:
+            continue
+        df_group = _df_group
+        df_group = split_data_by_number(df_group, data_count_div)
+        df_group = reduce_data_by_number(df_group, max_graph, recent_flg)
+
+        dic_groups[key] = group_by_df(
+            df_group,
+            h_group_col,
+            max_graph,
+            sort_key_func=sort_data_count_key,
+            reverse=recent_flg,
+            get_from_last=recent_flg,
         )
 
-        # gen x
-        df['year'] = df[TIME_COL_LOCAL].dt.year
-        min_year = df['year'].min()
-        df['x'] = df[TIME_COL_LOCAL].dt.strftime('%U').astype(int) + (df['year'] % min_year) * 53
+        facet_keys.append(key)
 
-        # x_label
-        if num_days <= HM_WEEK_MODE_DAYS:
-            df['x_label'] = gen_weekly_ticks(df)
-        elif num_days <= 365 * 2:
-            # tick monthly
-            df['x_label'] = (
-                get_year_week_in_df_column(df[TIME_COL_LOCAL])
-                + '<br>'
-                + df[TIME_COL_LOCAL].dt.month.astype(str).str.pad(2, fillchar='0')
-                + '-01'
-            )
-        else:
-            # tick yearly
-            df['x_label'] = get_year_week_in_df_column(df[TIME_COL_LOCAL]) + '<br>01-01'
-    else:
-        # gen y
-        num_rows = int(1440 / hm_step)
-        row_per_hour = 60 / hm_step
-        df['dayofweek'] = df[TIME_COL_LOCAL].dt.day_name().astype(str).str[:3]
-        if hm_step > 60:
-            df['y'] = num_rows - (
-                ((df[TIME_COL_LOCAL].dt.minute + df[TIME_COL_LOCAL].dt.hour * 60) / hm_step).astype(
-                    float,
-                )
-            )
-        else:
-            df['y'] = num_rows - (
-                (df[TIME_COL_LOCAL].dt.minute / hm_step).astype(int)
-                + (df[TIME_COL_LOCAL].dt.hour * row_per_hour).astype(int)
-            )
+    # serials
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
+    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
 
-        # gen x
-        df['year'] = df[TIME_COL_LOCAL].dt.year
-        min_year = df['year'].min()
-        df['x'] = df[TIME_COL_LOCAL].dt.dayofyear + 366 * (df['year'] % min_year)
+    output_graphs = []
+    output_times = []
+    for v_keys, dic_group in dic_groups.items():
+        if v_keys not in facet_keys:
+            continue
 
-        # x_label
-        if num_days <= 21:
-            # tick daily
-            df['x_label'] = (
-                get_year_week_in_df_column(df[TIME_COL_LOCAL]) + '<br>' + df[TIME_COL_LOCAL].dt.date.astype(str).str[5:]
-            )
-        elif num_days <= HM_WEEK_MODE_DAYS:
-            df['x_label'] = gen_daily_ticks(df)
-        elif num_days <= 365 * 2:
-            # tick monthly
-            df['x_label'] = (
-                get_year_week_in_df_column(df[TIME_COL_LOCAL])
-                + '<br>'
-                + df[TIME_COL_LOCAL].dt.month.astype(str).str.pad(2, fillchar='0')
-                + '-01'
-            )
-        else:
-            # tick yearly
-            df['x_label'] = get_year_week_in_df_column(df[TIME_COL_LOCAL]) + '<br>01-01'
+        for idx, (_h_key, df_data) in enumerate(dic_group.items()):
+            h_key = _h_key
+            if recent_flg:
+                h_key = idx
 
-    time_fmt = '%Y-%m-%d %a %H:%M'
-    df['from'] = 'From: ' + df[TIME_COL_LOCAL].dt.strftime(time_fmt) + '<br>'
-    unit = 'min' if hm_mode == 1 else 'h'
-    df['to_temp'] = df[TIME_COL_LOCAL] + pd.to_timedelta(hm_step, unit=unit)
-    df.loc[df['to_temp'].astype(str).str[11:16] == '00:00', 'to'] = (
-        df['to_temp'].astype(str).str[:8] + df[TIME_COL_LOCAL].dt.strftime('%d %a ') + '24:00'
-    )
-    df.loc[df['to_temp'].astype(str).str[11:16] != '00:00', 'to'] = df['to_temp'].dt.strftime(
-        time_fmt,
-    )
-    df['to'] = 'To: ' + df['to'] + '<br>'
+            h_keys_str = f'{data_count_div * h_key + 1} – {data_count_div * (h_key + 1)}'
 
-    return df
+            v_keys_str = get_v_keys_str(v_keys)
+            # elapsed_times = calc_elapsed_times(df_data, time_col)
+
+            # v_label : name ( not id )
+            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_key=h_key)
+
+            # serial
+            dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
+            dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
+            if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
+                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
+            else:
+                dic_data[CYCLE_IDS] = []
+
+            output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
+            output_graphs.append(dic_data)
+
+    return output_graphs, output_times
 
 
 @log_execution_time()
 @abort_process_handler()
-def build_dic_col_func(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicParam):
-    """Each column needs an aggregate function"""
-    dic_col_func = {}
-    for proc_id, proc_config in dic_proc_cfgs.items():
-        if graph_param.is_end_proc(proc_id):
-            dic_col_func[proc_id] = {}
-            end_col_ids = graph_param.get_end_cols(proc_id)
-            end_cols = proc_config.get_cols(end_col_ids)
-            for end_col in end_cols:
-                if DataType[end_col.data_type] in [DataType.REAL, DataType.DATETIME]:
-                    hm_function = HMFunction[graph_param.common.hm_function_real]
-                else:
-                    hm_function = HMFunction[graph_param.common.hm_function_cate]
-                dic_col_func[proc_id][end_col.id] = hm_function
-    return dic_col_func
+def get_proc_times(df, proc_id):
+    col_name = f'{TIME_COL}_{proc_id}'
+    if col_name in df.columns:
+        return df[col_name].tolist()
+
+    return []
 
 
-# @log_execution_time()
-# @abort_process_handler()
-# def get_batch_data(proc_cfg: CfgProcess, graph_param: DicParam, start_tm, end_tm,
-#                    sql_limit=None, _use_expired_cache=False) -> pd.DataFrame:
-#     """ Query data for each batch. """
-#     batches = generate_batches(start_tm, end_tm, batch_size=7)
-#     num_batches = len(batches)
-#
-#     result = []
-#     proc_ids = get_proc_ids_in_dic_param(graph_param)
-#     for idx, (batch_start_tm, batch_end_tm) in enumerate(batches):
-#         if len(proc_ids) == 1:
-#             df_batch = graph_one_proc(proc_cfg.id, batch_start_tm, batch_end_tm,
-#                                       graph_param.common.cond_procs, graph_param.array_formval, sql_limit,
-#                                       same_proc_only=False)
-#         else:
-#             df_batch, _ = graph_many_proc(graph_param.common.start_proc, batch_start_tm, batch_end_tm,
-#                                           graph_param.common.cond_procs, graph_param.array_formval, sql_limit)
-#         df_batch = validate_data(df_batch)
-#
-#         # to report progress
-#         progress = idx / num_batches
-#
-#         result.append((progress, df_batch))
-#
-#     return result
-
-
-def gen_empty_df(
-    end_col_id,
-    var_agg_cols,
+@log_execution_time()
+@abort_process_handler()
+def gen_scatter_by_cyclic(
+    dic_proc_cfgs,
+    matrix_col,
+    df: DataFrame,
+    x_proc_id,
+    y_proc_id,
+    x,
+    y,
+    terms,
+    color=None,
+    levels=None,
+    chart_type=None,
 ):
-    new_df = pd.DataFrame({TIME_COL: [], AGG_COL: [], end_col_id: []})
-    if var_agg_cols:
-        for col in var_agg_cols:
-            new_df[col] = []
-    return new_df
+    """
+    split by terms
+    :param matrix_col:
+    :param df:
+    :param x_proc_id:
+    :param y_proc_id:
+    :param x:
+    :param y:
+    :param terms:
+    :param color:
+    :param levels:
+    :return:
+    """
+    if levels is None:
+        levels = []
+
+    # time column
+    time_col = TIME_COL
+    # time_col = [col for col in df.columns if col.startswith(TIME_COL)][0]
+
+    # remove missing data
+    df = drop_missing_data(df, [x, y, color] + levels)
+
+    dic_df_chunks = {}
+    df.set_index(TIME_COL, inplace=True, drop=False)
+    for term_id, term in enumerate(terms):
+        start_dt = term['start_dt']
+        end_dt = term['end_dt']
+        df_chunk = df[(df.index >= start_dt) & (df.index < end_dt)]
+        dic_df_chunks[(start_dt, end_dt)] = df_chunk
+
+    v_group_cols = [col for col in levels if col]
+
+    # graph number is depend on facet
+    max_graph = matrix_col if v_group_cols else max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name]
+    dic_groups = split_df_by_time_range(dic_df_chunks, max_graph)
+
+    # facet
+    dic_groups = {key: group_by_df(df_group, v_group_cols) for key, df_group in dic_groups.items()}
+    row_count = math.ceil(max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name] / matrix_col)
+    facet_keys = [
+        key for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(row_count)
+    ]
+
+    # serials
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
+    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
+
+    output_graphs = []
+    output_times = []
+    for h_key, dic_group in dic_groups.items():
+        h_keys_str = f'{h_key[0]} – {h_key[1]}'
+
+        for v_keys, df_data in dic_group.items():
+            if v_keys not in facet_keys:
+                continue
+
+            v_keys_str = get_v_keys_str(v_keys)
+            # elapsed_times = calc_elapsed_times(df_data, time_col)
+
+            # v_label : name ( not id )
+            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col)
+
+            # serial
+            dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
+            dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
+            if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
+                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
+            else:
+                dic_data[CYCLE_IDS] = []
+
+            output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
+            output_graphs.append(dic_data)
+
+    return output_graphs, output_times
 
 
 @log_execution_time()
 @abort_process_handler()
-def gen_df_end_col(df_batch, end_col, var_agg_cols):
-    """Use separate data frame for each column"""
-    end_col_label = gen_sql_label(end_col.id, end_col.column_name)
-    if var_agg_cols:
-        df_end_col = df_batch[[TIME_COL, AGG_COL, *var_agg_cols, end_col_label]]
-        for col in var_agg_cols:
-            df_end_col[col] = df_end_col[col].astype(str)
-    else:
-        df_end_col = df_batch[[TIME_COL, AGG_COL, end_col_label]]
+def gen_scatter_cat_div(
+    dic_proc_cfgs,
+    matrix_col,
+    df: DataFrame,
+    x_proc_id,
+    y_proc_id,
+    x,
+    y,
+    cat_div=None,
+    color=None,
+    levels=None,
+    chart_type=None,
+):
+    """
+    category divide
+    :param matrix_col:
+    :param df:
+    :param x_proc_id:
+    :param y_proc_id:
+    :param x:
+    :param y:
+    :param cat_div:
+    :param color:
+    :param levels:
+    :return:
+    """
+    if levels is None:
+        levels = []
 
-    if var_agg_cols and end_col_label in var_agg_cols:
-        c_id = list(df_end_col.columns).index(end_col_label)
-        df_end_col.columns.values[c_id] = end_col.id
-    else:
-        df_end_col = df_end_col.rename({end_col_label: end_col.id}, axis=1)
-    return df_end_col
+    # time column
+    time_col = TIME_COL
+    # time_col = [col for col in df.columns if col.startswith(TIME_COL)][0]
 
+    # remove missing data
+    df = drop_missing_data(df, [x, y, cat_div, color] + levels)
 
-def gen_agg_col_names(var_agg_cols):
-    """If use stratify variable -> aggregate by [stratify variable, time], otherwise, aggregate by time."""
-    if var_agg_cols:
-        return list({*var_agg_cols, AGG_COL})
-    else:
-        return [AGG_COL]
+    h_group_col = cat_div
+    if not h_group_col and len(levels) > 1:
+        h_group_col = levels[-1]
+
+    v_group_cols = [col for col in levels if col and col != h_group_col]
+
+    # graph number is depend on facet
+    max_graph = matrix_col if v_group_cols else max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name]
+    dic_groups = group_by_df(df, h_group_col, max_graph)
+
+    # facet
+    dic_groups = {key: group_by_df(df_group, v_group_cols) for key, df_group in dic_groups.items()}
+    row_count = math.ceil(max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name] / matrix_col)
+    facet_keys = [
+        key for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(row_count)
+    ]
+
+    # serials
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
+    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
+
+    output_graphs = []
+    output_times = []
+    for h_key, dic_group in dic_groups.items():
+        h_keys_str = h_key
+
+        for v_keys, df_data in dic_group.items():
+            if v_keys not in facet_keys:
+                continue
+
+            v_keys_str = get_v_keys_str(v_keys)
+            # elapsed_times = calc_elapsed_times(df_data, time_col)
+
+            # v_label : name ( not id )
+            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col)
+
+            # serial
+            dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
+            dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
+            if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
+                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
+            else:
+                dic_data[CYCLE_IDS] = []
+
+            output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
+            output_graphs.append(dic_data)
+
+    return output_graphs, output_times
 
 
 @log_execution_time()
 @abort_process_handler()
-def graph_heatmap_data_one_proc(df, proc_cfg: CfgProcess, graph_param: DicParam, dic_col_func, var_agg_cols, agg_cols):
-    """Build heatmap data for all columns of each process"""
+def gen_scatter_by_direct_term(
+    dic_proc_cfgs,
+    matrix_col,
+    dic_df_chunks,
+    x_proc_id,
+    y_proc_id,
+    x,
+    y,
+    color=None,
+    levels=None,
+    chart_type=None,
+):
+    """
+    split by terms
+    :param matrix_col:
+    :param dic_df_chunks
+    :param x_proc_id:
+    :param y_proc_id:
+    :param x:
+    :param y:
+    :param color:
+    :param levels:
+    :return:
+    """
+    if levels is None:
+        levels = []
 
-    # start proc
-    proc_id = proc_cfg.id
+    # time column
+    time_col = TIME_COL
 
-    # get end cols
-    end_col_ids = graph_param.get_end_cols(proc_id)
-    end_cols = proc_cfg.get_cols(end_col_ids)
+    # remove missing data
+    for key, df in dic_df_chunks.items():
+        dic_df_chunks[key] = drop_missing_data(df, [x, y, color] + levels)
 
-    dic_df_col = {}
-    if df is None or df.empty:
-        for end_col in end_cols:
-            df_end_col = gen_empty_df(end_col.id, var_agg_cols)
-            dic_df_col[end_col.id] = df_end_col
-    else:
-        # transform + aggregate
-        for end_col in end_cols:
-            df_end_col = gen_df_end_col(df, end_col, var_agg_cols)
-            hm_function = dic_col_func[proc_id][end_col.id]
-            df_end_col = gen_heat_map_cell_value(df_end_col, graph_param, agg_cols, end_col.id, hm_function)
-            dic_df_col[end_col.id] = df_end_col
+    v_group_cols = [col for col in levels if col]
 
-    # dic_df_col = apply_significant_digit(dic_df_col)
+    # graph number is depend on facet
+    max_graph = matrix_col if v_group_cols else max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name]
+    dic_groups = split_df_by_time_range(dic_df_chunks, max_graph)
 
-    return dic_df_col
+    # facet
+    dic_groups = {key: group_by_df(df_group, v_group_cols) for key, df_group in dic_groups.items()}
+    row_count = math.ceil(max_graph_config[MaxGraphNumber.SCP_MAX_GRAPH.name] / matrix_col)
+    facet_keys = [
+        key for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(row_count)
+    ]
+    # serials
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
+    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
 
+    output_graphs = []
+    output_times = []
+    for h_key, dic_group in dic_groups.items():
+        h_keys_str = f'{h_key[0]} {h_key[1]} – {h_key[2]} {h_key[3]}'
 
-def range_func(x):
-    return np.max(x) - np.min(x)
+        for v_keys, df_data in dic_group.items():
+            if v_keys not in facet_keys:
+                continue
 
+            v_keys_str = get_v_keys_str(v_keys)
+            # elapsed_times = calc_elapsed_times(df_data, time_col)
 
-def convert_to_pandas_step(hm_step, hm_mode):
-    """Pandas steps are: 4h, 15min, ..."""
-    if hm_mode == HM_WEEK_MODE:
-        return '{}h'.format(hm_step)
-    return '{}min'.format(hm_step)
+            # v_label : name ( not id )
+            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col)
+
+            # serial
+            dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
+            dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
+            if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
+                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
+            else:
+                dic_data[CYCLE_IDS] = []
+
+            output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
+            output_graphs.append(dic_data)
+
+    return output_graphs, output_times
 
 
 @log_execution_time()
 @abort_process_handler()
-def create_agg_column(df, agg_col=AGG_COL, hm_mode=7, hm_step=4, df_cells=None):
-    """Create aggregate column data"""
-    dt = pd.to_datetime(df[TIME_COL], format='%Y-%m-%dT%H:%M', utc=True)
-    df[agg_col] = None
-    #
-    group_list = df_cells[TIME_COL].tolist()
-    next_cell = (
-        group_list[-1] + pd.Timedelta(minutes=hm_step) if hm_mode == 1 else group_list[-1] + pd.Timedelta(hours=hm_step)
-    )
-    group_list.append(next_cell)
-    group_list = pd.to_datetime(group_list, format='%Y-%m-%dT%H:%M', utc=True)
+def gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_key=None):
+    times = df_data[time_col]
+    n = times.dropna().size
+    time_min = np.nanmin(times) if n else None
+    time_max = np.nanmax(times) if n else None
 
-    labels = df_cells[AGG_COL].tolist()
-    for i, label in enumerate(labels):
-        start_time = group_list[i]
-        end_time = group_list[i + 1]
-        start_index, end_index = dt.searchsorted([start_time, end_time])
-        df[start_index:end_index][agg_col] = label
+    dic_data = {
+        H_LABEL: h_keys_str,
+        V_LABEL: v_keys_str,
+        ARRAY_X: df_data[x],
+        ARRAY_Y: df_data[y],
+        COLORS: df_data[color] if color else [],
+        TIMES: times,
+        TIME_MIN: time_min,
+        TIME_MAX: time_max,
+        N_TOTAL: n,
+        SORT_KEY: h_keys_str if sort_key is None else sort_key,
+    }
+    return dic_data
+
+
+@log_execution_time()
+@abort_process_handler()
+def gen_df_limit_data(graph, keys, limit=None):
+    is_limit = False
+    dic_data = {}
+    for key in keys:
+        count = len(graph[key])
+        if not count:
+            continue
+
+        if limit is None or count <= limit:
+            dic_data[key] = graph[key]
+        else:
+            is_limit = True
+            dic_data[key] = graph[key][:limit]
+
+    return pd.DataFrame(dic_data), is_limit
+
+
+@log_execution_time()
+@abort_process_handler()
+def sort_df(df, columns):
+    cols = [col for col in columns if col in df.columns]
+    df.sort_values(by=cols, inplace=True)
+
     return df
 
 
 @log_execution_time()
-def agg_func_with_na(group_data, func_name):
-    agg_func = {
-        HMFunction.median.name: group_data.median,
-        HMFunction.mean.name: group_data.mean,
-        HMFunction.std.name: group_data.std,
-    }
-    return agg_func[func_name](skipna=True)
+@abort_process_handler()
+def get_most_common_in_graphs(graphs, columns, first_most_common):
+    data = []
+    for graph in graphs:
+        vals = pd.DataFrame({col: graph[col] for col in columns}).drop_duplicates().to_records(index=False).tolist()
+        data += vals
+
+    original_vals = [key for key, _ in Counter(data).most_common(None)]
+    most_vals = [key for key, _ in Counter(data).most_common(first_most_common)]
+    if len(columns) == 1:
+        most_vals = [vals[0] for vals in most_vals]
+
+    is_reduce_violin_number = len(original_vals) > len(most_vals)
+
+    return most_vals, is_reduce_violin_number
 
 
 @log_execution_time()
 @abort_process_handler()
-def groupby_and_aggregate(df: pd.DataFrame, hm_function: HMFunction, hm_mode, hm_step, agg_cols, end_col):
-    """Group by time and calculate aggregates"""
-    if df.empty:
+def filter_violin_df(df, cols, most_vals):
+    df_result = df[df.set_index(cols).index.isin(most_vals)]
+    return df_result
+
+
+@log_execution_time()
+@abort_process_handler()
+def get_heatmap_distinct(graphs):
+    array_x = []
+    array_y = []
+    for graph in graphs:
+        array_x += graph[ARRAY_X].drop_duplicates().tolist()
+        array_y += graph[ARRAY_Y].drop_duplicates().tolist()
+
+    return set(array_x), set(array_y)
+
+
+@log_execution_time()
+def get_heatmap_range_with_steps(graphs, step=1):
+    array_x, array_y, range_x, range_y = [], [], [], []
+    for graph in graphs:
+        range_x += graph[ARRAY_X].drop_duplicates().tolist()
+        range_y += graph[ARRAY_Y].drop_duplicates().tolist()
+
+    for i, v in enumerate(range(min(range_x), max(range_x))):
+        if not i:
+            array_x += [v]
+        array_x += [array_x[-1] + step]
+
+    for i, v in enumerate(range(min(range_y), max(range_y))):
+        if not i:
+            array_y += [v]
+        array_y += [array_y[-1] + step]
+    return set(array_x), set(array_y)
+
+
+@log_execution_time()
+@abort_process_handler()
+def get_proc_serials(df: DataFrame, serial_cols: List[CfgProcessColumn]):
+    if not serial_cols:
+        return None
+
+    if df is None or len(df) == 0:
+        return None
+
+    # serials
+    serials = []
+    for col in serial_cols:
+        sql_label = gen_sql_label(col.id, col.column_name)
+        if sql_label in df.columns:
+            dic_serial = {'col_name': col.shown_name, 'data': df[sql_label].tolist()}
+            serials.append(dic_serial)
+
+    return serials
+
+
+@log_execution_time()
+@abort_process_handler()
+def reduce_data_by_number(df, max_graph, recent_flg=None):
+    if not len(df):
         return df
 
-    if hm_function is HMFunction.count_per_hour:
-        agg_params = {end_col: HMFunction.count.name, TIME_COL: HMFunction.first.name}
-        df = df.groupby(agg_cols).agg(agg_params).reset_index()
-        if hm_mode == HM_WEEK_MODE:
-            df[end_col] = df[end_col].div(hm_step)
-        else:
-            df[end_col] = df[end_col].div(hm_step / 60)
-    elif hm_function is HMFunction.count_per_min:
-        agg_params = {end_col: HMFunction.count.name, TIME_COL: HMFunction.first.name}
-        df = df.groupby(agg_cols).agg(agg_params).reset_index()
-        if hm_mode == HM_WEEK_MODE:
-            df[end_col] = df[end_col].div(hm_step * 60)
-        else:
-            df[end_col] = df[end_col].div(hm_step)
-    elif hm_function is HMFunction.range:
-        agg_params = {end_col: range_func, TIME_COL: HMFunction.first.name}
-        df = df.groupby(agg_cols).agg(agg_params).reset_index()
-    elif hm_function is HMFunction.iqr:
-        df = df.dropna()
-        if not df.empty:
-            agg_params = {end_col: iqr, TIME_COL: HMFunction.first.name}
-            df = df.groupby(agg_cols).agg(agg_params).reset_index()
-    elif hm_function is HMFunction.time_per_count:
-        agg_params = {end_col: HMFunction.count.name, TIME_COL: HMFunction.first.name}
-        df = df.groupby(agg_cols).agg(agg_params).reset_index()
-        step_time = (hm_step * 60) if hm_mode == 1 else (hm_step * 3600)
-        df[end_col] = step_time / df[end_col]
-    elif hm_function.name in CHM_AGG_FUNC:
-        df = df.dropna()
-        if not df.empty:
-            agg_params = {end_col: hm_function.name, TIME_COL: HMFunction.first.name}
-            df = df.groupby(agg_cols).agg(agg_params).reset_index()
+    if recent_flg:
+        first_num = df[DATA_COUNT_COL].iloc[-1] - max_graph
+        if first_num >= 0:
+            df = df[df[DATA_COUNT_COL] > first_num]
     else:
-        agg_params = {end_col: hm_function.name, TIME_COL: HMFunction.first.name}
-        df = df.groupby(agg_cols).agg(agg_params).reset_index()
+        first_num = df[DATA_COUNT_COL].iloc[0] + max_graph
+        if first_num >= 0:
+            df = df[df[DATA_COUNT_COL] < first_num]
 
     return df
 
 
 @log_execution_time()
-@abort_process_handler()
-def gen_heat_map_cell_value(df: pd.DataFrame, graph_param: DicParam, agg_cols, end_col, hm_function: HMFunction):
-    """Value z for each cell (x,y)"""
-    hm_mode = int(graph_param.common.hm_mode)
-    hm_step = int(graph_param.common.hm_step)
+def gen_map_xy_heatmap_matrix(x_name, y_name, all_x, all_y, graph):
+    array_x = graph[ARRAY_X]
+    array_y = graph[ARRAY_Y]
+    unique_x = set(array_x.drop_duplicates().tolist())
+    unique_y = set(array_y.drop_duplicates().tolist())
 
-    # drop na
-    # for show empty facet group -> comment
-    # if 'count' not in hm_function.name:
-    #     df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna()
+    missing_x = all_x - unique_x
+    missing_y = all_y - unique_y
+    map_xy_array_z = pd.crosstab(array_y, array_x, values=graph[COLORS], aggfunc='first')
+    for key in missing_x:
+        map_xy_array_z[key] = None
 
-    # groupby + aggregate
-    df = groupby_and_aggregate(df, hm_function, hm_mode, hm_step, agg_cols, end_col)
+    sorted_cols = sorted(map_xy_array_z.columns)
+    map_xy_array_z = map_xy_array_z[sorted_cols]
 
-    return df
+    missing_data = [None] * len(missing_y)
+    df_missing = pd.DataFrame({col: missing_data for col in map_xy_array_z.columns}, index=missing_y)
+    map_xy_array_z = pd.concat([map_xy_array_z, df_missing])
+    map_xy_array_z.sort_index(inplace=True)
+
+    # limit 10K cells
+    if map_xy_array_z.size > HEATMAP_COL_ROW * HEATMAP_COL_ROW:
+        map_xy_array_z = map_xy_array_z[:HEATMAP_COL_ROW][map_xy_array_z.columns[:HEATMAP_COL_ROW]]
+
+    graph[X_NAME] = x_name
+    graph[Y_NAME] = y_name
+    graph[HEATMAP_MATRIX] = {
+        'z': matrix(map_xy_array_z),
+        'x': all_x,
+        'y': all_y,
+    }
 
 
-def gen_heatmap_data_as_dict(
-    graph_param,
-    dic_param,
-    dic_proc_cfgs,
-    dic_cat_filters={},
-    cat_exp=[],
-    cat_procs=[],
-    df=None,
-    use_expired_cache=False,
-):
-    hm_mode = int(graph_param.common.hm_mode)
-    hm_step = int(graph_param.common.hm_step)
-    # start proc
-    start_tm = start_of_minute(graph_param.common.start_date, graph_param.common.start_time)
-    end_tm = end_of_minute(graph_param.common.end_date, graph_param.common.end_time)
-    client_timezone = graph_param.get_client_timezone()
-    # client_tz = pytz.timezone(client_timezone) if client_timezone else tz.tzlocal()
-    client_tz = tz.gettz(client_timezone or None) or tz.tzlocal()
-
-    # generate all cells
-    cells = gen_cells(start_tm, end_tm, hm_mode, hm_step)
-    df_cells = pd.DataFrame({TIME_COL: cells})
-    # time_delta = calc_time_delta(hm_mode, hm_step, start_tm)
-    if not df_cells.empty:
-        df_cells[TIME_COL] = pd.to_datetime(df_cells[TIME_COL], utc=True)
-
-    df_cells = gen_agg_col(df_cells, hm_mode, hm_step, client_tz)
-
-    # limit to 10000 cells
-    dic_param.update({ACT_CELLS: df_cells.index.size})
-    df_cells, end_tm = limit_num_cells(df_cells, end_tm)
-
-    # generate x, y, x_label, y_label
-    df_cells = gen_x_y(df_cells, hm_mode, hm_step, start_tm, end_tm)
-
-    # build dic col->function
-    dic_col_func = build_dic_col_func(dic_proc_cfgs, graph_param)
-
-    # get stratified variable
-    cfg_facet_cols = graph_param.get_facet_var_cols_name()
-    var_agg_cols = None
-    if cfg_facet_cols:
-        var_agg_cols = [gen_sql_label(cfg_col.id, cfg_col.column_name) for cfg_col in cfg_facet_cols]
-
-    if df is None:
-        # get sensor data from db
-        df, actual_record_number, unique_serial = get_data_from_db(
-            graph_param,
-            dic_cat_filters,
-            use_expired_cache=use_expired_cache,
+@log_execution_time()
+def gen_color_by_agg_func(x, y, color, aggfunc):
+    """
+    HMp agg function support
+    """
+    agg_lambda_types = [HMFunction.std.name, HMFunction.range.name, HMFunction.iqr.name]
+    if aggfunc in agg_lambda_types:
+        _df = pd.DataFrame(
+            {
+                'x': x,
+                'y': y,
+                'color': color,
+            },
         )
-        dic_param[UNIQUE_SERIAL] = unique_serial
-        dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
+        _df = _df.groupby(['x', 'y'], as_index=False)
+        color_matr = get_agg_lamda_func(
+            _df,
+            'color',
+            aggfunc,
+        )
+        color_matr = pd.crosstab(color_matr.x, color_matr.y, values=color_matr.color, aggfunc='sum')
+        return color_matr
 
-    # filter by cat
-    dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param, True)
+    use_ratio = aggfunc == HMFunction.ratio.name
+    if use_ratio:
+        aggfunc = HMFunction.count.name
 
-    export_df = df.copy()
+    agg_args = {}
+    if len(color):
+        agg_args = {
+            'aggfunc': aggfunc,
+            'values': color,
+        }
+    color_data = pd.crosstab(x, y, **agg_args)
 
-    # convert datetime columns to CT
-    convert_datetime_to_ct(df, graph_param)
-    target_var_data = get_target_variable_data_from_df(df, dic_proc_cfgs, graph_param)
-    # check filter match or not ( for GUI show )
-    (
-        matched_filter_ids,
-        unmatched_filter_ids,
-        not_exact_match_filter_ids,
-    ) = main_check_filter_detail_match_graph_data(graph_param, df)
-
-    # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
-    dic_param[MATCHED_FILTER_IDS] = matched_filter_ids
-    dic_param[UNMATCHED_FILTER_IDS] = unmatched_filter_ids
-    dic_param[NOT_EXACT_MATCH_FILTER_IDS] = not_exact_match_filter_ids
-    # flag to show that trace result was limited
-    dic_param[DATA_SIZE] = df.memory_usage(deep=True).sum()
-
-    # gen aggregate end col
-    df: pd.DataFrame = create_agg_column(df, AGG_COL, hm_mode, hm_step, df_cells)
-    agg_cols = gen_agg_col_names(var_agg_cols)  # move
-
-    dic_df_proc = {}
-    num_proc = len(dic_proc_cfgs.keys()) or 1
-    for idx, (proc_id, proc_config) in enumerate(dic_proc_cfgs.items()):
-        pct_start = (idx + 1) * 50 / num_proc  # to report progress
-        background_announcer.announce(pct_start, AnnounceEvent.SHOW_GRAPH.name)
-        if graph_param.is_end_proc(proc_id):
-            dic_df_proc[proc_id] = graph_heatmap_data_one_proc(
-                df,
-                proc_config,
-                graph_param,
-                dic_col_func,
-                var_agg_cols,
-                agg_cols,
-            )
-
-    # fill empty cells
-    dic_df_proc = fill_empty_cells(df_cells, dic_df_proc, var_agg_cols)
-
-    return (
-        dic_df_proc,
-        hm_mode,
-        hm_step,
-        dic_col_func,
-        df_cells,
-        var_agg_cols,
-        target_var_data,
-        export_df,
-    )
+    # ratio of color in total records
+    if use_ratio:
+        color_data = color_data * 100 / len(x)
+    return color_data
 
 
-@log_execution_time()
-def get_target_variable_data_from_df(df, dic_proc_cfgs, graph_param, cat_only=True):
-    target_data = []
-    target_vars = graph_param.get_all_target_cols()
-    col_labels = [gen_sql_label(col['end_col_id'], col['end_col_name']) for col in target_vars]
-    # return df[col_labels]
+def get_color_agg_func(graph_param, color_id):
+    is_cat_colors = True
+    color_agg_func = graph_param.common.hm_function_cate
 
-    for i, variable in enumerate(target_vars):
-        col_label = col_labels[i]
-        if col_label not in df:
-            continue
-        variable['array_y'] = df[col_label].to_list()
-        variable['end_proc_name'] = dic_proc_cfgs[variable['end_proc_id']].shown_name
-        if cat_only:
-            int_cols = dic_proc_cfgs[variable['end_proc_id']].get_cols_by_data_type(DataType.INTEGER, True)
-            text_cols = dic_proc_cfgs[variable['end_proc_id']].get_cols_by_data_type(DataType.TEXT, True)
-            cat_cols = int_cols + text_cols
-            if variable['end_col_name'] in cat_cols:
-                target_data.append(variable)
-        else:
-            # get all variable data
-            target_data.append(variable)
-    return target_data
+    if not color_id:
+        color_bar_title = color_agg_func.capitalize()
+        # If agg func is Ratio, show Ratio[%]
+        if color_agg_func == HMFunction.ratio.name:
+            color_bar_title = HMFunction.ratio.value
+        return color_agg_func, color_bar_title, is_cat_colors
 
+    [color_col] = graph_param.get_col_cfgs([color_id])
+    is_cat_color = color_col.is_category
+    if not color_col.is_category:
+        color_agg_func = graph_param.common.hm_function_real
 
-def gen_plot_df(df, transform_target_sensor_name, transform_facets_name=None):
-    export_columns = ['time_cell', 'to_temp', 'dayofweek'] + list(transform_target_sensor_name.keys())
-    transform_cols = {'time_cell': 'From', 'to_temp': 'To', 'dayofweek': 'Day'}
-    transform_cols.update(transform_target_sensor_name)
-    if transform_facets_name:
-        export_columns += list(transform_facets_name.keys())
-        transform_cols.update(transform_facets_name)
+    color_bar_title = color_agg_func
+    # If agg func is last/first, shw variable name of color
+    if color_agg_func in [HMFunction.first.name, HMFunction.last.name]:
+        color_bar_title = color_col.shown_name or color_col.column_name
 
-    sub_df = df[export_columns]
-    sub_df.rename(columns=transform_cols, inplace=True)
-    return sub_df
+    # If agg func is Ratio, show Ratio[%]
+    if color_agg_func == HMFunction.ratio.name:
+        color_bar_title = HMFunction.ratio.value
 
-
-def gen_sub_df_from_heatmap(heatmap_data, dic_params, dic_proc_cfgs, dic_col_func, delimiter, client_timezone):
-    csv_dat = []
-    csv_list_name = []
-    file_type = '.csv' if delimiter == ',' else 'tsv'
-    # get facets
-    transform_facets_name = {}
-    facet_ids = []
-    for facet in dic_params['catExpBox']:
-        facet_label = gen_sql_label(facet['column_id'], facet['column_name'])
-        export_facet_name = '{}|{}'.format(facet['proc_master_name'], facet['column_name'])
-        transform_facets_name[facet_label] = export_facet_name
-        facet_ids.append(facet['column_id'])
-
-    for proc_id, proc_dat in heatmap_data.items():
-        proc_name = dic_proc_cfgs[proc_id].shown_name
-        for sensor_id, sensor_dat in proc_dat.items():
-            if sensor_id not in facet_ids:
-                # target sensor only
-                sensor_obj = dic_proc_cfgs[proc_id].get_cols([sensor_id])
-                aggregate_func = dic_col_func[proc_id][sensor_id].name
-                export_name = '{}|{}|{}'.format(proc_name, sensor_obj[0].column_name, aggregate_func)
-                transform_target_sensor_name = {sensor_id: export_name}
-                if isinstance(sensor_dat, dict) or len(facet_ids) != 0:
-                    # has facets
-                    for group, plot_dat in sensor_dat.items():
-                        sub_df_dat = gen_plot_df(plot_dat, transform_target_sensor_name, transform_facets_name)
-
-                        if client_timezone:
-                            sub_df_dat['From'] = (
-                                pd.to_datetime(sub_df_dat['From'], format=DATE_FORMAT_STR, utc=True)
-                                .dt.tz_convert(client_timezone)
-                                .dt.strftime(DATE_FORMAT_STR_CSV)
-                            )
-                            sub_df_dat['To'] = (
-                                pd.to_datetime(sub_df_dat['To'], format=DATE_FORMAT_STR, utc=True)
-                                .dt.tz_convert(client_timezone)
-                                .dt.strftime(DATE_FORMAT_STR_CSV)
-                            )
-                        sub_df_dat = sub_df_dat.to_csv(sep=delimiter, index=False)
-                        csv_dat.append(sub_df_dat)
-
-                        group_name = '_'.join(group) if isinstance(group, tuple) else group
-                        file_name = '{}_{}_{}.{}'.format(proc_name, sensor_obj[0].column_name, group_name, file_type)
-                        csv_list_name.append(file_name)
-                else:
-                    # no facet
-                    sub_df_dat = gen_plot_df(sensor_dat, transform_target_sensor_name)
-                    if client_timezone:
-                        sub_df_dat['From'] = (
-                            pd.to_datetime(sub_df_dat['From'], format=DATE_FORMAT_STR, utc=True)
-                            .dt.tz_convert(client_timezone)
-                            .dt.strftime(DATE_FORMAT_STR_CSV)
-                        )
-                        sub_df_dat['To'] = (
-                            pd.to_datetime(sub_df_dat['To'], format=DATE_FORMAT_STR, utc=True)
-                            .dt.tz_convert(client_timezone)
-                            .dt.strftime(DATE_FORMAT_STR_CSV)
-                        )
-                    sub_df_dat = sub_df_dat.to_csv(sep=delimiter, index=False)
-                    csv_dat.append(sub_df_dat)
-
-                    file_name = '{}_{}.{}'.format(proc_name, sensor_obj[0].column_name, file_type)
-                    csv_list_name.append(file_name)
-
-    return csv_dat, csv_list_name
+    color_bar_title = color_bar_title.capitalize()
+    return color_agg_func, color_bar_title, is_cat_color

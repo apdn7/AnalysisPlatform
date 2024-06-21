@@ -19,6 +19,7 @@ const procElements = {
     fileNameBtn: '#fileNameBtn',
     dbTableList: '#dbTableList',
     fileInputPreview: '#fileInputPreview',
+    deleteProcModal: '#deleteProcModal'
 };
 
 const i18n = {
@@ -30,6 +31,8 @@ const i18n = {
     reachFailLimit: $('#i18nReachFailLimit').text(),
     noCTCol: $('#i18nNoCTCol').text(),
     noCTColProc: $('#i18nNoCTColPrc').text(),
+    confirmDeleteProc: $('#i18nConfirmDeleteProc').text(),
+    warnDeleteMergedProc: $('#i18nWarDeleteMergedProc').text(),
 };
 const JOB_STATUS = {
     DONE: {
@@ -84,13 +87,36 @@ const updateBackgroundJobs = (json) => {
     });
 };
 
+// to be refactored: this api is called in multiple files
+const checkIfProcessIsMerged = async (procId) => {
+    let data = null;
+    await $.ajax({
+        url: `api/setting/proc_config/${procId}`,
+        type: 'GET',
+        cache: false,
+        success: (json) => {
+            data = json.has_parent_or_children;
+        },
+        error: (e) => {
+            console.log('error', e)
+            data = null;
+        },
+    });
+    return data;
+}
 
-const deleteProcess = (procItem) => {
+const deleteProcess = async (procItem) => {
     currentProcItem = $(procItem).closest('tr');
     const procId = currentProcItem.data('proc-id');
     if (procId) {
         $('#btnDeleteProc').attr('data-item-id', procId);
-        $('#deleteProcModal').modal('show');
+        const isMergedProc = await checkIfProcessIsMerged(procId);
+        if (isMergedProc) {
+            $(procElements.deleteProcModal).find('.modal-inform').html(i18n.warnDeleteMergedProc);
+        } else {
+            $(procElements.deleteProcModal).find('.modal-inform').html(i18n.confirmDeleteProc);
+        }
+        $(procElements.deleteProcModal).modal('show');
     } else {
         // remove empty row
         $(currentProcItem).remove();
@@ -113,9 +139,12 @@ const confirmDelProc = () => {
         body: JSON.stringify({proc_id: procId}), // example: { proc_id: 3 }
     })
         .then(response => response.clone().json())
-        .then(() => {
+        .then((res) => {
             // remove proc from HTML table
-            removeProcessConfigRow(procId);
+            const deleted_processes = res.deleted_processes;
+            deleted_processes.forEach((proc_id) => {
+                removeProcessConfigRow(proc_id)
+            })
 
             // update row number
             // updateTableRowNumber(procElements.tblProcConfig);
@@ -123,7 +152,8 @@ const confirmDelProc = () => {
             // refresh Vis network
             reloadTraceConfigFromDB();
         })
-        .catch(() => {
+        .catch((e) => {
+            console.error(e);
         });
 };
 
@@ -208,13 +238,17 @@ const getProcInfo = (procId) => {
             procModalElements.tables.val(res.data.table_name);
             procModalElements.dsID.val(res.data.data_source_id);
             procModalElements.fileName.val(res.data.file_name);
+            procModalElements.isShowFileName.prop("checked", !!res.data.is_show_file_name);
             currentProcData.ds_id = res.data.data_source_id;
             currentProcData.table_name = res.data.table_name;
 
             const dsLength = $('#procSettingModal select[name=databaseName] option').length;
             if (dsLength > 0) {
+                const modalConfirmMergeMode = document.querySelector(procModalElements.confirmMergeMode);
+                modalConfirmMergeMode.deactivate = true;
                 $(`#procSettingModal select[name=databaseName] option[value="${res.data.data_source_id}"]`)
                     .prop('selected', true).change();
+                modalConfirmMergeMode.deactivate = false;
             }
             resetDicOriginData();
             let rowHtml = '';
@@ -276,7 +310,13 @@ const getProcInfo = (procId) => {
                     // show latest records
                     procModalElements.showRecordsBtn.click();
                 }
+                FunctionInfo
+                    .getAllFunctionInfosApi(procId, res.col_id_in_funcs)
+                    .then(FunctionInfo.loadFunctionListTableAndInitDropDown);
             }, 300);
+            currentProcDataCols = res.data.columns;
+            currentProcess = res.data;
+            currentProcessId = res.data.id;
         },
     });
 };
@@ -293,6 +333,9 @@ const showHideReRegisterBtn = () => {
 const isAddNewMode = () => isEmpty(procModalElements.procID.val() || null);
 
 const showProcSettingModal = (procItem, dbsId = null) => {
+    $(functionConfigElements.collapseFunctionConfig).collapse('hide');
+    FunctionInfo.resetInputFunctionInfo();
+    FunctionInfo.removeAllFunctionRows();
     clearWarning();
     cleanOldData();
     showHideReRegisterBtn();
@@ -304,19 +347,34 @@ const showProcSettingModal = (procItem, dbsId = null) => {
     loading.show();
     handleEnglishNameChange(procModalElements.proc);
 
-    if (procId) {
+    const parentDataRow = $(procItem).parent().parent();
+    const dataRowID = parentDataRow.data('rowid')??parentDataRow.attr('id');
+    const isMergeMode = isMergeModeProcConfig(dataRowID);
+
+    if (procId && !isMergeMode) {
         getProcInfo(procId);
     } else {
         resetDicOriginData();
         procModalElements.dsID.val('');
 
-        $('#procSettingModal').modal('show');
+        if (isMergeMode && !procId) {
+            procModalElements.procMergeModeModal.modal('show');
+        } else if(!isMergeMode) {
+            procModalElements.procModal.modal('show');
+        }
         loading.hide();
     }
 
-    const dataRowID = $(procItem).parent().parent().data('rowid');
-    loadProcModal(procId, dataRowID, dbsId);
-
+    if (isMergeMode) {
+        const processName = $(`tr[name=procInfo][data-rowid=${dataRowID}] input[name=processName]`).val();
+        const processNameLocal = docCookies.getItem('locale') === 'ja' ? 'jp' : 'en';
+        // get base process id
+        let baseProc = isDuplicatedProcessNameDataRow(processName, true, processNameLocal);
+        // fill data for merge mode modal
+        mergeModeProcess(procId, dataRowID, baseProc, dbsId);
+    } else {
+        loadProcModal(procId, dataRowID, dbsId);
+    }
 
     $('#processGeneralInfo select[name="tableName"]').select2(select2ConfigI18n);
 
@@ -334,7 +392,7 @@ const showProcSettingModal = (procItem, dbsId = null) => {
     });
 
     // show setting mode when loading proc config
-    showHideModes(false);
+    // showHideModes(false);
 
     // clear attr on buttons
     procModalElements.okBtn.removeAttr('data-has-ct');
@@ -388,11 +446,12 @@ const addProcToTable = (procId = null, procName = '', nameJP = '', nameLocal = '
         <td class="col-number">${rowNumber + 1}</td>
         <td>
             <input data-name-en="${procName}" data-name-jp="${nameJP || ''}" data-name-local="${nameLocal || ''}" name="processName" class="form-control" type="text"
-                placeholder="${procConfigTextByLang.procName}" value="${procShownName || ''}" ${procName ? 'disabled' : ''} ${dragDropRowInTable.DATA_ORDER_ATTR}>
+                placeholder="${procConfigTextByLang.procName}" value="${procShownName || ''}" ${procName ? 'disabled' : ''} ${dragDropRowInTable.DATA_ORDER_ATTR}
+                onfocusout="hideDataSourceRegistered(this)">
         </td>
         <td class="text-center">
             <select class="form-control" name="databaseName" ${dbsId ? 'disabled' : ''}
-                onchange="changeDataSource(this);">${DSSelectionWithDefaultVal}</select>
+                onchange="changeDataSource(this);" onfocusin="focusInSelectDataSource(this)">${DSSelectionWithDefaultVal}</select>
         </td>
         <td>
             <select class="form-control" name="tableName" ${dbsId ? 'disabled' : ''}>
@@ -427,6 +486,28 @@ const addProcToTable = (procId = null, procName = '', nameJP = '', nameLocal = '
 
     // updateTableRowNumber(procElements.tblProcConfig);
 };
+
+const hideDataSourceRegistered = (elem) => {
+    const allProcesses = Object.keys(processes).map((key) => processes[key]) || [];
+    const newProcessName = $(elem).val().trim();
+    const listProcessNameExisted = allProcesses.filter(ds => ds.shown_name === newProcessName);
+    const rowAddProcess = $(elem).closest(`tr[name=${procModalElements.procsMasterInfo}]`);
+    const processOptions = rowAddProcess.find(`select[name=${procModalElements.procsdbName}] option`);
+    processOptions.show();
+    listProcessNameExisted.forEach(p => {
+        const dataSourceExisted = p.data_source;
+        if (dataSourceExisted && dataSourceExisted.name) {
+            processOptions.filter(function() {
+                return $(this).text().trim() === dataSourceExisted.name;
+            }).hide();
+        }
+    });
+}
+
+const focusInSelectDataSource = (elem) => {
+    const elemProcessName = $(elem).closest(`tr[name=${procModalElements.procsMasterInfo}]`).find(`input[name=${procModalElements.procsMasterName}]`);
+    hideDataSourceRegistered(elemProcessName);
+}
 
 $(() => {
     procModalElements.procModal.on('hidden.bs.modal', () => {

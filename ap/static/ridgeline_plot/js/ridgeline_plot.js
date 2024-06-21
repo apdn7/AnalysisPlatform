@@ -737,6 +737,14 @@ const genTickTextAndTickValue = (eleIdPrefix, categories, ridgelines, xAxisVals,
         groupName = categories;
     }
 
+    if (!(groupName.length === xAxisVals.length)) {
+        // In case special dataset, force same length
+        // Detail in link: <https://trello.com/c/RvoiSnh0/93-31e-bug-fix-labels-not-displayed-on-hover-and-x-axis-when-decomposing-in-rlp-dev>
+        const uniqueGroupName = new Set(groupName);
+        uniqueGroupName.delete(null);
+        groupName = Array.from(uniqueGroupName);
+    }
+
      const datetimeCategory = [];
     // convert local time if category is datetime
     categories = groupName.map((group) => {

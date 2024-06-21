@@ -1,16 +1,18 @@
+from __future__ import annotations
+
 import os
 import re
 import time
 from contextlib import suppress
 from functools import lru_cache
 from itertools import islice
-from typing import Any, List, Tuple
+from typing import List
 
 import pandas as pd
 from flask_babel import get_locale
 
 from ap.api.efa.services.etl import detect_file_path_delimiter, preview_data
-from ap.api.setting_module.services.csv_import import convert_csv_timezone, gen_dummy_header
+from ap.api.setting_module.services.csv_import import add_column_file_name, convert_csv_timezone, gen_dummy_header
 from ap.api.setting_module.services.data_import import (
     PANDAS_DEFAULT_NA,
     strip_special_symbol,
@@ -35,6 +37,7 @@ from ap.common.common_utils import (
 from ap.common.constants import (
     DATETIME_DUMMY,
     EMPTY_STRING,
+    FILE_NAME,
     MAXIMUM_V2_PREVIEW_ZIP_FILES,
     PREVIEW_DATA_TIMEOUT,
     REVERSED_WELL_KNOWN_COLUMNS,
@@ -43,6 +46,7 @@ from ap.common.constants import (
     WR_HEADER_NAMES,
     WR_TYPES,
     WR_VALUES,
+    DataColumnType,
     DataGroupType,
     DataType,
     DBType,
@@ -81,7 +85,14 @@ from ap.setting_module.schemas import VisualizationSchema
 from ap.trace_data.transaction_model import TransactionData
 
 
-def get_latest_records(data_source_id, table_name, file_name=None, directory=None, limit=5):
+def get_latest_records(
+    data_source_id,
+    table_name,
+    file_name=None,
+    directory=None,
+    limit=5,
+    current_process_id: int | None = None,
+):
     is_v2_datasource = False
     previewed_files = None
     cols_with_types = []
@@ -89,6 +100,8 @@ def get_latest_records(data_source_id, table_name, file_name=None, directory=Non
     delimiter = 'Auto'
     skip_head = ''
     etl_func = ''
+    n_rows = None
+    is_transpose = None
 
     if data_source_id:
         data_source = CfgDataSource.query.get(data_source_id)
@@ -103,6 +116,8 @@ def get_latest_records(data_source_id, table_name, file_name=None, directory=Non
             delimiter = csv_detail.delimiter
             etl_func = csv_detail.etl_func
             skip_head = '' if (csv_detail.skip_head == 0 and not csv_detail.dummy_header) else csv_detail.skip_head
+            n_rows = csv_detail.n_rows
+            is_transpose = csv_detail.is_transpose
     else:
         is_csv_or_v2 = True
 
@@ -115,6 +130,7 @@ def get_latest_records(data_source_id, table_name, file_name=None, directory=Non
                 return_df=True,
                 process_name=filtered_process_name,
                 file_name=file_name,
+                show_file_name_column=True,
             )
         else:
             dic_preview = preview_csv_data(
@@ -126,6 +142,10 @@ def get_latest_records(data_source_id, table_name, file_name=None, directory=Non
                 max_records=1000,
                 file_name=file_name,
                 line_skip=skip_head,
+                n_rows=n_rows,
+                is_transpose=is_transpose,
+                show_file_name_column=True,
+                current_process_id=current_process_id,
             )
         column_raw_name = dic_preview.get('org_headers')
         headers = normalize_list(dic_preview.get('header'))
@@ -271,49 +291,23 @@ def save_master_vis_config(proc_id, cfg_jsons):
 
 
 @log_execution_time()
-def preview_csv_data(
-    folder_url,
+def get_csv_data_from_files(
+    sorted_files,
+    line_skip: int | None,
+    n_rows: int,
+    is_transpose: bool,
     etl_func,
     csv_delimiter,
-    limit,
-    return_df=False,
     max_records=5,
-    file_name=None,
-    line_skip=None,
 ):
-    csv_delimiter = get_csv_delimiter(csv_delimiter)
-
-    if not file_name:
-        sorted_files = get_sorted_files(folder_url)
-        sorted_files = sorted_files[0:5]
-    else:
-        sorted_files = [file_name]
-
-    dummy_header = False
-    csv_file = ''
     skip_head = 0 if not line_skip else int(line_skip)
-    skip_tail = 0
-    header_names = []
-    data_types = []
-    data_details = []
-    same_values = []
-    if not sorted_files:
-        return {
-            'file_name': csv_file,
-            'header': header_names,
-            'content': [] if return_df else data_details,
-            'dataType': data_types,
-            'skip_head': line_skip,
-            'skip_tail': skip_tail,
-            'previewed_files': sorted_files,
-            'same_values': same_values,
-        }
-
     csv_file = sorted_files[0]
+    skip_tail = 0
+    encoding = None
+    skip_head_detected = None
 
     # call efa etl
     has_data_file = None
-    encoding = None
     if etl_func:
         # try to get file which has data to detect data types + get col names
         for file_path in sorted_files:
@@ -328,7 +322,14 @@ def preview_csv_data(
             for i in range(2):
                 data = None
                 try:
-                    data = read_data(csv_file, delimiter=csv_delimiter, do_normalize=False)
+                    data = read_data(
+                        csv_file,
+                        skip_head=line_skip,
+                        n_rows=n_rows,
+                        is_transpose=is_transpose,
+                        delimiter=csv_delimiter,
+                        do_normalize=False,
+                    )
                     header_names = next(data)
 
                     # strip special symbols
@@ -336,26 +337,29 @@ def preview_csv_data(
                         data = strip_special_symbol(data)
 
                     # get 5 rows
-                    data_details = list(islice(data, 1000))
+                    data_details = list(islice(data, max_records))
                 finally:
                     if data:
                         data.close()
 
                 if data_details:
                     break
-    elif is_normal_csv(csv_file, csv_delimiter, skip_head=skip_head):
+    elif is_normal_csv(csv_file, csv_delimiter, skip_head=skip_head, n_rows=n_rows, is_transpose=is_transpose):
         header_names, data_details, encoding = retrieve_data_from_several_files(
-            folder_url,
+            None,
             csv_delimiter,
             max_records,
             csv_file,
             skip_head=skip_head,
+            n_rows=n_rows,
+            is_transpose=is_transpose,
         )
     else:
         # try to get file which has data to detect data types + get col names
         dic_file_info, csv_file = get_etl_good_file(sorted_files)
         if dic_file_info and csv_file:
             skip_head = chw.get_skip_head(dic_file_info)
+            skip_head_detected = skip_head
             skip_tail = chw.get_skip_tail(dic_file_info)
             header_names = chw.get_columns_name(dic_file_info)
             etl_headers = chw.get_etl_headers(dic_file_info)
@@ -378,7 +382,8 @@ def preview_csv_data(
                         data = strip_special_symbol(data)
 
                     # get 5 rows
-                    data_details = list(islice(data, limit + skip_tail))
+                    get_limit = max_records + skip_tail if max_records else None
+                    data_details = list(islice(data, get_limit))
                     data_details = data_details[: len(data_details) - skip_tail]
                 finally:
                     if data:
@@ -393,8 +398,82 @@ def preview_csv_data(
                 data_types += etl_headers[WR_TYPES]
                 data_details = chw.merge_etl_heads(etl_headers[WR_VALUES], data_details)
 
+        else:
+            raise ValueError('Cannot get headers_name and data_details')
+
     # generate column name if there is not header in file
-    org_header, header_names, dummy_header, data_details = gen_dummy_header(header_names, data_details, line_skip)
+    org_header, header_names, dummy_header, partial_dummy_header, data_details = gen_dummy_header(
+        header_names,
+        data_details,
+        line_skip,
+    )
+
+    skip_head = skip_head_detected if skip_head_detected else line_skip
+    return org_header, header_names, dummy_header, partial_dummy_header, data_details, encoding, skip_tail, skip_head
+
+
+@log_execution_time()
+def preview_csv_data(
+    folder_url,
+    etl_func,
+    csv_delimiter,
+    limit,
+    return_df=False,
+    max_records=5,
+    file_name=None,
+    line_skip=None,
+    n_rows: int | None = None,
+    is_transpose: bool = False,
+    show_file_name_column=False,
+    current_process_id=None,
+):
+    csv_delimiter = get_csv_delimiter(csv_delimiter)
+
+    if not file_name:
+        sorted_files = get_sorted_files(folder_url)
+        sorted_files = sorted_files[0:5]
+    else:
+        sorted_files = [file_name]
+
+    csv_file = ''
+    header_names = []
+    data_types = []
+    data_details = []
+    same_values = []
+    if not sorted_files:
+        return {
+            'file_name': csv_file,
+            'header': header_names,
+            'content': [] if return_df else data_details,
+            'dataType': data_types,
+            'skip_head': line_skip,
+            'n_rows': n_rows,
+            'is_transpose': is_transpose,
+            'skip_tail': 0,
+            'previewed_files': sorted_files,
+            'same_values': same_values,
+        }
+
+    csv_file = sorted_files[0]
+
+    (
+        org_header,
+        header_names,
+        dummy_header,
+        partial_dummy_header,
+        data_details,
+        encoding,
+        skip_tail,
+        skip_head_detected,
+    ) = get_csv_data_from_files(
+        sorted_files,
+        line_skip,
+        n_rows,
+        is_transpose,
+        etl_func,
+        csv_delimiter,
+        max_records,
+    )
 
     # normalize data detail
     df_data_details, org_headers, header_names, dupl_cols, data_types = extract_data_detail(
@@ -416,14 +495,37 @@ def preview_csv_data(
             convert_csv_timezone(df_data_details, col)
             df_data_details.dropna(subset=[col], inplace=True)
 
-            if not first_datetime_col_idx:
-                # first ct column is selected as datetime column
-                # append datetime to start of list columns
-                # and sort preview rows by datetime value
-                df_data_details = df_data_details.sort_values(col)
-                first_datetime_col_idx = header_names.index(col)
+            # if not first_datetime_col_idx:
+            #     # first ct column is selected as datetime column
+            #     # append datetime to start of list columns
+            #     # and sort preview rows by datetime value
+            #     df_data_details = df_data_details.sort_values(col)
+            #     first_datetime_col_idx = header_names.index(col)
 
         df_data_details = df_data_details[0:limit]
+        # add file name column
+        if show_file_name_column:
+            df_data_details, org_headers, header_names, dupl_cols, data_types = add_show_file_name_column(
+                df_data_details,
+                csv_file,
+                org_headers,
+                header_names,
+                dupl_cols,
+                data_types,
+            )
+
+        # check to add generated datetime column
+        if current_process_id is not None:
+            # we check datetime column and add this datetime column into details
+            df_data_details, org_headers, header_names, dupl_cols, data_types = add_generated_datetime_column(
+                current_process_id,
+                df_data_details,
+                org_headers,
+                header_names,
+                dupl_cols,
+                data_types,
+            )
+
         if DataType.DATETIME.value not in data_types and DATETIME_DUMMY not in df_data_details.columns:
             dummy_datetime_idx = 0
             df_data_details = gen_dummy_datetime(df_data_details)
@@ -463,8 +565,10 @@ def preview_csv_data(
         'header': header_names,
         'content': df_data_details,
         'dataType': data_types,
-        'skip_head': 0 if dummy_header else line_skip,
+        'skip_head': 0 if dummy_header and not skip_head_detected else skip_head_detected,
         'skip_tail': skip_tail,
+        'n_rows': n_rows,
+        'is_transpose': is_transpose,
         'previewed_files': sorted_files,
         'has_ct_col': has_ct_col,
         'dummy_datetime_idx': dummy_datetime_idx,
@@ -473,11 +577,20 @@ def preview_csv_data(
         'org_headers': org_headers,
         'encoding': encoding,
         'is_dummy_header': dummy_header,
+        'partial_dummy_header': partial_dummy_header,
     }
 
 
 @log_execution_time()
-def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_name=None, file_name=None):
+def preview_v2_data(
+    folder_url,
+    csv_delimiter,
+    limit,
+    return_df=False,
+    process_name=None,
+    file_name=None,
+    show_file_name_column=False,
+):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
     sorted_files = get_sorted_files_by_size(folder_url) if not file_name else [file_name]
     encoding = None
@@ -579,13 +692,17 @@ def preview_v2_data(folder_url, csv_delimiter, limit, return_df=False, process_n
     header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
     df_data_details = normalize_big_rows(data_details, header_names)
     data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
-    df_data_details, org_headers, header_names, dupl_cols, data_types = drop_null_header_column(
-        df_data_details,
-        org_headers,
-        header_names,
-        dupl_cols,
-        data_types,
-    )
+
+    if show_file_name_column:
+        df_data_details, org_headers, header_names, dupl_cols, data_types = add_show_file_name_column(
+            df_data_details,
+            sorted_files[0],
+            org_headers,
+            header_names,
+            dupl_cols,
+            data_types,
+        )
+
     has_ct_col = True
     dummy_datetime_idx = None
     if df_data_details is not None:
@@ -806,32 +923,6 @@ def is_valid_list(df_rows):
     return (isinstance(df_rows, list) and len(df_rows)) or (isinstance(df_rows, pd.DataFrame) and not df_rows.empty)
 
 
-# TODO: add test for this
-@log_execution_time()
-def drop_null_header_column(
-    df: pd.DataFrame,
-    original_headers: List[str],
-    header_names: List[str],
-    duplicated_names: List[str],
-    data_types: List[int],
-) -> Tuple[pd.DataFrame, List[str], List[str], List[str], List[int]]:
-    null_indexes = {i for i, col_name in enumerate(original_headers) if not col_name}
-    if not null_indexes:
-        return df, original_headers, header_names, duplicated_names, data_types
-
-    null_header_names = [col_name for i, col_name in enumerate(header_names) if i in null_indexes]
-    df = df.drop(columns=null_header_names)
-
-    def filter_non_null_indexes(arr: List[Any]) -> List[Any]:
-        return [elem for i, elem in enumerate(arr) if i not in null_indexes]
-
-    new_original_headers = filter_non_null_indexes(original_headers)
-    new_header_names = filter_non_null_indexes(header_names)
-    new_duplicated_names = filter_non_null_indexes(duplicated_names)
-    new_data_types = filter_non_null_indexes(data_types)
-    return df, new_original_headers, new_header_names, new_duplicated_names, new_data_types
-
-
 @log_execution_time()
 def gen_v2_columns_with_types(v2_datasrc):
     v2_columns = []
@@ -851,7 +942,15 @@ def gen_v2_columns_with_types(v2_datasrc):
 
 
 @log_execution_time()
-def retrieve_data_from_several_files(csv_files, csv_delimiter, max_record=1000, file_name=None, skip_head=None):
+def retrieve_data_from_several_files(
+    csv_files,
+    csv_delimiter,
+    max_record=1000,
+    file_name=None,
+    skip_head=None,
+    n_rows: int | None = None,
+    is_transpose: bool = False,
+):
     header_names = []
     data_details = []
     sorted_list = get_sorted_files_by_size_and_time(csv_files) if not file_name else [file_name]
@@ -863,7 +962,14 @@ def retrieve_data_from_several_files(csv_files, csv_delimiter, max_record=1000, 
         try:
             delimiter, encoding = get_delimiter_encoding(csv_file, preview=True)
             csv_delimiter = csv_delimiter or delimiter
-            data = read_data(csv_file, delimiter=csv_delimiter, do_normalize=False, skip_head=skip_head)
+            data = read_data(
+                csv_file,
+                delimiter=csv_delimiter,
+                do_normalize=False,
+                skip_head=skip_head,
+                n_rows=n_rows,
+                is_transpose=is_transpose,
+            )
             header_names = next(data)
             # strip special symbols
             if i == 0:
@@ -876,7 +982,7 @@ def retrieve_data_from_several_files(csv_files, csv_delimiter, max_record=1000, 
 
         current_time = time.time()
         over_timeout = (current_time - start_time) > PREVIEW_DATA_TIMEOUT
-        if len(data_details) >= max_record or over_timeout:
+        if (max_record and len(data_details) >= max_record) or over_timeout:
             break
 
     if data_details:
@@ -905,4 +1011,36 @@ def extract_data_detail(header_names, data_details, org_header=None):
     header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
     df_data_details = normalize_big_rows(data_details, header_names)
     data_types = [gen_data_types(df_data_details[col]) for col in header_names]
-    return drop_null_header_column(df_data_details, org_headers, header_names, dupl_cols, data_types)
+    return df_data_details, org_headers, header_names, dupl_cols, data_types
+
+
+def add_show_file_name_column(df_data_details, csv_file, org_headers, header_names, dupl_cols, data_types):
+    data_types.insert(len(df_data_details.columns), DataType.TEXT.value)
+    header_names.insert(len(df_data_details.columns), FILE_NAME)
+    org_headers.insert(len(df_data_details.columns), FILE_NAME)
+    dupl_cols.append(False)
+    add_column_file_name(df_data_details, csv_file)
+    return df_data_details, org_headers, header_names, dupl_cols, data_types
+
+
+def add_generated_datetime_column(
+    current_process_id: str,
+    df_data_details,
+    org_headers,
+    header_names,
+    dupl_cols,
+    data_types,
+):
+    # get datetime column
+    main_datetime_columns = CfgProcessColumn.get_by_column_types([DataColumnType.DATETIME.value], [current_process_id])
+    if main_datetime_columns:
+        main_datetime_column = main_datetime_columns[0]
+        column_name = main_datetime_column.column_name
+        if column_name not in org_headers:
+            data_types.append(DataType.DATETIME.value)
+            header_names.append(main_datetime_column.column_name)
+            org_headers.append(main_datetime_column.column_name)
+            dupl_cols.append(False)
+            # TODO: add sample data for datetime column
+            df_data_details[column_name] = None
+    return df_data_details, org_headers, header_names, dupl_cols, data_types

@@ -13,6 +13,7 @@ from collections import OrderedDict
 from datetime import datetime, timedelta
 from io import IOBase
 from itertools import permutations
+from multiprocessing import Manager
 from pathlib import Path
 from typing import IO, List, TextIO, Union
 
@@ -34,17 +35,21 @@ from ap.common.constants import (
     ENCODING_UTF_8,
     ENCODING_UTF_8_BOM,
     LANGUAGES,
+    PROCESS_QUEUE,
     SAFARI_SUPPORT_VER,
     SQL_COL_PREFIX,
     UNIVERSAL_DB_FILE,
+    ZERO_FILL_PATTERN,
+    ZERO_FILL_PATTERN_2,
     AbsPath,
     AppEnv,
     CsvDelimiter,
     CSVExtTypes,
     FilterFunc,
     FlaskGKey,
+    ListenNotifyType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.logger import log_execution_time, logger
 from ap.common.services.jp_to_romaji_utils import replace_special_symbols, to_romaji
 from ap.common.services.normalization import NORMALIZE_FORM_NFKD, normalize_str, unicode_normalize
 
@@ -57,6 +62,7 @@ DATE_FORMAT_STR_FACTORY_DB = '%Y-%m-%d %H:%M:%S.%f'
 DATE_FORMAT_STR_ONLY_DIGIT = '%Y%m%d%H%M%S.%f'
 DATE_FORMAT = '%Y-%m-%d'
 TIME_FORMAT = '%H:%M'
+TIME_FORMAT_WITH_SEC = '%H:%M:%S'
 RL_DATETIME_FORMAT = '%Y-%m-%dT%H:%M'
 DATE_FORMAT_SIMPLE = '%Y-%m-%d %H:%M:%S'
 DATE_FORMAT_FOR_ONE_HOUR = '%Y-%m-%d %H:00:00'
@@ -564,6 +570,16 @@ def get_error_trace_path(abs=True):
     return resource_path(*folder_name, level=AbsPath.SHOW) if abs else folder_name
 
 
+def get_error_cast_path(abs=True):
+    """get error cast folder path
+
+    Returns:
+        [type] -- [description]
+    """
+    folder_name = ['error', 'cast']
+    return resource_path(*folder_name, level=AbsPath.SHOW) if abs else folder_name
+
+
 def get_error_duplicate_path(abs=True):
     """get duplicate folder path
 
@@ -873,7 +889,10 @@ def detect_encoding(f_name, read_line=200):
 
 
 @log_execution_time()
-def detect_encoding_stream(file_stream, read_line=10000):
+def detect_encoding_stream(file_stream, read_line: int = 10000):
+    # current stream position
+    current_pos = file_stream.tell()
+
     if read_line:
         data = functools.reduce(
             lambda x, y: x + y,
@@ -888,7 +907,7 @@ def detect_encoding_stream(file_stream, read_line=10000):
     encoding = chardet.detect(data).get('encoding')
     encoding = check_detected_encoding(encoding, data)
 
-    file_stream.seek(0)
+    file_stream.seek(current_pos)
     return encoding
 
 
@@ -987,7 +1006,7 @@ def zero_variance(df: DataFrame):
     is_zero_var = False
     err_cols = []
     for col in df.columns:
-        if df[col].dtype != 'object':
+        if pd.api.types.is_numeric_dtype(df[col]):
             variance = df[col].replace([np.inf, -np.inf], np.nan).var()
             if pd.isna(variance) or variance == 0:
                 is_zero_var = True
@@ -1019,6 +1038,19 @@ class NoDataFoundException(Exception):
     def __init__(self):
         super().__init__()
         self.code = 999
+
+
+def get_format_padding(column_format: str):
+    if not column_format:
+        return None
+
+    format_padding = None
+    match_pattern = re.match(ZERO_FILL_PATTERN, column_format) or re.match(ZERO_FILL_PATTERN_2, column_format)
+    if match_pattern:
+        fill_char, symbol, width = match_pattern.groups()
+        format_padding = (fill_char, symbol, int(width))
+
+    return format_padding
 
 
 def bundle_assets(_app):
@@ -1164,6 +1196,37 @@ def gen_sqlite3_file_name(proc_id=None):
     return os.path.join(dic_config[UNIVERSAL_DB_FILE], file_name)
 
 
+def init_process_queue():
+    manager = Manager()
+    process_queue = manager.dict()
+    # process_queue[LOCK] = manager.Lock()
+    # process_queue[MAPPING_DATA_LOCK] = manager.Lock()
+    for notify_type in ListenNotifyType.__members__:
+        process_queue[notify_type] = manager.dict()
+
+    write_to_pickle(process_queue, get_multiprocess_queue_file())
+    return process_queue
+
+
+def get_process_queue():
+    from ap import dic_config
+
+    process_queue = dic_config.get(PROCESS_QUEUE)
+    if process_queue is None:
+        process_queue_file = get_multiprocess_queue_file()
+        if os.path.exists(process_queue_file):
+            try:
+                process_queue = read_pickle_file(get_multiprocess_queue_file())
+            except Exception as e:
+                # in case of old file, renew file
+                logger.warning(e)
+                process_queue = init_process_queue()
+        else:
+            process_queue = init_process_queue()
+
+    return process_queue
+
+
 def get_multiprocess_queue_file():
     return os.path.join(get_data_path(), 'process_queue.pickle')
 
@@ -1190,3 +1253,73 @@ def remove_non_ascii_chars(string, convert_irregular_chars=True):
 
     normalized_string = normalized_input.encode(ENCODING_ASCII, 'ignore').decode()
     return normalized_string
+
+
+def get_dummy_data_path():
+    """Get dummy data folder path
+
+    Returns:
+        [type] -- [description]
+    """
+    folder_names = ['data_files']
+    return resource_path(*folder_names, level=AbsPath.SHOW)
+
+
+def sort_processes_by_parent_children_relationship(processes):
+    """
+    Sort and group processes based on order and parent-children relationship
+    same group sorting:
+        - parent-children should be in the same group
+        - parent should be the smallest
+        - children should be sorted as declared in `different group sorting`
+    different group sorting
+        - order = None -> large
+        - same order: sort by id
+    @param processes:
+    @return:
+    """
+    procs_map = {p.id: p for p in processes}
+
+    def sort_key(proc) -> tuple[int, int]:
+        if proc.order is None:
+            return sys.maxsize, proc.id
+        return proc.order, proc.id
+
+    def cmp_key(lhs: tuple[int, int], rhs: tuple[int, int]) -> int:
+        if lhs[0] == rhs[0]:
+            return lhs[1] - rhs[1]
+        return lhs[0] - rhs[0]
+
+    def cmp_proc(lhs_proc, rhs_proc) -> int:
+        if lhs_proc.id == rhs_proc.parent_id:
+            return -1
+        if rhs_proc.id == lhs_proc.parent_id:
+            return 1
+
+        lhs_key = sort_key(lhs_proc)
+        rhs_key = sort_key(rhs_proc)
+
+        is_same_group = (
+            lhs_proc.parent_id is not None
+            and rhs_proc.parent_id is not None
+            and lhs_proc.parent_id == rhs_proc.parent_id
+        )
+        # sort by parent's key if they are not in the same group
+        if not is_same_group and lhs_proc.parent_id is not None:
+            lhs_key = sort_key(procs_map[lhs_proc.parent_id])
+        if not is_same_group and rhs_proc.parent_id is not None:
+            rhs_key = sort_key(procs_map[rhs_proc.parent_id])
+
+        return cmp_key(lhs_key, rhs_key)
+
+    return sorted(processes, key=functools.cmp_to_key(cmp_proc))
+
+
+def get_type_all_columns(db_instance, table_name: str):
+    sql = f'PRAGMA table_info({table_name})'
+    cols, rows = db_instance.run_sql(sql)
+    df = pd.DataFrame(rows, columns=cols)
+    names = df['name'].tolist()
+    types = df['type'].tolist()
+    dict_name_type = dict(zip(names, types))
+    return dict_name_type

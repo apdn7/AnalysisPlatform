@@ -108,5 +108,4 @@ if not is_available_port:
 
 app = create_app()
 if __name__ == '__main__':
-    webbrowser.open_new_tab(f'http://localhost:{port}/')
     app.run(port=port, debug=False)

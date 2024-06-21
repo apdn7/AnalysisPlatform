@@ -586,18 +586,15 @@ def _translate_wellknown_jp2en(x):
     return x
 
 
-def add_suffix_if_duplicated(names, skip_zero=False):
+def add_suffix_if_duplicated(names):
     is_dupl_cols = [False] * len(names)
     duplicated = [k for k, v in Counter(names).items() if v > 1]
     if len(duplicated) == 0:
         return names, is_dupl_cols
 
-    if not skip_zero:
-        # [a_01, a_02, a_03]
-        suffix_format = (f'_{str(x).zfill(2)!s}' for x in range(1, 100))
-    else:
-        # [a, a_01, a_02]
-        suffix_format = (f'_{str(x - 1).zfill(2)!s}' if x > 1 else '' for x in range(1, 1000))
+    _max_item = len(names) + 1
+    # [a_01, a_02, a_03]
+    suffix_format = (f'_{str(x).zfill(2)!s}' for x in range(1, _max_item))
     dic_suffix = dict(zip(duplicated, tee(suffix_format, len(duplicated))))
     for idx, s in enumerate(names):
         try:
@@ -617,11 +614,15 @@ def transform_duplicated_col_suffix_to_pandas_col(dic_valid_csv_cols, dic_origin
     for col_name, is_add_suffix in dic_valid_csv_cols.items():
         org_col_name = col_name if not dic_original_cols else dic_original_cols[col_name]
         if is_add_suffix:
-            # [a, a_01, a_02] -> [a, a.1, a.2]
+            # [a_01, a_02] -> [a, a.1]
             matched = org_col_name.split('_')
             if len(matched) > 1 and matched[-1].isdigit():
-                s = '_'.join(matched[0:-1])
-                col_names.append(f'{s}.{int(matched[-1])}')
+                digit = int(matched[-1])
+                if (digit - 1) > 0:
+                    s = '_'.join(matched[0:-1])
+                    col_names.append(f'{s}.{digit-1}')
+                else:
+                    col_names.append(matched[0])
             else:
                 col_names.append(org_col_name)
         else:
@@ -903,5 +904,5 @@ def _extract_escape_str(col) -> str:
 
 
 def gen_colsname_for_duplicated(cols_name):
-    cols_name, dup_cols = add_suffix_if_duplicated(cols_name, True)
+    cols_name, dup_cols = add_suffix_if_duplicated(cols_name)
     return cols_name, dup_cols

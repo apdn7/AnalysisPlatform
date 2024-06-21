@@ -1,6 +1,7 @@
 def create_module(app, **kwargs):
     from .aggregate_plot.controllers import api_agp_blueprint
     from .analyze.controllers import api_analyze_module_blueprint
+    from .calendar_heatmap.controllers import api_calendar_heatmap_blueprint
     from .categorical_plot.controllers import api_categorical_plot_blueprint
     from .co_occurrence.controllers import api_co_occurrence_blueprint
     from .common.controlllers import api_common_blueprint
@@ -26,6 +27,7 @@ def create_module(app, **kwargs):
     app.register_blueprint(api_categorical_plot_blueprint)
     app.register_blueprint(api_analyze_module_blueprint)
     app.register_blueprint(api_ridgeline_plot_blueprint)
+    app.register_blueprint(api_calendar_heatmap_blueprint)
     app.register_blueprint(api_heatmap_blueprint)
     app.register_blueprint(api_paracords_blueprint)
     app.register_blueprint(api_common_blueprint)

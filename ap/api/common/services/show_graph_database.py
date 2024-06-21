@@ -37,8 +37,14 @@ class DictToClass:
     def get_items(self):
         return self.__dict__.items()
 
+    def as_dict(self):
+        return self.__dict__
+
 
 class ShowGraphConfigData(DictToClass):
+    def __init__(self, **entries):
+        super().__init__(**entries)
+
     def get_cols_by_data_type(self, data_type: DataType, column_name_only=True):
         """
         get date column
@@ -198,6 +204,35 @@ class ShowGraphConfigData(DictToClass):
         return [filter_cfg for filter_cfg in self.filters if filter_cfg.column_id in col_ids]
 
 
+def preprocess_column(column: CfgProcessColumn) -> CfgProcessColumn:
+    # modify data type based on function columns
+    if column.function_details and column.function_details[-1].return_type:
+        column.data_type = column.function_details[-1].return_type
+        # column.format = EMPTY_STRING
+
+    # change data type based on format
+    # Padding: Only allow columns with data type INTEGER to be formatted with padding,
+    # otherwise, modify `format` attribute to empty
+    # elif get_format_padding(column.format):
+    #     if column.data_type == DataType.INTEGER.value:
+    #         column.data_type = DataType.TEXT.value
+    #     else:
+    #         column.format = EMPTY_STRING
+
+    # need to change again, make sure date, time, boolean be converted to text
+    if column.data_type in [DataType.DATE.value, DataType.TIME.value, DataType.BOOLEAN.value]:
+        column.data_type = DataType.TEXT.value
+        # column.format = EMPTY_STRING
+
+    return column
+
+
+def preprocess_process(process: CfgProcess) -> CfgProcess:
+    for column in process.columns:
+        preprocess_column(column)
+    return process
+
+
 @log_execution_time()
 @memoize(cache_type=CacheType.CONFIG_DATA)
 def get_config_data():
@@ -218,6 +253,10 @@ def get_config_data():
     #     processes = CfgProcess.get_all()
 
     processes = CfgProcess.get_all()
+    for process in processes:
+        preprocess_process(process)
+
+    # modify processes data for showing graph
     procs = show_graph_schema.dump(processes, many=True)
     dic_procs = {}
     proc_ids = []

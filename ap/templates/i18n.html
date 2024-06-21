@@ -22,6 +22,7 @@
     <span id="i18nColorWarningMessage">{{ _("SCP choose color variable warning message") }}</span>
     <span id="i18nAccept">{{ _("I Accept") }}</span>
     <span id="i18nDecline">{{ _("Decline") }}</span>
+    <span id="i18nDownloadNewVersion">{{ _("Download New Version") }}</span>
 
     <!-- summary tables -->
     <span id="i18PnProc">{{ _("Pn_proc") }}</span>
@@ -210,6 +211,8 @@
     <span id="i18nEURealSep">{{_('K sep: EU Real')}}</span>
     <span id="i18nEUIntSep">{{_('K sep: EU int')}}</span>
     <span id="i18nMainDatetime">{{ _('main::Datetime') }}</span>
+    <span id="i18nMainDate">{{ _('main::Date') }}</span>
+    <span id="i18nMainTime">{{ _('main::Time') }}</span>
     <span id="i18nMainSerialInt">{{ _('main::Serial:Int') }}</span>
     <span id="i18nMainSerialStr">{{ _('main::Serial:Str') }}</span>
     <span id="i18nDatetimeKey">{{ _('Datetime:key') }}</span>
@@ -238,6 +241,11 @@
     <span id="i18nErrorNoGetdate">{{ _("At least one datetime column is required.") }}</span>
     <span id="i18nConfirmMsg">{{ _("Continue?") }}</span>
     <span id="i18nWarnDeleteCSV">{{ _("Imported data will be deleted. (Data will not be deleted until register button is clicked)") }}</span>
+    <span id="i18nConfirmDeleteProc">{{ _('Do you want to delete this record?') }}</span>
+    <span id="i18nWarDeleteMergedProc">{{ _('warnDeleteMergedProc')}}</span>
+
+    <!-- Data Table Config -->
+    <span id="i18nDataTableNameBlank">{{ _("Fill in data table name") }}</span>
 
     <!-- Process config -->
     <span id="i18nProcName">{{ _("Process Name") }}</span>
@@ -245,14 +253,16 @@
     <span id="i18nStatusDone">{{ _('Finished Importing') }}</span>
     <span id="i18nStatusImporting">{{ _('Importing') }}</span>
     <span id="i18nStatusFailed">{{ _('Failed Importing') }}</span>
-	<!-- todo: add pending status to job instead of importing -->
-	<span id="i18nStatusPending">{{ _('Importing') }}</span>
+    <!-- todo: add pending status to job instead of importing -->
+    <span id="i18nStatusPending">{{ _('Importing') }}</span>
     <span id="i18nAlreadyExist">{{ _("Already registered") }}</span>
     <span id="i18nProcNameBlank">{{ _("Fill in process name") }}</span>
     <span id="i18nEmptyShownName">{{ _("Empty shown name") }}</span>
     <span id="i18nUseEnglishName">{{ _("Use English name") }}</span>
     <span id="i18nValidLike">{{ _("Valid-like") }}</span>
     <span id="i18nReachFailLimit">{{ _("The application could not read file and preview data.") }}</span>
+    <span id="i18nGenDateTimeNotification">{{ _("generateDatetimeCol") }}</span>
+    <span id="i18nRequestSelectDateAndTime">{{ _("requestSelectDateAndTime") }}</span>
 
     <!-- Trace config -->
     <span id="i18nAllDigits">{{ _("All digits") }}</span>
@@ -260,6 +270,9 @@
     <span id="i18nThCharacter">{{ _("th character") }}</span>
     <span id="i18nCharacterLengthDiff">{{ _("Character length for tracing is different") }}</span>
     <span id="i18nInvalidDigit">{{ _("Invalid digit selection") }}</span>
+    <span id="i18nInvalidDeltaTime"
+        >{{ _("Delta time and cut off must be Integer") }}</span
+    >
     <span id="i18nEdit">{{ _("Edit") }}</span>
     <span id="i18nDelete">{{ _("Delete") }}</span>
     <span id="i18nBack">{{ _("Back") }}</span>
@@ -298,6 +311,7 @@
     <span id="i18nActTimeEmpty">{{ _("Data have to be input in Act from or Act to.") }}</span>
     <span id="i18nActFromGreater">{{ _("Action from") }} > {{ _("Action to") }}</span>
     <span id="partNoDefaultName">{{ _("Default") }} </span>
+    <span id="noData">{{ _("No data") }} </span>
 
     <span id="filterRequireTarget">{{ _('Target column is required') }}</span>
     <span id="filterRequireLine">{{ _('Line is required') }}</span>
@@ -456,6 +470,12 @@
 	<span id="i18nNoCTCol">
 		{{ _('There is no datetime column. If there is no datetime column, the application generates a dummy data for datetime.') }}
 	</span>
+    <span id="i18nDummyHeader">
+        {{ _('There were no column names in the file, the AP created new column names.') }}
+    </span>
+    <span id="i18nPartialDummyHeader">
+        {{ _('PartialDummyHeaderGenerated') }}
+    </span>
 	<span id="i18nNoCTColPrc">
 		{{ _('Since there is no datetime column, the application generates a dummy data for datetime.') }}
 	</span>
@@ -515,6 +535,7 @@
     <span id="i18nBrowserInvalidVersion">{{ _('InvalidBrowserVersion') }}</span>
     <span id="i18nJumpWithoutTargetPageMsg">{{ _('JumpWithoutTargetPageMsg') }}</span>
     <span id="i18nJumpWithDfModeMsg">{{ _('JumpWithDataframeMode') }}</span>
+    <span id="i18nJumpWithoutObjectiveVariableMsg">{{ _('JumpWithoutObjectiveVariableMsg') }}</span>
 
     <!--  register by file  -->
     <span id="i18nFileIsSelected">{{ _('File is selected') }}</span>
@@ -525,4 +546,8 @@
     <span id="i18nProgressFinished">{{_('ProgressFinished')}}</span>
     <span id="i18nProcessNameIsAlreadyRegistered">{{ _('Process Name is already registered') }}</span>
     <span id="i18nDataSourceNameIsAlreadyRegistered">{{ _('Data Source Name is already registered') }}</span>
+    <span id="i18nGotoHMpMsg">{{ _('If both x and y data types are categorical, please draw with HMP.') }}</span>
+    <span id="i18nGotoSCPMsg">{{ _('The HMP support only Str-Str and Int-Int case, if data-type of variables is not same together, please draw with SCP.') }}</span>
+    <span id="i18nLinkWithTime">{{ _('LinkWithTime') }}</span>
+    <span id="i18nCutOff">{{ _('i18nCutOff') }}</span>
 </div>

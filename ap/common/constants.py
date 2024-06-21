@@ -1,13 +1,25 @@
+from __future__ import annotations
+
 from enum import Enum, auto
 from typing import Optional
+
+import numpy as np
+import pandas as pd
+from dateutil import tz
 
 MATCHED_FILTER_IDS = 'matched_filter_ids'
 UNMATCHED_FILTER_IDS = 'unmatched_filter_ids'
 NOT_EXACT_MATCH_FILTER_IDS = 'not_exact_match_filter_ids'
 STRING_COL_IDS = 'string_col_ids'
 DIC_STR_COLS = 'dic_str_cols'
+SAMPLE_DATA = 'sample_data'
+VAR_X = 'X'
+VAR_Y = 'Y'
+MULTIPLE_VALUES_CONNECTOR = '|'
+DEFAULT_NONE_VALUE = pd.NA
 
 SQL_COL_PREFIX = '__'
+SQL_IN_MAX = 900
 SQL_LIMIT = 5_000_000
 ACTUAL_RECORD_NUMBER = 'actual_record_number'
 ACTUAL_RECORD_NUMBER_TRAIN = 'actual_record_number_train'
@@ -38,6 +50,7 @@ SHOW_GRAPH_TEMP_TABLE_NAME = 'tmp_show_graph'
 SHOW_GRAPH_TEMP_TABLE_COL = 'cycle_id'
 
 DATETIME_DUMMY = 'DatetimeDummy'
+FILE_NAME = 'FileName'
 MAX_DATETIME_STEP_PER_DAY = 8640  # 10s/step -> 6steps * 60min * 24hrs
 
 RESAMPLING_SIZE = 10_000
@@ -56,6 +69,8 @@ MSP_AS_HEATMAP_FROM = 10
 AS_HEATMAP_MATRIX = 'as_heatmap_matrix'
 HEATMAP_MATRIX = 'heatmap_matrix'
 MAX_INT_CAT_VALUE = 128
+COLORS_ENCODE = 'colors_encode'
+FULL_DIV = 'full_div'
 
 DUMMY_V2_PROCESS_NAME = 'DUMMY_V2_PROCESS_NAME'
 MIN_DATETIME_LEN = 10
@@ -267,6 +282,7 @@ Y_SERIAL = 'y_serial'
 SORT_KEY = 'sort_key'
 FILTER_ON_DEMAND = 'filter_on_demand'
 DIV_FROM_TO = 'div_from_to'
+PROC_LINK_ORDER = 'proc_link_order'
 
 UNIQUE_SERIAL = 'unique_serial'
 UNIQUE_SERIAL_TRAIN = 'unique_serial_train'
@@ -370,7 +386,7 @@ IS_VALIDATE_DATA = 'isValidateData'
 SUB_STRING_COL_NAME = '{}_From_{}_To_{}'
 SUB_STRING_REGEX = r'^(.+)_From_(\d+)_To_(\d+)$'
 
-# heatmap
+# CHM & HMp
 HM_STEP = 'step'
 HM_MODE = 'mode'
 HM_FUNCTION_REAL = 'function_real'
@@ -381,6 +397,9 @@ AGG_COL = 'agg_col'
 TIME_COL = 'time'
 TIME_COL_LOCAL = 'time_local'
 INDEX = 'index'
+COLOR_BAR_TTTLE = 'color_bar_title'
+UNIQUE_INT_DIV = 'unique_int_div'
+IS_CAT_COLOR = 'is_cat_color'
 
 REQUEST_THREAD_ID = 'thread_id'
 SERIALS = 'serials'
@@ -414,8 +433,10 @@ class HMFunction(Enum):
     count_per_hour = auto()
     count_per_min = auto()
     first = auto()
+    last = auto()
     time_per_count = auto()
     iqr = auto()
+    ratio = 'Ratio[%]'
 
 
 class RelationShip(Enum):
@@ -440,6 +461,9 @@ class DataType(Enum):
     EU_INTEGER_SEP = 8
     K_SEP_NULL = 9
     BIG_INT = 10
+    BOOLEAN = 11
+    DATE = 12
+    TIME = 13
 
 
 class DataTypeEncode(Enum):
@@ -447,7 +471,9 @@ class DataTypeEncode(Enum):
     INTEGER = 'Int'
     REAL = 'Real'
     TEXT = 'Str'
+    CATEGORY = 'Cat'
     DATETIME = 'CT'
+    BIG_INT = 'BigInt'
 
 
 class JobStatus(Enum):
@@ -666,6 +692,7 @@ APP_DB_FILE = 'APP_DB_FILE'
 INIT_APP_DB_FILE = 'INIT_APP_DB_FILE'
 INIT_BASIC_CFG_FILE = 'INIT_BASIC_CFG_FILE'
 TESTING = 'TESTING'
+CAST_DATA_TYPE_ERROR_MSG = 'Cast Data Type Error'
 
 DATA_TYPE_ERROR_MSG = 'There is an error with the data type.'
 DATA_TYPE_DUPLICATE_MSG = 'There are duplicate records in the data file.'
@@ -732,7 +759,6 @@ EXCLUDED_COLUMNS = 'excluded_columns'
 CAT_TOTAL = 'cat_total'
 IS_CAT_LIMITED = 'is_cat_limited'
 IS_CATEGORY = 'is_category'
-IS_INT_CATEGORY = 'is_int_category'
 MAX_CATEGORY_SHOW = 30
 
 # PCA
@@ -747,6 +773,7 @@ class ChartType(Enum):
     HEATMAP = 'heatmap'
     SCATTER = 'scatter'
     VIOLIN = 'violin'
+    HEATMAP_BY_INT = 'heatmap_by_int'
 
 
 # Scp sub request params
@@ -965,6 +992,30 @@ class BaseEnum(Enum):
     def get_values(cls):
         return tuple(cls.__members__.values())
 
+    @classmethod
+    def get_key(cls, value, default_key=None):
+        for _key, _value in cls.__members__.items():
+            if value == _value:
+                return _key
+
+        return default_key
+
+    @classmethod
+    def get_by_name(cls, name, default=None):
+        for _key, _value in cls.__members__.items():
+            if _key == name:
+                return _key, _value
+
+        return default
+
+    @classmethod
+    def get_by_enum_value(cls, enum_value, default=None):
+        try:
+            # return cls.convert_data_type(enum_value)
+            return cls(enum_value)
+        except ValueError:
+            return default
+
 
 class DataGroupType(BaseEnum):
     """
@@ -1022,31 +1073,6 @@ class DataGroupType(BaseEnum):
 
     # PRODUCT_ID = 35
 
-    # GENERATED = 99
-    # GENERATED_EQUATION = 100  # unused
-
-    # @classmethod
-    # def get_transaction_data_groups(cls):  # columns were stored in t_master_data
-    #     return [cls.DATA_SERIAL, cls.GENERATED]
-
-    # @classmethod
-    # def get_master_data_groups(cls):  # columns were stored in t_master_data
-    #     return [
-    #         cls.LINE_ID,
-    #         cls.PROCESS_ID,
-    #         cls.PART_NO,
-    #         cls.MACHINE_ID,
-    #         cls.QUALITY_ID,
-    #         cls.LINE_NAME,
-    #         cls.PROCESS_NAME,
-    #         cls.MACHINE_NAME,
-    #         cls.QUALITY_NAME,
-    #     ]
-
-    # @classmethod
-    # def get_all_reserved_groups(cls):
-    #     return tuple(cls.__members__.keys())
-
     @classmethod
     def v2_pivottable_group(cls) -> list['DataGroupType']:
         return [
@@ -1072,6 +1098,16 @@ class DataGroupType(BaseEnum):
             DataGroupType.LOT_NO,
             DataGroupType.TRAY_NO,
         ]
+
+    # @classmethod
+    # def get_physical_column_types(cls):
+    #     return [
+    #         cls.GENERATED.value,
+    #         cls.DATA_SERIAL.value,
+    #         cls.DATA_TIME.value,
+    #         cls.MAIN_DATE.value,
+    #         cls.MAIN_TIME.value,
+    #     ]
 
 
 WELL_KNOWN_COLUMNS = {
@@ -1363,7 +1399,10 @@ NULL_PERCENT = 'null_percent'
 ZERO_VARIANCE = 'zero_variance'
 SELECTED_VARS = 'selected_vars'
 
-OSERR = {22: 'Access denied', 2: 'Folder not found'}
+ZERO_FILL_PATTERN = r'^{\:(0)([<>]?)([1-9]\d*)d?\}$'  # {:010}, {:010d}
+ZERO_FILL_PATTERN_2 = r'^{\:([1-9])([<>])(\d+)d?\}$'  # {:1>10}, {:1>10}, {:1<10d}
+
+OSERR = {22: 'Access denied', 2: 'Folder not found', 20: 'Not a folder'}
 
 # Browser support
 SAFARI_SUPPORT_VER = 15.4
@@ -1382,6 +1421,8 @@ NG_CONDITION = 'NGCondition'
 NG_CONDITION_VALUE = 'NGConditionValue'
 X = 'x'
 Y = 'y'
+X_NAME = 'x_name'
+Y_NAME = 'y_name'
 NG_RATES = 'ng_rates'
 GROUP = 'group'
 COUNT = 'count'
@@ -1419,20 +1460,150 @@ UPDATED_AT = 'updated_at'
 
 
 class RawDataTypeDB(BaseEnum):  # data type user select
-    NULL = DataType.NULL.value
-    INTEGER = DataType.INTEGER.value
-    REAL = DataType.REAL.value
-    TEXT = DataType.TEXT.value
-    DATETIME = DataType.DATETIME.value
+    NULL = DataType.NULL.name
+    INTEGER = DataType.INTEGER.name
+    REAL = DataType.REAL.name
+    TEXT = DataType.TEXT.name
+    DATETIME = DataType.DATETIME.name
+    BOOLEAN = DataType.BOOLEAN.name
+
+    DATE = DataType.DATE.name
+    TIME = DataType.TIME.name
 
     # SMALL_INT = 's_i'
-    # BIG_INT = 'b_i'
+    BIG_INT = DataType.BIG_INT.name
     # CATEGORY_INTEGER = 'I'
     # CATEGORY_TEXT = 'T'
+    CATEGORY = DataType.TEXT.name
+
+    @staticmethod
+    def is_integer_data_type(data_type_db_value: str):
+        return data_type_db_value in (
+            RawDataTypeDB.INTEGER.value,
+            # RawDataTypeDB.SMALL_INT.value,
+            RawDataTypeDB.BIG_INT.value,
+        )
 
     @staticmethod
     def is_text_data_type(data_type_db_value: str):
         return data_type_db_value in (RawDataTypeDB.TEXT.name, RawDataTypeDB.DATETIME.name)
+
+    @staticmethod
+    def is_category_data_type(data_type_db_value: str):
+        return data_type_db_value == RawDataTypeDB.CATEGORY.value
+
+    @classmethod
+    def get_pandas_dtype(cls, value: str, local_time: bool = True) -> pd.ExtensionDtype:
+        if value is None:
+            return object
+
+        timezone = tz.tzlocal() if local_time else tz.tzutc()
+
+        raw_data_type = RawDataTypeDB(value)
+        if raw_data_type == RawDataTypeDB.NULL:
+            raise ValueError
+
+        if raw_data_type == RawDataTypeDB.INTEGER:
+            # return pd.Int32Dtype()
+            return pd.Int64Dtype()
+
+        if raw_data_type == RawDataTypeDB.REAL:
+            return pd.Float64Dtype()
+
+        if raw_data_type == RawDataTypeDB.TEXT:
+            return pd.StringDtype()
+
+        if raw_data_type == RawDataTypeDB.DATETIME:
+            return pd.DatetimeTZDtype(tz=timezone)
+
+        if raw_data_type == RawDataTypeDB.BOOLEAN:
+            return pd.BooleanDtype()
+
+        # if raw_data_type == RawDataTypeDB.SMALL_INT:
+        #     return pd.Int16Dtype()
+        #
+        if raw_data_type == RawDataTypeDB.BIG_INT:
+            return pd.Int64Dtype()
+
+        if raw_data_type == RawDataTypeDB.CATEGORY:
+            return pd.StringDtype()
+
+        if raw_data_type == RawDataTypeDB.DATE:
+            return pd.DatetimeTZDtype(tz=timezone)
+
+        if raw_data_type == RawDataTypeDB.TIME:
+            return pd.DatetimeTZDtype(tz=timezone)
+
+        raise NotImplementedError('Invalid data type')
+
+    @classmethod
+    def get_data_type_for_function(cls, data_type: str | None, possible_data_types: list[str]) -> RawDataTypeDB | None:
+        if data_type is None:
+            return None
+
+        # database only save `i` for integer, need to handle big int and small int as well
+        if cls.is_integer_data_type(data_type) and cls.INTEGER.name in possible_data_types:
+            return RawDataTypeDB.get_by_enum_value(data_type)
+
+        # handle category as a text at the moment
+        if data_type == cls.CATEGORY.value and cls.TEXT.value in possible_data_types:
+            return RawDataTypeDB.get_by_enum_value(cls.TEXT.value)
+
+        if data_type in possible_data_types:
+            return RawDataTypeDB.get_by_enum_value(data_type)
+
+        return None
+
+
+INT16_MAX = np.iinfo(np.int16).max
+INT16_MIN = np.iinfo(np.int16).min
+INT32_MAX = np.iinfo(np.int32).max
+INT32_MIN = np.iinfo(np.int32).min
+INT64_MAX = np.iinfo(np.int64).max
+INT64_MIN = np.iinfo(np.int64).min
+
+dict_invalid_data_type_regex = {
+    RawDataTypeDB.INTEGER.value: r'[^-0-9]+',
+    RawDataTypeDB.REAL.value: r'[^-0-9\.eg-]+',
+    RawDataTypeDB.TEXT.value: '.*',
+    RawDataTypeDB.BOOLEAN.value: '[^0-1]',
+    RawDataTypeDB.DATETIME.value: '.*',
+    # RawDataTypeDB.SMALL_INT.value: r'[^-0-9]+',
+    RawDataTypeDB.BIG_INT.value: r'[^-0-9]+',
+    RawDataTypeDB.CATEGORY.value: '.*',
+}
+
+dict_numeric_type_ranges = {
+    RawDataTypeDB.INTEGER.value: {'max': INT32_MAX, 'min': INT32_MIN},
+    RawDataTypeDB.BOOLEAN.value: {'max': 1, 'min': 0},
+    # RawDataTypeDB.SMALL_INT.value: {'max': INT16_MAX, 'min': INT16_MIN},
+    RawDataTypeDB.BIG_INT.value: {'max': INT64_MAX, 'min': INT64_MIN},
+}
+
+
+class FunctionCastDataType(BaseEnum):
+    SAME_AS_X = 'x'
+    CAST = 'cast'
+
+
+dict_dtype = {
+    '': DataType.NULL.name,
+    'r': DataType.REAL.name,
+    'i': DataType.INTEGER.name,
+    't': DataType.TEXT.name,
+    'd': DataType.DATETIME.name,
+    'b': DataType.BOOLEAN.name,
+    'rs': DataType.REAL_SEP.name,
+    'is': DataType.INTEGER_SEP.name,
+    'ers': DataType.EU_REAL_SEP.name,
+    'eis': DataType.EU_INTEGER_SEP.name,
+    'ksn': DataType.K_SEP_NULL.name,
+    'date': DataType.DATE.name,
+    'time': DataType.TIME.name,
+    'cast': FunctionCastDataType.CAST.value,
+    'x': FunctionCastDataType.SAME_AS_X.value,
+    'b_i': DataType.BIG_INT.name,
+}
 
 
 SQL_PARAM_SYMBOL = '?'
@@ -1476,6 +1647,31 @@ FUNCTION = 'function'
 BOOKMARKS = 'bookmarks'
 PROCESSES = 'processes'
 EXTERNAL_API = 'external_api'
+FACET = 'facet'
+FILTER = 'filter'
+DIV = 'div'
+REQUEST_PARAMS = 'params'  # for external API
+BOOKMARK_TITLE = 'title'
+CREATED_BY = 'created_by'
+PRIORITY = 'priority'
+BOOKMARK_DESCRIPTION = 'description'
+SAVE_DATETIME = 'save_datetime'
+SAVE_GRAPH_SETTINGS = 'save_graph_settings'
+SAVE_LATEST = 'save_latest'
+OD_FILTERS = 'od_filters'
+
+# External API elements
+TRACE_DATA_FORM = 'traceDataForm'
+RADIO_DEFAULT_INTERVAL = 'radioDefaultInterval'
+RADIO_RECENT_INTERVAL = 'radioRecentInterval'
+CHECKED = 'checked'
+FIRST_END_PROC = 'end-proc-process-1'
+VALUE = 'value'
+START_DATE_ID = 'startDate'
+START_TIME_ID = 'startTime'
+END_DATE_ID = 'endDate'
+END_TIME_ID = 'endTime'
+
 EXAMPLE_VALUE = 3
 
 
@@ -1560,6 +1756,10 @@ class DataColumnType(BaseEnum):
     MAIN_SERIAL = 2
     SERIAL = 3
     DATETIME_KEY = 4
+    DATE = 5
+    TIME = 6
+    MAIN_DATE = 7  # main::date
+    MAIN_TIME = 8  # main::time
 
     INT_CATE = 10
 
@@ -1570,6 +1770,9 @@ class DataColumnType(BaseEnum):
     PART_NAME = 24
     PART_NO = 25
     ST_NO = 26
+
+    GENERATED = 99
+    GENERATED_EQUATION = 100
 
     @classmethod
     def category_int_types(cls):
@@ -1593,6 +1796,8 @@ class ColumnDTypeToSQLiteDType(BaseEnum):
     REAL = 'real'
     TEXT = 'text'
     DATETIME = 'text'
+    DATE = 'text'
+    TIME = 'text'
     REAL_SEP = 'real'
     INTEGER_SEP = 'integer'
     EU_REAL_SEP = 'real'
@@ -1622,3 +1827,10 @@ class DataRegisterStage(BaseEnum):
     FIRST_IMPORTED = 'first_imported'
     DURING = 'during'
     FINISHED = 'finished'
+
+
+# Time for announcing and blinking icon
+ANNOUNCE_UPDATE_TIME: int = 60  # unit: seconds
+
+# Limit range time to check new version
+LIMIT_CHECKING_NEWER_VERSION_TIME: int = 60  # unit: seconds

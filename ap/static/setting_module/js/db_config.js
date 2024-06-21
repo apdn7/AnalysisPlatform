@@ -124,6 +124,8 @@ const i18nDBCfg = {
         .text(),
     fileNotFound: $('#i18nFileNotFoundMsg'),
     couldNotReadData: $('#i18nCouldNotReadData'),
+    dummyHeader: $('#i18nDummyHeader'),
+    partialDummyHeader: $('#i18nPartialDummyHeader')
 };
 
 const triggerEvents = {
@@ -177,6 +179,11 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
     $(`${csvResourceElements.dataTbl} table tbody`).html('');
     $('#resourceLoading').hide();
     if (res.is_dummy_header) {
+        $(csvResourceElements.dummyHeaderModalMsg).text($(i18nDBCfg.dummyHeader).text());
+        $(csvResourceElements.dummyHeaderModal).modal('show');
+    }
+    if (res.partial_dummy_header) {
+        $(csvResourceElements.dummyHeaderModalMsg).text($(i18nDBCfg.partialDummyHeader).text());
         $(csvResourceElements.dummyHeaderModal).modal('show');
     }
     let hasDuplCols = false;
@@ -306,6 +313,8 @@ const showResources = async () => {
     }
     // get line skipping config
     const lineSkipping = $('input[name=line_skip]').val();
+    const csvNRows = $(csvResourceElements.csvNRows).val() || null;
+    const csvIsTranspose = $(csvResourceElements.csvIsTranspose).is(':checked');
     $.ajax({
         url: csvResourceElements.apiUrl,
         method: 'POST',
@@ -316,6 +325,8 @@ const showResources = async () => {
             delimiter: $(csvResourceElements.delimiter).val(),
             isV2,
             line_skip: lineSkipping,
+            n_rows: csvNRows,
+            is_transpose: csvIsTranspose,
         }),
         contentType: 'application/json',
         success: (res) => {
@@ -551,6 +562,7 @@ const showAllV2ProcessConfigModal = (dbsIds) => {
         }
 
         if (!isV2ProcessConfigOpening) {
+            resetIsShowFileName();
             showV2ProcessConfigModal(dbsIds[index - 1]);
             index ++;
         }
@@ -558,8 +570,19 @@ const showAllV2ProcessConfigModal = (dbsIds) => {
     }, 1000);
 };
 
+const disableIsShowFileName = () => {
+    procModalElements.isShowFileName.prop("disabled", true);
+    procModalElements.isShowFileName.prop("checked", false);
+};
+
+const resetIsShowFileName = () => {
+    procModalElements.isShowFileName.prop("disabled", false);
+    procModalElements.isShowFileName.prop("checked", false);
+};
+
 const handleCloseProcConfigModal = () => {
     isV2ProcessConfigOpening = false;
+    resetIsShowFileName();
 }
 
 const showV2ProcessConfigModal = (dbsId = null) => {
@@ -655,9 +678,13 @@ const genCsvInfo = () => {
         .val();
     // set default skipHead and skipTail
     const skipHead = $(csvResourceElements.skipHead)
-        .val() || '0';
+        .val() || null;
     const skipTail = $(csvResourceElements.skipTail)
-        .val() || '0';
+        .val() || null;
+    const csvNRows = $(csvResourceElements.csvNRows)
+        .val() || null;
+    const csvIsTranspose = $(csvResourceElements.csvIsTranspose)
+        .is(':checked');
     const delimiter = $(csvResourceElements.delimiter)
         .val();
     const optionalFunction = $(csvResourceElements.optionalFunction)
@@ -673,6 +700,8 @@ const genCsvInfo = () => {
         directory,
         skip_head: skipHead,
         skip_tail: skipTail,
+        n_rows: csvNRows,
+        is_transpose: csvIsTranspose,
         etl_func: optionalFunction,
         delimiter,
         csv_columns: csvColumns,
@@ -1275,6 +1304,20 @@ const parseDataType = (ele, idx) => {
             e.html(val);
         }
         break;
+    case DataTypes.DATE.name:
+        for (const e of vals) {
+            let val = e.attr(attrName);
+            val = parseDatetimeStr(val, true);
+            e.html(val);
+        }
+        break;
+    case DataTypes.TIME.name:
+        for (const e of vals) {
+            let val = e.attr(attrName);
+            val = parseTimeStr(val);
+            e.html(val);
+        }
+        break;
     case DataTypes.REAL_SEP.name:
         for (const e of vals) {
             let val = e.attr(attrName);
@@ -1389,6 +1432,8 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             const isDummyHeader = dictDataSrc.csv_detail.dummy_header;
             const lineSkip = skipHead == 0 && !isDummyHeader ? '' : skipHead;
             $(csvResourceElements.skipHead).val(lineSkip);
+            $(csvResourceElements.csvNRows).val(dictDataSrc.csv_detail.n_rows);
+            $(csvResourceElements.csvIsTranspose).prop('checked', !!dictDataSrc.csv_detail.is_transpose);
 
             // load optional function
             if (dictDataSrc.csv_detail.etl_func) {
@@ -1414,6 +1459,11 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             dbElements.CSVTitle.text(dbElements.CSVTitle.text().replace('CSV/TSV', 'V2 CSV'));
             // hide skip line
             $(csvResourceElements.skipHead).parent().hide();
+            // hide csv nrows
+            $(csvResourceElements.csvNRows).parent().hide();
+            // hide transpose
+            $(csvResourceElements.csvIsTranspose).parent().hide();
+
             let processList = []
             if (dictDataSrc.csv_detail.process_name) {
                 processList.push(dictDataSrc.csv_detail.process_name)
@@ -1428,6 +1478,10 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             dbElements.CSVTitle.text(dbElements.CSVTitle.text().replace('V2 CSV', 'CSV/TSV'));
             // show skip line
             $(csvResourceElements.skipHead).parent().show();
+            // show csv nrows
+            $(csvResourceElements.csvNRows).parent().show();
+            // show transpose
+            $(csvResourceElements.csvIsTranspose).parent().show();
         }
         break;
     }

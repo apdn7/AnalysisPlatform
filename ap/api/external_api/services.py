@@ -8,22 +8,33 @@ from dateutil import tz
 
 from ap.common.common_utils import API_DATETIME_FORMAT
 from ap.common.constants import (
+    BOOKMARK_DESCRIPTION,
     BOOKMARK_ID,
+    BOOKMARK_TITLE,
     COL_DATA_TYPE,
     COL_ID,
     COL_MASTER_NAME,
     COLUMNS,
     COMMON,
+    CREATED_BY,
+    DIV,
     END_DATETIME,
     EXAMPLE_VALUE,
+    FACET,
+    FILTER,
     FILTER_ON_DEMAND,
     FUNCTION,
     LATEST,
     OBJECTIVE,
     OD_FILTER,
     OPTION_ID,
+    PRIORITY,
     PROCESS_ID,
     REQ_ID,
+    REQUEST_PARAMS,
+    SAVE_DATETIME,
+    SAVE_GRAPH_SETTINGS,
+    SAVE_LATEST,
     START_DATETIME,
     UNIQUE_CATEGORIES,
     PagePath,
@@ -39,6 +50,7 @@ def save_odf_data_of_request(dic_param):
     req_id = dic_param[COMMON].get(REQ_ID, '')
     od_filters = []
     col_ids = []
+    params = ''
     if req_id:
         for _, list_filter in dic_param[FILTER_ON_DEMAND].items():
             for od_filter in list_filter:
@@ -52,8 +64,11 @@ def save_odf_data_of_request(dic_param):
                         'values': od_filter[UNIQUE_CATEGORIES],
                     }
                     od_filters.append(filter_obj)
+        if REQUEST_PARAMS in dic_param[COMMON]:
+            params = dic_param[COMMON][REQUEST_PARAMS]
+
         with make_session() as meta_session:
-            CfgRequest.save_odf_by_req_id(meta_session, req_id, json_dumps(od_filters))
+            CfgRequest.save_odf_and_params_by_req_id(meta_session, req_id, json_dumps(od_filters), params)
 
 
 @log_execution_time()
@@ -91,6 +106,10 @@ def cast_datetime_from_query_string(request_string):
     return urlencode(req, doseq=True)
 
 
+def get_from_request_data_with_id(req_data, ele_id):
+    return req_data.index(next(x for x in req_data if x.get('id') == ele_id))
+
+
 @dataclasses.dataclass
 class ErrorTypeDetail:
     reason: str
@@ -113,7 +132,8 @@ class ExternalErrorMessage:
     invalid_od_filter_msg = "Invalid format: 'od_filter' must be a dictionary with column id as keys and an array of filter values as values. For example, {2: ['OK'], 3: ['Machine01', 'Machine02']}."  # noqa
 
     invalid_function_msg = (
-        "Invalid format: 'function' must be a text string of one of: 'fpp', 'pcp', 'rlp', 'skd', 'msp', 'chm'."
+        "Invalid format: 'function' must be a text string of one of: 'fpp', 'pcp', 'rlp', 'skd', 'msp', 'chm', 'stp', "
+        "'agp', 'scp'."
     )
 
     unexpected_error_msg = 'Unexpected error occured. Error message: {}'
@@ -126,6 +146,8 @@ class ExternalErrorMessage:
     missing_field_msg = 'Missing required field: {}'
 
     out_of_range_msg = 'Parameter value is out of range: {} must be {}'
+
+    invalid_length_msg = 'Invalid number of values provided for {}: must be between {} and {}'
 
     @classmethod
     def missing_field(cls, field_name):
@@ -265,6 +287,16 @@ class ExternalErrorMessage:
             ErrorType.invalid_format.status,
         )
 
+    @classmethod
+    def length_error(cls, param, length_range):
+        return (
+            ErrorMessage(
+                reason=ErrorType.invalid_length.reason,
+                message=cls.invalid_length_msg.format(param, length_range[0], length_range[1]),
+            ),
+            ErrorType.invalid_length.status,
+        )
+
 
 class ErrorType:
     missing_field = ErrorTypeDetail(reason='missing_field', status=400)
@@ -274,6 +306,7 @@ class ErrorType:
     id_notfound = ErrorTypeDetail(reason='id_notfound', status=404)
     out_of_range = ErrorTypeDetail(reason='out_of_range', status=422)
     duplicate_id = ErrorTypeDetail(reason='duplicate_id', status=409)
+    invalid_length = ErrorTypeDetail(reason='length_error', status=422)
 
 
 class ValidationRules:
@@ -284,6 +317,7 @@ class ValidationRules:
     _URL = 'url'
     _LIST_ALLOW = 'list_allow'
     _NOT_FOUND = 'not_found'
+    _LENGTH_RANGE = 'length_range'
 
     # param data-type
     param_format = None
@@ -303,6 +337,7 @@ class ValidationRules:
         self.url = rules.get(self._URL) or False
         self.param_format = format
         self.not_found = rules.get(self._NOT_FOUND) or False
+        self.length_range = rules.get(self._LENGTH_RANGE) or False
 
 
 class Validation:
@@ -314,6 +349,7 @@ class Validation:
     _URL = 'url'
     _EXAMPLE_VALUE = 'example_value'
     _ACCEPT_LIST = 'accept_list'
+    _LENGTH_RANGE = 'length_range'
 
     # param data-type
     _POSITIVE_INT = 'positive_int'
@@ -437,6 +473,20 @@ class Validation:
             is_valid = False
             return is_valid, out_of_accept_list
 
+    def _validate_length(self, value, length_range=None):
+        is_valid = True
+        try:
+            value = value.split(',')
+            if length_range:
+                if 0 < length_range[1] < len(value):
+                    is_valid = False
+                if length_range[0] > 0 and len(value) < length_range[0]:
+                    is_valid = False
+            return is_valid
+        except Exception:
+            is_valid = False
+            return is_valid
+
     def validate_format(self):
         for param in self.params.keys():
             if param not in self.params or not self.params[param].format:
@@ -463,6 +513,10 @@ class Validation:
             use_range_value = self.params[param].range_value
             if use_range_value:
                 range_value = self.params[param].param_format[self._RANGE_VALUE] or None
+            length_range = None
+            use_length_range = self.params[param].length_range
+            if use_length_range:
+                length_range = self.params[param].param_format[self._LENGTH_RANGE] or None
 
             is_valid = True
             if format in [self._POSITIVE_INT, self._SMALL_INT]:
@@ -496,6 +550,10 @@ class Validation:
                 )
                 if range_err:
                     msg_er, status = ExternalErrorMessage.out_of_range(param, range_value)
+            if list_allow and use_length_range:
+                is_valid = self._validate_length(param_value, length_range)
+                if not is_valid:
+                    msg_er, status = ExternalErrorMessage.length_error(param, length_range)
 
             # start_datetime, end_datetime
             if format == self._ISO_DATETIME:
@@ -592,6 +650,9 @@ class Validation:
                     PagePath.CHM.name,
                     PagePath.MSP.name,
                     PagePath.RLP.name,
+                    PagePath.STP.name,
+                    PagePath.AGP.name,
+                    PagePath.SCP.name,
                 ],
             },
         )
@@ -621,6 +682,37 @@ class Validation:
                 self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
             },
         )
+        facet_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+                self._LENGTH_RANGE: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+                self._LENGTH_RANGE: [0, 2],
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+        div_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+            },
+        )
 
         # add rules to params
         self.params = {
@@ -631,6 +723,9 @@ class Validation:
             END_DATETIME: datetime_rules,
             OBJECTIVE: objective_rules,
             LATEST: latest_rules,
+            FACET: facet_rules,
+            FILTER: filter_rules,
+            DIV: div_rules,
         }
 
         # validate params
@@ -697,6 +792,66 @@ class Validation:
         self.validate_func = [
             self.validate_required(),
             self.validate_req_id_not_found(),
+        ]
+
+        return self
+
+    def save_bookmark(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+            },
+        )
+        option_id_rules = ValidationRules(
+            {self._FORMAT: True},
+            {self._FORMAT: self._POSITIVE_INT},
+        )
+        title_rules = ValidationRules(
+            {self._FORMAT: True},
+            {self._FORMAT: self._STR},
+        )
+        created_by_rules = ValidationRules(
+            {self._FORMAT: True},
+            {self._FORMAT: self._STR},
+        )
+        priority_rules = ValidationRules(
+            {self._FORMAT: True},
+            {self._FORMAT: self._POSITIVE_INT, self._ACCEPT_LIST: [0, 1]},
+        )
+        description_rules = ValidationRules(
+            {self._FORMAT: True},
+            {self._FORMAT: self._STR},
+        )
+        save_datetime_rules = ValidationRules(
+            {self._FORMAT: True},
+            {self._FORMAT: self._POSITIVE_INT, self._ACCEPT_LIST: [0, 1]},
+        )
+        save_graph_setting_rules = ValidationRules(
+            {self._FORMAT: True},
+            {self._FORMAT: self._POSITIVE_INT, self._ACCEPT_LIST: [0, 1]},
+        )
+        save_latest_rules = ValidationRules(
+            {self._FORMAT: True},
+            {self._FORMAT: self._POSITIVE_INT, self._ACCEPT_LIST: [0, 1]},
+        )
+
+        self.params = {
+            REQ_ID: req_id_rules,
+            OPTION_ID: option_id_rules,
+            BOOKMARK_TITLE: title_rules,
+            CREATED_BY: created_by_rules,
+            PRIORITY: priority_rules,
+            BOOKMARK_DESCRIPTION: description_rules,
+            SAVE_DATETIME: save_datetime_rules,
+            SAVE_GRAPH_SETTINGS: save_graph_setting_rules,
+            SAVE_LATEST: save_latest_rules,
+        }
+
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_req_id_not_found(),
+            self.validate_option_id_not_found(),
+            self.validate_format(),
         ]
 
         return self

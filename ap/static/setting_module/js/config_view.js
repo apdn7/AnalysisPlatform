@@ -39,6 +39,8 @@ const csvResourceElements = {
     sqlInputFile: '#form-control-file',
     skipHead: '#skipHead',
     skipTail: '#skipTail',
+    csvNRows: '#csvNRows',
+    csvIsTranspose: '#csvIsTranspose',
     optionalFunction: '#optionalFunction',
     withImportFlag: '#withImportFlag',
     delimiter: 'input[type="radio"][name="fileType"]:checked',
@@ -54,6 +56,7 @@ const csvResourceElements = {
     csvSubmitBtn: 'button.saveDBInfoBtn[data-csv="1"]',
     duplColsModal: '#duplColsModal',
     dummyHeaderModal: '#dummyHeaderModal',
+    dummyHeaderModalMsg: '#dummyHeaderModal .modal-msg',
     isDummyHeader: 'input[name=isDummyHeader]',
 };
 

@@ -26,17 +26,25 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
     option.isXIntType = isXIntType;
     option.isYIntType = isYIntType;
 
-    if (isXIntType) {
-        const orgArrayX = [...prop.array_x];
-        prop.array_x = orgArrayX.map(val => `${STR_PREFIX}${val}`);
-        prop.org_array_x = orgArrayX;
+    if (option.use_map_xy) {
+        prop.array_x = prop.heatmap_matrix.x;
+        prop.org_array_x = prop.heatmap_matrix.x;
+        prop.array_y = prop.heatmap_matrix.y;
+        prop.org_array_y = prop.heatmap_matrix.y;
+    } else {
+        if (isXIntType) {
+            const orgArrayX = [...prop.array_x];
+            prop.array_x = orgArrayX.map(val => `${STR_PREFIX}${val}`);
+            prop.org_array_x = orgArrayX;
+        }
+
+        if (isYIntType) {
+            const orgArrayY = [...prop.array_y];
+            prop.array_y = orgArrayY.map(val => `${STR_PREFIX}${val}`);
+            prop.org_array_y = orgArrayY;
+        }
     }
 
-    if (isYIntType) {
-        const orgArrayY = [...prop.array_y];
-        prop.array_y = orgArrayY.map(val => `${STR_PREFIX}${val}`);
-        prop.org_array_y = orgArrayY;
-    }
     const data = [{
         x: prop.array_x,
         y: prop.array_y,
@@ -50,6 +58,11 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
         zmax: prop.zmax,
         zmin: prop.zmin - 1,
     }];
+
+    if (option.use_map_xy) {
+        data[0].xgap = 2;
+        data[0].ygap = 2;
+    }
 
     const layout = {
         plot_bgcolor: '#222222',
@@ -100,6 +113,17 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
         hovermode: 'closest',
     };
 
+    // if (isXIntType && isYIntType) {
+    //     data[0].x = prop.heatmap_matrix.x;
+    //     data[0].y = prop.heatmap_matrix.y;
+    //     data[0].xgap = 3;
+    //     data[0].ygap = 3;
+    //     layout.xaxis.ticktext = prop.heatmap_matrix.x;
+    //     layout.xaxis.tickvals = prop.heatmap_matrix.x;
+    //     layout.yaxis.ticktext = prop.heatmap_matrix.y;
+    //     layout.yaxis.tickvals = prop.heatmap_matrix.y;
+    // }
+
     const config = {
         displayModeBar: false,
         responsive: true, // responsive histogram
@@ -112,13 +136,12 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
 
 const makeHeatmapHoverInfoBox = (prop, xVal, yVal, option, x, y) => {
     if (!prop) return;
-    const j = prop.array_x.indexOf(xVal.toString());
-    const i = prop.array_y.indexOf(yVal.toString());
+    const j = prop.array_x.map(x => x.toString()).indexOf(xVal.toString());
+    const i = prop.array_y.map(x => x.toString()).indexOf(yVal.toString());
     const numberOfData = option.isShowNumberOfData ? prop.h_label : null;
     const facet = option.isShowFacet ? `Lv1 = ${prop.v_label.toString().split('|')[0]} ${option.hasLv2 ? `, Lv2 = ${prop.v_label.toString().split('|')[1] || prop.h_label}` : ''}` : null;
     const div = option.isShowDiv ? prop.h_label : null;
-    showSCPDataTable(
-        {
+    let hoverData = !(option.use_map_xy) ? {
             data_no: numberOfData,
             facet,
             category: div,
@@ -127,11 +150,31 @@ const makeHeatmapHoverInfoBox = (prop, xVal, yVal, option, x, y) => {
             from: formatDateTime(prop.time_min),
             to: formatDateTime(prop.time_max),
             n: prop.orig_array_z[i][j] || COMMON_CONSTANT.NA,
-        }, {
+        } : null;
+    if (!hoverData) {
+        // hover data for int heatmap
+        hoverData = {
+            data_no: numberOfData,
+            facet,
+            category: div,
+            color: prop.array_z[i][j],
+            colorName: option.colorName || '',
+            xVal: prop.array_x[j],
+            xName: prop.x_name || '',
+            yName: prop.y_name || '',
+            yVal: prop.array_y[i],
+            n_total: prop.n_total,
+            from: formatDateTime(prop.time_min),
+            to: formatDateTime(prop.time_max),
+        }
+    }
+    showSCPDataTable(
+        hoverData
+        , {
             x: x - 55,
             y: y,
         },
         option.canvas_id,
-        'heatmap',
+        option.chartType || 'heatmap',
     );
 };

@@ -91,7 +91,7 @@ echo:
 
 : Check Network Connection at No Proxy
 rem if %valid_proxy% == 1 Ping www.python.org -n 1 -w 1000 > nul
-powershell -Command ^
+powershell -ExecutionPolicy Bypass -Command ^
     try { ^
         $response = Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -Method Head; ^
         Write-Host 'Network is available.'; ^
@@ -119,7 +119,7 @@ if errorlevel 1 (
     del %path_getpip%
   )
   mode con: cols=120 lines=60
-  powershell -command "&{$h=Get-Host;$w=$h.UI.RawUI;$s=$w.BufferSize;$s.height=5000;$w.BufferSize=$s;}"
+  powershell -ExecutionPolicy Bypass -Command "&{$h=Get-Host;$w=$h.UI.RawUI;$s=$w.BufferSize;$s.height=5000;$w.BufferSize=$s;}"
   echo Start Installation [Need Network or Proxy Connection]
 ) else (
   set status=%status_run_app%
@@ -174,11 +174,18 @@ if exist %path_oracle% (echo Detect oracle) else goto ORACLE_INSTANCE
 :ACTIVE_PYTHON_ENVIRONMENT
 :: Active virtual environment
 IF NOT EXIST %env_path% (
-  ECHO Initialize virtual environment
+  ECHO Installing Virtualenv
   %path_python%\python -m pip install --no-cache-dir --no-warn-script-location virtualenv
-  %path_python%\python -m virtualenv %env_path%
 )
+ECHO Initializing Virtual Environment
+%path_python%\python -m virtualenv %env_path%
 ECHO Activate virtual environment
+
+:: copy complied sqlite3.dll to env Scripts folder
+powershell if (Test-Path -Path $env:sqlite_dll) { Copy-Item $env:sqlite_dll -Destination $env:env_path\Scripts }
+
+:: copy complied sqlite3.dll to python embedded Scripts folder
+powershell if (Test-Path -Path $env:sqlite_dll) { Copy-Item $env:sqlite_dll -Destination $env:path_python }
 
 CALL %env_path%\Scripts\activate & GOTO INSTALL_PYTHON_AND_R_PACKAGES
 : -----------------------------------------------------------------------------
@@ -288,7 +295,7 @@ exit /b 0
 : _____________________________________________________________________________
 
 :CA_CERT
-powershell wget %ca_cert_url% -O %ca_cert%
+powershell -ExecutionPolicy Bypass -Command wget %ca_cert_url% -O %ca_cert%
 echo %ca_cert% file is downloaded.
 exit /b
 :end
@@ -301,11 +308,11 @@ exit /b
 
 :PYTHON_EMBEDDED
 echo Download python
-powershell wget %python39_url% -O %path_python_zip%
+powershell -ExecutionPolicy Bypass -Command wget %python39_url% -O %path_python_zip%
 if %errorlevel% == 35 (
   REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
   if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
-  powershell wget -Certificate %ca_cert% -Uri %python39_url% -O %path_python_zip%
+  powershell -ExecutionPolicy Bypass -Command wget -Certificate %ca_cert% -Uri %python39_url% -O %path_python_zip%
 )
 if errorlevel 1 (
   echo %esc%[41m Error on Wget Check network connection or use latest Win10 ^>1803 %esc%[0m
@@ -314,18 +321,18 @@ if errorlevel 1 (
 )
 
 echo Unzip python_embedded
-powershell -Command "Expand-Archive -Path %path_python_zip% -DestinationPath %path_python%"
+powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path %path_python_zip% -DestinationPath %path_python%"
 rename %path_python%\python39._pth python39._pth.renamed
 echo:
 GOTO CHECK_EXIST
 
 :PIP_DOWNLOAD
 echo Download pip
-powershell wget %get_pip_url% -O %path_getpip%
+powershell -ExecutionPolicy Bypass -Command wget %get_pip_url% -O %path_getpip%
 if %errorlevel% == 35 (
   REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
   if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
-  powershell wget -Certificate %ca_cert% -Uri %get_pip_url% -O %path_getpip%
+  powershell -ExecutionPolicy Bypass -Command wget -Certificate %ca_cert% -Uri %get_pip_url% -O %path_getpip%
 )
 if errorlevel 1 (
   echo %esc%[41m Error on Curl  Check network connection or use latest Win10 ^>1803 %esc%[0m
@@ -339,11 +346,11 @@ GOTO CHECK_EXIST
 
 :ORACLE_INSTANCE
 echo Download oracle instance
-powershell wget %oracle_instance_url% -O %path_oracle_zip%
+powershell -ExecutionPolicy Bypass -Command wget %oracle_instance_url% -O %path_oracle_zip%
 if %errorlevel% == 35 (
   REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
   if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
-  powershell wget -Certificate %ca_cert% -Uri %oracle_instance_url% -O %path_oracle_zip%
+  powershell -ExecutionPolicy Bypass -Command wget -Certificate %ca_cert% -Uri %oracle_instance_url% -O %path_oracle_zip%
 )
 if errorlevel 1 (
   echo %esc%[41m Error on Wget Check network connection or use latest Win10 ^>1803 %esc%[0m
@@ -352,7 +359,7 @@ if errorlevel 1 (
 )
 
 echo unzip oracle instance
-powershell -Command "Expand-Archive -Path %path_oracle_zip% -DestinationPath %path_oracle%"
+powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path %path_oracle_zip% -DestinationPath %path_oracle%"
 echo:
 GOTO CHECK_EXIST
 
@@ -399,6 +406,7 @@ GOTO CHECK_EXIST
   set ca_cert=%cd%\..\cacert.pem
   set path_python=%cd%\..\python_embedded_39
   set env_path=%cd%\..\env
+  set sqlite_dll=%cd%\init\sqlite3.dll
   set path_getpip=%cd%\..\get-pip.py
   set path_oracle=%cd%\..\Oracle-Portable
   set path_python_zip=%cd%\..\python_embedded_39.zip

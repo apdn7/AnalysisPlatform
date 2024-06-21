@@ -275,6 +275,14 @@ const isNumericDatatype = (type) => {
     return false;
 };
 
+const jsonParse = (res) => {
+    if (typeof res === 'string' || res instanceof String) {
+        res = JSON.parse(res);
+    }
+
+    return res;
+};
+
 const docCookies = {
     getItem(sKey) {
         try {
@@ -848,6 +856,7 @@ const fetchBackgroundJobs = (cb) => {
 const runTime = () => new Date().getTime();
 
 const DATE_FORMAT_TZ = 'YYYY-MM-DD HH:mm:ss Z';
+const TIME_FORMAT_TZ = 'HH:mm:ss Z';
 const DATE_FORMAT_WITHOUT_TZ = 'YYYY-MM-DD HH:mm:ss';
 const DATE_FORMAT = 'YYYY-MM-DD';
 const DATE_PICKER_FORMAT = 'yy-mm-dd';
@@ -1023,7 +1032,7 @@ const dragDropRowInTable = (() => {
         || $(ele).attr('id');
 
     // fix width of tr when drag drop
-    const fixHelper = (_, ui) => {
+    const fixHelper = (_v, ui) => {
         ui.children().each(function () {
             $(this).width($(this).width());
         });
@@ -1159,7 +1168,7 @@ const stickyHeaders = (() => {
     const load = (stickies) => {
         if (typeof stickies === 'object' && stickies instanceof jQuery && stickies.length > 0) {
             let $originWH = $(document).height();
-            $stickies = stickies.each((_, e) => {
+            $stickies = stickies.each((_v, e) => {
                 const $thisSticky = $(e).wrap('<div class="btnWrap">');
 
                 $thisSticky
@@ -1171,7 +1180,7 @@ const stickyHeaders = (() => {
                 // re-calc position
                 const $newWH = $(document).height();
                 if ($newWH !== $originWH) {
-                    $stickies = stickies.each((_, e) => {
+                    $stickies = stickies.each((_v, e) => {
                         $(e).data('originalPosition', $(e).offset().top);
                     });
                     $originWH = $newWH;
@@ -1246,7 +1255,7 @@ const scrollFloatingElement = (() => {
     const load = (stickies, adjustCSSClass = '', callBackFunc = null) => {
         if (typeof stickies === 'object' && stickies instanceof jQuery && stickies.length > 0) {
             let $originWH = $(document).height();
-            $stickies = stickies.each((_, e) => {
+            $stickies = stickies.each((_v, e) => {
                 const $thisSticky = $(e).wrap('<div class="">');
 
                 $thisSticky
@@ -1260,7 +1269,7 @@ const scrollFloatingElement = (() => {
                 // re-calc position
                 const $newWH = $(document).height();
                 if ($newWH !== $originWH) {
-                    $stickies = stickies.each((_, e) => {
+                    $stickies = stickies.each((_v, e) => {
                         $(e).data('originalPosition', $(e).offset().top);
                     });
                     $originWH = $newWH;
@@ -2100,6 +2109,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
             showColor: props.showColor,
             hasDiv: props.hasDiv,
             hideStrVariable: props.hideStrVariable,
+            hideRealVariable: props.hideRealVariable,
             colorAsDropdown: props.colorAsDropdown,
             availableColorVars,
             optionalObjective: props.optionalObjective,
@@ -2172,6 +2182,10 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
         $('#end-proc-row div').last().before(proc);
         $(`#end-proc-process-${count}`).on('change', (e) => {
             const eleNumber = e.currentTarget.id.match(/\d+$/)[0];
+            const isShowCTTime = $(formElements.showCT_Time).prop('checked');
+            if (isShowCTTime !== undefined && props.hideCTCol !== undefined) {
+                props.hideCTCol = isShowCTTime? !isShowCTTime: true;
+            }
             endProcMultiSelectOnChange(eleNumber, props).then((r) => {
                 if (onChangeCallbackFunc) {
                     if (onChangeCallbackDicParam) {
@@ -2181,8 +2195,8 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
                     }
                 }
             });
+            countTotalVariables();
         });
-        countTotalVariables();
 
         cardRemovalByClick('#end-proc-row div', onCloseCallbackFunc, onCloseCallbackDicParam);
         updateSelectedItems();
@@ -2407,6 +2421,36 @@ const loadingShow = (isContinue = false, showGraph = false) => {
     if (!isContinue) {
         resetProgress();
     }
+};
+
+/**
+ * Show loading screen
+ * @param {boolean} showGraph - is mode for show graph page or not
+ */
+const loadingShowImmediately = (showGraph = false) => {
+    const abortButtonHtml = `
+        <div class='abort-button-div'>
+            <button class='btn btn-sm btn-danger abort-button' onclick='handleShowAbortModal()'>
+                <i class='fa fa-times mr-2'></i>
+                <span>ABORT</span>
+            </button>
+            <span id="show-elapsed-time"></span>
+        </div>
+    `;
+
+    $.LoadingOverlay('show', {
+        image: '',
+        progress: true,
+        progressFixedPosition: 'top',
+        progressColor: 'rgba(170, 170, 170, 1)',
+        size: showGraph ? 20 : 8,
+        maxSize: 0,
+        background: 'rgba(170, 170, 170, .25)',
+        fontawesomeColor: 'rgba(170, 170, 170, 1)',
+        fontawesome: 'fa fa-spinner fa-spin',
+        fontawesomeResizeFactor: 2,
+        custom: showGraph ? $(abortButtonHtml) : null,
+    });
 };
 
 const sleep = (second) => new Promise(resolve => setTimeout(resolve, second * 1000))
@@ -2683,9 +2727,15 @@ class GraphStore {
     getVariableOrdering(procConfig, useFeatureImportance=true, loadByOrderIDs = false) {
         const ordering = [];
         let orderingID = [];
+        let allColIds = [];
         const currentTrace = this.traceDataResult;
         const objectiveVariable = currentTrace.COMMON.objectiveVar ? Number(currentTrace.COMMON.objectiveVar[0]) : undefined;
         const hasObjectiveVarInGUI = $('input[name=objectiveVar]:checked').length;
+        // const latestSortProcs = latestSortColIds.map(val => Number(val.split('-')[0]));
+        // const endProcIds = latestSortProcs.filter((procId, index, procs) => procs.indexOf(procId) === index);
+        const endProcIds = getSelectedEndProcIds();
+        let endProcColIds= endProcIds.map(id=> procConfig[id].getColumns()).flat();
+        const endProcObj = Object.fromEntries(endProcColIds.map(proc=>[proc.id, proc.process_id]));
 
         if (objectiveVariable && hasObjectiveVarInGUI) {
             orderingID.push(objectiveVariable);
@@ -2694,6 +2744,7 @@ class GraphStore {
         let sensorList = [];
         if (useFeatureImportance && currentTrace.importance_columns_ids && currentTrace.importance_columns_ids.length) {
             sensorList = currentTrace.importance_columns_ids;
+            endProcColIds = [];
         }
         if (currentTrace.COMMON.GET02_VALS_SELECT && currentTrace.COMMON.GET02_VALS_SELECT.length && !useFeatureImportance) {
             sensorList = currentTrace.COMMON.GET02_VALS_SELECT;
@@ -2702,11 +2753,14 @@ class GraphStore {
             sensorList = latestSortColIds.map(val => Number(val.split('-')[1]));
         }
         orderingID = [...orderingID, ...sensorList];
-        orderingID = new Set(orderingID);
-        orderingID = Array.from(orderingID);
-        if (orderingID.length) {
-            orderingID.forEach(id => {
-                const targetProcID = currentTrace.COMMON.end_proc[id];
+        allColIds = [...orderingID,...endProcColIds.map(col=>col.id)];
+        allColIds = allColIds.filter((value, index, array) => array.indexOf(value) === index)
+        allColIds = new Set(allColIds);
+        allColIds = Array.from(allColIds);
+        if (allColIds.length) {
+            allColIds.forEach(id => {
+                // const targetProcID = currentTrace.COMMON.end_proc[id];
+                const targetProcID = endProcObj[id];
                 const targetProc = procConfig[targetProcID];
                 const targetCol = targetProc && targetProc.dicColumns[id]
                 if (targetCol) {
@@ -2723,6 +2777,8 @@ class GraphStore {
         }
         return {
             ordering,
+            objectiveVar: objectiveVariable,
+            orderingID: orderingID,
             use_feature_importance: true
         };
     }
@@ -4566,7 +4622,7 @@ const roundMinute = (dateStr, option = 'up', unit = 5) => {
     return moment(moment(dateStr).format('YYYY-MM-DD HH:00')).add(newMinute, 'minutes').format(DATE_TIME_FMT);
 };
 const reselectVariablesToShowGraph = () => {
-    $('input[name^=selectedVar]').each((_, el) => {
+    $('input[name^=selectedVar]').each((_v, el) => {
         const elStatus = $(el).is(':checked');
         const guiDOM = $(`input[name^=GET02_VALS_SELECT][value=${$(el).val()}]`);
         const guiStatus = guiDOM.prop('checked');
@@ -4704,7 +4760,11 @@ const uncheckRadioEvent = (e) => {
 
 const updatePriority = (tableID) => {
     $(`${tableID} tbody tr`).each((rowIdx, row) => {
-        $(row).find('td:nth-child(1)').text(rowIdx + 1);
+        let tdChildElement = 'td:nth-child(1)';
+        if (tableID === jumpEls.jumpTblID) {
+            tdChildElement = 'td:nth-child(3)';
+        }
+        $(row).find(tdChildElement).text(rowIdx + 1);
     });
 };
 
@@ -4943,4 +5003,17 @@ const convertNumberByThousandSep = (numberValue) => {
         return numberValue.replaceAll(',', '');
     }
     return '';
+};
+
+const getNValueInArray = (array, n) => {
+    if (n > array.length) return array;
+    const nextIndex = array.length / n < 2 ? 2 : Math.floor(array.length / n);
+    const res = [];
+    let i = 0;
+    while (i < array.length) {
+        res.push(array[i]);
+        i += nextIndex;
+    }
+
+    return res;
 };

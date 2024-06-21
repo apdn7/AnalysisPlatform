@@ -227,7 +227,7 @@ class RPipeline:
             task.update({"type_out": "list"})
 
         # create expression (e.g. res <- wrapr('fname_x=hoge1.tsv', 'fname_y=hoge2.tsv', ..., 'dir_out="."'))
-        if t is 0:
+        if t == 0:
             # first task takes tsv or no fnames
             dic_inputs = self.dic_data.copy()
             dic_inputs.update(task)

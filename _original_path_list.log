@@ -35,6 +35,9 @@
 .\ap\api\analyze\__init__.py
 .\ap\api\analyze\services\pca.py
 .\ap\api\analyze\services\__init__.py
+.\ap\api\calendar_heatmap\controllers.py
+.\ap\api\calendar_heatmap\services.py
+.\ap\api\calendar_heatmap\__init__.py
 .\ap\api\categorical_plot\controllers.py
 .\ap\api\categorical_plot\services.py
 .\ap\api\common\controlllers.py
@@ -57,7 +60,6 @@
 .\ap\api\graphical_lasso\__init__.py
 .\ap\api\heatmap\controllers.py
 .\ap\api\heatmap\services.py
-.\ap\api\heatmap\__init__.py
 .\ap\api\multi_scatter_plot\controllers.py
 .\ap\api\multi_scatter_plot\services.py
 .\ap\api\parallel_plot\controllers.py
@@ -77,6 +79,7 @@
 .\ap\api\setting_module\services\common.py
 .\ap\api\setting_module\services\csv_import.py
 .\ap\api\setting_module\services\data_import.py
+.\ap\api\setting_module\services\equations.py
 .\ap\api\setting_module\services\factory_import.py
 .\ap\api\setting_module\services\filter_settings.py
 .\ap\api\setting_module\services\polling_frequency.py
@@ -95,6 +98,10 @@
 .\ap\api\trace_data\services\regex_infinity.py
 .\ap\api\trace_data\services\time_series_chart.py
 .\ap\api\trace_data\services\__init__.py
+.\ap\calendar_heatmap\controllers.py
+.\ap\calendar_heatmap\__init__.py
+.\ap\calendar_heatmap\services\utils.py
+.\ap\calendar_heatmap\services\__init__.py
 .\ap\categorical_plot\controllers.py
 .\ap\categorical_plot\__init__.py
 .\ap\categorical_plot\services\__init__.py
@@ -172,9 +179,12 @@
 .\ap\co_occurrence\__init__.py
 .\ap\co_occurrence\services\utils.py
 .\ap\co_occurrence\services\__init__.py
+.\ap\equations\core.py
+.\ap\equations\error.py
+.\ap\equations\utils.py
+.\ap\equations\__init__.py
 .\ap\heatmap\controllers.py
 .\ap\heatmap\__init__.py
-.\ap\heatmap\services\utils.py
 .\ap\heatmap\services\__init__.py
 .\ap\multiple_scatter_plot\controllers.py
 .\ap\multiple_scatter_plot\__init__.py
@@ -200,9 +210,12 @@
 .\ap\script\generate_db_secret_key.py
 .\ap\script\hide_exe_root_folder.py
 .\ap\script\migrate_cfg_data_source_csv.py
+.\ap\script\migrate_cfg_process.py
 .\ap\script\migrate_csv_datatype.py
 .\ap\script\migrate_csv_dummy_datetime.py
 .\ap\script\migrate_csv_save_graph_settings.py
+.\ap\script\migrate_delta_time.py
+.\ap\script\migrate_m_function.py
 .\ap\script\migrate_process_file_name_column.py
 .\ap\script\dummy_data\dummy_sql.py
 .\ap\script\hot_fix\fix_db_issues.py
@@ -241,6 +254,9 @@
 .\ap\static\analyze\js\hotelling_timeseries.js
 .\ap\static\analyze\js\pca.js
 .\ap\static\analyze\js\pca_toastr.js
+.\ap\static\calendar_heatmap\css\calendar_heatmap.css
+.\ap\static\calendar_heatmap\js\calendar_heatmap.js
+.\ap\static\calendar_heatmap\js\calendar_heatmap_plotly.js
 .\ap\static\categorical_plot\css\categorical_plot.css
 .\ap\static\categorical_plot\css\toastr.css
 .\ap\static\categorical_plot\img\scatter_plot.png
@@ -301,6 +317,7 @@
 .\ap\static\common\icons\TView.ico
 .\ap\static\common\images\custom-filter.png
 .\ap\static\common\images\logo.png
+.\ap\static\common\js\app_version_handler.js
 .\ap\static\common\js\ap_tour.js
 .\ap\static\common\js\auto-update-common.js
 .\ap\static\common\js\base.js
@@ -396,9 +413,9 @@
 .\ap\static\co_occurrence\css\co_occurrence_csv.css
 .\ap\static\co_occurrence\js\co_occurrence_csv.js
 .\ap\static\co_occurrence\js\pareto_plot.js
-.\ap\static\heatmap\css\heat_map.css
-.\ap\static\heatmap\js\heatmap.js
-.\ap\static\heatmap\js\heatmap_plotly.js
+.\ap\static\heatmap\css\heatmap.css
+.\ap\static\heatmap\js\heatmap_main.js
+.\ap\static\heatmap\js\heatmap_plot.js
 .\ap\static\modules\date-range-picker\daterangepicker-utils.js
 .\ap\static\modules\date-range-picker\daterangepicker.css
 .\ap\static\modules\date-range-picker\daterangepicker.js
@@ -538,7 +555,6 @@
 .\ap\static\sankey_plot\js\sankey_plot.js
 .\ap\static\sankey_plot\js\sankey_scp.js
 .\ap\static\scatter_plot\css\scatter_plot.css
-.\ap\static\scatter_plot\js\hist_with_density.js
 .\ap\static\scatter_plot\js\scatter_chart.js
 .\ap\static\scatter_plot\js\scatter_plot.js
 .\ap\static\scatter_plot\js\scp_heatmap_plot.js
@@ -575,6 +591,9 @@
 .\ap\static\setting_module\js\cfg_filter_main.js
 .\ap\static\setting_module\js\config_view.js
 .\ap\static\setting_module\js\db_config.js
+.\ap\static\setting_module\js\failed_cast_data_modal.js
+.\ap\static\setting_module\js\function_config_modals.js
+.\ap\static\setting_module\js\function_data_type_dropdown.js
 .\ap\static\setting_module\js\graph_visualization.js
 .\ap\static\setting_module\js\master_config.js
 .\ap\static\setting_module\js\npm.js
@@ -618,6 +637,7 @@
 .\ap\templates\aggregate_plot\aggregate_plot.html
 .\ap\templates\analyze\graphical_lasso.html
 .\ap\templates\analyze\hotelling_tsquare.html
+.\ap\templates\calendar_heatmap\calendar_heatmap.html
 .\ap\templates\categorical_plot\categorical_plot.html
 .\ap\templates\co_occurrence\co_occurrence_csv.html
 .\ap\templates\heatmap\heatmap.html
@@ -762,7 +782,11 @@
 .\ap\translations\zh_Hans_CN\LC_MESSAGES\messages.po
 .\ap\translations\zh_Hant_TW\LC_MESSAGES\messages.mo
 .\ap\translations\zh_Hant_TW\LC_MESSAGES\messages.po
+.\bridge\services\sql\sql_generator.py
+.\bridge\services\sql\transaction_query_builder.py
+.\data_files\19.m_function.tsv
 .\init\app.sqlite3
+.\init\sqlite3.dll
 .\lang\message.pot
 .\requirements\common.txt
 .\requirements\oss_dev.txt

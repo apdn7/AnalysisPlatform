@@ -2,6 +2,8 @@ import re
 from collections import defaultdict
 from itertools import zip_longest
 
+import numpy as np
+
 
 class UserSettingDetail:
     def __init__(self, dic_vals):
@@ -45,7 +47,7 @@ def transform_setting(src_vals, des_vals):
 
 def mapping_checkbox_radio(dic_src, dic_des):
     output_vals = []
-    all_keys = list(set(list(dic_src) + list(dic_des)))
+    all_keys = np.unique(list(dic_src) + list(dic_des))
     for name in all_keys:
         src_vals = dic_src.get(name, [])
         if not src_vals:
