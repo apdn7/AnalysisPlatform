@@ -441,11 +441,40 @@ td.pr-row {
     margin-top: -0.5rem !important;
 }
 
+.csv-skip-rows {
+    display: flex;
+    align-content: stretch;
+    align-items: center;
+}
+.csv-skip-rows-transpose {
+    top: -0.5rem;
+}
+
+input.csvNRows {
+    width: 75px;
+}
+
+.line-skip-group {
+    top: -0.5rem;
+}
+
 .line-skip {
     display: flex;
     align-content: stretch;
     align-items: center;
 }
-.line-skip-group {
-    top: -0.5rem;
+
+.file-type-area label.custom-control-label::before,
+.file-type-area label.custom-control-label::after {
+    margin-top: 0 !important;
+}
+
+.transpose-div,
+.nrows-div,
+.skip-div {
+    margin-right: 0;
+}
+
+.transpose-div {
+    margin-left: 1.5rem;
 }

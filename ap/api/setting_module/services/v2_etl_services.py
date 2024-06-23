@@ -6,7 +6,7 @@ from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from pandas.errors import ParserError
 
 from ap.common.common_utils import open_with_zip
@@ -309,7 +309,7 @@ def simple_convert_to_v2_vertical(
     duplicated_cols = list(set(df.columns).intersection(unique_cols))
     filter_cols = unique_cols + list(normalized_vertical_cols)
     if len(duplicated_cols) or len(filter_cols):
-        df_columns, is_duplicated = add_suffix_if_duplicated(filter_cols, skip_zero=True)
+        df_columns, is_duplicated = add_suffix_if_duplicated(filter_cols)
         # rename columns if there is duplicated measure item name
         if True in is_duplicated:
             normalized_vertical_cols = df_columns[len(unique_cols) :]
@@ -692,3 +692,21 @@ def add_suffix_for_columns_in_quality_name(
     for col in needed_rename_columns:
         df[quality_name_col] = df[quality_name_col].str.replace(rf'({col})', rf'\1_{DATA_NAME_V2_SUFFIX}', regex=True)
     return df
+
+
+def remove_timezone_inside(datetime_series: Series, is_tz_inside: bool):
+    """
+    Remove +-timezone in datetime column because DB auto add +9:00 timezone when it have timezone inside.
+
+    :param datetime_series: Datetime column
+    :param is_tz_inside: is timezone inside
+    :return: series without timezone
+    """
+
+    if is_tz_inside:
+        try:
+            return datetime_series.dt.tz_convert(None)
+        except Exception:
+            pass
+
+    return datetime_series

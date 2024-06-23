@@ -112,7 +112,7 @@ def idle_monitoring(_job_id=None, _job_name=None):
     # delete unused processes
     # add_del_proc_job()
 
-    processes = CfgProcess.get_all()
+    processes = CfgProcess.get_all(with_parent=True)
     for proc_cfg in processes:
         if proc_cfg.data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
             continue

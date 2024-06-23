@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from flask import Blueprint, Response, redirect, request
 
@@ -6,17 +7,41 @@ from ap.api.external_api.services import (
     ExternalErrorMessage,
     Validation,
     cast_datetime_from_query_string,
+    get_from_request_data_with_id,
     save_request_option,
 )
+from ap.api.setting_module.services.common import save_user_settings
+from ap.common.common_utils import API_DATETIME_FORMAT
 from ap.common.constants import (
+    BOOKMARK_DESCRIPTION,
     BOOKMARK_ID,
+    BOOKMARK_TITLE,
     BOOKMARKS,
+    CHECKED,
     COLUMNS,
+    CREATED_BY,
+    DIC_CAT_FILTERS,
+    DIV,
+    END_DATE_ID,
+    END_TIME_ID,
+    FACET,
+    FILTER,
+    FIRST_END_PROC,
     FUNCTION,
+    OD_FILTER,
     OPTION_ID,
+    PRIORITY,
     PROCESS_ID,
     PROCESSES,
+    RADIO_DEFAULT_INTERVAL,
+    RADIO_RECENT_INTERVAL,
     REQ_ID,
+    SAVE_DATETIME,
+    SAVE_GRAPH_SETTINGS,
+    START_DATE_ID,
+    START_TIME_ID,
+    TRACE_DATA_FORM,
+    VALUE,
     PagePath,
 )
 from ap.common.services.api_exceptions import APIError
@@ -99,6 +124,75 @@ def get_list_columns_of_processes():
             processes.append({'id': proc_id, COLUMNS: columns})
 
     return Response(json_dumps({PROCESSES: processes}), mimetype='application/json')
+
+
+@external_api_v1_blueprint.route('/bookmark', methods=['POST'])
+def save_bookmark():
+    """
+        Save a bookmark with parameters and options
+    :return:
+    """
+
+    validation = Validation(request)
+    validation.save_bookmark().validate()
+
+    data = json.loads(request.data)
+
+    user_request = CfgRequest.get_by_req_id(data.get('req_id'))
+    request_params = json.loads(user_request.params)
+    settings = request_params.get('settings')
+    setting_list = settings.get(TRACE_DATA_FORM)
+    function = request_params.get(FUNCTION).upper()
+
+    if data.get(OPTION_ID):
+        options = CfgOption.get_option(data.get(OPTION_ID)).option
+        options = json.loads(options)
+        settings['filter'] = {
+            DIC_CAT_FILTERS: options.get(OD_FILTER),
+        }
+
+    # save_latest is 1 when empty
+    save_latest = data.get('save_latest', 1)
+    # when save_latest is 0
+    if not save_latest:
+        default_radio_index = get_from_request_data_with_id(setting_list, RADIO_DEFAULT_INTERVAL)
+        recent_radio_index = get_from_request_data_with_id(setting_list, RADIO_RECENT_INTERVAL)
+        settings[TRACE_DATA_FORM][default_radio_index][CHECKED] = True
+        settings[TRACE_DATA_FORM][recent_radio_index][CHECKED] = False
+    bookmark_title = data.get(BOOKMARK_TITLE)
+    if not bookmark_title:
+        try:
+            endProcId = settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, FIRST_END_PROC)][VALUE]
+            endProcName = CfgProcess.get_proc_by_id(endProcId).name
+            startDate = settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, START_DATE_ID)][VALUE]
+            startTime = ''.join(
+                settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, START_TIME_ID)][VALUE].split(':'),
+            )
+            endDate = settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, END_DATE_ID)][VALUE]
+            endTime = ''.join(
+                settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, END_TIME_ID)][VALUE].split(':'),
+            )
+            bookmark_title = f'{function}_{endProcName}_{startDate}-{startTime}_{endDate}-{endTime}'
+        except Exception:
+            bookmark_title = f'{function}_{datetime.now().strftime(API_DATETIME_FORMAT)}'
+
+    setting = CfgUserSettingSchema().dump(
+        {
+            'title': bookmark_title,
+            'page': f'/{PagePath[function].value}',
+            'created_by': data.get(CREATED_BY, ''),
+            'priority': data.get(PRIORITY, 0),
+            'use_current_time': data.get(SAVE_DATETIME, 1),
+            'share_info': 1,
+            'description': data.get(BOOKMARK_DESCRIPTION, ''),
+            'save_graph_settings': data.get(SAVE_GRAPH_SETTINGS, 1),
+            'settings': json_dumps(settings) or '[]',
+        },
+    )
+
+    new_setting = save_user_settings(setting)
+
+    return Response(json_dumps({'bookmark_id': new_setting.id}), mimetype='application/json')
 
 
 @external_api_v1_blueprint.route('/bookmark', methods=['GET'])
@@ -195,16 +289,21 @@ def open_a_page():
     Validation(request).dn7().validate()
 
     function = request.args.get(FUNCTION)
-    columns = request.args.get(COLUMNS)
+    columns = request.args.get(COLUMNS, '').split(',')
 
     page = PagePath[function.upper()].value
 
     host_url = request.host_url
 
+    facet = request.args.get(FACET, '').split(',')
+    div = request.args.get(DIV, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + facet + div + filter_cols
+
     # get end procs from columns
     end_procs = []
     if columns:
-        columns = columns.split(',')
         for col_id in columns:
             col_cfg = CfgProcessColumn.get_by_id(col_id)
             if not col_cfg:
@@ -212,6 +311,7 @@ def open_a_page():
             proc_id = col_cfg.process_id
             if proc_id not in end_procs:
                 end_procs.append(proc_id)
+
     request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
     # get target page from bookmark
     target_url = f'{host_url}{page}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'

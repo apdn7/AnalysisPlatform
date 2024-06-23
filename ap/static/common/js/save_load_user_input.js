@@ -545,8 +545,8 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                         data.checked = false;
                     }
                 } else if (/GET02_VALS_SELECT/.test(data.name)) {
-                    if (excludeSensors.length && excludeSensors.includes(data.value)) {
-                        data.checked = false;
+                    if (jumpCheckedAllSensors.length || jumpCheckedAllSensors.length) {
+                        data.checked = jumpCheckedAllSensors.includes(data.value);
                     } else {
                         data.checked = el.checked;
                     }
@@ -750,6 +750,11 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                     dicBtn[el.genBtnId] = [i];
                 }
             }
+        }
+
+        if (Object.keys(dicBtn).includes('termBtnAddDateTime')) {
+            // remove all added datetime input after load
+            $('.add-new-datetime-direct-mode').remove();
         }
 
         for (let btn in dicBtn) {
@@ -1390,6 +1395,9 @@ const applyUserSetting = (userSetting, onlyLoad = null, isLoadNew = true) => {
         const settingData = userInputs[formId];
         // console.log(settingData);
         if (loadFunc && settingData) {
+            if (isShowCTTime(settingData)) {
+                $(formElements.showCT_Time).prop('checked', true);
+            }
             loadFunc(true, false, settingData);
             break;
         }
@@ -1733,6 +1741,7 @@ const getSettingCommonInfo = () => {
 
 
 const hasIndexOrderInGraphSetting = (graphSettings = []) => {
+    if (!graphSettings) return null;
     const isIndexOrder = graphSettings.filter(graph => graph.name === 'XAxisOrder' && graph.value === CONST.XOPT_INDEX).length > 0;
     return isIndexOrder;
 }
@@ -2028,7 +2037,7 @@ const isSaveGraphSetting = () => {
 };
 
 const isSaveColumnOrdering = () => {
-    if (!currentLoadSetting) return false;
+    if (!(currentLoadSetting | 0)) return false;
     const settings = JSON.parse(currentLoadSetting.settings);
     return !isSettingChanged && settings.column_ordering && settings.column_ordering.length;
 };
@@ -2142,8 +2151,8 @@ const loadGraphSettings = (isFirstTime = false) => {
 
 const getDicChecked = () => {
     if (!isSaveGraphSetting()) return null;
-
-    return getFilterOnDemand().dic_cat_filters;
+    const filter = getFilterOnDemand();
+    return filter ? filter.dic_cat_filters : null;
 };
 
 const facetGenerate = (src, des, value) => {
@@ -2171,3 +2180,11 @@ const facetGenerate = (src, des, value) => {
     }
     return facetVal;
 };
+
+const isShowCTTime = (settingData) => {
+    const isShowCTTime = settingData.find(e=>e.name === 'is_show_ct_time');
+    if (isShowCTTime) {
+        return isShowCTTime.checked;
+    }
+    return false;
+}

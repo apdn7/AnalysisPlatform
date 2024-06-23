@@ -63,6 +63,25 @@ const baseEles = {
     showGraphBtn: 'button.show-graph',
 };
 
+// for master data group (column types)
+const masterDataGroup = {
+    DATETIME: 1,
+    MAIN_SERIAL: 2,
+    SERIAL: 3,
+    DATETIME_KEY: 4,
+
+    INT_CATE: 10,
+
+    LINE_NAME: 20,
+    LINE_NO: 21,
+    EQ_NAME: 22,
+    EQ_NO: 23,
+    PART_NAME: 24,
+    PART_NO: 25,
+    ST_NO: 26,
+    GENERATED_EQUATION: 100,
+};
+
 const GRAPH_CONST = {
     histHeight: '100%', // vw, not vh in this case, when change, plz also change ".his" class in trace_data.css
     histWidth: '100%',
@@ -89,13 +108,13 @@ const colorPallets = {
     BLUE: {
         isRev: false,
         scale: [
-            ['0.0', 'rgb(33, 59, 77)'],
-            ['0.1666', 'rgb(47, 85, 110)'],
-            ['0.3333', 'rgb(59, 106, 138)'],
-            ['0.5', 'rgb(71, 128, 166)'],
-            ['0.6666', 'rgb(83, 150, 194)'],
-            ['0.8333', 'rgb(95, 171, 222)'],
-            ['1.0', 'rgb(107, 193, 250)']
+            ['0.0', 'rgb(33, 59, 77)'], // 205, 57, 30
+            ['0.1666', 'rgb(47, 85, 110)'], // 204, 57, 43
+            ['0.3333', 'rgb(59, 106, 138)'], // 204, 57, 54
+            ['0.5', 'rgb(71, 128, 166)'], // 204, 57, 65
+            ['0.6666', 'rgb(83, 150, 194)'], // 204, 57, 76
+            ['0.8333', 'rgb(95, 171, 222)'], // 204, 57, 87
+            ['1.0', 'rgb(107, 193, 250)'] // 204, 57, 98
         ]
     },
     BLUE_REV: {
@@ -1106,7 +1125,7 @@ const addNewDatTimeRange = () => {
         const dtId = `datetimeRangePicker${randomIndex}`;
 
         const newDateHtml = `
-            <div class="datetimerange-group d-flex align-items-center">
+            <div class="datetimerange-group d-flex align-items-center add-new-datetime-direct-mode">
                 ${dateTimeRangePickerHTML('DATETIME_RANGE_PICKER', dtId, randomIndex, 'False', 'data-gen-btn=termBtnAddDateTime')}
                 <span class="ml-2 remove-date"><i class="fa fa-times fa-sm"></i></span>
             </div>
@@ -1115,7 +1134,6 @@ const addNewDatTimeRange = () => {
         $('#datetimeList').append(newDateHtml);
         removeDateTimeInList();
         initializeDateTimeRangePicker(dtId);
-        $(`#${dtId}`).off('focus')
         $(`#${dtId}`).on('focus', (e) => {
             handleOnfocusEmptyDatetimeRange(e.currentTarget)
         })
@@ -1555,6 +1573,13 @@ const cleansingHandling = () => {
     });
 };
 
+const getUserSettingData = () => {
+     let formId = getShowFormId();
+     const getFormSettings = saveLoadUserInput(`#${formId}`);
+     const settingDat = getFormSettings(false, false);
+     return settingDat
+};
+
 const showGraphCallApi = async (url, formData, timeOut, callback, additionalOption = {}) => {
     if (!requestStartedAt) {
         requestStartedAt = performance.now();
@@ -1568,10 +1593,30 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
     }
 
     // set req_id and filter on-demand value if there is option_id in URL params
-    const {req_id, option_id} = getRequestParamsForShowGraph();
+    const {req_id, option_id, loadGUIFromURL, func, latest} = getRequestParamsForShowGraph();
 
     if (req_id) {
         formData.set('req_id', req_id);
+        // collect user setting in GUI
+        if (loadGUIFromURL) {
+            // loadGUIFromURL mean the request from /dn7 external API. We will save info of page and setting to create a bookmark from API
+            const settingData = getUserSettingData();
+            if (latest) {
+                const position = settingData.map(object => object.id).indexOf('datetimeRangePicker')
+                const startDatetime = `${formatDateTime(`${formData.get(CONST.STARTDATE)} ${formData.get(CONST.STARTTIME)}`, DATE_TIME_FMT)}`
+                const endDatetime = `${formatDateTime(`${formData.get(CONST.ENDDATE)} ${formData.get(CONST.ENDTIME)}`, DATE_TIME_FMT)}`
+                settingData[position].value = `${startDatetime}${DATETIME_PICKER_SEPARATOR}${endDatetime}`
+            }
+            const params = {
+                settings: {
+                    traceDataForm:  settingData
+                },
+                function: func
+            }
+
+            formData.set('params', JSON.stringify(params));
+        }
+
     }
 
     if (option_id) {
@@ -1794,7 +1839,10 @@ const handleTimeUnitOnchange = (e) => {
     const selectedOption = _this.find(`option[value=${_this.val()}]`).attr('data-key');
     // set default value of time unit by selected option
     const selectedTimeUnit = TIME_UNIT[selectedOption]
-    $(`[name=${CYCLIC_TERM.RECENT_INTERVAL}]`).val(selectedTimeUnit.DEFAULT).trigger('change');
+    const timeInput = $(`[name=${CYCLIC_TERM.RECENT_INTERVAL}]`)
+    if(!timeInput.val()){
+        timeInput.val(selectedTimeUnit.DEFAULT).trigger('change');
+    }
     CYCLIC_TERM.TIME_UNIT = selectedTimeUnit;
     validateInputByNameWithOnchange(CYCLIC_TERM.RECENT_INTERVAL, selectedTimeUnit);
     showDateTimeRangeValue();
@@ -1829,10 +1877,15 @@ const getRequestParamsForShowGraph = () => {
     const func = getParamFromUrl('function');
     let procs = getParamFromUrl('end_procs');
     const loadGUIFromURL = !!getParamFromUrl('load_gui_from_url');
-    const latest = getParamFromUrl('latest')
+    const latest = getParamFromUrl('latest');
+    let facet = getParamFromUrl('facet');
+    let filter = getParamFromUrl('filter');
+    const div = getParamFromUrl('div')
     const page = getParamFromUrl('page');
 
     columns = columns ? columns.split(',') : []
+    facet = facet ? facet.split(',') : []
+    filter = filter ? filter.split(',') : []
     procs = procs ? JSON.parse(procs) : []
 
     let datetimeRange = '';
@@ -1861,6 +1914,9 @@ const getRequestParamsForShowGraph = () => {
         endProcs: procs,
         loadGUIFromURL: loadGUIFromURL,
         latest: latest,
+        facet: facet,
+        filter: filter,
+        div: div,
     }
 };
 
@@ -1897,23 +1953,43 @@ const makeUserSettingFromParams = async () => {
         endProcs,
         start_datetime,
         latest,
+        facet,
+        filter,
+        div,
     } = getRequestParamsForShowGraph();
     const settings = []
     const divideOption = $('select[name=compareType]');
     if (divideOption.length) {
-        settings.push({
-            id: 'divideOption',
-            name: 'compareType',
-            type: 'select-one',
-            value: 'cyclicTerm'
-        })
-        if (start_datetime) {
+        if (div) {
             settings.push({
-                id: 'cyclicTermDatetimePicker',
-                name: 'DATETIME_PICKER',
-                type: 'text',
-                value: formatDateTime(start_datetime, DATE_TIME_FMT)
+                id: 'divideOption',
+                name: 'compareType',
+                type: 'select-one',
+                value: 'category'
             })
+            if (start_datetime) {
+                settings.push({
+                    id: 'datetimeRangePicker',
+                    name: 'DATETIME_RANGE_PICKER',
+                    type: 'text',
+                    value: datetimeRange,
+                })
+            }
+        } else {
+            settings.push({
+                id: 'divideOption',
+                name: 'compareType',
+                type: 'select-one',
+                value: 'cyclicTerm'
+            })
+            if (start_datetime) {
+                settings.push({
+                    id: 'cyclicTermDatetimePicker',
+                    name: 'DATETIME_PICKER',
+                    type: 'text',
+                    value: formatDateTime(start_datetime, DATE_TIME_FMT)
+                })
+            }
         }
     }
     if (datetimeRange && !divideOption.length) {
@@ -1955,7 +2031,46 @@ const makeUserSettingFromParams = async () => {
                 type: 'checkbox',
                 checked: true
             })
+        }
 
+        if (facet) {
+        for (let facetCol of facet) {
+                const column = cfgProcess.getColumnById(facetCol);
+                if (!column) continue;
+                settings.push({
+                    id: `catExpItem-${facetCol}`,
+                    name: 'catExpBox',
+                    value: String(facet.indexOf(facetCol)+1),
+                    type: 'select-one',
+                    level: 2,
+                })
+            }
+        }
+
+        if(div) {
+            const column = cfgProcess.getColumnById(div);
+            if (column) {
+                settings.push({
+                id: `catExpItem-${div}`,
+                name: 'catExpBox',
+                value: 3,
+                type: 'select',
+                })
+            }
+        }
+
+        if(filter) {
+            for(let filterCol of filter) {
+                const column = cfgProcess.getColumnById(filterCol);
+                if (!column) continue;
+                settings.push({
+                    id: `categoryLabel-${filterCol}`,
+                    checked: true,
+                    name: `GET02_CATE_SELECT${index}`,
+                    value: `${filterCol}`,
+                    type: 'checkbox'
+                })
+            }
         }
     }
 

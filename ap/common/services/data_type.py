@@ -208,13 +208,21 @@ def check_data_type_series(orig_series: Series):
 
     # series = series.convert_dtypes()
     series_type = str(series.dtypes.name).lower()
+
+    # series is Decimal number
+    is_decimal = [type(value) == decimal.Decimal for value in orig_series]
     if 'float' in series_type:
+        if False not in is_decimal:
+            return DataType.REAL.value
         return check_float_type(orig_series, series)
 
     if 'int' in series_type:
         # BIG INT
         if series.max() > MAX_SAFE_INTEGER:
             return DataType.BIG_INT.value
+
+        if False not in is_decimal:
+            return DataType.INTEGER.value
 
         # STRING START WITH ZERO
         if not series.astype(str).equals(orig_series.astype(str)):
@@ -233,7 +241,7 @@ def detect_datetime(datetime_value):
         # try to read value as datetime
         pd.to_datetime([datetime_value])
         return True
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, OverflowError):
         return False
 
 

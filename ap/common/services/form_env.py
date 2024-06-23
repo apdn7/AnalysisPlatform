@@ -89,6 +89,7 @@ from ap.common.constants import (
     REMOVE_OUTLIER_REAL_ONLY,
     REMOVE_OUTLIER_TYPE,
     REQ_ID,
+    REQUEST_PARAMS,
     RL_CATES,
     RL_EMD,
     RL_XAXIS,
@@ -207,6 +208,7 @@ common_startwith_keys = (
     NOMINAL_VARS,
     REQ_ID,
     FINE_SELECT,
+    REQUEST_PARAMS,
 )
 
 conds_startwith_keys = ('filter-', 'cond_', 'machine_id_multi')
@@ -585,7 +587,7 @@ def bind_dic_param_to_class(dic_proc_cfgs: Dict[int, CfgProcess], trace_graph: T
 
 
 def get_common_config_data(get_visualization_config=True):
-    processes = get_all_process_no_nested()
+    processes = get_all_process_no_nested(with_parent=False)
     # generate english name for process
     for proc_data in processes:
         if not proc_data['name_en']:

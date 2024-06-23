@@ -1,3 +1,4 @@
+import marshmallow
 from marshmallow import fields, post_load
 from marshmallow_sqlalchemy.fields import Nested
 
@@ -12,6 +13,7 @@ from ap.setting_module.models import (
     CfgOption,
     CfgProcess,
     CfgProcessColumn,
+    CfgProcessFunctionColumn,
     CfgRequest,
     CfgTrace,
     CfgTraceKey,
@@ -90,11 +92,44 @@ class FilterDetailSchema(ma.SQLAlchemyAutoSchema):
         exclude = EXCLUDE_COLS
 
 
+class ProcessFunctionColumnSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CfgProcessFunctionColumn
+        include_fk = True
+        exclude = EXCLUDE_COLS
+        unknown = marshmallow.EXCLUDE
+
+    id = fields.Integer(required=False, allow_none=True)
+    function_id = fields.Integer(required=False, allow_none=True)
+
+    var_x = fields.Integer(required=False, allow_none=True)
+    var_y = fields.Integer(required=False, allow_none=True)
+
+    a = fields.String(required=False, allow_none=True)
+    b = fields.String(required=False, allow_none=True)
+    c = fields.String(required=False, allow_none=True)
+    n = fields.String(required=False, allow_none=True)
+    k = fields.String(required=False, allow_none=True)
+    s = fields.String(required=False, allow_none=True)
+    t = fields.String(required=False, allow_none=True)
+
+    return_type = fields.String(required=False, allow_none=True)
+    note = fields.String(required=False, allow_none=True)
+    process_column_id = fields.Integer(required=False, allow_none=True)
+
+    @post_load
+    def make_obj(self, data, **kwargs):
+        return CfgProcessFunctionColumn(**data)
+
+
 class ProcessColumnSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CfgProcessColumn
         include_fk = True
         exclude = EXCLUDE_COLS
+        unknown = marshmallow.EXCLUDE
+
+    id = fields.Integer(required=False, allow_none=True)
 
     name_jp = fields.String(required=False, allow_none=True)
     name_local = fields.String(required=False, allow_none=True)
@@ -103,6 +138,14 @@ class ProcessColumnSchema(ma.SQLAlchemyAutoSchema):
     name = fields.String(required=False, allow_none=True)
     is_category = fields.Boolean(required=False, allow_none=True)
     is_int_category = fields.Boolean(required=False, allow_none=True)
+    is_linking_column = fields.Boolean(required=False, allow_none=True)
+
+    parent_column = Nested('ProcessColumnSchema', many=False, required=False)
+    # This field to sever store function config of this column
+    function_details = Nested(ProcessFunctionColumnSchema, many=True, required=False)
+
+    # This field to sever store previous data type and show it on modal fail convert data
+    origin_raw_data_type = fields.String(required=False, allow_none=True)
 
     @post_load
     def make_obj(self, data, **kwargs):
@@ -171,6 +214,7 @@ class ProcessSchema(ma.SQLAlchemyAutoSchema):
     name_jp = fields.String(required=False, allow_none=True)
     name_local = fields.String(required=False, allow_none=True)
     shown_name = fields.String(required=False, allow_none=True)
+    is_show_file_name = fields.Boolean(required=False, allow_none=True)
 
 
 class ProcessFullSchema(ma.SQLAlchemyAutoSchema):

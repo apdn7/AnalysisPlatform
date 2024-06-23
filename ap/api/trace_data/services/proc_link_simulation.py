@@ -61,7 +61,7 @@ def sim_gen_global_id(edges: List[CfgTrace]):
 
         for proc_id in (start_proc_id, end_proc_id):
             # sum_value = dic_proc_cnt.get(proc_id,  0) + edge_cnt
-            cycle_cnt = dic_proc_data_count.get(proc_id, 0)
+            cycle_cnt = dic_proc_data_count.get(int(proc_id), 0)
             # dic_proc_cnt[proc_id] = tuple([sum_value, cycle_cnt])
             dic_proc_cnt[proc_id] = cycle_cnt
 

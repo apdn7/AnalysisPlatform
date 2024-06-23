@@ -11,6 +11,7 @@ class ParallelPlot {
         this.data = {};
         this.layout = {};
         this.dimensions = [];
+        this.allDimensions = [];
         this.nominalVars = [];
         this.fromJump = false;
         this.selectedOrder = [];
@@ -128,9 +129,16 @@ class ParallelPlot {
         this.selectedOrder = ordering;
         if (useDimID) {
             this.selectedOrder = this.selectedOrder.map(dimID => {
-                const selectedDim = this.dimensions.filter(dim => dim.dimID === dimID);
+                const selectedDim = this.allDimensions.filter(dim => dim.dimID === dimID && dim.dimID !== this.objective.name);
                 return selectedDim.length ? selectedDim[0] : undefined;
             }).filter(dim => dim !== undefined);
+        }
+
+        let objectiveDim = this.allDimensions.filter(dim => dim.dimID === this.objective.name);
+        objectiveDim = objectiveDim.length ? objectiveDim[0] : null;
+        // push origin objective variable
+        if (objectiveDim) {
+            this.selectedOrder.push(objectiveDim);
         }
         // update setting
         this.settings.orderBy = ParallelProps.orderBy.selected_order;
@@ -587,7 +595,7 @@ class ParallelPlot {
             dimension = [...dimension].reverse().slice(0, limit).reverse();
         }
         // objective variable in last column
-        const endDimension = dimension.filter(dim => dim.dimID === this.objective.name);
+        const objectiveDimension = dimension.filter(dim => dim.dimID === this.objective.name);
 
         let explainDimension = [];
         if (this.explain) {
@@ -596,11 +604,22 @@ class ParallelPlot {
         const otherDimensions = dimension.filter(dim => dim.dimID !== this.objective.name &&
             (this.explain ? dim.dimID !== this.explain.name : true)
         );
-        dimension = [...otherDimensions, ...explainDimension, ...endDimension];
-        if (this.settings.orderBy !== ParallelProps.orderBy.setting) {
-            dimension = dimension.sort(propComparator(this.settings.orderBy));
+        let nonObjectiveDimension = [...otherDimensions, ...explainDimension];
+
+        if (this.settings.orderBy === ParallelProps.orderBy.correlation) {
+            nonObjectiveDimension = nonObjectiveDimension.sort(propComparator(this.settings.orderBy));
         }
 
+        if (this.settings.orderBy === ParallelProps.orderBy.setting) {
+            nonObjectiveDimension = nonObjectiveDimension.sort(propComparator('colId'));
+        }
+
+        if(this.settings.orderBy === ParallelProps.orderBy.process) {
+            const order = this.traceData.proc_link_order
+            nonObjectiveDimension = nonObjectiveDimension.sort((x,y) => order.indexOf(x.process) - order.indexOf(y.process))
+        }
+        // append objectiveDimension at the end after sorting
+        dimension = [...nonObjectiveDimension, ...objectiveDimension]
         // update corr default threshold
         if (this.settings.useCorrDefaultThreshold) {
             this.updateDefaultCorrThreshold(dimension);
@@ -713,6 +732,7 @@ class ParallelPlot {
                 colData => this.filterDimension(colData)
             )
             .map(colData => asDiscretePlot ? this.genPCatDimension(colData) : this.genPCPDimension(colData));
+        this.allDimensions = [...dimension];
         this.dimensions = this.orderDimension(dimension);
         if (asDiscretePlot) {
             this.data = this.genPCatData();

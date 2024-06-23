@@ -268,6 +268,21 @@ def import_factory(proc_id):
                 save_failed_import_history(proc_id, job_info, error_type)
                 continue
 
+            # merge mode
+            cfg_proc: CfgProcess = CfgProcess.get_proc_by_id(proc_id)
+            parent_id = cfg_proc.parent_id
+            if parent_id:
+                cfg_parent_proc: CfgProcess = CfgProcess.get_proc_by_id(parent_id)
+                dic_parent_cfg_cols = {cfg_col.id: cfg_col for cfg_col in cfg_parent_proc.columns}
+                dic_cols = {cfg_col.column_name: cfg_col.parent_id for cfg_col in cfg_columns}
+                dic_rename = {col: dic_parent_cfg_cols[dic_cols[col]].column_name for col in df.columns}
+                df = df.rename(columns=dic_rename)
+                orig_df = orig_df.rename(columns=dic_rename)
+                df_error = df_error.rename(columns=dic_rename)
+                proc_id = parent_id
+                cfg_columns = cfg_parent_proc.columns
+                get_date_col = cfg_parent_proc.get_date_col()
+
             # remove duplicate records which exists DB
             df_duplicate = remove_duplicates(df, orig_df, df_error, proc_id, get_date_col, cfg_columns)
             df_duplicate_cnt = len(df_duplicate)

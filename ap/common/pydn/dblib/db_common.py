@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Dict, List, Union
 
 # from bridge.models.model_utils import TableColumn
@@ -5,17 +6,17 @@ from typing import Dict, List, Union
 PARAM_SYMBOL = '?'
 
 
-# class SqlComparisonOperator(Enum):
-#     EQUAL = '='
-#     NOT_EQUAL = '!='
-#     LESS_THAN = '<'
-#     GREATER_THAN = '>'
-#     LESS_THAN_OR_EQ = '<='
-#     GREATER_THAN_OR_EQ = '>='
-#     IS_NULL = 'IS NULL'  # TODO: is null, like, between have separate sql syntax, have not test yet. be careful
-#     LIKE = 'LIKE'
-#     BETWEEN = 'BETWEEN'
-#     IN = 'IN'  # Ex: cls.Columns.status.name: [(SqlComparisonOperator.IN, tuple(job_statuses))]
+class SqlComparisonOperator(Enum):
+    EQUAL = '='
+    NOT_EQUAL = '!='
+    LESS_THAN = '<'
+    GREATER_THAN = '>'
+    LESS_THAN_OR_EQ = '<='
+    GREATER_THAN_OR_EQ = '>='
+    IS_NULL = 'IS NULL'  # TODO: is null, like, between have separate sql syntax, have not test yet. be careful
+    LIKE = 'LIKE'
+    BETWEEN = 'BETWEEN'
+    IN = 'IN'  # Ex: cls.Columns.status.name: [(SqlComparisonOperator.IN, tuple(job_statuses))]
 
 
 # class AggregateFunction(Enum):

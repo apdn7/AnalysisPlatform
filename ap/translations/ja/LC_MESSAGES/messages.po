@@ -53,6 +53,12 @@ msgstr "タイトル"
 msgid "Please confirm"
 msgstr "確認してください。"
 
+#: ap/templates/setting_module/config.html:39
+#: ap/templates/setting_module/db_config.html:144
+#: ap/templates/setting_module/trace_config.html:81
+msgid "Confirmation"
+msgstr "確認"
+
 #: ap/templates/setting_module/config.html:43
 msgid ""
 "Do you want to save changes and start to import data with configure at "
@@ -124,7 +130,7 @@ msgstr "ファイル名"
 msgid "Select"
 msgstr "選択"
 
-#: ap/templates/setting_module/db_config.html:148
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html:148
 #: ap/templates/setting_module/trace_config.html:85
 msgid "Do you want to delete this record?"
 msgstr "このレコードを削除しますか？"
@@ -291,6 +297,22 @@ msgstr "“英語名”が未入力の項目に自動入力します。"
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Select All"
 msgstr "すべて選択"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Copy All"
+msgstr "すべてコピー"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Paste All"
+msgstr "すべて貼り付け"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Copy"
+msgstr "コピー"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Set"
+msgstr "セット"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Import Data"
@@ -696,7 +718,7 @@ msgstr "並び替え"
 
 #: ap/templates/table_viewer/index.html
 msgid "Number of Data"
-msgstr "取得件数"
+msgstr "取得件数 (最大)"
 
 #: ap/templates/i18n.html ap/templates/table_viewer/index.html
 msgid "Descending"
@@ -721,6 +743,10 @@ msgstr "文字目"
 # ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "不正な桁指定です。"
+
+# ap/templates/setting_module/trace_config.html
+msgid "i18nInvalidDeltaTime"
+msgstr "時間紐付とCutOffは整数でなければなりません。"
 
 # ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
@@ -1541,7 +1567,7 @@ msgstr "外れ値チェックのキャンセル"
 
 #: ap/templates/setting_module/db_config.html
 msgid "Please fill another data source name"
-msgstr "入力したデータベース名が存在しています"
+msgstr "設定したデータソース名は既に存在しています。名称を変更してください。"
 
 #: ap/templates/templates/i18n.html
 msgid "CSV Template is error when import"
@@ -1967,6 +1993,10 @@ msgstr "相関係数の閾値(絶対値)"
 #: ap/templates/parallel_plot/parallel_plot.html
 msgid "Response variable"
 msgstr "目的変数に選択"
+
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Cycle Time Analysis"
+msgstr "サイクルタイム分析"
 
 #: ap/templates/templates/i18n.html
 msgid "Objective variable"
@@ -2790,6 +2820,10 @@ msgstr "同意する"
 #: ap/templates/i18n.html
 msgid "Decline"
 msgstr "同意しない"
+
+#: ap/templates/i18n.html
+msgid "Download New Version"
+msgstr "新しいバージョンをDL"
 
 #: ap/templates/scatter_plot/scatter_plot.html
 msgid "Backwards"
@@ -3855,6 +3889,10 @@ msgstr "ジャンプ先のページを選択してください。(例えば左�
 msgid "JumpWithDataframeMode"
 msgstr "可視化の設定を変更するには、ジャンプ元のページでグラフを修正し、再度ジャンプを行ってください。"
 
+#: ap/templates/i18n.html
+msgid "JumpWithoutObjectiveVariableMsg"
+msgstr "目的変数を選んでください。(原因を知りたい結果の変数を選びます)"
+
 #: ap/templates/macros.html
 msgid "Nominal scale"
 msgstr "カテゴリ変数の順序尺度化"
@@ -3927,7 +3965,7 @@ msgstr "フィルタ選択項目にコピー"
 
 #: ap/templates/i18n.html
 msgid "Column Raw Name"
-msgstr "列名"
+msgstr "元の列名"
 
 #: ap/templates/i18n.html
 msgid "Sample Data"
@@ -4089,9 +4127,21 @@ msgstr ""
 "0の場合は、自動で列名が生成されます。また、何も入力されておらず、1行目に数字が多い場合は自動で0が入力されます。\n"
 "1以上の場合は、入力した値の行番号までデータの読み込みをスキップし、次の行を列名としてデータを読み込みます。"
 
+#: ap/templates/setting_module/db_config_modal.html
+msgid "Num rows hover msg"
+msgstr "読み込む行数を制限します。入力なしもしくは0で全行、正数で指定した行数のみ読み込みます。"
+
+#: ap/templates/setting_module/db_config_modal.html
+msgid "Transpose hover msg"
+msgstr "データを転置します。これにより行と列が入れ替わります。"
+
 #: ap/templates/i18n.html
 msgid "There were no column names in the file, the AP created new column names."
-msgstr "ファイルに列名がなかったので、新しく列名を作成しました。"
+msgstr "ファイルの列名がないため、新しく列名を作成しました。"
+
+#: ap/templates/i18n.html
+msgid "PartialDummyHeaderGenerated"
+msgstr "ファイル内の列名がない列に対して、新しく列名を作成しました。"
 
 #: ap/templates/register_by_file.html
 msgid "NavButtonRegisterByFile"
@@ -4181,4 +4231,124 @@ msgstr "プロセス名は既に登録されています"
 #: ap/templates/register_by_file.html
 msgid "Data Source Name is already registered"
 msgstr "データソース名は既に登録されています"
+
+#: ap/templates/register_by_file.html
+msgid "Table viewer title hover msg"
+msgstr ""
+"各プロセスの元データ (データベースやCSV等データファイルの中身) を確認できます。\n"
+"CSV等のデータファイルの場合は、最新のファイルの中身が表示されます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid "Heatmap Plot Page Title"
+msgstr "ヒートマップ"
+
+#: ap/templates/heatmap/heatmap.html
+msgid "Heatmap Page title description"
+msgstr "変数間の関係をヒートマップで可視化できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid "HMp show value description"
+msgstr "選択するx,yのデータ型は両方ともカテゴリ、あるいは整数のみとなります。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid "HMp color hover msg"
+msgstr "カラーマップ(z軸)の値の算出方法を指定します。数値の場合は平均などの統計値、カテゴリ値の場合は数え上げ等を選択できます。"
+
+#: ap/templates/i18n.html
+msgid "If both x and y data types are categorical, please draw with HMP."
+msgstr "x,y両方のデータ型がカテゴリの場合はHMpで描画ください。"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "CopyButtonFunctionHoverMessage"
+msgstr "Open a modal that contains registered functions of this process."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "SetButtonFunctionHoverMessage"
+msgstr ""
+"Add a new function column that fully be inputted and defined into below "
+"table."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "NewButtonFunctionHoverMessage"
+msgstr "Open a modal that contains all functions with description."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "DeleteButtonFunctionHoverMessage"
+msgstr "Delete selected function columns."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "RegisterButtonFunctionHoverMessage"
+msgstr "Register all function columns in table into system."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ReloadButtonFunctionHoverMessage"
+msgstr "Reload to get all function columns of the process into system."
+
+#: ap/templates/i18n.html
+msgid "main::Date"
+msgstr "main::Date"
+
+#: ap/templates/i18n.html
+msgid "main::Time"
+msgstr "main::Time"
+
+#: ap/templates/i18n.html
+msgid "generateDatetimeCol"
+msgstr "main::Dateとmain::timeから、Datetime列を生成します"
+
+#: ap/templates/i18n.html
+msgid "requestSelectDateAndTime"
+msgstr "main::Dateとmain::timeは両方を設定してください。"
+
+#: ap/templates/setting_modules/proc_config_modals.html
+msgid "Merge Mode"
+msgstr "マージモード"
+
+#: ap/templates/macros.html
+msgid "numericLabel"
+msgstr "数値"
+
+#: ap/templates/macros.html
+msgid "nonNumericLabel"
+msgstr "その他"
+
+#: ap/templates/macros.html
+msgid "numericHoverMsg"
+msgstr "実数と整数のデータ"
+
+#: ap/templates/macros.html
+msgid "nonNumericHoverMsg"
+msgstr "実数と整数以外のデータ"
+
+#: ap/templates/i18n.html
+msgid "warnDeleteMergedProc"
+msgstr "このデータセットはマージされたデータセットです。こちらを消去すると、親のデータセットや他にマージされたデータセットも同時に消去されます。まとめて消去してよろしいですか？"
+
+#: ap/templates/i18n.html
+msgid ""
+"Cast error: There are some columns that cannot be cast to another data "
+"type. Please check the real data of the columns listed below: You can "
+"also see the data that will be exported and stored in file path {0}"
+msgstr ""
+"Cast error: There are some columns that cannot be cast to another data "
+"type. Please check the real data of the columns listed below: You can "
+"also see the data that will be exported and stored in file path {0}"
+
+msgid "LinkWithTime"
+msgstr "時間紐付: 時間差 [sec]"
+
+msgid "i18nCutOff"
+msgstr "CutOff: [msec]"
+
+#~ msgid ""
+#~ "Cast error: There are some columns "
+#~ "that cannot be cast to another "
+#~ "data type. Please check the real "
+#~ "data of the columns listed below. "
+#~ "You can also see the data that "
+#~ "will be exported and stored in "
+#~ "file path {0}"
+#~ msgstr ""
+#~ "キャストエラー：他のデータ型にキャストできない列があります。以下に示す列の実際のデータを確認してください。また、エクスポートされ保存されるデータもファイルパス"
+#~ " {0} で確認できます。"
 

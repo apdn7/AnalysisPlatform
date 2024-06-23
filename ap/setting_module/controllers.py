@@ -11,6 +11,7 @@ from ap.common.common_utils import (
     get_files,
     get_terms_of_use_md_file,
     get_wrapr_path,
+    sort_processes_by_parent_children_relationship,
 )
 from ap.common.constants import DEFAULT_POLLING_FREQ, CfgConstantType
 from ap.common.services.jp_to_romaji_utils import to_romaji
@@ -19,6 +20,7 @@ from ap.setting_module.models import CfgConstant, CfgDataSource
 from ap.setting_module.services.about import markdown_to_html
 from ap.setting_module.services.process_config import (
     convert2serialize,
+    get_all_functions,
     get_all_process,
     get_all_process_no_nested,
 )
@@ -59,16 +61,18 @@ def config_screen():
     for proc_data in processes:
         if not proc_data['name_en']:
             proc_data['name_en'] = to_romaji(proc_data['name'])
-    procs = [(proc.get('id'), proc.get('shown_name'), proc.get('name_en')) for proc in processes]
+    # procs = [(proc.get('id'), proc.get('shown_name'), proc.get('name_en')) for proc in processes]
+    all_functions = get_all_functions()
 
     output_dict = {
         'page_title': _('Application Configuration'),
         'proc_list': all_procs,
-        'procs': procs,
+        'procs': sort_processes_by_parent_children_relationship(all_procs),
         'import_err_dir': import_err_dir,
         'polling_frequency': int(polling_frequency),
         'data_sources': data_source_forms,
         'all_datasource': dumps(all_datasource),
+        'all_function': dumps(all_functions),
         # 'ds_tables': ds_tables
     }
 

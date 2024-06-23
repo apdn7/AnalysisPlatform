@@ -3,6 +3,8 @@ from ap.setting_module.models import CfgDataSourceCSV, CfgProcessColumn, CfgProc
 
 process_name_column = """alter table cfg_data_source_csv add process_name text;"""
 dummy_header_column = """alter table cfg_data_source_csv add dummy_header boolean;"""
+n_rows_column = """alter table cfg_data_source_csv add column n_rows integer;"""
+is_transpose_column = """alter table cfg_data_source_csv add column is_transpose boolean;"""
 
 
 def migrate_cfg_data_source_csv(app_db_src):
@@ -14,11 +16,18 @@ def migrate_cfg_data_source_csv(app_db_src):
     is_dummy_header_existing = app_db.is_column_existing(
         CfgDataSourceCSV.__table__.name, CfgDataSourceCSV.dummy_header.name
     )
-
+    is_n_rows_column_existing = app_db.is_column_existing(CfgDataSourceCSV.__table__.name, CfgDataSourceCSV.n_rows.name)
+    is_is_transpose_column_existing = app_db.is_column_existing(
+        CfgDataSourceCSV.__table__.name, CfgDataSourceCSV.is_transpose.name
+    )
     if not is_process_name_existing:
         app_db.execute_sql(process_name_column)
     if not is_dummy_header_existing:
         app_db.execute_sql(dummy_header_column)
+    if not is_n_rows_column_existing:
+        app_db.execute_sql(n_rows_column)
+    if not is_is_transpose_column_existing:
+        app_db.execute_sql(is_transpose_column)
 
     migrate_cfg_process_column(app_db)
     app_db.disconnect()

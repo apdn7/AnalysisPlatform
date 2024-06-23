@@ -1451,6 +1451,11 @@ input:disabled + .slider {
     height: 100%;
 }
 
+#failedCastDataModal.cat-filter-modal .modal-content,
+#failedCastDataModal.cat-filter-modal .modal-content .modal-body {
+    height: fit-content;
+}
+
 .cat-filter-modal .column-name {
     text-align: center;
     display: inline-grid;
@@ -2471,4 +2476,12 @@ svg.svg-inline--fa.fa-circle-right {
 
 .column-name-invalid {
     border: 1px solid red;
+}
+
+#jumpSensorTbl .custom-control.custom-checkbox {
+    padding: 0 0 0 30px;
+}
+
+#jumpSensorTbl .custom-control.custom-radio {
+    padding: 0 0 0 30px;
 }

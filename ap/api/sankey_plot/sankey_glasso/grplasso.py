@@ -107,10 +107,12 @@ def preprocess_skdpage(
     idx = np.arange(X.shape[0])
     if X.shape[0] > max_datapoints:
         if is_binary:
-            _, X, _, y, _, idx = train_test_split(X.copy(), y, idx, test_size=max_datapoints, stratify=y, shuffle=False)
+            _, _, _, _, _, idx = train_test_split(X.copy(), y, idx, test_size=max_datapoints, stratify=y, shuffle=True)
         else:
-            _, X, _, y, _, idx = train_test_split(X.copy(), y, idx, test_size=max_datapoints, shuffle=False)
-        X = X.reset_index(drop=True)
+            _, _, _, _, _, idx = train_test_split(X.copy(), y, idx, test_size=max_datapoints, shuffle=True)
+        idx = np.sort(idx.flatten())
+        X = X.iloc[idx, :].reset_index(drop=True)
+        y = y[idx]
         if verbose:
             print('Number of data points exceeded {}. Data is automatically resampled. '.format(max_datapoints))
     y = y.reshape(-1, 1)

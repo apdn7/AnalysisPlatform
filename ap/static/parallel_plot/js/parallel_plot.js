@@ -41,6 +41,8 @@ const formElements = {
     END_PROC: 'end_proc',
     VAL_SELECTED: 'GET02_VALS_SELECT',
     fineSelectEl: $('input#findSelect'),
+    showVar: $('select[name=show-var]'),
+    showCT_Time: 'input#show-ct-time'
 };
 
 const i18n = {
@@ -242,9 +244,13 @@ const mergeTargetProc = (formData) => {
 
 const resetSetting = (isRedirectFromJump=false) => {
     // reset setting variables
-    $("select[name='show-var']").val('all');
-    const orderValue = isRedirectFromJump ? 'setting' : 'correlation';
+    formElements.showVar.val('all');
+    const orderValue = paracordsSetting.orderOptions.correlation;
     $(`input[name='sort_by'][value=${orderValue}]`).prop('checked', true);
+    if (!isRedirectFromJump) {
+        // default is top 8 variables
+        $(`input[name='sort_option'][value=top]`).prop('checked', true);
+    }
     formElements.fineSelectEl.prop('checked', false);
 };
 
@@ -311,8 +317,7 @@ const showParallelGraph = (clearOnFlyFilter = false, isRedirectFromJump=false) =
         const sensorTypes = getSensorTypes(res.array_plotdata);
         // set sensor type default
         $('select[name=show-var]').val(sensorTypes);
-        let defaultShowOrder = isRedirectFromJump ?
-            paracordsSetting.orderOptions.setting :
+        let defaultShowOrder =
             paracordsSetting.orderOptions.correlation;
         // set order default value for paracat only
         if (sensorTypes === paracordsSetting.showVariables.CATEGORY) {
@@ -1200,4 +1205,14 @@ const getSelectedValues = () => {
         }
         pcpPlot.setSelectedValue(selectedDimension.colId, constraintRange);
     })
+};
+
+const onChangeShowCTTime = (e) => {
+    $(e).attr('disabled', true);
+    e.ready = true;
+    const settingInfo = getSettingCommonInfo();
+    $(formElements.endProcSelectedItem).trigger('change');
+    setTimeout(function () {
+        applyUserSetting(settingInfo, null, false);
+    },100);
 };

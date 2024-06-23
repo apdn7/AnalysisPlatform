@@ -364,7 +364,11 @@ def get_mode(series: Series):
 
 
 def convert_series_to_number(s):
-    if s.dtype.name in ['string', 'object']:
-        s = s.astype('float64')
+    if not pd.api.types.is_numeric_dtype(s):
+        try:
+            s = s.astype(np.float64)
+        except TypeError:
+            # convert to pandas dtype (to bypass <NA>)
+            s = s.astype(pd.Float64Dtype()).astype(np.float64)
 
     return s

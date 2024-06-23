@@ -67,6 +67,28 @@ const DataTypes = Object.freeze({
         operator: [''],
         selectionBoxDisplay: 'Datetime'
     },
+    DATE: {
+        name: 'DATE',
+        value: 4,
+        label: $('#i18nMainDate').text() || '日付',
+        i18nLabelID: 'i18nMainDate',
+        short: 'Date',
+        exp: 'i18nCTTypeExplain',
+        org_type: 'DATE',
+        operator: [''],
+        selectionBoxDisplay: 'Datetime'
+    },
+    TIME: {
+        name: 'TIME',
+        value: 4,
+        label: $('#i18nMainTime').text() || '日付',
+        i18nLabelID: 'i18nMainTime',
+        short: 'Time',
+        exp: 'i18nCTTypeExplain',
+        org_type: 'TIME',
+        operator: [''],
+        selectionBoxDisplay: 'Datetime'
+    },
     TEXT: {
         name: 'TEXT',
         value: 3,
@@ -136,6 +158,10 @@ const DataTypes = Object.freeze({
     CATEGORY: {
         name: 'CATEGORY',
         short: 'Cat'
+    },
+    BOOLEAN: {
+        name: 'BOOLEAN',
+        short: 'Bool'
     }
 });
 
@@ -187,6 +213,7 @@ class CfgColumn {
     is_serial_no;
     is_int_category;
     is_category;
+    is_linking_column;
     operator;
     coef;
     order;

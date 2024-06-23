@@ -5,7 +5,7 @@
 # Analysis Platform
 
 ```
-2024-04-26: Released version 4.6.2 (Hotfix)
+2024-06-24: version 4.7.0
 ```
 
 Analysis Platform is an open source web application to import, connect and visualize factory IoT data. It helps to collect, link and integrate data from multiple data sources.
@@ -72,19 +72,19 @@ Windows embeddable package, running the batch file is regarded as you agreed to 
 
 ## Getting Started
 
+You can install AP+DN7 on your PC using installer (batch file)
+
+* [APDN7_installer.zip](https://github.com/user-attachments/files/15897388/APDN7_installer.zip)
+
 For detailed instruction, please refer below documents (PDF):
 
-* EN: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/14956644/AP%2BDN7_getting_started_oss_En.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15073708/AP%2BDN7_Setting_Manual_461_En.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806413/AP%2BDN7_User_Manual_FPP_En.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
-* JA: [Getting Started](https://github.com/apdn7/AnalysisPlatform/files/14956642/AP%2BDN7_getting_started_oss_Jp.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15074076/AP%2BDN7_Setting_Manual_461_jp.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806414/AP-DN7_FPP_Jp0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
+* EN: [Getting Started](https://github.com/user-attachments/files/15927003/AP%2BDN7_GettingStarted_OSS_470_en.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15073708/AP%2BDN7_Setting_Manual_461_En.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806413/AP%2BDN7_User_Manual_FPP_En.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
+* JA: [Getting Started](https://github.com/user-attachments/files/15927005/AP%2BDN7_GettingStarted_OSS_470_ja.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15074076/AP%2BDN7_Setting_Manual_461_jp.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806414/AP-DN7_FPP_Jp0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
 
-### For users: Run the Analysis Platform with Windows embeddable package
+### For users
 
-If you use Windows machine, you can use Windows
-embeddable package to run the Analysis Platform
-without installing python.
-(See the document "Getting Started" for details)
-
-You only have to download, unzip the file, and double click the batch file `start_ap.bat`.  
+(See the document "Getting Started" for details)  
+To activate AP+DN7, double click `start_ap.bat` file.  
 The batch file will automatically download:
 
 * [Windows embeddable package](https://www.python.org/downloads/windows/): To run Analysis Platform without installing Python
@@ -145,15 +145,8 @@ Corresponding ODBC driver must be installed to use SQL Server and Oracle Databas
 ## How do we shut down Analysis Platform?
 
 To shut down the Analysis Platform,  
-press shut down button on bottom of sidebar  
-(this button is only available on host machine, by accessing the application with `localhost:{port_no}`),  
-
-## Upgrade
-
-To upgrade the Analysis Platform to a new version, see below document:
-
-* EN: [Upgrade Manual](https://github.com/apdn7/AnalysisPlatform/files/12557931/AP%2BDN7_upgrade_manual_En_v4.1.1_r2.pdf)
-* JA: [Upgrade Manual](https://github.com/apdn7/AnalysisPlatform/files/12557930/AP%2BDN7_upgrade_manual_Jp_v4.1.1_r2.pdf)
+press shut down button on bottom of sidebar.  
+(this button is only available on host machine, by accessing the application with `localhost:{port_no}`.)  
 
 ## Uninstall
 
@@ -161,6 +154,7 @@ To uninstall the Analysis Platform:
 
 1. Remove the Analysis Platform folder (the folder which the `start_ap.bat` is included)
 2. Remove the following files/folders:
+   * `env`
    * `get-pip.py`
    * `python_embedded_39`
    * `Oracle-Portable`

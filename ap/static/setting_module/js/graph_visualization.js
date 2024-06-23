@@ -1056,6 +1056,7 @@ const visualModule = (() => {
         tableHeadInfor.colWidths[1] = tableHeadInfor.colWidths[1] + firstColWidth;
         jspreadsheet(document.getElementById(`${eles.spreadsheetID}`), {
             data: configDat,
+            autoIncrement: false,
             colHeaders: tableHeadInfor.headerLabels.slice(1, numCols),
             colWidths: tableHeadInfor.colWidths.slice(1, numCols),
             ...jspreadsheetCustomHooks(),

@@ -36,15 +36,15 @@
 	</div>
 {% endmacro %}
 
-{% macro input_row(name, label, value='', type='text',label_block_cnt = 4,input_block_cnt = 8) %}
+{% macro input_row(name, label, value='', type='text',label_block_cnt = 4,input_block_cnt = 8, id='') %}
 	<div class="form-group row">
-		<label for="{{ name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
+		<label for="{{ id or name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
             <h5>{{ _(label) }}</h5>
         </label>
         <div class="col-sm-{{ input_block_cnt }}">
-            <input type="{{ type }}" name="{{ name }}" class="form-control" value="{{ value | escape }}" id="{{ name }}"
+            <input type="{{ type }}" name="{{ name }}" class="form-control" value="{{ value | escape }}" id="{{ id or name }}"
                    {% if type == 'password' %}autocomplete=on{% endif %}/>
-            <span id="{{ name }}-error-msg" class="error text-danger"
+            <span id="{{ id or name }}-error-msg" class="error text-danger"
                   style="display: none; text-align: left; font-size: smaller;">{{ _("Already registered") }}</span>
         </div>
     </div>
@@ -71,10 +71,10 @@
 {% endmacro %}
 
 <!--  selectbox ex:procs-->
-{% macro single_selectbox(name, label,items, selected,label_block_cnt = 1,selectbox_block_cnt = 11, is_required=false, no_link_data=false, multiple_cols=true) %}
+{% macro single_selectbox(name, label,items, selected,label_block_cnt = 1,selectbox_block_cnt = 11, is_required=false, no_link_data=false, multiple_cols=true, id='') %}
     <div class="mb-2 row">
         {% if label != '' %}
-			<label for="{{ name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
+			<label for="{{ id or name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
 				<h5>{{ label }}</h5>
 			</label>
 			{% set col = selectbox_block_cnt %}
@@ -83,7 +83,7 @@
 		{% endif %}
 		<div class="col-sm-{{ col }}">
 			<select class="form-control select2-selection--single {{ 'select-n-columns' if multiple_cols else '' }} {{ 'required-input' if is_required else '' }}"
-					name="{{ name }}" id="{{ name }}" {{ 'onchange=validateDataLink(this);' if no_link_data else '' }}>
+					name="{{ name }}" id="{{ id or name }}" {{ 'onchange=validateDataLink(this);' if no_link_data else '' }}>
 				{% if no_link_data == true %}
 					<option value="0">{{ _('No data link') }}</option>
 				{% endif %}
@@ -281,7 +281,7 @@
 
 
 <!-- end proc -->
-{% macro heatmap_end_proc(title='', procs=[], no_link_data=false, width=2, cat_count=true, color_scale=false) %}
+{% macro calendar_heatmap_end_proc(title='', procs=[], no_link_data=false, width=2, cat_count=true, color_scale=false) %}
 	<div class="card-body table-bordered graph-navi">
 		<div class="row">
 			<div class="col-xl-{{ width }} col-3 d-flex flex-column">
@@ -292,7 +292,7 @@
 				<div class="mt-auto pl-3">
                     <div class="row">
                         <div class="col">
-                            {{ sub_label(_('Real'), hl=' pb-0') }}
+                            {{ sub_label(_('numericLabel'), title=_('numericHoverMsg'), hl=' pb-0') }}
                             <div class="d-flex justify-content-center">
                             <select id="hmFunctionReal" class="form-control mb-2" name="function_real">
                                 <option value="median">{{ _('CHMMedian') }}</option>
@@ -320,7 +320,7 @@
                     {% if cat_count %}
                     <div class="row">
                         <div class="col">
-                            {{ sub_label(_('Cat.'), hl=' pb-0') }}
+                            {{ sub_label(_('nonNumericLabel'), title=_('nonNumericHoverMsg'), hl=' pb-0') }}
                             <div class="d-flex justify-content-center">
                                 <select id="hmFunctionCate" class="form-control" name="function_cate">
                                     <option value="count">{{ _('CHMCount') }}</option>
@@ -451,6 +451,63 @@
     </div>
 {% endmacro %}
 
+<!-- Heatmap End Proc -->
+{% macro heatmap_end_proc(procs, title='', width=2) %}
+    <div class="card-body table-bordered graph-navi">
+        <div class="row">
+            <div class="col-xl-{{ width }} col-3 d-flex flex-column">
+                <div class="d-flex justify-content-between">
+                {{ label(_('Show value'), title=title) }}
+                {{ paste_btn(with_count=True) }}
+                </div>
+                <div>
+                    {{ label(_('Color'), title=_('HMp color hover msg')) }}
+                    <div class="pl-3">
+                        <div class="d-flex align-items-center">
+                            {{ sub_label(_('numericLabel'), title=_('numericHoverMsg'), hl=' mr-3') }}
+                            <select id="function_real" class="form-control" style="width: 120px" name="function_real">
+                                <option value="last">Last</option>
+                                <option value="first">First</option>
+                                <option value="median">{{ _('CHMMedian') }}</option>
+                                <option value="max">{{ _('CHMMax') }}</option>
+                                <option value="mean">{{ _('CHMMean') }}</option>
+                                <option value="min">{{ _('CHMMin') }}</option>
+                                <option value="std">{{ _('CHMStd') }}</option>
+                                <option value="range">{{ _('CHMRange') }}</option>
+                                <option value="iqr">{{ _('IQR (Q3-Q1)') }}</option>
+                                <option value="ratio">Ratio[%]</option>
+                                <option value="count">{{ _('CHMCount') }}</option>
+                            </select>
+                        </div>
+                        <div class="d-flex align-items-center mt-1">
+                            {{ sub_label(_('nonNumericLabel'), title=_('nonNumericHoverMsg'), hl=' mr-3') }}
+                            <select id="function_cate" class="form-control" style="width: 120px" name="function_cate">
+                                <option value="ratio">Ratio[%]</option>
+                                <option value="count">{{ _('CHMCount') }}</option>
+                                <option value="last">Last</option>
+                                <option value="first">First</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-auto pl-3 pt-3">
+                    {{ start_proc_select(procs) }}
+                </div>
+            </div>
+            <div class="col-xl-{{12 - width}} col-9">
+                <div class="row" id="end-proc-row">
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+                        <button id="btn-add-end-proc" name="btnAddEndProc" type="button"
+                                class="btn simple-btn">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
 <!-- Scatter End Proc -->
 {% macro scatter_end_proc(procs, selected,start_date,start_tm,end_date,end_tm, title='', width=2, multiple_proc=true, isShowMinMax=true) %}
     <div class="card-body table-bordered graph-navi">
@@ -493,6 +550,12 @@
                 <div class="d-flex justify-content-between">
                 {{ label(_('Show value'), title=title) }}
                 {{ paste_btn(with_count=True) }}
+                </div>
+                <div class="pl-3 pt-3">
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input type="checkbox" id="show-ct-time" name="is_show_ct_time" class="custom-control-input" value="0" onchange="onChangeShowCTTime(this);">
+                        <label class="custom-control-label" for="show-ct-time">{{ _('Cycle Time Analysis') }}</label>
+                    </div>
                 </div>
                 <div class="mt-auto pl-3 pt-3">
                     {{ start_proc_select(procs) }}
@@ -674,6 +737,35 @@
 							<div id="categoriesBox" class="d-flex ui-sortable"></div>
 						</div>
                         {% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endmacro %}
+
+{% macro failed_cast_data_modal(scp=false) %}
+    <div class="cat-filter-modal modal fade" id="failedCastDataModal">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <!--    head actions    -->
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h4>{{_('Detail')}}</h4>
+                        <div class="d-flex align-items-center">
+                            <button type="button" id="btnOKFailedCastDataModal" class="btn btn-setting simple-btn mr-1">OK</button>
+                        </div>
+                    </div>
+                    <div id="alertFailedCaseDataErrorDiv" class="alert alert-dismissible fade show alert-danger" style="text-align: left; display: none;" role="alert">
+                        <strong id="alertFailedCaseDataErrorMsg"></strong>
+                    </div>
+                    <!--    body   -->
+                    <div class="d-flex h-auto overflow-auto custom-scroll">
+                        <div class="mr-2 cats-exp-box">
+                            <span id="columnsBoxTitle"
+								  class="cat-title ui-sortable">{{ 'Columns' }}</span>
+							<div id="columnsBox" class="d-flex ui-sortable"></div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -950,7 +1042,8 @@
                             <span class="sub-label">{{ _('Date range') }}</span>
                         </label>
                     </div>
-                    <div id="datetimeList" class="flex-grow-1 position-relative ml-2">
+                    <div class="position-relative d-flex flex-grow-1 ml-2">
+                        <div id="datetimeList" class="w-100">
                         <div class="datetimerange-group d-flex align-items-center">
                             {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker1' ,noCoverDiv=True, isSetDefaultValue=True, dtClassName='to-update-time-range') }}
                             <input id="startDate1" class="datepicker hasdatepicker form-control category-plot-time"
@@ -976,6 +1069,7 @@
                                 <span class="ml-2 remove-date"><i class="fa fa-times fa-sm"></i></span>
                             </div>
                         {% endfor %}
+                    </div>
                         <button id="termBtnAddDateTime" type="button" class="btn simple-btn">
                             <i class="fas fa-plus-circle"></i>
                         </button>
@@ -1715,5 +1809,21 @@
 {#            <input type="file" hidden id="{{ name }}Input"#}
 {#                   accept=".csv, .tsv, .ssv, .zip, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">#}
         </div>
+    </div>
+{% endmacro %}
+
+{% macro graph_selection_percent_count(id='', name='', values=[], texts=[], selectedValue='', cl='', onChange='', defaultValue='', customSelect=False) %}
+    <div class="d-flex align-items-center {{ cl }}">
+        {% if customSelect %}
+            <div class="dn-custom-select">
+        {% endif %}
+        <select name="{{ name }}" default-value="{{defaultValue}}" id="{{id}}" onchange="{{onChange}}" class="form-control border-white w-auto scale-dropdown">
+            {% for value in values %}
+                <option value="{{value}}" {{ 'selected' if selectedValue==value else '' }}>{{ texts[loop.index0] }}</option>
+            {% endfor %}
+        </select>
+         {% if customSelect %}
+            </div>
+        {% endif %}
     </div>
 {% endmacro %}

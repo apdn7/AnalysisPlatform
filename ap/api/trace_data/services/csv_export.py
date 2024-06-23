@@ -7,6 +7,7 @@ import pytz
 from dateutil import tz
 from pandas import DataFrame
 
+from ap.api.calendar_heatmap.services import gen_heatmap_data_as_dict, gen_sub_df_from_heatmap
 from ap.api.categorical_plot.services import (
     gen_dic_param_terms,
     gen_direct_terms,
@@ -14,7 +15,6 @@ from ap.api.categorical_plot.services import (
     produce_cyclic_terms,
 )
 from ap.api.common.services.show_graph_services import get_data_from_db
-from ap.api.heatmap.services import gen_heatmap_data_as_dict, gen_sub_df_from_heatmap
 from ap.common.common_utils import DATE_FORMAT_STR, DATE_FORMAT_STR_CSV, gen_sql_label
 from ap.common.constants import (
     CLIENT_TIMEZONE,

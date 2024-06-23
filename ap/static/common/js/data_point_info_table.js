@@ -16,6 +16,7 @@ const dpInfoCons = {
     scatter: 'scatter',
     heatmap: 'heatmap',
     violin: 'violin',
+    heatmapByInt: 'heatmap_by_int',
     timeseries: 'timeseries',
     dataNo: 'Number of data',
     category: 'Category',
@@ -259,9 +260,15 @@ const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
             tblContent += genTRItems('Mode', data.mode);
             tblContent += genTRItems('Average', data.avg);
             tblContent += genTRItems('N', data.n);
-        } else if (type === dpInfoCons.heatmap) {
-            tblContent += genTRItems('Ratio', data.ratio);
-            tblContent += genTRItems('N', data.n);
+        } else if ([dpInfoCons.heatmap, dpInfoCons.heatmapByInt].includes(type)) {
+            // tblContent += genTRItems(data.xName, data.xVal);
+            // tblContent += genTRItems(data.yName, data.yVal);
+            // tblContent += genTRItems(data.colorName, data.color);
+            let [aggFunc, aggUnit] = [data.agg_func, ''];
+            if (data.agg_func.includes('[%]')) {
+                [aggFunc, aggUnit] = ['Ratio', '[%]'];
+            }
+            tblContent += genTRItems(aggFunc, applySignificantDigit(data.agg_value) + aggUnit);
         } else {
             tblContent += genTRItems('X', data.x);
             tblContent += genTRItems('Y', data.y);
@@ -277,7 +284,10 @@ const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
         tblContent += genTRItems('', '');
         tblContent += genTRItems('From', data.from);
         tblContent += genTRItems('To', data.to);
-        tblContent += genTRItems('N', data.n_total);
+
+        if (type !== dpInfoCons.heatmapByInt) {
+            tblContent += genTRItems('N', data.n_total);
+        }
         tblContent += '</tr>';
         return tblContent;
     };

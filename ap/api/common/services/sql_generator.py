@@ -82,10 +82,12 @@ class SqlProcLinkKey:
     name: str
     substr_from: Optional[int]
     substr_to: Optional[int]
+    delta_time: Optional[int]
+    cut_off: Optional[int]
 
     @property
     def good(self) -> bool:
-        return self.substr_from and self.substr_to
+        return (self.substr_from and self.substr_to) or bool(self.delta_time)
 
     @property
     def bad(self) -> bool:
@@ -198,6 +200,9 @@ class SqlProcLink:
         is_start_proc: bool = False,
         for_count: bool = False,
     ):
+        if self.is_delta_time_using:
+            return self.gen_cte_by_delta_time(idx, duplicated_serial_show, is_start_proc, for_count)
+
         query_builder = TransactionDataQueryBuilder(self.trans_data)
         if is_start_proc:
             query_builder.add_column(column=self.trans_data.id_col_name)
@@ -227,6 +232,48 @@ class SqlProcLink:
         cte: CTE = self.apply_filter(cte)
 
         return cte
+
+    @log_execution_time(SQL_GENERATOR_PREFIX)
+    def gen_cte_by_delta_time(
+        self,
+        idx: int,
+        duplicated_serial_show: DuplicateSerialShow,
+        is_start_proc: bool = False,
+        for_count: bool = False,
+    ):
+        query_builder = TransactionDataQueryBuilder(self.trans_data)
+        if is_start_proc:
+            query_builder.add_column(column=self.trans_data.id_col_name)
+
+        time_col = self.trans_data.getdate_column
+        query_builder.add_column(column=time_col.bridge_column_name, label=self.gen_proc_time_label(is_start_proc))
+        query_builder.between(start_tm=self.start_tm, end_tm=self.end_tm)
+        query_builder_time_col = query_builder.column(self.gen_proc_time_label(is_start_proc))
+
+        for cfg_col in self.all_cfg_columns:
+            query_builder.add_column(column=cfg_col.bridge_column_name, label=cfg_col.gen_sql_label())
+
+        link_cols = []
+        for col_label in self.all_link_keys_labels:
+            link_cols.append(query_builder.column(col_label))
+
+        if not for_count and duplicated_serial_show != DuplicateSerialShow.SHOW_BOTH:
+            distinct_cols = [col for col in link_cols if col.name != self.time_col]
+            if distinct_cols:
+                query_builder.distinct(columns=distinct_cols)
+                if duplicated_serial_show == DuplicateSerialShow.SHOW_FIRST:
+                    query_builder.having(columns=[func.min(query_builder_time_col)])
+                else:
+                    query_builder.having(columns=[func.max(query_builder_time_col)])
+
+        cte = query_builder.build().cte(f'{CTE_PROCESS_PREFIX}{idx}')
+        cte: CTE = self.apply_filter(cte)
+
+        return cte
+
+    @property
+    def is_delta_time_using(self):
+        return all(link_key.delta_time for link_key in self.link_keys)
 
 
 def cast_col_to_text(col: ColumnClause, raw_data_type: str) -> Union[ColumnClause, ColumnOperators]:
@@ -274,6 +321,38 @@ def make_comparison_column_with_cast_and_substr(
     return modified_col1 == modified_col2
 
 
+def unixepoch_delta_time_col(col, delta_time=0, cut_off=0):
+    if delta_time:
+        seconds = delta_time + cut_off / 1000
+        return func.unixepoch(col, 'subsec') + seconds
+    else:
+        return func.unixepoch(col, 'subsec')
+
+
+def make_comparison_column_delta_time_and_cut_off(comparisons, from_col, from_key, to_col, to_key):
+    if from_key.delta_time:
+        to_col_val = unixepoch_delta_time_col(to_col)
+        if from_key.cut_off:
+            min_cfg_col = unixepoch_delta_time_col(from_col, from_key.delta_time)
+            max_cfg_col = unixepoch_delta_time_col(from_col, from_key.delta_time, from_key.cut_off)
+            comparisons.append(min_cfg_col <= to_col_val)
+            comparisons.append(max_cfg_col >= to_col_val)
+        else:
+            from_col_val = unixepoch_delta_time_col(from_col, from_key.delta_time)
+            comparisons.append(from_col_val == to_col_val)
+
+    elif to_key.delta_time:
+        from_col_val = unixepoch_delta_time_col(from_col)
+        if to_key.cut_off:
+            min_other_col = unixepoch_delta_time_col(to_col, to_key.delta_time)
+            max_other_col = unixepoch_delta_time_col(to_col, to_key.delta_time, to_key.cut_off)
+            comparisons.append(min_other_col <= from_col_val)
+            comparisons.append(max_other_col >= from_col_val)
+        else:
+            to_col_val = unixepoch_delta_time_col(to_col, to_key.delta_time)
+            comparisons.append(from_col_val == to_col_val)
+
+
 @log_execution_time(SQL_GENERATOR_PREFIX)
 def gen_tracing_cte(
     tracing_table_alias: str,
@@ -303,17 +382,25 @@ def gen_tracing_cte(
             to_cfg_col = prev_sql_obj.trans_data.get_cfg_column_by_name(to_key.name)
             from_col = cte_proc.c.get(from_cfg_col.gen_sql_label())
             to_col = prev_cte_proc.c.get(to_cfg_col.gen_sql_label())
-
-            comp = make_comparison_column_with_cast_and_substr(
-                from_col,
-                from_key,
-                from_cfg_col.data_type,
-                to_col,
-                to_key,
-                to_cfg_col.data_type,
-            )
-
-            comparisons.append(comp)
+            if from_key.delta_time or to_key.delta_time:
+                # in case of data link by delta_time, use datetime function
+                if from_key.delta_time:
+                    to_col_val = func.datetime(to_col)
+                    from_col_val = func.datetime(from_col, f'+{int(from_key.delta_time)} seconds')
+                else:
+                    to_col_val = func.datetime(to_col, f'+{int(to_key.delta_time)} seconds')
+                    from_col_val = func.datetime(from_col)
+                comparisons.append(to_col_val == from_col_val)
+            else:
+                comp = make_comparison_column_with_cast_and_substr(
+                    from_col,
+                    from_key,
+                    from_cfg_col.data_type,
+                    to_col,
+                    to_key,
+                    to_cfg_col.data_type,
+                )
+                comparisons.append(comp)
 
         if duplicated_serial_show == duplicated_serial_show.SHOW_BOTH:
             from_col = cte_proc.c.get(gen_row_number_col_name(sql_obj.process_id))
@@ -335,6 +422,73 @@ def gen_tracing_cte(
     if join_conditions is not None:
         stmt = stmt.select_from(join_conditions)
     return stmt.cte(tracing_table_alias)
+
+
+def gen_trace_by_delta_time_query(
+    sql_objs: list[SqlProcLink],
+):
+    _ctes = []
+    _target_selected = []
+    _markers = []
+    _tables = []
+    _condition = []
+    for idx, sql_obj in enumerate(sql_objs):
+        _cte = f'''cte_marker_{idx} AS (SELECT '''
+        # add target columns
+        _select = [f'{selected_cols}' for selected_cols in sql_obj.select_col_names]
+        for column in sql_obj.all_cfg_columns:
+            if column.id in sql_obj.select_col_ids:
+                _target_selected.append(f'{column.bridge_column_name} AS "{column.gen_sql_label()}"')
+
+        # add link keys
+        for linked_key in sql_obj.link_cfg_columns:
+            if linked_key.bridge_column_name not in sql_obj.select_col_names:
+                _select.append(linked_key.bridge_column_name)
+
+        _cte += ', '.join(_select)
+        link_col = sql_obj.link_cfg_columns[0].bridge_column_name
+        # add marker
+        _cte += f''', CASE
+                     WHEN strftime('%s', {link_col}) -
+                          strftime('%s', LAG({link_col}, 1) OVER (
+                            ORDER BY {link_col})) = {sql_obj.link_keys[0].delta_time} THEN 1
+                     ELSE 0
+                END AS marker_{idx}
+                FROM {sql_obj.trans_data.table_name}
+                WHERE {sql_obj.time_col} BETWEEN '{sql_obj.start_tm}' AND '{sql_obj.end_tm}'),
+        cte_delta_t_{idx} AS (SELECT '''
+        _cte += ', '.join(_select)
+        _cte += f''', CASE
+                     WHEN marker_{idx} > 0 THEN
+                         SUM(marker_{idx})
+                             OVER (ORDER BY {link_col} ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+                     END AS marker_{idx}
+                FROM cte_marker_{idx})'''
+        _markers.append(f't{idx}.marker_{idx}')
+        _tables.append(f'cte_delta_t_{idx} t{idx}')
+        _condition.append(f't{idx}.{sql_obj.time_col}')
+        _ctes.append(_cte)
+
+    _cte_trace = 'SELECT '
+    _cte_trace += ', '.join(_target_selected) + ', '
+    _cte_trace += ', '.join(_markers) + ', '
+    _cte_trace += ', '.join(_condition) + ', '
+
+    for idx, time in enumerate(_condition):
+        if not idx:
+            _cte_trace += time + ' AS time'
+        _cte_trace += ', ' + time + f' AS time_{sql_objs[idx].process_id}'
+    _cte_trace += f''' FROM {_tables[0]}'''
+    for idx, _cte_table in enumerate(_tables):
+        if not idx:
+            continue
+        _cte_trace += f''' LEFT OUTER JOIN {_cte_table}
+                        ON {_markers[idx - 1]} = {_markers[idx]}'''
+        # WHERE {_condition[idx - 1]} BETWEEN '{sql_objs[0].start_tm}' AND '{sql_objs[0].end_tm}'
+    query = ', '.join(_ctes)
+    query = f'WITH {query}'
+    query += _cte_trace
+    return query, None
 
 
 def gen_conditions_per_column(filters):
@@ -426,6 +580,15 @@ def gen_id_stmt(cte_tracing: CTE) -> Select:
     # return select([1])
 
 
+# def count_proc_link_by_delta_time(trace: CfgTrace, limit: Optional[int] = None) -> Select:
+#     self_proc_link_keys: list[SqlProcLinkKey] = []
+#     target_proc_link_keys: list[SqlProcLinkKey] = []
+#
+#     self_trans_data = TransactionData(trace.self_process_id)
+#     target_trans_data = TransactionData(trace.target_process_id)
+#     return None
+
+
 def gen_sql_proc_link_count(trace: CfgTrace, limit: Optional[int] = None) -> Select:
     self_proc_link_keys: list[SqlProcLinkKey] = []
     target_proc_link_keys: list[SqlProcLinkKey] = []
@@ -440,6 +603,8 @@ def gen_sql_proc_link_count(trace: CfgTrace, limit: Optional[int] = None) -> Sel
                 name=self_trans_data.get_column_name(trace_key.self_column_id),
                 substr_from=trace_key.self_column_substr_from,
                 substr_to=trace_key.self_column_substr_to,
+                delta_time=trace_key.delta_time,
+                cut_off=trace_key.cut_off,
             ),
         )
         target_proc_link_keys.append(
@@ -448,6 +613,9 @@ def gen_sql_proc_link_count(trace: CfgTrace, limit: Optional[int] = None) -> Sel
                 name=target_trans_data.get_column_name(trace_key.target_column_id),
                 substr_from=trace_key.target_column_substr_from,
                 substr_to=trace_key.target_column_substr_to,
+                # delta time and cut_off apply only self process link key, self_link_key + delta_time = target_link_key
+                delta_time=None,
+                cut_off=None,
             ),
         )
     self_query_builder = TransactionDataProcLinkQueryBuilder(
@@ -511,6 +679,22 @@ class TransactionDataQueryBuilder:
         if label is not None:
             column = column.label(label)
         self.selected_columns.append(column)
+
+    def add_column_by_case(self, datetime_column, delta_time=None, label: Optional[str] = None):
+        # func.lag does not work
+        link_columns = self.table_column(datetime_column)
+        filter_column = sa.case(
+            (
+                (
+                    func.strftime('%s', link_columns)
+                    - func.strftime('%s', func.lag(link_columns, 1).over(order_by=link_columns))
+                )
+                == delta_time,
+                1,
+            ),
+            else_=0,
+        ).label(label)
+        self.selected_columns.extend(filter_column)
 
     def add_columns(self, columns: list[Label]) -> None:
         self.selected_columns.extend(columns)
@@ -576,7 +760,7 @@ class TransactionDataProcLinkQueryBuilder:
     def build_proc_link_cte(self) -> Self:
         query_builder = TransactionDataQueryBuilder(self.trans_model)
         for key in self.proc_link_keys:
-            cfg_col = self.trans_model.get_cfg_column_by_id(key.id)
+            cfg_col = self.trans_model.get_cfg_column_by_id(int(key.id))
             query_builder.add_column(column=cfg_col.bridge_column_name, label=cfg_col.gen_sql_label())
         stmt = query_builder.build(self.limit)
         self.cte = stmt.cte(self.table_alias)
@@ -596,23 +780,32 @@ class TransactionDataProcLinkQueryBuilder:
     def make_link_comparison(self, other: Self) -> list[ColumnOperators]:
         comparisons = []
         for key, other_key in zip(self.proc_link_keys, other.proc_link_keys):
-            cfg_column: CfgProcessColumn = self.trans_model.get_cfg_column_by_id(key.id)
-            other_cfg_column: CfgProcessColumn = other.trans_model.get_cfg_column_by_id(other_key.id)
+            cfg_column: CfgProcessColumn = self.trans_model.get_cfg_column_by_id(int(key.id))
+            other_cfg_column: CfgProcessColumn = other.trans_model.get_cfg_column_by_id(int(other_key.id))
 
             column = self.get_column_by_cfg_column(cfg_column)
             other_column = other.get_column_by_cfg_column(other_cfg_column)
 
-            # non-master column must be cast before linking
-
-            comparison = make_comparison_column_with_cast_and_substr(
-                column,
-                key,
-                cfg_column.data_type,
-                other_column,
-                other_key,
-                other_cfg_column.data_type,
-            )
-            comparisons.append(comparison)
+            if key.delta_time or other_key.delta_time:
+                # in case of data link by delta_time, use datetime function
+                if key.delta_time:
+                    from_col_val = func.datetime(column, f'+{int(key.delta_time)} seconds')
+                    to_col_val = func.datetime(other_column)
+                else:
+                    from_col_val = func.datetime(column)
+                    to_col_val = func.datetime(other_column, f'+{int(other_key.delta_time)} seconds')
+                comparisons.append(from_col_val == to_col_val)
+            else:
+                # non-master column must be cast before linking
+                comparison = make_comparison_column_with_cast_and_substr(
+                    column,
+                    key,
+                    cfg_column.data_type,
+                    other_column,
+                    other_key,
+                    other_cfg_column.data_type,
+                )
+                comparisons.append(comparison)
 
         return comparisons
 

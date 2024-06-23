@@ -13,6 +13,7 @@ from ap.api.common.services.show_graph_services import (
     get_filter_on_demand_data,
     get_fmt_str_from_dic_data,
     get_serial_and_datetime_data,
+    get_trace_configs,
     is_nominal_check,
     main_check_filter_detail_match_graph_data,
 )
@@ -35,6 +36,7 @@ from ap.common.constants import (
     MATCHED_FILTER_IDS,
     NA_STR,
     NOT_EXACT_MATCH_FILTER_IDS,
+    PROC_LINK_ORDER,
     SERIAL_DATA,
     SERIALS,
     START_PROC,
@@ -151,6 +153,17 @@ def gen_graph_paracords(graph_param, dic_param, df=None):
     dic_param[START_PROC] = start_proc_name
     dic_param[CATEGORY_COLS] = category_cols_details
 
+    trace_graph = get_trace_configs()
+    all_paths = trace_graph.get_all_paths_in_graph()
+    relevant_procs = set([graph_param.common.start_proc] + [end_proc.proc_id for end_proc in graph_param.array_formval])
+    # path with the relevant procs
+    relevant_path = sorted(
+        [path for path in all_paths if relevant_procs.intersection(set(path))],
+        key=lambda x: len(x),
+        reverse=True,
+    )
+    relevant_path = relevant_path[0] if len(relevant_path) else None
+    dic_param[PROC_LINK_ORDER] = relevant_path
     dic_param = get_filter_on_demand_data(dic_param)
 
     return dic_param

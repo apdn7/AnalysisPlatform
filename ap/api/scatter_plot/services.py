@@ -49,6 +49,7 @@ from ap.common.constants import (
     END_PROC_ID,
     END_TM,
     H_LABEL,
+    HEATMAP_MATRIX,
     IS_DATA_LIMITED,
     IS_RESAMPLING,
     MATCHED_FILTER_IDS,
@@ -79,8 +80,10 @@ from ap.common.constants import (
     UNMATCHED_FILTER_IDS,
     V_LABEL,
     VAR_TRACE_TIME,
+    X_NAME,
     X_SERIAL,
     X_THRESHOLD,
+    Y_NAME,
     Y_SERIAL,
     Y_THRESHOLD,
     CacheType,
@@ -354,7 +357,9 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
 
         # gen matrix
         all_x, all_y = get_heatmap_distinct(output_graphs)
+        # all_x_with_step, all_y_with_step = get_heatmap_range_with_steps(output_graphs)
         for graph in output_graphs:
+            # gen_map_xy_heatmap_matrix(x_name, y_name, all_x_with_step, all_y_with_step, graph)
             # handle x, y, z data
             array_x = graph[ARRAY_X]
             array_y = graph[ARRAY_Y]
@@ -364,10 +369,13 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             missing_x = all_x - unique_x
             missing_y = all_y - unique_y
             array_z = pd.crosstab(array_y, array_x)
+            # map_xy_array_z = pd.crosstab(array_y, array_x, values=graph[COLORS], aggfunc='first')
             for key in missing_x:
                 array_z[key] = None
+                # map_xy_array_z[key] = None
 
             sorted_cols = sorted(array_z.columns)
+
             array_z = array_z[sorted_cols]
 
             missing_data = [None] * len(missing_y)
@@ -394,6 +402,45 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             graph[Y_SERIAL] = []
             graph[TIMES] = []
             graph[ELAPSED_TIME] = []
+    elif chart_type == ChartType.HEATMAP_BY_INT.value:
+        # todo
+        # draw heatmap for int columns
+        # gen matrix
+        all_x, all_y = get_heatmap_range_with_steps(output_graphs)
+        for graph in output_graphs:
+            # handle x, y, z data
+            array_x = graph[ARRAY_X]
+            array_y = graph[ARRAY_Y]
+            unique_x = set(array_x.drop_duplicates().tolist())
+            unique_y = set(array_y.drop_duplicates().tolist())
+
+            missing_x = all_x - unique_x
+            missing_y = all_y - unique_y
+            map_xy_array_z = pd.crosstab(array_y, array_x, values=graph[COLORS], aggfunc='first')
+            for key in missing_x:
+                map_xy_array_z[key] = None
+
+            sorted_cols = sorted(map_xy_array_z.columns)
+            map_xy_array_z = map_xy_array_z[sorted_cols]
+
+            missing_data = [None] * len(missing_y)
+            df_missing = pd.DataFrame({col: missing_data for col in map_xy_array_z.columns}, index=missing_y)
+            map_xy_array_z = pd.concat([map_xy_array_z, df_missing])
+            map_xy_array_z.sort_index(inplace=True)
+
+            # limit 10K cells
+            if map_xy_array_z.size > HEATMAP_COL_ROW * HEATMAP_COL_ROW:
+                map_xy_array_z = map_xy_array_z[:HEATMAP_COL_ROW][map_xy_array_z.columns[:HEATMAP_COL_ROW]]
+
+            # graph[ARRAY_Z] = matrix(map_xy_array_z).tolist()
+            # graph[ORIG_ARRAY_Z] = graph[ARRAY_Z]
+            graph[X_NAME] = x_name
+            graph[Y_NAME] = y_name
+            graph[HEATMAP_MATRIX] = {
+                'z': matrix(map_xy_array_z).tolist(),
+                'x': all_x,
+                'y': all_y,
+            }
 
     elif chart_type == ChartType.SCATTER.value:
         other_cols = [int(col) for col in [color_id, cat_div_id] if col]
@@ -776,12 +823,16 @@ def get_chart_type(df: DataFrame, x_id, y_id, dic_cols):
     x_category = is_categorical_col(cfg_col_x)
     y_category = is_categorical_col(cfg_col_y)
 
-    if x_category and y_category:
-        return ChartType.HEATMAP.value, x_category, y_category
+    chart_type = ChartType.VIOLIN.value
+    if cfg_col_x.data_type == DataType.INTEGER.name and cfg_col_y.data_type == DataType.INTEGER.name:
+        # todo: confirm to apply for unique(distinct) < 128
+        chart_type = ChartType.HEATMAP_BY_INT.value
+    elif x_category and y_category:
+        chart_type = ChartType.HEATMAP.value
     elif not x_category and not y_category:
-        return ChartType.SCATTER.value, x_category, y_category
-    else:
-        return ChartType.VIOLIN.value, x_category, y_category
+        chart_type = ChartType.SCATTER.value
+
+    return chart_type, x_category, y_category
 
 
 @log_execution_time()
@@ -1356,6 +1407,25 @@ def get_heatmap_distinct(graphs):
 
 
 @log_execution_time()
+def get_heatmap_range_with_steps(graphs, step=1):
+    array_x, array_y, range_x, range_y = [], [], [], []
+    for graph in graphs:
+        range_x += graph[ARRAY_X].drop_duplicates().tolist()
+        range_y += graph[ARRAY_Y].drop_duplicates().tolist()
+
+    for i, v in enumerate(range(min(range_x), max(range_x))):
+        if not i:
+            array_x += [v]
+        array_x += [array_x[-1] + step]
+
+    for i, v in enumerate(range(min(range_y), max(range_y))):
+        if not i:
+            array_y += [v]
+        array_y += [array_y[-1] + step]
+    return set(array_x), set(array_y)
+
+
+@log_execution_time()
 @abort_process_handler()
 def get_proc_serials(df: DataFrame, serial_cols: List[CfgProcessColumn]):
     if not serial_cols:
@@ -1391,3 +1461,37 @@ def reduce_data_by_number(df, max_graph, recent_flg=None):
             df = df[df[DATA_COUNT_COL] < first_num]
 
     return df
+
+
+@log_execution_time()
+def gen_map_xy_heatmap_matrix(x_name, y_name, all_x, all_y, graph):
+    array_x = graph[ARRAY_X]
+    array_y = graph[ARRAY_Y]
+    unique_x = set(array_x.drop_duplicates().tolist())
+    unique_y = set(array_y.drop_duplicates().tolist())
+
+    missing_x = all_x - unique_x
+    missing_y = all_y - unique_y
+    map_xy_array_z = pd.crosstab(array_y, array_x, values=graph[COLORS], aggfunc='first')
+    for key in missing_x:
+        map_xy_array_z[key] = None
+
+    sorted_cols = sorted(map_xy_array_z.columns)
+    map_xy_array_z = map_xy_array_z[sorted_cols]
+
+    missing_data = [None] * len(missing_y)
+    df_missing = pd.DataFrame({col: missing_data for col in map_xy_array_z.columns}, index=missing_y)
+    map_xy_array_z = pd.concat([map_xy_array_z, df_missing])
+    map_xy_array_z.sort_index(inplace=True)
+
+    # limit 10K cells
+    if map_xy_array_z.size > HEATMAP_COL_ROW * HEATMAP_COL_ROW:
+        map_xy_array_z = map_xy_array_z[:HEATMAP_COL_ROW][map_xy_array_z.columns[:HEATMAP_COL_ROW]]
+
+    graph[X_NAME] = x_name
+    graph[Y_NAME] = y_name
+    graph[HEATMAP_MATRIX] = {
+        'z': matrix(map_xy_array_z),
+        'x': all_x,
+        'y': all_y,
+    }

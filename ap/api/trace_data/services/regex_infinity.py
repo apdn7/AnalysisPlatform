@@ -85,7 +85,7 @@ def validate_string(df: DataFrame, col_name):
 
     conditions = gen_all_conditions(target_data)
     return_vals = [pd.NA] * 5
-    df[col_name] = np.select(conditions, return_vals, df[col_name])
+    df[col_name] = pd.Series(np.select(conditions, return_vals, df[col_name]), dtype=df[col_name].dtype)
 
     return df
 

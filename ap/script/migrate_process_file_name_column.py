@@ -36,3 +36,23 @@ def migrate_cfg_process_column_add_column_type(app_db_src):
     if not is_col_existing:
         app_db.execute_sql(create_column_type)
     app_db.disconnect()
+
+
+def migrate_cfg_process_column_add_parent_id(app_db_src):
+    app_db = sqlite.SQLite3(app_db_src)
+    app_db.connect()
+    is_col_existing_in_cfgprocess_col = app_db.is_column_existing(
+        CfgProcessColumn.__table__.name, CfgProcessColumn.parent_id.name
+    )
+    is_col_existing_in_cfgprocess = app_db.is_column_existing(CfgProcess.__table__.name, CfgProcess.parent_id.name)
+
+    cfgprocess_column_query = (
+        """ALTER TABLE cfg_process_column ADD COLUMN parent_id INTEGER REFERENCES cfg_process_column(id);"""
+    )
+    cfgprocess_query = """ALTER TABLE cfg_process ADD COLUMN parent_id INTEGER REFERENCES cfg_process(id);"""
+    if not is_col_existing_in_cfgprocess_col:
+        app_db.execute_sql(cfgprocess_column_query)
+
+    if not is_col_existing_in_cfgprocess:
+        app_db.execute_sql(cfgprocess_query)
+    app_db.disconnect()

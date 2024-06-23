@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Dict, List, Optional
 
 from ap.api.common.services.utils import TraceGraph, get_col_cfg
+from ap.api.setting_module.services.equations import get_all_normal_columns_for_functions
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     COL_DATA_TYPE,
@@ -20,7 +21,7 @@ from ap.common.constants import (
     DuplicateSerialShow,
     RemoveOutlierType,
 )
-from ap.setting_module.models import CfgFilterDetail, CfgProcess
+from ap.setting_module.models import CfgFilterDetail, CfgProcess, CfgProcessColumn
 
 
 class EndProc:
@@ -532,12 +533,18 @@ class DicParam:
     def get_col_cfgs(self, col_ids):
         return [col for col in self.get_all_col_cfgs() if col.id in col_ids]
 
-    def get_col_cfg(self, col_id):
-        cols = [col for col in self.get_all_col_cfgs() if col.id == col_id]
-        if cols:
-            return cols[0]
-        else:
-            return None
+    def get_cfg_cols_(self, col_ids) -> list[CfgProcessColumn]:
+        """This is a temporary method to get configuration columns like sqlalchemy,
+        need to replace `get_col_cfgs` later
+        """
+        return [CfgProcessColumn.from_dict(col.__dict__) for col in self.get_all_col_cfgs() if col.id in col_ids]
+
+    def get_col_cfg(self, col_id) -> Optional[CfgProcessColumn]:
+        for col in self.get_all_col_cfgs():
+            if col.id == col_id:
+                return CfgProcessColumn.from_dict(col.__dict__)
+
+        return None
 
     def gen_label_from_col_id(self, col_id):
         col = self.get_col_cfg(col_id)
@@ -550,6 +557,13 @@ class DicParam:
             judge_var = self.get_col_cfg(int(self.common.judge_var))
             if judge_var:
                 self.add_proc_to_array_formval(judge_var.process_id, judge_var.id, as_target_sensor=as_target_sensor)
+
+    def add_function_cols_to_sensor_cols(self):
+        for end_proc in self.array_formval:
+            all_columns = self.dic_proc_cfgs[end_proc.proc_id].columns
+            required_column_ids = get_all_normal_columns_for_functions(end_proc.col_ids, all_columns)
+            if required_column_ids:
+                self.add_proc_to_array_formval(end_proc.proc_id, required_column_ids)
 
     def get_process_by_id(self, proc_id):
         process = [proc for (_, proc) in self.dic_proc_cfgs.items() if proc.id == proc_id]

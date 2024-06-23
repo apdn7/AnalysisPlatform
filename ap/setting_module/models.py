@@ -1,17 +1,22 @@
+from __future__ import annotations
+
 import json
 from contextlib import contextmanager
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
+import sqlalchemy
 from flask import g
 from flask_babel import get_locale
-from sqlalchemy import asc, desc, event, func, or_
+from sqlalchemy import asc, desc, event, func, null, or_
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import load_only
+from sqlalchemy.orm import RelationshipProperty, load_only
+from typing_extensions import Self
 
 from ap import Session, db
 from ap.common.common_utils import (
+    chunks,
     dict_deep_merge,
     gen_bridge_column_name,
     gen_data_count_table_name,
@@ -22,19 +27,27 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import (
     DEFAULT_ERROR_DISK_USAGE,
+    DEFAULT_NONE_VALUE,
     DEFAULT_WARNING_DISK_USAGE,
     EFA_HEADER_FLAG,
+    SQL_IN_MAX,
+    VAR_X,
+    VAR_Y,
     CacheType,
     CfgConstantType,
     CsvDelimiter,
     CSVExtTypes,
     DataColumnType,
     DataType,
+    DBType,
     DiskUsageStatus,
     FlaskGKey,
+    FunctionCastDataType,
     JobStatus,
     MaxGraphNumber,
+    RawDataTypeDB,
     RelationShip,
+    dict_dtype,
     max_graph_number,
 )
 from ap.common.cryptography_utils import decrypt_pwd
@@ -43,6 +56,8 @@ from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import model_normalize
 from ap.common.trace_data_log import Location, LogLevel, ReturnCode
+
+db_timestamp = db.TIMESTAMP
 
 
 @contextmanager
@@ -59,6 +74,39 @@ def make_session():
     except Exception as e:
         session.rollback()
         raise e
+
+
+class CommonModel(db.Model):
+    __abstract__ = True
+
+    @classmethod
+    def from_dict(
+        cls,
+        dict_object: dict[str, Any],
+    ) -> Self:
+        dict_object_modified = {}
+        for attr in sqlalchemy.inspect(cls).attrs:
+            if attr.key not in dict_object:
+                continue
+            value = dict_object[attr.key]
+            if isinstance(value, list):
+                dict_object_modified[attr.key] = [
+                    attr.entity.class_.from_dict(v.__dict__) if hasattr(v, '__dict__') else v for v in value
+                ]
+            elif isinstance(attr, RelationshipProperty) and hasattr(value, '__dict__'):
+                dict_object_modified[attr.key] = attr.entity.class_.from_dict(value.__dict__)
+            else:
+                dict_object_modified[attr.key] = value
+
+        return cls(**dict_object_modified)  # noqa
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    @classmethod
+    def get_by_id(cls, id, session=None):
+        query = session.query(cls) if session else cls.query
+        return query.filter(cls.id == id).first()
 
 
 class JobManagement(db.Model):  # TODO change to new modal and edit job
@@ -124,12 +172,15 @@ class ProcLinkCount(db.Model):
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     job_id = db.Column(db.Integer(), db.ForeignKey('t_job_management.id'), index=True)
 
-    process_id = db.Column(db.Integer())
-    target_process_id = db.Column(db.Integer())
+    process_id = db.Column(db.Integer(), db.ForeignKey('cfg_process.id', ondelete='CASCADE'))
+    target_process_id = db.Column(db.Integer(), db.ForeignKey('cfg_process.id', ondelete='CASCADE'))
     matched_count = db.Column(db.Integer(), default=0)
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
     updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
+
+    process = db.relationship('CfgProcess', foreign_keys=[process_id], lazy='joined')
+    target_process = db.relationship('CfgProcess', foreign_keys=[target_process_id], lazy='joined')
 
     @classmethod
     def get_all(cls):
@@ -367,6 +418,9 @@ class CfgDataSource(db.Model):
         dbs = cls.query.filter(cls.name == dbs_name).all()
         return len(dbs) != 0
 
+    def is_csv_or_v2(self):
+        return self.type in [DBType.CSV.name, DBType.V2.name]
+
     # @classmethod
     # def get_detail(cls, id):
     #     ds = cls.query.get(id)
@@ -466,6 +520,7 @@ class CfgProcessColumn(db.Model):
     name_jp = db.Column(db.Text())
     name_local = db.Column(db.Text())
     data_type = db.Column(db.Text())
+    raw_data_type = db.Column(db.Text())
     column_type = db.Column(db.Integer())
     predict_type = db.Column(db.Text())
     operator = db.Column(db.Text())
@@ -474,10 +529,28 @@ class CfgProcessColumn(db.Model):
     is_get_date = db.Column(db.Boolean(), default=False)
     is_dummy_datetime = db.Column(db.Boolean(), default=False)
     is_auto_increment = db.Column(db.Boolean(), default=False)
+    parent_id = db.Column(db.Integer(), db.ForeignKey(id, ondelete='CASCADE'), nullable=True)
+    # parent_column_id = db.Column(db.Integer())
     order = db.Column(db.Integer())
+    function_details: list['CfgProcessFunctionColumn'] = db.relationship(
+        'CfgProcessFunctionColumn',
+        lazy='joined',
+        backref='cfg_process_column',
+        cascade='all',
+        order_by='CfgProcessFunctionColumn.order.asc()',
+    )
+    parent_column: CfgProcessColumn = db.relationship(
+        'CfgProcessColumn',
+        remote_side=[id],
+        backref='children',
+        cascade='all',
+    )
 
     created_at = db.Column(db.Text(), default=get_current_timestamp)
     updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
+
+    # This field to sever store function config of this column, it's NOT REAL COLUMN IN TABLE.
+    function_config: Optional[dict] = None
 
     # TODO trace key, cfg_filter: may not needed
     # visualizations = db.relationship('CfgVisualization', lazy='dynamic', backref="cfg_process_column", cascade="all")
@@ -497,6 +570,15 @@ class CfgProcessColumn(db.Model):
     @hybrid_property
     def shown_name(self):
         return self.get_shown_name()
+
+    @hybrid_property
+    def is_linking_column(self):
+        return self.data_type not in [
+            DataType.REAL.name,
+            DataType.REAL_SEP.name,
+            DataType.EU_REAL_SEP.name,
+            DataType.BOOLEAN.name,
+        ]
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -524,8 +606,36 @@ class CfgProcessColumn(db.Model):
         )
 
     @classmethod
+    def get_function_col_ids(cls, process_id):
+        recs = (
+            cls.query.options(load_only(cls.id))
+            .filter(cls.process_id == process_id)
+            .filter(cls.column_type == DataColumnType.GENERATED_EQUATION.value)
+            .all()
+        )
+        ids = [rec.id for rec in recs]
+        return ids
+
+    @classmethod
+    def remove_by_col_ids(cls, ids, session=None):
+        query = session.query(cls) if session else cls.query
+        query.filter(cls.id.in_(ids)).delete(synchronize_session='fetch')
+
+        return True
+
+    @classmethod
     def get_by_ids(cls, ids):
         return cls.query.filter(cls.id.in_(ids)).all()
+
+    @classmethod
+    def get_by_process_id(cls, process_id: str, return_df: bool = False):
+        objects = cls.query.filter(cls.process_id == process_id).all()
+        if return_df:
+            list_dic = [obj.as_dict() for obj in objects]
+            df = pd.DataFrame(list_dic, dtype='object').replace({None: DEFAULT_NONE_VALUE}).convert_dtypes()
+            return df
+
+        return objects
 
     @classmethod
     def get_by_id(cls, col_id: int):
@@ -544,6 +654,33 @@ class CfgProcessColumn(db.Model):
         col_label = gen_sql_label(self.id, col_name)
         return col_label
 
+    @hybrid_property
+    def is_function_column(self):
+        return len(self.function_details) > 0
+
+    @hybrid_property
+    def is_me_function_column(self):
+        return self.is_function_column and any(col.is_me_function for col in self.function_details)
+
+    @hybrid_property
+    def is_chain_of_me_functions(self):
+        return self.is_function_column and all(col.is_me_function for col in self.function_details)
+
+    def existed_in_transaction_table(self):
+        # this if master column, hence it does not exist
+        if self.is_master_data_column():
+            return False
+
+        # this if not function column, hence it exists
+        if not self.is_function_column:
+            return True
+
+        # this is function column, but it created by a chain of mes
+        if self.is_chain_of_me_functions:
+            return True
+
+        return False
+
     @classmethod
     def get_serials(cls, proc_id):
         return cls.query.filter(cls.process_id == proc_id, cls.is_serial_no == 1).all()
@@ -552,10 +689,67 @@ class CfgProcessColumn(db.Model):
     def get_all_columns(cls, proc_id):
         return cls.query.filter(cls.process_id == proc_id).all()
 
+    def is_generate_equation_column(self) -> bool:
+        return len(self.function_details) > 0
+
     @classmethod
     def get_columns_by_process_id(cls, proc_id):
         columns = cls.query.filter(cls.process_id == proc_id).all()
         return [{cls.id.name: col.id, 'name': col.shown_name, cls.data_type.name: col.data_type} for col in columns]
+
+    @classmethod
+    def delete_by_ids(cls, ids, session=None):
+        key = cls.get_primary_keys()
+        for chunk_ids in chunks(ids, SQL_IN_MAX):
+            session.query(cls).filter(key.in_(chunk_ids)).delete(synchronize_session='fetch')
+
+        return True
+
+    @classmethod
+    def get_primary_keys(cls, first_key_only=True):
+        """
+        get primary key
+        :param cls:
+        :param first_key_only:
+        :return:
+        """
+        keys = list(inspect(cls).primary_key)
+        if first_key_only:
+            return keys[0]
+
+        return keys
+
+    @classmethod
+    def get_by_column_types(cls, column_types: list[int], proc_ids: list[int] = None, session=None) -> list:
+        query = session.query(cls) if session else cls.query
+        if proc_ids:
+            return query.filter(cls.column_type.in_(column_types), cls.process_id.in_(proc_ids)).all()
+        return query.filter(cls.column_type.in_(column_types)).all()
+
+    @classmethod
+    def get_table_name(cls):
+        return str(cls.__table__.name)
+
+    @classmethod
+    def from_dict(
+        cls,
+        dict_object: dict[str, Any],
+    ) -> Self:
+        dict_object_modified = {}
+        for attr in sqlalchemy.inspect(cls).attrs:
+            if attr.key not in dict_object:
+                continue
+            value = dict_object[attr.key]
+            if isinstance(value, list):
+                dict_object_modified[attr.key] = [
+                    attr.entity.class_.from_dict(v.__dict__) if hasattr(v, '__dict__') else v for v in value
+                ]
+            elif isinstance(attr, RelationshipProperty) and hasattr(value, '__dict__'):
+                dict_object_modified[attr.key] = attr.entity.class_.from_dict(value.__dict__)
+            else:
+                dict_object_modified[attr.key] = value
+
+        return cls(**dict_object_modified)  # noqa
 
 
 class CfgProcess(db.Model):
@@ -571,7 +765,10 @@ class CfgProcess(db.Model):
     data_source_id = db.Column(db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE'))
     table_name = db.Column(db.Text())
     comment = db.Column(db.Text())
+    is_show_file_name = db.Column(db.Boolean(), default=None)
     file_name = db.Column(db.Text())
+    parent_id = db.Column(db.Integer(), db.ForeignKey(id, ondelete='CASCADE'), nullable=True)
+    # parent_process_id = db.Column(db.Integer())
 
     order = db.Column(db.Integer())
     created_at = db.Column(db.Text(), default=get_current_timestamp)
@@ -724,12 +921,18 @@ class CfgProcess(db.Model):
         return cols
 
     @classmethod
-    def get_all(cls):
-        return cls.query.order_by(cls.order).all()
+    def get_all(cls, with_parent=False):
+        query = cls.query
+        if not with_parent:
+            query = query.filter(cls.parent_id == null())
+        return query.order_by(cls.order).all()
 
     @classmethod
-    def get_all_ids(cls):
-        return cls.query.options(load_only(cls.id)).all()
+    def get_all_ids(cls, with_parent=False):
+        query = cls.query
+        if not with_parent:
+            query = query.filter(cls.parent_id == null())
+        return query.options(load_only(cls.id)).all()
 
     @classmethod
     def get_all_order_by_id(cls):
@@ -742,6 +945,27 @@ class CfgProcess(db.Model):
     @classmethod
     def get_proc_by_id(cls, proc_id):
         return cls.query.filter(cls.id == proc_id).first()
+
+    @classmethod
+    def get_parent(cls, proc_id: int) -> CfgProcess | None:
+        proc = cls.query.get(proc_id)
+        if proc is not None and proc.parent_id is not None:
+            return cls.query.filter(cls.id == proc.parent_id).first()
+        return None
+
+    @classmethod
+    def get_children(cls, proc_id: int) -> list[CfgProcess]:
+        return cls.query.filter(cls.parent_id == proc_id).all()
+
+    @classmethod
+    def get_all_parents_and_children_processes(cls, proc_id: int) -> list[CfgProcess]:
+        proc = cls.query.get(proc_id)
+        parent = cls.get_parent(proc_id)
+        children = cls.get_children(proc_id)
+        children_of_parent = cls.get_children(parent.id) if parent is not None else []
+
+        processes = [proc] + [parent] + children + children_of_parent
+        return list({process.id: process for process in processes if process is not None}.values())
 
     @classmethod
     def delete(cls, proc_id):
@@ -759,9 +983,9 @@ class CfgProcess(db.Model):
             ).delete()
 
             # delete linking prediction manually
-            # meta_session.query(ProcLinkCount).filter(
-            #     or_(ProcLinkCount.process_id == proc_id, ProcLinkCount.target_process_id == proc_id),
-            # ).delete()
+            meta_session.query(ProcLinkCount).filter(
+                or_(ProcLinkCount.process_id == proc_id, ProcLinkCount.target_process_id == proc_id),
+            ).delete()
 
         return True
 
@@ -782,6 +1006,181 @@ class CfgProcess(db.Model):
         return check_name_en, check_name_jp, check_name_local
 
 
+class CfgProcessFunctionColumn(db.Model):
+    __tablename__ = 'cfg_process_function_column'
+    __table_args__ = {'sqlite_autoincrement': True}
+
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    process_column_id = db.Column(db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
+    function_id = db.Column(db.Integer())
+    var_x = db.Column(db.Integer())
+    var_y = db.Column(db.Integer())
+    a = db.Column(db.Text())
+    b = db.Column(db.Text())
+    c = db.Column(db.Text())
+    n = db.Column(db.Text())
+    k = db.Column(db.Text())
+    s = db.Column(db.Text())
+    t = db.Column(db.Text())
+    return_type = db.Column(db.Text())
+    note = db.Column(db.Text())
+    order = db.Column(db.Integer(), nullable=False)
+    created_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
+
+    @classmethod
+    def get_by_id(cls, id, session=None):
+        query = session.query(cls) if session else cls.query
+        return query.filter(cls.id == id).first()
+
+    @classmethod
+    def delete_by_ids(cls, ids, session=None):
+        key = cls.get_primary_keys()
+        for chunk_ids in chunks(ids, SQL_IN_MAX):
+            session.query(cls).filter(key.in_(chunk_ids)).delete(synchronize_session='fetch')
+
+        return True
+
+    @hybrid_property
+    def is_me_function(self) -> bool:
+        return self.process_column_id in [self.var_x, self.var_y]
+
+    @classmethod
+    def get_by_process_id(cls, process_id: int, session=None):
+        session = session if session else cls.query.session
+        cols = [
+            CfgProcessFunctionColumn.id.name,
+            CfgProcessFunctionColumn.process_column_id.name,
+            CfgProcessFunctionColumn.function_id.name,
+            CfgProcessFunctionColumn.var_x.name,
+            CfgProcessFunctionColumn.var_y.name,
+            CfgProcessFunctionColumn.a.name,
+            CfgProcessFunctionColumn.b.name,
+            CfgProcessFunctionColumn.c.name,
+            CfgProcessFunctionColumn.n.name,
+            CfgProcessFunctionColumn.k.name,
+            CfgProcessFunctionColumn.s.name,
+            CfgProcessFunctionColumn.t.name,
+            CfgProcessFunctionColumn.return_type.name,
+            CfgProcessFunctionColumn.note.name,
+            CfgProcessFunctionColumn.order.name,
+            CfgProcessFunctionColumn.created_at.name,
+            CfgProcessFunctionColumn.updated_at.name,
+        ]
+        sql = f'''
+SELECT
+    pfc.{CfgProcessFunctionColumn.id.name}
+    , pfc.{CfgProcessFunctionColumn.process_column_id.name}
+    , pfc.{CfgProcessFunctionColumn.function_id.name}
+    , pfc.{CfgProcessFunctionColumn.var_x.name}
+    , pfc.{CfgProcessFunctionColumn.var_y.name}
+    , pfc.{CfgProcessFunctionColumn.a.name}
+    , pfc.{CfgProcessFunctionColumn.b.name}
+    , pfc.{CfgProcessFunctionColumn.c.name}
+    , pfc.{CfgProcessFunctionColumn.n.name}
+    , pfc.{CfgProcessFunctionColumn.k.name}
+    , pfc.{CfgProcessFunctionColumn.s.name}
+    , pfc.{CfgProcessFunctionColumn.t.name}
+    , pfc.{CfgProcessFunctionColumn.return_type.name}
+    , pfc.{CfgProcessFunctionColumn.note.name}
+    , 'pfc.{CfgProcessFunctionColumn.order.name}'
+    , pfc.{CfgProcessFunctionColumn.created_at.name}
+    , pfc.{CfgProcessFunctionColumn.updated_at.name}
+FROM {CfgProcessFunctionColumn.get_table_name()} pfc
+INNER JOIN {CfgProcessColumn.get_table_name()} pc ON
+    pc.{CfgProcessColumn.id.name} = pfc.{CfgProcessFunctionColumn.process_column_id.name}
+WHERE
+    pc.{CfgProcessColumn.process_id.name} = :1'''
+        params = {'1': process_id}
+        rows = session.execute(sql, params=params)
+        df = pd.DataFrame(rows, columns=cols)
+
+        df = df.convert_dtypes()
+        for col in cls.__table__.columns:
+            if col.type in (db.Integer, db.BigInteger):
+                df[col.name] = df[col.name].astype('Int64')  # all NULL  column
+            if col.type in (DataType.REAL,):
+                df[col.name] = df[col.name].astype('Float64')  # all NULL  column
+
+        if 'id' in df.columns:
+            # In Bridge Station system, all models should have same behavior to publish itseft id column
+            df.rename(columns={'id': cls.get_foreign_id_column_name()}, inplace=True)
+
+        return df
+
+    @classmethod
+    def get_all_cfg_col_ids(cls):
+        data = cls.query.all()
+        cfg_col_ids = []
+        for row in data:
+            if row.var_x:
+                cfg_col_ids.append(row.var_x)
+
+            if row.var_y:
+                cfg_col_ids.append(row.var_y)
+
+        return cfg_col_ids
+
+    @classmethod
+    def remove_by_col_ids(cls, ids, session=None):
+        query = session.query(cls) if session else cls.query
+        query.filter(cls.id.in_(ids)).delete(synchronize_session='fetch')
+
+        return True
+
+    @classmethod
+    def get_primary_keys(cls, first_key_only=True):
+        """
+        get primary key
+        :param cls:
+        :param first_key_only:
+        :return:
+        """
+        keys = list(inspect(cls).primary_key)
+        if first_key_only:
+            return keys[0]
+
+        return keys
+
+    @classmethod
+    def get_table_name(cls):
+        return str(cls.__table__.name)
+
+    @classmethod
+    def get_foreign_id_column_name(cls) -> str:  # only use for cfg_ and m_
+        """
+        m_line  ->  line_id
+
+        :return:
+        """
+        elems = cls.__tablename__.split('_')
+        return f"{'_'.join(elems[1:])}_id"
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    @classmethod
+    def from_dict(
+        cls,
+        dict_object: dict[str, Any],
+    ) -> Self:
+        dict_object_modified = {}
+        for attr in sqlalchemy.inspect(cls).attrs:
+            if attr.key not in dict_object:
+                continue
+            value = dict_object[attr.key]
+            if isinstance(value, list):
+                dict_object_modified[attr.key] = [
+                    attr.entity.class_.from_dict(v.__dict__) if hasattr(v, '__dict__') else v for v in value
+                ]
+            elif isinstance(attr, RelationshipProperty) and hasattr(value, '__dict__'):
+                dict_object_modified[attr.key] = attr.entity.class_.from_dict(value.__dict__)
+            else:
+                dict_object_modified[attr.key] = value
+
+        return cls(**dict_object_modified)  # noqa
+
+
 class CfgTraceKey(db.Model):
     # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_trace_key'
@@ -797,6 +1196,9 @@ class CfgTraceKey(db.Model):
     target_column_id = db.Column(db.Integer(), db.ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
     target_column_substr_from = db.Column(db.Integer())
     target_column_substr_to = db.Column(db.Integer())
+
+    delta_time = db.Column(db.Integer())
+    cut_off = db.Column(db.Integer())
 
     order = db.Column(db.Integer())
 
@@ -1362,6 +1764,8 @@ class CfgDataSourceCSV(db.Model):
     directory = db.Column(db.Text())
     skip_head = db.Column(db.Integer(), default=0)
     skip_tail = db.Column(db.Integer(), default=0)
+    n_rows = db.Column(db.Integer(), nullable=True)
+    is_transpose = db.Column(db.Boolean(), nullable=True)
     delimiter = db.Column(db.Text(), default=CsvDelimiter.CSV.name)
     etl_func = db.Column(db.Text())
     process_name = db.Column(db.Text())
@@ -1479,10 +1883,10 @@ class CfgRequest(db.Model):
     options = db.relationship('CfgOption', cascade='all, delete', backref='parent')
 
     @classmethod
-    def save_odf_by_req_id(cls, session, req_id, odf):
+    def save_odf_and_params_by_req_id(cls, session, req_id, odf, params):
         req = cls.query.filter(cls.id == req_id).first()
         if not req:
-            req = CfgRequest(id=req_id, odf=odf)
+            req = CfgRequest(id=req_id, odf=odf, params=params)
             session.add(req)
             session.commit()
 
@@ -1553,6 +1957,153 @@ class CfgOption(db.Model):
 #         delete_query = cls.__table__.delete().where(cls.process_id == proc_id)
 #         db.session.execute(delete_query)
 #         db.session.commit()
+
+
+class MFunction(db.Model):
+    __tablename__ = 'm_function'
+    __table_args__ = {'sqlite_autoincrement': True}
+    id = db.Column(db.Integer(), primary_key=True)
+    function_type = db.Column(db.Text())
+    function_name_en = db.Column(db.Text())
+    function_name_jp = db.Column(db.Text())
+    description_en = db.Column(db.Text())
+    description_jp = db.Column(db.Text())
+    x_type = db.Column(db.Text())  # r,i,t is real, int, text
+    y_type = db.Column(db.Text())  #
+    return_type = db.Column(db.Text())  # r,i,t is real, int, text. 'x' is same as x, 'y' is same as y
+    show_serial = db.Column(db.Boolean())
+    a = db.Column(db.Text())
+    b = db.Column(db.Text())
+    c = db.Column(db.Text())
+    n = db.Column(db.Text())
+    k = db.Column(db.Text())
+    s = db.Column(db.Text())
+    t = db.Column(db.Text())
+    created_at = db.Column(db.Text(), default=get_current_timestamp)
+    updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    @classmethod
+    def get_by_function_type(cls, function_type):
+        return cls.query.filter(cls.function_type == function_type).first()
+
+    @classmethod
+    def get_by_id(cls, id, session=None):
+        query = session.query(cls) if session else cls.query
+        return query.filter(cls.id == id).first()
+
+    def has_x(self):
+        return self.x_type is not None
+
+    def has_y(self):
+        return self.y_type is not None
+
+    def get_variables(self) -> list[str]:
+        variables = []
+        if self.has_x():
+            variables.append(VAR_X)
+        if self.has_y():
+            variables.append(VAR_Y)
+        return variables
+
+    def get_string_x_types(self) -> list[str]:
+        dtypes = self.x_type.split(',') if self.has_x() else []
+        return self.convert_data_type(dtypes)
+
+    def get_string_y_types(self) -> list[str]:
+        dtypes = self.y_type.split(',') if self.has_y() else []
+        return self.convert_data_type(dtypes)
+
+    def get_string_return_types(self):
+        dtypes = self.return_type.split(',') if self.return_type else []
+        return self.convert_data_type(dtypes)
+
+    def get_possible_x_types(self) -> list[RawDataTypeDB]:
+        if not self.has_x():
+            return []
+        x_types = [RawDataTypeDB.get_by_enum_value(dtype) for dtype in self.get_string_x_types()]
+        # extend integer types
+        if RawDataTypeDB.INTEGER in x_types:
+            x_types.extend([RawDataTypeDB.BIG_INT])
+        return [dtype for dtype in x_types if dtype is not None]
+
+    def get_possible_y_types(self) -> list[RawDataTypeDB]:
+        if not self.has_y():
+            return []
+        y_types = [RawDataTypeDB.get_by_enum_value(dtype) for dtype in self.get_string_y_types()]
+        # extend integer types
+        if RawDataTypeDB.INTEGER in y_types:
+            y_types.extend([RawDataTypeDB.BIG_INT])
+        return [dtype for dtype in y_types if dtype is not None]
+
+    def get_possible_return_type(self) -> RawDataTypeDB | None:
+        if not self.return_type:
+            return None
+
+        return_types = [RawDataTypeDB.get_by_enum_value(dtype) for dtype in self.get_string_return_types()]
+        return_types = [dtype for dtype in return_types if dtype is not None]
+
+        if len(return_types) == 0:
+            return None
+        if len(return_types) > 1:
+            raise ValueError(f'Return type for {self.return_type} is not valid')
+        return return_types[0]
+
+    def get_possible_cast_return_types(self) -> list[FunctionCastDataType]:
+        return_types = [FunctionCastDataType.get_by_enum_value(dtype) for dtype in self.get_string_return_types()]
+        return [dtype for dtype in return_types if dtype is not None]
+
+    def get_x_data_type(self, x_data_type: str | None) -> RawDataTypeDB | None:
+        return RawDataTypeDB.get_data_type_for_function(x_data_type, self.get_string_x_types())
+
+    def get_y_data_type(self, y_data_type: str | None) -> RawDataTypeDB | None:
+        return RawDataTypeDB.get_data_type_for_function(y_data_type, self.get_string_y_types())
+
+    def get_output_data_type(
+        self,
+        x_data_type: str | None = None,
+        _y_data_type: str | None = None,
+        cast_data_type: str | None = None,
+    ) -> RawDataTypeDB | None:
+        # return type is specified
+        possible_return_type = self.get_possible_return_type()
+        if possible_return_type is not None:
+            return possible_return_type
+
+        # should cast to new type
+        possible_cast_return_types = self.get_possible_cast_return_types()
+        if FunctionCastDataType.CAST in possible_cast_return_types and cast_data_type:
+            return RawDataTypeDB.get_by_enum_value(cast_data_type)
+
+        # same as X
+        if FunctionCastDataType.SAME_AS_X in possible_cast_return_types:
+            x_data_type = self.get_x_data_type(x_data_type)
+            return RawDataTypeDB.get_by_enum_value(x_data_type)
+
+        return None
+
+    def convert_data_type(self, data_types: List):
+        # dict_dtype = {
+        #     '': DataType.NULL.name,
+        #     'r': DataType.REAL.name,
+        #     'i': DataType.INTEGER.name,
+        #     't': DataType.TEXT.name,
+        #     'd': DataType.DATETIME.name,
+        #     'b': DataType.BOOLEAN.name,
+        #     'rs': DataType.REAL_SEP.name,
+        #     'is': DataType.INTEGER_SEP.name,
+        #     'ers': DataType.EU_REAL_SEP.name,
+        #     'eis': DataType.EU_INTEGER_SEP.name,
+        #     'ksn': DataType.K_SEP_NULL.name,
+        #     'date': DataType.DATE.name,
+        #     'time': DataType.TIME.name,
+        #     'cast': FunctionCastDataType.CAST.value,
+        #     'x': FunctionCastDataType.SAME_AS_X.value,
+        #     'b_i': DataType.BIG_INT.name,
+        # }
+        return [dict_dtype.get(data_type) for data_type in data_types]
 
 
 def get_models():

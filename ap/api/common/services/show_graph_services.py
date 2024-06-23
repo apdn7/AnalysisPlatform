@@ -12,7 +12,7 @@ from numpy import quantile
 from pandas import DataFrame, Series
 
 from ap import TraceErrKey, dic_request_info
-from ap.api.common.services.show_graph_database import DictToClass, gen_dict_procs
+from ap.api.common.services.show_graph_database import DictToClass, ShowGraphConfigData, gen_dict_procs
 from ap.api.common.services.sql_generator import (
     SQL_GENERATOR_PREFIX,
     SqlProcLink,
@@ -86,6 +86,7 @@ from ap.common.constants import (
     FACET_ROW,
     FILTER_DATA,
     FILTER_ON_DEMAND,
+    GET02_CATE_SELECT,
     GET02_VALS_SELECT,
     ID,
     INF_IDXS,
@@ -175,10 +176,13 @@ from ap.common.services.sse import MessageAnnouncer
 from ap.common.services.statistics import convert_series_to_number, get_mode
 from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
 from ap.common.trace_data_log import EventAction, Target, save_df_to_file, trace_log
+from ap.equations.utils import get_function_class_by_id
 
 # TODO: filter check
 from ap.setting_module.models import (
     CfgProcess,
+    CfgProcessColumn,
+    CfgProcessFunctionColumn,
     CfgTrace,
     DataTraceLog,
     insert_or_update_config,
@@ -312,7 +316,6 @@ def gen_dic_data_cat_exp_from_df(
     # dic_df_group = dict(df_group) # error
 
     blank_vals = [None] * len(df)
-    series = pd.Series(blank_vals, index=df.index)
     graph_count = 0
     for proc in graph_param.array_formval:
         if max_graph and graph_count >= max_graph:
@@ -350,7 +353,7 @@ def gen_dic_data_cat_exp_from_df(
                 if not len(idxs):
                     continue
 
-                series[:] = None
+                series = pd.Series(blank_vals, index=df.index)
                 temp_series: Series = df_sub[sql_label]
                 if col_id in datetime_cols:
                     temp_series = pd.to_datetime(temp_series)
@@ -721,7 +724,10 @@ def rank_str_cols(df: DataFrame, graph_param: DicParam):
             continue
 
         df[before_rank_label] = df[sql_label]
-        df[sql_label] = np.where(df[sql_label].isnull(), df[sql_label], df[sql_label].astype('category').cat.codes + 1)
+        df[sql_label] = pd.Series(
+            np.where(df[sql_label].isnull(), df[sql_label], df[sql_label].astype('category').cat.codes + 1),
+            dtype=pd.Int32Dtype.name,
+        )
 
         df[sql_label] = df[sql_label].convert_dtypes()
         str_cols.append(col_id)
@@ -999,6 +1005,10 @@ def gen_graph_df(
     df, actual_record_number, unique_serial = res
     if df is None:
         return pd.DataFrame(), 0, 0
+
+    # get equation data
+    for end_proc in end_procs:
+        df = get_equation_data(df, end_proc)
 
     return df, actual_record_number, unique_serial
 
@@ -3061,14 +3071,34 @@ def gen_sensor_ids_from_trace_keys(edge, dic_mapping_col_n_sensor):
     return self_sensor_ids, target_sensor_ids
 
 
+def get_selected_cate_column_ids(dic_param: dict):
+    """
+    Get all selected category column
+
+    Args:
+        dic_param: a dictionary that contain all information and values for showing graph
+
+    Returns:
+        list: a list of column ids
+    """
+    cate_column_ids = []
+    for cate_proc in dic_param[COMMON][CATE_PROCS]:
+        for column_ids in [cate_proc[GET02_CATE_SELECT]]:
+            cate_column_ids.extend(column_ids)
+    return [int(column_id) for column_id in set(cate_column_ids)]
+
+
 @log_execution_time()
 def retrieve_order_setting(dic_proc_cfgs: Dict[int, CfgProcess], dic_param):
     dic_orders_columns = {}
+    selected_cate_column_ids = get_selected_cate_column_ids(dic_param)
     for proc_id, proc_cfg in dic_proc_cfgs.items():
         order_cols = proc_cfg.get_order_cols(column_name_only=False, column_id_only=True)
         if len(order_cols):
             dic_orders_columns[proc_id] = [
-                order_id for order_id in order_cols if order_id in dic_param[COMMON][DF_ALL_COLUMNS]
+                order_id
+                for order_id in order_cols
+                if order_id in dic_param[COMMON][DF_ALL_COLUMNS] or order_id in selected_cate_column_ids
             ]
     dic_param[COMMON][AVAILABLE_ORDERS] = dic_orders_columns
     return dic_param
@@ -3348,6 +3378,7 @@ def get_data_from_db(
                 in [
                     DataType.REAL.name,
                     DataType.INTEGER.name,
+                    DataType.DATETIME.name,
                 ]
                 and sensor_labels[i] in df.columns
             ):
@@ -3358,13 +3389,18 @@ def get_data_from_db(
                     dict.fromkeys([np.inf, -np.inf, float('nan')], np.nan),
                 )
                 is_real_col = col.data_type == DataType.REAL.name
-                if is_real_col or not col.is_int_category:
+                is_datetime_col = col.data_type == DataType.DATETIME.name
+                if is_real_col or (not col.is_int_category and not is_datetime_col):
                     categorized_data = discretize_float_data_equally(
                         df[categorized_col_name][df[categorized_col_name].notna()],
                     )
                     # convert column to float
                     df[categorized_col_name] = df[categorized_col_name].astype(float)
                     df[categorized_col_name][df[categorized_col_name].notna()] = categorized_data
+
+                if is_datetime_col:
+                    df[col_name] = calc_cycle_time_of_list(df[col_name])
+                    df[categorized_col_name] = df[col_name].astype(float)
 
     # on-demand filter
     if dic_filter:
@@ -3419,6 +3455,9 @@ def get_df_from_db(graph_param: DicParam, is_save_df_to_file=False, _use_expired
 
     # add NG column
     graph_param.add_ng_condition_to_array_formval()
+
+    # add column in cfg_equation
+    graph_param.add_function_cols_to_sensor_cols()
 
     # add color, cat_div
     # graph_param.add_column_to_array_formval(
@@ -3697,7 +3736,8 @@ def gen_trace_procs_df_detail(
         if duplicate_serial_show is DuplicateSerialShow.SHOW_FIRST:
             keep = 'first'
 
-        _df.drop_duplicates(subset=[TransactionData.id_col_name], keep=keep, inplace=True)
+        _filter_subset = [TransactionData.id_col_name] if TransactionData.id_col_name in _df.columns else ['marker_0']
+        _df.drop_duplicates(subset=_filter_subset, keep=keep, inplace=True)
 
         if duplicate_serial_show is not DuplicateSerialShow.SHOW_BOTH and not for_count:
             # TODO: drop_duplicates_by_link_keys MUST delete per end proc
@@ -3731,6 +3771,8 @@ def gen_sql_proc_link_key_from_trace_keys(edge: CfgTrace) -> Tuple[List[SqlProcL
             name=gen_bridge_column_name(key.self_column.id, key.self_column.column_name),
             substr_from=key.self_column_substr_from,
             substr_to=key.self_column_substr_to,
+            delta_time=key.delta_time,
+            cut_off=key.cut_off,
         )
         self_sensor_keys.append(self_key)
 
@@ -3739,6 +3781,9 @@ def gen_sql_proc_link_key_from_trace_keys(edge: CfgTrace) -> Tuple[List[SqlProcL
             name=gen_bridge_column_name(key.target_column.id, key.target_column.column_name),
             substr_from=key.target_column_substr_from,
             substr_to=key.target_column_substr_to,
+            # delta time and cut_off apply only self process link key, self_link_key + delta_time = target_link_key
+            delta_time=None,
+            cut_off=None,
         )
         target_sensor_keys.append(target_key)
 
@@ -3854,3 +3899,52 @@ def get_trace_configs():
     traces = [DictToClass(**trace) for trace in traces]
     trace_graph = TraceGraph(traces)
     return trace_graph
+
+
+def add_equation_column_to_df(df, function_detail, graph_config_data: ShowGraphConfigData):
+    cfg_col = graph_config_data.get_col(function_detail.process_column_id)
+    equation_class = get_function_class_by_id(function_detail.function_id)
+    equation = equation_class.from_kwargs(**function_detail.as_dict())
+
+    # get column_x and column_y
+    cfg_col_x = graph_config_data.get_col(function_detail.var_x)
+    cfg_col_y = graph_config_data.get_col(function_detail.var_y)
+
+    column_out = gen_sql_label(cfg_col.id, cfg_col.column_name)
+    column_x = gen_sql_label(cfg_col_x.id, cfg_col_x.column_name) if cfg_col_x else None
+    column_y = gen_sql_label(cfg_col_y.id, cfg_col_y.column_name) if cfg_col_y else None
+
+    x_dtype = cfg_col_x.predict_type if cfg_col_x else None
+    y_dtype = cfg_col_y.predict_type if cfg_col_y else None
+
+    return equation.evaluate(df, out_col=column_out, x_col=column_x, y_col=column_y, x_dtype=x_dtype, y_dtype=y_dtype)
+
+
+def sorted_function_details(cfg_process_columns: list[CfgProcessColumn]) -> list[CfgProcessFunctionColumn]:
+    cfg_function_cols = itertools.chain.from_iterable(cfg_col.function_details for cfg_col in cfg_process_columns)
+    return sorted(cfg_function_cols, key=lambda col: col.order)
+
+
+def get_equation_data(df, end_proc: EndProc):
+    sorted_cfg_function_cols = sorted_function_details(end_proc.cfg_proc.get_cols(col_ids=end_proc.col_ids))
+    for cfg_func_col in sorted_cfg_function_cols:
+        df = add_equation_column_to_df(df, cfg_func_col, end_proc.cfg_proc)
+
+    for col in df.columns:
+        if '__SHOW_NAME__' in col:
+            df.drop(columns=col, inplace=True)
+
+    # cast equation function to string if its `data-type` is string
+    for cfg_func_col in sorted_cfg_function_cols:
+        cfg_col = end_proc.cfg_proc.get_col(cfg_func_col.process_column_id)
+        if cfg_col.data_type == DataType.TEXT.value:
+            label = gen_sql_label(cfg_col.id, cfg_col.column_name)
+
+            original_type = df[label].dtype
+            df[label] = df[label].astype(pd.StringDtype())
+
+            # handle for case of boolean True False -> true false
+            if pd.api.types.is_bool_dtype(original_type):
+                df[label] = df[label].str.lower()
+
+    return df

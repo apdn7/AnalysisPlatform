@@ -201,7 +201,7 @@ const setDefaultHeatmapCycle = () => {
     formElements.stepMinute.css('display', 'none');
     formElements.stepHour.val(15);
     formElements.stepHour.css('display', 'block');
-    formElements.stepHour.val(4);
+    formElements.stepHour.val(1);
     formElements.mode.on('change', () => {
         const currentMode = formElements.mode.val();
         if (`${currentMode}` === '1') {
@@ -211,7 +211,7 @@ const setDefaultHeatmapCycle = () => {
         } else {
             formElements.stepMinute.css('display', 'none');
             formElements.stepHour.css('display', 'block');
-            formElements.stepHour.val(4);
+            formElements.stepHour.val(1);
         }
     });
 };
@@ -473,7 +473,8 @@ const checkAndShowToastr = (data, clearOnFlyFilter) => {
 
 
 const drawHeatMapFromPlotData = (canvasId, plotData) => {
-    const colorSelectDOM = plotData.data_type == DataTypes.REAL.name ? eles.colorReal : eles.colorCat;
+    const numericDataTypes = [DataTypes.REAL.name, DataTypes.INTEGER.name, DataTypes.DATETIME.name]
+    const colorSelectDOM = numericDataTypes.includes(plotData.data_type) ? eles.colorReal : eles.colorCat;
     const colorOption = colorSelectDOM.val();
     const prop = {
         canvasId,

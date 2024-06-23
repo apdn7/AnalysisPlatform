@@ -36,18 +36,28 @@ def gen_cfg_trace(trace):
     target_col_ids = trace.get('target_col')
     self_sub_strs = trace.get('self_substr')
     target_sub_strs = trace.get('target_substr')
+    delta_times = trace.get('delta_time')
+    cut_offs = trace.get('cut_off')
     trace_keys = []
     for idx, self_col_id in enumerate(self_col_ids):
         target_col_id = target_col_ids[idx]
-        self_sub_from, self_sub_to = self_sub_strs[idx] or (None, None)
-        target_sub_from, target_sub_to = target_sub_strs[idx] or (None, None)
+        delta_time = delta_times[idx]
+        cut_off = cut_offs[idx]
+        self_sub_from, self_sub_to = (None, None)
+        target_sub_from, target_sub_to = (None, None)
+        if self_sub_strs:
+            self_sub_from, self_sub_to = self_sub_strs[idx] or (None, None)
+        if target_sub_strs:
+            target_sub_from, target_sub_to = target_sub_strs[idx] or (None, None)
         trace_key = CfgTraceKey(
-            self_column_id=self_col_id,
-            self_column_substr_from=self_sub_from,
-            self_column_substr_to=self_sub_to,
-            target_column_id=target_col_id,
-            target_column_substr_from=target_sub_from,
-            target_column_substr_to=target_sub_to,
+            self_column_id=int(self_col_id),
+            self_column_substr_from=int(self_sub_from) if self_sub_from else 0,
+            self_column_substr_to=int(self_sub_to) if self_sub_to else 0,
+            target_column_id=int(target_col_id),
+            target_column_substr_from=int(target_sub_from) if target_sub_from else 0,
+            target_column_substr_to=int(target_sub_to) if target_sub_to else 0,
+            delta_time=int(delta_time) if delta_time else None,
+            cut_off=int(cut_off) if cut_off else None,
         )
         trace_keys.append(trace_key)
     self_process_id = trace.get('from')
@@ -65,7 +75,9 @@ def trace_config_crud(traces):
     valid_exist_ids = []
 
     with make_session() as session:
-        dic_exist_traces = {(_cfg.self_process_id, _cfg.target_process_id): _cfg for _cfg in CfgTrace.get_all()}
+        dic_exist_traces = {
+            (_cfg.self_process_id, _cfg.target_process_id): _cfg for _cfg in session.query(CfgTrace).all()
+        }
         cfg_traces = [gen_cfg_trace(trace) for trace in traces]
         for cfg_trace in cfg_traces:
             if not columns:

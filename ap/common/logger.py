@@ -18,7 +18,8 @@ tz = time.strftime('%z')
 LOG_FORMAT = '%(asctime)s' + tz + ' %(levelname)s: %(message)s'
 # LOG_FORMAT = '%(count)s %(asctime)s %(levelname)s: %(message)s'
 # buffer (records) to write log file
-WRITE_BY_BUFFER = 1000
+# WRITE_BY_BUFFER = 1000
+WRITE_BY_BUFFER = 10_000
 # time interval (seconds) to write log file
 # default is 60 (1 minute)
 WRITE_BY_TIME = 60
@@ -30,9 +31,14 @@ BACKUP_COUNT_FOR_SIZE_ROTATED = 1000
 
 DELETE_ZIPPED_FILE_OLDER_THAN = 5  # weeks
 
-logger = logging.getLogger('')
+logger = logging.getLogger(__name__)
+
+# do not emit root's logger message
+logger.propagate = False
+
 # set logging level for application, global use
 logger.setLevel(logging.DEBUG)
+
 # set log format
 formatter = logging.Formatter(LOG_FORMAT)
 
@@ -62,7 +68,12 @@ def get_filename_without_ext_from_abspath(absolute_path: str) -> Optional[str]:
 
 def get_datetime_from_file(filename: str, fmt: str) -> datetime:
     file_without_ext = get_filename_without_ext_from_abspath(filename)
-    return datetime.strptime(file_without_ext, fmt)
+
+    # datetime string always put at the beginning of the filename
+    datetime_str_example = datetime.now().strftime(fmt)
+    prefix_file_without_ext = file_without_ext[: len(datetime_str_example)]
+
+    return datetime.strptime(prefix_file_without_ext, fmt)
 
 
 def create_log_filename_from_datetime(dt: Union[datetime, ddate], suffix=None) -> str:
@@ -201,7 +212,8 @@ class BatchAndRotatingHandler(TimedRotatingFileHandler, RotatingFileHandler):
 
     def __init__(
         self,
-        logfile,
+        log_dir,
+        is_main=False,
         when: str = 'h',
         interval: int = 1,
         max_bytes: int = 0,
@@ -213,6 +225,10 @@ class BatchAndRotatingHandler(TimedRotatingFileHandler, RotatingFileHandler):
         write_by_buffer=WRITE_BY_BUFFER,
         write_by_time=WRITE_BY_TIME,
     ):
+        self._log_dir = log_dir
+        self._pid = str(os.getpid())
+        self._suffix = f'{self._pid}_main' if is_main else self._pid
+        logfile = get_base_filename(self._log_dir, self._suffix)
         TimedRotatingFileHandler.__init__(
             self,
             logfile,
@@ -281,15 +297,11 @@ class BatchAndRotatingHandler(TimedRotatingFileHandler, RotatingFileHandler):
             if should_write_log or should_rollover:
                 stream.write(msg + self.terminator)
                 if should_write_log and len(self._buffers):
-                    # write all msg to file
-                    for _msg in self._buffers:
-                        stream.write(_msg + self.terminator)
-                    self._buffers = []
-                    self._msg_counter = 0
+                    self.write_to_stream(stream)
 
                 if should_rollover:
                     if timed_should_rollover:
-                        self.baseFilename = get_base_filename(self._basedir)
+                        self.baseFilename = get_base_filename(self._log_dir, self._suffix)
                         TimedRotatingFileHandler.doRollover(self)
                     elif batch_should_rollover:
                         RotatingFileHandler.doRollover(self)
@@ -309,13 +321,34 @@ class BatchAndRotatingHandler(TimedRotatingFileHandler, RotatingFileHandler):
             print(e)
             self.handleError(record)
 
+    def write_to_stream(self, stream):
+        for msg in self._buffers:
+            stream.write(msg + self.terminator)
+        self._buffers = []
+        self._msg_counter = 0
 
-def set_log_config(suffix=None):
+    def force_flush(self):
+        if self.stream is None:
+            self.stream = self._open()
+        stream = self.stream
+
+        self.write_to_stream(stream)
+
+        self._start_time = 0
+        self.flush()
+
+
+def logger_force_flush():
+    for handler in logger.handlers:
+        if isinstance(handler, BatchAndRotatingHandler):
+            handler.force_flush()
+
+
+def set_log_config(is_main=False):
     import ap
     from ap import get_basic_yaml_obj
     from ap.common.common_utils import make_dir
 
-    # retrieve config to write the debug log on file
     basic_config_yaml = get_basic_yaml_obj()
     log_level = basic_config_yaml.dic_config['info'].get(LOG_LEVEL) or ApLogLevel.INFO.name
     default_logger_level = logging.DEBUG if log_level == ApLogLevel.DEBUG.name else logging.INFO
@@ -324,10 +357,10 @@ def set_log_config(suffix=None):
     log_dir = ap.dic_config.get('INIT_LOG_DIR')
     # initiate log dir if not existing
     make_dir(log_dir)
-    log_file = get_base_filename(log_dir, suffix)
 
     file_handler = BatchAndRotatingHandler(
-        log_file,
+        log_dir,
+        is_main,
         when='midnight',
         max_bytes=ROTATE_BY_SIZE,
         backup_count=BACKUP_COUNT_FOR_SIZE_ROTATED,
@@ -342,7 +375,6 @@ def set_log_config(suffix=None):
 
     # handle rotate log file by file-size
     # file_handler.set_rotator(size=1000)
-
     logger.addHandler(file_handler)
 
     # write log into console
@@ -415,33 +447,19 @@ def log_execution_time(prefix='', logging_exception=True):
         def wrapper(*args, **kwargs):
             start_dt = datetime.now()
             start = perf_counter()
-
-            log_args = ''
-            log_kwargs = ''
             try:
                 result = fn(*args, **kwargs)
             except Exception as e:
-                if logging_exception:
-                    logger.exception(e)
-                # log_args = str(args)
-                # log_kwargs = str(kwargs)
                 raise e
             finally:
-                end = perf_counter()
-                count_time = end - start
-                log_func = logger.info if count_time >= 1 else logger.debug
-
-                log_func(
-                    '{0}Function: {1}; START: {2}; ExecTime: {3:.6f}s; {4}; {5}'.format(
-                        prefix,
-                        fn.__name__,
-                        start_dt,
-                        end - start,
-                        log_args,
-                        log_kwargs,
-                    ),
-                )
+                print_log_with_processing_time(start, start_dt)
             return result
+
+        def print_log_with_processing_time(start, start_dt):
+            end = perf_counter()
+            count_time = end - start
+            log_func = logger.info if count_time >= 1 else logger.debug
+            log_func(f'{prefix} Function: {fn.__name__}; START: {start_dt}; ExecTime: {count_time:.6f}s')
 
         return wrapper
 
@@ -477,3 +495,7 @@ def log_exec_time_inside_func(prefix, func_name, is_log_debug=False):
             logger.info(message)
 
     return inner
+
+
+def log_count_record_number(file_name, record_number):
+    logger.info(f'[READ CSV FILES] File name: {file_name}; Record number: {record_number}')

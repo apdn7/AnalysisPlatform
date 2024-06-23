@@ -12,34 +12,38 @@ conv = cutlet.Cutlet()
 @lru_cache(maxsize=1000)
 def to_romaji(input_str, convert_irregular_chars=True):
     normalized_input = input_str
+    # convert postal mark in string to `post`, done before normalize_str
+    # this is because normalize_str replaces with T
+    normalized_input = re.sub(r'[\u3012\u3020\u3036]', 'post', normalized_input)
     # normalize (also replace Full Space to Half Space)
     # normalized_input = jaconv.normalize(normalized_input)
     normalized_input = normalize_str(normalized_input, convert_irregular_chars)
 
-    # `[μµ]` in `English Name` should be replaced in to `u`.
-    # convert u before kakasi applied to keep u instead of M
-    normalized_input = re.sub(r'[μµ]', 'uu', normalized_input)
+    normalized_input = replace_special_symbols(normalized_input)
 
     # convert to romaji
     # normalized_input = p.do(normalized_input)
-    normalized_input = conv.romaji(normalized_input, title=True)
+    normalized_input = conv.romaji(normalized_input, title=False)
+
+    # remove space and tab
+    normalized_input = re.sub(r"[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]", '', normalized_input)
 
     # snake to camel
-    # normalized_input = normalized_input.title()
-
-    normalized_input = replace_special_symbols(normalized_input)
+    # normalized_input = string.capwords(normalized_input)
     return normalized_input
 
 
 def replace_special_symbols(input_str):
     normalized_input = input_str
-    # remove space and tab
-    normalized_input = re.sub(r"[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]", '', normalized_input)
+
+    # `[μµ]` in `English Name` should be replaced in to `u`.
+    # convert u before kakasi applied to keep u instead of M
+    normalized_input = re.sub(r'[μµ]', 'u', normalized_input)
 
     # `[\(\)\[\]<>\{\}【】]` in string in `English Name` should be replaced into `_`.
     normalized_input = re.sub(r'[\(\)\[\]<>\{\}【】]', '_', normalized_input)
 
-    # hyphen: remove last, multi
+    # hyphen: remove multi
     normalized_input = re.sub(r'-+', '-', normalized_input)
     normalized_input = re.sub(r'_+', '_', normalized_input)
 
@@ -60,10 +64,7 @@ def replace_special_symbols(input_str):
     # `Ω` in English Name should be replaced into `ohm`.
     normalized_input = re.sub(r'Ω', 'ohm', normalized_input)
 
-    # convert postal mark in string to `_`
-    normalized_input = re.sub(r'[\u3012\u3020\u3036]', 'post', normalized_input)
-
-    # # replace for μµ
+    # replace for μµ
     normalized_input = re.sub(r'Uu|uu', 'u', normalized_input)
 
     # `Mm` in English Name should be replaced into `mm`.

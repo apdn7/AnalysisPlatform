@@ -1,4 +1,7 @@
 ﻿/* Process config modal CSS */
+:root {
+    --cell-table-background-color: #222;
+}
 
 .proc-config-content {
     display: flex;
@@ -50,13 +53,17 @@
     padding: 0px 4px;
 }
 
+.function-type-content input {
+    height: 35px!important;
+}
+
 .proc-config-content table th.system,
 .proc-config-content table th.japanese-name,
 .proc-config-content table th.local-name {
     /*min-width: 200px;*/
 }
 
-.proc-config-content table tbody td input:not([name=coef]) {
+.proc-config-content table tbody td input:not([name=coef], [name=a_n_s], [name=b_k], [name=c_t], [name=note]) {
     width: fit-content;
 }
 
@@ -208,4 +215,426 @@
 }
 .jexcel > tbody > tr > td:nth-child(n+3):nth-child(-n+5) {
     text-align: left !important;
+}
+
+.jexcel > tbody > tr > td.readonly {
+    color: gray !important;
+}
+
+/* Function Info Table CSS - Start */
+#functionColumnSystemName {
+    /*margin-top: 3rem;*/
+}
+
+#functionSettingModal span.select2-container--disabled {
+    background-color: #444444; !important;
+}
+
+#functionSettingModal span.select2-container--disabled .select2-selection--single {
+    background-color: unset!important;
+    border: none!important;
+}
+
+#functionSettingModal .select2-container .select2-selection--single .select2-selection__rendered {
+    padding-left: 0.5em;
+}
+
+#functionSampleData .sample-data {
+    width: calc(100% / 3);
+    height: 36px;
+    padding: 0px 8px;
+}
+
+#functionDetailModal table tr td {
+    white-space: pre-line !important;
+}
+
+#functionSettingModal .output-data-type {
+    /*padding-left: 1rem;*/
+    /*padding-top: 0.3rem;*/
+    height: 35px;
+}
+
+#functionSettingModal .output-data-type span {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+#functionSettingModal .config-params-area {
+    /*padding-left: 4em;*/
+    /*padding-right: 4em;*/
+}
+
+#functionSettingModal .form-group{
+    margin-bottom: 2px !important;
+}
+
+#functionSettingModal .param-label{
+    /*margin-bottom: 0.1rem !important;*/
+}
+
+#functionSettingModal .function-config-label {
+    width: 115px;
+    min-width: 115px;
+    padding-top: 0.2em;
+    margin-bottom: 0 !important;
+}
+
+#functionSettingModal .function-config-value {
+    width: calc(100% - 115px);
+    flex: 1;
+}
+
+#functionSettingModal .function-config-value span:not(.select2-selection__arrow),
+#functionSettingModal .param-value-x span:not(.select2-selection__arrow),
+#functionSettingModal .param-value-y span:not(.select2-selection__arrow) {
+    min-width: 75px;
+}
+
+
+#functionSettingModal .function-config-value span.select2-selection__rendered,
+#functionSettingModal .param-value-x span.select2-selection__rendered,
+#functionSettingModal .param-value-y span.select2-selection__rendered {
+    min-width: unset;
+}
+
+#functionSettingModal .param-label,
+#functionSettingModal .param-label-x,
+#functionSettingModal .param-label-y {
+    width: 50px;
+    min-width: 50px;
+    margin-bottom: 0;
+}
+
+#functionSettingModal .param-value {
+    width: calc(100% - 50px);
+}
+
+#functionSettingModal .param-value-x,
+#functionSettingModal .param-value-y {
+    padding-left: 1px;
+    flex: 1;
+}
+
+#functionSettingModal input {
+    padding-left: 0.5em;
+}
+
+#functionConfigModalSetFilterBtn,
+#functionConfigModalResetBtn {
+    white-space: nowrap;
+}
+
+#functionTableDiv {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#functionTable .column-order-header,
+#functionTable .column-order {
+    min-width: 30px;
+    max-width: 30px;
+    /*position: sticky;*/
+    /*left: 1px;*/
+}
+
+#functionTable .column-function-name-header,
+#functionTable .column-function-name {
+    min-width: 180px;
+    max-width: 180px;
+    /*position: sticky;*/
+    /*left: 31px;*/
+}
+
+#functionTable .column-data-type-header,
+#functionTable .column-system-name-header,
+#functionTable .column-japanese-name-header,
+#functionTable .column-local-name-header,
+#functionTable .column-var-x-header,
+#functionTable .column-var-y-header,
+#functionTable .column-data-type,
+#functionTable .column-system-name,
+#functionTable .column-japanese-name,
+#functionTable .column-local-name,
+#functionTable .column-var-x,
+#functionTable .column-var-y {
+    min-width: 160px;
+    max-width: 160px;
+}
+
+#functionTable .column-coe-ans-header,
+#functionTable .column-coe-bk-header,
+#functionTable .column-coe-ct-header,
+#functionTable .column-coe-ans,
+#functionTable .column-coe-bk,
+#functionTable .column-coe-ct {
+    min-width: 100px;
+    max-width: 100px;
+}
+
+#functionTable .column-note-header,
+#functionTable .column-note {
+    min-width: 200px;
+    max-width: 200px;
+}
+
+#functionTable .column-output-header,
+#functionTable .column-output {
+    min-width: 90px;
+    max-width: 90px;
+}
+
+#functionTable .column-sample-data {
+    min-width: 190px;
+    max-width: 190px;
+}
+
+#functionTable .column-order,
+#functionTable .column-function-name,
+#functionTable .column-data-type,
+#functionTable .column-system-name,
+#functionTable .column-japanese-name,
+#functionTable .column-local-name,
+#functionTable .column-var-x,
+#functionTable .column-var-y,
+#functionTable .column-coe-ans,
+#functionTable .column-coe-bk,
+#functionTable .column-coe-ct,
+#functionTable .column-note,
+#functionTable .column-output,
+#functionTable .column-sample-data {
+    background: var(--cell-table-background-color);
+    /*border-width: 2px;*/
+}
+
+#functionTable .column-order-header,
+#functionTable .column-function-name-header,
+#functionTable .column-data-type-header,
+#functionTable .column-system-name-header,
+#functionTable .column-japanese-name-header,
+#functionTable .column-local-name-header,
+#functionTable .column-var-x-header,
+#functionTable .column-var-y-header,
+#functionTable .column-coe-ans-header,
+#functionTable .column-coe-bk-header,
+#functionTable .column-coe-ct-header,
+#functionTable .column-note-header,
+#functionTable .column-output-header,
+#functionTable .column-sample-data-header {
+    background: var(--dark);
+    /*border-width: 2px;*/
+}
+
+#functionTable .column-sample-data-header {
+    min-width: calc(190px * 5);
+    max-width: calc(190px * 5);
+    text-align: left;
+    padding-left: 1rem;
+    background: var(--dark);
+}
+
+/* No longer support for change color when unselect/select */
+#functionTable tr[checked="checked"] label.row-item,
+#functionTable tr[checked="checked"] td.row-item,
+#functionTable tr[checked="checked"] input.row-item,
+#functionTable tr[checked="checked"] span.row-item,
+#functionTable tr[checked="checked"] select.row-item,
+#functionTable tr:not([checked="checked"]) label.row-item,
+#functionTable tr:not([checked="checked"]) td.row-item,
+#functionTable tr:not([checked="checked"]) input.row-item,
+#functionTable tr:not([checked="checked"]) span.row-item,
+#functionTable tr:not([checked="checked"]) select.row-item,
+#functionTable tr:not([checked="checked"]) td.row-item .config-data-type-dropdown {
+    color: white !important;
+}
+
+/* For filter/search rows */
+#functionTable tr.gray label.row-item,
+#functionTable tr.gray td.row-item,
+#functionTable tr.gray input.row-item,
+#functionTable tr.gray span.row-item,
+#functionTable tr.gray select.row-item {
+    color: gray !important;
+}
+
+#functionTable tr.selected td,
+#functionTable tr.selected td input,
+#functionTable tr.selected td span {
+    background-color: steelblue !important;
+}
+
+#functionTable tr.selected td div.config-data-type-dropdown span {
+    background-color: unset !important;
+}
+
+#functionSettingChangeMark {
+    font-size: 8px;
+    padding-top: 1.4em;
+    padding-left: 1em;
+}
+
+.select2-container--open {
+    z-index: 99999;
+}
+
+#functionMessageHelper {
+    height: 180px;
+    line-height: 20px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -ms-box-orient: vertical;
+    box-orient: vertical;
+    -webkit-line-clamp: 9;
+    -moz-line-clamp: 9;
+    -ms-line-clamp: 9;
+    line-clamp: 9;
+    overflow: hidden;
+}
+
+@media screen and (min-width: 1001px) and (max-width: 1700px) {
+    #functionSettingModal .config-function-name-area {
+        min-width: calc(100% / 3);
+        max-width: calc(100% / 3);
+    }
+
+    #functionSettingModal .config-params-area {
+        min-width: calc(100% / 3);
+        max-width: calc(100% / 3);
+
+    }
+
+    #functionSettingModal .proc-config-content {
+        min-width: calc(100% / 3);
+        max-width: calc(100% / 3);
+    }
+
+    #functionSettingModal .config-params-area-col {
+        min-width: calc(100% - 100% / 3);
+        max-width: calc(100% - 100% / 3);
+    }
+
+    #functionMessageHelper {
+        min-width: calc(100% / 3);
+        max-width: calc(100% / 3);
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    #functionColumnSystemName {
+        margin-top: unset;
+    }
+
+    #functionSettingModal .config-function-name-area,
+    #functionSettingModal .config-params-area,
+    #functionSettingModal .proc-config-content {
+        flex: none;
+        max-width: unset;
+        padding-left: 1em;
+        padding-right: 1em;
+        padding-bottom: 1em;
+    }
+
+    #functionSettingModal .param-label,
+    #functionSettingModal .param-label-x,
+    #functionSettingModal .param-label-y {
+        width: 115px;
+        min-width: 115px;
+    }
+
+    #functionSettingModal .param-value {
+        width: calc(100% - 85px);
+    }
+
+    #functionSettingModal .param-value-x,
+    #functionSettingModal .param-value-y {
+        flex: 1;
+    }
+}
+
+#functionSettingModal .row-invalid {
+    border: 3px solid red;
+}
+/* Function Info Table CSS - End */
+
+
+/* Merge mode */
+#procMergeModal {
+    /*display: none;*/
+}
+
+#parentProcessTable .parent-process-rows, .merge-mode-sample-data
+{
+    background-color: #444444;
+}
+
+table#childProcessSampleData tbody tr td {
+    min-width: 30px;
+    border-color: #5b5959!important;
+}
+
+table#childProcessColumns thead tr th {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.merge-mode-tables-left {
+    display: flex;
+    position: sticky;
+    left: 0;
+    z-index: 999;
+}
+
+/*Using for scroll table*/
+/*.merge-mode-tables-base, .merge-mode-tables-child {*/
+/*    width: 25%;*/
+/*}*/
+
+#parentProcessTable {
+    width: 50% !important;
+}
+
+#parentProcessTable th.system,
+#parentProcessTable th.japanese-name,
+#parentProcessTable th.local-name {
+    min-width: 180px;
+}
+
+#parentProcessTable tbody.parent-process-rows tr td {
+    text-overflow: ellipsis;
+    border-color: #5b5959 !important;
+}
+
+#parentProcessSampleData tbody.merge-mode-sample-data tr td {
+    border-color: #5b5959 !important;
+}
+
+#childProcessColumns {
+    width: 10% !important;
+}
+
+#childProcessSampleData {
+    width: 20% !important;
+}
+
+#parentProcessSampleData {
+    width: 20% !important;
+}
+
+.merge-mode-tables-child{
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: fit-content;
+}
+
+.merge-mode-tables-base {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: fit-content;
+}
+
+.confirmation-modal {
+    z-index: 1070 !important;
 }

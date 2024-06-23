@@ -7,7 +7,7 @@ from flask import Blueprint, Response, jsonify, request
 from flask_babel import gettext as _
 
 from ap import background_jobs, dic_config
-from ap.api.common.services.show_graph_services import check_path_exist
+from ap.api.common.services.show_graph_services import check_path_exist, sorted_function_details
 from ap.api.setting_module.services.autolink import SortMethod, get_processes_id_order
 from ap.api.setting_module.services.common import (
     delete_user_setting_by_id,
@@ -21,6 +21,12 @@ from ap.api.setting_module.services.common import (
 from ap.api.setting_module.services.data_import import (
     check_db_con,
     update_or_create_constant_by_type,
+)
+from ap.api.setting_module.services.equations import (
+    EquationSampleData,
+    is_all_new_functions,
+    remove_all_function_columns,
+    validate_functions,
 )
 from ap.api.setting_module.services.filter_settings import (
     delete_cfg_filter_from_db,
@@ -72,11 +78,12 @@ from ap.common.constants import (
     JobType,
     ProcessCfgConst,
     RelationShip,
+    dict_dtype,
 )
 from ap.common.cryptography_utils import encrypt
 from ap.common.logger import logger
-from ap.common.scheduler import lock
-from ap.common.services.http_content import json_dumps
+from ap.common.scheduler import lock, remove_jobs
+from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.setting_module.models import (
@@ -85,15 +92,22 @@ from ap.setting_module.models import (
     CfgDataSource,
     CfgDataSourceCSV,
     CfgProcess,
-    CfgUserSetting,
+    CfgProcessColumn,
+    CfgProcessFunctionColumn,
+    MFunction,
     crud_config,
     insert_or_update_config,
     make_session,
 )
-from ap.setting_module.schemas import CfgUserSettingSchema, DataSourceSchema, ProcessSchema
+from ap.setting_module.schemas import (
+    CfgUserSettingSchema,
+    DataSourceSchema,
+    ProcessSchema,
+)
 from ap.setting_module.services.background_process import get_background_jobs_service, get_job_detail_service
 from ap.setting_module.services.process_config import (
     create_or_update_process_cfg,
+    gen_function_column,
     get_ct_range,
     get_process_cfg,
     get_process_columns,
@@ -333,13 +347,22 @@ def show_latest_records():
     Returns:
         [type] -- [description]
     """
+    # TODO: make show latest records works with pydantic
     dic_form = request.form.to_dict()
     data_source_id = dic_form.get('databaseName') or dic_form.get('processDsID')
     table_name = dic_form.get('tableName') or None
     file_name = dic_form.get('fileName') or None
     limit = parse_int_value(dic_form.get('limit')) or 10
     folder = dic_form.get('folder') or None
-    latest_rec = get_latest_records(data_source_id, table_name, file_name, folder, limit)
+    current_process_id = dic_form.get('currentProcessId', None)
+    latest_rec = get_latest_records(
+        data_source_id,
+        table_name,
+        file_name,
+        folder,
+        limit,
+        current_process_id,
+    )
 
     result = {
         'cols': [],
@@ -381,13 +404,24 @@ def get_csv_resources():
     folder_url = request.json.get('url')
     etl_func = request.json.get('etl_func')
     csv_delimiter = request.json.get('delimiter')
-    isV2_datasource = request.json.get('isV2')
+    is_v2 = request.json.get('isV2')
     line_skip = request.json.get('line_skip') or ''
+    n_rows = request.json.get('n_rows')
+    n_rows = None if n_rows is None else int(n_rows)
+    is_transpose = request.json.get('is_transpose')
 
-    if isV2_datasource:
+    if is_v2:
         dic_output = preview_v2_data(folder_url, csv_delimiter, 5)
     else:
-        dic_output = preview_csv_data(folder_url, etl_func, csv_delimiter, line_skip=line_skip, limit=5)
+        dic_output = preview_csv_data(
+            folder_url,
+            etl_func,
+            csv_delimiter,
+            line_skip=line_skip,
+            n_rows=n_rows,
+            is_transpose=is_transpose,
+            limit=5,
+        )
     rows = dic_output['content']
     previewed_files = dic_output['previewed_files']
     dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
@@ -488,9 +522,9 @@ def delete_proc_from_db():
     proc_id = int(proc_id) or None
 
     # delete config and add job to delete data
-    delete_proc_cfg_and_relate_jobs(proc_id)
+    deleted_process_ids = delete_proc_cfg_and_relate_jobs(proc_id)
 
-    return jsonify(result={}), 200
+    return jsonify({'deleted_processes': deleted_process_ids}), 200
 
 
 @api_setting_module_blueprint.route('/save_order/<order_name>', methods=['POST'])
@@ -561,6 +595,87 @@ def shutdown():
     return response, 200
 
 
+@api_setting_module_blueprint.route('/function_config', methods=['POST'])
+def post_function_config():
+    data = request.json
+    functions = data.get('functions')
+    proc_id = data.get('process_id')
+    dict_rename_col_id = {}
+    sorted_functions = sorted(functions, key=lambda x: x.get(CfgProcessFunctionColumn.order.key))
+    validate_functions(proc_id, sorted_functions)
+
+    with make_session() as meta_session:
+        df_function_column = CfgProcessFunctionColumn.get_by_process_id(proc_id, session=meta_session)
+        func_col_ids = [_id.item() for _id in df_function_column['process_function_column_id'].tolist()]
+        exist_func_col_ids = []
+
+        # In case of paste all, exist function columns will be deleted, request function columns will be newly inserted
+        if sorted_functions and is_all_new_functions(sorted_functions):
+            remove_all_function_columns(meta_session, proc_id)
+
+        for dic_func in sorted_functions:
+            is_me_func = dic_func.pop('is_me_function')
+            dic_proc_col = dic_func.pop('process_column')
+            is_new_col = False
+            if not is_me_func and dic_proc_col['id'] < 0:
+                old_col_id = dic_proc_col['id']
+                dic_proc_col['id'] = None
+                is_new_col = True
+
+            cfg_func = CfgProcessFunctionColumn(**{key: val if val != '' else None for key, val in dic_func.items()})
+            cfg_func.return_type = dict_dtype.get(cfg_func.return_type, cfg_func.return_type)
+
+            if cfg_func.id < 0:
+                cfg_func.id = None
+
+            if cfg_func.var_x and cfg_func.var_x < 0:
+                cfg_func.var_x = dict_rename_col_id.get(cfg_func.var_x)
+
+            if cfg_func.var_y and cfg_func.var_y < 0:
+                cfg_func.var_y = dict_rename_col_id.get(cfg_func.var_y)
+
+            if is_me_func:
+                if cfg_func.process_column_id and cfg_func.process_column_id < 0:
+                    cfg_func.process_column_id = dict_rename_col_id.get(cfg_func.process_column_id)
+                exist_func_col_ids.append(cfg_func.id)
+                meta_session.merge(cfg_func)
+            else:
+                cfg_col = CfgProcessColumn(**{key: val if val != '' else None for key, val in dic_proc_col.items()})
+                cfg_col.predict_type = cfg_col.data_type
+                if is_new_col:
+                    cfg_col: CfgProcess = insert_or_update_config(
+                        meta_session=meta_session,
+                        data=cfg_col,
+                        key_names=CfgProcessColumn.id.key,
+                        model=CfgProcessColumn,
+                    )
+                    dict_rename_col_id[old_col_id] = cfg_col.id
+                else:
+                    exist_func_col_ids.append(cfg_func.id)
+
+                if cfg_func.process_column_id < 0:
+                    cfg_func.process_column_id = dict_rename_col_id[cfg_func.process_column_id]
+
+                cfg_col.function_details = [cfg_func]
+                meta_session.merge(cfg_col)
+
+        # remove function column not exist in request function columns
+        not_exits_func_col_ids = set(func_col_ids) - set(exist_func_col_ids)
+        for func_col_id in not_exits_func_col_ids:
+            func_col: CfgProcessFunctionColumn = CfgProcessFunctionColumn.get_by_id(func_col_id)
+            if not func_col:
+                # In case this function already was deleted by cascade
+                continue
+            elif func_col.is_me_function:
+                CfgProcessFunctionColumn.delete_by_ids([func_col_id], session=meta_session)
+            else:
+                CfgProcessColumn.delete_by_ids([func_col.process_column_id], session=meta_session)
+
+    cfg_col_ids = CfgProcessFunctionColumn.get_all_cfg_col_ids()
+
+    return jsonify({'cfg_col_ids': cfg_col_ids, 'dict_rename_col_id': dict_rename_col_id}), 200
+
+
 @api_setting_module_blueprint.route('/proc_config', methods=['POST'])
 def post_proc_config():
     process_schema = ProcessSchema()
@@ -573,6 +688,7 @@ def post_proc_config():
         proc_id = proc_data.get(ProcessCfgConst.PROC_ID.value)
         if proc_id:
             process = get_process_cfg(int(proc_id))
+            # process = CfgProcess.get_proc_by_id(proc_id)
             if not process:
                 return (
                     jsonify(
@@ -583,6 +699,46 @@ def post_proc_config():
                     ),
                     200,
                 )
+            # TODO: Uncomment after release
+            # with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
+            #     transaction_data_obj = TransactionData(proc_id)
+            #     is_success, failed_change_columns = transaction_data_obj.cast_data_type_for_columns(
+            #         db_instance,
+            #         transaction_data_obj,
+            #         process,
+            #         proc_data,
+            #     )
+            #     if not is_success:
+            #         # Collect data to send to front-end and show it on modal
+            #         # failed_column_data = transaction_data_obj.get_failed_cast_data(db_instance,
+            #         failed_change_columns)
+            #
+            #         # Export data that cannot convert to new data type to csv file
+            #         # file_full_path = write_error_cast_data_types(process, failed_column_data)
+            #
+            #         return (
+            #             json_dumps(
+            #                 {
+            #                     'status': 500,
+            #                     'message': _(
+            #                         'Cast error: There are some columns that cannot be cast to another'
+            #                         ' data type. Please check the real data of the columns listed below.'
+            #                         ' You can also see the data that will be exported and stored in file'
+            #                         ' path {0}',
+            #                     ),
+            #                     'errorType': 'CastError',
+            #                     'data': {
+            #                         # Convert failed_column_data to truly dictionary
+            #                         column.id: {'detail': ProcessColumnSchema().dump(column), 'data': []}
+            #                         for column in failed_change_columns
+            #                     },
+            #                 },
+            #             ),
+            #             200,
+            #         )
+
+        target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
+        remove_jobs(target_jobs, proc_id)
 
         process = create_or_update_process_cfg(proc_data, unused_columns)
 
@@ -676,9 +832,22 @@ def del_proc_config(proc_id):
 @api_setting_module_blueprint.route('/proc_config/<proc_id>', methods=['GET'])
 def get_proc_config(proc_id):
     process = get_process_cfg(proc_id)
+    parent_and_child_processes = CfgProcess.get_all_parents_and_children_processes(proc_id)
+    col_id_in_funcs = CfgProcessFunctionColumn.get_all_cfg_col_ids()
     if process:
         tables = query_database_tables(process['data_source_id'])
-        return jsonify({'status': 200, 'data': process, 'tables': tables}), 200
+        return (
+            jsonify(
+                {
+                    'status': 200,
+                    'data': process,
+                    'tables': tables,
+                    'col_id_in_funcs': col_id_in_funcs,
+                    'has_parent_or_children': len(parent_and_child_processes) > 1,
+                },
+            ),
+            200,
+        )
     else:
         return jsonify({'status': 404, 'data': 'Not found'}), 200
 
@@ -687,6 +856,8 @@ def get_proc_config(proc_id):
 def get_proc_config_filter_data(proc_id):
     process = get_process_cfg(proc_id)
     # filter_col_data = get_filter_col_data(process) or {}
+    columns = process.get('columns')
+    process['columns'] = [column for column in columns if column.get(CfgProcessColumn.function_details.key) is not None]
     filter_col_data = {}
     if process:
         if not process['name_en']:
@@ -904,7 +1075,7 @@ def simulate_proc_link():
         if dic_edge_cnt.get(edge_id) is None:
             dic_edge_cnt[edge_id] = 0
 
-    return jsonify(nodes=dic_proc_cnt, edges=dic_edge_cnt), 200
+    return orjson_dumps(nodes=dic_proc_cnt, edges=dic_edge_cnt), 200
 
 
 @api_setting_module_blueprint.route('/count_proc_link', methods=['POST'])
@@ -950,9 +1121,6 @@ def save_user_setting():
         params = json.loads(request.data)
         setting = save_user_settings(params)
 
-        # find setting id after creating a new setting
-        if not setting.id:
-            setting = CfgUserSetting.get_by_title(setting.title)[0]
         setting = CfgUserSettingSchema().dump(setting)
     except Exception as ex:
         logger.exception(ex)
@@ -1210,3 +1378,110 @@ def register_source_and_proc():
 def redirect_to_chm_page(proc_id):
     target_url = get_chm_url_to_redirect(request, proc_id)
     return jsonify(url=target_url), 200
+
+
+@api_setting_module_blueprint.route('/function_config/sample_data', methods=['POST'])
+def equations_sample_data():
+    equation_sample_data = EquationSampleData.model_validate_json(request.data)
+    return orjson_dumps(equation_sample_data.sample_data())
+
+
+@api_setting_module_blueprint.route('/function_config/get_function_infos', methods=['POST'])
+def get_function_infos():
+    process_id = json.loads(request.data).get('process_id', None)
+    dict_sample_data = json.loads(request.data).get('dic_sample_data', {})
+    cfg_process_columns: list[CfgProcessColumn] = CfgProcessColumn.get_by_process_id(process_id)
+    dict_cfg_process_column = {cfg_process_column.id: cfg_process_column for cfg_process_column in cfg_process_columns}
+    result = []
+    for function_detail in sorted_function_details(cfg_process_columns):
+        process_col = dict_cfg_process_column[function_detail.process_column_id]
+        function_id = function_detail.function_id
+        m_function: MFunction = MFunction.get_by_id(function_id)
+        var_x = function_detail.var_x
+        var_y = function_detail.var_y
+        var_x_name = ''
+        x_data_type = ''
+        var_y_name = ''
+        y_data_type = ''
+        var_x_data = []
+        var_y_data = []
+        if var_x:
+            column_x: CfgProcessColumn = dict_cfg_process_column[var_x]
+            var_x_name = column_x.shown_name
+            x_data_type = column_x.data_type
+            var_x_data = dict_sample_data[str(var_x)]
+
+        if var_y:
+            column_y: CfgProcessColumn = dict_cfg_process_column[var_y]
+            var_y_name = column_y.shown_name
+            y_data_type = column_y.data_type
+            var_y_data = dict_sample_data[str(var_y)]
+
+        # TODO: change if Khanh san change EquationSampleData
+        equation_sample_data = EquationSampleData(
+            equation_id=function_id,
+            X=var_x_data,
+            x_data_type=x_data_type,
+            Y=var_y_data,
+            y_data_type=y_data_type,
+            **function_detail.as_dict(),
+        )
+        sample_datas = equation_sample_data.sample_data().sample_data
+        dict_sample_data[str(process_col.id)] = sample_datas
+        function_info = {
+            'functionName': m_function.function_type,
+            'output': function_detail.return_type,
+            'systemName': process_col.name_en,
+            'japaneseName': process_col.name_jp,
+            'localName': process_col.name_local,
+            'varXName': var_x_name,
+            'varYName': var_y_name,
+            'a': function_detail.a,
+            'b': function_detail.b,
+            'c': function_detail.c,
+            'n': function_detail.n,
+            'k': function_detail.k,
+            's': function_detail.s,
+            't': function_detail.t,
+            'note': function_detail.note,
+            'sampleDatas': sample_datas,
+            'isChecked': False,
+            'processColumnId': process_col.id,
+            'functionColumnId': function_detail.id,
+            'functionId': function_id,
+            'varX': var_x,
+            'varY': var_y,
+            'index': function_detail.order,
+        }
+        result.append(function_info)
+
+    result = sorted(result, key=lambda k: k['index'])
+    return orjson_dumps({'functionData': result})
+
+
+@api_setting_module_blueprint.route('/function_register', methods=['POST'])
+def function_register():
+    functions = json.loads(request.data).get('functions', None)
+    with make_session() as meta_session:
+        gen_function_column(functions, session=meta_session)
+
+    return json_dumps({'status': 200}), 200
+
+
+@api_setting_module_blueprint.route('/function_config/delete_function_columns', methods=['POST'])
+def delete_function_column_config():
+    """[Summary] delete function column from DB
+    Returns: 200/500
+    """
+    data = json.loads(request.data)
+    column_ids = data.get('column_ids', [])
+    function_column_ids = data.get('function_column_ids', [])
+    try:
+        with make_session() as session:
+            CfgProcessColumn.delete_by_ids(column_ids, session=session)
+            CfgProcessFunctionColumn.delete_by_ids(function_column_ids, session=session)
+    except Exception:
+        traceback.print_exc()
+        return json_dumps({}), 500
+
+    return json_dumps({}), 200

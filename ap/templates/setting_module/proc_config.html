@@ -48,7 +48,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for proc_info in proc_list %}
+                                {% for proc_info in procs %}
                                     <tr name="procInfo" id="proc_{{ proc_info.id }}"
                                         data-ds-id="{{ proc_info.data_source.id }}"
                                         data-proc-id="{{ proc_info.id }}">
@@ -106,11 +106,41 @@
             </div>
         </div>
         {% include "proc_config_modals.html" %}
+        {{ macros.failed_cast_data_modal() }}
     </div>
 </div>
 {% block js %}
+    <script src="{{ url_for('setting_module.static', filename = 'js/failed_cast_data_modal.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_modals.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/function_data_type_dropdown.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/function_config_modals.js') }}"></script>
     <script>
         const cfgDS = {{ all_datasource|safe }};
+        /**
+         * A list of dictionary that contains all master function information
+         * @type {Array<{
+         *     coefs: string[], // defined kind of parameters of function
+         *     required_coefs: string[], // function requried parameters
+         *     optional_coefs: string[], // function optional parameters
+         *     function_name_en: string, // function name by english
+         *     function_name_jp: string, // function name by japanese
+         *     description_en: string, // function description by english
+         *     description_jp: string, // function description by japanese
+         *     function_type: string, // function name
+         *     id: number, // id of master function
+         *     vars: string[], // defined kind of vars
+         *     x_types: string[], // allowed varX's data types
+         *     y_types: string[], // allowed varY's data types
+         *     show_serial: boolean, // whether to show serial or not
+         *     a: string, // a argument of function
+         *     b: string, // b argument of function
+         *     c: string, // c argument of function
+         *     n: string, // n argument of function
+         *     k: string, // k argument of function
+         *     s: string, // s argument of function
+         *     t: string, // t argument of function
+         * }>} - alist of dictionary
+         */
+        const allMasterFunction = {{ all_function|safe }};
     </script>
 {% endblock %}

@@ -60,19 +60,21 @@ from ap.setting_module.models import CfgDataSource, CfgProcess, JobManagement, m
 
 @log_execution_time()
 def delete_proc_cfg_and_relate_jobs(proc_id):
-    # remove job relate to that process
-    deleted = CfgProcess.delete(proc_id=proc_id)
-    if deleted:
-        # target jobs
-        target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
-        # remove importing job from job queue
+    # get all processes to be deleted
+    deleting_processes = CfgProcess.get_all_parents_and_children_processes(proc_id)
+    # get ids incase sqlalchemy session is dead
+    deleting_process_ids = [proc.id for proc in deleting_processes]
+    # stop all jobs before deleting
+    target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
+    for proc_id in deleting_process_ids:
         remove_jobs(target_jobs, proc_id)
 
-    # delete cfg process
-    delete_transaction_db_file(proc_id)
+    # TODO: batch delete
+    for proc_id in deleting_process_ids:
+        CfgProcess.delete(proc_id=proc_id)
+        delete_transaction_db_file(proc_id)
 
-    # delete process infor from t_job_management
-    # del_process_data_from_job_management(proc_id)
+    return deleting_process_ids
 
 
 # @log_execution_time()

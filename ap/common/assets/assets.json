@@ -29,6 +29,7 @@
       "common/js/jump_function.js",
       "common/js/base.js",
       "common/js/utils.js",
+      "common/js/app_version_handler.js",
       "common/js/summary_table.js",
       "common/js/auto-update-common.js",
       "common/js/data-finder.js",
@@ -120,12 +121,12 @@
   },
   "chm": {
     "js": [
-      "heatmap/js/heatmap.js",
-      "heatmap/js/heatmap_plotly.js",
+      "calendar_heatmap/js/calendar_heatmap.js",
+      "calendar_heatmap/js/calendar_heatmap_plotly.js",
       "common/js/cat_facet_label_filter_modal.js"
     ],
     "css": [
-      "heatmap/css/heat_map.css"
+      "calendar_heatmap/css/calendar_heatmap.css"
     ]
   },
   "msp": {
@@ -144,7 +145,6 @@
     "js": [
       "common/js/libs/Chart.bundle.min.js",
       "scatter_plot/js/scatter_chart.js",
-      "scatter_plot/js/hist_with_density.js",
       "scatter_plot/js/scatter_plot.js",
       "scatter_plot/js/scp_heatmap_plot.js",
       "scatter_plot/js/scp_violin_plot.js",
@@ -152,6 +152,17 @@
     ],
     "css": [
       "scatter_plot/css/scatter_plot.css"
+    ]
+  },
+  "hmp": {
+    "js": [
+      "common/js/libs/Chart.bundle.min.js",
+      "heatmap/js/heatmap_main.js",
+      "heatmap/js/heatmap_plot.js",
+      "common/js/cat_facet_label_filter_modal.js"
+    ],
+    "css": [
+      "heatmap/css/heatmap.css"
     ]
   },
   "pcp": {
