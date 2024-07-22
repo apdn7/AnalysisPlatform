@@ -223,12 +223,16 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
         use_col_names = headers
         if use_dummy_datetime and DATETIME_DUMMY in use_col_names:
             use_col_names.remove(DATETIME_DUMMY)
-        data_first_row = data_src.skip_head + 1
+        data_first_row = (data_src.skip_head if data_src.skip_head is not None else 0) + 1
         head_skips = list(range(data_first_row))
     else:
         is_abnormal = False
-        data_first_row = data_src.skip_head + 1
-        head_skips = list(range(data_src.skip_head))
+        data_first_row = (data_src.skip_head if data_src.skip_head is not None else 0) + 1
+        head_skips = list(
+            range(
+                data_src.skip_head if data_src.skip_head is not None else 0,
+            ),
+        )
 
     total_percent = 0
     percent_per_file = 100 / len(import_targets)

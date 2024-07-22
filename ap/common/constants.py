@@ -471,7 +471,7 @@ class DataTypeEncode(Enum):
     INTEGER = 'Int'
     REAL = 'Real'
     TEXT = 'Str'
-    CATEGORY = 'Cat'
+    CATEGORY = 'Int(Cat)'
     DATETIME = 'CT'
     BIG_INT = 'BigInt'
 
@@ -1474,13 +1474,13 @@ class RawDataTypeDB(BaseEnum):  # data type user select
     BIG_INT = DataType.BIG_INT.name
     # CATEGORY_INTEGER = 'I'
     # CATEGORY_TEXT = 'T'
-    CATEGORY = DataType.TEXT.name
+    CATEGORY = 'CATEGORY'  # Rainbow treat category as integer
 
     @staticmethod
     def is_integer_data_type(data_type_db_value: str):
         return data_type_db_value in (
             RawDataTypeDB.INTEGER.value,
-            # RawDataTypeDB.SMALL_INT.value,
+            RawDataTypeDB.CATEGORY.value,
             RawDataTypeDB.BIG_INT.value,
         )
 
@@ -1526,7 +1526,7 @@ class RawDataTypeDB(BaseEnum):  # data type user select
             return pd.Int64Dtype()
 
         if raw_data_type == RawDataTypeDB.CATEGORY:
-            return pd.StringDtype()
+            return pd.Int64Dtype()
 
         if raw_data_type == RawDataTypeDB.DATE:
             return pd.DatetimeTZDtype(tz=timezone)
@@ -1542,12 +1542,8 @@ class RawDataTypeDB(BaseEnum):  # data type user select
             return None
 
         # database only save `i` for integer, need to handle big int and small int as well
-        if cls.is_integer_data_type(data_type) and cls.INTEGER.name in possible_data_types:
+        if cls.is_integer_data_type(data_type):
             return RawDataTypeDB.get_by_enum_value(data_type)
-
-        # handle category as a text at the moment
-        if data_type == cls.CATEGORY.value and cls.TEXT.value in possible_data_types:
-            return RawDataTypeDB.get_by_enum_value(cls.TEXT.value)
 
         if data_type in possible_data_types:
             return RawDataTypeDB.get_by_enum_value(data_type)
@@ -1591,6 +1587,7 @@ dict_dtype = {
     'r': DataType.REAL.name,
     'i': DataType.INTEGER.name,
     't': DataType.TEXT.name,
+    'T': RawDataTypeDB.CATEGORY.name,
     'd': DataType.DATETIME.name,
     'b': DataType.BOOLEAN.name,
     'rs': DataType.REAL_SEP.name,

@@ -157,11 +157,13 @@ const DataTypes = Object.freeze({
     },
     CATEGORY: {
         name: 'CATEGORY',
-        short: 'Cat'
+        short: 'Cat',
+        i18nLabelID: 'i18nCategoryOutputLabel',
     },
     BOOLEAN: {
         name: 'BOOLEAN',
-        short: 'Bool'
+        short: 'Bool',
+        i18nLabelID: 'i18nBool',
     }
 });
 

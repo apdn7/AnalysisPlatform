@@ -173,7 +173,7 @@ if not %fpath% == skip if not exist %fpath% (
 
 :Finish
 timeout /t 30
-exit /b
+exit
 
 :checkFileExist
 if exist %1 (

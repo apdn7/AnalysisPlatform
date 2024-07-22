@@ -1,5 +1,22 @@
 # Releases
 
+## v4.7.1
+
+Improvements
+
+- Improved layout of `Function` setting in Process Config
+
+Bugfixes
+
+- (Data Source Config)
+  - Fixed a bug where data import does not execute after updating CSV/TSV Import Config.
+- (Process Config)
+  - Fixed a bug where `Function`s those convert data to logical value (e.g. logical X==s, Hex to Logical) could not be defined.
+  - Fixed a bug where Sample Data for the function setting was not displayed.
+- (Misc)
+  - Fixed a bug where the console screen does not close automatically when launching AP+DN7.
+  - Fixed a bug where data from a CSV file could not be displayed on Table Viewer.
+
 ## v4.7.0
 
 Now you can install/upgrade AP+DN7 with installer (batch file).  

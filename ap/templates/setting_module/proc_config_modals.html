@@ -242,26 +242,24 @@
                         <div class="table-responsive proc-config-content function-type-content row my-3"
                              style="width: auto" id="functionSettingModal">
                             <div class="col-3 config-function-name-area">
-                                <div class="form-group d-flex align-items-center">
-                                    <div class="form-group d-flex align-items-center col-8 pr-0 pl-0" id="functionId">
-                                        <label class="function-config-label" for="functionName">
-                                            {{ _("Function") }}
-                                        </label>
-                                        <div class="function-config-value">
-                                            <select class="form-control select2-selection--single select2-hidden-accessible"
-                                                    id="functionName"
-                                                    name="backCol"
-                                                    tabindex="-1" aria-hidden="true">
-                                            </select>
-                                        </div>
+                                <div class="form-group d-flex align-items-center" id="functionId">
+                                    <label class="function-config-label" for="functionName">
+                                        {{ _("Function") }}
+                                    </label>
+                                    <div class="function-config-value">
+                                        <select class="form-control select2-selection--single select2-hidden-accessible"
+                                                id="functionName"
+                                                name="backCol"
+                                                tabindex="-1" aria-hidden="true">
+                                        </select>
                                     </div>
-                                    <div class="form-group d-flex align-items-center col-4 pr-0 pl-0" id="functionOutput">
-                                        <label class="col-7 pr-0 mb-0">
-                                            {{ _("Output") }}
-                                        </label>
-                                        <div class="function-config-value output-data-type col-5 pr-0 pl-0">
-                                            <span></span>
-                                        </div>
+                                </div>
+                                <div class="form-group d-flex align-items-center" id="functionOutput">
+                                    <label class="function-config-label">
+                                        {{ _("Output") }}
+                                    </label>
+                                    <div class="function-config-value output-data-type">
+                                        <span></span>
                                     </div>
                                 </div>
                                 <div class="form-group d-flex align-items-center" id="functionColumnSystemName">
@@ -286,14 +284,6 @@
                                     </label>
                                     <div class="function-config-value">
                                         <input type="text" name="functionColumnLocalName" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="form-group d-flex align-items-center" id="functionNote">
-                                    <label class="function-config-label">
-                                        {{ _("Note") }}
-                                    </label>
-                                    <div class="function-config-value">
-                                        <input type="text" name="note" class="form-control already-convert-hankaku">
                                     </div>
                                 </div>
                             </div>
@@ -361,7 +351,21 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="col-6 pl-2" id="functionMessageHelper">
+                                    <div class="col-6 pl-4 pt-0 form-group" id="functionNote">
+                                        <div id="functionMessageHelper">
+                                        </div>
+                                        <div class="form-group align-items-center" id="functionNote">
+                                            <label>
+                                                {{ _("Note") }}
+                                                <textarea
+                                                    type="text"
+                                                    name="note"
+                                                    class="form-control already-convert-hankaku"
+                                                    cols="51"
+                                                >
+                                                </textarea>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

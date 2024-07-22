@@ -162,9 +162,9 @@ if not exist %path_R% if %prod% == %product_dn% (
   exit /b
 )
 
-if exist %path_python% (echo Detect python) else goto PYTHON_EMBEDDED
-if exist %path_getpip% (echo Detect getpip) else goto PIP_DOWNLOAD
-if exist %path_oracle% (echo Detect oracle) else goto ORACLE_INSTANCE
+if exist %path_python% (echo Detect python) else goto :PYTHON_EMBEDDED
+if exist %path_getpip% (echo Detect getpip) else goto :PIP_DOWNLOAD
+if exist %path_oracle% (echo Detect oracle) else goto :ORACLE_INSTANCE
 
 : install packages
 :: Get pip

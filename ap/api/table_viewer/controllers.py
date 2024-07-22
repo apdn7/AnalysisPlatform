@@ -114,7 +114,7 @@ def get_csv_data(csv_detail, sort_colum, sort_order, limit):
     latest_file = latest_file[0:1][0]
     csv_delimiter = get_csv_delimiter(csv_detail.delimiter)
     line_skip = '' if (csv_detail.skip_head == 0 and not csv_detail.dummy_header) else csv_detail.skip_head
-    etl_func = csv_detail.etl_func
+
     # delimiter check
     _, encoding = detect_file_path_delimiter(
         latest_file,
@@ -123,9 +123,11 @@ def get_csv_data(csv_detail, sort_colum, sort_order, limit):
     )
     org_header, header_names, _, _, data_details, encoding, skip_tail, _ = get_csv_data_from_files(
         [latest_file],
-        line_skip,
-        etl_func,
-        csv_delimiter,
+        line_skip=line_skip,
+        n_rows=csv_detail.n_rows,
+        is_transpose=csv_detail.is_transpose,
+        etl_func=csv_detail.etl_func,
+        csv_delimiter=csv_delimiter,
         max_records=None,
     )
 

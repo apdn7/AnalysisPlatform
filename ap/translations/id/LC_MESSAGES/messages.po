@@ -4818,3 +4818,11 @@ msgstr "Link with time: diff [sec]"
 msgid "i18nCutOff"
 msgstr "CutOff: [msec]"
 
+#: ap/templates/i18n.html
+msgid "Boolean"
+msgstr "Boolean"
+
+#: ap/templates/i18n.html
+msgid "CategoryOutput"
+msgstr "Category"
+
