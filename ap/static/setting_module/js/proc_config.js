@@ -304,22 +304,28 @@ const getProcInfo = (procId) => {
             updateTableRowNumber(null, $('table[name=processColumnsTable]'));
 
             $('#procSettingModal').modal('show');
-
             setTimeout(() => {
-                if (!currentProcColumns) {
-                    // show latest records
+                if(!currentProcColumns) {
                     procModalElements.showRecordsBtn.click();
                 }
-                FunctionInfo
-                    .getAllFunctionInfosApi(procId, res.col_id_in_funcs)
-                    .then(FunctionInfo.loadFunctionListTableAndInitDropDown);
-            }, 300);
+            }, 300)
+            fetchFunctionsAfterColumnsAreLoaded(procId, res.col_id_in_funcs);
             currentProcDataCols = res.data.columns;
             currentProcess = res.data;
             currentProcessId = res.data.id;
         },
     });
 };
+
+function fetchFunctionsAfterColumnsAreLoaded(proc_id, cols) {
+    if (!currentProcColumns) {
+        setTimeout(() => fetchFunctionsAfterColumnsAreLoaded(proc_id, cols), 500);
+    } else {
+        FunctionInfo
+            .getAllFunctionInfosApi(proc_id, cols)
+            .then(FunctionInfo.loadFunctionListTableAndInitDropDown);
+    }
+}
 
 const showHideReRegisterBtn = () => {
     procModalElements.reRegisterBtn.css('display', 'none');

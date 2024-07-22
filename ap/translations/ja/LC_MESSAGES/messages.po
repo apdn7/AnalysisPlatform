@@ -4340,6 +4340,14 @@ msgstr "時間紐付: 時間差 [sec]"
 msgid "i18nCutOff"
 msgstr "CutOff: [msec]"
 
+#: ap/templates/i18n.html
+msgid "Boolean"
+msgstr "真偽値"
+
+#: ap/templates/i18n.html
+msgid "CategoryOutput"
+msgstr "カテゴリ"
+
 #~ msgid ""
 #~ "Cast error: There are some columns "
 #~ "that cannot be cast to another "

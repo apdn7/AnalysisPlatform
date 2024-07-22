@@ -7,7 +7,9 @@ from ap.common.constants import (
     ID,
     CacheType,
     CfgConstantType,
+    DataColumnType,
     DataType,
+    RawDataTypeDB,
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
@@ -220,9 +222,14 @@ def preprocess_column(column: CfgProcessColumn) -> CfgProcessColumn:
     #         column.format = EMPTY_STRING
 
     # need to change again, make sure date, time, boolean be converted to text
-    if column.data_type in [DataType.DATE.value, DataType.TIME.value, DataType.BOOLEAN.value]:
-        column.data_type = DataType.TEXT.value
+    if column.data_type in [DataType.DATE.name, DataType.TIME.name]:
+        column.data_type = DataType.TEXT.name
         # column.format = EMPTY_STRING
+
+    # change data type column from `boolean` or `category` to Int(Cat) (PO requirements)
+    if column.data_type in [DataType.BOOLEAN.name, RawDataTypeDB.CATEGORY.name]:
+        column.data_type = DataType.INTEGER.name
+        column.column_type = DataColumnType.INT_CATE.value
 
     return column
 

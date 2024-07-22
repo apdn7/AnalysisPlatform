@@ -242,6 +242,12 @@ class BaseFunction(BaseModel):
             )
         return output_data_type
 
+    @staticmethod
+    def force_convert_boolean_to_integer(series: pd.Series, raw_data_type: RawDataTypeDB):
+        if raw_data_type == RawDataTypeDB.BOOLEAN:
+            return series.astype(pd.Int16Dtype())
+        return series
+
     def evaluate(
         self,
         df: pd.DataFrame,
@@ -294,7 +300,7 @@ class BaseFunction(BaseModel):
         if raw_output_type == RawDataTypeDB.TEXT:
             result_series = result_series.replace(to_replace=EMPTY_STRING, value=pd.NA)
 
-        df[out_col] = result_series
+        df[out_col] = self.force_convert_boolean_to_integer(result_series, raw_output_type)
 
         return df
 

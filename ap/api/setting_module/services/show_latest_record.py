@@ -467,12 +467,12 @@ def preview_csv_data(
         skip_head_detected,
     ) = get_csv_data_from_files(
         sorted_files,
-        line_skip,
-        n_rows,
-        is_transpose,
-        etl_func,
-        csv_delimiter,
-        max_records,
+        line_skip=line_skip,
+        n_rows=n_rows,
+        is_transpose=is_transpose,
+        etl_func=etl_func,
+        csv_delimiter=csv_delimiter,
+        max_records=max_records,
     )
 
     # normalize data detail
@@ -1036,7 +1036,7 @@ def add_generated_datetime_column(
     if main_datetime_columns:
         main_datetime_column = main_datetime_columns[0]
         column_name = main_datetime_column.column_name
-        if column_name not in org_headers:
+        if column_name not in header_names:
             data_types.append(DataType.DATETIME.value)
             header_names.append(main_datetime_column.column_name)
             org_headers.append(main_datetime_column.column_name)

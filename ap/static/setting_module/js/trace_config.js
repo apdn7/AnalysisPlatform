@@ -949,7 +949,7 @@ const addTraceKey = (isNew = false) => {
         forwardCol = false,
         clearOption = !isNew,
         columnNames = selfColNames,
-        columnDataTypes = targetDataTypes,
+        columnDataTypes = selfDataTypes,
         selfChosenTraceKeys);
 
     for (let i = 0; i < fwdColumns.length; i++) {

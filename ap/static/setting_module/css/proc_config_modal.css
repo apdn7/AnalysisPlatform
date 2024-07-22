@@ -260,6 +260,7 @@
     height: 100%;
     display: flex;
     align-items: center;
+    padding-left: 0.5em;
 }
 
 #functionSettingModal .config-params-area {
@@ -320,6 +321,15 @@
 
 #functionSettingModal input {
     padding-left: 0.5em;
+}
+
+#functionSettingModal #functionNote {
+    padding-top: 9px;
+}
+
+#functionSettingModal #functionNote textarea {
+    height: 73px;
+    resize: none;
 }
 
 #functionConfigModalSetFilterBtn,
@@ -480,18 +490,19 @@
 }
 
 #functionMessageHelper {
-    height: 180px;
+    height: 80px;
     line-height: 20px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -moz-box-orient: vertical;
-    -ms-box-orient: vertical;
-    box-orient: vertical;
-    -webkit-line-clamp: 9;
-    -moz-line-clamp: 9;
-    -ms-line-clamp: 9;
-    line-clamp: 9;
-    overflow: hidden;
+    /*display: -webkit-box;*/
+    /*-webkit-box-orient: vertical;*/
+    /*-moz-box-orient: vertical;*/
+    /*-ms-box-orient: vertical;*/
+    /*box-orient: vertical;*/
+    /*-webkit-line-clamp: 4;*/
+    /*-moz-line-clamp: 4;*/
+    /*-ms-line-clamp: 4;*/
+    /*line-clamp: 4;*/
+    /*overflow: hidden;*/
+    overflow: auto;
 }
 
 @media screen and (min-width: 1001px) and (max-width: 1700px) {

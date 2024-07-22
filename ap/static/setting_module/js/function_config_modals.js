@@ -51,8 +51,8 @@ const functionConfigElements = {
     coeCTElement: document.querySelector('#functionCoeCT input[name="functionCoeCT"]'),
     /** @type HTMLLabelElement */
     coeCTLabelElement: document.querySelector('#functionCoeCT label'),
-    /** @type HTMLInputElement */
-    noteElement: document.querySelector('#functionNote input'),
+    /** @type HTMLTextAreaElement */
+    noteElement: document.querySelector('#functionNote textarea'),
     /** @type HTMLInputElement */
     xSampleDataLabel: document.querySelector('#functionSampleData th[name="xSampleData"]'),
     /** @type HTMLInputElement */
@@ -2434,7 +2434,7 @@ const showResultFunction = () => {
                 const elements = $(functionConfigElements.sampleDataElement).find(`tbody tr td:nth-child(1)`);
                 for (const index of Array(5).keys()) {
                     let val = resultValues[index];
-                    if (data.output_type === DataTypes.DATETIME.bs_value) {
+                    if (data.output_type === DataTypes.DATETIME.name) {
                         val = parseDatetimeStr(val);
                     }
                     $(elements[index]).html(applySignificantDigit(val));

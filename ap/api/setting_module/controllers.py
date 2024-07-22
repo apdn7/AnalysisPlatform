@@ -74,9 +74,11 @@ from ap.common.constants import (
     CfgConstantType,
     CSVExtTypes,
     DataColumnType,
+    DataType,
     JobStatus,
     JobType,
     ProcessCfgConst,
+    RawDataTypeDB,
     RelationShip,
     dict_dtype,
 )
@@ -642,6 +644,8 @@ def post_function_config():
             else:
                 cfg_col = CfgProcessColumn(**{key: val if val != '' else None for key, val in dic_proc_col.items()})
                 cfg_col.predict_type = cfg_col.data_type
+                if cfg_col.data_type in [RawDataTypeDB.CATEGORY.value]:
+                    cfg_col.data_type = DataType.INTEGER.name
                 if is_new_col:
                     cfg_col: CfgProcess = insert_or_update_config(
                         meta_session=meta_session,

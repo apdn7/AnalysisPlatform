@@ -3,6 +3,7 @@ from typing import Union
 
 from sqlalchemy.orm import scoped_session
 
+from ap.api.common.services.show_graph_database import preprocess_column
 from ap.api.setting_module.services.v2_etl_services import is_v2_data_source, save_unused_columns
 from ap.common.constants import (
     ID,
@@ -64,11 +65,7 @@ def get_process_cfg(proc_id):
 def get_process_columns(proc_id):
     proc_col_schema = ProcessColumnSchema(many=True)
     columns = CfgProcessColumn.query.filter(CfgProcessColumn.process_id == proc_id).all() or []
-    for column in columns:
-        # modify data type based on function column
-        if column.function_details and column.function_details[-1].return_type:
-            column.data_type = column.function_details[-1].return_type
-
+    columns = map(preprocess_column, columns)
     return proc_col_schema.dump(columns)
 
 
