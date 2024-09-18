@@ -1,0 +1,39 @@
+{
+    "name": "analysisinterface",
+    "version": "1.0.0",
+    "description": "ap\r =========",
+    "main": "index",
+    "directories": {
+        "test": "tests"
+    },
+    "scripts": {
+        "test": "cypress run --e2e --project tests/e2e --browser chrome",
+        "test:dev": "cypress open --e2e --project tests/e2e --browser chrome",
+        "test-lint": "eslint . ",
+        "test-format": "prettier . --check",
+        "lint": "eslint . --fix",
+        "format": "prettier . --write"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@bitbucket.org/s3c_fiot/analysisinterface.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "homepage": "https://bitbucket.org/s3c_fiot/analysisinterface#readme",
+    "devDependencies": {
+        "@eslint/js": "^9.4.0",
+        "cypress": "^13.6.3",
+        "cypress-real-events": "^1.12.0",
+        "eslint": "^9.4.0",
+        "eslint-config-prettier": "^9.1.0",
+        "globals": "^15.4.0",
+        "prettier": "^3.3.2",
+        "prettier-plugin-jinja-template": "^1.4.0",
+        "wait-on": "^7.2.0"
+    },
+    "dependencies": {
+        "chart.js": "^3.6.0",
+        "chartjs-chart-error-bars": "^3.6.0"
+    }
+}

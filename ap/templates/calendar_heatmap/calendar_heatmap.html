@@ -11,63 +11,101 @@
             {{ macros.data_finder_card() }}
             {{ macros.heatmap_target_period() }}
             {{ macros.cond_proc([],'', width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
-            <br class="graph-navi graph-navi-top-down">
-            <div class="d-flex align-items-center justify-content-center show-graph-div">
+            <br class="graph-navi graph-navi-top-down" />
+            <div
+                class="d-flex align-items-center justify-content-center show-graph-div"
+            >
                 {{ macros.order_btn() }}
                 {{ macros.preprocess_options(isRealOnlyMsg=_('The target is a variable whose data type is Real')) }}
-                <button id="showGraphBtn" type="button" value="{{ _('Display graph') }}"
-                        onClick="showHeatMap();" class="btn btn-primary show-graph ml-3"
-                        title="Shortcut key: Ctrl+Enter">
-                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
-				{{ macros.export_gui() }}
-			</div>
-			<br>
-		</form>
-		{{ macros.cat_label_filter_modal() }}
+                <button
+                    id="showGraphBtn"
+                    type="button"
+                    value="{{ _('Display graph') }}"
+                    onClick="showHeatMap();"
+                    class="btn btn-primary show-graph ml-3"
+                    title="Shortcut key: Ctrl+Enter"
+                >
+                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                </button>
+                {{ macros.export_gui() }}
+            </div>
+            <br />
+        </form>
+        {{ macros.cat_label_filter_modal() }}
         {{ macros.end_col_order_modal() }}
         {{ macros.end_col_order_modal(graphArea='1') }}
         {{ macros.jump_modal() }}
-	</div>
+    </div>
 
-	<div class="result-section" id="scaleOption" style="display: none;">
-		<div class="y-scale-group tooltip-parent align-items-center mt-3 mb-2" id="graph-settings-area">
-			{{ macros.info_i_mark() }}
-			{{ macros.on_demand_filter() }}
+    <div class="result-section" id="scaleOption" style="display: none;">
+        <div
+            class="y-scale-group tooltip-parent align-items-center mt-3 mb-2"
+            id="graph-settings-area"
+        >
+            {{ macros.info_i_mark() }}
+            {{ macros.on_demand_filter() }}
             {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleShowHeatmapWithOrder();}') }}
             {{ macros.jump_button() }}
-			<div class="d-flex align-items-center ml-4">
-				<span class="mr-2">Color</span>
-				<select class="form-control border-white scale-dropdown" name="heatmapScale">
-					<option value="common">{{ _('Common scale') }}</option>
-					<option value="auto" selected>{{ _('Auto range') }}</option>
-				</select>
-			</div>
-		</div>
-	</div>
+            <div class="d-flex align-items-center ml-4">
+                <span class="mr-2">Color</span>
+                <select
+                    class="form-control border-white scale-dropdown"
+                    name="heatmapScale"
+                >
+                    <option value="common">{{ _('Common scale') }}</option>
+                    <option value="auto" selected>{{ _('Auto range') }}</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-	<div id="heatmapCard" class="card result-section plot-content" style="display: none;">
-        <div class="justify-content-center card chart-wrapper chart-margin clearfix" id="plot-cards"></div>
+    <div
+        id="heatmapCard"
+        class="card result-section plot-content"
+        style="display: none;"
+    >
+        <div
+            class="justify-content-center card chart-wrapper chart-margin clearfix"
+            id="plot-cards"
+        ></div>
         <div id="stContentTab">
             <div class="setting-inform-content"></div>
         </div>
     </div>
 
     <div>
-        <ul id="contextMenuHeatmap" class="context-menu" style="display:none;" name="contextMenu">
-            <li class="menu-item" onclick="selectHeatmapMenu('auto')">{{ _('Auto range') }}</li>
-            <li class="menu-item" onclick="selectHeatmapMenu('common')">{{ _('Common scale') }}</li>
+        <ul
+            id="contextMenuHeatmap"
+            class="context-menu"
+            style="display:none;"
+            name="contextMenu"
+        >
+            <li class="menu-item" onclick="selectHeatmapMenu('auto')">
+                {{ _('Auto range') }}
+            </li>
+            <li class="menu-item" onclick="selectHeatmapMenu('common')">
+                {{ _('Common scale') }}
+            </li>
         </ul>
     </div>
 
     <div class=" loading"></div>
-    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
-    <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
-       target="_blank">{{ _("Click here to fix") }}</a>
-	{{ macros.data_point_info() }}
+    <div style="display: none;" id="msgErrorDBConnection">
+        {{ _("Could not access") }}
+    </div>
+    <a
+        style="display: none;"
+        id="msgErrorDBConnectionAction"
+        href="{{ url_for('setting_module.config_screen') }}"
+        target="_blank"
+        >{{ _("Click here to fix") }}</a
+    >
+    {{ macros.data_point_info() }}
     {{ optdata }}
 {% endblock %}
 
 {% block js %}
+    <!-- prettier-ignore-start -->
     <script>
         const procJsons = {{ list_procs | safe }};
         const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
@@ -77,10 +115,11 @@
             procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
+    <!-- prettier-ignore-end -->
     {% assets "js_chm" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% assets "css_chm" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}">
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 {% endblock %}

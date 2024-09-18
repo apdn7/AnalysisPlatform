@@ -45,7 +45,13 @@ def change_polling_all_interval_jobs(interval_sec=None, run_now=False, is_user_r
         add_import_job(proc_cfg, interval_sec=interval_sec, run_now=run_now, is_user_request=is_user_request)
 
 
-def add_import_job(proc_cfg: CfgProcess, interval_sec=None, run_now=None, is_user_request: bool = False):
+def add_import_job(
+    proc_cfg: CfgProcess,
+    interval_sec=None,
+    run_now=None,
+    is_user_request: bool = False,
+    register_by_file_request_id: str = None,
+):
     if interval_sec is None:
         interval_sec = CfgConstant.get_value_by_type_first(CfgConstantType.POLLING_FREQUENCY.name, int)
 
@@ -70,6 +76,7 @@ def add_import_job(proc_cfg: CfgProcess, interval_sec=None, run_now=None, is_use
         '_proc_name': proc_cfg.name,
         'proc_id': proc_cfg.id,
         'is_user_request': is_user_request,
+        'register_by_file_request_id': register_by_file_request_id,
     }
 
     add_job_to_scheduler(job_id, job_name, trigger, import_func, run_now, dic_import_param)

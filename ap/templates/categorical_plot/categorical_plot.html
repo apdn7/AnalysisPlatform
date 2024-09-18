@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
 {% block asset %}
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
 {% endblock %}
 
 {% block header %}
@@ -9,98 +12,126 @@
 {% endblock %}
 
 {% block midbody %}
-<div class="card" id="varTab" class="no-top-border">
-    <form id="categoricalPlotForm" class="no-top-border GUIForm">
-        <!-- Process + sensor -->
-        <div class="card-body table-bordered graph-navi no-top-border">
-            <div class="row">
-                <div class="col-xl-2 col-3 d-flex flex-column">
-                    <div class="d-flex justify-content-between">
-                    {{ macros.label(_("Show value"), title=_('Enter target item of data (quantitative variable like measurement value) to create data distributions. This data is plotted on the graph.')) }}
-                    {{ macros.paste_btn(with_count=True) }}
-                    </div>
-                    <div class="mt-auto pl-3 pt-3">
-                        {{ macros.start_proc_select(procs, no_link_data=true) }}
-                    </div>
-                </div>
-                <div class="col-xl-10 col-9">
-					<div class="row" id="end-proc-row">
-						<div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
-                            <button id="btn-add-end-proc" name="btnAddEndProc" type="button"
-                                    class="btn simple-btn">
-                                <i class="fas fa-plus-circle"></i>
-                            </button>
+    <div class="card" id="varTab" class="no-top-border">
+        <form id="categoricalPlotForm" class="no-top-border GUIForm">
+            <!-- Process + sensor -->
+            <div class="card-body table-bordered graph-navi no-top-border">
+                <div class="row">
+                    <div class="col-xl-2 col-3 d-flex flex-column">
+                        <div class="d-flex justify-content-between">
+                            {{ macros.label(_("Show value"), title=_('Enter target item of data (quantitative variable like measurement value) to create data distributions. This data is plotted on the graph.')) }}
+                            {{ macros.paste_btn(with_count=True) }}
                         </div>
-					</div>
-                </div>
-            </div>
-        </div>
-        {{ macros.data_finder_card() }}
-        <!-- Date range -->
-        <div class="card-body table-bordered graph-navi" id="varSrtPrc">
-            <div class="row">
-                <div class="col-xl-2 col-3">
-                    <div class="d-flex justify-content-between">
-                    {{ macros.label(_("Target period")) }}
-                    {{ macros.paste_btn() }}
+                        <div class="mt-auto pl-3 pt-3">
+                            {{ macros.start_proc_select(procs, no_link_data=true) }}
+                        </div>
+                    </div>
+                    <div class="col-xl-10 col-9">
+                        <div class="row" id="end-proc-row">
+                            <div
+                                class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
+                            >
+                                <button
+                                    id="btn-add-end-proc"
+                                    name="btnAddEndProc"
+                                    type="button"
+                                    class="btn simple-btn"
+                                >
+                                    <i class="fas fa-plus-circle"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-xl-10 col-9">
-                    <div class="row">
-                        {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover StP'), cyclicTermDefault=16, cyclicIntervalDefault=1)}}
+            </div>
+            {{ macros.data_finder_card() }}
+            <!-- Date range -->
+            <div class="card-body table-bordered graph-navi" id="varSrtPrc">
+                <div class="row">
+                    <div class="col-xl-2 col-3">
+                        <div class="d-flex justify-content-between">
+                            {{ macros.label(_("Target period")) }}
+                            {{ macros.paste_btn() }}
+                        </div>
+                    </div>
+                    <div class="col-xl-10 col-9">
+                        <div class="row">
+                            {{ macros.multiple_target_period(DivisionNumberHover=_('Division number Hover StP'), cyclicTermDefault=16, cyclicIntervalDefault=1) }}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{macros.cond_proc([],'', prefix='var', title=_('Stratified Category Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true)}}
-        <br class="graph-navi graph-navi-top-down">
-        <div class="d-flex align-items-center justify-content-center show-graph-div">
-            {{ macros.preprocess_options() }}
-            <button type="button" id="varShowGraphBtn" value="{{ _('Display graph') }}" onClick="showGraph()"
-                class="btn btn-primary show-graph ml-3" data-with-tab="true" title="Shortcut key: Ctrl+Enter">
-                <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
-			{{ macros.export_gui() }}
-		</div>
-		<br>
-	</form>
-	{{ macros.cat_label_filter_modal() }}
-    {{ macros.jump_modal() }}
-</div>
+            {{ macros.cond_proc([],'', prefix='var', title=_('Stratified Category Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
+            <br class="graph-navi graph-navi-top-down" />
+            <div
+                class="d-flex align-items-center justify-content-center show-graph-div"
+            >
+                {{ macros.preprocess_options() }}
+                <button
+                    type="button"
+                    id="varShowGraphBtn"
+                    value="{{ _('Display graph') }}"
+                    onClick="showGraph()"
+                    class="btn btn-primary show-graph ml-3"
+                    data-with-tab="true"
+                    title="Shortcut key: Ctrl+Enter"
+                >
+                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                </button>
+                {{ macros.export_gui() }}
+            </div>
+            <br />
+        </form>
+        {{ macros.cat_label_filter_modal() }}
+        {{ macros.jump_modal() }}
+    </div>
 
-	<br>
-	<div id="categoricalPlotArea" class="plot-content" style="display: none">
-		<div class="flex-row-center" id="graph-settings-area">
-			{{ macros.info_i_mark() }}
-			{{ macros.on_demand_filter() }}
-			{{ macros.summary_option(prefix='var', buttonId='varSummarySelectBtn', optionName='SummaryOption', cl='ml-2') }}
+    <br />
+    <div id="categoricalPlotArea" class="plot-content" style="display: none">
+        <div class="flex-row-center" id="graph-settings-area">
+            {{ macros.info_i_mark() }}
+            {{ macros.on_demand_filter() }}
+            {{ macros.summary_option(prefix='var', buttonId='varSummarySelectBtn', optionName='SummaryOption', cl='ml-2') }}
             {{ macros.jump_button() }}
-			{{ macros.frequency_scale(name='frequencyScale', cl='ml-4') }}
-			{{ macros.scale_option(name='HistScale', className='ml-4', defaultOption='1') }}
-		</div>
-		<div id="CatePlotCards" class="stratifiedTabs mt-2" data-str-by="var"></div>
-		<div id="stContentTab">
-			<div class="setting-inform-content"></div>
-		</div>
-	</div>
-	<div class="loading"></div>
-	<div style="display: none;">
-		<div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
-		<a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
-		   target="_blank">{{ _('Click here to fix') }}</a>
-	</div>
+            {{ macros.frequency_scale(name='frequencyScale', cl='ml-4') }}
+            {{ macros.scale_option(name='HistScale', className='ml-4', defaultOption='1') }}
+        </div>
+        <div
+            id="CatePlotCards"
+            class="stratifiedTabs mt-2"
+            data-str-by="var"
+        ></div>
+        <div id="stContentTab">
+            <div class="setting-inform-content"></div>
+        </div>
+    </div>
+    <div class="loading"></div>
+    <div style="display: none;">
+        <div style="display: none;" id="msgErrorDBConnection">
+            {{ _("Could not access") }}
+        </div>
+        <a
+            style="display: none;"
+            id="msgErrorDBConnectionAction"
+            href="{{ url_for('setting_module.config_screen') }}"
+            target="_blank"
+            >{{ _('Click here to fix') }}</a
+        >
+    </div>
 
-	<div id="varInfo">
-		<span class="" id="vi-title">{{ _("Median") }}</span>
-		<div id="vi-content">
+    <div id="varInfo">
+        <span class="" id="vi-title">{{ _("Median") }}</span>
+        <div id="vi-content">
             <p>{{ _("Median_mean") }}</p>
         </div>
     </div>
-	{{ macros.data_point_info() }}
+    {{ macros.data_point_info() }}
     {{ optdata }}
 {% endblock %}
 
 {% block js %}
+    <!-- prettier-ignore-start -->
     <script>
         const procJsons = {{ list_procs | safe }};
         const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
@@ -110,10 +141,11 @@
             procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
+    <!-- prettier-ignore-end -->
     {% assets "js_stp" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% assets "css_stp" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}">
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 {% endblock %}

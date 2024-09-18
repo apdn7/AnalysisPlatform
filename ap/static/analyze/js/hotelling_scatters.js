@@ -1,6 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
-
 const drawXTrainScatter = (json, chartConfig = {}, sizeOfData = null) => {
     if (!json) return;
 
@@ -26,8 +23,16 @@ const drawXTrainScatter = (json, chartConfig = {}, sizeOfData = null) => {
     figure.layout.autosize = true;
     figure.layout.xaxis.gridcolor = '#444444';
     figure.layout.yaxis.gridcolor = '#444444';
-    figure.layout.xaxis.title.font = {color: 'rgba(255,255,255,1)', family: '', size: 14};
-    figure.layout.yaxis.title.font = {color: 'rgba(255,255,255,1)', family: '', size: 14};
+    figure.layout.xaxis.title.font = {
+        color: 'rgba(255,255,255,1)',
+        family: '',
+        size: 14,
+    };
+    figure.layout.yaxis.title.font = {
+        color: 'rgba(255,255,255,1)',
+        family: '',
+        size: 14,
+    };
     figure.layout.xaxis.tickfont.color = 'rgba(255,255,255,1)';
     figure.layout.yaxis.tickfont.color = 'rgba(255,255,255,1)';
     figure.layout.xaxis.autorange = true;
@@ -49,7 +54,7 @@ const drawXTrainScatter = (json, chartConfig = {}, sizeOfData = null) => {
         ...genPlotlyIconSettings(),
         responsive: true, // responsive histogram
         useResizeHandler: true, // responsive histogram
-        style: {width: '100%', height: '100%'}, // responsive histogram
+        style: { width: '100%', height: '100%' }, // responsive histogram
     };
 
     const pcaXTrainPlot = document.getElementById('xTrain');
@@ -64,7 +69,7 @@ const drawXTrainScatter = (json, chartConfig = {}, sizeOfData = null) => {
         }
     });
 
-    unHoverHandler(pcaXTrainPlot)
+    unHoverHandler(pcaXTrainPlot);
 
     // send plotting time
     const endTime = performance.now();
@@ -82,13 +87,18 @@ const drawXTrainScatter = (json, chartConfig = {}, sizeOfData = null) => {
     });
 };
 
-const drawXTestScatter = (json, chartConfig = {}, sizeOfData = null, arrayPlotdata = null) => {
+const drawXTestScatter = (
+    json,
+    chartConfig = {},
+    sizeOfData = null,
+    arrayPlotdata = null,
+) => {
     if (!json) return;
-    
+
     const startTime = performance.now();
-    
+
     const figure = json;
-    
+
     // customize jsonDtTest
     figure.layout.plot_bgcolor = '#222222';
     figure.layout.paper_bgcolor = '#222222';
@@ -127,7 +137,7 @@ const drawXTestScatter = (json, chartConfig = {}, sizeOfData = null, arrayPlotda
         ...genPlotlyIconSettings(),
         responsive: true, // responsive histogram
         useResizeHandler: true, // responsive histogram
-        style: {width: '100%', height: '100%'}, // responsive histogram
+        style: { width: '100%', height: '100%' }, // responsive histogram
     };
 
     // assign custome data to plot-view handling on data-point
@@ -139,29 +149,35 @@ const drawXTestScatter = (json, chartConfig = {}, sizeOfData = null, arrayPlotda
         };
     }
     figure.data[0].customdata = scpCustomData;
-    
+
     // plot xtest data
     const xTestElement = document.getElementById('xTest');
 
     Plotly.newPlot('xTest', figure.data, figure.layout, plotConfig);
 
     // xtest click event
-    xTestElement.on('plotly_click', (dataPoint) => {
-        // to spread sampleNo to other charts
-        const {pointIndex} = dataPoint.points[0];
-        dataPoint.points[0].sampleNo = pointIndex + 1;
-        dataPoint.points[0].clickedDataIndex = pointIndex;
-    
-        // to broadcast click event to other charts
-        broadcastClickEvent(dataPoint, startingChart = 'xTest', jsonPCAScoreTest = json);
-    }).on('plotly_hover', (data) => {
-        const dataPoint = data.points[0];
-        if (dataPoint.data.mode === 'markers') {
-            showDataTablePCA(data, 'scatter', 'xTest');
-        } else {
-            $('#dp-info-content').hide();
-        }
-    });
+    xTestElement
+        .on('plotly_click', (dataPoint) => {
+            // to spread sampleNo to other charts
+            const { pointIndex } = dataPoint.points[0];
+            dataPoint.points[0].sampleNo = pointIndex + 1;
+            dataPoint.points[0].clickedDataIndex = pointIndex;
+
+            // to broadcast click event to other charts
+            broadcastClickEvent(
+                dataPoint,
+                (startingChart = 'xTest'),
+                (jsonPCAScoreTest = json),
+            );
+        })
+        .on('plotly_hover', (data) => {
+            const dataPoint = data.points[0];
+            if (dataPoint.data.mode === 'markers') {
+                showDataTablePCA(data, 'scatter', 'xTest');
+            } else {
+                $('#dp-info-content').hide();
+            }
+        });
 
     unHoverHandler(xTestElement);
     showCustomContextMenu(xTestElement);
@@ -204,7 +220,8 @@ const showDataTablePCA = (data, type = 'bar', chartID) => {
     genDataPointHoverTable(
         dataTable,
         {
-            x: data.event.pageX - 120, y: data.event.pageY,
+            x: data.event.pageX - 120,
+            y: data.event.pageY,
         },
         130,
         true,

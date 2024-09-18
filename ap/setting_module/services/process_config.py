@@ -1,20 +1,28 @@
-from functools import lru_cache
-from typing import Union
+from __future__ import annotations
 
+from functools import lru_cache
+
+import pandas as pd
 from sqlalchemy.orm import scoped_session
 
 from ap.api.common.services.show_graph_database import preprocess_column
+from ap.api.setting_module.services.software_workshop_etl_services import (
+    child_equips_table,
+    get_processes_stmt,
+)
 from ap.api.setting_module.services.v2_etl_services import is_v2_data_source, save_unused_columns
 from ap.common.constants import (
     ID,
     DataColumnType,
     DataType,
     DBType,
+    MasterDBType,
     ProcessCfgConst,
 )
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.pydn.dblib.postgresql import PostgreSQL
 from ap.common.services.jp_to_romaji_utils import to_romaji
+from ap.common.services.normalization import normalize_list
 from ap.equations.utils import get_all_functions_info
 from ap.setting_module.models import (
     CfgDataSource,
@@ -26,6 +34,7 @@ from ap.setting_module.models import (
     crud_config,
     insert_or_update_config,
     make_session,
+    use_meta_session,
 )
 from ap.setting_module.schemas import (
     FilterSchema,
@@ -91,95 +100,135 @@ def get_all_visualizations():
 #     return process_schema.dump(processes, many=True)
 
 
-def create_or_update_process_cfg(proc_data, unused_columns):
+@use_meta_session()
+def create_or_update_process_cfg(proc_data, unused_columns, meta_session: scoped_session = None):
     need_to_deleted_cols = []
     transaction_ds = gen_data_source_of_universal_db(proc_data[ID])
     # get existing columns from transaction table
     if proc_data[ID] and len(unused_columns) and is_v2_data_source(process_id=proc_data[ID]):
         with DbProxy(transaction_ds, True, immediate_isolation_level=False):
-            origin_proc_data = TransactionData(proc_data[ID])
+            origin_proc_data = TransactionData(proc_data[ID], meta_session=meta_session)
             for col in unused_columns:
                 col_dat = origin_proc_data.get_cfg_column_by_name(col, is_compare_bridge_column_name=False)
                 if col_dat:
                     need_to_deleted_cols.append(col_dat.bridge_column_name)
-    with make_session() as meta_session:
-        # save process config
-        process: CfgProcess = insert_or_update_config(
-            meta_session=meta_session,
-            data=proc_data,
-            key_names=CfgProcess.id.key,
-            model=CfgProcess,
-        )
-        meta_session.commit()
 
-        # create column alchemy object + assign process id
-        columns = proc_data[ProcessCfgConst.PROC_COLUMNS.value]
-        for proc_column in columns:
-            # transform data type
-            proc_column.predict_type = proc_column.data_type
-            if proc_column.data_type in (DataType.EU_REAL_SEP.name, DataType.REAL_SEP.name):
-                proc_column.data_type = DataType.REAL.name
-            if proc_column.data_type in (DataType.EU_INTEGER_SEP.name, DataType.INTEGER_SEP.name):
-                proc_column.data_type = DataType.INTEGER.name
+    # save process config
+    process: CfgProcess = insert_or_update_config(
+        meta_session=meta_session,
+        data=proc_data,
+        key_names=CfgProcess.id.key,
+        model=CfgProcess,
+        autocommit=False,
+    )
 
-            proc_column.process_id = process.id
-            # transform english name
-            if not proc_column.name_en:
-                proc_column.name_en = to_romaji(proc_column.column_name)
+    # create column alchemy object + assign process id
+    columns = proc_data[ProcessCfgConst.PROC_COLUMNS.value]
+    for proc_column in columns:
+        # transform data type
+        proc_column.predict_type = proc_column.data_type
+        if proc_column.data_type in (DataType.EU_REAL_SEP.name, DataType.REAL_SEP.name):
+            proc_column.data_type = DataType.REAL.name
+        if proc_column.data_type in (DataType.EU_INTEGER_SEP.name, DataType.INTEGER_SEP.name):
+            proc_column.data_type = DataType.INTEGER.name
 
-            # modify column_type (DataColumnType) for main::date and main::time
-            # if proc_column.data_type in DataColumnType.get_keys():
-            #     proc_column.column_type = DataColumnType[proc_column.data_type].value
+        proc_column.process_id = process.id
+        # transform english name
+        if not proc_column.name_en:
+            proc_column.name_en = to_romaji(proc_column.column_name)
 
-        # re-fill function columns to avoid deleting it
-        function_columns = CfgProcessColumn.get_by_column_types(
-            [DataColumnType.GENERATED_EQUATION.value],
-            proc_ids=[process.id],
-            session=meta_session,
-        )
-        columns.extend(function_columns)
+    # re-fill function columns to avoid deleting it
+    function_columns = CfgProcessColumn.get_by_column_types(
+        [DataColumnType.GENERATED_EQUATION.value],
+        proc_ids=[process.id],
+        session=meta_session,
+    )
+    columns.extend(function_columns)
 
-        # save columns
-        crud_config(
-            meta_session=meta_session,
-            data=columns,
-            parent_key_names=CfgProcessColumn.process_id.key,
-            key_names=CfgProcessColumn.column_name.key,
-            model=CfgProcessColumn,
-        )
+    # save columns
+    crud_config(
+        meta_session=meta_session,
+        data=columns,
+        parent_key_names=CfgProcessColumn.process_id.key,
+        key_names=CfgProcessColumn.column_name.key,
+        model=CfgProcessColumn,
+        autocommit=False,
+    )
 
     # save uncheck cols of v2 only
-    save_unused_columns(process.id, unused_columns)
+    save_unused_columns(process.id, unused_columns, meta_session=meta_session)
 
     # create table transaction_process
     with DbProxy(transaction_ds, True, immediate_isolation_level=True) as db_instance:
-        trans_data = TransactionData(process.id)
+        trans_data = TransactionData(process.id, meta_session=meta_session)
         trans_data.create_table(db_instance)
         # delete unused columns
         if len(need_to_deleted_cols):
             # todo: upgrade sqlite3 into 3.40 to delete column
             trans_data.delete_columns(db_instance, need_to_deleted_cols)
-    # cols = [{'name': col.bridge_column_name, 'type': col.data_type} for col in columns]
-    # with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
-    #     # create table for transaction data
-    #     db_instance.create_table(gen_transaction_table_name(process.id), cols)
 
     return process
 
 
-def query_database_tables(db_id):
+def query_database_tables(db_id, process=None):
     with make_session() as mss:
         data_source = mss.query(CfgDataSource).get(db_id)
-        if not data_source:
-            return None
 
-        output = {'ds_type': data_source.type, 'tables': []}
-        # return None if CSV
-        if data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
-            return output
+    if not data_source:
+        return None
 
-        updated_at = data_source.db_detail.updated_at
+    output = {'ds_type': data_source.type, 'tables': [], 'process_factids': [], 'process_factnames': []}
+    if process:
+        # if process register tables = selected table
+        output['tables'] = [process.get('table_name', '')]
+        output['process_factids'] = [process.get('process_factid', '')]
+        output['process_factnames'] = [process.get('process_factname', '')]
+        return output
+    # return None if CSV
+    if data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
+        return output
+
+    updated_at = data_source.db_detail.updated_at
+    if data_source.type == DBType.SOFTWARE_WORKSHOP.name:
+        tables, process_fact_ids, process_fact_names = get_list_process_software_workshop(data_source.id)
+        output['tables'] = tables
+        output['process_factids'] = process_fact_ids
+        output['process_factnames'] = process_fact_names
+    else:
         output['tables'] = get_list_tables_and_views(data_source.id, updated_at)
+
+    return output
+
+
+def query_database_tables_core(data_source: CfgDataSource, table_prefix):
+    if not data_source:
+        return None
+
+    detail_master_types = []
+    output = {'ds_type': data_source.type, 'master_type': data_source.master_type, 'tables': []}
+    # return None if CSV
+    if data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
+        if data_source.csv_detail.directory:
+            detail_master_types.append(MasterDBType.V2.name)
+        if data_source.csv_detail.second_directory:
+            detail_master_types.append(MasterDBType.V2_HISTORY.name)
+        output['detail_master_types'] = detail_master_types
+        return output
+
+    updated_at = data_source.db_detail.updated_at
+    tables = get_list_tables_and_views(data_source, updated_at)
+    partitions = None
+    # Edge server does not have logic of EFA
+    # if data_source.master_type == MasterDBType.EFA.name:
+    #     if table_prefix or data_source.is_direct_import:
+    #         table_name, partitions, _ = get_efa_partitions(tables, table_prefix)
+    #         tables = [table_name]
+    #     else:
+    #         partitions = []
+    #         tables = EFA_TABLES
+
+    output['tables'] = tables
+    output['partitions'] = partitions
 
     return output
 
@@ -195,12 +244,20 @@ def get_list_tables_and_views(data_source_id, updated_at=None):
     return tables
 
 
-# def get_ds_tables(ds_id):
-#     try:
-#         tables = query_database_tables(ds_id)
-#         return tables['tables'] or []
-#     except Exception:
-#         return []
+@lru_cache(maxsize=20)
+def get_list_process_software_workshop(data_source_id, updated_at=None):
+    # updated_at only for cache
+    print('database config updated_at:', updated_at, ', so cache can not be used')
+    with DbProxy(data_source_id) as db_instance:
+        stmt = get_processes_stmt(limit=None)
+        sql, params = db_instance.gen_sql_and_params(stmt)
+        cols, rows = db_instance.run_sql(sql, params=params)
+
+    df = pd.DataFrame(rows)
+    process_fact_ids = df[child_equips_table.c.child_equip_id.name].to_list()
+    process_fact_names = df[CfgProcess.process_factname.name].to_list()
+    process_fact_names = normalize_list(process_fact_names)
+    return process_fact_names, process_fact_ids, process_fact_names
 
 
 def convert2serialize(obj):
@@ -241,7 +298,7 @@ def get_ct_range(proc_id, columns):
         return []
 
 
-def gen_function_column(process_columns, session: Union[scoped_session, PostgreSQL]):
+def gen_function_column(process_columns, session: scoped_session | PostgreSQL):
     for process_column in process_columns:
         if process_column.function_config is None:
             continue

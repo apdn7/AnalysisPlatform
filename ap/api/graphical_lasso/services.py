@@ -6,6 +6,7 @@ from sklearn.covariance import empirical_covariance, graphical_lasso, shrunk_cov
 from sklearn.preprocessing import StandardScaler
 
 from ap.api.common.services.show_graph_services import (
+    convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
     get_data_from_db,
@@ -26,6 +27,7 @@ from ap.common.constants import (
     END_PROC_NAME,
     IS_CATEGORY,
     IS_INT_CATEGORY,
+    IS_JUDGE,
     IS_SERIAL_NO,
     MATCHED_FILTER_IDS,
     NOT_EXACT_MATCH_FILTER_IDS,
@@ -73,6 +75,7 @@ def gen_graphical_lasso(graph_param, dic_param, df=None):
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
+    convert_datetime_to_ct(df, graph_param)
 
     # get category sensors from df
     cat_sensors = []
@@ -107,6 +110,7 @@ def gen_graphical_lasso(graph_param, dic_param, df=None):
                 'is_checked': is_nominal_check(col_id, graph_param),
                 'is_serial_no': general_col_info[IS_SERIAL_NO],
                 'is_int_category': general_col_info[IS_INT_CATEGORY],
+                'is_judge': general_col_info[IS_JUDGE],
             }
             cat_col_details.append(col_detail)
             cat_ids[col_id] = label

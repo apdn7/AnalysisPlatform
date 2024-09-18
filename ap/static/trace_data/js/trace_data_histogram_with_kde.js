@@ -1,6 +1,3 @@
-/* eslint-disable guard-for-in */
-/* eslint-disable no-restricted-syntax */
-// eslint-disable-next-line no-unused-vars
 const HistogramWithDensityCurve = ($, paramObj) => {
     // ////////////// プライベート関数の定義 ////////////////////
     const setParam = (key, defaultValue) => {
@@ -32,7 +29,7 @@ const HistogramWithDensityCurve = ($, paramObj) => {
 
     const maxKDE = Math.max(...kdeData.kde);
     const maxHist = Math.max(...kdeData.hist_counts);
-    const transKDE = kdeData.kde.map(i => maxHist * i / maxKDE);
+    const transKDE = kdeData.kde.map((i) => (maxHist * i) / maxKDE);
     const kdeDensity = {
         y: kdeData.hist_labels,
         x: transKDE,
@@ -94,7 +91,8 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         categoryLabels.reverse();
         categoryIds.sort().reverse(); // 4321
         categoryLabels.forEach((catName) => {
-            const categoryCount = plotdata.category_distributed[catName].counts_org;
+            const categoryCount =
+                plotdata.category_distributed[catName].counts_org;
             stepChartDat.push(categoryCount);
         });
     }
@@ -103,8 +101,10 @@ const HistogramWithDensityCurve = ($, paramObj) => {
     const sortedGroups = {
         id: sortedCat,
         value: categoryLabels,
-    }
-    const xData = !isCatLimited ? genFullCategoryData(sortedCat, stepChartDat, sortedGroups) : [];
+    };
+    const xData = !isCatLimited
+        ? genFullCategoryData(sortedCat, stepChartDat, sortedGroups)
+        : [];
     const barChart = {
         y: !isCatLimited ? sortedCat : [],
         x: xData,
@@ -126,7 +126,7 @@ const HistogramWithDensityCurve = ($, paramObj) => {
             isbarchart: true,
             groupname: {
                 value: sortedGroups.value || [],
-            }
+            },
         },
     };
     const data = !beforeRankValues ? [histogram, kdeDensity] : [barChart];
@@ -205,7 +205,7 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         // layout.yaxis.tickangle = 45;
         // layout.yaxis.tickmode = 'array';
         layout.yaxis.tickvals = allGroupNames.id;
-        layout.yaxis.ticktext = allGroupNames.id.map(cat => '');
+        layout.yaxis.ticktext = allGroupNames.id.map((cat) => '');
         // layout.yaxis.range = [valMin - 1, valMax + 1];
         const minYVal = Math.min(...allGroupNames.id);
         const maxYVal = Math.max(...allGroupNames.id);
@@ -284,14 +284,14 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         });
     }
 
-    
     const hdPlot = document.getElementById(canvasId);
-    hdPlot.on('plotly_hover', (data) => {
-        if (data.points) {
-            drawShapes(data.points[0].x, data.points[0].y, true);
-        }
-        showInforTbl(data, true, canvasId);
-    })
+    hdPlot
+        .on('plotly_hover', (data) => {
+            if (data.points) {
+                drawShapes(data.points[0].x, data.points[0].y, true);
+            }
+            showInforTbl(data, true, canvasId);
+        })
         .on('plotly_unhover', (data) => {
             drawShapes(null, null, false);
             // $('#dp-info-content').hide();

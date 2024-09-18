@@ -45,7 +45,7 @@ canvas {
 
 /* Clear floats after the columns */
 .chart-row:after {
-    content: "";
+    content: '';
     display: table;
     clear: both;
 }
@@ -59,7 +59,7 @@ canvas {
     transform: translate(-50%, -50%);
 }
 
-.coef-text{
+.coef-text {
     font-size: 18pt;
     text-align: center;
 }
@@ -72,10 +72,9 @@ canvas {
     background-color: #222222;
     padding: 5px;
     border-radius: 3px;
-
 }
 
-.sort-corr-setting input{
+.sort-corr-setting input {
     background-color: #353535;
     width: 150px;
     float: right;
@@ -117,4 +116,22 @@ span.text-option {
 
 text.axis-title.fineSelect {
     transform: translate(0px, -45px);
+}
+
+/*Table data selected*/
+#tableViewDataSelected tbody tr > td:first-child {
+    text-align: center;
+}
+
+#tableDataSelectedArea table {
+    margin-bottom: 1px;
+    border-collapse: collapse;
+}
+
+#tableDataSelectedArea table td {
+    padding: 8px;
+}
+
+.hidden-important {
+    display: none !important;
 }

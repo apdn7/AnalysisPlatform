@@ -5,7 +5,7 @@ import os.path
 import re
 from datetime import datetime
 from io import BytesIO
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -47,6 +47,7 @@ from ap.common.common_utils import (
     DATE_FORMAT,
     DATE_FORMAT_STR_ONLY_DIGIT,
     TIME_FORMAT_WITH_SEC,
+    SQLiteFormatStrings,
     convert_time,
     detect_encoding,
     detect_file_encoding,
@@ -62,22 +63,26 @@ from ap.common.constants import (
     DATA_TYPE_DUPLICATE_MSG,
     DATA_TYPE_ERROR_EMPTY_DATA,
     DATA_TYPE_ERROR_MSG,
+    DATE_TYPE_REGEX,
     DATETIME_DUMMY,
+    DEFAULT_NONE_VALUE,
     EMPTY_STRING,
     FILE_NAME,
     NUM_CHARS_THRESHOLD,
+    TIME_TYPE_REGEX,
     CSVExtTypes,
     DataType,
     DBType,
     JobStatus,
     JobType,
 )
+from ap.common.datetime_format_utils import DateTimeFormatUtils
 from ap.common.disk_usage import get_ip_address
 from ap.common.logger import log_execution_time, logger
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import scheduler_app_context
 from ap.common.services.csv_content import (
-    get_number_of_reading_lines,
+    get_limit_records,
     is_normal_csv,
     read_csv_with_transpose,
     read_data,
@@ -116,6 +121,7 @@ def import_csv_job(
     _proc_name,
     proc_id,
     is_user_request: bool = False,
+    register_by_file_request_id: str = None,
     **kwargs,
 ):
     """scheduler job import csv
@@ -128,7 +134,7 @@ def import_csv_job(
     def _add_gen_proc_link_job(*_args, **_kwargs):
         add_gen_proc_link_job(process_id=proc_id, is_user_request=is_user_request, *_args, **_kwargs)
 
-    gen = import_csv(proc_id)
+    gen = import_csv(proc_id, register_by_file_request_id=register_by_file_request_id)
     send_processing_info(
         gen,
         JobType.CSV_IMPORT,
@@ -148,12 +154,13 @@ def get_config_sensor(proc_id):
 
 
 @log_execution_time()
-def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
+def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_request_id: str = None):
     """csv files import
 
     Keyword Arguments:
         proc_id {[type]} -- [description] (default: {None})
         db_id {[type]} -- [description] (default: {None})
+        register_by_file_request_id {[type]} -- [description] (default: {None})
 
     Raises:
         e: [description]
@@ -223,16 +230,13 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
         use_col_names = headers
         if use_dummy_datetime and DATETIME_DUMMY in use_col_names:
             use_col_names.remove(DATETIME_DUMMY)
-        data_first_row = (data_src.skip_head if data_src.skip_head is not None else 0) + 1
+        # check for skip_head = None to prevent TypeError when adding 1
+        data_first_row = (skip_head if skip_head is not None else 0) + 1
         head_skips = list(range(data_first_row))
     else:
         is_abnormal = False
-        data_first_row = (data_src.skip_head if data_src.skip_head is not None else 0) + 1
-        head_skips = list(
-            range(
-                data_src.skip_head if data_src.skip_head is not None else 0,
-            ),
-        )
+        data_first_row = (skip_head if skip_head is not None else 0) + 1
+        head_skips = list(range(skip_head if skip_head is not None else 0))
 
     total_percent = 0
     percent_per_file = 100 / len(import_targets)
@@ -299,7 +303,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
 
                 if data_src.dummy_header:
                     # generate column name if there is not header in file
-                    org_csv_cols, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols, line_skip=data_src.skip_head)
+                    org_csv_cols, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols, skip_head=data_src.skip_head)
                     csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
                 else:
                     # need to convert header in case of transposed
@@ -384,7 +388,14 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
         default_csv_param['dtype'] = {
             col: 'string'
             for col, col_cfg in dic_use_cols.items()
-            if col in use_col_names and col_cfg.data_type == DataType.TEXT.name
+            if col in use_col_names
+            and col_cfg.data_type
+            in [
+                DataType.TEXT.name,
+                DataType.DATETIME.name,
+                DataType.DATE.name,
+                DataType.TIME.name,
+            ]
         }
 
         # add more dtype columns in usecols
@@ -486,12 +497,19 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
         # do import
         save_res, df_error, df_duplicate = import_df(proc_id, df, dic_use_cols, get_date_col, job_info, trans_data)
         if is_first_chunk:
-            data_register_data = {
-                'status': JobStatus.PROCESSING.name,
-                'process_id': proc_id,
-                'is_first_imported': True,
-            }
-            background_announcer.announce(data_register_data, AnnounceEvent.DATA_REGISTER.name)
+            if register_by_file_request_id:
+                data_register_data = {
+                    'RegisterByFileRequestID': register_by_file_request_id,
+                    'status': JobStatus.PROCESSING.name,
+                    'process_id': proc_id,
+                    'is_first_imported': True,
+                    'use_dummy_datetime': use_dummy_datetime,
+                }
+                background_announcer.announce(
+                    data_register_data,
+                    AnnounceEvent.DATA_REGISTER.name,
+                    f'{AnnounceEvent.DATA_REGISTER.name}_{proc_id}',
+                )
             is_first_chunk = False
 
         df_error_cnt = len(df_error)
@@ -531,13 +549,19 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT):
         job_info.import_type = JobType.CSV_IMPORT.name
         save_res, df_error, df_duplicate = import_df(proc_id, df, dic_use_cols, get_date_col, job_info, trans_data)
 
-        if is_first_chunk:
+        if is_first_chunk and register_by_file_request_id:
             data_register_data = {
+                'RegisterByFileRequestID': register_by_file_request_id,
                 'status': JobStatus.PROCESSING.name,
                 'process_id': proc_id,
                 'is_first_imported': True,
+                'use_dummy_datetime': use_dummy_datetime,
             }
-            background_announcer.announce(data_register_data, AnnounceEvent.DATA_REGISTER.name)
+            background_announcer.announce(
+                data_register_data,
+                AnnounceEvent.DATA_REGISTER.name,
+                f'{AnnounceEvent.DATA_REGISTER.name}_{proc_id}',
+            )
 
         df_error_cnt = len(df_error)
         if df_error_cnt:
@@ -677,9 +701,9 @@ def csv_to_df(
             },
         )
 
-    # assign n_rows
-    nrows = get_number_of_reading_lines(n_rows=data_src.n_rows)
-    read_csv_param.update({'nrows': nrows})
+    # assign n_rows with is_transpose
+    n_rows = get_limit_records(is_transpose=data_src.is_transpose, n_rows=data_src.n_rows)
+    read_csv_param.update({'nrows': n_rows})
 
     # get encoding
     if not encoding:
@@ -692,7 +716,6 @@ def csv_to_df(
     read_csv_param.update(
         {
             'sep': csv_delimiter,
-            'skipinitialspace': True,
             'na_values': NA_VALUES,
             'error_bad_lines': False,
             'encoding': encoding,
@@ -711,18 +734,6 @@ def csv_to_df(
 
     if col_names:
         df.columns = col_names
-
-    # convert data type
-    if dic_use_cols:
-        for col, cfg_col in dic_use_cols.items():
-            d_type = cfg_col.predict_type
-            if d_type and DataType[d_type] in [
-                DataType.REAL_SEP,
-                DataType.INTEGER_SEP,
-                DataType.EU_REAL_SEP,
-                DataType.EU_INTEGER_SEP,
-            ]:
-                convert_eu_decimal(df, col, d_type)
 
     col_names = {col: normalize_str(col) for col in df.columns}
     df = df.rename(columns=col_names)
@@ -743,7 +754,7 @@ def get_import_target_files(proc_id, data_src, trans_data, db_instance):
     dic_success_file, dic_error_file = get_last_csv_import_info(trans_data, db_instance)
     valid_extensions = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value]
     csv_files = []
-    if os.path.isfile(data_src.directory):
+    if data_src.is_file_path:
         if any(data_src.directory.lower().endswith(ext) for ext in valid_extensions):
             csv_files.append(data_src.directory)
     else:
@@ -817,7 +828,8 @@ def remove_duplicates(
     # remove error index in df_origin
     df_origin_check = df_origin[~df_origin.index.isin(df_error.index)]
     # remove duplicate in csv files
-    df.drop_duplicates(subset=df_columns, keep='last', inplace=True)
+    if len(df_columns):
+        df.drop_duplicates(subset=df_columns, keep='last', inplace=True)
 
     # get data from database
     with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
@@ -943,11 +955,90 @@ def datetime_transform(datetime_series, date_only=False):
 
 
 @log_execution_time()
-def convert_datetime_format(df, dic_use_cols):
+def date_transform(date_series):
+    """
+    Convert date series to standard date format
+
+    Support input formats:
+
+    - YYYY/MM/DD
+    - YYYY-MM-DD
+    - YYYY年MM月DD日
+
+    Args:
+        date_series (Series): a series of time
+
+    Returns:
+        A series of date with standard format YYYY-MM-DD
+    """
+    separate_char = '-'
+    begin_part_of_year = datetime.now().year.__str__()[:2]
+    return date_series.str.replace(
+        DATE_TYPE_REGEX,
+        lambda m: (
+            f'{m.group("year") if len(m.group("year")) == 4 else begin_part_of_year + m.group("year")}'
+            f'{separate_char}'
+            f'{m.group("month").rjust(2, "0")}'
+            f'{separate_char}'
+            f'{m.group("day").rjust(2, "0")}'
+        ),
+        regex=True,
+    )
+
+
+@log_execution_time()
+def time_transform(time_series):
+    """
+    Convert time series to standard time format
+
+    Support input formats:
+
+    - HH:mm:ss
+    - HH-mm-ss
+    - HH.mm.ss
+    - HH mm ss
+    - HH時mm分ss秒
+
+    Args:
+        time_series (Series): a series of time
+
+    Returns:
+        A series of time with standard format HH:MM:SS
+    """
+    separate_char = ':'
+    return time_series.str.replace(
+        TIME_TYPE_REGEX,
+        lambda m: (
+            f'{m.group("hour").rjust(2, "0")}'
+            f'{separate_char}'
+            f'{m.group("minute").rjust(2, "0")}'
+            f'{separate_char}'
+            f'{m.group("second").rjust(2, "0")}'
+        ),
+        regex=True,
+    )
+
+
+@log_execution_time()
+def convert_datetime_format(df, dic_use_cols, datetime_format: Optional[str] = None):
+    datetime_format_obj = DateTimeFormatUtils.get_datetime_format(datetime_format)
     for col, cfg_col in dic_use_cols.items():
         if col not in df.columns:
             continue
-        if cfg_col.data_type in [DataType.DATETIME.name, DataType.DATE.name]:
+        if cfg_col.data_type == DataType.DATETIME.name:
+            # Convert datetime base on datetime format
+            if datetime_format_obj.datetime_format:
+                datetime_series = pd.to_datetime(
+                    df[col],
+                    errors='coerce',
+                    format=datetime_format_obj.datetime_format,
+                )
+                non_na_datetime_series = datetime_series[datetime_series.notnull()]
+                df[col] = non_na_datetime_series.dt.strftime(SQLiteFormatStrings.DATETIME.value).astype(
+                    pd.StringDtype(),
+                )
+                continue
+
             dtype_name = df[col].dtype.name
             if dtype_name == 'object':
                 df[col] = df[col].astype(str)
@@ -955,6 +1046,52 @@ def convert_datetime_format(df, dic_use_cols):
                 continue
             date_only = cfg_col.data_type == DataType.DATE.name
             df[col] = datetime_transform(df[col], date_only=date_only)
+
+        elif cfg_col.data_type == DataType.DATE.name:
+            # Convert date base on date format
+            if datetime_format_obj.date_format:
+                date_series = pd.to_datetime(
+                    df[col],
+                    errors='coerce',
+                    format=datetime_format_obj.date_format,
+                )
+                non_na_date_series = date_series[date_series.notnull()]
+                df[col] = non_na_date_series.dt.strftime(SQLiteFormatStrings.DATE.value).astype(pd.StringDtype())
+                continue
+
+            if pd.api.types.is_datetime64_dtype(df[col]):
+                df[col] = df[col].dt.strftime(SQLiteFormatStrings.DATE.value).astype(pd.StringDtype())
+                continue
+
+            date_series = pd.to_datetime(df[col], errors='coerce')
+            date_series.update(date_series[date_series.notnull()].dt.strftime(SQLiteFormatStrings.DATE.value))
+            unknown_series = df[date_series.isnull()][col].astype('string')
+            date_series.update(unknown_series)
+            date_series = date_series.astype('string')
+            df[col] = date_transform(date_series).replace({pd.NaT: DEFAULT_NONE_VALUE})
+
+        elif cfg_col.data_type == DataType.TIME.name:
+            # Convert time base on time format
+            if datetime_format_obj.time_format:
+                time_series = pd.to_datetime(
+                    df[col],
+                    errors='coerce',
+                    format=datetime_format_obj.time_format,
+                )
+                non_na_time_series = time_series[time_series.notnull()]
+                df[col] = non_na_time_series.dt.strftime(SQLiteFormatStrings.TIME.value).astype(pd.StringDtype())
+                continue
+
+            if pd.api.types.is_datetime64_dtype(df[col]):
+                df[col] = df[col].dt.strftime(SQLiteFormatStrings.TIME.value).astype(pd.StringDtype())
+                continue
+
+            time_series = pd.to_datetime(df[col], errors='coerce')
+            time_series.update(time_series[time_series.notnull()].dt.strftime(SQLiteFormatStrings.TIME.value))
+            unknown_series = df[time_series.isnull()][col].astype('string')
+            time_series.update(unknown_series)
+            time_series = time_transform(time_series).replace({pd.NaT: DEFAULT_NONE_VALUE})
+            df[col] = time_series
 
     return df
 
@@ -990,7 +1127,8 @@ def import_df(proc_id, df, dic_use_cols, get_date_col, job_info=None, trans_data
     df = df.convert_dtypes()
 
     # convert datatime type 2023年01月02日 -> 2023-01-02 00:00:00
-    df = convert_datetime_format(df, dic_use_cols)
+    cfg_process = CfgProcess.get_proc_by_id(proc_id)
+    df = convert_datetime_format(df, dic_use_cols, datetime_format=cfg_process.datetime_format)
 
     # make datetime main from date:main and time:main
     if trans_data and trans_data.main_date_column and trans_data.main_time_column:
@@ -1098,18 +1236,16 @@ def convert_csv_timezone(df, get_date_col):
 @log_execution_time()
 def convert_eu_decimal(df: DataFrame, df_col, data_type):
     if data_type == DataType.REAL_SEP.name:
-        df[df_col] = df[df_col].astype(str).str.replace(r'\,+', '', regex=True).astype('float64')
+        df[df_col] = df[df_col].astype(str).str.replace(r'\,+', '', regex=True)
 
     if data_type == DataType.INTEGER_SEP.name:
-        df[df_col] = df[df_col].astype(str).str.replace(r'\,+', '', regex=True).astype('int32')
+        df[df_col] = df[df_col].astype(str).str.replace(r'\,+', '', regex=True)
 
     if data_type == DataType.EU_REAL_SEP.name:
-        df[df_col] = df[df_col].astype(str).str.replace(r'\.+', '', regex=True)
-        df[df_col] = df[df_col].astype(str).str.replace(r'\,+', '.', regex=True).astype('float64')
+        df[df_col] = df[df_col].astype(str).str.replace(r'\.+', '', regex=True).str.replace(r'\,+', '.', regex=True)
 
     if data_type == DataType.EU_INTEGER_SEP.name:
-        df[df_col] = df[df_col].astype(str).str.replace(r'\.+', '', regex=True)
-        df[df_col] = df[df_col].astype(str).str.replace(r'\,+', '.', regex=True).astype('int32')
+        df[df_col] = df[df_col].astype(str).str.replace(r'\.+', '', regex=True).str.replace(r'\,+', '.', regex=True)
 
 
 def write_invalid_records_to_file(
@@ -1183,28 +1319,28 @@ def is_header_contains_invalid_chars(header_names: list[str]) -> bool:
     return nchars > NUM_CHARS_THRESHOLD
 
 
-def gen_dummy_header(header_names, data_details=None, line_skip=''):
+def gen_dummy_header(header_names, data_details=None, skip_head=None):
     """Generate dummy header for current data source
-    - if line_skip is not provided (None or '') or line_skip > 0:
+    - if skip_head is not provided (None) or skip_head > 0:
         generate dummy header if and only if number of invalid chars > 90%
-    - if line_skip = 0:
+    - if skip_head = 0:
         always generate dummy header
     @param header_names:
     @param data_details:
-    @param line_skip:
+    @param skip_head:
     @return:
     """
     dummy_header = False
     partial_dummy_header = False
     org_header = header_names.copy()
 
-    is_blank = line_skip is None or line_skip == EMPTY_STRING
+    is_blank = skip_head is None
     is_auto_generate_dummy_header = is_header_contains_invalid_chars(header_names)
 
     # auto generate dummy header rules
     is_gen_from_blank_skip = is_blank and is_auto_generate_dummy_header
-    is_gen_from_zero_skip = not is_blank and int(line_skip) == 0
-    is_gen_from_number_skip = not is_blank and int(line_skip) > 0 and is_auto_generate_dummy_header
+    is_gen_from_zero_skip = not is_blank and skip_head == 0
+    is_gen_from_number_skip = not is_blank and skip_head > 0 and is_auto_generate_dummy_header
     if is_gen_from_blank_skip or is_gen_from_zero_skip or is_gen_from_number_skip:
         if data_details:
             data_details = [header_names] + data_details

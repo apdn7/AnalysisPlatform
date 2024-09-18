@@ -1,8 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-/* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_SENSOR = 2;
 const MIN_NUMBER_OF_SENSOR = 2;
@@ -10,11 +5,12 @@ let tabID = null;
 const graphStore = new GraphStore();
 let response = null;
 let heatmapData = {};
+let currentXY = [];
 
 const MAX_PLOT = 49;
 const MAX_MATRIX = 7;
 let currentMatrix = MAX_MATRIX;
-const STR_PREFIX = '*_/&＠*_$%#'
+const STR_PREFIX = '*_/&＠*_$%#';
 
 const formElements = {
     formID: '#traceDataForm',
@@ -35,13 +31,13 @@ const scpChartType = {
     SCATTER: 'scatter',
     HEATMAP: 'heatmap',
     VIOLIN: 'violin',
-    HEATMAP_BY_INT: 'heatmap_by_int'
+    HEATMAP_BY_INT: 'heatmap_by_int',
 };
 
 const discreteColorType = {
     LAST: 'last',
     FIRST: 'first',
-}
+};
 
 const chartScales = {
     1: 'scale_setting',
@@ -69,8 +65,8 @@ const colorScales = {
 const dataTypes = {
     TEXT: 'TEXT',
     INTEGER: 'INTEGER',
-    REAL: 'REAL'
-}
+    REAL: 'REAL',
+};
 
 const els = {
     category: 'category',
@@ -88,38 +84,22 @@ const els = {
 };
 
 const i18n = {
-    total: $('#i18nTotal')
-        .text(),
-    average: $('#i18nAverage')
-        .text(),
-    frequence: $('#i18nFrequence')
-        .text(),
-    gaUnable: $('#i18nGAUnable')
-        .text(),
-    gaCheckConnect: $('#i18nGACheckConnect')
-        .text(),
-    traceResulLimited: $('#i18nTraceResultLimited')
-        .text() || '',
-    SQLLimit: $('#i18nSQLLimit')
-        .text(),
-    allSelection: $('#i18nAllSelection')
-        .text(),
-    noFilter: $('#i18nNoFilter')
-        .text(),
-    machineNo: $('#i18nMachineNo')
-        .text(),
-    partNo: $('#i18nPartNo')
-        .text(),
-    changeDivConfirmText: $('#i18nChangeDivConfirmText')
-        .text(),
-    colorWarningMessage: $('#i18nColorWarningMessage')
-        .text(),
-    changedToMaxValue: $('#i18nChangedDivisionNumberToMax')
-        .text(),
-    reduceViolinNumberMessage: $('#i18nReduceViolinNumberMessage')
-        .text(),
-    limitPerGraphMessage: $('#i18nLimitPerGraphMessage')
-        .text(),
+    total: $('#i18nTotal').text(),
+    average: $('#i18nAverage').text(),
+    frequence: $('#i18nFrequence').text(),
+    gaUnable: $('#i18nGAUnable').text(),
+    gaCheckConnect: $('#i18nGACheckConnect').text(),
+    traceResulLimited: $('#i18nTraceResultLimited').text() || '',
+    SQLLimit: $('#i18nSQLLimit').text(),
+    allSelection: $('#i18nAllSelection').text(),
+    noFilter: $('#i18nNoFilter').text(),
+    machineNo: $('#i18nMachineNo').text(),
+    partNo: $('#i18nPartNo').text(),
+    changeDivConfirmText: $('#i18nChangeDivConfirmText').text(),
+    colorWarningMessage: $('#i18nColorWarningMessage').text(),
+    changedToMaxValue: $('#i18nChangedDivisionNumberToMax').text(),
+    reduceViolinNumberMessage: $('#i18nReduceViolinNumberMessage').text(),
+    limitPerGraphMessage: $('#i18nLimitPerGraphMessage').text(),
     traceTimeLatestWarning: $('#i18nDivByNumberAndLatest').text(),
     isResampleMsg: $('#i18nViolinResampleMsg').text(),
     i18nGotoSCPMsg: $('#i18nGotoSCPMsg').text(),
@@ -151,11 +131,14 @@ const sortMatrixFunc = (a, b, asc = false, key = 'sort_key') => {
     return output2;
 };
 
-
-const genGraph1DMatrix = (inputGraphs, asc = false, sort_key='sort_key') => {
+const genGraph1DMatrix = (inputGraphs, asc = false, sort_key = 'sort_key') => {
     const rowCount = Math.ceil(MAX_PLOT / currentMatrix);
-    const matrix = Array(rowCount).fill().map(() => Array(currentMatrix).fill(null));
-    const graphs = inputGraphs.sort((a, b) => sortMatrixFunc(a, b, asc, sort_key));
+    const matrix = Array(rowCount)
+        .fill()
+        .map(() => Array(currentMatrix).fill(null));
+    const graphs = inputGraphs.sort((a, b) =>
+        sortMatrixFunc(a, b, asc, sort_key),
+    );
     for (let i = 0; i < graphs.length; i++) {
         const itemIdx = Math.floor(i / currentMatrix);
         if (itemIdx >= matrix.length) continue;
@@ -181,7 +164,9 @@ const gen2DMatrixTitle = (graphs) => {
 
 const genGraph2DMatrix = (inputGraphs, asc = false) => {
     const rowCount = Math.ceil(MAX_PLOT / currentMatrix);
-    const matrix = Array(rowCount).fill().map(() => Array(currentMatrix).fill(null));
+    const matrix = Array(rowCount)
+        .fill()
+        .map(() => Array(currentMatrix).fill(null));
     const graphs = inputGraphs.sort((a, b) => sortMatrixFunc(a, b, true));
     const [rows, cols] = gen2DMatrixTitle(graphs);
     for (const graph of graphs) {
@@ -209,7 +194,12 @@ const genGraph2DMatrix = (inputGraphs, asc = false) => {
     return [matrix, rows, cols];
 };
 
-const genGraphMatrix = (inputGraphs, isShowVLabel, asc = false, sort_key='sort_key') => {
+const genGraphMatrix = (
+    inputGraphs,
+    isShowVLabel,
+    asc = false,
+    sort_key = 'sort_key',
+) => {
     if (isShowVLabel) {
         return genGraph2DMatrix(inputGraphs, asc);
     }
@@ -223,30 +213,28 @@ const onChangeDivisionNumber = () => {
     const MAX_F = 7;
     const MAX_WF = 49;
     const MIN_VALUE = 1;
-    $(`input[name=${CYCLIC_TERM.DIV_NUM}]`)
-        .on('change', (e) => {
-            // uncheck if disable
-            if (e.target.disabled) return;
+    $(`input[name=${CYCLIC_TERM.DIV_NUM}]`).on('change', (e) => {
+        // uncheck if disable
+        if (e.target.disabled) return;
 
-            const value = Number(e.currentTarget.value);
-            const formdata = collectFormData(formElements.formID);
-            const facets = formdata.getAll(els.catExpBoxName)
-                .filter(e => e);
-            const hasFacet = facets.length > 0;
+        const value = Number(e.currentTarget.value);
+        const formdata = collectFormData(formElements.formID);
+        const facets = formdata.getAll(els.catExpBoxName).filter((e) => e);
+        const hasFacet = facets.length > 0;
 
-            if (hasFacet && value > MAX_F) {
-                e.currentTarget.value = MAX_F;
-                showToastrMsg(i18n.changedToMaxValue);
-            } else if (!hasFacet && value > MAX_WF) {
-                e.currentTarget.value = MAX_WF;
-                showToastrMsg(i18n.changedToMaxValue);
-            }
+        if (hasFacet && value > MAX_F) {
+            e.currentTarget.value = MAX_F;
+            showToastrMsg(i18n.changedToMaxValue);
+        } else if (!hasFacet && value > MAX_WF) {
+            e.currentTarget.value = MAX_WF;
+            showToastrMsg(i18n.changedToMaxValue);
+        }
 
-            if (!value || value < MIN_VALUE) {
-                e.currentTarget.value = MIN_VALUE;
-                showToastrMsg(i18n.changedToMaxValue);
-            }
-        });
+        if (!value || value < MIN_VALUE) {
+            e.currentTarget.value = MIN_VALUE;
+            showToastrMsg(i18n.changedToMaxValue);
+        }
+    });
 };
 
 const onChangeTraceTimeDivisionByNumber = () => {
@@ -276,50 +264,50 @@ $(() => {
     const endProcs = genProcessDropdownData(procConfigs);
 
     // add first end process
-    const endProcItem = addEndProcMultiSelect(
-        endProcs.ids,
-        endProcs.names, {
-            showDataType: true,
-            showStrColumn: true,
-            showCatExp: true,
-            isRequired: true,
-            showColor: true,
-            hasDiv: true,
-            hideRealVariable: true,
-        }
-    );
+    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
+        showDataType: true,
+        showStrColumn: true,
+        showCatExp: true,
+        isRequired: true,
+        showColor: true,
+        hasDiv: true,
+        hideRealVariable: true,
+        disableSerialAsObjective: true,
+        isColorRequired: true,
+    });
     endProcItem(() => {
         // show confirm when select Div
         onChangeDivInFacet();
     });
 
-
     // add first condition process
-    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
+    const condProcItem = addCondProc(
+        endProcs.ids,
+        endProcs.names,
+        '',
+        formElements.formID,
+        'btn-add-cond-proc',
+    );
     condProcItem();
 
     // click even of condition proc add button
-    $(formElements.btnAddCondProc)
-        .click(() => {
-            condProcItem();
-        });
-
+    $(formElements.btnAddCondProc).click(() => {
+        condProcItem();
+    });
 
     // check number of sensors in [2,4]
     // setTimeout(addCheckNumberOfSensor, 3000);
 
     // click even of end proc add button
-    $('#btn-add-end-proc')
-        .click(() => {
-            endProcItem(() => {
-                onChangeDivInFacet();
-            });
-            addAttributeToElement();
+    $('#btn-add-end-proc').click(() => {
+        endProcItem(() => {
+            onChangeDivInFacet();
         });
+        addAttributeToElement();
+    });
 
     // Load userBookmarkBar
-    $('#userBookmarkBar')
-        .show();
+    $('#userBookmarkBar').show();
 
     // checkDisableScatterBtn();
 
@@ -350,7 +338,9 @@ $(() => {
 const loading = $('.loading');
 
 const validateDTypesForHMp = () => {
-    const targetVariableTypes = [...$('input[name^=GET02_VALS_SELECT]:checked')].map(el => $(`#dataType-${$(el).val()}`).val());
+    const targetVariableTypes = [
+        ...$('input[name^=GET02_VALS_SELECT]:checked'),
+    ].map((el) => $(`#dataType-${$(el).val()}`).val());
     const selectedTypes = new Set(targetVariableTypes).size;
     if (selectedTypes > 1) {
         // show error msg
@@ -362,7 +352,10 @@ const validateDTypesForHMp = () => {
 
 const hmpTracing = () => {
     requestStartedAt = performance.now();
-    const isValid = checkValidations({ min: MAX_NUMBER_OF_SENSOR, max: MAX_NUMBER_OF_SENSOR });
+    const isValid = checkValidations({
+        min: MAX_NUMBER_OF_SENSOR,
+        max: MAX_NUMBER_OF_SENSOR,
+    });
     updateStyleOfInvalidElements();
 
     if (!isValid) return;
@@ -378,12 +371,14 @@ const hmpTracing = () => {
     // Reset Graph setting
     resetGraphSetting();
 
+    // save select xy to currentXY
+    currentXY = latestSortColIds.slice(-2);
+
     scatterTraceData(true);
     // todo destroy old chart instances
 
     // mockup SCP result
-    $('#sctr-card')
-        .html('');
+    $('#sctr-card').html('');
 };
 
 const defaultScaleSets = [
@@ -407,9 +402,10 @@ const defaultScaleSets = [
     ['0.85', 'rgb(255, 64, 0)'],
     ['0.9', 'rgb(255, 42, 0)'],
     ['0.95', 'rgb(255, 21, 0)'],
-    ['1.0', 'rgb(255, 0, 0)']];
+    ['1.0', 'rgb(255, 0, 0)'],
+];
 
-const genDiscreteScale = (scale, discreteColors=false) => {
+const genDiscreteScale = (scale, discreteColors = false) => {
     if (!discreteColors) return scale;
     let discreteScale = [];
     scale.forEach((color, i) => {
@@ -424,45 +420,61 @@ const genDiscreteScale = (scale, discreteColors=false) => {
 
 const genDiscreteColorBar = (customScaleSets, discreteColors, zrange) => {
     const scale = customScaleSets || defaultScaleSets;
-    return [{
-        colorscale: genDiscreteScale(scale, discreteColors),
-        type: 'heatmap',
-        z: [discreteColors.map((v, i) => i)],
-        zmin: zrange.min,
-        zmax: zrange.max,
-        colorbar: {
-            title: {
-                text: zrange.title,
-                size: CONST.COLORBAR.fontsize,
+    return [
+        {
+            colorscale: genDiscreteScale(scale, discreteColors),
+            type: 'heatmap',
+            z: [discreteColors.map((v, i) => i)],
+            zmin: zrange.min,
+            zmax: zrange.max,
+            colorbar: {
+                title: {
+                    text: zrange.title,
+                    size: CONST.COLORBAR.fontsize,
+                },
+                tickvals: [discreteColors],
             },
-            tickvals: [discreteColors],
         },
-    }];
+    ];
 };
-const genColorScaleBar = (colorData, zmin, zmax, title, customScaleSets = null, discreteColors=false) => {
-    const uniqueColorData = !discreteColors ? colorData.filter(onlyUniqueFilter) : discreteColors;
+const genColorScaleBar = (
+    colorData,
+    zmin,
+    zmax,
+    title,
+    customScaleSets = null,
+    discreteColors = false,
+) => {
+    const uniqueColorData = !discreteColors
+        ? colorData.filter(onlyUniqueFilter)
+        : discreteColors;
     const isString = _.isString(uniqueColorData[0]);
     const scale = customScaleSets || defaultScaleSets;
-    let data = [{
-        colorscale: scale,
-        type: 'heatmap',
-        z: [uniqueColorData],
-        zmin: zmin,
-        zmax: zmax,
-        colorbar: {
-            title: {
-                text: title,
-                size: CONST.COLORBAR.fontsize,
+    let data = [
+        {
+            colorscale: scale,
+            type: 'heatmap',
+            z: [uniqueColorData],
+            zmin: zmin,
+            zmax: zmax,
+            colorbar: {
+                title: {
+                    text: title,
+                    size: CONST.COLORBAR.fontsize,
+                },
             },
         },
-    }];
+    ];
 
     // for heatmap with color is discrete scale
     // if (discreteColors) {
     //     data = genDiscreteColorBar(scale, discreteColors, {min: zmin, max: zmax, title: title});
     // }
     if (isString) {
-        const tempVals = uniqueColorData.map((val, i) => i / uniqueColorData.length);
+        const tempVals = uniqueColorData.map(
+            // (val, i) => i / (uniqueColorData.length - 1),
+            (val, i) => i,
+        );
         data[0].z = [tempVals];
         data[0].colorbar.title.size = 8;
         // data[0].colorbar.tickangle = -45;
@@ -508,19 +520,22 @@ const genColorScaleBar = (colorData, zmin, zmax, title, customScaleSets = null, 
 
 // generate scatter hover information
 const removeEmptyFromMatrix = (matrix) => {
-    const validRows = matrix.filter(row => row.filter(col => col !== null).length > 0);
+    const validRows = matrix.filter(
+        (row) => row.filter((col) => col !== null).length > 0,
+    );
     const invalidCols = [];
     // loop cols
     for (let i = 0; i < validRows[0].length; i++) {
-        const colValues = validRows.map(row => row[i])
-            .filter(col => col !== null);
+        const colValues = validRows
+            .map((row) => row[i])
+            .filter((col) => col !== null);
         if (!colValues.length) {
             invalidCols.push(i);
         }
     }
     for (let i = validRows[0].length; i >= 0; i--) {
         if (invalidCols.includes(i)) {
-            validRows.map(row => row.splice(i, 1));
+            validRows.map((row) => row.splice(i, 1));
         }
     }
 
@@ -538,26 +553,37 @@ const rearrangeHeatmap = async () => {
     const heatmapData = JSON.parse(JSON.stringify(graphStore.getTraceData()));
     if (heatmapData.full_div && arrangeMode) {
         // gen blank item
-        let blankPlotDat = JSON.parse(JSON.stringify(heatmapData.array_plotdata[0]));
-        const alreadyDivPlot = heatmapData.array_plotdata.map(plotDat => plotDat.h_label);
-        blankPlotDat.array_z = blankPlotDat.array_z.map(z => [...z].fill(null));
+        let blankPlotDat = JSON.parse(
+            JSON.stringify(heatmapData.array_plotdata[0]),
+        );
+        const alreadyDivPlot = heatmapData.array_plotdata.map(
+            (plotDat) => plotDat.h_label,
+        );
+        blankPlotDat.array_z = blankPlotDat.array_z.map((z) =>
+            [...z].fill(null),
+        );
         blankPlotDat.orig_array_z = blankPlotDat.array_z;
         blankPlotDat.as_dummy_div = true;
         blankPlotDat.colors.fill(-1);
-        heatmapData.full_div.forEach(divValue => {
+        heatmapData.full_div.forEach((divValue) => {
             if (!alreadyDivPlot.includes(divValue)) {
                 // push an empty plot
                 blankPlotDat.h_label = divValue;
-                heatmapData.array_plotdata.push({...blankPlotDat});
+                heatmapData.array_plotdata.push({ ...blankPlotDat });
             }
-        })
+        });
         // sort by h_label in case of integer div
         heatmapData.array_plotdata.sort((a, b) => b.h_label - a.h_label);
     }
     await showSCP(heatmapData, settings);
 };
 
-const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
+const showSCP = async (
+    res,
+    settings = undefined,
+    clearOnFlyFilter = false,
+    autoUpdate = false,
+) => {
     if (!res.array_plotdata) {
         loadingHide();
         return;
@@ -574,18 +600,17 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         response = res;
         // remove old hover infor violin and heatmap
         removeHoverInfo();
-        $('#colorSettingGrp')
-            .show();
+        $('#colorSettingGrp').show();
 
         $('#sctr-card-parent').show();
         resetChartSize();
         const scpData = res.array_plotdata;
         const chartType = res.chartType || 'scatter';
-        const is_cat_color = res.is_cat_color
-        const color_type = res.color_type
+        const is_cat_color = res.is_cat_color;
+        const color_type = res.color_type;
 
         // fill options of scpColorScale
-        fillColorScaleHtml(color_type, is_cat_color)
+        fillColorScaleHtml(color_type, is_cat_color);
 
         // gen matrix
         const isShowFirstLabelH = res.is_show_first_h_label;
@@ -595,28 +620,48 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
 
         // reverse array to show latest first
         let zoomRange = null;
-        const isShowDate = res.COMMON.compareType === els.cyclicTerm || res.COMMON.compareType === els.directTerm;
+        const isShowDate =
+            res.COMMON.compareType === els.cyclicTerm ||
+            res.COMMON.compareType === els.directTerm;
         const showGraph = (settings = { isShowForward: false }) => {
             const scpCloneData = JSON.parse(JSON.stringify(scpData));
             let sortKey = 'sort_key';
-                scpCloneData.sort((a, b) => b.h_label - a.h_label);
-                sortKey = 'h_label';
-            // sort data if div is int
-            if (!isEmpty(res.full_div)) {
-            }
-            const [matrix,] = genGraphMatrix(scpCloneData, res.is_show_v_label, !!settings.isShowForward, sortKey);
+            scpCloneData.sort((a, b) => b.h_label - a.h_label);
+            sortKey = 'h_label';
+            const [matrix] = genGraphMatrix(
+                scpCloneData,
+                res.is_show_v_label,
+                !!settings.isShowForward,
+                sortKey,
+            );
             // todo: reverse v + hlabel + matrix
             const scpMatrix = removeEmptyFromMatrix(matrix);
             // scatter for category and real color
             $('#navigation-bar').removeAttr('style');
             $(window).off('resize');
-            const divNumber = res.div_name && res.div_data_type === DataTypes.INTEGER.name;
-            if ([scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(chartType)) {
-                genHTMLContentMatrix(scpMatrix, 'sctr-card', xName, yName, isShowFirstLabelH, isShowDate, divNumber);
+            const divNumber =
+                res.div_name && res.div_data_type === DataTypes.INTEGER.name;
+            if (
+                [scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(
+                    chartType,
+                )
+            ) {
+                genHTMLContentMatrix(
+                    scpMatrix,
+                    'sctr-card',
+                    xName,
+                    yName,
+                    isShowFirstLabelH,
+                    isShowDate,
+                    divNumber,
+                );
                 // get color agg function
-                const aggColorFunc = res.COMMON.is_cat_color ? res.COMMON.function_cate : res.COMMON.function_cate;
+                const aggColorFunc = res.COMMON.is_cat_color
+                    ? res.COMMON.function_cate
+                    : res.COMMON.function_cate;
                 const option = {
-                    isShowNumberOfData: res.COMMON.compareType === els.dataNumberTerm,
+                    isShowNumberOfData:
+                        res.COMMON.compareType === els.dataNumberTerm,
                     isShowFacet: res.is_show_v_label,
                     isShowDiv: res.div_name !== null,
                     hasLv2: res.level_names && res.level_names.length >= 2,
@@ -626,10 +671,13 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     colorName: res.color_name,
                     color_bar_title: res.color_bar_title,
                     divDataType: res.div_data_type,
-                    hmpColor: settings.hmpColor || "BLUE",
-                    isDiscreteColor: Object.values(discreteColorType).includes(aggColorFunc),
+                    hmpColor: settings.hmpColor || 'BLUE',
+                    isDiscreteColor:
+                        Object.values(discreteColorType).includes(aggColorFunc),
+                    x_name: xName,
+                    y_name: yName,
                 };
-                heatmapData = {scpMatrix, option, zoomRange};
+                heatmapData = { scpMatrix, option, zoomRange };
                 genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
                     zoomRange = event;
                     const sets = getCurrentSettings();
@@ -641,11 +689,10 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
             loadingHide();
 
             if (!autoUpdate) {
-                 // scroll to chart
-                const scpCardPosition = $('#colorSettingGrp')
-                    .offset().top;
-                $('html,body')
-                    .animate({ scrollTop: scpCardPosition }, 1000);
+                // scroll to chart
+                const scpCardPosition =
+                    getOffsetTopDisplayGraph('#colorSettingGrp');
+                $('html,body').animate({ scrollTop: scpCardPosition }, 1000);
             }
             initFilterModal(res, clearOnFlyFilter);
         };
@@ -657,41 +704,35 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         }
 
         const onChangeChartScale = () => {
-            $(`select[name=${els.scpChartScale}]`)
-                .off('change');
-            $(`select[name=${els.scpChartScale}]`)
-                .on('change', (e) => {
-                    if (chartType === scpChartType.HEATMAP) return;
-                    loadingShow();
-                    setTimeout(() => {
-                        const graphsettings = getCurrentSettings();
-                        showGraph(graphsettings);
-                    }, 1000);
-                });
+            $(`select[name=${els.scpChartScale}]`).off('change');
+            $(`select[name=${els.scpChartScale}]`).on('change', (e) => {
+                if (chartType === scpChartType.HEATMAP) return;
+                loadingShow();
+                setTimeout(() => {
+                    const graphsettings = getCurrentSettings();
+                    showGraph(graphsettings);
+                }, 1000);
+            });
         };
         const onChangeColorScale = () => {
-            $(`select[name=${els.scpColorScale}]`)
-                .off('change');
-            $(`select[name=${els.scpColorScale}]`)
-                .on('change', (e) => {
-                    loadingShow();
-                    setTimeout(() => {
-                        const graphsettings = getCurrentSettings();
-                        showGraph(graphsettings);
-                    }, 500);
-                });
+            $(`select[name=${els.scpColorScale}]`).off('change');
+            $(`select[name=${els.scpColorScale}]`).on('change', (e) => {
+                loadingShow();
+                setTimeout(() => {
+                    const graphsettings = getCurrentSettings();
+                    showGraph(graphsettings);
+                }, 500);
+            });
         };
         const onShowBackward = () => {
-            $(`select[name=${els.showBackward}]`)
-                .off('change');
-            $(`select[name=${els.showBackward}]`)
-                .on('change', () => {
-                    loadingShow();
-                    setTimeout(() => {
-                        const graphsettings = getCurrentSettings();
-                        showGraph(graphsettings);
-                    }, 1000);
-                });
+            $(`select[name=${els.showBackward}]`).off('change');
+            $(`select[name=${els.showBackward}]`).on('change', () => {
+                loadingShow();
+                setTimeout(() => {
+                    const graphsettings = getCurrentSettings();
+                    showGraph(graphsettings);
+                }, 1000);
+            });
         };
         const onChangeColNumber = () => {
             $(`select[name=${els.colNumber}]`)
@@ -706,14 +747,16 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         };
 
         const onChangeHmColor = () => {
-            $(`select[name=${els.hmColorSelect}]`).off('change').on('change', (e) => {
-                loadingShow();
-                setTimeout(() => {
-                    const graphsettings = getCurrentSettings();
-                    showGraph(graphsettings);
-                }, 1000);
-            })
-        }
+            $(`select[name=${els.hmColorSelect}]`)
+                .off('change')
+                .on('change', (e) => {
+                    loadingShow();
+                    setTimeout(() => {
+                        const graphsettings = getCurrentSettings();
+                        showGraph(graphsettings);
+                    }, 1000);
+                });
+        };
 
         onChangeHmColor();
         onChangeColorScale();
@@ -745,7 +788,16 @@ const resetGraphSetting = () => {
     currentMatrix = MAX_MATRIX;
 };
 
-const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH, isShowDate, isDivNumber, stringCol = null) => {
+const genHTMLContentMatrix = (
+    scpMatrix,
+    cardID,
+    xName,
+    yName,
+    isShowFirstLabelH,
+    isShowDate,
+    isDivNumber,
+    stringCol = null,
+) => {
     let contentDOM = '';
     const totalRow = scpMatrix.length;
     const totalCol = scpMatrix[0].length;
@@ -773,7 +825,10 @@ const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH
             }
 
             if (totalCol > 1) {
-                width = j === 0 ? `calc(100% / ${totalCol} + 24px)` : `calc(100% / ${totalCol} - 6px - ${30 / (totalCol - 1)}px)`;
+                width =
+                    j === 0
+                        ? `calc(100% / ${totalCol} + 24px)`
+                        : `calc(100% / ${totalCol} - 6px - ${30 / (totalCol - 1)}px)`;
             } else {
                 width = '100%';
             }
@@ -781,20 +836,30 @@ const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH
             if (isShowFirstLabelH) {
                 labelH = i === 0 ? firstLabelH[j] : '';
             } else {
-                labelH = item ? item.h_label === null ? '' : item.h_label : '';
+                labelH = item
+                    ? item.h_label === null
+                        ? ''
+                        : item.h_label
+                    : '';
             }
 
-
             if (isShowDate) {
-                labelH = labelH && labelH.split(COMMON_CONSTANT.EN_DASH)
-                    .map(vl => formatDateTime(vl.trim()))
-                    .join(` ${COMMON_CONSTANT.EN_DASH} `);
+                labelH =
+                    labelH &&
+                    labelH
+                        .split(COMMON_CONSTANT.EN_DASH)
+                        .map((vl) =>
+                            formatDateTime(vl.trim(), DATE_FORMAT_WITHOUT_TZ, {
+                                withMillisecs: false,
+                            }),
+                        )
+                        .join(` ${COMMON_CONSTANT.EN_DASH} `);
             } else if (labelH && isDivNumber) {
                 labelH = `Cat${labelH}`;
             }
 
             const h = `<span class="title label-h" style="height: 18px">${labelH}</span>`;
-            const hHtml = isShowFirstLabelH ? labelH ? h : '' : h;
+            const hHtml = isShowFirstLabelH ? (labelH ? h : '') : h;
 
             column += `<div class="sctr-item chart-column graph-navi d-flex flex-column justify-content-end"
             style="height: 100%; width: ${width}; margin: 0 3px;">
@@ -803,8 +868,10 @@ const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH
             </div>`;
         }
 
-
-        const height = i === (totalRow - 1) ? `calc(100% / ${totalRow} + 20px)` : `calc(100% / ${totalRow} - 10px)`;
+        const height =
+            i === totalRow - 1
+                ? `calc(100% / ${totalRow} + 20px)`
+                : `calc(100% / ${totalRow} - 10px)`;
 
         contentDOM += `
             <div style="width: 100%; height: ${height}; margin: 3px 0;" class="position-relative">
@@ -846,11 +913,15 @@ const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH
                 </div>
         </div>
         `;
-    $(`#${cardID}`)
-        .html(chartDom).css({ height: 'auto' });
+    $(`#${cardID}`).html(chartDom).css({ height: 'auto' });
 };
 
-const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => {
+const genHeatMapPlots = (
+    scpData,
+    option,
+    zoomRange = null,
+    callback = null,
+) => {
     let allColorValSets = [];
     const allYValues = [];
     const allXValues = [];
@@ -859,11 +930,14 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
         let allYValue = [];
         row.forEach((item) => {
             if (item) {
-                item.array_y = item.array_y.map(val => val.toString());
+                item.array_y = item.array_y.map((val) => val.toString());
                 allYValue = [...allYValue, ...item.array_y];
                 if (item.array_z) {
                     item.array_z.forEach((z) => {
-                        allColorValSets = [...allColorValSets, ...z.map(y => y)];
+                        allColorValSets = [
+                            ...allColorValSets,
+                            ...z.map((y) => y),
+                        ];
                     });
                 } else {
                     allColorValSets = item.colors;
@@ -874,8 +948,13 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
     });
 
     // const [zmin, zmax] = findMinMax(allColorValSets);
-    const filteredValSets = allColorValSets.filter(i => !isEmpty(i))
-    const colorScale = genColorScale(filteredValSets, option.hmpColor)
+    const filteredValSets = allColorValSets.filter((i) => !isEmpty(i));
+    const colorScale = genColorScale(
+        filteredValSets,
+        option.hmpColor,
+        option.isDiscreteColor,
+        scpData,
+    );
     // get common X of each column
     const totalRow = scpData.length;
     for (let i = 0; i < scpData[0].length; i++) {
@@ -883,7 +962,7 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
         for (let j = 0; j < totalRow; j++) {
             const item = scpData[j][i];
             if (item) {
-                item.array_x = item.array_x.map(val => val.toString());
+                item.array_x = item.array_x.map((val) => val.toString());
                 allXValue = [...allXValue, ...item.array_x];
             }
         }
@@ -895,27 +974,40 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
             const canvasID = `scp-${i}-${j}`;
             const graphDiv = document.getElementById(canvasID);
             const heatmapGraph = {};
-            heatmapGraph.array_y = (item && !item.as_dummy_div) ? item.array_y.map(val => val.toString()) : allYValues[i];
-            heatmapGraph.array_x = (item && !item.as_dummy_div) ? item.array_x.map(val => val.toString()) : allXValues[j];
-            heatmapGraph.array_z = (item && !item.as_dummy_div) ? item.array_z : Array(allYValues[i].length)
-                .fill(Array(allXValues[j].length)
-                    .fill(-1));
-            heatmapGraph.colorScale = (item && !item.as_dummy_div) ? colorScale.scale : [...colorScale.scale].map(color => [color[0], '#222222']);
+            heatmapGraph.array_y =
+                item && !item.as_dummy_div
+                    ? item.array_y.map((val) => val.toString())
+                    : allYValues[i];
+            heatmapGraph.array_x =
+                item && !item.as_dummy_div
+                    ? item.array_x.map((val) => val.toString())
+                    : allXValues[j];
+            heatmapGraph.array_z =
+                item && !item.as_dummy_div
+                    ? item.array_z
+                    : Array(allYValues[i].length).fill(
+                          Array(allXValues[j].length).fill(-1),
+                      );
+            heatmapGraph.colorScale =
+                item && !item.as_dummy_div
+                    ? colorScale.scale
+                    : [...colorScale.scale].map((color) => [
+                          color[0],
+                          '#222222',
+                      ]);
             heatmapGraph.zmax = colorScale.zmax;
             heatmapGraph.zmin = colorScale.zmin;
             heatmapGraph.isShowY = j === 0;
             heatmapGraph.isShowX = i === scpData.length - 1;
             heatmapGraph.canvasId = canvasID;
             generateHeatmapPlot(heatmapGraph, option, zoomRange);
-            graphDiv.on('plotly_relayout',
-                (eventdata) => {
-                    callback(eventdata);
-                });
+            graphDiv.on('plotly_relayout', (eventdata) => {
+                callback(eventdata);
+            });
             option.canvas_id = canvasID;
             graphDiv.on('plotly_hover', (data) => {
                 setTimeout(() => {
-                    $('.scp-hover-info')
-                        .remove();
+                    $('.scp-hover-info').remove();
                     const dataScp = scpData[i][j];
                     if (!dataScp) return;
 
@@ -925,24 +1017,24 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
                         dataScp.array_y = dataScp.heatmap_matrix.y;
                         dataScp.array_z = dataScp.heatmap_matrix.z;
                     }
-                    const {
+                    const { x, y, pointIndex } = data.points[0];
+                    const { pageX, pageY } = data.event;
+                    makeHeatmapHoverInfoBox(
+                        dataScp,
                         x,
                         y,
-                        pointIndex,
-                    } = data.points[0];
-                    const {
+                        option,
                         pageX,
                         pageY,
-                    } = data.event;
-                    makeHeatmapHoverInfoBox(dataScp, x, y, option, pageX, pageY, pointIndex);
+                        pointIndex,
+                    );
                 }, 200);
             });
 
             unHoverHandler(graphDiv);
 
             graphDiv.addEventListener('mouseleave', () => {
-                $('.scp-hover-info')
-                    .remove();
+                $('.scp-hover-info').remove();
             });
         });
     });
@@ -952,92 +1044,71 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
     } else {
         $('#arrangeGraph').removeClass('show');
     }
-    const colorBarTitle = option.color_bar_title ? option.color_bar_title : 'Count';
+    const colorBarTitle = option.color_bar_title
+        ? option.color_bar_title
+        : 'Count';
 
     let discreteColors = false;
     if (option.isDiscreteColor) {
         discreteColors = [];
-        scpData.forEach(plot => {
-            const colorsVal = _.flatten(plot.map(i => {
-                let colorValues = [];
-                if (i && i.colors_encode) {
-                    colorValues = Object.values(i.colors_encode);
-                } else if (i) {
-                    colorValues = i.colors;
-                }
-                return colorValues;
-            }));
+        scpData.forEach((plot) => {
+            const colorsVal = _.flatten(
+                plot.map((i) => {
+                    let colorValues = [];
+                    if (i && i.colors_encode) {
+                        colorValues = Object.values(i.colors_encode);
+                    } else if (i) {
+                        colorValues = i.colors;
+                    }
+                    return colorValues;
+                }),
+            );
             discreteColors = [...discreteColors, ...colorsVal];
-        })
-        discreteColors = Array.from(new Set(discreteColors))
+        });
+        discreteColors = Array.from(new Set(discreteColors));
         discreteColors.sort((a, b) => b - a);
     }
-    genColorScaleBar(filteredValSets, colorScale.zmin, colorScale.zmax, colorBarTitle, colorScale.scale, discreteColors);
+    genColorScaleBar(
+        filteredValSets,
+        colorScale.zmin,
+        colorScale.zmax,
+        colorBarTitle,
+        colorScale.scale,
+        discreteColors,
+    );
 };
 
-const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
+const callToBackEndAPI = (
+    settings = undefined,
+    clearOnFlyFilter = false,
+    autoUpdate = false,
+) => {
     const formData = transformFormdata(clearOnFlyFilter, autoUpdate);
     if (settings) {
         formData.set('colNumber', settings.colNumber);
     }
     // clear old html elements
-    $('.scp-hover-info')
-        .remove();
+    $('.scp-hover-info').remove();
 
-    showGraphCallApi('/ap/api/scp/plot', formData, REQUEST_TIMEOUT, async (res) => {
-        if (res.is_send_ga_off) {
-            showGAToastr(true);
-        }
+    showGraphCallApi(
+        '/ap/api/hmp/plot',
+        formData,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            if (res.is_send_ga_off) {
+                showGAToastr(true);
+            }
 
-        await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
+            await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
 
-        setPollingData(formData, handleSetPollingData, []);
-    });
+            setPollingData(formData, handleSetPollingData, []);
+        },
+    );
 };
 
 const handleSetPollingData = () => {
     const settings = getCurrentSettings();
     callToBackEndAPI(settings, false, true);
-}
-
-const validateXYColorType = (formData) => {
-    const sensors = [];
-    let color = null;
-    for (const [key, value] of formData.entries()) {
-        if (/GET02_VALS_SELECT/.test(key)) {
-            sensors.push(Number(value));
-        }
-
-        if (key === 'colorVar') {
-            color = Number(value);
-        }
-    }
-    const xType = sensors[0] && $(`#dataType-${sensors[0]}`)
-        .val();
-    const yType = sensors[1] && $(`#dataType-${sensors[1]}`)
-        .val();
-    const colorType = color && $(`#dataType-${color}`)
-        .val();
-
-    if (xType === DataTypes.STRING.short && yType !== DataTypes.STRING.short) {
-        if (colorType !== DataTypes.STRING.short) {
-            formData.set('colorVar', sensors[0]);
-            return false;
-        }
-    }
-
-    if (yType === DataTypes.STRING.short && xType !== DataTypes.STRING.short) {
-        if (colorType !== DataTypes.STRING.short) {
-            formData.set('colorVar', sensors[1]);
-            return false;
-        }
-    }
-
-    if (xType === DataTypes.STRING.short && yType === DataTypes.STRING.short) {
-        if (sensors[0] !== color || colorType !== DataTypes.STRING.short) return false;
-    }
-
-    return true;
 };
 
 const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
@@ -1056,8 +1127,38 @@ const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
     });
 };
 
-const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
+// This function to check currentXY and 2 latest items in latestSortColIds
+// In case: change or delete variable  without click "Display graph"
+const checkIsUpdateXY = (newXY, currentXY) => {
+    if (newXY.length !== currentXY.length) return false;
+    const sortedNewXY = [...newXY].sort();
+    const sortedCurrentXY = [...currentXY].sort();
+    return sortedNewXY.every((val, idx) => val === sortedCurrentXY[idx]);
+};
 
+const transformXY = (formData) => {
+    const XYDataTemp = latestSortColIds.slice(-2);
+    const isUpdateXY = checkIsUpdateXY(XYDataTemp, currentXY);
+    let XYData = '';
+    // update XY when latest Sort is change order with CurrentXY else => using currentXY
+    if (isUpdateXY) {
+        XYData = [...XYDataTemp];
+        currentXY = [...XYDataTemp];
+    } else {
+        XYData = [...currentXY];
+    }
+
+    // delete XY_AXIS_KEY:
+    formData.delete(CONST.SCP_HMP_X_AXIS);
+    formData.delete(CONST.SCP_HMP_Y_AXIS);
+
+    // append XY_AXIS_KEY
+    formData.append(CONST.SCP_HMP_X_AXIS, XYData[0]);
+    formData.append(CONST.SCP_HMP_Y_AXIS, XYData[1]);
+
+    return formData;
+};
+const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
     if (autoUpdate) {
         return genDatetimeRange(lastUsedFormData);
     }
@@ -1067,10 +1168,6 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
         formData = new FormData(traceForm[0]);
         formData = transformFacetParams(formData);
         formData = genDatetimeRange(formData);
-        // Show warning message if x or y is string type but color is not string.
-        if (!validateXYColorType(formData)) {
-            showToastrMsg(i18n.colorWarningMessage);
-        }
         formData = clearEmptyEndProcs(formData);
         lastUsedFormData = formData;
     } else {
@@ -1078,54 +1175,65 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
         // transform cat label filter
         formData = transformCatFilterParams(formData);
     }
+
+    // transfer for switch XY
+    formData = transformXY(formData);
     return formData;
 };
 
 const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
     const formData = transformFormdata(clearOnFlyFilter);
 
-    showGraphCallApi('/ap/api/hmp/plot', formData, REQUEST_TIMEOUT, async (res) => {
-        if (res.is_send_ga_off) {
-            showGAToastr(true);
-        }
+    showGraphCallApi(
+        '/ap/api/hmp/plot',
+        formData,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            if (res.is_send_ga_off) {
+                showGAToastr(true);
+            }
 
-        $('#sctr-card').empty();
+            $('#sctr-card').empty();
 
-        // check result and show toastr msg
-        if (isEmpty(res.array_plotdata) || isEmpty(res.array_plotdata[0].array_y)) {
-            showToastrAnomalGraph();
-        }
+            // check result and show toastr msg
+            if (
+                isEmpty(res.array_plotdata) ||
+                isEmpty(res.array_plotdata[0].array_y)
+            ) {
+                showToastrAnomalGraph();
+            }
 
+            await showSCP(res, setting, clearOnFlyFilter);
 
+            // show toastr to inform result was truncated upto 5000
+            if (res.is_res_limited) {
+                showToastrMsg(
+                    i18n.traceResulLimited.split('BREAK_LINE').join('<br>'),
+                );
+            }
 
-        await showSCP(res, setting, clearOnFlyFilter);
+            // show reduced violin message
+            if (res.is_reduce_violin_number) {
+                showToastrMsg(i18n.reduceViolinNumberMessage);
+            }
 
-        // show toastr to inform result was truncated upto 5000
-        if (res.is_res_limited) {
-            showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
-        }
+            // show reduced data per graph
+            // only for scatter plot
+            if (res.isDataLimited && res.chartType === scpChartType.SCATTER) {
+                showToastrMsg(i18n.limitPerGraphMessage);
+            }
 
-        // show reduced violin message
-        if (res.is_reduce_violin_number) {
-            showToastrMsg(i18n.reduceViolinNumberMessage);
-        }
+            // show violin resampling msg
+            if (res.is_resampling) {
+                showToastrMsg(i18n.isResampleMsg);
+            }
 
-        // show reduced data per graph
-        // only for scatter plot
-        if (res.isDataLimited && res.chartType === scpChartType.SCATTER) {
-            showToastrMsg(i18n.limitPerGraphMessage);
-        }
+            // show info table
+            showInfoTable(res);
 
-        // show violin resampling msg
-        if (res.is_resampling) {
-            showToastrMsg(i18n.isResampleMsg);
-        }
-
-        // show info table
-        showInfoTable(res);
-
-        setPollingData(formData, handleSetPollingData, []);
-    });
+            setPollingData(formData, handleSetPollingData, []);
+        },
+    );
 
     $('#plot-cards').empty();
 };
@@ -1139,42 +1247,40 @@ const initFilterModal = (res) => {
 };
 
 const fillColorScaleHtml = (color_type, is_cat_color) => {
-    const scpColorScaleSelect = $(`select[name=${els.scpColorScale}]`)
-    scpColorScaleSelect.empty()
+    const scpColorScaleSelect = $(`select[name=${els.scpColorScale}]`);
+    scpColorScaleSelect.empty();
     const htmlIntReal = `<option value="SETTING">${i18n.colorScaleSetting}</option>
         <option value="COMMON">${i18n.colorScaleCommon}</option>
         <option value="THRESHOLD">${i18n.colorScaleThreshold}</option>
         <option value="AUTO">${i18n.colorScaleAuto}</option>
-        <option value="FULL" selected>${i18n.colorScaleFull}</option>`
+        <option value="FULL" selected>${i18n.colorScaleFull}</option>`;
     const htmlCatNon = `<option value="FULL" selected>${i18n.colorScaleFull}</option>
-        <option value="AUTO">${i18n.colorScaleAuto}</option>`
-    if(is_cat_color || !color_type){
-        scpColorScaleSelect.append(htmlCatNon)
+        <option value="AUTO">${i18n.colorScaleAuto}</option>`;
+    if (is_cat_color || !color_type) {
+        scpColorScaleSelect.append(htmlCatNon);
+    } else if (
+        !is_cat_color &&
+        [dataTypes.INT, dataTypes.REAL].includes(color_type)
+    ) {
+        scpColorScaleSelect.append(htmlIntReal);
+    } else {
+        scpColorScaleSelect.append(htmlIntReal);
     }
-    else if(!is_cat_color && [dataTypes.INT, dataTypes.REAL].includes(color_type)){
-        scpColorScaleSelect.append(htmlIntReal)
-    }
-    else {
-        scpColorScaleSelect.append(htmlIntReal)
-    }
-}
+};
 
 const getCurrentSettings = () => {
     // get chart axis scale
-    const chartScaleVal = $(`select[name=${els.scpChartScale}]`)
-        .val();
+    const chartScaleVal = $(`select[name=${els.scpChartScale}]`).val();
     const chartScale = chartScales[Number(chartScaleVal)];
     // get colors scale
-    const colorScaleVal = $(`select[name=${els.scpColorScale}]`)
-        .val();
+    const colorScaleVal = $(`select[name=${els.scpColorScale}]`).val();
     const colorScale = colorScales[colorScaleVal];
     // get color set
-    const hmpColor = $(`select[name=${els.hmColorSelect}]`).val()
+    const hmpColor = $(`select[name=${els.hmColorSelect}]`).val();
     // get backward showing
     const isShowBackward = $(`select[name=${els.showBackward}]`).val();
 
-    const colNumber = $(`select[name=${els.colNumber}]`)
-        .val();
+    const colNumber = $(`select[name=${els.colNumber}]`).val();
     const isShowForward = !isShowBackward;
     currentMatrix = Number(colNumber);
 
@@ -1194,13 +1300,17 @@ const downloadPlot = () => {
     clearOldScreenShot();
     loadingShow();
     html2canvas(document.getElementById('sctr-card'), {
-        scale: 1, logging: true, backgroundColor: '#222222',
+        scale: 1,
+        logging: true,
+        backgroundColor: '#222222',
     }).then((canvas) => {
         canvas.id = 'tsCanvas';
         document.getElementById('screenshot').appendChild(canvas);
         // generate filename
         const filename = 'screenshot.png';
-        const screenshot = document.getElementById('screenshot').querySelectorAll('canvas')[0];
+        const screenshot = document
+            .getElementById('screenshot')
+            .querySelectorAll('canvas')[0];
         const targetLink = document.createElement('a');
         if (screenshot) {
             targetLink.setAttribute('download', filename);

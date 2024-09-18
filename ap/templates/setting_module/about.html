@@ -5,17 +5,15 @@
 {% endblock %}
 
 {% block midbody %}
-{{ css | safe }}
-<div class="card about">
-	{{ content | safe }}
-</div>
+    {{ css | safe }}
+    <div class="card about">{{ content | safe }}</div>
 {% endblock %}
 
 {% block js %}
-	<script>
-	$(document).ready(() => {
-		// show load settings menu
-    	handleLoadSettingBtns();
-	});
-	</script>
+    <script>
+        $(document).ready(() => {
+            // show load settings menu
+            handleLoadSettingBtns();
+        });
+    </script>
 {% endblock %}

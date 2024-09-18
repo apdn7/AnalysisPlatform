@@ -25,10 +25,10 @@ class ParallelPlot {
     }
 
     // check type of variable is number or category
-    isNumberVariable(colId, colData=undefined) {
+    isNumberVariable(colId, colData = undefined) {
         if (!colData) {
             [colData] = this.traceData.array_plotdata.filter(
-                col => String(col.col_detail.col_id) === String(colId)
+                (col) => String(col.col_detail.col_id) === String(colId),
             );
         }
         if (!colData) {
@@ -41,7 +41,7 @@ class ParallelPlot {
     // set maxCorr(isAuto) {
     //     this.autoAssignMaxCorr = isAuto;
     // }
-    setObjective(objectiveId, isExplain=false) {
+    setObjective(objectiveId, isExplain = false) {
         if (!objectiveId) {
             objectiveId = this.traceData.COMMON.objectiveVar;
             if (_.isArray(objectiveId)) {
@@ -49,7 +49,7 @@ class ParallelPlot {
             }
         }
         const [colData] = this.traceData.array_plotdata.filter(
-            col => String(col.col_detail.col_id) === String(objectiveId)
+            (col) => String(col.col_detail.col_id) === String(objectiveId),
         );
         if (colData) {
             const updateCol = {
@@ -58,7 +58,7 @@ class ParallelPlot {
                 procId: colData.col_detail.proc_id,
                 name: `${colData.col_detail.proc_id}-${objectiveId}`,
                 type: colData.col_detail.data_type,
-                asNumber: this.isNumberVariable(objectiveId, colData)
+                asNumber: this.isNumberVariable(objectiveId, colData),
             };
 
             if (isExplain) {
@@ -74,9 +74,10 @@ class ParallelPlot {
 
     // plot setting from GUI
     setSettings(settings) {
-        let defaultShowChart = (this.objective && this.objective.asNumber) ?
-            ParallelProps.showVariables.ALL :
-            ParallelProps.showVariables.CATEGORY;
+        let defaultShowChart =
+            this.objective && this.objective.asNumber
+                ? ParallelProps.showVariables.ALL
+                : ParallelProps.showVariables.CATEGORY;
         this.settings = {
             showVars: defaultShowChart,
             orderBy: ParallelProps.orderBy.correlation,
@@ -89,33 +90,44 @@ class ParallelPlot {
             valueOrder: ParallelProps.valueOrder.DESC, // order value of dimension, from top to bot
         };
         if (settings) {
-            this.settings.showVars = settings.showVars || this.settings.showVars;
+            this.settings.showVars =
+                settings.showVars || this.settings.showVars;
             this.settings.orderBy = settings.orderBy || this.settings.orderBy;
             this.settings.fineSelect = settings.fineSelect || false;
+            this.settings.yScaleOption =
+                settings.yScaleOption || scaleOptionConst.AUTO;
             if (settings.corrSetting) {
                 // reset corrSetting
                 this.settings.corrSetting = {};
-                if (this.settings.orderBy === ParallelProps.orderBy.correlation) {
-                    this.settings.corrSetting = settings.corrSetting.byCorr ? {
-                        byCorr: true,
-                        min: settings.corrSetting.minCorr,
-                        dimNum: settings.corrSetting.varNum,
-                        top: undefined,
-                    } : {
-                        byCorr: false,
-                        min: undefined,
-                        dimNum: undefined,
-                        top: settings.corrSetting.top,
-                    }
+                if (
+                    this.settings.orderBy === ParallelProps.orderBy.correlation
+                ) {
+                    this.settings.corrSetting = settings.corrSetting.byCorr
+                        ? {
+                              byCorr: true,
+                              min: settings.corrSetting.minCorr,
+                              dimNum: settings.corrSetting.varNum,
+                              top: undefined,
+                          }
+                        : {
+                              byCorr: false,
+                              min: undefined,
+                              dimNum: undefined,
+                              top: settings.corrSetting.top,
+                          };
                 }
             }
 
             // set order default value for paracat only
-            if (this.settings.showVars === ParallelProps.showVariables.CATEGORY) {
+            if (
+                this.settings.showVars === ParallelProps.showVariables.CATEGORY
+            ) {
                 this.settings.orderBy = ParallelProps.orderBy.process;
             }
-            this.settings.useCorrDefaultThreshold = (settings.useCorrDefaultThreshold !== undefined)
-                ? settings.useCorrDefaultThreshold : true;
+            this.settings.useCorrDefaultThreshold =
+                settings.useCorrDefaultThreshold !== undefined
+                    ? settings.useCorrDefaultThreshold
+                    : true;
         }
         // reset custom ordering
         this.selectedOrder = [];
@@ -125,16 +137,24 @@ class ParallelPlot {
         this.fromJump = isJump;
     }
 
-    setOrdering(ordering, useDimID=false) {
+    setOrdering(ordering, useDimID = false) {
         this.selectedOrder = ordering;
         if (useDimID) {
-            this.selectedOrder = this.selectedOrder.map(dimID => {
-                const selectedDim = this.allDimensions.filter(dim => dim.dimID === dimID && dim.dimID !== this.objective.name);
-                return selectedDim.length ? selectedDim[0] : undefined;
-            }).filter(dim => dim !== undefined);
+            this.selectedOrder = this.selectedOrder
+                .map((dimID) => {
+                    const selectedDim = this.allDimensions.filter(
+                        (dim) =>
+                            dim.dimID === dimID &&
+                            dim.dimID !== this.objective.name,
+                    );
+                    return selectedDim.length ? selectedDim[0] : undefined;
+                })
+                .filter((dim) => dim !== undefined);
         }
 
-        let objectiveDim = this.allDimensions.filter(dim => dim.dimID === this.objective.name);
+        let objectiveDim = this.allDimensions.filter(
+            (dim) => dim.dimID === this.objective.name,
+        );
         objectiveDim = objectiveDim.length ? objectiveDim[0] : null;
         // push origin objective variable
         if (objectiveDim) {
@@ -149,12 +169,12 @@ class ParallelPlot {
         const plotDOM = document.getElementById(this.plotDOMId);
         // bind event after plot
         plotDOM.on('plotly_afterplot', () => {
-            const dPVar = this.dimensions.map(dim => dim.dimID);
-            const dNames = this.dimensions.map(dim => dim.dimName);
+            const dPVar = this.dimensions.map((dim) => dim.dimID);
+            const dNames = this.dimensions.map((dim) => dim.dimName);
             const axisDim = $('.axis-title');
-             if (this.settings.fineSelect) {
-                 axisDim.addClass('fineSelect');
-             }
+            if (this.settings.fineSelect) {
+                axisDim.addClass('fineSelect');
+            }
             if (dPVar.length) {
                 dPVar.forEach((dimension, i) => {
                     $(axisDim[i]).attr('data-dpv', dimension);
@@ -173,10 +193,19 @@ class ParallelPlot {
                 const dimInSVG = document.getElementsByClassName('dimension');
                 this.dimensions.forEach((dim, i) => {
                     // add custom data
-                    $($(dimInSVG[i]).find('.dimlabel')[0]).attr('data-dpv', dim.dimID);
-                    $($(dimInSVG[i]).find('.dimlabel')[0]).attr('data-dName', dim.dimName);
+                    $($(dimInSVG[i]).find('.dimlabel')[0]).attr(
+                        'data-dpv',
+                        dim.dimID,
+                    );
+                    $($(dimInSVG[i]).find('.dimlabel')[0]).attr(
+                        'data-dName',
+                        dim.dimName,
+                    );
                     if (dim.isCategorize) {
-                        $($(dimInSVG[i]).find('.dimlabel')[0]).attr('is-categorize', dim.isCategorize);
+                        $($(dimInSVG[i]).find('.dimlabel')[0]).attr(
+                            'is-categorize',
+                            dim.isCategorize,
+                        );
                     }
                 });
             }
@@ -191,17 +220,25 @@ class ParallelPlot {
             const offset = {
                 x: data.event.pageX - 120,
                 y: data.event.pageY,
-            }
-            const ratio = applySignificantDigit(count / this.traceData.actual_record_number * 100);
-            const tbl = genHoverDataTable([['N', applySignificantDigit(count)], ['Ratio', `${ratio}%`]]);
+            };
+            const ratio = applySignificantDigit(
+                (count / this.traceData.actual_record_number) * 100,
+            );
+            const tbl = genHoverDataTable([
+                ['N', applySignificantDigit(count)],
+                ['Ratio', `${ratio}%`],
+            ]);
 
-            genDataPointHoverTable(tbl, offset, 100, true, 'paracord-plot')
+            genDataPointHoverTable(tbl, offset, 100, true, 'paracord-plot');
         });
         // bind unhover event
         unHoverHandler(plotDOM);
         // update dimension position for pcp
         $('.axis-title').each((i, el) => {
-            const isCategory = $(el).attr('data-unformatted').toString().includes('is-category');
+            const isCategory = $(el)
+                .attr('data-unformatted')
+                .toString()
+                .includes('is-category');
             if (isCategory) {
                 const showFilterClass = 'show-detail click-only';
                 $(el).find('tspan:last-child tspan').addClass(showFilterClass);
@@ -215,7 +252,10 @@ class ParallelPlot {
             if (label && dimInfo) {
                 // [targetSensorName] = label.split(' ');
                 // targetDim = dimInfo.split('-').map(i => Number(i));
-                $('#contextMenuParallelPlot .menu-item').attr('data-target-dim', dimInfo);
+                $('#contextMenuParallelPlot .menu-item').attr(
+                    'data-target-dim',
+                    dimInfo,
+                );
             }
             selectTargetDimHandler(e);
         });
@@ -223,8 +263,13 @@ class ParallelPlot {
 
     genCorrValue() {
         if (this.autoAssignMaxCorr) {
-            const corrVals = this.data.length ? this.data.map(i => i.correlation ? Number(i.correlation) : 0) : [];
-            const maxCorr = Math.round(Math.max(...corrVals) * 0.8 * 1000) / 1000;
+            const corrVals = this.data.length
+                ? this.data.map((i) =>
+                      i.correlation ? Number(i.correlation) : 0,
+                  )
+                : [];
+            const maxCorr =
+                Math.round(Math.max(...corrVals) * 0.8 * 1000) / 1000;
             if (maxCorr) {
                 const corrDOM = $('input[name=corr_value]');
                 corrDOM.val(maxCorr);
@@ -233,13 +278,37 @@ class ParallelPlot {
         }
     }
 
+    genDefaultSetting() {
+        const elementTopVar = $(`input[name='top_vars']`);
+        const elementMaxVar = $(`input[name='max_vars']`);
+        const defaultTopVar = elementTopVar.attr(CONST.DEFAULT_VALUE);
+        const defaultMaxVar = elementMaxVar.attr(CONST.DEFAULT_VALUE);
+        elementTopVar.val(
+            this.settings.corrSetting.top
+                ? this.settings.corrSetting.top
+                : defaultTopVar,
+        );
+        elementMaxVar.val(
+            this.settings.corrSetting.dimNum
+                ? this.settings.corrSetting.dimNum
+                : defaultMaxVar,
+        );
+    }
+
     // gen chart options
     genPlotlyIconsSetting() {
         return {
             modeBarButtonsToRemove: [
-                'zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d',
-                'hoverClosestCartesian', 'hoverCompareCartesian',
-                'toggleSpikelines', 'sendDataToCloud',
+                'zoom2d',
+                'pan2d',
+                'select2d',
+                'lasso2d',
+                'zoomIn2d',
+                'zoomOut2d',
+                'hoverClosestCartesian',
+                'hoverCompareCartesian',
+                'toggleSpikelines',
+                'sendDataToCloud',
             ],
             displaylogo: false,
         };
@@ -279,15 +348,26 @@ class ParallelPlot {
     // }
 
     // gen dimension range text for real sensor
-    genDimRangeText (dimValues, infIDX, minfIDX, isInt = false, fmt='', fineSelect = false) {
-        const notNADim = dimValues.filter(i => i === 0 || i);
-        const [minText, maxText] = findMinMax(notNADim);
+    genDimRangeText(
+        dimValues,
+        infIDX,
+        minfIDX,
+        isInt = false,
+        fmt = '',
+        fineSelect = false,
+        [yMin, yMax],
+    ) {
+        const notNADim = dimValues.filter((i) => i === 0 || i);
+        // const [minText, maxText] = findMinMax(notNADim);
+        const [minText, maxText] = [yMin, yMax];
         const rangeVals = maxText - minText;
         const stepVals = rangeVals / 9;
-        const fractionDigit = rangeVals <= 1 ? 3 : 2;
-        const irrNum = maxText.toString().includes('e') || minText.toString().includes('e');
+        const fractionDigit = rangeVals <= 1 ? 4 : 2; // change 3 => 4 to fix 0.0000
+        const irrNum =
+            maxText.toString().includes('e') ||
+            minText.toString().includes('e');
         let tickVals = Array(...Array(10)).map((v, i) => {
-            const tickVal = (minText + (stepVals * i));
+            const tickVal = minText + stepVals * i;
             if (isInt) {
                 return parseInt(tickVal, 10);
             }
@@ -299,9 +379,13 @@ class ParallelPlot {
         });
 
         // check inf/-inf
-        // eslint-disable-next-line no-nested-ternary
-        const naPosition = infIDX.length > 0 && minfIDX.length > 0
-            ? 3 : ((infIDX.length > 0 || minfIDX.length > 0) ? 2 : 1);
+
+        const naPosition =
+            infIDX.length > 0 && minfIDX.length > 0
+                ? 3
+                : infIDX.length > 0 || minfIDX.length > 0
+                  ? 2
+                  : 1;
         // inf position
         const infDumVal = minText - stepVals;
         const minfDumVal = minText - 2 * stepVals;
@@ -351,7 +435,10 @@ class ParallelPlot {
     genPCatDimLabel(colData, corr) {
         // labelColor will be set after plot chart
         const isNumCol = this.isNumberVariable(colData.end_col_id, colData);
-        let dimProcName = shortTextName(colData.col_detail.proc_shown_name, CONST.LIMIT_SIZE_NAME);
+        let dimProcName = shortTextName(
+            colData.col_detail.proc_shown_name,
+            CONST.LIMIT_SIZE_NAME,
+        );
         let dimSensorName = shortTextName(colData.col_detail.col_shown_name);
 
         let dimLabel = `${dimSensorName} ${dimProcName}`;
@@ -372,7 +459,10 @@ class ParallelPlot {
         } else if (Number(colData.col_detail.proc_id) === Number(startProcID)) {
             labelColor = CONST.LIGHT_BLUE;
         }
-        let dimProcName = shortTextName(colData.col_detail.proc_shown_name, CONST.LIMIT_SIZE_NAME);
+        let dimProcName = shortTextName(
+            colData.col_detail.proc_shown_name,
+            CONST.LIMIT_SIZE_NAME,
+        );
         let dimSensorName = shortTextName(colData.col_detail.col_shown_name);
         let dimLabel = `<span style="color: ${labelColor};" class="dim-sensor">${dimSensorName}</span><br>`;
         dimLabel += `<span style="color: ${labelColor};" class="dim-proc">${dimProcName}[${applySignificantDigit(corr)}]</span>`;
@@ -389,25 +479,34 @@ class ParallelPlot {
     markupNAValue(dimValue) {
         let encodedValue = {};
         const NADefinition = [null, undefined, 'NA'];
-        const hasNA = !!dimValue.filter(i => NADefinition.includes(i)).length;
+        const hasNA = !!dimValue.filter((i) => NADefinition.includes(i)).length;
         if (hasNA) {
             const uniqValues = Array.from(new Set(dimValue));
-            const minValue = Math.min(...uniqValues.filter(i => !NADefinition.includes(i)));
+            const minValue = Math.min(
+                ...uniqValues.filter((i) => !NADefinition.includes(i)),
+            );
             const naValue = minValue - 1;
-            encodedValue = {'NA': naValue};
-            dimValue = dimValue.map(i => NADefinition.includes(i) ? naValue : i)
+            encodedValue = { NA: naValue };
+            dimValue = dimValue.map((i) =>
+                NADefinition.includes(i) ? naValue : i,
+            );
         }
         return [dimValue, encodedValue];
     }
-    rearrangeDimValue(colData, dim, asPCat=true) {
-        const isCategoryCol = !this.isNumberVariable(colData.end_col_id, colData);
+    rearrangeDimValue(colData, dim, asPCat = true) {
+        const isCategoryCol = !this.isNumberVariable(
+            colData.end_col_id,
+            colData,
+        );
         const sortFunc = (a, b) => {
-            return this.settings.valueOrder === ParallelProps.valueOrder.DESC ? (b - a) : (a - b);
+            return this.settings.valueOrder === ParallelProps.valueOrder.DESC
+                ? b - a
+                : a - b;
             // if (this.settings.valueOrder === ParallelProps.valueOrder.DESC) {
             //     return (a > b ? -1 : 1);
             // }
             // return (b > a ? -1 : 1);
-        }
+        };
         const naIdx = dim.tickvals.indexOf(CONST.NAV);
         const naValues = {
             categoryarray: asPCat ? dim.categoryarray[naIdx] : null,
@@ -417,24 +516,75 @@ class ParallelPlot {
         };
         // todo: remove NA before sort
         let tickValsSorted = [...dim.tickvals].sort(sortFunc);
-        let sortIndex = tickValsSorted.map(tick => dim.tickvals.indexOf(tick));
-        dim.categoryarray = asPCat ? sortIndex.map(idx => dim.categoryarray[idx]) : null;
-        dim.group = asPCat ? sortIndex.map(idx => dim.group[idx]) : null;
-        dim.ticktext = sortIndex.map(idx => dim.ticktext[idx]);
-        dim.tickvals = sortIndex.map(idx => dim.tickvals[idx]);
+        let sortIndex = tickValsSorted.map((tick) =>
+            dim.tickvals.indexOf(tick),
+        );
+        dim.categoryarray = asPCat
+            ? sortIndex.map((idx) => dim.categoryarray[idx])
+            : null;
+        dim.group = asPCat ? sortIndex.map((idx) => dim.group[idx]) : null;
+        dim.ticktext = sortIndex.map((idx) => dim.ticktext[idx]);
+        dim.tickvals = sortIndex.map((idx) => dim.tickvals[idx]);
 
         if (isCategoryCol && Object.keys(colData.rank_value).length) {
             if (dim.ticktext.includes('NA')) {
                 const naIdx = dim.ticktext.indexOf('NA');
-                dim.values = dim.values.map(i => i == naIdx ? -1 : i);
+                dim.values = dim.values.map((i) => (i == naIdx ? -1 : i));
             }
         }
         return dim;
     }
+
+    // this function using to check if the data include valid chartInfo or not
+    checkIsValidChartInfo(chartInfos) {
+        return chartInfos.some((chartInfo) => {
+            for (let key in chartInfo) {
+                if (chartInfo[key] != null) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
+    // get yScale, colValue base on chartInfo (using for PCP and PCat Dimension)
+    getYScaleAndColValue({ colData, colValue }) {
+        // get y scale select value
+        const yScaleSelectValue = this.settings.yScaleOption;
+
+        // get yScale Value [yMin, yMax]
+        let yScale = getScaleInfo(colData, yScaleSelectValue);
+        const isValidChartInfo = this.checkIsValidChartInfo(
+            colData['chart_infos'],
+        );
+
+        // if: colValue not having valid chartInfo and "yScale Select Value" is Threshold
+        // OR "yScale Select Value" is auto range
+        // OR if colValue not having valid chartInfo and "yScale Select Value" is setting_config
+        // => set is DimRange is full
+        if (
+            (!isValidChartInfo &&
+                yScaleSelectValue === scaleOptionConst.THRESHOLD) ||
+            yScaleSelectValue === scaleOptionConst.AUTO ||
+            (!isValidChartInfo &&
+                yScaleSelectValue === scaleOptionConst.SETTING)
+        ) {
+            yScale = getScaleInfo(colData, scaleOptionConst.FULL_RANGE);
+        }
+
+        return { colValue, yScale };
+    }
+
     // gen dimension data
     genPCPDimension(colData) {
-        const colValue = [...colData.array_y];
+        const { colValue, yScale } = this.getYScaleAndColValue({
+            colData,
+            colValue: [...colData.array_y],
+        });
+
         const fmt = this.traceData.fmt[colData.end_col_id];
+        const [yMin, yMax] = [yScale['y-min'], yScale['y-max']];
+
         let dim = this.genDimRangeText(
             colValue,
             colData.inf_idx,
@@ -442,28 +592,38 @@ class ParallelPlot {
             false,
             fmt,
             this.settings.fineSelect,
+            [yMin, yMax],
         );
+
         // for int or string col with ranked encoding
         if (!_.isEmpty(colData.rank_value)) {
             const ranking = Object.keys(colData.rank_value);
             dim.tickvals = ranking;
             if (ranking.length > MAX_CAT_LABEL) {
                 const step = Math.floor(ranking.length / MAX_CAT_LABEL);
-                dim.tickvals = ranking.filter(k => (Number(k) === 0) || (Number(k) + 1) % step === 0);
+                dim.tickvals = ranking.filter(
+                    (k) => Number(k) === 0 || (Number(k) + 1) % step === 0,
+                );
             }
-            dim.tickvals = dim.tickvals.map(i => Number(i));
-            dim.ticktext = dim.tickvals.map(i => colData.rank_value[i]);
+            dim.tickvals = dim.tickvals.map((i) => Number(i));
+            dim.ticktext = dim.tickvals.map((i) => colData.rank_value[i]);
         }
-        dim.tickvals = dim.tickvals.map(i => Number(i));
+        dim.tickvals = dim.tickvals.map((i) => Number(i));
         dim = this.rearrangeDimValue(colData, dim, false);
-        const dimRange = findMinMax(dim.values);
+        // get dimRange in dim.tickvals instead of dim.values
+        const dimRange = findMinMax(dim.tickvals);
+        const dimRangeValue = findMinMax(dim.values);
+        dimRange[0] = Math.min(dimRange[0], dimRangeValue[0]);
+        dimRange[1] = Math.max(dimRange[1], dimRangeValue[1]);
         let corr = getCorrelation(
             this.traceData.corrs,
             colData.col_detail.col_id,
-            this.objective.id
+            this.objective.id,
         );
-        dim.ticktext = dim.ticktext.map(i => String(i));
-        const notShowTicks = this.settings.fineSelect && !colData.col_detail.is_category;
+        dim.ticktext = dim.ticktext.map((i) => String(i));
+        const notShowTicks =
+            this.settings.fineSelect && !colData.col_detail.is_category;
+
         return {
             values: dim.values,
             ticktext: notShowTicks ? null : dim.ticktext,
@@ -481,20 +641,34 @@ class ParallelPlot {
     }
     // gen dimension data
     genPCatDimension(colData) {
+        // hide scale y when selection is CATEGORY
+        if (
+            this.settings.showVars ===
+                paracordsSetting.showVariables.CATEGORY ||
+            this.settings.showVars ===
+                paracordsSetting.showVariables.CATEGORIZED
+        ) {
+            $(formElements.yScaleOption).parent().addClass('hidden-important');
+        }
+
         let rankValues = {};
         const isNumber = this.isNumberVariable(colData.end_col_id, colData);
         let dim = {
             categoryorder: 'array', // set 'array' to ordering groups by ticktext
-            values: [...colData.array_y].map(i => i !== null ? Number(i) : i),
+            values: [...colData.array_y].map((i) =>
+                i !== null ? Number(i) : i,
+            ),
         };
         // categorized real data or big int
         if (colData.categorized_data.length) {
             dim.values = colData.categorized_data;
             [dim.values, rankValues] = this.markupNAValue(dim.values);
             if (colData.col_detail.data_type === DataTypes.INTEGER.name) {
-                dim.values = dim.values.map(i => parseInt(i));
+                dim.values = dim.values.map((i) => parseInt(i));
             }
-            dim.tickvals = Array.from(new Set(dim.values)).map(i => Number(i));
+            dim.tickvals = Array.from(new Set(dim.values)).map((i) =>
+                Number(i),
+            );
             dim.ticktext = dim.tickvals;
         }
 
@@ -504,10 +678,12 @@ class ParallelPlot {
             dim.tickvals = ranking;
             if (ranking.length > MAX_CAT_LABEL) {
                 const step = Math.floor(ranking.length / MAX_CAT_LABEL);
-                dim.tickvals = ranking.filter(k => (Number(k) === 0) || (Number(k) + 1) % step === 0);
+                dim.tickvals = ranking.filter(
+                    (k) => Number(k) === 0 || (Number(k) + 1) % step === 0,
+                );
             }
-            dim.tickvals = dim.tickvals.map(i => Number(i));
-            dim.ticktext = dim.tickvals.map(i => colData.rank_value[i]);
+            dim.tickvals = dim.tickvals.map((i) => Number(i));
+            dim.ticktext = dim.tickvals.map((i) => colData.rank_value[i]);
         }
         dim.categoryarray = dim.tickvals;
         dim.group = dim.tickvals;
@@ -517,17 +693,17 @@ class ParallelPlot {
         const corr = getCorrelation(
             this.traceData.corrs,
             colData.col_detail.col_id,
-            this.objective.id
+            this.objective.id,
         );
         if (isNumber) {
-            dim.ticktext = dim.ticktext.map(i => {
-                if (Object.keys(rankValues).length && (i === rankValues.NA)) {
+            dim.ticktext = dim.ticktext.map((i) => {
+                if (Object.keys(rankValues).length && i === rankValues.NA) {
                     return 'NA';
                 }
                 return `${applySignificantDigit(i)}`;
             });
         } else {
-            dim.ticktext = dim.ticktext.map(i => String(i));
+            dim.ticktext = dim.ticktext.map((i) => String(i));
         }
         return {
             values: dim.values,
@@ -546,7 +722,7 @@ class ParallelPlot {
             correlation: corr,
         };
     }
-    validateObjectiveType(colType=null) {
+    validateObjectiveType(colType = null) {
         if (this.traceData['from_jump_emd']) {
             return true;
         }
@@ -555,23 +731,35 @@ class ParallelPlot {
         return ParallelProps.validDataTypes[showVars].includes(colType);
     }
     validateCorr(colData) {
-        return this.settings.corrSetting.min <= Math.abs(
-            this.traceData.corrs.corr[this.objective.id][colData.end_col_id]
+        return (
+            this.settings.corrSetting.min <=
+            Math.abs(
+                this.traceData.corrs.corr[this.objective.id][
+                    colData.end_col_id
+                ],
+            )
         );
     }
     filterDimension(colData) {
         let isValid = this.validateObjectiveType(colData.col_detail.data_type);
-        if (isValid &&
-            (this.settings.orderBy === ParallelProps.orderBy.correlation) &&
-            (this.settings.corrSetting.min !== undefined)
+        if (
+            isValid &&
+            this.settings.orderBy === ParallelProps.orderBy.correlation &&
+            this.settings.corrSetting.min !== undefined
         ) {
             isValid = this.validateCorr(colData);
         }
         return isValid;
     }
     updateDefaultCorrThreshold(dimensions) {
-        const explainDims = dimensions.filter(dim => dim.dimID !== this.objective.name);
-        const corrVals = explainDims.length ? explainDims.map(i => i.correlation ? Number(i.correlation) : 0) : [];
+        const explainDims = dimensions.filter(
+            (dim) => dim.dimID !== this.objective.name,
+        );
+        const corrVals = explainDims.length
+            ? explainDims.map((i) =>
+                  i.correlation ? Number(i.correlation) : 0,
+              )
+            : [];
         const maxCorr = Math.round(Math.max(...corrVals) * 0.8 * 1000) / 1000;
         if (maxCorr) {
             $('input[name=corr_value]').val(maxCorr);
@@ -584,42 +772,61 @@ class ParallelPlot {
         }
         // todo: order dimension by setting
         // limitation
-        let limit = this.settings.corrSetting.top || this.settings.corrSetting.dim_num || dimension.length;
+        let limit =
+            this.settings.corrSetting.top ||
+            this.settings.corrSetting.dim_num ||
+            dimension.length;
         // add one more to show objective var
         limit += 1;
-        if (dimension.length &&
-            (this.settings.orderBy === ParallelProps.orderBy.correlation) &&
-            (limit !== 0)) {
+        if (
+            dimension.length &&
+            this.settings.orderBy === ParallelProps.orderBy.correlation &&
+            limit !== 0
+        ) {
             // order by correlation number of dimension
-            dimension.sort((a, b) => Math.abs(a.correlation) - Math.abs(b.correlation));
+            dimension.sort(
+                (a, b) => Math.abs(a.correlation) - Math.abs(b.correlation),
+            );
             dimension = [...dimension].reverse().slice(0, limit).reverse();
         }
         // objective variable in last column
-        const objectiveDimension = dimension.filter(dim => dim.dimID === this.objective.name);
+        const objectiveDimension = dimension.filter(
+            (dim) => dim.dimID === this.objective.name,
+        );
 
         let explainDimension = [];
         if (this.explain) {
-            explainDimension = dimension.filter(dim => dim.dimID === this.explain.name);
+            explainDimension = dimension.filter(
+                (dim) => dim.dimID === this.explain.name,
+            );
         }
-        const otherDimensions = dimension.filter(dim => dim.dimID !== this.objective.name &&
-            (this.explain ? dim.dimID !== this.explain.name : true)
-        );
-        let nonObjectiveDimension = [...otherDimensions, ...explainDimension];
+        let otherDimensions = [
+            ...dimension.filter(
+                (dim) =>
+                    dim.dimID !== this.objective.name &&
+                    (this.explain ? dim.dimID !== this.explain.name : true),
+            ),
+        ];
 
         if (this.settings.orderBy === ParallelProps.orderBy.correlation) {
-            nonObjectiveDimension = nonObjectiveDimension.sort(propComparator(this.settings.orderBy));
+            otherDimensions = otherDimensions.sort(
+                propComparator(this.settings.orderBy),
+            );
         }
 
         if (this.settings.orderBy === ParallelProps.orderBy.setting) {
-            nonObjectiveDimension = nonObjectiveDimension.sort(propComparator('colId'));
+            otherDimensions = otherDimensions.sort(propComparator('colId'));
         }
 
-        if(this.settings.orderBy === ParallelProps.orderBy.process) {
-            const order = this.traceData.proc_link_order
-            nonObjectiveDimension = nonObjectiveDimension.sort((x,y) => order.indexOf(x.process) - order.indexOf(y.process))
+        if (this.settings.orderBy === ParallelProps.orderBy.process) {
+            const order = this.traceData.proc_link_order;
+            otherDimensions = otherDimensions.sort(
+                (x, y) => order.indexOf(x.process) - order.indexOf(y.process),
+            );
         }
+        let nonObjectiveDimension = [...otherDimensions, ...explainDimension];
         // append objectiveDimension at the end after sorting
-        dimension = [...nonObjectiveDimension, ...objectiveDimension]
+        dimension = [...nonObjectiveDimension, ...objectiveDimension];
         // update corr default threshold
         if (this.settings.useCorrDefaultThreshold) {
             this.updateDefaultCorrThreshold(dimension);
@@ -638,7 +845,7 @@ class ParallelPlot {
         if (endDim.ticktext.includes(CONST.NA)) {
             let naIdx = endDim.ticktext.indexOf(CONST.NA);
             if (naIdx < 0 && Object.keys(endDim).includes('group')) {
-               naIdx = endDim.group.indexOf(CONST.NA);
+                naIdx = endDim.group.indexOf(CONST.NA);
             }
             hasNA = naIdx >= 0;
             if (hasNA) {
@@ -650,28 +857,39 @@ class ParallelPlot {
 
         // create dummy values
         let dummyVals = endDim.values;
-        let uniqueVals = Array.from(new Set(dummyVals)).sort();
+        let uniqueVals = Array.from(new Set(dummyVals)).sort((a, b) => a - b);
         let reverseVals = [...uniqueVals].reverse();
         // add NA again
         if (hasNA) {
-            uniqueVals = [...uniqueVals.filter(i => i !== NAValue), NAValue];
-            reverseVals = [...reverseVals.filter(i => i !== NAValue), NAValue];
+            uniqueVals = [...uniqueVals.filter((i) => i !== NAValue), NAValue];
+            reverseVals = [
+                ...reverseVals.filter((i) => i !== NAValue),
+                NAValue,
+            ];
         }
         // create dummy value
-        endDim.values = dummyVals.map(i => reverseVals[uniqueVals.indexOf(i)]);
+        endDim.values = dummyVals.map(
+            (i) => reverseVals[uniqueVals.indexOf(i)],
+        );
 
         // update categoryarray
         endDim.categoryarray = uniqueVals;
 
         if (hasNA) {
-            endDim.values = endDim.values.map(i => i === NAValue ? maxVal : i);
-            endDim.categoryarray = endDim.categoryarray.map(i => i === NAValue ? maxVal : i);
+            endDim.values = endDim.values.map((i) =>
+                i === NAValue ? maxVal : i,
+            );
+            endDim.categoryarray = endDim.categoryarray.map((i) =>
+                i === NAValue ? maxVal : i,
+            );
         }
         // update tickvals
         endDim.tickvals = endDim.categoryarray;
         // update ticktext
         const tickWoNA = endDim.ticktext.reverse();
-        endDim.ticktext = hasNA ? [...tickWoNA.filter(i => i !== CONST.NA), CONST.NA]: tickWoNA;
+        endDim.ticktext = hasNA
+            ? [...tickWoNA.filter((i) => i !== CONST.NA), CONST.NA]
+            : tickWoNA;
         endDim.ticktext = [...endDim.ticktext].reverse();
         // update group
         endDim.group = endDim.categoryarray;
@@ -686,36 +904,44 @@ class ParallelPlot {
             showscale: false,
             // reversescale: true,
         };
-        return [{
-            type: 'parcats',
-            dimensions: this.dimensions,
-            line: lineCfg,
-            hoveron: 'color',
-            hoverinfo: 'none',
-            labelfont: {size: 10.5},
-            arrangement: 'freeform',
-        }];
+        return [
+            {
+                type: 'parcats',
+                dimensions: this.dimensions,
+                line: lineCfg,
+                hoveron: 'color',
+                hoverinfo: 'none',
+                labelfont: { size: 10.5 },
+                arrangement: 'freeform',
+            },
+        ];
     }
     genPCPData() {
         const fmt = this.traceData.fmt[this.objective.id];
-        return [{
-            type: 'parcoords',
-            line: {
-                showscale: true,
-                reversescale: false,
-                colorscale: dnJETColorScale,
-                color: this.objective.data,
-                colorbar: {
-                    tickformat: fmt,
+        // get colors for lines from objective dimension data (replaced NA with naDumVal etc)
+        const colors = this.dimensions.filter(
+            (i) => i.colId === this.objective.id,
+        )[0].values;
+        return [
+            {
+                type: 'parcoords',
+                line: {
+                    showscale: true,
+                    reversescale: false,
+                    colorscale: dnJETColorScale,
+                    color: colors,
+                    colorbar: {
+                        tickformat: fmt,
+                    },
                 },
+                labelfont: { size: 10.5 },
+                hoverinfo: 'none',
+                dimensions: this.dimensions,
             },
-            labelfont: {size: 10.5},
-            hoverinfo: 'none',
-            dimensions: this.dimensions,
-        }];
+        ];
     }
     // gen dimension data
-    genData(useCurrentObjectiveVar=true) {
+    genData(useCurrentObjectiveVar = true) {
         const asDiscretePlot = [
             ParallelProps.showVariables.CATEGORY,
             ParallelProps.showVariables.CATEGORIZED,
@@ -725,13 +951,17 @@ class ParallelPlot {
             return [];
         }
         if (this.traceData.COMMON.is_nominal_scale === 'true') {
-            this.nominalVars = this.traceData.category_cols.map(col => col.col_id);
+            this.nominalVars = this.traceData.category_cols.map(
+                (col) => col.col_id,
+            );
         }
         dimension = this.traceData.array_plotdata
-            .filter(
-                colData => this.filterDimension(colData)
-            )
-            .map(colData => asDiscretePlot ? this.genPCatDimension(colData) : this.genPCPDimension(colData));
+            .filter((colData) => this.filterDimension(colData))
+            .map((colData) =>
+                asDiscretePlot
+                    ? this.genPCatDimension(colData)
+                    : this.genPCPDimension(colData),
+            );
         this.allDimensions = [...dimension];
         this.dimensions = this.orderDimension(dimension);
         if (asDiscretePlot) {
@@ -750,10 +980,13 @@ class ParallelPlot {
     }
 
     // show parallel graph
-    show() {
+    show(isReturnToDefaultOrderingParams) {
         // gen dimension data
         this.genData();
         this.genCorrValue();
+        if (isReturnToDefaultOrderingParams) {
+            this.genDefaultSetting();
+        }
         // get chart layout
         const layout = this.genLayout();
         // gen icons setting

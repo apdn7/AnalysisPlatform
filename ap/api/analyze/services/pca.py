@@ -4,6 +4,7 @@ from pandas import DataFrame
 from sklearn.preprocessing import StandardScaler
 
 from ap.api.common.services.show_graph_services import (
+    convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
     get_data_from_db,
@@ -218,6 +219,7 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
 
     # get data from database
     df, actual_record_number, unique_serial = get_trace_data(graph_param, dic_cat_filters, use_expired_cache)
+    convert_datetime_to_ct(df, graph_param)
 
     dic_var_name = {}
     for col_alias, id in ids.items():

@@ -55,17 +55,19 @@ const defaultFilter = {
     },
 };
 
-
 const getProcessConfigFromDB = async (procId) => {
     if (!procId) return {};
-    const json = await fetch(`/ap/api/setting/proc_config/${procId}/visualizations`, {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+    const json = await fetch(
+        `/ap/api/setting/proc_config/${procId}/visualizations`,
+        {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
         },
-    })
-        .then(response => response.clone().json())
+    )
+        .then((response) => response.clone().json())
         .catch((err) => {
             // console.log(err);
         });
@@ -123,7 +125,7 @@ $(() => {
     });
 
     const configTable = document.getElementById('tblVisualConfig');
-    // eslint-disable-next-line no-undef
+
     resizableGrid(configTable);
 
     onSearchTableContent('searchMasterConfig', filterElements.tblVisualConfig);
@@ -134,7 +136,6 @@ $(() => {
 
     setDefaultGraphConfig();
 });
-
 
 const setDefaultGraphConfig = () => {
     const urlParams = new URLSearchParams(window.location.search);

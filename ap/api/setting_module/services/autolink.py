@@ -16,7 +16,7 @@ from ap.api.setting_module.services.v2_etl_services import (
     get_reversed_column_value_from_v2,
     get_v2_datasource_type_from_file,
 )
-from ap.common.common_utils import detect_encoding, get_csv_delimiter, get_latest_files
+from ap.common.common_utils import DATE_FORMAT_SIMPLE, detect_encoding, get_csv_delimiter, get_latest_files
 from ap.common.constants import (
     DF_CHUNK_SIZE,
     DUMMY_V2_PROCESS_NAME,
@@ -25,7 +25,7 @@ from ap.common.constants import (
     DBType,
 )
 from ap.common.logger import log_execution_time
-from ap.setting_module.models import CfgDataSource
+from ap.setting_module.models import CfgDataSource, CfgProcess
 
 AUTO_LINK_ID = 'id'
 PROCESS = 'process'
@@ -138,6 +138,10 @@ class AutoLinkSourceDB(AutoLinkSourceBase):
     def cfg_data_source(self) -> CfgDataSource:
         return CfgDataSource.query.get(self.data_source_id)
 
+    @property
+    def cfg_process(self) -> CfgProcess:
+        return CfgProcess.query.get(self.process_id)
+
     def get_processes_df(self, reader: 'AutoLinkReader') -> None:
         reader.read_db(self)
 
@@ -145,6 +149,29 @@ class AutoLinkSourceDB(AutoLinkSourceBase):
 class AutoLinkReader:
     def __init__(self):
         self.df = pd.DataFrame(columns=[AUTO_LINK_ID, DATE, SERIAL])
+
+    @staticmethod
+    def convert_datetime(df: DataFrame) -> DataFrame:
+        """
+        Convert datetime column to format `%Y-%m-%d %H:%M:%S`
+        Args:
+            df: [DataFrame] - a dataframe containing datetime column
+
+        Returns: [DataFrame] - a dataframe containing converted datetime column
+        """
+        from ap.api.setting_module.services.csv_import import datetime_transform
+
+        converted_df = df.copy()
+
+        datetime_series: Series = converted_df[DATE]
+        converted_datetime_series: Series = pd.to_datetime(datetime_series, errors='coerce').dt.strftime(
+            DATE_FORMAT_SIMPLE,
+        )
+        non_datetime_series: Series = datetime_series[converted_datetime_series.isna()]
+        converted_datetime_series.update(datetime_transform(non_datetime_series.astype(str)))
+
+        converted_df[DATE] = converted_datetime_series
+        return converted_df
 
     @staticmethod
     def drop_duplicates(df: DataFrame) -> DataFrame:
@@ -225,7 +252,7 @@ class AutoLinkReader:
                             replaced_id_df = self.drop_duplicates(replaced_id_df)
                             replaced_df = pd.concat([replaced_df, replaced_id_df])
 
-                    self.df = pd.concat([self.df, replaced_df])
+                    self.df = pd.concat([self.df, self.convert_datetime(replaced_df)])
                     self.df = self.drop_duplicates(self.df)
         except ParserError:
             with pd.read_csv(
@@ -251,7 +278,7 @@ class AutoLinkReader:
                             replaced_id_df = self.drop_duplicates(replaced_id_df)
                             replaced_df = pd.concat([replaced_df, replaced_id_df])
 
-                    self.df = pd.concat([self.df, replaced_df])
+                    self.df = pd.concat([self.df, self.convert_datetime(replaced_df)])
                     self.df = self.drop_duplicates(self.df)
 
     @log_execution_time(LOG_PREFIX)
@@ -296,7 +323,7 @@ class AutoLinkReader:
                     df_chunk = _df_chunk.rename(columns=rename_params).dropna()
                     df = pd.concat([df, df_chunk])
                     df = self.drop_duplicates(df)
-        return df
+        return self.convert_datetime(df)
 
     def read_path(self, source: AutoLinkSourcePath) -> None:
         for file in source.files:
@@ -317,14 +344,15 @@ class AutoLinkReader:
                 delimiter=source.get_delimiter(file),
             )
             df[AUTO_LINK_ID] = source.process_id
-            self.df = pd.concat([self.df, df])
+            self.df = pd.concat([self.df, self.convert_datetime(df)])
             self.df = self.drop_duplicates(self.df)
 
     def read_db(self, source: AutoLinkSourceDB) -> None:
-        cols, df = get_info_from_db(
+        cols, df, _ = get_info_from_db(
             source.cfg_data_source,
             source.table_name,
             sql_limit=AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
+            process_factid=source.cfg_process.process_factid,
         )
         assert source.date_col in cols
         assert source.serial_col in cols
@@ -334,7 +362,7 @@ class AutoLinkReader:
         }
         df = df[[source.date_col, source.serial_col]].rename(columns=rename_params)
         df[AUTO_LINK_ID] = source.process_id
-        self.df = pd.concat([self.df, df])
+        self.df = pd.concat([self.df, self.convert_datetime(df)])
         self.df = self.drop_duplicates(self.df)
 
 

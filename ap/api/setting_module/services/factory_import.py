@@ -22,6 +22,10 @@ from ap.api.setting_module.services.data_import import (
     write_error_import,
     write_error_trace,
 )
+from ap.api.setting_module.services.software_workshop_etl_services import (
+    get_transaction_data_stmt,
+    transform_df_for_software_workshop,
+)
 from ap.api.trace_data.services.proc_link import add_gen_proc_link_job
 from ap.common.common_utils import (
     DATE_FORMAT_STR_FACTORY_DB,
@@ -36,9 +40,9 @@ from ap.common.constants import (
     DATA_TYPE_ERROR_EMPTY_DATA,
     DATA_TYPE_ERROR_MSG,
     DATETIME_DUMMY,
-    MSG_DB_CON_FAILED,
     PAST_IMPORT_LIMIT_DATA_COUNT,
     DataType,
+    DBType,
     JobStatus,
     JobType,
 )
@@ -118,7 +122,7 @@ def import_factory(proc_id):
     data_src: CfgDataSourceDB = CfgDataSourceDB.query.get(proc_cfg.data_source_id)
 
     # check db connection
-    check_db_connection(data_src)
+    DbProxy.check_db_connection(data_src)
 
     trans_data = TransactionData(proc_cfg.id)
     with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
@@ -195,7 +199,6 @@ def import_factory(proc_id):
 
         # validate import date range
         if end_time >= fac_max_date:
-            end_time = fac_max_date
             is_import = False
 
         # get data from factory
@@ -208,12 +211,22 @@ def import_factory(proc_id):
         remain_rows = ()
         error_type = None
         for _rows in data:
+            # Reassign attribute
+            get_date_col = proc_cfg.get_date_col()
+            proc_id = proc_cfg.id
+            cfg_columns = proc_cfg.columns
+
             is_import, rows, remain_rows = gen_import_data(_rows, remain_rows, auto_increment_idx)
             if not is_import:
                 continue
 
             # dataframe
             df = pd.DataFrame(rows, columns=cols)
+            # to save into import history
+            imported_end_time = str(df[auto_increment_col].max())
+            # pivot if this is vertical data
+            if proc_cfg.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
+                df = transform_df_for_software_workshop(df, proc_cfg.data_source_id, proc_cfg.process_factid)
 
             # no records
             if not len(df):
@@ -275,7 +288,10 @@ def import_factory(proc_id):
                 cfg_parent_proc: CfgProcess = CfgProcess.get_proc_by_id(parent_id)
                 dic_parent_cfg_cols = {cfg_col.id: cfg_col for cfg_col in cfg_parent_proc.columns}
                 dic_cols = {cfg_col.column_name: cfg_col.parent_id for cfg_col in cfg_columns}
-                dic_rename = {col: dic_parent_cfg_cols[dic_cols[col]].column_name for col in df.columns}
+                dic_rename = {}
+                for col in df.columns:
+                    if dic_cols.get(col):
+                        dic_rename[col] = dic_parent_cfg_cols[dic_cols[col]].column_name
                 df = df.rename(columns=dic_rename)
                 orig_df = orig_df.rename(columns=dic_rename)
                 df_error = df_error.rename(columns=dic_rename)
@@ -300,9 +316,6 @@ def import_factory(proc_id):
             # import data
             job_info.import_type = JobType.FACTORY_IMPORT.name
 
-            # to save into import history
-            imported_end_time = rows[-1][auto_increment_idx]
-
             # to save into
             job_info.import_from = start_time
             job_info.import_to = imported_end_time
@@ -311,6 +324,8 @@ def import_factory(proc_id):
             if error_type:
                 job_info.status = JobStatus.FAILED.name
                 job_info.err_msg = error_type
+
+            df = remove_non_exist_columns_in_df(df, [col.column_name for col in cfg_columns])
             save_res = import_data(df, proc_id, get_date_col, cfg_columns, job_info)
 
             gen_import_job_info(job_info, save_res, start_time, imported_end_time, err_cnt=df_error_cnt)
@@ -445,8 +460,7 @@ def get_sql_range_time(
     return start_time, end_time, filter_time
 
 
-@log_execution_time('[FACTORY DATA IMPORT SELECT SQL]')
-def get_data_by_range_time(db_instance, get_date_col, column_names, table_name, start_time, end_time, sql_limit):
+def get_data_by_range_time_sql(db_instance, get_date_col, column_names, table_name, start_time, end_time, sql_limit):
     if isinstance(db_instance, mysql.MySQL):
         sel_cols = ','.join(column_names)
     else:
@@ -477,8 +491,36 @@ def get_data_by_range_time(db_instance, get_date_col, column_names, table_name, 
     else:
         sql = f'SELECT {sql} LIMIT {sql_limit}'
 
+    return sql, None
+
+
+@log_execution_time('[FACTORY DATA IMPORT SELECT SQL]')
+def get_data_by_range_time(
+    db_instance,
+    proc_cfg,
+    get_date_col,
+    column_names,
+    table_name,
+    start_time,
+    end_time,
+    sql_limit,
+):
+    if proc_cfg.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
+        stmt = get_transaction_data_stmt(proc_cfg.process_factid, start_time, end_time, limit=sql_limit)
+        sql, params = db_instance.gen_sql_and_params(stmt)
+    else:
+        sql, params = get_data_by_range_time_sql(
+            db_instance,
+            get_date_col,
+            column_names,
+            table_name,
+            start_time,
+            end_time,
+            sql_limit,
+        )
+
     logger.info(f'sql: {sql}')
-    data = db_instance.fetch_many(sql, FETCH_MANY_SIZE)
+    data = db_instance.fetch_many(sql, FETCH_MANY_SIZE, params=params)
     if not data:
         return None
 
@@ -498,6 +540,7 @@ def get_factory_data(proc_cfg, column_names, auto_increment_col, start_time, end
     with DbProxy(proc_cfg.data_source) as db_instance:
         data = get_data_by_range_time(
             db_instance,
+            proc_cfg,
             auto_increment_col,
             column_names,
             proc_cfg.table_name,
@@ -523,12 +566,13 @@ def get_factory_min_max_date(proc_cfg):
         # gen sql
         agg_results = []
         get_date_col = add_double_quotes(proc_cfg.get_auto_increment_col_else_get_date())
-        orig_tblname = proc_cfg.table_name.strip('"')
+        orig_tblname = proc_cfg.table_name_for_query_datetime().strip('"')
         table_name = add_double_quotes(orig_tblname) if not isinstance(db_instance, mysql.MySQL) else orig_tblname
         for agg_func in ['MIN', 'MAX']:
             sql = f'select {agg_func}({get_date_col}) from {table_name}'
             if isinstance(db_instance, mssqlserver.MSSQLServer):
                 sql = f'select convert(varchar(30), {agg_func}({get_date_col}), 127) from {table_name}'
+            sql = proc_cfg.filter_for_query_datetime(sql)
             _, rows = db_instance.run_sql(sql, row_is_dict=False)
 
             if not rows:
@@ -614,7 +658,7 @@ def factory_past_data_transform(proc_id):
     data_src: CfgDataSourceDB = CfgDataSourceDB.query.get(proc_cfg.data_source_id)
 
     # check db connection
-    check_db_connection(data_src)
+    DbProxy.check_db_connection(data_src)
 
     # columns info
     proc_name = proc_cfg.name
@@ -629,6 +673,7 @@ def factory_past_data_transform(proc_id):
 
     trans_data = TransactionData(proc_id)
     with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
+        trans_data.create_table(db_instance)
         # last import date
         last_import = trans_data.get_import_history_last_import(db_instance, JobType.FACTORY_PAST_IMPORT.name)
 
@@ -714,6 +759,9 @@ def factory_past_data_transform(proc_id):
 
         # dataframe
         df = pd.DataFrame(rows, columns=cols)
+        # pivot if this is vertical data
+        if proc_cfg.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
+            df = transform_df_for_software_workshop(df, proc_cfg.data_source_id, proc_cfg.process_factid)
 
         # no records
         if not len(df):
@@ -789,6 +837,8 @@ def factory_past_data_transform(proc_id):
             # save import history
             job_info.status = JobStatus.FAILED.name
             job_info.err_msg = error_type
+
+        df = remove_non_exist_columns_in_df(df, [col.column_name for col in cfg_columns])
         save_res = import_data(df, proc_id, get_date_col, cfg_columns, job_info)
 
         # update job info
@@ -820,12 +870,17 @@ def factory_past_data_transform(proc_id):
         yield job_info
 
 
+def remove_non_exist_columns_in_df(df, required_columns: list[str]) -> pd.DataFrame:
+    good_columns = [col for col in df.columns if col in required_columns]
+    return df[good_columns]
+
+
 @log_execution_time()
 def handle_time_zone(proc_cfg, get_date_col):
     # convert utc time func
     get_date, tzoffset_str, db_timezone = get_tzoffset_of_random_record(
         proc_cfg.data_source,
-        proc_cfg.table_name,
+        proc_cfg.table_name_for_query_datetime(),
         get_date_col,
     )
 
@@ -847,14 +902,6 @@ def handle_time_zone(proc_cfg, get_date_col):
     is_timezone_inside, db_time_zone, utc_offset = get_time_info(get_date, db_timezone)
 
     return is_timezone_inside, db_time_zone, utc_offset
-
-
-@log_execution_time()
-def check_db_connection(data_src):
-    # check db connection
-    with DbProxy(data_src) as db_instance:
-        if not db_instance.is_connected:
-            raise Exception(MSG_DB_CON_FAILED)
 
 
 @log_execution_time()

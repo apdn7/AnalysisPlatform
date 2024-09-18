@@ -4,28 +4,42 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     let yRange = null;
     if (zoomRange) {
         if (!zoomRange['xaxis.autorange']) {
-            xRange = zoomRange['xaxis.range[0]'] && zoomRange['xaxis.range[1]'] ? [zoomRange['xaxis.range[0]'], zoomRange['xaxis.range[1]']] : null;
-            yRange = zoomRange['yaxis.range[0]'] && zoomRange['yaxis.range[1]'] ? [zoomRange['yaxis.range[0]'], zoomRange['yaxis.range[1]']] : null;
+            xRange =
+                zoomRange['xaxis.range[0]'] && zoomRange['xaxis.range[1]']
+                    ? [zoomRange['xaxis.range[0]'], zoomRange['xaxis.range[1]']]
+                    : null;
+            yRange =
+                zoomRange['yaxis.range[0]'] && zoomRange['yaxis.range[1]']
+                    ? [zoomRange['yaxis.range[0]'], zoomRange['yaxis.range[1]']]
+                    : null;
         }
     }
 
     prop.org_array_x = [...prop.array_x];
     prop.org_array_y = [...prop.array_y];
     // add prefix to change int to str type
-    const isXIntType = option.xDataType === DataTypes.INTEGER.name || option.xDataType === DataTypes.STRING.name && Number(prop.array_x[0]) !== NaN;
-    const isYIntType = option.yDataType === DataTypes.INTEGER.name || option.yDataType === DataTypes.STRING.name && Number(prop.array_y[0]) !== NaN;
+    const isXIntType =
+        option.xDataType === DataTypes.INTEGER.name ||
+        (option.xDataType === DataTypes.STRING.name &&
+            !isNaN(Number(prop.array_x[0])));
+    const isYIntType =
+        option.yDataType === DataTypes.INTEGER.name ||
+        (option.yDataType === DataTypes.STRING.name &&
+            !isNaN(Number(prop.array_y[0])));
     option.isXIntType = isXIntType;
     option.isYIntType = isYIntType;
     if (isXIntType) {
-        const orgArrayX = [...prop.array_x];
-        prop.array_x = orgArrayX.map(val => `${STR_PREFIX}${val}`);
-        prop.org_array_x = orgArrayX;
+        // const orgArrayX = [...prop.array_x];
+        // prop.array_x = orgArrayX.map((val) => `${STR_PREFIX}${val}`);
+        // prop.org_array_x = orgArrayX;
+        prop.org_array_x = prop.array_x;
     }
 
     if (isYIntType) {
-        const orgArrayY = [...prop.array_y];
-        prop.array_y = orgArrayY.map(val => `${STR_PREFIX}${val}`);
-        prop.org_array_y = orgArrayY;
+        // const orgArrayY = [...prop.array_y];
+        // prop.array_y = orgArrayY.map((val) => `${STR_PREFIX}${val}`);
+        // prop.org_array_y = orgArrayY;
+        prop.org_array_y = prop.array_y;
     }
 
     const dataCommon = {
@@ -58,7 +72,7 @@ const generateViolinPlot = (prop, zoomRange, option) => {
         showlegend: false,
         spanmode: 'manual',
     };
-    
+
     let kdeLineWidth = 0.5;
     // let boxFillColor = '';
     if (prop.is_resampling) {
@@ -71,10 +85,14 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     if (prop.isHorizontal) {
         data = prop.uniqueColors.map((key) => {
             const index = prop.org_array_y.indexOf(key);
-            let orgLineColor = prop.isHideHover ? 'transparent'
-                : prop.styles.filter(style => style.target === key)[0].value.line.color;
-            const lineColor = prop.is_resampling ? resamplingColor : orgLineColor;
-            key = isYIntType ? `${STR_PREFIX}${key}` : key;
+            let orgLineColor = prop.isHideHover
+                ? 'transparent'
+                : prop.styles.filter((style) => style.target === key)[0].value
+                      .line.color;
+            const lineColor = prop.is_resampling
+                ? resamplingColor
+                : orgLineColor;
+            // key = isYIntType ? `${STR_PREFIX}${key}` : key;
             return {
                 ...dataCommon,
                 x: prop.array_x[index],
@@ -90,10 +108,14 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     } else {
         data = prop.uniqueColors.map((key) => {
             const index = prop.org_array_x.indexOf(key);
-            let orgLineColor = prop.isHideHover ? 'transparent'
-                : prop.styles.filter(style => style.target === key)[0].value.line.color;
-            const lineColor = prop.is_resampling ? resamplingColor : orgLineColor;
-             key = isXIntType ? `${STR_PREFIX}${key}` : key;
+            let orgLineColor = prop.isHideHover
+                ? 'transparent'
+                : prop.styles.filter((style) => style.target === key)[0].value
+                      .line.color;
+            const lineColor = prop.is_resampling
+                ? resamplingColor
+                : orgLineColor;
+            // key = isXIntType ? `${STR_PREFIX}${key}` : key;
             return {
                 ...dataCommon,
                 x0: key,
@@ -111,8 +133,14 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     const xChartRange = xRange || [-0.5, prop.uniqueColors.length - 0.5];
     const yChartRange = yRange || [-0.5, prop.uniqueColors.length - 0.5];
 
-    // eslint-disable-next-line no-undef
-    const lines = !prop.isHideHover ? genThresholds(prop.x_threshold, prop.y_threshold, { xaxis: 'x', yaxis: 'y' }, xChartRange, yChartRange)
+    const lines = !prop.isHideHover
+        ? genThresholds(
+              prop.x_threshold,
+              prop.y_threshold,
+              { xaxis: 'x', yaxis: 'y' },
+              xChartRange,
+              yChartRange,
+          )
         : [];
 
     const layout = {
@@ -121,7 +149,10 @@ const generateViolinPlot = (prop, zoomRange, option) => {
         paper_bgcolor: '#222222',
         autosize: true,
         margin: {
-            r: 0, l: prop.isShowY ? 33 : 0, t: 0, b: prop.isShowX ? 25 : 0,
+            r: 0,
+            l: prop.isShowY ? 33 : 0,
+            t: 0,
+            b: prop.isShowX ? 25 : 0,
         },
         yaxis: {
             ticklen: 0,
@@ -144,7 +175,8 @@ const generateViolinPlot = (prop, zoomRange, option) => {
             zeroline: true,
             ticklen: 0,
             tickfont: {
-                size: 8, color: 'white',
+                size: 8,
+                color: 'white',
             },
             tickformat: option.xFmt.includes('e') ? '.1e' : '',
             range: xRange || prop.rangeScaleX,
@@ -153,11 +185,11 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     };
 
     if (prop.isHorizontal) {
-        layout.yaxis.ticktext = prop.org_array_y
-        layout.yaxis.tickvals = prop.array_y
+        layout.yaxis.ticktext = prop.org_array_y;
+        layout.yaxis.tickvals = prop.array_y;
     } else {
-        layout.xaxis.ticktext = prop.org_array_x
-        layout.xaxis.tickvals = prop.array_x
+        layout.xaxis.ticktext = prop.org_array_x;
+        layout.xaxis.tickvals = prop.array_x;
     }
 
     const config = {
@@ -168,28 +200,30 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     };
 
     // set default range axes
-    $(`#${prop.canvasId}`).attr('data-default-axes', JSON.stringify(prop.scale));
+    $(`#${prop.canvasId}`).attr(
+        'data-default-axes',
+        JSON.stringify(prop.scale),
+    );
     $(`#${prop.canvasId}`).attr('data-is-horizontal', prop.isHorizontal);
 
     Plotly.react(prop.canvasId, data, layout, config);
 };
 
 const makeHoverInfoBox = (prop, key, option, x, y) => {
-    if (option.isXIntType || option.isYIntType) {
-         key = key.replace(STR_PREFIX, '')
-    }
+    // if (option.isXIntType || option.isYIntType) {
+    //     key = key.replace(STR_PREFIX, '');
+    // }
     if (!prop || !prop.summaries[key]) return;
     const sumaries = prop.summaries[key][0];
     const numberOfData = option.isShowNumberOfData ? prop.h_label : null;
     const facet = option.isShowFacet
-        ? `Lv1 = ${
-            prop.v_label.toString().split('|')[0]
-        } ${
-            option.hasLv2
-                ? `, Lv2 = ${
-                    prop.v_label.toString().split('|')[1] || prop.h_label}`
-                : ''
-        }`
+        ? `Lv1 = ${prop.v_label.toString().split('|')[0]} ${
+              option.hasLv2
+                  ? `, Lv2 = ${
+                        prop.v_label.toString().split('|')[1] || prop.h_label
+                    }`
+                  : ''
+          }`
         : null;
     const div = option.isShowDiv ? prop.h_label : '';
     showSCPDataTable(
@@ -214,7 +248,8 @@ const makeHoverInfoBox = (prop, key, option, x, y) => {
             from: formatDateTime(prop.time_min),
             to: formatDateTime(prop.time_max),
             n_total: prop.n_total,
-        }, {
+        },
+        {
             x: x - 55,
             y: y,
         },

@@ -5,81 +5,160 @@
 {% endblock %}
 
 {% block midbody %}
-<div class="card">
-	<form class="GUIForm" id="traceDataForm">
-		{{ macros.end_proc(procs, width=2, label_i18n_key='Show value', multiple_proc=true, showStartProc=true, title=_('GL target variable'), nominalScale=True) }}
-		{{ macros.data_finder_card() }}
-		{{ macros.start_proc(showAutoUpdate=false) }}
-		{{ macros.cond_proc(width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
-		<br class="graph-navi graph-navi-top-down">
-		<div class="show-graph-div d-flex justify-content-center align-items-center" style="text-align: center;">
-			{{ macros.preprocess_options(objExp=True, outlierDefault='Op1') }}
-			<button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
-					onClick="graphicalLassoShowGraph();" class="btn btn-primary show-graph ml-3"
-                    title="Shortcut key: Ctrl+Enter">
-                <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
-			{{ macros.export_gui() }}
-		</div>
-		<br>
-	</form>
-    {{ macros.cat_label_filter_modal() }}
-    {{ macros.jump_modal() }}
-</div>
+    <div class="card">
+        <form class="GUIForm" id="traceDataForm">
+            {{ macros.end_proc(procs, width=2, label_i18n_key='Show value', multiple_proc=true, showStartProc=true, title=_('GL target variable'), nominalScale=True) }}
+            {{ macros.data_finder_card() }}
+            {{ macros.start_proc(showAutoUpdate=false) }}
+            {{ macros.cond_proc(width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
+            <br class="graph-navi graph-navi-top-down" />
+            <div
+                class="show-graph-div d-flex justify-content-center align-items-center"
+                style="text-align: center;"
+            >
+                {{ macros.preprocess_options(objExp=True, outlierDefault='Op1') }}
+                <button
+                    id="scatter-btn"
+                    type="button"
+                    value="{{ _('Display graph') }}"
+                    onClick="graphicalLassoShowGraph();"
+                    class="btn btn-primary show-graph ml-3"
+                    title="Shortcut key: Ctrl+Enter"
+                >
+                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                </button>
+                {{ macros.export_gui() }}
+            </div>
+            <br />
+        </form>
+        {{ macros.cat_label_filter_modal() }}
+        {{ macros.jump_modal() }}
+    </div>
 
-<div id="plot-card" class="plot-content" style="margin-top: 1rem; display: none;">
-    <div class="mb-2 d-flex align-items-center position-relative" id="graph-settings-area">
-        {{ macros.info_i_mark() }}
-        {{ macros.on_demand_filter() }}
-        {{ macros.nominal_scale_setting() }}
-        {{ macros.jump_button() }}
-		<div class="d-flex align-items-center ml-4">
-			<label for="sparsity" class="mr-2 mb-0 hint-text" title="{{ _('Sparsity Hover') }}">{{ _('Sparsity') }}</label>
-            <div class="group-input-range">
-                <input type="range" class="custom-range" name="sparsity" id="sparsity" min="0">
-                <div class="range-ticks">
-                    <span class="tick"></span>
+    <div
+        id="plot-card"
+        class="plot-content"
+        style="margin-top: 1rem; display: none;"
+    >
+        <div
+            class="mb-2 d-flex align-items-center position-relative"
+            id="graph-settings-area"
+        >
+            {{ macros.info_i_mark() }}
+            {{ macros.on_demand_filter() }}
+            {{ macros.nominal_scale_setting() }}
+            {{ macros.jump_button() }}
+            <div class="d-flex align-items-center ml-4">
+                <label
+                    for="sparsity"
+                    class="mr-2 mb-0 hint-text"
+                    title="{{ _('Sparsity Hover') }}"
+                    >{{ _('Sparsity') }}</label
+                >
+                <div class="group-input-range">
+                    <input
+                        type="range"
+                        class="custom-range"
+                        name="sparsity"
+                        id="sparsity"
+                        min="0"
+                    />
+                    <div class="range-ticks">
+                        <span class="tick"></span>
+                    </div>
+                </div>
+                <span
+                    id="sparsityValue"
+                    class="ml-2 font-weight-bold bookmarked-label"
+                    >0.0</span
+                >
+            </div>
+            <div class="d-flex align-items-center ml-4">
+                <label
+                    for="threshold"
+                    class="mr-2 mb-0 hint-text"
+                    title="{{ _('GLThreshold Hover') }}"
+                    >{{ _('GLThreshold') }}</label
+                >
+                <div class="group-input-range">
+                    <input
+                        type="range"
+                        class="custom-range"
+                        name="threshold"
+                        id="threshold"
+                        min="0"
+                        max="1"
+                        step="any"
+                        style="padding-top: 5px;"
+                    />
+                </div>
+                <span
+                    id="thresholdValue"
+                    class="ml-2 font-weight-bold bookmarked-label"
+                    >0.0</span
+                >
+            </div>
+            <div class="d-flex align-items-center ml-4">
+                <label for="" class="mr-2 mb-0">{{ _('Labels') }}</label>
+                <div class="custom-control custom-checkbox">
+                    <input
+                        type="checkbox"
+                        class="custom-control-input cmt-2"
+                        id="showProcessNameLabels"
+                        onchange="updateNodeLabel();"
+                    />
+                    <label
+                        class="custom-control-label"
+                        for="showProcessNameLabels"
+                        >{{ _('Process Name') }}</label
+                    >
+                </div>
+                <div class="custom-control custom-checkbox ml-4">
+                    <input
+                        type="checkbox"
+                        class="custom-control-input cmt-2"
+                        id="showSensorNameLabels"
+                        onchange="updateNodeLabel();"
+                        checked="checked"
+                    />
+                    <label
+                        class="custom-control-label"
+                        for="showSensorNameLabels"
+                        >{{ _('Sensor name') }}</label
+                    >
                 </div>
             </div>
-			<span id="sparsityValue" class="ml-2 font-weight-bold bookmarked-label">0.0</span>
-		</div>
-		<div class="d-flex align-items-center ml-4">
-			<label for="threshold" class="mr-2 mb-0 hint-text" title="{{ _('GLThreshold Hover') }}">{{ _('GLThreshold') }}</label>
-            <div class="group-input-range">
-                <input type="range" class="custom-range" name="threshold"
-                       id="threshold" min="0" max="1" step="any" style="padding-top: 5px;">
-            </div>
-            <span id="thresholdValue" class="ml-2 font-weight-bold bookmarked-label">0.0</span>
-		</div>
-        <div class="d-flex align-items-center ml-4">
-            <label for="" class="mr-2 mb-0">{{ _('Labels') }}</label>
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input cmt-2" id="showProcessNameLabels" onchange="updateNodeLabel();">
-                <label class="custom-control-label" for="showProcessNameLabels">{{ _('Process Name') }}</label>
-            </div>
-            <div class="custom-control custom-checkbox ml-4">
-                <input type="checkbox" class="custom-control-input cmt-2" id="showSensorNameLabels" onchange="updateNodeLabel();" checked="checked">
-                <label class="custom-control-label" for="showSensorNameLabels">{{ _('Sensor name') }}</label>
-            </div>
+            <button type="button" onclick="resetSettings()" id="resetSetting">
+                <i class="fas fa-redo-alt"></i>
+            </button>
         </div>
-		<button type="button" onclick="resetSettings()" id="resetSetting"><i class="fas fa-redo-alt"></i></button>
+        <div
+            id="graphicalLassoCanvas"
+            style="width: 100%; height: 95vh; background-color: #222222; padding: 5px"
+            class="card graph-navi"
+        ></div>
+        <div id="stContentTab">
+            <div class="setting-inform-content"></div>
+        </div>
     </div>
-    <div id="graphicalLassoCanvas" style="width: 100%; height: 95vh; background-color: #222222; padding: 5px" class="card">
+    {{ macros.data_point_info() }}
 
-	</div>
-	<div id="stContentTab">
-		<div class="setting-inform-content"></div>
-	</div>
-</div>
-{{ macros.data_point_info() }}
-
-	<div class=" loading"></div>
-<div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
-<a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
-    target="_blank">{{ _("Click here to fix") }}</a>
-{{optdata}}
+    <div class=" loading"></div>
+    <div style="display: none;" id="msgErrorDBConnection">
+        {{ _("Could not access") }}
+    </div>
+    <a
+        style="display: none;"
+        id="msgErrorDBConnectionAction"
+        href="{{ url_for('setting_module.config_screen') }}"
+        target="_blank"
+        >{{ _("Click here to fix") }}</a
+    >
+    {{ optdata }}
 {% endblock %}
 
 {% block js %}
+    <!-- prettier-ignore-start -->
     <script>
         const procJsons = {{ list_procs | safe }};
         const hasGraphCfgsFilterDetails= {{ graph_filter_detail_ids | safe }};
@@ -89,10 +168,11 @@
             procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
+    <!-- prettier-ignore-end -->
     {% assets "js_gl" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% assets "css_gl" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}">
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 {% endblock %}

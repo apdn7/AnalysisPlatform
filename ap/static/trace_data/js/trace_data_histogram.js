@@ -1,9 +1,3 @@
-/* eslint-disable prefer-destructuring */
-/* eslint-disable no-undef */
-/* eslint-disable no-use-before-define */
-
-/* eslint-disable no-unused-vars */
-
 function YasuHistogram($, paramObj) {
     // 内部変数の初期化
     const canvasId = setParam('canvasId', 'hist01');
@@ -24,7 +18,6 @@ function YasuHistogram($, paramObj) {
         valMax += 0.5;
     }
 
-
     // ////////////// プライベート関数の定義 ////////////////////
     function setParam(key, defaultValue) {
         if (key in paramObj && !isEmpty(paramObj[key])) {
@@ -41,7 +34,7 @@ function YasuHistogram($, paramObj) {
 
     const maxKDE = Math.max(...kdes);
     const maxHist = Math.max(...kdeData.hist_counts);
-    const transKDE = kdes.map(i => maxHist * i / maxKDE);
+    const transKDE = kdes.map((i) => (maxHist * i) / maxKDE);
 
     const data = {
         labels,
@@ -70,7 +63,7 @@ function YasuHistogram($, paramObj) {
             borderWidth: 1,
         });
     }
-    
+
     const genDataTable = (yValue, nTotal) => {
         const valueLabel = $('#i18nValue').text();
         let tblContent = '<tr>';
@@ -80,9 +73,9 @@ function YasuHistogram($, paramObj) {
         return tblContent;
     };
     const externalTooltipHandler = (context) => {
-        const {chart, tooltip} = context;
+        const { chart, tooltip } = context;
         if (!tooltip.dataPoints) return;
-        const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas;
+        const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas;
         const dpIndex = tooltip.dataPoints[0].dataIndex;
         const histVal = tooltip.dataPoints[1].dataset.data[dpIndex];
         let yValue = tooltip.title[0];
@@ -93,7 +86,7 @@ function YasuHistogram($, paramObj) {
         const topPosition = canvasOffset.top + positionY + tooltip.caretY;
         genDataPointHoverTable(
             genDataTable(yValue, histVal),
-            {x: leftPosition - 192, y: topPosition},
+            { x: leftPosition - 192, y: topPosition },
             125,
             true,
             chart.canvas.id,
@@ -146,7 +139,8 @@ function YasuHistogram($, paramObj) {
                         beginAtZero: true,
                         align: 'end',
                         font: {
-                            family: 'Calibri Light', size: 12,
+                            family: 'Calibri Light',
+                            size: 12,
                         },
                     },
                     grid: {
@@ -184,7 +178,9 @@ function YasuHistogram($, paramObj) {
                     ticks: {
                         // minRotation: 0,
                         // maxRotation: 0,
-                        sampleSize: beforeRankValues ? Object.keys(beforeRankValues).length : 8,
+                        sampleSize: beforeRankValues
+                            ? Object.keys(beforeRankValues).length
+                            : 8,
                         color: CONST.TICK,
                         // show text before ranked instead of ranked value
                         // callback(value, index, values) {
@@ -226,16 +222,20 @@ function YasuHistogram($, paramObj) {
     }
 
     if (!isEmpty(threshHigh)) {
-        config.options.plugins.annotation.annotations.ucl = createHistHorizonalThreshold(threshHigh, CONST.RED, CONST.UCL);
+        config.options.plugins.annotation.annotations.ucl =
+            createHistHorizonalThreshold(threshHigh, CONST.RED, CONST.UCL);
     }
     if (!isEmpty(threshLow)) {
-        config.options.plugins.annotation.annotations.lcl = createHistHorizonalThreshold(threshLow, CONST.RED, CONST.LCL);
+        config.options.plugins.annotation.annotations.lcl =
+            createHistHorizonalThreshold(threshLow, CONST.RED, CONST.LCL);
     }
     if (!isEmpty(prcMin)) {
-        config.options.plugins.annotation.annotations.lpcl = createHistHorizonalThreshold(prcMin, CONST.BLUE, CONST.LPCL);
+        config.options.plugins.annotation.annotations.lpcl =
+            createHistHorizonalThreshold(prcMin, CONST.BLUE, CONST.LPCL);
     }
     if (!isEmpty(prcMax)) {
-        config.options.plugins.annotation.annotations.upcl = createHistHorizonalThreshold(prcMax, CONST.BLUE, CONST.UPCL);
+        config.options.plugins.annotation.annotations.upcl =
+            createHistHorizonalThreshold(prcMax, CONST.BLUE, CONST.UPCL);
     }
 
     const chart = new Chart(ctx, config);
@@ -259,7 +259,12 @@ function YasuHistogram($, paramObj) {
     };
 }
 
-const createHistHorizonalThreshold = (threshHold, color = CONST.RED, id = CONST.UCL, borderDash = []) => ({
+const createHistHorizonalThreshold = (
+    threshHold,
+    color = CONST.RED,
+    id = CONST.UCL,
+    borderDash = [],
+) => ({
     type: 'line',
     id,
     mode: 'horizontal',

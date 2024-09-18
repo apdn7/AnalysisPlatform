@@ -21,7 +21,6 @@
     border-radius: 4px;
 }
 
-
 .plotbox-header h5 {
     line-height: 35px;
     margin: 0 0 0 5px;
@@ -46,10 +45,11 @@ div#scatter-plot {
 
 .plot-tabs .nav-link {
     padding: 0.5rem 0.5rem !important;
-    height: 4.1vh;  /* 0.1 to make borders ovelapped */
+    height: 4.1vh; /* 0.1 to make borders ovelapped */
 }
 
-.table-dark th, .table-dark td {
+.table-dark th,
+.table-dark td {
     padding: 0.1rem 0.25rem !important;
     background-color: #222;
     border-top: none;
@@ -67,7 +67,7 @@ div#scatter-plot {
     border: solid 0.5px #444;
 }
 
-table.dataTable thead th{
+table.dataTable thead th {
     border: 0.5px solid #444 !important;
 }
 
@@ -139,7 +139,7 @@ table.dataTable.cell-border tbody td {
     text-align: center !important;
 }
 
-#pcaConditionTbl tr td:nth-child(5){
+#pcaConditionTbl tr td:nth-child(5) {
     text-align: left !important;
     font-family: 'Consolas', 'Courier New', 'Courier', 'Monaco', 'monospace';
 }
@@ -163,7 +163,7 @@ table.dataTable.cell-border tbody td {
 .tooltip-pca .tooltip-pca-text {
     visibility: hidden;
     width: 150px;
-    background-color: rgba(8, 8, 8, .8);
+    background-color: rgba(8, 8, 8, 0.8);
     color: #fff;
     text-align: left;
     border-radius: 6px;
@@ -178,7 +178,6 @@ table.dataTable.cell-border tbody td {
     z-index: 9999;
     top: 10%;
     left: 82%;
-
 }
 
 .tooltip-pca:hover .tooltip-pca-text {
@@ -186,7 +185,7 @@ table.dataTable.cell-border tbody td {
 }
 
 /* hide search bar */
-.dataTables_filter{
+.dataTables_filter {
     display: none;
 }
 

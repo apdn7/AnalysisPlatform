@@ -1,10 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-mixed-operators */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-undef */
 const csvResourceElements = {
     showResourcesBtnId: '#showResources',
     apiUrl: '/ap/api/setting/get_csv_resources',
@@ -13,6 +6,7 @@ const csvResourceElements = {
     apiLoadDetail: '/ap/api/setting/ds_load_detail',
     dataTbl: '#csvDataTable',
     folderUrlInput: 'input[name="folderUrl"]',
+    isFilePathHidden: '#isFilePath',
     fileName: '#fileName',
     connectResourceBtn: '#connectResourceBtn',
     i18nDirExist: 'i18nFileExist',
@@ -81,7 +75,6 @@ const withImportConstants = {
     NO: 'NO',
 };
 
-
 const getAllDatabaseConfig = async () => {
     const json = await fetch('/ap/api/setting/database_tables', {
         method: 'GET',
@@ -89,12 +82,11 @@ const getAllDatabaseConfig = async () => {
             'Content-Type': 'application/json',
         },
     })
-        .then(response => response.clone().json())
+        .then((response) => response.clone().json())
         .catch();
 
     return json;
 };
-
 
 const changePollingFreq = (selected) => {
     $(csvResourceElements.withImportFlag).hide();
@@ -115,9 +107,15 @@ $(() => {
     $('#withImport').on('change', (evt) => {
         const isChecked = $(evt.target).is(':checked');
         if (isChecked) {
-            $('#btn-confirm-register').attr('data-with-import', withImportConstants.YES);
+            $('#btn-confirm-register').attr(
+                'data-with-import',
+                withImportConstants.YES,
+            );
         } else {
-            $('#btn-confirm-register').attr('data-with-import', withImportConstants.NO);
+            $('#btn-confirm-register').attr(
+                'data-with-import',
+                withImportConstants.NO,
+            );
         }
         // $("#withImport").is(":checked")
     });
@@ -172,7 +170,6 @@ $(() => {
 
 const DB = new Databases();
 
-
 const clearOldValue = () => {
     // reset old datasource name
     $(dbConfigElements.csvDBSourceName).val('');
@@ -205,7 +202,6 @@ const clearOldValue = () => {
     // instead of add disabled attribution
     updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), false);
 };
-
 
 const getDBItems = () => {
     const dtItems = {};
@@ -241,7 +237,7 @@ const UpdatePollingFreq = (pf, withImport = 'NO') => {
         },
         body: JSON.stringify(data),
     })
-        .then(response => response.clone().json())
+        .then((response) => response.clone().json())
         .then((json) => {
             displayRegisterMessage('#alert-msg-db', json.flask_message);
         })
@@ -251,7 +247,10 @@ const UpdatePollingFreq = (pf, withImport = 'NO') => {
 };
 
 // display message after press test connection buttons
-const displayTestDBConnectionMessage = (alertID, flaskMessage = { message: '', connected: false }) => {
+const displayTestDBConnectionMessage = (
+    alertID,
+    flaskMessage = { message: '', connected: false },
+) => {
     if (alertID === null || alertID === undefined) return;
     const alert = $(`#${alertID}`);
     // reset text
@@ -277,6 +276,10 @@ const warningI18n = {
     startImport: $('#i18nStartImport').text(),
     checkProgress: $('#i18nCheckProgress').text(),
     checkErrorJob: $('#i18nCheckErrorJob').text(),
+    startBackup: $('#i18nStartBackup').text(),
+    startRestore: $('#i18nStartRestore').text(),
+    endBackup: $('#i18nEndBackup').text(),
+    endRestore: $('#i18nEndRestore').text(),
 };
 
 const showToastr = () => {
@@ -313,7 +316,7 @@ const revertOSTimezone = (modalID) => {
 
     $(`#${dbType}_use_os_timezone`).val(originValue);
     $(eles.useOSTZOption).prop('checked', originValue);
-    $(`#${modalID}`).modal('toggle');  // close modal
+    $(`#${modalID}`).modal('toggle'); // close modal
 };
 
 const recentEdit = (itemID) => {
@@ -331,7 +334,8 @@ const showToastrMsgFailLimit = (json) => {
         const msgContent = i18n.reachFailLimit
             .replace('FILE_NAME', failLimit.file_name)
             .replace('FOLDER', failLimit.folder)
-            .split('BREAK_LINE').join('<br>');
+            .split('BREAK_LINE')
+            .join('<br>');
         showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
     }
 };
@@ -380,33 +384,41 @@ const handleSearchTraceList = () => {
 
         const regex = new RegExp(value, 'i');
 
-        selectedEls = $(parent).find(`li`).filter(function (index) {
-            if (!index) return;
-            const val = $(this).text().toLowerCase();
+        selectedEls = $(parent)
+            .find(`li`)
+            .filter(function (index) {
+                if (!index) return;
+                const val = $(this).text().toLowerCase();
 
-            $(this).show();
-            if (!regex.test(val)) {
-                $(this).addClass('gray');
-            } else {
-                $(this).removeClass('gray');
-            }
+                $(this).show();
+                if (!regex.test(val)) {
+                    $(this).addClass('gray');
+                } else {
+                    $(this).removeClass('gray');
+                }
 
-            return regex.test(val);
-        });
-
+                return regex.test(val);
+            });
 
         if (event.keyCode === KEY_CODE.ENTER) {
-            $(parent).find(`li`).filter(function f(index) {
-                if (index) {
-                    $(this).toggle(regex.test($(this).find('label').text().toLowerCase()));
-                }
-            });
+            $(parent)
+                .find(`li`)
+                .filter(function f(index) {
+                    if (index) {
+                        $(this).toggle(
+                            regex.test(
+                                $(this).find('label').text().toLowerCase(),
+                            ),
+                        );
+                    }
+                });
         }
     });
 
     // handle on click set selected items button
     $(`#setBtnSearch-searchTraceList`).on('click', function () {
-        selectedEls.not('.has')
+        selectedEls
+            .not('.has')
             .find('input[name=process]')
             .prop('checked', true)
             .change();
@@ -416,9 +428,36 @@ const handleSearchTraceList = () => {
     $(`#resetBtnSearch-searchTraceList`).on('click', function () {
         if (selectedEls.length) {
             // reset only searched element
-            $(selectedEls).find('input[name=process]')
+            $(selectedEls)
+                .find('input[name=process]')
                 .prop('checked', false)
                 .change();
         }
     });
+};
+
+const showBackupDataToastr = () => {
+    const { jobList } = warningI18n;
+    const msgContent = `<p>${warningI18n.startBackup}
+    <br>${warningI18n.checkProgress}
+    <br><a style="float:right;" href="/ap/config/job" target="_blank">${jobList}</a></p>`;
+    showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
+};
+
+const showRestoreDataToastr = () => {
+    const { jobList } = warningI18n;
+    const msgContent = `<p>${warningI18n.startRestore}
+    <br>${warningI18n.checkProgress}
+    <br><a style="float:right;" href="/ap/config/job" target="_blank">${jobList}</a></p>`;
+    showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
+};
+
+const showBackupDataFinishedToastr = () => {
+    const msgContent = `<p>${warningI18n.endBackup}</p>`;
+    showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
+};
+
+const showRestoreDataFinishedToastr = () => {
+    const msgContent = `<p>${warningI18n.endRestore}</p>`;
+    showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
 };

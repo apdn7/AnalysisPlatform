@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import locale
 import re
 from abc import abstractmethod
 from typing import Any, ClassVar, Optional
@@ -15,7 +14,7 @@ from pydantic.functional_validators import field_validator
 
 from ap.common.constants import EMPTY_STRING, MULTIPLE_VALUES_CONNECTOR, DataTypeEncode, RawDataTypeDB
 from ap.common.memoize import memoize
-from ap.equations.error import INVALID_VALUE_MSG, ErrorField, FunctionFieldError
+from ap.equations.error import INVALID_VALUE_MSG, MUST_HAVE_THE_SAME_TYPE_MSG, ErrorField, FunctionFieldError
 from ap.setting_module.models import MFunction
 
 BOOLEAN_DICT_VALUES = {
@@ -63,6 +62,9 @@ def cast_value_based_on_series(series: pd.Series, value: Any) -> tuple[Any, bool
     @param value:
     @return: cast value (if possible) and boolean result indicated that it is cast to series or not
     """
+    if pd.api.types.is_bool_dtype(series) and value in BOOLEAN_DICT_VALUES:
+        return BOOLEAN_DICT_VALUES[value], True
+
     if pd.api.types.is_float_dtype(series):
         with contextlib.suppress(ValueError):
             return float(value), True
@@ -86,7 +88,13 @@ def cast_value_based_on_series(series: pd.Series, value: Any) -> tuple[Any, bool
 
 def try_cast_series_pd_types(series: pd.Series, pd_types: list[pd.ExtensionType]) -> pd.Series | None:
     for dtype in pd_types:
-        result_series = series.replace(BOOLEAN_DICT_VALUES) if pd.api.types.is_bool_dtype(dtype) else series
+        result_series = series
+
+        current_type_is_not_boolean = not pd.api.types.is_bool_dtype(result_series)
+        type_should_be_boolean = pd.api.types.is_bool_dtype(dtype)
+        if current_type_is_not_boolean and type_should_be_boolean:
+            result_series = result_series.replace(BOOLEAN_DICT_VALUES)
+
         with contextlib.suppress(TypeError, ValueError, OverflowError):
             return result_series.astype(dtype)
         with contextlib.suppress(TypeError, ValueError, OverflowError):
@@ -123,10 +131,10 @@ def try_cast_series(series: pd.Series, raw_data_types: list[RawDataTypeDB | None
 
 
 def get_data_encoding_type_from_series(series: pd.Series) -> DataTypeEncode:
-    if pd.api.types.is_int64_dtype(series):
-        return DataTypeEncode.BIG_INT
     if pd.api.types.is_integer_dtype(series):
         return DataTypeEncode.INTEGER
+    # if pd.api.types.is_int64_dtype(series): # ES not use BIG_INT
+    #     return DataTypeEncode.BIG_INT
     if pd.api.types.is_float_dtype(series):
         return DataTypeEncode.REAL
     if pd.api.types.is_string_dtype(series):
@@ -212,9 +220,9 @@ class BaseFunction(BaseModel):
         if output_type_cast == DataTypeEncode.REAL.value:
             return RawDataTypeDB.REAL.value
 
-        # TODO: check if return bigint or smallint
-        if output_type_cast == DataTypeEncode.BIG_INT.value:
-            return RawDataTypeDB.BIG_INT.value
+        # TODO: ES not use BIG_INT
+        # if output_type_cast == DataTypeEncode.BIG_INT.value:
+        #     return RawDataTypeDB.BIG_INT.value
 
         if output_type_cast == DataTypeEncode.INTEGER.value:
             return RawDataTypeDB.INTEGER.value
@@ -241,12 +249,6 @@ class BaseFunction(BaseModel):
                 ),
             )
         return output_data_type
-
-    @staticmethod
-    def force_convert_boolean_to_integer(series: pd.Series, raw_data_type: RawDataTypeDB):
-        if raw_data_type == RawDataTypeDB.BOOLEAN:
-            return series.astype(pd.Int16Dtype())
-        return series
 
     def evaluate(
         self,
@@ -300,7 +302,7 @@ class BaseFunction(BaseModel):
         if raw_output_type == RawDataTypeDB.TEXT:
             result_series = result_series.replace(to_replace=EMPTY_STRING, value=pd.NA)
 
-        df[out_col] = self.force_convert_boolean_to_integer(result_series, raw_output_type)
+        df[out_col] = result_series
 
         return df
 
@@ -342,7 +344,7 @@ class Production(BaseFunction):
         series_x: pd.Series | None = None,
         series_y: pd.Series | None = None,
     ) -> pd.Series | np.NDArray:
-        return self.a * series_x * series_y + self.c
+        return self.a * (series_x * series_y) + self.c
 
 
 class Ratio(BaseFunction):
@@ -356,7 +358,20 @@ class Ratio(BaseFunction):
         series_x: pd.Series | None = None,
         series_y: pd.Series | None = None,
     ) -> pd.Series | np.NDArray:
-        return self.a * series_x / (self.b * series_y) + self.c
+        """
+        https://github.com/pandas-dev/pandas/issues/30188
+        Calling numpy calculation in Float64 dataframe, can result in np.nan exist in Float64,
+        those can cause incorrect behavior, therefore, we need to handle these cases separately
+        """
+        a_mul = self.a * series_x
+        b_mul = self.b * series_y
+        result = a_mul / b_mul + self.c
+
+        # explicitly set zeros indexes NA
+        both_zeroes = (a_mul == 0) & (b_mul == 0)
+        result[both_zeroes] = pd.NA
+
+        return result
 
 
 class ExpTransform(BaseFunction):
@@ -398,7 +413,20 @@ class LogTransform(BaseFunction):
         series_x: pd.Series | None = None,
         series_y: pd.Series | None = None,
     ) -> pd.Series | np.NDArray:
-        return self.a * np.log10(series_x - self.b) + self.c
+        """
+        https://github.com/pandas-dev/pandas/issues/30188
+        Calling numpy calculation in Float64 dataframe, can result in np.nan exist in Float64,
+        those can cause incorrect behavior, therefore, we need to handle these cases separately
+        """
+
+        minus_b = series_x - self.b
+        result = self.a * np.log10(minus_b) + self.c
+
+        # log10(x) if x < 0 is NaN
+        is_negative = minus_b < 0
+        result[is_negative] = pd.NA
+
+        return result
 
 
 class HexToDec(BaseFunction):
@@ -478,7 +506,9 @@ class AngularPosition(BaseFunction):
         series_x: pd.Series | None = None,
         series_y: pd.Series | None = None,
     ) -> pd.Series | np.NDArray:
-        return np.arctan2(series_y - self.b, series_x - self.a) * 180 / np.pi - self.c
+        result = np.arctan2(series_y - self.b, series_x - self.a)
+        result = np.rad2deg(result) - self.c
+        return result
 
 
 class StringExtraction(BaseFunction):
@@ -738,18 +768,14 @@ class WeekdayExtraction(BaseFunction):
     ) -> pd.Series | np.NDArray:
         self.custom_validate()
 
-        use_japanese_locale = self.n >= 2
+        locale_translator = {
+            0: {0: 'Mon', 1: 'Tue', 2: 'Wed', 3: 'Thu', 4: 'Fri', 5: 'Sat', 6: 'Sun'},
+            1: {0: 'Monday', 1: 'Tuesday', 2: 'Wednesday', 3: 'Thursday', 4: 'Friday', 5: 'Saturday', 6: 'Sunday'},
+            2: {0: '月', 1: '火', 2: '水', 3: '木', 4: '金', 5: '土', 6: '日'},
+            3: {0: '月曜日', 1: '火曜日', 2: '水曜日', 3: '木曜日', 4: '金曜日', 5: '土曜日', 6: '日曜日'},
+        }
 
-        current_locale = locale.getlocale(locale.LC_TIME)
-
-        if use_japanese_locale:
-            locale.setlocale(locale.LC_TIME, 'ja_JP')
-
-        result = series_x.dt.strftime('%a') if self.n % 2 == 0 else series_x.dt.strftime('%A')
-
-        # set back current locale
-        if use_japanese_locale:
-            locale.setlocale(locale.LC_TIME, current_locale)
+        result = series_x.dt.weekday.replace(locale_translator[self.n])
 
         return result
 
@@ -907,11 +933,10 @@ class RegexExtraction(BaseFunction):
                 ErrorField(function_type=self.function_type(), field='s', msg='Invalid regex'),
             ) from exc
 
-        # extracting groups must be present
+        # if no group is present, we assign this as a new group
+        # because pandas.str.extract requires pattern should have groups
         if regex.groups == 0:
-            raise FunctionFieldError(INVALID_VALUE_MSG).add_error(
-                ErrorField(function_type=self.function_type(), field='s', msg='Regex must provide capture groups'),
-            )
+            self.s = f'({self.s})'
 
     def eval_to_series(
         self,
@@ -983,11 +1008,18 @@ class Merge(BaseFunction):
         series_x: pd.Series | None = None,
         series_y: pd.Series | None = None,
     ) -> pd.Series | np.NDArray:
+        if series_x.dtype != series_y.dtype:
+            raise FunctionFieldError(MUST_HAVE_THE_SAME_TYPE_MSG).add_error(
+                ErrorField(function_type=self.function_type(), field='X', msg=MUST_HAVE_THE_SAME_TYPE_MSG),
+                ErrorField(function_type=self.function_type(), field='Y', msg=MUST_HAVE_THE_SAME_TYPE_MSG),
+            )
+
+        if pd.api.types.is_string_dtype(series_x):
+            series_x = series_x.replace({EMPTY_STRING: pd.NA})
+            series_y = series_y.replace({EMPTY_STRING: pd.NA})
+
         result = series_x.combine_first(series_y)
-
-        # keep original type if `self.t` is not defined
-        self.set_type_cast(self.t if self.t else get_data_encoding_type_from_series(series_x).value)
-
+        self.set_type_cast(self.t)
         type_converter = TypeConvert.from_kwargs(t=self.type_cast)
         return type_converter.eval_to_series(series_x=result)
 
@@ -1071,6 +1103,16 @@ class TypeConvert(BaseFunction):
         type_cast = self.get_output_type_cast()
         pd_type = RawDataTypeDB.get_pandas_dtype(type_cast)
 
+        if pd.api.types.is_bool_dtype(series_x):
+            if pd.api.types.is_float_dtype(pd_type):
+                series_x = series_x.astype('float64')  # Float64 can not astype pd.Series(True, pd.NA, False)
+            elif pd_type == pd.StringDtype():
+                series_x = series_x.astype(pd_type).str.lower()
+            else:
+                series_x = series_x.astype(pd_type)
+
+            return series_x
+
         if pd.api.types.is_numeric_dtype(pd_type):
             casted_x = pd.to_numeric(series_x, errors='coerce')
 
@@ -1119,7 +1161,9 @@ class Shift(BaseFunction):
         if convertible:
             result = series_x.shift(t, fill_value=s)
         else:
-            if isinstance(s, float):
+            if isinstance(s, int):
+                casted_series = series_x.astype(pd.Int64Dtype())
+            elif isinstance(s, float):
                 casted_series = series_x.astype(pd.Float64Dtype())
             elif isinstance(s, str):
                 casted_series = series_x.astype(pd.StringDtype())

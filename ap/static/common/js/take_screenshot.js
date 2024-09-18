@@ -4,7 +4,9 @@ let checkShownGraphInterval = null;
 const colorScalePages = ['CHM', 'ScP', 'PCP', 'PCA', 'MSP'];
 
 const clearOldScreenShot = () => {
-    const oldCanvas = document.getElementById('screenshot').querySelectorAll('canvas')[0];
+    const oldCanvas = document
+        .getElementById('screenshot')
+        .querySelectorAll('canvas')[0];
     if (oldCanvas) {
         const context = oldCanvas.getContext('2d');
         context.clearRect(0, 0, oldCanvas.width, oldCanvas.height);
@@ -58,7 +60,7 @@ const copyImageToClipboard = async (isFullPage = false) => {
         } else {
             defaultCapture().copy(mainContent);
         }
-    }  catch (err) {
+    } catch (err) {
         defaultCapture().copy(mainContent);
     }
 };
@@ -130,7 +132,9 @@ const defaultCapture = () => {
     const generator = async (mainContent) => {
         // create screenshot as canvas
         await html2canvas(mainContent, {
-            scale: 1, logging: true, backgroundColor: '#222222',
+            scale: 1,
+            logging: true,
+            backgroundColor: '#222222',
         }).then((canvas) => {
             canvas.id = 'tsCanvas';
             document.getElementById('screenshot').appendChild(canvas);
@@ -144,20 +148,24 @@ const defaultCapture = () => {
         hideInfoContent();
     };
     const download = () => {
-        const screenshot = document.getElementById('screenshot').querySelectorAll('canvas')[0];
+        const screenshot = document
+            .getElementById('screenshot')
+            .querySelectorAll('canvas')[0];
         const targetLink = document.createElement('a');
         if (screenshot) {
             const filename = $('#screenshotFilename').val();
             targetLink.setAttribute('download', filename);
             targetLink.href = screenshot.toDataURL();
         }
-        return targetLink;
         hideInfoContent();
+        return targetLink;
     };
     const copy = async (mainContent) => {
         // create screenshot as canvas
         await html2canvas(mainContent, {
-            scale: 1, logging: true, backgroundColor: '#222222',
+            scale: 1,
+            logging: true,
+            backgroundColor: '#222222',
         }).then(async (canvas) => {
             canvas.id = 'tsCanvas';
             const response = await fetch(canvas.toDataURL());
@@ -173,14 +181,15 @@ const defaultCapture = () => {
         generator,
         download,
         copy,
-    }
-
+    };
 };
 const modernScreenShotCapture = () => {
     const generator = (mainContent) => {
         $('.select2-selection__rendered').css('margin-right', '50px');
-        modernScreenshot.domToPng(mainContent).then(dataUrl => {
-            document.getElementById('screenshot').setAttribute('data-url', dataUrl);
+        modernScreenshot.domToPng(mainContent).then((dataUrl) => {
+            document
+                .getElementById('screenshot')
+                .setAttribute('data-url', dataUrl);
             // generate filename
             const filename = `${generateDefaultNameExport()}.png`;
             $('#screenshotFilename').val(filename);
@@ -189,9 +198,11 @@ const modernScreenShotCapture = () => {
 
             hideInfoContent();
         });
-    }
+    };
     const download = () => {
-        const screenshot = document.getElementById('screenshot').getAttribute('data-url');
+        const screenshot = document
+            .getElementById('screenshot')
+            .getAttribute('data-url');
         const targetLink = document.createElement('a');
         if (screenshot) {
             const filename = $('#screenshotFilename').val();
@@ -218,7 +229,7 @@ const modernScreenShotCapture = () => {
         generator,
         download,
         copy,
-    }
+    };
 };
 
 const captureImage = (mainContent) => {
@@ -229,7 +240,7 @@ const captureImage = (mainContent) => {
         } else {
             defaultCapture().generator(mainContent);
         }
-    }  catch (err) {
+    } catch (err) {
         defaultCapture().generator(mainContent);
     }
 };

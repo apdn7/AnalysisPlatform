@@ -1,7 +1,3 @@
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-unused-vars */
-// eslint-disable-next-line no-unused-vars
-
 const htmlCardId = {
     LINE: 'line',
     MACHINE_ID: '_machine',
@@ -9,7 +5,6 @@ const htmlCardId = {
     FILTER_OTHER: 'filter-other',
 };
 
-/* eslint-disable no-undef */
 const filterElements = {
     processListId: 'processList',
     processList: $('#processList'),
@@ -79,8 +74,7 @@ const getProcessConfigFromDB = async (procId) => {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-    })
-        .then(response => response.clone().json());
+    }).then((response) => response.clone().json());
     return [json.data, json.filter_col_data];
 };
 
@@ -103,7 +97,11 @@ const loadFilterOthers = async (processConfig) => {
             const filterCardId = `${htmlCardId.FILTER_OTHER}${filterId}`;
 
             // generate HTML + funcs
-            const otherFuncs = genSmartHtmlOther(processConfig.id, filterCardId, filterConfig);
+            const otherFuncs = genSmartHtmlOther(
+                processConfig.id,
+                filterCardId,
+                filterConfig,
+            );
 
             const filterColumnId = filterConfig.column_id;
             await cfgProcess.updateColDataFromUDB(filterColumnId);
@@ -117,7 +115,8 @@ const loadFilterOthers = async (processConfig) => {
     });
 
     noneFilterFlg = false;
-    if (noneFilterFlg) { // todo for what?
+    if (noneFilterFlg) {
+        // todo for what?
         // add new div
         const otherFuncs = genSmartHtmlOther(processConfig.id);
         otherFuncs.genColumnNameSelectBox(processConfig);
@@ -134,19 +133,28 @@ const showProcessSettings = async (procId) => {
 
     if (!isEmpty(processConfig)) {
         // show line setting
-        const lineCfgFuncs = filterCfgGenerator(htmlCardId.LINE, filterTypes.LINE);
+        const lineCfgFuncs = filterCfgGenerator(
+            htmlCardId.LINE,
+            filterTypes.LINE,
+        );
         lineCfgFuncs.genEvents();
         await lineCfgFuncs.showLineSetting(processConfig, cfgProcess);
         addAttributeToElement($(lineCfgFuncs.eles.thisCard));
 
         // show machine setting
-        const machineCfgFuncs = filterCfgGenerator(htmlCardId.MACHINE_ID, filterTypes.MACHINE);
+        const machineCfgFuncs = filterCfgGenerator(
+            htmlCardId.MACHINE_ID,
+            filterTypes.MACHINE,
+        );
         machineCfgFuncs.genEvents();
         await machineCfgFuncs.showMachineSetting(processConfig);
         addAttributeToElement($(machineCfgFuncs.eles.thisCard));
 
         // show partno setting
-        const partnoFuncs = filterCfgGenerator(htmlCardId.PART_NO, filterTypes.PART_NO);
+        const partnoFuncs = filterCfgGenerator(
+            htmlCardId.PART_NO,
+            filterTypes.PART_NO,
+        );
         partnoFuncs.genEvents();
         await partnoFuncs.showPartnoSetting(processConfig);
         addAttributeToElement($(partnoFuncs.eles.thisCard));
@@ -157,12 +165,11 @@ const showProcessSettings = async (procId) => {
     }
 };
 
-
 $(() => {
     $('html, body').animate({ scrollTop: 0 }, 'slow');
 
-    filterElements.processList.change( async (e) => {
-        const currentProcessId = $(e.currentTarget).val() || ''
+    filterElements.processList.change(async (e) => {
+        const currentProcessId = $(e.currentTarget).val() || '';
         hideAlertMessages();
         // hide loading screen
         const loading = $('.loading');
@@ -187,12 +194,36 @@ $(() => {
         });
     });
 
-    $(filterElements.divLineConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
-    $(filterElements.divLineConfig)[0].addEventListener('mouseup', handleMouseUp, false);
-    $(filterElements.divMachineConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
-    $(filterElements.divMachineConfig)[0].addEventListener('mouseup', handleMouseUp, false);
-    $(filterElements.divPartnoConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
-    $(filterElements.divPartnoConfig)[0].addEventListener('mouseup', handleMouseUp, false);
+    $(filterElements.divLineConfig)[0].addEventListener(
+        'contextmenu',
+        baseRightClickHandler,
+        false,
+    );
+    $(filterElements.divLineConfig)[0].addEventListener(
+        'mouseup',
+        handleMouseUp,
+        false,
+    );
+    $(filterElements.divMachineConfig)[0].addEventListener(
+        'contextmenu',
+        baseRightClickHandler,
+        false,
+    );
+    $(filterElements.divMachineConfig)[0].addEventListener(
+        'mouseup',
+        handleMouseUp,
+        false,
+    );
+    $(filterElements.divPartnoConfig)[0].addEventListener(
+        'contextmenu',
+        baseRightClickHandler,
+        false,
+    );
+    $(filterElements.divPartnoConfig)[0].addEventListener(
+        'mouseup',
+        handleMouseUp,
+        false,
+    );
     $(filterElements.divOtherConfig).each(function () {
         this.addEventListener('contextmenu', baseRightClickHandler, false);
         this.addEventListener('mouseup', handleMouseUp, false);
@@ -203,7 +234,7 @@ $(() => {
     onSearchTableContent('searchPartNoFilter', 'tblConfigpartno');
     onSearchTableContent('searchMachineFilter', 'tblConfig_machine');
     onSearchTableContent('searchOther1Filter', 'tblConfigfilter-other01');
-    
+
     // show load settings menu
     handleLoadSettingBtns();
 });

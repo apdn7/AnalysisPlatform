@@ -1,15 +1,5 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-shadow */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-mixed-operators */
-/* eslint-disable no-bitwise */
-/* eslint-disable object-shorthand */
 /* eslint-disable no-useless-escape */
-/* eslint-disable default-case */
-/* eslint-disable max-len */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable func-names */
-/* eslint-disable no-unused-vars */
+
 let xhr = null;
 const SQL_LIMIT = 50000;
 let dataSetID = null;
@@ -18,11 +8,16 @@ let showElapsedTime = null;
 const RLP_DUMMY_ID = 1000001;
 const EMD_DIFF_ID = 1000000;
 
+// FPP: If yScale is Threshold: this number is the margin between threshold line (red line) with the border of the chart
+// margin is 4.5%
+const FPP_THRESHOLD_MARGIN = 0.045;
+
 const localeConst = {
     JP: 'ja',
-}
+};
 
 const DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+const DATETIME_FORMAT_PLACE_HOLDER = '%Y-%m-%d %H:%M:%S.%f';
 const THOUSAND_SEP_PATTERN = /^[0-9]{1,3}(,[0-9]{3})*(\.[0-9]+)?$/;
 
 const COMMON_CONSTANT = {
@@ -55,8 +50,8 @@ const scaleOptionConst = {
 
 const frequencyOptions = {
     COMMON: '1',
-    AUTO: '2'
-}
+    AUTO: '2',
+};
 
 // facet level definition
 const facetLevels = {
@@ -69,8 +64,8 @@ const facetLevels = {
 const EMDType = {
     DRIFT: 'drift',
     DIFF: 'diff',
-    BOTH: 'both'
-}
+    BOTH: 'both',
+};
 
 const TIME_UNIT = {
     hour: {
@@ -102,8 +97,8 @@ const TIME_UNIT = {
         MIN: 0.01,
         MAX: 2,
         DEFAULT: 1,
-    }
-}
+    },
+};
 
 const CYCLIC_TERM = {
     NAME: 'cyclicTerm',
@@ -128,6 +123,13 @@ const CYCLIC_TERM = {
         MIN: 2,
         MAX: 150,
         DEFAULT: 30,
+    },
+    DEFAULT_DIV_NUM_BY_PAGE: {
+        rlp: 250,
+        agp: 120,
+        scp: 49,
+        stp: 16,
+        hmp: 49,
     },
     DIV_OFFSET_MIN_MAX: {
         MIN: -24,
@@ -181,8 +183,6 @@ const CONST = {
 
     // y value type to differentiate normal vs irregular data
     NORMAL: 0,
-    INF: 1,
-    NEG_INF: -1,
     NONE: 2,
     OUTLIER: 3,
     NEG_OUTLIER: -3,
@@ -221,6 +221,7 @@ const CONST = {
     ARRAY_FORMVAL: 'ARRAY_FORMVAL',
     CATEGORY: 'category',
     CORR: 'correlation',
+    ONLY_EXPORT_DATA_SELECTED: 'only_export_data_selected',
 
     NAV: ['', 'null', null, 'nan', 'NA', '-inf', 'inf'],
     BGR_COLOR_ATTR: 'bgr-color',
@@ -232,9 +233,19 @@ const CONST = {
     NO_LINKED: 'NoLinked',
     LIMIT_SIZE_NAME: 14,
     IS_ADMIN: 'is_admin',
+    RESIZE_RANGE_CHART: 0.5,
+
+    SCP_HMP_X_AXIS: 'SCP_HMP_X_AXIS',
+    SCP_HMP_Y_AXIS: 'SCP_HMP_Y_AXIS',
 };
-const chmColorPalettes = [['0', '#18324c'], ['0.2', '#204465'], ['0.4', '#2d5e88'],
-    ['0.6', '#3b7aae'], ['0.8', '#56b0f4'], ['1', '#6dc3fd']];
+const chmColorPalettes = [
+    ['0', '#18324c'],
+    ['0.2', '#204465'],
+    ['0.4', '#2d5e88'],
+    ['0.6', '#3b7aae'],
+    ['0.8', '#56b0f4'],
+    ['1', '#6dc3fd'],
+];
 
 let reselectCallback = null;
 const domEles = {
@@ -243,27 +254,41 @@ const domEles = {
     problematicPCATbl: '#cols-variance-tbl-multiple-range',
 };
 
-const trimLeft = target => target.replace(new RegExp(/^[\s]+/), '');
+const OFFSET_SCROLL = -15;
 
-const trimRight = target => target.replace(new RegExp(/[\s]+$/), '');
+const trimLeft = (target) => target.replace(new RegExp(/^[\s]+/), '');
 
-const trimMid = target => target.replace(new RegExp(/\s+/), ' ');
+const trimRight = (target) => target.replace(new RegExp(/[\s]+$/), '');
 
-const trimBoth = target => trimLeft(trimRight(trimMid(target)));
+const trimMid = (target) => target.replace(new RegExp(/\s+/), ' ');
+
+const trimBoth = (target) => trimLeft(trimRight(trimMid(target)));
 
 const isEmpty = (val) => {
-    if (!val) { // null or undefined or ''(空文字) or 0 or false
+    if (!val) {
+        // null or undefined or ''(空文字) or 0 or false
         if (val !== 0 && val !== false) {
             return true;
         }
-    } else if (typeof val === 'object') { // array or object
+    } else if (typeof val === 'object') {
+        // array or object
         return Object.keys(val).length === 0;
     }
     return false; // 値は空ではない
 };
 
 const isNumericDatatype = (type) => {
-    const NUMERIC_TYPE = ['int', 'num', 'real', 'float', 'double', 'long', 'dec', 'bit', 'money'];
+    const NUMERIC_TYPE = [
+        'int',
+        'num',
+        'real',
+        'float',
+        'double',
+        'long',
+        'dec',
+        'bit',
+        'money',
+    ];
     if (!type) return false;
     // convert to lower case before compare
     const lowerType = type.toLowerCase();
@@ -286,7 +311,14 @@ const jsonParse = (res) => {
 const docCookies = {
     getItem(sKey) {
         try {
-            return decodeURIComponent(document.cookie.replace(new RegExp(`(?:(?:^|.*;)\\s*${encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, '\\$&')}\\s*\\=\\s*([^;]*).*$)|^.*$`), '$1'));
+            return decodeURIComponent(
+                document.cookie.replace(
+                    new RegExp(
+                        `(?:(?:^|.*;)\\s*${encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, '\\$&')}\\s*\\=\\s*([^;]*).*$)|^.*$`,
+                    ),
+                    '$1',
+                ),
+            );
         } catch (e) {
             return '';
         }
@@ -299,7 +331,10 @@ const docCookies = {
         if (vEnd) {
             switch (vEnd.constructor) {
                 case Number:
-                    sExpires = vEnd === Infinity ? '; expires=Fri, 31 Dec 9999 23:59:59 GMT' : `; max-age=${vEnd}`;
+                    sExpires =
+                        vEnd === Infinity
+                            ? '; expires=Fri, 31 Dec 9999 23:59:59 GMT'
+                            : `; max-age=${vEnd}`;
                     break;
                 case String:
                     sExpires = `; expires=${vEnd}`;
@@ -320,21 +355,16 @@ const docCookies = {
         return true;
     },
     hasItem(sKey) {
-        return (new RegExp(`(?:^|;\\s*)${encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, '\\$&')}\\s*\\=`)).test(document.cookie);
-    },
-    keys: /* optional method: you can safely remove it! */ function () {
-        const aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, '').split(/\s*(?:\=[^;]*)?;\s*/);
-        for (let nIdx = 0; nIdx < aKeys.length; nIdx++) {
-            aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]);
-        }
-        return aKeys;
+        return new RegExp(
+            `(?:^|;\\s*)${encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, '\\$&')}\\s*\\=`,
+        ).test(document.cookie);
     },
     getLocale() {
         return this.getItem('locale') || 'en';
     },
     isJaLocale() {
         return this.getLocale() === 'ja';
-    }
+    },
 };
 
 // get or create node from object
@@ -348,7 +378,7 @@ const getOrCreateNewObj = (node, key, val = {}) => {
 // get or create node from object using array of keys
 const getOrCreateNodeByKeys = (dictObj, keys, defaultVal = undefined) => {
     let node = dictObj;
-    // eslint-disable-next-line no-restricted-syntax
+
     for (const key of keys) {
         // if key is a number , result will be wrong.
         // because it get a element in array instead a key in dictionary
@@ -356,7 +386,7 @@ const getOrCreateNodeByKeys = (dictObj, keys, defaultVal = undefined) => {
             return defaultVal;
         }
 
-        if (node !== undefined && node !== null && typeof (node) === 'object') {
+        if (node !== undefined && node !== null && typeof node === 'object') {
             if (node[key] === undefined) {
                 node[key] = {};
             }
@@ -369,12 +399,12 @@ const getOrCreateNodeByKeys = (dictObj, keys, defaultVal = undefined) => {
 };
 
 // generate random string of length `len`
-const generateRandomString = len => 'x'.repeat(len).replace(/[xy]/g, (c) => {
-    const r = Math.random() * 16 | 0;
-    const
-        v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-});
+const generateRandomString = (len) =>
+    'x'.repeat(len).replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
 
 const isArrayDuplicated = (array) => {
     if (!Array.isArray(array)) return false;
@@ -384,26 +414,48 @@ const isArrayDuplicated = (array) => {
 const findIndexes = (arr1, arr2) => {
     if (!arr1 || !arr2) return [];
     const output = [];
-    arr1.forEach(e => output.push(arr2.indexOf(e)));
+    arr1.forEach((e) => output.push(arr2.indexOf(e)));
     return output;
 };
 
 const getValueByIndexes = (indexes, targetArray, atlArray) => {
     if (!indexes) return [];
     const output = [];
-    indexes.forEach(idx => output.push(targetArray[idx] || atlArray[idx]));
+    indexes.forEach((idx) => output.push(targetArray[idx] || atlArray[idx]));
     return output;
 };
 
 const setPageTitle = () => {
     // Set sub_title
-    const subTitle = docCookies.getItem('sub_title') || COMMON_CONSTANT.DEFAULT_SUB_TITLE;
+    const subTitle =
+        docCookies.getItem('sub_title') || COMMON_CONSTANT.DEFAULT_SUB_TITLE;
     $('#page-sub-title').text(subTitle);
     const currentPageTitle = $('title').text();
     const fullTitle = `${currentPageTitle} ${subTitle}`;
     // set page title
     $('title').html(fullTitle);
 };
+
+/**
+ * Show or hide options that export data|image to clipboard base on secure context
+ *
+ * This function ONLY effects to show graph pages
+ */
+function showHideExportToClipboardOptions() {
+    const $exportDataToClipboardRow = $('#exportDataToClipboardAcr').closest(
+        'div.row',
+    );
+    const $exportImageToClipboardRow = $('#exportImageToClipboardAcr').closest(
+        'div.row',
+    );
+    if (window.isSecureContext) {
+        $exportDataToClipboardRow.show();
+        $exportImageToClipboardRow.show();
+    } else {
+        $exportDataToClipboardRow.hide();
+        $exportImageToClipboardRow.hide();
+    }
+}
 
 const DEFAULT_LOCALE = 'ja';
 
@@ -439,18 +491,22 @@ $(() => {
             $(e.currentTarget).removeClass('show');
         }
     });
+
+    showHideExportToClipboardOptions();
 });
 
 const validateNumericInput = (textbox) => {
     textbox.on('input', (eve) => {
-        let {value} = eve.currentTarget;
+        let { value } = eve.currentTarget;
         value = value.replace(/[^((0-9)|(０-９).\+\-)]+/gi, '');
-        eve.currentTarget.value = value
+        eve.currentTarget.value = value;
     });
     textbox.on('change', (eve) => {
-        let {value} = eve.currentTarget;
+        let { value } = eve.currentTarget;
         const replaceVal = /[０-９]/gi;
-        value = value.replaceAll(replaceVal, s => String.fromCharCode(s.charCodeAt(0) - 65248));
+        value = value.replaceAll(replaceVal, (s) =>
+            String.fromCharCode(s.charCodeAt(0) - 65248),
+        );
         eve.currentTarget.value = value;
     });
 };
@@ -470,11 +526,10 @@ const validateTargetPeriodInput = () => {
     validateNumericInput($(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`));
 
     validateNumericInput($(`input[name=${CYCLIC_TERM.RECENT_INTERVAL}]`));
-
 };
 
 const stringNormalization = (val) => {
-    if (typeof (val) !== 'string') {
+    if (typeof val !== 'string') {
         return val;
     }
 
@@ -493,7 +548,11 @@ const stringNormalization = (val) => {
 };
 
 // convert input textbox element from Zenkaku to Hankaku on specific event
-const handleInputTextZenToHanEvent = (event, afterOKCheckFn = null, callbackParams = null) => {
+const handleInputTextZenToHanEvent = (
+    event,
+    afterOKCheckFn = null,
+    callbackParams = null,
+) => {
     event.currentTarget.value = stringNormalization(event.currentTarget.value);
     event.currentTarget.oldValue = event.currentTarget.value;
 
@@ -519,7 +578,7 @@ const setInputFilterH2Z = (element, unbind = false, ignoreWithAttr = []) => {
 
 const assignValueToSelect2 = (select2Element, val) => {
     if (isEmpty(val)) return;
-    if (typeof (val) === 'object') val = val.join(' ');
+    if (typeof val === 'object') val = val.join(' ');
     let words = [val];
     const isMultipleselect2 = select2Element.attr('multiple');
     if (isMultipleselect2) {
@@ -529,7 +588,9 @@ const assignValueToSelect2 = (select2Element, val) => {
     const matchOptions = [];
     for (const word of words) {
         if (!isEmpty(word)) {
-            const found = select2Element.find('option').filter((i, e) => $(e).val() === word).length;
+            const found = select2Element
+                .find('option')
+                .filter((i, e) => $(e).val() === word).length;
             if (!found) {
                 const newOption = new Option(word, word, false, false);
                 select2Element.append(newOption).trigger('change');
@@ -540,13 +601,12 @@ const assignValueToSelect2 = (select2Element, val) => {
     select2Element.val(null).val(matchOptions).trigger('change');
 };
 
-
 const handleInputTextZenToHanEventSelect2 = (element) => {
     let val = element.val();
 
     if (!val) return;
 
-    if (typeof (val) !== 'object') {
+    if (typeof val !== 'object') {
         val = [val];
     }
     val = val.join(' ');
@@ -575,22 +635,25 @@ const convertTextH2Z = (parent = null) => {
     }
 
     const alreadyConvertClass = '.already-convert-hankaku';
-    eles.find('input, textarea').not(alreadyConvertClass).each(function () {
-        if ($(this).attr('type') !== 'file') {
-            setInputFilterH2Z($(this), false, ['multiple']);
-            $(this).addClass(alreadyConvertClass.substr(1));
-        }
-    });
+    eles.find('input, textarea')
+        .not(alreadyConvertClass)
+        .each(function () {
+            if ($(this).attr('type') !== 'file') {
+                setInputFilterH2Z($(this), false, ['multiple']);
+                $(this).addClass(alreadyConvertClass.substr(1));
+            }
+        });
 
-    eles.find('select').not(alreadyConvertClass).each(function () {
-        const thisElement = $(this);
-        if (thisElement.hasClass('convert-h2z')) {
-            setInputFilterH2ZSelect2(thisElement, true);
-            thisElement.addClass(alreadyConvertClass.substr(1));
-        }
-    });
+    eles.find('select')
+        .not(alreadyConvertClass)
+        .each(function () {
+            const thisElement = $(this);
+            if (thisElement.hasClass('convert-h2z')) {
+                setInputFilterH2ZSelect2(thisElement, true);
+                thisElement.addClass(alreadyConvertClass.substr(1));
+            }
+        });
 };
-
 
 // convert fullwidth special symbols to halfwidth katakana
 // const replaceStringByArrayOfIndex = (str, src, dest) => {
@@ -665,25 +728,41 @@ const convertTextH2Z = (parent = null) => {
 //     return res;
 // };
 
-
 // gen Json for Db Config Data
-const genJsonfromHTML = (searchFromHtml, jsonRootKey, valAlwaysArray = false) => {
+const genJsonfromHTML = (
+    searchFromHtml,
+    jsonRootKey,
+    valAlwaysArray = false,
+) => {
     const result = {};
-    const parentHtml = typeof (searchFromHtml) === 'string' ? $(`${searchFromHtml}`) : searchFromHtml;
+    const parentHtml =
+        typeof searchFromHtml === 'string'
+            ? $(`${searchFromHtml}`)
+            : searchFromHtml;
 
     if (parentHtml.length === 1) {
         // root value is a json
         result[jsonRootKey] = {};
     } else {
         // root value is an array
-        result[jsonRootKey] = [...Array(parentHtml.length)].map(() => JSON.parse('{}'));
+        result[jsonRootKey] = [...Array(parentHtml.length)].map(() =>
+            JSON.parse('{}'),
+        );
     }
 
     // closure
-    const inner = (searchHtmlName, getHtmlValFunc = null, jsonKey = searchHtmlName) => {
+    const inner = (
+        searchHtmlName,
+        getHtmlValFunc = null,
+        jsonKey = searchHtmlName,
+    ) => {
         // loop parent HTML elements
         parentHtml.each((i, parentEle) => {
-            const vals = [...parentEle.querySelectorAll(`[name=${searchHtmlName}]`)].map(e => (getHtmlValFunc === null ? e.value : getHtmlValFunc(e)));
+            const vals = [
+                ...parentEle.querySelectorAll(`[name=${searchHtmlName}]`),
+            ].map((e) =>
+                getHtmlValFunc === null ? e.value : getHtmlValFunc(e),
+            );
             // const vals = [...$(parentEle).find(`[name=${searchHtmlName}]`)].map(e => (getHtmlValFunc === null ? e.value : getHtmlValFunc(e)));
 
             let val;
@@ -711,11 +790,10 @@ const genJsonfromHTML = (searchFromHtml, jsonRootKey, valAlwaysArray = false) =>
     return inner;
 };
 
-
 // get node from dictionary
 const getNode = (dictObj, keys, defaultVal = null) => {
     let node = dictObj;
-    // eslint-disable-next-line no-restricted-syntax
+
     for (const key of keys) {
         // if key is a number , result will be wrong.
         // because it get a element in array instead a key in dictionary
@@ -723,7 +801,7 @@ const getNode = (dictObj, keys, defaultVal = null) => {
             return defaultVal;
         }
 
-        if (node && typeof (node) === 'object') {
+        if (node && typeof node === 'object') {
             node = node[key];
             // node is not a dictionary
             if (node === undefined) return defaultVal;
@@ -736,7 +814,10 @@ const getNode = (dictObj, keys, defaultVal = null) => {
 };
 
 // display message after press register buttons
-const displayRegisterMessage = (alertID, flaskMessage = {message: '', is_error: false, is_warning: false}) => {
+const displayRegisterMessage = (
+    alertID,
+    flaskMessage = { message: '', is_error: false, is_warning: false },
+) => {
     if (alertID === null || alertID === undefined) return;
     if (flaskMessage.message) {
         $(`${alertID}-content`).html(flaskMessage.message);
@@ -763,6 +844,18 @@ const displayRegisterMessage = (alertID, flaskMessage = {message: '', is_error: 
 
 const hideAlertMessages = () => {
     $('.alert.alert-dismissible.fade.show').css('display', 'none');
+};
+
+const generateRegisterMessage = (
+    message,
+    isError = false,
+    isWarning = false,
+) => {
+    return {
+        message: message,
+        isError: isError,
+        isWarning: isWarning,
+    };
 };
 
 // delete closest element
@@ -842,7 +935,7 @@ const fetchBackgroundJobs = (cb) => {
             'Content-Type': 'application/json',
         },
     })
-        .then(response => response.clone().json())
+        .then((response) => response.clone().json())
         .then((json) => {
             if (json) {
                 cb(json);
@@ -860,8 +953,16 @@ const TIME_FORMAT_TZ = 'HH:mm:ss Z';
 const DATE_FORMAT_WITHOUT_TZ = 'YYYY-MM-DD HH:mm:ss';
 const DATE_FORMAT = 'YYYY-MM-DD';
 const DATE_PICKER_FORMAT = 'yy-mm-dd';
-const DATE_FORMAT_VALIDATE = ['YYYY/MM/DD', 'YYYY/M/DD', 'YYYY/M/D', 'YYYY/M/DD',
-    'YYYY-MM-DD', 'YYYY-M-DD', 'YYYY-M-DD', 'YYYY-M-D'];
+const DATE_FORMAT_VALIDATE = [
+    'YYYY/MM/DD',
+    'YYYY/M/DD',
+    'YYYY/M/D',
+    'YYYY/M/DD',
+    'YYYY-MM-DD',
+    'YYYY-M-DD',
+    'YYYY-M-DD',
+    'YYYY-M-D',
+];
 const TIME_FORMAT = 'HH:mm';
 const TIME_FORMAT_VALIDATE = ['HH:mm', 'H:mm', 'HH:m', 'H:m'];
 
@@ -874,22 +975,33 @@ const TRACE_TIME_CONST = {
 const TRACE_TIME_NAME = {
     PCA: 'testTraceTime',
 };
-const DATETIME_FORMAT_VALIDATE = DATE_FORMAT_VALIDATE.concat(
-    [DATE_FORMAT_TZ, DATE_FORMAT_WITHOUT_TZ, DATE_FORMAT, DATE_PICKER_FORMAT],
-);
+const DATETIME_FORMAT_VALIDATE = DATE_FORMAT_VALIDATE.concat([
+    DATE_FORMAT_TZ,
+    DATE_FORMAT_WITHOUT_TZ,
+    DATE_FORMAT,
+    DATE_PICKER_FORMAT,
+]);
 
 // replace_date
-const formatDate = dt => dt.replaceAll('\/', '-');
+const formatDate = (dt) => dt.replaceAll('/', '-');
 
-const formatDateTime = (dt, fm = DATE_FORMAT_WITHOUT_TZ) => {
+const formatDateTime = (
+    dt,
+    fm = DATE_FORMAT_WITHOUT_TZ,
+    options = {
+        withMillisecs: true,
+        isLocalTime: false,
+    },
+) => {
     let formatStr = fm;
     if (fm === DATE_FORMAT_WITHOUT_TZ) {
         const milliSeconds = checkDatetimeHasMilliseconds(dt);
-        if (milliSeconds) {
+        if (milliSeconds && options.withMillisecs) {
             formatStr = DATE_FORMAT_WITHOUT_TZ + milliSeconds;
         }
     }
-    return moment.utc(dt).local().format(formatStr);
+    const datetime = options.isLocalTime ? moment(dt) : moment.utc(dt);
+    return datetime.local().format(formatStr);
 };
 
 const checkDatetimeHasMilliseconds = (datetimeStr) => {
@@ -899,44 +1011,29 @@ const checkDatetimeHasMilliseconds = (datetimeStr) => {
     }
 
     return '.SSS';
-
-    const subMillisecond = match[0];
-    // .1, .12, .123 -> .SSS
-    if (/\.[1-9]{1,3}0*$/.test(subMillisecond)) {
-        return '.SSS';
-    }
-    // .1234 -> .SSSSSS
-    if (/\.[1-9]{1,}0*$/.test(subMillisecond)) {
-        return subMillisecond;
-    }
-
-    return false
-
 };
 
 const detectLocalTimezone = () => {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };
 
-
 /* Binary search in JavaScript.
-    * Returns the index of of the element in a sorted array or (-n-1)
-    * where n is the insertion point for the new element.
-    * Parameters:
-    *     ar - A sorted array
-    *     el - An element to search for
-    *     compare_fn - A comparator function. The function takes two arguments: (a, b) and returns:
-    *        a negative number  if a is less than b;
-    *        0 if a is equal to b;
-    *        a positive number of a is greater than b.
-    * The array may contain duplicate elements. If there are more than one equal elements in the array,
-    * the returned value can be the index of any one of the equal elements.
-    */
+ * Returns the index of of the element in a sorted array or (-n-1)
+ * where n is the insertion point for the new element.
+ * Parameters:
+ *     ar - A sorted array
+ *     el - An element to search for
+ *     compare_fn - A comparator function. The function takes two arguments: (a, b) and returns:
+ *        a negative number  if a is less than b;
+ *        0 if a is equal to b;
+ *        a positive number of a is greater than b.
+ * The array may contain duplicate elements. If there are more than one equal elements in the array,
+ * the returned value can be the index of any one of the equal elements.
+ */
 const binarySearch = (ar, el, compareFn) => {
     let m = 0;
     let n = ar.length - 1;
     while (m <= n) {
-        // eslint-disable-next-line no-bitwise
         const k = (n + m) >> 1;
         const cmp = compareFn(el, ar[k]);
         if (cmp > 0) {
@@ -968,7 +1065,7 @@ function niceNum(localRange, round) {
     /** nice, rounded fraction */
 
     const exponent = Math.floor(Math.log10(localRange));
-    const fraction = localRange / (10 ** exponent);
+    const fraction = localRange / 10 ** exponent;
 
     if (round) {
         if (fraction < 1.5) {
@@ -989,12 +1086,12 @@ function niceNum(localRange, round) {
     } else {
         niceFraction = 10;
     }
-    return niceFraction * (10 ** exponent);
+    return niceFraction * 10 ** exponent;
 }
 
-
 function getPrecision(n) {
-    let loggedPrecision = 1 - Math.floor(Math.log(Math.abs(n % 1))) / Math.log(10);
+    let loggedPrecision =
+        1 - Math.floor(Math.log(Math.abs(n % 1))) / Math.log(10);
     loggedPrecision = Math.round(loggedPrecision);
     if (Number.isFinite(loggedPrecision)) {
         return loggedPrecision;
@@ -1012,10 +1109,8 @@ const saveOrderToDB = (orderName, rowOrders = {}) => {
         type: 'POST',
         contentType: 'application/json',
         processData: false,
-        success: (res) => {
-        },
-        error: (res) => {
-        },
+        success: (res) => {},
+        error: (res) => {},
     });
 };
 
@@ -1025,11 +1120,14 @@ const dragDropRowInTable = (() => {
     const DATA_ORDER_ATTR = 'data-order';
 
     // get values of order columns
-    const getValuesOfOrderCols = ele => $(ele).attr('id')
-        || [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map(e => e.value).join('_');
+    const getValuesOfOrderCols = (ele) =>
+        $(ele).attr('id') ||
+        [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_');
 
-    const getValuesOfOrderColsMasterConfig = ele => [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map(e => e.value).join('_')
-        || $(ele).attr('id');
+    const getValuesOfOrderColsMasterConfig = (ele) =>
+        [...$(ele).find(`[${DATA_ORDER_ATTR}]`)]
+            .map((e) => e.value)
+            .join('_') || $(ele).attr('id');
 
     // fix width of tr when drag drop
     const fixHelper = (_v, ui) => {
@@ -1040,11 +1138,13 @@ const dragDropRowInTable = (() => {
     };
 
     // get values of order columns
-    const getValuesOfOrderColsAndDsId = ele => $(ele).attr('data-ds-id')
-        || [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map(e => e.value).join('_');
+    const getValuesOfOrderColsAndDsId = (ele) =>
+        $(ele).attr('data-ds-id') ||
+        [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_');
 
-    const getValuesOfOrderColsAndDsProcId = ele => $(ele).attr('data-proc-id')
-        || [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map(e => e.value).join('_');
+    const getValuesOfOrderColsAndDsProcId = (ele) =>
+        $(ele).attr('data-proc-id') ||
+        [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_');
 
     // Update LocalStorage for ordering
     const setItemLocalStorage = (tblBody, prefix = null) => {
@@ -1056,15 +1156,25 @@ const dragDropRowInTable = (() => {
         }
 
         if (localStorageId === 'tblDbConfig') {
-            dicRowId = Object.fromEntries([...tblBody.rows].map((ele, i) => [getValuesOfOrderColsAndDsId(ele), i]));
+            dicRowId = Object.fromEntries(
+                [...tblBody.rows].map((ele, i) => [
+                    getValuesOfOrderColsAndDsId(ele),
+                    i,
+                ]),
+            );
         } else {
-            dicRowId = Object.fromEntries([...tblBody.rows].map((ele, i) => [getValuesOfOrderColsAndDsProcId(ele), i]));
+            dicRowId = Object.fromEntries(
+                [...tblBody.rows].map((ele, i) => [
+                    getValuesOfOrderColsAndDsProcId(ele),
+                    i,
+                ]),
+            );
         }
 
         localStorage.setItem(localStorageId, JSON.stringify(dicRowId));
 
         // save orders to db
-        saveOrderToDB(orderName = localStorageId, rowOrders = dicRowId);
+        saveOrderToDB((orderName = localStorageId), (rowOrders = dicRowId));
     };
 
     // Update LocalStorage for ordering
@@ -1111,25 +1221,29 @@ const dragDropRowInTable = (() => {
         } else {
             rows.sort((a, b) => sortFunction(a, b, orderDic));
         }
-        rows.forEach(row => tbody.append(row));
+        rows.forEach((row) => tbody.append(row));
 
         updateTableRowNumber(localStorageId); // TODO
     };
 
     // return public function
     return {
-        DATA_ORDER_ATTR, fixHelper, updateOrder, sortRowInTable, setItemLocalStorage,
+        DATA_ORDER_ATTR,
+        fixHelper,
+        updateOrder,
+        sortRowInTable,
+        setItemLocalStorage,
     };
 })();
 
-// eslint-disable-next-line no-unused-vars
 const stickyHeaders = (() => {
     jQuery.expr.filters.offscreen = (el) => {
         const rect = el.getBoundingClientRect();
         return (
-            (rect.x + rect.width) < 0
-            || (rect.y + rect.height) < 0
-            || (rect.x > window.innerWidth || rect.y > window.innerHeight)
+            rect.x + rect.width < 0 ||
+            rect.y + rect.height < 0 ||
+            rect.x > window.innerWidth ||
+            rect.y > window.innerHeight
         );
     };
     const $window = $(window);
@@ -1137,28 +1251,39 @@ const stickyHeaders = (() => {
 
     const whenScrolling = () => {
         $stickies.each((i, e) => {
-            const $cardParent = $(e).parents().filter('form')
-                .parent()
-                .parent();
+            const $cardParent = $(e).parents().filter('form').parent().parent();
             const $thisSticky = $(e);
             const $stickyPosition = $thisSticky.data('originalPosition');
 
-            if ($stickyPosition <= $window.scrollTop() && !$cardParent.is(':offscreen')) {
+            if (
+                $stickyPosition <= $window.scrollTop() &&
+                !$cardParent.is(':offscreen')
+            ) {
                 const $nextSticky = $stickies.eq(i + 1);
-                const $nextStickyPosition = $nextSticky.data('originalPosition') - $thisSticky.data('originalHeight');
+                const $nextStickyPosition =
+                    $nextSticky.data('originalPosition') -
+                    $thisSticky.data('originalHeight');
 
                 $thisSticky.addClass('btn-fixed');
 
-                if ($nextSticky.length > 0 && $thisSticky.offset().top >= $nextStickyPosition) {
-                    $thisSticky.addClass('absolute').css('top', $nextStickyPosition);
+                if (
+                    $nextSticky.length > 0 &&
+                    $thisSticky.offset().top >= $nextStickyPosition
+                ) {
+                    $thisSticky
+                        .addClass('absolute')
+                        .css('top', $nextStickyPosition);
                 }
             } else {
                 const $prevSticky = $stickies.eq(i - 1);
 
                 $thisSticky.removeClass('btn-fixed');
 
-                if ($prevSticky.length > 0
-                    && $window.scrollTop() <= $thisSticky.data('originalPosition') - $thisSticky.data('originalHeight')
+                if (
+                    $prevSticky.length > 0 &&
+                    $window.scrollTop() <=
+                        $thisSticky.data('originalPosition') -
+                            $thisSticky.data('originalHeight')
                 ) {
                     $prevSticky.removeClass('absolute').removeAttr('style');
                 }
@@ -1166,7 +1291,11 @@ const stickyHeaders = (() => {
         });
     };
     const load = (stickies) => {
-        if (typeof stickies === 'object' && stickies instanceof jQuery && stickies.length > 0) {
+        if (
+            typeof stickies === 'object' &&
+            stickies instanceof jQuery &&
+            stickies.length > 0
+        ) {
             let $originWH = $(document).height();
             $stickies = stickies.each((_v, e) => {
                 const $thisSticky = $(e).wrap('<div class="btnWrap">');
@@ -1199,16 +1328,16 @@ const stickyHeaders = (() => {
     };
 })();
 
-
 // TODO refactor scrollFloatingElement and stickyHeaders
-// eslint-disable-next-line no-unused-vars
+
 const scrollFloatingElement = (() => {
     jQuery.expr.filters.offscreen = (el) => {
         const rect = el.getBoundingClientRect();
         return (
-            (rect.x + rect.width) < 0
-            || (rect.y + rect.height) < 0
-            || (rect.x > window.innerWidth || rect.y > window.innerHeight)
+            rect.x + rect.width < 0 ||
+            rect.y + rect.height < 0 ||
+            rect.x > window.innerWidth ||
+            rect.y > window.innerHeight
         );
     };
     const $window = $(window);
@@ -1218,21 +1347,29 @@ const scrollFloatingElement = (() => {
 
     const whenScrolling = () => {
         $stickies.each((i, e) => {
-            const $cardParent = $(e).parents().filter('form')
-                .parent()
-                .parent();
+            const $cardParent = $(e).parents().filter('form').parent().parent();
             const $thisSticky = $(e);
             const $stickyPosition = $thisSticky.data('originalPosition');
 
-            if ($stickyPosition <= $window.scrollTop() && !$cardParent.is(':offscreen')) {
+            if (
+                $stickyPosition <= $window.scrollTop() &&
+                !$cardParent.is(':offscreen')
+            ) {
                 const $nextSticky = $stickies.eq(i + 1);
-                const $nextStickyPosition = $nextSticky.data('originalPosition') - $thisSticky.data('originalHeight');
+                const $nextStickyPosition =
+                    $nextSticky.data('originalPosition') -
+                    $thisSticky.data('originalHeight');
 
                 // add custom css
                 $thisSticky.addClass($adjustCSSClass);
 
-                if ($nextSticky.length > 0 && $thisSticky.offset().top >= $nextStickyPosition) {
-                    $thisSticky.addClass('absolute').css('top', $nextStickyPosition);
+                if (
+                    $nextSticky.length > 0 &&
+                    $thisSticky.offset().top >= $nextStickyPosition
+                ) {
+                    $thisSticky
+                        .addClass('absolute')
+                        .css('top', $nextStickyPosition);
                 }
 
                 if ($callBackFunc) {
@@ -1244,8 +1381,11 @@ const scrollFloatingElement = (() => {
                 // remove custom css
                 $thisSticky.removeClass($adjustCSSClass);
 
-                if ($prevSticky.length > 0
-                    && $window.scrollTop() <= $thisSticky.data('originalPosition') - $thisSticky.data('originalHeight')
+                if (
+                    $prevSticky.length > 0 &&
+                    $window.scrollTop() <=
+                        $thisSticky.data('originalPosition') -
+                            $thisSticky.data('originalHeight')
                 ) {
                     $prevSticky.removeClass('absolute').removeAttr('style');
                 }
@@ -1253,7 +1393,11 @@ const scrollFloatingElement = (() => {
         });
     };
     const load = (stickies, adjustCSSClass = '', callBackFunc = null) => {
-        if (typeof stickies === 'object' && stickies instanceof jQuery && stickies.length > 0) {
+        if (
+            typeof stickies === 'object' &&
+            stickies instanceof jQuery &&
+            stickies.length > 0
+        ) {
             let $originWH = $(document).height();
             $stickies = stickies.each((_v, e) => {
                 const $thisSticky = $(e).wrap('<div class="">');
@@ -1360,7 +1504,10 @@ const closeAllToast = () => {
 // show toastr msg to warn about abnormal result
 const showToastrAnomalGraph = () => {
     const i18nTexts = {
-        abnormalGraphShow: $('#i18nAbnormalGraphShow').text().split('BREAK_LINE').join('<br>'),
+        abnormalGraphShow: $('#i18nAbnormalGraphShow')
+            .text()
+            .split('BREAK_LINE')
+            .join('<br>'),
     };
 
     const msgContent = `<p>${i18nTexts.abnormalGraphShow}</p>`;
@@ -1419,12 +1566,15 @@ const syncTraceDateTimeRange = (parentId = '', dtNames = {}, dtValues = {}) => {
     const datetimeRangeVal = dtValues.DATETIME_RANGE_PICKER;
 
     if (!isEmpty(datetimeRange) && !isEmpty(datetimeRangeVal)) {
-        $(`#${parentId} input[name=${datetimeRange}]`).first().val(datetimeRangeVal);
+        $(`#${parentId} input[name=${datetimeRange}]`)
+            .first()
+            .val(datetimeRangeVal);
     }
 };
 
 const toUTCDateTime = (localDate, localTime, withDateTime = false) => {
-    if (!withDateTime && (isEmpty(localDate) || isEmpty(localTime))) return {date: localDate, time: localTime};
+    if (!withDateTime && (isEmpty(localDate) || isEmpty(localTime)))
+        return { date: localDate, time: localTime };
 
     const datetime = withDateTime ? localDate : `${localDate} ${localTime}`;
     const utcDT = moment.utc(moment(datetime, `${DATE_FORMAT} ${TIME_FORMAT}`));
@@ -1437,7 +1587,7 @@ const toUTCDateTime = (localDate, localTime, withDateTime = false) => {
             time: utcDT.format(TIME_FORMAT),
         };
     }
-    return {date: localDate, time: localTime};
+    return { date: localDate, time: localTime };
 };
 
 const getColumnName = (endProcName, getVal) => {
@@ -1467,7 +1617,6 @@ const createDatetime = (v) => {
     return new Date(v);
 };
 
-
 const createIndex = (v) => {
     if (v === 'min') {
         return 0;
@@ -1477,7 +1626,6 @@ const createIndex = (v) => {
     }
     return v;
 };
-
 
 const getChartInfo = (plotdata, xAxisOption = 'TIME', filterCond = null) => {
     let chartInfos = plotdata.chart_infos || [];
@@ -1502,23 +1650,27 @@ const getChartInfo = (plotdata, xAxisOption = 'TIME', filterCond = null) => {
         }
 
         if (!isFacetHasFilterConditionValue) {
-            return [chartInfos, chartInfosOrg]
+            return [chartInfos, chartInfosOrg];
         }
 
-        chartInfos = chartInfos.filter(
-            settingInfo => settingInfo.name ? filterCond.includes(settingInfo.name) : true);
-        chartInfosOrg = chartInfosOrg.filter(
-            settingInfo => settingInfo.name ? filterCond.includes(settingInfo.name) : true);
+        chartInfos = chartInfos.filter((settingInfo) =>
+            settingInfo.name ? filterCond.includes(settingInfo.name) : true,
+        );
+        chartInfosOrg = chartInfosOrg.filter((settingInfo) =>
+            settingInfo.name ? filterCond.includes(settingInfo.name) : true,
+        );
     }
 
     return [chartInfos, chartInfosOrg];
 };
 
-
-const chooseLatestThresholds = (chartInfos = [], chartInfosOrg = [],
-                                clickedIdx = null, convertFunc = createDatetime) => {
+const chooseLatestThresholds = (
+    chartInfos = [],
+    chartInfosOrg = [],
+    clickedIdx = null,
+    convertFunc = createDatetime,
+) => {
     if (isEmpty(chartInfos)) return [{}, 0];
-
 
     // no click -> no point -> no time
     // if chartInfosOrg empty -> don't use chartInfosOrg
@@ -1529,7 +1681,10 @@ const chooseLatestThresholds = (chartInfos = [], chartInfosOrg = [],
             const chartInfo = chartInfos[idx];
             const latestActTo = latestChartInfo['act-to'];
             const actTo = chartInfo['act-to'];
-            if (isEmpty(actTo) || (!isEmpty(latestActTo) && actTo > latestActTo)) {
+            if (
+                isEmpty(actTo) ||
+                (!isEmpty(latestActTo) && actTo > latestActTo)
+            ) {
                 latestChartInfo = chartInfo;
                 latestIndex = idx;
             }
@@ -1545,8 +1700,12 @@ const chooseLatestThresholds = (chartInfos = [], chartInfosOrg = [],
     let latestIndexOrg = null;
     for (const idx in chartInfosOrg) {
         const chartInfo = chartInfosOrg[idx];
-        const actFrom = isEmpty(chartInfo['act-from']) ? defaultActFrom : convertFunc(chartInfo['act-from']);
-        const actTo = isEmpty(chartInfo['act-to']) ? defaultActTo : convertFunc(chartInfo['act-to']);
+        const actFrom = isEmpty(chartInfo['act-from'])
+            ? defaultActFrom
+            : convertFunc(chartInfo['act-from']);
+        const actTo = isEmpty(chartInfo['act-to'])
+            ? defaultActTo
+            : convertFunc(chartInfo['act-to']);
         let relevantChartInfo = false;
         if (actFrom <= sensorDateTime && sensorDateTime <= actTo) {
             relevantChartInfo = true;
@@ -1556,7 +1715,9 @@ const chooseLatestThresholds = (chartInfos = [], chartInfosOrg = [],
                 latestChartInfoOrg = chartInfo;
                 latestIndexOrg = idx;
             } else {
-                const latestActTo = isEmpty(latestChartInfoOrg['act-to']) ? defaultActTo : convertFunc(latestChartInfoOrg['act-to']);
+                const latestActTo = isEmpty(latestChartInfoOrg['act-to'])
+                    ? defaultActTo
+                    : convertFunc(latestChartInfoOrg['act-to']);
                 if (latestActTo < actTo) {
                     latestChartInfoOrg = chartInfo;
                     latestIndexOrg = idx;
@@ -1603,10 +1764,11 @@ const formatResultMulti = (data) => {
     }
 
     const $result = $(
-        `${'<div class="row">'
-        + '<div class="col-md-6 col-xs-6'}${classAttr}">${columnName}</div>`
-        + `<div class="col-md-6 col-xs-6${classAttr}">${data.text}</div>`
-        + '</div>',
+        `${
+            '<div class="row">' + '<div class="col-md-6 col-xs-6'
+        }${classAttr}">${columnName}</div>` +
+            `<div class="col-md-6 col-xs-6${classAttr}">${data.text}</div>` +
+            '</div>',
     );
     return $result;
 };
@@ -1632,7 +1794,10 @@ const matchCustom = (params, data) => {
     params.term = params.term.toLowerCase();
     const dataText = data.text.toLowerCase();
     const dataTitle = data.title.toLowerCase();
-    if (dataText.indexOf(params.term) > -1 || dataTitle.indexOf(params.term) > -1) {
+    if (
+        dataText.indexOf(params.term) > -1 ||
+        dataTitle.indexOf(params.term) > -1
+    ) {
         const modifiedData = $.extend({}, data, true);
 
         // You can return modified objects from here
@@ -1661,9 +1826,9 @@ const setSelect2Selection = (parent = null, additionalOption = {}) => {
         language: {
             noResults: function (params) {
                 return i18nCommon.notApplicable;
-            }
-        }
-    }
+            },
+        },
+    };
 
     const nColCls = 'select-n-columns';
     // const alreadyConvertCls = 'already-convert-select2';
@@ -1672,43 +1837,45 @@ const setSelect2Selection = (parent = null, additionalOption = {}) => {
         ...additionalOption,
     };
 
-
     const dicNColsOptions = {
         ...commonOption,
         templateResult: formatResultMulti,
-        ...additionalOption
+        ...additionalOption,
     };
 
     // single select2
-    eles.find('select.select2-selection--single:not([hidden])').each(function () {
-        const ele = $(this);
-        let select2El = null;
+    eles.find('select.select2-selection--single:not([hidden])').each(
+        function () {
+            const ele = $(this);
+            let select2El = null;
 
-        if (ele.attr('data-allow-clear')) {
-            Object.assign(dicNColsOptions, {allowClear: true});
-            Object.assign(dicOptions, {allowClear: true});
-        }
-        if (ele.hasClass(nColCls)) {
-            select2El = ele.select2(dicNColsOptions);
-        } else {
-            select2El = ele.select2(dicOptions);
-        }
+            if (ele.attr('data-allow-clear')) {
+                Object.assign(dicNColsOptions, { allowClear: true });
+                Object.assign(dicOptions, { allowClear: true });
+            }
+            if (ele.hasClass(nColCls)) {
+                select2El = ele.select2(dicNColsOptions);
+            } else {
+                select2El = ele.select2(dicOptions);
+            }
 
-        // Add placeholder in search input
-        $(ele).data('select2').$dropdown.find(':input.select2-search__field').attr('placeholder', i18nCommon.search + '...')
+            // Add placeholder in search input
+            $(ele)
+                .data('select2')
+                .$dropdown.find(':input.select2-search__field')
+                .attr('placeholder', i18nCommon.search + '...');
 
-        resizeListOptionSelect2(select2El)
-
-    });
+            resizeListOptionSelect2(select2El);
+        },
+    );
 };
 
-const uniq = vals => [...new Set(vals)];
-
+const uniq = (vals) => [...new Set(vals)];
 
 const getPearsonCorrelation = (_x, _y) => {
     let shortestArrayLength = 0;
-    const x = _x.filter(i => Number.isFinite(i));
-    const y = _y.filter(i => Number.isFinite(i));
+    const x = _x.filter((i) => Number.isFinite(i));
+    const y = _y.filter((i) => Number.isFinite(i));
     if (x.length === y.length) {
         shortestArrayLength = x.length;
     } else if (x.length > y.length) {
@@ -1747,9 +1914,9 @@ const getPearsonCorrelation = (_x, _y) => {
         }
     }
 
-    const step1 = (shortestArrayLength * sumXY) - (sumX * sumY);
-    const step2 = (shortestArrayLength * sumX2) - (sumX * sumX);
-    const step3 = (shortestArrayLength * sumY2) - (sumY * sumY);
+    const step1 = shortestArrayLength * sumXY - sumX * sumY;
+    const step2 = shortestArrayLength * sumX2 - sumX * sumX;
+    const step3 = shortestArrayLength * sumY2 - sumY * sumY;
     const step4 = Math.sqrt(step2 * step3);
     const answer = step1 / step4;
 
@@ -1771,18 +1938,27 @@ const getCorrelation = (corrMatrix, sensorID, targetID) => {
 
 const genPlotlyIconSettings = () => ({
     modeBarButtonsToRemove: [
-        'zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d',
-        'hoverClosestCartesian', 'hoverCompareCartesian',
-        'toggleSpikelines', 'sendDataToCloud',
+        'zoom2d',
+        'pan2d',
+        'select2d',
+        'lasso2d',
+        'zoomIn2d',
+        'zoomOut2d',
+        'hoverClosestCartesian',
+        'hoverCompareCartesian',
+        'toggleSpikelines',
+        'sendDataToCloud',
     ],
     displaylogo: false,
 });
 
 const initializeDateTime = (dtElements = {}, syncStartEnd = true) => {
     let dateDiff = 0;
-    const startDateElement = dtElements.START_DATE || $('input[name="START_DATE"]');
+    const startDateElement =
+        dtElements.START_DATE || $('input[name="START_DATE"]');
     const endDateElement = dtElements.END_DATE || $('input[name="END_DATE"]');
-    const startTimeElement = dtElements.START_TIME || $('input[name="START_TIME"]');
+    const startTimeElement =
+        dtElements.START_TIME || $('input[name="START_TIME"]');
     const endTimeElement = dtElements.END_TIME || $('input[name="END_TIME"]');
 
     // set default time
@@ -1814,7 +1990,9 @@ const initializeDateTime = (dtElements = {}, syncStartEnd = true) => {
             // update end_date to value of start_date
             const startDate = startDateElement.val();
             const mStartDate = moment(startDate, DATE_FORMAT);
-            const newEndDate = mStartDate.add(dateDiff, 'days').format(DATE_FORMAT);
+            const newEndDate = mStartDate
+                .add(dateDiff, 'days')
+                .format(DATE_FORMAT);
             endDateElement.val(newEndDate);
             endDateElement.attr('data-current-val', newEndDate);
             // todo: update datetime range span
@@ -1855,7 +2033,7 @@ const validateDateTime = (event, dtFormat) => {
     if (newValue === curTarget.getAttribute('data-current-val')) {
         return;
     }
-    const {currentVal} = event.target.dataset;
+    const { currentVal } = event.target.dataset;
     if (!moment(newValue, dtFormat, true).isValid()) {
         event.target.value = currentVal;
     } else {
@@ -1863,11 +2041,21 @@ const validateDateTime = (event, dtFormat) => {
     }
 };
 
-const adjustMinMax1Percent = (minY, maxY) => [minY - 0.01 * Math.abs(minY), maxY + 0.01 * Math.abs(maxY)];
+const adjustMinMax1Percent = (minY, maxY) => [
+    minY - 0.01 * Math.abs(minY),
+    maxY + 0.01 * Math.abs(maxY),
+];
 
-const createHistogramParams = (scaleOption, arrayY,
-                               setYMin, setYMax,
-                               commonMinY, commonMaxY, latestChartInfo, corrSummary) => {
+const createHistogramParams = (
+    scaleOption,
+    arrayY,
+    setYMin,
+    setYMax,
+    commonMinY,
+    commonMaxY,
+    latestChartInfo,
+    corrSummary,
+) => {
     //  max/minY based on scaleOption
     let maxY = getNode(corrSummary, ['non_parametric', 'upper_range']);
     let minY = getNode(corrSummary, ['non_parametric', 'lower_range']);
@@ -1882,7 +2070,11 @@ const createHistogramParams = (scaleOption, arrayY,
     } else if (scaleOption === '3') {
         const threshHigh = latestChartInfo['thresh-high'];
         const threshLow = latestChartInfo['thresh-low'];
-        if (!isEmpty(threshHigh) && !isEmpty(threshLow) && threshHigh !== threshLow) {
+        if (
+            !isEmpty(threshHigh) &&
+            !isEmpty(threshLow) &&
+            threshHigh !== threshLow
+        ) {
             maxY = threshHigh + Math.abs(threshHigh - threshLow) * 0.125;
             minY = threshLow - Math.abs(threshHigh - threshLow) * 0.125;
         }
@@ -1894,33 +2086,49 @@ const createHistogramParams = (scaleOption, arrayY,
     if (minY === maxY) {
         [minY, maxY] = adjustMinMax1Percent(minY, maxY);
     }
-    if (minY > maxY) { // rare case, i saw long time ago
+    if (minY > maxY) {
+        // rare case, i saw long time ago
         const temp = minY;
         minY = maxY;
         maxY = temp;
     }
 
     const globalRange = [minY, maxY];
-    const customBinSize = Math.max((globalRange[1] - globalRange[0]) / 128, Math.round(setYMax - setYMin) / 128) || 1;
+    const customBinSize =
+        Math.max(
+            (globalRange[1] - globalRange[0]) / 128,
+            Math.round(setYMax - setYMin) / 128,
+        ) || 1;
 
     return [minY, maxY, globalRange, customBinSize];
 };
 
-const colorErrorCells = (jexcelDivId, errorCells, requiredErrorEles=[]) => {
+const colorErrorCells = (jexcelDivId, errorCells, requiredErrorEles = []) => {
     if (isEmpty(errorCells)) return;
 
-    const styleParams = errorCells.reduce((a, b) => ({...a, [b]: 'color:red;'}), {});
+    const styleParams = errorCells.reduce(
+        (a, b) => ({ ...a, [b]: 'color:red;' }),
+        {},
+    );
     document.getElementById(jexcelDivId).jspreadsheet.setStyle(styleParams);
     if (requiredErrorEles.length) {
-        const emptyCellsParams = requiredErrorEles.reduce((a, b) => ({...a, [b]: 'background-color: red;'}), {});
-        document.getElementById(jexcelDivId).jspreadsheet.setStyle(emptyCellsParams);
+        const emptyCellsParams = requiredErrorEles.reduce(
+            (a, b) => ({ ...a, [b]: 'background-color: red;' }),
+            {},
+        );
+        document
+            .getElementById(jexcelDivId)
+            .jspreadsheet.setStyle(emptyCellsParams);
     }
 };
 
 const colorErrorCheckboxCells = (jexcelDivId, errorCells) => {
     if (isEmpty(errorCells)) return;
 
-    const styleParams = errorCells.reduce((a, b) => ({...a, [b]: 'background-color: red;'}), {});
+    const styleParams = errorCells.reduce(
+        (a, b) => ({ ...a, [b]: 'background-color: red;' }),
+        {},
+    );
     document.getElementById(jexcelDivId).jspreadsheet.setStyle(styleParams);
 };
 
@@ -1934,7 +2142,10 @@ const showGAToastr = (errors) => {
     showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
 };
 
-const getSelectedItems = (isCategoryItem = false, selectParent = $(formElements.endProcSelectedItem)) => {
+const getSelectedItems = (
+    isCategoryItem = false,
+    selectParent = $(formElements.endProcSelectedItem),
+) => {
     const selectedItems = [];
 
     let allSelected = [];
@@ -1947,7 +2158,10 @@ const getSelectedItems = (isCategoryItem = false, selectParent = $(formElements.
     if (allSelected.length > 0) {
         Array.prototype.forEach.call(allSelected, (selected) => {
             if ($(selected).attr('name') !== 'catExpBox') {
-                if (selected.value && selectedItems.includes(selected.value) === false) {
+                if (
+                    selected.value &&
+                    selectedItems.includes(selected.value) === false
+                ) {
                     selectedItems.push(selected.value);
                 }
             }
@@ -1957,9 +2171,18 @@ const getSelectedItems = (isCategoryItem = false, selectParent = $(formElements.
 };
 
 // PythonのNumpyのhistgram関数相当のヒストグラム計算処理を実施
-function genHistLabelsCounts(arrayVals, localNumBins, localValMin, localValMax) {
-    const labelMin = !isEmpty(localValMin) ? localValMin : Math.min.apply(null, arrayVals);
-    const labelMax = !isEmpty(localValMax) ? localValMax : Math.max.apply(null, arrayVals);
+function genHistLabelsCounts(
+    arrayVals,
+    localNumBins,
+    localValMin,
+    localValMax,
+) {
+    const labelMin = !isEmpty(localValMin)
+        ? localValMin
+        : Math.min.apply(null, arrayVals);
+    const labelMax = !isEmpty(localValMax)
+        ? localValMax
+        : Math.max.apply(null, arrayVals);
 
     const histLabels = genHistLabels(labelMin, labelMax, localNumBins);
     const histCounts = genHistCounts(histLabels, arrayVals, labelMin, labelMax);
@@ -1968,7 +2191,10 @@ function genHistLabelsCounts(arrayVals, localNumBins, localValMin, localValMax) 
     histLabels.pop();
     // histLabelsがヒストグラムのX軸、histCountsがヒストグラムのY軸
     // 表示を合わせるために値を逆順にする
-    return {histLabels: histLabels.reverse(), histCounts: histCounts.reverse()};
+    return {
+        histLabels: histLabels.reverse(),
+        histCounts: histCounts.reverse(),
+    };
 }
 
 function genHistLabels(labelMin, labelMax, localNumBins) {
@@ -2009,7 +2235,12 @@ function genHistCounts(histLabels, arrayVals, labelMin, labelMax) {
             }
             const histLabelMin = histLabels[j];
             const histLabelMax = histLabels[j + 1];
-            if (val !== null && val !== undefined && val >= histLabelMin && val < histLabelMax) {
+            if (
+                val !== null &&
+                val !== undefined &&
+                val >= histLabelMin &&
+                val < histLabelMax
+            ) {
                 histCounts[j] += 1;
             }
         }
@@ -2043,11 +2274,13 @@ const endProcMultiSelectOnChange = async (count, props) => {
     const checkedIds = [];
     const dataTypes = [];
     const dataTypeShownName = [];
+    const columnInfo = [];
     await procInfo.updateColumns();
     const procColumns = procInfo.getColumns();
 
-    const dataTypeTargets = props.showStrColumn ? CfgProcess_CONST.ALL_TYPES : CfgProcess_CONST.NUMERIC_TYPES;
-
+    const dataTypeTargets = props.showStrColumn
+        ? CfgProcess_CONST.ALL_TYPES
+        : CfgProcess_CONST.NUMERIC_TYPES;
 
     // push cycle time columns first
     if (props.showStrColumn && !props.hideCTCol) {
@@ -2058,7 +2291,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
             vals.push(ctCol.name_en);
             names.push(ctCol.shown_name);
             dataTypes.push(ctCol.data_type);
-            dataTypeShownName.push(dataTypeShort(ctCol))
+            dataTypeShownName.push(dataTypeShort(ctCol));
+            columnInfo.push({ id: ctCol.id, columnType: ctCol.column_type });
         }
         if (datetimeCols) {
             for (const dtCol of datetimeCols) {
@@ -2066,7 +2300,11 @@ const endProcMultiSelectOnChange = async (count, props) => {
                 vals.push(dtCol.name_en);
                 names.push(dtCol.shown_name);
                 dataTypes.push(dtCol.data_type);
-                dataTypeShownName.push(dataTypeShort(dtCol))
+                dataTypeShownName.push(dataTypeShort(dtCol));
+                columnInfo.push({
+                    id: dtCol.id,
+                    columnType: dtCol.column_type,
+                });
             }
         }
     }
@@ -2076,29 +2314,53 @@ const endProcMultiSelectOnChange = async (count, props) => {
         if (col.is_get_date) {
             getDateColID = col.id;
         }
-        if (dataTypeTargets.includes(col.data_type) && !CfgProcess_CONST.CT_TYPES.includes(col.data_type)) {
+        if (
+            dataTypeTargets.includes(col.data_type) &&
+            !CfgProcess_CONST.CT_TYPES.includes(col.data_type)
+        ) {
             ids.push(col.id);
             vals.push(col.name_en);
             names.push(col.shown_name);
             // checkedIds.push(col.id);
             dataTypes.push(col.data_type);
-            dataTypeShownName.push(dataTypeShort(col))
+            dataTypeShownName.push(dataTypeShort(col));
+            columnInfo.push({ id: col.id, columnType: col.column_type });
         }
     }
 
     // load machine multi checkbox to Condition Proc.
     if (ids) {
         const parentId = `end-proc-val-div-${count}`;
-        const availableColorVars = procColumns.filter(col => [
-            DataTypes.STRING.name, DataTypes.INTEGER.name, DataTypes.TEXT.name
-        ].includes(col.data_type));
+        const propIndex =
+            $('#end-proc-row')
+                .children()
+                .index($(`#end-proc-process-div-${count}-parent`).parent()) + 1;
+        const dataFilterSystemAllowCheck = masterDataFilterSystem
+            .filter(
+                (e) =>
+                    e.propTarget === processOrderForFilterCheck.all ||
+                    e.propTarget === propIndex.toString(),
+            )
+            .map((e) => e.id);
+        const dataFilterSystem = columnInfo.filter((col) =>
+            dataFilterSystemAllowCheck.includes(col.columnType),
+        );
+        const availableColorVars = procColumns.filter((col) =>
+            [
+                DataTypes.STRING.name,
+                DataTypes.INTEGER.name,
+                DataTypes.TEXT.name,
+            ].includes(col.data_type),
+        );
         const listGroupProps = {
             checkedIds,
             name: `GET02_VALS_SELECT${count}`,
             noFilter: false,
             itemNames: names,
             itemDataTypes: props.showDataType ? dataTypes : null,
-            itemDataTypeShownNames: props.showDataType ? dataTypeShownName : null,
+            itemDataTypeShownNames: props.showDataType
+                ? dataTypeShownName
+                : null,
             isRadio: !!props.radio,
             showCatExp: props.showCatExp,
             isRequired: props.isRequired,
@@ -2119,14 +2381,17 @@ const endProcMultiSelectOnChange = async (count, props) => {
             judge: props.judge || false,
             shouldObjectiveIsTarget: props.shouldObjectiveIsTarget || false,
             disableSerialAsObjective: props.disableSerialAsObjective || false,
+            isColorRequired: props.isColorRequired || false,
             procId,
+            dataFilterSystem,
         };
         addGroupListCheckboxWithSearch(
             parentId,
-            `end-proc-val-${count}`, '',
+            `end-proc-val-${count}`,
+            '',
             ids,
             vals,
-            listGroupProps
+            listGroupProps,
         );
     }
     updateSelectedItems();
@@ -2136,17 +2401,23 @@ const endProcMultiSelectOnChange = async (count, props) => {
     checkIfProcessesAreLinked();
 };
 
-
 // add end proc
 const addEndProcMultiSelect = (procIds, procVals, props) => {
     let count = 1;
-    const innerFunc = (onChangeCallbackFunc = null, onCloseCallbackFunc = null, onChangeCallbackDicParam = null, onCloseCallbackDicParam = null) => {
+    const innerFunc = (
+        onChangeCallbackFunc = null,
+        onCloseCallbackFunc = null,
+        onChangeCallbackDicParam = null,
+        onCloseCallbackDicParam = null,
+    ) => {
         const itemList = [];
         for (let i = 0; i < procIds.length; i++) {
             const itemId = procIds[i];
             const itemVal = procVals[i].shown_name;
             const itemEnVal = procVals[i].name_en;
-            itemList.push(`<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`);
+            itemList.push(
+                `<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`,
+            );
         }
 
         while (checkExistDataGenBtn('btn-add-end-proc', count)) {
@@ -2184,7 +2455,7 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
             const eleNumber = e.currentTarget.id.match(/\d+$/)[0];
             const isShowCTTime = $(formElements.showCT_Time).prop('checked');
             if (isShowCTTime !== undefined && props.hideCTCol !== undefined) {
-                props.hideCTCol = isShowCTTime? !isShowCTTime: true;
+                props.hideCTCol = isShowCTTime ? !isShowCTTime : true;
             }
             endProcMultiSelectOnChange(eleNumber, props).then((r) => {
                 if (onChangeCallbackFunc) {
@@ -2198,12 +2469,15 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
             countTotalVariables();
         });
 
-        cardRemovalByClick('#end-proc-row div', onCloseCallbackFunc, onCloseCallbackDicParam);
+        cardRemovalByClick(
+            '#end-proc-row div',
+            onCloseCallbackFunc,
+            onCloseCallbackDicParam,
+        );
         updateSelectedItems();
     };
     return innerFunc;
 };
-
 
 const getStratifiedVars = async (selectedEndProc) => {
     if (!selectedEndProc) {
@@ -2240,26 +2514,38 @@ const scrollList2Top = () => {
     $('ul').scrollTop(0);
 };
 
-const updateTableRowNumber = (tableId = null, tableElement = null, tableBody = null) => {
+const updateTableRowNumber = (
+    tableId = null,
+    tableElement = null,
+    tableBody = null,
+) => {
     // numbering rows in a table
     try {
         if (!isEmpty(tableElement)) {
             tableElement.find('tbody tr').each((rowIdx, row) => {
-                $(row).find('td.col-number').text(rowIdx + 1);
+                $(row)
+                    .find('td.col-number')
+                    .text(rowIdx + 1);
             });
             return;
         }
         if (!isEmpty(tableId)) {
             $(`#${tableId} tbody tr`).each((rowIdx, row) => {
-                $(row).find('td.col-number').text(rowIdx + 1);
+                $(row)
+                    .find('td.col-number')
+                    .text(rowIdx + 1);
             });
             return;
         }
 
         if (!isEmpty(tableBody)) {
-            $(tableBody).find('tr').each((rowIdx, row) => {
-                $(row).find('td.col-number').text(rowIdx + 1);
-            });
+            $(tableBody)
+                .find('tr')
+                .each((rowIdx, row) => {
+                    $(row)
+                        .find('td.col-number')
+                        .text(rowIdx + 1);
+                });
         }
     } catch (e) {
         //
@@ -2270,8 +2556,8 @@ const collapseFloatingList = (el) => {
     // collapse <ul> list
     $(el).removeClass('floating-dropdown');
     $(el).removeClass('disable-max-height');
-    $(el).css({width: '', height: '', transform: ''});
-    $(el).parent().css({height: ''});
+    $(el).css({ width: '', height: '', transform: '' });
+    $(el).parent().css({ height: '' });
 
     // const shouldReOrder = (el) => {
     //     const options = $(el).find('li input[type=checkbox], li input[type=radio]');
@@ -2312,20 +2598,26 @@ const keyPress = (e) => {
     if (e.key === 'Escape') {
         collapseFloatingLists();
     } else if (e.key === 'ArrowLeft') {
-        if (savedBox) { // TODO use common function, doesn't work now
-            $('.cate-tooltip').css({visibility: 'hidden'}); // hide all tooltip
+        if (savedBox) {
+            // TODO use common function, doesn't work now
+            $('.cate-tooltip').css({ visibility: 'hidden' }); // hide all tooltip
             let count = 0;
             let previousBox = savedBox.previousSibling;
-            while (previousBox && count < 2000) { // TODO limit to a max iteration
+            while (previousBox && count < 2000) {
+                // TODO limit to a max iteration
                 if ($(previousBox).hasClass('keyboard-movement')) {
                     // reset previous box
-                    $('#cateTable table td.box-has-data.cate-box-border').removeClass('cate-box-border');
+                    $(
+                        '#cateTable table td.box-has-data.cate-box-border',
+                    ).removeClass('cate-box-border');
                     $(savedBox).removeClass('cate-box-border');
 
                     // update current box
                     savedBox = previousBox;
                     $(savedBox).addClass('cate-box-border');
-                    $(savedBox).find('span.cate-value .cate-tooltip').css({visibility: 'visible'});
+                    $(savedBox)
+                        .find('span.cate-value .cate-tooltip')
+                        .css({ visibility: 'visible' });
                     break;
                 } else {
                     previousBox = previousBox.previousSibling;
@@ -2335,17 +2627,21 @@ const keyPress = (e) => {
         }
     } else if (e.key === 'ArrowRight') {
         if (savedBox) {
-            $('.cate-tooltip').css({visibility: 'hidden'});
+            $('.cate-tooltip').css({ visibility: 'hidden' });
             let count = 0;
             let nextBox = savedBox.nextSibling;
             while (nextBox && count < 2000) {
                 if ($(nextBox).hasClass('keyboard-movement')) {
-                    $('#cateTable table td.box-has-data.cate-box-border').removeClass('cate-box-border');
+                    $(
+                        '#cateTable table td.box-has-data.cate-box-border',
+                    ).removeClass('cate-box-border');
                     $(savedBox).removeClass('cate-box-border');
 
                     savedBox = nextBox;
                     $(savedBox).addClass('cate-box-border');
-                    $(savedBox).find('span.cate-value .cate-tooltip').css({visibility: 'visible'});
+                    $(savedBox)
+                        .find('span.cate-value .cate-tooltip')
+                        .css({ visibility: 'visible' });
                     break;
                 } else {
                     nextBox = nextBox.nextSibling;
@@ -2401,7 +2697,6 @@ const loadingShow = (isContinue = false, showGraph = false) => {
                 }
                 displayElapsedTime(elapsedTimeEl);
             }, 1000);
-
         }
     }, 0);
 
@@ -2409,14 +2704,13 @@ const loadingShow = (isContinue = false, showGraph = false) => {
         if (!requestStartedAt) return;
 
         const t1 = performance.now();
-        const elapsedTime = (t1 - requestStartedAt);
+        const elapsedTime = t1 - requestStartedAt;
         const h = Math.floor(elapsedTime / (1000 * 60 * 60));
-        const m = Math.floor(elapsedTime / (1000 * 60)) - (h * 60);
-        const s = Math.round(elapsedTime / 1000) - (m * 60);
+        const m = Math.floor(elapsedTime / (1000 * 60)) - h * 60;
+        const s = Math.round(elapsedTime / 1000) - m * 60;
         const time = `${h > 0 ? addZeroToNumber(h) + ':' : ''}${addZeroToNumber(m)}:${addZeroToNumber(s)}`;
-        elapsedTimeEl.text(`Elapsed time: ${time}`)
-
-    }
+        elapsedTimeEl.text(`Elapsed time: ${time}`);
+    };
 
     if (!isContinue) {
         resetProgress();
@@ -2453,18 +2747,16 @@ const loadingShowImmediately = (showGraph = false) => {
     });
 };
 
-const sleep = (second) => new Promise(resolve => setTimeout(resolve, second * 1000))
+const sleep = (second) =>
+    new Promise((resolve) => setTimeout(resolve, second * 1000));
 
-const removeAbortButton = (res) => {
-    return new Promise(async (rs, rj) => {
-        $('.abort-button').prop('disabled', true);
-        clearInterval(showElapsedTime);
-        $('#confirmAbortProcessModal').modal('hide');
-        afterReceiveResponseCommon(res);
-        await sleep(0.3);
-        rs();
-    })
-}
+const removeAbortButton = async (res) => {
+    $('.abort-button').prop('disabled', true);
+    clearInterval(showElapsedTime);
+    $('#confirmAbortProcessModal').modal('hide');
+    afterReceiveResponseCommon(res);
+    await sleep(0.3);
+};
 
 const loadingUpdate = (pct) => {
     setTimeout(() => {
@@ -2481,10 +2773,9 @@ const loadingHide = () => {
     }, 0);
 };
 
-const loadingHideDelayTime = noRecords =>
+const loadingHideDelayTime = (noRecords) =>
     // console.log('loadingHideDelayTime', Math.min((noRecords || 1000), 1000)/3);
-    Math.min((noRecords || 1000), 1000) / 3;
-
+    Math.min(noRecords || 1000, 1000) / 3;
 
 const errorHandling = (error, type = '') => {
     if (error.statusText === 'abort') return;
@@ -2494,7 +2785,10 @@ const errorHandling = (error, type = '') => {
         abortProcess();
         console.log('request timeout..');
         const i18nTexts = {
-            abnormalGraphShow: type === 'front' ? $('#i18nFrontProcessTimeout').text() : $('#i18nRequestTimeout').text(),
+            abnormalGraphShow:
+                type === 'front'
+                    ? $('#i18nFrontProcessTimeout').text()
+                    : $('#i18nRequestTimeout').text(),
         };
 
         const msgContent = `<p>${i18nTexts.abnormalGraphShow}</p>`;
@@ -2507,8 +2801,8 @@ const errorHandling = (error, type = '') => {
 
 const handleShowAbortModal = () => {
     $('#confirmAbortProcessModal').modal('show');
-    $('#confirmAbortProcessModal').css({zIndex: 2147483649});
-    $('.loadingoverlay').css({zIndex: 9999});
+    $('#confirmAbortProcessModal').css({ zIndex: 2147483649 });
+    $('.loadingoverlay').css({ zIndex: 9999 });
 };
 
 const abortProcess = () => {
@@ -2517,14 +2811,13 @@ const abortProcess = () => {
             url: '/ap/api/common/abort_process',
             method: 'GET',
             data: {
-                thread_id: xhr.thread_id
-            }
-        })
+                thread_id: xhr.thread_id,
+            },
+        });
         xhr.abort();
         xhr = null;
     }
-}
-
+};
 
 class GraphStore {
     constructor() {
@@ -2668,8 +2961,9 @@ class GraphStore {
     }
 
     getDataAtIndex(dataIdx, dataPointIdx) {
-        const plotDatas = getNode(this.traceDataResult, ['array_plotdata']) || [];
-        const empty = {x: '', y: ''};
+        const plotDatas =
+            getNode(this.traceDataResult, ['array_plotdata']) || [];
+        const empty = { x: '', y: '' };
         if (isEmpty(plotDatas) || plotDatas.length <= dataIdx) {
             return empty;
         }
@@ -2685,7 +2979,8 @@ class GraphStore {
 
     getArrayPlotData(canvasId) {
         const dataIdx = $(`#${canvasId}`).attr('plotdata-index') || 0;
-        const plotDatas = getNode(this.traceDataResult, ['array_plotdata']) || [];
+        const plotDatas =
+            getNode(this.traceDataResult, ['array_plotdata']) || [];
         if (isEmpty(plotDatas) || plotDatas.length <= dataIdx) {
             return empty;
         }
@@ -2696,7 +2991,10 @@ class GraphStore {
         if (isEmpty(this.traceDataResult)) {
             this.dataPointCount = 0;
         } else {
-            const timeColLenght = ('times' in this.traceDataResult) ? this.traceDataResult.times.length : 0;
+            const timeColLenght =
+                'times' in this.traceDataResult
+                    ? this.traceDataResult.times.length
+                    : 0;
             if (timeColLenght) {
                 const numSensors = this.traceDataResult.array_plotdata.length;
                 this.dataPointCount = (timeColLenght + 128) * numSensors * 2;
@@ -2710,7 +3008,8 @@ class GraphStore {
     }
 
     getPCPArrayPlotDataByID(colID) {
-        const plotDatas = getNode(this.traceDataResult, ['array_plotdata']) || [];
+        const plotDatas =
+            getNode(this.traceDataResult, ['array_plotdata']) || [];
         if (isEmpty(plotDatas)) {
             return {};
         }
@@ -2724,45 +3023,69 @@ class GraphStore {
         return plotObj;
     }
 
-    getVariableOrdering(procConfig, useFeatureImportance=true, loadByOrderIDs = false) {
+    getVariableOrdering(
+        procConfig,
+        useFeatureImportance = true,
+        loadByOrderIDs = false,
+    ) {
         const ordering = [];
         let orderingID = [];
         let allColIds = [];
         const currentTrace = this.traceDataResult;
-        const objectiveVariable = currentTrace.COMMON.objectiveVar ? Number(currentTrace.COMMON.objectiveVar[0]) : undefined;
-        const hasObjectiveVarInGUI = $('input[name=objectiveVar]:checked').length;
+        const objectiveVariable = currentTrace.COMMON.objectiveVar
+            ? Number(currentTrace.COMMON.objectiveVar[0])
+            : undefined;
+        const hasObjectiveVarInGUI = $(
+            'input[name=objectiveVar]:checked',
+        ).length;
         // const latestSortProcs = latestSortColIds.map(val => Number(val.split('-')[0]));
         // const endProcIds = latestSortProcs.filter((procId, index, procs) => procs.indexOf(procId) === index);
         const endProcIds = getSelectedEndProcIds();
-        let endProcColIds= endProcIds.map(id=> procConfig[id].getColumns()).flat();
-        const endProcObj = Object.fromEntries(endProcColIds.map(proc=>[proc.id, proc.process_id]));
+        let endProcColIds = endProcIds
+            .map((id) => procConfig[id].getColumns())
+            .flat();
+        const endProcObj = Object.fromEntries(
+            endProcColIds.map((proc) => [proc.id, proc.process_id]),
+        );
 
         if (objectiveVariable && hasObjectiveVarInGUI) {
             orderingID.push(objectiveVariable);
         }
 
         let sensorList = [];
-        if (useFeatureImportance && currentTrace.importance_columns_ids && currentTrace.importance_columns_ids.length) {
+        if (
+            useFeatureImportance &&
+            currentTrace.importance_columns_ids &&
+            currentTrace.importance_columns_ids.length
+        ) {
             sensorList = currentTrace.importance_columns_ids;
             endProcColIds = [];
         }
-        if (currentTrace.COMMON.GET02_VALS_SELECT && currentTrace.COMMON.GET02_VALS_SELECT.length && !useFeatureImportance) {
+        if (
+            currentTrace.COMMON.GET02_VALS_SELECT &&
+            currentTrace.COMMON.GET02_VALS_SELECT.length &&
+            !useFeatureImportance
+        ) {
             sensorList = currentTrace.COMMON.GET02_VALS_SELECT;
         }
         if (loadByOrderIDs) {
-            sensorList = latestSortColIds.map(val => Number(val.split('-')[1]));
+            sensorList = latestSortColIds.map((val) =>
+                Number(val.split('-')[1]),
+            );
         }
         orderingID = [...orderingID, ...sensorList];
-        allColIds = [...orderingID,...endProcColIds.map(col=>col.id)];
-        allColIds = allColIds.filter((value, index, array) => array.indexOf(value) === index)
+        allColIds = [...orderingID, ...endProcColIds.map((col) => col.id)];
+        allColIds = allColIds.filter(
+            (value, index, array) => array.indexOf(value) === index,
+        );
         allColIds = new Set(allColIds);
         allColIds = Array.from(allColIds);
         if (allColIds.length) {
-            allColIds.forEach(id => {
+            allColIds.forEach((id) => {
                 // const targetProcID = currentTrace.COMMON.end_proc[id];
                 const targetProcID = endProcObj[id];
                 const targetProc = procConfig[targetProcID];
-                const targetCol = targetProc && targetProc.dicColumns[id]
+                const targetCol = targetProc && targetProc.dicColumns[id];
                 if (targetCol) {
                     ordering.push({
                         ...targetCol,
@@ -2771,18 +3094,25 @@ class GraphStore {
                         proc_name: targetProc.shown_name,
                         type: targetCol.data_type,
                         proc_id: targetProc.id,
-                    })
+                    });
                 }
-            })
+            });
         }
         return {
             ordering,
             objectiveVar: objectiveVariable,
             orderingID: orderingID,
-            use_feature_importance: true
+            use_feature_importance: true,
         };
     }
-    genDfLabel(id, name, dfMode, mode, isNGRate=false, needToMultipleID=false) {
+    genDfLabel(
+        id,
+        name,
+        dfMode,
+        mode,
+        isNGRate = false,
+        needToMultipleID = false,
+    ) {
         let labelID = id;
         let modeLabel = mode.charAt(0).toUpperCase() + mode.slice(1);
         modeLabel = `EMD|${modeLabel}`;
@@ -2793,24 +3123,26 @@ class GraphStore {
             labelID = Number(id) * EMD_DIFF_ID;
         }
         const colName = dfMode ? `${name}|${modeLabel}` : name;
-        return [
-            labelID,
-            colName,
-            `__${labelID}__${name}|${modeLabel}`
-        ];
+        return [labelID, colName, `__${labelID}__${name}|${modeLabel}`];
     }
-    getTargetVariables(dfMode=true) {
+    getTargetVariables(dfMode = true) {
         const currentTrace = this.traceDataResult;
         const targetVariables = [];
         const RLPMode = currentTrace.emdType;
         // ng rate append
-        if (dfMode && COMMON_CONSTANT.NG_RATE in currentTrace && currentTrace.ng_rates) {
-            currentTrace.ng_rates.forEach(sensorDat => {
+        if (
+            dfMode &&
+            COMMON_CONSTANT.NG_RATE in currentTrace &&
+            currentTrace.ng_rates
+        ) {
+            currentTrace.ng_rates.forEach((sensorDat) => {
                 const [colID, colName, colLabel] = this.genDfLabel(
                     sensorDat.end_col_id,
                     sensorDat.sensor_name,
                     dfMode,
-                    RLPMode, true);
+                    RLPMode,
+                    true,
+                );
                 targetVariables.push({
                     id: colID,
                     org_id: sensorDat.end_col_id,
@@ -2819,19 +3151,22 @@ class GraphStore {
                     proc_name: sensorDat.end_proc_name,
                     type: sensorDat.data_type.toUpperCase(),
                     data_type: sensorDat.data_type.toUpperCase(),
-                    label: colLabel
+                    label: colLabel,
                 });
             });
         }
         // end variable append
-        currentTrace.array_plotdata.forEach(sensorDat => {
-            const sensor = procConfigs[sensorDat.end_proc_id].getColumnById(sensorDat.sensor_id);
+        currentTrace.array_plotdata.forEach((sensorDat) => {
+            const sensor = procConfigs[sensorDat.end_proc_id].getColumnById(
+                sensorDat.sensor_id,
+            );
             if ([EMDType.BOTH, EMDType.DRIFT].includes(RLPMode)) {
                 const [colID, colName, colLabel] = this.genDfLabel(
                     sensorDat.sensor_id,
                     sensorDat.sensor_name,
                     dfMode,
-                    EMDType.DRIFT);
+                    EMDType.DRIFT,
+                );
                 targetVariables.push({
                     id: colID,
                     org_id: sensorDat.sensor_id,
@@ -2840,7 +3175,7 @@ class GraphStore {
                     proc_name: sensorDat.proc_name,
                     type: sensor.data_type,
                     data_type: sensor.data_type,
-                    label: colLabel
+                    label: colLabel,
                 });
             }
             if (dfMode && [EMDType.BOTH, EMDType.DIFF].includes(RLPMode)) {
@@ -2851,7 +3186,8 @@ class GraphStore {
                     dfMode,
                     EMDType.DIFF,
                     false,
-                    needToMultipleID);
+                    needToMultipleID,
+                );
                 targetVariables.push({
                     id: colID,
                     org_id: sensorDat.sensor_id,
@@ -2860,7 +3196,7 @@ class GraphStore {
                     proc_name: sensorDat.proc_name,
                     type: sensor.data_type,
                     data_type: sensor.data_type,
-                    label: colLabel
+                    label: colLabel,
                 });
             }
         });
@@ -2879,14 +3215,14 @@ const significantDigitFmt = (val, sigDigit = 4) => {
 
     const digit = Math.floor(Math.log10(Math.abs(val)));
     if (Number.isInteger(val)) {
-        if ((val / 100000000) > 1) {
+        if (val / 100000000 > 1) {
             fmt = '';
         } else {
             fmt = ',d';
         }
     } else if (digit < -3 || digit > 6) {
         fmt = `.${sigDigit - 1}e`;
-    } else if (digit > (sigDigit - 3)) {
+    } else if (digit > sigDigit - 3) {
         fmt = ',.1f';
     } else {
         fmt = `,.${sigDigit - digit - 1}f`;
@@ -2931,31 +3267,33 @@ const applySignificantDigit = (val, sigDigit = 4, fmtStr = '') => {
 
 const makeDictFrom2Arrays = (keys, vals) => {
     const result = {};
-    keys.forEach((key, i) => result[key] = vals[i]);
+    keys.forEach((key, i) => (result[key] = vals[i]));
 
     return result;
 };
 
 // draw processing time
-const drawProcessingTime = (t0, t1, backendTime, rowNumber, uniqueSerial = null) => {
+const drawProcessingTime = (
+    t0,
+    t1,
+    backendTime,
+    rowNumber,
+    uniqueSerial = null,
+) => {
     const frontendTime = (t1 - t0) / 1000;
     const netTime = (t1 - (requestStartedAt || t0)) / 1000; // seconds
     const hasDuplicate = $('[name=duplicated_serial]').length > 0;
-    const duplicate = hasDuplicate ? `, Duplicate: ${uniqueSerial !== null ? applySignificantDigit(rowNumber - uniqueSerial) : 'No checked'}` : '';
-    let numberOfQueriedDat = checkTrue(rowNumber) ? `, Number of queried data : ${
-        applySignificantDigit(rowNumber)
-    }${
-        duplicate
-    }` : '';
-    let processTime = `Net time: ${
-        applySignificantDigit(netTime)
-    } sec, Tb: ${
+    const duplicate = hasDuplicate
+        ? `, Duplicate: ${uniqueSerial !== null ? applySignificantDigit(rowNumber - uniqueSerial) : 'No checked'}`
+        : '';
+    let numberOfQueriedDat = checkTrue(rowNumber)
+        ? `, Number of queried data : ${applySignificantDigit(rowNumber)}${
+              duplicate
+          }`
+        : '';
+    let processTime = `Net time: ${applySignificantDigit(netTime)} sec, Tb: ${
         backendTime ? applySignificantDigit(backendTime) : 0
-    } sec, Tf: ${
-        applySignificantDigit(frontendTime)
-    } sec${
-        numberOfQueriedDat
-    }`;
+    } sec, Tf: ${applySignificantDigit(frontendTime)} sec${numberOfQueriedDat}`;
 
     const lastUpdateTime = `Last update time: ${moment().format(DATETIME_FORMAT)}`;
     $('#lastUpdateTime').html(lastUpdateTime);
@@ -2994,9 +3332,8 @@ const chartAreaBorder = {
     id: 'chartAreaBorder',
     beforeDraw(chart, args, options) {
         const {
-            ctx, chartArea: {
-                left, top, width, height,
-            },
+            ctx,
+            chartArea: { left, top, width, height },
         } = chart;
         ctx.save();
         ctx.strokeStyle = options.borderColor;
@@ -3012,9 +3349,8 @@ const scatterInsideTitle = {
     id: 'scatterInsideTitle',
     beforeDatasetsDraw(chart, args, options) {
         const {
-            ctx, chartArea: {
-                left, top, width, height,
-            },
+            ctx,
+            chartArea: { left, top, width, height },
         } = chart;
         ctx.save();
         ctx.font = `${options.font.size}px ${options.font.family}`;
@@ -3022,7 +3358,11 @@ const scatterInsideTitle = {
         if (options.xContent.length) {
             ctx.fillStyle = options.color[0];
             const xTextWidth = ctx.measureText(options.xContent[0]).width;
-            ctx.fillText(options.xContent, left + (width / 2 - xTextWidth / 2), height - top + 10);
+            ctx.fillText(
+                options.xContent,
+                left + (width / 2 - xTextWidth / 2),
+                height - top + 10,
+            );
         }
         if (options.yContent.length) {
             ctx.fillStyle = options.color[1];
@@ -3057,8 +3397,14 @@ const transformFacetParams = (formData, eleIdPrefix = '') => {
 };
 
 const getSetFacetValue = (value, name, formData, eleIdPrefix) => {
-    const endProcDiv = eleIdPrefix ? `${eleIdPrefix}-end-proc-row` : 'end-proc-row';
-    const facetItem = $(`#${endProcDiv} select[name="catExpBox"] option:selected[value="${value}"]`).parent().attr('id');
+    const endProcDiv = eleIdPrefix
+        ? `${eleIdPrefix}-end-proc-row`
+        : 'end-proc-row';
+    const facetItem = $(
+        `#${endProcDiv} select[name="catExpBox"] option:selected[value="${value}"]`,
+    )
+        .parent()
+        .attr('id');
     if (facetItem) {
         const facetItemObj2 = facetItem.split('-');
         const facetItemID = facetItemObj2[facetItemObj2.length - 1];
@@ -3101,15 +3447,15 @@ const bindCategoryParams = (formData) => {
 
 const hideTooltip = (selector, timeOut = 1000) => {
     setTimeout(() => {
-        $(selector).tooltip('hide')
-            .attr('data-original-title', '');
+        $(selector).tooltip('hide').attr('data-original-title', '');
     }, timeOut);
 };
 
 const setTooltip = (selector, message, autoHide = true) => {
     if ($(selector).parent().is(':visible')) {
         const title = $(selector).attr('title');
-        $(selector).attr('data-original-title', message)
+        $(selector)
+            .attr('data-original-title', message)
             .attr('title', '')
             .tooltip('show');
 
@@ -3134,7 +3480,7 @@ const getTransKDE = (kdeData) => {
     }
     const [, maxKDE] = findMinMax(kdes);
     const [, maxHist] = findMinMax(histCounts);
-    const transKDE = kdes.map(i => maxHist * i / maxKDE);
+    const transKDE = kdes.map((i) => (maxHist * i) / maxKDE);
     return {
         transKDE,
         hisLabels,
@@ -3143,12 +3489,19 @@ const getTransKDE = (kdeData) => {
 };
 
 const transformDatetimeRange = (formData) => {
-    const datetimeRangeKeys = ['DATETIME_RANGE_PICKER', CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME];
-    const validDatetimeRanges = formData.getAll(datetimeRangeKeys[0])
-        .filter(value => value !== '');
+    const datetimeRangeKeys = [
+        'DATETIME_RANGE_PICKER',
+        CONST.STARTDATE,
+        CONST.STARTTIME,
+        CONST.ENDDATE,
+        CONST.ENDTIME,
+    ];
+    const validDatetimeRanges = formData
+        .getAll(datetimeRangeKeys[0])
+        .filter((value) => value !== '');
     if (validDatetimeRanges.length) {
         // to remove empty datetime range from terms
-        datetimeRangeKeys.forEach(key => formData.delete(key));
+        datetimeRangeKeys.forEach((key) => formData.delete(key));
         validDatetimeRanges.forEach((value) => {
             formData.append('DATETIME_RANGE_PICKER', value);
             const [startDate, startTime, , endDate, endTime] = value.split(' ');
@@ -3173,7 +3526,10 @@ const transformCategoryTraceTime = (formData, eleIdPrefix) => {
 
 const transformCHMParams = (formData) => {
     // set params
-    const catExpVal = formData.get('catExpBox1') || formData.get('catExpBox2') || formData.get('catExpBox');
+    const catExpVal =
+        formData.get('catExpBox1') ||
+        formData.get('catExpBox2') ||
+        formData.get('catExpBox');
     if (catExpVal) {
         formData.set('categoryVariable1', catExpVal);
         formData.set('categoryValueMulti1', 'NO_FILTER'); // default
@@ -3185,8 +3541,8 @@ const transformSKDParam = (formData, procConf) => {
     const objectiveVarID = formData.get('objectiveVar');
     const valsSelected = formData.getAll('GET02_VALS_SELECT1');
     const setEndProcs = () => {
-        const endProcs = [...formData.keys()].filter(
-            key => key.includes('end_proc'),
+        const endProcs = [...formData.keys()].filter((key) =>
+            key.includes('end_proc'),
         );
         if (endProcs.length) {
             endProcs.forEach((key) => {
@@ -3198,7 +3554,9 @@ const transformSKDParam = (formData, procConf) => {
     // const endProcCate = formData.get('objectiveVar');
     let endProcObjective = null;
     if (objectiveVarID) {
-        const [procObj] = Object.values(procConf).filter(proc => proc.getColumnById(objectiveVarID));
+        const [procObj] = Object.values(procConf).filter((proc) =>
+            proc.getColumnById(objectiveVarID),
+        );
         if (procObj) {
             endProcObjective = procObj.id;
         }
@@ -3217,11 +3575,11 @@ const transformSKDParam = (formData, procConf) => {
     return formData;
 };
 
-
 // convert hsv color to rgb
-const hsv2rgb = ({h, s, v}, opacity = false) => {
-    const f = (n, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
-    const rgb = [f(5), f(3), f(1)].map(value => value * 255);
+const hsv2rgb = ({ h, s, v }, opacity = false) => {
+    const f = (n, k = (n + h / 60) % 6) =>
+        v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+    const rgb = [f(5), f(3), f(1)].map((value) => value * 255);
     if (opacity) {
         return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.5)`;
     }
@@ -3244,7 +3602,11 @@ const getCurrentTimeStr = () => {
     const now = new Date();
     const offsetMs = now.getTimezoneOffset() * 60 * 1000;
     const dateLocal = new Date(now.getTime() - offsetMs);
-    const timeStr = dateLocal.toISOString().slice(0, 23).replace(/[-:]/g, '').replace('T', '_');
+    const timeStr = dateLocal
+        .toISOString()
+        .slice(0, 23)
+        .replace(/[-:]/g, '')
+        .replace('T', '_');
     return timeStr;
 };
 
@@ -3276,27 +3638,47 @@ const downloadTextFile = (url, filename = null) => {
 // formData is FormData object
 const chooseCyclicTraceTimeInterval = (formData) => {
     if (!formData) return formData;
-    const traceTimes = [...formData.keys()].filter(e => e.match(/.+TraceTime\d+/));
-    const traceTimeOptions = traceTimes.map(e => formData.get(e));
+    const traceTimes = [...formData.keys()].filter((e) =>
+        e.match(/.+TraceTime\d+/),
+    );
+    const traceTimeOptions = traceTimes.map((e) => formData.get(e));
 
     const divisionNum = formData.get(CYCLIC_TERM.DIV_NUM);
     const intervalNum = formData.get(CYCLIC_TERM.INTERVAL);
     const windowsLengthNum = formData.get(CYCLIC_TERM.WINDOW_LENGTH);
 
-    const targetDate = traceTimeOptions[0] === TRACE_TIME_CONST.RECENT
-        ? moment().format('YYYY-MM-DD') : formData.get(CONST.STARTDATE);
-    const targetTime = traceTimeOptions[0] === TRACE_TIME_CONST.RECENT
-        ? moment().format('HH:mm') : formData.get(CONST.STARTTIME);
+    const targetDate =
+        traceTimeOptions[0] === TRACE_TIME_CONST.RECENT
+            ? moment().format('YYYY-MM-DD')
+            : formData.get(CONST.STARTDATE);
+    const targetTime =
+        traceTimeOptions[0] === TRACE_TIME_CONST.RECENT
+            ? moment().format('HH:mm')
+            : formData.get(CONST.STARTTIME);
 
     // clear all datetimes before customize
-    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].forEach(e => formData.delete(e));
+    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].forEach(
+        (e) => formData.delete(e),
+    );
 
     traceTimeOptions.forEach((traceTimeOption, i) => {
-        const [startTimeRange, endTimeRange] = traceTimeOption === TRACE_TIME_CONST.FROM ? getEndTimeRange(
-            targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum,
-        ) : getStartTimeRange(
-            traceTimeOption, targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum,
-        );
+        const [startTimeRange, endTimeRange] =
+            traceTimeOption === TRACE_TIME_CONST.FROM
+                ? getEndTimeRange(
+                      targetDate,
+                      targetTime,
+                      divisionNum,
+                      intervalNum,
+                      windowsLengthNum,
+                  )
+                : getStartTimeRange(
+                      traceTimeOption,
+                      targetDate,
+                      targetTime,
+                      divisionNum,
+                      intervalNum,
+                      windowsLengthNum,
+                  );
 
         formData.append(CONST.STARTDATE, startTimeRange[0]);
         formData.append(CONST.STARTTIME, startTimeRange[1]);
@@ -3323,7 +3705,7 @@ function validateInputByNameWithOnchange(name, option) {
         // uncheck if disabled
         if (e.target.disabled) return;
 
-        let {value} = e.currentTarget;
+        let { value } = e.currentTarget;
         if (!value || (value < option.MIN && value !== 0)) {
             e.currentTarget.value = option.MIN;
             showToastrMsg(i18nCommon.changedToMaxValue);
@@ -3336,7 +3718,10 @@ function validateInputByNameWithOnchange(name, option) {
         }
 
         if (name === CYCLIC_TERM.INTERVAL || name === CYCLIC_TERM.DIV_OFFSET) {
-            if ((Math.abs(Number(value)) < option.DEFAULT && value > option.MIN)) {
+            if (
+                Math.abs(Number(value)) < option.DEFAULT &&
+                value > option.MIN
+            ) {
                 e.currentTarget.value = option.DEFAULT;
                 showToastrMsg(i18nCommon.changedToMaxValue);
                 e.target.focus();
@@ -3347,7 +3732,7 @@ function validateInputByNameWithOnchange(name, option) {
 
 const copyTextToClipboard = (url) => {
     fetch(url)
-        .then(response => response.blob())
+        .then((response) => response.blob())
         .then((blob) => {
             const reader = new FileReader();
             reader.onload = function () {
@@ -3359,8 +3744,11 @@ const copyTextToClipboard = (url) => {
 };
 
 const getFilterItemDetail = (procCond, condition, filterType) => {
-    const listCond = Array.isArray(condition) ? condition
-        : (condition !== 'NO_FILTER' ? [condition] : []);
+    const listCond = Array.isArray(condition)
+        ? condition
+        : condition !== 'NO_FILTER'
+          ? [condition]
+          : [];
     const filterItems = [];
     if (listCond.length) {
         listCond.forEach((item) => {
@@ -3387,16 +3775,28 @@ const getConditionFromSetting = (traceDat) => {
 
                 if (condition[CONST.FILTER_PARTNO]) {
                     // partnumber
-                    filterInfo.items.part_no = getFilterItemDetail(procCond, condition[CONST.FILTER_PARTNO], filterTypes.PART_NO);
+                    filterInfo.items.part_no = getFilterItemDetail(
+                        procCond,
+                        condition[CONST.FILTER_PARTNO],
+                        filterTypes.PART_NO,
+                    );
                 }
                 if (condition[CONST.FILTER_LINE]) {
                     // line
-                    filterInfo.items.line = getFilterItemDetail(procCond, condition[CONST.FILTER_LINE], filterTypes.LINE);
+                    filterInfo.items.line = getFilterItemDetail(
+                        procCond,
+                        condition[CONST.FILTER_LINE],
+                        filterTypes.LINE,
+                    );
                 }
 
                 if (condition[CONST.FILTER_MACH]) {
                     // machine
-                    filterInfo.items.machine = getFilterItemDetail(procCond, condition[CONST.FILTER_MACH], filterTypes.MACHINE);
+                    filterInfo.items.machine = getFilterItemDetail(
+                        procCond,
+                        condition[CONST.FILTER_MACH],
+                        filterTypes.MACHINE,
+                    );
                 }
 
                 // TODO: filter others
@@ -3409,13 +3809,26 @@ const getConditionFromSetting = (traceDat) => {
 };
 
 const genInfoTableBody = (traceDat) => {
-    const firstEndProc = traceDat[CONST.ARRAY_FORMVAL].length ? traceDat[CONST.ARRAY_FORMVAL][0].end_proc : undefined;
-    const startProc = procConfigs[traceDat[CONST.COMMON].start_proc] || procConfigs[firstEndProc] || undefined;
+    const firstEndProc = traceDat[CONST.ARRAY_FORMVAL].length
+        ? traceDat[CONST.ARRAY_FORMVAL][0].end_proc
+        : undefined;
+    const startProc =
+        procConfigs[traceDat[CONST.COMMON].start_proc] ||
+        procConfigs[firstEndProc] ||
+        undefined;
     const startProcName = startProc ? startProc.name : '';
-    const startDate = _.isArray(traceDat[CONST.COMMON][CONST.STARTDATE]) ? traceDat[CONST.COMMON][CONST.STARTDATE][0] : traceDat[CONST.COMMON][CONST.STARTDATE];
-    const endDate = _.isArray(traceDat[CONST.COMMON][CONST.ENDDATE]) ? traceDat[CONST.COMMON][CONST.ENDDATE][0] : traceDat[CONST.COMMON][CONST.ENDDATE];
-    let startTime = _.isArray(traceDat[CONST.COMMON][CONST.STARTTIME]) ? traceDat[CONST.COMMON][CONST.STARTTIME][0] : traceDat[CONST.COMMON][CONST.STARTTIME];
-    let endTime = _.isArray(traceDat[CONST.COMMON][CONST.ENDTIME]) ? traceDat[CONST.COMMON][CONST.ENDTIME][0] : traceDat[CONST.COMMON][CONST.ENDTIME];
+    const startDate = _.isArray(traceDat[CONST.COMMON][CONST.STARTDATE])
+        ? traceDat[CONST.COMMON][CONST.STARTDATE][0]
+        : traceDat[CONST.COMMON][CONST.STARTDATE];
+    const endDate = _.isArray(traceDat[CONST.COMMON][CONST.ENDDATE])
+        ? traceDat[CONST.COMMON][CONST.ENDDATE][0]
+        : traceDat[CONST.COMMON][CONST.ENDDATE];
+    let startTime = _.isArray(traceDat[CONST.COMMON][CONST.STARTTIME])
+        ? traceDat[CONST.COMMON][CONST.STARTTIME][0]
+        : traceDat[CONST.COMMON][CONST.STARTTIME];
+    let endTime = _.isArray(traceDat[CONST.COMMON][CONST.ENDTIME])
+        ? traceDat[CONST.COMMON][CONST.ENDTIME][0]
+        : traceDat[CONST.COMMON][CONST.ENDTIME];
     const startDateTime = `${startDate} ${startTime}`;
     const endDateTime = `${endDate} ${endTime}`;
     let settingDOM = '';
@@ -3553,7 +3966,7 @@ const zipImport = () => {
 
     const url = `/ap/api/fpp/zip_import?filename=${filename}`;
     fetch(url)
-        .then(response => response.clone().json())
+        .then((response) => response.clone().json())
         .then((json) => {
             const userSettingId = json.id;
             const redirectPage = json.page;
@@ -3564,7 +3977,7 @@ const zipImport = () => {
 
 const exportMode = () => {
     return !!$('[name=isExportMode]').val();
-}
+};
 
 const handleZipExport = (res) => {
     // export mode
@@ -3574,7 +3987,6 @@ const handleZipExport = (res) => {
 
     zipExport(res.isExportMode || res.responseJSON.dataset_id);
 };
-
 
 const rightClickHandler = (e, contextMenuEle) => {
     e.preventDefault();
@@ -3598,7 +4010,6 @@ const rightClickHandler = (e, contextMenuEle) => {
     return false;
 };
 
-
 const overrideUiSortable = () => {
     // override jQuery UI draggable
     const mouseCopy = $.extend({}, $.ui.mouse.prototype);
@@ -3614,8 +4025,16 @@ const overrideUiSortable = () => {
 
             if (this.options.mouseButton === 3) {
                 this.element.bind(`contextmenu.${this.widgetName}`, (event) => {
-                    if ($.data(event.target, `${that.widgetName}.preventClickEvent`) === true) {
-                        $.removeData(event.target, `${that.widgetName}.preventClickEvent`);
+                    if (
+                        $.data(
+                            event.target,
+                            `${that.widgetName}.preventClickEvent`,
+                        ) === true
+                    ) {
+                        $.removeData(
+                            event.target,
+                            `${that.widgetName}.preventClickEvent`,
+                        );
                         event.stopImmediatePropagation();
                         return false;
                     }
@@ -3633,15 +4052,18 @@ const overrideUiSortable = () => {
             }
 
             // we may have missed mouseup (out of window)
-            (this._mouseStarted && this._mouseUp(event));
+            this._mouseStarted && this._mouseUp(event);
 
             this._mouseDownEvent = event;
 
             const that = this;
-            const btnIsLeft = (event.which === this.options.mouseButton);
+            const btnIsLeft = event.which === this.options.mouseButton;
             // event.target.nodeName works around a bug in IE 8 with
             // disabled inputs (#7620)
-            const elIsCancel = (typeof this.options.cancel === 'string' && event.target.nodeName ? $(event.target).closest(this.options.cancel).length : false);
+            const elIsCancel =
+                typeof this.options.cancel === 'string' && event.target.nodeName
+                    ? $(event.target).closest(this.options.cancel).length
+                    : false;
             if (!btnIsLeft || elIsCancel || !this._mouseCapture(event)) {
                 return true;
             }
@@ -3654,7 +4076,7 @@ const overrideUiSortable = () => {
             }
 
             if (this._mouseDistanceMet(event) && this._mouseDelayMet(event)) {
-                this._mouseStarted = (this._mouseStart(event) !== false);
+                this._mouseStarted = this._mouseStart(event) !== false;
                 if (!this._mouseStarted) {
                     event.preventDefault();
                     return true;
@@ -3662,8 +4084,14 @@ const overrideUiSortable = () => {
             }
 
             // Click event may never have fired (Gecko & Opera)
-            if ($.data(event.target, `${this.widgetName}.preventClickEvent`) === true) {
-                $.removeData(event.target, `${this.widgetName}.preventClickEvent`);
+            if (
+                $.data(event.target, `${this.widgetName}.preventClickEvent`) ===
+                true
+            ) {
+                $.removeData(
+                    event.target,
+                    `${this.widgetName}.preventClickEvent`,
+                );
             }
 
             // these delegates are required to keep context
@@ -3685,27 +4113,38 @@ const overrideUiSortable = () => {
     });
 };
 
-
 const getDateTimeRangeFromCyclic = (formData, traceTimeOption) => {
     const divisionNum = formData.get(CYCLIC_TERM.DIV_NUM);
     const intervalNum = formData.get(CYCLIC_TERM.INTERVAL);
     const windowsLengthNum = formData.get(CYCLIC_TERM.WINDOW_LENGTH);
     const datetimeVal = $('#cyclicTermDatetimePicker').val();
-    /* eslint-disable no-undef */
-    const targetDate = traceTimeOption === TRACE_TIME_CONST.RECENT
-        ? moment().format('YYYY-MM-DD')
-        : moment(datetimeVal).format('YYYY-MM-DD');
-    const targetTime = traceTimeOption === TRACE_TIME_CONST.RECENT
-        ? moment().format('HH:mm')
-        : moment(datetimeVal).format('HH:mm');
-    /* eslint-enable  no-undef */
-    const [startTimeRange, endTimeRange] = traceTimeOption === TRACE_TIME_CONST.FROM
-        ? getEndTimeRange(
-            targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum,
-        )
-        : getStartTimeRange(
-            traceTimeOption, targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum,
-        );
+
+    const targetDate =
+        traceTimeOption === TRACE_TIME_CONST.RECENT
+            ? moment().format('YYYY-MM-DD')
+            : moment(datetimeVal).format('YYYY-MM-DD');
+    const targetTime =
+        traceTimeOption === TRACE_TIME_CONST.RECENT
+            ? moment().format('HH:mm')
+            : moment(datetimeVal).format('HH:mm');
+
+    const [startTimeRange, endTimeRange] =
+        traceTimeOption === TRACE_TIME_CONST.FROM
+            ? getEndTimeRange(
+                  targetDate,
+                  targetTime,
+                  divisionNum,
+                  intervalNum,
+                  windowsLengthNum,
+              )
+            : getStartTimeRange(
+                  traceTimeOption,
+                  targetDate,
+                  targetTime,
+                  divisionNum,
+                  intervalNum,
+                  windowsLengthNum,
+              );
     return `${startTimeRange[0]} ${startTimeRange[1]}${DATETIME_PICKER_SEPARATOR}${endTimeRange[0]} ${endTimeRange[1]}`;
 };
 const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
@@ -3720,14 +4159,24 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         traceTimeOption = formData.get(traceTimeName);
     }
     const useLatestTime = traceTimeOption === TRACE_TIME_CONST.RECENT;
+    // do not send recentTimeInterval if not used
+    if (!useLatestTime) {
+        formData.delete('recentTimeInterval');
+    }
     const isCyclicTerm = divideOption === CYCLIC_TERM.NAME;
-    const isCyclicCalender = divideOption && divideOption === divideOptions.cyclicCalender;
+    const isCyclicCalender =
+        divideOption && divideOption === divideOptions.cyclicCalender;
     if (isCyclicCalender) {
         datetimeRange = [$('#datetimeRangeShowValue').text()];
     } else {
         datetimeRange = formData.getAll('DATETIME_RANGE_PICKER');
     }
-    const timeKeys = [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME];
+    const timeKeys = [
+        CONST.STARTDATE,
+        CONST.STARTTIME,
+        CONST.ENDDATE,
+        CONST.ENDTIME,
+    ];
     // delete all old value
     timeKeys.forEach((key) => {
         formData.delete(key);
@@ -3741,7 +4190,9 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         if (pickedTimeRange !== '') {
             datetimeRange = [pickedTimeRange];
         } else {
-            datetimeRange = [getDateTimeRangeFromCyclic(formData, traceTimeOption)];
+            datetimeRange = [
+                getDateTimeRangeFromCyclic(formData, traceTimeOption),
+            ];
         }
     } else if (useLatestTime && !isCyclicCalender) {
         // in case of PCA, only apply for Target data
@@ -3750,8 +4201,10 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         const timeUnit = formData.get('timeUnit') || 60;
         const recentTimeInterval = formData.get('recentTimeInterval') || 24;
         if (!isEmpty(recentTimeInterval)) {
-            /* eslint-enable  no-undef */
-            datetimeRange[lastDatetimeEles] = calcLatestDateTime(timeUnit, recentTimeInterval);
+            datetimeRange[lastDatetimeEles] = calcLatestDateTime(
+                timeUnit,
+                recentTimeInterval,
+            );
         }
     }
     datetimeRange.forEach((timeRange) => {
@@ -3760,7 +4213,10 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
             if (starting && ending) {
                 const [startDate, startTime] = starting && starting.split(' ');
                 const [endDate, endTime] = ending.split(' ');
-                const startUTCDt = toUTCDateTime(startDate, startTime || '00:00');
+                const startUTCDt = toUTCDateTime(
+                    startDate,
+                    startTime || '00:00',
+                );
                 const endUTCDt = toUTCDateTime(endDate, endTime || '00:00');
                 formData.append(timeKeys[0], startUTCDt.date);
                 formData.append(timeKeys[1], startUTCDt.time);
@@ -3782,19 +4238,25 @@ const calcLatestDateTime = (timeUnit, recentTimeInterval) => {
     let timeDiffMinute, newStartDate, newEndDate, newStartTime, newEndTime;
 
     if (['months', 'years'].includes(timeUnit)) {
-        newStartDate = moment().subtract(recentTimeInterval, timeUnit).format(DATE_FORMAT);
-        newStartTime = moment().subtract(recentTimeInterval, timeUnit).format(TIME_FORMAT);
+        newStartDate = moment()
+            .subtract(recentTimeInterval, timeUnit)
+            .format(DATE_FORMAT);
+        newStartTime = moment()
+            .subtract(recentTimeInterval, timeUnit)
+            .format(TIME_FORMAT);
     } else {
         timeDiffMinute = Number(recentTimeInterval) * Number(timeUnit);
-        newStartDate = moment().add(-timeDiffMinute, 'minute').format(DATE_FORMAT);
-        newStartTime = moment().add(-timeDiffMinute, 'minute').format(TIME_FORMAT);
-
+        newStartDate = moment()
+            .add(-timeDiffMinute, 'minute')
+            .format(DATE_FORMAT);
+        newStartTime = moment()
+            .add(-timeDiffMinute, 'minute')
+            .format(TIME_FORMAT);
     }
     newEndDate = moment().format(DATE_FORMAT);
     newEndTime = moment().format(TIME_FORMAT);
     return `${newStartDate} ${newStartTime}${DATETIME_PICKER_SEPARATOR}${newEndDate} ${newEndTime}`;
-}
-
+};
 
 const generateDefaultNameExport = () => {
     const title = document.title ? document.title.split(' ')[0] : '';
@@ -3808,12 +4270,13 @@ const generateDefaultNameExport = () => {
         if (hasDivision) {
             dateTimeRange = $('#datetimeRangeShowValue').text();
         } else {
-            dateTimeRange = getDateTimeRangeValue('var', 'traceTime', false)
+            dateTimeRange = getDateTimeRangeValue('var', 'traceTime', false);
         }
 
-        const {startDate, startTime, endDate, endTime} = splitDateTimeRange(dateTimeRange)
+        const { startDate, startTime, endDate, endTime } =
+            splitDateTimeRange(dateTimeRange);
 
-        return `${title}_${endProc}_${startDate}-${startTime.split(':').join('')}_${endDate}-${endTime.split(':').join('')}`
+        return `${title}_${endProc}_${startDate}-${startTime.split(':').join('')}_${endDate}-${endTime.split(':').join('')}`;
     } catch (e) {
         return `${title}_${moment().format('YYYYMMDD_HH:mm')}`;
     }
@@ -3823,24 +4286,26 @@ const handleLoadSettingBtns = () => {
     // show only load button and hide bookmark button
     $('.load-setting-common').hide();
     $('.load-setting-tile-page').show();
-
 };
 
 const calMinMaxYScale = (minY, maxY, scaleOption) => {
-    const margin = (maxY - minY) * 0.1;
-    if (scaleOption === scaleOptionConst.THRESHOLD || scaleOption === 'scale_threshold') {
-        return [minY - margin, maxY + margin]
+    const margin = (maxY - minY) * FPP_THRESHOLD_MARGIN;
+    if (
+        scaleOption === scaleOptionConst.THRESHOLD ||
+        scaleOption === 'scale_threshold'
+    ) {
+        return [minY - margin, maxY + margin];
     }
 
-    return [minY, maxY]
+    return [minY, maxY];
 };
 
 const fetchData = async (url, data, method = 'GET', options = {}) => {
     const headers = {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'content_type': 'json',
+        content_type: 'json',
         ...options.headers,
     };
 
@@ -3899,7 +4364,13 @@ const afterReceiveResponseCommon = (res) => {
     dataSetID = res['dataset_id'];
 };
 
-const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBottom = false, iconSort = true) => {
+const sortableTable = (
+    tableID,
+    filterCols = [],
+    maxheight = null,
+    scrollToBottom = false,
+    iconSort = true,
+) => {
     const tableIDEl = `#${tableID}`;
     const table = $(tableIDEl);
 
@@ -3947,7 +4418,7 @@ const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBotto
 };
 
 const initSortIcon = () => {
-        // handle sort
+    // handle sort
     $('.sortCol').off('click');
     $('.sortCol').on('click', (el) => {
         let asc = true;
@@ -3977,17 +4448,14 @@ const initSortIcon = () => {
         otherSortCols.removeClass('asc');
         otherSortCols.removeClass('desc');
 
-
         const table = sortEl.parents('table').eq(0);
         const rows = table.find('tbody tr').toArray().sort(comparer(idx, asc));
 
         for (let i = 0; i < rows.length; i++) {
             table.append(rows[i]);
         }
-        ;
     });
-}
-
+};
 
 const handleSearchFilterInTable = (tableID) => {
     convertTextH2Z('#' + tableID);
@@ -4034,9 +4502,13 @@ const comparer = (index, asc) => {
         const valA = getCellValue(a, index);
         const valB = getCellValue(b, index);
         if (!asc) {
-            return $.isNumeric(valA) && $.isNumeric(valB) ? valB - valA : valB.toString().localeCompare(valA);
+            return $.isNumeric(valA) && $.isNumeric(valB)
+                ? valB - valA
+                : valB.toString().localeCompare(valA);
         }
-        return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
+        return $.isNumeric(valA) && $.isNumeric(valB)
+            ? valA - valB
+            : valA.toString().localeCompare(valB);
     };
 };
 
@@ -4044,10 +4516,15 @@ const tableScroll = (tblID, maxHeight, toBottom = false) => {
     const tableIDEl = `#${tblID}`;
     const table = $(tableIDEl);
 
-    const h = maxHeight && maxHeight.toString().includes('%') ? maxHeight : `${maxHeight}px`;
+    const h =
+        maxHeight && maxHeight.toString().includes('%')
+            ? maxHeight
+            : `${maxHeight}px`;
 
     table.addClass('table-fixed');
-    table.wrap(`<div id="${tblID}_wrap" class="table-responsive" style="max-height: ${h}"></div>`);
+    table.wrap(
+        `<div id="${tblID}_wrap" class="table-responsive" style="max-height: ${h}"></div>`,
+    );
 
     if (toBottom) {
         scrollToBottom(`${tblID}_wrap`);
@@ -4063,11 +4540,16 @@ const tableScroll = (tblID, maxHeight, toBottom = false) => {
  * @param xRange: array has two elements of x0 and x1.
  * @param yRange: array has two elements of y0 and y1.
  */
-const genThresholds = (xThreshold = {}, yThreshold = {}, ref = {
-    xaxis: 'paper',
-    yaxis: 'y'
-}, xRange = [0, 1], yRange = [0, 1]) => {
-
+const genThresholds = (
+    xThreshold = {},
+    yThreshold = {},
+    ref = {
+        xaxis: 'paper',
+        yaxis: 'y',
+    },
+    xRange = [0, 1],
+    yRange = [0, 1],
+) => {
     const lines = [];
 
     const xLow = xThreshold && xThreshold['thresh-low'];
@@ -4209,7 +4691,7 @@ const genThresholds = (xThreshold = {}, yThreshold = {}, ref = {
 const changeNoDataLinkSelection = (selection = true) => {
     // check startProc has noLinkData option (StP, RLP, CHM)
     const hasNoDataLink = Array.from(
-        $('select#start_proc option').map((k, v) => $(v).val())
+        $('select#start_proc option').map((k, v) => $(v).val()),
     ).includes('0');
     if (!hasNoDataLink) {
         return;
@@ -4291,9 +4773,9 @@ const bindFilterChangeEvents = (selectedProc) => {
 
 const checkHasFilter = () => {
     const afterClearDOM = $('select[name^="cond_proc"]');
-    const filterValues = Array.from(afterClearDOM.map((i, filter) => $(filter).val()))
-        .filter(i => i !== '')
-        .length;
+    const filterValues = Array.from(
+        afterClearDOM.map((i, filter) => $(filter).val()),
+    ).filter((i) => i !== '').length;
 
     return filterValues;
 };
@@ -4314,9 +4796,11 @@ const bindFilterRemoveEvents = (filterDOMID) => {
     // change from blank value to データ紐付なし
     const selectDOM = $(filterDOMID).find('select[name^="cond_proc"]');
     selectDOM.each((k, select) => {
-        $(select).off('select2:clear').on('select2:clear', function (e) {
-            bindRemoveFilterCondByCards();
-        });
+        $(select)
+            .off('select2:clear')
+            .on('select2:clear', function (e) {
+                bindRemoveFilterCondByCards();
+            });
     });
 };
 
@@ -4338,21 +4822,28 @@ const validateDataLink = (ele) => {
 
 const onChangeDivideOption = () => {
     let selectedCatExpBox = [];
-    $('#divideOption')
-        .on('change', (e) => {
-            // check if there Div was selected.
-            selectedCatExpBox = $('select[name=catExpBox] option:selected')
-                .filter((i, el) => el.value);
-            const isSelectedDiv = [...selectedCatExpBox].map(el => el.value)
-                .includes(facetLevels.DIV);
-            const {value} = e.currentTarget;
-            if (value !== 'category' && isSelectedDiv) {
-                const categoryDivideText = $('select[name=compareType] option[value=category]').text();
-                const confirmText = i18nCommon.changeDivideOptionConfirmText.replaceAll('CATEGORY_DIVIDE_OPTION', categoryDivideText);
-                $('#changeDivideOptionConfirmMessage').html(confirmText);
-                $('#changeCompareTypeConfirm').modal().toggle();
-            }
-        });
+    $('#divideOption').on('change', (e) => {
+        // check if there Div was selected.
+        selectedCatExpBox = $('select[name=catExpBox] option:selected').filter(
+            (i, el) => el.value,
+        );
+        const isSelectedDiv = [...selectedCatExpBox]
+            .map((el) => el.value)
+            .includes(facetLevels.DIV);
+        const { value } = e.currentTarget;
+        if (value !== 'category' && isSelectedDiv) {
+            const categoryDivideText = $(
+                'select[name=compareType] option[value=category]',
+            ).text();
+            const confirmText =
+                i18nCommon.changeDivideOptionConfirmText.replaceAll(
+                    'CATEGORY_DIVIDE_OPTION',
+                    categoryDivideText,
+                );
+            $('#changeDivideOptionConfirmMessage').html(confirmText);
+            $('#changeCompareTypeConfirm').modal().toggle();
+        }
+    });
 
     // when click cancel, let app select category divide.
     $('#changeCompareTypeConfirmCancel').click(() => {
@@ -4360,51 +4851,50 @@ const onChangeDivideOption = () => {
     });
 
     // When click ok, the app clear selected Div and change divide option
-    $('#changeCompareTypeConfirmOK')
-        .click(() => {
-            selectedCatExpBox.each((i, el) => {
-                if (el.value === facetLevels.DIV) {
-                    el.parentNode.value = '';
-                }
-            });
+    $('#changeCompareTypeConfirmOK').click(() => {
+        selectedCatExpBox.each((i, el) => {
+            if (el.value === facetLevels.DIV) {
+                el.parentNode.value = '';
+            }
         });
+    });
 };
 
 const onChangeDivInFacet = () => {
     let currentSelectedDiv = null;
     $('select[name=catExpBox]').on('change');
-    $('select[name=catExpBox]')
-        .on('change', (e) => {
-            const {value} = e.currentTarget;
-            currentSelectedDiv = $(e.currentTarget);
-            const currentDivideOption = $('select[name=compareType]').val();
-            const currentDivideOptionText = $('select[name=compareType] option:selected').text();
-            const categoryDivideText = $('select[name=compareType] option[value=category]').text();
+    $('select[name=catExpBox]').on('change', (e) => {
+        const { value } = e.currentTarget;
+        currentSelectedDiv = $(e.currentTarget);
+        const currentDivideOption = $('select[name=compareType]').val();
+        const currentDivideOptionText = $(
+            'select[name=compareType] option:selected',
+        ).text();
+        const categoryDivideText = $(
+            'select[name=compareType] option[value=category]',
+        ).text();
 
-            if (value === facetLevels.DIV && currentDivideOption !== 'category') {
-                const confirmText = i18nCommon.changeDivConfirmText.replaceAll('CURRENT_DIVIDE_OPTION', currentDivideOptionText)
-                    .replaceAll('CATEGORY_DIVIDE_OPTION', categoryDivideText);
-                $('#changeDivConfirmationText').html(confirmText);
-                $('#changeDivInFacetConfirm').modal().toggle();
-            }
+        if (value === facetLevels.DIV && currentDivideOption !== 'category') {
+            const confirmText = i18nCommon.changeDivConfirmText
+                .replaceAll('CURRENT_DIVIDE_OPTION', currentDivideOptionText)
+                .replaceAll('CATEGORY_DIVIDE_OPTION', categoryDivideText);
+            $('#changeDivConfirmationText').html(confirmText);
+            $('#changeDivInFacetConfirm').modal().toggle();
+        }
 
-            // trigger change division number
-            $(`input[name=${CYCLIC_TERM.DIV_NUM}]`).trigger('change');
-        });
+        // trigger change division number
+        $(`input[name=${CYCLIC_TERM.DIV_NUM}]`).trigger('change');
+    });
 
-    $('#changeDivInFacetConfirmOK')
-        .on('click', () => {
-            // automatically change divide option to Category
-            $('#divideOption')
-                .val('category')
-                .trigger('change');
-        });
+    $('#changeDivInFacetConfirmOK').on('click', () => {
+        // automatically change divide option to Category
+        $('#divideOption').val('category').trigger('change');
+    });
 
-    $('#changeDivInFacetConfirmCancel')
-        .on('click', () => {
-            // clear div variable.
-            currentSelectedDiv.val('');
-        });
+    $('#changeDivInFacetConfirmCancel').on('click', () => {
+        // clear div variable.
+        currentSelectedDiv.val('');
+    });
 };
 
 const findKeyFromFormdata = (key, formData, withAll = false) => {
@@ -4459,9 +4949,15 @@ const tsvClipBoard = async (url, formData) => {
     return false;
 };
 
-const handleExportDataCommon = (type, formData, url = '/ap/api/common/data_export') => {
-    const exportFrom = getExportDataSrc();
-    formData.set('export_from', exportFrom);
+const handleExportDataCommon = (
+    type,
+    formData,
+    url = '/ap/api/common/data_export',
+) => {
+    if (formData.get(CONST.ONLY_EXPORT_DATA_SELECTED) !== 'true') {
+        const exportFrom = getExportDataSrc();
+        formData.set('export_from', exportFrom);
+    }
     if (type === EXPORT_TYPE.CSV) {
         exportData(`${url}/csv`, 'csv', formData);
     }
@@ -4493,7 +4989,7 @@ const makeRegexForSearchCondition = (searchStr) => {
         for (let i = from; i <= to; i++) {
             let val = (i / maxVal).toString().replace('.', '');
             if (val.length < zeroPadding + 1) {
-                const offset = (zeroPadding + 1) - val.length;
+                const offset = zeroPadding + 1 - val.length;
                 for (let y = 0; y < offset; y++) {
                     val += '0';
                 }
@@ -4506,7 +5002,7 @@ const makeRegexForSearchCondition = (searchStr) => {
 
     if (/((\|+\s*){2,})|[^\||\|$]/.test(searchStr)) {
         let strs = searchStr.split('|');
-        strs = strs.filter(val => val.length > 0);
+        strs = strs.filter((val) => val.length > 0);
         return strs.join('|');
     }
 
@@ -4539,16 +5035,23 @@ const isDefined = (variable) => {
 
 function create_UUID() {
     var dt = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = (dt + Math.random() * 16) % 16 | 0;
-        dt = Math.floor(dt / 16);
-        return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+        /[xy]/g,
+        function (c) {
+            var r = (dt + Math.random() * 16) % 16 | 0;
+            dt = Math.floor(dt / 16);
+            return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
+        },
+    );
     return uuid;
-};
+}
 
 const getEndProcCfg = async () => {
-    if (!processId || !procConfigs[processId] || !procConfigs[processId].is_use_dummy_datetime) {
+    if (
+        !processId ||
+        !procConfigs[processId] ||
+        !procConfigs[processId].is_use_dummy_datetime
+    ) {
         return false;
     }
     const endProcCfg = procConfigs[processId];
@@ -4571,8 +5074,7 @@ const updateDatetimeInputs = (value) => {
             }
         });
     }
-
-}
+};
 
 const updateXOption = (serialOrder = true) => {
     if (isSettingLoading) return;
@@ -4619,12 +5121,16 @@ const roundMinute = (dateStr, option = 'up', unit = 5) => {
     }
 
     const newMinute = divideUnit * unit;
-    return moment(moment(dateStr).format('YYYY-MM-DD HH:00')).add(newMinute, 'minutes').format(DATE_TIME_FMT);
+    return moment(moment(dateStr).format('YYYY-MM-DD HH:00'))
+        .add(newMinute, 'minutes')
+        .format(DATE_TIME_FMT);
 };
 const reselectVariablesToShowGraph = () => {
     $('input[name^=selectedVar]').each((_v, el) => {
         const elStatus = $(el).is(':checked');
-        const guiDOM = $(`input[name^=GET02_VALS_SELECT][value=${$(el).val()}]`);
+        const guiDOM = $(
+            `input[name^=GET02_VALS_SELECT][value=${$(el).val()}]`,
+        );
         const guiStatus = guiDOM.prop('checked');
 
         if (elStatus !== guiStatus) {
@@ -4634,7 +5140,11 @@ const reselectVariablesToShowGraph = () => {
     if (reselectCallback) {
         const jumpKey = getParamFromUrl('jump_key');
         if (jumpKey) {
-            const excludedColumns = [...$(domEles.problematicTbl).find('input[name^=selectedVar]:not(:checked)')].map(el => Number($(el).val()));
+            const excludedColumns = [
+                ...$(domEles.problematicTbl).find(
+                    'input[name^=selectedVar]:not(:checked)',
+                ),
+            ].map((el) => Number($(el).val()));
             const url = new URL(window.location.href);
             url.searchParams.set('excluded_columns', excludedColumns.join(','));
             window.history.replaceState(null, null, url);
@@ -4657,25 +5167,47 @@ const genProblematicContent = (plotData, multipleTimeRange = false) => {
         const selectedVarsTarget = plotData.target_data.selected_vars;
         const nullPercentTarget = plotData.target_data.null_percent;
 
-        const trainDataSensorIDs = Object.keys(selectedVars).length ? Object.keys(selectedVars) : null;
-        const trainDataSensorIDsFromNADict = Object.keys(nullPercent).length ? Object.keys(nullPercent) : null;
-        const targetDataSensorIDs = Object.keys(selectedVarsTarget).length ? Object.keys(selectedVarsTarget) : null;
-        const targetDataSensorIDsFromNADict = Object.keys(nullPercentTarget).length ? Object.keys(nullPercentTarget) : null;
-        const selectedCols = trainDataSensorIDs || targetDataSensorIDs ||
-            trainDataSensorIDsFromNADict || targetDataSensorIDsFromNADict;
+        const trainDataSensorIDs = Object.keys(selectedVars).length
+            ? Object.keys(selectedVars)
+            : null;
+        const trainDataSensorIDsFromNADict = Object.keys(nullPercent).length
+            ? Object.keys(nullPercent)
+            : null;
+        const targetDataSensorIDs = Object.keys(selectedVarsTarget).length
+            ? Object.keys(selectedVarsTarget)
+            : null;
+        const targetDataSensorIDsFromNADict = Object.keys(nullPercentTarget)
+            .length
+            ? Object.keys(nullPercentTarget)
+            : null;
+        const selectedCols =
+            trainDataSensorIDs ||
+            targetDataSensorIDs ||
+            trainDataSensorIDsFromNADict ||
+            targetDataSensorIDsFromNADict;
 
         if (selectedCols) {
-            selectedCols.forEach(colID => {
-                const colName = selectedVars[colID] || selectedVarsTarget[colID] || '';
-                const zeroVar = plotData.train_data.zero_variance.map(i => String(i)).includes(colID);
-                const naRate = trainDataSensorIDsFromNADict ? applySignificantDigit(nullPercent[colID]) : 100;
+            selectedCols.forEach((colID) => {
+                const colName =
+                    selectedVars[colID] || selectedVarsTarget[colID] || '';
+                const zeroVar = plotData.train_data.zero_variance
+                    .map((i) => String(i))
+                    .includes(colID);
+                const naRate = trainDataSensorIDsFromNADict
+                    ? applySignificantDigit(nullPercent[colID])
+                    : 100;
                 const selectedTrain = naRate <= 50 && !zeroVar;
 
-                const zeroVarTarget = plotData.target_data.zero_variance.map(i => String(i)).includes(colID);
-                const naRateTarget = targetDataSensorIDsFromNADict ? applySignificantDigit(nullPercentTarget[colID]) : 100;
+                const zeroVarTarget = plotData.target_data.zero_variance
+                    .map((i) => String(i))
+                    .includes(colID);
+                const naRateTarget = targetDataSensorIDsFromNADict
+                    ? applySignificantDigit(nullPercentTarget[colID])
+                    : 100;
                 const selectedTarget = naRateTarget <= 50 && !zeroVarTarget;
 
-                const selected = (selectedTrain && selectedTarget) ? ' checked' : '';
+                const selected =
+                    selectedTrain && selectedTarget ? ' checked' : '';
                 const rowContent = `<tr>
                     <td>
                         <div class="custom-control custom-radio">
@@ -4693,20 +5225,27 @@ const genProblematicContent = (plotData, multipleTimeRange = false) => {
                 problematicPCATblBody.append(rowContent);
             });
         }
-
     } else {
         $(domEles.problematicPCATbl).hide();
         $(domEles.problematicTbl).show();
 
-        const selectedVars = Object.keys(plotData.selected_vars).length ? Object.keys(plotData.selected_vars) : null;
-        const nullPercent = Object.keys(plotData.null_percent).length ? Object.keys(plotData.null_percent) : null;
+        const selectedVars = Object.keys(plotData.selected_vars).length
+            ? Object.keys(plotData.selected_vars)
+            : null;
+        const nullPercent = Object.keys(plotData.null_percent).length
+            ? Object.keys(plotData.null_percent)
+            : null;
 
         const selectedCols = selectedVars || nullPercent;
-        selectedCols.forEach(colID => {
+        selectedCols.forEach((colID) => {
             const colName = plotData.selected_vars[colID] || '';
-            const zeroVar = plotData.zero_variance.map(i => String(i)).includes(colID);
-            const naRate = nullPercent ? applySignificantDigit(plotData.null_percent[colID]) : 0;
-            const selected = (naRate <= 50 && !zeroVar) ? ' checked' : '';
+            const zeroVar = plotData.zero_variance
+                .map((i) => String(i))
+                .includes(colID);
+            const naRate = nullPercent
+                ? applySignificantDigit(plotData.null_percent[colID])
+                : 0;
+            const selected = naRate <= 50 && !zeroVar ? ' checked' : '';
             const rowContent = `<tr>
                 <td>
                     <div class="custom-control custom-radio">
@@ -4724,7 +5263,10 @@ const genProblematicContent = (plotData, multipleTimeRange = false) => {
     }
 };
 
-const showRemoveProblematicColsMdl = (resPlotData = null, multipleTimeRange = false) => {
+const showRemoveProblematicColsMdl = (
+    resPlotData = null,
+    multipleTimeRange = false,
+) => {
     setTimeout(() => {
         genProblematicContent(resPlotData, multipleTimeRange);
         $(domEles.problematicModal).modal().show();
@@ -4764,7 +5306,17 @@ const updatePriority = (tableID) => {
         if (tableID === jumpEls.jumpTblID) {
             tdChildElement = 'td:nth-child(3)';
         }
-        $(row).find(tdChildElement).text(rowIdx + 1);
+
+        // Display X and Y in SCP or HMp
+        if (isScpOrHmpPage) {
+            $(row)
+                .find(tdChildElement)
+                .text(rowIdx === 0 ? 'X' : 'Y');
+        } else {
+            $(row)
+                .find(tdChildElement)
+                .text(rowIdx + 1);
+        }
     });
 };
 
@@ -4791,7 +5343,10 @@ const getFmtValueOfArrayTrim5Percent = (array) => {
     const start = Math.floor(sortedArray.length * 0.05);
     const end = sortedArray.length - start;
     sortedArray = sortedArray.slice(start, end);
-    const fmt = sortedArray.length > 0 ? significantDigitFmt(Math.max(...sortedArray)) : '';
+    const fmt =
+        sortedArray.length > 0
+            ? significantDigitFmt(Math.max(...sortedArray))
+            : '';
     return fmt;
 };
 
@@ -4800,33 +5355,39 @@ const getFmtValueOfArray = (array) => {
     let sortedArray = [...array].sort();
     let usageNum = 0;
     let sigDigit = 0;
-    sortedArray.forEach(num => {
-       const vals = String(num).split(decimal);
-       if (vals.length > 1 && vals[1].length > sigDigit) {
+    sortedArray.forEach((num) => {
+        const vals = String(num).split(decimal);
+        if (vals.length > 1 && vals[1].length > sigDigit) {
             sigDigit = vals[1].length;
             usageNum = num;
-       }
+        }
     });
-    const fmt = sortedArray.length > 0 ? significantDigitFmt(usageNum, sigDigit) : '';
+    const fmt =
+        sortedArray.length > 0 ? significantDigitFmt(usageNum, sigDigit) : '';
     return fmt === ',.1f' ? ',.2f' : fmt;
-}
+};
 
 const alignLengthTickLabels = (ticks) => {
     const decimal = '.';
     const pattern = /0*$/;
     try {
-        const zeroLens = ticks.filter(tick => tick.label && tick.label !== '').map(tick => {
-            // tick > 0 then pass
-            if (!tick.label || !tick.label.includes(decimal)) return -1;
-            const [_, subTicks] = tick.label.split(decimal)
-            const matching = subTicks.match(pattern);
-            if (!matching) return 0;
-            return matching[0].length;
-        });
+        const zeroLens = ticks
+            .filter((tick) => tick.label && tick.label !== '')
+            .map((tick) => {
+                // tick > 0 then pass
+                if (!tick.label || !tick.label.includes(decimal)) return -1;
+                const [_, subTicks] = tick.label.split(decimal);
+                const matching = subTicks.match(pattern);
+                if (!matching) return 0;
+                return matching[0].length;
+            });
         const minLen = Math.min(...zeroLens);
         if (minLen > 0) {
-            ticks.map(tick => {
-                tick.label = tick.label.substring(0, tick.label.length - minLen);
+            ticks.map((tick) => {
+                tick.label = tick.label.substring(
+                    0,
+                    tick.label.length - minLen,
+                );
                 const lastIdx = tick.label.length - 1;
                 const decimalIdx = tick.label.lastIndexOf(decimal);
                 // remove decimal if no number after that (10.)
@@ -4838,7 +5399,7 @@ const alignLengthTickLabels = (ticks) => {
     } catch (e) {
         return;
     }
-}
+};
 const clearEmptyEndProcs = (formData) => {
     const emptyEndProcKeys = [];
     for (const pair of formData.entries()) {
@@ -4846,7 +5407,7 @@ const clearEmptyEndProcs = (formData) => {
             emptyEndProcKeys.push(pair[0]);
         }
     }
-    emptyEndProcKeys.forEach(ngKey => formData.delete(ngkey));
+    emptyEndProcKeys.forEach((ngKey) => formData.delete(ngkey));
 
     // add start proc key
     if (!formData.get('start_proc')) {
@@ -4856,7 +5417,8 @@ const clearEmptyEndProcs = (formData) => {
 };
 
 const jspreadsheetCustomHooks = () => {
-    const onbeforechange = (instance, cell, x, y, value) => stringNormalization(value);
+    const onbeforechange = (instance, cell, x, y, value) =>
+        stringNormalization(value);
     const onpaste = (instance) => {
         const history = instance.jspreadsheet.history.at(-1);
         const { oldStyle, records } = history;
@@ -4866,7 +5428,8 @@ const jspreadsheetCustomHooks = () => {
         // turn off readonly so we can modify style
         for (const { x, y } of records) {
             const cellName = jspreadsheet.getColumnNameFromId([x, y]);
-            readOnlyStates[cellName] = instance.jspreadsheet.isReadOnly(cellName);
+            readOnlyStates[cellName] =
+                instance.jspreadsheet.isReadOnly(cellName);
             instance.jspreadsheet.setReadOnly(cellName, false);
         }
 
@@ -4876,7 +5439,10 @@ const jspreadsheetCustomHooks = () => {
         // rollback read only state
         for (const { x, y } of records) {
             const cellName = jspreadsheet.getColumnNameFromId([x, y]);
-            instance.jspreadsheet.setReadOnly(cellName, readOnlyStates[cellName]);
+            instance.jspreadsheet.setReadOnly(
+                cellName,
+                readOnlyStates[cellName],
+            );
         }
     };
 
@@ -4895,11 +5461,13 @@ const bindNominalSelection = (formData, clearOnFlyFilter) => {
         const nominalVars = $('input[name=graph_nominal_scale]');
         if (nominalVars.length && !clearOnFlyFilter) {
             formData.delete('nominal_vars');
-            const nominalValues = []
+            const nominalValues = [];
             let selectedNominalVars = [];
-            selectedNominalVars = Array.from(nominalVars.filter((i, item) => $(item).is(':checked')));
+            selectedNominalVars = Array.from(
+                nominalVars.filter((i, item) => $(item).is(':checked')),
+            );
             selectedNominalVars.forEach((item, i) => {
-                nominalValues.push($(item).val())
+                nominalValues.push($(item).val());
             });
             formData.set('nominal_vars', JSON.stringify(nominalValues));
         }
@@ -4935,45 +5503,47 @@ const convertDatetimePreview = (dateStr) => {
     // case 4: YY年MM月DD日
 
     const regex1 = /^(\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}|\d{1,2}月\d{1,2}日)$/;
-    const regex2 = /^(\d{4}-\d{1,2}-\d{1,2}|\d{4}\/\d{1,2}\/\d{1,2}|\d{4}年\d{1,2}月\d{1,2}日)$/;
-    const regex3 = /^\d{4}年\d{1,2}月\d{1,2}日\d{1,2}時\d{1,2}分\d{1,2}秒$/
-    const regex4 = /^(\d{1,2}-\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}\/\d{1,2}|\d{1,2}年\d{1,2}月\d{1,2}日)$/;
+    const regex2 =
+        /^(\d{4}-\d{1,2}-\d{1,2}|\d{4}\/\d{1,2}\/\d{1,2}|\d{4}年\d{1,2}月\d{1,2}日)$/;
+    const regex3 = /^\d{4}年\d{1,2}月\d{1,2}日\d{1,2}時\d{1,2}分\d{1,2}秒$/;
+    const regex4 =
+        /^(\d{1,2}-\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}\/\d{1,2}|\d{1,2}年\d{1,2}月\d{1,2}日)$/;
 
     let dateFormat = dateStr;
 
     const getMatched = (dateStr) => {
         const matched = dateStr.split(/-|\/|月|日|年|時|分|秒/);
-        return matched.filter(v => v).map(v => addZeroToNumber(Number(v)));
-    }
+        return matched.filter((v) => v).map((v) => addZeroToNumber(Number(v)));
+    };
 
     if (regex1.test(dateStr)) {
-        const matched = getMatched(dateStr)
-        dateFormat = moment().format(`YYYY-${matched[0]}-${matched[1]} 00:00:00`);
+        const matched = getMatched(dateStr);
+        dateFormat = moment().format(
+            `YYYY-${matched[0]}-${matched[1]} 00:00:00`,
+        );
     }
 
     if (regex2.test(dateStr)) {
-        const matched = getMatched(dateStr)
+        const matched = getMatched(dateStr);
         dateFormat = `${matched[0]}-${matched[1]}-${matched[2]} 00:00:00`;
     }
 
     if (regex3.test(dateStr)) {
-        const matched = getMatched(dateStr)
+        const matched = getMatched(dateStr);
         dateFormat = `${matched[0]}-${matched[1]}-${matched[2]} ${matched[3]}:${matched[4]}:${matched[5]}`;
     }
 
     if (regex4.test(dateStr)) {
-        const matched = getMatched(dateStr)
-        const YY = moment().format('YYYY').slice(0,2);
+        const matched = getMatched(dateStr);
+        const YY = moment().format('YYYY').slice(0, 2);
         dateFormat = `${YY}${matched[0]}-${matched[1]}-${matched[2]} 00:00:00`;
     }
 
     return dateFormat;
 };
 
-
-
 const visualTextLength = (text, textSize = 14) => {
-    const span = `<div class="hide-element" style="font-size: ${textSize}px; font-family: 'Arial'">${text}</div>`
+    const span = `<div class="hide-element" style="font-size: ${textSize}px; font-family: 'Arial'">${text}</div>`;
     $('html').append(span);
     const width = $('.hide-element').width();
     $('.hide-element').remove();
@@ -4984,13 +5554,11 @@ const visualTextLength = (text, textSize = 14) => {
 const trimTextLengthByPixel = (text, length = 150, textSize = 14) => {
     let tmp = text;
     let trimmed = text;
-    if (visualTextLength(tmp, textSize) > length)
-    {
-        trimmed += "...";
-        while (visualTextLength(trimmed, textSize) > length)
-        {
-            tmp = tmp.substring(0, tmp.length-1);
-            trimmed = tmp + "...";
+    if (visualTextLength(tmp, textSize) > length) {
+        trimmed += '...';
+        while (visualTextLength(trimmed, textSize) > length) {
+            tmp = tmp.substring(0, tmp.length - 1);
+            trimmed = tmp + '...';
         }
     }
 
@@ -4998,7 +5566,7 @@ const trimTextLengthByPixel = (text, length = 150, textSize = 14) => {
 };
 
 const convertNumberByThousandSep = (numberValue) => {
-    const hasThousandSep = !!(numberValue.match(THOUSAND_SEP_PATTERN));
+    const hasThousandSep = !!numberValue.match(THOUSAND_SEP_PATTERN);
     if (hasThousandSep) {
         return numberValue.replaceAll(',', '');
     }
@@ -5017,3 +5585,145 @@ const getNValueInArray = (array, n) => {
 
     return res;
 };
+
+const getOffsetTopDisplayGraph = (elem) => {
+    return $(elem).offset().top + OFFSET_SCROLL;
+};
+
+/**
+ * Change Background Color
+ * @param {HTMLElement} ele
+ */
+const changeBackgroundColor = (ele) => {
+    if (
+        [
+            DataTypes.STRING.bs_value,
+            DataTypes.REAL_SEP.bs_value,
+            DataTypes.EU_REAL_SEP.bs_value,
+        ].includes(ele.getAttribute('value'))
+    ) {
+        $(ele)
+            .closest('.config-data-type-dropdown')
+            .find('[name=dataType]')
+            .css('color', 'orange');
+    } else {
+        $(ele)
+            .closest('.config-data-type-dropdown')
+            .find('[name=dataType]')
+            .css('color', 'white');
+    }
+};
+
+/**
+ * Check the path is folder or file
+ * @param path
+ * @return {Promise<{
+ *   status: number,
+ *   isExist: boolean,
+ *   isFile: boolean,
+ *   isFolder: boolean,
+ * }>}
+ */
+function checkFolderOrFile(path) {
+    const data = { path: path };
+    return fetchData(
+        '/ap/api/setting/check_folder_or_file',
+        JSON.stringify(data),
+        'POST',
+    );
+}
+
+/**
+ * Search Rows By Value Of Table
+ * @param {KeyboardEvent} event - a keyboard event
+ * @param {HTMLTableRowElement[]} rows - list of rows in searching table
+ * @param classFilter - add class for rows filter
+ */
+const searchByValueOfTable = (event, rows, classFilter = 'gray') => {
+    const filterValue = stringNormalization(
+        event.currentTarget.value.trim().toLowerCase(),
+    );
+    if (filterValue === '') {
+        // In case of non filter
+        rows.forEach((row) => {
+            row.classList.remove(classFilter);
+            row.style.display = '';
+        });
+
+        return;
+    }
+
+    // Search rows that include searching value
+    const newValue = makeRegexForSearchCondition(filterValue).toLowerCase();
+    let regex = null;
+    try {
+        regex = new RegExp(newValue.toLowerCase(), 'i');
+    } catch {
+        regex = { test: (v) => false };
+    }
+    const mappedRows = rows.filter((row) => {
+        const firstMappedColumn = [...row.querySelectorAll('td')].find(
+            (col) => {
+                const text = (
+                    col.childElementCount &&
+                    col.firstElementChild.tagName === 'INPUT'
+                        ? col.firstElementChild.value
+                        : col.textContent
+                )
+                    .trim()
+                    .toLowerCase();
+                return regex.test(text) || text.includes(filterValue);
+            },
+        );
+        return firstMappedColumn != null;
+    });
+
+    // Make un-mapped rows gray/invisible. Otherwise
+    if (event.key === 'Enter') {
+        // In case of Enter
+        rows.forEach((row) => {
+            if (!mappedRows.includes(row)) {
+                row.classList.add(classFilter);
+            } else {
+                row.classList.remove(classFilter);
+            }
+
+            row.style.display = '';
+        });
+    } else {
+        // In case of searching
+        rows.forEach((row) => {
+            if (!mappedRows.includes(row)) {
+                row.classList.add(classFilter);
+                row.style.display = 'none';
+            } else {
+                row.classList.remove(classFilter);
+                row.style.display = '';
+            }
+        });
+    }
+};
+
+/**
+ * Download Text as a file
+ * @param {string?} fileName - a file name with extension
+ * @param {string} content - a string contains content of download file
+ * @return {void} - A file will be downloaded on browser
+ */
+function downloadText(fileName, content) {
+    // Create a temporary <a> element to trigger the download
+    const a = document.createElement('a');
+    try {
+        a.href =
+            'data:text/tab-separated-values;charset=utf-8,' +
+            encodeURIComponent(content);
+        a.download = fileName ?? 'data';
+        document.body.appendChild(a);
+        a.click();
+    } catch (e) {
+        console.error(e);
+    } finally {
+        // Clean up
+        document.body.removeChild(a);
+    }
+}

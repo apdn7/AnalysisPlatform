@@ -24,7 +24,9 @@ def gen_data_types(series: Series, is_v2=False):
     """
     series = series.drop_duplicates().dropna()
     # drop 'NA' in series if series is ('1.1', 'NA')
-    series = series.replace(na_values, pd.NA).dropna()
+    # BUG: BooleanArray raising on comparison to string: https://github.com/pandas-dev/pandas/pull/44533
+    if series.dtypes.name != 'boolean':
+        series = series.replace(na_values, pd.NA).dropna()
 
     # try to convert dtypes from float to int
     # if data=[1.0, 2.0] (to avoid wrong data-type prediction)
@@ -200,6 +202,8 @@ def check_large_int_type(val):
 
 
 def check_data_type_series(orig_series: Series):
+    from ap.common.common_utils import is_boolean
+
     series: Series = convert_df_str_to_others(orig_series)
 
     # all items in series are NA
@@ -217,6 +221,9 @@ def check_data_type_series(orig_series: Series):
         return check_float_type(orig_series, series)
 
     if 'int' in series_type:
+        if sum(is_boolean(series)) == len(series):
+            return DataType.BOOLEAN.value
+
         # BIG INT
         if series.max() > MAX_SAFE_INTEGER:
             return DataType.BIG_INT.value

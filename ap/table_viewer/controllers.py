@@ -17,7 +17,7 @@ table_viewer_blueprint = Blueprint(
 
 @table_viewer_blueprint.route('/table_viewer')
 def index():
-    all_procs = get_all_process()
+    all_procs = get_all_process(with_parent=False)
     output_dict = {
         'page_title': _('Table Viewer'),
         'procs': all_procs,

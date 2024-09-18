@@ -14,6 +14,7 @@ from ap.common.constants import (
     AGP_COLOR_VARS,
     ARRAY_FORMVAL,
     ARRAY_PLOTDATA,
+    BOOKMARK_ID,
     CAT_EXP_BOX,
     CAT_ON_DEMAND,
     CATE_PROC,
@@ -84,6 +85,7 @@ from ap.common.constants import (
     NOT_EXACT_MATCH_FILTER_IDS,
     OBJ_VAR,
     PROCS,
+    RECENT_TIME_INTERVAL,
     REMOVE_OUTLIER_EXPLANATORY_VAR,
     REMOVE_OUTLIER_OBJECTIVE_VAR,
     REMOVE_OUTLIER_REAL_ONLY,
@@ -93,6 +95,8 @@ from ap.common.constants import (
     RL_CATES,
     RL_EMD,
     RL_XAXIS,
+    SCP_HMP_X_AXIS,
+    SCP_HMP_Y_AXIS,
     SELECT_ALL,
     SERIAL_COLUMN,
     SERIAL_ORDER,
@@ -207,8 +211,12 @@ common_startwith_keys = (
     IS_NOMINAL_SCALE,
     NOMINAL_VARS,
     REQ_ID,
+    BOOKMARK_ID,
+    RECENT_TIME_INTERVAL,
     FINE_SELECT,
     REQUEST_PARAMS,
+    SCP_HMP_X_AXIS,
+    SCP_HMP_Y_AXIS,
 )
 
 conds_startwith_keys = ('filter-', 'cond_', 'machine_id_multi')

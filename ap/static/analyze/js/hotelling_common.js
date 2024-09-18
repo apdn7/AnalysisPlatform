@@ -1,6 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-unused-vars */
 const graphStore = new GraphStore();
 
 // dont rename. must use formElements because some common functions
@@ -57,7 +54,6 @@ const hideLoading = (divElement = null) => {
     divElement.html('');
 };
 
-
 // A template to visualize clicked data point
 const clickedPointTemplate = (xVal, yVal) => ({
     x: [xVal],
@@ -90,10 +86,13 @@ const addDataPointFromXY = (elementId, orginalDataLen, x, y) => {
         if (dataLength > orginalDataLen) {
             Plotly.deleteTraces(elementId, dataLength - 1);
         }
-        Plotly.addTraces(elementId, clickedPointTrace, chartElement.data.length);
+        Plotly.addTraces(
+            elementId,
+            clickedPointTrace,
+            chartElement.data.length,
+        );
     }
 };
-
 
 /*
     This function is to update clicked data point to timeseries chart: Q & T2
@@ -102,7 +101,11 @@ const addDataPointFromXY = (elementId, orginalDataLen, x, y) => {
         dataPoint: data of clicked point got from click event
         isStartingChart: to identify if chart in the elementId is origin of the click
 */
-const updateTimeSeries = (elementId = null, dataPoint = {}, isStartingChart = true) => {
+const updateTimeSeries = (
+    elementId = null,
+    dataPoint = {},
+    isStartingChart = true,
+) => {
     // update Chart
     const tsElement = document.getElementById(elementId);
     const tsOriginalDataLength = 2;
@@ -117,10 +120,16 @@ const updateTimeSeries = (elementId = null, dataPoint = {}, isStartingChart = tr
 
         for (let idx = 0; idx < data.length; idx++) {
             const trace = data[idx];
-            if ((trace.name === 'test')) { // clicked point is in test data
+            if (trace.name === 'test') {
+                // clicked point is in test data
                 const dataX = trace.x[clickedDataIndex];
                 const dataY = trace.y[clickedDataIndex];
-                addDataPointFromXY(elementId, tsOriginalDataLength, dataX, dataY);
+                addDataPointFromXY(
+                    elementId,
+                    tsOriginalDataLength,
+                    dataX,
+                    dataY,
+                );
                 break;
             }
         }
@@ -134,7 +143,12 @@ const updateTimeSeries = (elementId = null, dataPoint = {}, isStartingChart = tr
         dataPoint: data of clicked point got from click event
         isStartingChart: to identify if chart in the elementId is origin of the click
 */
-const updateScatter = (elementId = null, dataPoint = {}, isStartingChart = true, jsonDtTest = {}) => {
+const updateScatter = (
+    elementId = null,
+    dataPoint = {},
+    isStartingChart = true,
+    jsonDtTest = {},
+) => {
     // update Chart
     const scatterElement = document.getElementById(elementId);
     const scatterOrginalDataLength = 6;
@@ -153,7 +167,12 @@ const updateScatter = (elementId = null, dataPoint = {}, isStartingChart = true,
             if (trace.name === 'clickedPoint') {
                 const dataX = jsonDtTest.data[0].x[clickedDataIndex];
                 const dataY = jsonDtTest.data[0].y[clickedDataIndex];
-                addDataPointFromXY(elementId, scatterOrginalDataLength, dataX, dataY);
+                addDataPointFromXY(
+                    elementId,
+                    scatterOrginalDataLength,
+                    dataX,
+                    dataY,
+                );
                 isReplaced = true;
                 break;
             }
@@ -161,7 +180,12 @@ const updateScatter = (elementId = null, dataPoint = {}, isStartingChart = true,
         if (!isReplaced) {
             const dataX = jsonDtTest.data[0].x[clickedDataIndex];
             const dataY = jsonDtTest.data[0].y[clickedDataIndex];
-            addDataPointFromXY(elementId, scatterOrginalDataLength, dataX, dataY);
+            addDataPointFromXY(
+                elementId,
+                scatterOrginalDataLength,
+                dataX,
+                dataY,
+            );
         }
     }
 };
@@ -178,8 +202,8 @@ const updateRecordInfo = (dataInfos = {}, sampleNo = 0) => {
             <th>${i18n.value}</th>
         </tr >
     `;
-    const re = /\d+\_[1,2]$/;
-    const reGetDate = /\d+\_[2]$/;
+    const re = /\d+_[1,2]$/;
+    const reGetDate = /\d+_[2]$/;
     for (const dataInfo of dataInfos) {
         let [proc, col_name, col_val, col_attr] = dataInfo;
         let bgColorStyle = '';
@@ -208,20 +232,37 @@ const updateRecordInfo = (dataInfos = {}, sampleNo = 0) => {
     dataPoint: data which is got from the click event
     startingChart: id of chart which originates the click event
 */
-const broadcastClickEvent = (dataPoint, startingChart, jsonPCAScoreTest = {}) => {
+const broadcastClickEvent = (
+    dataPoint,
+    startingChart,
+    jsonPCAScoreTest = {},
+) => {
     // Update time series
-    updateTimeSeries(elementId = 'timeSeriesT2', dataPoint, startingChart === 'timeSeriesT2');
-    updateTimeSeries(elementId = 'timeSeriesQ', dataPoint, startingChart === 'timeSeriesQ');
+    updateTimeSeries(
+        (elementId = 'timeSeriesT2'),
+        dataPoint,
+        startingChart === 'timeSeriesT2',
+    );
+    updateTimeSeries(
+        (elementId = 'timeSeriesQ'),
+        dataPoint,
+        startingChart === 'timeSeriesQ',
+    );
 
     // Update Xtest scatter
-    updateScatter(elementId = 'xTest', dataPoint, startingChart === 'xTest', jsonDtTest = jsonPCAScoreTest);
+    updateScatter(
+        (elementId = 'xTest'),
+        dataPoint,
+        startingChart === 'xTest',
+        (jsonDtTest = jsonPCAScoreTest),
+    );
 
     // Call backend to get jsons for Qcont + T2cont + BiPlot + record info
     const formData = collectInputAsFormData();
     const { sampleNo } = dataPoint.points[0];
     formData.set('sampleNo', sampleNo);
     loadingShow();
-    getPCAPlotsFromBackend(formData, clickOnChart = true, sampleNo);
+    getPCAPlotsFromBackend(formData, (clickOnChart = true), sampleNo);
 
     // switch to record table
     $('[href="#table-info"]').tab('show');
@@ -254,16 +295,13 @@ const contributionChartLayout = (objData, type = 't2', sampleNo = null) => {
             xref: 'paper',
         },
         xaxis: {
-            domain: [
-                0,
-                1,
-            ],
+            domain: [0, 1],
             automargin: true,
             type: 'linear',
             autorange: false,
             range: [
                 0,
-                1.05 * Math.max(...objData.Ratio.map(x => Math.abs(x))),
+                1.05 * Math.max(...objData.Ratio.map((x) => Math.abs(x))),
             ],
             tickmode: 'array',
             categoryorder: 'array',
@@ -298,10 +336,7 @@ const contributionChartLayout = (objData, type = 't2', sampleNo = null) => {
             hoverformat: '.2f',
         },
         yaxis: {
-            domain: [
-                0,
-                1,
-            ],
+            domain: [0, 1],
             automargin: true,
             type: 'linear',
             autorange: true,
@@ -430,22 +465,24 @@ const genContributionChartData = (objData, type = 't2', dpInfo = null) => {
         const t = colorScale[type].length - 1;
         const binVolume = (x) => {
             if (type === 't2') {
-                return 2 * x / t;
+                return (2 * x) / t;
             }
             if (absX !== absM) {
                 return (absX - absM) / t;
             }
-            return 2 * absX / t;
+            return (2 * absX) / t;
         };
-        return absM >= absX ? {
-            min: M,
-            max: -1 * M,
-            binVol: binVolume(absM),
-        } : {
-            min: type === 't2' ? -1 * X : absM,
-            max: type === 't2' ? X : absX,
-            binVol: binVolume(absX),
-        };
+        return absM >= absX
+            ? {
+                  min: M,
+                  max: -1 * M,
+                  binVol: binVolume(absM),
+              }
+            : {
+                  min: type === 't2' ? -1 * X : absM,
+                  max: type === 't2' ? X : absX,
+                  binVol: binVolume(absX),
+              };
     };
     const cr = convertRange(objData.Ratio);
     const markerColor = (i) => {
@@ -456,17 +493,17 @@ const genContributionChartData = (objData, type = 't2', dpInfo = null) => {
     const rRanger = () => {
         const r = [cr.min, cr.max];
         const s = (cr.max - cr.min) / 4;
-        let subRange = [...Array(3).keys()].map(x => cr.min + ((x + 1) * s));
+        let subRange = [...Array(3).keys()].map((x) => cr.min + (x + 1) * s);
         subRange = subRange.concat(r);
         const tVals = Array.from(new Set(subRange.sort((a, b) => a - b)));
         const ratioConvertor = (ranger) => {
             const minR = Math.min(...ranger);
             const maxR = Math.max(...ranger);
             const sR = (maxR - minR) / 100;
-            return ranger.map(i => 0.01 * (i - minR) / sR);
+            return ranger.map((i) => (0.01 * (i - minR)) / sR);
         };
         return {
-            ticktext: tVals.map(x => x.toFixed(1)),
+            ticktext: tVals.map((x) => x.toFixed(1)),
             tickvals: ratioConvertor(tVals),
         };
     };
@@ -475,7 +512,9 @@ const genContributionChartData = (objData, type = 't2', dpInfo = null) => {
         let procName = '';
         let colName = '';
         if (dpInfo) {
-            const rowInfo = dpInfo.filter(row => varName.toLowerCase() === row[1]);
+            const rowInfo = dpInfo.filter(
+                (row) => varName.toLowerCase() === row[1],
+            );
             if (rowInfo.length) {
                 [[procName, colName]] = rowInfo;
                 distributionName = `${procName}-${colName}<br />`;
@@ -489,17 +528,11 @@ const genContributionChartData = (objData, type = 't2', dpInfo = null) => {
             orientation: 'h',
             width: 0.9,
             base: 0,
-            x: [
+            x: [Math.abs(v)],
+            y: [objData.Ratio.length - k],
+            hovertext: `${objData.Var[k]}<br />abs(Ratio): ${applySignificantDigit(
                 Math.abs(v),
-            ],
-            y: [
-                objData.Ratio.length - k,
-            ],
-            hovertext: `${objData.Var[k]}<br />abs(Ratio): ${
-                applySignificantDigit(Math.abs(v))
-            }<br />Ratio: ${
-                applySignificantDigit(v)
-            }`,
+            )}<br />Ratio: ${applySignificantDigit(v)}`,
             type: 'bar',
             marker: {
                 autocolorscale: false,
@@ -518,12 +551,8 @@ const genContributionChartData = (objData, type = 't2', dpInfo = null) => {
     });
 
     const ratioChart = {
-        x: [
-            1,
-        ],
-        y: [
-            0,
-        ],
+        x: [1],
+        y: [0],
         name: '99_d31a3926dd854cda0f79a49b4456c467',
         type: 'scatter',
         mode: 'markers',
@@ -531,10 +560,7 @@ const genContributionChartData = (objData, type = 't2', dpInfo = null) => {
         hoverinfo: 'skip',
         showlegend: false,
         marker: {
-            color: [
-                0,
-                1,
-            ],
+            color: [0, 1],
             colorscale: colorScale[type],
             colorbar: {
                 bgcolor: 'transparent',

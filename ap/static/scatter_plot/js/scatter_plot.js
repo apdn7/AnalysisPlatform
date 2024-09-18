@@ -1,8 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-/* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_SENSOR = 2;
 const MIN_NUMBER_OF_SENSOR = 2;
@@ -10,11 +5,11 @@ let tabID = null;
 const graphStore = new GraphStore();
 let response = null;
 let heatmapData = {};
-
+let currentXY = [];
 const MAX_PLOT = 49;
 const MAX_MATRIX = 7;
 let currentMatrix = MAX_MATRIX;
-const STR_PREFIX = '*_/&＠*_$%#'
+const STR_PREFIX = '*_/&＠*_$%#';
 
 const formElements = {
     formID: '#traceDataForm',
@@ -35,7 +30,7 @@ const scpChartType = {
     SCATTER: 'scatter',
     HEATMAP: 'heatmap',
     VIOLIN: 'violin',
-    HEATMAP_BY_INT: 'heatmap_by_int'
+    HEATMAP_BY_INT: 'heatmap_by_int',
 };
 
 const chartScales = {
@@ -81,8 +76,8 @@ const plotTypeConst = {
     MAP_XY_N: {
         name: 'MAP_XY_N',
         mode: 'markers',
-    }
-}
+    },
+};
 
 const els = {
     category: 'category',
@@ -100,38 +95,22 @@ const els = {
 };
 
 const i18n = {
-    total: $('#i18nTotal')
-        .text(),
-    average: $('#i18nAverage')
-        .text(),
-    frequence: $('#i18nFrequence')
-        .text(),
-    gaUnable: $('#i18nGAUnable')
-        .text(),
-    gaCheckConnect: $('#i18nGACheckConnect')
-        .text(),
-    traceResulLimited: $('#i18nTraceResultLimited')
-        .text() || '',
-    SQLLimit: $('#i18nSQLLimit')
-        .text(),
-    allSelection: $('#i18nAllSelection')
-        .text(),
-    noFilter: $('#i18nNoFilter')
-        .text(),
-    machineNo: $('#i18nMachineNo')
-        .text(),
-    partNo: $('#i18nPartNo')
-        .text(),
-    changeDivConfirmText: $('#i18nChangeDivConfirmText')
-        .text(),
-    colorWarningMessage: $('#i18nColorWarningMessage')
-        .text(),
-    changedToMaxValue: $('#i18nChangedDivisionNumberToMax')
-        .text(),
-    reduceViolinNumberMessage: $('#i18nReduceViolinNumberMessage')
-        .text(),
-    limitPerGraphMessage: $('#i18nLimitPerGraphMessage')
-        .text(),
+    total: $('#i18nTotal').text(),
+    average: $('#i18nAverage').text(),
+    frequence: $('#i18nFrequence').text(),
+    gaUnable: $('#i18nGAUnable').text(),
+    gaCheckConnect: $('#i18nGACheckConnect').text(),
+    traceResulLimited: $('#i18nTraceResultLimited').text() || '',
+    SQLLimit: $('#i18nSQLLimit').text(),
+    allSelection: $('#i18nAllSelection').text(),
+    noFilter: $('#i18nNoFilter').text(),
+    machineNo: $('#i18nMachineNo').text(),
+    partNo: $('#i18nPartNo').text(),
+    changeDivConfirmText: $('#i18nChangeDivConfirmText').text(),
+    colorWarningMessage: $('#i18nColorWarningMessage').text(),
+    changedToMaxValue: $('#i18nChangedDivisionNumberToMax').text(),
+    reduceViolinNumberMessage: $('#i18nReduceViolinNumberMessage').text(),
+    limitPerGraphMessage: $('#i18nLimitPerGraphMessage').text(),
     traceTimeLatestWarning: $('#i18nDivByNumberAndLatest').text(),
     isResampleMsg: $('#i18nViolinResampleMsg').text(),
     i18nGotoHMpMsg: $('#i18nGotoHMpMsg').text(),
@@ -158,10 +137,11 @@ const sortMatrixFunc = (a, b, asc = false, key = 'sort_key') => {
     return output2;
 };
 
-
 const genGraph1DMatrix = (inputGraphs, asc = false) => {
     const rowCount = Math.ceil(MAX_PLOT / currentMatrix);
-    const matrix = Array(rowCount).fill().map(() => Array(currentMatrix).fill(null));
+    const matrix = Array(rowCount)
+        .fill()
+        .map(() => Array(currentMatrix).fill(null));
     const graphs = inputGraphs.sort((a, b) => sortMatrixFunc(a, b, asc));
     for (let i = 0; i < graphs.length; i++) {
         matrix[Math.floor(i / currentMatrix)][i % currentMatrix] = graphs[i];
@@ -186,7 +166,9 @@ const gen2DMatrixTitle = (graphs) => {
 
 const genGraph2DMatrix = (inputGraphs, asc = false) => {
     const rowCount = Math.ceil(MAX_PLOT / currentMatrix);
-    const matrix = Array(rowCount).fill().map(() => Array(currentMatrix).fill(null));
+    const matrix = Array(rowCount)
+        .fill()
+        .map(() => Array(currentMatrix).fill(null));
     const graphs = inputGraphs.sort((a, b) => sortMatrixFunc(a, b, true));
     const [rows, cols] = gen2DMatrixTitle(graphs);
     for (const graph of graphs) {
@@ -228,30 +210,28 @@ const onChangeDivisionNumber = () => {
     const MAX_F = 7;
     const MAX_WF = 49;
     const MIN_VALUE = 1;
-    $(`input[name=${CYCLIC_TERM.DIV_NUM}]`)
-        .on('change', (e) => {
-            // uncheck if disable
-            if (e.target.disabled) return;
+    $(`input[name=${CYCLIC_TERM.DIV_NUM}]`).on('change', (e) => {
+        // uncheck if disable
+        if (e.target.disabled) return;
 
-            const value = Number(e.currentTarget.value);
-            const formdata = collectFormData(formElements.formID);
-            const facets = formdata.getAll(els.catExpBoxName)
-                .filter(e => e);
-            const hasFacet = facets.length > 0;
+        const value = Number(e.currentTarget.value);
+        const formdata = collectFormData(formElements.formID);
+        const facets = formdata.getAll(els.catExpBoxName).filter((e) => e);
+        const hasFacet = facets.length > 0;
 
-            if (hasFacet && value > MAX_F) {
-                e.currentTarget.value = MAX_F;
-                showToastrMsg(i18n.changedToMaxValue);
-            } else if (!hasFacet && value > MAX_WF) {
-                e.currentTarget.value = MAX_WF;
-                showToastrMsg(i18n.changedToMaxValue);
-            }
+        if (hasFacet && value > MAX_F) {
+            e.currentTarget.value = MAX_F;
+            showToastrMsg(i18n.changedToMaxValue);
+        } else if (!hasFacet && value > MAX_WF) {
+            e.currentTarget.value = MAX_WF;
+            showToastrMsg(i18n.changedToMaxValue);
+        }
 
-            if (!value || value < MIN_VALUE) {
-                e.currentTarget.value = MIN_VALUE;
-                showToastrMsg(i18n.changedToMaxValue);
-            }
-        });
+        if (!value || value < MIN_VALUE) {
+            e.currentTarget.value = MIN_VALUE;
+            showToastrMsg(i18n.changedToMaxValue);
+        }
+    });
 };
 
 const onChangeTraceTimeDivisionByNumber = () => {
@@ -278,49 +258,47 @@ $(() => {
     const endProcs = genProcessDropdownData(procConfigs);
 
     // add first end process
-    const endProcItem = addEndProcMultiSelect(
-        endProcs.ids,
-        endProcs.names, {
-            showDataType: true,
-            showStrColumn: true,
-            showCatExp: true,
-            isRequired: true,
-            showColor: true,
-            hasDiv: true
-        }
-    );
+    const endProcItem = addEndProcMultiSelect(endProcs.ids, endProcs.names, {
+        showDataType: true,
+        showStrColumn: true,
+        showCatExp: true,
+        isRequired: true,
+        showColor: true,
+        hasDiv: true,
+    });
     endProcItem(() => {
         // show confirm when select Div
         onChangeDivInFacet();
     });
 
-
     // add first condition process
-    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
+    const condProcItem = addCondProc(
+        endProcs.ids,
+        endProcs.names,
+        '',
+        formElements.formID,
+        'btn-add-cond-proc',
+    );
     condProcItem();
 
     // click even of condition proc add button
-    $(formElements.btnAddCondProc)
-        .click(() => {
-            condProcItem();
-        });
-
+    $(formElements.btnAddCondProc).click(() => {
+        condProcItem();
+    });
 
     // check number of sensors in [2,4]
     // setTimeout(addCheckNumberOfSensor, 3000);
 
     // click even of end proc add button
-    $('#btn-add-end-proc')
-        .click(() => {
-            endProcItem(() => {
-                onChangeDivInFacet();
-            });
-            addAttributeToElement();
+    $('#btn-add-end-proc').click(() => {
+        endProcItem(() => {
+            onChangeDivInFacet();
         });
+        addAttributeToElement();
+    });
 
     // Load userBookmarkBar
-    $('#userBookmarkBar')
-        .show();
+    $('#userBookmarkBar').show();
 
     // checkDisableScatterBtn();
 
@@ -352,7 +330,10 @@ const loading = $('.loading');
 
 const scpTracing = () => {
     requestStartedAt = performance.now();
-    const isValid = checkValidations({ min: MAX_NUMBER_OF_SENSOR, max: MAX_NUMBER_OF_SENSOR });
+    const isValid = checkValidations({
+        min: MAX_NUMBER_OF_SENSOR,
+        max: MAX_NUMBER_OF_SENSOR,
+    });
     updateStyleOfInvalidElements();
 
     if (!isValid) return;
@@ -367,17 +348,24 @@ const scpTracing = () => {
     // Reset Graph setting
     resetGraphSetting();
 
+    // save select xy to currentXY
+    currentXY = latestSortColIds.slice(-2);
     scatterTraceData(true);
     // todo destroy old chart instances
 
     // mockup SCP result
-    $('#sctr-card')
-        .html('');
+    $('#sctr-card').html('');
 };
 
 const showErrorMsgHeatMapChart = () => {
-    const categoryTypes = [DataTypes.SERIAL.short, DataTypes.INTEGER_CAT.short, DataTypes.TEXT.short];
-    const checkedVariablesType = [...$('input[name^=GET02_VALS_SELECT]:checked')].map(el => categoryTypes.includes($(el).attr('data-type-shown-name')));
+    const categoryTypes = [
+        DataTypes.SERIAL.short,
+        DataTypes.INTEGER_CAT.short,
+        DataTypes.TEXT.short,
+    ];
+    const checkedVariablesType = [
+        ...$('input[name^=GET02_VALS_SELECT]:checked'),
+    ].map((el) => categoryTypes.includes($(el).attr('data-type-shown-name')));
     if (!checkedVariablesType.includes(false)) {
         // show error msg
         showToastrMsg(i18n.i18nGotoHMpMsg, MESSAGE_LEVEL.ERROR);
@@ -389,17 +377,21 @@ const showErrorMsgHeatMapChart = () => {
 const colorTransform = (colorValSets, colorRange, dummyColorSet = false) => {
     // min value -> // hsv 100°, 100%, 100%
     // max value -> // hsv 0°, 100%, 100%
-    const rangeVal = (colorRange.maxVal - colorRange.minVal);
+    const rangeVal = colorRange.maxVal - colorRange.minVal;
     if (dummyColorSet) {
-        return [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(value => hsv2rgb({
-            h: value,
-            s: 1,
-            v: 1,
-        }));
+        return [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((value) =>
+            hsv2rgb({
+                h: value,
+                s: 1,
+                v: 1,
+            }),
+        );
     }
     return colorValSets.map((colorItem) => {
-        const value = _.isString(colorItem) ? colorRange.codes.indexOf(colorItem) : colorItem;
-        const newVal = (value - colorRange.minVal) * 100 / rangeVal;
+        const value = _.isString(colorItem)
+            ? colorRange.codes.indexOf(colorItem)
+            : colorItem;
+        const newVal = ((value - colorRange.minVal) * 100) / rangeVal;
         const hValue = Math.round(100 - newVal);
         return hsv2rgb({
             h: hValue,
@@ -451,22 +443,27 @@ const defaultScaleSets = [
     ['0.85', 'rgb(255, 64, 0)'],
     ['0.9', 'rgb(255, 42, 0)'],
     ['0.95', 'rgb(255, 21, 0)'],
-    ['1.0', 'rgb(255, 0, 0)']];
+    ['1.0', 'rgb(255, 0, 0)'],
+];
 
 const overDataScaleSets = [
     ['0.0', 'rgb(0,0,0)'],
     ['0.5', 'rgb(0, 0, 0)'],
-    ['1.0', 'rgb(0, 0, 0)']];
+    ['1.0', 'rgb(0, 0, 0)'],
+];
 
 const violinDefaultColorSets = (numOfColors) => {
     const colorStep = Math.floor(360 / numOfColors);
     const defaultColors = [];
     for (let i = 0; i <= numOfColors; i++) {
-        let color = hsv2rgb({
-            h: i * colorStep,
-            s: 0.5,
-            v: 1,
-        }, true);
+        let color = hsv2rgb(
+            {
+                h: i * colorStep,
+                s: 0.5,
+                v: 1,
+            },
+            true,
+        );
         defaultColors.push(color);
     }
     return defaultColors;
@@ -475,19 +472,23 @@ const violinDefaultColorSets = (numOfColors) => {
 const genColorScaleBar = (colorData, title, customScaleSets = null) => {
     const uniqueColorData = colorData.filter(onlyUniqueFilter);
     const isString = _.isString(uniqueColorData[0]);
-    const data = [{
-        colorscale: customScaleSets || defaultScaleSets,
-        type: 'heatmap',
-        z: [uniqueColorData],
-        colorbar: {
-            title: {
-                text: title,
-                size: CONST.COLORBAR.fontsize,
+    const data = [
+        {
+            colorscale: customScaleSets || defaultScaleSets,
+            type: 'heatmap',
+            z: [uniqueColorData],
+            colorbar: {
+                title: {
+                    text: title,
+                    size: CONST.COLORBAR.fontsize,
+                },
             },
         },
-    }];
+    ];
     if (isString) {
-        const tempVals = uniqueColorData.map((val, i) => i / uniqueColorData.length);
+        const tempVals = uniqueColorData.map(
+            (val, i) => i / uniqueColorData.length,
+        );
         data[0].z = [tempVals];
         data[0].colorbar.title.size = 8;
         data[0].colorbar.tickangle = -45;
@@ -537,7 +538,15 @@ const genTicksColor = (ticksList) => {
     return ticks;
 };
 
-const getHtitle = (showVTitle, showHTitle, isFirstCol, isFirstRow, hTitle, colDat, divType) => {
+const getHtitle = (
+    showVTitle,
+    showHTitle,
+    isFirstCol,
+    isFirstRow,
+    hTitle,
+    colDat,
+    divType,
+) => {
     if (!colDat) return '';
 
     let hLabel = '';
@@ -561,16 +570,33 @@ const getHtitle = (showVTitle, showHTitle, isFirstCol, isFirstRow, hTitle, colDa
     return hLabel;
 };
 
-const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption = undefined,
-    colorOrdering = undefined, chartScale = undefined, plotType=plotTypeConst.POINT.name) => {
+const genScatterPlots = (
+    scpDataMatrix,
+    vLabels,
+    hLabels,
+    res,
+    colorScaleOption = undefined,
+    colorOrdering = undefined,
+    chartScale = undefined,
+    plotType = plotTypeConst.POINT.name,
+) => {
     let scatterDat = [];
     const unique_color = res.filter_on_demand.color;
-    const colorOrderVar = (colorOrdering === colorOrders[1] ? colorOrders[0] : colorOrdering) || colorOrders[0];
+    const colorOrderVar =
+        (colorOrdering === colorOrders[1] ? colorOrders[0] : colorOrdering) ||
+        colorOrders[0];
     // console.log(allColorValSets);
     let allColorValSets = [];
-    if (!res.is_filtered && [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(res.color_type)) {
-        allColorValSets = (unique_color && unique_color.length && colorOrderVar === colorOrders[0])
-            ? unique_color[0].unique_categories : [];
+    if (
+        !res.is_filtered &&
+        [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(res.color_type)
+    ) {
+        allColorValSets =
+            unique_color &&
+            unique_color.length &&
+            colorOrderVar === colorOrders[0]
+                ? unique_color[0].unique_categories
+                : [];
     }
     if (!allColorValSets.length || colorOrderVar !== colorOrders[0]) {
         res.array_plotdata.forEach((item) => {
@@ -579,8 +605,9 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
     }
     if (unique_color.length && colorOrderVar === colorOrders[0]) {
         const allSetValue = new Set(allColorValSets);
-        allColorValSets = unique_color[0].unique_categories
-            .filter(color => Array.from(allSetValue).includes(color));
+        allColorValSets = unique_color[0].unique_categories.filter((color) =>
+            Array.from(allSetValue).includes(color),
+        );
     }
     let [minColorVal, maxColorVal] = findMinMax(allColorValSets);
     // category color, reassign by key instead of value
@@ -596,7 +623,9 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
         colorScaleOption = colorScales.AUTO;
     }
     if (colorScaleOption) {
-        const scaleColorSettings = res.scale_color ? res.scale_color[colorScaleOption] : {};
+        const scaleColorSettings = res.scale_color
+            ? res.scale_color[colorScaleOption]
+            : {};
         const minSettingColorVal = scaleColorSettings['y-min'];
         const maxSettingColorVal = scaleColorSettings['y-max'];
         if (minSettingColorVal) {
@@ -623,11 +652,18 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
     // const isShowOnlyFirstCol = res.is_show_first_h_label;
 
     if (!chartScale) {
-        // eslint-disable-next-line no-param-reassign
         chartScale = colorScales.SETTING;
     }
-    const xRange = calMinMaxYScale(res.scale_x[chartScale]['y-min'], res.scale_x[chartScale]['y-max'], chartScale);
-    const yRange = calMinMaxYScale(res.scale_y[chartScale]['y-min'], res.scale_y[chartScale]['y-max'], chartScale);
+    const xRange = calMinMaxYScale(
+        res.scale_x[chartScale]['y-min'],
+        res.scale_x[chartScale]['y-max'],
+        chartScale,
+    );
+    const yRange = calMinMaxYScale(
+        res.scale_y[chartScale]['y-min'],
+        res.scale_y[chartScale]['y-max'],
+        chartScale,
+    );
     const scaleRatio = (xRange[1] - xRange[0]) / (yRange[1] - yRange[0]);
     const layoutAttributes = {
         rowsTotal: scpDataMatrix.length,
@@ -647,7 +683,12 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
     }
 
     if (plotType !== plotTypeConst.POINT.name) {
-        reversedMatrix = removeInvalidDataPoints(reversedMatrix, xRange, yRange, colorOrderVar);
+        reversedMatrix = removeInvalidDataPoints(
+            reversedMatrix,
+            xRange,
+            yRange,
+            colorOrderVar,
+        );
     }
     reversedMatrix.forEach((row, r) => {
         row.forEach((col, c) => {
@@ -661,20 +702,26 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
             const isFirstCol = c === 0;
             // const isFirstRow = r === 0;
             const isFirstRow = r === reversedMatrix.length - 1;
-            layoutAttributes.vLabel = (isShowRow && isFirstCol) ? vTitle : '';
+            layoutAttributes.vLabel = isShowRow && isFirstCol ? vTitle : '';
             layoutAttributes.hLabel = getHtitle(
-                isShowRow, isShowCol, isFirstCol, isFirstRow, hTitle, col, res.div_data_type,
+                isShowRow,
+                isShowCol,
+                isFirstCol,
+                isFirstRow,
+                hTitle,
+                col,
+                res.div_data_type,
             );
             layoutAttributes.rowIdx = r;
             layoutAttributes.colIdx = c;
             const axisItem = genLayoutAxis(layoutAttributes, !!col);
-            let colors = col ? (col[colorOrderVar] || col.array_x) : [];
-            colors = colors.filter(i => i);
+            let colors = col ? col[colorOrderVar] || col.array_x : [];
+            colors = colors.filter((i) => i);
             if (layout.coloraxis.colorbar.tickvals) {
                 // category colors
                 const tickVals = layout.coloraxis.colorbar.tickvals;
                 const tickText = layout.coloraxis.colorbar.ticktext;
-                colors = colors.map(clr => tickVals[tickText.indexOf(clr)]);
+                colors = colors.map((clr) => tickVals[tickText.indexOf(clr)]);
             }
 
             const traceDataInsideColorRange = {
@@ -700,7 +747,10 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
                 time_numberings: [],
             };
             if (col) {
-                if (minColorRange !== minColorVal || maxColorRange !== maxColorVal) {
+                if (
+                    minColorRange !== minColorVal ||
+                    maxColorRange !== maxColorVal
+                ) {
                     // get keys of color in range
                     const colorKeysInsideOfRange = [];
                     const colorKeysOutsideOfRange = [];
@@ -734,32 +784,49 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
                         } else {
                             colorKeysOutsideOfRange.push(k);
                             traceDataOutsideColorRange.color_val.push(v);
-                            traceDataOutsideColorRange.org_color_val.push(col.colors[k]);
-                            traceDataOutsideColorRange.array_x.push(col.array_x[k]);
-                            traceDataOutsideColorRange.array_y.push(col.array_y[k]);
-                            traceDataOutsideColorRange.elapsed_time.push(col.elapsed_time[k]);
+                            traceDataOutsideColorRange.org_color_val.push(
+                                col.colors[k],
+                            );
+                            traceDataOutsideColorRange.array_x.push(
+                                col.array_x[k],
+                            );
+                            traceDataOutsideColorRange.array_y.push(
+                                col.array_y[k],
+                            );
+                            traceDataOutsideColorRange.elapsed_time.push(
+                                col.elapsed_time[k],
+                            );
                             traceDataOutsideColorRange.times.push(col.times[k]);
                             if (col.x_serial && col.x_serial[k]) {
-                                traceDataOutsideColorRange.x_serial.push(col.x_serial[k]);
+                                traceDataOutsideColorRange.x_serial.push(
+                                    col.x_serial[k],
+                                );
                             }
                             if (col.y_serial && col.y_serial[k]) {
-                                traceDataOutsideColorRange.y_serial.push(col.y_serial[k]);
+                                traceDataOutsideColorRange.y_serial.push(
+                                    col.y_serial[k],
+                                );
                             }
                             if (col.time_numberings) {
-                                traceDataOutsideColorRange.time_numberings.push(col.time_numberings[k]);
+                                traceDataOutsideColorRange.time_numberings.push(
+                                    col.time_numberings[k],
+                                );
                             }
                         }
                     });
                     if (insideArrayX) {
                         traceDataInsideColorRange.array_x = insideArrayX;
                         traceDataInsideColorRange.array_y = insideArrayY;
-                        traceDataInsideColorRange.elapsed_time = insideElapsedTime;
+                        traceDataInsideColorRange.elapsed_time =
+                            insideElapsedTime;
                         traceDataInsideColorRange.times = insideTimes;
                         traceDataInsideColorRange.color_val = insideColorVal;
                         traceDataInsideColorRange.x_serial = insideXSerial;
                         traceDataInsideColorRange.y_serial = insideYSerial;
-                        traceDataInsideColorRange.org_color_val = insideOrgColor;
-                        traceDataInsideColorRange.time_numberings = insideTimeSort;
+                        traceDataInsideColorRange.org_color_val =
+                            insideOrgColor;
+                        traceDataInsideColorRange.time_numberings =
+                            insideTimeSort;
                     }
                 }
             }
@@ -770,7 +837,8 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
                     legendgroup: '',
                     marker: {
                         color: traceDataOutsideColorRange.color_val.length
-                            ? traceDataOutsideColorRange.color_val : CONST.COLOR_NORMAL,
+                            ? traceDataOutsideColorRange.color_val
+                            : CONST.COLOR_NORMAL,
                         symbol: 'circle',
                         // coloraxis: 'coloraxis2',
                         colorscale: overDataScaleSets,
@@ -790,7 +858,8 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
                         array_y: traceDataOutsideColorRange.array_y,
                         elapsed_time: traceDataOutsideColorRange.elapsed_time,
                         times: traceDataOutsideColorRange.times,
-                        time_numberings: traceDataOutsideColorRange.time_numberings,
+                        time_numberings:
+                            traceDataOutsideColorRange.time_numberings,
                         colors: traceDataOutsideColorRange.color_val,
                         org_colors: traceDataOutsideColorRange.org_color_val,
                         x_serial: traceDataOutsideColorRange.x_serial,
@@ -806,7 +875,9 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
                 };
                 scatterDat.push(scatterItemOutsideColorRange);
             }
-            const colorRange = res.scale_color ? traceDataInsideColorRange.color_val : colors;
+            const colorRange = res.scale_color
+                ? traceDataInsideColorRange.color_val
+                : colors;
             const scatterItemInsideColorRange = {
                 legendgroup: '',
                 marker: {
@@ -845,20 +916,33 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
                 },
             };
             if (colorScaleOption === colorScales.AUTO) {
-                scatterItemInsideColorRange.marker.colorscale = chartOptions.colorScaleSets;
+                scatterItemInsideColorRange.marker.colorscale =
+                    chartOptions.colorScaleSets;
             }
             scatterDat.push(scatterItemInsideColorRange);
 
             if (col && (col.x_threshold || col.y_threshold)) {
-                layout.shapes.push(...genThresholds(col.x_threshold, col.y_threshold, axisItem, xRange, yRange));
+                layout.shapes.push(
+                    ...genThresholds(
+                        col.x_threshold,
+                        col.y_threshold,
+                        axisItem,
+                        xRange,
+                        yRange,
+                    ),
+                );
             }
         });
     });
 
     layout.coloraxis.cmin = minColorRange;
     layout.coloraxis.cmax = maxColorRange;
-    if ([DataTypes.STRING.name, DataTypes.INTEGER.name].includes(res.color_type)
-        && layout.coloraxis.colorbar.tickvals) {
+    if (
+        [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(
+            res.color_type,
+        ) &&
+        layout.coloraxis.colorbar.tickvals
+    ) {
         let tickVals = layout.coloraxis.colorbar.tickvals;
         if (!tickVals) {
             tickVals = unique_color[0].unique_categories;
@@ -869,7 +953,11 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
         [layout.coloraxis.cmin, layout.coloraxis.cmax] = findMinMax(ticksColor);
     } else {
         const isIntColor = res.color_type === DataTypes.INTEGER.name;
-        const customTicks = genLinearColorBar([minColorRange, maxColorRange], isIntColor, chartOptions.colorFmt);
+        const customTicks = genLinearColorBar(
+            [minColorRange, maxColorRange],
+            isIntColor,
+            chartOptions.colorFmt,
+        );
         layout.coloraxis.colorbar.tickvals = customTicks;
         layout.coloraxis.colorbar.ticktext = customTicks;
         // reassign colorbar range to show first tick and last tick
@@ -888,7 +976,12 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
     }
     if (plotType !== plotTypeConst.POINT.name) {
         // update plot-type: points and/or lines with color
-        scatterDat = updatePlotType(scatterDat, plotType, [layout.coloraxis.cmin, layout.coloraxis.cmax], layout);
+        scatterDat = updatePlotType(
+            scatterDat,
+            plotType,
+            [layout.coloraxis.cmin, layout.coloraxis.cmax],
+            layout,
+        );
     }
 
     // console.log(scatterDat);
@@ -909,17 +1002,18 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
     graphDiv.on('plotly_hover', (data) => {
         let serials = res.serials;
         let datetime = res.datetime;
-        // eslint-disable-next-line no-shadow
-        const dataScp = data.points.length
-            ? data.points[0] : null;
+
+        const dataScp = data.points.length ? data.points[0] : null;
         if (!dataScp) return;
-        const {
-            pageX,
-            pageY,
-        } = data.event;
+        const { pageX, pageY } = data.event;
         if ('customdata' in dataScp.data) {
-            if (dataScp.data.customdata.x_serial && dataScp.data.customdata.x_serial.length) {
-                serials = dataScp.data.customdata.x_serial.map(xserials => xserials.data);
+            if (
+                dataScp.data.customdata.x_serial &&
+                dataScp.data.customdata.x_serial.length
+            ) {
+                serials = dataScp.data.customdata.x_serial.map(
+                    (xserials) => xserials.data,
+                );
             }
             if (dataScp.data.customdata.times) {
                 datetime = dataScp.data.customdata.times;
@@ -938,14 +1032,15 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
             datetime: datetime,
             start_proc: res.start_proc,
         };
-        const key = dataScp.data.customdata.first_point_idx || dataScp.pointIndex;
+        const key =
+            dataScp.data.customdata.first_point_idx || dataScp.pointIndex;
         setTimeout(() => {
             makeScatterHoverInfoBox(dataScp, option, key, pageX, pageY);
         }, 100);
     });
 
     unHoverHandler(graphDiv);
-    
+
     // const chartDOM = document.getElementById(canvasID);
     // window.removeEventListener('click', () => {
     // });
@@ -954,23 +1049,24 @@ const genScatterPlots = (scpDataMatrix, vLabels, hLabels, res, colorScaleOption 
     // });
 };
 
-const genLinearColorBar = (colorRange, isIntColor=false, fmt) => {
+const genLinearColorBar = (colorRange, isIntColor = false, fmt) => {
     const tickValues = [0, 0.25, 0.5, 0.75, 1];
     const stepValues = colorRange[1] - colorRange[0];
     const newFmt = fmt.includes('e') ? '.1e' : fmt;
     const ticks = tickValues.map((tick) => {
-        const tickValue = applySignificantDigit(colorRange[0] + tick * stepValues, 4, newFmt);
+        let tickVal = colorRange[0] + tick * stepValues;
         if (isIntColor) {
-            return Math.round(tickValue);
+            tickVal = Math.round(tickVal);
         }
-        return tickValue;
+        return applySignificantDigit(tickVal, 4, newFmt);
     });
     return ticks;
 };
 
 // generate scatter hover information
 const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
-    if (!prop || !prop.data.customdata || !prop.data.customdata.columndata) return;
+    if (!prop || !prop.data.customdata || !prop.data.customdata.columndata)
+        return;
     const col = prop.data.customdata.columndata;
     const vTitle = prop.data.customdata.vtitle;
     const hTitle = prop.data.customdata.htitle;
@@ -981,25 +1077,26 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
     const timeSort = prop.data.customdata.time_numberings || [];
     const orgColorValue = prop.data.customdata.org_colors;
     const xSerial = prop.data.customdata.x_serial;
-    const [lv1Label, lv2Label] = vTitle ? vTitle.toString()
-        .split('|') : [null, null];
+    const [lv1Label, lv2Label] = vTitle
+        ? vTitle.toString().split('|')
+        : [null, null];
     const level1 = lv1Label ? `Lv1 = ${lv1Label}` : '';
     const level2 = lv2Label ? `Lv2 = ${lv2Label}` : '';
-    const seperator = (level1 && level2) ? ', ' : '';
-    const dataNo = (option.compare_type === els.dataNumberTerm
-        && hTitle) ? hTitle : null;
+    const seperator = level1 && level2 ? ', ' : '';
+    const dataNo =
+        option.compare_type === els.dataNumberTerm && hTitle ? hTitle : null;
     const category = option.div_name ? hTitle : null;
-    const facet = (level1 || level2) ? `${level1}${seperator}${level2}` : null;
+    const facet = level1 || level2 ? `${level1}${seperator}${level2}` : null;
     const timeStart = col.time_min
-        ? moment.utc(col.time_min)
-            .local()
-            .format(DATE_FORMAT_WITHOUT_TZ) : '';
-    const timeEnd = col.time_max ? moment.utc(col.time_max)
-        .local()
-        .format(DATE_FORMAT_WITHOUT_TZ) : '';
-    const getPointTime = pointer => (pointer ? moment.utc(pointer)
-        .local()
-        .format(DATE_FORMAT_WITHOUT_TZ) : '');
+        ? moment.utc(col.time_min).local().format(DATE_FORMAT_WITHOUT_TZ)
+        : '';
+    const timeEnd = col.time_max
+        ? moment.utc(col.time_max).local().format(DATE_FORMAT_WITHOUT_TZ)
+        : '';
+    const getPointTime = (pointer) =>
+        pointer
+            ? moment.utc(pointer).local().format(DATE_FORMAT_WITHOUT_TZ)
+            : '';
     const getPointValue = (i) => {
         const xValue = applySignificantDigit(arxValue[i]);
         const yValue = applySignificantDigit(aryValue[i]);
@@ -1010,14 +1107,18 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
     };
     const getDatetime = (key) => {
         let datetime = getPointTime(option.datetime[key]);
-        const fromDiffStartProc = ![option.x_proc, option.y_proc].includes(option.start_proc);
+        const fromDiffStartProc = ![option.x_proc, option.y_proc].includes(
+            option.start_proc,
+        );
         const xProcName = fromDiffStartProc ? ` @${option.start_proc}` : '';
         datetime += xProcName;
         return datetime;
     };
     const getSerial = (xSerials, itemIdx) => {
         let serialInfo = [];
-        const fromDiffStartProc = ![option.x_proc, option.y_proc].includes(option.start_proc);
+        const fromDiffStartProc = ![option.x_proc, option.y_proc].includes(
+            option.start_proc,
+        );
         const xProcName = fromDiffStartProc ? ` @${option.start_proc}` : '';
         if (xSerials) {
             serialInfo = xSerials.map((serial) => {
@@ -1026,7 +1127,9 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
         }
         return serialInfo;
     };
-    const colorVal = orgColorValue[key] ? applySignificantDigit(orgColorValue[key]) : '';
+    const colorVal = orgColorValue[key]
+        ? applySignificantDigit(orgColorValue[key])
+        : '';
     const pointValue = getPointValue(key);
     const datetime = getDatetime(key);
     const serialValue = getSerial(option.serials, key);
@@ -1039,10 +1142,14 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
             color: option.color_name ? colorVal : '',
             datetime,
             serial: serialValue,
-            elapsed_time: (elapsedTimeValue[key] || elapsedTimeValue[key] == 0)
-                ? applySignificantDigit(elapsedTimeValue[key]) : '',
-            time_numberings: (timeSort[key] || timeSort[key] == 0)
-                ? applySignificantDigit(timeSort[key]) : '',
+            elapsed_time:
+                elapsedTimeValue[key] || elapsedTimeValue[key] == 0
+                    ? applySignificantDigit(elapsedTimeValue[key])
+                    : '',
+            time_numberings:
+                timeSort[key] || timeSort[key] == 0
+                    ? applySignificantDigit(timeSort[key])
+                    : '',
             from: timeStart,
             to: timeEnd,
             n_total: col.n_total,
@@ -1051,7 +1158,8 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
             facet,
             xthreshold,
             ythreshold,
-        }, {
+        },
+        {
             x: pageX - 160,
             y: pageY,
         },
@@ -1061,26 +1169,36 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
 };
 
 const removeEmptyFromMatrix = (matrix) => {
-    const validRows = matrix.filter(row => row.filter(col => col !== null).length > 0);
+    const validRows = matrix.filter(
+        (row) => row.filter((col) => col !== null).length > 0,
+    );
     const invalidCols = [];
     // loop cols
     for (let i = 0; i < validRows[0].length; i++) {
-        const colValues = validRows.map(row => row[i])
-            .filter(col => col !== null);
+        const colValues = validRows
+            .map((row) => row[i])
+            .filter((col) => col !== null);
         if (!colValues.length) {
             invalidCols.push(i);
         }
     }
     for (let i = validRows[0].length; i >= 0; i--) {
         if (invalidCols.includes(i)) {
-            validRows.map(row => row.splice(i, 1));
+            validRows.map((row) => row.splice(i, 1));
         }
     }
 
     return validRows;
 };
 
-const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName, yName) => {
+const genVLabels = (
+    vLabels,
+    parentId = 'sctr-card',
+    chartHeight,
+    figSize,
+    xName,
+    yName,
+) => {
     // remove all rendered html
     $('.scp-html-tag').remove();
 
@@ -1095,9 +1213,7 @@ const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName
         </div>
     `;
 
-    $(`#${parentId}`)
-        .append(XYHtml);
-
+    $(`#${parentId}`).append(XYHtml);
 
     if (!vLabels || vLabels.length === 0) {
         return;
@@ -1107,22 +1223,26 @@ const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName
     const t = figSize / 2 + 50;
     const spaceY = (chartHeight - 200) * SCATTER_MARGIN.Y_NORMAL;
     vLabels.forEach((vLabel, i) => {
-        const top = i === 0 ? t : (i * (figSize + spaceY) + t);
-        vLabelHtml += `<div id="scp-vlabel-${i}" class="matrix-level cat-exp-box position-absolute scp-html-tag" i="${i}" style="height: 0px;left: ${figSize / 2 * -1 + 50}px; top: ${top}px;"><span class="show-detail" style="line-height: 1; text-overflow: ellipsis; overflow: hidden;">${vLabel}</span></div>`;
+        const top = i === 0 ? t : i * (figSize + spaceY) + t;
+        vLabelHtml += `<div id="scp-vlabel-${i}" class="matrix-level cat-exp-box position-absolute scp-html-tag" i="${i}" style="height: 0px;left: ${(figSize / 2) * -1 + 50}px; top: ${top}px;"><span class="show-detail" style="line-height: 1; text-overflow: ellipsis; overflow: hidden;">${vLabel}</span></div>`;
     });
 
-    $(`#${parentId}`)
-        .append(vLabelHtml);
+    $(`#${parentId}`).append(vLabelHtml);
 
     // set width of label <= fig size
     vLabels.forEach((vla, i) => {
-       const s = $(`#scp-vlabel-${i} span`);
-       s.width(figSize);
-       s.parent().width(figSize);
+        const s = $(`#scp-vlabel-${i} span`);
+        s.width(figSize);
+        s.parent().width(figSize);
     });
 };
 
-const setChartSize = (scpMatrix, chartHeight, hasColorbar, hTileISBreakLine) => {
+const setChartSize = (
+    scpMatrix,
+    chartHeight,
+    hasColorbar,
+    hTileISBreakLine,
+) => {
     SCATTER_MARGIN.X_NORMAL = X_NORMAL;
     SCATTER_MARGIN.Y_NORMAL = Y_NORMAL;
 
@@ -1141,7 +1261,10 @@ const setChartSize = (scpMatrix, chartHeight, hasColorbar, hTileISBreakLine) => 
 
     const hOffset = 90;
     const chartH = yPage - hOffset;
-    const yM2 = chartH * SCATTER_MARGIN.Y_NORMAL > MIN_Y_MARGIN ? MIN_Y_MARGIN : chartH * SCATTER_MARGIN.Y_NORMAL;
+    const yM2 =
+        chartH * SCATTER_MARGIN.Y_NORMAL > MIN_Y_MARGIN
+            ? MIN_Y_MARGIN
+            : chartH * SCATTER_MARGIN.Y_NORMAL;
     let yFig = (chartH - yM2 * (nRow - 1)) / nRow;
 
     // Aspect ratio 1:1
@@ -1152,29 +1275,32 @@ const setChartSize = (scpMatrix, chartHeight, hasColorbar, hTileISBreakLine) => 
     let actualXPage = xFig * nCol + xM1 + xM3 + xM2 * (nCol - 1);
     let actualYPage = yFig * nRow + hOffset + yM2 * (nRow - 1);
 
-     if (actualXPage * SCATTER_MARGIN.X_NORMAL < MIN_X_MARGIN) {
-        const addMargin = (MIN_X_MARGIN - (actualYPage * SCATTER_MARGIN.X_NORMAL)) * (nCol - 1);
-         if (actualXPage + addMargin < xPage) {
-              actualXPage += addMargin;
-              SCATTER_MARGIN.X_NORMAL = MIN_X_MARGIN / actualXPage;
-         }
-
+    if (actualXPage * SCATTER_MARGIN.X_NORMAL < MIN_X_MARGIN) {
+        const addMargin =
+            (MIN_X_MARGIN - actualYPage * SCATTER_MARGIN.X_NORMAL) * (nCol - 1);
+        if (actualXPage + addMargin < xPage) {
+            actualXPage += addMargin;
+            SCATTER_MARGIN.X_NORMAL = MIN_X_MARGIN / actualXPage;
+        }
     }
 
-
-    if ( hTileISBreakLine && actualYPage * SCATTER_MARGIN.Y_NORMAL < MIN_Y_MARGIN) {
-        const addMargin = (MIN_Y_MARGIN - (actualYPage * SCATTER_MARGIN.Y_NORMAL)) * (nRow - 1);
+    if (
+        hTileISBreakLine &&
+        actualYPage * SCATTER_MARGIN.Y_NORMAL < MIN_Y_MARGIN
+    ) {
+        const addMargin =
+            (MIN_Y_MARGIN - actualYPage * SCATTER_MARGIN.Y_NORMAL) * (nRow - 1);
         actualYPage += addMargin;
         SCATTER_MARGIN.Y_NORMAL = MIN_Y_MARGIN / actualYPage;
     }
 
     if (actualYPage * SCATTER_MARGIN.Y_NORMAL > MIN_Y_MARGIN) {
-         SCATTER_MARGIN.Y_NORMAL = MIN_Y_MARGIN / actualYPage;
+        SCATTER_MARGIN.Y_NORMAL = MIN_Y_MARGIN / actualYPage;
     }
 
     $('#sctr-card').height(actualYPage);
     $('#sctr-card').width(actualXPage);
-    $('#sctr-card').css({maxWidth: `calc(100vw - 100px)`});
+    $('#sctr-card').css({ maxWidth: `calc(100vw - 100px)` });
 
     return [actualYPage, xFig];
 };
@@ -1183,7 +1309,12 @@ const resetChartSize = () => {
     $('#sctr-card').removeAttr('style');
 };
 
-const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
+const showSCP = async (
+    res,
+    settings = undefined,
+    clearOnFlyFilter = false,
+    autoUpdate = false,
+) => {
     if (!res.array_plotdata) {
         loadingHide();
         return;
@@ -1198,8 +1329,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         response = res;
         // remove old hover infor violin and heatmap
         removeHoverInfo();
-        $('#colorSettingGrp')
-            .show();
+        $('#colorSettingGrp').show();
 
         $('#sctr-card-parent').show();
         resetChartSize();
@@ -1216,10 +1346,16 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         // $(`select[name=${els.scpColorOrder}]`).val('1');
         // reverse array to show latest first
         let zoomRange = null;
-        const isShowDate = res.COMMON.compareType === els.cyclicTerm || res.COMMON.compareType === els.directTerm;
+        const isShowDate =
+            res.COMMON.compareType === els.cyclicTerm ||
+            res.COMMON.compareType === els.directTerm;
         const showGraph = (settings = { isShowForward: false }) => {
             const scpCloneData = JSON.parse(JSON.stringify(scpData));
-            const [matrix, vLabels, hLabels] = genGraphMatrix(scpCloneData, res.is_show_v_label, !!settings.isShowForward);
+            const [matrix, vLabels, hLabels] = genGraphMatrix(
+                scpCloneData,
+                res.is_show_v_label,
+                !!settings.isShowForward,
+            );
             // todo: reverse v + hlabel + matrix
             const scpMatrix = removeEmptyFromMatrix(matrix);
             // scatter for category and real color
@@ -1237,32 +1373,91 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                 $('#sctr-card').height(chartHeight);
                 let actualHeight;
                 let figSize;
-                const hasColorBar = res.color_name || (settings.colorOrdering && settings.colorOrdering !== colorOrders[1]);
-                const isShowDateTime = [els.cyclicTerm, els.directTerm].includes(res.COMMON.compareType) ;
-                [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
-                genScatterPlots(scpMatrix, vLabels, hLabels, res, settings.colorScale,
-                    settings.colorOrdering, settings.chartScale, settings.plotType || plotTypeConst.POINT.name);
-                genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name);
+                const hasColorBar =
+                    res.color_name ||
+                    (settings.colorOrdering &&
+                        settings.colorOrdering !== colorOrders[1]);
+                const isShowDateTime = [
+                    els.cyclicTerm,
+                    els.directTerm,
+                ].includes(res.COMMON.compareType);
+                [actualHeight, figSize] = setChartSize(
+                    scpMatrix,
+                    chartHeight,
+                    hasColorBar,
+                    isShowDateTime,
+                );
+                genScatterPlots(
+                    scpMatrix,
+                    vLabels,
+                    hLabels,
+                    res,
+                    settings.colorScale,
+                    settings.colorOrdering,
+                    settings.chartScale,
+                    settings.plotType || plotTypeConst.POINT.name,
+                );
+                genVLabels(
+                    vLabels,
+                    'sctr-card',
+                    actualHeight,
+                    figSize,
+                    res.x_name,
+                    res.y_name,
+                );
 
                 let timerVar = null;
 
                 $(window).on('resize', () => {
                     clearTimeout(timerVar);
                     timerVar = setTimeout(() => {
-                            [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
-                            genScatterPlots(scpMatrix, vLabels, hLabels, res, settings.colorScale,
-                                settings.colorOrdering, settings.chartScale, settings.plotType);
-                            genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name);
-                            initFilterModal(res, false);
-                        },
-                        500)
+                        [actualHeight, figSize] = setChartSize(
+                            scpMatrix,
+                            chartHeight,
+                            hasColorBar,
+                            isShowDateTime,
+                        );
+                        genScatterPlots(
+                            scpMatrix,
+                            vLabels,
+                            hLabels,
+                            res,
+                            settings.colorScale,
+                            settings.colorOrdering,
+                            settings.chartScale,
+                            settings.plotType,
+                        );
+                        genVLabels(
+                            vLabels,
+                            'sctr-card',
+                            actualHeight,
+                            figSize,
+                            res.x_name,
+                            res.y_name,
+                        );
+                        initFilterModal(res, false);
+                    }, 500);
                 });
             }
-            const divNumber = res.div_name && res.div_data_type === DataTypes.INTEGER.name;
-            if ([scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(chartType)) {
-                genHTMLContentMatrix(scpMatrix, 'sctr-card', xName, yName, isShowFirstLabelH, isShowDate, divNumber);
+            const divNumber =
+                res.div_name && res.div_data_type === DataTypes.INTEGER.name;
+            if (
+                [scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(
+                    chartType,
+                )
+            ) {
+                genHTMLContentMatrix(
+                    scpMatrix,
+                    'sctr-card',
+                    xName,
+                    yName,
+                    isShowFirstLabelH,
+                    isShowDate,
+                    divNumber,
+                );
                 const option = {
-                    isShowNumberOfData: res.COMMON.compareType === els.dataNumberTerm,
+                    isShowNumberOfData:
+                        res.COMMON.compareType === els.dataNumberTerm,
                     isShowFacet: res.is_show_v_label,
                     isShowDiv: res.div_name !== null,
                     hasLv2: res.level_names && res.level_names.length >= 2,
@@ -1270,9 +1465,9 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     yDataType: res.y_data_type,
                     chartType,
                     colorName: res.color_name,
-                    use_map_xy: false
+                    use_map_xy: false,
                 };
-                heatmapData = {scpMatrix, option, zoomRange};
+                heatmapData = { scpMatrix, option, zoomRange };
                 genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
                     zoomRange = event;
                     const sets = getCurrentSettings();
@@ -1282,9 +1477,19 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
 
             if (chartType === scpChartType.VIOLIN) {
                 const stringCol = res.string_axis || null;
-                genHTMLContentMatrix(scpMatrix, 'sctr-card', xName, yName, isShowFirstLabelH, isShowDate, divNumber, stringCol);
+                genHTMLContentMatrix(
+                    scpMatrix,
+                    'sctr-card',
+                    xName,
+                    yName,
+                    isShowFirstLabelH,
+                    isShowDate,
+                    divNumber,
+                    stringCol,
+                );
                 const option = {
-                    isShowNumberOfData: res.COMMON.compareType === els.dataNumberTerm,
+                    isShowNumberOfData:
+                        res.COMMON.compareType === els.dataNumberTerm,
                     isShowFacet: res.is_show_v_label,
                     hasLv2: res.level_names && res.level_names.length >= 2,
                     isShowDiv: res.div_name !== null,
@@ -1297,11 +1502,19 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     xDataType: res.x_data_type,
                     yDataType: res.y_data_type,
                 };
-                genViolinPlots(scpMatrix, option, res.scale_x, res.scale_y, settings.chartScale || chartScales[1], zoomRange, (event) => {
-                    zoomRange = event;
-                    const sets = getCurrentSettings();
-                    showGraph(sets);
-                });
+                genViolinPlots(
+                    scpMatrix,
+                    option,
+                    res.scale_x,
+                    res.scale_y,
+                    settings.chartScale || chartScales[1],
+                    zoomRange,
+                    (event) => {
+                        zoomRange = event;
+                        const sets = getCurrentSettings();
+                        showGraph(sets);
+                    },
+                );
             }
 
             // remove map_xy and map_xy_n if there is not heatmap by int
@@ -1314,11 +1527,10 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
             loadingHide();
 
             if (!autoUpdate) {
-                 // scroll to chart
-                const scpCardPosition = $('#colorSettingGrp')
-                    .offset().top;
-                $('html,body')
-                    .animate({ scrollTop: scpCardPosition }, 1000);
+                // scroll to chart
+                const scpCardPosition =
+                    getOffsetTopDisplayGraph('#colorSettingGrp');
+                $('html,body').animate({ scrollTop: scpCardPosition }, 1000);
             }
             initFilterModal(res, clearOnFlyFilter);
         };
@@ -1330,57 +1542,49 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         }
 
         const onChangeChartScale = () => {
-            $(`select[name=${els.scpChartScale}]`)
-                .off('change');
-            $(`select[name=${els.scpChartScale}]`)
-                .on('change', (e) => {
-                    if (chartType === scpChartType.HEATMAP) return;
-                    loadingShow();
-                    setTimeout(() => {
-                        const graphsettings = getCurrentSettings();
-                        showGraph(graphsettings);
-                    }, 1000);
-                });
+            $(`select[name=${els.scpChartScale}]`).off('change');
+            $(`select[name=${els.scpChartScale}]`).on('change', (e) => {
+                if (chartType === scpChartType.HEATMAP) return;
+                loadingShow();
+                setTimeout(() => {
+                    const graphsettings = getCurrentSettings();
+                    showGraph(graphsettings);
+                }, 1000);
+            });
         };
 
         const onChangeColorOrder = () => {
-            $(`select[name=${els.scpColorOrder}]`)
-                .off('change');
-            $(`select[name=${els.scpColorOrder}]`)
-                .on('change', (e) => {
-                    if (chartType !== scpChartType.SCATTER) return;
-                    loadingShow();
-                    setTimeout(() => {
-                        $(`select[name=${els.scpColorScale}]`).val('AUTO');
-                        const graphsettings = getCurrentSettings();
-                        callToBackEndAPI(graphsettings);
-                    }, 1000);
-                });
+            $(`select[name=${els.scpColorOrder}]`).off('change');
+            $(`select[name=${els.scpColorOrder}]`).on('change', (e) => {
+                if (chartType !== scpChartType.SCATTER) return;
+                loadingShow();
+                setTimeout(() => {
+                    $(`select[name=${els.scpColorScale}]`).val('AUTO');
+                    const graphsettings = getCurrentSettings();
+                    callToBackEndAPI(graphsettings);
+                }, 1000);
+            });
         };
         const onChangeColorScale = () => {
-            $(`select[name=${els.scpColorScale}]`)
-                .off('change');
-            $(`select[name=${els.scpColorScale}]`)
-                .on('change', (e) => {
-                    if (chartType !== scpChartType.SCATTER) return;
-                    loadingShow();
-                    setTimeout(() => {
-                        const graphsettings = getCurrentSettings();
-                        showGraph(graphsettings);
-                    }, 500);
-                });
+            $(`select[name=${els.scpColorScale}]`).off('change');
+            $(`select[name=${els.scpColorScale}]`).on('change', (e) => {
+                if (chartType !== scpChartType.SCATTER) return;
+                loadingShow();
+                setTimeout(() => {
+                    const graphsettings = getCurrentSettings();
+                    showGraph(graphsettings);
+                }, 500);
+            });
         };
         const onShowBackward = () => {
-            $(`select[name=${els.showBackward}]`)
-                .off('change');
-            $(`select[name=${els.showBackward}]`)
-                .on('change', () => {
-                    loadingShow();
-                    setTimeout(() => {
-                        const graphsettings = getCurrentSettings();
-                        showGraph(graphsettings);
-                    }, 1000);
-                });
+            $(`select[name=${els.showBackward}]`).off('change');
+            $(`select[name=${els.showBackward}]`).on('change', () => {
+                loadingShow();
+                setTimeout(() => {
+                    const graphsettings = getCurrentSettings();
+                    showGraph(graphsettings);
+                }, 1000);
+            });
         };
         const onChangeColNumber = () => {
             $(`select[name=${els.colNumber}]`)
@@ -1437,7 +1641,16 @@ const resetGraphSetting = () => {
     currentMatrix = MAX_MATRIX;
 };
 
-const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH, isShowDate, isDivNumber, stringCol = null) => {
+const genHTMLContentMatrix = (
+    scpMatrix,
+    cardID,
+    xName,
+    yName,
+    isShowFirstLabelH,
+    isShowDate,
+    isDivNumber,
+    stringCol = null,
+) => {
     let contentDOM = '';
     const totalRow = scpMatrix.length;
     const totalCol = scpMatrix[0].length;
@@ -1465,7 +1678,10 @@ const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH
             }
 
             if (totalCol > 1) {
-                width = j === 0 ? `calc(100% / ${totalCol} + 24px)` : `calc(100% / ${totalCol} - 6px - ${30 / (totalCol - 1)}px)`;
+                width =
+                    j === 0
+                        ? `calc(100% / ${totalCol} + 24px)`
+                        : `calc(100% / ${totalCol} - 6px - ${30 / (totalCol - 1)}px)`;
             } else {
                 width = '100%';
             }
@@ -1473,20 +1689,30 @@ const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH
             if (isShowFirstLabelH) {
                 labelH = i === 0 ? firstLabelH[j] : '';
             } else {
-                labelH = item ? item.h_label === null ? '' : item.h_label : '';
+                labelH = item
+                    ? item.h_label === null
+                        ? ''
+                        : item.h_label
+                    : '';
             }
 
-
             if (isShowDate) {
-                labelH = labelH && labelH.split(COMMON_CONSTANT.EN_DASH)
-                    .map(vl => formatDateTime(vl.trim()))
-                    .join(` ${COMMON_CONSTANT.EN_DASH} `);
+                labelH =
+                    labelH &&
+                    labelH
+                        .split(COMMON_CONSTANT.EN_DASH)
+                        .map((vl) =>
+                            formatDateTime(vl.trim(), DATE_FORMAT_WITHOUT_TZ, {
+                                withMillisecs: false,
+                            }),
+                        )
+                        .join(` ${COMMON_CONSTANT.EN_DASH} `);
             } else if (labelH && isDivNumber) {
                 labelH = `Cat${labelH}`;
             }
 
             const h = `<span class="title label-h" style="height: 18px">${labelH}</span>`;
-            const hHtml = isShowFirstLabelH ? labelH ? h : '' : h;
+            const hHtml = isShowFirstLabelH ? (labelH ? h : '') : h;
 
             column += `<div class="sctr-item chart-column graph-navi d-flex flex-column justify-content-end"
             style="height: 100%; width: ${width}; margin: 0 3px;">
@@ -1495,8 +1721,10 @@ const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH
             </div>`;
         }
 
-
-        const height = i === (totalRow - 1) ? `calc(100% / ${totalRow} + 20px)` : `calc(100% / ${totalRow} - 10px)`;
+        const height =
+            i === totalRow - 1
+                ? `calc(100% / ${totalRow} + 20px)`
+                : `calc(100% / ${totalRow} - 10px)`;
 
         contentDOM += `
             <div style="width: 100%; height: ${height}; margin: 3px 0;" class="position-relative">
@@ -1538,11 +1766,15 @@ const genHTMLContentMatrix = (scpMatrix, cardID, xName, yName, isShowFirstLabelH
                 </div>
         </div>
         `;
-    $(`#${cardID}`)
-        .html(chartDom).css({ height: 'auto' });
+    $(`#${cardID}`).html(chartDom).css({ height: 'auto' });
 };
 
-const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => {
+const genHeatMapPlots = (
+    scpData,
+    option,
+    zoomRange = null,
+    callback = null,
+) => {
     let allColorValSets = [];
     const allYValues = [];
     const allXValues = [];
@@ -1551,11 +1783,14 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
         let allYValue = [];
         row.forEach((item) => {
             if (item) {
-                item.array_y = item.array_y.map(val => val.toString());
+                item.array_y = item.array_y.map((val) => val.toString());
                 allYValue = [...allYValue, ...item.array_y];
                 if (item.array_z) {
                     item.array_z.forEach((z) => {
-                        allColorValSets = [...allColorValSets, ...z.map(y => y)];
+                        allColorValSets = [
+                            ...allColorValSets,
+                            ...z.map((y) => y),
+                        ];
                     });
                 } else {
                     allColorValSets = item.colors;
@@ -1573,7 +1808,7 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
         for (let j = 0; j < totalRow; j++) {
             const item = scpData[j][i];
             if (item) {
-                item.array_x = item.array_x.map(val => val.toString());
+                item.array_x = item.array_x.map((val) => val.toString());
                 allXValue = [...allXValue, ...item.array_x];
             }
         }
@@ -1585,8 +1820,8 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
             const canvasID = `scp-${i}-${j}`;
             const graphDiv = document.getElementById(canvasID);
             if (item) {
-                item.array_y = item.array_y.map(val => val.toString());
-                item.array_x = item.array_x.map(val => val.toString());
+                item.array_y = item.array_y.map((val) => val.toString());
+                item.array_x = item.array_x.map((val) => val.toString());
                 item.zmax = zmax;
                 item.zmin = zmin;
                 item.isShowY = j === 0;
@@ -1602,39 +1837,37 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
                 fakeItem.isShowX = i === scpData.length - 1;
                 fakeItem.array_x = allXValues[j];
                 fakeItem.array_y = allYValues[i];
-                fakeItem.array_z = Array(allYValues[i].length)
-                    .fill(Array(allXValues[j].length)
-                        .fill(-1));
+                fakeItem.array_z = Array(allYValues[i].length).fill(
+                    Array(allXValues[j].length).fill(-1),
+                );
                 generateHeatmapPlot(fakeItem, option, zoomRange);
             }
-            graphDiv.on('plotly_relayout',
-                (eventdata) => {
-                    callback(eventdata);
-                });
+            graphDiv.on('plotly_relayout', (eventdata) => {
+                callback(eventdata);
+            });
             option.canvas_id = canvasID;
             graphDiv.on('plotly_hover', (data) => {
                 setTimeout(() => {
-                    $('.scp-hover-info')
-                        .remove();
+                    $('.scp-hover-info').remove();
                     const dataScp = scpData[i][j];
                     if (!dataScp) return;
-                    const {
+                    const { x, y } = data.points[0];
+                    const { pageX, pageY } = data.event;
+                    makeHeatmapHoverInfoBox(
+                        dataScp,
                         x,
                         y,
-                    } = data.points[0];
-                    const {
+                        option,
                         pageX,
                         pageY,
-                    } = data.event;
-                    makeHeatmapHoverInfoBox(dataScp, x, y, option, pageX, pageY);
+                    );
                 }, 200);
             });
 
             unHoverHandler(graphDiv);
 
             graphDiv.addEventListener('mouseleave', () => {
-                $('.scp-hover-info')
-                    .remove();
+                $('.scp-hover-info').remove();
             });
         });
     });
@@ -1643,14 +1876,34 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
     genColorScaleBar(allColorValSets, colorBarTitle, colorPalettes);
 };
 
-const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScales[1], zoomRange = null, callback) => {
+const genViolinPlots = (
+    scpData,
+    option,
+    scaleX,
+    scaleY,
+    scaleOption = chartScales[1],
+    zoomRange = null,
+    callback,
+) => {
     let rangeScaleX = [null, null];
     let rangeScaleY = [null, null];
     let yThreshold = null;
     let xThreshold = null;
     if (scaleOption) {
-        rangeScaleX = scaleX && calMinMaxYScale(scaleX[scaleOption]['y-min'], scaleX[scaleOption]['y-max'], scaleOption)
-        rangeScaleY = scaleY && calMinMaxYScale(scaleY[scaleOption]['y-min'], scaleY[scaleOption]['y-max'], scaleOption)
+        rangeScaleX =
+            scaleX &&
+            calMinMaxYScale(
+                scaleX[scaleOption]['y-min'],
+                scaleX[scaleOption]['y-max'],
+                scaleOption,
+            );
+        rangeScaleY =
+            scaleY &&
+            calMinMaxYScale(
+                scaleY[scaleOption]['y-min'],
+                scaleY[scaleOption]['y-max'],
+                scaleOption,
+            );
     }
 
     let allColors = [];
@@ -1666,16 +1919,19 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
             }
         });
     });
-    const uniqueColors = allColors.map(el => el.toString()).filter(onlyUniqueFilter);
+    const uniqueColors = allColors
+        .map((el) => el.toString())
+        .filter(onlyUniqueFilter);
     const violinColors = violinDefaultColorSets(uniqueColors.length);
     const styles = uniqueColors.map((color, k) => ({
         target: color,
         value: {
             // line: { color: `#${Math.floor((1 << 24) * k | 0).toString(16)}` },
-            line: { color: `#${uniqueColors.length > 1 ? violinColors[k] : 0}`},
+            line: {
+                color: `#${uniqueColors.length > 1 ? violinColors[k] : 0}`,
+            },
         },
     }));
-
 
     scpData.map((row, i) => {
         row.map((item, j) => {
@@ -1697,7 +1953,7 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
                             item.array_y.push([0]);
                         }
                     });
-                    item.array_x = item.array_x.map(val => val.toString())
+                    item.array_x = item.array_x.map((val) => val.toString());
                 } else {
                     uniqueColors.forEach((value) => {
                         if (item.array_y.indexOf(value) === -1) {
@@ -1705,19 +1961,17 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
                             item.array_x.push([0]);
                         }
                     });
-                    item.array_y = item.array_y.map(val => val.toString())
+                    item.array_y = item.array_y.map((val) => val.toString());
                 }
                 generateViolinPlot(item, zoomRange, option);
             } else if (!item) {
                 const fakeItem = {};
                 if (isHorizontalViolin) {
                     fakeItem.array_y = uniqueColors;
-                    fakeItem.array_x = Array(uniqueColors.length)
-                        .fill([0]);
+                    fakeItem.array_x = Array(uniqueColors.length).fill([0]);
                 } else {
                     fakeItem.array_x = uniqueColors;
-                    fakeItem.array_y = Array(uniqueColors.length)
-                        .fill([0]);
+                    fakeItem.array_y = Array(uniqueColors.length).fill([0]);
                 }
                 fakeItem.isHorizontal = isHorizontalViolin;
                 fakeItem.styles = styles;
@@ -1732,23 +1986,19 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
                 fakeItem.x_threshold = xThreshold;
                 generateViolinPlot(fakeItem, zoomRange, option);
             }
-            graphDiv.on('plotly_relayout',
-                (eventdata) => {
-                    callback(eventdata);
-                });
+            graphDiv.on('plotly_relayout', (eventdata) => {
+                callback(eventdata);
+            });
             option.canvas_id = canvasID;
             graphDiv.on('plotly_hover', (data) => {
-                // eslint-disable-next-line no-shadow
                 setTimeout(() => {
-                    $('.scp-hover-info')
-                        .remove();
+                    $('.scp-hover-info').remove();
                     const dataScp = scpData[i][j];
                     if (!dataScp) return;
-                    const {
-                        pageX,
-                        pageY,
-                    } = data.event;
-                    const key = dataScp.isHorizontal ? data.points[0].y : data.points[0].x;
+                    const { pageX, pageY } = data.event;
+                    const key = dataScp.isHorizontal
+                        ? data.points[0].y
+                        : data.points[0].x;
                     makeHoverInfoBox(dataScp, key, option, pageX, pageY);
                 }, 10);
             });
@@ -1756,8 +2006,7 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
             unHoverHandler(graphDiv);
 
             graphDiv.addEventListener('mouseleave', () => {
-                $('.scp-hover-info')
-                    .remove();
+                $('.scp-hover-info').remove();
             });
         });
     });
@@ -1776,22 +2025,25 @@ const getColors = (data, xCategory) => {
 };
 
 const genColorBarForViolin = (allColors, styles) => {
-    const data = [{
-        type: 'violin',
-        x: allColors,
-        box: {
-            visible: false,
+    const data = [
+        {
+            type: 'violin',
+            x: allColors,
+            box: {
+                visible: false,
+            },
+            opacity: 1,
+            // fillcolor: 'transparent',
+            transforms: [
+                {
+                    type: 'groupby',
+                    groups: allColors,
+                    styles,
+                },
+            ],
+            showlegend: true,
         },
-        opacity: 1,
-        // fillcolor: 'transparent',
-        transforms: [{
-            type: 'groupby',
-            groups: allColors,
-            styles,
-        }],
-        showlegend: true,
-
-    }];
+    ];
 
     const layout = {
         font: {
@@ -1826,7 +2078,6 @@ const genColorBarForViolin = (allColors, styles) => {
         plot_bgcolor: '#222222',
     };
 
-
     const config = {
         displayModeBar: false,
     };
@@ -1834,31 +2085,39 @@ const genColorBarForViolin = (allColors, styles) => {
     Plotly.newPlot('coloScaleBar', data, layout, config);
 };
 
-const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
+const callToBackEndAPI = (
+    settings = undefined,
+    clearOnFlyFilter = false,
+    autoUpdate = false,
+) => {
     const formData = transformFormdata(clearOnFlyFilter, autoUpdate);
     if (settings) {
         formData.set('colNumber', settings.colNumber);
         formData.set('scpColorOrder', settings.colorOrderVal);
     }
     // clear old html elements
-    $('.scp-hover-info')
-        .remove();
+    $('.scp-hover-info').remove();
 
-    showGraphCallApi('/ap/api/scp/plot', formData, REQUEST_TIMEOUT, async (res) => {
-        if (res.is_send_ga_off) {
-            showGAToastr(true);
-        }
+    showGraphCallApi(
+        '/ap/api/scp/plot',
+        formData,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            if (res.is_send_ga_off) {
+                showGAToastr(true);
+            }
 
-        await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
+            await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
 
-        setPollingData(formData, handleSetPollingData, []);
-    });
+            setPollingData(formData, handleSetPollingData, []);
+        },
+    );
 };
 
 const handleSetPollingData = () => {
     const settings = getCurrentSettings();
     callToBackEndAPI(settings, false, true);
-}
+};
 
 const validateXYColorType = (formData) => {
     const sensors = [];
@@ -1872,12 +2131,9 @@ const validateXYColorType = (formData) => {
             color = Number(value);
         }
     }
-    const xType = sensors[0] && $(`#dataType-${sensors[0]}`)
-        .val();
-    const yType = sensors[1] && $(`#dataType-${sensors[1]}`)
-        .val();
-    const colorType = color && $(`#dataType-${color}`)
-        .val();
+    const xType = sensors[0] && $(`#dataType-${sensors[0]}`).val();
+    const yType = sensors[1] && $(`#dataType-${sensors[1]}`).val();
+    const colorType = color && $(`#dataType-${color}`).val();
 
     if (xType === DataTypes.STRING.short && yType !== DataTypes.STRING.short) {
         if (colorType !== DataTypes.STRING.short) {
@@ -1894,7 +2150,8 @@ const validateXYColorType = (formData) => {
     }
 
     if (xType === DataTypes.STRING.short && yType === DataTypes.STRING.short) {
-        if (sensors[0] !== color || colorType !== DataTypes.STRING.short) return false;
+        if (sensors[0] !== color || colorType !== DataTypes.STRING.short)
+            return false;
     }
 
     return true;
@@ -1916,8 +2173,39 @@ const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
     });
 };
 
-const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
+// This function to check currentXY and 2 latest items in latestSortColIds
+// In case: change or delete variable  without click "Display graph"
+const checkIsUpdateXY = (newXY, currentXY) => {
+    if (newXY.length !== currentXY.length) return false;
+    const sortedNewXY = [...newXY].sort();
+    const sortedCurrentXY = [...currentXY].sort();
+    return sortedNewXY.every((val, idx) => val === sortedCurrentXY[idx]);
+};
 
+const transformXY = (formData) => {
+    const XYDataTemp = latestSortColIds.slice(-2);
+    const isUpdateXY = checkIsUpdateXY(XYDataTemp, currentXY);
+    let XYData = '';
+    // update XY when latest Sort is change order with CurrentXY else => using currentXY
+    if (isUpdateXY) {
+        XYData = [...XYDataTemp];
+        currentXY = [...XYDataTemp];
+    } else {
+        XYData = [...currentXY];
+    }
+
+    // delete XY_AXIS_KEY:
+    formData.delete(CONST.SCP_HMP_X_AXIS);
+    formData.delete(CONST.SCP_HMP_Y_AXIS);
+
+    // append XY_AXIS_KEY
+    formData.append(CONST.SCP_HMP_X_AXIS, XYData[0] || '');
+    formData.append(CONST.SCP_HMP_Y_AXIS, XYData[1] || '');
+
+    return formData;
+};
+
+const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
     if (autoUpdate) {
         return genDatetimeRange(lastUsedFormData);
     }
@@ -1938,52 +2226,64 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
         // transform cat label filter
         formData = transformCatFilterParams(formData);
     }
+
+    // transfer for switch XY
+    formData = transformXY(formData);
     return formData;
 };
-
 const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
     const formData = transformFormdata(clearOnFlyFilter);
 
-    showGraphCallApi('/ap/api/scp/plot', formData, REQUEST_TIMEOUT, async (res) => {
-        if (res.is_send_ga_off) {
-            showGAToastr(true);
-        }
+    showGraphCallApi(
+        '/ap/api/scp/plot',
+        formData,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            if (res.is_send_ga_off) {
+                showGAToastr(true);
+            }
 
-        $('#sctr-card').empty();
+            $('#sctr-card').empty();
 
-        // check result and show toastr msg
-        if (isEmpty(res.array_plotdata) || isEmpty(res.array_plotdata[0].array_y)) {
-            showToastrAnomalGraph();
-        }
+            // check result and show toastr msg
+            if (
+                isEmpty(res.array_plotdata) ||
+                isEmpty(res.array_plotdata[0].array_y)
+            ) {
+                showToastrAnomalGraph();
+            }
 
-        await showSCP(res, setting, clearOnFlyFilter);
+            await showSCP(res, setting, clearOnFlyFilter);
 
-        // show toastr to inform result was truncated upto 5000
-        if (res.is_res_limited) {
-            showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
-        }
+            // show toastr to inform result was truncated upto 5000
+            if (res.is_res_limited) {
+                showToastrMsg(
+                    i18n.traceResulLimited.split('BREAK_LINE').join('<br>'),
+                );
+            }
 
-        // show reduced violin message
-        if (res.is_reduce_violin_number) {
-            showToastrMsg(i18n.reduceViolinNumberMessage);
-        }
+            // show reduced violin message
+            if (res.is_reduce_violin_number) {
+                showToastrMsg(i18n.reduceViolinNumberMessage);
+            }
 
-        // show reduced data per graph
-        // only for scatter plot
-        if (res.isDataLimited && res.chartType === scpChartType.SCATTER) {
-            showToastrMsg(i18n.limitPerGraphMessage);
-        }
+            // show reduced data per graph
+            // only for scatter plot
+            if (res.isDataLimited && res.chartType === scpChartType.SCATTER) {
+                showToastrMsg(i18n.limitPerGraphMessage);
+            }
 
-        // show violin resampling msg
-        if (res.is_resampling) {
-            showToastrMsg(i18n.isResampleMsg);
-        }
+            // show violin resampling msg
+            if (res.is_resampling) {
+                showToastrMsg(i18n.isResampleMsg);
+            }
 
-        // show info table
-        showInfoTable(res);
+            // show info table
+            showInfoTable(res);
 
-        setPollingData(formData, handleSetPollingData, []);
-    });
+            setPollingData(formData, handleSetPollingData, []);
+        },
+    );
 
     $('#plot-cards').empty();
 };
@@ -1998,22 +2298,18 @@ const initFilterModal = (res) => {
 
 const getCurrentSettings = () => {
     // get chart axis scale
-    const chartScaleVal = $(`select[name=${els.scpChartScale}]`)
-        .val();
+    const chartScaleVal = $(`select[name=${els.scpChartScale}]`).val();
     const chartScale = chartScales[Number(chartScaleVal)];
     // get colors scale
-    const colorScaleVal = $(`select[name=${els.scpColorScale}]`)
-        .val();
+    const colorScaleVal = $(`select[name=${els.scpColorScale}]`).val();
     const colorScale = colorScales[colorScaleVal];
     // get color ordering
-    const colorOrderVal = $(`select[name=${els.scpColorOrder}]`)
-        .val();
+    const colorOrderVal = $(`select[name=${els.scpColorOrder}]`).val();
     const colorOrdering = colorOrders[Number(colorOrderVal)];
     // get backward showing
     const isShowBackward = $(`select[name=${els.showBackward}]`).val();
 
-    const colNumber = $(`select[name=${els.colNumber}]`)
-        .val();
+    const colNumber = $(`select[name=${els.colNumber}]`).val();
     const isShowForward = !isShowBackward;
     currentMatrix = Number(colNumber);
 
@@ -2030,8 +2326,7 @@ const getCurrentSettings = () => {
     };
 };
 
-const isValidDate = value => (isNaN(value) ? moment(value)
-    .isValid() : false);
+const isValidDate = (value) => (isNaN(value) ? moment(value).isValid() : false);
 
 const convertDateToLocal = (hlabel) => {
     if (!hlabel.toString().includes(COMMON_CONSTANT.EN_DASH)) return hlabel;
@@ -2042,9 +2337,7 @@ const convertDateToLocal = (hlabel) => {
     const hlabels = items.map((item) => {
         if (isValidDate(item)) {
             isTermGroup = true;
-            return moment.utc(item)
-                .local()
-                .format(DATE_FORMAT_WITHOUT_TZ);
+            return moment.utc(item).local().format(DATE_FORMAT_WITHOUT_TZ);
         }
         return item;
     });
@@ -2062,13 +2355,17 @@ const downloadPlot = () => {
     clearOldScreenShot();
     loadingShow();
     html2canvas(document.getElementById('sctr-card'), {
-        scale: 1, logging: true, backgroundColor: '#222222',
+        scale: 1,
+        logging: true,
+        backgroundColor: '#222222',
     }).then((canvas) => {
         canvas.id = 'tsCanvas';
         document.getElementById('screenshot').appendChild(canvas);
         // generate filename
         const filename = 'screenshot.png';
-        const screenshot = document.getElementById('screenshot').querySelectorAll('canvas')[0];
+        const screenshot = document
+            .getElementById('screenshot')
+            .querySelectorAll('canvas')[0];
         const targetLink = document.createElement('a');
         if (screenshot) {
             targetLink.setAttribute('download', filename);
@@ -2121,15 +2418,15 @@ const handleExportData = (type) => {
 
 const updatePlotType = (scatterDat, plotType, [cmin, cmax], layout) => {
     const linesDat = [];
-    scatterDat.forEach(scpDat => {
+    scatterDat.forEach((scpDat) => {
         if (Array.isArray(scpDat.marker.color)) {
             scpDat.marker.color.forEach((colorVal, i) => {
-                const nextColor = scpDat.marker.color[i+1];
+                const nextColor = scpDat.marker.color[i + 1];
                 if (nextColor !== undefined) {
                     const x1 = scpDat.x[i];
-                    const x2 = scpDat.x[i+1];
+                    const x2 = scpDat.x[i + 1];
                     const y1 = scpDat.y[i];
-                    const y2 = scpDat.y[i+1];
+                    const y2 = scpDat.y[i + 1];
                     const lineTrace = {
                         x: [x1, x2],
                         y: [y1, y2],
@@ -2151,24 +2448,25 @@ const updatePlotType = (scatterDat, plotType, [cmin, cmax], layout) => {
                     }
                     linesDat.push(lineTrace);
                 }
-            })
+            });
         }
-
     });
     if (plotType == plotTypeConst.LINE.name) {
         // hide scatter points in line chart
-        layout.template.data.scatter.forEach(sct => sct.marker.opacity = 0);
-        layout.template.data.scattergl.forEach(sct => sct.marker.opacity = 0);
+        layout.template.data.scatter.forEach((sct) => (sct.marker.opacity = 0));
+        layout.template.data.scattergl.forEach(
+            (sct) => (sct.marker.opacity = 0),
+        );
 
         if (!linesDat.length) {
-            scatterDat.forEach(scpDat => scpDat.mode = 'lines');
+            scatterDat.forEach((scpDat) => (scpDat.mode = 'lines'));
             return scatterDat;
         }
         return [...linesDat, ...scatterDat];
     }
     if (plotType == plotTypeConst.ALL.name) {
         if (!linesDat.length) {
-            scatterDat.forEach(scpDat => scpDat.mode = 'lines+markers');
+            scatterDat.forEach((scpDat) => (scpDat.mode = 'lines+markers'));
         }
         return [...linesDat, ...scatterDat];
     }
@@ -2178,15 +2476,15 @@ const genLineColor = (color, cmin, cmax) => {
     const colorRange = cmax - cmin;
     if (!colorRange) {
         return hsv2rgb({
-            h:50, // 50% as default in case of one value of color range
-            s:1,
-            v:1
+            h: 50, // 50% as default in case of one value of color range
+            s: 1,
+            v: 1,
         });
     }
-    const hValue = 100 * (1 - ((color - cmin) / colorRange));
+    const hValue = 100 * (1 - (color - cmin) / colorRange);
     return hsv2rgb({
-        h:hValue,
-        s:1,
-        v:1
+        h: hValue,
+        s: 1,
+        v: 1,
     });
 };

@@ -1,251 +1,226 @@
 {
-  "all": {
-    "js": [
-      "common/js/libs/jquery.js",
-      "common/js/libs/jquery-ui.min.js",
-      "common/js/libs/datepicker.js",
-      "modules/popper/umd/popper.min.js",
-      "common/js/libs/bootstrap.min.js",
-      "common/js/libs/all.min.js",
-      "common/js/libs/jquery.ui.datepicker-ja.min.js",
-      "common/js/libs/moment-with-locales.js",
-      "common/js/libs/loadingoverlay.min.js",
-      "common/js/libs/lodash.min.js",
-      "common/js/libs/clipboard.min.js",
-      "common/js/config_data_interface.js",
-      "common/js/libs/bootstrap-table.min.js",
-      "common/js/libs/bootstrap-table-filter-control.min.js",
-      "common/js/libs/bootstrap-table-locale-all.min.js",
-      "common/js/libs/html2canvas.min.js",
-      "common/js/modern_screenshot.js",
-      "common/js/take_screenshot.js",
-      "common/js/libs/plotly.min.js",
-      "common/js/libs/toastr.min.js",
-      "modules/js-datatables/lib/jquery.dataTables.min.js",
-      "common/js/libs/dataTables.fixedHeader.min.js",
-      "common/js/libs/select2.min.js",
-      "common/js/terms_of_use.js",
-      "common/js/divide_by_calendar.js",
-      "common/js/jump_function.js",
-      "common/js/base.js",
-      "common/js/utils.js",
-      "common/js/app_version_handler.js",
-      "common/js/summary_table.js",
-      "common/js/auto-update-common.js",
-      "common/js/data-finder.js",
-      "common/js/column_ordering.js",
-      "common/js/components.js",
-      "common/js/data_point_info_table.js",
-      "common/js/save_load_user_input.js",
-      "common/js/validation.js",
-      "common/js/clipboard_utils.js",
-      "common/js/libs/dragndrop.js",
-      "common/js/libs/d3-format.js",
-      "common/js/dn-custom-select.js",
-      "common/js/libs/popper.min.js",
-      "common/js/libs/shepherd.min.js",
-      "common/js/ap_tour.js",
-      "common/js/graph_nav.js",
-      "modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js",
-      "modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js",
-      "modules/date-range-picker/daterangepicker.js",
-      "modules/date-range-picker/daterangepicker-utils.js",
-      "common/js/libs/js.cookie.min.js",
-      "common/js/libs/pagination.min.js",
-      "common/js/datetime_label_format.js"
-    ],
-    "css": [
-      "common/custom-jquery/jquery-ui.css",
-      "common/css/select2.min.css",
-      "common/css/bootstrap.min.css",
-      "common/css/all.min.css",
-      "common/css/main.css",
-      "common/css/components.css",
-      "common/css/dragndrop.css",
-      "common/css/bootstrap-table.min.css",
-      "common/css/toastr.css",
-      "common/css/data-finder.css",
-      "modules/js-datatables/lib/jquery.dataTables.min.css",
-      "common/css/user-setting-table.css",
-      "common/css/shepherd.css",
-      "modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css",
-      "modules/date-range-picker/daterangepicker.css",
-      "common/css/pagination.css",
-      "common/css/graph_nav.css",
-      "common/css/jump_function.css",
-      "tile_interface/css/tile_interface.css"
-    ]
-  },
-  "fpp": {
-    "js": [
-      "common/js/libs/Chart.min.js",
-      "common/js/libs/chartjs-adapter-moment.min.js",
-      "common/js/libs/chartjs-plugin-annotation-latest.min.js",
-      "trace_data/js/trace_data_time_series.js",
-      "trace_data/js/trace_data_histogram.js",
-      "trace_data/js/trace_data_step_bar_chart.js",
-      "trace_data/js/trace_data_summary_table.js",
-      "trace_data/js/trace_data_cross_hair.js",
-      "trace_data/js/trace_data_categorical_table.js",
-      "trace_data/js/trace_data_scatter_plot.js",
-      "trace_data/js/trace_data_whisker_plot.js",
-      "common/js/cat_facet_label_filter_modal.js",
-      "trace_data/js/trace_data.js",
-      "trace_data/js/trace_data_histogram_with_kde.js"
-    ],
-    "css": [
-      "trace_data/css/trace_data.css"
-    ]
-  },
-  "stp": {
-    "js": [
-      "categorical_plot/js/categorical_histogram_with_density_curve.js",
-      "categorical_plot/js/categorical_plot_utils.js",
-      "categorical_plot/js/categorical_plot.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "categorical_plot/css/categorical_plot.css"
-    ]
-  },
-  "rlp": {
-    "js": [
-      "ridgeline_plot/js/rlp_template.js",
-      "ridgeline_plot/js/ridgeline_plot_utils.js",
-      "ridgeline_plot/js/ridgeline_plot.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "ridgeline_plot/css/ridgeline.css"
-    ]
-  },
-  "chm": {
-    "js": [
-      "calendar_heatmap/js/calendar_heatmap.js",
-      "calendar_heatmap/js/calendar_heatmap_plotly.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "calendar_heatmap/css/calendar_heatmap.css"
-    ]
-  },
-  "msp": {
-    "js": [
-      "multiple_scatter_plot/js/multiple_scatter_histogram.js",
-      "multiple_scatter_plot/js/multiple_scatter_contour.js",
-      "multiple_scatter_plot/js/multiple_scatter_plot.js",
-      "multiple_scatter_plot/js/heatmap_plot.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "multiple_scatter_plot/css/multiple_scatter_plot.css"
-    ]
-  },
-  "scp": {
-    "js": [
-      "common/js/libs/Chart.bundle.min.js",
-      "scatter_plot/js/scatter_chart.js",
-      "scatter_plot/js/scatter_plot.js",
-      "scatter_plot/js/scp_heatmap_plot.js",
-      "scatter_plot/js/scp_violin_plot.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "scatter_plot/css/scatter_plot.css"
-    ]
-  },
-  "hmp": {
-    "js": [
-      "common/js/libs/Chart.bundle.min.js",
-      "heatmap/js/heatmap_main.js",
-      "heatmap/js/heatmap_plot.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "heatmap/css/heatmap.css"
-    ]
-  },
-  "pcp": {
-    "js": [
-      "common/js/libs/Chart.bundle.min.js",
-      "common/js/libs/fSelect.js",
-      "parallel_plot/js/parallel_properties.js",
-      "parallel_plot/js/parallel_utils.js",
-      "parallel_plot/js/parallel_plot.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "common/css/fSelect.css",
-      "parallel_plot/css/parallel_plot.css"
-    ]
-  },
-  "skd": {
-    "js": [
-      "sankey_plot/js/sankey_plot.js",
-      "sankey_plot/js/sankey_scp.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "sankey_plot/css/sankey_plot.css"
-    ]
-  },
-  "cog": {
-    "js": [
-      "modules/sigmajs/build/sigma.min.js",
-      "modules/sigmajs/build/plugins/sigma.renderers.edgeLabels.min.js",
-      "modules/sigmajs/build/plugins/sigma.plugins.dragNodes.min.js",
-      "modules/sigmajs/build/plugins/sigma.layout.forceAtlas2.min.js",
-      "modules/sigmajs/build/plugins/sigma.plugins.animate.min.js",
-      "modules/sigmajs/build/plugins/sigma.layout.noverlap.min.js",
-      "co_occurrence/js/pareto_plot.js",
-      "co_occurrence/js/co_occurrence_csv.js"
-    ],
-    "css": [
-      "co_occurrence/css/co_occurrence_csv.css"
-    ]
-  },
-  "pca": {
-    "js": [
-      "common/js/libs/jquery.dataTables.min.js",
-      "common/js/libs/dataTables.bootstrap4.min.js",
-      "common/js/libs/dom-text.js",
-      "analyze/js/pca_toastr.js",
-      "analyze/js/generateJson.js",
-      "analyze/js/hotelling_common.js",
-      "analyze/js/hotelling_timeseries.js",
-      "analyze/js/hotelling_scatters.js",
-      "analyze/js/hotelling_biplot.js",
-      "analyze/js/hotelling_q_contribution.js",
-      "analyze/js/hotelling_t2_contribution.js",
-      "analyze/js/pca.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "modules/js-datatables/lib/jquery.dataTables.min.css",
-      "analyze/css/anomaly_detection.css"
-    ]
-  },
-   "agp": {
-    "js": [
-      "aggregate_plot/js/aggregation_chart.js",
-      "aggregate_plot/js/aggregate_plot.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "aggregate_plot/css/aggregate_plot.css"
-    ]
-  },
-  "gl": {
-    "js": [
-      "analyze/js/graphical_lasso.js",
-      "common/js/libs/sigma.min.js",
-      "common/js/libs/sigma.plugins.dragNodes.min.js",
-      "common/js/libs/sigma.renderers.edgeLabels.min.js",
-      "analyze/js/graphical_lasso_sigma.js",
-      "common/js/cat_facet_label_filter_modal.js"
-    ],
-    "css": [
-      "analyze/css/graphical_lasso.css"
-    ]
-  }
+    "all": {
+        "js": [
+            "common/js/libs/jquery.js",
+            "common/js/libs/jquery-ui.min.js",
+            "common/js/libs/datepicker.js",
+            "modules/popper/umd/popper.min.js",
+            "common/js/libs/bootstrap.min.js",
+            "common/js/libs/all.min.js",
+            "common/js/libs/jquery.ui.datepicker-ja.min.js",
+            "common/js/libs/moment-with-locales.js",
+            "common/js/libs/loadingoverlay.min.js",
+            "common/js/libs/lodash.min.js",
+            "common/js/libs/clipboard.min.js",
+            "common/js/config_data_interface.js",
+            "common/js/libs/bootstrap-table.min.js",
+            "common/js/libs/bootstrap-table-filter-control.min.js",
+            "common/js/libs/bootstrap-table-locale-all.min.js",
+            "common/js/libs/html2canvas.min.js",
+            "common/js/modern_screenshot.js",
+            "common/js/take_screenshot.js",
+            "common/js/libs/plotly.min.js",
+            "common/js/libs/toastr.min.js",
+            "modules/js-datatables/lib/jquery.dataTables.min.js",
+            "common/js/libs/dataTables.fixedHeader.min.js",
+            "common/js/libs/select2.min.js",
+            "common/js/terms_of_use.js",
+            "common/js/divide_by_calendar.js",
+            "common/js/jump_function.js",
+            "common/js/base.js",
+            "common/js/utils.js",
+            "common/js/app_version_handler.js",
+            "common/js/summary_table.js",
+            "common/js/auto-update-common.js",
+            "common/js/data-finder.js",
+            "common/js/column_ordering.js",
+            "common/js/components.js",
+            "common/js/data_point_info_table.js",
+            "common/js/save_load_user_input.js",
+            "common/js/validation.js",
+            "common/js/clipboard_utils.js",
+            "common/js/libs/dragndrop.js",
+            "common/js/libs/d3-format.js",
+            "common/js/dn-custom-select.js",
+            "common/js/libs/popper.min.js",
+            "common/js/libs/shepherd.min.js",
+            "common/js/ap_tour.js",
+            "common/js/graph_nav.js",
+            "modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.min.js",
+            "modules/jquery-ui-timepicker-addon/i18n/jquery-ui-timepicker-ja.js",
+            "modules/date-range-picker/daterangepicker.js",
+            "modules/date-range-picker/daterangepicker-utils.js",
+            "common/js/libs/js.cookie.min.js",
+            "common/js/libs/pagination.min.js",
+            "common/js/datetime_label_format.js"
+        ],
+        "css": [
+            "common/custom-jquery/jquery-ui.css",
+            "common/css/select2.min.css",
+            "common/css/bootstrap.min.css",
+            "common/css/all.min.css",
+            "common/css/main.css",
+            "common/css/components.css",
+            "common/css/dragndrop.css",
+            "common/css/bootstrap-table.min.css",
+            "common/css/toastr.css",
+            "common/css/data-finder.css",
+            "modules/js-datatables/lib/jquery.dataTables.min.css",
+            "common/css/user-setting-table.css",
+            "common/css/shepherd.css",
+            "modules/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css",
+            "modules/date-range-picker/daterangepicker.css",
+            "common/css/pagination.css",
+            "common/css/graph_nav.css",
+            "common/css/jump_function.css",
+            "tile_interface/css/tile_interface.css"
+        ]
+    },
+    "fpp": {
+        "js": [
+            "common/js/libs/Chart.min.js",
+            "common/js/libs/chartjs-adapter-moment.min.js",
+            "common/js/libs/chartjs-plugin-annotation-latest.min.js",
+            "trace_data/js/trace_data_time_series.js",
+            "trace_data/js/trace_data_histogram.js",
+            "trace_data/js/trace_data_step_bar_chart.js",
+            "trace_data/js/trace_data_summary_table.js",
+            "trace_data/js/trace_data_cross_hair.js",
+            "trace_data/js/trace_data_categorical_table.js",
+            "trace_data/js/trace_data_scatter_plot.js",
+            "trace_data/js/trace_data_whisker_plot.js",
+            "common/js/cat_facet_label_filter_modal.js",
+            "trace_data/js/trace_data.js",
+            "trace_data/js/trace_data_histogram_with_kde.js"
+        ],
+        "css": ["trace_data/css/trace_data.css"]
+    },
+    "stp": {
+        "js": [
+            "categorical_plot/js/categorical_histogram_with_density_curve.js",
+            "categorical_plot/js/categorical_plot_utils.js",
+            "categorical_plot/js/categorical_plot.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["categorical_plot/css/categorical_plot.css"]
+    },
+    "rlp": {
+        "js": [
+            "ridgeline_plot/js/rlp_template.js",
+            "ridgeline_plot/js/ridgeline_plot_utils.js",
+            "ridgeline_plot/js/ridgeline_plot.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["ridgeline_plot/css/ridgeline.css"]
+    },
+    "chm": {
+        "js": [
+            "calendar_heatmap/js/calendar_heatmap.js",
+            "calendar_heatmap/js/calendar_heatmap_plotly.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["calendar_heatmap/css/calendar_heatmap.css"]
+    },
+    "msp": {
+        "js": [
+            "multiple_scatter_plot/js/multiple_scatter_histogram.js",
+            "multiple_scatter_plot/js/multiple_scatter_contour.js",
+            "multiple_scatter_plot/js/multiple_scatter_plot.js",
+            "multiple_scatter_plot/js/heatmap_plot.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["multiple_scatter_plot/css/multiple_scatter_plot.css"]
+    },
+    "scp": {
+        "js": [
+            "common/js/libs/Chart.bundle.min.js",
+            "scatter_plot/js/scatter_chart.js",
+            "scatter_plot/js/scatter_plot.js",
+            "scatter_plot/js/scp_heatmap_plot.js",
+            "scatter_plot/js/scp_violin_plot.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["scatter_plot/css/scatter_plot.css"]
+    },
+    "hmp": {
+        "js": [
+            "common/js/libs/Chart.bundle.min.js",
+            "heatmap/js/heatmap_main.js",
+            "heatmap/js/heatmap_plot.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["heatmap/css/heatmap.css"]
+    },
+    "pcp": {
+        "js": [
+            "common/js/libs/Chart.bundle.min.js",
+            "common/js/libs/fSelect.js",
+            "parallel_plot/js/parallel_properties.js",
+            "parallel_plot/js/parallel_utils.js",
+            "parallel_plot/js/parallel_plot.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["common/css/fSelect.css", "parallel_plot/css/parallel_plot.css"]
+    },
+    "skd": {
+        "js": [
+            "sankey_plot/js/sankey_plot.js",
+            "sankey_plot/js/sankey_scp.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["sankey_plot/css/sankey_plot.css"]
+    },
+    "cog": {
+        "js": [
+            "modules/sigmajs/build/sigma.min.js",
+            "modules/sigmajs/build/plugins/sigma.renderers.edgeLabels.min.js",
+            "modules/sigmajs/build/plugins/sigma.plugins.dragNodes.min.js",
+            "modules/sigmajs/build/plugins/sigma.layout.forceAtlas2.min.js",
+            "modules/sigmajs/build/plugins/sigma.plugins.animate.min.js",
+            "modules/sigmajs/build/plugins/sigma.layout.noverlap.min.js",
+            "co_occurrence/js/pareto_plot.js",
+            "co_occurrence/js/co_occurrence_csv.js"
+        ],
+        "css": ["co_occurrence/css/co_occurrence_csv.css"]
+    },
+    "pca": {
+        "js": [
+            "common/js/libs/jquery.dataTables.min.js",
+            "common/js/libs/dataTables.bootstrap4.min.js",
+            "common/js/libs/dom-text.js",
+            "analyze/js/pca_toastr.js",
+            "analyze/js/generateJson.js",
+            "analyze/js/hotelling_common.js",
+            "analyze/js/hotelling_timeseries.js",
+            "analyze/js/hotelling_scatters.js",
+            "analyze/js/hotelling_biplot.js",
+            "analyze/js/hotelling_q_contribution.js",
+            "analyze/js/hotelling_t2_contribution.js",
+            "analyze/js/pca.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": [
+            "modules/js-datatables/lib/jquery.dataTables.min.css",
+            "analyze/css/anomaly_detection.css"
+        ]
+    },
+    "agp": {
+        "js": [
+            "aggregate_plot/js/aggregation_chart.js",
+            "aggregate_plot/js/aggregate_plot.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["aggregate_plot/css/aggregate_plot.css"]
+    },
+    "gl": {
+        "js": [
+            "analyze/js/graphical_lasso.js",
+            "common/js/libs/sigma.min.js",
+            "common/js/libs/sigma.plugins.dragNodes.min.js",
+            "common/js/libs/sigma.renderers.edgeLabels.min.js",
+            "analyze/js/graphical_lasso_sigma.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["analyze/css/graphical_lasso.css"]
+    }
 }

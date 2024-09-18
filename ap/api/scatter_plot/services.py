@@ -29,13 +29,12 @@ from ap.api.common.services.show_graph_services import (
     is_categorical_col,
     main_check_filter_detail_match_graph_data,
 )
-from ap.common.common_utils import gen_sql_label
+from ap.common.common_utils import gen_sql_label, get_x_y_info
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_PLOTDATA,
     ARRAY_X,
     ARRAY_Y,
-    ARRAY_Z,
     CHART_INFOS,
     CHART_TYPE,
     COLORS,
@@ -55,7 +54,6 @@ from ap.common.constants import (
     MATCHED_FILTER_IDS,
     N_TOTAL,
     NOT_EXACT_MATCH_FILTER_IDS,
-    ORIG_ARRAY_Z,
     ROWID,
     SCALE_AUTO,
     SCALE_COLOR,
@@ -166,13 +164,9 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
         dic_param,
     )
     threshold_filter_detail_ids = orig_graph_param.common.threshold_boxes
-    scatter_xy_ids = []
-    scatter_xy_names = []
-    scatter_proc_ids = []
-    for proc in orig_graph_param.array_formval:
-        scatter_proc_ids.append(proc.proc_id)
-        scatter_xy_ids = scatter_xy_ids + proc.col_ids
-        scatter_xy_names = scatter_xy_names + proc.col_names
+
+    # get xy info
+    scatter_xy_ids, scatter_xy_names, scatter_proc_ids = get_x_y_info(orig_graph_param.array_formval, dic_param[COMMON])
 
     x_proc_id = scatter_proc_ids[0]
     y_proc_id = scatter_proc_ids[-1]
@@ -228,6 +222,10 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
                 df = df_term.copy() if df is None else pd.concat([df, df_term])
 
                 chart_type, x_category, y_category = get_chart_type(df, x_id, y_id, dic_cols)
+                # in SCP, accept int/int as scater instead of heatmap
+                # todo: refactoring chart type
+                if chart_type == ChartType.HEATMAP_BY_INT.value:
+                    chart_type = ChartType.SCATTER.value
 
                 if _is_res_limited is None:
                     unique_serial = None
@@ -285,6 +283,9 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
         convert_datetime_to_ct(df, graph_param)
 
         chart_type, x_category, y_category = get_chart_type(df, x_id, y_id, dic_cols)
+        # in SCP, accept int/int as scater instead of heatmap
+        if chart_type == ChartType.HEATMAP_BY_INT.value:
+            chart_type = ChartType.SCATTER.value
 
         dic_param = filter_cat_dict_common(df, dic_param, cat_exp, [], graph_param)
 
@@ -350,99 +351,8 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     # chart type
     series_keys = [ARRAY_X, ARRAY_Y, COLORS, TIMES]
     dic_param[CHART_TYPE] = chart_type
-    if chart_type == ChartType.HEATMAP.value:
-        other_cols = [int(col) for col in [x_id, y_id, cat_div_id] if col]
 
-        dic_param = gen_group_filter_list(df, graph_param, dic_param, other_cols)
-
-        # gen matrix
-        all_x, all_y = get_heatmap_distinct(output_graphs)
-        # all_x_with_step, all_y_with_step = get_heatmap_range_with_steps(output_graphs)
-        for graph in output_graphs:
-            # gen_map_xy_heatmap_matrix(x_name, y_name, all_x_with_step, all_y_with_step, graph)
-            # handle x, y, z data
-            array_x = graph[ARRAY_X]
-            array_y = graph[ARRAY_Y]
-            unique_x = set(array_x.drop_duplicates().tolist())
-            unique_y = set(array_y.drop_duplicates().tolist())
-
-            missing_x = all_x - unique_x
-            missing_y = all_y - unique_y
-            array_z = pd.crosstab(array_y, array_x)
-            # map_xy_array_z = pd.crosstab(array_y, array_x, values=graph[COLORS], aggfunc='first')
-            for key in missing_x:
-                array_z[key] = None
-                # map_xy_array_z[key] = None
-
-            sorted_cols = sorted(array_z.columns)
-
-            array_z = array_z[sorted_cols]
-
-            missing_data = [None] * len(missing_y)
-            df_missing = pd.DataFrame({col: missing_data for col in array_z.columns}, index=missing_y)
-            array_z = pd.concat([array_z, df_missing])
-            array_z.sort_index(inplace=True)
-
-            # limit 10K cells
-            if array_z.size > HEATMAP_COL_ROW * HEATMAP_COL_ROW:
-                array_z = array_z[:HEATMAP_COL_ROW][array_z.columns[:HEATMAP_COL_ROW]]
-
-            graph[ARRAY_X] = array_z.columns
-            graph[ARRAY_Y] = array_z.index
-            graph[ORIG_ARRAY_Z] = matrix(array_z)
-
-            # ratio
-            z_count = len(array_x)
-            array_z = array_z * 100 // z_count
-            graph[ARRAY_Z] = matrix(array_z)
-
-            # reduce sending data to browser
-            graph[COLORS] = []
-            graph[X_SERIAL] = []
-            graph[Y_SERIAL] = []
-            graph[TIMES] = []
-            graph[ELAPSED_TIME] = []
-    elif chart_type == ChartType.HEATMAP_BY_INT.value:
-        # todo
-        # draw heatmap for int columns
-        # gen matrix
-        all_x, all_y = get_heatmap_range_with_steps(output_graphs)
-        for graph in output_graphs:
-            # handle x, y, z data
-            array_x = graph[ARRAY_X]
-            array_y = graph[ARRAY_Y]
-            unique_x = set(array_x.drop_duplicates().tolist())
-            unique_y = set(array_y.drop_duplicates().tolist())
-
-            missing_x = all_x - unique_x
-            missing_y = all_y - unique_y
-            map_xy_array_z = pd.crosstab(array_y, array_x, values=graph[COLORS], aggfunc='first')
-            for key in missing_x:
-                map_xy_array_z[key] = None
-
-            sorted_cols = sorted(map_xy_array_z.columns)
-            map_xy_array_z = map_xy_array_z[sorted_cols]
-
-            missing_data = [None] * len(missing_y)
-            df_missing = pd.DataFrame({col: missing_data for col in map_xy_array_z.columns}, index=missing_y)
-            map_xy_array_z = pd.concat([map_xy_array_z, df_missing])
-            map_xy_array_z.sort_index(inplace=True)
-
-            # limit 10K cells
-            if map_xy_array_z.size > HEATMAP_COL_ROW * HEATMAP_COL_ROW:
-                map_xy_array_z = map_xy_array_z[:HEATMAP_COL_ROW][map_xy_array_z.columns[:HEATMAP_COL_ROW]]
-
-            # graph[ARRAY_Z] = matrix(map_xy_array_z).tolist()
-            # graph[ORIG_ARRAY_Z] = graph[ARRAY_Z]
-            graph[X_NAME] = x_name
-            graph[Y_NAME] = y_name
-            graph[HEATMAP_MATRIX] = {
-                'z': matrix(map_xy_array_z).tolist(),
-                'x': all_x,
-                'y': all_y,
-            }
-
-    elif chart_type == ChartType.SCATTER.value:
+    if chart_type == ChartType.SCATTER.value:
         other_cols = [int(col) for col in [color_id, cat_div_id] if col]
 
         dic_param = gen_group_filter_list(df, graph_param, dic_param, other_cols)

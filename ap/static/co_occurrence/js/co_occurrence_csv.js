@@ -1,4 +1,3 @@
-/* eslint-disable prefer-const */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 let settingFile = false;
 const graphStore = new GraphStore();
@@ -117,8 +116,8 @@ const showCoOccurrencePlot = (nodes, edges, showAllNodeLabels = true) => {
         const y = e.data.captor.clientY; // todo check null
         if (y && x) {
             coOccElements.tooltipSpan.text(e.data.edge.label);
-            coOccElements.tooltipSpan.css('top', `${(y - 10)}px`);
-            coOccElements.tooltipSpan.css('left', `${(x + 10)}px`);
+            coOccElements.tooltipSpan.css('top', `${y - 10}px`);
+            coOccElements.tooltipSpan.css('left', `${x + 10}px`);
             coOccElements.tooltipSpan.css('display', 'block');
         }
     });
@@ -126,7 +125,6 @@ const showCoOccurrencePlot = (nodes, edges, showAllNodeLabels = true) => {
     s.bind('outEdge', (e) => {
         coOccElements.tooltipSpan.css('display', 'none');
     });
-
 
     s.bind('nodeClick', (e) => {
         coOccElements.tooltipSpan.css('display', 'none');
@@ -173,15 +171,19 @@ const showCoOccurrencePlot = (nodes, edges, showAllNodeLabels = true) => {
     //     console.log(event);
     // });
 
-
-    $('html, body').animate({
-        scrollTop: coOccElements.plotCard.offset().top,
-    }, 200);
-
+    $('html, body').animate(
+        {
+            scrollTop: getOffsetTopDisplayGraph('#plotCard'),
+        },
+        200,
+    );
 
     coOccElements.restoreZoom.on('click', () => {
         s.cameras[0].goTo({
-            x: 0, y: 0, angle: 0, ratio: 1,
+            x: 0,
+            y: 0,
+            angle: 0,
+            ratio: 1,
         });
     });
 };
@@ -215,24 +217,30 @@ const showGraph = () => {
     formDat.append('layout', $(coOccElements.layout).val());
     formDat.append('file', fileUpload);
 
-    showGraphCallApi(coOccElements.apiShowGraphUrl, formDat, REQUEST_TIMEOUT, async (res) => {
-        coOccElements.plotCard.show();
-        coOccElements.plotCOG.show();
+    showGraphCallApi(
+        coOccElements.apiShowGraphUrl,
+        formDat,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            coOccElements.plotCard.show();
+            coOccElements.plotCOG.show();
 
-        const dicRes = JSON.parse(res);
-        showCoOccurrencePlot(dicRes.nodes, dicRes.edges);
-        currentData = JSON.parse(res);
-        loadingUpdate(75);
-        showParetoPlot(dicRes.pareto);
+            const dicRes = JSON.parse(res);
+            showCoOccurrencePlot(dicRes.nodes, dicRes.edges);
+            currentData = JSON.parse(res);
+            loadingUpdate(75);
+            showParetoPlot(dicRes.pareto);
 
-        // move invalid filter
-        // setColorAndSortHtmlEle(res.matched_filter_ids, res.unmatched_filter_ids, res.not_exact_match_filter_ids);
-        // if (checkResultExist(res)) {
-        //     saveInvalidFilterCaller(true);
-        // } else {
-        //     saveInvalidFilterCaller();
-        // }
-    }, { enctype: 'multipart/form-data', dataType: '' });
+            // move invalid filter
+            // setColorAndSortHtmlEle(res.matched_filter_ids, res.unmatched_filter_ids, res.not_exact_match_filter_ids);
+            // if (checkResultExist(res)) {
+            //     saveInvalidFilterCaller(true);
+            // } else {
+            //     saveInvalidFilterCaller();
+            // }
+        },
+        { enctype: 'multipart/form-data', dataType: '' },
+    );
 };
 
 const showParetoPlot = (paretoData) => {
@@ -249,7 +257,6 @@ function bindUpdateThresholdValue() {
         thresholdValue.text(threshold.val());
     });
 }
-
 
 $(() => {
     const dragAreaCls = '.co-occurrence-drag-area';
@@ -272,5 +279,9 @@ $(() => {
 const updateNodeLabel = (e) => {
     const isShowAllNodeLabels = $(e).prop('checked');
     coOccElements.plotCOG.empty();
-    showCoOccurrencePlot(currentData.nodes, currentData.edges, isShowAllNodeLabels);
-}
+    showCoOccurrencePlot(
+        currentData.nodes,
+        currentData.edges,
+        isShowAllNodeLabels,
+    );
+};

@@ -1,8 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-/* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_SENSOR = 512;
 const MIN_NUMBER_OF_SENSOR = 0;
@@ -36,19 +31,29 @@ const formElements = {
 };
 
 const i18n = {
-	total: $('#i18nTotal').text(),
-	average: $('#i18nAverage').text(),
-	frequence: $('#i18nFrequence').text(),
-	gaUnable: $('#i18nGAUnable').text(),
-	gaCheckConnect: $('#i18nGACheckConnect').text(),
-	traceResulLimited: $('#i18nTraceResultLimited').text() || '',
-	SQLLimit: $('#i18nSQLLimit').text(),
-	allSelection: $('#i18nAllSelection').text(),
-	noFilter: $('#i18nNoFilter').text(),
-	machineNo: $('#i18nMachineNo').text(),
-	partNo: $('#i18nPartNo').text(),
+    total: $('#i18nTotal').text(),
+    average: $('#i18nAverage').text(),
+    frequence: $('#i18nFrequence').text(),
+    gaUnable: $('#i18nGAUnable').text(),
+    gaCheckConnect: $('#i18nGACheckConnect').text(),
+    traceResulLimited: $('#i18nTraceResultLimited').text() || '',
+    SQLLimit: $('#i18nSQLLimit').text(),
+    allSelection: $('#i18nAllSelection').text(),
+    noFilter: $('#i18nNoFilter').text(),
+    machineNo: $('#i18nMachineNo').text(),
+    partNo: $('#i18nPartNo').text(),
     selectOver100SensorMsg: $('#i18nSelectOver100SensorMsg').text(),
     objectiveHoverMsg: $('#i18nSkDObjectiveHoverMsg').text(),
+    SkDPlotHoverRelationship: $('#i18nSkDPlotHoverRelationship').text(),
+    SkDPlotHoverRelationshipPositive: $(
+        '#i18nSkDPlotHoverRelationshipPositive',
+    ).text(),
+    SkDPlotHoverRelationshipNegative: $(
+        '#i18nSkDPlotHoverRelationshipNegative',
+    ).text(),
+    SkDPlotHoverCoefficient: $('#i18nSkDPlotHoverCoefficient').text(),
+    SkDPlotHoverVariable: $('#i18nSkDPlotHoverVariable').text(),
+    SkDPlotHoverProcess: $('#i18nSkDPlotHoverProcess').text(),
 };
 
 const MSG_MAPPING = {
@@ -79,14 +84,19 @@ $(() => {
         objectiveHoverMsg: i18n.objectiveHoverMsg,
         hideStrVariable: false,
         showFilter: true,
-        hideCTCol: true,
         allowObjectiveForRealOnly: true,
         disableSerialAsObjective: true,
     });
     endProcItem();
 
     // add first condition process
-    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
+    const condProcItem = addCondProc(
+        endProcs.ids,
+        endProcs.names,
+        '',
+        formElements.formID,
+        'btn-add-cond-proc',
+    );
     condProcItem();
 
     // click even of condition proc add button
@@ -120,7 +130,6 @@ const sankeyTraceData = () => {
     }
 };
 
-
 const showSankeyPlot = (plotlyJson) => {
     formElements.plotCard.css('display', 'none');
     $(`#${formElements.graphContainerId}`).html('');
@@ -130,9 +139,12 @@ const showSankeyPlot = (plotlyJson) => {
     showBarGraph(plotlyJson.bar_trace);
     formElements.plotCard.css('display', '');
 
-    $('html, body').animate({
-        scrollTop: formElements.plotCard.offset().top,
-    }, 500);
+    $('html, body').animate(
+        {
+            scrollTop: getOffsetTopDisplayGraph('#plot-card'),
+        },
+        500,
+    );
 
     window.dispatchEvent(new Event('resize'));
 };
@@ -187,11 +199,56 @@ const showBarGraph = (barJson) => {
             },
         },
         colorscale: {
-            diverging: [[0, '#8e0152'], [0.1, '#c51b7d'], [0.2, '#de77ae'], [0.3, '#f1b6da'], [0.4, '#fde0ef'], [0.5, '#f7f7f7'], [0.6, '#e6f5d0'], [0.7, '#b8e186'], [0.8, '#7fbc41'], [0.9, '#4d9221'], [1, '#276419']],
-            sequential: [[0.0, '#0d0887'], [0.1111111111111111, '#46039f'], [0.2222222222222222, '#7201a8'], [0.3333333333333333, '#9c179e'], [0.4444444444444444, '#bd3786'], [0.5555555555555556, '#d8576b'], [0.6666666666666666, '#ed7953'], [0.7777777777777778, '#fb9f3a'], [0.8888888888888888, '#fdca26'], [1.0, '#f0f921']],
-            sequentialminus: [[0.0, '#0d0887'], [0.1111111111111111, '#46039f'], [0.2222222222222222, '#7201a8'], [0.3333333333333333, '#9c179e'], [0.4444444444444444, '#bd3786'], [0.5555555555555556, '#d8576b'], [0.6666666666666666, '#ed7953'], [0.7777777777777778, '#fb9f3a'], [0.8888888888888888, '#fdca26'], [1.0, '#f0f921']],
+            diverging: [
+                [0, '#8e0152'],
+                [0.1, '#c51b7d'],
+                [0.2, '#de77ae'],
+                [0.3, '#f1b6da'],
+                [0.4, '#fde0ef'],
+                [0.5, '#f7f7f7'],
+                [0.6, '#e6f5d0'],
+                [0.7, '#b8e186'],
+                [0.8, '#7fbc41'],
+                [0.9, '#4d9221'],
+                [1, '#276419'],
+            ],
+            sequential: [
+                [0.0, '#0d0887'],
+                [0.1111111111111111, '#46039f'],
+                [0.2222222222222222, '#7201a8'],
+                [0.3333333333333333, '#9c179e'],
+                [0.4444444444444444, '#bd3786'],
+                [0.5555555555555556, '#d8576b'],
+                [0.6666666666666666, '#ed7953'],
+                [0.7777777777777778, '#fb9f3a'],
+                [0.8888888888888888, '#fdca26'],
+                [1.0, '#f0f921'],
+            ],
+            sequentialminus: [
+                [0.0, '#0d0887'],
+                [0.1111111111111111, '#46039f'],
+                [0.2222222222222222, '#7201a8'],
+                [0.3333333333333333, '#9c179e'],
+                [0.4444444444444444, '#bd3786'],
+                [0.5555555555555556, '#d8576b'],
+                [0.6666666666666666, '#ed7953'],
+                [0.7777777777777778, '#fb9f3a'],
+                [0.8888888888888888, '#fdca26'],
+                [1.0, '#f0f921'],
+            ],
         },
-        colorway: ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52'],
+        colorway: [
+            '#636efa',
+            '#EF553B',
+            '#00cc96',
+            '#ab63fa',
+            '#FFA15A',
+            '#19d3f3',
+            '#FF6692',
+            '#B6E880',
+            '#FF97FF',
+            '#FECB52',
+        ],
         geo: {
             bgcolor: 'rgb(17,17,17)',
             lakecolor: 'rgb(17,17,17)',
@@ -329,30 +386,50 @@ const showGroupLasso = (sankeyJson) => {
         return;
     }
 
-    const data = [{
-        arrangement: sankeyJson.arrangement || 'snap',
-        link: {
-            color: linkJson.color || [],
-            source: linkJson.source || [],
-            target: linkJson.target || [],
-            value: linkJson.value || [],
-            label: linkJson.source.map(() => 'Connection strength:') || [],
-        },
-        node: {
-            color: nodeJson.color || [],
-            label: nodeJson.label || [],
-            line: {
-                width: 0.2,
-                color: '#222',
+    const getRelationshipLabel = (relationship) => {
+        if (relationship === 'negative') {
+            return i18n.SkDPlotHoverRelationshipNegative;
+        } else if (relationship === 'positive') {
+            return i18n.SkDPlotHoverRelationshipPositive;
+        } else {
+            return '';
+        }
+    };
+
+    const data = [
+        {
+            arrangement: sankeyJson.arrangement || 'snap',
+            link: {
+                color: linkJson.color || [],
+                source: linkJson.source || [],
+                target: linkJson.target || [],
+                value: linkJson.value || [],
+                relationship: linkJson.relationship || [],
+                label: linkJson.source.map(() => 'Connection strength:') || [],
+                hovertemplate:
+                    `<b>${i18n.SkDPlotHoverRelationship}:</b> %{customdata}<br>` +
+                    `<b>${i18n.SkDPlotHoverCoefficient}:</b> %{value:.2f}<br>` +
+                    `<b>${i18n.SkDPlotHoverVariable}:</b> %{source.label} <br>` +
+                    `<b>${i18n.SkDPlotHoverProcess}:</b> %{target.label} <br>` +
+                    '<extra></extra>',
+                customdata: linkJson?.relationship?.map(getRelationshipLabel),
             },
-            pad: 10,
-            thickness: 20,
-            x: nodeJson.x || [],
-            y: nodeJson.y || [],
+            node: {
+                color: nodeJson.color || [],
+                label: nodeJson.label || [],
+                line: {
+                    width: 0.2,
+                    color: '#222',
+                },
+                pad: 10,
+                thickness: 20,
+                x: nodeJson.x || [],
+                y: nodeJson.y || [],
+            },
+            type: 'sankey',
+            valueformat: '.2f',
         },
-        type: 'sankey',
-        valueformat: '.2f',
-    }];
+    ];
 
     const layout = {
         title: '',
@@ -382,11 +459,56 @@ const showGroupLasso = (sankeyJson) => {
             },
         },
         colorscale: {
-            diverging: [[0, '#8e0152'], [0.1, '#c51b7d'], [0.2, '#de77ae'], [0.3, '#f1b6da'], [0.4, '#fde0ef'], [0.5, '#f7f7f7'], [0.6, '#e6f5d0'], [0.7, '#b8e186'], [0.8, '#7fbc41'], [0.9, '#4d9221'], [1, '#276419']],
-            sequential: [[0.0, '#0d0887'], [0.1111111111111111, '#46039f'], [0.2222222222222222, '#7201a8'], [0.3333333333333333, '#9c179e'], [0.4444444444444444, '#bd3786'], [0.5555555555555556, '#d8576b'], [0.6666666666666666, '#ed7953'], [0.7777777777777778, '#fb9f3a'], [0.8888888888888888, '#fdca26'], [1.0, '#f0f921']],
-            sequentialminus: [[0.0, '#0d0887'], [0.1111111111111111, '#46039f'], [0.2222222222222222, '#7201a8'], [0.3333333333333333, '#9c179e'], [0.4444444444444444, '#bd3786'], [0.5555555555555556, '#d8576b'], [0.6666666666666666, '#ed7953'], [0.7777777777777778, '#fb9f3a'], [0.8888888888888888, '#fdca26'], [1.0, '#f0f921']],
+            diverging: [
+                [0, '#8e0152'],
+                [0.1, '#c51b7d'],
+                [0.2, '#de77ae'],
+                [0.3, '#f1b6da'],
+                [0.4, '#fde0ef'],
+                [0.5, '#f7f7f7'],
+                [0.6, '#e6f5d0'],
+                [0.7, '#b8e186'],
+                [0.8, '#7fbc41'],
+                [0.9, '#4d9221'],
+                [1, '#276419'],
+            ],
+            sequential: [
+                [0.0, '#0d0887'],
+                [0.1111111111111111, '#46039f'],
+                [0.2222222222222222, '#7201a8'],
+                [0.3333333333333333, '#9c179e'],
+                [0.4444444444444444, '#bd3786'],
+                [0.5555555555555556, '#d8576b'],
+                [0.6666666666666666, '#ed7953'],
+                [0.7777777777777778, '#fb9f3a'],
+                [0.8888888888888888, '#fdca26'],
+                [1.0, '#f0f921'],
+            ],
+            sequentialminus: [
+                [0.0, '#0d0887'],
+                [0.1111111111111111, '#46039f'],
+                [0.2222222222222222, '#7201a8'],
+                [0.3333333333333333, '#9c179e'],
+                [0.4444444444444444, '#bd3786'],
+                [0.5555555555555556, '#d8576b'],
+                [0.6666666666666666, '#ed7953'],
+                [0.7777777777777778, '#fb9f3a'],
+                [0.8888888888888888, '#fdca26'],
+                [1.0, '#f0f921'],
+            ],
         },
-        colorway: ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52'],
+        colorway: [
+            '#636efa',
+            '#EF553B',
+            '#00cc96',
+            '#ab63fa',
+            '#FFA15A',
+            '#19d3f3',
+            '#FF6692',
+            '#B6E880',
+            '#FF97FF',
+            '#FECB52',
+        ],
         geo: {
             bgcolor: 'rgb(17,17,17)',
             lakecolor: 'rgb(17,17,17)',
@@ -501,11 +623,15 @@ const showGroupLasso = (sankeyJson) => {
         },
     };
 
-    Plotly.newPlot(formElements.graphContainerId, data, layout, { // TODO container id
-        modeBarButtonsToRemove: [ // sankey icon setting is different from others
+    Plotly.newPlot(formElements.graphContainerId, data, layout, {
+        // TODO container id
+        modeBarButtonsToRemove: [
+            // sankey icon setting is different from others
             'lasso2d',
-            'hoverClosestCartesian', 'hoverCompareCartesian',
-            'toggleSpikelines', 'sendDataToCloud',
+            'hoverClosestCartesian',
+            'hoverCompareCartesian',
+            'toggleSpikelines',
+            'sendDataToCloud',
         ],
         displaylogo: false,
         responsive: true,
@@ -530,17 +656,17 @@ const collectFormDataSkD = (clearOnFlyFilter = false) => {
 
 const checkNumberOfSelectedSensor = (fromData) => {
     // show msg when select over 100 sensor
-    const sensors = []
+    const sensors = [];
     for (const item of fromData.entries()) {
         const key = item[0];
         const value = item[1];
         if (/GET02_VALS_SELECT/.test(key)) {
-            sensors.push(value)
+            sensors.push(value);
         }
     }
 
     if (sensors.length > MAX_SENSORS_LIM) {
-        showToastrMsg(i18n.selectOver100SensorMsg)
+        showToastrMsg(i18n.selectOver100SensorMsg);
     }
 };
 
@@ -549,45 +675,49 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false) => {
 
     checkNumberOfSelectedSensor(formData);
 
-
-    showGraphCallApi('/ap/api/skd/index', formData, REQUEST_TIMEOUT, async (res) => {
-        if (!res.actual_record_number) {
-            showToastrAnomalGraph();
-            return;
-        }
-        if (res.errors && res.errors.length) {
-            showErrorToastr(res.errors);
-            loadingHide();
-
-            if (clearOnFlyFilter) {
-                // click show graph
-                problematicData = {
-                    null_percent: res.null_percent || {},
-                    zero_variance: res.err_cols || [],
-                    selected_vars: res.selected_vars || []
-                };
-                reselectCallback = callToBackEndAPI;
+    showGraphCallApi(
+        '/ap/api/skd/index',
+        formData,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            if (!res.actual_record_number) {
+                showToastrAnomalGraph();
+                return;
             }
-            const errors = res.errors || []
-            if (problematicData && errors.length) {
-                showRemoveProblematicColsMdl(problematicData);
+            if (res.errors && res.errors.length) {
+                showErrorToastr(res.errors);
+                loadingHide();
+
+                if (clearOnFlyFilter) {
+                    // click show graph
+                    problematicData = {
+                        null_percent: res.null_percent || {},
+                        zero_variance: res.err_cols || [],
+                        selected_vars: res.selected_vars || [],
+                    };
+                    reselectCallback = callToBackEndAPI;
+                }
+                const errors = res.errors || [];
+                if (problematicData && errors.length) {
+                    showRemoveProblematicColsMdl(problematicData);
+                }
+                return;
             }
-            return;
-        }
 
-        // render cat, category label filer modal
-        fillDataToFilterModal(res.filter_on_demand, () => {
-            callToBackEndAPI(false);
-        });
+            // render cat, category label filer modal
+            fillDataToFilterModal(res.filter_on_demand, () => {
+                callToBackEndAPI(false);
+            });
 
-        graphStore.setTraceData(_.cloneDeep(res));
-        showSankeyPlot(res.plotly_data);
+            graphStore.setTraceData(_.cloneDeep(res));
+            showSankeyPlot(res.plotly_data);
 
-        showScatterPlot(res.dic_scp, {});
+            showScatterPlot(res.dic_scp, {});
 
-        // show info table
-        showInfoTable(res);
-    });
+            // show info table
+            showInfoTable(res);
+        },
+    );
 };
 
 const showErrorToastr = (errors) => {

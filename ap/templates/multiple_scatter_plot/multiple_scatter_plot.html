@@ -10,18 +10,27 @@
             {{ macros.data_finder_card() }}
             {{ macros.start_proc(procs,'', traceData=true) }}
             {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
-            <br class="graph-navi graph-navi-top-down">
-            <div class="show-graph-div d-flex justify-content-center align-items-center" style="text-align: center;">
+            <br class="graph-navi graph-navi-top-down" />
+            <div
+                class="show-graph-div d-flex justify-content-center align-items-center"
+                style="text-align: center;"
+            >
                 {{ macros.order_btn() }}
                 {{ macros.preprocess_options() }}
-                <button id="scatter-btn" type="button" value="{{ _('Display graph') }}"
-                        onClick="mspTracing();" class="btn btn-primary show-graph ml-3"
-                        title="Shortcut key: Ctrl+Enter">
-                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
+                <button
+                    id="scatter-btn"
+                    type="button"
+                    value="{{ _('Display graph') }}"
+                    onClick="mspTracing();"
+                    class="btn btn-primary show-graph ml-3"
+                    title="Shortcut key: Ctrl+Enter"
+                >
+                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                </button>
 
                 {{ macros.export_gui() }}
             </div>
-            <br>
+            <br />
         </form>
         {{ macros.cat_label_filter_modal() }}
         {{ macros.end_col_order_modal() }}
@@ -29,7 +38,10 @@
         {{ macros.jump_modal() }}
     </div>
     <div class="row" id="showContour" style="display: none">
-        <div class="d-flex align-items-center position-relative col-12" id="graph-settings-area">
+        <div
+            class="d-flex align-items-center position-relative col-12"
+            id="graph-settings-area"
+        >
             <div>{{ macros.info_i_mark() }}</div>
             {{ macros.on_demand_filter() }}
             {{ macros.order_btn(graphArea='1', callbackFunc='() => {scatterTraceData();}') }}
@@ -38,33 +50,58 @@
             {{ macros.scale_option(name='YScaleOption', className='ml-4', onChange='handleChangeScaleOption("y", this)') }}
             {{ macros.switch_button(id='showContourInput', name='showContourInput', label=_("with shading"), title=_('Contour hover msg'), cl='contour-button', onChange='showContour()') }}
             {{ macros.switch_button(id='showHeatmapInput', name='showHeatmapInput', label=_("Heatmap"), title=_('Heatmap hover msg'), cl='ml-4', onChange='showMSPHeatmap()', defaultVal=True) }}
-            <div class="ml-4 msp-chart-title"><span id="x-title"></span><span id="y-title"></span></div>
-		</div>
-	</div>
+            <div class="ml-4 msp-chart-title">
+                <span id="x-title"></span><span id="y-title"></span>
+            </div>
+        </div>
+    </div>
     <div class="plot-content">
-        <div class="card graph-navi ui-sortable" id="sctr-card" style="display: none;"></div>
+        <div
+            class="card graph-navi ui-sortable"
+            id="sctr-card"
+            style="display: none;"
+        ></div>
         <div id="stContentTab">
             <div class="setting-inform-content"></div>
         </div>
     </div>
 
-	<div>
-		<ul id="contextMenuTimeSeries" class="context-menu" style="display:none;" name="contextMenu">
-			<li class="menu-item cross-hair" onclick="handleSelectedPlotView()">{{ _("Plot View") }}</li>
-            <li class="menu-item"
-                onclick="goToGraphConfigPage('{{ url_for('setting_module.master_config') }}')">{{ _("Threshold/Graph Config") }}</li>
-		</ul>
-	</div>
+    <div>
+        <ul
+            id="contextMenuTimeSeries"
+            class="context-menu"
+            style="display:none;"
+            name="contextMenu"
+        >
+            <li class="menu-item cross-hair" onclick="handleSelectedPlotView()">
+                {{ _("Plot View") }}
+            </li>
+            <li
+                class="menu-item"
+                onclick="goToGraphConfigPage('{{ url_for('setting_module.master_config') }}')"
+            >
+                {{ _("Threshold/Graph Config") }}
+            </li>
+        </ul>
+    </div>
 
-	<div class=" loading"></div>
-	<div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
-	<a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
-	   target="_blank">{{ _("Click here to fix") }}</a>
-	{{ macros.data_point_info() }}
-	{{ optdata }}
+    <div class=" loading"></div>
+    <div style="display: none;" id="msgErrorDBConnection">
+        {{ _("Could not access") }}
+    </div>
+    <a
+        style="display: none;"
+        id="msgErrorDBConnectionAction"
+        href="{{ url_for('setting_module.config_screen') }}"
+        target="_blank"
+        >{{ _("Click here to fix") }}</a
+    >
+    {{ macros.data_point_info() }}
+    {{ optdata }}
 {% endblock %}
 
 {% block js %}
+    <!-- prettier-ignore-start -->
 	<script>
 		const procJsons = {{ list_procs | safe }};
 		const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
@@ -74,10 +111,11 @@
 			procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
+    <!-- prettier-ignore-end -->
     {% assets "js_msp" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% assets "css_msp" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}">
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 {% endblock %}

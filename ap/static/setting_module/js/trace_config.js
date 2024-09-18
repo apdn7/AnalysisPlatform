@@ -1,16 +1,9 @@
-/* eslint-disable consistent-return,prefer-destructuring */
-/* eslint-disable array-callback-return */
-/* eslint-disable no-use-before-define */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-
 // TODO use class
 
 // global variable to store data of processes
 let processes = {};
-const getConfigOption = () => JSON.parse(localStorage.getItem('network-config')) || {};
+const getConfigOption = () =>
+    JSON.parse(localStorage.getItem('network-config')) || {};
 
 const configOption = getConfigOption();
 let hierarchicalDirection = configOption.direction || 'LR';
@@ -51,6 +44,9 @@ const SEP_LABEL = '\n';
 const SEP_PROC = '-';
 const SEP_TITLE = '<br>';
 
+const DEFAULT_DELTA_TIME_DATA_LINK = 0; // minute
+const DEFAULT_CUTOFF_DATA_LINK = 60; // minute
+
 // define custom locales
 const i18nNames = {
     allDigits: $('#i18nAllDigits').text(),
@@ -67,7 +63,8 @@ const i18nNames = {
     linkWithTime: $('#i18nLinkWithTime').text(),
     i18nCutOff: $('#i18nCutOff').text(),
 };
-const locale = docCookies.getItem('locale') === 'ja' ? 'jp' : docCookies.getItem('locale');
+const locale =
+    docCookies.getItem('locale') === 'ja' ? 'jp' : docCookies.getItem('locale');
 const locales = {};
 locales[locale] = {
     edit: $('#i18nEdit').text(),
@@ -104,6 +101,7 @@ const tracingElements = {
     deltaDatetimeVisible: '#delta-datetime:visible',
     inputDeltaDatetime: '.deltaDatetime',
     inputCutOff: '.cutOff',
+    datetimeReprClassName: 'datetimeRepr',
 };
 
 const destroy = () => {
@@ -120,15 +118,20 @@ const cancelEdgeEdit = (callback) => {
 const isStarType = () => hierarchicalDirection === 'Star';
 
 const getMatchingDigits = (item) => {
-    const result = $(item).find(`input[name*="${tracingElements.subStrOpt}"]:checked`)
+    const result = $(item)
+        .find(`input[name*="${tracingElements.subStrOpt}"]:checked`)
         .map((i, e) => {
             const itemId = $(e).attr('id').split('-')[1];
             // if ($(`#checkbox-${itemId}`).prop('checked')) {
             if ($(e).val() === '0') {
                 return [];
             }
-            const fromDigit = $(`select[name="${tracingElements.fromDigits}-${itemId}"]`).val();
-            const toDigits = $(`select[name="${tracingElements.toDigits}-${itemId}"]`).val();
+            const fromDigit = $(
+                `select[name="${tracingElements.fromDigits}-${itemId}"]`,
+            ).val();
+            const toDigits = $(
+                `select[name="${tracingElements.toDigits}-${itemId}"]`,
+            ).val();
             return [Number(fromDigit), Number(toDigits)];
             // }
         })
@@ -139,11 +142,13 @@ const getMatchingDigits = (item) => {
 // TODO refactor i18n
 const validateSubStr = (selfSubstr, targetSubstr) => {
     // selfSubstr, targetSubstr [[1,3], [2,4]]
-    const invalidOpts = self => self.filter(([s, e]) => s > e);
+    const invalidOpts = (self) => self.filter(([s, e]) => s > e);
     // Check valid options
-    if (invalidOpts(selfSubstr).length > 0
-        || invalidOpts(targetSubstr).length > 0
-        || selfSubstr.length !== targetSubstr.length) {
+    if (
+        invalidOpts(selfSubstr).length > 0 ||
+        invalidOpts(targetSubstr).length > 0 ||
+        selfSubstr.length !== targetSubstr.length
+    ) {
         return {
             is_valid: false,
             message: $('#i18nInvalidDigit').text(),
@@ -152,7 +157,11 @@ const validateSubStr = (selfSubstr, targetSubstr) => {
 
     // Check self digits same as target digits
     const invalidDigits = targetSubstr.filter((e, i) => {
-        if (selfSubstr[i] !== undefined && selfSubstr[i].length > 0 && e.length > 0) {
+        if (
+            selfSubstr[i] !== undefined &&
+            selfSubstr[i].length > 0 &&
+            e.length > 0
+        ) {
             return e[1] - e[0] !== selfSubstr[i][1] - selfSubstr[i][0];
         }
     }, selfSubstr);
@@ -166,107 +175,6 @@ const validateSubStr = (selfSubstr, targetSubstr) => {
         is_valid: true,
         message: $('#i18nInvalidDigit').text(),
     };
-};
-
-const saveEdgeDataToGlobal = (edgeData, callback) => {
-    if (typeof edgeData.to === 'object') edgeData.to = edgeData.to.id;
-    if (typeof edgeData.from === 'object') edgeData.from = edgeData.from.id;
-    edgeData.arrows = 'to';
-
-    // get Trace Target Data from modal
-    const targetProcId = $('select[name="edgeForwardProc"]').val();
-    edgeData.target_proc = targetProcId;
-    const targetCols = [];
-    const targetOrgCols = [];
-    const targetSubStrs = [];
-    $('div[id^="edgeForwardCol-"]').find('.form-group').each(function f(idx) {
-        const colElement = $(this).find('select[name=forwardCol]');
-        targetSubStrs.push(getMatchingDigits($(this)));
-        const colAlias = $('option:selected', colElement).attr('alias');
-        const colOrg = $('option:selected', colElement).attr('original');
-        if (!isEmpty(colAlias)) targetCols.push(colAlias);
-        if (!isEmpty(colOrg)) targetOrgCols.push(colOrg);
-    });
-    edgeData.target_col = targetCols;
-    edgeData.target_orig_col = targetOrgCols;
-    edgeData.target_substr = targetSubStrs;
-
-
-    // get Trace Self Data from modal
-    const selfProcId = $('select[name="edgeBackProc"]').val();
-    edgeData.self_proc = selfProcId;
-    const selfCols = [];
-    const selfOrgCols = [];
-    const selfSubStrs = [];
-    $('div[id^="edgeBackCol-"]').find('.form-group').each(function f(idx) {
-        const colElement = $(this).find('select[name=backCol]');
-        selfSubStrs.push(getMatchingDigits($(this)));
-        const colAlias = $('option:selected', colElement).attr('alias');
-        const colOrg = $('option:selected', colElement).attr('original');
-        if (!isEmpty(colAlias)) selfCols.push(colAlias);
-        if (!isEmpty(colOrg)) selfOrgCols.push(colOrg);
-    });
-    edgeData.self_col = selfCols;
-    edgeData.back_orig_col = selfOrgCols;
-    edgeData.self_substr = selfSubStrs;
-
-    // validate: choose at least 1 column to trace
-    if (selfCols.length === 0 || targetCols.length === 0) {
-        displayRegisterMessage(
-            '#alertMsgCheckSubStr', {
-                message: i18nNames.i18nNoColumn,
-                is_error: true,
-            },
-        );
-        return;
-    }
-
-    validEdge = validateSubStr(edgeData.self_substr, edgeData.target_substr);
-    if (!validEdge.is_valid) {
-        displayRegisterMessage(
-            '#alertMsgCheckSubStr', {
-                message: validEdge.message,
-                is_error: true,
-            },
-        );
-        return;
-    }
-
-    // save data to external/global dict
-    mapIdFromIdTo2Edge[`${edgeData.from}-${edgeData.to}`] = edgeData;
-
-    callback(edgeData);
-    $('#modal-edge-popup').modal('hide');
-    return edgeData;
-};
-
-const objectToArray = obj => Object.keys(obj).map((key) => {
-    obj[key].id = key;
-    return obj[key];
-});
-
-const resizeExportArea = () => {
-    exportArea.style.height = `${1 + exportArea.scrollHeight}px`;
-};
-
-// get alias of a column
-const getAliasFromField = (col) => {
-    const splits = col.split(' as ');
-    if (splits.length > 0) {
-        const lastEl = splits[splits.length - 1];
-        return lastEl.replace(/"| |'/g, '');
-    }
-    return col;
-};
-
-// get original column name of a column
-const getOrigColumnFromField = (col) => {
-    const splits = col.split(' as ');
-    if (splits.length > 0) {
-        const lastEl = splits[0];
-        return lastEl.replace(/"| |'/g, '');
-    }
-    return col;
 };
 
 let targetProc = null;
@@ -284,8 +192,8 @@ let selfColCandidates = [];
 let selfColCandidateMasters = [];
 let selfColNames = [];
 let selfDataTypes = [];
-let deltaTimes = '';
-let cutOffs = '';
+let deltaTimes = [];
+let cutOffs = [];
 
 const layoutOption = () => {
     if (hierarchicalDirection !== NORMAL_TYPE) {
@@ -372,7 +280,6 @@ const drawVisNetwork = (layout = layoutOption()) => {
                 const selfProcId = edge.fromId;
                 const targetProcId = edge.toId;
 
-
                 // delete from graph
                 callback(edgeData);
 
@@ -394,28 +301,37 @@ const drawVisNetwork = (layout = layoutOption()) => {
 
     if (hierarchicalDirection) {
         $('#traceNetworkLayout').val(hierarchicalDirection);
-        $(`#traceNetworkLayout option[value=${hierarchicalDirection}]`).prop('disabled', true);
+        $(`#traceNetworkLayout option[value=${hierarchicalDirection}]`).prop(
+            'disabled',
+            true,
+        );
     }
-    $('#traceNetworkLayout').off('change').on('change', (e) => {
-        if (e.currentTarget.value) {
-            hierarchicalDirection = e.currentTarget.value;
-        }
-        drawVisNetwork();
-        setTimeout(() => {
-            getNodePositionAndSaveLocal();
-            // disable current layout to avoid to re-select from dropdown menu
-            if (hierarchicalDirection) {
-                $('#traceNetworkLayout option').prop('disabled', false);
-                $(`#traceNetworkLayout option[value=${hierarchicalDirection}]`).prop('disabled', true);
+    $('#traceNetworkLayout')
+        .off('change')
+        .on('change', (e) => {
+            if (e.currentTarget.value) {
+                hierarchicalDirection = e.currentTarget.value;
             }
-        }, 500);
-    });
+            drawVisNetwork();
+            setTimeout(() => {
+                getNodePositionAndSaveLocal();
+                // disable current layout to avoid to re-select from dropdown menu
+                if (hierarchicalDirection) {
+                    $('#traceNetworkLayout option').prop('disabled', false);
+                    $(
+                        `#traceNetworkLayout option[value=${hierarchicalDirection}]`,
+                    ).prop('disabled', true);
+                }
+            }, 500);
+        });
 
     // add reset layout button events
-    $('#resetLayout').off('click').on('click', (e) => {
-        const layoutSelected = $('#traceNetworkLayout').val();
-        $('#traceNetworkLayout').val(layoutSelected).change();
-    });
+    $('#resetLayout')
+        .off('click')
+        .on('click', (e) => {
+            const layoutSelected = $('#traceNetworkLayout').val();
+            $('#traceNetworkLayout').val(layoutSelected).change();
+        });
     container.addEventListener('mouseleave', () => {
         moveToOptions.scale = network.getScale();
         moveToOptions.position = network.getViewPosition();
@@ -436,11 +352,14 @@ const getNodePositionAndSaveLocal = () => {
 };
 
 const saveLocalStorage = () => {
-    localStorage.setItem('network-config', JSON.stringify({
-        moveto: moveToOptions,
-        direction: hierarchicalDirection,
-        nodesPosition,
-    }));
+    localStorage.setItem(
+        'network-config',
+        JSON.stringify({
+            moveto: moveToOptions,
+            direction: hierarchicalDirection,
+            nodesPosition,
+        }),
+    );
 };
 
 const handleEditEdge = (edgeData, callback) => {
@@ -448,7 +367,8 @@ const handleEditEdge = (edgeData, callback) => {
     $('#alertMsgCheckSubStr').hide();
     // get data from external dict
     currentEditEdge = edgeData;
-    const edgeDataFull = mapIdFromIdTo2Edge[`${edgeData.from.id}-${edgeData.to.id}`];
+    const edgeDataFull =
+        mapIdFromIdTo2Edge[`${edgeData.from.id}-${edgeData.to.id}`];
     if (edgeDataFull) {
         edgeData.target_proc = edgeDataFull.target_proc;
         edgeData.target_col = edgeDataFull.target_col;
@@ -456,6 +376,8 @@ const handleEditEdge = (edgeData, callback) => {
         edgeData.self_col = edgeDataFull.self_col;
         edgeData.self_substr = edgeDataFull.self_substr;
         edgeData.target_substr = edgeDataFull.target_substr;
+        edgeData.delta_time = edgeDataFull.delta_time;
+        edgeData.cut_off = edgeDataFull.cut_off;
     }
 
     // save edited edge
@@ -503,8 +425,10 @@ const onChangeProcs = (edgeData) => {
             setTimeout(() => {
                 let from = '';
                 let to = '';
-                if (typeof edgeData.to === 'object') edgeData.to = edgeData.to.id;
-                if (typeof edgeData.from === 'object') edgeData.from = edgeData.from.id;
+                if (typeof edgeData.to === 'object')
+                    edgeData.to = edgeData.to.id;
+                if (typeof edgeData.from === 'object')
+                    edgeData.from = edgeData.from.id;
                 edgeData.from = e.currentTarget.value;
                 from = edgeData.from.toString();
                 to = edgeData.to.toString();
@@ -534,8 +458,10 @@ const onChangeProcs = (edgeData) => {
             setTimeout(() => {
                 let from = '';
                 let to = '';
-                if (typeof edgeData.to === 'object') edgeData.to = edgeData.to.id;
-                if (typeof edgeData.from === 'object') edgeData.from = edgeData.from.id;
+                if (typeof edgeData.to === 'object')
+                    edgeData.to = edgeData.to.id;
+                if (typeof edgeData.from === 'object')
+                    edgeData.from = edgeData.from.id;
                 edgeData.to = e.currentTarget.value;
                 from = edgeData.from.toString();
                 to = edgeData.to.toString();
@@ -565,7 +491,7 @@ const masterInnerOrder = [
     masterDataGroup.EQ_NO,
     masterDataGroup.PART_NAME,
     masterDataGroup.PART_NO,
-    masterDataGroup.ST_NO
+    masterDataGroup.ST_NO,
 ];
 
 const reOrderLinkCols = (linkingCols) => {
@@ -582,23 +508,26 @@ const reOrderLinkCols = (linkingCols) => {
     let intCols = [];
     for (const linkingCol of linkingCols) {
         if (linkingCol.is_serial_no) {
-            serialCols.push(linkingCol)
+            serialCols.push(linkingCol);
         } else if (linkingCol.is_get_date) {
-            getDateCols.push(linkingCol)
+            getDateCols.push(linkingCol);
         } else if (linkingCol.data_type === DataTypes.DATETIME.name) {
-            dateTimeCols.push(linkingCol)
+            dateTimeCols.push(linkingCol);
         } else if (linkingCol.data_type === DataTypes.DATE.name) {
-            mainDateCols.push(linkingCol)
+            mainDateCols.push(linkingCol);
         } else if (linkingCol.data_type === DataTypes.TIME.name) {
-            mainTimeCols.push(linkingCol)
+            mainTimeCols.push(linkingCol);
         } else if (masterInnerOrder.includes(linkingCol.column_type)) {
-            masterCols.push(linkingCol)
-        } else if (linkingCol.is_int_category && linkingCol.data_type === DataTypes.INTEGER.name) {
-            catCols.push(linkingCol)
+            masterCols.push(linkingCol);
+        } else if (
+            linkingCol.is_int_category &&
+            linkingCol.data_type === DataTypes.INTEGER.name
+        ) {
+            catCols.push(linkingCol);
         } else if (linkingCol.data_type === DataTypes.STRING.name) {
-            stringCols.push(linkingCol)
-        } else if (linkingCol.data_type === DataTypes.INTEGER.name){
-            intCols.push(linkingCol)
+            stringCols.push(linkingCol);
+        } else if (linkingCol.data_type === DataTypes.INTEGER.name) {
+            intCols.push(linkingCol);
         }
     }
     getDateCols.sort((a, b) => a.order - b.order);
@@ -612,7 +541,8 @@ const reOrderLinkCols = (linkingCols) => {
     stringCols.sort((a, b) => a.order - b.order);
     intCols.sort((a, b) => a.order - b.order);
     // push serial at top of dropdown in linking modal
-    return [...serialCols,
+    return [
+        ...serialCols,
         ...getDateCols,
         ...dateTimeCols,
         ...mainDateCols,
@@ -622,7 +552,8 @@ const reOrderLinkCols = (linkingCols) => {
         ...masterCols,
         ...catCols,
         ...stringCols,
-        ...intCols];
+        ...intCols,
+    ];
 };
 
 const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
@@ -632,11 +563,13 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
         selectedSelfCols = [...edgeData.self_col];
     }
 
-    const selfSerialColumns = reOrderLinkCols(processes[selfProcId].columns.filter(e => e.is_linking_column));
-    selfColCandidates = selfSerialColumns.map(e => e.id);
-    selfColCandidateMasters = selfSerialColumns.map(e => e.shown_name);
-    selfColNames = selfSerialColumns.map(e => e.name_en);
-    selfDataTypes = selfSerialColumns.map(e => e.data_type);
+    const selfSerialColumns = reOrderLinkCols(
+        processes[selfProcId].columns.filter((e) => e.is_linking_column),
+    );
+    selfColCandidates = selfSerialColumns.map((e) => e.id);
+    selfColCandidateMasters = selfSerialColumns.map((e) => e.shown_name);
+    selfColNames = selfSerialColumns.map((e) => e.name_en);
+    selfDataTypes = selfSerialColumns.map((e) => e.data_type);
 
     if (typeof edgeData.target_col !== 'object') {
         selectedTargetCols = [edgeData.target_col];
@@ -644,11 +577,13 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
         selectedTargetCols = [...edgeData.target_col];
     }
 
-    const targetSerialColumns = reOrderLinkCols(processes[targetProcId].columns.filter(e => e.is_linking_column));
-    targetColCandidates = targetSerialColumns.map(e => e.id);
-    targetColCandidateMasters = targetSerialColumns.map(e => e.shown_name);
-    targetColNames = targetSerialColumns.map(e => e.name_en);
-    targetDataTypes = targetSerialColumns.map(e => e.data_type);
+    const targetSerialColumns = reOrderLinkCols(
+        processes[targetProcId].columns.filter((e) => e.is_linking_column),
+    );
+    targetColCandidates = targetSerialColumns.map((e) => e.id);
+    targetColCandidateMasters = targetSerialColumns.map((e) => e.shown_name);
+    targetColNames = targetSerialColumns.map((e) => e.name_en);
+    targetDataTypes = targetSerialColumns.map((e) => e.data_type);
     targetChosenTraceKeys = [];
     selfChosenTraceKeys = [];
 
@@ -659,7 +594,6 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
     cutOffs = edgeData.cut_off;
 };
 
-
 const initVisData = (processesArray) => {
     // clear vis data
     edges.clear();
@@ -669,7 +603,7 @@ const initVisData = (processesArray) => {
     // update processes from global const
     // create Vis nodes from processes data
     let procTraces = [];
-    processes = {}
+    processes = {};
     for (const key in processesArray) {
         const procCopy = { ...processesArray[key] };
         procCopy.master = procCopy.shown_name;
@@ -684,7 +618,6 @@ const initVisData = (processesArray) => {
         processes[procCopy.id] = procCopy;
     }
 
-
     // create Vis edge from processes trace data
     // use trace forward to create edges
     procTraces.forEach((trace) => {
@@ -692,15 +625,25 @@ const initVisData = (processesArray) => {
             from: trace.self_process_id,
             to: trace.target_process_id,
             arrows: 'to',
-            font: { multi: 'html', strokeColor: COLOR.background, align: 'top' },
+            font: {
+                multi: 'html',
+                strokeColor: COLOR.background,
+                align: 'top',
+            },
             self_proc: trace.self_process_id,
             target_proc: trace.target_process_id,
-            self_col: trace.trace_keys.map(key => key.self_column_id),
-            target_col: trace.trace_keys.map(key => key.target_column_id),
-            self_substr: trace.trace_keys.map(key => [key.self_column_substr_from, key.self_column_substr_to]),
-            target_substr: trace.trace_keys.map(key => [key.target_column_substr_from, key.target_column_substr_to]),
-            delta_time: trace.trace_keys.map(key => key.delta_time),
-            cut_off: trace.trace_keys.map(key => key.cut_off),
+            self_col: trace.trace_keys.map((key) => key.self_column_id),
+            target_col: trace.trace_keys.map((key) => key.target_column_id),
+            self_substr: trace.trace_keys.map((key) => [
+                key.self_column_substr_from,
+                key.self_column_substr_to,
+            ]),
+            target_substr: trace.trace_keys.map((key) => [
+                key.target_column_substr_from,
+                key.target_column_substr_to,
+            ]),
+            delta_time: trace.trace_keys.map((key) => key.delta_time),
+            cut_off: trace.trace_keys.map((key) => key.cut_off),
         };
         const edgeKey = `${trace.self_process_id}-${trace.target_process_id}`;
         mapIdFromIdTo2Edge[edgeKey] = edge;
@@ -715,31 +658,45 @@ const init = () => {
     reloadTraceConfigFromDB();
 };
 
-
 // Generate Sub string options
-const digitOptions = position => [...Array(100).keys()].map((x) => {
-    let digitChecked = '';
-    if (position === x + 1) {
-        digitChecked = 'selected="selected"';
-    } else {
-        digitChecked = '';
-    }
-    return `<option value="${x + 1}" ${digitChecked}>${x + 1}</option>`;
-}, position);
-
+const digitOptions = (position) =>
+    [...Array(100).keys()].map((x) => {
+        let digitChecked = '';
+        if (position === x + 1) {
+            digitChecked = 'selected="selected"';
+        } else {
+            digitChecked = '';
+        }
+        return `<option value="${x + 1}" ${digitChecked}>${x + 1}</option>`;
+    }, position);
 
 const addAutoCheckPartialMatch = () => {
     // auto select partial-radio
     $('.partial-digit').each(function f() {
         $(this).on('change', function autoSelectSubstr() {
-            $($(this).closest('.partial-option').find('.partial-radio')[0]).prop('checked', 1);
+            $(
+                $(this).closest('.partial-option').find('.partial-radio')[0],
+            ).prop('checked', 1);
         });
     });
 };
 
-const addGroupListSelection = (parentId, id, itemName, itemVals, itemOrgCols = null, itemAliases = null,
-    checkedVals = null, itemDisplayNames = [], subStrOpt = [], forwardCol = null, clearOption = true,
-    columnNames = [], dataTypes = [], chosenOption = []) => {
+const addGroupListSelection = (
+    parentId,
+    id,
+    itemName,
+    itemVals,
+    itemOrgCols = null,
+    itemAliases = null,
+    checkedVals = null,
+    itemDisplayNames = [],
+    subStrOpt = [],
+    forwardCol = null,
+    clearOption = true,
+    columnNames = [],
+    dataTypes = [],
+    chosenOption = [],
+) => {
     if (clearOption) $(`#${parentId}`).empty();
 
     if (checkedVals.length == 0) {
@@ -759,7 +716,8 @@ const addGroupListSelection = (parentId, id, itemName, itemVals, itemOrgCols = n
         let endDigit = 1;
         if (subStrOpt.length > 0 && subStrOpt[i] !== undefined) {
             // Update Edge
-            if (!subStrOpt[i].length || subStrOpt[i].some(digit => !digit)) { // all substring digits >= 1
+            if (!subStrOpt[i].length || subStrOpt[i].some((digit) => !digit)) {
+                // all substring digits >= 1
                 defaultSelected = 'checked="checked"';
             } else {
                 subSelected = 'checked="checked"';
@@ -772,13 +730,18 @@ const addGroupListSelection = (parentId, id, itemName, itemVals, itemOrgCols = n
 
         const fromOptions = digitOptions(starDigit).join('');
         const toOptions = digitOptions(endDigit).join('');
-        let options = itemAliases.map((v, k) => {
-            const selected = `${v}` === `${selector}` ? ' selected="selected"' : '';
-            return `<option value="${v}"${selected} alias="${itemAliases[k]}" data-type="${dataTypes[k]}"
+        let options = itemAliases
+            .map(
+                (v, k) => {
+                    const selected =
+                        `${v}` === `${selector}` ? ' selected="selected"' : '';
+                    return `<option value="${v}"${selected} alias="${itemAliases[k]}" data-type="${dataTypes[k]}"
                    original="${itemOrgCols[k]}" title="${columnNames[k]}">${itemDisplayNames[k]}</option>`;
-        },
-        selector,
-        itemDisplayNames).join('');
+                },
+                selector,
+                itemDisplayNames,
+            )
+            .join('');
 
         if (isNullOption) {
             options = '';
@@ -846,7 +809,10 @@ const getSelectedColumns = (allSelectedColElements) => {
 
     if (allSelectedColElements.length > 0) {
         Array.prototype.forEach.call(allSelectedColElements, (element) => {
-            if (element.value && selectedCols.includes(element.value) === false) {
+            if (
+                element.value &&
+                selectedCols.includes(element.value) === false
+            ) {
                 selectedCols.push(element.value);
             }
         });
@@ -860,7 +826,9 @@ let selfChosenTraceKeys = [];
 // TODO check validation
 const updateSelectedColumns = (isForce = false) => {
     const allSelectedTargetColElements = $('select[name=forwardCol]');
-    const allChosenTargetCols = getSelectedColumns(allSelectedTargetColElements);
+    const allChosenTargetCols = getSelectedColumns(
+        allSelectedTargetColElements,
+    );
     const allSelectedTargetCols = allSelectedTargetColElements.get();
     targetChosenTraceKeys = allChosenTargetCols;
     let targetColIndex = 0;
@@ -868,7 +836,10 @@ const updateSelectedColumns = (isForce = false) => {
         const currentCardSelector = $(selected).val();
         $.each($(selected).find('option'), (key, option) => {
             const optionVal = $(option).val();
-            if (allChosenTargetCols.includes(optionVal) && currentCardSelector !== optionVal) {
+            if (
+                allChosenTargetCols.includes(optionVal) &&
+                currentCardSelector !== optionVal
+            ) {
                 $(option).attr('disabled', 'disabled');
             } else if (!allChosenTargetCols.includes(optionVal)) {
                 $(option).removeAttr('disabled');
@@ -877,7 +848,6 @@ const updateSelectedColumns = (isForce = false) => {
         updateTraceConfig(selected, targetColIndex);
         targetColIndex++;
     });
-
 
     const allSelectedSelfColElements = $('select[name=backCol]');
     const allChosenSelfCols = getSelectedColumns(allSelectedSelfColElements);
@@ -888,7 +858,10 @@ const updateSelectedColumns = (isForce = false) => {
         const currentCardSelector = $(selected).val();
         $.each($(selected).find('option'), (key, option) => {
             const optionVal = $(option).val();
-            if (allChosenSelfCols.includes(optionVal) && currentCardSelector !== optionVal) {
+            if (
+                allChosenSelfCols.includes(optionVal) &&
+                currentCardSelector !== optionVal
+            ) {
                 $(option).attr('disabled', 'disabled');
             } else if (!allChosenSelfCols.includes(optionVal)) {
                 $(option).removeAttr('disabled');
@@ -911,46 +884,59 @@ const updateSelectedColumns = (isForce = false) => {
     // }
 };
 
-
 const addTraceKey = (isNew = false) => {
     let unusedTargetCols = [];
     let unusedSelfCols = [];
     if (isNew) {
         unusedTargetCols = targetColCandidates.filter(
-            chosen => !targetChosenTraceKeys.find(remain => `${remain}` === `${chosen}`),
+            (chosen) =>
+                !targetChosenTraceKeys.find(
+                    (remain) => `${remain}` === `${chosen}`,
+                ),
         );
         unusedSelfCols = selfColCandidates.filter(
-            chosen => !selfChosenTraceKeys.find(remain => `${remain}` === `${chosen}`),
+            (chosen) =>
+                !selfChosenTraceKeys.find(
+                    (remain) => `${remain}` === `${chosen}`,
+                ),
         );
     }
     const selectedColumns = [];
     const idPostfix = `-${generateRandomString(5)}`;
 
-    const fwdColumns = addGroupListSelection('edgeForwardColParent', `edgeForwardCol${idPostfix}`, 'forwardCol',
+    const fwdColumns = addGroupListSelection(
+        'edgeForwardColParent',
+        `edgeForwardCol${idPostfix}`,
+        'forwardCol',
         targetColCandidates,
-        itemOrgCols = targetColCandidates,
-        itemAliases = targetColCandidates,
-        checkedVals = isNew ? [unusedTargetCols[0]] : selectedTargetCols,
-        itemDisplayNames = targetColCandidateMasters,
-        subStrOpt = isNew ? [] : targetSubStrOpt,
-        forwardCol = true,
-        clearOption = !isNew,
-        columnNames = targetColNames,
-        columnDataTypes = targetDataTypes,
-        targetChosenTraceKeys);
+        (itemOrgCols = targetColCandidates),
+        (itemAliases = targetColCandidates),
+        (checkedVals = isNew ? [unusedTargetCols[0]] : selectedTargetCols),
+        (itemDisplayNames = targetColCandidateMasters),
+        (subStrOpt = isNew ? [] : targetSubStrOpt),
+        (forwardCol = true),
+        (clearOption = !isNew),
+        (columnNames = targetColNames),
+        (columnDataTypes = targetDataTypes),
+        targetChosenTraceKeys,
+    );
 
-    const bwdColumns = addGroupListSelection('edgeBackColParent', `edgeBackCol${idPostfix}`, 'backCol',
+    const bwdColumns = addGroupListSelection(
+        'edgeBackColParent',
+        `edgeBackCol${idPostfix}`,
+        'backCol',
         selfColCandidates,
-        itemOrgs = selfColCandidates,
-        itemAliases = selfColCandidates,
-        checkedVals = isNew ? [unusedSelfCols[0]] : selectedSelfCols,
-        itemDisplayNames = selfColCandidateMasters,
-        subStrOpt = isNew ? [] : selfSubStrOpt,
-        forwardCol = false,
-        clearOption = !isNew,
-        columnNames = selfColNames,
-        columnDataTypes = selfDataTypes,
-        selfChosenTraceKeys);
+        (itemOrgs = selfColCandidates),
+        (itemAliases = selfColCandidates),
+        (checkedVals = isNew ? [unusedSelfCols[0]] : selectedSelfCols),
+        (itemDisplayNames = selfColCandidateMasters),
+        (subStrOpt = isNew ? [] : selfSubStrOpt),
+        (forwardCol = false),
+        (clearOption = !isNew),
+        (columnNames = selfColNames),
+        (columnDataTypes = selfDataTypes),
+        selfChosenTraceKeys,
+    );
 
     for (let i = 0; i < fwdColumns.length; i++) {
         if (bwdColumns[i] && fwdColumns[i]) {
@@ -977,7 +963,7 @@ const addTraceKey = (isNew = false) => {
 
     // update selected columns to disable selected columns
     updateSelectedColumns();
-    if (!isNew) {
+    if (!isNew && deltaTimes !== undefined) {
         updateDeltaTime();
     }
 
@@ -1003,11 +989,9 @@ const saveTraceConfigs = (edgesCfg) => {
         },
         body: JSON.stringify(edgesCfg),
     })
-        .then(response => response.clone().json())
-        .then((json) => {
-        })
-        .catch((json) => {
-        });
+        .then((response) => response.clone().json())
+        .then((json) => {})
+        .catch((json) => {});
 };
 
 const saveTraceConfigToDB = () => {
@@ -1019,16 +1003,18 @@ const saveTraceConfigToDB = () => {
 
     displayRegisterMessage(tracingElements.alertProcLink);
 
-
     // show msg
     informLinkingJobStarted();
 };
 
-
 const getV2OrderedProcesses = async (data) => {
-    const res = await fetchData('api/setting/get_v2_ordered_processes', JSON.stringify(data), 'POST');
+    const res = await fetchData(
+        'api/setting/get_v2_ordered_processes',
+        JSON.stringify(data),
+        'POST',
+    );
     return res.ordered_processes;
-}
+};
 
 const syncVisData = (procs = []) => {
     initVisData(procs);
@@ -1063,7 +1049,7 @@ const reloadTraceConfigFromDB = (isUpdatePosition = true) => {
             'Content-Type': 'application/json',
         },
     })
-        .then(response => response.clone().json())
+        .then((response) => response.clone().json())
         .then((json) => {
             // update new data
             const { procs } = JSON.parse(json.trace_config);
@@ -1114,7 +1100,6 @@ $(() => {
     // show register modal
     $('#btn-trace-config-register').click(() => {
         $('#regenerate-confirm-modal').modal('show');
-
     });
 
     // show reload confirm modal
@@ -1143,14 +1128,23 @@ $(() => {
     });
 });
 
-const updatePredictionNetwork = (networkContent, predictive, isUpdatePosition) => {
+const updatePredictionNetwork = (
+    networkContent,
+    predictive,
+    isUpdatePosition,
+) => {
     // update prediction to network
     updateNodeInfo(networkContent.nodes, predictive, isUpdatePosition);
     updateEdgeInfo(networkContent.edges, predictive);
 };
 
 // call backend API to save
-const calcProcLink = async (url, currentEdges, isPredictive = false, isUpdatePosition = true) => {
+const calcProcLink = async (
+    url,
+    currentEdges,
+    isPredictive = false,
+    isUpdatePosition = true,
+) => {
     let bodyData = null;
     if (currentEdges) {
         bodyData = JSON.stringify(currentEdges);
@@ -1161,12 +1155,22 @@ const calcProcLink = async (url, currentEdges, isPredictive = false, isUpdatePos
 
 // simulate proc link
 const simulateProcLink = (currentEdges) => {
-    calcProcLink('api/setting/simulate_proc_link', currentEdges, true, false).then();
+    calcProcLink(
+        'api/setting/simulate_proc_link',
+        currentEdges,
+        true,
+        false,
+    ).then();
 };
 
 // calc real proc link'
 const realProcLink = (isUpdatePosition) => {
-    calcProcLink('api/setting/count_proc_link', false, false, isUpdatePosition).then();
+    calcProcLink(
+        'api/setting/count_proc_link',
+        false,
+        false,
+        isUpdatePosition,
+    ).then();
 };
 
 const getProcNameFromLabel = (procId) => {
@@ -1178,20 +1182,35 @@ const getProcNameFromLabel = (procId) => {
     }
 };
 
-const updateNodeInfo = (predictionNodes, isPredictive = false, isUpdatePosition = true) => {
+const updateNodeInfo = (
+    predictionNodes,
+    isPredictive = false,
+    isUpdatePosition = true,
+) => {
     const nodesPos = getConfigOption().nodesPosition;
     for (const procId in predictionNodes) {
         const totalCount = applySignificantDigit(predictionNodes[procId]);
         const currentProcName = getProcNameFromLabel(procId);
         const color = isPredictive ? COLOR.prediction : COLOR.real;
-        const totalTitle = isPredictive ? i18nNames.nodeLinkTitlePred : i18nNames.nodeLinkTitleReal;
+        const totalTitle = isPredictive
+            ? i18nNames.nodeLinkTitlePred
+            : i18nNames.nodeLinkTitleReal;
         const title = `${totalCount} : ${totalTitle}`;
-        const xPostion = nodesPos && nodesPos[procId] ? nodesPos[procId].x : null;
-        const yPostion = nodesPos && nodesPos[procId] ? nodesPos[procId].y : null;
-        const nodePosition = xPostion !== null && yPostion !== null ? { x: xPostion, y: yPostion } : {};
-        const position = nodesPos && Object.keys(nodesPos).length > 0
-            && hierarchicalDirection !== NORMAL_TYPE
-            && isUpdatePosition ? nodePosition : {};
+        const xPostion =
+            nodesPos && nodesPos[procId] ? nodesPos[procId].x : null;
+        const yPostion =
+            nodesPos && nodesPos[procId] ? nodesPos[procId].y : null;
+        const nodePosition =
+            xPostion !== null && yPostion !== null
+                ? { x: xPostion, y: yPostion }
+                : {};
+        const position =
+            nodesPos &&
+            Object.keys(nodesPos).length > 0 &&
+            hierarchicalDirection !== NORMAL_TYPE &&
+            isUpdatePosition
+                ? nodePosition
+                : {};
 
         nodes.update({
             id: procId,
@@ -1220,7 +1239,9 @@ const updateEdgeInfo = (predictionEdges, isPredictive = false) => {
             continue;
         }
         const color = isPredictive ? COLOR.prediction : COLOR.real;
-        const linkTitle = isPredictive ? i18nNames.edgeLinkTitlePred : i18nNames.edgeLinkTitleReal;
+        const linkTitle = isPredictive
+            ? i18nNames.edgeLinkTitlePred
+            : i18nNames.edgeLinkTitleReal;
         const title = `${linkCount} : ${linkTitle}`;
         for (const edgeId of edges.getIds()) {
             const edgeData = edges.get(edgeId);
@@ -1250,39 +1271,45 @@ function networkRightClickHandler(e) {
 
     // trigger nodes
     network.off('oncontext');
-    network.on('oncontext', (params) => {
-        const nodeID = network.getNodeAt(params.pointer.DOM);
-        const edgeId = network.getEdgeAt(params.pointer.DOM);
-        const selectedNode = nodeID || params.nodes[0];
-        const selectedEdge = edgeId || params.edges[0];
-        if (!selectedEdge && !selectedNode) return;
+    network.on(
+        'oncontext',
+        (params) => {
+            const nodeID = network.getNodeAt(params.pointer.DOM);
+            const edgeId = network.getEdgeAt(params.pointer.DOM);
+            const selectedNode = nodeID || params.nodes[0];
+            const selectedEdge = edgeId || params.edges[0];
+            if (!selectedEdge && !selectedNode) return;
 
-        const menu = $('#contextMenuTraceCfg');
-        if (selectedNode) {
-            // hide edge items
-            $('.edge-item').hide();
-            $(menu).find('li').attr('data-node-id', selectedNode);
-            network.selectNodes([selectedNode]);
-        }
+            const menu = $('#contextMenuTraceCfg');
+            if (selectedNode) {
+                // hide edge items
+                $('.edge-item').hide();
+                $(menu).find('li').attr('data-node-id', selectedNode);
+                network.selectNodes([selectedNode]);
+            }
 
-        if (selectedEdge) {
-            $('.edge-item').show();
-            $(menu).find('li').attr('data-edge-id', selectedEdge);
-            network.selectEdges([selectedEdge]);
-        }
+            if (selectedEdge) {
+                $('.edge-item').show();
+                $(menu).find('li').attr('data-edge-id', selectedEdge);
+                network.selectEdges([selectedEdge]);
+            }
 
-        // show context menu when right click timeseries
-        const menuHeight = menu.height();
-        const windowHeight = $(window).height();
-        const left = params.event.clientX;
-        let top = params.event.clientY;
-        if (windowHeight - top < menuHeight) {
-            top -= menuHeight;
-        }
-        menu.css({
-            left: `${left}px`, top: `${top}px`, display: 'block',
-        });
-    }, false);
+            // show context menu when right click timeseries
+            const menuHeight = menu.height();
+            const windowHeight = $(window).height();
+            const left = params.event.clientX;
+            let top = params.event.clientY;
+            if (windowHeight - top < menuHeight) {
+                top -= menuHeight;
+            }
+            menu.css({
+                left: `${left}px`,
+                top: `${top}px`,
+                display: 'block',
+            });
+        },
+        false,
+    );
     return false;
 }
 
@@ -1331,14 +1358,14 @@ const addEdgesFromNode = (e) => {
     const nodeId = $('#contextMenuTraceCfg li').attr('data-node-id');
     const nodeList = Object.keys(processes);
     const indexFromNode = nodeList.indexOf(nodeId);
-    const indexToNode = indexFromNode === (nodeList.length - 1) ? 0 : indexFromNode + 1;
+    const indexToNode =
+        indexFromNode === nodeList.length - 1 ? 0 : indexFromNode + 1;
     const toNodeId = nodeList[indexToNode];
 
     // trigger to add edge to self node
     if (nodeId) {
         // add self trace as default
-        handleAddEdge({ from: nodeId, to: processes[toNodeId].id }, () => {
-        });
+        handleAddEdge({ from: nodeId, to: processes[toNodeId].id }, () => {});
     }
 };
 
@@ -1346,8 +1373,7 @@ const editSelectedEdge = (e) => {
     $('#contextMenuTraceCfg').hide();
     const edgeId = $('#contextMenuTraceCfg li').attr('data-edge-id');
     const edgeData = edges.get(edgeId);
-    handleEditEdge(edgeData, () => {
-    });
+    handleEditEdge(edgeData, () => {});
 };
 
 const removeSelectedEdge = (e) => {
@@ -1372,24 +1398,27 @@ const getEdgeFromUI = () => {
     const targetCols = [];
     const targetOrgCols = [];
     const targetSubStrs = [];
-    $('div[id^="edgeForwardCol-"]').find('.form-group').each(function f(idx) {
-        const isOptionDateTime = $(this).find(tracingElements.edgeConfigDatetime).length;
-        const colElement = $(this).find('select[name=forwardCol]');
-        const colAlias = $('option:selected', colElement).attr('alias');
-        const colOrg = $('option:selected', colElement).attr('original');
-        if (!isEmpty(colAlias)) targetCols.push(colAlias);
-        if (!isEmpty(colOrg)) targetOrgCols.push(colOrg);
+    $('div[id^="edgeForwardCol-"]')
+        .find('.form-group')
+        .each(function f(idx) {
+            const isOptionDateTime = $(this).find(
+                tracingElements.edgeConfigDatetime,
+            ).length;
+            const colElement = $(this).find('select[name=forwardCol]');
+            const colAlias = $('option:selected', colElement).attr('alias');
+            const colOrg = $('option:selected', colElement).attr('original');
+            if (!isEmpty(colAlias)) targetCols.push(colAlias);
+            if (!isEmpty(colOrg)) targetOrgCols.push(colOrg);
 
-        if (isOptionDateTime === 0) {
-            targetSubStrs.push(getMatchingDigits($(this)));
-            return;
-        }
-        targetSubStrs.push([]);
-    });
+            if (isOptionDateTime === 0) {
+                targetSubStrs.push(getMatchingDigits($(this)));
+                return;
+            }
+            targetSubStrs.push([]);
+        });
     edgeData.target_col = targetCols;
     edgeData.target_orig_col = targetOrgCols;
     edgeData.target_substr = targetSubStrs;
-
 
     // get Trace Self Data from modal
     const selfProcId = $('select[name="edgeBackProc"]').val();
@@ -1417,8 +1446,8 @@ const getEdgeFromUI = () => {
 
             if (isOptionDateTime === 0) {
                 selfSubStrs.push(getMatchingDigits($(this)));
-                deltaTimes.push(0);
-                cutOffs.push(0);
+                deltaTimes.push(null);
+                cutOffs.push(null);
             } else {
                 selfSubStrs.push([]);
                 const deltaTime = $(this)
@@ -1462,7 +1491,10 @@ const saveEditEdge = () => {
         return;
     }
 
-    validEdge = validateSubStr(edgeData.self_substr, edgeData.target_substr);
+    const validEdge = validateSubStr(
+        edgeData.self_substr,
+        edgeData.target_substr,
+    );
     if (!validEdge.is_valid) {
         displayRegisterMessage('#alertMsgCheckSubStr', {
             message: validEdge.message,
@@ -1470,17 +1502,14 @@ const saveEditEdge = () => {
         });
         return;
     }
-    // validate delta time
-    const isValidDeltaTimes = deltaDatetimes.every((element) => {
-        if (element === '') return true;
-        const number = Number(element);
-        return Number.isInteger(number);
-    });
-    const isValidCutOffs = cutOffs.every((element) => {
-        if (element === '') return true;
-        const number = Number(element);
-        return Number.isInteger(number);
-    });
+
+    // validate delta time and cut off
+    const isValidDeltaTimes = deltaDatetimes
+        .filter((v) => v !== null)
+        .every(isValidDatetimeInputValue);
+    const isValidCutOffs = cutOffs
+        .filter((v) => v !== null)
+        .every(isValidDatetimeInputValue);
     if (!isValidDeltaTimes || !isValidCutOffs) {
         displayRegisterMessage('#alertMsgCheckSubStr', {
             message: $('#i18nInvalidDeltaTime').text(),
@@ -1489,7 +1518,7 @@ const saveEditEdge = () => {
         return;
     }
 
-     // save data to external/global dict
+    // save data to external/global dict
     drawEdgeToGUI(edgeData);
 
     $('#modal-edge-popup').modal('hide');
@@ -1505,7 +1534,7 @@ const drawEdgeToGUI = (edgeData) => {
         edges.update(edgeData);
     }
     currentEditEdge = {};
-}
+};
 
 const cancelEditEdge = () => false;
 
@@ -1513,7 +1542,7 @@ const handleSwitchTraceConfig = (e) => {
     const edgeData = getEdgeFromUI();
     const keys = Object.keys(edgeData);
     const values = Object.values(edgeData);
-    const replacedKeys = keys.map(k => {
+    const replacedKeys = keys.map((k) => {
         let key = k;
         if (key === 'from') {
             key = 'to';
@@ -1547,8 +1576,7 @@ const handleSwitchTraceConfig = (e) => {
     replacedKeys.forEach((item, index) => {
         newEdgeData[item] = values[index];
     });
-    handleEditEdge(newEdgeData, () => {
-    });
+    handleEditEdge(newEdgeData, () => {});
 };
 
 const updateTraceConfig = (element, index) => {
@@ -1563,9 +1591,12 @@ const updateTraceConfig = (element, index) => {
     if (dataType === DataTypes.DATETIME.name) {
         const inputElement = `<div id="trace-config-datetime" class="trace-config-datetime mt-2 d-none">
                         <span class="deleteicon d-block"><input id="tracingConfigDatetime" class="form-control" placeholder="Datetime..."><span class="remove-config-datetime">x</span></span>
-                   </div>`
+                   </div>`;
 
-        if (targetColParent.find(tracingElements.edgeConfigDatetime).length === 0) {
+        if (
+            targetColParent.find(tracingElements.edgeConfigDatetime).length ===
+            0
+        ) {
             targetColParent.append(inputElement);
         }
 
@@ -1581,41 +1612,121 @@ const updateTraceConfig = (element, index) => {
             const innerHTML = `
             <div id="delta-datetime" class="container trace-config-delta-time pb-2" name="trace-config-delta-time-${index}">
                 <div class="form-group">
-                    <div class="row form-group col-md-5 mx-auto align-items-center">
-                        <span class="col-7">${i18nNames.linkWithTime}</span><input name="deltaDatetime" class="form-control col-5">
+                    <div class="row form-group col-md-8 mx-auto align-items-center">
+                        <span class="col-6 text-right">${i18nNames.linkWithTime}</span>
+                        <input name="deltaDatetime" class="form-control col-3" onchange="updateDatetimeReprValue(this)">
+                        <span class="col-3" name="${tracingElements.datetimeReprClassName}">00:00:00</span>
                     </div>
-                    <div class="row form-group col-md-5 mx-auto align-items-center d-none">
-                        <span class="col-7">${i18nNames.i18nCutOff}</span><input name="cutOff" class="form-control col-5">
+                    <div class="row form-group col-md-8 mx-auto align-items-center">
+                        <span class="col-6 text-right">${i18nNames.i18nCutOff}</span>
+                        <input name="cutOff" class="form-control col-3" onchange="updateDatetimeReprValue(this)">
+                        <span class="col-3" name="${tracingElements.datetimeReprClassName}">00:00:00</span>
                     </div>
                 </div>
             </div>
             `;
             $(elementParent).append(innerHTML);
+            updateDeltaTimeElement(
+                index,
+                DEFAULT_DELTA_TIME_DATA_LINK,
+                DEFAULT_CUTOFF_DATA_LINK,
+            );
         }
         return;
     }
 
     if (dataType !== DataTypes.DATETIME.name) {
         targetColParent.find(tracingElements.edgeConfigDatetime).remove();
-        targetColParent.parents().eq(1).find(tracingElements.deltaDatetime).remove();
+        targetColParent
+            .parents()
+            .eq(1)
+            .find(tracingElements.deltaDatetime)
+            .remove();
         targetColParent.find(tracingElements.edgeConfigSerial).show();
     }
-}
+};
 
 const updateDeltaTime = () => {
-    deltaTimes.forEach(function (deltaTime, index) {
-        const traceDeltaTimeEle = $('#traceInfoModal').find(
-            `div[name="trace-config-delta-time-${index + 1}"]`,
-        );
-        if (traceDeltaTimeEle.length) {
-            traceDeltaTimeEle
-                .find('input[name="deltaDatetime"]')
-                .first()
-                .val(deltaTime);
-            traceDeltaTimeEle
-                .find('input[name="cutOff"]')
-                .first()
-                .val(cutOffs[index]);
-        }
+    deltaTimes?.forEach(function (deltaTime, index) {
+        updateDeltaTimeElement(index + 1, deltaTime, cutOffs[index]);
     });
+};
+
+/**
+ *
+ * @param {number} index
+ * @param {number} deltaTime
+ * @param {number} cutOff
+ */
+const updateDeltaTimeElement = (index, deltaTime, cutOff) => {
+    const traceDeltaTimeEle = $('#traceInfoModal').find(
+        `div[name="trace-config-delta-time-${index}"]`,
+    );
+    if (traceDeltaTimeEle.length) {
+        traceDeltaTimeEle
+            .find('input[name="deltaDatetime"]')
+            .first()
+            .val(deltaTime)
+            .trigger('change');
+        traceDeltaTimeEle
+            .find('input[name="cutOff"]')
+            .first()
+            .val(cutOff)
+            .trigger('change');
+    }
+};
+
+/**
+ *
+ * @param {object} e
+ */
+const updateDatetimeReprValue = (e) => {
+    const elem = $(e);
+
+    const reprElem = elem
+        .siblings(`span[name="${tracingElements.datetimeReprClassName}"]`)
+        .first();
+
+    const { valid, value } = parseDateTimeByMinute(e.value);
+    if (!valid) {
+        elem.addClass(BORDER_RED_CLASS);
+    } else {
+        elem.removeClass(BORDER_RED_CLASS);
+    }
+
+    reprElem.text(value);
+};
+
+/**
+ *
+ * @param {string} s
+ * @return {boolean}
+ */
+const isValidDatetimeInputValue = (s) => {
+    return s.trim().length !== 0 && !Number.isNaN(Number(s));
+};
+
+/**
+ *
+ * @param {string} minuteString
+ * @return {{valid: boolean, value: string}}
+ */
+const parseDateTimeByMinute = (minuteString) => {
+    const isValid = isValidDatetimeInputValue(minuteString);
+
+    const minuteNumber = Number(minuteString);
+    const hours = Math.floor(minuteNumber / 60);
+    const minutes = Math.floor(minuteNumber - hours * 60);
+    const seconds = Math.floor(minuteNumber * 60 - minutes * 60 - hours * 3600);
+
+    const padNumber = (e) => String(e).padStart(2, '0');
+
+    const parsedValue = isValid
+        ? `${padNumber(hours)}:${padNumber(minutes)}:${padNumber(seconds)}`
+        : '--:--:--';
+
+    return {
+        valid: isValid,
+        value: parsedValue,
+    };
 };

@@ -11,11 +11,12 @@ import sys
 import zipfile
 from collections import OrderedDict
 from datetime import datetime, timedelta
+from enum import Enum
 from io import IOBase
 from itertools import permutations
 from multiprocessing import Manager
 from pathlib import Path
-from typing import IO, List, TextIO, Union
+from typing import IO, Any, List, TextIO, Union
 
 import chardet
 import numpy as np
@@ -26,7 +27,9 @@ from dateutil import parser, tz
 from dateutil.relativedelta import relativedelta
 from flask import g
 from flask_assets import Bundle, Environment
-from pandas import DataFrame
+from pandas import DataFrame, Series
+from pandas.io import parquet
+from pyarrow import feather
 
 from ap.common.constants import (
     ANALYSIS_INTERFACE_ENV,
@@ -34,9 +37,13 @@ from ap.common.constants import (
     ENCODING_SHIFT_JIS,
     ENCODING_UTF_8,
     ENCODING_UTF_8_BOM,
+    INT64_MAX,
+    INT64_MIN,
     LANGUAGES,
     PROCESS_QUEUE,
     SAFARI_SUPPORT_VER,
+    SCP_HMP_X_AXIS,
+    SCP_HMP_Y_AXIS,
     SQL_COL_PREFIX,
     UNIVERSAL_DB_FILE,
     ZERO_FILL_PATTERN,
@@ -45,6 +52,8 @@ from ap.common.constants import (
     AppEnv,
     CsvDelimiter,
     CSVExtTypes,
+    DataType,
+    FileExtension,
     FilterFunc,
     FlaskGKey,
     ListenNotifyType,
@@ -74,6 +83,18 @@ FREQ_FOR_RANGE = {'year': 'M', 'month': 'D', 'week': 'H'}
 
 def get_current_timestamp(format_str=DATE_FORMAT_STR):
     return datetime.utcnow().strftime(format_str)
+
+
+class PostgresFormatStrings(Enum):
+    DATE = '%Y-%m-%d'
+    TIME = '%H:%M:%S'
+    DATETIME = '%Y-%m-%d %H:%M:%S.%f'
+
+
+class SQLiteFormatStrings(Enum):
+    DATE = '%Y-%m-%d'
+    TIME = '%H:%M:%S'
+    DATETIME = '%Y-%m-%d %H:%M:%S'
 
 
 def parse_int_value(value):
@@ -341,6 +362,21 @@ def add_years(time=datetime.utcnow(), years=0):
     return time + relativedelta(years=years)
 
 
+def add_months(time=datetime.utcnow(), months=0):
+    """add months
+
+    Keyword Arguments:
+        time {[type]} -- [description] (default: {datetime.now()})
+        months {int} -- [description] (default: {0})
+
+    Returns:
+        [type] -- [description]
+    """
+    if isinstance(time, str):
+        time = parser.parse(time)
+    return time + relativedelta(months=months)
+
+
 @log_execution_time()
 def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_only=False):
     """get files in folder
@@ -560,6 +596,16 @@ def get_data_path(abs=True, is_log=False):
     return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
 
 
+def get_instance_path(abs=True):
+    """get data folder path
+
+    Returns:
+        [type] -- [description]
+    """
+    folder_name = 'instance'
+    return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
+
+
 def get_error_trace_path(abs=True):
     """get import folder path
 
@@ -684,6 +730,19 @@ def get_etl_path(*sub_paths):
     return resource_path(data_folder, folder_name, *sub_paths, level=AbsPath.SHOW)
 
 
+def get_backup_data_path():
+    folder_name = 'backup_data'
+    data_folder = get_data_path()
+    return resource_path(data_folder, folder_name, level=AbsPath.SHOW)
+
+
+def get_backup_data_folder(process_id):
+    folder = get_backup_data_path()
+    if not check_exist(folder):
+        os.makedirs(folder)
+    return os.path.join(folder, str(process_id))
+
+
 # def df_chunks(df, size):
 #     """Yield n-sized chunks from dataframe."""
 #     if df.columns.size == 0:
@@ -717,9 +776,7 @@ def get_base_dir(path, is_file=True):
 
 
 def make_dir(dir_path):
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-
+    os.makedirs(dir_path, exist_ok=True)
     return True
 
 
@@ -759,6 +816,43 @@ def set_sqlite_params(conn):
     cursor.execute('pragma mmap_size = 30000000000')
     cursor.execute('PRAGMA temp_store=MEMORY')
     cursor.close()
+
+
+# get x_y info for scp and heatmap page
+def get_x_y_info(array_formval, dic_param_common):
+    scatter_xy_ids = []
+    scatter_proc_ids = []
+    scatter_xy_names = []
+
+    x_axis = dic_param_common.get(SCP_HMP_X_AXIS)
+    y_axis = dic_param_common.get(SCP_HMP_Y_AXIS)
+
+    # if no x_axis or y_axis in payload, no switch XY (may not have this case)
+    if not x_axis or not y_axis:
+        for proc in array_formval:
+            scatter_proc_ids.append(proc.proc_id)
+            scatter_xy_ids = scatter_xy_ids + proc.col_ids
+            scatter_xy_names = scatter_xy_names + proc.col_names
+    else:
+        x_proc, x_column_id = map(int, x_axis.split('-'))
+        y_proc, y_column_id = map(int, y_axis.split('-'))
+
+        scatter_proc_ids += [x_proc, y_proc]
+        scatter_xy_ids += [x_column_id, y_column_id]
+
+        # get x_y name based on proc_id and column_id in dict_array
+        def get_name(dict_array, find_proc_id, find_column_id):
+            for proc in dict_array:
+                if proc.proc_id == find_proc_id:
+                    index = proc.col_ids.index(find_column_id)
+                    return proc.col_names[index]
+
+        x_name = get_name(array_formval, x_proc, x_column_id)
+        y_name = get_name(array_formval, y_proc, y_column_id)
+
+        scatter_xy_names += [x_name, y_name]
+
+    return scatter_xy_ids, scatter_xy_names, scatter_proc_ids
 
 
 def gen_sql_label(*args):
@@ -978,6 +1072,56 @@ def write_to_pickle(data, file):
 
     with open(file, 'wb') as f:
         pickle.dump(data, f)
+    return file
+
+
+def read_feather_file(file):
+    # df = pd.read_feather(file)
+    df = feather.read_feather(file)
+    return df
+
+
+def read_parquet_file(file):
+    df = parquet.read_parquet(file)
+    return df
+
+
+def write_feather_file(df: DataFrame, file):
+    make_dir_from_file_path(file)
+    # df.reset_index(drop=True, inplace=True)
+    # df.to_feather(file, compression='lz4')
+    # Use LZ4 explicitly
+    if len(file) > 255:
+        file = f'{file[:250]}.{FileExtension.Feather.value}'
+
+    try:
+        feather.write_feather(df.reset_index(drop=True), file, compression='lz4')
+    except Exception as e:
+        print(str(e))
+        for col in df.columns:
+            if df[col].dtype.name in ('object', 'category'):
+                df[col] = np.where(pd.isnull(df[col]), None, df[col].astype(str))
+                # df[col] = df[col].astype('category') # error in some cases
+        feather.write_feather(df.reset_index(drop=True), file, compression='lz4')
+
+    return file
+
+
+def write_parquet_file(df: DataFrame, file):
+    make_dir_from_file_path(file)
+    if len(file) > 255:
+        file = f'{file[:250]}.{FileExtension.Feather.value}'
+
+    try:
+        parquet.to_parquet(df.reset_index(drop=True), file, compression='gzip')
+    except Exception as e:
+        print(str(e))
+        for col in df.columns:
+            if df[col].dtype.name in ('object', 'category'):
+                df[col] = np.where(pd.isnull(df[col]), None, df[col].astype(str))
+                # df[col] = df[col].astype('category') # error in some cases
+        parquet.to_parquet(df.reset_index(drop=True), file, compression='gzip')
+
     return file
 
 
@@ -1323,3 +1467,95 @@ def get_type_all_columns(db_instance, table_name: str):
     types = df['type'].tolist()
     dict_name_type = dict(zip(names, types))
     return dict_name_type
+
+
+def get_month_diff(str_min_datetime, str_max_datetime):
+    min_datetime = parser.parse(str_min_datetime)
+    max_datetime = parser.parse(str_max_datetime)
+    diff = relativedelta(max_datetime, min_datetime)
+    return diff.years * 12 + diff.months
+
+
+def is_boolean(data: Series):
+    return (data >= 0) & (data <= 1)
+
+
+def is_int_64(data: Series):
+    return (data >= INT64_MIN) & (data <= INT64_MAX)
+
+
+def convert_numeric_by_type(data: Series, provided_data_type):
+    s = data[data.notnull()]
+    if provided_data_type == DataType.BOOLEAN.name:
+        s = s[((np.mod(s, 1) == 0) & is_boolean(s))]
+        data = data.where(data.isin(s), np.nan)
+    elif provided_data_type in DataType.INTEGER.name:
+        s = s[((np.mod(s, 1) == 0) & is_int_64(s))]
+        data = data.where(data.isin(s), np.nan)
+    return data
+
+
+def find_duplicate_values(key_value_dict: dict[Any, str]) -> dict[str, Any]:
+    """Find duplicate values in dictionary
+
+    Args:
+        key_value_dict: dictionary with duplicate values
+
+    Returns:
+        a dictionary with
+
+        - key: duplicate value of input dictionary
+
+        - value: list of keys that contain duplicate values
+    """
+
+    # find duplicate values
+    values = list(key_value_dict.values())
+    duplicate_values = [value for value in values if values.count(value) > 1]
+
+    # find keys belongs to duplicate values
+    duplicate_value_item = {}
+    for key, value in key_value_dict.items():
+        if value in duplicate_values:
+            duplicate_value_item[value] = (duplicate_value_item.get(value) or []) + [key]
+
+    # sort keys by alphabet
+    for key in duplicate_value_item.keys():
+        duplicate_value_item[key].sort()
+
+    return duplicate_value_item
+
+
+def add_suffix_for_same_column_name(key_value_dict: dict[Any, str]):
+    """Add suffix for duplicate names in dictionary
+
+    Args:
+        key_value_dict: dictionary with duplicate names
+
+    Returns:
+        dictionary with unique names (added suffix for duplicate names)
+    """
+
+    output = copy.deepcopy(key_value_dict)
+    duplicate_value_item = find_duplicate_values(key_value_dict)
+    for duplicate_value, keys in duplicate_value_item.items():
+        suffix_index = 1
+        for key in keys[1:]:  # skip first element in list
+            output[key] = f'{output[key]}_{suffix_index:02}'
+            suffix_index += 1
+
+    return output
+
+
+def get_preview_data_file_folder(data_source_id):
+    folder = get_preview_data_path()
+    if not check_exist(folder):
+        os.makedirs(folder)
+
+    return os.path.join(folder, str(data_source_id))
+
+
+def get_preview_data_path():
+    folder_name = 'preview_data'
+    data_folder = get_instance_path()
+    return resource_path(data_folder, folder_name, level=AbsPath.SHOW)

@@ -8,6 +8,7 @@ import pandas as pd
 from sklearn.metrics import confusion_matrix
 
 from ap.api.common.services.show_graph_services import (
+    convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
     get_data_from_db,
@@ -119,6 +120,8 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
         dic_param[UNIQUE_SERIAL] = unique_serial
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
 
+    convert_datetime_to_ct(df, graph_param)
+
     dic_param = filter_cat_dict_common(
         df,
         dic_param,
@@ -158,7 +161,6 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
         df_sensors: pd.DataFrame = df[dic_label_id]
         df_sensors = df_sensors.rename(columns=dic_label_id)
         df_sensors, data_clean, errors, err_cols, dic_null_percent, dic_var = clean_input_data(df_sensors)
-
         if data_clean and not errors:
             # prepare column names and process names
             y_id = graph_param.common.objective_var
@@ -313,8 +315,14 @@ def clean_input_data(df: pd.DataFrame):
 
     # drop > 50% NA column before drop NA to calculate variance
     df_drop = df.drop(remove_cols, axis=1)
+    original_dtypes = df_drop.dtypes
 
     df_drop = df_drop.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna(how='any')
+    # After dropping NA, int columns will be converted to float
+    # convert int columns back to their original datatypes of the dataframe
+    for column in df_drop.columns:
+        if original_dtypes.get(column).name == pd.Int64Dtype().name:
+            df_drop[column] = df_drop[column].astype(original_dtypes.get(column))
 
     is_zero_var, err_cols = zero_variance(df_drop)
     if is_zero_var:
@@ -383,6 +391,7 @@ def plot_sankey_grplasso(dic_skd: defaultdict):
             'target': dic_skd['target'],
             'value': dic_skd['edge_value'],
             'color': dic_skd['edge_color'],
+            'relationship': dic_skd['relationship'],
         },
     }
     return sankey_trace

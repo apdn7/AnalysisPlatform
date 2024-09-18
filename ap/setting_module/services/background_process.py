@@ -288,7 +288,7 @@ def send_processing_info(
             'process_id': job.process_id,
             'is_first_imported': False,
         }
-        dic_progress[job.id] = (dic_register_progress, AnnounceEvent.DATA_REGISTER.name)
+        dic_progress[f'{job.id}_register_by_file'] = (dic_register_progress, AnnounceEvent.DATA_REGISTER.name)
 
 
 def update_job_management(job, err=None):

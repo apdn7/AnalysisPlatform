@@ -36,7 +36,7 @@
 
 #plot-cards table thead:after {
     line-height: 0px;
-    content: "\200C";
+    content: '\200C';
     display: block;
 }
 
@@ -111,12 +111,12 @@
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(0, 0, 0, .5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
 
 .loading::before {
-    content: "";
+    content: '';
     display: block;
     position: fixed;
     left: 50%;
@@ -130,7 +130,7 @@
 }
 
 .loading::after {
-    content: "";
+    content: '';
     display: block;
     position: fixed;
     left: 50%;
@@ -140,7 +140,7 @@
     border-radius: 40px;
     margin-top: -10px;
     margin-left: -10px;
-    border: 4px solid #60ABB9;
+    border: 4px solid #60abb9;
     border-right: 4px solid white;
     animation: rotate 1s infinite linear;
 }
@@ -149,7 +149,8 @@
     min-width: 130px;
 }
 
-.item-name, .prc-name {
+.item-name,
+.prc-name {
     color: #65c5f1;
     text-align: center;
     vertical-align: middle;
@@ -206,26 +207,25 @@
     right: 0;
     bottom: 0;
     background-color: #434343;
-    -webkit-transition: .4s;
-    transition: .4s;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
 }
 
 .slider:before {
     position: absolute;
-    content: "";
+    content: '';
     height: 28px;
     width: 28px;
     left: 0px;
     bottom: 0px;
     background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
 }
 
 input.primary:checked + .slider {
     background-color: #375a7f;
 }
-
 
 input:focus + .slider {
     box-shadow: 0 0 1px #375a7f;
@@ -308,7 +308,8 @@ input:checked + .slider:before {
     text-decoration: underline;
 }
 
-.hist-summary, .hist-summary-detail {
+.hist-summary,
+.hist-summary-detail {
     font-size: 0.8vw;
     display: none;
 }
@@ -400,7 +401,7 @@ input:checked + .slider:before {
 .cate-value .cate-tooltip {
     visibility: hidden;
     width: 400px;
-    background-color: rgba(8, 8, 8, .6);
+    background-color: rgba(8, 8, 8, 0.6);
     color: #fff;
     text-align: left;
     font-size: 11px;
@@ -472,10 +473,10 @@ input:checked + .slider:before {
 .cross.h.left,
 .cross.v.right,
 .cross.h.right,
-.cross[id$="left-v"],
-.cross[id$="left-h"],
-.cross[id$="right-v"],
-.cross[id$="right-h"],
+.cross[id$='left-v'],
+.cross[id$='left-h'],
+.cross[id$='right-v'],
+.cross[id$='right-h'],
 .cross.cross-anchor {
     height: fit-content;
 }
@@ -578,7 +579,8 @@ span.btn-anchor {
     z-index: 100;
 }
 
-span.btn-anchor.pin, span.btn-anchor:hover {
+span.btn-anchor.pin,
+span.btn-anchor:hover {
     color: white;
 }
 
@@ -608,7 +610,8 @@ span.btn-anchor.pin, span.btn-anchor:hover {
     text-align: center;
 }
 
-#serialTable th, #serialTable td {
+#serialTable th,
+#serialTable td {
     padding: 0.5rem;
 }
 
@@ -633,7 +636,7 @@ span.btn-anchor.pin, span.btn-anchor:hover {
 .whisker {
     max-width: 4vw;
     min-width: 3vw;
-    height: calc(15vw - 1rem) !important
+    height: calc(15vw - 1rem) !important;
 }
 
 .time-series {
@@ -676,12 +679,12 @@ span.btn-anchor.pin, span.btn-anchor:hover {
 .show-more-btn {
     cursor: pointer;
     display: inline-block;
-    padding: 0 .5em;
+    padding: 0 0.5em;
     margin-top: 5px;
     color: #666;
     line-height: 2;
     border: 1px solid #ddd;
-    border-radius: .25em;
+    border-radius: 0.25em;
 }
 
 .show-more-div {
@@ -692,9 +695,9 @@ span.btn-anchor.pin, span.btn-anchor:hover {
     position: relative;
 }
 
-.histogram-tab-content.tab-content>.tab-pane:not(:first-child) {
+.histogram-tab-content.tab-content > .tab-pane:not(:first-child) {
     position: absolute;
-    display: block!important;
+    display: block !important;
     width: 100%;
     height: 100%;
     visibility: hidden;
@@ -704,11 +707,11 @@ span.btn-anchor.pin, span.btn-anchor:hover {
     z-index: -1;
 }
 
-.histogram-tab-content.tab-content>.active {
-    position: static!important;
+.histogram-tab-content.tab-content > .active {
+    position: static !important;
     display: block;
-    visibility: visible!important;
-    opacity: 1!important;
+    visibility: visible !important;
+    opacity: 1 !important;
     z-index: unset;
 }
 

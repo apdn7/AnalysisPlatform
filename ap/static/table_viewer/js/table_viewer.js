@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
 const tableSpecialCharRegex = /\/|\*|"| /g;
 const cachedColumns = {};
 let dataTableInstance = null;
@@ -36,13 +34,12 @@ const getAllDatabaseConfigTbView = async () => {
             'Content-Type': 'application/json',
         },
     })
-        .then(response => response.clone().json())
+        .then((response) => response.clone().json())
         .catch();
 
     return json;
 };
 
-// eslint-disable-next-line no-unused-vars
 const getColumnNames = async (database, tableName) => {
     if (!database || !tableName) return {};
 
@@ -55,14 +52,18 @@ const getColumnNames = async (database, tableName) => {
     }
 
     // get columns from db
-    const url = new URL('/ap/api/table_viewer/column_names', window.location.href).href;
+    const url = new URL(
+        '/ap/api/table_viewer/column_names',
+        window.location.href,
+    ).href;
     const params = {
         database,
         table: replacedTableName,
     };
     const paramString = new URLSearchParams(params);
-    const json = await fetch(`${url}?${paramString.toString()}`)
-        .then(response => response.clone().json());
+    const json = await fetch(`${url}?${paramString.toString()}`).then(
+        (response) => response.clone().json(),
+    );
 
     // add columns to cache
     if (cachedColumns[database]) {
@@ -81,15 +82,19 @@ const showSortColumnOptions = async (procId) => {
         ele.sortSelection.empty();
         ele.sortSelection.append(sortSelectionHTML);
         return;
-    };
+    }
 
-    const res = await fetchData(`/ap/api/setting/proc_filter_config/${procId}`, {}, 'GET');
+    const res = await fetchData(
+        `/ap/api/setting/proc_table_viewer_columns/${procId}`,
+        {},
+        'GET',
+    );
     const procCfg = res.data;
     const procColumns = res.data.columns;
 
     const tableName = procCfg.data_source.db_detail ? procCfg.table_name : '';
 
-    setDbsAndTableInfo(procCfg.data_source.id, tableName)
+    setDbsAndTableInfo(procCfg.data_source.id, tableName);
     // show loading icon
     $(ele.tblViewerSpinner).toggleClass('spinner-grow');
 
@@ -98,7 +103,11 @@ const showSortColumnOptions = async (procId) => {
     if (procColumns.length) {
         procColumns.forEach((col) => {
             const columnName = col.column_raw_name || col.column_name;
-            sortSelectionHTML += buildOptionHTML(col.column_name, col.shown_name, columnName);
+            sortSelectionHTML += buildOptionHTML(
+                col.column_name,
+                col.shown_name,
+                columnName,
+            );
         });
     }
 
@@ -107,9 +116,14 @@ const showSortColumnOptions = async (procId) => {
     addAttributeToElement();
 };
 
-const queryRecordsFromDB = ((databaseCode, tableName,
-    sortColumn = null, sortOrder = 'DESC', limit = null,
-    callbackFunc = null) => {
+const queryRecordsFromDB = (
+    databaseCode,
+    tableName,
+    sortColumn = null,
+    sortOrder = 'DESC',
+    limit = null,
+    callbackFunc = null,
+) => {
     const data = {
         database_code: databaseCode,
         table_name: tableName,
@@ -125,7 +139,7 @@ const queryRecordsFromDB = ((databaseCode, tableName,
         },
         body: JSON.stringify(data),
     })
-        .then(response => response.clone().json())
+        .then((response) => response.clone().json())
         .then((json) => {
             loadingShow(true);
             if (callbackFunc) {
@@ -137,7 +151,7 @@ const queryRecordsFromDB = ((databaseCode, tableName,
             loadingHide();
             setTimeout(loadingHide, 0);
         });
-});
+};
 
 const setDbsAndTableInfo = (dbsCode, tableName) => {
     ele.dbsCodeInput.val(dbsCode);
@@ -170,7 +184,10 @@ const getLanguage = () => {
         ja: 'Japanese',
     };
     const locale = docCookies.getItem('locale');
-    const url = new URL(`/ap/static/table_viewer/lang/${langMap[locale]}.json`, window.location.href).href;
+    const url = new URL(
+        `/ap/static/table_viewer/lang/${langMap[locale]}.json`,
+        window.location.href,
+    ).href;
     return url;
 };
 
@@ -268,28 +285,28 @@ $(() => {
         cleanViewTable();
         loadingShow();
 
-        const {
-            databaseCode,
-            tableName,
-            sortColumn,
-            sortOrder,
-            limit,
-        } = getFormInput();
+        const { databaseCode, tableName, sortColumn, sortOrder, limit } =
+            getFormInput();
 
         if (!databaseCode) {
             setTimeout(loadingHide, 0);
             return;
         }
-        queryRecordsFromDB(databaseCode, tableName,
-            sortColumn, sortOrder, limit,
-            showRecordsToViewTable);
+        queryRecordsFromDB(
+            databaseCode,
+            tableName,
+            sortColumn,
+            sortOrder,
+            limit,
+            showRecordsToViewTable,
+        );
     });
     ele.tableSelection.select2();
     ele.sortSelection.select2();
 
     // Load userBookmarkBar
     $('#userBookmarkBar').show();
-    
+
     // show load settings menu
     handleLoadSettingBtns();
 });

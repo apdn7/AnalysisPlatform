@@ -3,11 +3,11 @@
     display: table;
     border-collapse: collapse;
     height: 80vh;
-    width: inherit
+    width: inherit;
 }
 
 .node-label-text-path {
-    fill: #FFFFFF !important;
+    fill: #ffffff !important;
     text-shadow: none !important;
 }
 
@@ -52,7 +52,7 @@ canvas {
 
 /* Clear floats after the columns */
 .chart-row:after {
-    content: "";
+    content: '';
     display: table;
     clear: both;
 }

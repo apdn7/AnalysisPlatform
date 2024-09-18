@@ -46,7 +46,7 @@ canvas {
 
 /* Clear floats after the columns */
 .chart-row:after {
-    content: "";
+    content: '';
     display: table;
     clear: both;
 }
@@ -144,11 +144,11 @@ canvas {
 }
 
 .colorbar .js-plotly-plot .plotly .main-svg {
-    background-color: transparent!important;
+    background-color: transparent !important;
 }
 
 .colorbar .legend .bg {
-    fill: transparent!important;
+    fill: transparent !important;
     z-index: 9999;
 }
 
@@ -262,7 +262,7 @@ canvas {
     right: 50%;
 }
 #navigation-bar [data-title]::before {
-    content: "";
+    content: '';
     position: absolute;
     background: transparent;
     border-width: 6px;

@@ -619,10 +619,12 @@ def transform_duplicated_col_suffix_to_pandas_col(dic_valid_csv_cols, dic_origin
             if len(matched) > 1 and matched[-1].isdigit():
                 digit = int(matched[-1])
                 if (digit - 1) > 0:
+                    # the rest of the column name except for the suffix
                     s = '_'.join(matched[0:-1])
                     col_names.append(f'{s}.{digit-1}')
                 else:
-                    col_names.append(matched[0])
+                    # case a_01 -> a
+                    col_names.append('_'.join(matched[0:-1]))
             else:
                 col_names.append(org_col_name)
         else:

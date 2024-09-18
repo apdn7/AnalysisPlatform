@@ -1,5 +1,8 @@
-/* eslint-disable */
-const calculateSummaryData = (summaries = {}, summaryIdx = 0, isHideNonePoint = false) => {
+const calculateSummaryData = (
+    summaries = {},
+    summaryIdx = 0,
+    isHideNonePoint = false,
+) => {
     const summary = summaries[summaryIdx] || {};
 
     const summaryData = {
@@ -35,20 +38,26 @@ const calculateSummaryData = (summaries = {}, summaryIdx = 0, isHideNonePoint = 
         cp: getNode(summary, ['basic_statistics', 'Cp'], '-') || '-',
         cpk: getNode(summary, ['basic_statistics', 'Cpk'], '-') || '-',
         maxValue: getNode(summary, ['basic_statistics', 'Max'], '0') || '0',
-        maxValueOrg: getNode(summary, ['basic_statistics', 'max_org'], '0') || '0',
+        maxValueOrg:
+            getNode(summary, ['basic_statistics', 'max_org'], '0') || '0',
         minValue: getNode(summary, ['basic_statistics', 'Min'], '0') || '0',
-        minValueOrg: getNode(summary, ['basic_statistics', 'min_org'], '0') || '0',
-        bsAverage: getNode(summary, ['basic_statistics', 'average'], '0') || '0',
+        minValueOrg:
+            getNode(summary, ['basic_statistics', 'min_org'], '0') || '0',
+        bsAverage:
+            getNode(summary, ['basic_statistics', 'average'], '0') || '0',
         sigma: getNode(summary, ['basic_statistics', 'sigma'], '0') || '0',
         sigma3: getNode(summary, ['basic_statistics', 'sigma_3'], '0') || '0',
-        tnStats: getNode(summary, ['basic_statistics', 't_n_stats'], '-') || '-',
+        tnStats:
+            getNode(summary, ['basic_statistics', 't_n_stats'], '-') || '-',
         tcp: getNode(summary, ['basic_statistics', 't_cp'], '-') || '-',
         tcpk: getNode(summary, ['basic_statistics', 't_Cpk'], '-') || '-',
         tmaxValue: getNode(summary, ['basic_statistics', 't_max'], '0') || '0',
         tminValue: getNode(summary, ['basic_statistics', 't_min'], '0') || '0',
-        tbsAverage: getNode(summary, ['basic_statistics', 't_average'], '0') || '0',
+        tbsAverage:
+            getNode(summary, ['basic_statistics', 't_average'], '0') || '0',
         tsigma: getNode(summary, ['basic_statistics', 't_sigma'], '0') || '0',
-        tsigma3: getNode(summary, ['basic_statistics', 't_sigma_3'], '0') || '0',
+        tsigma3:
+            getNode(summary, ['basic_statistics', 't_sigma_3'], '0') || '0',
         // non-parametric
         median: getNode(summary, ['non_parametric', 'median'], '0') || '0',
         p5: getNode(summary, ['non_parametric', 'p5'], '0') || '0',
@@ -57,8 +66,10 @@ const calculateSummaryData = (summaries = {}, summaryIdx = 0, isHideNonePoint = 
         p75Q3: getNode(summary, ['non_parametric', 'p75'], '0') || '0',
         p75Q3Org: getNode(summary, ['non_parametric', 'p75_org'], '0') || '0',
         p95: getNode(summary, ['non_parametric', 'p95'], '0') || '0',
-        numOverLower: getNode(summary, ['non_parametric', 'num_over_lower'], '0') || '0',
-        numOverUpper: getNode(summary, ['non_parametric', 'num_over_upper'], '0') || '0',
+        numOverLower:
+            getNode(summary, ['non_parametric', 'num_over_lower'], '0') || '0',
+        numOverUpper:
+            getNode(summary, ['non_parametric', 'num_over_upper'], '0') || '0',
         iqr: getNode(summary, ['non_parametric', 'iqr'], '-') || '-',
         niqr: getNode(summary, ['non_parametric', 'niqr'], '-') || '-',
         mode: getNode(summary, ['non_parametric', 'mode'], '0') || '0',
@@ -80,17 +91,32 @@ const calculateSummaryData = (summaries = {}, summaryIdx = 0, isHideNonePoint = 
     return summaryData;
 };
 
-
 const isHideNoneDataPoint = (procId, colId, isRemoveOutlier) => {
     const col = procConfigs[procId].getColumnById(colId) || {};
     const isCTCol = isCycleTimeCol(procId, colId);
 
-    const isHideNonePoint = (Boolean(isRemoveOutlier) && [DataTypes.REAL.name, DataTypes.INTEGER.name].includes(col.data_type)) || isCTCol;
+    const isHideNonePoint =
+        (Boolean(isRemoveOutlier) &&
+            [
+                DataTypes.REAL.name,
+                DataTypes.INTEGER.name,
+                DataTypes.TEXT.name,
+            ].includes(col.data_type)) ||
+        isCTCol;
     return isHideNonePoint;
-}
+};
 
-const buildSummaryResultsHTML = (summaryOption, tableIndex, generalInfo, beforeRankValues = null, stepChartSummary = null) => {
-    const [nTotalHTML, noLinkedHTML] = genTotalAndNonLinkedHTML(summaryOption, generalInfo);
+const buildSummaryResultsHTML = (
+    summaryOption,
+    tableIndex,
+    generalInfo,
+    beforeRankValues = null,
+    stepChartSummary = null,
+) => {
+    const [nTotalHTML, noLinkedHTML] = genTotalAndNonLinkedHTML(
+        summaryOption,
+        generalInfo,
+    );
 
     if (beforeRankValues) {
         let stepChartStatHTML = '';
@@ -102,14 +128,16 @@ const buildSummaryResultsHTML = (summaryOption, tableIndex, generalInfo, beforeR
         </tr>`;
         if (stepChartSummary) {
             let stepChartStatUnLinkedHTML = '';
-            const naAfterLinked = stepChartSummary.n_na - summaryOption.countUnlinked;
+            const naAfterLinked =
+                stepChartSummary.n_na - summaryOption.countUnlinked;
             if (`${generalInfo.endProcName}` !== `${generalInfo.startProc}`) {
                 stepChartStatUnLinkedHTML = `<tr>
                     <td><span class="">N<sub>NoLinked</sub></span></td>
                     <td>${applySignificantDigit(summaryOption.countUnlinked)} (${applySignificantDigit(summaryOption.noLinkedPct)}%)</td>
                 </tr>`;
             }
-            const naAfterLinkedPctg = stepChartSummary.n_na_pctg - summaryOption.noLinkedPct;
+            const naAfterLinkedPctg =
+                stepChartSummary.n_na_pctg - summaryOption.noLinkedPct;
             stepChartNTotalHTML = `<tr>
                     <td><span class="hint-text" title="${i18nCommon.hoverNTotal}">N<sub>total</sub></span></td>
                     <td>

@@ -1,152 +1,269 @@
 {% extends "base.html" %}
 {% block header %}
-<div class="row">
-    <div class="col-9">
-        <div class="page-title graph-navi">
-            <h2>{{ page_title }}</h2>
-        </div>
-        <div style="color:white">
-            <i class="fas fa-external-link-alt"></i>
-            <a href="/ap/config/job/failed" target="_blank" style="font-size: 18px"><u>{{ _('Failed Job List') }}</u></a>
-        </div>
-    </div>
-    <div class="col">
-        <div class="form-group" style="margin-top: 10px;">
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="genGlobalID" name="filterJobs"
-                    value="GEN_GLOBAL">
-                <label class="custom-control-label" for="genGlobalID">{{ _('SHOW_GEN_GLOBAL') }}</label>
+    <div class="row">
+        <div class="col-9">
+            <div class="page-title graph-navi">
+                <h2>{{ page_title }}</h2>
             </div>
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="factoryPassImport" name="filterJobs"
-                    value="FACTORY_PAST_IMPORT">
-                <label class="custom-control-label" for="factoryPassImport">{{ _('SHOW_FACTORY_PAST_IMPORT') }}</label>
+            <div style="color:white">
+                <i class="fas fa-external-link-alt"></i>
+                <a
+                    href="/ap/config/job/failed"
+                    target="_blank"
+                    style="font-size: 18px"
+                    ><u>{{ _('Failed Job List') }}</u></a
+                >
             </div>
         </div>
+        <div class="col">
+            <div class="form-group" style="margin-top: 10px;">
+                <div class="custom-control custom-checkbox">
+                    <input
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="genGlobalID"
+                        name="filterJobs"
+                        value="GEN_GLOBAL"
+                    />
+                    <label class="custom-control-label" for="genGlobalID"
+                        >{{ _('SHOW_GEN_GLOBAL') }}</label
+                    >
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="factoryPassImport"
+                        name="filterJobs"
+                        value="FACTORY_PAST_IMPORT"
+                    />
+                    <label class="custom-control-label" for="factoryPassImport"
+                        >{{ _('SHOW_FACTORY_PAST_IMPORT') }}</label
+                    >
+                </div>
+            </div>
+        </div>
     </div>
-
-</div>
-
 {% endblock %}
 
 {% block midbody %}
-
-
-
-<div class="card graph-navi" id="basic-config">
-    <div class="card-body" style="padding-top: 35px">
-        <form id="filter" class="form-inline">
-            <!-- <div class="form-group"> -->
-            <!--     <label for="filterResult">{{ _('Filter') }}</label> -->
-            <!--     <select class="form-control mx-sm-3" id="filterResult"> -->
-            <!--         <option value="All">{{ _('All') }}</option> -->
-            <!--         <option value="FINISHED">{{ _('Finished Importing') }}</option> -->
-            <!--         <option value="FAILED">{{ _('Failed Importing') }}</option> -->
-            <!--         <option value="IMPORTING">{{ _('Importing') }}</option> -->
-            <!--     </select> -->
-            <!-- </div> -->
-        </form>
-        <div class="card-table position-relative">
-            <div class="position-absolute" style="right: 0; top: -35px">
-                <input id="searchJobList" class="form-control common-search-input" placeholder="{{_('Search')}}...">
-            </div>
-            <div id="jobDataTable" class="table-responsive">
-                <table class="table bg-secondary table-striped table-hover table-sm table-hover-light"
-                       id="jobTable"
-                       data-toggle="jobTable"
-                       data-ajax="ajaxRequest"
-                       data-side-pagination="server"
-                       data-pagination="true">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th data-field="job_id" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
-                                class="job-id minimal-col">{{ _('Job ID') }}</th>
-                            <th data-field="job_name" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
-                                class="job-name medium-small-col">{{ _('Job Name') }}</th>
-                            <th data-field="db_master_name" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
-                                class="job-db-name large-col">{{ _('Data Source Name') }}</th>
-                            <th data-field="process_master_name" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
-                                class="job-process-name large-col">{{ _('Process Name') }}</th>
-                            <th data-field="start_tm" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
-                                class="job-start-time duration-col">{{ _('Started') }}</th>
-                            <th data-field="duration" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
-                                class="job-duration duration-col">{{ _('Duration') }}[sec]</th>
-                            <th data-field="progress" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
-                                class="job-progress minimal-col">{{ _('Progress') }}</th>
-                            <th data-field="status" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
-                                class="job-status minimal-col">{{ _('Status') }}</th>
-                            <th data-field="detail" data-filter-control="input"
-                                data-filter-control-placeholder="{{ _('Filter') }}..." data-sortable="true" scope="col"
-                                class="job-detail detail-col">{{ _('Detail') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-active" id="backgroundJosTbl">
-                    </tbody>
-                </table>
+    <div class="card graph-navi" id="basic-config">
+        <div class="card-body" style="padding-top: 35px">
+            <form id="filter" class="form-inline">
+                <!-- <div class="form-group"> -->
+                <!--     <label for="filterResult">{{ _('Filter') }}</label> -->
+                <!--     <select class="form-control mx-sm-3" id="filterResult"> -->
+                <!--         <option value="All">{{ _('All') }}</option> -->
+                <!--         <option value="FINISHED">{{ _('Finished Importing') }}</option> -->
+                <!--         <option value="FAILED">{{ _('Failed Importing') }}</option> -->
+                <!--         <option value="IMPORTING">{{ _('Importing') }}</option> -->
+                <!--     </select> -->
+                <!-- </div> -->
+            </form>
+            <div class="card-table position-relative">
+                <div class="position-absolute" style="right: 0; top: -35px">
+                    <input
+                        id="searchJobList"
+                        class="form-control common-search-input"
+                        placeholder="{{ _('Search') }}..."
+                    />
+                </div>
+                <div id="jobDataTable" class="table-responsive">
+                    <table
+                        class="table bg-secondary table-striped table-hover table-sm table-hover-light"
+                        id="jobTable"
+                        data-toggle="jobTable"
+                        data-ajax="ajaxRequest"
+                        data-side-pagination="server"
+                        data-pagination="true"
+                    >
+                        <thead class="thead-dark">
+                            <tr>
+                                <th
+                                    data-field="job_id"
+                                    data-filter-control="input"
+                                    data-filter-control-placeholder="{{ _('Filter') }}..."
+                                    data-sortable="true"
+                                    scope="col"
+                                    class="job-id minimal-col"
+                                >
+                                    {{ _('Job ID') }}
+                                </th>
+                                <th
+                                    data-field="job_name"
+                                    data-filter-control="input"
+                                    data-filter-control-placeholder="{{ _('Filter') }}..."
+                                    data-sortable="true"
+                                    scope="col"
+                                    class="job-name medium-small-col"
+                                >
+                                    {{ _('Job Name') }}
+                                </th>
+                                <th
+                                    data-field="db_master_name"
+                                    data-filter-control="input"
+                                    data-filter-control-placeholder="{{ _('Filter') }}..."
+                                    data-sortable="true"
+                                    scope="col"
+                                    class="job-db-name large-col"
+                                >
+                                    {{ _('Data Source Name') }}
+                                </th>
+                                <th
+                                    data-field="process_master_name"
+                                    data-filter-control="input"
+                                    data-filter-control-placeholder="{{ _('Filter') }}..."
+                                    data-sortable="true"
+                                    scope="col"
+                                    class="job-process-name large-col"
+                                >
+                                    {{ _('Process Name') }}
+                                </th>
+                                <th
+                                    data-field="start_tm"
+                                    data-filter-control="input"
+                                    data-filter-control-placeholder="{{ _('Filter') }}..."
+                                    data-sortable="true"
+                                    scope="col"
+                                    class="job-start-time duration-col"
+                                >
+                                    {{ _('Started') }}
+                                </th>
+                                <th
+                                    data-field="duration"
+                                    data-filter-control="input"
+                                    data-filter-control-placeholder="{{ _('Filter') }}..."
+                                    data-sortable="true"
+                                    scope="col"
+                                    class="job-duration duration-col"
+                                >
+                                    {{ _('Duration') }}[sec]
+                                </th>
+                                <th
+                                    data-field="progress"
+                                    data-filter-control="input"
+                                    data-filter-control-placeholder="{{ _('Filter') }}..."
+                                    data-sortable="true"
+                                    scope="col"
+                                    class="job-progress minimal-col"
+                                >
+                                    {{ _('Progress') }}
+                                </th>
+                                <th
+                                    data-field="status"
+                                    data-filter-control="input"
+                                    data-filter-control-placeholder="{{ _('Filter') }}..."
+                                    data-sortable="true"
+                                    scope="col"
+                                    class="job-status minimal-col"
+                                >
+                                    {{ _('Status') }}
+                                </th>
+                                <th
+                                    data-field="detail"
+                                    data-filter-control="input"
+                                    data-filter-control-placeholder="{{ _('Filter') }}..."
+                                    data-sortable="true"
+                                    scope="col"
+                                    class="job-detail detail-col"
+                                >
+                                    {{ _('Detail') }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody
+                            class="table-active"
+                            id="backgroundJosTbl"
+                        ></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ERROR MESSAGE MODAL -->
-    <div class="modal fade" id="modalJobDetail" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">{{ _("Job Details") }}</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" name="modal-body-input">
-                    <div id="" class="table-responsive">
-                        <table class="table bg-secondary table-striped table-hover" name="" id="jobErrorDetailTable">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col" class="">{{ _('Detail') }} ID</th>
-                                    <th scope="col" style="text-align: left;">{{ _('Detail') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="table-active" id="backgroundJosTbl">
-                            </tbody>
-                        </table>
+        <!-- ERROR MESSAGE MODAL -->
+        <div
+            class="modal fade"
+            id="modalJobDetail"
+            tabindex="-1"
+            role="dialog"
+            data-backdrop="static"
+            data-keyboard="false"
+        >
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ _("Job Details") }}</h4>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" name="modal-body-input">
+                        <div id="" class="table-responsive">
+                            <table
+                                class="table bg-secondary table-striped table-hover"
+                                name=""
+                                id="jobErrorDetailTable"
+                            >
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col" class="">
+                                            {{ _('Detail') }} ID
+                                        </th>
+                                        <th
+                                            scope="col"
+                                            style="text-align: left;"
+                                        >
+                                            {{ _('Detail') }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody
+                                    class="table-active"
+                                    id="backgroundJosTbl"
+                                ></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            id="btnCopyToClipboard"
+                            type="button"
+                            class="btn btn-primary"
+                            data-dismiss="modal"
+                            data-item-id=""
+                        >
+                            {{ _("Copy to clipboard") }}
+                        </button>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button id="btnCopyToClipboard" type="button" class="btn btn-primary" data-dismiss="modal"
-                        data-item-id="">{{ _("Copy to clipboard") }}</button>
-                </div>
             </div>
         </div>
+        <div class="loading"></div>
     </div>
-    <div class="loading"></div>
-</div>
-
 {% endblock %}
 
 {% block asset %}
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/background_process.css') }}"
+    />
 
-<link rel="stylesheet" type="text/css"
-    href="{{ url_for('setting_module.static', filename = 'css/background_process.css')}}" />
-
-
-<script>
-    gtag('config', GA_TRACKING_ID, {
-        'page_title': '{{ page_title }}',
-    });
-</script>
+    <script>
+        gtag('config', GA_TRACKING_ID, {
+            page_title: '{{ page_title }}',
+        });
+    </script>
 {% endblock %}
 
 {% block js %}
-<!--<script>-->
-<!--    const bgrdJobs = {{ jobs| safe }};-->
-<!--</script>-->
-<script src="{{ url_for('setting_module.static', filename = 'js/background_process.js')}}"></script>
+    <!--<script>-->
+    <!--    const bgrdJobs = {{ jobs| safe }};-->
+    <!--</script>-->
+    <script src="{{ url_for('setting_module.static', filename = 'js/background_process.js') }}"></script>
 {% endblock %}

@@ -16,11 +16,13 @@ table.dataTable .odd {
     background-color: #303030 !important;
 }
 
-table.dataTable .odd:hover, table.dataTable .even:hover {
-    background-color: rgba(0,0,0,0.075) !important;
+table.dataTable .odd:hover,
+table.dataTable .even:hover {
+    background-color: rgba(0, 0, 0, 0.075) !important;
 }
 
-table.dataTable thead th, table.dataTable thead td {
+table.dataTable thead th,
+table.dataTable thead td {
     border-bottom: none !important;
 }
 
@@ -69,10 +71,19 @@ table.dataTable thead th, table.dataTable thead td {
     background-clip: padding-box;
     border: 1px solid transparent;
     border-radius: 0.25rem;
-    -webkit-transition: border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-    transition: border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
+    -webkit-transition:
+        border-color 0.15s ease-in-out,
+        -webkit-box-shadow 0.15s ease-in-out;
+    transition:
+        border-color 0.15s ease-in-out,
+        -webkit-box-shadow 0.15s ease-in-out;
+    transition:
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out;
+    transition:
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out,
+        -webkit-box-shadow 0.15s ease-in-out;
 }
 
 .dataTables_length option:hover {
@@ -97,10 +108,19 @@ table.dataTable thead th, table.dataTable thead td {
     background-clip: padding-box;
     border: 1px solid transparent;
     border-radius: 0.25rem;
-    -webkit-transition: border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-    transition: border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
+    -webkit-transition:
+        border-color 0.15s ease-in-out,
+        -webkit-box-shadow 0.15s ease-in-out;
+    transition:
+        border-color 0.15s ease-in-out,
+        -webkit-box-shadow 0.15s ease-in-out;
+    transition:
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out;
+    transition:
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out,
+        -webkit-box-shadow 0.15s ease-in-out;
 }
 
 .dataTables_wrapper .dataTables_paginate .ellipsis {
@@ -121,7 +141,7 @@ table.dataTable thead th, table.dataTable thead td {
     border: 1px solid #222;
 }
 
-.select2-container--default .select2-results__option[aria-selected=true] {
+.select2-container--default .select2-results__option[aria-selected='true'] {
     background-color: #5897fb;
 }
 
@@ -130,17 +150,27 @@ table.dataTable thead th, table.dataTable thead td {
     border: 1px solid #222222;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__rendered {
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__rendered {
     color: #ffffff;
     line-height: 30px;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__arrow {
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__arrow {
     height: 30px;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__arrow b,
-.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__arrow
+    b,
+.select2-container--default.select2-container--open
+    .select2-selection--single
+    .select2-selection__arrow
+    b {
     border-width: 6px 3px 0 3px;
     margin-left: -1px;
     border-color: #ffffff transparent transparent transparent;
@@ -156,7 +186,7 @@ table.dataTable thead th, table.dataTable thead td {
     color: #ffffff;
 }
 
-.select2-selection__rendered{
+.select2-selection__rendered {
     padding-left: 1rem !important;
 }
 select.col-md-5,

@@ -54,10 +54,10 @@ def get_encoding_name(encoding):
     return encoding
 
 
-def get_delimiter_encoding(f_name, preview=False, skip_line: int | None = None):
+def get_delimiter_encoding(f_name, preview=False, skip_head: int | None = None):
     with open_with_zip(f_name, 'rb') as f:
-        if skip_line is not None and skip_line != 0:
-            f.readlines(skip_line)
+        if skip_head is not None and skip_head != 0:
+            f.readlines(skip_head)
         metadata = get_metadata(f, is_full_scan_metadata=True, default_csv_delimiter=',')
         delimiter = metadata.get(DELIMITER_KW)
         encoding = metadata.get(ENCODING_KW)
@@ -65,6 +65,29 @@ def get_delimiter_encoding(f_name, preview=False, skip_line: int | None = None):
         if preview:
             encoding = get_encoding_name(encoding)
         return delimiter, encoding
+
+
+def get_limit_records(
+    is_transpose: bool = False,
+    n_rows: int | None = None,
+    user_limit: int | None = None,
+) -> int | None:
+    nrows = get_number_of_reading_lines(n_rows, user_limit)
+
+    # do not use user provided limit if we need to transpose
+    if is_transpose:
+        return nrows
+
+    if nrows is None:
+        return user_limit
+
+    # need to escape 1 records because of the header
+    nrows = nrows - 1
+
+    if user_limit is None:
+        return nrows
+
+    return min(nrows, user_limit)
 
 
 def get_number_of_reading_lines(n_rows: int | None = None, limit: int | None = None) -> int | None:
@@ -102,7 +125,7 @@ def read_data(
 
     normalize_func = normalize_list if do_normalize else lambda x: x
 
-    delimiter, encoding = get_delimiter_encoding(f_name, skip_line=skip_head)
+    delimiter, encoding = get_delimiter_encoding(f_name, skip_head=skip_head)
 
     with open_with_zip(f_name, 'r', encoding=encoding) as f:
         _f = f

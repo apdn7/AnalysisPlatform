@@ -2,7 +2,7 @@
     margin-top: 20px;
     display: table;
     border-collapse: collapse;
-    width: inherit
+    width: inherit;
 }
 
 #plot-card .main-chart {
@@ -65,7 +65,7 @@ canvas {
 
 /* Clear floats after the columns */
 .chart-row:after {
-    content: "";
+    content: '';
     display: table;
     clear: both;
 }
@@ -87,7 +87,7 @@ canvas {
 }
 
 .plot-container.plotly .main-svg {
-    background: unset!important;
+    background: unset !important;
 }
 
 .skd-scp {

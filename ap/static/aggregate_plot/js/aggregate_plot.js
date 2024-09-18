@@ -1,8 +1,3 @@
-/* eslint-disable no-restricted-syntax,prefer-arrow-callback */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-/* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 18;
 const MAX_NUMBER_OF_SENSOR = 18;
@@ -12,10 +7,10 @@ let currentData = null;
 const graphStore = new GraphStore();
 let scaleOption = scaleOptionConst.AUTO;
 const AGP_YAXIS_DISPLAY_MODES = {
-    COUNT: "count",
-    Y_AXIS_TOTAL: "yAxisTotal",
-    Y_AXIS_FACET: "yAxisFacet",
-}
+    COUNT: 'count',
+    Y_AXIS_TOTAL: 'yAxisTotal',
+    Y_AXIS_FACET: 'yAxisFacet',
+};
 let yAxisDisplayMode = AGP_YAXIS_DISPLAY_MODES.COUNT;
 let useDivsArray = [];
 let useDivFromTo = [];
@@ -31,7 +26,6 @@ const i18n = {
     allSelection: $('#i18nAllSelection').text(),
     outlier: $('#i18nOutlierVal').text(),
 };
-
 
 const formElements = {
     formID: '#traceDataForm',
@@ -62,18 +56,12 @@ const calenderFormat = {
             'yyyymmdd',
             'yymmdd',
             'mmdd',
-            'dd'
+            'dd',
         ],
-        group2: [
-            'yyyymm',
-            'yymm',
-            'mm',
-            'yyyy',
-            'yy'
-        ]
+        group2: ['yyyymm', 'yymm', 'mm', 'yyyy', 'yy'],
     },
     2: {
-         group1: [
+        group1: [
             'yyyy-mm-dd_HH',
             'yy-mm-dd_HH',
             'mm-dd_HH',
@@ -89,50 +77,44 @@ const calenderFormat = {
             'dd_Fri',
             'Fri',
         ],
-        group2: [
-            'yyyymm',
-            'yymm',
-            'mm',
-            'yyyy',
-            'yy'
-        ]
+        group2: ['yyyymm', 'yymm', 'mm', 'yyyy', 'yy'],
     },
     3: {
         group1: [
-            "ffffh",
-            "ffffq",
-            "ffh",
-            "ffq",
-            "ffff",
-            "ff",
-            "h",
-            "q",
-            "ffffmm",
-            "ffmm",
-             "ww"
+            'ffffh',
+            'ffffq',
+            'ffh',
+            'ffq',
+            'ffff',
+            'ff',
+            'h',
+            'q',
+            'ffffmm',
+            'ffmm',
+            'ww',
         ],
     },
     4: {
         group1: [
-            "FY2022H1",
-            "FY2022Q1",
-            "FY22H1",
-            "FY22Q1",
-            "FY2022",
-            "FY22",
-            "H1",
-            "Q1",
-            "FY2022-mm",
-            "FY22-mm",
-             "Www",
-            "Www_mm-dd",
-            "yyyy_Www",
-            "yyyy_Www_mm-dd",
-            "yy_Www",
-            "yy_Www_mm-dd"
-        ]
-    }
-}
+            'FY2022H1',
+            'FY2022Q1',
+            'FY22H1',
+            'FY22Q1',
+            'FY2022',
+            'FY22',
+            'H1',
+            'Q1',
+            'FY2022-mm',
+            'FY22-mm',
+            'Www',
+            'Www_mm-dd',
+            'yyyy_Www',
+            'yyyy_Www_mm-dd',
+            'yy_Www',
+            'yy_Www_mm-dd',
+        ],
+    },
+};
 
 const AGP_EXPORT_URL = {
     CSV: {
@@ -172,9 +154,14 @@ $(() => {
         onChangeDivInFacet();
     });
 
-
     // add first condition process
-    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
+    const condProcItem = addCondProc(
+        endProcs.ids,
+        endProcs.names,
+        '',
+        formElements.formID,
+        'btn-add-cond-proc',
+    );
     condProcItem();
 
     // click even of condition proc add button
@@ -194,7 +181,6 @@ $(() => {
     formElements.divideOption.trigger('change');
     renderCyclicCalenderModal();
 
-
     // validation
     initValidation(formElements.formID);
 
@@ -213,7 +199,11 @@ $(() => {
     }, 2000);
 
     // validate and change to default and max value cyclic term
-    validateInputByNameWithOnchange(CYCLIC_TERM.DIV_NUM, { MAX: 1000, MIN: 1, DEFAULT: 120 });
+    validateInputByNameWithOnchange(CYCLIC_TERM.DIV_NUM, {
+        MAX: 1000,
+        MIN: 1,
+        DEFAULT: 120,
+    });
 
     initializeDateTimeRangePicker();
     initializeDateTimePicker();
@@ -222,9 +212,9 @@ $(() => {
 
 const setScaleOption = (scaleOption = scaleOptionConst.AUTO) => {
     formElements.scaleOption.val(scaleOption);
-    formElements.yAxisPercentOrCount.val(AGP_YAXIS_DISPLAY_MODES.COUNT)
+    formElements.yAxisPercentOrCount.val(AGP_YAXIS_DISPLAY_MODES.COUNT);
     yAxisDisplayMode = AGP_YAXIS_DISPLAY_MODES.COUNT;
-}
+};
 
 const getScaleOption = () => {
     return formElements.scaleOption.val();
@@ -235,8 +225,8 @@ const onChangeScaleOption = () => {
         const scale = getScaleOption();
         scaleOption = scale;
         drawAGP(currentData, scaleOption, yAxisDisplayMode);
-    })
-}
+    });
+};
 
 const showAgP = (clearOnFlyFilter = true) => {
     requestStartedAt = performance.now();
@@ -285,15 +275,19 @@ const collectInputAsFormData = (clearOnFlyFilter, autoUpdate = false) => {
         const compareType = formData.get('compareType');
         if (compareType === divideOptions.cyclicCalender) {
             if (!formData.get(CYCLIC_TERM.DIV_OFFSET)) {
-                 const offsetH = Number(divOffset.split(':')[0]) + Number(divOffset.split(':')[1]) / 60;
+                const offsetH =
+                    Number(divOffset.split(':')[0]) +
+                    Number(divOffset.split(':')[1]) / 60;
                 formData.set(CYCLIC_TERM.DIV_OFFSET, offsetH.toString());
             }
 
             // convert divFromTo from local to UTC
-            const divDates = divFromTo.map(date => toUTCDateTime(date, null, true));
+            const divDates = divFromTo.map((date) =>
+                toUTCDateTime(date, null, true),
+            );
 
             formData.set('divDates', JSON.stringify(divDates));
-            formData.set('divFormats', JSON.stringify(divFormats))
+            formData.set('divFormats', JSON.stringify(divFormats));
         }
 
         if (compareType !== divideOptions.cyclicCalender) {
@@ -317,22 +311,24 @@ const transformColorsParams = (formData) => {
     formData.delete('colorVar');
     // get colorVar from active GUI
     const colorVars = {};
-    $('select[name=colorVar]').get().forEach(ele => {
-        const targetID = $(ele).data('target-var-id');
-        const colorVal = $(ele).val();
-        const isObjectiveVar = $(`input[name^=GET02_VALS_SELECT][value=${targetID}]`).prop('checked');
-        if (colorVal && colorVal !== '' && isObjectiveVar) {
-            colorVars[targetID] = colorVal;
-        }
-    });
+    $('select[name=colorVar]')
+        .get()
+        .forEach((ele) => {
+            const targetID = $(ele).data('target-var-id');
+            const colorVal = $(ele).val();
+            const isObjectiveVar = $(
+                `input[name^=GET02_VALS_SELECT][value=${targetID}]`,
+            ).prop('checked');
+            if (colorVal && colorVal !== '' && isObjectiveVar) {
+                colorVars[targetID] = colorVal;
+            }
+        });
 
     formData.append('aggColorVar', JSON.stringify(colorVars));
     return formData;
 };
 const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
     const formData = collectInputAsFormData(clearOnFlyFilter, autoUpdate);
-
-
 
     // validate form
     const hasDiv = !!formData.get('div');
@@ -344,52 +340,78 @@ const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
         return;
     }
 
-    showGraphCallApi('/ap/api/agp/plot', formData, REQUEST_TIMEOUT, async (res) => {
-        afterShowAGP();
+    showGraphCallApi(
+        '/ap/api/agp/plot',
+        formData,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            afterShowAGP();
 
-        // sort graphs
-        if (latestSortColIds && latestSortColIds.length) {
-            res.ARRAY_FORMVAL = sortGraphs(res.ARRAY_FORMVAL, 'GET02_VALS_SELECT', latestSortColIds);
-            res.array_plotdata = sortGraphs(res.array_plotdata, 'end_col_id', latestSortColIds);
-        }
+            // sort graphs
+            if (latestSortColIds && latestSortColIds.length) {
+                res.ARRAY_FORMVAL = sortGraphs(
+                    res.ARRAY_FORMVAL,
+                    'GET02_VALS_SELECT',
+                    latestSortColIds,
+                );
+                res.array_plotdata = sortGraphs(
+                    res.array_plotdata,
+                    'end_col_id',
+                    latestSortColIds,
+                );
+            }
 
-        currentData = res;
-        graphStore.setTraceData(_.cloneDeep(res));
+            currentData = res;
+            graphStore.setTraceData(_.cloneDeep(res));
 
-        const scaleOption = getScaleOption();
+            const scaleOption = getScaleOption();
 
-        useDivsArray = [...divArrays];
-        useDivFromTo = [...divFromTo];
+            useDivsArray = [...divArrays];
+            useDivFromTo = [...divFromTo];
 
-        drawAGP(res, scaleOption, yAxisDisplayMode, clearOnFlyFilter);
+            drawAGP(res, scaleOption, yAxisDisplayMode, clearOnFlyFilter);
 
-        // show info table
-        showInfoTable(res);
+            // show info table
+            showInfoTable(res);
 
-        if (!autoUpdate) {
-             $('html, body').animate({
-                scrollTop: $(formElements.agpCard).offset().top,
-            }, 500);
-        }
+            if (!autoUpdate) {
+                $('html, body').animate(
+                    {
+                        scrollTop: getOffsetTopDisplayGraph('#scaleOption'),
+                    },
+                    500,
+                );
+            }
 
-        setPollingData(formData, longPollingHandler, []);
-
-    });
+            setPollingData(formData, longPollingHandler, []);
+        },
+    );
 };
 
 const longPollingHandler = () => {
     $(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`).trigger('change');
     queryDataAndShowAGP(false, true);
-}
+};
 
-const drawAGP = (orgData, scale = scaleOption, showPercent = yAxisDisplayMode, clearOnFlyFilter=false) => {
+const drawAGP = (
+    orgData,
+    scale = scaleOption,
+    showPercent = yAxisDisplayMode,
+    clearOnFlyFilter = false,
+) => {
     const data = _.cloneDeep(orgData); // if slow, change
     if (!data) {
         return;
     }
 
     // orgData.array_plotdata = array_plotdata;
-    renderAgPAllChart(orgData.array_plotdata, orgData.COMMON.compareType, scale, showPercent, clearOnFlyFilter)
+    renderAgPAllChart(
+        orgData.array_plotdata,
+        orgData.COMMON.compareType,
+        scale,
+        showPercent,
+        clearOnFlyFilter,
+    );
 
     // implement order
     $(formElements.agpCard).sortable({});
@@ -437,7 +459,7 @@ const renderCyclicCalenderModal = () => {
               <span class="cyclic-calender-option-example">2022040112</span>
         </div>
     `;
-    let calenderListHtml = ''
+    let calenderListHtml = '';
     let index = 1;
     for (const key of Object.keys(calenderFormat)) {
         const groups = calenderFormat[key];
@@ -448,7 +470,7 @@ const renderCyclicCalenderModal = () => {
             for (const format of formatList) {
                 const isCheck = index === 1;
                 itemHtml += renderItem(key, format, isCheck);
-                index ++;
+                index++;
             }
 
             const html = `
@@ -465,7 +487,7 @@ const renderCyclicCalenderModal = () => {
             2: 252,
             3: 147,
             4: 280,
-        }
+        };
 
         calenderListHtml += `
                 <div class="cyclic-calender-option-list" style="width: ${width[key]}px">
@@ -479,18 +501,23 @@ const renderCyclicCalenderModal = () => {
     const selectContent = document.getElementById('cyclicCalender-content');
     selectContent.addEventListener('open', (e) => {
         generateCalenderExample();
-    })
+    });
 };
 
 const onChangeDivideFormat = (e) => {
-    changeFormatAndExample(e)
-}
+    changeFormatAndExample(e);
+};
 
-const renderAgPChartLayout = (chartOption, chartHeight = '40vh', isCTCol = false) => {
-    const { processName, columnName, facetLevel1, facetLevel2, chartId } = chartOption;
-    let facet = [facetLevel1, facetLevel2].filter(f => checkTrue(f));
+const renderAgPChartLayout = (
+    chartOption,
+    chartHeight = '40vh',
+    isCTCol = false,
+) => {
+    const { processName, columnName, facetLevel1, facetLevel2, chartId } =
+        chartOption;
+    let facet = [facetLevel1, facetLevel2].filter((f) => checkTrue(f));
     const levelTitle = facet.map((el, i) => `${el}`).join(' | ');
-    const CTLabel = isCTCol ? ` (${DataTypes.DATETIME.short}) [sec]` : ''
+    const CTLabel = isCTCol ? ` (${DataTypes.DATETIME.short}) [sec]` : '';
     const chartLayout = `
           <div class="card chart-row graph-navi" style="height: ${chartHeight};">
             <div class="tschart-title-parent">
@@ -515,7 +542,13 @@ const renderAgPChartLayout = (chartOption, chartHeight = '40vh', isCTCol = false
     return chartLayout;
 };
 
-const renderAgPAllChart = (plots, compareType = '', scaleOption, yAxisDisplayMode = AGP_YAXIS_DISPLAY_MODES.COUNT, clearOnFlyFilter=false) => {
+const renderAgPAllChart = (
+    plots,
+    compareType = '',
+    scaleOption,
+    yAxisDisplayMode = AGP_YAXIS_DISPLAY_MODES.COUNT,
+    clearOnFlyFilter = false,
+) => {
     if (!plots) return;
     $(formElements.agpCard).empty();
     let chartHeight = '';
@@ -545,10 +578,14 @@ const renderAgPAllChart = (plots, compareType = '', scaleOption, yAxisDisplayMod
             facetLevel1,
             facetLevel2,
             chartId: canvasId,
-        }
+        };
         const isCTCol = isCycleTimeCol(end_proc_id, end_col_id);
-        const chartHtml = renderAgPChartLayout(chartOption, chartHeight, isCTCol);
-        const facetKey = `${facetLevel1 || ''}${facetLevel2 || ''}`
+        const chartHtml = renderAgPChartLayout(
+            chartOption,
+            chartHeight,
+            isCTCol,
+        );
+        const facetKey = `${facetLevel1 || ''}${facetLevel2 || ''}`;
 
         $(formElements.agpCard).append(chartHtml);
         const sumCountByXAxis = (key, n, colId = null) => {
@@ -568,9 +605,8 @@ const renderAgPAllChart = (plots, compareType = '', scaleOption, yAxisDisplayMod
             const count = n || 0;
             if (facetKey in countByFacet) {
                 if (key in countByFacet[facetKey]) {
-                    countByFacet[facetKey][key] += count
-                }
-                else {
+                    countByFacet[facetKey][key] += count;
+                } else {
                     countByFacet[facetKey][key] = count;
                 }
             } else {
@@ -583,17 +619,23 @@ const renderAgPAllChart = (plots, compareType = '', scaleOption, yAxisDisplayMod
 
         if (compareType === divideOptions.cyclicTerm) {
             div = currentData.COMMON.cyclic_terms;
-            div = div.map((term) => term.map(t => formatDateTime(t)).join(' -<br>'))
+            div = div.map((term) =>
+                term.map((t) => formatDateTime(t)).join(' -<br>'),
+            );
         }
 
         if (compareType === divideOptions.directTerm) {
-            div = currentData.time_conds.map(term => [term['start_dt'], term['end_dt']]);
-            div = div.map((term) => term.map(t => formatDateTime(t)).join(' -<br>'))
+            div = currentData.time_conds.map((term) => [
+                term['start_dt'],
+                term['end_dt'],
+            ]);
+            div = div.map((term) =>
+                term.map((t) => formatDateTime(t)).join(' -<br>'),
+            );
         }
 
-
         // reduce full div range
-        let data = plotData.data.map(data => {
+        let data = plotData.data.map((data) => {
             let trace = {
                 ...data,
                 hoverinfo: 'none',
@@ -604,13 +646,22 @@ const renderAgPAllChart = (plots, compareType = '', scaleOption, yAxisDisplayMod
                     size: 5,
                 },
                 colId: end_col_id,
-            }
+            };
             let { x, y } = trace;
-            if ([divideOptions.directTerm, divideOptions.cyclicTerm].includes(compareType)) {
-                x = x.map((term) => term.split(' | ').map(t => formatDateTime(t)).join(' -<br>'))
+            if (
+                [divideOptions.directTerm, divideOptions.cyclicTerm].includes(
+                    compareType,
+                )
+            ) {
+                x = x.map((term) =>
+                    term
+                        .split(' | ')
+                        .map((t) => formatDateTime(t))
+                        .join(' -<br>'),
+                );
             }
-            const newX = []
-            const newY = []
+            const newX = [];
+            const newY = [];
             for (let i = 0; i < div.length; i += 1) {
                 const currDiv = div[i];
                 const indexOfCurrDiv = x.indexOf(currDiv);
@@ -621,14 +672,18 @@ const renderAgPAllChart = (plots, compareType = '', scaleOption, yAxisDisplayMod
                     newY.push(null);
                 }
             }
-            trace.x = [...newX]
-            trace.y = [...newY]
+            trace.x = [...newX];
+            trace.y = [...newY];
 
             if (clearOnFlyFilter) {
                 for (let i = 0; i < trace.x.length; i += 1) {
                     const currDiv = trace.x[i];
                     const indexOfCurrDiv = trace.x.indexOf(currDiv);
-                    sumCountByXAxis(currDiv, trace.y[indexOfCurrDiv], end_col_id);
+                    sumCountByXAxis(
+                        currDiv,
+                        trace.y[indexOfCurrDiv],
+                        end_col_id,
+                    );
                 }
                 for (let i = 0; i < trace.x.length; i += 1) {
                     const currDiv = trace.x[i];
@@ -637,27 +692,63 @@ const renderAgPAllChart = (plots, compareType = '', scaleOption, yAxisDisplayMod
                 }
             }
 
-            trace.x = trace.x.map(val => `t${val}`);
+            trace.x = trace.x.map((val) => `t${val}`);
             return trace;
-        })
+        });
 
-        if ([AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL, AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET].includes(yAxisDisplayMode)) {
-            data = data.map(trace => {
-                if (trace.type.toLowerCase() === 'bar' && yAxisDisplayMode === AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL) {
+        if (
+            [
+                AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL,
+                AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET,
+            ].includes(yAxisDisplayMode)
+        ) {
+            data = data.map((trace) => {
+                if (
+                    trace.type.toLowerCase() === 'bar' &&
+                    yAxisDisplayMode === AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL
+                ) {
                     return toTotalYAxisPercent(countByXAxis, trace);
-                }
-                else if (trace.type.toLowerCase() === 'bar' && yAxisDisplayMode === AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET){
+                } else if (
+                    trace.type.toLowerCase() === 'bar' &&
+                    yAxisDisplayMode === AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET
+                ) {
                     return toFacetYAxisPercent(facetKey, countByFacet, trace);
                 }
                 return trace;
-            })
+            });
         }
         // linechart for real, datetime, int. bar chart for others including int(Cat)
-        const isNumeric = [DataTypes.REAL.name, DataTypes.DATETIME.name, DataTypes.INTEGER.name].includes(plotData.data_type) && !plotData.is_category;
-        const yScale = isNumeric ? getScaleInfo(plotData, scaleOption) : null;
-        drawAgPPlot(data, plotData, countByXAxis, div, isCyclicCalender, `${canvasId}`, yScale, yAxisDisplayMode, currentData.div_from_to);
+        const isNumeric =
+            [
+                DataTypes.REAL.name,
+                DataTypes.DATETIME.name,
+                DataTypes.INTEGER.name,
+            ].includes(plotData.data_type) && !plotData.is_category;
+
+        let barChartScale = null;
+        // get scale common for bar chart if scale is common
+        const isCommonScale = scaleOption === scaleOptionConst.COMMON;
+        if (!isNumeric && isCommonScale) {
+            barChartScale = getScaleInfo(plotData, scaleOption);
+        }
+
+        const yScale = isNumeric
+            ? getScaleInfo(plotData, scaleOption)
+            : barChartScale;
+        drawAgPPlot(
+            data,
+            plotData,
+            countByXAxis,
+            div,
+            isCyclicCalender,
+            `${canvasId}`,
+            yScale,
+            yAxisDisplayMode,
+            currentData.div_from_to,
+            isCommonScale,
+        );
     });
-}
+};
 
 const toTotalYAxisPercent = (countByXAxis, traceData) => {
     let { x, y } = traceData;
@@ -667,13 +758,13 @@ const toTotalYAxisPercent = (countByXAxis, traceData) => {
         const total = countByXAxis[traceData.colId][xVal];
         const percent = val / total;
         return percent;
-    })
+    });
 
     return {
         ...traceData,
         x,
-        y
-    }
+        y,
+    };
 };
 
 const toFacetYAxisPercent = (facetKey, countByFacet, traceData) => {
@@ -683,40 +774,41 @@ const toFacetYAxisPercent = (facetKey, countByFacet, traceData) => {
         const xVal = x[i].slice(1);
         const total = countByFacet[facetKey][xVal];
         return val / total;
-    })
+    });
 
     return {
         ...traceData,
         x,
-        y
-    }
-}
-
-const changeYAxisMode = (e) => {
-     yAxisDisplayMode = $(e).val();
-     drawAGP(currentData, scaleOption, yAxisDisplayMode);
+        y,
+    };
 };
 
+const changeYAxisMode = (e) => {
+    yAxisDisplayMode = $(e).val();
+    drawAGP(currentData, scaleOption, yAxisDisplayMode);
+};
 
 const setYAxisOption = () => {
     const isFacet = isSetFacet();
 
     if (isFacet) {
-        formElements.yAxisPercentOrCount.find("option[value=yAxisFacet]").show();
+        formElements.yAxisPercentOrCount
+            .find('option[value=yAxisFacet]')
+            .show();
         return;
     }
-    formElements.yAxisPercentOrCount.find("option[value=yAxisFacet]").hide();
-}
+    formElements.yAxisPercentOrCount.find('option[value=yAxisFacet]').hide();
+};
 
 const isSetFacet = () => {
     const matches = [];
 
     $("[name='catExpBox']").map((i, el) => {
-        const valOption = $(el).find(":selected").val();
-        if(valOption) {
+        const valOption = $(el).find(':selected').val();
+        if (valOption) {
             matches.push(valOption);
         }
-    })
+    });
 
     return matches.length > 0;
-}
+};

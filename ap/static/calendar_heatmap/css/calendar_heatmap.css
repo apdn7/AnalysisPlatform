@@ -45,7 +45,7 @@ canvas {
 
 /* Clear floats after the columns */
 .chart-row:after {
-    content: "";
+    content: '';
     display: table;
     clear: both;
 }
@@ -95,7 +95,7 @@ canvas {
 .chm-col {
     height: 32vh;
     padding: 2px !important;
-    border-radius:3px;
+    border-radius: 3px;
     width: 100%;
 }
 
@@ -109,7 +109,8 @@ canvas {
     border-radius: 3px;
 }
 
-.chm-plot .plot-container.plotly, .chm-plot .plot-container.plotly .modebar-container {
+.chm-plot .plot-container.plotly,
+.chm-plot .plot-container.plotly .modebar-container {
     height: 100%;
     width: 100%;
 }

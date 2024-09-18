@@ -1,7 +1,11 @@
+from __future__ import annotations
+
+import contextlib
 from datetime import datetime
 from functools import wraps
 from threading import Lock
 
+from apscheduler.jobstores.base import JobLookupError
 from pytz import utc
 
 from ap import ListenNotifyType, close_sessions, scheduler
@@ -44,6 +48,12 @@ CONFLICT_PAIR = {
     # (JobType.RESTRUCTURE_INDEXES.name, JobType.CSV_IMPORT.name),
     # (JobType.RESTRUCTURE_INDEXES.name, JobType.FACTORY_IMPORT.name),
     # (JobType.RESTRUCTURE_INDEXES.name, JobType.FACTORY_PAST_IMPORT.name),
+}
+
+# jobs with `_id` suffixes
+EXCLUSIVE_JOBS_WITH_IDS = {
+    JobType.USER_BACKUP_DATABASE.name,
+    JobType.USER_RESTORE_DATABASE.name,
 }
 
 
@@ -106,6 +116,20 @@ def scheduler_app_context(fn):
 #     return False
 
 
+def is_job_existed_in_exclusive_jobs_with_ids(job: str, running_job_name: str):
+    def extract_id_from_job(job_name: str) -> int | None:
+        for exclusive_job_with_id in EXCLUSIVE_JOBS_WITH_IDS:
+            if job_name.startswith(exclusive_job_with_id):
+                id_from_job = job_name[len(exclusive_job_with_id) + 1 :]
+                with contextlib.suppress(ValueError):
+                    return int(id_from_job)
+        return None
+
+    job_id = extract_id_from_job(job)
+    running_job_id = extract_id_from_job(running_job_name)
+    return job_id is not None and running_job_id is not None and job_id == running_job_id
+
+
 def scheduler_check_before_run(job_id, job_name, proc_id, dic_running_job_param):
     """check if job can run parallel with other jobs"""
 
@@ -118,6 +142,9 @@ def scheduler_check_before_run(job_id, job_name, proc_id, dic_running_job_param)
         return False
 
     for running_job_name, running_proc_id, *_ in dic_running_job_param.values():
+        if is_job_existed_in_exclusive_jobs_with_ids(job_name, running_job_name):
+            return False
+
         if (job_name, running_job_name) in CONFLICT_PAIR or (running_job_name, job_name) in CONFLICT_PAIR:
             print(f'{job_name} job can not run parallel with {running_job_name}')
             return False
@@ -188,7 +215,8 @@ def remove_jobs(target_job_names, proc_id=None):
                         job.remove()
                 else:
                     job.remove()
-
+        except JobLookupError:
+            pass
         finally:
             scheduler.resume()
 

@@ -27,23 +27,23 @@ class FailedCastDataModal {
 
     constructor() {
         this.Elements = {};
-        for (const [key, id] of Object.entries(FailedCastDataModal.ElementIds)) {
-            Object.defineProperty(
-                this.Elements,
-                key,
-                {
-                    get: function () {
-                        return document.getElementById(id);
-                    }
-                }
-            );
+        for (const [key, id] of Object.entries(
+            FailedCastDataModal.ElementIds,
+        )) {
+            Object.defineProperty(this.Elements, key, {
+                get: function () {
+                    return document.getElementById(id);
+                },
+            });
         }
 
         this.#Events = {
             btnOk: function (event) {
-                $(event.currentTarget).closest(`#${FailedCastDataModal.ElementIds.modal}`).modal('hide');
-            }
-        }
+                $(event.currentTarget)
+                    .closest(`#${FailedCastDataModal.ElementIds.modal}`)
+                    .modal('hide');
+            },
+        };
     }
 
     /**
@@ -53,7 +53,9 @@ class FailedCastDataModal {
      */
     init(data, errorMessage = '') {
         this.Elements.alertFailedCaseDataErrorMsg.textContent = errorMessage;
-        this.Elements.alertFailedCaseDataErrorDiv.style.display = (errorMessage) ? 'block' : 'none';
+        this.Elements.alertFailedCaseDataErrorDiv.style.display = errorMessage
+            ? 'block'
+            : 'none';
 
         this.Elements.columnsBox.innerHTML = this.#generateHTML(data);
         this.#injectEvents();
@@ -83,11 +85,13 @@ class FailedCastDataModal {
 \t<div id="div_failed_cast_value_${column_id}" class="column-datas active">`;
 
             let valuesHTML = '';
-            dataList.forEach(value => valuesHTML += this.#generateValueHTML(value));
+            dataList.forEach(
+                (value) => (valuesHTML += this.#generateValueHTML(value)),
+            );
 
             html += valuesHTML;
             html += `\t</div>
-</div>`
+</div>`;
         }
 
         return html;
@@ -108,7 +112,11 @@ class FailedCastDataModal {
      * Add event to related elements on modal
      */
     #injectEvents() {
-        this.Elements.btnOk.removeEventListener('click', this.#Events.btnOk, false);
+        this.Elements.btnOk.removeEventListener(
+            'click',
+            this.#Events.btnOk,
+            false,
+        );
         this.Elements.btnOk.addEventListener('click', this.#Events.btnOk);
     }
 }

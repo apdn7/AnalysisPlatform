@@ -48,18 +48,30 @@ class DbProxy:
             self.db_basic = CfgDataSource.query.get(data_src)
             self.db_detail = self.db_basic.db_detail
 
+    def check_latest_failed_connection(self):
+        last_failed_time = DbProxy.dic_last_connect_failed_time.get(self.db_basic.id)
+        if last_failed_time is not None and last_failed_time > add_seconds(seconds=-180):
+            raise Exception(MSG_DB_CON_FAILED)
+
+    def add_latest_failed_connection(self):
+        DbProxy.dic_last_connect_failed_time[self.db_basic.id] = datetime.utcnow()
+
+    def remove_latest_failed_connection(self):
+        DbProxy.dic_last_connect_failed_time.pop(self.db_basic.id, None)
+
     def __enter__(self):
         if not self.force_connect:
-            last_failed_time = DbProxy.dic_last_connect_failed_time.get(self.db_basic.id)
-            if last_failed_time and last_failed_time > add_seconds(seconds=-180):
-                raise Exception(MSG_DB_CON_FAILED)
+            self.check_latest_failed_connection()
 
         self.db_instance = self._get_db_instance()
 
         conn = self.db_instance.connect()
         if conn in (None, False):
-            DbProxy.dic_last_connect_failed_time[self.db_basic.id] = datetime.utcnow()
+            self.add_latest_failed_connection()
             raise Exception(MSG_DB_CON_FAILED)
+
+        # connect successfully, we need reset failed connection
+        self.remove_latest_failed_connection()
 
         if self.is_universal_db and self.isolation_level:
             set_sqlite_params(conn)
@@ -102,6 +114,8 @@ class DbProxy:
             target_db_class = MySQL
         elif db_type == DBType.MSSQLSERVER.value.lower():
             target_db_class = MSSQLServer
+        elif db_type == DBType.SOFTWARE_WORKSHOP.value.lower():
+            target_db_class = PostgreSQL
         else:
             raise Exception(MSG_NOT_SUPPORT_DB)
 
@@ -119,6 +133,12 @@ class DbProxy:
             db_instance.schema = self.db_detail.schema
 
         return db_instance
+
+    @classmethod
+    def check_db_connection(cls, data_src, force: bool = False):
+        with cls(data_src, force_connect=force) as db_instance:
+            if not db_instance.is_connected:
+                raise Exception(MSG_DB_CON_FAILED)
 
 
 def gen_data_source_of_universal_db(proc_id=None):

@@ -1,0 +1,76 @@
+.config-data-type-dropdown button {
+    width: 100%;
+    padding: 0 15px 0 4px;
+    text-align: left;
+    position: relative;
+    height: 25px;
+}
+
+.gray .config-data-type-dropdown button,
+.gray .config-data-type-dropdown button span {
+    color: gray;
+}
+
+.config-data-type-dropdown {
+    height: 25px;
+}
+
+.data-type-selection {
+    background-color: #222222;
+    flex-direction: row;
+    width: fit-content;
+    border-radius: 3px;
+    display: none;
+    border: 1px solid #444444;
+}
+
+.data-type-selection.dropdown-menu.show {
+    display: flex !important;
+}
+
+.data-type-selection-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.data-type-selection-title {
+    text-align: left;
+    padding: 4px 4px 0;
+    font-weight: bold;
+    color: grey;
+    display: inline-block;
+    border-bottom: 2px solid grey;
+    width: 100%;
+}
+
+.data-type-selection-box ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 4px;
+}
+
+.data-type-selection-box ul li {
+    padding: 0 8px;
+    cursor: pointer;
+}
+
+.data-type-selection-box ul li:is([disabled='disabled']) {
+    color: grey !important;
+    cursor: default;
+}
+
+.data-type-selection-box ul li.active {
+    background-color: dodgerblue;
+}
+
+.gray .data-type-selection-content li {
+    color: white !important;
+}
+
+.data-type-selection-box ul li:not([disabled='disabled']):hover {
+    background-color: dodgerblue;
+}
+
+.copy-item {
+    padding: 0 8px;
+}

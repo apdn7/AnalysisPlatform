@@ -1,16 +1,40 @@
+const COLOR_DEFAULT = [
+    '#1f77b4',
+    '#ff7f0e',
+    '#2ca02c',
+    '#d62728',
+    '#9467bd',
+    '#8c564b',
+    '#e377c2',
+    '#7f7f7f',
+    '#bcbd22',
+];
 
-const COLOR_DEFAULT = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22']
-
-const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvasId, yScale, yAxisDisplayMode, divFromTo) => {
-    const { agg_function, color_name, unique_color, fmt, shown_name } = plotData;
+const drawAgPPlot = (
+    data,
+    plotData,
+    countByXAxis,
+    div,
+    isCyclicCalender,
+    canvasId,
+    yScale,
+    yAxisDisplayMode,
+    divFromTo,
+    isCommonScale = false,
+) => {
+    const { agg_function, color_name, unique_color, fmt, shown_name } =
+        plotData;
 
     const isLineChart = agg_function && agg_function.toLowerCase() !== 'count';
-    const showPercent = [AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL, AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET].includes(yAxisDisplayMode)
-        && !isLineChart;
+    const showPercent =
+        [
+            AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL,
+            AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET,
+        ].includes(yAxisDisplayMode) && !isLineChart;
+
     let xTitles = data[0] ? [...data[0].x] : [];
     const tickLen = xTitles.length ? xTitles[0].length : 0;
-    const tickSize =  tickLen > 5 ? 10 : 12;
-
+    const tickSize = tickLen > 5 ? 10 : 12;
 
     data = prepareColorForTrace(data, unique_color);
     if (isLineChart && yScale) {
@@ -18,12 +42,11 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
     }
 
     let yMin, yMax;
-    if (isLineChart) {
-        const offset = (yScale['y-max'] - yScale['y-min']) * 0.018
-        yMin = yScale['y-min'] - offset
-        yMax = yScale['y-max'] + offset
+    if (isLineChart || (yScale && isCommonScale)) {
+        const offset = (yScale['y-max'] - yScale['y-min']) * 0.018;
+        yMin = yScale['y-min'] - offset;
+        yMax = yScale['y-max'] + offset;
     }
-
 
     const layout = {
         barmode: 'stack',
@@ -32,7 +55,10 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
         autosize: true,
         xaxis: {
             tickmode: 'array',
-            ticktext: reduceTicksArray(xTitles.map(val => val.slice(1)), tickLen),
+            ticktext: reduceTicksArray(
+                xTitles.map((val) => val.slice(1)),
+                tickLen,
+            ),
             tickvals: reduceTicksArray(xTitles, tickLen),
             gridcolor: '#444444',
             tickfont: {
@@ -59,7 +85,7 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
             spikecolor: 'rgb(255, 0, 0)',
             // tickformat: showPercent ? ',.0%' : fmt ? (fmt.includes('e') ? '.1e' : fmt) : '',
             tickformat: '',
-            range: showPercent ? [0, 1] : yScale ? [yMin, yMax] : null,
+            range: showPercent ? [0, 100] : yScale ? [yMin, yMax] : null,
             autorange: yScale ? false : true,
         },
         showlegend: true,
@@ -70,7 +96,7 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
             font: {
                 family: 'sans-serif',
                 size: 12,
-                color: '#ffffff'
+                color: '#ffffff',
             },
             bgcolor: 'transparent',
             xanchor: 'right',
@@ -82,19 +108,19 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
             b: 60,
             t: 20,
             r: 10,
-        }
+        },
     };
 
     if (showPercent) {
-        layout.yaxis.ticksuffix = '%'
-        data.forEach(item => {
-            item.y = item.y.map(i => i*100)
-        })
+        layout.yaxis.ticksuffix = '%';
+        data.forEach((item) => {
+            item.y = item.y.map((i) => i * 100);
+        });
     }
 
     if (isLineChart) {
         layout.xaxis.range = [-0.5, div.length - 0.5];
-        layout.legend.traceorder = "reversed";
+        layout.legend.traceorder = 'reversed';
     }
 
     const heatmapIconSettings = genPlotlyIconSettings();
@@ -110,7 +136,8 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
 
     agPPlot.on('plotly_hover', (data) => {
         const dpIndex = getDataPointIndex(data);
-        const { x, y, name, type, isOutlier, colorName, outlierVal, colId } = data.points[0].data;
+        const { x, y, name, type, isOutlier, colorName, outlierVal, colId } =
+            data.points[0].data;
         const xVal = x[dpIndex].slice(1);
         const color = colorName || name;
         const hasColor = !!color_name;
@@ -128,43 +155,73 @@ const drawAgPPlot = (data, plotData, countByXAxis, div, isCyclicCalender, canvas
             }
 
             if (from && to) {
-                period.push(['Period', `${from}${DATETIME_PICKER_SEPARATOR}${to}`])
+                period.push([
+                    'Period',
+                    `${from}${DATETIME_PICKER_SEPARATOR}${to}`,
+                ]);
             }
         }
 
         if (divFromTo) {
             // show from, to of Data number division
             const divIndex = div.indexOf(xVal);
-            if ( divIndex !== -1 ) {
-                const fromToOb = divFromTo[divIndex]
-                fromTo.push(['From', formatDateTime(fromToOb[0])], ['To', formatDateTime(fromToOb[1])])
+            if (divIndex !== -1) {
+                const fromToOb = divFromTo[divIndex];
+                fromTo.push(
+                    ['From', formatDateTime(fromToOb[0])],
+                    ['To', formatDateTime(fromToOb[1])],
+                );
             }
         }
         if (type.includes('lines') || isOutlier) {
-            const showVal = []
+            const showVal = [];
             if (isOutlier) {
-                showVal.push([i18n.outlier, applySignificantDigit(outlierVal[dpIndex])])
+                showVal.push([
+                    i18n.outlier,
+                    applySignificantDigit(outlierVal[dpIndex]),
+                ]);
             } else {
-                showVal.push([agg_function, applySignificantDigit(nByXAndColor)])
+                showVal.push([
+                    agg_function,
+                    applySignificantDigit(nByXAndColor),
+                ]);
             }
-            dataTable = genHoverDataTable([['x', xVal], ...period, ['Color', color], ...showVal, ...fromTo]);
+            dataTable = genHoverDataTable([
+                ['x', xVal],
+                ...period,
+                ['Color', color],
+                ...showVal,
+                ...fromTo,
+            ]);
         } else {
             const nByX = showPercent ? '100%' : countByXAxis[colId][xVal];
-            const NByColor = showPercent ? `${applySignificantDigit(nByXAndColor)}%` : applySignificantDigit(nByXAndColor);
+            const NByColor = showPercent
+                ? `${applySignificantDigit(nByXAndColor)}%`
+                : applySignificantDigit(nByXAndColor);
 
-            const NByColorHover = hasColor ? [['N by x and Color', NByColor]] : [];
+            const NByColorHover = hasColor
+                ? [['N by x and Color', NByColor]]
+                : [];
 
-            dataTable = genHoverDataTable([['x', xVal], ...period, ['Color', color], ...NByColorHover, ['N by x', applySignificantDigit(nByX)], ...fromTo]);
+            dataTable = genHoverDataTable([
+                ['x', xVal],
+                ...period,
+                ['Color', color],
+                ...NByColorHover,
+                ['N by x', applySignificantDigit(nByX)],
+                ...fromTo,
+            ]);
         }
         genDataPointHoverTable(
             dataTable,
             {
-                x: data.event.pageX - 220, y: data.event.pageY,
+                x: data.event.pageX - 220,
+                y: data.event.pageY,
             },
             0,
             true,
             canvasId,
-            1
+            1,
         );
     });
     unHoverHandler(agPPlot);
@@ -175,9 +232,10 @@ const reduceTicksArray = (array, tickLen) => {
     const nTicks = MAX_TICKS;
     const isReduce = array.length > MAX_TICKS;
     if (!isReduce) return array;
-    let nextIndex = array.length / nTicks < 2 ? 2 : Math.round(array.length / nTicks);
+    let nextIndex =
+        array.length / nTicks < 2 ? 2 : Math.round(array.length / nTicks);
     if (nextIndex * nTicks > MAX_TICKS) {
-        nextIndex += 1
+        nextIndex += 1;
     }
     const res = [];
     let i = 0;
@@ -194,20 +252,21 @@ const prepareColorForTrace = (data, uniqueColor) => {
     if (uniqueColor.length > 0) {
         styles = uniqueColor.map((color, k) => ({
             target: color,
-            color: COLOR_DEFAULT[k]
-
+            color: COLOR_DEFAULT[k],
         }));
     } else {
         styles = data.map((data, k) => ({
             target: data.name,
-            color: COLOR_DEFAULT[k]
+            color: COLOR_DEFAULT[k],
         }));
     }
 
-
-    return data.map(da =>{
-        const colors = styles.filter(st => st.target === da.name);
-        const color = colors.length > 0 ? styles.filter(st => st.target === da.name)[0].color : '';
+    return data.map((da) => {
+        const colors = styles.filter((st) => st.target === da.name);
+        const color =
+            colors.length > 0
+                ? styles.filter((st) => st.target === da.name)[0].color
+                : '';
         return {
             ...da,
             marker: {
@@ -216,51 +275,51 @@ const prepareColorForTrace = (data, uniqueColor) => {
             line: {
                 ...da.line,
                 color: color,
-            }
-        }
-    })
+            },
+        };
+    });
 };
 
 const getOutlierTraceData = (datas, yScale, plotData) => {
     const { lower_outlier_idxs, upper_outlier_idxs } = yScale;
     const { array_y } = plotData;
 
-    const outlierTraceList = []
+    const outlierTraceList = [];
 
-    datas = datas.map(data => {
+    datas = datas.map((data) => {
         let isHasOutlier = false;
-         const outlierTrace = {
+        const outlierTrace = {
             ...data,
             colorName: data.name,
             name: i18n.outlier,
             mode: 'markers',
-             marker: {
+            marker: {
                 symbol: '4',
-                 size: 8
-             },
+                size: 8,
+            },
             isOutlier: true,
             showlegend: false,
-        }
+        };
         let cloneY = Array.from(outlierTrace.y).fill(null);
-        let outlierVal = Array.from(outlierTrace.y).fill(null)
+        let outlierVal = Array.from(outlierTrace.y).fill(null);
         for (const i of lower_outlier_idxs) {
             const lowerOutlier = array_y[i];
             const indexList = getAllIndexes(data.y, lowerOutlier);
             for (const index of indexList) {
-                isHasOutlier = true
+                isHasOutlier = true;
                 cloneY[index] = yScale['y-min'];
-                outlierVal[index] = data.y[index]
+                outlierVal[index] = data.y[index];
                 data.y[index] = null;
             }
         }
 
         for (const i of upper_outlier_idxs) {
             const upperOutlier = array_y[i];
-             const indexList = getAllIndexes(data.y, upperOutlier);
+            const indexList = getAllIndexes(data.y, upperOutlier);
             for (const index of indexList) {
-                isHasOutlier = true
+                isHasOutlier = true;
                 cloneY[index] = yScale['y-max'];
-                outlierVal[index] = data.y[index]
+                outlierVal[index] = data.y[index];
                 data.y[index] = null;
             }
         }
@@ -271,17 +330,17 @@ const getOutlierTraceData = (datas, yScale, plotData) => {
         }
 
         return data;
-    })
+    });
 
+    datas = outlierTraceList.concat(datas);
 
-    datas = outlierTraceList.concat(datas)
-
-    return datas
+    return datas;
 };
 
 function getAllIndexes(arr, val) {
-    let indexes = [], i = -1;
-    while ((i = arr.indexOf(val, i+1)) != -1){
+    let indexes = [],
+        i = -1;
+    while ((i = arr.indexOf(val, i + 1)) != -1) {
         indexes.push(i);
     }
     return indexes;

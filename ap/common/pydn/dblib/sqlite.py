@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # Author: Masato Yasuda (2019/04/10)
+from __future__ import annotations
 
 import logging
 import sqlite3
@@ -199,6 +200,23 @@ class SQLite3:
         cur.close()
         self.connection.commit()
         print('Dummy data was inserted to {}!'.format(tblname))
+
+    def get_column_type(self, tblname, colname) -> str | None:
+        sql = f'PRAGMA TABLE_INFO({tblname})'
+        cur = self.connection.cursor()
+        cur.execute(sql)
+        rows = cur.fetchall()
+        cur.close()
+
+        def is_good_column(row):
+            # cid, name, type, notnull, dflt_value, pk
+            _, name, *_ = row
+            return name == colname
+
+        good_rows = filter(is_good_column, rows)
+        column_types = (x[2] for x in good_rows)
+        column_type = next(column_types, None)
+        return column_type
 
     # SQLをそのまま実行。
     # cols, rows = db1.run_sql("select * from tbl01")

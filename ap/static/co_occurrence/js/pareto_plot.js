@@ -10,11 +10,11 @@ const paretoPlot = (prop) => {
         },
         type: 'bar',
         orientation: prop.bar.orientation,
-        hovertemplate: '%{y}:<br\>%{text}',
+        hovertemplate: '%{y}:<br>%{text}',
         textposition: 'outside',
         textfont: {
             color: '#ffffff',
-        }
+        },
     };
 
     const lineCumRatio = {
@@ -23,7 +23,7 @@ const paretoPlot = (prop) => {
         name: prop.line_cum_ratio.name,
         text: prop.line_cum_ratio.text.reverse(),
         mode: 'lines+markers',
-        hovertemplate: '%{y}:<br\>%{text:.2f} %',
+        hovertemplate: '%{y}:<br>%{text:.2f} %',
     };
 
     const line80Percent = {
@@ -87,8 +87,6 @@ const paretoPlot = (prop) => {
         displaylogo: false,
         responsive: true,
         useResizeHandler: true,
-        style: {width: '100%', height: '100%'},
+        style: { width: '100%', height: '100%' },
     });
-
-
-}
+};

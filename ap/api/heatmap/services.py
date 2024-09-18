@@ -29,7 +29,7 @@ from ap.api.common.services.show_graph_services import (
     is_categorical_col,
     main_check_filter_detail_match_graph_data,
 )
-from ap.common.common_utils import gen_sql_label
+from ap.common.common_utils import gen_sql_label, get_x_y_info
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_PLOTDATA,
@@ -165,13 +165,9 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
         root_graph_param.dic_card_orders,
         dic_param,
     )
-    scatter_xy_ids = []
-    scatter_xy_names = []
-    scatter_proc_ids = []
-    for proc in orig_graph_param.array_formval:
-        scatter_proc_ids.append(proc.proc_id)
-        scatter_xy_ids = scatter_xy_ids + proc.col_ids
-        scatter_xy_names = scatter_xy_names + proc.col_names
+
+    # get xy info
+    scatter_xy_ids, scatter_xy_names, scatter_proc_ids = get_x_y_info(orig_graph_param.array_formval, dic_param[COMMON])
 
     x_proc_id = scatter_proc_ids[0]
     y_proc_id = scatter_proc_ids[-1]

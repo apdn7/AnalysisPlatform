@@ -1,225 +1,462 @@
 <!-- CSV -->
-<div class="modal fade db-modal" id="modal-db-csv" tabindex="-1" role="dialog"
-	 aria-labelledby="CSVSelectedLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="modal-db-csv"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="CSVSelectedLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-xl" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title" id="CSVSelectedLabel">{{ _("CSV Import Config") }}</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<div class="form-group row">
-					<div class="col-sm-12">
-						{{ macros.alert_message("alertMsgCheckFolder") }}
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="CSVSelectedLabel">
+                    {{ _("CSV Import Config") }}
+                </h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        {{ macros.alert_message("alertMsgCheckFolder") }}
                         {{ macros.alert_message("alertInternalError") }}
-						{{ macros.alert_message("alert-msg-csvDbname", on_top=True) }}
-					</div>
-				</div>
-				<div class="form-group row">
-					<label for="csvDBSourceName" class="col-sm-3 col-form-label"><h5>{{ _("Data Source Name") }}</h5>
-					</label>
-					<div class="col-sm-6">
-						<input type="text" name="csvDBSourceName" class="form-control" id="csvDBSourceName">
-					</div>
-				</div>
-				<div class="form-group row">
-					<label for="csvComment" class="col-sm-3 col-form-label"><h5>{{ _("Comment") }}</h5></label>
-                    <div class="col-sm-6">
-                        <input type="text" name="csvComment" class="form-control" id="csvComment">
+                        {{ macros.alert_message("alert-msg-csvDbname", on_top=True) }}
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="folderUrl" class="col-sm-3 col-form-label"><h5>{{ _("Source") }}</h5></label>
+                    <label for="csvDBSourceName" class="col-sm-3 col-form-label"
+                        ><h5>{{ _("Data Source Name") }}</h5>
+                    </label>
                     <div class="col-sm-6">
-                        <input type="text" name="folderUrl" class="form-control already-convert-hankaku" id="folderUrl" placeholder="Z:\path\to\directory">
+                        <input
+                            type="text"
+                            name="csvDBSourceName"
+                            class="form-control"
+                            id="csvDBSourceName"
+                        />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="csvComment" class="col-sm-3 col-form-label"
+                        ><h5>{{ _("Comment") }}</h5></label
+                    >
+                    <div class="col-sm-6">
+                        <input
+                            type="text"
+                            name="csvComment"
+                            class="form-control"
+                            id="csvComment"
+                        />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="folderUrl" class="col-sm-3 col-form-label"
+                        ><h5>{{ _("Source") }}</h5></label
+                    >
+                    <div class="col-sm-6">
+                        <input
+                            type="text"
+                            name="folderUrl"
+                            class="form-control already-convert-hankaku"
+                            id="folderUrl"
+                            placeholder="Z:\path\to\directory"
+                        />
+                        <input type="hidden" id="isFilePath" />
                     </div>
                     <div class="col-sm-3 text-left">
-                        <button class="btn btn-primary" id="connectResourceBtn">{{ _("Connect") }}</button>
+                        <button class="btn btn-primary" id="connectResourceBtn">
+                            {{ _("Connect") }}
+                        </button>
                     </div>
                 </div>
-                <div class="form-group row" id="v2ProcessDiv" style="display: none;">
-                    <label for="v2ProcessSelection" class="col-sm-3 col-form-label">
-						<h5 title="{{ _('Select V2 Process') }}"><span class="hint-text">{{ _("V2 Process") }}</span></h5>
+                <div
+                    class="form-group row"
+                    id="v2ProcessDiv"
+                    style="display: none;"
+                >
+                    <label
+                        for="v2ProcessSelection"
+                        class="col-sm-3 col-form-label"
+                    >
+                        <h5 title="{{ _('Select V2 Process') }}">
+                            <span class="hint-text">{{ _("V2 Process") }}</span>
+                        </h5>
                     </label>
-                    <div class="col-sm-6" id="v2ProcessSelection">
-                    </div>
+                    <div class="col-sm-6" id="v2ProcessSelection"></div>
                 </div>
                 <div class="form-group row">
-                    <label for="optionalFunction" class="col-sm-3 col-form-label">
-						<h5 title="{{ _('Optional function Hover') }}"><span class="hint-text">{{ _("Optional function") }}</span></h5>
+                    <label
+                        for="optionalFunction"
+                        class="col-sm-3 col-form-label"
+                    >
+                        <h5 title="{{ _('Optional function Hover') }}">
+                            <span class="hint-text"
+                                >{{ _("Optional function") }}</span
+                            >
+                        </h5>
                     </label>
                     <div class="col-sm-6">
-                        <select type="select" name="optionalFunction" class="form-control select2-selection--single" id="optionalFunction">
+                        <select
+                            type="select"
+                            name="optionalFunction"
+                            class="form-control select2-selection--single"
+                            id="optionalFunction"
+                        >
                             <option value="">{{ _("---") }}</option>
                             {% for script in etl_scripts %}
-                            <option value="{{script}}">{{ script }}</option>
+                                <option value="{{ script }}">
+                                    {{ script }}
+                                </option>
                             {% endfor %}
                         </select>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="" class="col-sm-3 col-form-label"><h5>{{ _("File type") }}</h5></label>
+                    <label for="" class="col-sm-3 col-form-label"
+                        ><h5>{{ _("File type") }}</h5></label
+                    >
                     <div class="col-sm-6 file-type-area">
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="fileTypeAuto" name="fileType" value="Auto">
-                            <label class="custom-control-label" for="fileTypeAuto">Auto</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="fileTypeCSV" name="fileType" value="CSV">
-                            <label class="custom-control-label" for="fileTypeCSV">CSV</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="fileTypeTSV" name="fileType" value="TSV">
-                            <label class="custom-control-label" for="fileTypeTSV">TSV</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="fileTypeSMC" name="fileType" value="SMC">
-                            <label class="custom-control-label" for="fileTypeSMC">Semicolon(;)SV</label>
-                        </div>
-                        <div class="custom-control custom-checkbox custom-control-inline float-right transpose-div">
-                            <input
-                                type="checkbox"
-                                class="custom-control-input already-convert-hankaku"
-                                id="csvIsTranspose"
-                                name="csvIsTranspose"
-                            />
-                            <label
-                                class="custom-control-label"
-                                for="csvIsTranspose"
-                                title="{{ _('Transpose hover msg') }}"
-                            >{{ _('Transpose') }}</label
-                            >
-                        </div>
-                        <div class="custom-control custom-control-inline float-right line-skip-group nrows-div">
-                            <label
-                                class="line-skip mr-2 mb-0"
-                                title="{{ _('Num rows hover msg') }}"
-                                for="csvNRows"
-                            >
-                                <span class="hint-text">nRows</span>
-                            </label>
-                            <input
-                                type="number"
-                                id="csvNRows"
-                                name="csvNRows"
-                                class="form-control csvNRows"
-                                min="0"
-                            />
-                        </div>
-                        <div class="custom-control custom-control-inline float-right line-skip-group skip-div">
-                            <label
-                                class="line-skip mr-2 mb-0"
-                                title="{{ _('Skip line hover msg') }}"
-                                for="skipHead"
-                            >
-                                <span class="hint-text">Skip</span>
-                            </label>
-                            <input
-                                type="number"
-                                id="skipHead"
-                                name="line_skip"
-                                class="form-control"
-                                min="0"
-                                max="99"
-                            />
-                            <input
-                                type="hidden"
-                                name="isDummyHeader"
-                                value=""
-                            />
+                        <div class="row" style="padding: 0 15px">
+                            <div class="mb-2">
+                                <div
+                                    class="custom-control custom-radio custom-control-inline"
+                                >
+                                    <input
+                                        type="radio"
+                                        class="custom-control-input"
+                                        id="fileTypeAuto"
+                                        name="fileType"
+                                        value="Auto"
+                                    />
+                                    <label
+                                        class="custom-control-label"
+                                        for="fileTypeAuto"
+                                        >Auto</label
+                                    >
+                                </div>
+                                <div
+                                    class="custom-control custom-radio custom-control-inline"
+                                >
+                                    <input
+                                        type="radio"
+                                        class="custom-control-input"
+                                        id="fileTypeCSV"
+                                        name="fileType"
+                                        value="CSV"
+                                    />
+                                    <label
+                                        class="custom-control-label"
+                                        for="fileTypeCSV"
+                                        >CSV</label
+                                    >
+                                </div>
+                                <div
+                                    class="custom-control custom-radio custom-control-inline"
+                                >
+                                    <input
+                                        type="radio"
+                                        class="custom-control-input"
+                                        id="fileTypeTSV"
+                                        name="fileType"
+                                        value="TSV"
+                                    />
+                                    <label
+                                        class="custom-control-label"
+                                        for="fileTypeTSV"
+                                        >TSV</label
+                                    >
+                                </div>
+                                <div
+                                    class="custom-control custom-radio custom-control-inline"
+                                >
+                                    <input
+                                        type="radio"
+                                        class="custom-control-input"
+                                        id="fileTypeSMC"
+                                        name="fileType"
+                                        value="SMC"
+                                    />
+                                    <label
+                                        class="custom-control-label"
+                                        for="fileTypeSMC"
+                                        >Semicolon(;)SV</label
+                                    >
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 import-config-file-row">
+                                <div
+                                    class="custom-control custom-checkbox custom-control-inline float-right transpose-div"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        class="custom-control-input already-convert-hankaku"
+                                        id="csvIsTranspose"
+                                        name="csvIsTranspose"
+                                    />
+                                    <label
+                                        class="custom-control-label"
+                                        for="csvIsTranspose"
+                                        title="{{ _('Transpose hover msg') }}"
+                                        >{{ _('Transpose') }}</label
+                                    >
+                                </div>
+                                <div
+                                    class="custom-control custom-control-inline float-right line-skip-group nrows-div"
+                                >
+                                    <label
+                                        class="line-skip mr-2 mb-0"
+                                        title="{{ _('Num rows hover msg') }}"
+                                        for="csvNRows"
+                                    >
+                                        <span class="hint-text">nRows</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="csvNRows"
+                                        name="csvNRows"
+                                        class="form-control csvNRows"
+                                        min="0"
+                                    />
+                                </div>
+                                <div
+                                    class="custom-control custom-control-inline float-right line-skip-group skip-div"
+                                >
+                                    <label
+                                        class="line-skip mr-2 mb-0"
+                                        title="{{ _('Skip line hover msg') }}"
+                                        for="skipHead"
+                                    >
+                                        <span class="hint-text">Skip</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="skipHead"
+                                        name="skip_head"
+                                        class="form-control"
+                                        min="0"
+                                        max="99"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="isDummyHeader"
+                                        value=""
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="form-group row mg-minus-1">
-                    <label class="col-sm-3 col-form-label"><h5 title="{{ _('Specify datatype of columns Hover') }}">
-						<span class="hint-text">{{ _("Specify datatype of columns") }}</span></h5></label>
-                    <div class="col-sm-6"><div class="file-encoding" id="dbsEncoding"></div></div>
+                    <label class="col-sm-3 col-form-label"
+                        ><h5
+                            title="{{ _('Specify datatype of columns Hover') }}"
+                        >
+                            <span class="hint-text"
+                                >{{ _("Specify datatype of columns") }}</span
+                            >
+                        </h5></label
+                    >
+                    <div class="col-sm-6">
+                        <div class="file-encoding" id="dbsEncoding"></div>
+                    </div>
                 </div>
                 <div class="form-group row">
-                    <div class="col-sm-3"><button class="btn btn-primary" id="showResources">{{ _("Show") }}</button></div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-primary" id="showResources">
+                            {{ _("Show") }}
+                        </button>
+                    </div>
                     <div class="col-sm-6 text-wrap">
-                        <div id="resourceLoading" class="spinner-border text-primary hide" role="status">
+                        <div
+                            id="resourceLoading"
+                            class="spinner-border text-primary hide"
+                            role="status"
+                        >
                             <span class="sr-only">Loading...</span>
-                          </div>
-                        <span id="fileName" style="word-break: break-all; display: none;"></span>
+                        </div>
+                        <span
+                            id="fileName"
+                            style="word-break: break-all; display: none;"
+                        ></span>
                     </div>
                 </div>
                 <div class="form-group row">
                     <div class="col-sm-12">
-                        <div id="csvDataTable" class="table-responsive" style="display: none;">
-                            <input id="skipTail" value="" hidden>
-                            <table class="table bg-secondary table-striped table-hover table-hover-light" name="" id="">
+                        <div
+                            id="csvDataTable"
+                            class="table-responsive"
+                            style="display: none;"
+                        >
+                            <input id="skipTail" value="" hidden />
+                            <table
+                                class="table bg-secondary table-striped table-hover table-hover-light"
+                                name=""
+                                id=""
+                            >
                                 <thead class="thead-dark">
-								<tr></tr>
-								</thead>
-								<tbody class="table-info table-active">
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-
-				<button type="button" onclick="saveCSVInfo();" class="btn btn-secondary saveDBInfoBtn"
-						data-csv="1" data-item-id="">{{ _("OK") }}</button>
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
-			</div>
-		</div>
-	</div>
+                                    <tr></tr>
+                                </thead>
+                                <tbody class="table-info table-active"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    onclick="saveCSVInfo();"
+                    class="btn btn-secondary saveDBInfoBtn"
+                    data-csv="1"
+                    data-item-id=""
+                >
+                    {{ _("OK") }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
-<div id="CSVConfirmModal" class="modal fade" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+<div
+    id="CSVConfirmModal"
+    class="modal fade"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
             </div>
             <div class="modal-body">
-                <p id="csvConfirmModalMsg" class="modal-inform" style="white-space: pre-line"></p>
+                <p
+                    id="csvConfirmModalMsg"
+                    class="modal-inform"
+                    style="white-space: pre-line"
+                ></p>
             </div>
-            <br>
+            <br />
             <div class="modal-footer">
-                <button id="csvConfirmRegister" class="btn btn-primary" data-item-id="">{{ _("OK") }}</button>
-                <button class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                <button
+                    id="csvConfirmRegister"
+                    class="btn btn-primary"
+                    data-item-id=""
+                >
+                    {{ _("OK") }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 <!-- SQLITE -->
-<div class="modal fade db-modal" id="modal-db-sqlite" tabindex="-1" role="dialog" aria-labelledby="DBSelectedLabel"
-    aria-hidden="true" data-backdrop="static" data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="modal-db-sqlite"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="DBSelectedLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="col-md"><h4 class="modal-title" id="DBSelectedLabel">{{ _("Config") }}: <span id="DBTypeModal">SQLite</span></h4></div>
-                <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#advancedDSModal">Advanced</button>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="col-md">
+                    <h4 class="modal-title" id="DBSelectedLabel">
+                        {{ _("Config") }}: <span id="DBTypeModal">SQLite</span>
+                    </h4>
+                </div>
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-toggle="modal"
+                    data-target="#advancedDSModal"
+                >
+                    Advanced
+                </button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-					{{ macros.alert_message("alert-sqlite-validation") }}
+                    {{ macros.alert_message("alert-sqlite-validation") }}
                     <form id="sqliteCfgForm">
                         <div class="form-group row">
-                            <label for="sqlite_dbsourcename" class="col-sm-3 col-form-label"><h5>{{ _("Data Source Name") }}</h5></label>
+                            <label
+                                for="sqlite_dbsourcename"
+                                class="col-sm-3 col-form-label"
+                                ><h5>{{ _("Data Source Name") }}</h5></label
+                            >
                             <div class="col-sm-9">
-                                <input type="text" name="sqlite_dbsourcename" class="form-control" id="sqlite_dbsourcename">
+                                <input
+                                    type="text"
+                                    name="sqlite_dbsourcename"
+                                    class="form-control"
+                                    id="sqlite_dbsourcename"
+                                />
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="sqlite_comment" class="col-sm-3 col-form-label"><h5>{{ _("Comment") }}</h5></label>
+                            <label
+                                for="sqlite_comment"
+                                class="col-sm-3 col-form-label"
+                                ><h5>{{ _("Comment") }}</h5></label
+                            >
                             <div class="col-sm-9">
-                                <input type="text" name="sqlite_comment" class="form-control" id="sqlite_comment">
+                                <input
+                                    type="text"
+                                    name="sqlite_comment"
+                                    class="form-control"
+                                    id="sqlite_comment"
+                                />
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="sqlite_dbname" class="col-sm-3 col-form-label"><h5>{{ _("File name") }}</h5></label>
+                            <label
+                                for="sqlite_dbname"
+                                class="col-sm-3 col-form-label"
+                                ><h5>{{ _("File name") }}</h5></label
+                            >
                             <div class="col-sm-9">
-                                <input type="text" name="sqlite_dbname" class="form-control already-convert-hankaku" id="sqlite_dbname">
+                                <input
+                                    type="text"
+                                    name="sqlite_dbname"
+                                    class="form-control already-convert-hankaku"
+                                    id="sqlite_dbname"
+                                />
                             </div>
                         </div>
                         {{ macros.input_hidden("sqlite_use_os_timezone", "", "sqlite_use_os_timezone") }}
@@ -227,29 +464,66 @@
                 </div>
             </div>
             <div class="modal-footer">
-
                 {{ macros.check_db_connection_message('sqlite', '#form-control-file [name="sqlite_dbname"]', 'btn-test-db-conn-sqlite', 'msg-test-db-conn-sqlite') }}
 
-                <button id="" type="button" onclick="saveDBInfo(this);" class="btn btn-primary saveDBInfoBtn" data-item-id="">{{ _("OK") }}</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                <button
+                    id=""
+                    type="button"
+                    onclick="saveDBInfo(this);"
+                    class="btn btn-primary saveDBInfoBtn"
+                    data-item-id=""
+                >
+                    {{ _("OK") }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 <!-- MSSQL -->
-<div class="modal fade db-modal" id="modal-db-mssqlserver" tabindex="-1" role="dialog"
-	 aria-labelledby="MSSQLSelectedLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="modal-db-mssqlserver"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="MSSQLSelectedLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="col-md"><h4 class="modal-title" id="MSSQLSelectedLabel">{{ _("Config") }}: MSSQL Server</h4></div>
-                <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#advancedDSModal">Advanced</button>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="col-md">
+                    <h4 class="modal-title" id="MSSQLSelectedLabel">
+                        {{ _("Config") }}: MSSQL Server
+                    </h4>
+                </div>
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-toggle="modal"
+                    data-target="#advancedDSModal"
+                >
+                    Advanced
+                </button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" name="modal-body-input">
-				{{ macros.alert_message("alert-mssqlserver-validation") }}
+                {{ macros.alert_message("alert-mssqlserver-validation") }}
                 <form id="mssqlCfgForm">
                     {{ macros.input_row("mssqlserver_dbsourcename", _("Data Source Name")) }}
 
@@ -270,27 +544,62 @@
                     {{ macros.input_hidden("mssqlserver_use_os_timezone", "", "mssqlserver_use_os_timezone") }}
                 </form>
             </div>
-            <div class="modal-footer" >
+            <div class="modal-footer">
                 {{ macros.check_db_connection_message('mssqlserver', '#modal-db-mssqlserver div[name="modal-body-input"]', 'btn-test-db-conn-mssqlserver', 'msg-test-db-conn-mssqlserver') }}
-                <button id="" type="button" class="btn btn-primary saveDBInfoBtn" data-item-id="" onclick="saveDBInfo(this);">{{ _("OK") }}</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                <button
+                    id=""
+                    type="button"
+                    class="btn btn-primary saveDBInfoBtn"
+                    data-item-id=""
+                    onclick="saveDBInfo(this);"
+                >
+                    {{ _("OK") }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 <!-- POSTGRESQL -->
-<div class="modal fade db-modal" id="modal-db-postgresql" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="modal-db-postgresql"
+    tabindex="-1"
+    role="dialog"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="col-md"><h4 class="modal-title">{{ _("Config") }}: PostgreSQL</h4></div>
-                <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#advancedDSModal">Advanced</button>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="col-md">
+                    <h4 class="modal-title">{{ _("Config") }}: PostgreSQL</h4>
+                </div>
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-toggle="modal"
+                    data-target="#advancedDSModal"
+                >
+                    Advanced
+                </button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" name="modal-body-input">
-				{{ macros.alert_message("alert-postgresql-validation") }}
+                {{ macros.alert_message("alert-postgresql-validation") }}
                 <form id="postgresCfgForm">
                     {{ macros.input_row("postgresql_dbsourcename", _("Data Source Name")) }}
 
@@ -313,31 +622,67 @@
             </div>
 
             <div class="modal-footer">
-
                 {{ macros.check_db_connection_message('postgresql', '#modal-db-postgresql div[name="modal-body-input"]', 'btn-test-db-conn-psql', 'msg-test-db-conn-psql') }}
 
-                <button id="" type="button" onclick="saveDBInfo(this);" class="btn btn-primary saveDBInfoBtn" data-item-id="">{{ _("OK") }}</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
-
+                <button
+                    id=""
+                    type="button"
+                    onclick="saveDBInfo(this);"
+                    class="btn btn-primary saveDBInfoBtn"
+                    data-item-id=""
+                >
+                    {{ _("OK") }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Oracle -->
-<div class="modal fade db-modal" id="modal-db-oracle" tabindex="-1" role="dialog"
-	 aria-labelledby="OracleSelectedLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="modal-db-oracle"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="OracleSelectedLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="col-md"><h4 class="modal-title" id="OracleSelectedLabel">{{ _("Config") }}: Oracle</h4></div>
-                <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#advancedDSModal">Advanced</button>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="col-md">
+                    <h4 class="modal-title" id="OracleSelectedLabel">
+                        {{ _("Config") }}: Oracle
+                    </h4>
+                </div>
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-toggle="modal"
+                    data-target="#advancedDSModal"
+                >
+                    Advanced
+                </button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" name="modal-body-input">
-				{{ macros.alert_message("alert-oracle-validation") }}
+                {{ macros.alert_message("alert-oracle-validation") }}
                 <form id="oracleCfgForm">
                     {{ macros.input_row("oracle_dbsourcename", _("Data Source Name")) }}
 
@@ -356,28 +701,66 @@
                     {{ macros.input_hidden("oracle_use_os_timezone", "", "oracle_use_os_timezone") }}
                 </form>
             </div>
-            <div class="modal-footer" >
+            <div class="modal-footer">
                 {{ macros.check_db_connection_message('oracle', '#modal-db-oracle div[name="modal-body-input"]', 'btn-test-db-conn-oracle', 'msg-test-db-conn-oracle') }}
-                <button id="" type="button" class="btn btn-primary saveDBInfoBtn" data-item-id="" onclick="saveDBInfo(this);">{{ _("OK") }}</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                <button
+                    id=""
+                    type="button"
+                    class="btn btn-primary saveDBInfoBtn"
+                    data-item-id=""
+                    onclick="saveDBInfo(this);"
+                >
+                    {{ _("OK") }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 <!-- MySQL -->
-<div class="modal fade db-modal" id="modal-db-mysql" tabindex="-1" role="dialog"
-	 aria-labelledby="MySQLSelectedLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="modal-db-mysql"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="MySQLSelectedLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="col-md"><h4 class="modal-title" id="MySQLSelectedLabel">{{ _("Config") }}: MySQL</h4></div>
-                <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#advancedDSModal">Advanced</button>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="col-md">
+                    <h4 class="modal-title" id="MySQLSelectedLabel">
+                        {{ _("Config") }}: MySQL
+                    </h4>
+                </div>
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-toggle="modal"
+                    data-target="#advancedDSModal"
+                >
+                    Advanced
+                </button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" name="modal-body-input">
-				{{ macros.alert_message("alert-mysql-validation") }}
+                {{ macros.alert_message("alert-mysql-validation") }}
                 <form id="mysqlCfgForm">
                     {{ macros.input_row("mysql_dbsourcename", _("Data Source Name")) }}
 
@@ -396,51 +779,200 @@
                     {{ macros.input_hidden("mysql_use_os_timezone", "", "mysql_use_os_timezone") }}
                 </form>
             </div>
-            <div class="modal-footer" >
+            <div class="modal-footer">
                 {{ macros.check_db_connection_message('mysql', '#modal-db-mysql div[name="modal-body-input"]', 'btn-test-db-conn-mysql', 'msg-test-db-conn-mysql') }}
-                <button id="" type="button" class="btn btn-primary saveDBInfoBtn" data-item-id="" onclick="saveDBInfo(this);">{{ _("OK") }}</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                <button
+                    id=""
+                    type="button"
+                    class="btn btn-primary saveDBInfoBtn"
+                    data-item-id=""
+                    onclick="saveDBInfo(this);"
+                >
+                    {{ _("OK") }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<div id="deleteDSModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-confirm">
+<!-- SOFTWARE WORKSHOP -->
+<div
+    class="modal fade db-modal"
+    id="modal-db-software_workshop"
+    tabindex="-1"
+    role="dialog"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <div class="col-md">
+                    <h4 class="modal-title">
+                        {{ _("Config") }}: {{ _("Software Workshop Postgres") }}
+                    </h4>
+                </div>
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-toggle="modal"
+                    data-target="#advancedDSModal"
+                >
+                    Advanced
+                </button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="modal-body">
-                <p class="modal-inform">{{ _('Do you want to delete this record?') }}</p>
+            <div class="modal-body" name="modal-body-input">
+                {{ macros.alert_message("alert-software_workshop-validation") }}
+                <form id="softwareWorkshopCfgForm">
+                    {{ macros.input_row("software_workshop_dbsourcename", _("Data Source Name")) }}
+
+                    {{ macros.input_row("software_workshop_comment", _("Comment")) }}
+
+                    {{ macros.input_row("software_workshop_host", _("Host name") + " (" + _("IP Address") + ")") }}
+
+                    {{ macros.input_row("software_workshop_port", _("Port number"), value='5432') }}
+
+                    {{ macros.input_row("software_workshop_dbname", _("Database Name")) }}
+
+                    {{ macros.input_row("software_workshop_schema", _("Schema"), value='public') }}
+
+                    {{ macros.input_row("software_workshop_username", _("User name")) }}
+
+                    {{ macros.input_row("software_workshop_password", _("Password"), type='password') }}
+
+                    {{ macros.input_hidden("software_workshop_use_os_timezone", "", "software_workshop_use_os_timezone") }}
+                </form>
             </div>
+
             <div class="modal-footer">
-                <button id="btnDeleteDS" onclick="confirmDeleteDS();" class="btn btn-danger" data-item-id=""
-                    data-dismiss="modal">{{ _('Delete') }}</button>
-                <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+                {{ macros.check_db_connection_message('software_workshop', '#modal-db-software_workshop div[name="modal-body-input"]', 'btn-test-db-conn-software_workshop', 'msg-test-db-conn-software_workshop') }}
+
+                <button
+                    id=""
+                    type="button"
+                    onclick="saveDBInfo(this);"
+                    class="btn btn-primary saveDBInfoBtn"
+                    data-item-id=""
+                >
+                    {{ _("OK") }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
-<div id="advancedDSModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+
+<div
+    id="deleteDSModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform">
+                    {{ _('Do you want to delete this record?') }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button
+                    id="btnDeleteDS"
+                    onclick="confirmDeleteDS();"
+                    class="btn btn-danger"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    {{ _('Delete') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div
+    id="advancedDSModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _('Advanced Setting') }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
             </div>
             <div class="modal-body">
                 <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="useOSTZOption" checked>
-                    <label class="custom-control-label" for="useOSTZOption">{{ _('Force to OS locale time zone.') }}</label>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button id="useOSTZConfirmBtn" onclick="updateOSTimezone();" class="btn btn-primary" data-item-id=""
-						data-dismiss="modal">{{ _('OK') }}</button>
-				<button class="btn btn-secondary" onclick="revertOSTimezone('advancedDSModal');">{{ _('Cancel') }}</button>
-			</div>
-		</div>
-	</div>
+                    <input
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="useOSTZOption"
+                        checked
+                    />
+                    <label class="custom-control-label" for="useOSTZOption"
+                        >{{ _('Force to OS locale time zone.') }}</label
+                    >
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    id="useOSTZConfirmBtn"
+                    onclick="updateOSTimezone();"
+                    class="btn btn-primary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button
+                    class="btn btn-secondary"
+                    onclick="revertOSTimezone('advancedDSModal');"
+                >
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

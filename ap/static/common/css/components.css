@@ -26,9 +26,8 @@
 }
 
 .objective-item {
-    max-width: 80px!important;
+    max-width: 80px !important;
 }
-
 
 .floating-dropdown {
     height: 50vh;
@@ -39,11 +38,13 @@
     background-color: #333;
 }
 
-#cond-proc-row h5, h6 {
+#cond-proc-row h5,
+h6 {
     margin-bottom: 0;
 }
 
-.end-proc, .cond-proc {
+.end-proc,
+.cond-proc {
     min-width: 250px;
 }
 
@@ -73,12 +74,11 @@
     height: 12px;
 }
 
-
 /* Tooltip CSS */
 .tooltip-parent .tooltip-content {
     visibility: hidden;
     width: 150px;
-    background-color: rgba(8, 8, 8, .8);
+    background-color: rgba(8, 8, 8, 0.8);
     color: #fff;
     text-align: left;
     border-radius: 6px;
@@ -100,7 +100,7 @@
 
 .tooltip-parent-lg .tooltip-content-lg {
     visibility: hidden;
-    background-color: rgba(8, 8, 8, .8);
+    background-color: rgba(8, 8, 8, 0.8);
     color: #fff;
     text-align: left;
     border-radius: 6px;
@@ -136,7 +136,6 @@
     border-radius: 3px;
 }
 
-
 .level-select {
     min-width: unset;
     padding: 1px 3px;
@@ -153,7 +152,6 @@
     width: 60px;
     min-width: 60px;
 }
-
 
 .expand-arrow {
     position: relative;
@@ -177,18 +175,20 @@
     padding-left: 35px;
 }
 
-.gray, .gray + label, .gray input, .gray select, .gray textarea {
-    color: gray!important;
+.gray,
+.gray + label,
+.gray input,
+.gray select,
+.gray textarea {
+    color: gray !important;
 }
 
 .title-col {
-    color: white!important;
+    color: white !important;
 }
 
-
-
 @media (max-width: 1590px) {
-   .show-name-col {
+    .show-name-col {
         flex: 0 0 27%;
         max-width: 27%;
     }
@@ -208,7 +208,7 @@
 }
 
 @media (max-width: 1200px) {
-   .show-name-col-header {
+    .show-name-col-header {
         flex: 0 0 66.6666666667%;
         max-width: 66.6666666667%;
     }
@@ -224,7 +224,7 @@
 }
 
 @media (max-width: 990px) {
-   .show-name-col {
+    .show-name-col {
         flex: 0 0 27%;
         max-width: 27%;
     }
@@ -234,7 +234,7 @@
         max-width: 54%;
     }
 
-     .type-item {
+    .type-item {
         width: 45px;
     }
 }
@@ -246,7 +246,7 @@
 
 @keyframes blink-animation {
     50% {
-        opacity: 0
+        opacity: 0;
     }
 }
 

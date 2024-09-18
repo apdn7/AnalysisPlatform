@@ -1,5 +1,96 @@
 # Releases
 
+## v4.7.3
+
+New features and Improvements
+
+* (Common)
+  * On-demand filter can now be applied when using `Jump` Function  
+  <img src="https://github.com/user-attachments/assets/4e441d6d-3d30-4b0b-b658-0d0dd8afac67" alt="JumpODF" width="600">
+  * Visualization pages now opens with no bookmark loaded by default
+  * Improved auto-scrolling after showing graph and scrolling buttons
+  * When copying settings between pages, the time Window Length and Interval are now adjusted to keep the time period the same
+  * Datetime can now be selected on Display Config page
+  * Datetime can now be calculated as CT for PCP, SkD, PCA, GL pages
+  * Copying User setting now copies the Outlier cleansing settings as well
+  * Copying User setting from Stratified Plot to Ridgeline Plot now keeps the target period settings
+  * X and Y axis can now be changed in ScatterPlot and HeatMap pages
+* (FPP)
+  * Parallel Coordinate Plot now uses Auto Range by default
+  * All columns in the dataframe can now be selected for X-axis ordering
+  * The hover popup no longer go out of the browser's viewport
+* (PCP)
+  * Enabled Y-axis scaling (Full range, Graph config, etc)
+  * The latest 20 srecords within the selected data are now displayed in a table  
+  <img src="https://github.com/user-attachments/assets/f442d950-0da4-46d3-90ca-c6c536c9a983" alt="PCPDataPreview" width="600">
+* (SkD)
+  * The hover message in SkD now shows the positive/negative relationship between variables
+* (AgP)
+  * AgP is now able to use a common scale for histogram and line charts respectively
+* (HMp)
+  * X and Y values are now shown on hovers in HeatMap page
+* (Config)
+  * New data types can now be used in Process Configuration: `Judge` and `Boolean`
+  * `Merge mode` can now be used for databases
+  * Sample Data in `Function` configuration can now be copied into a spreadsheet
+  * Backup-Restore: Imported data can now be backed up and restored within a specified time period
+  * Process Configuration for registered processes can now be viewed without connecting to the datasource
+  * Process Configuration can now be downloaded instead of copying to clipboard when APDN7 is accessed through an IP address  
+  <img src="https://github.com/user-attachments/assets/b1c2fdf8-24f8-41c5-99be-eddceff8b9ec" alt="downloadconfig" width="600">
+  * Sample data in Function Configuration page now shows the top 50 results by unique X-Y pairs
+  * Merge function now works better with mixed datatypes between X and Y
+  * Process Configuration modal now has explanation for some data types
+  * Register By File now jumps to FPP instead of CHM after importing is finished if dummy_datetime is present
+  * Optimized the speed for data link using datetime-cutoff
+  * Improved responsive styling of the Function Configuration modal
+  * Filter name in Filter Configuration page is now auto-filled when selecting a column
+  * Master filters are not automatically selected as filters and labels in Show graph pages. PartName, PartNo, LineName, LineNo are selected for the first process only.
+  * Datasource preview now shows rows with NA values
+  * In Function Configuration modal, function sample data rows are not sorted in X -> Y -> Result priority, and NA values are at the bottom
+  * Function Configuration now shows both local and system names for columns in the input selection
+* (Misc)
+  * Now `Register by File` page supports V2 CSV files
+  * Support new data source: Software workshop databases
+  * The Jump Function modal can now be filtered, and has Auto Select, Select all checkboxes
+ 
+Bug fixes
+
+* (Common)
+  * Fixed an issue where a column is not moved to the top of the list when selected as Facet or Div in Show graph pages
+* (FPP)
+  * Fixed an issue where outlier points do not lie at the edge of FPP charts
+* (PCP)
+  * Fixed a bug where categories are wrongly sorted
+  * Fixed an issue where the "Move next to target variable" button in Parallel Coordinate Plot fails to work
+  * Fixed a display bug where NA and Infinite values have the wrong color in Parallel Coordinate Plot
+* (SkD)
+  * Fixed an issue where SankeyDiagram fails to show binary classification mode when there are NA values in the data
+* (RLP)
+  * Fixed an issue where the Graph settings option does not work correctly for RLP
+* (Config)
+  * Data sources and processes created through Register By File page can now be previewed
+  * Autolink fails due to lack of delta_time and cut_off fields
+  * Fixed a bug where Auto Select does not work properly in Process Config modal
+  * Fixed a bug where Merge Mode returns an error when merging Float data into an Integer column
+  * Fixed an issue where datetime format is not applied after changing the datatype of a column in Process Config modal
+  * Fixed an issue where job status is not shown in Process Config page
+  * Fixed a bug where confirmation modal appears even when no changes are made to a function
+  * Fixed a display bug where long column names cause text to overflow in Function Config
+  * Fixed an issue where a failed validation remains even after changing function
+  * Fixed an issue where X and Y cannot be selected after selecting me.type.convert(t)
+  * Fixed a bug where filling a process name in Process Config screen does not fill the process name field in the Process Config Modal
+  * Fixed an issue where duplicate column names are not automatically parsed in Process Config page and data import fails against duplicate column names with "_" character
+  * Fixed a problem where preview of database leads to an error if database has boolean data
+* (HMp)
+  * Fixed an issue in HeatMap page where a wrong message is shown when showing graph
+  * Fixed an issue where HeatMap page shows a wrong color scale for binary and integer cases
+* (Misc)
+  * Fixed a bug where using Jump Function alters the copied setting
+  * Fixed an issue where child processes appear in Table Viewer and Filter pages
+  * Fixed a display bug where milliseconds are displayed for time data in HeatMap and ScatterPlot pages
+* (ScP)
+  * Fixed an issue where ScatterPlot shows a wrong color scale when Integer is selected as Color
+
 ## v4.7.1
 
 Improvements

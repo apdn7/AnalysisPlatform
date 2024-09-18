@@ -1,7 +1,3 @@
-/* eslint-disable no-cond-assign */
-/* eslint-disable func-names */
-/* eslint-disable no-extend-native */
-/* eslint-disable no-undef */
 let isFirstTimeRunPaging = true;
 let pagingParams = null;
 const RELOAD_INTERVAL = 3 * 60 * 1000; // reload job page after 3 minutes
@@ -32,11 +28,11 @@ const ids = {
     selectLanguage: '#select-language',
 };
 
-const pageTitleElement = $('.page-title h2')
+const pageTitleElement = $('.page-title h2');
 
 const isFailedJobPage = () => {
     return pageTitleElement.text() === i18n.failedJobPageTitle;
-}
+};
 
 const JOB_STATUS = {
     DONE: {
@@ -44,42 +40,42 @@ const JOB_STATUS = {
         class: 'check green',
         'class-progress-bar': 'bg-success',
         text: 'Done',
-        db_text: 'DONE'
+        db_text: 'DONE',
     },
     FAILED: {
         title: i18n.statusFailed,
         class: 'exclamation-triangle yellow',
         'class-progress-bar': 'bg-warning',
         text: 'Error',
-        db_text: 'ERROR'
+        db_text: 'ERROR',
     },
     KILLED: {
         title: i18n.statusFailed,
         class: 'exclamation-triangle yellow',
         'class-progress-bar': 'bg-warning',
         text: 'Killed',
-        db_text: 'KILLED'
+        db_text: 'KILLED',
     },
     PROCESSING: {
         title: i18n.statusImporting,
         class: 'spinner fa-spin',
         'class-progress-bar': 'progress-bar-animated',
         text: 'Processing',
-        db_text: 'PROCESSING'
+        db_text: 'PROCESSING',
     },
     PENDING: {
         title: i18n.statusPending,
         class: 'spinner fa-spin',
         'class-progress-bar': 'progress-bar-animated',
         text: 'Pending',
-        db_text: 'PENDING'
+        db_text: 'PENDING',
     },
     FATAL: {
         title: i18n.statusFailed,
         class: 'exclamation-triangle yellow',
         'class-progress-bar': 'bg-warning',
         text: 'Fatal',
-        db_text: 'FATAL'
+        db_text: 'FATAL',
     },
 };
 
@@ -88,7 +84,7 @@ const NON_FAILED_JOB_STATUS = [
     JOB_STATUS.DONE.db_text,
     JOB_STATUS.PENDING.db_text,
     JOB_STATUS.KILLED.db_text,
-]
+];
 
 const convertJobName = (jobName) => {
     const defaultJobNames = [
@@ -97,7 +93,8 @@ const convertJobName = (jobName) => {
         'FACTORY_IMPORT',
         'GEN_GLOBAL',
         'CLEAN_DATA',
-        'FACTORY_PAST_IMPORT'];
+        'FACTORY_PAST_IMPORT',
+    ];
     if (defaultJobNames.includes(jobName)) {
         return i18n[jobName];
     }
@@ -106,11 +103,11 @@ const convertJobName = (jobName) => {
 
 const genDicTrJobs = () => {
     const dicTableRows = {};
-    const rows = $('#jobDataTable table tbody tr')
+    const rows = $('#jobDataTable table tbody tr');
     for (let i = 0; i < rows.length; i++) {
         const tr = rows[i];
-        const jobId = $(tr).find('td.job-id').text()
-        dicTableRows[jobId] = tr
+        const jobId = $(tr).find('td.job-id').text();
+        dicTableRows[jobId] = tr;
     }
     return dicTableRows;
 };
@@ -124,21 +121,25 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
 
     const pageOptions = getPageOptionsFromGUI();
     const ignoreJobs = [];
-    const ignoreStatus = []
+    const ignoreStatus = [];
     if (!pageOptions.showProcLinkJob) {
-        ignoreJobs.push('GEN_GLOBAL')
+        ignoreJobs.push('GEN_GLOBAL');
     }
     if (!pageOptions.showPastImportJob) {
-        ignoreJobs.push('FACTORY_PAST_IMPORT')
+        ignoreJobs.push('FACTORY_PAST_IMPORT');
     }
     if (pageOptions.errorPage) {
-        ignoreStatus.push(...NON_FAILED_JOB_STATUS)
+        ignoreStatus.push(...NON_FAILED_JOB_STATUS);
     }
     rows.forEach((row) => {
-        const statusClass = JOB_STATUS[row.status].class || JOB_STATUS.FAILED.class;
-        const statusTooltip = JOB_STATUS[row.status].title || JOB_STATUS.FAILED.title;
-        // eslint-disable-next-line max-len
-        const statusProgressBar = JOB_STATUS[row.status]['class-progress-bar'] || JOB_STATUS.FAILED['class-progress-bar'];
+        const statusClass =
+            JOB_STATUS[row.status].class || JOB_STATUS.FAILED.class;
+        const statusTooltip =
+            JOB_STATUS[row.status].title || JOB_STATUS.FAILED.title;
+
+        const statusProgressBar =
+            JOB_STATUS[row.status]['class-progress-bar'] ||
+            JOB_STATUS.FAILED['class-progress-bar'];
         // const rowHtml = tableBody.find(`#job-${row.job_id}`);
         let rowHtml = dicTableRows[row.job_id];
         const updatedStatus = JOB_STATUS[row.status].text;
@@ -161,19 +162,29 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
         if (rowHtml) {
             rowHtml = $(rowHtml);
             if (isFirstTime) {
-                rowHtml.find('.job-name').text(convertJobName(row.job_name) || ' ');
-                rowHtml.find('.job-start-time').text(moment(row.start_tm).format(DATE_FORMAT_WITHOUT_TZ));
+                rowHtml
+                    .find('.job-name')
+                    .text(convertJobName(row.job_name) || ' ');
+                rowHtml
+                    .find('.job-start-time')
+                    .text(moment(row.start_tm).format(DATE_FORMAT_WITHOUT_TZ));
             }
             rowHtml.find('.job-duration').text(row.duration);
             rowHtml.find('.job-progress').html(progress);
-            if (rowHtml.find('.job-status').attr('data-status') !== row.status) {
+            if (
+                rowHtml.find('.job-status').attr('data-status') !== row.status
+            ) {
                 rowHtml.find('.job-status').html(updatedStatus);
             }
             rowHtml.find('.job-detail').html(jobDetailHTML);
             rowHtml.find('.job-status').attr('data-status', row.status);
         } else {
-            if (pageOptions && pageOptions.pageNumber === 1 && !ignoreJobs.includes(row.job_name)
-                && !ignoreStatus.includes(row.status)) {
+            if (
+                pageOptions &&
+                pageOptions.pageNumber === 1 &&
+                !ignoreJobs.includes(row.job_name) &&
+                !ignoreStatus.includes(row.status)
+            ) {
                 tableBody.prepend(`
                 <tr id="job-${row.job_id}">
                 <td class="job-id minimal-col">${row.job_id}</td>
@@ -191,7 +202,6 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
     });
     $('.loading').hide();
 };
-
 
 function copyToClipboard() {
     const table = $('#jobErrorDetailTable');
@@ -217,7 +227,10 @@ function copyToClipboard() {
 const getJobDetail = async (jobId) => {
     if (jobId === null || jobId === undefined) return;
 
-    const url = new URL(`/ap/api/setting/job_detail/${jobId}`, window.location.href).href;
+    const url = new URL(
+        `/ap/api/setting/job_detail/${jobId}`,
+        window.location.href,
+    ).href;
     const json = await fetch(url, {
         method: 'GET',
         headers: {
@@ -225,7 +238,7 @@ const getJobDetail = async (jobId) => {
             'Content-Type': 'application/json',
         },
     })
-        .then(response => response.clone().json())
+        .then((response) => response.clone().json())
         .catch(() => {
             //
         });
@@ -259,11 +272,13 @@ const showJobErrorDetail = async (jobId) => {
     $('#modalJobDetail').modal('show');
 };
 
-// eslint-disable-next-line no-unused-vars
 const updateFilterJobs = () => {
     const showPastImportJob = $('#factoryPassImport').is(':checked');
     const showProcLinkJob = $('#genGlobalID').is(':checked');
-    const dicFilterJobs = {factoryPassImport: showPastImportJob, genGlobalID: showProcLinkJob}
+    const dicFilterJobs = {
+        factoryPassImport: showPastImportJob,
+        genGlobalID: showProcLinkJob,
+    };
     localStorage.setItem('filterBackgroundJobs', JSON.stringify(dicFilterJobs));
 };
 
@@ -297,14 +312,13 @@ const updateFilterJobs = () => {
 //     updateBackgroundJobs(showJobs);
 // };
 
-
 const getPageOptionsFromGUI = () => {
     let showPastImportJob = $('#factoryPassImport').is(':checked');
     let showProcLinkJob = $('#genGlobalID').is(':checked');
     const jobDataTbl = $(ids.jobTable);
     const pageOptions = jobDataTbl.bootstrapTable('getOptions');
-    const errorPage = isFailedJobPage()
-    if(isFailedJobPage()){
+    const errorPage = isFailedJobPage();
+    if (isFailedJobPage()) {
         showPastImportJob = true;
         showProcLinkJob = true;
     }
@@ -314,7 +328,7 @@ const getPageOptionsFromGUI = () => {
         showProcLinkJob: showProcLinkJob,
         showPastImportJob: showPastImportJob,
         errorPage: errorPage,
-    }
+    };
     return jobPageOptions;
 };
 
@@ -323,7 +337,7 @@ const setJobPageConfig = (jobPageOptions) => {
     if (jobPageOptions) {
         localStorage.setItem('jobPageOptions', JSON.stringify(jobPageOptions));
     }
-}
+};
 
 const isFirstPage = () => {
     const jobDataTbl = $(ids.jobTable);
@@ -337,7 +351,7 @@ const loadPage = () => {
     if (pagingParams) {
         ajaxRequest(pagingParams);
     }
-}
+};
 const reloadPageAfterInterval = () => {
     setInterval(function () {
         if (isFirstPage() && pagingParams) {
@@ -355,7 +369,7 @@ const reloadPageAfterInterval = () => {
             formatShowingRows(pageFrom, pageTo, totalRows) {
                 return `全${totalRows}件のうち、${pageFrom}から${pageTo}件まで表示しています。`;
             },
-        }
+        },
     };
     $.fn.bootstrapTable.locales['en-US'] = {
         ...$.fn.bootstrapTable.locales['en-US'],
@@ -363,11 +377,13 @@ const reloadPageAfterInterval = () => {
             formatShowingRows(pageFrom, pageTo, totalRows) {
                 return `Showing ${pageFrom} to ${pageTo} of all ${totalRows} rows.`;
             },
-        }
+        },
     };
-    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['en-US']);
-}(jQuery));
-
+    $.extend(
+        $.fn.bootstrapTable.defaults,
+        $.fn.bootstrapTable.locales['en-US'],
+    );
+})(jQuery);
 
 $(() => {
     // init job table with bootstrap
@@ -380,7 +396,9 @@ $(() => {
         pagination: true,
         paginationVAlign: 'both',
         pageSize: pageOptions ? pageOptions.pageSize : 50,
-        locale: $('option:selected', $(ids.selectLanguage)).attr('bootstrap-locale'),
+        locale: $('option:selected', $(ids.selectLanguage)).attr(
+            'bootstrap-locale',
+        ),
         errorPage: isFailedJobPage(),
         // formatShowingRows() {
         //     return sprintf('');
@@ -390,7 +408,6 @@ $(() => {
     $('#btnCopyToClipboard').on('click', () => copyToClipboard());
     $('#factoryPassImport').on('change', () => loadPage());
     $('#genGlobalID').on('change', () => loadPage());
-
 
     // Search content of table
     onSearchTableContent('searchJobList', 'jobTable');
@@ -425,7 +442,7 @@ const getPageOptionsFromLocalStorage = () => {
         pageOptions = JSON.parse(pageOptions);
     }
 
-    return pageOptions
+    return pageOptions;
 };
 
 function ajaxRequest(params) {
@@ -454,8 +471,9 @@ function ajaxRequest(params) {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-    }).then(response => response.json())
-        .then(res => {
+    })
+        .then((response) => response.json())
+        .then((res) => {
             params.success(res);
             updateBackgroundJobs(res.rows, true);
             $('.loading').hide();
@@ -466,4 +484,3 @@ function ajaxRequest(params) {
         });
     return json;
 }
-

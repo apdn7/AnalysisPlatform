@@ -99,18 +99,3 @@ class DevConfig(Config):
     }
     YAML_CONFIG_DIR = os.path.join(basedir, 'ap', 'config')
     UNIVERSAL_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'transaction')
-
-
-class TestingConfig(Config):
-    DEBUG = False
-    TESTING = True
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLITE_CONFIG_DIR = os.path.join(basedir, 'tests', 'instances')
-    APP_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'app.sqlite3')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + APP_DB_FILE
-    SCHEDULER_FULL_PATH = os.path.join(SQLITE_CONFIG_DIR, 'scheduler.sqlite3')
-    SCHEDULER_JOBSTORES = {
-        'default': SQLAlchemyJobStore(url='sqlite:///' + SCHEDULER_FULL_PATH),
-    }
-    YAML_CONFIG_DIR = os.path.join(basedir, 'tests', 'ap', 'config')
-    UNIVERSAL_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'transaction')

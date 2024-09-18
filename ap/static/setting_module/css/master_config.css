@@ -61,7 +61,7 @@
     /*width: 100%;*/
     z-index: 1051;
 }
-.mcs-container--default .mcs-results>.mcs-results__options {
+.mcs-container--default .mcs-results > .mcs-results__options {
     max-height: 200px;
     overflow-y: auto;
 }
@@ -111,13 +111,15 @@
     border: 1px solid #222;
 }
 
-.mcs-container--default.mcs-container--open.mcs-container--below .mcs-selection--single,
-.mcs-container--default.mcs-container--open.mcs-container--below .mcs-selection--multiple {
+.mcs-container--default.mcs-container--open.mcs-container--below
+    .mcs-selection--single,
+.mcs-container--default.mcs-container--open.mcs-container--below
+    .mcs-selection--multiple {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
-.mcs-container--default .mcs-results__option[aria-selected=true],
-.select2-container--default .select2-results__option[aria-selected=true] {
+.mcs-container--default .mcs-results__option[aria-selected='true'],
+.select2-container--default .select2-results__option[aria-selected='true'] {
     background-color: #5897fb;
 }
 
@@ -128,20 +130,33 @@
 }
 
 .mcs-container--default .mcs-selection--single .mcs-selection__rendered,
-.select2-container--default .select2-selection--single .select2-selection__rendered {
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__rendered {
     color: #ffffff;
     line-height: 30px;
 }
 
 .mcs-container--default .mcs-selection--single .mcs-selection__arrow,
-.select2-container--default .select2-selection--single .select2-selection__arrow {
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__arrow {
     height: 30px;
 }
 
 .mcs-container--default .mcs-selection--single .mcs-selection__arrow b,
-.select2-container--default .select2-selection--single .select2-selection__arrow b,
-.mcs-container--default.mcs-container--open .mcs-selection--single .mcs-selection__arrow b,
-.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__arrow
+    b,
+.mcs-container--default.mcs-container--open
+    .mcs-selection--single
+    .mcs-selection__arrow
+    b,
+.select2-container--default.select2-container--open
+    .select2-selection--single
+    .select2-selection__arrow
+    b {
     border-width: 6px 3px 0 3px;
     margin-left: -1px;
     border-color: #ffffff transparent transparent transparent;
@@ -175,7 +190,7 @@
 .msc-input {
     display: none;
 }
-.msc-input.show{
+.msc-input.show {
     display: inline;
 }
 

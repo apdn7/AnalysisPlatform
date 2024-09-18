@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 const graphNavUtil = (() => {
     // target graph html class
     // const TARGET_ELE_CLASSES = [
@@ -16,11 +15,7 @@ const graphNavUtil = (() => {
     // every screen can use their own classes list. it is useful when some page have tab
     // [.active.show card]
     // let custom_ele_classes = null;
-    const TARGET_ELE_CLASSES = [
-        '.graph-navi',
-        '.card-body',
-        '.card',
-    ];
+    const TARGET_ELE_CLASSES = ['.graph-navi', '.card-body', '.card'];
 
     // array element is a arr , arr[0] is has class, arr[1] is has no class.
     // const EXCLUDE_ELE_CLASSES = [
@@ -30,7 +25,6 @@ const graphNavUtil = (() => {
 
     // element has at lease one will be used for move top down
     const TARGET_TOP_DOWN = 'graph-navi-top-down';
-
 
     // checker if an element in viewport
     const checkEleInView = (el) => {
@@ -90,14 +84,15 @@ const graphNavUtil = (() => {
 
     // get all graph in html page
     const getGraphs = () => {
-        // eslint-disable-next-line no-restricted-syntax
         // let target_ele_classes = custom_ele_classes;
         // if (target_ele_classes == null) {
         //     target_ele_classes = TARGET_ELE_CLASSES
         // }
-        // eslint-disable-next-line no-restricted-syntax
+
         for (const cls of TARGET_ELE_CLASSES) {
-            let eles = Array.from($(cls).not($('.tab-pane:not(.active.show)').find(cls)));
+            let eles = Array.from(
+                $(cls).not($('.tab-pane:not(.active.show)').find(cls)),
+            );
 
             // eles.concat(Array.from($(document).find('*').not(tab).find(cls)));
             // eles = clearExclude(eles);
@@ -116,7 +111,7 @@ const graphNavUtil = (() => {
         }
 
         let currentIdx = -1;
-        // eslint-disable-next-line no-restricted-syntax
+
         for (const [idx, ele] of eles.entries()) {
             if (checkEleInView(ele)) {
                 currentIdx = idx;
@@ -164,10 +159,14 @@ const graphNavUtil = (() => {
         if (!step) {
             // check page has no graph
             const beforeFooterItem = eles[eles.length - 2];
-            const showGraphIdx = eles.map(ele => $(ele).attr('class').includes(TARGET_TOP_DOWN)).indexOf(true, 2);
+            const showGraphIdx = eles
+                .map((ele) => $(ele).attr('class').includes(TARGET_TOP_DOWN))
+                .indexOf(true, 2);
             const firstGraphIdx = showGraphIdx + 1;
-            if ($(beforeFooterItem).attr('class').includes(TARGET_TOP_DOWN) ||
-                $(eles[firstGraphIdx]).offset().top >= topPosition) {
+            if (
+                $(beforeFooterItem).attr('class').includes(TARGET_TOP_DOWN) ||
+                $(eles[firstGraphIdx]).offset().top >= topPosition
+            ) {
                 // has no graph -> scroll to top of screen
                 return eles[0];
             }
@@ -178,12 +177,23 @@ const graphNavUtil = (() => {
             return eles[eles.length - 1];
         }
         // get first item which over offset from screen
-        const currentItemIdx = eles.map(ele => $(ele).offset().top >= topPosition).indexOf(true);
-        const nextIDx = currentItemIdx + step;
+        const currentItemIdx = eles
+            .map((ele) => $(ele).offset().top >= topPosition)
+            .indexOf(true);
+        const isDownOneStep = step === 1;
+        const topPositionGraphNavi = $(eles[currentItemIdx]).offset().top;
+        const marginTopCurrentElem =
+            parseInt($(eles[currentItemIdx]).css('margin-top').slice(0, -2)) +
+            1;
+        const nextIDx =
+            topPositionGraphNavi > topPosition + marginTopCurrentElem &&
+            isDownOneStep
+                ? currentItemIdx
+                : currentItemIdx + step;
         const nextItem = eles[nextIDx];
         if (!$(nextItem).is(':visible')) {
             // in case of DOM is hidden, return next DOM
-            return getNearbyItem(eles, nextIDx + 1);
+            return getNearbyItem(eles, nextIDx);
         }
         return nextItem;
     };
@@ -210,7 +220,6 @@ const graphNavUtil = (() => {
         return !moveToEle(ele);
     };
 
-
     // scroll to first
     const moveFirst = () => {
         const eles = getGraphs();
@@ -226,11 +235,11 @@ const graphNavUtil = (() => {
     };
 
     // move screen by nearby position
-    const move = (step=1) => {
+    const move = (step = 1) => {
         const eles = getGraphs();
         const ele = getNearbyItem(eles, step);
         return !moveToEle(ele);
-    }
+    };
 
     return {
         moveFirst,

@@ -17,10 +17,13 @@ VAR_X = 'X'
 VAR_Y = 'Y'
 MULTIPLE_VALUES_CONNECTOR = '|'
 DEFAULT_NONE_VALUE = pd.NA
+HALF_WIDTH_SPACE = ' '
+UNIXEPOCH = 'unixepoch'
 
 SQL_COL_PREFIX = '__'
 SQL_IN_MAX = 900
 SQL_LIMIT = 5_000_000
+DATABASE_LOGIN_TIMEOUT = 3
 ACTUAL_RECORD_NUMBER = 'actual_record_number'
 ACTUAL_RECORD_NUMBER_TRAIN = 'actual_record_number_train'
 ACTUAL_RECORD_NUMBER_TEST = 'actual_record_number_test'
@@ -78,6 +81,7 @@ MIN_DATETIME_LEN = 10
 DATA_NAME_V2_SUFFIX = '01'
 CONSTRAINT_RANGE = 'constraint_range'
 SELECTED = 'selected'
+ONLY_EXPORT_DATA_SELECTED = 'only_export_data_selected'
 
 
 class ApLogLevel(Enum):
@@ -114,6 +118,7 @@ class DBType(Enum):
     V2 = 'v2'
     V2_MULTI = 'v2_multi'
     V2_HISTORY = 'v2_history'
+    SOFTWARE_WORKSHOP = 'software_workshop'
 
     @classmethod
     def from_str(cls, s: str) -> Optional['DBType']:
@@ -128,6 +133,7 @@ class DBType(Enum):
             DBType.SQLITE,
             DBType.ORACLE,
             DBType.MYSQL,
+            DBType.SOFTWARE_WORKSHOP,
         ]
 
 
@@ -218,6 +224,10 @@ Y_MIN = 'y-min'
 EMD_TYPE = 'emdType'
 DUPLICATE_SERIAL_SHOW = 'duplicated_serial'
 DUPLICATED_SERIALS_COUNT = 'dup_check'
+RECENT_TIME_INTERVAL = 'recentTimeInterval'
+DIC_SCP = 'dic_scp'
+IS_CLASSIF = 'is_classif'
+ACTUAL = 'actual'
 
 UNLINKED_IDXS = 'unlinked_idxs'
 NONE_IDXS = 'none_idxs'
@@ -371,6 +381,7 @@ COL_DETAIL = 'col_detail'
 COL_TYPE = 'type'
 ORG_ARRAY_Y = 'org_array_y'
 CAT_ON_DEMAND = 'cat_on_demand'
+UNIT = 'unit'
 
 # Cat Expansion
 CAT_EXP_BOX = 'catExpBox'
@@ -420,6 +431,11 @@ DIVIDE_CALENDAR_LABELS = 'divFormats'
 DATA_GROUP_TYPE = 'data_group_type'
 IS_SERIAL_NO = 'is_serial_no'
 IS_INT_CATEGORY = 'is_int_category'
+IS_JUDGE = 'is_judge'
+
+# X-Y Axis for SCP and HMp
+SCP_HMP_X_AXIS = 'SCP_HMP_X_AXIS'
+SCP_HMP_Y_AXIS = 'SCP_HMP_Y_AXIS'
 
 
 class HMFunction(Enum):
@@ -619,7 +635,7 @@ RCMDS = 'recommends'
 UN_AVAILABLE = 'unavailable'
 ALL_TILES = 'all'
 TILES = 'tiles'
-# UNDER_SCORE = '_'
+UNDER_SCORE = '_'
 TITLE = 'title'
 HOVER = 'hover'
 DESCRIPTION = 'description'
@@ -704,6 +720,7 @@ class DataImportErrorTypes(Enum):
     TABLE_NOT_FOUND = 2
     EMPTY_DATA_FILE = 3
     DB_LOCKED = 4
+    DB_CONNECTION_FAILED = 5
 
     UNKNOWN = 100
 
@@ -715,6 +732,7 @@ ErrorMsgText = {
     DataImportErrorTypes.TABLE_NOT_FOUND: 'The table could not be found.',
     DataImportErrorTypes.EMPTY_DATA_FILE: 'The data file is empty.',
     DataImportErrorTypes.DB_LOCKED: 'The database is locked and data cannot be written.',
+    DataImportErrorTypes.DB_CONNECTION_FAILED: 'Connection to database failed.',
 }
 
 ErrorMsgFromDB = {
@@ -907,6 +925,14 @@ class EMDType(Enum):
     both = [False, True]
 
 
+class FileExtension(Enum):
+    Feather = 'ftr'
+    Parquet = 'parquet'
+    Pickle = 'pkl'
+    Csv = 'csv'
+    Tsv = 'tsv'
+
+
 USE_CONTOUR = 'use_contour'
 USE_HEATMAP = 'use_heatmap'
 COL_ID = 'column_id'
@@ -1065,13 +1091,15 @@ class DataGroupType(BaseEnum):
     # LINE_GROUP_NAME = 31
     # PART_FULL = 32
     # EQUIP_ID = 33
-    # HORIZONTAL_DATA = 34  # Type for horizontal columns that are sensor columns
 
     # PART_LOG
     # FORGING_DATE = 35
     # DELIVERY_ASSY_FASTEN_TORQUE = 36
 
     # PRODUCT_ID = 35
+
+    HORIZONTAL_DATA = 67
+    FileName = 97
 
     @classmethod
     def v2_pivottable_group(cls) -> list['DataGroupType']:
@@ -1402,6 +1430,25 @@ SELECTED_VARS = 'selected_vars'
 ZERO_FILL_PATTERN = r'^{\:(0)([<>]?)([1-9]\d*)d?\}$'  # {:010}, {:010d}
 ZERO_FILL_PATTERN_2 = r'^{\:([1-9])([<>])(\d+)d?\}$'  # {:1>10}, {:1>10}, {:1<10d}
 
+
+class MasterDBType(BaseEnum):
+    EFA = auto()
+    EFA_HISTORY = auto()
+    V2 = auto()
+    V2_MULTI = auto()
+    V2_HISTORY = auto()
+    OTHERS = auto()
+    V2_MULTI_HISTORY = auto()
+
+    @classmethod
+    def is_v2_group(cls, master_type: str):
+        return master_type in [cls.V2.name, cls.V2_MULTI.name, cls.V2_HISTORY.name, cls.V2_MULTI_HISTORY.name]
+
+    @classmethod
+    def is_efa_group(cls, master_type: str):
+        return master_type in [cls.EFA.name, cls.EFA_HISTORY.name]
+
+
 OSERR = {22: 'Access denied', 2: 'Folder not found', 20: 'Not a folder'}
 
 # Browser support
@@ -1475,6 +1522,12 @@ class RawDataTypeDB(BaseEnum):  # data type user select
     # CATEGORY_INTEGER = 'I'
     # CATEGORY_TEXT = 'T'
     CATEGORY = 'CATEGORY'  # Rainbow treat category as integer
+
+    def __repr__(self) -> str:
+        return self.value
+
+    def __str__(self):
+        return self.value
 
     @staticmethod
     def is_integer_data_type(data_type_db_value: str):
@@ -1669,6 +1722,7 @@ START_TIME_ID = 'startTime'
 END_DATE_ID = 'endDate'
 END_TIME_ID = 'endTime'
 
+
 EXAMPLE_VALUE = 3
 
 
@@ -1716,20 +1770,22 @@ class JobType(Enum):
 
     # 1,2 is priority
     DEL_PROCESS = 1
-    CSV_IMPORT = 2
-    FACTORY_IMPORT = 3
-    GEN_GLOBAL = 4
-    # CLEAN_DATA = 5
-    FACTORY_PAST_IMPORT = 6
-    IDLE_MORNITORING = 7
-    SHUTDOWN_APP = 8
-    BACKUP_DATABASE = 9
-    PROC_LINK_COUNT = 10
-    ZIP_LOG = 11
-    CLEAN_ZIP = 12
-    RESTRUCTURE_INDEXES = 13
-    CLEAN_EXPIRED_REQUEST = 14
-    PROCESS_COMMUNICATE = 15
+    USER_BACKUP_DATABASE = 2
+    USER_RESTORE_DATABASE = 3
+    CSV_IMPORT = 4
+    FACTORY_IMPORT = 5
+    GEN_GLOBAL = 6
+    # CLEAN_DATA = 7
+    FACTORY_PAST_IMPORT = 8
+    IDLE_MORNITORING = 9
+    SHUTDOWN_APP = 10
+    BACKUP_DATABASE = 11
+    PROC_LINK_COUNT = 12
+    ZIP_LOG = 13
+    CLEAN_ZIP = 14
+    RESTRUCTURE_INDEXES = 15
+    CLEAN_EXPIRED_REQUEST = 16
+    PROCESS_COMMUNICATE = 17
 
 
 SEQUENCE_CACHE = 1000
@@ -1767,7 +1823,8 @@ class DataColumnType(BaseEnum):
     PART_NAME = 24
     PART_NO = 25
     ST_NO = 26
-
+    JUDGE = 76
+    BOOLEAN = 77
     GENERATED = 99
     GENERATED_EQUATION = 100
 
@@ -1801,6 +1858,7 @@ class ColumnDTypeToSQLiteDType(BaseEnum):
     EU_INTEGER_SEP = 'integer'
     K_SEP_NULL = 'null'
     BIG_INT = 'string'
+    BOOLEAN = 'boolean'
 
 
 # if nchar(header) > 90%: generate column name
@@ -1831,3 +1889,24 @@ ANNOUNCE_UPDATE_TIME: int = 60  # unit: seconds
 
 # Limit range time to check new version
 LIMIT_CHECKING_NEWER_VERSION_TIME: int = 60  # unit: seconds
+
+DATE_TYPE_REGEX = (
+    '^'
+    r'(?P<year>\d{2}|\d{4})'
+    r'(?:[\-\.\s\/\\年]?(?P<month>\d|0\d|1[0-2])[月]?)'
+    r'(?:[\-\.\s\/\\]?(?P<day>\d|[0-2]\d|3[0-1])[日]?)?'
+    '$'
+)
+TIME_TYPE_REGEX = (
+    '^'
+    r'(?P<hour>\d|[01]\d|2[0-3])'
+    r'(?:[:\-\.\s時]?(?P<minute>\d|[0-5]\d)[分]?)'
+    r'(?:[:\-\.\s]?(?P<second>\d|[0-5]\d)[秒]?)?'
+    '$'
+)
+
+
+# Judge definition, show OK/NG in UI instead of raw value
+class JudgeDefinition(BaseEnum):
+    OK = 1
+    NG = 0

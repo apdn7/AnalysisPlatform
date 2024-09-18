@@ -90,7 +90,7 @@ def config_screen():
 
 @setting_module_blueprint.route('/config/filter')
 def filter_config():
-    processes = get_all_process_no_nested()
+    processes = get_all_process_no_nested(with_parent=False)
     # generate english name for process
     for proc_data in processes:
         if not proc_data['name_en']:
@@ -138,7 +138,7 @@ def term_of_use():
 
 @setting_module_blueprint.route('/config/master')
 def master_config():
-    processes = get_all_process_no_nested()
+    processes = get_all_process_no_nested(with_parent=False)
     # generate english name for process
     for proc_data in processes:
         if not proc_data['name_en']:

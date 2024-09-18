@@ -13,7 +13,7 @@ from ap.common.constants import (
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
-from ap.setting_module.models import CfgConstant, CfgProcess, CfgProcessColumn, CfgTrace
+from ap.setting_module.models import CfgConstant, CfgProcess, CfgProcessColumn, CfgTrace, make_session
 from ap.setting_module.schemas import ShowGraphSchema, TraceSchema
 
 if TYPE_CHECKING:
@@ -220,14 +220,16 @@ def preprocess_column(column: CfgProcessColumn) -> CfgProcessColumn:
     #         column.data_type = DataType.TEXT.value
     #     else:
     #         column.format = EMPTY_STRING
+    if column.data_type == DataType.BOOLEAN.name and column.column_type != DataColumnType.JUDGE.value:
+        column.column_type = DataColumnType.BOOLEAN.value
 
     # need to change again, make sure date, time, boolean be converted to text
-    if column.data_type in [DataType.DATE.name, DataType.TIME.name]:
+    if column.data_type in [DataType.DATE.name, DataType.TIME.name, DataType.BOOLEAN.name]:
         column.data_type = DataType.TEXT.name
         # column.format = EMPTY_STRING
 
     # change data type column from `boolean` or `category` to Int(Cat) (PO requirements)
-    if column.data_type in [DataType.BOOLEAN.name, RawDataTypeDB.CATEGORY.name]:
+    if column.data_type == RawDataTypeDB.CATEGORY.name:
         column.data_type = DataType.INTEGER.name
         column.column_type = DataColumnType.INT_CATE.value
 
@@ -253,18 +255,21 @@ def get_config_data():
 
     show_graph_schema = ShowGraphSchema()
     trace_schema = TraceSchema()
-    # if dic_param:
-    #     proc_ids = get_proc_ids_in_dic_param(dic_param)
-    #     processes = CfgProcess.get_procs(proc_ids)
-    # else:
-    #     processes = CfgProcess.get_all()
 
-    processes = CfgProcess.get_all()
-    for process in processes:
-        preprocess_process(process)
+    # create new session to query from database, because we change data in `process_process`
+    # we don't want those changes to be commited to database
+    with make_session() as meta_session:
+        processes = meta_session.query(CfgProcess).all()
+        for process in processes:
+            preprocess_process(process)
+        cfg_traces = meta_session.query(CfgTrace).all()
 
-    # modify processes data for showing graph
-    procs = show_graph_schema.dump(processes, many=True)
+        procs = show_graph_schema.dump(processes, many=True)
+        traces = trace_schema.dump(cfg_traces, many=True)
+
+        # rollback to avoid changes data to be commited to database
+        meta_session.rollback()
+
     dic_procs = {}
     proc_ids = []
     for dic_proc in procs:
@@ -273,8 +278,6 @@ def get_config_data():
         show_graph_proc_data: CfgProcess = ShowGraphConfigData(**dic_proc)
         dic_procs[proc_id] = show_graph_proc_data
 
-    cfg_traces = CfgTrace.get_all()
-    traces = trace_schema.dump(cfg_traces, many=True)
     traces = [DictToClass(**trace) for trace in traces]
     trace_graph = TraceGraph(traces)
     dic_card_orders = {}

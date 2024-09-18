@@ -4,6 +4,7 @@ from typing import List, Optional, Set, Union
 import pandas as pd
 import sqlalchemy as sa
 from pandas import DataFrame
+from sqlalchemy.orm import scoped_session
 
 from ap.api.common.services.show_graph_database import DictToClass
 from ap.common.common_utils import (
@@ -58,8 +59,10 @@ class TransactionData:
     duplicate_serial_number: int = None
     df: DataFrame = None
 
-    def __init__(self, process_id: int):
-        self.cfg_process: CfgProcess = CfgProcess.query.get(process_id)
+    def __init__(self, process_id: int, meta_session: scoped_session = None):
+        self.cfg_process: CfgProcess = (meta_session.query(CfgProcess) if meta_session else CfgProcess.query).get(
+            process_id,
+        )
         if not self.cfg_process:
             raise Exception('Not exist process id')
 
@@ -531,7 +534,7 @@ class TransactionData:
             if compare_name == column_name:
                 return cfg_process_column.id
 
-    def get_cfg_column_by_name(self, column_name, is_compare_bridge_column_name=True):
+    def get_cfg_column_by_name(self, column_name, is_compare_bridge_column_name=True) -> Optional[CfgProcessColumn]:
         for cfg_process_column in self.cfg_process_columns:
             compare_name = (
                 cfg_process_column.bridge_column_name
@@ -609,6 +612,18 @@ class TransactionData:
             sql = f'DROP TABLE IF EXISTS {self.table_name};'
             db_instance.execute_sql(sql)
             db_instance.connection.commit()
+
+    def remove_transaction_by_time_range(self, db_instance: Union[SQLite3], start_time, end_time):
+        sql = f'''
+            DELETE
+            FROM {self.table_name}
+            WHERE  {self.getdate_column.bridge_column_name} >= {SQL_PARAM_SYMBOL}
+                AND {self.getdate_column.bridge_column_name} < {SQL_PARAM_SYMBOL}
+        '''
+        params = [start_time, end_time]
+        cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
+        df = pd.DataFrame(rows, columns=cols, dtype='object')
+        return df
 
     # def get_transaction_data(
     #         self,
@@ -811,10 +826,31 @@ class TransactionData:
         cols, rows = db_instance.run_sql(sql, row_is_dict=False)
         return cols, rows
 
-    def select_data_count(self, db_instance: Union[PostgreSQL, SQLite3], start_date=None, end_date=None):
+    def get_transaction_by_time_range(self, db_instance: Union[SQLite3], start_time, end_time, limit=1_000_000):
+        sql = f'''
+            SELECT *
+            FROM {self.table_name}
+            WHERE  {self.getdate_column.bridge_column_name} >= {SQL_PARAM_SYMBOL}
+                AND {self.getdate_column.bridge_column_name} < {SQL_PARAM_SYMBOL}
+            LIMIT {limit};
+        '''
+        params = [start_time, end_time]
+        cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
+        df = pd.DataFrame(rows, columns=cols, dtype='object')
+        return df
+
+    def select_data_count(
+        self,
+        db_instance: Union[PostgreSQL, SQLite3],
+        start_date=None,
+        end_date=None,
+        count_in_file: bool = False,
+    ):
         datetime_col = DataCountTable.datetime.name
-        count_col = DataCountTable.count.name
-        sql = f'SELECT {datetime_col}, sum({count_col}) as {count_col} FROM {self.data_count_table_name}'
+        count_col = DataCountTable.count_file.name if count_in_file else DataCountTable.count.name
+        sql = (
+            f'SELECT {datetime_col}, sum({count_col}) as {DataCountTable.count.name} FROM {self.data_count_table_name}'
+        )
         params = []
         if start_date and end_date and start_date != end_date:
             sql += f' WHERE {datetime_col} >= {SQL_PARAM_SYMBOL} AND {datetime_col} < {SQL_PARAM_SYMBOL}'
@@ -890,6 +926,7 @@ class TransactionData:
 class DataCountTable(BaseEnum):
     datetime = (1, DataType.TEXT.name)
     count = (2, DataType.INTEGER.name)
+    count_file = (3, DataType.INTEGER.name)
 
     @classmethod
     def to_dict(cls):

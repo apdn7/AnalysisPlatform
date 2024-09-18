@@ -24,6 +24,7 @@ from ap.common.constants import (
     FILTER,
     FILTER_ON_DEMAND,
     FUNCTION,
+    GET02_VALS_SELECT,
     LATEST,
     OBJECTIVE,
     OD_FILTER,
@@ -31,7 +32,6 @@ from ap.common.constants import (
     PRIORITY,
     PROCESS_ID,
     REQ_ID,
-    REQUEST_PARAMS,
     SAVE_DATETIME,
     SAVE_GRAPH_SETTINGS,
     SAVE_LATEST,
@@ -46,7 +46,7 @@ from ap.setting_module.models import CfgOption, CfgRequest, insert_or_update_con
 
 
 @log_execution_time()
-def save_odf_data_of_request(dic_param):
+def save_params_and_odf_data_of_request(dic_param):
     req_id = dic_param[COMMON].get(REQ_ID, '')
     od_filters = []
     col_ids = []
@@ -64,8 +64,8 @@ def save_odf_data_of_request(dic_param):
                         'values': od_filter[UNIQUE_CATEGORIES],
                     }
                     od_filters.append(filter_obj)
-        if REQUEST_PARAMS in dic_param[COMMON]:
-            params = dic_param[COMMON][REQUEST_PARAMS]
+
+        params = json_dumps(dic_param[COMMON])
 
         with make_session() as meta_session:
             CfgRequest.save_odf_and_params_by_req_id(meta_session, req_id, json_dumps(od_filters), params)
@@ -108,6 +108,21 @@ def cast_datetime_from_query_string(request_string):
 
 def get_from_request_data_with_id(req_data, ele_id):
     return req_data.index(next(x for x in req_data if x.get('id') == ele_id))
+
+
+def get_values_by_parameter_name(form_data, param_name, convert_to_int=False):
+    if convert_to_int:
+        return [int(form_data[x]) for x in form_data if param_name in x]
+    return [form_data[x] for x in form_data if param_name in x]
+
+
+# TODO: Remove this function when columns are no longer sent in different keys
+def get_selected_columns_from_trace_data_form(req_data, target_component_name=GET02_VALS_SELECT):
+    return [
+        int(component.get('value'))
+        for component in req_data
+        if target_component_name in component.get('name', '') and component.get('checked')
+    ]
 
 
 @dataclasses.dataclass
@@ -852,6 +867,24 @@ class Validation:
             self.validate_req_id_not_found(),
             self.validate_option_id_not_found(),
             self.validate_format(),
+        ]
+
+        return self
+
+    def get_params(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+            },
+        )
+
+        self.params = {
+            REQ_ID: req_id_rules,
+        }
+
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_req_id_not_found(),
         ]
 
         return self
