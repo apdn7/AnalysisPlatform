@@ -65,7 +65,7 @@ Windows embeddable package, running the batch file is regarded as you agreed to 
 
 ## Requirements
 
-* Windows (Tested with Windows 10), Windoes Server
+* Windows (Tested with Windows 10), Windows Server
 * Python (>=3.6) (Tested with Python 3.9.0, pip 22.2)
   * If you are going to use the Windows embeddable package, you do not have to install Python in your machine.  
   (See section: For users)
