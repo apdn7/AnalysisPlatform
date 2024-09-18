@@ -1,223 +1,235 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
-	<meta http-equiv="content-type" charset="utf-8">
-	<title>Analysis Platform</title>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- https://stackoverflow.com/questions/31075893/im-getting-favicon-ico-error -->
-	<link rel="icon" href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}" type="image/x-icon"/>
-    <link rel="shortcut icon" href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}"
-          type="image/x-icon"/>
-    {% assets "js_all" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-    {% assets "css_all" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}">
-    {% endassets %}
-    <script>
-        //Dictionaryを生成する。
-        let objTitle = {
-            '/ap/stp': {
-                'title': 'StP',
-                'icon': 'StP.ico',
-            },
-            '/ap/rlp': {
-                'title': 'RLP',
-                'icon': 'RLP.ico',
-            },
-            '/ap/fpp': {
-                'title': 'FPP',
-                'icon': 'FPP.ico',
-            },
-            '/ap/scp': {
-                'title': 'ScP',
-                'icon': 'ScP.ico',
-            },
-            '/ap/msp': {
-                'title': 'MSP',
-                'icon': 'MSP.ico',
-            },
-            '/ap/chm': {
-                'title': 'CHM',
-                'icon': 'CHM.ico',
-            },
-            '/ap/analyze/anomaly_detection/pca': {
-                'title': 'PCA',
-                'icon': 'PCA.ico',
-            },
-            '/ap/analyze/structure_learning/gl': {
-                'title': 'GL',
-                'icon': 'GrL.ico',
-            },
-            '/ap/table_viewer': {
-                'title': 'TView',
-                'icon': 'TView.ico',
-            },
-            '/ap/config/filter_visualization': {
-                'title': 'Filter',
-                'icon': 'Filter.ico',
-            },
-            '/ap/config/filter': {
-                'title': 'Filter',
-                'icon': 'Filter.ico',
-            },
-            '/ap/config/master': {
-                'title': 'TH',
-                'icon': 'Master.ico',
-            },
-            '/ap/config/job': {
-                'title': 'Job',
-                'icon': 'Job.ico',
-            },
-            '/ap/config/job/failed': {
-                'title': 'Failed Jobs',
-                'icon': 'Job.ico',
-            },
-            '/ap/about': {
-                'title': 'About',
-                'icon': 'favicon.ico',
-            },
-            '/ap/config': {
-                'title': 'Config',
-                'icon': 'Config.ico',
-            },
-            '/ap/cog': {
-                'title': 'COG',
-                'icon': 'COG.ico',
-            },
-            '/ap/skd': {
-                'title': 'SkD',
-                'icon': 'SkD.ico',
-            },
-            '/ap/pcp': {
-                'title': 'PCP',
-                'icon': 'PCP.ico',
-            },
-            '/ap/agp': {
-                'title': 'AgP',
-                'icon': 'AgP.ico',
-            },
-			'/ap/plot_view': {
-                'title': 'Plotview',
-                'icon': 'favicon.ico',
-            },
-            '/ap/hmp': {
-                'title': 'HMp',
-                'icon': 'favicon.ico',
-            },
-            '/ap/register_by_file': {
-                'title': 'Register by File',
-                'icon': 'Config.ico',
-            }
-        };
-
-        //現在Urlを取得する。
-        const currentUrl = $(location)
-            .attr('pathname');
-
-        //現在UrlとDictionaryを比較して、一致すれば、Dictionaryの設定データを取得する。
-        const getSetting = objTitle[currentUrl];
-        if (getSetting) {
-            $('title')
-                .html(getSetting.title);
-            $('link[rel*=\'icon\']')
-                .prop('href', '/static/common/icons/' + getSetting.icon + '');
-        }
-    </script>
-    {% if not do_not_send_ga %}
-        <!-- Google tag (gtag.js) -->
-        <script async type="text/javascript" src="{{ url_for('static', filename = 'common/js/libs/gtag.js')}}"></script>
+    <head>
+        <meta http-equiv="content-type" charset="utf-8" />
+        <title>Analysis Platform</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!-- https://stackoverflow.com/questions/31075893/im-getting-favicon-ico-error -->
+        <link
+            rel="icon"
+            href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}"
+            type="image/x-icon"
+        />
+        <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}"
+            type="image/x-icon"
+        />
+        {% assets "js_all" %}
+            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
+        {% assets "css_all" %}
+            <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
         <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', GA_TRACKING_ID);
+            //Dictionaryを生成する。
+            let objTitle = {
+                '/ap/stp': {
+                    title: 'StP',
+                    icon: 'StP.ico',
+                },
+                '/ap/rlp': {
+                    title: 'RLP',
+                    icon: 'RLP.ico',
+                },
+                '/ap/fpp': {
+                    title: 'FPP',
+                    icon: 'FPP.ico',
+                },
+                '/ap/scp': {
+                    title: 'ScP',
+                    icon: 'ScP.ico',
+                },
+                '/ap/msp': {
+                    title: 'MSP',
+                    icon: 'MSP.ico',
+                },
+                '/ap/chm': {
+                    title: 'CHM',
+                    icon: 'CHM.ico',
+                },
+                '/ap/analyze/anomaly_detection/pca': {
+                    title: 'PCA',
+                    icon: 'PCA.ico',
+                },
+                '/ap/analyze/structure_learning/gl': {
+                    title: 'GL',
+                    icon: 'GrL.ico',
+                },
+                '/ap/table_viewer': {
+                    title: 'TView',
+                    icon: 'TView.ico',
+                },
+                '/ap/config/filter_visualization': {
+                    title: 'Filter',
+                    icon: 'Filter.ico',
+                },
+                '/ap/config/filter': {
+                    title: 'Filter',
+                    icon: 'Filter.ico',
+                },
+                '/ap/config/master': {
+                    title: 'TH',
+                    icon: 'Master.ico',
+                },
+                '/ap/config/job': {
+                    title: 'Job',
+                    icon: 'Job.ico',
+                },
+                '/ap/config/job/failed': {
+                    title: 'Failed Jobs',
+                    icon: 'Job.ico',
+                },
+                '/ap/about': {
+                    title: 'About',
+                    icon: 'favicon.ico',
+                },
+                '/ap/config': {
+                    title: 'Config',
+                    icon: 'Config.ico',
+                },
+                '/ap/cog': {
+                    title: 'COG',
+                    icon: 'COG.ico',
+                },
+                '/ap/skd': {
+                    title: 'SkD',
+                    icon: 'SkD.ico',
+                },
+                '/ap/pcp': {
+                    title: 'PCP',
+                    icon: 'PCP.ico',
+                },
+                '/ap/agp': {
+                    title: 'AgP',
+                    icon: 'AgP.ico',
+                },
+                '/ap/plot_view': {
+                    title: 'Plotview',
+                    icon: 'favicon.ico',
+                },
+                '/ap/hmp': {
+                    title: 'HMp',
+                    icon: 'favicon.ico',
+                },
+                '/ap/register_by_file': {
+                    title: 'Register by File',
+                    icon: 'Config.ico',
+                },
+            };
 
-          const user_group = docCookies.getItem('user_group');
-          const app_source = docCookies.getItem('app_location');
-          let app_version = docCookies.getItem('app_version');
-          app_version = app_version.split('.').slice(0,-1).join('.');
+            //現在Urlを取得する。
+            const currentUrl = $(location).attr('pathname');
 
-          gtag('event', 'apdn7_events_tracking', {
-              dn_app_version: app_version,
-              dn_app_source: app_source,
-              dn_app_group: user_group,
-              dn_app_show_graph_mode: 'None', // have not clicked show_graph yet
-              dn_app_show_graph_method: 'None'
-          });
+            //現在UrlとDictionaryを比較して、一致すれば、Dictionaryの設定データを取得する。
+            const getSetting = objTitle[currentUrl];
+            if (getSetting) {
+                $('title').html(getSetting.title);
+                $("link[rel*='icon']").prop(
+                    'href',
+                    '/static/common/icons/' + getSetting.icon + '',
+                );
+            }
         </script>
-    {% endif %}
-    {% block asset %}
-    {% endblock %}
-</head>
+        {% if not do_not_send_ga %}
+            <!-- Google tag (gtag.js) -->
+            <script
+                async
+                type="text/javascript"
+                src="{{ url_for('static', filename = 'common/js/libs/gtag.js') }}"
+            ></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag() {
+                    dataLayer.push(arguments);
+                }
+                gtag('js', new Date());
+                gtag('config', GA_TRACKING_ID);
 
-<body style="overflow-x: hidden">
-<div class="wrapper">
-    {% include 'i18n.html' %}
-    {% include 'sidebar.html' %}
-    {% import 'macros.html' as macros %}
-    {% block body %}
-        <div id="content">
-            <header class="main-header navbar-expand-lg navbar-dark bg-primary graph-navi graph-navi-top-down">
-                {% include 'header.html' %}
-            </header>
-            {{ macros.alert_message("alertNoLinkConfig", header_warning=True) }}
-            {% include 'messages.html' %}
-            <div class="row" id="mainContent">
-                <div class="col-lg-12">
-                    {% block header %}{% endblock %}
-                    {% block midbody %}
-                    {% endblock %}
+                const user_group = docCookies.getItem('user_group');
+                const app_source = docCookies.getItem('app_location');
+                let app_version = docCookies.getItem('app_version');
+                app_version = app_version.split('.').slice(0, -1).join('.');
+
+                gtag('event', 'apdn7_events_tracking', {
+                    dn_app_version: app_version,
+                    dn_app_source: app_source,
+                    dn_app_group: user_group,
+                    dn_app_show_graph_mode: 'None', // have not clicked show_graph yet
+                    dn_app_show_graph_method: 'None',
+                });
+            </script>
+        {% endif %}
+        {% block asset %}
+        {% endblock %}
+    </head>
+
+    <body style="overflow-x: hidden">
+        <div class="wrapper">
+            {% include 'i18n.html' %}
+            {% include 'sidebar.html' %}
+            {% import 'macros.html' as macros %}
+            {% block body %}
+                <div id="content">
+                    <header
+                        class="main-header navbar-expand-lg navbar-dark bg-primary graph-navi graph-navi-top-down"
+                    >
+                        {% include 'header.html' %}
+                    </header>
+                    {{ macros.alert_message("alertNoLinkConfig", header_warning=True) }}
+                    {% include 'messages.html' %}
+                    <div class="row" id="mainContent">
+                        <div class="col-lg-12">
+                            {% block header %}{% endblock %}
+                            {% block midbody %}
+                            {% endblock %}
+                        </div>
+                        <div class="col-lg-3 rounded"></div>
+                    </div>
+                    {% include 'graph_nav.html' %}
+
+                    <div id="screenshot" style="display: none;"></div>
+                    {% include 'modal.html' %}
+                    {% include 'footer.html' %}
                 </div>
-                <div class="col-lg-3 rounded">
-                </div>
+            {% endblock %}
+            <script type="text/javascript">
+                // hide setting page
+                const hideSettingPage = docCookies.getItem('hide_setting_page');
+                const useDefaultLogLevel = docCookies.getItem('log_level');
+                const isBrowserInvalidVersion = docCookies.getItem(
+                    'invalid_browser_version',
+                );
+                if (hideSettingPage === 'True') {
+                    $('#settingPageMenu').css('display', 'none');
+                }
+                $('header.main-header').removeClass('green-header');
+                if (useDefaultLogLevel === 'False') {
+                    $('header.main-header').addClass('green-header');
+                }
+
+                // app version
+                const version = docCookies.getItem('app_version');
+                $('#appVersion').text(version);
+
+                // app Location
+                const appLocation = docCookies.getItem('app_location');
+                if (appLocation) {
+                    $('#appLocation').text(appLocation);
+                }
+
+                // collapse sidebar when loading page
+                sidebarCollapse();
+            </script>
+            <div class="cross v left">
+                <div class="cross h left"></div>
             </div>
-            {% include 'graph_nav.html' %}
-
-            <div id="screenshot" style="display: none;"></div>
-            {% include 'modal.html' %}
-
-            {% include 'footer.html' %}
+            <div class="cross v right">
+                <div class="cross h right"></div>
+            </div>
         </div>
+    </body>
+    {% block js %}
     {% endblock %}
-	<script type="text/javascript">
-		// hide setting page
-		const hideSettingPage = docCookies.getItem('hide_setting_page');
-        const useDefaultLogLevel = docCookies.getItem('log_level');
-        const isBrowserInvalidVersion = docCookies.getItem('invalid_browser_version');
-		if (hideSettingPage === 'True') {
-			$('#settingPageMenu')
-				.css('display', 'none');
-		}
-        $('header.main-header').removeClass('green-header');
-        if (useDefaultLogLevel === 'False') {
-            $('header.main-header').addClass('green-header');
-        }
-
-		// app version
-		const version = docCookies.getItem('app_version');
-		$('#appVersion')
-			.text(version);
-
-		// app Location
-		const appLocation = docCookies.getItem('app_location');
-		if (appLocation) {
-			$('#appLocation').text(appLocation);
-		}
-
-		// collapse sidebar when loading page
-		sidebarCollapse();
-	</script>
-	<div class="cross v left">
-		<div class="cross h left"></div>
-	</div>
-	<div class="cross v right">
-		<div class="cross h right"></div>
-	</div>
-</div>
-</body>
-{% block js %}
-{% endblock %}
 </html>

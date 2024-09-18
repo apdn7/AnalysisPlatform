@@ -66,14 +66,14 @@ def gen_full_data_by_time(df, start_date, end_date, query_type):
 
 @log_execution_time()
 @memoize(cache_type=CacheType.TRANSACTION_DATA)
-def get_data_count_by_time_range(proc_id, start_date, end_date, query_type, local_tz):
+def get_data_count_by_time_range(proc_id, start_date, end_date, query_type, local_tz, count_in_file: bool):
     data = None
     min_val = None
     max_val = None
 
     with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
         trans_data = TransactionData(proc_id)
-        _, data_count = trans_data.select_data_count(db_instance, start_date, end_date)
+        _, data_count = trans_data.select_data_count(db_instance, start_date, end_date, count_in_file)
 
     # data_count = ProcDataCount.get_by_proc_id(proc_id, start_date, end_date)
     # data_count = [[r.datetime, r.count] for r in data_count]

@@ -1,8 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-/* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_SENSOR = 60;
 const MIN_NUMBER_OF_SENSOR = 0;
@@ -33,9 +28,9 @@ const formElements = {
 };
 
 const i18n = {
-	traceResulLimited: $('#i18nTraceResultLimited').text() || '',
-	SQLLimit: $('#i18nSQLLimit').text(),
-	allSelection: $('#i18nAllSelection').text(),
+    traceResulLimited: $('#i18nTraceResultLimited').text() || '',
+    SQLLimit: $('#i18nSQLLimit').text(),
+    allSelection: $('#i18nAllSelection').text(),
     objectiveHoverMsg: $('#i18nGLObjectiveHoverMsg').text(),
 };
 
@@ -55,7 +50,6 @@ $(() => {
         objectiveHoverMsg: i18n.objectiveHoverMsg,
         showStrColumn: true,
         hideStrVariable: false, // select Str columns as target sensors
-        hideCTCol: true,
         showFilter: true,
         allowObjectiveForRealOnly: true,
         disableSerialAsObjective: true,
@@ -63,7 +57,13 @@ $(() => {
     endProcItem();
 
     // add first condition process
-    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
+    const condProcItem = addCondProc(
+        endProcs.ids,
+        endProcs.names,
+        '',
+        formElements.formID,
+        'btn-add-cond-proc',
+    );
     condProcItem();
 
     // click even of condition proc add button
@@ -100,7 +100,7 @@ const collectFromDataGL = (clearOnFlyFilter) => {
     if (clearOnFlyFilter) {
         formData = new FormData(traceForm[0]);
         formData = genDatetimeRange(formData);
-        lastUsedFormData  = formData;
+        lastUsedFormData = formData;
     } else {
         formData = lastUsedFormData;
         formData = transformCatFilterParams(formData);
@@ -109,35 +109,43 @@ const collectFromDataGL = (clearOnFlyFilter) => {
     return formData;
 };
 
-
 const callToBackEndAPI = (clearOnFlyFilter = true) => {
     const formData = collectFromDataGL(clearOnFlyFilter);
 
-    showGraphCallApi('/ap/api/gl/plot', formData, REQUEST_TIMEOUT, async (res) => {
-        resData = res;
-        graphStore.setTraceData(res)
-        showGraphicalLasso(res);
+    showGraphCallApi(
+        '/ap/api/gl/plot',
+        formData,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            resData = res;
+            graphStore.setTraceData(res);
+            showGraphicalLasso(res);
 
-        $('html, body').animate({
-            scrollTop: $(formElements.plotCardId).offset().top,
-        }, 500);
-        // show info table
-        showInfoTable(res);
+            $('html, body').animate(
+                {
+                    scrollTop: getOffsetTopDisplayGraph(
+                        formElements.plotCardId,
+                    ),
+                },
+                500,
+            );
+            // show info table
+            showInfoTable(res);
 
-        fillDataToFilterModal(res.filter_on_demand, () => {
-            callToBackEndAPI(false);
-        });
-
-    });
+            fillDataToFilterModal(res.filter_on_demand, () => {
+                callToBackEndAPI(false);
+            });
+        },
+    );
 };
 
-const setSparsityValue = (alphas, bestAlphas=0, threshold) => {
+const setSparsityValue = (alphas, bestAlphas = 0, threshold) => {
     // set maximum value of ticks and input range
     $('#sparsity').attr('max', alphas.length - 1);
     $('.range-ticks').html('');
     // gen dynamic ticks of input range
-    alphas.forEach(alpha => {
-         $('.range-ticks').append('<span class="tick"></span>');
+    alphas.forEach((alpha) => {
+        $('.range-ticks').append('<span class="tick"></span>');
     });
     const markedValue = alphas.indexOf(Number(bestAlphas));
     // set selected value for inputs (by dummy value)
@@ -150,22 +158,22 @@ const setSparsityValue = (alphas, bestAlphas=0, threshold) => {
     $('#sparsityValue').text(selectedSparsity);
     $('#thresholdValue').text(threshold);
 };
-const showGraphicalLasso = (res, changedThreshold = null, alpha = null, inCurrentPosition=false) => {
+const showGraphicalLasso = (
+    res,
+    changedThreshold = null,
+    alpha = null,
+    inCurrentPosition = false,
+) => {
     formElements.plotCard.show();
     $(`#${formElements.graphicalLassoCanvasId}`).empty();
     if (!res.array_plotdata) return;
-    const [
-        alphas,
-        best_alpha,
-        threshold,
-        dic_nodes,
-        dic_edges,
-        processNames,
-    ] = res.array_plotdata;
+    const [alphas, best_alpha, threshold, dic_nodes, dic_edges, processNames] =
+        res.array_plotdata;
 
     if (!dic_nodes) return;
 
-    selectedThreshold = changedThreshold !== null ? changedThreshold : threshold;
+    selectedThreshold =
+        changedThreshold !== null ? changedThreshold : threshold;
     selectedSparsity = alpha !== null ? alpha : best_alpha;
     const availableThresholds = Object.keys(dic_nodes);
     setRangeValue(res, 'threshold', null, true);
@@ -189,13 +197,16 @@ const showGraphicalLasso = (res, changedThreshold = null, alpha = null, inCurren
         // update node label
         node.label = label;
         // update node position
-        if (inCurrentPosition && Object.keys(nodePositionData).includes(node.id)) {
+        if (
+            inCurrentPosition &&
+            Object.keys(nodePositionData).includes(node.id)
+        ) {
             node.x = nodePositionData[node.id].x;
             node.y = nodePositionData[node.id].y;
         }
     });
     // convert to json for sigma.js
-    const graph_data = {nodes: nodes, edges: edges};
+    const graph_data = { nodes: nodes, edges: edges };
 
     // set and show default value of sparsity and threshold
     // use best_alphas
@@ -208,7 +219,7 @@ const dfToList = (df) => {
     const edges = df[keys[0]].map((value, i) => {
         const res = {};
         for (const key of keys) {
-            res[key] = df[key][i]
+            res[key] = df[key][i];
         }
         return res;
     });
@@ -222,7 +233,12 @@ const castToStr = (number) => {
     }
     return number;
 };
-const setRangeValue = (res, rangeId, availableValues = null, isThreshold = false) => {
+const setRangeValue = (
+    res,
+    rangeId,
+    availableValues = null,
+    isThreshold = false,
+) => {
     const range = $(`#${rangeId}`);
     const valueEl = $(`#${rangeId}Value`);
 
@@ -239,8 +255,8 @@ const setRangeValue = (res, rangeId, availableValues = null, isThreshold = false
         }
         valueEl.text(value);
         showGraphicalLasso(res, selectedThreshold, selectedSparsity);
-    })
-}
+    });
+};
 
 const resetSettings = () => {
     // reset node position

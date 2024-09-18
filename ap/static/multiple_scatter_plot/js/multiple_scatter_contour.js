@@ -1,12 +1,15 @@
-/* eslint-disable */
 const getColName = (procId, colId) => {
     const column = procConfigs[procId].getColumnById(colId) || {};
     return column.shown_name || colId;
 };
 
-const genScatterOutlierTrace = (sctData, isShowContour = false,
-                                procName = null, cycleIDs = [],
-                                options) => {
+const genScatterOutlierTrace = (
+    sctData,
+    isShowContour = false,
+    procName = null,
+    cycleIDs = [],
+    options,
+) => {
     let suffixLabel = '';
     suffixLabel = ` @${options.start_proc_name}`;
     const scatterData = sctData.scatter_data;
@@ -40,7 +43,7 @@ const genScatterOutlierTrace = (sctData, isShowContour = false,
 const genContourTrace = (sctData, options) => {
     let suffixLabel = '';
     suffixLabel = ` @${options.start_proc_name}`;
-    
+
     const contourData = sctData.contour_data;
 
     const contourTrace = {
@@ -61,25 +64,33 @@ const genContourTrace = (sctData, options) => {
             outlinewidth: 0,
             ticks: '',
         },
-        colorscale: [[0.0, 'rgba(42,50,30,0.05)'], [0.1111111111111111, 'rgba(58,72,40,0.4)'], [0.2222222222222222, 'rgba(58, 72, 40, 0.6)'],
-            [0.3333333333333333, 'rgba(63, 79, 44, 0.7)'], [0.4444444444444444, 'rgba(74, 93, 53, 0.8)'], [0.5555555555555556, 'rgba(80, 103, 59, 0.9)'],
-            [0.6666666666666666, '#5a7343'], [0.7777777777777778, '#64814b'], [0.8888888888888888, '#85ab64'], [1.0, '#9ed66e']],
+        colorscale: [
+            [0.0, 'rgba(42,50,30,0.05)'],
+            [0.1111111111111111, 'rgba(58,72,40,0.4)'],
+            [0.2222222222222222, 'rgba(58, 72, 40, 0.6)'],
+            [0.3333333333333333, 'rgba(63, 79, 44, 0.7)'],
+            [0.4444444444444444, 'rgba(74, 93, 53, 0.8)'],
+            [0.5555555555555556, 'rgba(80, 103, 59, 0.9)'],
+            [0.6666666666666666, '#5a7343'],
+            [0.7777777777777778, '#64814b'],
+            [0.8888888888888888, '#85ab64'],
+            [1.0, '#9ed66e'],
+        ],
         customdata: {
             datetime: options.datetime,
             serials: options.serials,
             suffix_label: suffixLabel,
             thresholds: options.thresholds,
-        }
+        },
     };
     return contourTrace;
 };
-
 
 const getScatterContourData = (cId, scatterContourData) => {
     const xId = Number(cId[2]);
     const yId = Number(cId[1]);
     for (const key in scatterContourData) {
-        const sctrData = scatterContourData[key]
+        const sctrData = scatterContourData[key];
         if (sctrData.col_id_x === xId && sctrData.col_id_y === yId) {
             return sctrData;
         }
@@ -98,15 +109,20 @@ const getScatterContourData = (cId, scatterContourData) => {
                     y: sctrData.scatter_data.x,
                     x_fmt: sctrData.scatter_data.y_fmt,
                     y_fmt: sctrData.scatter_data.x_fmt,
-                }
-            }
+                },
+            };
 
             return newSct;
         }
     }
 };
 
-const genScatterContourLayout = (backgroundColor, x_fmt, y_fmt, isLargeOfSensors=false) => {
+const genScatterContourLayout = (
+    backgroundColor,
+    x_fmt,
+    y_fmt,
+    isLargeOfSensors = false,
+) => {
     const layout = {
         annotationdefaults: {
             arrowcolor: '#2a3f5f',
@@ -120,17 +136,58 @@ const genScatterContourLayout = (backgroundColor, x_fmt, y_fmt, isLargeOfSensors
                 ticks: '',
             },
         },
-        colorscale: { // TODO no need
-            diverging: [[0, '#8e0152'], [0.1, '#c51b7d'], [0.2, '#de77ae'], [0.3, '#f1b6da'], [0.4, '#fde0ef'], [0.5, '#f7f7f7'],
-                [0.6, '#e6f5d0'], [0.7, '#b8e186'], [0.8, '#7fbc41'], [0.9, '#4d9221'], [1, '#276419']],
-            sequential: [[0.0, '#0d0887'], [0.1111111111111111, '#46039f'], [0.2222222222222222, '#7201a8'], [0.3333333333333333, '#9c179e'],
-                [0.4444444444444444, '#bd3786'], [0.5555555555555556, '#d8576b'], [0.6666666666666666, '#ed7953'],
-                [0.7777777777777778, '#fb9f3a'], [0.8888888888888888, '#fdca26'], [1.0, '#f0f921']],
-            sequentialminus: [[0.0, '#0d0887'], [0.1111111111111111, '#46039f'], [0.2222222222222222, '#7201a8'],
-                [0.3333333333333333, '#9c179e'], [0.4444444444444444, '#bd3786'], [0.5555555555555556, '#d8576b'],
-                [0.6666666666666666, '#ed7953'], [0.7777777777777778, '#fb9f3a'], [0.8888888888888888, '#fdca26'], [1.0, '#f0f921']],
+        colorscale: {
+            // TODO no need
+            diverging: [
+                [0, '#8e0152'],
+                [0.1, '#c51b7d'],
+                [0.2, '#de77ae'],
+                [0.3, '#f1b6da'],
+                [0.4, '#fde0ef'],
+                [0.5, '#f7f7f7'],
+                [0.6, '#e6f5d0'],
+                [0.7, '#b8e186'],
+                [0.8, '#7fbc41'],
+                [0.9, '#4d9221'],
+                [1, '#276419'],
+            ],
+            sequential: [
+                [0.0, '#0d0887'],
+                [0.1111111111111111, '#46039f'],
+                [0.2222222222222222, '#7201a8'],
+                [0.3333333333333333, '#9c179e'],
+                [0.4444444444444444, '#bd3786'],
+                [0.5555555555555556, '#d8576b'],
+                [0.6666666666666666, '#ed7953'],
+                [0.7777777777777778, '#fb9f3a'],
+                [0.8888888888888888, '#fdca26'],
+                [1.0, '#f0f921'],
+            ],
+            sequentialminus: [
+                [0.0, '#0d0887'],
+                [0.1111111111111111, '#46039f'],
+                [0.2222222222222222, '#7201a8'],
+                [0.3333333333333333, '#9c179e'],
+                [0.4444444444444444, '#bd3786'],
+                [0.5555555555555556, '#d8576b'],
+                [0.6666666666666666, '#ed7953'],
+                [0.7777777777777778, '#fb9f3a'],
+                [0.8888888888888888, '#fdca26'],
+                [1.0, '#f0f921'],
+            ],
         },
-        colorway: ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52'],
+        colorway: [
+            '#636efa',
+            '#EF553B',
+            '#00cc96',
+            '#ab63fa',
+            '#FFA15A',
+            '#19d3f3',
+            '#FF6692',
+            '#B6E880',
+            '#FF97FF',
+            '#FECB52',
+        ],
         font: {
             size: 11,
             color: 'white',
@@ -273,8 +330,13 @@ const genScatterContourLayout = (backgroundColor, x_fmt, y_fmt, isLargeOfSensors
     return layout;
 };
 
-
-const addScatterThresholds = (layout, uclThresholds, procThresholds, rowRange, colRange) => {
+const addScatterThresholds = (
+    layout,
+    uclThresholds,
+    procThresholds,
+    rowRange,
+    colRange,
+) => {
     layout.shapes = [];
     // procThresholds.xMin
     if (!isEmpty(procThresholds.xMin)) {

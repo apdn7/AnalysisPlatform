@@ -22,17 +22,17 @@ const drawGraphicalLassoSigma = (canvasId, data) => {
             edgeHoverExtremities: true,
             edgeHoverHighlightNodes: 'circle',
             sideMargin: 1,
-            }
-        };
+        },
+    };
 
     const s = new sigma(sigmaLayout);
     const dragListener = sigma.plugins.dragNodes(s, s.renderers[0]);
-    dragListener.bind('dragend', function(event) {
+    dragListener.bind('dragend', function (event) {
         if (nodePositionData) {
             nodePositionData[event.data.node.id] = {
                 x: event.data.node.x,
                 y: event.data.node.y,
-            }
+            };
         }
     });
-}
+};

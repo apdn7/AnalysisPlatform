@@ -26,7 +26,6 @@ const StepBarChart = ($, paramObj) => {
         };
     }
 
-
     // ////////////// プライベート関数の定義 ////////////////////
     function setParam(key, defaultValue) {
         if (key in paramObj && !isEmpty(paramObj[key])) {
@@ -49,8 +48,12 @@ const StepBarChart = ($, paramObj) => {
     categoryLabels.reverse();
 
     // get origin step bar chart data
-    const stepChartDat = categoryLabels.map(label => categoryDistributed[label].pctg);
-    const shortCatLabels = categoryLabels.map(label => categoryDistributed[label].short_name);
+    const stepChartDat = categoryLabels.map(
+        (label) => categoryDistributed[label].pctg,
+    );
+    const shortCatLabels = categoryLabels.map(
+        (label) => categoryDistributed[label].short_name,
+    );
     const data = {
         labels: isCatLimited ? [] : shortCatLabels,
         datasets: [
@@ -78,25 +81,29 @@ const StepBarChart = ($, paramObj) => {
         return tblContent;
     };
 
-     const externalTooltipHandler = (context) => {
-        const {chart, tooltip} = context;
+    const externalTooltipHandler = (context) => {
+        const { chart, tooltip } = context;
         if (!tooltip.dataPoints) return;
-        const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas;
+        const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas;
         const canvasOffset = $(`#${chart.canvas.id}`).offset();
         const leftPosition = canvasOffset.left + positionX + tooltip.caretX;
         const topPosition = canvasOffset.top + positionY + tooltip.caretY;
         const dataIndex = tooltip.dataPoints[0].dataIndex;
         const plotData = graphStore.getArrayPlotData(chart.canvas.id);
         const categoryName = categoryLabels ? categoryLabels[dataIndex] : null;
-        const [cateName, count, ratio] = getStepChartHoverInfo(dataIndex, categoryName, plotData)
+        const [cateName, count, ratio] = getStepChartHoverInfo(
+            dataIndex,
+            categoryName,
+            plotData,
+        );
         genDataPointHoverTable(
             genDataTable(cateName, count, ratio),
-            {x: leftPosition - 192, y: topPosition},
+            { x: leftPosition - 192, y: topPosition },
             125,
             true,
             chart.canvas.id,
         );
-    }
+    };
 
     const config = {
         type: 'bar',
@@ -146,7 +153,8 @@ const StepBarChart = ($, paramObj) => {
                         maxTicksLimit: 8,
                         align: 'end',
                         font: {
-                            family: 'Calibri Light', size: 12,
+                            family: 'Calibri Light',
+                            size: 12,
                         },
                     },
                     grid: {
@@ -190,21 +198,28 @@ const StepBarChart = ($, paramObj) => {
     };
 
     if (!isEmpty(threshHigh)) {
-        config.options.plugins.annotation.annotations.ucl = createHistHorizonalThreshold(threshHigh, CONST.RED, CONST.UCL);
+        config.options.plugins.annotation.annotations.ucl =
+            createHistHorizonalThreshold(threshHigh, CONST.RED, CONST.UCL);
     }
     if (!isEmpty(threshLow)) {
-        config.options.plugins.annotation.annotations.lcl = createHistHorizonalThreshold(threshLow, CONST.RED, CONST.LCL);
+        config.options.plugins.annotation.annotations.lcl =
+            createHistHorizonalThreshold(threshLow, CONST.RED, CONST.LCL);
     }
     if (!isEmpty(prcMin)) {
-        config.options.plugins.annotation.annotations.lpcl = createHistHorizonalThreshold(prcMin, CONST.BLUE, CONST.LPCL);
+        config.options.plugins.annotation.annotations.lpcl =
+            createHistHorizonalThreshold(prcMin, CONST.BLUE, CONST.LPCL);
     }
     if (!isEmpty(prcMax)) {
-        config.options.plugins.annotation.annotations.upcl = createHistHorizonalThreshold(prcMax, CONST.BLUE, CONST.UPCL);
+        config.options.plugins.annotation.annotations.upcl =
+            createHistHorizonalThreshold(prcMax, CONST.BLUE, CONST.UPCL);
     }
 
     if (isCatLimited) {
         config.options.plugins.annotation.annotations['catLimited'] = {
-            type: 'label', content: [...i18n.catLimitMsg], color: '#65c5f1', font: { size: 9 },
+            type: 'label',
+            content: [...i18n.catLimitMsg],
+            color: '#65c5f1',
+            font: { size: 9 },
         };
     }
 
@@ -230,7 +245,8 @@ const StepBarChart = ($, paramObj) => {
 };
 
 const getStepChartHoverInfo = (categoryIndex, categoryName, plotDat) => {
-    let count, ratio = '';
+    let count,
+        ratio = '';
     if (!categoryName && plotDat.before_rank_values) {
         const beforeRankVals = [...plotDat.before_rank_values[0]];
         // because current we draw items from bot -> top,

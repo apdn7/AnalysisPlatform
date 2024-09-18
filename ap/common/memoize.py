@@ -135,7 +135,8 @@ def memoize(is_save_file=False, duration=None, cache_type: CacheType = CacheType
                     if check_exist(file_name):
                         return read_pickle_file(file_name)
                 else:
-                    return cache[key]['value']
+                    # Must use deepcopy to avoid reference value will be overwritten later
+                    return deepcopy(cache[key]['value'])
 
             result = fn(*args, **kwargs)
 
@@ -149,10 +150,11 @@ def memoize(is_save_file=False, duration=None, cache_type: CacheType = CacheType
                     cache[key] = {'value': deepcopy(result), 'time': time.time()}
 
             # resize
-            while len(cache) > cache_max_size:
-                key, dic_val = cache.popitem(last=False)
-                if dic_val.get('file'):
-                    delete_cache_file(key)
+            with lock:
+                while len(cache) > cache_max_size:
+                    key, dic_val = cache.popitem(last=False)
+                    if dic_val.get('file'):
+                        delete_cache_file(key)
 
             return result
 

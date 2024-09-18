@@ -1,13 +1,12 @@
 class ParallelProps {
-    constructor() {
-    }
+    constructor() {}
     static showVariables = {
         ALL: 'all',
         REAL: 'real',
         CATEGORY: 'category',
         NUMBER: 'number',
-        CATEGORIZED: 'categorized_real'
-    }
+        CATEGORIZED: 'categorized_real',
+    };
     // static corrOrdering = {
     //     orderBy: ['correlation', 'top'],
     //     corrValue: ['corr_value', 'max_vars'],
@@ -19,7 +18,7 @@ class ParallelProps {
         setting: 'setting',
         process: 'process',
         correlation: 'correlation',
-    }
+    };
 
     static realTypes = [
         DataTypes.REAL.name,
@@ -32,12 +31,8 @@ class ParallelProps {
         DataTypes.EU_INTEGER_SEP.name,
         DataTypes.BIG_INT.name,
     ];
-    static catTypes = [
-        DataTypes.STRING.name,
-    ];
-    static datetimeType = [
-        DataTypes.DATETIME.name,
-    ]
+    static catTypes = [DataTypes.STRING.name];
+    static datetimeType = [DataTypes.DATETIME.name];
     // valid data types init
     static validDataTypes = {
         all: [
@@ -47,27 +42,19 @@ class ParallelProps {
             ...this.datetimeType,
         ],
         real: this.realTypes,
-        number: [
-            ...this.realTypes,
-            ...this.intTypes,
-        ],
-        category: [
-            ...this.catTypes,
-            ...this.intTypes,
-        ],
+        number: [...this.realTypes, ...this.intTypes],
+        category: [...this.catTypes, ...this.intTypes],
         categorized_real: [
             ...this.realTypes,
             ...this.intTypes,
             ...this.catTypes,
         ],
-        datetime: [
-            ...this.datetimeType,
-        ]
+        datetime: [...this.datetimeType],
     };
 
     // sort value setting
     static valueOrder = {
         DESC: 'desc',
-        ASC: 'asc'
-    }
+        ASC: 'asc',
+    };
 }

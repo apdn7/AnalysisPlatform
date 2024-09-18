@@ -1,0 +1,63 @@
+.multi-level-dropdown > button {
+    width: 100% !important;
+    text-align: inherit;
+    position: sticky;
+}
+
+.multi-level-dropdown li {
+    min-height: 1.7em;
+}
+
+.multi-level-dropdown li[disabled='disabled'] {
+    pointer-events: none;
+}
+
+.multi-level-dropdown li:not([disabled='disabled']):hover,
+.multi-level-dropdown li.selected {
+    background: cornflowerblue !important;
+}
+
+.multi-level-dropdown li:hover li,
+.multi-level-dropdown li.selected li {
+    background: unset;
+}
+
+.multi-level-dropdown > .dropdown-menu {
+    margin-top: 1.9em;
+}
+
+.multi-level-dropdown > .dropdown-menu[x-placement='bottom-start'] {
+    margin-top: unset;
+}
+
+.multi-level-dropdown .dropdown-menu > li > a {
+    padding-left: 1em;
+    display: block;
+    width: 100%;
+}
+
+.multi-level-dropdown .dropdown-submenu {
+    position: relative;
+}
+
+.multi-level-dropdown .dropdown-submenu .dropdown-menu {
+    top: 0 !important;
+    left: 100% !important;
+    margin-top: -1px !important;
+}
+
+.multi-level-dropdown .dropdown-submenu .dropdown-menu > li > span {
+    padding-left: 1em !important;
+}
+
+.multi-level-dropdown .dropdown-submenu > span::after {
+    content: '»' !important;
+    float: right !important;
+    padding-right: 0 !important;
+}
+
+.multi-level-dropdown > button {
+    width: 100% !important;
+    text-align: inherit;
+    position: sticky;
+}

@@ -45,7 +45,7 @@ canvas {
 
 /* Clear floats after the columns */
 .chart-row:after {
-    content: "";
+    content: '';
     display: table;
     clear: both;
 }
@@ -65,13 +65,14 @@ canvas {
     line-height: 1.4;
 }
 
-@media (max-width: 1200px ) {
+@media (max-width: 1200px) {
     .coef-text {
         font-size: 1.6vw;
     }
 }
 
-#showLabel, .showLabel {
+#showLabel,
+.showLabel {
     line-height: 28px;
     /*float: right;*/
     margin-left: 10px;

@@ -1,7 +1,3 @@
-/* eslint-disable guard-for-in,indent,no-tabs,linebreak-style */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-undef */
-
 let isExportMode = false;
 let UserSettingExportInfo = null;
 let isUserSwitchedTab = true;
@@ -13,6 +9,8 @@ let isSettingChanged = false;
 let isSettingLoading = false;
 const INVALID_FILTER_DETAIL_IDS = 'invalid_filter_detail_ids';
 const SHARED_USER_SETTING = 'shared_user_setting';
+const JUMP_SHARED_USER_SETTING = 'jump_shared_user_setting';
+const DEFAULT_DATETIME_RANGE = 'defaultRangeTime';
 let lastUsedFormData = null;
 let latestIndexOrder = [];
 let selectedHref = '';
@@ -96,24 +94,36 @@ const getShowFormId = () => {
     }
 
     return null;
-
-
 };
 
-const genInvalidFilterName = (procId, startDate, startTime, endDate, endTime) => [INVALID_FILTER_DETAIL_IDS, procId, startDate, startTime, endDate, endTime].join('_');
+const genInvalidFilterName = (procId, startDate, startTime, endDate, endTime) =>
+    [
+        INVALID_FILTER_DETAIL_IDS,
+        procId,
+        startDate,
+        startTime,
+        endDate,
+        endTime,
+    ].join('_');
 
 const getConditionGroups = (parentDiv) => {
-    const searchGroups = $(parentDiv).find('[id*=cond-proc].grouplist-checkbox-with-search');
+    const searchGroups = $(parentDiv).find(
+        '[id*=cond-proc].grouplist-checkbox-with-search',
+    );
     return searchGroups;
 };
 
 const getNonConditionGroups = (parentDiv) => {
-    const searchGroups = $(parentDiv).find('.grouplist-checkbox-with-search').not('[id*=cond-proc]');
+    const searchGroups = $(parentDiv)
+        .find('.grouplist-checkbox-with-search')
+        .not('[id*=cond-proc]');
     return searchGroups;
 };
 
 const getCheckedFilters = (parentDiv) => {
-    const filterEles = $(parentDiv).find('[id$=cond-proc-row] input:checkbox:checked');
+    const filterEles = $(parentDiv).find(
+        '[id$=cond-proc-row] input:checkbox:checked',
+    );
     const filterDetailIds = [];
     for (el of filterEles) {
         const val = Number(el.value);
@@ -134,7 +144,9 @@ const getFilterKeys = (parentDiv) => {
         return null;
     }
 
-    const timeRadio = $(parentDiv).find('input[type=radio][name*=raceTime]:checked');
+    const timeRadio = $(parentDiv).find(
+        'input[type=radio][name*=raceTime]:checked',
+    );
     if (!timeRadio.length) {
         return null;
     }
@@ -165,7 +177,13 @@ const getFilterKeys = (parentDiv) => {
             endTime = endTimes[i].value;
         }
 
-        const key = genInvalidFilterName(proc.val(), startDates[i].value, startTime, endDate, endTime);
+        const key = genInvalidFilterName(
+            proc.val(),
+            startDates[i].value,
+            startTime,
+            endDate,
+            endTime,
+        );
         keys.push(key);
     }
 
@@ -173,7 +191,8 @@ const getFilterKeys = (parentDiv) => {
 };
 
 const controlInvalidFilterLifeCycle = (key) => {
-    const invalidFilterKeys = JSON.parse(localStorage.getItem(INVALID_FILTER_DETAIL_IDS)) || [];
+    const invalidFilterKeys =
+        JSON.parse(localStorage.getItem(INVALID_FILTER_DETAIL_IDS)) || [];
     const pos = invalidFilterKeys.indexOf(key);
     if (pos >= 0) {
         invalidFilterKeys.splice(pos, 1);
@@ -187,7 +206,10 @@ const controlInvalidFilterLifeCycle = (key) => {
         invalidFilterKeys.splice(i, 1);
     }
 
-    localStorage.setItem(INVALID_FILTER_DETAIL_IDS, JSON.stringify(invalidFilterKeys));
+    localStorage.setItem(
+        INVALID_FILTER_DETAIL_IDS,
+        JSON.stringify(invalidFilterKeys),
+    );
 };
 
 const saveInvalidFilters = (key, invalidFilterDetailIds) => {
@@ -221,7 +243,6 @@ const removeInvalidFilters = (key, invalidFilterDetailIds) => {
     return true;
 };
 
-
 const getInvalidFilters = (key) => {
     const data = JSON.parse(localStorage.getItem(key)) || [];
     return data;
@@ -234,16 +255,33 @@ const getSortKeys = (targetEle, isSimple = null) => {
     const liBlue = $(targetEle).hasClass('li-blue');
     const columnName = $(targetEle).find('.column-master-name');
     const cycleTimeCol = $(targetEle).find('.data-type');
-    const facetSelect = $(targetEle).find('select');
-    const facetLevel = facetSelect.length > 0 && facetSelect.val() !== '' ? Number(facetSelect.val()) : lastPosNumber;
+    const colorValElm = $(targetEle).find('select[name=colorVar]');
+    const facetSelect = $(targetEle).find('select:not([name=colorVar])');
+    const colorVal =
+        colorValElm.length > 0 && colorValElm.val() !== ''
+            ? Number(colorValElm.val())
+            : lastPosNumber;
+    const facetLevel =
+        facetSelect.length > 0 && facetSelect.val() !== ''
+            ? Number(facetSelect.val())
+            : lastPosNumber;
     const checkboxs = $(targetEle).find('input:checkbox,input:radio');
     const val = checkboxs.length === 0 ? lastPosNumber : checkboxs[0].value;
-    const sensorOrder = checkboxs.length > 0 ? Number($(checkboxs[0]).attr('data-order')) : null;
+    const sensorOrder =
+        checkboxs.length > 0
+            ? Number($(checkboxs[0]).attr('data-order'))
+            : null;
     const isChecked = !!(checkboxs.length > 0 && checkboxs[0].checked);
-    const isColumnNameBlank = !!(columnName.length > 0 && columnName.text() === '');
+    const isColumnNameBlank = !!(
+        columnName.length > 0 && columnName.text() === ''
+    );
     // order by sensor x, y
-    const sensor = checkboxs.length > 0 ? $(checkboxs[0]).attr('data-sensor') : null;
-    const order = checkboxs.length > 0 && isChecked ? $(checkboxs[0]).attr('order') : null;
+    const sensor =
+        checkboxs.length > 0 ? $(checkboxs[0]).attr('data-sensor') : null;
+    const order =
+        checkboxs.length > 0 && isChecked
+            ? $(checkboxs[0]).attr('order')
+            : null;
 
     if (val === 'NO_FILTER') {
         keys.push(0);
@@ -254,7 +292,7 @@ const getSortKeys = (targetEle, isSimple = null) => {
     }
 
     if (isSimple) {
-        keys.push(isChecked === null ? lastPosNumber : (isChecked ? 0 : 1));
+        keys.push(isChecked === null ? lastPosNumber : isChecked ? 0 : 1);
         return keys;
     }
 
@@ -277,14 +315,14 @@ const getSortKeys = (targetEle, isSimple = null) => {
         } else if (sensor && sensor === 'y') {
             keys.push(0.1);
         } else {
-            keys.push(isChecked === null ? lastPosNumber : (isChecked ? 0 : 1));
+            keys.push(isChecked === null ? lastPosNumber : isChecked ? 0 : 1);
         }
-        keys.push(facetLevel);
+        keys.push(colorVal, facetLevel);
     } else {
-        keys.push(facetLevel);
-        keys.push(isChecked === null ? lastPosNumber : (isChecked ? 0 : 1));
+        keys.push(colorVal, facetLevel);
+        keys.push(isChecked === null ? lastPosNumber : isChecked ? 0 : 1);
     }
-    keys.push(liGrey ? 2 : (liBlue ? 1 : 0));
+    keys.push(liGrey ? 2 : liBlue ? 1 : 0);
     keys.push(checkboxs.length >= 2 ? (checkboxs[1].checked ? 0 : 1) : 2);
     keys.push(cycleTimeVal);
     // keys.push(Number(val));
@@ -318,7 +356,11 @@ const sortHtmlElements = (parentEle, isSimple = null) => {
     return isChanged;
 };
 
-const moveFilter = (searchGroup, invalidFilterDetailIds, onlyCheckedFilter = true) => {
+const moveFilter = (
+    searchGroup,
+    invalidFilterDetailIds,
+    onlyCheckedFilter = true,
+) => {
     const items = $(searchGroup).find('.list-group-item');
     for (e of items) {
         const ele = $(e);
@@ -334,7 +376,9 @@ const moveFilter = (searchGroup, invalidFilterDetailIds, onlyCheckedFilter = tru
         }
 
         if (filterEle.length) {
-            if (invalidFilterDetailIds.indexOf(Number(filterEle[0].value)) >= 0) {
+            if (
+                invalidFilterDetailIds.indexOf(Number(filterEle[0].value)) >= 0
+            ) {
                 if (!ele.hasClass('li-grey')) {
                     ele.addClass('li-grey');
                 }
@@ -428,13 +472,22 @@ const setTriggerInvalidFilter = (parentDiv) => {
         proc = $(parentDiv).find('select[name^=end_proc]').first();
     }
 
-    const timeRadio = $(parentDiv).find('input[type=radio][name*=raceTime]:checked');
+    const timeRadio = $(parentDiv).find(
+        'input[type=radio][name*=raceTime]:checked',
+    );
     const startDates = $(parentDiv).find('input[name*=START_DATE]');
     const startTimes = $(parentDiv).find('input[name*=START_TIME]');
     const endDates = $(parentDiv).find('input[name*=END_DATE]');
     const endTimes = $(parentDiv).find('input[name*=END_TIME]');
 
-    for (const ele of [proc, timeRadio, startDates, startTimes, endDates, endTimes]) {
+    for (const ele of [
+        proc,
+        timeRadio,
+        startDates,
+        startTimes,
+        endDates,
+        endTimes,
+    ]) {
         ele.on('change', (_) => {
             const showTab = getShowTab();
             loadAllInvalidFilterCaller(showTab);
@@ -461,8 +514,15 @@ const checkResultExist = (res) => {
 };
 
 // ////////////////////////////////////////
-const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', localStorageKey = null, isLoadNew = true) => {
+const saveLoadUserInput = (
+    selector,
+    localStorageKeyPrefix = '',
+    parent = '',
+    localStorageKey = null,
+    isLoadNew = true,
+) => {
     const DYNAMIC_ELE_ATTR = 'data-gen-btn';
+    const isEventJumpOKBtn = isCopyFromJumpModel;
 
     const buildEleSelector = (name, value = null, id = null) => {
         let output = '';
@@ -486,9 +546,8 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
 
     let formId;
     let form;
-    if (typeof (selector) === 'string') {
-        if (!selector.replace('#', '')) return () => {
-        };
+    if (typeof selector === 'string') {
+        if (!selector.replace('#', '')) return () => {};
         form = document.querySelector(selector);
         // form does not exist
         if (!form) {
@@ -519,16 +578,22 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
     const tabPanes = document.querySelectorAll('.tab-pane');
 
     const checkActiveTab = (el) => {
-        return el.classList.contains('tab-pane') && el.classList.contains('active') && el.classList.contains('show');
+        return (
+            el.classList.contains('tab-pane') &&
+            el.classList.contains('active') &&
+            el.classList.contains('show')
+        );
     };
-
 
     const serializeArray = () => {
         const serializeData = [];
 
         elements.forEach((el) => {
             const data = {
-                id: el.id, name: el.name, value: el.value || $(el).val(), type: el.type,
+                id: el.id,
+                name: el.name,
+                value: el.value || $(el).val(),
+                type: el.type,
             };
             // load level
             const loadLevel = $(el).data('load-level');
@@ -539,14 +604,19 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             // only match
             if (el.type === 'radio' || el.type === 'checkbox') {
                 if (data.name === 'objectiveVar' && objectiveId) {
-                     if (data.id === objectiveId) {
+                    if (data.id === objectiveId) {
                         data.checked = true;
                     } else if (data.id !== objectiveId) {
                         data.checked = false;
                     }
                 } else if (/GET02_VALS_SELECT/.test(data.name)) {
-                    if (jumpCheckedAllSensors.length || jumpCheckedAllSensors.length) {
-                        data.checked = jumpCheckedAllSensors.includes(data.value);
+                    if (
+                        jumpCheckedAllSensors.length ||
+                        jumpCheckedAllSensors.length
+                    ) {
+                        data.checked = jumpCheckedAllSensors.includes(
+                            data.value,
+                        );
                     } else {
                         data.checked = el.checked;
                     }
@@ -560,13 +630,17 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
 
             // convert data.name === 'DATETIME_RANGE_PICKER'
             if (data.name === 'DATETIME_RANGE_PICKER') {
-                const {startDate, startTime, endDate, endTime} = splitDateTimeRange(data.value);
+                const { startDate, startTime, endDate, endTime } =
+                    splitDateTimeRange(data.value);
                 if (!startTime && !endTime) {
-                    data.value = `${startDate} 00:00 ${DATETIME_PICKER_SEPARATOR} ${endDate} 00:00`
+                    data.value = `${startDate} 00:00 ${DATETIME_PICKER_SEPARATOR} ${endDate} 00:00`;
                 }
             }
 
-            if (data.id === 'datetimeRangePicker' && data.name === 'DATETIME_RANGE_PICKER') {
+            if (
+                data.id === 'datetimeRangePicker' &&
+                data.name === 'DATETIME_RANGE_PICKER'
+            ) {
                 if (divideOption === divideOptions.cyclicTerm) {
                     // assign new data
                     serializeData.push({
@@ -575,6 +649,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                         type: 'text',
                         value: data.value.split(DATETIME_PICKER_SEPARATOR)[0],
                     });
+                    serializeData.push(...calcCyclicTermConfig(data.value));
                 }
 
                 if (divideOption === divideOptions.dataNumberTerm) {
@@ -597,16 +672,15 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             }
 
             serializeData.push(data);
-
         });
 
         if (divideOption) {
             serializeData.push({
-                id: "divideOption",
-                name: "compareType",
-                type: "select-one",
+                id: 'divideOption',
+                name: 'compareType',
+                type: 'select-one',
                 value: divideOption,
-            })
+            });
         }
 
         if (dumpedUserSetting.length) {
@@ -617,14 +691,20 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
 
         tabPanes.forEach((el) => {
             const data = {
-                id: el.id, name: el.name, value: el.value, type: el.type, isActiveTab: checkActiveTab(el),
+                id: el.id,
+                name: el.name,
+                value: el.value,
+                type: el.type,
+                isActiveTab: checkActiveTab(el),
             };
             serializeData.push(data);
         });
 
-
         // sort checked judge
-        const checkedJudge = serializeData.filter(setting => setting.name === 'judgeVar' && setting.checked === true);
+        const checkedJudge = serializeData.filter(
+            (setting) =>
+                setting.name === 'judgeVar' && setting.checked === true,
+        );
         if (checkedJudge.length) {
             serializeData.push(checkedJudge[0]);
         }
@@ -633,8 +713,23 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
     };
 
     const saveUserInput = () => {
-        const formData = JSON.stringify(serializeArray());
-        localStorage.setItem(key, formData);
+        const formData = serializeArray();
+        // Handler save user setting to local storage for Jump mode
+        if (isEventJumpOKBtn) {
+            const settings = { filter: {}, traceDataForm: formData };
+            const userShareSettings = { settings: settings };
+            const isJumpWithOdf = $(jumpEls.checkboxOdfSetting).prop('checked');
+            if (isJumpWithOdf) {
+                userShareSettings.settings.filter = getOnDemandFilterInput();
+            }
+            localStorage.setItem(
+                JUMP_SHARED_USER_SETTING,
+                JSON.stringify(userShareSettings),
+            );
+        } else {
+            // Save share user setting for copy page
+            localStorage.setItem(key, JSON.stringify(formData));
+        }
     };
 
     // call all event of element
@@ -658,7 +753,9 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
         let shownEles = [];
         for (const keyword of [id, name]) {
             if (keyword) {
-                shownEles = form.querySelectorAll(`[${DYNAMIC_ELE_ATTR}="${id}"]`);
+                shownEles = form.querySelectorAll(
+                    `[${DYNAMIC_ELE_ATTR}="${id}"]`,
+                );
                 if (shownEles.length) {
                     return shownEles;
                 }
@@ -715,7 +812,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             // console.log(`genNewEle: ${i}, ${ele.name}`);
             const btnAddNew = checkEleExistOnScreen(btn, ele);
             if (btnAddNew) {
-                callAllEvent(btnAddNew, events = ['click']);
+                callAllEvent(btnAddNew, (events = ['click']));
             } else {
                 break;
             }
@@ -732,8 +829,13 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
         const shownEles = getShownEles(dataGenBtnId, dataGenBtnName);
         for (const shownEle of shownEles) {
             if (!usedEleNames.includes(shownEle.name)) {
-                const target = form.querySelectorAll(`[name="${shownEle.name}"]`);
-                $(target).closest('.dynamic-element').find('.close-icon').trigger('click');
+                const target = form.querySelectorAll(
+                    `[name="${shownEle.name}"]`,
+                );
+                $(target)
+                    .closest('.dynamic-element')
+                    .find('.close-icon')
+                    .trigger('click');
             }
         }
     };
@@ -764,7 +866,10 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                 const ele = eles[idx];
                 eleNames.push(ele.name);
                 // check if process is exists then render HTML elements
-                if (procConfigs[ele.value] && (!['TermSerialProcess', 'serialProcess'].includes(ele.name))) {
+                if (
+                    procConfigs[ele.value] &&
+                    !['TermSerialProcess', 'serialProcess'].includes(ele.name)
+                ) {
                     genNewEle(btn, ele);
                 }
 
@@ -772,7 +877,9 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                     ele.value = convertDatetimePickerSeparator(ele.value);
                     callAllEvent($(`#${btn}`), ['click']);
                     // APPLY VALUE TO RENDERED DATE TIME PICKER
-                    const dates = $('.datetimerange-group').find(`[name=${DATETIME_RANGE_PICKER_CLASS}]`);
+                    const dates = $('.datetimerange-group').find(
+                        `[name=${DATETIME_RANGE_PICKER_CLASS}]`,
+                    );
                     const renderedInput = dates[dates.length - 1];
                     $(renderedInput).val(ele.value).trigger('change');
 
@@ -797,10 +904,14 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
     };
 
     const isDateTimePickerEl = (name) => {
-        if ([DATETIME_RANGE_PICKER_CLASS,
-            DATE_RANGE_PICKER_CLASS,
-            DATETIME_PICKER_CLASS,
-            DATE_PICKER_CLASS].includes(name)) {
+        if (
+            [
+                DATETIME_RANGE_PICKER_CLASS,
+                DATE_RANGE_PICKER_CLASS,
+                DATETIME_PICKER_CLASS,
+                DATE_PICKER_CLASS,
+            ].includes(name)
+        ) {
             return true;
         }
         return false;
@@ -809,7 +920,7 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
     // todo: check 09/16 endtime
     const loadNonRadioCheckEle = (data) => {
         const remainEles = [];
-        const srcSetting = localStorage.getItem('srcSetting') || null;
+        const srcSetting = getLocalStorageSrcSetting();
         const desSetting = window.location.pathname;
 
         // load value
@@ -827,14 +938,25 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
                 let eleSelector = buildEleSelector(v.name, null, v.id);
                 input = form.querySelector(eleSelector);
                 // selection
-                if (v.name === 'remove_outlier_type' && v.value === 'majority') {
+                if (
+                    v.name === 'remove_outlier_type' &&
+                    v.value === 'majority'
+                ) {
                     continue;
                 }
                 if (v.type === 'select-one') {
                     // in case of existing selection, but not existing item/option
                     // do nothing
-                    if (input !== null && v.name === 'catExpBox' && !isLoadNew) {
-                        v.value = facetGenerate(srcSetting, desSetting, v)
+                    if (
+                        input !== null &&
+                        v.name === 'catExpBox' &&
+                        !isLoadNew
+                    ) {
+                        v.value = facetGenerate(
+                            srcSetting?.srcPath,
+                            desSetting,
+                            v,
+                        );
                     }
                 }
 
@@ -862,8 +984,12 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             if (v.name === 'compareType') {
                 const devideDOM = $('select[id=divideOption]');
                 if (devideDOM.length) {
-                    const optionsDOM = $('select[id=divideOption]').find('option');
-                    const options = Array.from(optionsDOM).map((opt) => $(opt).val());
+                    const optionsDOM = $('select[id=divideOption]').find(
+                        'option',
+                    );
+                    const options = Array.from(optionsDOM).map((opt) =>
+                        $(opt).val(),
+                    );
                     if (!options.includes(v.value)) {
                         v.value = options[0];
                     }
@@ -885,7 +1011,10 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             }
             let input = null;
             let eleSelector;
-            if (v.name === CYCLIC_TERM.DIV_CALENDER || v.name === "autoUpdateInterval") {
+            if (
+                v.name === CYCLIC_TERM.DIV_CALENDER ||
+                v.name === 'autoUpdateInterval'
+            ) {
                 eleSelector = buildEleSelector(null, null, v.id);
             } else {
                 eleSelector = buildEleSelector(v.name);
@@ -919,6 +1048,44 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             }
         }
         return remainEles;
+    };
+
+    const updateShareUserSetting = (src, des, dataUpdate) => {
+        const outlierFromPages = [PAGE_NAME.pcp, PAGE_NAME.skd, PAGE_NAME.gl];
+
+        if (!src || !des || isEmpty(dataUpdate)) return;
+
+        if (
+            !isLoadNew &&
+            outlierFromPages.includes(src) &&
+            !outlierFromPages.includes(des)
+        ) {
+            updateOutlierSetting(src, des, dataUpdate);
+        }
+    };
+
+    /*
+    Update outlier when copy from PCP/SKD/GL pages and paste to other pages
+    --------- PCP, SKD, GL pages ----------------- Other pages ----
+    | [objective var]  |  [explanatory var]    |    Outlier       |
+    |       check      |       No check        |   No check       |
+    |       check      |          check        |      check       |
+    |     No check     |          check        |      check       |
+    |     No check     |       No check        |   No check       |
+    */
+    const updateOutlierSetting = (src, des, dataUpdate) => {
+        const objectiveVar = dataUpdate.find(
+            (e) => e.name === 'remove_outlier_objective_var',
+        );
+        const explanatoryVar = dataUpdate.find(
+            (e) => e.name === 'remove_outlier_explanatory_var',
+        );
+        const outlierIndex = dataUpdate.findIndex(
+            (e) => e.name === 'remove_outlier',
+        );
+        if (objectiveVar && explanatoryVar && outlierIndex !== -1) {
+            dataUpdate[outlierIndex].checked = explanatoryVar.checked;
+        }
     };
 
     const divideElementGroup = (data) => {
@@ -964,20 +1131,85 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
         }
 
         procs.forEach(async (proc, i) => {
-            await addSerialOrderRow(null, 'serialProcess', 'serialColumn', 'serialOrder', Number(proc.value), Number(cols[i].value), orders[i].value);
+            await addSerialOrderRow(
+                null,
+                'serialProcess',
+                'serialColumn',
+                'serialOrder',
+                Number(proc.value),
+                Number(cols[i].value),
+                orders[i].value,
+            );
             bindChangeProcessEvent();
             updatePriorityAndDisableSelected();
-            setTimeout(() => { // wait select2 to be shown
+            setTimeout(() => {
+                // wait select2 to be shown
                 bindChangeOrderColEvent();
             }, 200);
-        })
+        });
     };
 
-    const innerFunc = (isLoad = true, isSaveToLocalStorage = true, savedData = null) => {
+    const handlerSettingDefaultDivide = (data, srcSetting) => {
+        // Ignore load default datetime ranges
+        if (isLoadNew || !srcSetting || srcSetting.isJump) {
+            return;
+        }
+        const currentPage = getCurrentPage();
+        const pagePasteHasDivideOption =
+            Object.keys(ALL_DIVISION).includes(currentPage);
+        const pageCopiedHasDivideOption = Object.keys(ALL_DIVISION).includes(
+            srcSetting.pageName,
+        );
+        const radioDefaultInterval = data.find(
+            (d) => d.id === 'radioDefaultInterval' && d.name === 'traceTime',
+        );
+        const isDefaultInterval =
+            radioDefaultInterval && radioDefaultInterval.checked;
+        // Case copy page not division option to pages have DIVISION
+        if (
+            !pageCopiedHasDivideOption &&
+            pagePasteHasDivideOption &&
+            isDefaultInterval
+        ) {
+            const setDefaultCyclicTerm =
+                $('#divideOption').val() === CYCLIC_TERM.NAME;
+            const datetimeRange = data.find(
+                (d) => d.name === 'DATETIME_RANGE_PICKER',
+            );
+            setDefaultCyclicTermConfig(
+                datetimeRange?.value,
+                setDefaultCyclicTerm,
+            );
+        }
+    };
+
+    const getLocalStorageSrcSetting = () => {
+        const srcSetting = localStorage.getItem('srcSetting') || null;
+        if (srcSetting) {
+            try {
+                const parseSrcSetting = JSON.parse(srcSetting);
+                if (typeof parseSrcSetting === 'object') return parseSrcSetting;
+            } catch (e) {
+                return {
+                    srcPath: srcSetting,
+                    pageName: srcSetting.split('/').at(-1),
+                    isJump: false,
+                };
+            }
+        }
+        return srcSetting;
+    };
+
+    const innerFunc = (
+        isLoad = true,
+        isSaveToLocalStorage = true,
+        savedData = null,
+    ) => {
         if (isLoad) {
             let data;
             if (isSaveToLocalStorage) {
-                data = JSON.parse(localStorage.getItem(key));
+                const shareSettings = getLocalStorageShareUserSetting();
+                data = shareSettings?.settings?.traceDataForm || null;
             } else {
                 data = savedData;
             }
@@ -985,11 +1217,25 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
             if (!data) {
                 return;
             }
+            const jumpDefaultRangeTime = data.find(
+                (e) => e.name === DEFAULT_DATETIME_RANGE,
+            );
+            const isJumpPath =
+                window.location.href.includes(goToFromJumpFunction);
+            const isUseDefaultRangeTime =
+                isJumpPath && jumpDefaultRangeTime !== undefined;
+            const srcSetting = getLocalStorageSrcSetting();
 
             // gen dynamic eles
             genDynamicEle(data);
+            updateShareUserSetting(
+                srcSetting?.pageName,
+                getCurrentPage(),
+                data,
+            );
 
-            const [activeTabs, radioChecks, others1, others2, indexVals] = divideElementGroup(data);
+            const [activeTabs, radioChecks, others1, others2, indexVals] =
+                divideElementGroup(data);
 
             if (isSaveToLocalStorage) {
                 loadActiveTab(activeTabs);
@@ -1013,6 +1259,15 @@ const saveLoadUserInput = (selector, localStorageKeyPrefix = '', parent = '', lo
 
                     setTimeout(() => {
                         loadRadioCheckboxEle(remainRadioChecks);
+                        // Set default datetime range for jump target page
+                        if (isUseDefaultRangeTime) {
+                            setDefaultCyclicTermConfig(
+                                jumpDefaultRangeTime.value,
+                                true,
+                            );
+                        }
+                        // Handler set default division
+                        handlerSettingDefaultDivide(data, srcSetting);
                     }, 200);
 
                     // load invalid
@@ -1107,27 +1362,30 @@ const clearSettingID = () => {
     }
 };
 
-
 const updateSettingPriority = (elem, userSettingId) => {
     const settingPriority = $(elem).val();
     if (settingPriority) {
-        $.get(`/ap/api/setting/user_setting/${userSettingId}`, {"_": $.now()}, (res) => {
-            if (res.status === 200) {
-                const settingDat = {
-                    id: userSettingId,
-                    priority: settingPriority,
-                    created_by: res.data.created_by,
-                    description: res.data.description,
-                    key: res.data.key,
-                    page: res.data.page,
-                    settings: res.data.settings,
-                    share_info: res.data.share_info,
-                    title: res.data.title,
-                    use_current_time: res.data.use_current_time,
-                };
-                createOrUpdateSetting(settingDat);
-            }
-        });
+        $.get(
+            `/ap/api/setting/user_setting/${userSettingId}`,
+            { _: $.now() },
+            (res) => {
+                if (res.status === 200) {
+                    const settingDat = {
+                        id: userSettingId,
+                        priority: settingPriority,
+                        created_by: res.data.created_by,
+                        description: res.data.description,
+                        key: res.data.key,
+                        page: res.data.page,
+                        settings: res.data.settings,
+                        share_info: res.data.share_info,
+                        title: res.data.title,
+                        use_current_time: res.data.use_current_time,
+                    };
+                    createOrUpdateSetting(settingDat);
+                }
+            },
+        );
     }
 };
 
@@ -1157,8 +1415,10 @@ const createHTMLRow = (setting, idx, isCurrentSetting) => {
         return '';
     }
 
-    const backgroundColor = isCurrentSetting ? ' style=" background-color: steelblue;"': '';
-    const htmlRow =`<tr data-setting-id="${setting.id}" ${backgroundColor}>
+    const backgroundColor = isCurrentSetting
+        ? ' style=" background-color: steelblue;"'
+        : '';
+    const htmlRow = `<tr data-setting-id="${setting.id}" ${backgroundColor}>
         <td>${idx}</td>
         <td>${setting.share_info ? $(i18nEles.shared).text() : $(i18nEles.private).text()}</td>
         <td>
@@ -1209,10 +1469,15 @@ const showUserSettingsToModal = (userSettings) => {
     const currentUser = localStorage.getItem('settingCommonUserName');
     let idx = 1;
     for (const setting of userSettings) {
-        const isShowSetting = !currentUser || currentUser && setting.created_by === currentUser || setting.share_info;
+        const isShowSetting =
+            !currentUser ||
+            (currentUser && setting.created_by === currentUser) ||
+            setting.share_info;
 
         if (isShowSetting) {
-            const isCurrentSetting = currentLoadSetting ? setting.id == currentLoadSetting.id : false
+            const isCurrentSetting = currentLoadSetting
+                ? setting.id == currentLoadSetting.id
+                : false;
             const rowHTML = createHTMLRow(setting, idx, isCurrentSetting);
             rowHTMLs.push(rowHTML);
             idx += 1;
@@ -1256,7 +1521,6 @@ const bindDeleteUserSetting = (e, userSettingId) => {
     $('#deleteSettingConfirmModal').modal('show');
 };
 
-// eslint-disable-next-line no-unused-vars
 const deleteUserSetting = (e) => {
     const userSettingId = $(e).attr('data-item-id');
 
@@ -1268,12 +1532,9 @@ const deleteUserSetting = (e) => {
         },
         body: JSON.stringify({}),
     })
-        .then((response) => {
-        })
-        .then(() => {
-        })
-        .catch(() => {
-        });
+        .then((response) => {})
+        .then(() => {})
+        .catch(() => {});
 
     $('#tblUserSetting').find(`tr[data-setting-id=${userSettingId}]`).remove();
 
@@ -1287,15 +1548,23 @@ const clearLoadingSetting = () => {
     localStorage.removeItem('loadingSetting');
 };
 
-const setExportMode = isExport => isExportMode = isExport;
+const setExportMode = (isExport) => (isExportMode = isExport);
 
-const goToSettingPage = (userSettingId, settingPage, isImportMode = false, isBlank = false) => {
-    localStorage.setItem('loadingSetting', JSON.stringify({
-        redirect: true,
-        settingID: userSettingId,
-        isExportMode,
-        isImportMode,
-    }));
+const goToSettingPage = (
+    userSettingId,
+    settingPage,
+    isImportMode = false,
+    isBlank = false,
+) => {
+    localStorage.setItem(
+        'loadingSetting',
+        JSON.stringify({
+            redirect: true,
+            settingID: userSettingId,
+            isExportMode,
+            isImportMode,
+        }),
+    );
 
     // reset debug mode
     setExportMode(false);
@@ -1312,12 +1581,18 @@ const goToSettingPage = (userSettingId, settingPage, isImportMode = false, isBla
 const handleGoToSettingPage = (e, userSettingId, settingPage) => {
     e.preventDefault();
     if (e.ctrlKey) {
-        goToSettingPage(userSettingId, settingPage, false, true)
+        goToSettingPage(userSettingId, settingPage, false, true);
     } else {
         goToSettingPage(userSettingId, settingPage);
     }
 };
-const useUserSetting = (userSettingId = null, sharedSetting = null, onlyLoad = null, isLoadNew = true, fromPaste = false) => {
+const useUserSetting = (
+    userSettingId = null,
+    sharedSetting = null,
+    onlyLoad = null,
+    isLoadNew = true,
+    fromPaste = false,
+) => {
     const reqHeaders = new Headers();
     reqHeaders.append('Content-Type', 'application/json');
     isSettingLoading = true;
@@ -1332,7 +1607,7 @@ const useUserSetting = (userSettingId = null, sharedSetting = null, onlyLoad = n
             shared_user_setting: sharedSetting,
         }),
     })
-        .then(response => response.json())
+        .then((response) => response.json())
         .then((json) => {
             const userSetting = json.data;
             if (!fromPaste) {
@@ -1340,7 +1615,7 @@ const useUserSetting = (userSettingId = null, sharedSetting = null, onlyLoad = n
             }
             applyUserSetting(userSetting, onlyLoad, isLoadNew);
         })
-        .catch(error => console.log('error', error));
+        .catch((error) => console.log('error', error));
 };
 
 const useUserSettingOnLoad = () => {
@@ -1352,13 +1627,13 @@ const useUserSettingOnLoad = () => {
         method: 'GET',
         headers: reqHeaders,
     })
-        .then(response => response.json())
+        .then((response) => response.json())
         .then((json) => {
             const userSetting = json.data;
             currentLoadSetting = userSetting;
             applyUserSetting(userSetting);
         })
-        .catch(error => console.log('error', error));
+        .catch((error) => console.log('error', error));
 };
 
 const showIndexInforBox = () => {
@@ -1372,12 +1647,11 @@ const showIndexInforBox = () => {
 };
 
 const applyUserSetting = (userSetting, onlyLoad = null, isLoadNew = true) => {
-
     if (isEmpty(userSetting)) return;
     isSettingLoading = true;
 
     let userInputs;
-    if (typeof (userSetting.settings) === 'string') {
+    if (typeof userSetting.settings === 'string') {
         userInputs = JSON.parse(userSetting.settings || '{}');
     } else {
         userInputs = userSetting.settings || {};
@@ -1388,7 +1662,7 @@ const applyUserSetting = (userSetting, onlyLoad = null, isLoadNew = true) => {
     for (const formId in userInputs) {
         if (onlyLoad) {
             loadFunc = saveLoadUserInput(onlyLoad, '', '', null, isLoadNew);
-        } else if (typeof (formId) === 'string') {
+        } else if (typeof formId === 'string') {
             loadFunc = saveLoadUserInput(`#${formId}`, '', '', null, isLoadNew);
         }
 
@@ -1434,7 +1708,7 @@ const saveStateAndShowLabelSetting = (userSetting, inplace = true) => {
             userSettingText = `${userSetting.title}`;
             // set current loading setting label
             fillStartBookmark();
-            $('#setting-name').text(userSettingText)
+            $('#setting-name').text(userSettingText);
             $(settingModals.bookmarkBtn).attr('title', userSettingText);
             $(settingModals.overwriteSaveSettingBtn).show();
             $(settingModals.editSettingBtn).show();
@@ -1452,11 +1726,9 @@ const fillStartBookmark = () => {
 
 const emptyStartBookmark = () => {
     $(settingModals.bookmarkBtn).html('&#x2606');
-}
+};
 
-// eslint-disable-next-line no-unused-vars
 const loadAllUserSetting = () => {
-
     $('#loadUserSettingModal').modal('show');
 
     const reqHeaders = new Headers();
@@ -1466,12 +1738,12 @@ const loadAllUserSetting = () => {
         method: 'GET',
         headers: reqHeaders,
     })
-        .then(response => response.json())
+        .then((response) => response.json())
         .then((json) => {
             const userSettings = json.data;
             showUserSettingsToModal(userSettings);
         })
-        .catch(error => console.log('error', error));
+        .catch((error) => console.log('error', error));
 };
 
 const showSettingModal = (userSetting) => {
@@ -1487,16 +1759,21 @@ const showSettingModal = (userSetting) => {
     Object.keys(userSetting).forEach((settingKey) => {
         const setting = userSetting[settingKey];
         if (settingModalKeys.includes(settingKey)) {
-            const settingInput = $(settingModals.userSetting)
-                .find(`[name="${settingKey}"]`);
-            const elType = settingInput.is('select') ? 'select' : settingInput.attr('type');
+            const settingInput = $(settingModals.userSetting).find(
+                `[name="${settingKey}"]`,
+            );
+            const elType = settingInput.is('select')
+                ? 'select'
+                : settingInput.attr('type');
             switch (elType) {
                 case 'checkbox':
                     settingInput.prop('checked', setting);
                     break;
                 case 'select':
                     if (settingKey === 'priority' && setting === 0) {
-                        settingInput.append(`<option value="0">0 (Demo)</option>`);
+                        settingInput.append(
+                            `<option value="0">0 (Demo)</option>`,
+                        );
                         settingInput.val(0);
                         settingInput.prop('disabled', true);
                     } else {
@@ -1505,7 +1782,7 @@ const showSettingModal = (userSetting) => {
                     break;
                 default:
                     settingInput.val(setting);
-                    settingInput.attr('org-data', setting)
+                    settingInput.attr('org-data', setting);
             }
         }
     });
@@ -1517,7 +1794,11 @@ const showSettingModal = (userSetting) => {
 };
 
 const getUserSettingById = async (userSettingId) => {
-    const res = await fetchData(`/ap/api/setting/user_setting/${userSettingId}`, {}, 'GET');
+    const res = await fetchData(
+        `/ap/api/setting/user_setting/${userSettingId}`,
+        {},
+        'GET',
+    );
     return res;
 };
 
@@ -1550,12 +1831,20 @@ const resetSaveUserSettingModal = () => {
     $(settingModals.common).find('input[name=page]').val('');
     $(settingModals.common).find('input[name=created_by]').val('');
     $(settingModals.common).find('select[name=priority]').val('1');
-    $(settingModals.common).find('select[name=priority] option[value="0"]').remove();
-    $(settingModals.common).find('select[name=priority]').prop('disabled', false);
+    $(settingModals.common)
+        .find('select[name=priority] option[value="0"]')
+        .remove();
+    $(settingModals.common)
+        .find('select[name=priority]')
+        .prop('disabled', false);
     $(settingModals.common).find('input[name=description]').val('');
-    $(settingModals.common).find('input[name=use_current_time]').prop('checked', true);
-    $(settingModals.common).find('input[name=share_info]').prop('checked', true);
-}
+    $(settingModals.common)
+        .find('input[name=use_current_time]')
+        .prop('checked', true);
+    $(settingModals.common)
+        .find('input[name=share_info]')
+        .prop('checked', true);
+};
 
 const showOverwriteConfirmModel = () => {
     $(settingModals.overwriteConfirmation).modal('show');
@@ -1580,24 +1869,30 @@ const createOrUpdateSetting = (settingDat, inplace = true) => {
     });
 };
 const setModalOverlay = () => {
-    $(document).on({
-        'show.bs.modal': function () {
-            const zIndex = 1040 + (10 * $('.modal:visible').length);
-            $(this).css('z-index', zIndex);
-            setTimeout(() => {
-                $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
-            }, 0);
-        },
-        'hidden.bs.modal': function () {
-            if ($('.modal:visible').length > 0) {
-                // restore the modal-open class to the body element, so that scrolling works
-                // properly after de-stacking a modal.
+    $(document).on(
+        {
+            'show.bs.modal': function () {
+                const zIndex = 1040 + 10 * $('.modal:visible').length;
+                $(this).css('z-index', zIndex);
                 setTimeout(() => {
-                    $(document.body).addClass('modal-open');
+                    $('.modal-backdrop')
+                        .not('.modal-stack')
+                        .css('z-index', zIndex - 1)
+                        .addClass('modal-stack');
                 }, 0);
-            }
+            },
+            'hidden.bs.modal': function () {
+                if ($('.modal:visible').length > 0) {
+                    // restore the modal-open class to the body element, so that scrolling works
+                    // properly after de-stacking a modal.
+                    setTimeout(() => {
+                        $(document.body).addClass('modal-open');
+                    }, 0);
+                }
+            },
         },
-    }, '.modal');
+        '.modal',
+    );
     // $(document).on('show.bs.modal', '.modal', function (event) {
     // 	var zIndex = 1040 + (10 * $('.modal:visible').length);
     // 	$(this).css('z-index', zIndex);
@@ -1654,7 +1949,9 @@ const getSettingCommonInfo = () => {
 
         const graphSettings = [];
 
-        const radioEls = graphSettingsArea.find('input[type=radio]:is(:checked)');
+        const radioEls = graphSettingsArea.find(
+            'input[type=radio]:is(:checked)',
+        );
 
         radioEls.each((i, el) => {
             graphSettings.push({
@@ -1701,7 +1998,9 @@ const getSettingCommonInfo = () => {
             });
         });
 
-        const texts = graphSettingsArea.find('input:not([type=checkbox]):not([type=radio])');
+        const texts = graphSettingsArea.find(
+            'input:not([type=checkbox]):not([type=radio])',
+        );
         texts.each((i, el) => {
             graphSettings.push({
                 name: $(el).attr('name'),
@@ -1713,13 +2012,6 @@ const getSettingCommonInfo = () => {
             });
         });
 
-
-        const filterData = {
-            dic_cat_filters: lastUsedFormData ? JSON.parse(lastUsedFormData.get('dic_cat_filters')) : '',
-            temp_cat_exp: lastUsedFormData ? JSON.parse(lastUsedFormData.get('temp_cat_exp')) : '',
-            temp_cat_procs: lastUsedFormData ? JSON.parse(lastUsedFormData.get('temp_cat_procs')) : '',
-        };
-
         const isIndexOder = hasIndexOrderInGraphSetting(graphSettings);
 
         if (isIndexOder) {
@@ -1727,7 +2019,7 @@ const getSettingCommonInfo = () => {
         }
 
         formSettingDat['graphSetting'] = graphSettings;
-        formSettingDat['filter'] = filterData;
+        formSettingDat['filter'] = getOnDemandFilterInput();
 
         // update column ordering by user clicked
         formSettingDat.column_ordering = latestSortColIds;
@@ -1739,12 +2031,29 @@ const getSettingCommonInfo = () => {
     return settingCommonInfo;
 };
 
+const getOnDemandFilterInput = () => {
+    return {
+        dic_cat_filters: lastUsedFormData
+            ? JSON.parse(lastUsedFormData.get('dic_cat_filters'))
+            : '',
+        temp_cat_exp: lastUsedFormData
+            ? JSON.parse(lastUsedFormData.get('temp_cat_exp'))
+            : '',
+        temp_cat_procs: lastUsedFormData
+            ? JSON.parse(lastUsedFormData.get('temp_cat_procs'))
+            : '',
+    };
+};
 
 const hasIndexOrderInGraphSetting = (graphSettings = []) => {
     if (!graphSettings) return null;
-    const isIndexOrder = graphSettings.filter(graph => graph.name === 'XAxisOrder' && graph.value === CONST.XOPT_INDEX).length > 0;
+    const isIndexOrder =
+        graphSettings.filter(
+            (graph) =>
+                graph.name === 'XAxisOrder' && graph.value === CONST.XOPT_INDEX,
+        ).length > 0;
     return isIndexOrder;
-}
+};
 
 const convertDatetimePickerSeparator = (value) => {
     const temp = value;
@@ -1755,7 +2064,7 @@ const checkExistTitleSetting = async (title) => {
     loadingShow(true);
     $.ajax({
         url: '/ap/api/setting/check_exist_title_setting',
-        data: JSON.stringify({title}),
+        data: JSON.stringify({ title }),
         dataType: 'json',
         type: 'POST',
         contentType: false,
@@ -1792,20 +2101,25 @@ $(document).ready(() => {
     }
     $(saveUserBtn).click(() => {
         inputForms.each((i, form) => {
-            const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname);
+            const userInput = saveLoadUserInput(
+                `#${form.id}`,
+                window.location.pathname,
+            );
             userInput(false);
         });
     });
 
     $(loadUserBtn).click(() => {
         inputForms.each((i, form) => {
-            const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname);
+            const userInput = saveLoadUserInput(
+                `#${form.id}`,
+                window.location.pathname,
+            );
             userInput();
         });
     });
 
     settingDataTableInit();
-
 
     // save user setting to DB
     mainFormSettings = $(settingModals.mainSettingForm);
@@ -1834,7 +2148,9 @@ $(document).ready(() => {
     $(settingModals.confirmBtn).on('click', () => {
         let invalidPage = false;
         Object.keys(saveSettingExceptionPages).forEach((k) => {
-            if (window.location.pathname.includes(saveSettingExceptionPages[k])) {
+            if (
+                window.location.pathname.includes(saveSettingExceptionPages[k])
+            ) {
                 invalidPage = true;
             }
         });
@@ -1850,9 +2166,11 @@ $(document).ready(() => {
         // set userName in localStorage at first time
         getOrSetUserName(settingCommonInfo.created_by);
 
-        const inplaceSetting = !settingCommonInfo.id ? true : (currentLoadSetting && settingCommonInfo)
-            ? (Number(currentLoadSetting.id) === Number(settingCommonInfo.id))
-            : true;
+        const inplaceSetting = !settingCommonInfo.id
+            ? true
+            : currentLoadSetting && settingCommonInfo
+              ? Number(currentLoadSetting.id) === Number(settingCommonInfo.id)
+              : true;
         createOrUpdateSetting(settingCommonInfo, inplaceSetting);
     });
 
@@ -1861,7 +2179,9 @@ $(document).ready(() => {
         // retrieve data from setting forms
         const settingCommonInfo = currentLoadSetting;
         const settingInfo = getSettingCommonInfo();
-        const saveGraphSetting = $('[name=save_graph_settings_overwrite]').prop('checked');
+        const saveGraphSetting = $('[name=save_graph_settings_overwrite]').prop(
+            'checked',
+        );
         settingCommonInfo.save_graph_settings = saveGraphSetting || '';
         settingCommonInfo.settings = settingInfo.settings;
 
@@ -1948,35 +2268,37 @@ const compareSettingChange = () => {
         const newFormData = new FormData($(currentFormID)[0]);
         if (currentFromDataFromLoadSetting && newFormData) {
             // remove exclude name from form
-            ['export_from'].map(val => {
+            ['export_from'].map((val) => {
                 currentFromDataFromLoadSetting.delete(val);
                 newFormData.delete(val);
             });
-            isSettingChanged = JSON.stringify([...currentFromDataFromLoadSetting.entries()]) !== JSON.stringify([...newFormData.entries()]);
+            isSettingChanged =
+                JSON.stringify([
+                    ...currentFromDataFromLoadSetting.entries(),
+                ]) !== JSON.stringify([...newFormData.entries()]);
         }
     }
 
     if (isSettingChanged) {
-
         if (currentLoadSetting) {
             emptyStartBookmark();
         }
 
         $('#setting-change-mark').show();
-        $(window).off("beforeunload");
-        $(window).on("beforeunload", function () {
+        $(window).off('beforeunload');
+        $(window).on('beforeunload', function () {
             return 'Do you want to save changes?';
         });
     } else {
         fillStartBookmark();
         resetChangeSettingMark();
     }
-}
+};
 
 const resetChangeSettingMark = () => {
     isSettingChanged = false;
     $('#setting-change-mark').hide();
-    $(window).off("beforeunload");
+    $(window).off('beforeunload');
     if (currentLoadSetting) {
         fillStartBookmark();
     }
@@ -1984,7 +2306,7 @@ const resetChangeSettingMark = () => {
 
 const showSettingChangeModalHandler = (callback) => {
     if (isSettingChanged) {
-        $(settingModals.changeSettingConfirmModal).modal('show')
+        $(settingModals.changeSettingConfirmModal).modal('show');
 
         $('#saveChangeSetting').on('click', () => {
             $(settingModals.changeSettingConfirmModal).modal('hide');
@@ -2006,7 +2328,13 @@ const showSettingChangeModalHandler = (callback) => {
     }
 };
 
-const goToOtherPage = (href, inplace = true, emptyPage = false, mainPage = '') => {
+const goToOtherPage = (
+    href,
+    inplace = true,
+    emptyPage = false,
+    mainPage = '',
+    useLatestSetting = false,
+) => {
     if (!href) {
         href = selectedHref;
     }
@@ -2015,6 +2343,9 @@ const goToOtherPage = (href, inplace = true, emptyPage = false, mainPage = '') =
     }
     if (emptyPage) {
         useTileInterface().set();
+    }
+    if (useLatestSetting) {
+        useTileInterface('useLatestSetting').set();
     }
     if (inplace) {
         showSettingChangeModalHandler(() => {
@@ -2033,13 +2364,26 @@ const handleUseUserSetting = (id) => {
 };
 
 const isSaveGraphSetting = () => {
-    return currentLoadSetting && currentLoadSetting.save_graph_settings && !isSettingChanged;
+    return (
+        currentLoadSetting &&
+        currentLoadSetting.save_graph_settings &&
+        !isSettingChanged
+    );
+};
+
+const isLoadingFromJumpPage = () => {
+    const isJumpPath = window.location.href.includes(goToFromJumpFunction);
+    return !currentLoadSetting && !isSettingChanged && isJumpPath;
 };
 
 const isSaveColumnOrdering = () => {
     if (!(currentLoadSetting | 0)) return false;
     const settings = JSON.parse(currentLoadSetting.settings);
-    return !isSettingChanged && settings.column_ordering && settings.column_ordering.length;
+    return (
+        !isSettingChanged &&
+        settings.column_ordering &&
+        settings.column_ordering.length
+    );
 };
 
 const handleCopyUrlToClipBoard = async (e, userSettingId) => {
@@ -2048,8 +2392,8 @@ const handleCopyUrlToClipBoard = async (e, userSettingId) => {
     if (res.status === 200) {
         page = res.data.page;
         let url = `${window.location.host}${page}?bookmark_id=${res.data.id}`;
-        const serverMachineName = "";
-        url = url.replace(/localhost|127.0.0.1/, res.hostname)
+        const serverMachineName = '';
+        url = url.replace(/localhost|127.0.0.1/, res.hostname);
         $('#copyClipboardContent').show();
         $('#copyClipboardContentText').text(url);
         setTimeout(() => {
@@ -2057,11 +2401,15 @@ const handleCopyUrlToClipBoard = async (e, userSettingId) => {
             setTooltip($(e), 'Copied!');
         }, 300);
     }
-}
-
+};
 
 const getFilterOnDemand = () => {
-    if (!currentLoadSetting) return null;
+    const jumpFilter = getJumpFilterOnDemand();
+    if (!currentLoadSetting && !isLoadingFromJumpPage()) return null;
+    // Get filter on demand for case copy user settings from jump modal
+    if (isLoadingFromJumpPage()) {
+        return jumpFilter;
+    }
     const settings = JSON.parse(currentLoadSetting.settings);
     return settings.filter;
 };
@@ -2071,9 +2419,11 @@ const getGraphSettings = () => {
     const settings = JSON.parse(currentLoadSetting.settings);
     // sort by order
 
-    return settings.graphSetting ? settings.graphSetting.sort(function (a, b) {
-        return a.order > b.order ? -1 : 1;
-    }) : null;
+    return settings.graphSetting
+        ? settings.graphSetting.sort(function (a, b) {
+              return a.order > b.order ? -1 : 1;
+          })
+        : null;
 };
 
 const getIndexOrder = () => {
@@ -2081,10 +2431,10 @@ const getIndexOrder = () => {
     const settings = JSON.parse(currentLoadSetting.settings);
 
     return settings.indexOrder || [];
-}
+};
 
 const setFitlerIntoFormData = (formData) => {
-    if (!isSaveGraphSetting()) return formData;
+    if (!isSaveGraphSetting() && !isLoadingFromJumpPage()) return formData;
     const filter = getFilterOnDemand();
     if (!filter) return formData;
 
@@ -2119,7 +2469,9 @@ const loadGraphSettings = (isFirstTime = false) => {
         // get default value of element
         if (setting.type === 'radio') {
             defaultValue = graphArea.find(`${selectorStr}:checked`).val();
-            el = graphArea.find(`${selectorStr}[value=${setting.value}]`).prop('checked', true);
+            el = graphArea
+                .find(`${selectorStr}[value=${setting.value}]`)
+                .prop('checked', true);
         } else if (setting.type === 'select') {
             el = graphArea.find(`${selectorStr}`);
             defaultValue = el.val();
@@ -2128,7 +2480,6 @@ const loadGraphSettings = (isFirstTime = false) => {
             el = graphArea.find(`${selectorStr}`);
             defaultValue = el.is('checked');
             el.prop('checked', setting.checked);
-
         } else if (setting.type === 'text') {
             el = graphArea.find(`${selectorStr}`);
             defaultValue = el.val();
@@ -2146,11 +2497,11 @@ const loadGraphSettings = (isFirstTime = false) => {
         if (isTriggerChange) {
             el.trigger('change');
         }
-    };
+    }
 };
 
 const getDicChecked = () => {
-    if (!isSaveGraphSetting()) return null;
+    if (!isSaveGraphSetting() && !isLoadingFromJumpPage()) return null;
     const filter = getFilterOnDemand();
     return filter ? filter.dic_cat_filters : null;
 };
@@ -2164,27 +2515,130 @@ const facetGenerate = (src, des, value) => {
     };
 
     if (src && des) {
-
-        if (src.includes('stp') && des.includes('rlp') && facetVal !== '') {
-            // from stp -> rlp
-            // facet lv1 -> div
-            // facet lv2 -> lv1
-            facetVal = (facetVal === facets.LV1) ? facets.DIV : facets.LV1;
-        }
         if (src.includes('rlp') && des.includes('stp') && facetVal !== '') {
             // from rlp -> stp
             // facet div -> lv1
             // facet lv1 -> lv2
-            facetVal = (facetVal === facets.DIV) ? facets.LV1 : facets.LV2;
+            facetVal = facetVal === facets.DIV ? facets.LV1 : facets.LV2;
         }
     }
     return facetVal;
 };
 
 const isShowCTTime = (settingData) => {
-    const isShowCTTime = settingData.find(e=>e.name === 'is_show_ct_time');
+    const isShowCTTime = settingData.find((e) => e.name === 'is_show_ct_time');
     if (isShowCTTime) {
         return isShowCTTime.checked;
     }
     return false;
-}
+};
+
+const calcCyclicTermConfig = (rangeTime) => {
+    const DatetimeRange = rangeTime.split(DATETIME_PICKER_SEPARATOR);
+    const hoursDiff =
+        moment(DatetimeRange[1]).diff(moment(DatetimeRange[0]), 'minutes') / 60;
+    const stepSize = hoursDiff / (CYCLIC_TERM.DEFAULT_DIV_NUM_BY_PAGE.rlp + 1);
+    const windowLength = stepSize * 2;
+    const defaultTimeRange = {
+        id: DEFAULT_DATETIME_RANGE,
+        name: DEFAULT_DATETIME_RANGE,
+        type: 'text',
+        value: rangeTime,
+    };
+    const cyclicTermDivNum = {
+        id: 'cyclicTermDivNum',
+        name: 'cyclicTermDivNum',
+        type: 'text',
+        value: CYCLIC_TERM.DEFAULT_DIV_NUM_BY_PAGE.rlp,
+    };
+    const cyclicTermWindowLength = {
+        id: 'cyclicTermWindowLength',
+        name: 'cyclicTermWindowLength',
+        type: 'text',
+        value: windowLength,
+    };
+    const cyclicTermInterval = {
+        id: 'cyclicTermInterval',
+        name: 'cyclicTermInterval',
+        type: 'text',
+        value: stepSize,
+    };
+    return [
+        defaultTimeRange,
+        cyclicTermDivNum,
+        cyclicTermWindowLength,
+        cyclicTermInterval,
+    ];
+};
+
+const setDefaultCyclicTermConfig = (rangeTime, isSetDefaultCyclicTerm) => {
+    const divideOption = $('#divideOption').val();
+    const DatetimeRange = rangeTime.split(DATETIME_PICKER_SEPARATOR);
+    let isChangeDatetimeRange = false;
+
+    /* Set default cyclic term ([Division number], [Window length], [Step size])
+        endTime - startTime = A [hours]
+        A [hours] / DEFAULT_DIV_NUM_BY_PAGE [cycles] = B [step size]
+        B [step size] * 2 = C [window length]
+    */
+    if (isSetDefaultCyclicTerm) {
+        const cyclicTermDefaultVal =
+            CYCLIC_TERM.DEFAULT_DIV_NUM_BY_PAGE[getCurrentPage()];
+        const hoursDiff =
+            moment(DatetimeRange[1]).diff(moment(DatetimeRange[0]), 'minutes') /
+            60;
+        const stepSize = hoursDiff / cyclicTermDefaultVal;
+        const windowLength = stepSize * 2;
+        $(`#${CYCLIC_TERM.DIV_NUM}`).val(cyclicTermDefaultVal);
+        $(`#${CYCLIC_TERM.WINDOW_LENGTH}`).val(windowLength);
+        $(`#${CYCLIC_TERM.INTERVAL}`).val(stepSize);
+    }
+    // Set date time range for options [category], [cyclicTerm], [directTerm](first input of datetimeList), [var], [dataNumberTerm]
+    switch (divideOption) {
+        case divideOptions.category:
+            isChangeDatetimeRange = true;
+            $('#datetimeRangePicker').val(rangeTime);
+            break;
+        case divideOptions.cyclicTerm:
+            isChangeDatetimeRange = true;
+            $('#cyclicTermDatetimePicker').val(DatetimeRange[0]);
+            break;
+        case divideOptions.directTerm:
+            isChangeDatetimeRange = true;
+            $('#datetimeList input:first[name=DATETIME_RANGE_PICKER]').val(
+                rangeTime,
+            );
+            break;
+        case divideOptions.cyclicCalender:
+            // Nothing
+            break;
+        default:
+            isChangeDatetimeRange = true;
+            $('input:visible[name=DATETIME_RANGE_PICKER]').val(rangeTime);
+    }
+    if (isChangeDatetimeRange) {
+        $('#datetimeRangeShowValue').text(rangeTime);
+    }
+};
+
+const getJumpFilterOnDemand = () => {
+    const userSetting = JSON.parse(
+        localStorage.getItem(JUMP_SHARED_USER_SETTING),
+    );
+    if (userSetting && userSetting.settings) {
+        const filter = userSetting.settings.filter;
+        return filter || null;
+    }
+    return null;
+};
+
+const getLocalStorageShareUserSetting = (key) => {
+    const shareUserSetting = JSON.parse(localStorage.getItem(key));
+    const isEmptyShareUserSetting = isEmpty(shareUserSetting);
+    if (key === JUMP_SHARED_USER_SETTING) {
+        return isEmptyShareUserSetting ? null : shareUserSetting;
+    }
+    return isEmptyShareUserSetting
+        ? null
+        : { settings: { traceDataForm: shareUserSetting } };
+};

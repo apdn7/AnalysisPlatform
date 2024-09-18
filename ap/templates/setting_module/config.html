@@ -1,28 +1,59 @@
 {% extends "base.html" %}
 
 {% block asset %}
-
     <!-- Common CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('setting_module.static', filename = 'css/index.css') }}"/>
-    <link rel="stylesheet" href="{{ url_for('setting_module.static', filename = 'css/config_view.css') }}">
-	<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jexcel.css') }}">
-	<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jsuites.css') }}">
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/index.css') }}"
+    />
+    <link
+        rel="stylesheet"
+        href="{{ url_for('setting_module.static', filename = 'css/config_view.css') }}"
+    />
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename = 'common/css/jexcel.css') }}"
+    />
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename = 'common/css/jsuites.css') }}"
+    />
     <script>
-        const pcaDataDir = "{{ pca_data_dir|safe }}";
-        const importErrDir = "{{ import_err_dir|safe }}";
+        const pcaDataDir = '{{ pca_data_dir|safe }}';
+        const importErrDir = '{{ import_err_dir|safe }}';
 
         gtag('config', GA_TRACKING_ID, {
-            'page_title': '{{ _("Config") }}',
+            page_title: '{{ _("Config") }}',
         });
     </script>
 
     <!-- VIS CSS -->
-    <link href="{{ url_for('static', filename = 'modules/vis/vis-network.min.css') }}" rel="stylesheet"
-          type="text/css"/>
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('setting_module.static', filename = 'css/trace_config.css') }}">
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('setting_module.static', filename = 'css/proc_config_modal.css') }}">
+    <link
+        href="{{ url_for('static', filename = 'modules/vis/vis-network.min.css') }}"
+        rel="stylesheet"
+        type="text/css"
+    />
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/trace_config.css') }}"
+    />
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/data_type_dropdown.css') }}"
+    />
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/proc_config_modal.css') }}"
+    />
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/backup_restore_modal.css') }}"
+    />
 {% endblock %}
 
 {% block header %}
@@ -30,50 +61,104 @@
 {% endblock %}
 
 {% block midbody %}
-
+    {% include 'system.html' %}
     {% include 'db_config.html' %}
 
     <!-- 工程設定 -->
     {% include 'proc_config.html' %}
-
     {% include 'trace_config.html' %}
 
-    <div id="register-confirm-modal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div
+        id="register-confirm-modal"
+        class="modal fade in"
+        data-backdrop="static"
+        data-keyboard="false"
+    >
         <div class="modal-dialog modal-confirm">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-hidden="true"
+                    >
+                        ×
+                    </button>
                 </div>
                 <div class="modal-body">
-                    <p class="modal-inform">{{ _("Do you want to save changes and start to import data with configure at Process Config page?") }}</p>
-                    <div class="custom-control custom-checkbox mb-3" id="withImportFlag" style="display: none;">
-                        <input type="checkbox" class="custom-control-input" id="withImport" name="with-import">
-                        <label class="custom-control-label modal-inform" for="withImport">{{ _("ImportData") }}</label>
+                    <p class="modal-inform">
+                        {{ _("Do you want to save changes and start to import data with configure at Process Config page?") }}
+                    </p>
+                    <div
+                        class="custom-control custom-checkbox mb-3"
+                        id="withImportFlag"
+                        style="display: none;"
+                    >
+                        <input
+                            type="checkbox"
+                            class="custom-control-input"
+                            id="withImport"
+                            name="with-import"
+                        />
+                        <label
+                            class="custom-control-label modal-inform"
+                            for="withImport"
+                            >{{ _("ImportData") }}</label
+                        >
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a id="btn-confirm-register" class="btn btn-primary" data-item-id=""
-                       data-dismiss="modal">{{ _("OK") }}</a>
-                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+                    <a
+                        id="btn-confirm-register"
+                        class="btn btn-primary"
+                        data-item-id=""
+                        data-dismiss="modal"
+                        >{{ _("OK") }}</a
+                    >
+                    <a class="btn btn-secondary" data-dismiss="modal"
+                        >{{ _("Cancel") }}</a
+                    >
                 </div>
             </div>
         </div>
     </div>
-<!--    remove-->
-    <div id="basic-confirm-modal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <!--    remove-->
+    <div
+        id="basic-confirm-modal"
+        class="modal fade in"
+        data-backdrop="static"
+        data-keyboard="false"
+    >
         <div class="modal-dialog modal-confirm">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-hidden="true"
+                    >
+                        ×
+                    </button>
                 </div>
                 <div class="modal-body">
-                    <p class="modal-inform">{{ _("Do you want to save changes?") }}</p>
+                    <p class="modal-inform">
+                        {{ _("Do you want to save changes?") }}
+                    </p>
                 </div>
                 <div class="modal-footer">
-                    <a id="basic-confirm-register" class="btn btn-primary" data-dismiss="modal">{{ _("OK") }}</a>
-                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
+                    <a
+                        id="basic-confirm-register"
+                        class="btn btn-primary"
+                        data-dismiss="modal"
+                        >{{ _("OK") }}</a
+                    >
+                    <a class="btn btn-secondary" data-dismiss="modal"
+                        >{{ _("Cancel") }}</a
+                    >
                 </div>
             </div>
         </div>
@@ -85,6 +170,13 @@
 {% endblock %}
 
 {% block js %}
+    <!-- Data Type Dropdown JS -->
+    <script src="{{ url_for('setting_module.static', filename = 'js/data_type_dropdown/constant.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/data_type_dropdown/helper.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/data_type_dropdown/event.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/data_type_dropdown/core.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/data_type_dropdown/controller.js') }}"></script>
+
     <!-- Config View JS -->
     <script src="{{ url_for('static', filename = 'common/js/database-config.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/config_view.js') }}"></script>
@@ -98,7 +190,6 @@
 
     <script src="{{ url_for('static', filename = 'common/js/libs/dom-text.js') }}"></script>
 
-	<script src="{{ url_for('static', filename = 'common/js/libs/jexcel.js') }}"></script>
-	<script src="{{ url_for('static', filename = 'common/js/libs/jsuites.js') }}"></script>
-
+    <script src="{{ url_for('static', filename = 'common/js/libs/jexcel.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/libs/jsuites.js') }}"></script>
 {% endblock %}

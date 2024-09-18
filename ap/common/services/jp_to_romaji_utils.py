@@ -73,6 +73,47 @@ def replace_special_symbols(input_str):
     return normalized_input
 
 
+def replace_special_symbols_old(input_str):
+    normalized_input = input_str
+    # remove space and tab
+    normalized_input = re.sub(r"[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]", '', normalized_input)
+
+    # `[\(\)\[\]<>\{\}【】]` in string in `English Name` should be replaced into `_`.
+    normalized_input = re.sub(r'[\(\)\[\]<>\{\}【】]', '_', normalized_input)
+
+    # hyphen: remove last, multi
+    normalized_input = re.sub(r'-+', '-', normalized_input)
+    normalized_input = re.sub(r'_+', '_', normalized_input)
+
+    # under score: remove first , last, multi
+    normalized_input = re.sub(r'^[_-]', '', normalized_input)
+    normalized_input = re.sub(r'[_-]$', '', normalized_input)
+
+    # `[℃°]` in `English Name` should be replaced in to `deg`.
+    normalized_input = re.sub(r'[℃°]', 'deg', normalized_input)
+
+    # `℉` in `English Name` should be replaced in to `degF`.
+    normalized_input = re.sub(r'℉', 'degF', normalized_input)
+    normalized_input = re.sub(r'%', 'pct', normalized_input)
+
+    # `[Δ, △]` in English Name should be replaced into `d`.
+    normalized_input = re.sub(r'[Δ△]', 'd', normalized_input)
+
+    # `Ω` in English Name should be replaced into `ohm`.
+    normalized_input = re.sub(r'Ω', 'ohm', normalized_input)
+
+    # convert postal mark in string to `_`
+    normalized_input = re.sub(r'[\u3012\u3020\u3036]', 'post', normalized_input)
+
+    # # replace for μµ
+    normalized_input = re.sub(r'Uu|uu', 'u', normalized_input)
+
+    # `Mm` in English Name should be replaced into `mm`.
+    normalized_input = re.sub(r'Mm', 'mm', normalized_input)
+
+    return normalized_input
+
+
 # def remove_irregular(input_str):
 #     """
 #     Use this function to remove irregular string

@@ -5,6 +5,7 @@ create_file_name = """ALTER TABLE cfg_process ADD COLUMN file_name TEXT;"""
 create_column_raw_name = """ALTER TABLE cfg_process_column ADD COLUMN column_raw_name TEXT;"""
 update_column_raw_name = """UPDATE cfg_process_column SET column_raw_name = column_name;"""
 create_column_type = """ALTER TABLE cfg_process ADD COLUMN column_type INTEGER;"""
+create_datetime_column = """ALTER TABLE cfg_process ADD COLUMN datetime_format TEXT;"""
 
 
 def migrate_cfg_process_add_file_name(app_db_src):
@@ -14,7 +15,15 @@ def migrate_cfg_process_add_file_name(app_db_src):
 
     if not is_col_existing:
         app_db.execute_sql(create_file_name)
+
+    migrate_cfg_process_add_datetime_format(app_db)
     app_db.disconnect()
+
+
+def migrate_cfg_process_add_datetime_format(app_db):
+    is_col_existing = app_db.is_column_existing(CfgProcess.__table__.name, CfgProcess.datetime_format.name)
+    if not is_col_existing:
+        app_db.execute_sql(create_datetime_column)
 
 
 def migrate_cfg_process_column_add_column_raw_name(app_db_src):

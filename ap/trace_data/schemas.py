@@ -13,10 +13,12 @@ from ap.common.constants import (
     END_PROC_NAME,
     IS_CATEGORY,
     IS_INT_CATEGORY,
+    IS_JUDGE,
     IS_SERIAL_NO,
     NO_FILTER,
     SELECT_ALL,
     SHOWN_NAME,
+    DataColumnType,
     DuplicateSerialCount,
     DuplicateSerialShow,
     RemoveOutlierType,
@@ -202,6 +204,8 @@ class CommonParam:
     is_nominal_scale: bool
     nominal_vars: list
 
+    cate_col_ids: list[int]
+
     def __init__(
         self,
         start_proc=None,
@@ -255,6 +259,7 @@ class CommonParam:
         is_proc_linked=False,
         is_nominal_scale=True,
         nominal_vars=[],
+        cate_col_ids=[],
     ):
         self.start_proc = int(start_proc) if str(start_proc).isnumeric() else None
         self.start_date = start_date
@@ -333,6 +338,8 @@ class CommonParam:
             self.nominal_vars = [int(col_id) for col_id in nominal_vars]
         else:
             self.nominal_vars = [int(nominal_vars)] if nominal_vars else None
+
+        self.cate_col_ids = cate_col_ids
 
 
 class DicParam:
@@ -484,6 +491,7 @@ class DicParam:
                         IS_CATEGORY: col_info.is_category,
                         IS_SERIAL_NO: col_info.is_serial_no,
                         IS_INT_CATEGORY: col_info.is_int_category,
+                        IS_JUDGE: col_info.is_judge,
                     },
                 )
         return target_cols
@@ -571,3 +579,42 @@ class DicParam:
 
     def get_all_end_procs(self, id_only=False):
         return [proc.proc_id if id_only else proc.cfg_proc for proc in self.array_formval]
+
+    def get_query_variables(self):
+        target_variables_id = self.get_all_end_col_ids() or []
+        # get facet/label/color variables
+        facet_variables_id = self.common.cat_exp or []
+        label_variables_id = self.common.cate_col_ids or []
+        color_variables_id = []
+        if self.common.color_var:
+            color_variables_id = [self.common.color_var]
+        # AgP multiple colors
+        if self.common.agp_color_vars and self.common.agp_color_vars.values():
+            color_variables_id += list(self.common.agp_color_vars.values())
+
+        # get col_cfgs from all variables
+        query_variables = target_variables_id + facet_variables_id + label_variables_id + color_variables_id
+        query_variables = [int(var_id) for var_id in query_variables]
+        query_variables = list(set(query_variables))
+        query_variables = self.get_col_cfgs(query_variables)
+        return query_variables
+
+    def get_judge_variables(self) -> list[CfgProcessColumn]:
+        # get all target variables
+        query_variables = self.get_query_variables()
+        judge_labels = [
+            self.gen_label_from_col_id(col.id)
+            for col in query_variables
+            if col.column_type == DataColumnType.JUDGE.value
+        ]
+        return judge_labels
+
+    def get_boolean_variables(self) -> list[CfgProcessColumn]:
+        # get all target variables
+        query_variables = self.get_query_variables()
+        boolean_labels = [
+            self.gen_label_from_col_id(col.id)
+            for col in query_variables
+            if col.column_type == DataColumnType.BOOLEAN.value
+        ]
+        return boolean_labels

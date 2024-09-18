@@ -150,6 +150,9 @@ def gen_trace_data_by_cyclic(graph_param, dic_param, max_graph=None):
         max_graph,
     )
 
+    # get visualization setting
+    add_threshold_configs(dic_param, graph_param)
+
     # calc common scale y min max
     min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA], y_col='data')
     calc_rlp_scale_info(
@@ -349,6 +352,9 @@ def gen_rlp_data_by_term(graph_param, dic_param, max_graph=None):
     dic_param = gen_cat_label_unique(df, dic_param, graph_param)
 
     term_groups = [gen_term_groups(term) for term in terms]
+
+    # get visualization setting
+    add_threshold_configs(dic_param, graph_param)
 
     # calc common scale y min max
     min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA], y_col='data')

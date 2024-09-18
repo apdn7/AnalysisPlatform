@@ -2,20 +2,22 @@
 # -*- coding: utf-8 -*-
 # Author: Masato Yasuda (2018/01/04)
 
+import threading
 import traceback
 
 from dateutil import parser
 from pymssql import connect as mssqlconnect
 
 from ap.common.common_utils import strip_all_quote
+from ap.common.constants import DATABASE_LOGIN_TIMEOUT
 
 # import pyodbc
 
 
 class MSSQLServer:
-    def __init__(self, host, dbname, username, password):
+    def __init__(self, host, dbname, username, password, port=1433):
         self.host = host
-        self.port = 1433
+        self.port = port
         self.dbname = dbname
         self.username = username
         self.password = password
@@ -49,6 +51,25 @@ class MSSQLServer:
         print('self.is_connected: ', self.is_connected)
         print('=======================')
 
+    def try_connect(self):
+        def try_connect_inner():
+            self.connection = None
+            self.connection = mssqlconnect(
+                self.host,
+                self.username,
+                self.password,
+                self.dbname,
+                port=self.port,
+                login_timeout=DATABASE_LOGIN_TIMEOUT,
+            )
+
+        connection_thread = threading.Thread(target=try_connect_inner)
+        connection_thread.start()
+        connection_thread.join(DATABASE_LOGIN_TIMEOUT + 1)
+
+        if self.connection is None:
+            raise TimeoutError('Could not connect to sql server')
+
     def connect(self):
         # dsn = "Driver={{ODBC Driver 17 for SQL Server}};Server={0:s};".format(self.host)
         # dsn += "Database={0:s};".format(self.dbname)
@@ -59,14 +80,7 @@ class MSSQLServer:
         # dsn += ';Trusted_Connection=No;'
         try:
             # self.connection = pyodbc.connect(dsn)
-            self.connection = mssqlconnect(
-                self.host,
-                self.username,
-                self.password,
-                self.dbname,
-                port=self.port,
-                login_timeout=3,
-            )
+            self.try_connect()
 
             # if alredy use default schema , set to None to avoid replace schema
             self.is_connected = True

@@ -14,7 +14,7 @@ from ap.api.categorical_plot.services import (
     gen_graph_param,
     produce_cyclic_terms,
 )
-from ap.api.common.services.show_graph_services import get_data_from_db
+from ap.api.common.services.show_graph_services import get_data_from_db, judge_data_conversion
 from ap.common.common_utils import DATE_FORMAT_STR, DATE_FORMAT_STR_CSV, gen_sql_label
 from ap.common.constants import (
     CLIENT_TIMEZONE,
@@ -137,6 +137,8 @@ def gen_df_export(graph_param, dic_param):
     # get data from database
     df, *_ = get_data_from_db(graph_param, dic_cat_filters)
 
+    # export original value of judge variable
+    df = judge_data_conversion(df, graph_param, revert=True)
     return df
 
 
@@ -192,6 +194,31 @@ def to_csv(
     emd_type=None,
     div_col=None,
 ):
+    df_csv = export_preprocessing(
+        df,
+        graph_param,
+        client_timezone=client_timezone,
+        output_col_ids=output_col_ids,
+        len_of_col_name=len_of_col_name,
+        terms=terms,
+        emd_type=emd_type,
+        div_col=div_col,
+    )
+
+    delimiter = delimiter or ','
+    return df_csv.to_csv(output_path, sep=delimiter, index=False)
+
+
+def export_preprocessing(
+    df: DataFrame,
+    graph_param: DicParam,
+    client_timezone=None,
+    output_col_ids=None,
+    len_of_col_name=None,
+    terms=None,
+    emd_type=None,
+    div_col=None,
+):
     # rename
     new_headers = []
     suffix = '...'
@@ -230,11 +257,11 @@ def to_csv(
             output_cols = df.columns.to_list()
         if div_col:
             output_cols = [div_col] + df.columns.to_list()
-        df_csv = df[output_cols]
+        df_output = df[output_cols]
     else:
-        df_csv = df[dic_rename]
-    df_csv.rename(columns=dic_rename, inplace=True)
-    df_csv.replace({np.nan: None}, inplace=True)
+        df_output = df[dic_rename]
+    df_output.rename(columns=dic_rename, inplace=True)
+    df_output.replace({np.nan: None}, inplace=True)
 
     # timezone
     if client_timezone:
@@ -255,22 +282,19 @@ def to_csv(
 
         if start_proc_term_from:
             # add term datetime to df
-            gen_term_cols(df_csv, start_ct_col, start_proc_term_from, start_proc_term_to, terms)
+            gen_term_cols(df_output, start_ct_col, start_proc_term_from, start_proc_term_to, terms)
             # extend datetime columns
             get_dates.extend([start_proc_term_from, start_proc_term_to])
 
-        for col in df_csv.columns:
+        for col in df_output.columns:
             if col not in get_dates:
                 continue
-            # df_csv[col] = df_csv[col].apply(lambda v: convert_dt_str_to_timezone(client_timezone, v))
-            df_csv[col] = (
-                pd.to_datetime(df_csv[col], format=DATE_FORMAT_STR, utc=True)
+            df_output[col] = (
+                pd.to_datetime(df_output[col], format=DATE_FORMAT_STR, utc=True)
                 .dt.tz_convert(client_timezone)
                 .dt.strftime(DATE_FORMAT_STR_CSV)
             )
-
-    delimiter = delimiter or ','
-    return df_csv.to_csv(output_path, sep=delimiter, index=False)
+    return df_output
 
 
 def find_term(value, terms, is_from):

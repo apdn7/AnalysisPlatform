@@ -41,8 +41,8 @@ def gen_cfg_trace(trace):
     trace_keys = []
     for idx, self_col_id in enumerate(self_col_ids):
         target_col_id = target_col_ids[idx]
-        delta_time = delta_times[idx]
-        cut_off = cut_offs[idx]
+        delta_time = delta_times[idx] if delta_times else None
+        cut_off = cut_offs[idx] if cut_offs else None
         self_sub_from, self_sub_to = (None, None)
         target_sub_from, target_sub_to = (None, None)
         if self_sub_strs:
@@ -56,8 +56,8 @@ def gen_cfg_trace(trace):
             target_column_id=int(target_col_id),
             target_column_substr_from=int(target_sub_from) if target_sub_from else 0,
             target_column_substr_to=int(target_sub_to) if target_sub_to else 0,
-            delta_time=int(delta_time) if delta_time else None,
-            cut_off=int(cut_off) if cut_off else None,
+            delta_time=float(delta_time) if delta_time else None,
+            cut_off=float(cut_off) if cut_off else None,
         )
         trace_keys.append(trace_key)
     self_process_id = trace.get('from')

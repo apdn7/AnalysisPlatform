@@ -1,4 +1,4 @@
-.drag-area{
+.drag-area {
     border: 2px dashed #444444;
     /*height: 500px;*/
     /*width: 700px;*/
@@ -9,14 +9,14 @@
     flex-direction: column;
     padding: 10px 0;
 }
-.drag-area.active{
+.drag-area.active {
     border: 2px solid #fff;
 }
-.drag-area .icon{
+.drag-area .icon {
     font-size: 50px;
     color: #fff;
 }
-.drag-area header{
+.drag-area header {
     font-size: 18px;
     font-weight: 500;
     color: #fff;
@@ -25,12 +25,12 @@
     box-shadow: none;
     padding: 0;
 }
-.drag-area span{
+.drag-area span {
     font-size: 18px;
     font-weight: 500;
     color: #fff;
 }
-.drag-area button{
+.drag-area button {
     margin-bottom: 10px;
     padding: 7px 25px;
     font-weight: 500;
@@ -41,7 +41,7 @@
     border-radius: 5px;
     cursor: pointer;
 }
-.drag-area img{
+.drag-area img {
     height: 100%;
     width: 100%;
     object-fit: cover;
@@ -53,8 +53,12 @@
 .box.has-advanced-upload {
     outline: 2px dashed #444444;
     outline-offset: -10px;
-    -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
-    transition: outline-offset .15s ease-in-out, background-color .15s linear;
+    -webkit-transition:
+        outline-offset 0.15s ease-in-out,
+        background-color 0.15s linear;
+    transition:
+        outline-offset 0.15s ease-in-out,
+        background-color 0.15s linear;
 }
 .box.is-dragover {
     outline-offset: -15px;
@@ -70,4 +74,3 @@
     margin-bottom: 10px;
     display: none;
 }
-

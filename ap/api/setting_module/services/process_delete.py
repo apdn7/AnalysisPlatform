@@ -69,9 +69,9 @@ def delete_proc_cfg_and_relate_jobs(proc_id):
     for proc_id in deleting_process_ids:
         remove_jobs(target_jobs, proc_id)
 
-    # TODO: batch delete
+    CfgProcess.batch_delete(deleting_process_ids)
+
     for proc_id in deleting_process_ids:
-        CfgProcess.delete(proc_id=proc_id)
         delete_transaction_db_file(proc_id)
 
     return deleting_process_ids

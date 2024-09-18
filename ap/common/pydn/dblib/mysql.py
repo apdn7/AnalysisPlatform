@@ -214,13 +214,13 @@ class MySQL:
         cur.close()
         return cols, rows
 
-    def fetch_many(self, sql, size=10_000):
+    def fetch_many(self, sql, size=10_000, params=None):
         if not self._check_connection():
             return False
 
         cur = self.connection.cursor()
         sql = sql.replace('"', '`')
-        cur.execute(sql)
+        cur.execute(sql, params)
         cols = [column[0] for column in cur.description]
         yield cols
         while True:

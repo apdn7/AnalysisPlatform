@@ -1,0 +1,95 @@
+/* Start - Backup & Restore Modal */
+#backupAndRestoreModal > div.modal-dialog {
+    width: 60%;
+}
+
+#backupAndRestoreModal #data-finder-modal {
+    flex-direction: column !important;
+    width: auto;
+}
+
+#backupAndRestoreModal #tabContent > div.card {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#backupAndRestoreModal #btnBackupData,
+#backupAndRestoreModal #btnRestoreData {
+    margin: 0;
+}
+
+#backupAndRestoreModal #target-period-wrapper > div:nth-child(2),
+#backupAndRestoreModal #data-finder-card > div > div:first-child,
+#backupAndRestoreModal #backupAndRestoreProcessSelection > span {
+    position: relative !important;
+    width: 100% !important;
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+    -webkit-box-flex: 0 !important;
+    -ms-flex: 0 0 16.6666666667% !important;
+    flex: 0 0 16.6666666667% !important;
+    max-width: 16.6666666667% !important;
+    margin: 0 !important;
+}
+
+#backupAndRestoreModal #target-period-wrapper > div:nth-child(3),
+#backupAndRestoreModal #data-finder-card > div > div:nth-child(2),
+#backupAndRestoreModal #backupAndRestoreProcessSelection > div {
+    position: relative !important;
+    width: 100% !important;
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+    -webkit-box-flex: 0 !important;
+    -ms-flex: 0 0 83.3333333333% !important;
+    flex: 0 0 83.3333333333% !important;
+    max-width: 83.3333333333% !important;
+    margin: 0 !important;
+}
+
+#backupAndRestoreModal #backupAndRestoreProcessSelection > span {
+    padding-left: 20px !important;
+}
+
+#backupAndRestoreModal #data-finder-card > div > div:nth-child(2) {
+    padding-left: 12px !important;
+    padding-right: 10px !important;
+}
+
+#backupAndRestoreModal #target-period-wrapper > div:nth-child(3) {
+    padding: 0 14px !important;
+}
+
+#data-finder-card.card-body.table-bordered {
+    border: none !important;
+}
+
+@media (min-width: 1400px) and (max-width: 1620px) {
+    #backupAndRestoreModal > div {
+        width: 70% !important;
+    }
+}
+
+@media (min-width: 1331px) and (max-width: 1400px) {
+    #backupAndRestoreModal > div {
+        width: 75% !important;
+    }
+}
+
+@media (min-width: 1115px) and (max-width: 1331px) {
+    #backupAndRestoreModal > div {
+        width: 80% !important;
+    }
+}
+
+@media (min-width: 750px) and (max-width: 1115px) {
+    #backupAndRestoreModal > div {
+        width: 90% !important;
+    }
+}
+
+@media (max-width: 750px) {
+    #backupAndRestoreModal > div {
+        width: 100% !important;
+    }
+}
+/* End - Backup & Restore Modal */

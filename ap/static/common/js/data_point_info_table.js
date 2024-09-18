@@ -51,7 +51,13 @@ const genTRItems = (firstCol, secondCol, thirdCol = null) => {
 
 let hoverInfoTimeOut = null;
 
-const genDataPointHoverTable = (dataTable, offset, width, autoHide = true, chartID = null) => {
+const genDataPointHoverTable = (
+    dataTable,
+    offset,
+    width,
+    autoHide = true,
+    chartID = null,
+) => {
     initHoverInfoHandler(() => {
         const dpInforID = dpInfoCons.domID;
         $(`#${dpInforID} tbody`).html(dataTable);
@@ -87,12 +93,14 @@ const filterNameByLocale = (threholdInfo) => {
     if (!threholdInfo.type) {
         return labels.default;
     }
-    return (currentLocale === localeConst.JP) ? threholdInfo.type : (threholdInfo.eng_name || '');
+    return currentLocale === localeConst.JP
+        ? threholdInfo.type
+        : threholdInfo.eng_name || '';
 };
-// eslint-disable-next-line no-unused-vars
+
 const showMSPDataTable = (data, offset, chartID) => {
     const isContour = !!data.z;
-        if (isContour) return;
+    if (isContour) return;
     const getFilterInfo = (chartInfo) => {
         const labels = genLabels();
         const filterCol = filterNameByLocale(chartInfo);
@@ -127,10 +135,16 @@ const showMSPDataTable = (data, offset, chartID) => {
         // if (data.thresholds) {
         // filter
         tblContent += genTRItems('', '');
-        tblContent += genTRItems(Xlabels.attribute,
-            Xfilters.filterCol, Xfilters.filterDetail);
-        tblContent += genTRItems(Ylabels.attribute,
-            Yfilters.filterCol, Yfilters.filterDetail);
+        tblContent += genTRItems(
+            Xlabels.attribute,
+            Xfilters.filterCol,
+            Xfilters.filterDetail,
+        );
+        tblContent += genTRItems(
+            Ylabels.attribute,
+            Yfilters.filterCol,
+            Yfilters.filterDetail,
+        );
         // threshold table
         tblContent += genTRItems('', '');
         tblContent += genTRItems('', Xlabels.limit, Xlabels.procLimit);
@@ -145,8 +159,14 @@ const showMSPDataTable = (data, offset, chartID) => {
             data.thresholds.x['prc-min'] || '',
         );
         tblContent += genTRItems(Xlabels.valid, '');
-        tblContent += genTRItems(Xlabels.validFrom, data.thresholds.x['act-from'] || '');
-        tblContent += genTRItems(Xlabels.validTo, data.thresholds.x['act-to'] || '');
+        tblContent += genTRItems(
+            Xlabels.validFrom,
+            data.thresholds.x['act-from'] || '',
+        );
+        tblContent += genTRItems(
+            Xlabels.validTo,
+            data.thresholds.x['act-to'] || '',
+        );
         tblContent += genTRItems('', '');
         tblContent += genTRItems('', Ylabels.limit, Ylabels.procLimit);
         tblContent += genTRItems(
@@ -160,20 +180,20 @@ const showMSPDataTable = (data, offset, chartID) => {
             data.thresholds.y['prc-min'] || '',
         );
         tblContent += genTRItems(Ylabels.valid, '');
-        tblContent += genTRItems(Ylabels.validFrom, data.thresholds.y['act-from'] || '');
-        tblContent += genTRItems(Ylabels.validTo, data.thresholds.y['act-to'] || '');
+        tblContent += genTRItems(
+            Ylabels.validFrom,
+            data.thresholds.y['act-from'] || '',
+        );
+        tblContent += genTRItems(
+            Ylabels.validTo,
+            data.thresholds.y['act-to'] || '',
+        );
         // }
         tblContent += '</tr>';
         return tblContent;
     };
     const dataTable = genDataTable();
-    genDataPointHoverTable(
-        dataTable,
-        offset,
-        130,
-        true,
-        chartID,
-    );
+    genDataPointHoverTable(dataTable, offset, 130, true, chartID);
 };
 const genSimpleDataTable = (yValue, nTotal) => {
     const valueLabel = $('#i18nValue').text();
@@ -185,15 +205,15 @@ const genSimpleDataTable = (yValue, nTotal) => {
 };
 
 const genHoverDataTable = (data) => {
-     let tblContent = '<tr>';
-     for (const d of data) {
-         const key  = d[0];
-         const value = d[1];
-         tblContent += genTRItems(key, value);
-     }
-     tblContent += '</tr>';
-     return tblContent;
-}
+    let tblContent = '<tr>';
+    for (const d of data) {
+        const key = d[0];
+        const value = d[1];
+        tblContent += genTRItems(key, value);
+    }
+    tblContent += '</tr>';
+    return tblContent;
+};
 
 const getDataPointIndex = (data) => {
     if ('pointIndex' in data.points[0]) {
@@ -201,22 +221,30 @@ const getDataPointIndex = (data) => {
     }
     return data.points[0].pointIndices[0];
 };
-// eslint-disable-next-line no-unused-vars
+
 const showInforTbl = (data, horizontal = true, chartID) => {
     if (data.points) {
         const dpIndex = getDataPointIndex(data);
         const dataPoint = data.points[0];
-        let countValue = horizontal ? dataPoint.data.x[dpIndex] : dataPoint.data.y[dpIndex];
-        if (dpInfoCons.customdata in dataPoint.data
-            && dpInfoCons.count in dataPoint.data.customdata) {
+        let countValue = horizontal
+            ? dataPoint.data.x[dpIndex]
+            : dataPoint.data.y[dpIndex];
+        if (
+            dpInfoCons.customdata in dataPoint.data &&
+            dpInfoCons.count in dataPoint.data.customdata
+        ) {
             countValue = dataPoint.data.customdata.count[dpIndex] || 0;
         }
-        let yValue = horizontal ? dataPoint.data.y[dpIndex] : dataPoint.data.x[dpIndex];
-        // eslint-disable-next-line no-undef
+        let yValue = horizontal
+            ? dataPoint.data.y[dpIndex]
+            : dataPoint.data.x[dpIndex];
+
         yValue = applySignificantDigit(yValue);
-        
-        if (dpInfoCons.customdata in dataPoint.data
-            && dpInfoCons.isBarChart in dataPoint.data.customdata) {
+
+        if (
+            dpInfoCons.customdata in dataPoint.data &&
+            dpInfoCons.isBarChart in dataPoint.data.customdata
+        ) {
             if (dataPoint.data.customdata.isbarchart) {
                 yValue = dataPoint.data.customdata.groupname.value[dpIndex];
             }
@@ -225,7 +253,8 @@ const showInforTbl = (data, horizontal = true, chartID) => {
         genDataPointHoverTable(
             dataTable,
             {
-                x: data.event.pageX - 120, y: data.event.pageY,
+                x: data.event.pageX - 120,
+                y: data.event.pageY,
             },
             130,
             true,
@@ -234,7 +263,7 @@ const showInforTbl = (data, horizontal = true, chartID) => {
     }
 };
 // scp
-// eslint-disable-next-line no-unused-vars
+
 const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
     const genDataTable = () => {
         let tblContent = '<tr>';
@@ -260,15 +289,20 @@ const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
             tblContent += genTRItems('Mode', data.mode);
             tblContent += genTRItems('Average', data.avg);
             tblContent += genTRItems('N', data.n);
-        } else if ([dpInfoCons.heatmap, dpInfoCons.heatmapByInt].includes(type)) {
-            // tblContent += genTRItems(data.xName, data.xVal);
-            // tblContent += genTRItems(data.yName, data.yVal);
+        } else if (
+            [dpInfoCons.heatmap, dpInfoCons.heatmapByInt].includes(type)
+        ) {
+            tblContent += genTRItems(data.xName, data.xVal);
+            tblContent += genTRItems(data.yName, data.yVal);
             // tblContent += genTRItems(data.colorName, data.color);
             let [aggFunc, aggUnit] = [data.agg_func, ''];
             if (data.agg_func.includes('[%]')) {
                 [aggFunc, aggUnit] = ['Ratio', '[%]'];
             }
-            tblContent += genTRItems(aggFunc, applySignificantDigit(data.agg_value) + aggUnit);
+            tblContent += genTRItems(
+                aggFunc,
+                applySignificantDigit(data.agg_value) + aggUnit,
+            );
         } else {
             tblContent += genTRItems('X', data.x);
             tblContent += genTRItems('Y', data.y);
@@ -282,8 +316,20 @@ const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
             tblContent += genTRItems('Elapsed time', data.elapsed_time);
         }
         tblContent += genTRItems('', '');
-        tblContent += genTRItems('From', data.from);
-        tblContent += genTRItems('To', data.to);
+        tblContent += genTRItems(
+            'From',
+            formatDateTime(data.from, DATE_FORMAT_WITHOUT_TZ, {
+                withMillisecs: false,
+                isLocalTime: true,
+            }),
+        );
+        tblContent += genTRItems(
+            'To',
+            formatDateTime(data.to, DATE_FORMAT_WITHOUT_TZ, {
+                withMillisecs: false,
+                isLocalTime: true,
+            }),
+        );
 
         if (type !== dpInfoCons.heatmapByInt) {
             tblContent += genTRItems('N', data.n_total);
@@ -292,13 +338,7 @@ const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
         return tblContent;
     };
     const dataTable = genDataTable();
-    genDataPointHoverTable(
-        dataTable,
-        offset,
-        130,
-        true,
-        chartID,
-    );
+    genDataPointHoverTable(dataTable, offset, 130, true, chartID);
 };
 
 const clearHoverTimeOut = () => {
@@ -306,32 +346,35 @@ const clearHoverTimeOut = () => {
         window.clearTimeout(hoverInfoTimeOut);
         hoverInfoTimeOut = null;
     }
-}
+};
 
 const initHoverInfoHandler = (callback) => {
     if (!hoverInfoTimeOut) {
-         hoverInfoTimeOut = setTimeout(() => {
-             hoverInfoTimeOut = null;
-             if (isInHoverInfo) return;
-             isInHoverInfo = false;
-             callback();
-         }, 1000)
+        hoverInfoTimeOut = setTimeout(() => {
+            hoverInfoTimeOut = null;
+            if (isInHoverInfo) return;
+            isInHoverInfo = false;
+            callback();
+        }, 1000);
     }
 };
 
 const unHoverHandler = (plot) => {
-    plot.on('plotly_unhover', clearHoverTimeOut)
-}
+    plot.on('plotly_unhover', clearHoverTimeOut);
+};
 $(() => {
-    $(`#${dpInfoCons.domID}`).on('mouseleave', function() {
+    $(`#${dpInfoCons.domID}`).on('mouseleave', function () {
         $(this).hide();
         isInHoverInfo = false;
     });
-    $(`#${dpInfoCons.domID}`).on('mouseover', function() {
+    $(`#${dpInfoCons.domID}`).on('mouseover', function () {
         isInHoverInfo = true;
     });
-    $(window).on('click', function (e){
-        if (!e.target.closest(`#${dpInfoCons.domID}`) && $(`#${dpInfoCons.domID}`).css('display') === 'block') {
+    $(window).on('click', function (e) {
+        if (
+            !e.target.closest(`#${dpInfoCons.domID}`) &&
+            $(`#${dpInfoCons.domID}`).css('display') === 'block'
+        ) {
             $(`#${dpInfoCons.domID}`).hide();
             isInHoverInfo = false;
         }

@@ -1,221 +1,633 @@
 {% extends "base.html" %}
 
 {% block asset %}
-<!-- Common CSS -->
-<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jexcel.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jsuites.css') }}">
-<!-- Visualization CSS -->
-<link rel="stylesheet" type="text/css"
-    href="{{ url_for('setting_module.static', filename = 'css/filter_visualization.css')}}">
-<link href="{{ url_for('setting_module.static', filename = 'css/master_cfg.css')}}" rel="stylesheet" />
+    <!-- Common CSS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename = 'common/css/jexcel.css') }}"
+    />
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename = 'common/css/jsuites.css') }}"
+    />
+    <!-- Visualization CSS -->
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/filter_visualization.css') }}"
+    />
+    <link
+        href="{{ url_for('setting_module.static', filename = 'css/master_cfg.css') }}"
+        rel="stylesheet"
+    />
 
-<script type="text/javascript"
-		src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"></script>
-<script type="text/javascript"
-		src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"></script>
-<link rel="stylesheet" type="text/css"
-	  href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"/>
+    <script
+        type="text/javascript"
+        src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.js') }}"
+    ></script>
+    <script
+        type="text/javascript"
+        src="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker-utils.js') }}"
+    ></script>
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('static', filename = 'modules/date-range-picker/daterangepicker.css') }}"
+    />
 
-
-<script>
-	gtag('config', GA_TRACKING_ID, {
-        'page_title' : '{{ _("Filter/Graph") }} {{ _("Config") }}',
-    });
-</script>
+    <script>
+        gtag('config', GA_TRACKING_ID, {
+            page_title: '{{ _("Filter/Graph") }} {{ _("Config") }}',
+        });
+    </script>
 {% endblock %}
 
 {% block header %}
-	{{ macros.page_title(title=_("Threshold/Graph Config"), hint=_('Master Config Hover')) }}
+    {{ macros.page_title(title=_("Threshold/Graph Config"), hint=_('Master Config Hover')) }}
 {% endblock %}
 
 {% block midbody %}
-<!-- Header -->
-<div class="card card-xl graph-navi">
-    <div class="card-body">
-		<div class="d-flex align-items-center flex-row">
-			 <h3 class="header-left mb-0">{{ _("Process name") }}</h3>
-			<div class="flex-grow-1 ml-3">
-				 <select name="type" id="processList" class="form-control select2-selection--single select-n-columns">
-						<option value="" selected>---</option>
-						{% for proc in procs %}
-						<option value="{{ proc.id }}" title="{{ proc.name_en }}">{{ proc.shown_name }}</option>
-						{% endfor %}
-					</select>
-			</div>
-		</div>
-</div>
-</div>
-<div class="loading" style="display: none;"></div>
+    <!-- Header -->
+    <div class="card card-xl graph-navi">
+        <div class="card-body">
+            <div class="d-flex align-items-center flex-row">
+                <h3 class="header-left mb-0">{{ _("Process name") }}</h3>
+                <div class="flex-grow-1 ml-3">
+                    <select
+                        name="type"
+                        id="processList"
+                        class="form-control select2-selection--single select-n-columns"
+                    >
+                        <option value="" selected>---</option>
+                        {% for proc in procs %}
+                            <option
+                                value="{{ proc.id }}"
+                                title="{{ proc.name_en }}"
+                            >
+                                {{ proc.shown_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="loading" style="display: none;"></div>
 
-<div id="detailCards" style="visibility: hidden;">
-	<div class="card graph-navi" id="visualization">
-		<div class="card-body">
-			<form id="visualForm">
-				<div class="row form-header">
-					<div class="col-12 d-flex align-items-center justify-content-end mb-2">
-						<div class="mr-3">
-							<input id="searchMasterConfig" class="form-control common-search-input" placeholder="{{_('Search')}}...">
-						</div>
-						<button id="visualConfigRegister" class="btn btn-primary btn-right m-0" type="button"><i
-								class="far fa-save"></i> {{ _("Register") }}</button>
-						<button id="sModeMaster" class="changeMode btn btn-primary btn-right m-0" type="button"><i
-                            class="far fa-file-excel"></i> <span>{{ _("Edit Mode") }}</span></button>
-					</div>
-				</div>
-				{{ macros.alert_message("alertMsgVisualization") }}
-				<div class="table-view">
-					<div class="table-wrapper">
-						<table id="tblVisualConfig" class="table table-bordered table-main table-hover-light">
-							<span id="tblVisualConfig_th" class="d-none">{{ _("No.") }}|{{_("Target")}} [{{ _("Data Name") }}]|{{_("Condition")}} [{{ _("Data Name") }}]|{{_("Condition")}} [{{ _("Value") }}]|{{_("Threshold config")}} [{{ _("Lower") }}]|{{_("Threshold config")}} [{{ _("Upper") }}]|{{_("Process threshold")}} [{{ _("Lower") }}]|{{_("Process threshold")}} [{{ _("Upper") }}]|{{_("Graph axis range")}} [{{ _("Min value") }}]|{{_("Graph axis range")}} [{{ _("Max value") }}]|{{_("Valid")}} [From]|{{_("Valid")}} [To]</span>
-						<thead>
-							<tr>
-								<th rowspan="2" class="data-col sticky-col first-col get-header" style="width: 50px">{{ _("No.") }}</th>
-								<th colspan="1" class="sticky-col second-col">
-									<span class="hint-text" title="{{_("Target hover msg")}}">{{_("Target")}}</span>
-								</th>
-								<th colspan="2" class="sticky-col third-col">
-									<span class="hint-text" title="{{_("Condition hover msg")}}">{{_("Condition")}}</span>
-								</th>
-								<th colspan="2" >
-									<span class="hint-text red" title="{{_("Threshold config hover msg")}}">{{_("Threshold config")}}</span>
-								</th>
-								<th colspan="2">
-									<span class="hint-text blue" title="{{_("Process threshold hover msg")}}">{{_("Process threshold")}}</span>
-								</th>
-								<th colspan="2">
-									{{_("Graph axis range")}}
-								</th>
-								<th colspan="2">
-									<span class="hint-text" title="{{_("Valid hover msg")}}">{{_("Valid")}}</span>
-								</th>
-								<th class="col-btn" rowspan="2"></th>
-							</tr>
-							<tr>
-								<th class="th-sm position-relative get-header" scope="col">
-									<span class="data-col">{{ _("Data Name") }}</span>
-									<span style="color: yellow">*</span>
-									<span id="sortCol-1" idx="1" class="mr-1 sortCol" title="Sort"><i id="asc-1" class="fa fa-sm fa-play asc"></i><i id="desc-1" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th scope="col" class="th-title-other th-sm position-relative get-header">
-									<span class="data-col"n>{{ _("Data Name") }}</span>
-									<span id="sortCol-2" idx="2" class="mr-1 sortCol" title="Sort"><i id="asc-2" class="fa fa-sm fa-play asc"></i><i id="desc-2" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th class="th-sm position-relative get-header" scope="col">
-									<span class="data-col">{{ _("Value") }}</span>
-									<span id="sortCol-3" idx="3" class="mr-1 sortCol" title="Sort"><i id="asc-3" class="fa fa-sm fa-play asc"></i><i id="desc-3" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th class="th-sm thresh-line position-relative get-header" scope="col">
-									<span class="data-col">{{ _("Lower") }}</span>
-									<span id="sortCol-4" idx="4" class="mr-1 sortCol" title="Sort"><i id="asc-4" class="fa fa-sm fa-play asc"></i><i id="desc-4" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th class="th-sm thresh-line position-relative get-header" scope="col">
-									<span class="data-col">{{ _("Upper") }}</span>
-									<span id="sortCol-5" idx="5" class="mr-1 sortCol" title="Sort"><i id="asc-5" class="fa fa-sm fa-play asc"></i><i id="desc-5" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th class="th-sm thresh-line position-relative get-header" scope="col">
-									<span class="data-col">{{ _("Lower") }}</span>
-									<span id="sortCol-6" idx="6" class="mr-1 sortCol" title="Sort"><i id="asc-6" class="fa fa-sm fa-play asc"></i><i id="desc-6" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th class="th-sm thresh-line position-relative get-header" scope="col">
-									<span class="data-col">{{ _("Upper") }}</span>
-									<span id="sortCol-7" idx="7" class="mr-1 sortCol" title="Sort"><i id="asc-7" class="fa fa-sm fa-play asc"></i><i id="desc-7" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th class="th-sm thresh-line position-relative get-header" scope="col">
-									<span class="data-col">{{ _("Min value") }}</span>
-									<span id="sortCol-8" idx="8" class="mr-1 sortCol" title="Sort"><i id="asc-8" class="fa fa-sm fa-play asc"></i><i id="desc-8" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th class="th-sm thresh-line position-relative get-header" scope="col">
-									<span class="data-col">{{ _("Max value") }}</span>
-									<span id="sortCol-9" idx="9" class="mr-1 sortCol" title="Sort"><i id="asc-9" class="fa fa-sm fa-play asc"></i><i id="desc-9" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th class="th-sm thresh-line position-relative get-header" scope="col" style="width: 125px">
-									<span class="data-col" title="{{ _('Action from Hover') }}">From</span>
-									<span style="color: yellow">*</span>
-									<span id="sortCol-10" idx="10" class="mr-1 sortCol" title="Sort"><i id="asc-10" class="fa fa-sm fa-play asc"></i><i id="desc-10" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-								<th class="th-sm thresh-line position-relative get-header" scope="col" style="width: 125px">
-									<span class="data-col">To</span>
-									<span id="sortCol-11" idx="11" class="mr-1 sortCol" title="Sort"><i id="asc-11" class="fa fa-sm fa-play asc"></i><i id="desc-11" class="fa fa-sm fa-play desc"></i></span>
-								</th>
-							</tr>
-							<tr id="filters" class="filter-row">
-                               	<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="0" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="1" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="2" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="3" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="4" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="5" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="6" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="7" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="8" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="9" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="10" placeholder='Filter...'></th>
-								<th scope="col" class="search-box"><input class="form-control filterCol" data-col-idx="11" placeholder='Filter...'></th>
-                           	</tr>
-						</thead>
-						<tbody>
+    <div id="detailCards" style="visibility: hidden;">
+        <div class="card graph-navi" id="visualization">
+            <div class="card-body">
+                <form id="visualForm">
+                    <div class="row form-header">
+                        <div
+                            class="col-12 d-flex align-items-center justify-content-end mb-2"
+                        >
+                            <div class="mr-3">
+                                <input
+                                    id="searchMasterConfig"
+                                    class="form-control common-search-input"
+                                    placeholder="{{ _('Search') }}..."
+                                />
+                            </div>
+                            <button
+                                id="visualConfigRegister"
+                                class="btn btn-primary btn-right m-0"
+                                type="button"
+                            >
+                                <i class="far fa-save"></i> {{ _("Register") }}
+                            </button>
+                            <button
+                                id="sModeMaster"
+                                class="changeMode btn btn-primary btn-right m-0"
+                                type="button"
+                            >
+                                <i class="far fa-file-excel"></i>
+                                <span>{{ _("Edit Mode") }}</span>
+                            </button>
+                        </div>
+                    </div>
+                    {{ macros.alert_message("alertMsgVisualization") }}
+                    <div class="table-view">
+                        <div class="table-wrapper">
+                            <table
+                                id="tblVisualConfig"
+                                class="table table-bordered table-main table-hover-light"
+                            >
+                                <span id="tblVisualConfig_th" class="d-none"
+                                    >{{ _("No.") }}|{{ _("Target") }}
+                                    [{{ _("Data Name") }}]|{{ _("Condition") }}
+                                    [{{ _("Data Name") }}]|{{ _("Condition") }}
+                                    [{{ _("Value") }}]|{{ _("Threshold config") }}
+                                    [{{ _("Lower") }}]|{{ _("Threshold config") }}
+                                    [{{ _("Upper") }}]|{{ _("Process threshold") }}
+                                    [{{ _("Lower") }}]|{{ _("Process threshold") }}
+                                    [{{ _("Upper") }}]|{{ _("Graph axis range") }}
+                                    [{{ _("Min value") }}]|{{ _("Graph axis range") }}
+                                    [{{ _("Max value") }}]|{{ _("Valid") }}
+                                    [From]|{{ _("Valid") }} [To]</span
+                                >
+                                <thead>
+                                    <tr>
+                                        <th
+                                            rowspan="2"
+                                            class="data-col sticky-col first-col get-header"
+                                            style="width: 50px"
+                                        >
+                                            {{ _("No.") }}
+                                        </th>
+                                        <th
+                                            colspan="1"
+                                            class="sticky-col second-col"
+                                        >
+                                            <span
+                                                class="hint-text"
+                                                title="{{ _("Target hover msg") }}"
+                                                >{{ _("Target") }}</span
+                                            >
+                                        </th>
+                                        <th
+                                            colspan="2"
+                                            class="sticky-col third-col"
+                                        >
+                                            <span
+                                                class="hint-text"
+                                                title="{{ _("Condition hover msg") }}"
+                                                >{{ _("Condition") }}</span
+                                            >
+                                        </th>
+                                        <th colspan="2">
+                                            <span
+                                                class="hint-text red"
+                                                title="{{ _("Threshold config hover msg") }}"
+                                                >{{ _("Threshold config") }}</span
+                                            >
+                                        </th>
+                                        <th colspan="2">
+                                            <span
+                                                class="hint-text blue"
+                                                title="{{ _("Process threshold hover msg") }}"
+                                                >{{ _("Process threshold") }}</span
+                                            >
+                                        </th>
+                                        <th colspan="2">
+                                            {{ _("Graph axis range") }}
+                                        </th>
+                                        <th colspan="2">
+                                            <span
+                                                class="hint-text"
+                                                title="{{ _("Valid hover msg") }}"
+                                                >{{ _("Valid") }}</span
+                                            >
+                                        </th>
+                                        <th class="col-btn" rowspan="2"></th>
+                                    </tr>
+                                    <tr>
+                                        <th
+                                            class="th-sm position-relative get-header"
+                                            scope="col"
+                                        >
+                                            <span class="data-col"
+                                                >{{ _("Data Name") }}</span
+                                            >
+                                            <span style="color: yellow">*</span>
+                                            <span
+                                                id="sortCol-1"
+                                                idx="1"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-1"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-1"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            scope="col"
+                                            class="th-title-other th-sm position-relative get-header"
+                                        >
+                                            <span class="data-col" n
+                                                >{{ _("Data Name") }}</span
+                                            >
+                                            <span
+                                                id="sortCol-2"
+                                                idx="2"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-2"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-2"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            class="th-sm position-relative get-header"
+                                            scope="col"
+                                        >
+                                            <span class="data-col"
+                                                >{{ _("Value") }}</span
+                                            >
+                                            <span
+                                                id="sortCol-3"
+                                                idx="3"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-3"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-3"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            class="th-sm thresh-line position-relative get-header"
+                                            scope="col"
+                                        >
+                                            <span class="data-col"
+                                                >{{ _("Lower") }}</span
+                                            >
+                                            <span
+                                                id="sortCol-4"
+                                                idx="4"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-4"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-4"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            class="th-sm thresh-line position-relative get-header"
+                                            scope="col"
+                                        >
+                                            <span class="data-col"
+                                                >{{ _("Upper") }}</span
+                                            >
+                                            <span
+                                                id="sortCol-5"
+                                                idx="5"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-5"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-5"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            class="th-sm thresh-line position-relative get-header"
+                                            scope="col"
+                                        >
+                                            <span class="data-col"
+                                                >{{ _("Lower") }}</span
+                                            >
+                                            <span
+                                                id="sortCol-6"
+                                                idx="6"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-6"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-6"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            class="th-sm thresh-line position-relative get-header"
+                                            scope="col"
+                                        >
+                                            <span class="data-col"
+                                                >{{ _("Upper") }}</span
+                                            >
+                                            <span
+                                                id="sortCol-7"
+                                                idx="7"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-7"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-7"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            class="th-sm thresh-line position-relative get-header"
+                                            scope="col"
+                                        >
+                                            <span class="data-col"
+                                                >{{ _("Min value") }}</span
+                                            >
+                                            <span
+                                                id="sortCol-8"
+                                                idx="8"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-8"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-8"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            class="th-sm thresh-line position-relative get-header"
+                                            scope="col"
+                                        >
+                                            <span class="data-col"
+                                                >{{ _("Max value") }}</span
+                                            >
+                                            <span
+                                                id="sortCol-9"
+                                                idx="9"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-9"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-9"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            class="th-sm thresh-line position-relative get-header"
+                                            scope="col"
+                                            style="width: 125px"
+                                        >
+                                            <span
+                                                class="data-col"
+                                                title="{{ _('Action from Hover') }}"
+                                                >From</span
+                                            >
+                                            <span style="color: yellow">*</span>
+                                            <span
+                                                id="sortCol-10"
+                                                idx="10"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-10"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-10"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                        <th
+                                            class="th-sm thresh-line position-relative get-header"
+                                            scope="col"
+                                            style="width: 125px"
+                                        >
+                                            <span class="data-col">To</span>
+                                            <span
+                                                id="sortCol-11"
+                                                idx="11"
+                                                class="mr-1 sortCol"
+                                                title="Sort"
+                                                ><i
+                                                    id="asc-11"
+                                                    class="fa fa-sm fa-play asc"
+                                                ></i
+                                                ><i
+                                                    id="desc-11"
+                                                    class="fa fa-sm fa-play desc"
+                                                ></i
+                                            ></span>
+                                        </th>
+                                    </tr>
+                                    <tr id="filters" class="filter-row">
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="0"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="1"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="2"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="3"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="4"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="5"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="6"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="7"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="8"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="9"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="10"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                        <th scope="col" class="search-box">
+                                            <input
+                                                class="form-control filterCol"
+                                                data-col-idx="11"
+                                                placeholder="Filter..."
+                                            />
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="editmode-container hide">
+                        <div id="masterSM" class=""></div>
+                    </div>
+                    <button
+                        class="btn btn-success icon-btn"
+                        id="addVisualConfig"
+                        type="button"
+                    >
+                        <i class="fas fa-plus-circle"></i>
+                    </button>
+                </form>
+                <div
+                    id="visualConfirmModal"
+                    class="modal fade in"
+                    data-backdrop="static"
+                    data-keyboard="false"
+                >
+                    <div class="modal-dialog modal-confirm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">
+                                    {{ _("Confirmation") }}
+                                </h4>
+                                <button
+                                    type="button"
+                                    class="close"
+                                    data-dismiss="modal"
+                                    aria-hidden="true"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="modal-inform">
+                                    {{ _("Do you want to save changes?") }}
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <a
+                                    id="confirmRegister"
+                                    class="btn btn-primary"
+                                    data-item-id=""
+                                    data-dismiss="modal"
+                                    >{{ _("OK") }}</a
+                                >
+                                <a
+                                    class="btn btn-secondary"
+                                    data-dismiss="modal"
+                                    >{{ _("Cancel") }}</a
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-						</tbody>
-					</table>
-					</div>
-				</div>
-				<div class="editmode-container hide">
-					<div id="masterSM" class=""></div>
-				</div>
-				<button class="btn btn-success icon-btn" id="addVisualConfig" type="button"><i
-						class="fas fa-plus-circle"></i></button>
-
-
-			</form>
-			<div id="visualConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
-				<div class="modal-dialog modal-confirm">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h4 class="modal-title">{{ _("Confirmation") }}</h4>
-							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-						</div>
-						<div class="modal-body">
-							<p class="modal-inform">{{ _("Do you want to save changes?") }}</p>
-						</div>
-						<div class="modal-footer">
-							<a id="confirmRegister" class="btn btn-primary" data-item-id=""
-								data-dismiss="modal">{{ _("OK") }}</a>
-							<a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div id="filterConfirmSwitchModal" class="modal fade in" name="filterConfirmSwitchModal" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">{{ _("Confirmation") }}</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			</div>
-			<div class="modal-body">
-				<p class="modal-inform">{{ _("The error data highlighed in red will be lost. Do you want to continue?") }}</p>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-primary" id="confirmSwitch" data-item-id=""
-					data-dismiss="modal">{{ _("OK") }}</button>
-				<button class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
-			</div>
-		</div>
-	</div>
-</div>
-{{optdata}}
+    <div
+        id="filterConfirmSwitchModal"
+        class="modal fade in"
+        name="filterConfirmSwitchModal"
+        data-backdrop="static"
+        data-keyboard="false"
+    >
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-hidden="true"
+                    >
+                        ×
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-inform">
+                        {{ _("The error data highlighed in red will be lost. Do you want to continue?") }}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        class="btn btn-primary"
+                        id="confirmSwitch"
+                        data-item-id=""
+                        data-dismiss="modal"
+                    >
+                        {{ _("OK") }}
+                    </button>
+                    <button class="btn btn-secondary" data-dismiss="modal">
+                        {{ _("Cancel") }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ optdata }}
 {% endblock %}
 
 {% block js %}
-<!-- Select2 -->
-<script src="{{ url_for('static', filename = 'common/js/libs/resizable.js')}}"></script>
-<script src="{{ url_for('static', filename = 'common/js/libs/jexcel.js') }}"></script>
-<script src="{{ url_for('static', filename = 'common/js/libs/jsuites.js') }}"></script>
-	<!-- Filter Vizualization View JS -->
-<script src="{{ url_for('setting_module.static', filename = 'js/graph_visualization.js')}}"></script>
-<script src="{{ url_for('setting_module.static', filename = 'js/master_config.js')}}"></script>
+    <!-- Select2 -->
+    <script src="{{ url_for('static', filename = 'common/js/libs/resizable.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/libs/jexcel.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'common/js/libs/jsuites.js') }}"></script>
+    <!-- Filter Vizualization View JS -->
+    <script src="{{ url_for('setting_module.static', filename = 'js/graph_visualization.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/master_config.js') }}"></script>
 {% endblock %}

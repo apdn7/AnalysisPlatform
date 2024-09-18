@@ -233,14 +233,15 @@ class Oracle:
         cursor.close()
         return cols, rows
 
-    def fetch_many(self, sql, size=10_000):
+    def fetch_many(self, sql, size=10_000, params=None):
         if not self._check_connection():
             return False
 
         cur = self._create_cursor_with_date_time_format()
         sql = Oracle.convert_sql(sql)
 
-        cursor = cur.execute(sql)
+        cursor = cur.execute(sql, **params) if params is not None else cur.execute(sql)
+
         cols = [column[0] for column in cursor.description]
         yield cols
         while True:

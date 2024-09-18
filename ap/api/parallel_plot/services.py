@@ -6,9 +6,12 @@ import pandas as pd
 from pandas import DataFrame
 
 from ap.api.common.services.show_graph_services import (
+    calc_raw_common_scale_y,
+    calc_scale_info,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
     gen_unique_data,
+    get_chart_infos,
     get_data_from_db,
     get_filter_on_demand_data,
     get_fmt_str_from_dic_data,
@@ -16,6 +19,7 @@ from ap.api.common.services.show_graph_services import (
     get_trace_configs,
     is_nominal_check,
     main_check_filter_detail_match_graph_data,
+    set_chart_infos_to_plotdata,
 )
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
@@ -44,6 +48,7 @@ from ap.common.constants import (
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
     CacheType,
+    DataType,
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import memoize
@@ -129,13 +134,34 @@ def gen_graph_paracords(graph_param, dic_param, df=None):
     fmt_dic = get_fmt_str_from_dic_data(dic_data)
     gen_dic_serial_data_from_df(df, dic_proc_cfgs, dic_param)
 
+    times = df[TIME_COL].tolist() or []
+
+    # get chart infos (to calculate the threshold)
+    chart_infos, chart_infos_org = get_chart_infos(graph_param, dic_data, times)
     (
         dic_param[ARRAY_FORMVAL],
         dic_param[ARRAY_PLOTDATA],
         category_cols,
         category_cols_details,
         cast_inf_vals,
-    ) = gen_plotdata(graph_param, dic_data, dic_proc_cfgs, df=df)
+    ) = gen_plotdata(
+        graph_param,
+        dic_data,
+        dic_proc_cfgs,
+        df=df,
+        chart_infos=chart_infos,
+        chart_infos_org=chart_infos_org,
+    )
+
+    # calc common scale y min max for plots_data for PCP
+    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA])
+    calc_scale_info(
+        graph_param.dic_proc_cfgs,
+        dic_param[ARRAY_PLOTDATA],
+        min_max_list,
+        all_graph_min,
+        all_graph_max,
+    )
 
     dic_unique_cate = gen_unique_data(df, dic_proc_cfgs, category_cols, True)
 
@@ -304,7 +330,14 @@ def order_end_proc_sensor(orig_graph_param: DicParam):
 
 @log_execution_time()
 @MessageAnnouncer.notify_progress(50)
-def gen_plotdata(orig_graph_param: DicParam, dic_data, dic_proc_cfg, df=None):
+def gen_plotdata(
+    orig_graph_param: DicParam,
+    dic_data,
+    dic_proc_cfg,
+    df=None,
+    chart_infos=None,
+    chart_infos_org=None,
+):
     # re-order proc-sensors to show to UI
     lst_proc_end_col = order_end_proc_sensor(orig_graph_param)
 
@@ -358,6 +391,7 @@ def gen_plotdata(orig_graph_param: DicParam, dic_data, dic_proc_cfg, df=None):
                 'is_checked': is_nominal_check(col_id, orig_graph_param),
                 'data_group_type': col_cfg.column_type,
                 'is_int_category': col_cfg.is_int_category,
+                'is_judge': col_cfg.is_judge,
             }
 
             if is_categorical_sensor:
@@ -377,8 +411,52 @@ def gen_plotdata(orig_graph_param: DicParam, dic_data, dic_proc_cfg, df=None):
             'm_inf_idx': m_inf_idx,
             'categorized_data': categorized_data,
         }
+
+        # add chart info to plot data
+        if chart_infos:
+            set_chart_infos_to_plotdata(
+                col_id,
+                chart_infos,
+                original_graph_configs=chart_infos_org,
+                plotdata=plotdata,
+            )
+
         plotdatas.append(plotdata)
 
         array_formval.append({END_PROC: proc_id, GET02_VALS_SELECT: col_id})
 
     return array_formval, plotdatas, category_cols, category_cols_details, cast_inf_vals
+
+
+def generate_mask_from_constraint(
+    constraint_range,
+    graph_param,
+    df,
+):
+    df_condition = pd.DataFrame()
+    sql_labels = []
+    mask = [True] * len(df)
+    for col_id, range_value in constraint_range.items():
+        # get df label
+        # filter by range_value
+        col_cfg = graph_param.get_col_cfg(int(col_id))
+        sql_label = gen_sql_label(col_cfg.id, col_cfg.column_name)
+        sql_labels.append(sql_label)
+        for range_v in range_value:
+            if sql_label not in df_condition:
+                df_condition[sql_label] = [False] * len(df)
+            if col_cfg.is_category:
+                dtype_name = col_cfg.data_type
+                if dtype_name == DataType.INTEGER.name:
+                    vals = [int(val) for val in range_v]
+                else:
+                    vals = [str(val) for val in range_v]
+                    df[sql_label] = df[sql_label].astype(str)
+                df_condition[sql_label] = df_condition[sql_label] | (df[sql_label].isin(vals))
+            else:
+                df_condition[sql_label] = df_condition[sql_label] | (df[sql_label] >= range_v[0]) & (
+                    df[sql_label] <= range_v[1]
+                )
+
+        mask = mask & df_condition[sql_label]
+    return mask

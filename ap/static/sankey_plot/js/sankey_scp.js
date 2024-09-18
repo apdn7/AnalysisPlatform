@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax,guard-for-in */
 const COLOR = {
     RED: 'rgba(255,0,0,1)',
     GREEN: '#89b368',
@@ -18,24 +17,26 @@ const i18nText = {
     i18DataCount: $('#i18DataCount').text(),
 };
 
-const INDEX_AXIS_LABEL = "Index"
+const INDEX_AXIS_LABEL = 'Index';
 
 const drawScatterPlot = (canvasID, props, showLine = false) => {
-    const data = [{
-        x: props.x,
-        y: props.y,
-        mode: 'markers',
-        type: 'scatter',
-        marker: {
-            color: COLOR.GREEN,
-            size: 6,
+    const data = [
+        {
+            x: props.x,
+            y: props.y,
+            mode: 'markers',
+            type: 'scatter',
+            marker: {
+                color: COLOR.GREEN,
+                size: 6,
+            },
+            hoverinfo: 'none',
+            customdata: {
+                datetime: props.datetime,
+                serials: props.serials,
+            },
         },
-        hoverinfo: 'none',
-        customdata: {
-            datetime: props.datetime,
-            serials: props.serials,
-        }
-    }];
+    ];
 
     if (showLine) {
         data.push({
@@ -75,7 +76,10 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
                 color: COLOR.WHITE,
             },
             gridcolor: COLOR.GRID,
-            tickformat: props.xFmt !== undefined && props.xFmt.includes('e') ? '.1e' : '',
+            tickformat:
+                props.xFmt !== undefined && props.xFmt.includes('e')
+                    ? '.1e'
+                    : '',
         },
         yaxis: {
             range: props.rangeY || 'auto',
@@ -92,7 +96,10 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
                 size: 12,
                 color: COLOR.WHITE,
             },
-            tickformat: props.yFmt !== undefined && props.yFmt.includes('e') ? '.1e' : '',
+            tickformat:
+                props.yFmt !== undefined && props.yFmt.includes('e')
+                    ? '.1e'
+                    : '',
         },
         autosize: true,
         margin: 55,
@@ -111,50 +118,59 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
         plot_bgcolor: '#222222',
         paper_bgcolor: '#222222',
     };
-    
+
     const config = {
         displayModeBar: false,
         responsive: true, // responsive histogram
         useResizeHandler: true, // responsive histogram
-        style: {width: '100%', height: '100%'},
+        style: { width: '100%', height: '100%' },
     };
 
     const scpPLot = document.getElementById(canvasID);
-    
+
     Plotly.react(canvasID, data, layout, config);
     scpPLot.on('plotly_hover', (data) => {
         const dpIndex = getDataPointIndex(data);
         const dataPoint = data.points[0];
         const xValue = applySignificantDigit(dataPoint.data.x[dpIndex]);
         const yValue = applySignificantDigit(dataPoint.data.y[dpIndex]);
-        const datetime = dataPoint.data.customdata ? formatDateTime(dataPoint.data.customdata.datetime[dpIndex]) : '';
-        const serials = getSerialsText(dpIndex, dataPoint.data.customdata.serials);
+        const datetime = dataPoint.data.customdata
+            ? formatDateTime(dataPoint.data.customdata.datetime[dpIndex])
+            : '';
+        const serials = getSerialsText(
+            dpIndex,
+            dataPoint.data.customdata.serials,
+        );
         const isHideX = props.hideX;
-        const hoverData = []
+        const hoverData = [];
         if (!isHideX) {
-            hoverData.push([props.titleX, applySignificantDigit(xValue, props.xFmt)])
+            hoverData.push([
+                props.titleX,
+                applySignificantDigit(xValue, props.xFmt),
+            ]);
         }
-        hoverData.push([props.hoverTitleY, applySignificantDigit(yValue, props.yFmt)])
+        hoverData.push([
+            props.hoverTitleY,
+            applySignificantDigit(yValue, props.yFmt),
+        ]);
         hoverData.push(['Datetime', datetime]);
         hoverData.push(...serials);
         const tableData = genHoverDataTable(hoverData);
         const offset = {
-                    x: data.event.pageX - 120,
-                    y: data.event.pageY,
-                };
+            x: data.event.pageX - 120,
+            y: data.event.pageY,
+        };
         genDataPointHoverTable(tableData, offset, null, true, canvasID);
     });
 
     unHoverHandler(scpPLot);
 
-
-
-     const getSerialsText = (idx, serials) => {
+    const getSerialsText = (idx, serials) => {
         const hasSerial = serials && Object.keys(serials).length > 0;
         let serialText = [];
         if (hasSerial) {
             for (const key of Object.keys(serials)) {
-                serialText.push([key, serials[key][idx]])
+                serialText.push([key, serials[key][idx]]);
             }
         }
         return serialText;
@@ -281,10 +297,7 @@ const drawConfusionMatrix = (canvasID, classifProps) => {
         },
         xaxis: {
             anchor: 'y',
-            domain: [
-                0.0,
-                1.0,
-            ],
+            domain: [0.0, 1.0],
             scaleanchor: 'y',
             constrain: 'domain',
             title: {
@@ -295,10 +308,7 @@ const drawConfusionMatrix = (canvasID, classifProps) => {
         },
         yaxis: {
             anchor: 'x',
-            domain: [
-                0.0,
-                1.0,
-            ],
+            domain: [0.0, 1.0],
             autorange: 'reversed',
             constrain: 'domain',
             title: {
@@ -312,7 +322,7 @@ const drawConfusionMatrix = (canvasID, classifProps) => {
                     text: classifProps.countTitle,
                 },
             },
-            // eslint-disable-next-line no-undef
+
             colorscale: chmColorPalettes,
         },
         title: {
@@ -323,20 +333,28 @@ const drawConfusionMatrix = (canvasID, classifProps) => {
         displayModeBar: false,
         responsive: true, // responsive histogram
         useResizeHandler: true, // responsive histogram
-        style: {width: '100%', height: '100%'},
+        style: { width: '100%', height: '100%' },
     };
-    // eslint-disable-next-line no-undef
+
     Plotly.newPlot(canvasID, data, layout, config);
 };
 
 const showScatterPlot = (dicScp) => {
     if (!dicScp || Object.keys.length === 0) return;
     const {
-        actual, fitted, residuals, serials, index, times, actual_fmt, fitted_fmt, residuals_fmt
+        actual,
+        fitted,
+        residuals,
+        serials,
+        index,
+        times,
+        actual_fmt,
+        fitted_fmt,
+        residuals_fmt,
     } = dicScp;
     const [minX, maxX] = findMinMax(actual);
     const [minY, maxY] = findMinMax(fitted);
-    
+
     const commonRange = [Math.min(minX, minY), Math.max(maxX, maxY)];
 
     const actualFittedProps = {
@@ -353,7 +371,7 @@ const showScatterPlot = (dicScp) => {
         serials: serials,
         hoverTitleY: i18nText.i18nFitted,
     };
-    
+
     const indexResidualsProps = {
         x: index,
         y: residuals,
@@ -367,7 +385,7 @@ const showScatterPlot = (dicScp) => {
         hideX: true,
         hoverTitleY: i18nText.i18nResiduals,
     };
-    
+
     updateInformationTable(dicScp);
     if (!dicScp.is_classif) {
         drawScatterPlot('actual-fitted-scp', actualFittedProps, true);

@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 const drawQContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
     if (!json) return;
 
@@ -10,7 +9,7 @@ const drawQContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
     figure.layout.paper_bgcolor = '#222222';
     figure.layout.xaxis.gridcolor = '#444444';
     figure.layout.yaxis.gridcolor = '#444444';
-    figure.layout.xaxis.tickangle  = COMMON_CONSTANT.TICKS_ANGLE;
+    figure.layout.xaxis.tickangle = COMMON_CONSTANT.TICKS_ANGLE;
     figure.layout.legend = {
         bgcolor: '#222222',
     };
@@ -31,7 +30,6 @@ const drawQContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
         style: { width: '100%', height: '100%' }, // responsive histogram
     });
 
-
     // send plotting time event
     const endTime = performance.now();
     gtag('event', 'PCA_et', {
@@ -48,21 +46,28 @@ const drawQContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
     });
 };
 
-const drawQContributionChartFromObj = (objData, sampleNo = null, chartConfig = {},
-    sizeOfData = null, dpInfo = null,
-    shortName = null) => {
+const drawQContributionChartFromObj = (
+    objData,
+    sampleNo = null,
+    chartConfig = {},
+    sizeOfData = null,
+    dpInfo = null,
+    shortName = null,
+) => {
     if (!objData) return;
     const startTime = performance.now();
 
-    Plotly.newPlot('qContributionChart',
+    Plotly.newPlot(
+        'qContributionChart',
         genContributionChartData(objData, 'q', dpInfo),
-        contributionChartLayout(objData, 'q', sampleNo), {
+        contributionChartLayout(objData, 'q', sampleNo),
+        {
             ...genPlotlyIconSettings(),
             responsive: true, // responsive histogram
             useResizeHandler: true, // responsive histogram
             style: { width: '100%', height: '100%' }, // responsive histogram
-        });
-
+        },
+    );
 
     // send plotting time event
     const endTime = performance.now();

@@ -46,9 +46,11 @@ from ap.api.setting_module.services.show_latest_record import (
     gen_v2_columns_with_types,
     get_last_distinct_sensor_values,
     get_latest_records,
+    get_preview_data_files,
     preview_csv_data,
     preview_v2_data,
     save_master_vis_config,
+    save_preview_data_file,
 )
 from ap.api.setting_module.services.shutdown_app import shut_down_app
 from ap.api.trace_data.services.proc_link import add_gen_proc_link_job, add_restructure_indexes_job, show_proc_link_info
@@ -64,6 +66,7 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import (
     ANALYSIS_INTERFACE_ENV,
+    FILE_NAME,
     FISCAL_YEAR_START_MONTH,
     OSERR,
     SHUTDOWN,
@@ -107,6 +110,7 @@ from ap.setting_module.schemas import (
     ProcessSchema,
 )
 from ap.setting_module.services.background_process import get_background_jobs_service, get_job_detail_service
+from ap.setting_module.services.backup_and_restore.jobs import add_backup_data_job, add_restore_data_job
 from ap.setting_module.services.process_config import (
     create_or_update_process_cfg,
     gen_function_column,
@@ -117,7 +121,11 @@ from ap.setting_module.services.process_config import (
     get_process_visualizations,
     query_database_tables,
 )
-from ap.setting_module.services.register_from_file import get_chm_url_to_redirect
+from ap.setting_module.services.register_from_file import (
+    get_latest_records_for_register_by_file,
+    get_url_to_redirect,
+    handle_importing_by_one_click,
+)
 from ap.setting_module.services.trace_config import (
     gen_cfg_trace,
     get_all_processes_traces_info,
@@ -308,7 +316,10 @@ def get_database_table(db_id):
     tables = query_database_tables(db_id)
 
     if tables is None:
-        return jsonify({'tables': [], 'msg': 'Invalid data source id'}), 400
+        return (
+            jsonify({'tables': [], 'process_factnames': [], 'process_factids': [], 'msg': 'Invalid data source id'}),
+            400,
+        )
     else:
         return jsonify(tables), 200
 
@@ -342,6 +353,21 @@ def check_db_connection():
     return jsonify(flask_message=message), 200
 
 
+@api_setting_module_blueprint.route('/show_latest_records_for_register_by_file', methods=['POST'])
+def show_latest_records_for_register_by_file():
+    """[summary]
+    Show 5 latest records
+    Returns:
+        [type] -- [description]
+    """
+    dic_form = request.form.to_dict()
+    file_name = dic_form.get('fileName') or None
+    limit = parse_int_value(dic_form.get('limit')) or 10
+    folder = dic_form.get('folder') or None
+    latest_rec = get_latest_records_for_register_by_file(file_name, folder, limit)
+    return json_dumps(latest_rec)
+
+
 @api_setting_module_blueprint.route('/show_latest_records', methods=['POST'])
 def show_latest_records():
     """[summary]
@@ -357,6 +383,15 @@ def show_latest_records():
     limit = parse_int_value(dic_form.get('limit')) or 10
     folder = dic_form.get('folder') or None
     current_process_id = dic_form.get('currentProcessId', None)
+    process_factid = dic_form.get('processFactId', None)
+    if current_process_id and current_process_id != 'null' and not file_name:
+        # get data from db or csv
+        file_name = get_preview_data_files(data_source_id, table_name, process_factid)
+        if file_name:
+            with open(file_name, 'r') as file:
+                data = json.load(file)
+            return data
+
     latest_rec = get_latest_records(
         data_source_id,
         table_name,
@@ -364,6 +399,8 @@ def show_latest_records():
         folder,
         limit,
         current_process_id,
+        process_factid=process_factid,
+        is_convert_datetime=False,
     )
 
     result = {
@@ -397,8 +434,9 @@ def show_latest_records():
             'data_group_type': data_group_type,
             'is_rdb': is_rdb,
         }
-
-    return json_dumps(result)
+    result = json_dumps(result)
+    save_preview_data_file(int(data_source_id), result, table_name=table_name, process_factid=process_factid)
+    return result
 
 
 @api_setting_module_blueprint.route('/get_csv_resources', methods=['POST'])
@@ -407,22 +445,25 @@ def get_csv_resources():
     etl_func = request.json.get('etl_func')
     csv_delimiter = request.json.get('delimiter')
     is_v2 = request.json.get('isV2')
-    line_skip = request.json.get('line_skip') or ''
+    skip_head = request.json.get('skip_head')
+    skip_head = None if skip_head is None else int(skip_head)
     n_rows = request.json.get('n_rows')
     n_rows = None if n_rows is None else int(n_rows)
     is_transpose = request.json.get('is_transpose')
+    is_file = request.json.get('is_file')
 
     if is_v2:
-        dic_output = preview_v2_data(folder_url, csv_delimiter, 5)
+        dic_output = preview_v2_data(folder_url, csv_delimiter, 5, file_name=folder_url if is_file else None)
     else:
         dic_output = preview_csv_data(
             folder_url,
             etl_func,
             csv_delimiter,
-            line_skip=line_skip,
+            skip_head=skip_head,
             n_rows=n_rows,
             is_transpose=is_transpose,
             limit=5,
+            file_name=folder_url if is_file else None,
         )
     rows = dic_output['content']
     previewed_files = dic_output['previewed_files']
@@ -484,7 +525,7 @@ def check_folder():
                     break
         else:
             is_valid_file = any(data.lower().endswith(ext) for ext in extension)
-            is_not_empty = True
+            is_not_empty = os.path.isfile(data)
 
         is_valid = is_existing and is_not_empty
         err_msg = _('File not found')  # empty folder
@@ -504,6 +545,29 @@ def check_folder():
     except OSError as e:
         # raise
         return jsonify({'status': 500, 'err_msg': _(OSERR[e.errno]), 'is_valid': False})
+
+
+@api_setting_module_blueprint.route('/check_folder_or_file', methods=['POST'])
+def check_folder_or_file():
+    try:
+        data = request.json.get('path')
+        return jsonify(
+            {
+                'status': 200,
+                'isFile': os.path.isfile(data),
+                'isFolder': os.path.isdir(data),
+            },
+        )
+    except OSError as e:
+        # raise
+        return jsonify(
+            {
+                'status': 500,
+                'err_msg': _(OSERR[e.errno]),
+                'isFile': False,
+                'isFolder': False,
+            },
+        )
 
 
 @api_setting_module_blueprint.route('/job_detail/<job_id>', methods=['GET'])
@@ -839,7 +903,7 @@ def get_proc_config(proc_id):
     parent_and_child_processes = CfgProcess.get_all_parents_and_children_processes(proc_id)
     col_id_in_funcs = CfgProcessFunctionColumn.get_all_cfg_col_ids()
     if process:
-        tables = query_database_tables(process['data_source_id'])
+        tables = query_database_tables(process['data_source_id'], process=process)
         return (
             jsonify(
                 {
@@ -879,6 +943,49 @@ def get_proc_config_filter_data(proc_id):
     else:
         return (
             jsonify(
+                {
+                    'status': 404,
+                    'data': {},
+                    'filter_col_data': {},
+                },
+            ),
+            200,
+        )
+
+
+@api_setting_module_blueprint.route('/proc_table_viewer_columns/<proc_id>', methods=['GET'])
+def get_table_viewer_columns(proc_id):
+    process = get_process_cfg(proc_id)
+    columns = []
+    for column in process.get('columns'):
+        if len(column.get(CfgProcessColumn.function_details.key)) > 0:
+            continue
+
+        if column.get(CfgProcessColumn.column_raw_name.name) == FILE_NAME:
+            continue
+
+        if column.get(CfgProcessColumn.is_dummy_datetime.name):
+            continue
+
+        columns.append(column)
+
+    process['columns'] = columns
+    if process:
+        if not process['name_en']:
+            process['name_en'] = to_romaji(process['name'])
+        return (
+            json_dumps(
+                {
+                    'status': 200,
+                    'data': process,
+                    'filter_col_data': {},
+                },
+            ),
+            200,
+        )
+    else:
+        return (
+            json_dumps(
                 {
                     'status': 404,
                     'data': {},
@@ -1306,81 +1413,29 @@ def check_duplicated_process_name():
 
 @api_setting_module_blueprint.route('/register_source_and_proc', methods=['POST'])
 def register_source_and_proc():
-    input_json = request.json
-    with make_session() as meta_session:
-        try:
-            data_src: CfgDataSource = DataSourceSchema().load(input_json.get('csv_info'))
-
-            # data source
-            data_src_rec = insert_or_update_config(meta_session, data_src, exclude_columns=[CfgDataSource.order.key])
-
-            # csv detail
-            csv_detail = data_src.csv_detail
-            if csv_detail:
-                # csv_detail.dummy_header = csv_detail.dummy_header == 'true' if csv_detail.dummy_header else None
-                csv_columns = data_src.csv_detail.csv_columns
-                csv_columns = [col for col in csv_columns if not is_empty(col.column_name)]
-                data_src.csv_detail.csv_columns = csv_columns
-                csv_detail_rec = insert_or_update_config(
-                    meta_session,
-                    csv_detail,
-                    parent_obj=data_src_rec,
-                    parent_relation_key=CfgDataSource.csv_detail.key,
-                    parent_relation_type=RelationShip.ONE,
-                )
-
-                # CRUD
-                csv_columns = csv_detail.csv_columns
-                crud_config(
-                    meta_session,
-                    csv_columns,
-                    CfgCsvColumn.data_source_id.key,
-                    CfgCsvColumn.column_name.key,
-                    parent_obj=csv_detail_rec,
-                    parent_relation_key=CfgDataSourceCSV.csv_columns.key,
-                    parent_relation_type=RelationShip.MANY,
-                )
-            process_schema = ProcessSchema()
-            proc_config = request.json.get('proc_config')
-            proc_config['data_source_id'] = data_src_rec.id
-            proc_data = process_schema.load(proc_config)
-            unused_columns = request.json.get('unused_columns', [])
-            should_import_data = request.json.get('import_data')
-
-            process = create_or_update_process_cfg(proc_data, unused_columns)
-
-            # create process json
-            process_schema = ProcessSchema()
-            process_json = process_schema.dump(process) or {}
-
-            # import data
-            if should_import_data:
-                add_import_job(process, run_now=True, is_user_request=True)
-        except Exception as e:
-            logger.exception(e)
-            meta_session.rollback()
-            message = {'message': _('Database Setting failed to save'), 'is_error': True}
-            return jsonify(flask_message=message), 500
-
-    message = {'message': _('Database Setting saved.'), 'is_error': False}
-    ds = None
-    if data_src_rec and data_src_rec.id and process:
-        ds_schema = DataSourceSchema()
-        ds = CfgDataSource.get_ds(data_src_rec.id)
-        ds = ds_schema.dumps(ds)
+    try:
+        new_process_ids = handle_importing_by_one_click(request.json)
 
         data_register_data = {
+            'RegisterByFileRequestID': request.json.get('RegisterByFileRequestID'),
             'status': JobStatus.PROCESSING.name,
-            'process_id': process.id,
             'is_first_imported': False,
         }
         background_announcer.announce(data_register_data, AnnounceEvent.DATA_REGISTER.name)
-    return jsonify(id=data_src_rec.id, data_source=ds, process_info=process_json, flask_message=message), 200
+    except Exception as e:
+        logger.exception(e)
+        data = {'message': _('Database Setting failed to save'), 'is_error': True, 'detail': str(e)}
+        return jsonify(data), 500
+
+    data = {'message': _('Database Setting saved.'), 'is_error': False, 'processIds': new_process_ids}
+    return jsonify(data), 200
 
 
-@api_setting_module_blueprint.route('/redirect_to_chm_page/<proc_id>', methods=['GET'])
-def redirect_to_chm_page(proc_id):
-    target_url = get_chm_url_to_redirect(request, proc_id)
+@api_setting_module_blueprint.route('/redirect_to_page', methods=['POST'])
+def redirect_to_page():
+    page = request.json.get('page')
+    proc_ids = request.json.get('processIds')
+    target_url = get_url_to_redirect(request, proc_ids, page)
     return jsonify(url=target_url), 200
 
 
@@ -1398,7 +1453,7 @@ def get_function_infos():
     dict_cfg_process_column = {cfg_process_column.id: cfg_process_column for cfg_process_column in cfg_process_columns}
     result = []
     for function_detail in sorted_function_details(cfg_process_columns):
-        process_col = dict_cfg_process_column[function_detail.process_column_id]
+        process_col: CfgProcessColumn = dict_cfg_process_column[function_detail.process_column_id]
         function_id = function_detail.function_id
         m_function: MFunction = MFunction.get_by_id(function_id)
         var_x = function_detail.var_x
@@ -1430,7 +1485,11 @@ def get_function_infos():
             y_data_type=y_data_type,
             **function_detail.as_dict(),
         )
-        sample_datas = equation_sample_data.sample_data().sample_data
+        sample_data = equation_sample_data.sample_data()
+        sample_datas = sample_data.sample_data
+        output_type = sample_data.output_type
+        # update data type
+        process_col.data_type = output_type
         dict_sample_data[str(process_col.id)] = sample_datas
         function_info = {
             'functionName': m_function.function_type,
@@ -1488,4 +1547,36 @@ def delete_function_column_config():
         traceback.print_exc()
         return json_dumps({}), 500
 
+    return json_dumps({}), 200
+
+
+@api_setting_module_blueprint.route('/backup_data', methods=['POST'])
+def backup_data():
+    """[Summary] backup data from DB
+    Returns: 200/500
+    """
+    data = json.loads(request.data)
+    process_id = data.get('process_id')
+    start_time = data.get('start_time')
+    end_time = data.get('end_time')
+    if process_id:
+        target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
+        remove_jobs(target_jobs, proc_id=process_id)
+    add_backup_data_job(process_id, start_time, end_time)
+    return json_dumps({}), 200
+
+
+@api_setting_module_blueprint.route('/restore_data', methods=['POST'])
+def restore_data():
+    """[Summary] restore data from file
+    Returns: 200/500
+    """
+    data = json.loads(request.data)
+    process_id = data.get('process_id')
+    start_time = data.get('start_time')
+    end_time = data.get('end_time')
+    if process_id:
+        target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
+        remove_jobs(target_jobs, proc_id=process_id)
+    add_restore_data_job(process_id, start_time, end_time)
     return json_dumps({}), 200

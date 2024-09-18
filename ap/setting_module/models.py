@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from contextlib import contextmanager
+from functools import wraps
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
@@ -11,7 +12,7 @@ from flask_babel import get_locale
 from sqlalchemy import asc, desc, event, func, null, or_
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import RelationshipProperty, load_only
+from sqlalchemy.orm import RelationshipProperty, load_only, scoped_session
 from typing_extensions import Self
 
 from ap import Session, db
@@ -47,10 +48,10 @@ from ap.common.constants import (
     MaxGraphNumber,
     RawDataTypeDB,
     RelationShip,
-    dict_dtype,
     max_graph_number,
 )
 from ap.common.cryptography_utils import decrypt_pwd
+from ap.common.datetime_format_utils import DateTimeFormatUtils
 from ap.common.memoize import set_all_cache_expired
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
@@ -74,6 +75,44 @@ def make_session():
     except Exception as e:
         session.rollback()
         raise e
+
+
+def use_meta_session(meta_session_argument_name: str = 'meta_session'):
+    """Decorator to auto create db instance when no pass it in argument"""
+
+    def decorator(fn):
+        @wraps(fn)
+        def inner(*args, **kwargs):
+            meta_session: scoped_session = kwargs.get(meta_session_argument_name)
+            if meta_session is None:
+                with make_session() as new_meta_session:
+                    kwargs[meta_session_argument_name] = new_meta_session
+                    return fn(*args, **kwargs)
+            else:
+                return fn(*args, **kwargs)
+
+        return inner
+
+    return decorator
+
+
+def use_meta_session_generator(meta_session_argument_name: str = 'db_instance'):
+    """Decorator to auto create db instance when no pass it in argument"""
+
+    def decorator(fn):
+        @wraps(fn)
+        def inner(*args, **kwargs):
+            meta_session: scoped_session = kwargs.get(meta_session_argument_name)
+            if meta_session is None:
+                with make_session() as new_meta_session:
+                    kwargs[meta_session_argument_name] = new_meta_session
+                    return (yield from fn(*args, **kwargs))
+            else:
+                return (yield from fn(*args, **kwargs))
+
+        return inner
+
+    return decorator
 
 
 class CommonModel(db.Model):
@@ -501,10 +540,12 @@ class CfgProcessUnusedColumn(db.Model):
         return [col.column_name for col in cls.query.filter(cls.process_id == process_id).all()]
 
     @classmethod
-    def delete_all_columns_by_proc_id(cls, proc_id):
-        with make_session() as meta_session:
-            meta_session.query(cls).filter(cls.process_id == proc_id).delete()
-            meta_session.commit()
+    def delete_all_columns_by_proc_id(cls, proc_id, meta_session: scoped_session = None):
+        (meta_session.query(cls) if meta_session else CfgProcessUnusedColumn.query).filter(
+            cls.process_id == proc_id,
+        ).delete()
+        if meta_session:
+            meta_session.flush()
 
 
 class CfgProcessColumn(db.Model):
@@ -523,8 +564,8 @@ class CfgProcessColumn(db.Model):
     raw_data_type = db.Column(db.Text())
     column_type = db.Column(db.Integer())
     predict_type = db.Column(db.Text())
-    operator = db.Column(db.Text())
-    coef = db.Column(db.Text())
+    # operator = db.Column(db.Text())
+    # coef = db.Column(db.Text())
     is_serial_no = db.Column(db.Boolean(), default=False)
     is_get_date = db.Column(db.Boolean(), default=False)
     is_dummy_datetime = db.Column(db.Boolean(), default=False)
@@ -532,6 +573,7 @@ class CfgProcessColumn(db.Model):
     parent_id = db.Column(db.Integer(), db.ForeignKey(id, ondelete='CASCADE'), nullable=True)
     # parent_column_id = db.Column(db.Integer())
     order = db.Column(db.Integer())
+    unit = db.Column(db.Text())
     function_details: list['CfgProcessFunctionColumn'] = db.relationship(
         'CfgProcessFunctionColumn',
         lazy='joined',
@@ -604,6 +646,10 @@ class CfgProcessColumn(db.Model):
         return self.data_type == DataType.INTEGER.name and (
             self.column_type in DataColumnType.category_int_types() or self.is_serial_no
         )
+
+    @hybrid_property
+    def is_judge(self):
+        return self.column_type == DataColumnType.JUDGE.value
 
     @classmethod
     def get_function_col_ids(cls, process_id):
@@ -767,9 +813,12 @@ class CfgProcess(db.Model):
     comment = db.Column(db.Text())
     is_show_file_name = db.Column(db.Boolean(), default=None)
     file_name = db.Column(db.Text())
+    process_factid = db.Column(db.Text())
+    process_factname = db.Column(db.Text())
     parent_id = db.Column(db.Integer(), db.ForeignKey(id, ondelete='CASCADE'), nullable=True)
     # parent_process_id = db.Column(db.Integer())
 
+    datetime_format = db.Column(db.Text(), default=None)
     order = db.Column(db.Integer())
     created_at = db.Column(db.Text(), default=get_current_timestamp)
     updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
@@ -920,6 +969,22 @@ class CfgProcess(db.Model):
 
         return cols
 
+    def get_time_format(self) -> Optional[str]:
+        """
+        Extract time format from datetime_format value
+        :return: time format
+        """
+        datetime_format = DateTimeFormatUtils.get_datetime_format(self.datetime_format)
+        return datetime_format.time_format
+
+    def get_date_format(self) -> Optional[str]:
+        """
+        Extract date format from datetime_format value
+        :return: date format
+        """
+        datetime_format = DateTimeFormatUtils.get_datetime_format(self.datetime_format)
+        return datetime_format.date_format
+
     @classmethod
     def get_all(cls, with_parent=False):
         query = cls.query
@@ -962,9 +1027,9 @@ class CfgProcess(db.Model):
         proc = cls.query.get(proc_id)
         parent = cls.get_parent(proc_id)
         children = cls.get_children(proc_id)
-        children_of_parent = cls.get_children(parent.id) if parent is not None else []
+        siblings = cls.get_children(parent.id) if parent is not None else []
 
-        processes = [proc] + [parent] + children + children_of_parent
+        processes = [proc] + [parent] + children + siblings
         return list({process.id: process for process in processes if process is not None}.values())
 
     @classmethod
@@ -990,6 +1055,23 @@ class CfgProcess(db.Model):
         return True
 
     @classmethod
+    def batch_delete(cls, proc_ids):
+        with make_session() as meta_session:
+            meta_session.query(cls).filter(cls.id.in_(proc_ids)).delete(synchronize_session=False)
+            # delete traces manually
+            meta_session.query(CfgTrace).filter(
+                or_(CfgTrace.self_process_id.in_(proc_ids), CfgTrace.target_process_id.in_(proc_ids)),
+            ).delete(
+                synchronize_session=False,
+            )
+            # delete linking prediction manually
+            meta_session.query(ProcLinkCount).filter(
+                or_(ProcLinkCount.process_id.in_(proc_ids), ProcLinkCount.target_process_id.in_(proc_ids)),
+            ).delete(
+                synchronize_session=False,
+            )
+
+    @classmethod
     def update_order(cls, meta_session, process_id, order):
         meta_session.query(cls).filter(cls.id == process_id).update({cls.order: order})
 
@@ -1000,10 +1082,26 @@ class CfgProcess(db.Model):
 
     @classmethod
     def check_duplicated_name(cls, name_en, name_jp, name_local):
-        check_name_en = len(cls.query.filter(cls.name_en == name_en).all()) != 0
-        check_name_jp = len(cls.query.filter(cls.name_jp == name_jp).all()) != 0
-        check_name_local = len(cls.query.filter(cls.name_local == name_local).all()) != 0
+        check_name_en = len(cls.query.filter(cls.name_en == name_en).all()) != 0 if name_en else False
+        check_name_jp = len(cls.query.filter(cls.name_jp == name_jp).all()) != 0 if name_jp else False
+        check_name_local = len(cls.query.filter(cls.name_local == name_local).all()) != 0 if name_local else False
         return check_name_en, check_name_jp, check_name_local
+
+    def table_name_for_query_datetime(self):
+        from ap.api.setting_module.services.software_workshop_etl_services import quality_measurements_table
+
+        if self.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
+            return quality_measurements_table.name
+        return self.table_name
+
+    def filter_for_query_datetime(self, sql: str) -> str:
+        if self.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
+            from ap.api.setting_module.services.software_workshop_etl_services import quality_measurements_table
+
+            # software workshop import by process must filter by process name here
+            # because this is vertical database
+            return f"{sql} WHERE {quality_measurements_table.c.child_equip_id.name} = '{self.process_factid}'"
+        return sql
 
 
 class CfgProcessFunctionColumn(db.Model):
@@ -1197,8 +1295,8 @@ class CfgTraceKey(db.Model):
     target_column_substr_from = db.Column(db.Integer())
     target_column_substr_to = db.Column(db.Integer())
 
-    delta_time = db.Column(db.Integer())
-    cut_off = db.Column(db.Integer())
+    delta_time = db.Column(db.Float())
+    cut_off = db.Column(db.Float())
 
     order = db.Column(db.Integer())
 
@@ -1548,6 +1646,7 @@ def insert_or_update_config(
     parent_relation_key=None,
     parent_relation_type=None,
     exclude_columns=None,
+    autocommit=True,
 ):
     """
 
@@ -1559,6 +1658,7 @@ def insert_or_update_config(
     :param parent_obj:
     :param parent_relation_key:
     :param parent_relation_type:
+    :param autocommit:
     :return:
     """
     excludes = ['created_at', 'updated_at']
@@ -1597,6 +1697,7 @@ def insert_or_update_config(
         rec = model()
         if not parent_obj:
             meta_session.add(rec)
+            meta_session.flush()
         elif parent_relation_type is RelationShip.MANY:
             objs = getattr(parent_obj, parent_relation_key)
             if objs is None:
@@ -1629,7 +1730,9 @@ def insert_or_update_config(
 
         setattr(rec, key, val)
 
-    meta_session.commit()
+    meta_session.flush()
+    if autocommit:
+        meta_session.commit()
 
     return rec
 
@@ -1671,6 +1774,7 @@ def crud_config(
     parent_obj: db.Model = None,
     parent_relation_key=None,
     parent_relation_type=RelationShip.MANY,
+    autocommit=True,
 ):
     """
 
@@ -1682,6 +1786,7 @@ def crud_config(
     :param parent_obj:
     :param parent_relation_key:
     :param parent_relation_type:
+    :param autocommit:
     :return:
     """
     # get model
@@ -1736,9 +1841,10 @@ def crud_config(
                 parent_obj=parent_obj,
                 parent_relation_key=parent_relation_key,
                 parent_relation_type=parent_relation_type,
+                autocommit=autocommit,
             )
         else:
-            rec = insert_or_update_config(meta_session, row, key_names, model=model)
+            rec = insert_or_update_config(meta_session, row, key_names, model=model, autocommit=autocommit)
 
         key = tuple(getattr(rec, key) for key in key_names)
         set_active_keys.add(key)
@@ -1750,8 +1856,11 @@ def crud_config(
             continue
 
         meta_session.delete(current_rec)
+        meta_session.flush()
 
-    meta_session.commit()
+    meta_session.flush()
+    if autocommit:
+        meta_session.commit()
 
     return True
 
@@ -1762,7 +1871,7 @@ class CfgDataSourceCSV(db.Model):
     __table_args__ = {'sqlite_autoincrement': True}
     id = db.Column(db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE'), primary_key=True)
     directory = db.Column(db.Text())
-    skip_head = db.Column(db.Integer(), default=0)
+    skip_head = db.Column(db.Integer(), default=None)
     skip_tail = db.Column(db.Integer(), default=0)
     n_rows = db.Column(db.Integer(), nullable=True)
     is_transpose = db.Column(db.Boolean(), nullable=True)
@@ -1770,6 +1879,7 @@ class CfgDataSourceCSV(db.Model):
     etl_func = db.Column(db.Text())
     process_name = db.Column(db.Text())
     dummy_header = db.Column(db.Boolean(), default=False)
+    is_file_path = db.Column(db.Boolean(), nullable=True, default=False)
     created_at = db.Column(db.Text(), default=get_current_timestamp)
     updated_at = db.Column(db.Text(), default=get_current_timestamp, onupdate=get_current_timestamp)
     # TODO check fetch all
@@ -1926,6 +2036,12 @@ class CfgOption(db.Model):
     def get_options(cls, req_id):
         return cls.query.filter(cls.req_id == req_id).all()
 
+    @classmethod
+    def get_option_ids(cls, req_id):
+        records = cls.query.options(load_only(cls.id)).filter(cls.req_id == req_id).all()
+        ids = [rec.id for rec in records]
+        return ids
+
 
 # class ProcDataCount(db.Model):
 #     __tablename__ = 't_proc_data_count'
@@ -2009,16 +2125,13 @@ class MFunction(db.Model):
         return variables
 
     def get_string_x_types(self) -> list[str]:
-        dtypes = self.x_type.split(',') if self.has_x() else []
-        return self.convert_data_type(dtypes)
+        return self.x_type.split(',') if self.has_x() else []
 
     def get_string_y_types(self) -> list[str]:
-        dtypes = self.y_type.split(',') if self.has_y() else []
-        return self.convert_data_type(dtypes)
+        return self.y_type.split(',') if self.has_y() else []
 
     def get_string_return_types(self):
-        dtypes = self.return_type.split(',') if self.return_type else []
-        return self.convert_data_type(dtypes)
+        return self.return_type.split(',') if self.return_type else []
 
     def get_possible_x_types(self) -> list[RawDataTypeDB]:
         if not self.has_x():
@@ -2083,27 +2196,6 @@ class MFunction(db.Model):
             return RawDataTypeDB.get_by_enum_value(x_data_type)
 
         return None
-
-    def convert_data_type(self, data_types: List):
-        # dict_dtype = {
-        #     '': DataType.NULL.name,
-        #     'r': DataType.REAL.name,
-        #     'i': DataType.INTEGER.name,
-        #     't': DataType.TEXT.name,
-        #     'd': DataType.DATETIME.name,
-        #     'b': DataType.BOOLEAN.name,
-        #     'rs': DataType.REAL_SEP.name,
-        #     'is': DataType.INTEGER_SEP.name,
-        #     'ers': DataType.EU_REAL_SEP.name,
-        #     'eis': DataType.EU_INTEGER_SEP.name,
-        #     'ksn': DataType.K_SEP_NULL.name,
-        #     'date': DataType.DATE.name,
-        #     'time': DataType.TIME.name,
-        #     'cast': FunctionCastDataType.CAST.value,
-        #     'x': FunctionCastDataType.SAME_AS_X.value,
-        #     'b_i': DataType.BIG_INT.name,
-        # }
-        return [dict_dtype.get(data_type) for data_type in data_types]
 
 
 def get_models():

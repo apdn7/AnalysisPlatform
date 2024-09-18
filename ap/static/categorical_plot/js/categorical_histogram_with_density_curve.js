@@ -1,5 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-// eslint-disable-next-line no-unused-vars
 const HistogramWithDensityCurve = ($, paramObj) => {
     // ////////////// プライベート関数の定義 ////////////////////
     const setParam = (key, defaultValue) => {
@@ -8,7 +6,6 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         }
         return defaultValue;
     };
-
 
     const canvasId = setParam('canvasId', '');
     const yLabelFreq = setParam('yLabelFreq', '度数(カウント)');
@@ -23,7 +20,7 @@ const HistogramWithDensityCurve = ($, paramObj) => {
     const plotData = setParam('plotData', []);
     const isCatLimited = setParam('isCatLimited', false);
     const allGroupNames = setParam('allGroupNames', []);
-	const labelFmt = setParam('labelFmt', '');
+    const labelFmt = setParam('labelFmt', '');
 
     let customBinSize = 1;
     if (kdeData && kdeData.hist_labels.length > 1) {
@@ -31,7 +28,7 @@ const HistogramWithDensityCurve = ($, paramObj) => {
     }
     const maxKDE = Math.max(...kdeData.kde);
     const maxHist = Math.max(...kdeData.hist_counts);
-    const transKDE = kdeData.kde.map(i => maxHist * i / maxKDE);
+    const transKDE = kdeData.kde.map((i) => (maxHist * i) / maxKDE);
     const kdeDensity = {
         y: kdeData.hist_labels,
         x: transKDE,
@@ -96,7 +93,8 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         categoryLabels.reverse();
         categoryIds.sort().reverse(); // 4321
         categoryLabels.forEach((catName) => {
-            const categoryCount = plotData.category_distributed[catName].counts_org;
+            const categoryCount =
+                plotData.category_distributed[catName].counts_org;
             stepChartDat.push(categoryCount);
         });
     }
@@ -205,12 +203,12 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         // layout.yaxis.tickangle = 45;
         // layout.yaxis.tickmode = 'array';
         layout.yaxis.tickvals = allGroupNames.id;
-        layout.yaxis.ticktext = allGroupNames.id.map(cat => '');
+        layout.yaxis.ticktext = allGroupNames.id.map((cat) => '');
         const minYVal = Math.min(...allGroupNames.id);
         const maxYVal = Math.max(...allGroupNames.id);
         layout.yaxis.range = [minYVal - 1, maxYVal + 1];
         layout.yaxis.autorange = false;
-    
+
         // add label to barchart
 
         allGroupNames.id.forEach((catId, k) => {
@@ -238,13 +236,12 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         layout.xaxis.autorange = false;
     }
 
-
     try {
         Plotly.newPlot(canvasId, data, layout, {
             displayModeBar: false,
             responsive: true, // responsive histogram
             useResizeHandler: true, // responsive histogram
-            style: {width: '100%', height: '100%'}, // responsive histogram
+            style: { width: '100%', height: '100%' }, // responsive histogram
         });
     } catch (e) {
         console.log(canvasId, data, layout);
@@ -286,12 +283,13 @@ const HistogramWithDensityCurve = ($, paramObj) => {
     };
 
     const hdPlot = document.getElementById(canvasId);
-    hdPlot.on('plotly_hover', (data) => {
-        drawShapes(data.points[0].x, data.points[0].y);
-        if (data.points) {
-            showInforTbl(data, true, canvasId);
-        }
-    })
+    hdPlot
+        .on('plotly_hover', (data) => {
+            drawShapes(data.points[0].x, data.points[0].y);
+            if (data.points) {
+                showInforTbl(data, true, canvasId);
+            }
+        })
         .on('plotly_unhover', (data) => {
             drawShapes(null, null, false);
         });
@@ -315,7 +313,10 @@ const drawEmptyHistogram = ($, paramObj) => {
             orientation: 'h',
         },
     ];
-    const catLimitMsgs = $('#i18nCatLimitedMsg').text().split('BREAK_LINE').join('<br>');
+    const catLimitMsgs = $('#i18nCatLimitedMsg')
+        .text()
+        .split('BREAK_LINE')
+        .join('<br>');
     const layout = {
         showlegend: false,
         xaxis: {
@@ -364,20 +365,22 @@ const drawEmptyHistogram = ($, paramObj) => {
             pad: 5,
         },
         shapes: [],
-        annotations: [{
-            xref: 'x',
-            yref: 'y',
-            text: catLimitMsgs,
-            showarrow: false,
-            font: {
-                color: '#65c5f1',
+        annotations: [
+            {
+                xref: 'x',
+                yref: 'y',
+                text: catLimitMsgs,
+                showarrow: false,
+                font: {
+                    color: '#65c5f1',
+                },
             },
-        }],
+        ],
     };
     Plotly.newPlot(canvasId, data, layout, {
         displayModeBar: false,
         responsive: true, // responsive histogram
         useResizeHandler: true, // responsive histogram
-        style: {width: '100%', height: '100%'}, // responsive histogram
+        style: { width: '100%', height: '100%' }, // responsive histogram
     });
 };

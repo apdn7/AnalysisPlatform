@@ -13,5 +13,4 @@ $(() => {
     clipboard.on('error', (e) => {
         setTooltip(e.trigger, 'Failed!');
     });
-
 });

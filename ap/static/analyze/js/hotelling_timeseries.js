@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-
 const drawShapes = (x = null, display = true) => {
     const plots = document.querySelectorAll('#timeSeriesT2, #timeSeriesQ');
     const layoutUpdates = {};
@@ -29,7 +26,13 @@ const drawShapes = (x = null, display = true) => {
     });
 };
 
-const drawTimeSeriesT2Chart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfData = null, arrayPlotdata=null) => {
+const drawTimeSeriesT2Chart = (
+    json,
+    jsonDtTest = {},
+    chartConfig = {},
+    sizeOfData = null,
+    arrayPlotdata = null,
+) => {
     if (!json) return;
 
     const startTime = performance.now();
@@ -70,7 +73,7 @@ const drawTimeSeriesT2Chart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfDa
         scpCustomData = {
             proc_id_x: arrayPlotdata[0].end_proc_id,
             sensor_id_x: arrayPlotdata[0].end_col_id,
-        }
+        };
     }
     figure.data[0].customdata = scpCustomData;
 
@@ -93,17 +96,23 @@ const drawTimeSeriesT2Chart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfDa
         }
 
         // to broadcast click event to other charts
-        broadcastClickEvent(dataPoint, startingChart = 'timeSeriesT2', jsonPCAScoreTest = jsonDtTest);
+        broadcastClickEvent(
+            dataPoint,
+            (startingChart = 'timeSeriesT2'),
+            (jsonPCAScoreTest = jsonDtTest),
+        );
     });
 
     // Add hover event for t2 & q plots
-    timeSeriesT2Element.on('plotly_hover', (data) => {
-        drawShapes(data.points[0].x);
-    }).on('plotly_unhover', (data) => {
-        drawShapes(null, false);
-        clearHoverTimeOut();
-    });
-    
+    timeSeriesT2Element
+        .on('plotly_hover', (data) => {
+            drawShapes(data.points[0].x);
+        })
+        .on('plotly_unhover', (data) => {
+            drawShapes(null, false);
+            clearHoverTimeOut();
+        });
+
     showCustomContextMenu(timeSeriesT2Element, true);
     // send plotting time
     const endTime = performance.now();
@@ -121,7 +130,13 @@ const drawTimeSeriesT2Chart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfDa
     });
 };
 
-const drawTimeSeriesQChart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfData = null, arrayPlotdata = null) => {
+const drawTimeSeriesQChart = (
+    json,
+    jsonDtTest = {},
+    chartConfig = {},
+    sizeOfData = null,
+    arrayPlotdata = null,
+) => {
     if (!json) return;
 
     const startTime = performance.now();
@@ -163,10 +178,10 @@ const drawTimeSeriesQChart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfDat
         scpCustomData = {
             proc_id_x: arrayPlotdata[0].end_proc_id,
             sensor_id_x: arrayPlotdata[0].end_col_id,
-        }
+        };
     }
     figure.data[0].customdata = scpCustomData;
-    
+
     const timeSeriesQElement = document.getElementById('timeSeriesQ');
 
     Plotly.newPlot('timeSeriesQ', figure.data, figure.layout, plotConfig);
@@ -186,16 +201,22 @@ const drawTimeSeriesQChart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfDat
         }
 
         // to broadcast click event to other charts
-        broadcastClickEvent(dataPoint, startingChart = 'timeSeriesQ', jsonPCAScoreTest = jsonDtTest);
+        broadcastClickEvent(
+            dataPoint,
+            (startingChart = 'timeSeriesQ'),
+            (jsonPCAScoreTest = jsonDtTest),
+        );
     });
     // Add hover event for t2 & q plots
-    timeSeriesQElement.on('plotly_hover', (data) => {
-        drawShapes(data.points[0].x);
-    }).on('plotly_unhover', (data) => {
-        drawShapes(null, false);
-        clearHoverTimeOut();
-    });
-    
+    timeSeriesQElement
+        .on('plotly_hover', (data) => {
+            drawShapes(data.points[0].x);
+        })
+        .on('plotly_unhover', (data) => {
+            drawShapes(null, false);
+            clearHoverTimeOut();
+        });
+
     showCustomContextMenu(timeSeriesQElement, true);
     // send plotting time
     const endTime = performance.now();
@@ -235,8 +256,9 @@ const genTimeSeriesData = (data, type = 'test', label = 'T2_statics') => {
         frame: null,
     };
     retData.text = data.map((v, k) => {
-        const n = (type === 'test') ? (k + 1) : (k + 1 - data.length);
-        retData.line.color = (type === 'test') ? 'rgba(255,165,0,1)' : 'rgba(255,255,255,1)';
+        const n = type === 'test' ? k + 1 : k + 1 - data.length;
+        retData.line.color =
+            type === 'test' ? 'rgba(255,165,0,1)' : 'rgba(255,255,255,1)';
         retData.x.push(n);
         retData.y.push(v);
         return `sample_no:  ${n}<br />${label}: ${v}`;
@@ -244,7 +266,13 @@ const genTimeSeriesData = (data, type = 'test', label = 'T2_statics') => {
     return retData;
 };
 
-const drawTimeSeriesT2ChartFromObj = (objData, jsonDtTest = {}, chartConfig = {}, sizeOfData = null, arrayPlotdata=null) => {
+const drawTimeSeriesT2ChartFromObj = (
+    objData,
+    jsonDtTest = {},
+    chartConfig = {},
+    sizeOfData = null,
+    arrayPlotdata = null,
+) => {
     if (!objData) return;
 
     // const chartConfig.width = $('#xTest').width();
@@ -268,10 +296,7 @@ const drawTimeSeriesT2ChartFromObj = (objData, jsonDtTest = {}, chartConfig = {}
             size: 13.2835201328352,
         },
         xaxis: {
-            domain: [
-                0,
-                1,
-            ],
+            domain: [0, 1],
             automargin: true,
             type: 'linear',
             autorange: true,
@@ -305,10 +330,7 @@ const drawTimeSeriesT2ChartFromObj = (objData, jsonDtTest = {}, chartConfig = {}
             hoverformat: '.2f',
         },
         yaxis: {
-            domain: [
-                0,
-                1,
-            ],
+            domain: [0, 1],
             automargin: true,
             type: 'linear',
             autorange: true,
@@ -384,24 +406,29 @@ const drawTimeSeriesT2ChartFromObj = (objData, jsonDtTest = {}, chartConfig = {}
         useResizeHandler: true, // responsive histogram
         style: { width: '100%', height: '100%' }, // responsive histogram
     };
-    
+
     // assign custome data to plot-view handling on data-point
     // apply for first/ full data points only
     if (arrayPlotdata) {
         scpCustomData = {
             proc_id_x: arrayPlotdata[0].end_proc_id,
             sensor_id_x: arrayPlotdata[0].end_col_id,
-        }
+        };
     }
     t2TimeSeriesData[1].customdata = scpCustomData;
-    t2TimeSeriesData.forEach(dat => {
+    t2TimeSeriesData.forEach((dat) => {
         dat.hoverinfo = 'none';
     });
-    
+
     const timeSeriesT2Element = document.getElementById('timeSeriesT2');
-    
-    Plotly.newPlot(timeSeriesT2Element, t2TimeSeriesData, t2TimeSeriesLayout, plotConfig);
-    
+
+    Plotly.newPlot(
+        timeSeriesT2Element,
+        t2TimeSeriesData,
+        t2TimeSeriesLayout,
+        plotConfig,
+    );
+
     // xtest click event
     timeSeriesT2Element.on('plotly_click', (dataPoint) => {
         // to spread sampleNo and clickedDataIndexto other charts
@@ -417,20 +444,26 @@ const drawTimeSeriesT2ChartFromObj = (objData, jsonDtTest = {}, chartConfig = {}
         }
 
         // to broadcast click event to other charts
-        broadcastClickEvent(dataPoint, startingChart = 'timeSeriesT2', jsonPCAScoreTest = jsonDtTest);
+        broadcastClickEvent(
+            dataPoint,
+            (startingChart = 'timeSeriesT2'),
+            (jsonPCAScoreTest = jsonDtTest),
+        );
     });
 
     // Add hover event for t2 & q plots
-    timeSeriesT2Element.on('plotly_hover', (data) => {
-        drawShapes(data.points[0].x);
-        showDataTablePCA(data, 'timeseries', 'timeSeriesT2');
-    }).on('plotly_unhover', (data) => {
-        drawShapes(null, false);
-        clearHoverTimeOut();
-    });
-    
+    timeSeriesT2Element
+        .on('plotly_hover', (data) => {
+            drawShapes(data.points[0].x);
+            showDataTablePCA(data, 'timeseries', 'timeSeriesT2');
+        })
+        .on('plotly_unhover', (data) => {
+            drawShapes(null, false);
+            clearHoverTimeOut();
+        });
+
     showCustomContextMenu(timeSeriesT2Element, true);
-    
+
     // send plotting time
     const endTime = performance.now();
     gtag('event', 'PCA_et', {
@@ -447,13 +480,27 @@ const drawTimeSeriesT2ChartFromObj = (objData, jsonDtTest = {}, chartConfig = {}
     });
 };
 
-const drawTimeSeriesQChartFromObj = (objData, jsonDtTest = {}, chartConfig = {}, sizeOfData = null, arrayPlotdata = null) => {
+const drawTimeSeriesQChartFromObj = (
+    objData,
+    jsonDtTest = {},
+    chartConfig = {},
+    sizeOfData = null,
+    arrayPlotdata = null,
+) => {
     if (!objData) return;
 
     const startTime = performance.now();
 
-    const qTrainTimeSeries = genTimeSeriesData(objData.SPE, 'train', 'Q_statics');
-    const qTestTimeSeries = genTimeSeriesData(objData.test, 'test', 'Q_statics');
+    const qTrainTimeSeries = genTimeSeriesData(
+        objData.SPE,
+        'train',
+        'Q_statics',
+    );
+    const qTestTimeSeries = genTimeSeriesData(
+        objData.test,
+        'test',
+        'Q_statics',
+    );
     const qTimeSeriesData = [qTrainTimeSeries, qTestTimeSeries];
     const qTimeSeriesLayout = {
         margin: {
@@ -470,10 +517,7 @@ const drawTimeSeriesQChartFromObj = (objData, jsonDtTest = {}, chartConfig = {},
             size: 13.2835201328352,
         },
         xaxis: {
-            domain: [
-                0,
-                1,
-            ],
+            domain: [0, 1],
             automargin: true,
             type: 'linear',
             autorange: true,
@@ -507,10 +551,7 @@ const drawTimeSeriesQChartFromObj = (objData, jsonDtTest = {}, chartConfig = {},
             hoverformat: '.2f',
         },
         yaxis: {
-            domain: [
-                0,
-                1,
-            ],
+            domain: [0, 1],
             automargin: true,
             type: 'linear',
             autorange: true,
@@ -586,24 +627,29 @@ const drawTimeSeriesQChartFromObj = (objData, jsonDtTest = {}, chartConfig = {},
         useResizeHandler: true, // responsive histogram
         style: { width: '100%', height: '100%' }, // responsive histogram
     };
-    
+
     // assign custome data to plot-view handling on data-point
     // apply for first/ full data points only
     if (arrayPlotdata) {
         scpCustomData = {
             proc_id_x: arrayPlotdata[0].end_proc_id,
             sensor_id_x: arrayPlotdata[0].end_col_id,
-        }
+        };
     }
     // 1 is for Target data
     qTimeSeriesData[1].customdata = scpCustomData;
-    qTimeSeriesData.forEach(dat => {
+    qTimeSeriesData.forEach((dat) => {
         dat.hoverinfo = 'none';
     });
     const timeSeriesQElement = document.getElementById('timeSeriesQ');
-    
-    Plotly.newPlot(timeSeriesQElement, qTimeSeriesData, qTimeSeriesLayout, plotConfig);
-    
+
+    Plotly.newPlot(
+        timeSeriesQElement,
+        qTimeSeriesData,
+        qTimeSeriesLayout,
+        plotConfig,
+    );
+
     // xtest click event
     timeSeriesQElement.on('plotly_click', (dataPoint) => {
         // to spread sampleNo and clickedDataIndexto other charts
@@ -619,20 +665,26 @@ const drawTimeSeriesQChartFromObj = (objData, jsonDtTest = {}, chartConfig = {},
         }
 
         // to broadcast click event to other charts
-        broadcastClickEvent(dataPoint, startingChart = 'timeSeriesQ', jsonPCAScoreTest = jsonDtTest);
+        broadcastClickEvent(
+            dataPoint,
+            (startingChart = 'timeSeriesQ'),
+            (jsonPCAScoreTest = jsonDtTest),
+        );
     });
 
     // Add hover event for t2 & q plots
-    timeSeriesQElement.on('plotly_hover', (data) => {
-        drawShapes(data.points[0].x);
-        showDataTablePCA(data, 'timeseries', 'timeSeriesQ');
-    }).on('plotly_unhover', (data) => {
-        drawShapes(null, false);
-        clearHoverTimeOut();
-    });
-    
+    timeSeriesQElement
+        .on('plotly_hover', (data) => {
+            drawShapes(data.points[0].x);
+            showDataTablePCA(data, 'timeseries', 'timeSeriesQ');
+        })
+        .on('plotly_unhover', (data) => {
+            drawShapes(null, false);
+            clearHoverTimeOut();
+        });
+
     showCustomContextMenu(timeSeriesQElement, true);
-    
+
     // send plotting time
     const endTime = performance.now();
     gtag('event', 'PCA_et', {

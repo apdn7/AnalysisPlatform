@@ -17,6 +17,7 @@ class SqlComparisonOperator(Enum):
     LIKE = 'LIKE'
     BETWEEN = 'BETWEEN'
     IN = 'IN'  # Ex: cls.Columns.status.name: [(SqlComparisonOperator.IN, tuple(job_statuses))]
+    NOT_IN = 'NOT IN'  # Ex: cls.Columns.status.name: [(SqlComparisonOperator.NOT_IN, tuple(job_statuses))]
 
 
 # class AggregateFunction(Enum):

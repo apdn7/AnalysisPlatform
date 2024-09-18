@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 const i18nColorBar = {
     time_numberings: '#i18nColorBarTime',
     elapsed_time: '#i18nColorBarElapsedTime',
@@ -17,7 +16,6 @@ const SCATTER_MARGIN = {
 // unique filters
 const onlyUniqueFilter = (value, index, self) => self.indexOf(value) === index;
 
-
 const buildCategoryColors = (colorData) => {
     const uniqueColorData = colorData.filter(onlyUniqueFilter);
     const isString = _.isString(uniqueColorData[0]);
@@ -33,16 +31,16 @@ const buildCategoryColors = (colorData) => {
     return [null, null];
 };
 
-const narrowText = (text = '', n= 17) => {
-
+const narrowText = (text = '', n = 17) => {
     if (!text || text.length <= n) return text;
 
-    return text.substr(0,n);
+    return text.substr(0, n);
 };
 
-// eslint-disable-next-line no-unused-vars
 const genScatterLayout = (chartOptions) => {
-    const [tickVals, tickText] = buildCategoryColors(chartOptions.colorsValSets);
+    const [tickVals, tickText] = buildCategoryColors(
+        chartOptions.colorsValSets,
+    );
     let colorbarTitle = narrowText(chartOptions.colorVarName);
     if (chartOptions.colorOrderVar !== 'colors') {
         colorbarTitle = $(i18nColorBar[chartOptions.colorOrderVar]).text();
@@ -265,12 +263,18 @@ const genScatterLayout = (chartOptions) => {
 // todo: draw annotation for thresholds
 
 const calcTickSteps = (rows, cols) => {
-    const rowSteps = (1 / rows);
-    const colSteps = (1 / cols);
+    const rowSteps = 1 / rows;
+    const colSteps = 1 / cols;
     return [rowSteps, colSteps];
 };
 
-const calcTicksDomain = (idx, ticksStep, isCol = 0, defaultMargin = 0.015, totalColRow) => {
+const calcTicksDomain = (
+    idx,
+    ticksStep,
+    isCol = 0,
+    defaultMargin = 0.015,
+    totalColRow,
+) => {
     // 0.035 is space between charts
     const margin = totalColRow > 1 ? defaultMargin : 0;
     const start = idx * ticksStep[isCol];
@@ -278,21 +282,36 @@ const calcTicksDomain = (idx, ticksStep, isCol = 0, defaultMargin = 0.015, total
     return [start, end];
 };
 
-// eslint-disable-next-line no-unused-vars
 const genLayoutAxis = (layoutAttrs, isNotEmptyPlot) => {
-    const itemIdx = layoutAttrs.rowIdx * layoutAttrs.colsTotal + layoutAttrs.colIdx;
-    const itemId = itemIdx !== 0 ? (itemIdx + 1) : '';
+    const itemIdx =
+        layoutAttrs.rowIdx * layoutAttrs.colsTotal + layoutAttrs.colIdx;
+    const itemId = itemIdx !== 0 ? itemIdx + 1 : '';
 
     const yAxisName = `yaxis${itemId}`;
     const xAxisName = `xaxis${itemId}`;
     const yAxisId = `y${itemId}`;
     const xAxisId = `x${itemId}`;
-    const ticksStep = calcTickSteps(layoutAttrs.rowsTotal, layoutAttrs.colsTotal);
-    const isBreakLine = layoutAttrs.hLabel.includes('<br>')
+    const ticksStep = calcTickSteps(
+        layoutAttrs.rowsTotal,
+        layoutAttrs.colsTotal,
+    );
+    const isBreakLine = layoutAttrs.hLabel.includes('<br>');
     // const verticalMargin = (layoutAttrs.hLabel && isBreakLine && layoutAttrs.colsTotal > 1)
     //     ? SCATTER_MARGIN.H_TITLE_MULTI_LINES : SCATTER_MARGIN.Y_NORMAL;
-    const yDomain = calcTicksDomain(layoutAttrs.rowIdx, ticksStep, 0, SCATTER_MARGIN.Y_NORMAL, layoutAttrs.rowsTotal);
-    const xDomain = calcTicksDomain(layoutAttrs.colIdx, ticksStep, 1, SCATTER_MARGIN.X_NORMAL, layoutAttrs.colsTotal);
+    const yDomain = calcTicksDomain(
+        layoutAttrs.rowIdx,
+        ticksStep,
+        0,
+        SCATTER_MARGIN.Y_NORMAL,
+        layoutAttrs.rowsTotal,
+    );
+    const xDomain = calcTicksDomain(
+        layoutAttrs.colIdx,
+        ticksStep,
+        1,
+        SCATTER_MARGIN.X_NORMAL,
+        layoutAttrs.colsTotal,
+    );
 
     const isShowXTicks = layoutAttrs.rowIdx === 0;
     const isShowYTicks = layoutAttrs.colIdx === 0;
@@ -324,12 +343,12 @@ const genLayoutAxis = (layoutAttrs, isNotEmptyPlot) => {
     };
     // annotation for top axis labels
     if (layoutAttrs.hLabel) {
-        const centerOfXTicks = xDomain[0] + ((xDomain[1] - xDomain[0]) / 2);
+        const centerOfXTicks = xDomain[0] + (xDomain[1] - xDomain[0]) / 2;
         // show title on top of plot with 2.5% margin
         const labelYPosition = yDomain[1] + SCATTER_MARGIN.Y_NORMAL;
         layoutAttrs.layout.annotations.push({
             font: {
-                size: isBreakLine ? 9 : 11
+                size: isBreakLine ? 9 : 11,
             },
             showarrow: false,
             text: layoutAttrs.hLabel,
@@ -353,13 +372,23 @@ const genLayoutAxis = (layoutAttrs, isNotEmptyPlot) => {
     };
 };
 
-const removeInvalidDataPoints = (scpMatrix, xRange, yRange, colorVar='colors') => {
-    scpMatrix.forEach(row => {
-        row.forEach(col => {
+const removeInvalidDataPoints = (
+    scpMatrix,
+    xRange,
+    yRange,
+    colorVar = 'colors',
+) => {
+    scpMatrix.forEach((row) => {
+        row.forEach((col) => {
             if (col) {
-                const pointObjs= [];
+                const pointObjs = [];
                 col.array_x.forEach((v, i) => {
-                    if (v >= xRange[0] && v <= xRange[1] && col.array_y[i] >= yRange[0] && col.array_y[i] <= yRange[1]) {
+                    if (
+                        v >= xRange[0] &&
+                        v <= xRange[1] &&
+                        col.array_y[i] >= yRange[0] &&
+                        col.array_y[i] <= yRange[1]
+                    ) {
                         pointObjs.push({
                             x: v,
                             y: col.array_y[i],
@@ -367,13 +396,19 @@ const removeInvalidDataPoints = (scpMatrix, xRange, yRange, colorVar='colors') =
                             cycle_ids: col.cycle_ids[i],
                             elapsed_time: col.elapsed_time[i],
                             times: col.times[i],
-                            x_serial: col.x_serial ? col.x_serial.map(xSerial => xSerial.data[i]) : null,
-                            y_serial: col.y_serial ? col.y_serial.map(ySerial => ySerial.data[i]) : null,
-                            time_numberings: col.time_numberings ? col.time_numberings[i] : null,
+                            x_serial: col.x_serial
+                                ? col.x_serial.map((xSerial) => xSerial.data[i])
+                                : null,
+                            y_serial: col.y_serial
+                                ? col.y_serial.map((ySerial) => ySerial.data[i])
+                                : null,
+                            time_numberings: col.time_numberings
+                                ? col.time_numberings[i]
+                                : null,
                         });
                     }
                 });
-                const comparator = keys => (a, b) => {
+                const comparator = (keys) => (a, b) => {
                     if (a[keys[0]] == b[keys[0]]) {
                         return a[keys[1]] - b[keys[1]];
                     }
@@ -382,28 +417,38 @@ const removeInvalidDataPoints = (scpMatrix, xRange, yRange, colorVar='colors') =
                 pointObjs.sort(comparator([colorVar, 'cycle_ids']));
                 // console.log();
                 col.n_total = pointObjs.length;
-                col.array_x = pointObjs.map(pointData => pointData.x);
-                col.array_y = pointObjs.map(pointData => pointData.y);
-                col.colors = pointObjs.map(pointData => pointData.colors);
-                col.cycle_ids = pointObjs.map(pointData => pointData.cycle_ids);
-                col.elapsed_time = pointObjs.map(pointData => pointData.elapsed_time);
-                col.times = pointObjs.map(pointData => pointData.times);
+                col.array_x = pointObjs.map((pointData) => pointData.x);
+                col.array_y = pointObjs.map((pointData) => pointData.y);
+                col.colors = pointObjs.map((pointData) => pointData.colors);
+                col.cycle_ids = pointObjs.map(
+                    (pointData) => pointData.cycle_ids,
+                );
+                col.elapsed_time = pointObjs.map(
+                    (pointData) => pointData.elapsed_time,
+                );
+                col.times = pointObjs.map((pointData) => pointData.times);
                 if (col.time_numberings) {
-                    col.time_numberings = pointObjs.map(pointData => pointData.time_numberings);
+                    col.time_numberings = pointObjs.map(
+                        (pointData) => pointData.time_numberings,
+                    );
                 }
 
                 if (col.x_serial) {
                     col.x_serial.forEach((xSerial, i) => {
-                        xSerial.data = pointObjs.map(pointData => pointData.x_serial[i]);
-                    })
+                        xSerial.data = pointObjs.map(
+                            (pointData) => pointData.x_serial[i],
+                        );
+                    });
                 }
                 if (col.y_serial) {
                     col.y_serial.forEach((ySerial, i) => {
-                        ySerial.data = pointObjs.map(pointData => pointData.y_serial[i]);
-                    })
+                        ySerial.data = pointObjs.map(
+                            (pointData) => pointData.y_serial[i],
+                        );
+                    });
                 }
             }
-       });
+        });
     });
     return scpMatrix;
 };

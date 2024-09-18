@@ -1,0 +1,170 @@
+<div class="card graph-navi mt-0" id="cfgSystem">
+    <div class="card-body">
+        <div
+            class="panel-group"
+            id="accordionCfgSystem"
+            role="tablist"
+            aria-multiselectable="true"
+        >
+            <div class="panel panel-default">
+                <form id="cfgSystemForm">
+                    <div class="panel-heading" role="tab" id="headingCfgSystem">
+                        <div class="form-header">
+                            <div class="row" style="padding-top: 5px;">
+                                <div class="col-7">
+                                    <div class="collapse-box header-left">
+                                        <a
+                                            role="button"
+                                            data-toggle="collapse"
+                                            class="btn-collapse collapsed"
+                                            data-parent="#accordionCfgSystem"
+                                            href="#collapseCfgSystem"
+                                            aria-expanded="false"
+                                            aria-controls="collapseCfgSystem"
+                                        >
+                                        </a>
+                                    </div>
+                                    <h3 class="header-left">System</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        id="collapseCfgSystem"
+                        class="panel-collapse collapse"
+                        role="tabpanel"
+                        aria-labelledby="headingCfgSystem"
+                    >
+                        <div class="card-body">
+                            <div class="row">
+                                <h4>Database</h4>
+                            </div>
+                            <div class="col row mt-2">
+                                <div
+                                    class="col-md-2 mt-2"
+                                    id="transactionDataTitle"
+                                >
+                                    <h5>Transaction Data</h5>
+                                </div>
+                                <div class="col-md-10">
+                                    <button
+                                        id="btnBackupAndRestoreDate"
+                                        onclick="openBackupAndRestoreModal()"
+                                        class="btn btn-primary btn-left"
+                                        type="button"
+                                    >
+                                        Backup & Restore
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <ul
+            id="cfgSystemContextMenu"
+            name="contextMenu"
+            class="context-menu"
+            style="display:none;"
+        >
+            <li class="menu-item" onclick="maximizeCard('collapseCfgSystem')">
+                {{ _("Maximize card") }}
+            </li>
+            <li class="menu-item" onclick="minimizeCard('collapseCfgSystem')">
+                {{ _("Minimize card") }}
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="modal fade" id="backupAndRestoreModal">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div
+                    class="d-flex align-items-center nav-tabs justify-content-between"
+                >
+                    <ul id="tabs" class="nav nav-tabs" role="tablist">
+                        <li
+                            class="nav-item active"
+                            onclick="switchBackupRestoreTab(this)"
+                            id="liBackupTab"
+                        >
+                            <a
+                                href="#backupTab"
+                                data-show-button-id="btnBackupData"
+                                data-hide-button-id="btnRestoreData"
+                                class="nav-link active"
+                                role="tab"
+                                data-toggle="tab"
+                                >BackUp</a
+                            >
+                        </li>
+                        <li
+                            class="nav-item"
+                            onclick="switchBackupRestoreTab(this)"
+                        >
+                            <a
+                                href="#restoreTab"
+                                data-show-button-id="btnRestoreData"
+                                data-hide-button-id="btnBackupData"
+                                class="nav-link"
+                                role="tab"
+                                data-toggle="tab"
+                                >Restore</a
+                            >
+                        </li>
+                    </ul>
+                    <button
+                        type="button"
+                        class="close text-right mx-4"
+                        aria-label="Close"
+                        onclick="closeBackupAndRestoreModal()"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <input id="idFlagBKRT" type="hidden" />
+                </div>
+                <div id="tabContent" class="tab-content">
+                    <div
+                        class="card end-proc dynamic-element table-bordered py-sm-3"
+                    >
+                        <div id="backupAndRestoreProcessSelection"></div>
+                        <br />
+                        {{ macros.data_finder_card() }}
+                        {{ macros.start_proc_interval(disableLatest=true) }}
+                        <div class="mr-3 mt-4">
+                            <button
+                                id="btnBackupData"
+                                onclick="doBackupData()"
+                                class="btn btn-primary btn-right ml-2"
+                                type="button"
+                            >
+                                Backup
+                            </button>
+                            <button
+                                id="btnRestoreData"
+                                onclick="doRestoreData()"
+                                class="btn btn-primary btn-right ml-2"
+                                type="button"
+                                style="display: none;"
+                            >
+                                Restore
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade show active" id="backupTab"></div>
+                    <div class="tab-pane fade" id="restoreTab"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block js %}
+    <script src="{{ url_for('setting_module.static', filename = 'js/system.js') }}"></script>
+{% endblock %}

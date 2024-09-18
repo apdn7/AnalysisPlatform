@@ -6,7 +6,7 @@
 }
 
 .jump-page-list,
-.jump-sensor-list{
+.jump-sensor-list {
     width: calc(100% / 2 - 20px);
 }
 
@@ -32,7 +32,7 @@
 .jump-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 5px
+    gap: 5px;
 }
 
 .jump-list .tile-content {
@@ -117,4 +117,10 @@
 
 #jumpModal .alert strong {
     font-size: large;
+}
+
+.jump-options-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }

@@ -1,5 +1,3 @@
-/* eslint-disable guard-for-in */
-/* eslint-disable no-restricted-syntax */
 const cyclicEles = {
     datetimeFrom: $('#i18nDatetimeFrom').text(),
     datetimeTo: $('#i18nDatetimeTo').text(),
@@ -43,16 +41,27 @@ const addLimitNumSensors = () => {
     });
 };
 
-
 // generate HTML for tabs
 const generateTabHTML = (eleIdPrefix, data, sensors, showViewer = false) => {
-    const genNavItemHTML = (tabId, sensorMasterName, status = '', sensorID = null) => `<li class="nav-item ${status}">
+    const genNavItemHTML = (
+        tabId,
+        sensorMasterName,
+        status = '',
+        sensorID = null,
+    ) => `<li class="nav-item ${status}">
             <a href="#${tabId}" class="nav-link ${status} tab-name" role="tab" data-toggle="tab" data-sensor-id="${sensorID}" data-original-title="${sensorMasterName}"
                 >${sensorMasterName}</a>
         </li>`;
 
-    const catLimitMsgs = $('#i18nCatLimitedMsg').text().split('BREAK_LINE').join('<br>');
-    const genTabContentHTML = (tabId, plotCardId, status = '') => `<div class="tab-pane fade show ${status}" id="${tabId}">
+    const catLimitMsgs = $('#i18nCatLimitedMsg')
+        .text()
+        .split('BREAK_LINE')
+        .join('<br>');
+    const genTabContentHTML = (
+        tabId,
+        plotCardId,
+        status = '',
+    ) => `<div class="tab-pane fade show ${status}" id="${tabId}">
         <div class="card cate-plot-cards clearfix ui-sortable" id="${plotCardId}"></div>
         <div class="overlay-card" id="${plotCardId}-lim">
             <span class="text-center">${catLimitMsgs}</span>
@@ -61,19 +70,36 @@ const generateTabHTML = (eleIdPrefix, data, sensors, showViewer = false) => {
     const navItemHTMLs = [];
     const tabContentHTMLs = [];
     const existPlotData = !_.isEmpty(data.array_plotdata);
-    for (let sensorIdx = 0; existPlotData && sensorIdx < sensors.length; sensorIdx++) {
-        const sensorPlotDatas = eleIdPrefix !== 'directTerm' ? data.array_plotdata[sensors[sensorIdx]]
-            : data.array_plotdata.filter(plot => plot.end_col === Number(sensors[sensorIdx]));
+    const procNamesSet = new Set();
+    for (
+        let sensorIdx = 0;
+        existPlotData && sensorIdx < sensors.length;
+        sensorIdx++
+    ) {
+        const sensorPlotDatas =
+            eleIdPrefix !== 'directTerm'
+                ? data.array_plotdata[sensors[sensorIdx]]
+                : data.array_plotdata.filter(
+                      (plot) => plot.end_col === Number(sensors[sensorIdx]),
+                  );
         // カラム名を取得する。
-        const sensorMasterName = sensorPlotDatas[0].end_col_name;
-
+        const { end_proc_name, end_col_name } = sensorPlotDatas[0];
+        const sensorMasterName = procNamesSet.has(end_proc_name)
+            ? `${end_col_name}`
+            : `${end_proc_name}|${end_col_name}`;
+        procNamesSet.add(end_proc_name);
         let status = '';
         if (sensorIdx === 0) {
             status = 'active';
         }
         const tabId = `${eleIdPrefix}HistogramsTab-${sensorIdx}`;
         const sensorID = sensors[sensorIdx];
-        const navItemHTML = genNavItemHTML(tabId, sensorMasterName, status, sensorID);
+        const navItemHTML = genNavItemHTML(
+            tabId,
+            sensorMasterName,
+            status,
+            sensorID,
+        );
         navItemHTMLs.push(navItemHTML);
         const plotCardId = `${eleIdPrefix}CatePlotCards-${sensorIdx}`;
         const tabContentHTML = genTabContentHTML(tabId, plotCardId, status);
@@ -82,8 +108,14 @@ const generateTabHTML = (eleIdPrefix, data, sensors, showViewer = false) => {
     let viewerNavHTML = '';
     let viewerContentHTML = '';
     if (showViewer) {
-        viewerNavHTML = genNavItemHTML(tabId = 'scattersTab', sensorMasterName = i18n.viewerTabName);
-        viewerContentHTML = genTabContentHTML(tabId = 'scattersTab', plotCardId = 'varScatterPlotCards');
+        viewerNavHTML = genNavItemHTML(
+            (tabId = 'scattersTab'),
+            (sensorMasterName = i18n.viewerTabName),
+        );
+        viewerContentHTML = genTabContentHTML(
+            (tabId = 'scattersTab'),
+            (plotCardId = 'varScatterPlotCards'),
+        );
     }
 
     const stratifiedVarTabHTML = `<ul id="${eleIdPrefix}Tabs" class="nav nav-tabs justify-content-end stp-tab" role="tablist">
@@ -116,7 +148,9 @@ const showResultTabHTMLs = (eleIdPrefix, data, sensors, showViewer = false) => {
 };
 
 const getEndProcFromFormVal = (sensorId, arrayFormval) => {
-    const proc = arrayFormval.filter(proc => proc.GET02_VALS_SELECT.includes(sensorId.toString()));
+    const proc = arrayFormval.filter((proc) =>
+        proc.GET02_VALS_SELECT.includes(sensorId.toString()),
+    );
     return proc[0].end_proc;
 };
 
@@ -125,7 +159,7 @@ const isFormDataValid = (eleIdPrefix, formData) => {
 
     const formKeys = [...formData.keys()];
     for (const chkKey of requiredKeys) {
-        const result = formKeys.some(e => e.startsWith(chkKey));
+        const result = formKeys.some((e) => e.startsWith(chkKey));
         if (result === false) {
             return 2;
         }
@@ -152,16 +186,25 @@ const concatAllArrayY = (tabPrefix, traceData, numChart, sensorID = '') => {
     let arrayPlotdataY = [];
     for (let idx = 0; idx < numChart; idx++) {
         if (tabPrefix === eles.varTabPrefix) {
-            arrayPlotdataY = arrayPlotdataY.concat(traceData.array_plotdata[sensorID][idx].array_y);
+            arrayPlotdataY = arrayPlotdataY.concat(
+                traceData.array_plotdata[sensorID][idx].array_y,
+            );
         } else if (tabPrefix === eles.termTabPrefix) {
-            arrayPlotdataY = arrayPlotdataY.concat(traceData.array_plotdata[idx].array_y);
+            arrayPlotdataY = arrayPlotdataY.concat(
+                traceData.array_plotdata[idx].array_y,
+            );
         }
     }
-    arrayPlotdataY = arrayPlotdataY.filter(e => $.isNumeric(e));
+    arrayPlotdataY = arrayPlotdataY.filter((e) => $.isNumeric(e));
     return arrayPlotdataY;
 };
 
-const updateHistogramWhenChaneScale = (currentTraceData, scaleOption = scaleOptionConst.COMMON, sensorID = null, tabPrefix = '') => {
+const updateHistogramWhenChaneScale = (
+    currentTraceData,
+    scaleOption = scaleOptionConst.COMMON,
+    sensorID = null,
+    tabPrefix = '',
+) => {
     if (tabPrefix === eles.varTabPrefix && !sensorID) {
         return;
     }
@@ -174,9 +217,11 @@ const updateHistogramWhenChaneScale = (currentTraceData, scaleOption = scaleOpti
     }
     if (!numChart) return;
 
-
     for (let i = 0; i < numChart; i++) {
-        const scaleInfo = getScaleInfo(currentTraceData.array_plotdata[sensorID][i], scaleOption);
+        const scaleInfo = getScaleInfo(
+            currentTraceData.array_plotdata[sensorID][i],
+            scaleOption,
+        );
         const kdeData = scaleInfo.kde_data;
         const yMax = scaleInfo['y-max'];
         const yMin = scaleInfo['y-min'];
@@ -191,10 +236,7 @@ const updateHistogramWhenChaneScale = (currentTraceData, scaleOption = scaleOpti
             x: kdeData.kde,
             ybins: { end: yMax, size: 128, start: yMin },
         };
-        const dataUpdate = [
-            histogram,
-            kdeDensity,
-        ];
+        const dataUpdate = [histogram, kdeDensity];
 
         const canvasId = `${tabPrefix}-${sensorID}-Histograms${i + 1}`;
         Plotly.update(canvasId, dataUpdate);

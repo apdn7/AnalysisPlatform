@@ -188,6 +188,14 @@ def init_engine(app, uri, **kwargs):
     def do_begin(dbapi_conn):
         dbapi_conn.execute('BEGIN IMMEDIATE')
 
+    @event.listens_for(db_engine, 'commit')
+    def do_expire(dbapi_conn):
+        """
+        Expire all objects in `db.session` everytime meta session perform a commit.
+        This makes `db.session` removes all cached and queries to database again to get the newest objects
+        """
+        db.session.expire_all()
+
     return db_engine
 
 
@@ -239,7 +247,8 @@ def create_app(object_name=None, is_main=False):
     from .sankey_plot import create_module as sankey_create_module
     from .scatter_plot import create_module as scatter_plot_create_module
     from .script.migrate_cfg_data_source_csv import migrate_cfg_data_source_csv
-    from .script.migrate_cfg_process import migrate_cfg_process_add_is_show_file_name
+    from .script.migrate_cfg_process import migrate_cfg_process
+    from .script.migrate_cfg_process_column import migrate_cfg_process_column
     from .script.migrate_csv_datatype import migrate_csv_datatype
     from .script.migrate_csv_dummy_datetime import migrate_csv_dummy_datetime
     from .script.migrate_csv_save_graph_settings import migrate_csv_save_graph_settings
@@ -386,7 +395,8 @@ def create_app(object_name=None, is_main=False):
         migrate_cfg_process_column_add_column_raw_name(app.config[APP_DB_FILE])
         migrate_cfg_process_column_add_column_type(app.config[APP_DB_FILE])
         migrate_cfg_process_column_add_parent_id(app.config[APP_DB_FILE])
-        migrate_cfg_process_add_is_show_file_name(app.config[APP_DB_FILE])
+        migrate_cfg_process_column(app.config[APP_DB_FILE])
+        migrate_cfg_process(app.config[APP_DB_FILE])
 
         # migrate function data
         migrate_m_function_data(app.config[APP_DB_FILE])

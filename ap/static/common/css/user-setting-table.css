@@ -1,68 +1,70 @@
 #tblUserSetting {
-	width: 100% !important;
-	border-collapse: collapse;
-	background: #303030;
-	font-size: 16px;
+    width: 100% !important;
+    border-collapse: collapse;
+    background: #303030;
+    font-size: 16px;
 }
 
 #tblUserSetting thead {
-	background: #303030;
+    background: #303030;
 }
 
 #tblUserSetting thead tr:nth-last-child(1) {
-	box-shadow: inset 0 1px 0 #444, inset 0 0 0 #444;
+    box-shadow:
+        inset 0 1px 0 #444,
+        inset 0 0 0 #444;
 }
 
 #tblUserSetting thead th {
-	padding: 5px !important;
-	font-weight: bold;
-	text-align: center;
+    padding: 5px !important;
+    font-weight: bold;
+    text-align: center;
 }
 
 #tblUserSetting thead input {
-	height: auto;
-	padding: 3px 5px;
+    height: auto;
+    padding: 3px 5px;
 }
 #tblUserSetting .no-footer {
-	border-bottom: none;
+    border-bottom: none;
 }
 
 #tblUserSetting tbody th,
-#tblUserSetting tbody td{
+#tblUserSetting tbody td {
     padding: 3px 5px;
     /*min-width: 50px;*/
     /*text-align: center;*/
-	border: 1px solid #444;
-	position: static;
+    border: 1px solid #444;
+    position: static;
 }
 #tblUserSetting tbody td.action {
-	text-align: center;
+    text-align: center;
 }
 
 #tblUserSetting tbody tr {
-	background: #303030;
+    background: #303030;
 }
 
 #tblUserSetting tbody tr:hover {
-	border: 1.1px solid white !important;
+    border: 1.1px solid white !important;
 }
 
-#tblUserSetting th:nth-child(2){
-	min-width: 65px !important;
+#tblUserSetting th:nth-child(2) {
+    min-width: 65px !important;
 }
-#tblUserSetting th:nth-child(3){
+#tblUserSetting th:nth-child(3) {
     width: 100px !important;
 }
 
 #tblUserSetting th:nth-child(6),
 #tblUserSetting th:nth-child(7),
-#tblUserSetting th:nth-child(8){
+#tblUserSetting th:nth-child(8) {
     width: 70px !important;
 }
 
-#tblUserSetting td:nth-child(5){
+#tblUserSetting td:nth-child(5) {
     /*width: 180px !important;*/
-	font-size: 16px;
+    font-size: 16px;
 }
 .col-date {
     width: 150px;
@@ -71,22 +73,22 @@
     min-width: 70px !important;
 }
 
-#tblUserSetting th:last-child{
+#tblUserSetting th:last-child {
     width: 200px !important;
 }
 
-#tblUserSetting button{
+#tblUserSetting button {
     font-size: 12px !important;
     padding-left: 8px !important;
     padding-right: 8px !important;
 }
 
 #tblUserSetting select {
-	font-size: 16px;
+    font-size: 16px;
 }
 
 #tblUserSetting td:nth-child(1),
 #tblUserSetting td:nth-child(2),
-#tblUserSetting td:nth-child(5){
+#tblUserSetting td:nth-child(5) {
     text-align: center;
 }

@@ -4,37 +4,49 @@ const generateCircles = (json) => {
     // sigma
     const dataSigmaX = getNode(json, ['circles', 'Sigma', 'x']) || [];
     const dataSigmaY = getNode(json, ['circles', 'Sigma', 'y']) || [];
-    const dataSigmaText = dataSigmaX.map(
-        (ele, idx) => `border: Sigma<br />xvar: ${ele}<br />yvar: ${dataSigmaY[idx]}`,
-    ) || [];
+    const dataSigmaText =
+        dataSigmaX.map(
+            (ele, idx) =>
+                `border: Sigma<br />xvar: ${ele}<br />yvar: ${dataSigmaY[idx]}`,
+        ) || [];
 
     // 2sigma
     const data2SigmaX = getNode(json, ['circles', '2Sigma', 'x']) || [];
     const data2SigmaY = getNode(json, ['circles', '2Sigma', 'y']) || [];
-    const data2SigmaText = data2SigmaX.map(
-        (ele, idx) => `border: 2Sigma<br />xvar: ${ele}<br />yvar: ${data2SigmaY[idx]}`,
-    ) || [];
+    const data2SigmaText =
+        data2SigmaX.map(
+            (ele, idx) =>
+                `border: 2Sigma<br />xvar: ${ele}<br />yvar: ${data2SigmaY[idx]}`,
+        ) || [];
 
     // 3sigma
     const data3SigmaX = getNode(json, ['circles', '3Sigma', 'x']) || [];
     const data3SigmaY = getNode(json, ['circles', '3Sigma', 'y']) || [];
-    const data3SigmaText = data3SigmaX.map(
-        (ele, idx) => `border: 3Sigma<br />xvar: ${ele}<br />yvar: ${data3SigmaY[idx]}`,
-    ) || [];
+    const data3SigmaText =
+        data3SigmaX.map(
+            (ele, idx) =>
+                `border: 3Sigma<br />xvar: ${ele}<br />yvar: ${data3SigmaY[idx]}`,
+        ) || [];
 
     // Range
     const dataRangeX = getNode(json, ['circles', 'Range', 'x']) || [];
     const dataRangeY = getNode(json, ['circles', 'Range', 'y']) || [];
-    const dataRangeText = dataRangeX.map(
-        (ele, idx) => `border: Range<br />xvar: ${ele}<br />yvar: ${dataRangeY[idx]}`,
-    ) || [];
+    const dataRangeText =
+        dataRangeX.map(
+            (ele, idx) =>
+                `border: Range<br />xvar: ${ele}<br />yvar: ${dataRangeY[idx]}`,
+        ) || [];
 
     // Parcentile 0.85
-    const dataParcentileX = getNode(json, ['circles', 'Percentile85', 'x']) || [];
-    const dataParcentileY = getNode(json, ['circles', 'Percentile85', 'y']) || [];
-    const dataParcentileText = dataParcentileX.map(
-        (ele, idx) => `border: Percentile 0.85<br />xvar: ${ele}<br />yvar: ${dataParcentileY[idx]}`,
-    ) || [];
+    const dataParcentileX =
+        getNode(json, ['circles', 'Percentile85', 'x']) || [];
+    const dataParcentileY =
+        getNode(json, ['circles', 'Percentile85', 'y']) || [];
+    const dataParcentileText =
+        dataParcentileX.map(
+            (ele, idx) =>
+                `border: Percentile 0.85<br />xvar: ${ele}<br />yvar: ${dataParcentileY[idx]}`,
+        ) || [];
 
     // axis label
     const axislab = getNode(json, ['axislab']) || ['PC1', 'PC2'];
@@ -59,14 +71,16 @@ const generateCircles = (json) => {
     };
 };
 
-
 const generateXTrainScatter = (json) => {
     if (!json) return {};
 
     // scatter
     const dataScatterX = getNode(json, ['scatter', 'x']) || [];
     const dataScatterY = getNode(json, ['scatter', 'y']) || [];
-    const dataScatterText = dataScatterX.map((ele, idx) => `'xvar: ${ele}<br />yvar: ${dataScatterY[idx]}'`) || [];
+    const dataScatterText =
+        dataScatterX.map(
+            (ele, idx) => `'xvar: ${ele}<br />yvar: ${dataScatterY[idx]}'`,
+        ) || [];
 
     const {
         dataSigmaX,
@@ -88,159 +102,167 @@ const generateXTrainScatter = (json) => {
     } = generateCircles(json);
 
     return {
-        data: [{
-            x: dataScatterX,
-            y: dataScatterY,
-            text: dataScatterText,
-            type: 'scatter',
-            mode: 'markers',
-            marker: {
-                autocolorscale: false,
-                color: 'white',
-                opacity: 0.5,
-                size: 3.02362204724409,
-                symbol: 'circle',
+        data: [
+            {
+                x: dataScatterX,
+                y: dataScatterY,
+                text: dataScatterText,
+                type: 'scatter',
+                mode: 'markers',
+                marker: {
+                    autocolorscale: false,
+                    color: 'white',
+                    opacity: 0.5,
+                    size: 3.02362204724409,
+                    symbol: 'circle',
+                    line: {
+                        width: 1.88976377952756,
+                        color: 'rgba(255,255,255,1)',
+                    },
+                },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: dataSigmaX,
+                y: dataSigmaY,
+                text: dataSigmaText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(204,229,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: 'Sigma',
+                legendgroup: 'Sigma',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: data2SigmaX,
+                y: data2SigmaY,
+                text: data2SigmaText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(153,204,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: '2Sigma',
+                legendgroup: '2Sigma',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: data3SigmaX,
+                y: data3SigmaY,
+                text: data3SigmaText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(102,178,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: '3Sigma',
+                legendgroup: '3Sigma',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: dataRangeX,
+                y: dataRangeY,
+                text: dataRangeText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(30,144,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: 'Range',
+                legendgroup: 'Range',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: dataParcentileX,
+                y: dataParcentileY,
+                text: dataParcentileText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(255,52,179,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: 'Parcentile 0.85',
+                legendgroup: 'Parcentile 0.85',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: [0, 0],
+                y: [-3.51416158802218, 3.51416158802218],
+                text: 'xintercept: 0',
+                type: 'scatter',
+                mode: 'lines',
                 line: {
                     width: 1.88976377952756,
-                    color: 'rgba(255,255,255,1)',
+                    color: 'rgba(64,64,64,1)',
+                    dash: 'solid',
                 },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: dataSigmaX,
-            y: dataSigmaY,
-            text: dataSigmaText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(204,229,255,1)',
-                dash: 'solid',
+            {
+                x: [-3.5156396748279, 3.50907246263227],
+                y: [0, 0],
+                text: 'yintercept: 0',
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.88976377952756,
+                    color: 'rgba(64,64,64,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            name: 'Sigma',
-            legendgroup: 'Sigma',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: data2SigmaX,
-            y: data2SigmaY,
-            text: data2SigmaText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(153,204,255,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            name: '2Sigma',
-            legendgroup: '2Sigma',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: data3SigmaX,
-            y: data3SigmaY,
-            text: data3SigmaText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(102,178,255,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            name: '3Sigma',
-            legendgroup: '3Sigma',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: dataRangeX,
-            y: dataRangeY,
-            text: dataRangeText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(30,144,255,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            name: 'Range',
-            legendgroup: 'Range',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: dataParcentileX,
-            y: dataParcentileY,
-            text: dataParcentileText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(255,52,179,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            name: 'Parcentile 0.85',
-            legendgroup: 'Parcentile 0.85',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: [0, 0],
-            y: [-3.51416158802218, 3.51416158802218],
-            text: 'xintercept: 0',
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.88976377952756,
-                color: 'rgba(64,64,64,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: [-3.5156396748279, 3.50907246263227],
-            y: [0, 0],
-            text: 'yintercept: 0',
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.88976377952756,
-                color: 'rgba(64,64,64,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        },
         ],
         layout: {
             margin: {
@@ -341,21 +363,22 @@ const generateXTrainScatter = (json) => {
                 scaleratio: 1,
                 hoverformat: '.2f',
             },
-            shapes: [{
-                type: 'rect',
-                fillcolor: null,
-                line: {
-                    color: null,
-                    width: 0,
-                    linetype: [],
+            shapes: [
+                {
+                    type: 'rect',
+                    fillcolor: null,
+                    line: {
+                        color: null,
+                        width: 0,
+                        linetype: [],
+                    },
+                    yref: 'paper',
+                    xref: 'paper',
+                    x0: 0,
+                    x1: 1,
+                    y0: 0,
+                    y1: 1,
                 },
-                yref: 'paper',
-                xref: 'paper',
-                x0: 0,
-                x1: 1,
-                y0: 0,
-                y1: 1,
-            },
             ],
             showlegend: true,
             legend: {
@@ -369,25 +392,26 @@ const generateXTrainScatter = (json) => {
                 xanchor: 'right',
                 tracegroupgap: 3,
             },
-            annotations: [{
-                text: 'Guide',
-                x: 1.02,
-                y: 1,
-                showarrow: false,
-                ax: 0,
-                ay: 0,
-                font: {
-                    color: 'rgba(255,255,255,1)',
-                    family: '',
-                    size: 13.2835201328352,
+            annotations: [
+                {
+                    text: 'Guide',
+                    x: 1.02,
+                    y: 1,
+                    showarrow: false,
+                    ax: 0,
+                    ay: 0,
+                    font: {
+                        color: 'rgba(255,255,255,1)',
+                        family: '',
+                        size: 13.2835201328352,
+                    },
+                    xref: 'paper',
+                    yref: 'paper',
+                    textangle: 0,
+                    xanchor: 'left',
+                    yanchor: 'bottom',
+                    legendTitle: true,
                 },
-                xref: 'paper',
-                yref: 'paper',
-                textangle: 0,
-                xanchor: 'left',
-                yanchor: 'bottom',
-                legendTitle: true,
-            },
             ],
             hovermode: 'closest',
             barmode: 'relative',
@@ -436,7 +460,19 @@ const generateXTrainScatter = (json) => {
             },
             debounce: 0,
         },
-        shinyEvents: ['plotly_hover', 'plotly_click', 'plotly_selected', 'plotly_relayout', 'plotly_brushed', 'plotly_brushing', 'plotly_clickannotation', 'plotly_doubleclick', 'plotly_deselect', 'plotly_afterplot', 'plotly_sunburstclick'],
+        shinyEvents: [
+            'plotly_hover',
+            'plotly_click',
+            'plotly_selected',
+            'plotly_relayout',
+            'plotly_brushed',
+            'plotly_brushing',
+            'plotly_clickannotation',
+            'plotly_doubleclick',
+            'plotly_deselect',
+            'plotly_afterplot',
+            'plotly_sunburstclick',
+        ],
         base_url: 'https://plot.ly',
     };
 };
@@ -447,7 +483,10 @@ const generateXTestScatter = (json, jsonTrain) => {
     // scatter
     const dataScatterX = getNode(json, ['scatter', 'x']) || [];
     const dataScatterY = getNode(json, ['scatter', 'y']) || [];
-    const dataScatterText = dataScatterX.map((ele, idx) => `'xvar: ${ele}<br />yvar: ${dataScatterY[idx]}'`) || [];
+    const dataScatterText =
+        dataScatterX.map(
+            (ele, idx) => `'xvar: ${ele}<br />yvar: ${dataScatterY[idx]}'`,
+        ) || [];
 
     const {
         dataSigmaX,
@@ -468,161 +507,168 @@ const generateXTestScatter = (json, jsonTrain) => {
         axislab,
     } = generateCircles(jsonTrain);
 
-
     return {
-        data: [{
-            x: dataScatterX,
-            y: dataScatterY,
-            text: dataScatterText,
-            type: 'scatter',
-            mode: 'markers',
-            marker: {
-                autocolorscale: false,
-                color: 'rgba(255,165,0,1)',
-                opacity: 0.5,
-                size: 3.02362204724409,
-                symbol: 'square',
+        data: [
+            {
+                x: dataScatterX,
+                y: dataScatterY,
+                text: dataScatterText,
+                type: 'scatter',
+                mode: 'markers',
+                marker: {
+                    autocolorscale: false,
+                    color: 'rgba(255,165,0,1)',
+                    opacity: 0.5,
+                    size: 3.02362204724409,
+                    symbol: 'square',
+                    line: {
+                        width: 1.88976377952756,
+                        color: 'rgba(255,165,0,1)',
+                    },
+                },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: dataSigmaX,
+                y: dataSigmaY,
+                text: dataSigmaText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(204,229,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: 'Sigma',
+                legendgroup: 'Sigma',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: data2SigmaX,
+                y: data2SigmaY,
+                text: data2SigmaText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(153,204,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: '2Sigma',
+                legendgroup: '2Sigma',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: data3SigmaX,
+                y: data3SigmaY,
+                text: data3SigmaText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(102,178,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: '3Sigma',
+                legendgroup: '3Sigma',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: dataRangeX,
+                y: dataRangeY,
+                text: dataRangeText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(30,144,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: 'Range',
+                legendgroup: 'Range',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: dataParcentileX,
+                y: dataParcentileY,
+                text: dataParcentileText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(255,52,179,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: 'Parcentile 0.85',
+                legendgroup: 'Parcentile 0.85',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: [0, 0],
+                y: [-3.94029493306541, 3.94029493306541],
+                text: 'xintercept: 0',
+                type: 'scatter',
+                mode: 'lines',
                 line: {
                     width: 1.88976377952756,
-                    color: 'rgba(255,165,0,1)',
+                    color: 'rgba(64,64,64,1)',
+                    dash: 'solid',
                 },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: dataSigmaX,
-            y: dataSigmaY,
-            text: dataSigmaText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(204,229,255,1)',
-                dash: 'solid',
+            {
+                x: [-3.94195225524749, 3.9345886914811],
+                y: [0, 0],
+                text: 'yintercept: 0',
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.88976377952756,
+                    color: 'rgba(64,64,64,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            name: 'Sigma',
-            legendgroup: 'Sigma',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: data2SigmaX,
-            y: data2SigmaY,
-            text: data2SigmaText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(153,204,255,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            name: '2Sigma',
-            legendgroup: '2Sigma',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: data3SigmaX,
-            y: data3SigmaY,
-            text: data3SigmaText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(102,178,255,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            name: '3Sigma',
-            legendgroup: '3Sigma',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: dataRangeX,
-            y: dataRangeY,
-            text: dataRangeText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(30,144,255,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            name: 'Range',
-            legendgroup: 'Range',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: dataParcentileX,
-            y: dataParcentileY,
-            text: dataParcentileText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(255,52,179,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            name: 'Parcentile 0.85',
-            legendgroup: 'Parcentile 0.85',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: [0, 0],
-            y: [-3.94029493306541, 3.94029493306541],
-            text: 'xintercept: 0',
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.88976377952756,
-                color: 'rgba(64,64,64,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: [-3.94195225524749, 3.9345886914811],
-            y: [0, 0],
-            text: 'yintercept: 0',
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.88976377952756,
-                color: 'rgba(64,64,64,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        },
         ],
         layout: {
             margin: {
@@ -722,21 +768,22 @@ const generateXTestScatter = (json, jsonTrain) => {
                 scaleratio: 1,
                 hoverformat: '.2f',
             },
-            shapes: [{
-                type: 'rect',
-                fillcolor: null,
-                line: {
-                    color: null,
-                    width: 0,
-                    linetype: [],
+            shapes: [
+                {
+                    type: 'rect',
+                    fillcolor: null,
+                    line: {
+                        color: null,
+                        width: 0,
+                        linetype: [],
+                    },
+                    yref: 'paper',
+                    xref: 'paper',
+                    x0: 0,
+                    x1: 1,
+                    y0: 0,
+                    y1: 1,
                 },
-                yref: 'paper',
-                xref: 'paper',
-                x0: 0,
-                x1: 1,
-                y0: 0,
-                y1: 1,
-            },
             ],
             showlegend: false,
             legend: {
@@ -795,9 +842,19 @@ const generateXTestScatter = (json, jsonTrain) => {
             },
             debounce: 0,
         },
-        shinyEvents: ['plotly_hover', 'plotly_click', 'plotly_selected', 'plotly_relayout', 'plotly_brushed',
-            'plotly_brushing', 'plotly_clickannotation', 'plotly_doubleclick', 'plotly_deselect',
-            'plotly_afterplot', 'plotly_sunburstclick'],
+        shinyEvents: [
+            'plotly_hover',
+            'plotly_click',
+            'plotly_selected',
+            'plotly_relayout',
+            'plotly_brushed',
+            'plotly_brushing',
+            'plotly_clickannotation',
+            'plotly_doubleclick',
+            'plotly_deselect',
+            'plotly_afterplot',
+            'plotly_sunburstclick',
+        ],
         base_url: 'https://plot.ly',
     };
 };
@@ -813,9 +870,11 @@ const generateBiplot = (json, jsonTrain, sampleNo = null) => {
     const angle = getNode(json, ['angle']) || [];
     const hjust = getNode(json, ['hjust']) || [];
     const varname = getNode(json, ['varname']) || [];
-    const sensorHoverText = dataX.map(
-        (ele, i) => `xvar: ${ele}<br />yvar:  ${dataY[i]}<br />varname: ${varname[i]}<br />angle: ${angle[i]}<br />hjust:  ${hjust[i]}`,
-    ) || [];
+    const sensorHoverText =
+        dataX.map(
+            (ele, i) =>
+                `xvar: ${ele}<br />yvar:  ${dataY[i]}<br />varname: ${varname[i]}<br />angle: ${angle[i]}<br />hjust:  ${hjust[i]}`,
+        ) || [];
 
     const vectorX = [];
     dataX.forEach((x, i) => {
@@ -833,12 +892,19 @@ const generateBiplot = (json, jsonTrain, sampleNo = null) => {
         }
         vectorY.push(0);
         vectorY.push(x);
-        vectorText.push(`x: 0<br />y: 0<br />xvar: ${dataX[i]}<br />yvar:  ${dataY[i]}`);
-        vectorText.push(`x: 0<br />y: 0<br />xvar: ${dataX[i]}<br />yvar:  ${dataY[i]}`);
+        vectorText.push(
+            `x: 0<br />y: 0<br />xvar: ${dataX[i]}<br />yvar:  ${dataY[i]}`,
+        );
+        vectorText.push(
+            `x: 0<br />y: 0<br />xvar: ${dataX[i]}<br />yvar:  ${dataY[i]}`,
+        );
     });
 
     // clickedPoint
-    const clickedPoint = getNode(json, ['clicked_point']) || { x: [null], y: [null] };
+    const clickedPoint = getNode(json, ['clicked_point']) || {
+        x: [null],
+        y: [null],
+    };
 
     const {
         dataSigmaX,
@@ -860,193 +926,203 @@ const generateBiplot = (json, jsonTrain, sampleNo = null) => {
     } = generateCircles(jsonTrain);
 
     return {
-        data: [{
-            x: dataSigmaX,
-            y: dataSigmaY,
-            text: dataSigmaText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(204,229,255,1)',
-                dash: 'solid',
+        data: [
+            {
+                x: dataSigmaX,
+                y: dataSigmaY,
+                text: dataSigmaText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(204,229,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: 'Sigma',
+                legendgroup: 'Sigma',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            name: 'Sigma',
-            legendgroup: 'Sigma',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: data2SigmaX,
-            y: data2SigmaY,
-            text: data2SigmaText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(153,204,255,1)',
-                dash: 'solid',
+            {
+                x: data2SigmaX,
+                y: data2SigmaY,
+                text: data2SigmaText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(153,204,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: '2Sigma',
+                legendgroup: '2Sigma',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            name: '2Sigma',
-            legendgroup: '2Sigma',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: data3SigmaX,
-            y: data3SigmaY,
-            text: data3SigmaText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(102,178,255,1)',
-                dash: 'solid',
+            {
+                x: data3SigmaX,
+                y: data3SigmaY,
+                text: data3SigmaText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(102,178,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: '3Sigma',
+                legendgroup: '3Sigma',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            name: '3Sigma',
-            legendgroup: '3Sigma',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: dataRangeX,
-            y: dataRangeY,
-            text: dataRangeText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(30,144,255,1)',
-                dash: 'solid',
+            {
+                x: dataRangeX,
+                y: dataRangeY,
+                text: dataRangeText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(30,144,255,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: 'Range',
+                legendgroup: 'Range',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            name: 'Range',
-            legendgroup: 'Range',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: dataParcentileX,
-            y: dataParcentileY,
-            text: dataParcentileText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.13385826771654,
-                color: 'rgba(255,52,179,1)',
-                dash: 'solid',
+            {
+                x: dataParcentileX,
+                y: dataParcentileY,
+                text: dataParcentileText,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.13385826771654,
+                    color: 'rgba(255,52,179,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                name: 'Parcentile 0.85',
+                legendgroup: 'Parcentile 0.85',
+                showlegend: true,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            name: 'Parcentile 0.85',
-            legendgroup: 'Parcentile 0.85',
-            showlegend: true,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: vectorX,
-            y: vectorY,
-            text: vectorText,
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.88976377952756,
-                color: 'rgba(255,192,203,1)',
-                dash: 'solid',
-            },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: dataX.map(x => x * 2),
-            y: dataY.map(y => y * 2),
-            text: varname,
-            hovertext: sensorHoverText,
-            textfont: {
-                size: 11.3385826771654,
-                color: 'rgba(255,255,255,1)',
-            },
-            type: 'scatter',
-            mode: 'text',
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: clickedPoint.x,
-            y: clickedPoint.y,
-            text: `xvar: ${clickedPoint.x[0]}<br />yvar: ${clickedPoint.y[0]}`,
-            type: 'scatter',
-            mode: 'markers',
-            marker: {
-                autocolorscale: false,
-                color: 'rgba(255,165,0,1)',
-                opacity: 0.5,
-                size: 11.3385826771654,
-                symbol: 'square',
+            {
+                x: vectorX,
+                y: vectorY,
+                text: vectorText,
+                type: 'scatter',
+                mode: 'lines',
                 line: {
                     width: 1.88976377952756,
-                    color: 'rgba(255,165,0,1)',
+                    color: 'rgba(255,192,203,1)',
+                    dash: 'solid',
                 },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: [0, 0],
-            y: [-4.07856844526106, 6.84403868917397],
-            text: 'xintercept: 0',
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.88976377952756,
-                color: 'rgba(64,64,64,1)',
-                dash: 'solid',
+            {
+                x: dataX.map((x) => x * 2),
+                y: dataY.map((y) => y * 2),
+                text: varname,
+                hovertext: sensorHoverText,
+                textfont: {
+                    size: 11.3385826771654,
+                    color: 'rgba(255,255,255,1)',
+                },
+                type: 'scatter',
+                mode: 'text',
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        }, {
-            x: [-5.82714314845274, 5.83842812409785],
-            y: [0, 0],
-            text: 'yintercept: 0',
-            type: 'scatter',
-            mode: 'lines',
-            line: {
-                width: 1.88976377952756,
-                color: 'rgba(64,64,64,1)',
-                dash: 'solid',
+            {
+                x: clickedPoint.x,
+                y: clickedPoint.y,
+                text: `xvar: ${clickedPoint.x[0]}<br />yvar: ${clickedPoint.y[0]}`,
+                type: 'scatter',
+                mode: 'markers',
+                marker: {
+                    autocolorscale: false,
+                    color: 'rgba(255,165,0,1)',
+                    opacity: 0.5,
+                    size: 11.3385826771654,
+                    symbol: 'square',
+                    line: {
+                        width: 1.88976377952756,
+                        color: 'rgba(255,165,0,1)',
+                    },
+                },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
             },
-            hoveron: 'points',
-            showlegend: false,
-            xaxis: 'x',
-            yaxis: 'y',
-            hoverinfo: 'text',
-            frame: null,
-        },
+            {
+                x: [0, 0],
+                y: [-4.07856844526106, 6.84403868917397],
+                text: 'xintercept: 0',
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.88976377952756,
+                    color: 'rgba(64,64,64,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
+            {
+                x: [-5.82714314845274, 5.83842812409785],
+                y: [0, 0],
+                text: 'yintercept: 0',
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    width: 1.88976377952756,
+                    color: 'rgba(64,64,64,1)',
+                    dash: 'solid',
+                },
+                hoveron: 'points',
+                showlegend: false,
+                xaxis: 'x',
+                yaxis: 'y',
+                hoverinfo: 'text',
+                frame: null,
+            },
         ],
         layout: {
             margin: {
@@ -1156,21 +1232,22 @@ const generateBiplot = (json, jsonTrain, sampleNo = null) => {
                 scaleratio: 1,
                 hoverformat: '.2f',
             },
-            shapes: [{
-                type: 'rect',
-                fillcolor: null,
-                line: {
-                    color: null,
-                    width: 0,
-                    linetype: [],
+            shapes: [
+                {
+                    type: 'rect',
+                    fillcolor: null,
+                    line: {
+                        color: null,
+                        width: 0,
+                        linetype: [],
+                    },
+                    yref: 'paper',
+                    xref: 'paper',
+                    x0: 0,
+                    x1: 1,
+                    y0: 0,
+                    y1: 1,
                 },
-                yref: 'paper',
-                xref: 'paper',
-                x0: 0,
-                x1: 1,
-                y0: 0,
-                y1: 1,
-            },
             ],
             showlegend: true,
             legend: {
@@ -1184,25 +1261,26 @@ const generateBiplot = (json, jsonTrain, sampleNo = null) => {
                 },
                 y: 0.940944881889764,
             },
-            annotations: [{
-                text: 'Guide',
-                x: 1.02,
-                y: 1,
-                showarrow: false,
-                ax: 0,
-                ay: 0,
-                font: {
-                    color: 'rgba(255,255,255,1)',
-                    family: '',
-                    size: 13.2835201328352,
+            annotations: [
+                {
+                    text: 'Guide',
+                    x: 1.02,
+                    y: 1,
+                    showarrow: false,
+                    ax: 0,
+                    ay: 0,
+                    font: {
+                        color: 'rgba(255,255,255,1)',
+                        family: '',
+                        size: 13.2835201328352,
+                    },
+                    xref: 'paper',
+                    yref: 'paper',
+                    textangle: -0,
+                    xanchor: 'left',
+                    yanchor: 'bottom',
+                    legendTitle: true,
                 },
-                xref: 'paper',
-                yref: 'paper',
-                textangle: -0,
-                xanchor: 'left',
-                yanchor: 'bottom',
-                legendTitle: true,
-            },
             ],
             hovermode: 'closest',
             barmode: 'relative',
@@ -1264,7 +1342,19 @@ const generateBiplot = (json, jsonTrain, sampleNo = null) => {
             },
             debounce: 0,
         },
-        shinyEvents: ['plotly_hover', 'plotly_click', 'plotly_selected', 'plotly_relayout', 'plotly_brushed', 'plotly_brushing', 'plotly_clickannotation', 'plotly_doubleclick', 'plotly_deselect', 'plotly_afterplot', 'plotly_sunburstclick'],
+        shinyEvents: [
+            'plotly_hover',
+            'plotly_click',
+            'plotly_selected',
+            'plotly_relayout',
+            'plotly_brushed',
+            'plotly_brushing',
+            'plotly_clickannotation',
+            'plotly_doubleclick',
+            'plotly_deselect',
+            'plotly_afterplot',
+            'plotly_sunburstclick',
+        ],
         base_url: 'https://plot.ly',
     };
 };

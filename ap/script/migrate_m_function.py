@@ -2,11 +2,10 @@ import os
 
 import numpy as np
 import pandas as pd
-
-from ap.common.common_utils import get_dummy_data_path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+from ap.common.common_utils import get_dummy_data_path
 from ap.common.pydn.dblib import sqlite
 
 
@@ -49,6 +48,24 @@ def migrate_existing_m_funcions(app_db_src):
     app_db.disconnect()
 
 
+def update_data_type_for_function_column_and_remove_unused_column(app_db_src):
+    from ap.setting_module.models import CfgProcessFunctionColumn
+
+    app_db = sqlite.SQLite3(app_db_src)
+    app_db.connect()
+    # remove unused column
+    for col in ['coe_a_n_s', 'coe_b_k_t', 'coe_c']:
+        table = CfgProcessFunctionColumn.__tablename__
+        is_col_existing = app_db.is_column_existing(table, col)
+        if is_col_existing:
+            app_db.execute_sql(
+                f'''
+                ALTER TABLE {table} DROP COLUMN {col};
+                ''',
+            )
+    app_db.disconnect()
+
+
 def migrate_m_function_data(app_db_src):
     from ap.setting_module.models import MFunction
 
@@ -88,3 +105,5 @@ def migrate_m_function_data(app_db_src):
         session.add_all([MFunction(**r) for r in records])
         session.commit()
         session.close()
+
+    update_data_type_for_function_column_and_remove_unused_column(app_db_src)

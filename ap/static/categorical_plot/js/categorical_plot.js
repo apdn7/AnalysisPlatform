@@ -1,13 +1,13 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-/* eslint-disable no-use-before-define */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 32;
 const MAX_NUMBER_OF_SENSOR = 8;
 const MIN_NUMBER_OF_SENSOR = 0;
-// eslint-disable-next-line prefer-const
-const dicTabs = {'#byVarCompare': 'var', '#byTermCompare': 'term', '#byCyclicTerm': 'cyclicTerm'};
+
+const dicTabs = {
+    '#byVarCompare': 'var',
+    '#byTermCompare': 'term',
+    '#byCyclicTerm': 'cyclicTerm',
+};
 let currentTraceDataVar;
 let currentTraceDataTerm;
 let currentTraceDataCyclicTerm;
@@ -77,7 +77,6 @@ const eles = {
     stratifiedTabs: '.stratifiedTabs',
 };
 
-
 const formElements = {
     NO_FILTER: 'NO_FILTER',
     BY_VAR: 'var',
@@ -87,7 +86,6 @@ const formElements = {
     endProcSelectedItem: '#end-proc-row select',
     condProcSelectedItem: '#varcond-proc-row select',
 };
-
 
 const i18n = {
     yLabelKDE: $('#i18nKDE').text(),
@@ -152,7 +150,9 @@ $(() => {
 
     // add first condition process
     const varCondProcItem = addCondProc(
-        endProcs.ids, endProcs.names, eles.varTabPrefix,
+        endProcs.ids,
+        endProcs.names,
+        eles.varTabPrefix,
         eles.mainFormId.replace('#', ''),
         'varbtn-add-cond-proc',
     );
@@ -200,64 +200,85 @@ const showScatterPlotImage = (fileNames) => {
     fileNames.forEach((e) => {
         imgs += `<img src="/ap/api/stp/image/${e}" style="max-width: 100%">`;
     });
-    scatterPlotCard.html(`<div class="shadow-sm" style="text-align:center"> ${imgs} </div>`);
+    scatterPlotCard.html(
+        `<div class="shadow-sm" style="text-align:center"> ${imgs} </div>`,
+    );
 };
-
 
 const onChangeHistSummaryEventHandler = (eleIdPrefix = '') => {
     $(`input[name=${eleIdPrefix}${eles.summaryOption}]`).unbind('change');
-    $(`input[name=${eleIdPrefix}${eles.summaryOption}]`).on('change', function f() {
-        let summaryHeight = null;
-        const summaryClass = $(this).val();
-        const previousOption = $(`input[name=${eleIdPrefix}${eles.summaryOption}][data-checked=true]`);
-        if (summaryClass === 'none') {
-            $(`.${eleIdPrefix}.hist-summary`).each(function showHideSummary() {
-                $(this).css('display', 'none');
-            });
-            // if (previousOption.val() && previousOption.val() !== 'none') {
-            //     // rescale histogram
-            //     $(`.${eleIdPrefix}.his .hd-plot`).each(function reScaleHistogram() {
-            //         const histogramId = $(this).attr('id');
-            //         $(`#${histogramId}`).css('height', GRAPH_CONST.histHeight);
-            //         Plotly.relayout(histogramId, {});
-            //     });
-            // }
-            $(`.${eleIdPrefix}.his .hd-plot`).each(function reScaleHistogram() {
-                const histogramId = $(this).attr('id');
-                $(`#${histogramId}`).css('height', GRAPH_CONST.histHeight);
-                Plotly.relayout(histogramId, {});
-            });
+    $(`input[name=${eleIdPrefix}${eles.summaryOption}]`).on(
+        'change',
+        function f() {
+            let summaryHeight = null;
+            const summaryClass = $(this).val();
+            const previousOption = $(
+                `input[name=${eleIdPrefix}${eles.summaryOption}][data-checked=true]`,
+            );
+            if (summaryClass === 'none') {
+                $(`.${eleIdPrefix}.hist-summary`).each(
+                    function showHideSummary() {
+                        $(this).css('display', 'none');
+                    },
+                );
+                // if (previousOption.val() && previousOption.val() !== 'none') {
+                //     // rescale histogram
+                //     $(`.${eleIdPrefix}.his .hd-plot`).each(function reScaleHistogram() {
+                //         const histogramId = $(this).attr('id');
+                //         $(`#${histogramId}`).css('height', GRAPH_CONST.histHeight);
+                //         Plotly.relayout(histogramId, {});
+                //     });
+                // }
+                $(`.${eleIdPrefix}.his .hd-plot`).each(
+                    function reScaleHistogram() {
+                        const histogramId = $(this).attr('id');
+                        $(`#${histogramId}`).css(
+                            'height',
+                            GRAPH_CONST.histHeight,
+                        );
+                        Plotly.relayout(histogramId, {});
+                    },
+                );
 
-            // mark this option as checked and remove others
-            $(this).attr('data-checked', 'true');
-            $(`input[name=${eleIdPrefix}${eles.summaryOption}]:not(:checked)`).removeAttr('data-checked');
-        } else {
-            $(`.${eleIdPrefix}.hist-summary`).each(function showHideSummary() {
-                $(this).css('display', 'flex');
-                $(this).css('justify-content', 'center'); // to unify with FPP
-            });
+                // mark this option as checked and remove others
+                $(this).attr('data-checked', 'true');
+                $(
+                    `input[name=${eleIdPrefix}${eles.summaryOption}]:not(:checked)`,
+                ).removeAttr('data-checked');
+            } else {
+                $(`.${eleIdPrefix}.hist-summary`).each(
+                    function showHideSummary() {
+                        $(this).css('display', 'flex');
+                        $(this).css('justify-content', 'center'); // to unify with FPP
+                    },
+                );
 
-            $('.hist-summary-detail').each(function showUponOption() {
-                $(this).css('display', 'none');
-                if ($(this).hasClass(summaryClass)) {
-                    $(this).css('display', 'block');
-                    const h = $(this).height();
-                    summaryHeight = h < summaryHeight ? summaryHeight : h;
-                }
-            });
+                $('.hist-summary-detail').each(function showUponOption() {
+                    $(this).css('display', 'none');
+                    if ($(this).hasClass(summaryClass)) {
+                        $(this).css('display', 'block');
+                        const h = $(this).height();
+                        summaryHeight = h < summaryHeight ? summaryHeight : h;
+                    }
+                });
 
-            $(`.${eleIdPrefix}.his .hd-plot`).each(function reScaleHistogram() {
-                const histogramId = $(this).attr('id');
-                const chartHeight = `calc(${GRAPH_CONST.histHeight} - ${summaryHeight + 6}px)`;
-                $(`#${histogramId}`).css('height', chartHeight);
-                Plotly.relayout(histogramId, {});
-            });
+                $(`.${eleIdPrefix}.his .hd-plot`).each(
+                    function reScaleHistogram() {
+                        const histogramId = $(this).attr('id');
+                        const chartHeight = `calc(${GRAPH_CONST.histHeight} - ${summaryHeight + 6}px)`;
+                        $(`#${histogramId}`).css('height', chartHeight);
+                        Plotly.relayout(histogramId, {});
+                    },
+                );
 
-            // mark this option as checked and remove others
-            $(this).attr('data-checked', 'true');
-            $(`input[name=${eleIdPrefix}${eles.summaryOption}]:not(:checked)`).removeAttr('data-checked');
-        }
-    });
+                // mark this option as checked and remove others
+                $(this).attr('data-checked', 'true');
+                $(
+                    `input[name=${eleIdPrefix}${eles.summaryOption}]:not(:checked)`,
+                ).removeAttr('data-checked');
+            }
+        },
+    );
 };
 
 const onChangeHistScale = (prefix) => {
@@ -290,16 +311,20 @@ const rerenderHistogram = (prefix) => {
 };
 
 const showTabsAndCharts = (
-    eleIdPrefix, data,
+    eleIdPrefix,
+    data,
     genTab = true,
     onlySensorId = null,
 ) => {
     if (data == null) return;
     let sensors = [];
-    data.ARRAY_FORMVAL.forEach(arrayFormval => {
-        sensors = [...sensors, ...arrayFormval.GET02_VALS_SELECT.map(val => Number(val))]
-    })
-    if (typeof (sensors) === 'string') {
+    data.ARRAY_FORMVAL.forEach((arrayFormval) => {
+        sensors = [
+            ...sensors,
+            ...arrayFormval.GET02_VALS_SELECT.map((val) => Number(val)),
+        ];
+    });
+    if (typeof sensors === 'string') {
         sensors = [sensors];
     }
 
@@ -320,7 +345,10 @@ const showTabsAndCharts = (
     // /////////////// each sensor ////////////////////
     const startProc = data.COMMON.start_proc;
     for (let sensorIdx = 0; sensorIdx < numSensors; sensorIdx++) {
-        if (onlySensorId !== null && onlySensorId !== Number(sensors[sensorIdx])) {
+        if (
+            onlySensorId !== null &&
+            onlySensorId !== Number(sensors[sensorIdx])
+        ) {
             continue;
         }
         const tabId = `#${eleIdPrefix}${eles.categoryPlotCards}-${sensorIdx}`;
@@ -328,10 +356,13 @@ const showTabsAndCharts = (
         tabElement.empty();
         tabElement.css('display', 'block');
 
-
         const sensor = sensors[sensorIdx];
-        const sensorPlotDatas = eleIdPrefix !== 'directTerm' ? data.array_plotdata[sensor]
-            : data.array_plotdata.filter(plot => plot.end_col === Number(sensor));
+        const sensorPlotDatas =
+            eleIdPrefix !== 'directTerm'
+                ? data.array_plotdata[sensor]
+                : data.array_plotdata.filter(
+                      (plot) => plot.end_col === Number(sensor),
+                  );
         if (!sensorPlotDatas) {
             continue;
         }
@@ -339,16 +370,24 @@ const showTabsAndCharts = (
         // カラム名を取得する。
         const displayColName = sensorPlotDatas[0].end_col_name;
         const endProcName = sensorPlotDatas[0].end_proc_name;
-        const isCategory = sensorPlotDatas[0] ? sensorPlotDatas[0].is_category : false;
+        const isCategory = sensorPlotDatas[0]
+            ? sensorPlotDatas[0].is_category
+            : false;
         const allGroupNames = isCategory
-            ? getAllGroupOfSensor(sensorPlotDatas) : [];
+            ? getAllGroupOfSensor(sensorPlotDatas)
+            : [];
         const generalInfo = {
-            startProc, endProcName: endProcName,
+            startProc,
+            endProcName: endProcName,
         };
-        const isCatLimited = sensorPlotDatas[0] ? sensorPlotDatas[0].is_cat_limited : false;
+        const isCatLimited = sensorPlotDatas[0]
+            ? sensorPlotDatas[0].is_cat_limited
+            : false;
         if (isCatLimited) {
-            tabElement.closest('.tab-pane')
-                .find('.overlay-card').css('display', 'grid');
+            tabElement
+                .closest('.tab-pane')
+                .find('.overlay-card')
+                .css('display', 'grid');
         }
         // /////////////// each histogram ////////////////////
         for (let i = 0; i < numGraphs; i++) {
@@ -356,38 +395,78 @@ const showTabsAndCharts = (
             const termIdx = sensorPlotDatas[i].term_id || 0;
             const beforeRankValues = sensorPlotDatas[i].before_rank_values;
             const stepChartSummary = sensorPlotDatas[i].cat_summary || null;
-            const catExpBoxCols = [data.COMMON.catExpBox1, data.COMMON.catExpBox2].filter(c => c);
-            const filterCond = catExpBoxCols.length > 0
-                ? catExpValue.toString().split(' | ') : null;
+            const catExpBoxCols = [
+                data.COMMON.catExpBox1,
+                data.COMMON.catExpBox2,
+            ].filter((c) => c);
+            const filterCond =
+                catExpBoxCols.length > 0
+                    ? catExpValue.toString().split(' | ')
+                    : null;
             // get latest thresholds -> show thresholds in scatter, histogram, summary
-            const [chartInfos, chartInfosOrg] = getChartInfo(sensorPlotDatas[i], 'TIME', filterCond);
-            const [latestChartInfo, latestChartInfoIdx] = chooseLatestThresholds(chartInfos, chartInfosOrg);
+            const [chartInfos, chartInfosOrg] = getChartInfo(
+                sensorPlotDatas[i],
+                'TIME',
+                filterCond,
+            );
+            const [latestChartInfo, latestChartInfoIdx] =
+                chooseLatestThresholds(chartInfos, chartInfosOrg);
 
             const scaleInfo = getScaleInfo(sensorPlotDatas[i], scaleOption);
             // y_min/max are defined in backend -> get only
             const kdeData = scaleInfo.kde_data;
-            const [minY, maxY] = calMinMaxYScale(scaleInfo['y-min'], scaleInfo['y-max'], scaleOption);
-            const maxX = frequencyOption === frequencyOptions.COMMON ? scaleInfo['x-max'] : null;
-            const minX = frequencyOption === frequencyOptions.COMMON ? scaleInfo['x-min'] : null;
+            const [minY, maxY] = calMinMaxYScale(
+                scaleInfo['y-min'],
+                scaleInfo['y-max'],
+                scaleOption,
+            );
+            const maxX =
+                frequencyOption === frequencyOptions.COMMON
+                    ? scaleInfo['x-max']
+                    : null;
+            const minX =
+                frequencyOption === frequencyOptions.COMMON
+                    ? scaleInfo['x-min']
+                    : null;
 
             // produce summary data
-            const {summaries, end_col, end_proc_id} = sensorPlotDatas[i];
-            const isHideNonePoint = isHideNoneDataPoint(end_proc_id, end_col, data.COMMON.remove_outlier);
-            const summaryData = calculateSummaryData(summaries, latestChartInfoIdx, isHideNonePoint);
+            const { summaries, end_col, end_proc_id } = sensorPlotDatas[i];
+            const isHideNonePoint = isHideNoneDataPoint(
+                end_proc_id,
+                end_col,
+                data.COMMON.remove_outlier,
+            );
+            const summaryData = calculateSummaryData(
+                summaries,
+                latestChartInfoIdx,
+                isHideNonePoint,
+            );
 
             const isShowDate = eleIdPrefix !== eles.varTabPrefix;
             const timeCond = data.time_conds[termIdx];
 
             const chartTitle = buildSummaryChartTitle(
-                catExpValue, catExpBoxCols, sensorPlotDatas[i].catExpBoxName,
-                isShowDate, timeCond, true,
+                catExpValue,
+                catExpBoxCols,
+                sensorPlotDatas[i].catExpBoxName,
+                isShowDate,
+                timeCond,
+                true,
             );
 
             // create summaries HTMLs
-            const summariesHTML = buildSummaryResultsHTML(summaryData, i + 1, generalInfo, beforeRankValues, stepChartSummary,);
+            const summariesHTML = buildSummaryResultsHTML(
+                summaryData,
+                i + 1,
+                generalInfo,
+                beforeRankValues,
+                stepChartSummary,
+            );
             const histogramId = `${eleIdPrefix}-${sensor}-${eles.histograms}${i + 1}`;
-            const fromStartPrcClass = String(sensorPlotDatas[i].end_proc_id) === String(startProc)
-                ? ' card-active' : '';
+            const fromStartPrcClass =
+                String(sensorPlotDatas[i].end_proc_id) === String(startProc)
+                    ? ' card-active'
+                    : '';
             const cardHtml = `<div class="${eleIdPrefix} his graph-navi" id="${eles.histograms}${i + 1}">
                 <div class="his-content${fromStartPrcClass}">
                     ${chartTitle}
@@ -433,10 +512,14 @@ const showTabsAndCharts = (
         }
         // ////////////////////////////////////
         // report progress
-        loadingUpdate(loadingProgressBackend + sensorIdx * ((100 - loadingProgressBackend) / (numSensors || 1)));
+        loadingUpdate(
+            loadingProgressBackend +
+                sensorIdx *
+                    ((100 - loadingProgressBackend) / (numSensors || 1)),
+        );
     }
 
-     checkSummaryOption(`${eleIdPrefix}${eles.summaryOption}`);
+    checkSummaryOption(`${eleIdPrefix}${eles.summaryOption}`);
 
     // Init filter modal
     fillDataToFilterModal(data.filter_on_demand, () => {
@@ -464,7 +547,9 @@ const setNameWithPrefix = (prefix) => {
 const resetSetting = (eleIdPrefix) => {
     resetSummaryOption(`${eleIdPrefix}${eles.summaryOption}`);
 
-    $(`select[name=${eleIdPrefix}${eles.frequencyScale}]`).val(frequencyOptions.COMMON);
+    $(`select[name=${eleIdPrefix}${eles.frequencyScale}]`).val(
+        frequencyOptions.COMMON,
+    );
 
     $(`select[name=${eleIdPrefix}HistScale]`).val(scaleOptionConst.COMMON);
 };
@@ -480,7 +565,7 @@ const collectFormDataFromGUI = (clearOnFlyFilter, autoUpdate = false) => {
     }
     const traceForm = $(eles.mainFormId);
     let formData = new FormData(traceForm[0]);
-    
+
     const eleIdPrefix = $('select[name=compareType]').val();
     // collect form data
     if (clearOnFlyFilter) {
@@ -489,7 +574,7 @@ const collectFormDataFromGUI = (clearOnFlyFilter, autoUpdate = false) => {
         formData = reformatFormData(eleIdPrefix, formData);
         formData = genDatetimeRange(formData);
         lastUsedFormData = formData;
-        
+
         resetCheckedCats();
     } else {
         formData = lastUsedFormData;
@@ -501,78 +586,98 @@ const collectFormDataFromGUI = (clearOnFlyFilter, autoUpdate = false) => {
 const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
     requestStartedAt = performance.now();
     const eleIdPrefix = $('select[name=compareType]').val();
-    
-    const isValid = checkValidations({max: MAX_NUMBER_OF_SENSOR});
+
+    const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
     updateStyleOfInvalidElements();
     if (!isValid) return;
-    
+
     // close sidebar
     beforeShowGraphCommon(clearOnFlyFilter);
 
     if (clearOnFlyFilter) {
         // reset sumary option
         resetSetting(eleIdPrefix);
-    };
+    }
 
     const formData = collectFormDataFromGUI(clearOnFlyFilter, autoUpdate);
-    showGraphCallApi('/ap/api/stp/index', formData, REQUEST_TIMEOUT, async (res) => {
-        // set summary bar for prefix
-        setNameWithPrefix(eleIdPrefix);
+    showGraphCallApi(
+        '/ap/api/stp/index',
+        formData,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            // set summary bar for prefix
+            setNameWithPrefix(eleIdPrefix);
 
-        // show result section
-        $('#categoricalPlotArea').show();
+            // show result section
+            $('#categoricalPlotArea').show();
 
-        if (!_.isEmpty(res.array_plotdata)) {
-            graphStore.setTraceData(_.cloneDeep(res));
-            if (eleIdPrefix === eles.varTabPrefix) {
-                currentTraceDataVar = res;
-                showMessageIfFacetNotSelected(res);
-            } else if (eleIdPrefix === eles.termTabPrefix) {
-                currentTraceDataTerm = res;
-            } else {
-                currentTraceDataCyclicTerm = res;
+            if (!_.isEmpty(res.array_plotdata)) {
+                graphStore.setTraceData(_.cloneDeep(res));
+                if (eleIdPrefix === eles.varTabPrefix) {
+                    currentTraceDataVar = res;
+                    showMessageIfFacetNotSelected(res);
+                } else if (eleIdPrefix === eles.termTabPrefix) {
+                    currentTraceDataTerm = res;
+                } else {
+                    currentTraceDataCyclicTerm = res;
+                }
             }
-        }
 
-        setScaleOption(eleIdPrefix);
-    
-        // show graphs
-        // if (eleIdPrefix === eles.varTabPrefix || eleIdPrefix === eles.cyclicTermTabPrefix) {
-        showTabsAndCharts(eleIdPrefix, res);
-    
-        // show info table
-        showInfoTable(res);
-    
-        // Move screen to graph after pushing グラフ表示 button
-        if (!autoUpdate) {
-            $('html, body').animate({
-                scrollTop: $(`#${eles.categoryPlotCards}`).offset().top,
-            }, 500);
-        }
+            setScaleOption(eleIdPrefix);
 
-        // check result and show toastr msg
-        if (isEmpty(res.array_plotdata) || isEmpty(Object.values(res.array_plotdata)[0])) {
-            showToastrAnomalGraph();
-        }
+            // show graphs
+            // if (eleIdPrefix === eles.varTabPrefix || eleIdPrefix === eles.cyclicTermTabPrefix) {
+            showTabsAndCharts(eleIdPrefix, res);
 
-        // show limit graphs displayed in one tab message
-        if (res.isGraphLimited) {
-            showToastrMsg(i18nCommon.limitDisplayedGraphsInOneTab.replace('NUMBER', MAX_NUMBER_OF_GRAPH));
-        }
+            // show info table
+            showInfoTable(res);
 
-        // show scatter plot tab
-        const imgFile = res.images;
-        if (imgFile) {
-            showScatterPlotImage(imgFile);
-        }
-        setPollingData(formData, showGraph, [false, true]);
+            // Move screen to graph after pushing グラフ表示 button
+            if (!autoUpdate) {
+                $('html, body').animate(
+                    {
+                        scrollTop: getOffsetTopDisplayGraph(
+                            `#${eles.categoryPlotCards}`,
+                        ),
+                    },
+                    500,
+                );
+            }
 
-        // drag & drop for tables
-        $('.ui-sortable').sortable();
-    });
+            // check result and show toastr msg
+            if (
+                isEmpty(res.array_plotdata) ||
+                isEmpty(Object.values(res.array_plotdata)[0])
+            ) {
+                showToastrAnomalGraph();
+            }
+
+            // show limit graphs displayed in one tab message
+            if (res.isGraphLimited) {
+                showToastrMsg(
+                    i18nCommon.limitDisplayedGraphsInOneTab.replace(
+                        'NUMBER',
+                        MAX_NUMBER_OF_GRAPH,
+                    ),
+                );
+            }
+
+            // show scatter plot tab
+            const imgFile = res.images;
+            if (imgFile) {
+                showScatterPlotImage(imgFile);
+            }
+            setPollingData(formData, showGraph, [false, true]);
+
+            // drag & drop for tables
+            $('.ui-sortable').sortable();
+        },
+    );
 };
 
 const setScaleOption = (prefix) => {
     stpScaleOption.yAxis = $(`select[name=${prefix}${eles.histScale}]`).val();
-    stpScaleOption.xAxis = $(`select[name=${prefix}${eles.frequencyScale}]`).val();
+    stpScaleOption.xAxis = $(
+        `select[name=${prefix}${eles.frequencyScale}]`,
+    ).val();
 };

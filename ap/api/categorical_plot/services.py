@@ -883,7 +883,8 @@ def gen_graph_cyclic(graph_param, dic_param, terms, max_graph=None, df=None):
             plot['term_id'] = term_id
             set_chart_infos_to_plotdata(plot[END_COL], chart_infos, original_graph_configs, plot)
 
-        all_plots += plots
+        # all_plots += plots
+        all_plots.extend(plots)
 
     dic_param[ARRAY_PLOTDATA], dic_param[IS_GRAPH_LIMITED] = limit_graph_per_tab(all_plots, max_graph)
 

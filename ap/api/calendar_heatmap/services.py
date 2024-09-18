@@ -43,6 +43,7 @@ from ap.common.constants import (
     END_PROC_NAME,
     HM_WEEK_MODE,
     HM_WEEK_MODE_DAYS,
+    IS_SERIAL_NO,
     MATCHED_FILTER_IDS,
     MAX_TICKS,
     NA_STR,
@@ -350,6 +351,7 @@ def gen_plotly_data(graph_param, dic_param, dic_df_proc, hm_mode, hm_step, dic_c
                                 X_TICKVAL: x_tickvals,
                                 Y_TICKTEXT: y_ticktext,
                                 Y_TICKVAL: y_tickvals,
+                                IS_SERIAL_NO: col_cfg.is_serial_no,
                             },
                         )
                         dic_param[ARRAY_PLOTDATA][proc_id].append(plotdata)
@@ -368,6 +370,7 @@ def gen_plotly_data(graph_param, dic_param, dic_df_proc, hm_mode, hm_step, dic_c
                             X_TICKVAL: x_tickvals,
                             Y_TICKTEXT: y_ticktext,
                             Y_TICKVAL: y_tickvals,
+                            IS_SERIAL_NO: col_cfg.is_serial_no,
                         },
                     )
                     dic_param[ARRAY_PLOTDATA][proc_id].append(plotdata)

@@ -1,16 +1,15 @@
-/* eslint-disable no-undef */
 const drawPCABiplotChart = (json, chartConfig = {}, sizeOfData = null) => {
     if (!json) return;
-    
+
     const startTime = performance.now();
-    
+
     const figure = json;
     figure.layout.autosize = true;
     figure.layout.plot_bgcolor = '#222222';
     figure.layout.paper_bgcolor = '#222222';
     figure.layout.xaxis.gridcolor = '#444444';
     figure.layout.yaxis.gridcolor = '#444444';
-    
+
     figure.data.forEach((dat) => {
         if (dat.mode === 'markers') {
             dat.hoverinfo = 'none';

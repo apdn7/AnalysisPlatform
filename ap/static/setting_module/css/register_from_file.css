@@ -8,13 +8,13 @@
 }
 
 .btn-browse {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     color: #000000;
 }
 
 .data-source-config {
     flex: 1;
-    margin-right: 50px
+    margin-right: 50px;
 }
 
 .file-folder-browser {
@@ -43,7 +43,7 @@
 }
 
 .directory-form {
-   flex: 1;
+    flex: 1;
 }
 
 .register-datasource-button {
@@ -53,7 +53,7 @@
 }
 
 .fa-check {
-    color:greenyellow;
+    color: greenyellow;
     margin-right: 5px;
 }
 
@@ -74,5 +74,9 @@
 }
 
 .scroll-content {
-    top: 4px!important;
+    top: 4px !important;
+}
+
+.extend-section {
+    margin-top: 0.2rem;
 }

@@ -1,8 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-/* eslint-disable no-param-reassign */
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const i18n = {
     allSelection: $('#i18nAllSelection').text(),
@@ -25,7 +20,7 @@ const i18n = {
 const MAX_NUMBER_OF_SENSOR = 60;
 const MIN_NUMBER_OF_SENSOR = 0;
 
-const INDEX_AXIS_LABEL = "Index"
+const INDEX_AXIS_LABEL = 'Index';
 
 const MSG_MAPPING = {
     E_ALL_NA: $('#i18nE01AllNA').text(),
@@ -50,30 +45,59 @@ const drawPCAPlotJSON = (res, clickOnChart) => {
     // draw graphs
     if (!clickOnChart) {
         if (jsonPCAScoreTrain) {
-            drawXTrainScatter(jsonPCAScoreTrain, chartConfig, sizeOfData = res.dtsize_pca_score_train);
+            drawXTrainScatter(
+                jsonPCAScoreTrain,
+                chartConfig,
+                (sizeOfData = res.dtsize_pca_score_train),
+            );
         }
         if (jsonPCAScoreTest) {
-            drawXTestScatter(jsonPCAScoreTest, chartConfig, sizeOfData = res.dtsize_pca_score_test, res.array_plotdata);
+            drawXTestScatter(
+                jsonPCAScoreTest,
+                chartConfig,
+                (sizeOfData = res.dtsize_pca_score_test),
+                res.array_plotdata,
+            );
             if (jsonT2TimeSeries) {
-                drawTimeSeriesT2Chart(jsonT2TimeSeries, jsonPCAScoreTest, chartConfig,
-                    sizeOfData = res.dtsize_t2_time_series, res.array_plotdata);
+                drawTimeSeriesT2Chart(
+                    jsonT2TimeSeries,
+                    jsonPCAScoreTest,
+                    chartConfig,
+                    (sizeOfData = res.dtsize_t2_time_series),
+                    res.array_plotdata,
+                );
             }
             if (jsonQTimeSeries) {
-                drawTimeSeriesQChart(jsonQTimeSeries, jsonPCAScoreTest, chartConfig,
-                    sizeOfData = res.dtsize_q_time_series, res.array_plotdata);
+                drawTimeSeriesQChart(
+                    jsonQTimeSeries,
+                    jsonPCAScoreTest,
+                    chartConfig,
+                    (sizeOfData = res.dtsize_q_time_series),
+                    res.array_plotdata,
+                );
             }
         }
     }
     if (jsonQContribution) {
-        drawQContributionChart(jsonQContribution, chartConfig, sizeOfData = res.dtsize_q_contribution);
+        drawQContributionChart(
+            jsonQContribution,
+            chartConfig,
+            (sizeOfData = res.dtsize_q_contribution),
+        );
     }
     if (jsonT2Contribution) {
-        drawT2ContributionChart(jsonT2Contribution, chartConfig,
-            sizeOfData = res.dtsize_t2_contribution);
+        drawT2ContributionChart(
+            jsonT2Contribution,
+            chartConfig,
+            (sizeOfData = res.dtsize_t2_contribution),
+        );
     }
     if (jsonPCABiplot) {
-        drawPCABiplotChart(jsonPCABiplot, chartConfig,
-            sizeOfData = res.dtsize_pca_biplot);
+        drawPCABiplotChart(
+            jsonPCABiplot,
+            chartConfig,
+            (sizeOfData = res.dtsize_pca_biplot),
+        );
     }
 };
 
@@ -84,16 +108,38 @@ const drawPCAPlotList = (res, clickOnChart, sampleNo = null) => {
 
     const jsonPCAScoreTrain = generateXTrainScatter(res.json_pca_score_train);
     if (jsonPCAScoreTrain && !clickOnChart) {
-        drawXTrainScatter(jsonPCAScoreTrain, chartConfig, sizeOfData = res.dtsize_pca_score_train);
+        drawXTrainScatter(
+            jsonPCAScoreTrain,
+            chartConfig,
+            (sizeOfData = res.dtsize_pca_score_train),
+        );
     }
 
-    const jsonPCAScoreTest = generateXTestScatter(res.json_pca_score_test, res.json_pca_score_train);
+    const jsonPCAScoreTest = generateXTestScatter(
+        res.json_pca_score_test,
+        res.json_pca_score_train,
+    );
     if (jsonPCAScoreTest && !clickOnChart) {
-        drawXTestScatter(jsonPCAScoreTest, chartConfig, sizeOfData = res.dtsize_pca_score_test, res.array_plotdata);
+        drawXTestScatter(
+            jsonPCAScoreTest,
+            chartConfig,
+            (sizeOfData = res.dtsize_pca_score_test),
+            res.array_plotdata,
+        );
     }
 
-    const jsonPCABiplot = generateBiplot(res.json_pca_biplot, res.json_pca_score_train, sampleNo);
-    if (jsonPCABiplot) { drawPCABiplotChart(jsonPCABiplot, chartConfig, sizeOfData = res.dtsize_pca_biplot); }
+    const jsonPCABiplot = generateBiplot(
+        res.json_pca_biplot,
+        res.json_pca_score_train,
+        sampleNo,
+    );
+    if (jsonPCABiplot) {
+        drawPCABiplotChart(
+            jsonPCABiplot,
+            chartConfig,
+            (sizeOfData = res.dtsize_pca_biplot),
+        );
+    }
 
     const jsonT2TimeSeries = res.json_t2_time_series;
     const jsonQTimeSeries = res.json_q_time_series;
@@ -101,31 +147,53 @@ const drawPCAPlotList = (res, clickOnChart, sampleNo = null) => {
     const jsonT2Contribution = res.json_t2_contribution;
 
     if (jsonT2TimeSeries && !clickOnChart) {
-        drawTimeSeriesT2ChartFromObj(jsonT2TimeSeries, jsonPCAScoreTest, chartConfig,
-            sizeOfData = res.dtsize_t2_time_series, res.array_plotdata);
+        drawTimeSeriesT2ChartFromObj(
+            jsonT2TimeSeries,
+            jsonPCAScoreTest,
+            chartConfig,
+            (sizeOfData = res.dtsize_t2_time_series),
+            res.array_plotdata,
+        );
     }
     if (jsonQTimeSeries && !clickOnChart) {
-        drawTimeSeriesQChartFromObj(jsonQTimeSeries, jsonPCAScoreTest, chartConfig,
-            sizeOfData = res.dtsize_q_time_series, res.array_plotdata);
+        drawTimeSeriesQChartFromObj(
+            jsonQTimeSeries,
+            jsonPCAScoreTest,
+            chartConfig,
+            (sizeOfData = res.dtsize_q_time_series),
+            res.array_plotdata,
+        );
     }
     if (jsonQContribution) {
-        drawQContributionChartFromObj(jsonQContribution, sampleNo, chartConfig,
-            sizeOfData = res.dtsize_q_contribution, dpInfo = res.data_point_info,
-            shortName = res.short_names);
+        drawQContributionChartFromObj(
+            jsonQContribution,
+            sampleNo,
+            chartConfig,
+            (sizeOfData = res.dtsize_q_contribution),
+            (dpInfo = res.data_point_info),
+            (shortName = res.short_names),
+        );
     }
     if (jsonT2Contribution) {
-        drawT2ContributionChartFromObj(jsonT2Contribution, sampleNo, chartConfig,
-            sizeOfData = res.dtsize_t2_contribution, dpInfo = res.data_point_info,
-            shortName = res.short_names);
+        drawT2ContributionChartFromObj(
+            jsonT2Contribution,
+            sampleNo,
+            chartConfig,
+            (sizeOfData = res.dtsize_t2_contribution),
+            (dpInfo = res.data_point_info),
+            (shortName = res.short_names),
+        );
     }
 };
 
-const reselectPCAData = (fromShowGraphBtn=false, reselectBtn=true) => {
+const reselectPCAData = (fromShowGraphBtn = false, reselectBtn = true) => {
     const formData = collectInputAsFormData();
 
     // warning about integer column has_integer_col
     if (formData.get('has_integer_col') === 'true') {
-        $(eles.msgContent).text(`${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`);
+        $(eles.msgContent).text(
+            `${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`,
+        );
         $(eles.msgModal).modal('show');
     } else {
         beforeShowGraphCommon();
@@ -133,8 +201,13 @@ const reselectPCAData = (fromShowGraphBtn=false, reselectBtn=true) => {
     }
 };
 
-const getPCAPlotsFromBackend = (formData, clickOnChart = false, sampleNo = null, autoUpdate = false, reselect=false) => {
-
+const getPCAPlotsFromBackend = (
+    formData,
+    clickOnChart = false,
+    sampleNo = null,
+    autoUpdate = false,
+    reselect = false,
+) => {
     const eleQCont = $(eles.qContributionChart);
     const eleT2Cont = $(eles.t2ContributionChart);
     const eleBiplot = $(eles.pcaBiplotChart);
@@ -153,83 +226,102 @@ const getPCAPlotsFromBackend = (formData, clickOnChart = false, sampleNo = null,
 
     lastUsedFormData = formData;
 
-    showGraphCallApi('/ap/api/analyze/pca', formData, REQUEST_TIMEOUT, async (res) => {
-        if (clickOnChart) {
-            hideLoading(eleQCont);
-            hideLoading(eleT2Cont);
-            hideLoading(eleBiplot);
-            hideLoading(eleRecordInfoTbl);
-        } else {
-            $('#plot-cards').show();
-        }
-        // save global
-        graphStore.setTraceData(_.cloneDeep(res));
-        // share global var to base.js
-        formDataQueried = lastUsedFormData;
-        const json = false;
-        if (json) {
-            drawPCAPlotJSON(res, clickOnChart);
-        } else {
-            drawPCAPlotList(res, clickOnChart, sampleNo);
-        }
+    showGraphCallApi(
+        '/ap/api/analyze/pca',
+        formData,
+        REQUEST_TIMEOUT,
+        async (res) => {
+            if (clickOnChart) {
+                hideLoading(eleQCont);
+                hideLoading(eleT2Cont);
+                hideLoading(eleBiplot);
+                hideLoading(eleRecordInfoTbl);
+            } else {
+                $('#plot-card-container').show();
+            }
+            // save global
+            graphStore.setTraceData(_.cloneDeep(res));
+            // share global var to base.js
+            formDataQueried = lastUsedFormData;
+            const json = false;
+            if (json) {
+                drawPCAPlotJSON(res, clickOnChart);
+            } else {
+                drawPCAPlotList(res, clickOnChart, sampleNo);
+            }
 
-        showInfoTable(res[CONST.COMMON]);
+            showInfoTable(res[CONST.COMMON]);
 
-        fillDataToFilterModal(res.filter_on_demand, () => {
-            handleFilterOndemand();
-        });
+            fillDataToFilterModal(res.filter_on_demand, () => {
+                handleFilterOndemand();
+            });
 
-        // show delete number of NAN records
-        // const numSensors = countSelectedSensors(formData) || 1;
-        // if (res.removed_outlier_nan_train) {
-        //     showToastrDeleteNA(
-        //         i18n.trainingData,
-        //         numSensors * res.actual_record_number_train,
-        //         res.removed_outlier_nan_train,
-        //     );
-        // }
-        // if (res.removed_outlier_nan_test) {
-        //     showToastrDeleteNA(i18n.testingData,
-        //         numSensors * res.actual_record_number_test,
-        //         res.removed_outlier_nan_test);
-        // }
-        if (!sampleNo) {
-            showAllDeleteNAToastrMsgs(res, formData);
-        }
+            // show delete number of NAN records
+            // const numSensors = countSelectedSensors(formData) || 1;
+            // if (res.removed_outlier_nan_train) {
+            //     showToastrDeleteNA(
+            //         i18n.trainingData,
+            //         numSensors * res.actual_record_number_train,
+            //         res.removed_outlier_nan_train,
+            //     );
+            // }
+            // if (res.removed_outlier_nan_test) {
+            //     showToastrDeleteNA(i18n.testingData,
+            //         numSensors * res.actual_record_number_test,
+            //         res.removed_outlier_nan_test);
+            // }
+            if (!sampleNo) {
+                showAllDeleteNAToastrMsgs(res, formData);
+            }
 
-        if (res.is_send_ga_off) {
-            showGAToastr(true);
-        }
+            if (res.is_send_ga_off) {
+                showGAToastr(true);
+            }
 
-        if (res.actual_record_number_train > SQL_LIMIT || res.actual_record_number_test > SQL_LIMIT) {
-            showToastrMsg(i18n.SQLLimit);
-        }
+            if (
+                res.actual_record_number_train > SQL_LIMIT ||
+                res.actual_record_number_test > SQL_LIMIT
+            ) {
+                showToastrMsg(i18n.SQLLimit);
+            }
 
-        // show toastr to inform result was truncated upto 5000
-        if (res.is_res_limited_train || res.is_res_limited_test) {
-            showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
-        }
+            // show toastr to inform result was truncated upto 5000
+            if (res.is_res_limited_train || res.is_res_limited_test) {
+                showToastrMsg(
+                    i18n.traceResulLimited.split('BREAK_LINE').join('<br>'),
+                );
+            }
 
-        // update record table info
-        const jsonDataPointInfo = res.data_point_info;
-        if (jsonDataPointInfo) {
-            updateRecordInfo(dataInfos = jsonDataPointInfo, sampleNo = formData.get('sample_no'));
-        }
+            // update record table info
+            const jsonDataPointInfo = res.data_point_info;
+            if (jsonDataPointInfo) {
+                updateRecordInfo(
+                    (dataInfos = jsonDataPointInfo),
+                    (sampleNo = formData.get('sample_no')),
+                );
+            }
 
-        // if (checkResultExist(res)) {
-        //     saveInvalidFilterCaller(true);
-        // } else {
-        //     saveInvalidFilterCaller();
-        // }
+            // if (checkResultExist(res)) {
+            //     saveInvalidFilterCaller(true);
+            // } else {
+            //     saveInvalidFilterCaller();
+            // }
 
-        if (!autoUpdate) {
-            $('html, body').animate({
-                scrollTop: $('#plot-cards').offset().top,
-            }, 1000);
-        }
+            if (!autoUpdate) {
+                $('html, body').animate(
+                    {
+                        scrollTop: getOffsetTopDisplayGraph(
+                            '#plot-card-container',
+                        ),
+                    },
+                    1000,
+                );
+            }
 
-        setPollingData(formData, longPollingHandler, []);
-    }, { page: 'pca', clickOnChart, reselect });
+            setPollingData(formData, longPollingHandler, []);
+        },
+        { page: 'pca', clickOnChart, reselect },
+    );
 };
 
 const longPollingHandler = () => {
@@ -250,7 +342,9 @@ const isIntegerDatatype = (type) => {
     // convert to lower case before compare
     const lowerType = type.toLowerCase();
     for (let i = 0; i < NUMERIC_TYPE.length; i++) {
-        if (lowerType.includes(NUMERIC_TYPE[i])) { return true; }
+        if (lowerType.includes(NUMERIC_TYPE[i])) {
+            return true;
+        }
     }
     return false;
 };
@@ -314,7 +408,7 @@ const collectInputAsFormData = () => {
 
     formData.set('has_integer_col', isIntegerColChecked);
     formData.set('checked_val_count', valCount);
-    
+
     // delete empty conditional procs
     [...formData.keys()].forEach((key) => {
         if (key.startsWith('cond_proc') && isEmpty(formData.get(key))) {
@@ -331,12 +425,13 @@ const getPCAPlots = () => {
     updateStyleOfInvalidElements();
 
     if (isValid) {
-
         const formData = collectInputAsFormData();
 
         // warning about integer column has_integer_col
         if (formData.get('has_integer_col') === 'true') {
-            $(eles.msgContent).text(`${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`);
+            $(eles.msgContent).text(
+                `${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`,
+            );
             $(eles.msgModal).modal('show');
         } else {
             beforeShowGraphCommon();
@@ -352,7 +447,6 @@ const confirmWarningAndGetPCA = () => {
     loadingShow(false, true);
     getPCAPlotsFromBackend(formData);
 };
-
 
 const bindCheckEvents = () => {
     // check all event
@@ -401,7 +495,11 @@ const loadUserInputAgain = (parent) => {
     setTimeout(() => {
         inputForms.each((i, form) => {
             try {
-                const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname, parent);
+                const userInput = saveLoadUserInput(
+                    `#${form.id}`,
+                    window.location.pathname,
+                    parent,
+                );
                 userInput();
             } catch (e) {
                 console.log(e);
@@ -416,7 +514,9 @@ const addClickEventAllRows = () => {
         const that = $(element);
         that.click((e) => {
             const currentRow = $(e.currentTarget);
-            const currentCheckbox = $(currentRow.find('input[type="checkbox"]'));
+            const currentCheckbox = $(
+                currentRow.find('input[type="checkbox"]'),
+            );
             currentCheckbox.prop('checked', !currentCheckbox.is(':checked'));
         });
     });
@@ -452,8 +552,8 @@ const loadSensors = () => {
         headers: myHeaders,
     };
     fetch('/ap/api/analyze/sensor', requestOptions)
-        .then(response => response.text())
-        .catch(error => console.log('error', error));
+        .then((response) => response.text())
+        .catch((error) => console.log('error', error));
     setTimeout(() => {
         $(eles.spinner).removeClass('spinner-grow');
     }, 20000);
@@ -471,7 +571,6 @@ $(() => {
         showFilter: true,
         showStrColumn: true,
         hideStrVariable: true,
-        hideCTCol: true,
         disableSerialAsObjective: true,
     });
     endProcItem();
@@ -484,7 +583,13 @@ $(() => {
 
     // add first condition process
     const condProcs = genProcessDropdownData(procConfigs);
-    const condProcItem = addCondProc(condProcs.ids, condProcs.names, '', eles.formID, 'btn-add-cond-proc');
+    const condProcItem = addCondProc(
+        condProcs.ids,
+        condProcs.names,
+        '',
+        eles.formID,
+        'btn-add-cond-proc',
+    );
     condProcItem();
 
     // click even of condition proc add button
@@ -510,18 +615,24 @@ $(() => {
 });
 
 const extractAndConvertDT = (datetimeStr) => {
-  const splitDT = splitDateTimeRange(datetimeStr);
+    const splitDT = splitDateTimeRange(datetimeStr);
     // to uct
     const start = toUTCDateTime(splitDT.startDate, splitDT.startTime);
     const end = toUTCDateTime(splitDT.endDate, splitDT.endTime);
-    return { start, end }
+    return { start, end };
 };
 
 const dumpData = (type) => {
     const formData = collectInputAsFormData();
-    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].map(el => formData.delete(el));
-    const trainDateTime = $('#for-default-train').find('[name=DATETIME_RANGE_PICKER]').val();
-    const testDateTime = $('#for-default-test').find('[name=DATETIME_RANGE_PICKER]').val();
+    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].map((el) =>
+        formData.delete(el),
+    );
+    const trainDateTime = $('#for-default-train')
+        .find('[name=DATETIME_RANGE_PICKER]')
+        .val();
+    const testDateTime = $('#for-default-test')
+        .find('[name=DATETIME_RANGE_PICKER]')
+        .val();
     const trainDT = extractAndConvertDT(trainDateTime);
     const testDT = extractAndConvertDT(testDateTime);
     formData.set(CONST.STARTDATE, trainDT.start.date);

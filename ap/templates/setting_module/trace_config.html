@@ -1,58 +1,117 @@
 <div class="card graph-navi" id="data_link">
     <div class="card-body">
         <form id="trace-config-form" class="position-relative">
-             <div class="form-header d-flex justify-content-between align-items-center">
+            <div
+                class="form-header d-flex justify-content-between align-items-center"
+            >
                 <div class="mr-4">
-                    <h3 class="header-left hint-text"
-                    title="{{ _('Right drag & drop: data link setting') }}">{{ _("Data Link Config") }}</h3>
+                    <h3
+                        class="header-left hint-text"
+                        title="{{ _('Right drag & drop: data link setting') }}"
+                    >
+                        {{ _("Data Link Config") }}
+                    </h3>
                 </div>
-                <div class="d-flex align-items-center justify-content-end" style="flex: 1">
-
-                          <!--       Alert msg         -->
-                   <div class="alert-wrapper mr-4" style="max-width: calc(100% - 324px);">
-                        <div id="alert-register-proc-link" class="alert alert-dismissible fade mb-0" style="display: none">
-                            <span id="alert-register-proc-link-content">{{ _('Generate proc link information msg') }}</span>
-                            <button type="button" class="close" onclick="$(this).parent().css('display','none');" aria-label="Close">
+                <div
+                    class="d-flex align-items-center justify-content-end"
+                    style="flex: 1"
+                >
+                    <!--       Alert msg         -->
+                    <div
+                        class="alert-wrapper mr-4"
+                        style="max-width: calc(100% - 324px);"
+                    >
+                        <div
+                            id="alert-register-proc-link"
+                            class="alert alert-dismissible fade mb-0"
+                            style="display: none"
+                        >
+                            <span id="alert-register-proc-link-content"
+                                >{{ _('Generate proc link information msg') }}</span
+                            >
+                            <button
+                                type="button"
+                                class="close"
+                                onclick="$(this).parent().css('display','none');"
+                                aria-label="Close"
+                            >
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                   </div>
+                    </div>
                     <div id="dataLinkGroup">
-                        <button id="btnTraceSimulation" class="btn btn-primary" type="button"
-                                title="{{ _('Prediction Hover') }}"><i class="fa fa-link"></i>
+                        <button
+                            id="btnTraceSimulation"
+                            class="btn btn-primary"
+                            type="button"
+                            title="{{ _('Prediction Hover') }}"
+                        >
+                            <i class="fa fa-link"></i>
                             {{ _("Prediction") }}
                         </button>
-                         <button id="btn-trace-config-sync" class="btn btn-secondary mx-2" type="button"
-                                title="{{ _('Reload Hover') }}"><i
-                                class="fas fa-sync-alt"></i>
+                        <button
+                            id="btn-trace-config-sync"
+                            class="btn btn-secondary mx-2"
+                            type="button"
+                            title="{{ _('Reload Hover') }}"
+                        >
+                            <i class="fas fa-sync-alt"></i>
                             {{ _("Reload") }}
                         </button>
-                        <button id="btn-trace-config-register" class="btn btn-primary btn-green" type="button"
-                                title="{{ _('Register Trace Config Hover') }}"><i class="far fa-save"></i>
+                        <button
+                            id="btn-trace-config-register"
+                            class="btn btn-primary btn-green"
+                            type="button"
+                            title="{{ _('Register Trace Config Hover') }}"
+                        >
+                            <i class="far fa-save"></i>
                             {{ _("Register") }}
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="modal fade" id="modal-edge-popup" tabindex="-1" role="dialog" data-backdrop="static"
-                 data-keyboard="false">
+            <div
+                class="modal fade"
+                id="modal-edge-popup"
+                tabindex="-1"
+                role="dialog"
+                data-backdrop="static"
+                data-keyboard="false"
+            >
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title">{{ _("Edit Edge") }}</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div class="modal-body" name="modal-body-input form-inline">
+                        <div
+                            class="modal-body"
+                            name="modal-body-input form-inline"
+                        >
                             <div class="form-group row">
                                 <div class="col-sm-12">
-                                    <div id="alertMsgCheckSubStr" class="alert alert-dismissible fade"
-                                         style="display: none;" role="alert">
-                                        <strong id="alertMsgCheckSubStr-content"></strong>
-                                        <button type="button" class="close"
-                                                onclick="$('#alertMsgCheckSubStr').css('display','none');"
-                                                aria-label="Close">
+                                    <div
+                                        id="alertMsgCheckSubStr"
+                                        class="alert alert-dismissible fade"
+                                        style="display: none;"
+                                        role="alert"
+                                    >
+                                        <strong
+                                            id="alertMsgCheckSubStr-content"
+                                        ></strong>
+                                        <button
+                                            type="button"
+                                            class="close"
+                                            onclick="$('#alertMsgCheckSubStr').css('display','none');"
+                                            aria-label="Close"
+                                        >
                                             <span aria-hidden="true">×</span>
                                         </button>
                                     </div>
@@ -66,127 +125,243 @@
                                     <h5>{{ _("Post Process") }}</h5>
                                 </div>
                             </div>
-                            <div id="trace_link_procs" class="form-row align-items-center position-relative">
+                            <div
+                                id="trace_link_procs"
+                                class="form-row align-items-center position-relative"
+                            >
                                 <div class="col-sm-6 pr-4">
                                     {{ macros.single_selectbox('edgeBackProc', '', procs) }}
-                                    <span id="edgeBackProc-error-msg" class="error text-danger"
-                                          style="display: none; text-align: left; font-size: smaller;">{{ _("Already registered") }}</span>
+                                    <span
+                                        id="edgeBackProc-error-msg"
+                                        class="error text-danger"
+                                        style="display: none; text-align: left; font-size: smaller;"
+                                        >{{ _("Already registered") }}</span
+                                    >
                                 </div>
                                 <div class="col-sm-6 pl-4">
                                     {{ macros.single_selectbox('edgeForwardProc', '', procs) }}
-                                    <span id="edgeForwardProc-error-msg" class="error text-danger"
-                                          style="display: none; text-align: left; font-size: smaller;">{{ _("Already registered") }}</span>
+                                    <span
+                                        id="edgeForwardProc-error-msg"
+                                        class="error text-danger"
+                                        style="display: none; text-align: left; font-size: smaller;"
+                                        >{{ _("Already registered") }}</span
+                                    >
                                 </div>
-                                <button type="button" onclick="handleSwitchTraceConfig(this)" class="btn simple-btn position-absolute" style="top: 3px; left: 50%; transform: translateX(-50%)"><i class="fa fa-sm fa-arrows-alt-h"></i></button>
+                                <button
+                                    type="button"
+                                    onclick="handleSwitchTraceConfig(this)"
+                                    class="btn simple-btn position-absolute"
+                                    style="top: 3px; left: 50%; transform: translateX(-50%)"
+                                >
+                                    <i class="fa fa-sm fa-arrows-alt-h"></i>
+                                </button>
                             </div>
                             <div class="form-row col-title">
                                 <div class="col-sm-6 pr-4">
-                                    <label for="edgeBackCol" class="col-form-label">
+                                    <label
+                                        for="edgeBackCol"
+                                        class="col-form-label"
+                                    >
                                         <h5>{{ _("Prev Column") }}:</h5>
                                     </label>
                                 </div>
                                 <div class="col-sm-6 pl-4">
-                                    <label for="edgeBackCol" class="col-form-label">
+                                    <label
+                                        for="edgeBackCol"
+                                        class="col-form-label"
+                                    >
                                         <h5>{{ _("Post Column") }}:</h5>
                                     </label>
                                 </div>
                             </div>
-                            <div id="traceInfoModal">
-                            </div>
-                            <button id="btnAddNewTraceKey" class="btn btn-success icon-btn"><i class="fas fa-plus-circle"></i>
+                            <div id="traceInfoModal"></div>
+                            <button
+                                id="btnAddNewTraceKey"
+                                class="btn btn-success icon-btn"
+                            >
+                                <i class="fas fa-plus-circle"></i>
                             </button>
                         </div>
 
                         <div class="modal-footer">
-                            <button id="btnSaveEditEdge" type="button" onclick="saveEditEdge();" class="btn btn-primary"
-                                    data-item-id="">{{ _("OK") }}
+                            <button
+                                id="btnSaveEditEdge"
+                                type="button"
+                                onclick="saveEditEdge();"
+                                class="btn btn-primary"
+                                data-item-id=""
+                            >
+                                {{ _("OK") }}
                             </button>
-                            <button id="btnCancelEditEdge" type="button" onclick="cancelEditEdge();"
-                                    class="btn btn-secondary"
-                                    data-dismiss="modal">{{ _("Cancel") }}
-							</button>
-
-						</div>
-					</div>
-				</div>
-			</div>
-			<br/>
+                            <button
+                                id="btnCancelEditEdge"
+                                type="button"
+                                onclick="cancelEditEdge();"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                            >
+                                {{ _("Cancel") }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
             <div class="trace-network-content">
                 <div class="trace-network-menu active">
                     <div class="sidebar-header">
-                        <button type="button" id="traceCollapse" onclick="handleOpenTraceConfigMenu(this)" class="btn navbar-btn">
+                        <button
+                            type="button"
+                            id="traceCollapse"
+                            onclick="handleOpenTraceConfigMenu(this)"
+                            class="btn navbar-btn"
+                        >
                             <i class="fas fa-bars "></i>
                         </button>
                     </div>
                     <div id="traceListContainer" class="trace-menu-content">
                         <div class="d-flex">
-                            <input class="form-control" id="searchTraceList" placeholder="{{_('Search')}}">
-                            <button type="button" id="setBtnSearch-searchTraceList" class="btn simple-btn btn-setting">Set</button>
-                            <button type="button" id="resetBtnSearch-searchTraceList" class="btn simple-btn btn-setting">Reset</button>
+                            <input
+                                class="form-control"
+                                id="searchTraceList"
+                                placeholder="{{ _('Search') }}"
+                            />
+                            <button
+                                type="button"
+                                id="setBtnSearch-searchTraceList"
+                                class="btn simple-btn btn-setting"
+                            >
+                                Set
+                            </button>
+                            <button
+                                type="button"
+                                id="resetBtnSearch-searchTraceList"
+                                class="btn simple-btn btn-setting"
+                            >
+                                Reset
+                            </button>
                         </div>
                         <!--            Dropdown check box list            -->
-                        <ul class="tree" id="tree-checkbox-list">
-                        </ul>
-                        <div class="d-flex align-items-center justify-content-end mt-2 mb-2 pr-2">
-                              <button id="btnAutoLinkV2Process" onclick="handleAutoLinkV2Process()" class="btn btn-primary btn-sm mr-2" type="button"
-                                title="{{ _('Auto link') }}">
-                                    {{ _("Auto link") }}
-                                </button>
-                                <button type="button" class="btn btn-secondary btn-sm mr-2" onclick="handleResetCheckedEdge()">Reset</button>
-                                <button type="button" class="btn btn-success btn-sm" onclick="handleAddCheckedEdge()">Add Edge</button>
+                        <ul class="tree" id="tree-checkbox-list"></ul>
+                        <div
+                            class="d-flex align-items-center justify-content-end mt-2 mb-2 pr-2"
+                        >
+                            <button
+                                id="btnAutoLinkV2Process"
+                                onclick="handleAutoLinkV2Process()"
+                                class="btn btn-primary btn-sm mr-2"
+                                type="button"
+                                title="{{ _('Auto link') }}"
+                            >
+                                {{ _("Auto link") }}
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-sm mr-2"
+                                onclick="handleResetCheckedEdge()"
+                            >
+                                Reset
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-success btn-sm"
+                                onclick="handleAddCheckedEdge()"
+                            >
+                                Add Edge
+                            </button>
                         </div>
                     </div>
                 </div>
                 <div class="trace-network-wrapper">
                     <div class="trace-layout-wrapper">
-                        <select id="traceNetworkLayout" class="form-control" name="traceNetworkLayout">
-                        <option value="Star">Normal</option>
-                        <option value="UD">Up-Down</option>
-                        <option value="DU">Down-Up</option>
-                        <option value="LR">Left-Right</option>
-                        <option value="RL">Right-Left</option>
+                        <select
+                            id="traceNetworkLayout"
+                            class="form-control"
+                            name="traceNetworkLayout"
+                        >
+                            <option value="Star">Normal</option>
+                            <option value="UD">Up-Down</option>
+                            <option value="DU">Down-Up</option>
+                            <option value="LR">Left-Right</option>
+                            <option value="RL">Right-Left</option>
                         </select>
-                        <button type="button" id="resetLayout"><i class="fas fa-redo-alt"></i></button>
+                        <button type="button" id="resetLayout">
+                            <i class="fas fa-redo-alt"></i>
+                        </button>
                     </div>
                     <div id="trace-network"></div>
                 </div>
             </div>
+        </form>
 
-		</form>
-
-
-		<div id="regenerate-confirm-modal" class="modal fade in" data-backdrop="static" data-keyboard="false">
-			<div class="modal-dialog modal-confirm">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title">{{ _("Warning") }}</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <div
+            id="regenerate-confirm-modal"
+            class="modal fade in"
+            data-backdrop="static"
+            data-keyboard="false"
+        >
+            <div class="modal-dialog modal-confirm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ _("Warning") }}</h4>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-hidden="true"
+                        >
+                            ×
+                        </button>
                     </div>
                     <div class="modal-body" style="word-break: keep-all;">
-                        <p class="modal-inform">{{
-						_("Based on the set config information, generating the ID for linking the data will be started.") }}
-						</p>
-                        <p class="modal-inform">{{
-						_("It may take time if there is a lot of data to link, but is it okay to start the process?") }}</p>
-                        <p class="modal-inform">{{
-						_("(For data that is automatically and regularly imported, the ID for linking is automatically generated.)") }}</p>
+                        <p class="modal-inform">
+                            {{ _("Based on the set config information, generating the ID for linking the data will be started.") }}
+                        </p>
+                        <p class="modal-inform">
+                            {{ _("It may take time if there is a lot of data to link, but is it okay to start the process?") }}
+                        </p>
+                        <p class="modal-inform">
+                            {{ _("(For data that is automatically and regularly imported, the ID for linking is automatically generated.)") }}
+                        </p>
                     </div>
-					<div class="modal-footer">
-                        <button id="btn-proceed" class="btn btn-primary"
-								data-dismiss="modal">{{ _("Proceed") }}
-						</button>
-						<button id="btn-abort" class="btn btn-secondary" data-dismiss="modal">{{ _("Abort") }}</button>
-					</div>
-				</div>
-			</div>
-		</div>
+                    <div class="modal-footer">
+                        <button
+                            id="btn-proceed"
+                            class="btn btn-primary"
+                            data-dismiss="modal"
+                        >
+                            {{ _("Proceed") }}
+                        </button>
+                        <button
+                            id="btn-abort"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                        >
+                            {{ _("Abort") }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <div id="confirmReloadModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+        <div
+            id="confirmReloadModal"
+            class="modal fade in"
+            data-backdrop="static"
+            data-keyboard="false"
+        >
             <div class="modal-dialog modal-confirm">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-hidden="true"
+                        >
+                            ×
+                        </button>
                     </div>
                     <div class="modal-body">
                         <p class="modal-inform modal-msg">
@@ -195,26 +370,53 @@
                     </div>
                     <div class="modal-footer">
                         <div>
-                            <button id="confirmReloadBtn" class="btn btn-primary confirm-btn">{{ _("OK") }}</button>
-                            <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}
+                            <button
+                                id="confirmReloadBtn"
+                                class="btn btn-primary confirm-btn"
+                            >
+                                {{ _("OK") }}
+                            </button>
+                            <button
+                                class="btn btn-secondary confirm-btn"
+                                data-dismiss="modal"
+                            >
+                                {{ _("Cancel") }}
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-	</div>
+    </div>
 </div>
 <div>
-	<ul id="contextMenuTraceCfg" name="contextMenu" class="context-menu" style="display:none;">
-		<li class="menu-item" onclick="addEdgesFromNode(this)" data-node-id>{{ _('Add Edge') }}</li>
-		<li class="menu-item edge-item" onclick="editSelectedEdge(this)" data-node-id>{{ _('Edit Edge') }}</li>
-		<li class="menu-item edge-item" onclick="removeSelectedEdge(this)" data-node-id>{{ _('Delete') }}</li>
-	</ul>
+    <ul
+        id="contextMenuTraceCfg"
+        name="contextMenu"
+        class="context-menu"
+        style="display:none;"
+    >
+        <li class="menu-item" onclick="addEdgesFromNode(this)" data-node-id>
+            {{ _('Add Edge') }}
+        </li>
+        <li
+            class="menu-item edge-item"
+            onclick="editSelectedEdge(this)"
+            data-node-id
+        >
+            {{ _('Edit Edge') }}
+        </li>
+        <li
+            class="menu-item edge-item"
+            onclick="removeSelectedEdge(this)"
+            data-node-id
+        >
+            {{ _('Delete') }}
+        </li>
+    </ul>
 </div>
 <script type="text/javascript" language="javascript">
-	window.onload = function () {
-		init();
-	};
+    window.onload = function () {
+        init();
+    };
 </script>

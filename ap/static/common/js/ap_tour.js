@@ -1,4 +1,3 @@
-
 const getTourContent = () => {
     const htmlTagConst = {
         BREAK_LINE: '<br>',
@@ -6,7 +5,8 @@ const getTourContent = () => {
         A_END_TAG: '</a>',
         SPAN_TAG: `<span title="${$('#i18nTourStartPoint').text()}" class="shepherd-hint-text">`,
         SPAN_END_TAG: '</span>',
-        FILTER_ICON: '<button class="btn btn-sm border-white on-demand-btn show-detail" title="グラフ描画に用いたカテゴリデータのフィルタを行います。"></button>',
+        FILTER_ICON:
+            '<button class="btn btn-sm border-white on-demand-btn show-detail" title="グラフ描画に用いたカテゴリデータのフィルタを行います。"></button>',
     };
     const addHTMLTag = (content, htmlTag) => {
         return content.replaceAll(htmlTag, htmlTagConst[htmlTag]);
@@ -90,40 +90,61 @@ const getTourContent = () => {
     };
 
     const tourCleansingContent = (cleansingContent) => {
-        const exception = `<span title="${
-            $('#i18nTourCleansingExp').text()
-        }" class="shepherd-hint-text">Exception</span> (${
-            $('#partNoDefaultName').text()
-        }: ON)<br>`;
-        const outlier = `<span title="${
-            $('#i18nTourCleansingOutl').text()
-        }" class="shepherd-hint-text">Outlier(Trim)</span> (${
-            $('#partNoDefaultName').text()
-        }: OFF)<br>`;
-        const pulsed = `<span title="${
-            $('#i18nTourCleansingPulsed').text()
-        }" class="shepherd-hint-text">Pulsed</span> (${
-            $('#partNoDefaultName').text()
-        }: ON)<br>`;
-        const dup = `<span title="${
-            $('#i18nTourCleansingDup').text()
-        }" class="shepherd-hint-text">Dup</span> (${
-            $('#partNoDefaultName').text()
-        }: ON)<br>`;
+        const exception = `<span title="${$(
+            '#i18nTourCleansingExp',
+        ).text()}" class="shepherd-hint-text">Exception</span> (${$(
+            '#partNoDefaultName',
+        ).text()}: ON)<br>`;
+        const outlier = `<span title="${$(
+            '#i18nTourCleansingOutl',
+        ).text()}" class="shepherd-hint-text">Outlier(Trim)</span> (${$(
+            '#partNoDefaultName',
+        ).text()}: OFF)<br>`;
+        const pulsed = `<span title="${$(
+            '#i18nTourCleansingPulsed',
+        ).text()}" class="shepherd-hint-text">Pulsed</span> (${$(
+            '#partNoDefaultName',
+        ).text()}: ON)<br>`;
+        const dup = `<span title="${$(
+            '#i18nTourCleansingDup',
+        ).text()}" class="shepherd-hint-text">Dup</span> (${$(
+            '#partNoDefaultName',
+        ).text()}: ON)<br>`;
         return `${cleansingContent}${exception}${outlier}${pulsed}${dup}`;
     };
 
-    tourSelectTargetVar.content = addHTMLTag(tourSelectTargetVar.content, 'BREAK_LINE');
-    tourSelectTargetVar.content_2 = addHTMLTag(tourSelectTargetVar.content_2, 'BREAK_LINE');
+    tourSelectTargetVar.content = addHTMLTag(
+        tourSelectTargetVar.content,
+        'BREAK_LINE',
+    );
+    tourSelectTargetVar.content_2 = addHTMLTag(
+        tourSelectTargetVar.content_2,
+        'BREAK_LINE',
+    );
     tourSelectTargetVar.content = `${tourSelectTargetVar.content}<span title="${tourSelectTargetVar.label}" 
         class="shepherd-hint-text">Label</span>, <span title="${tourSelectTargetVar.facet}" 
-        class="shepherd-hint-text">Facet</span>:${tourSelectTargetVar.content_2}`
-    tourSelectTargetPeriod.content = addHTMLTag(tourSelectTargetPeriod.content, 'BREAK_LINE');
-    tourSelectTargetPeriodDatePicker.content = addHTMLTag(tourSelectTargetPeriodDatePicker.content, 'BREAK_LINE');
+        class="shepherd-hint-text">Facet</span>:${tourSelectTargetVar.content_2}`;
+    tourSelectTargetPeriod.content = addHTMLTag(
+        tourSelectTargetPeriod.content,
+        'BREAK_LINE',
+    );
+    tourSelectTargetPeriodDatePicker.content = addHTMLTag(
+        tourSelectTargetPeriodDatePicker.content,
+        'BREAK_LINE',
+    );
     tourFindData.content = addHTMLTag(tourFindData.content, 'BREAK_LINE');
-    tourFindDataWithDatafinder.content = addHTMLTag(tourFindDataWithDatafinder.content, 'BREAK_LINE');
-    tourFindDataWithDatafinder.content = addHTMLTag(tourFindDataWithDatafinder.content, 'SPAN_TAG');
-    tourFindDataWithDatafinder.content = addHTMLTag(tourFindDataWithDatafinder.content, 'SPAN_END_TAG');
+    tourFindDataWithDatafinder.content = addHTMLTag(
+        tourFindDataWithDatafinder.content,
+        'BREAK_LINE',
+    );
+    tourFindDataWithDatafinder.content = addHTMLTag(
+        tourFindDataWithDatafinder.content,
+        'SPAN_TAG',
+    );
+    tourFindDataWithDatafinder.content = addHTMLTag(
+        tourFindDataWithDatafinder.content,
+        'SPAN_END_TAG',
+    );
     tourUseFilter.content = addHTMLTag(tourUseFilter.content, 'BREAK_LINE');
     tourUseFilter.content = addHTMLTag(tourUseFilter.content, 'A_TAG');
     tourUseFilter.content = addHTMLTag(tourUseFilter.content, 'A_END_TAG');
@@ -132,7 +153,6 @@ const getTourContent = () => {
     tourCleansing.content = tourCleansingContent(tourCleansing.content);
     tourShowGraph.content = addHTMLTag(tourShowGraph.content, 'BREAK_LINE');
     tourFinish.content = addHTMLTag(tourFinish.content, 'BREAK_LINE');
-
 
     return {
         tourWelcome,
@@ -155,7 +175,7 @@ const tryTour = () => {
         classes: 'btn btn-sm btn-secondary',
         action() {
             $('body').css('overflow-x', 'hidden');
-            return this.complete()
+            return this.complete();
         },
     };
 
@@ -163,7 +183,7 @@ const tryTour = () => {
         text: $('#i18nGoBack').text(),
         classes: 'btn btn-sm btn-secondary',
         action() {
-            return this.back()
+            return this.back();
         },
     };
 
@@ -171,7 +191,7 @@ const tryTour = () => {
         text: $('#i18nGoNext').text(),
         classes: 'btn btn-sm btn-primary',
         action() {
-            return this.next()
+            return this.next();
         },
     };
     const tour = new Shepherd.Tour({
@@ -179,14 +199,11 @@ const tryTour = () => {
         defaultStepOptions: {
             classes: 'shadow-md bg-purple-dark',
             cancelIcon: {
-                enabled: true
+                enabled: true,
             },
-            buttons: [
-                backStepButton,
-                nextStepButton
-            ],
-            scrollTo: { behavior: 'smooth', block: 'center' }
-        }
+            buttons: [backStepButton, nextStepButton],
+            scrollTo: { behavior: 'smooth', block: 'center' },
+        },
     });
 
     const tourContent = getTourContent();
@@ -194,10 +211,7 @@ const tryTour = () => {
         id: 'fpp_welcome',
         title: tourContent.tourWelcome.title,
         text: tourContent.tourWelcome.content,
-        buttons: [
-            quitTourButton,
-            nextStepButton
-        ]
+        buttons: [quitTourButton, nextStepButton],
     });
 
     tour.addStep({
@@ -206,8 +220,8 @@ const tryTour = () => {
         text: tourContent.tourSelectTargetVar.content,
         attachTo: {
             element: '#endPrc',
-            on: 'bottom'
-        }
+            on: 'bottom',
+        },
     });
 
     tour.addStep({
@@ -216,7 +230,7 @@ const tryTour = () => {
         text: tourContent.tourSelectTargetPeriod.content,
         attachTo: {
             element: '#srtPrc',
-            on: 'top'
+            on: 'top',
         },
         buttons: [
             backStepButton,
@@ -224,14 +238,18 @@ const tryTour = () => {
                 text: tourContent.tourSelectTargetPeriod.next,
                 classes: 'btn btn-sm btn-primary',
                 action() {
-                    const radioSelector = document.getElementById('radioDefaultInterval')
-                    const dttmPickerSelector = document.getElementById('datetimeRangePicker')
-                    radioSelector.click()
-                    dttmPickerSelector.select()
-                    return this.next()
+                    const radioSelector = document.getElementById(
+                        'radioDefaultInterval',
+                    );
+                    const dttmPickerSelector = document.getElementById(
+                        'datetimeRangePicker',
+                    );
+                    radioSelector.click();
+                    dttmPickerSelector.select();
+                    return this.next();
                 },
-            }
-        ]
+            },
+        ],
     });
 
     tour.addStep({
@@ -240,7 +258,7 @@ const tryTour = () => {
         text: tourContent.tourSelectTargetPeriodDatePicker.content,
         attachTo: {
             element: '.daterangepicker',
-            on: 'top'
+            on: 'top',
         },
         scrollTo: false,
         buttons: [
@@ -249,13 +267,14 @@ const tryTour = () => {
                 text: tourContent.tourSelectTargetPeriodDatePicker.next,
                 classes: 'btn btn-sm btn-primary',
                 action() {
-                    const dataFinderDOM = document.getElementsByName('dataFinderBtn')[0];
+                    const dataFinderDOM =
+                        document.getElementsByName('dataFinderBtn')[0];
                     dataFinderDOM.style.display = 'inherit';
-                    return this.next()
+                    return this.next();
                 },
-            }
+            },
         ],
-        modalOverlayOpeningPadding: 50
+        modalOverlayOpeningPadding: 50,
     });
 
     tour.addStep({
@@ -265,7 +284,7 @@ const tryTour = () => {
         text: tourContent.tourFindData.content,
         attachTo: {
             element: 'button[name=dataFinderBtn]',
-            on: 'bottom'
+            on: 'bottom',
         },
         scrollTo: false,
         buttons: [
@@ -273,8 +292,10 @@ const tryTour = () => {
                 text: tourContent.tourFindData.back,
                 classes: 'btn btn-sm btn-secondary',
                 action() {
-                    closeCalenderModal()
-                    const selector = document.getElementById('datetimeRangePicker')
+                    closeCalenderModal();
+                    const selector = document.getElementById(
+                        'datetimeRangePicker',
+                    );
                     selector.select();
                     return this.back();
                 },
@@ -283,12 +304,13 @@ const tryTour = () => {
                 text: tourContent.tourFindData.next,
                 classes: 'btn btn-sm btn-primary',
                 action() {
-                    const selector = document.getElementsByName('dataFinderBtn')[0];
-                    selector.click()
-                    return this.next()
+                    const selector =
+                        document.getElementsByName('dataFinderBtn')[0];
+                    selector.click();
+                    return this.next();
                 },
-            }
-        ]
+            },
+        ],
     });
 
     tour.addStep({
@@ -297,7 +319,7 @@ const tryTour = () => {
         text: tourContent.tourFindDataWithDatafinder.content,
         attachTo: {
             element: '#data-finder-card',
-            on: 'bottom'
+            on: 'bottom',
         },
         buttons: [
             {
@@ -305,15 +327,18 @@ const tryTour = () => {
                 classes: 'btn btn-sm btn-secondary',
                 action() {
                     closeCalenderModal();
-                    const dataFinderDOM = document.getElementsByName('dataFinderBtn')[0];
+                    const dataFinderDOM =
+                        document.getElementsByName('dataFinderBtn')[0];
                     dataFinderDOM.style.display = 'inherit';
-                    const selector = document.getElementById('datetimeRangePicker');
+                    const selector = document.getElementById(
+                        'datetimeRangePicker',
+                    );
                     selector.select();
                     return this.back();
                 },
             },
             nextStepButton,
-        ]
+        ],
     });
 
     tour.addStep({
@@ -321,21 +346,22 @@ const tryTour = () => {
         title: tourContent.tourUseFilter.title,
         text: tourContent.tourUseFilter.content,
         attachTo: {
-            element: "#cndPrc",
-            on: 'top'
+            element: '#cndPrc',
+            on: 'top',
         },
         buttons: [
             {
                 text: tourContent.tourUseFilter.back,
                 classes: 'btn btn-sm btn-secondary',
                 action() {
-                    const elements = document.getElementById('data-finder-card');
-                    const display = elements.style.display
-                    return this.back()
+                    const elements =
+                        document.getElementById('data-finder-card');
+                    const display = elements.style.display;
+                    return this.back();
                 },
             },
-            nextStepButton
-        ]
+            nextStepButton,
+        ],
     });
 
     tour.addStep({
@@ -344,8 +370,8 @@ const tryTour = () => {
         text: tourContent.tourCleansing.content,
         attachTo: {
             element: '#cleansing-selection',
-            on: 'top'
-        }
+            on: 'top',
+        },
     });
 
     tour.addStep({
@@ -355,8 +381,8 @@ const tryTour = () => {
         advanceOn: { selector: '#showTraceDataGraph', event: 'click' },
         attachTo: {
             element: '#showTraceDataGraph',
-            on: 'top'
-        }
+            on: 'top',
+        },
     });
 
     tour.addStep({
@@ -368,12 +394,12 @@ const tryTour = () => {
             {
                 text: tourContent.tourFinish.finish,
                 classes: 'btn btn-sm btn-primary',
-                action () {
+                action() {
                     $('body').css('overflow-x', 'hidden');
                     return this.complete();
-                }
-            }
-        ]
+                },
+            },
+        ],
     });
 
     tour.start();
@@ -384,11 +410,11 @@ const tryTourInterface = () => {
         ACCESS_COUNT: 'cumlativeAccessCount',
         TRY_TOUR: 'tryTour',
     };
-    const set = (key=undefined, value=undefined) => {
+    const set = (key = undefined, value = undefined) => {
         localStorage.setItem(key, value);
         return true;
     };
-    const get = (key=undefined) => {
+    const get = (key = undefined) => {
         if (key) {
             const accessCount = localStorage.getItem(key);
             return accessCount;
@@ -404,12 +430,12 @@ const tryTourInterface = () => {
         let accessCount = get(keys.ACCESS_COUNT) || 0;
         accessCount = Number(accessCount) + 1;
         return set(keys.ACCESS_COUNT, accessCount);
-    }
+    };
     const isTryTour = () => {
         const tryTour = get(keys.TRY_TOUR);
         return !!tryTour;
     };
-    const reset = (key=undefined) => {
+    const reset = (key = undefined) => {
         if (key) {
             localStorage.removeItem(key);
         }
@@ -418,7 +444,7 @@ const tryTourInterface = () => {
     return { keys, set, reset, isBlink, isTryTour, addAccessCount };
 };
 
-const openTour = (url=undefined, showTour=true) => {
+const openTour = (url = undefined, showTour = true) => {
     const goToPage = url || '/ap/fpp';
     if (showTour) {
         useTileInterface().set();

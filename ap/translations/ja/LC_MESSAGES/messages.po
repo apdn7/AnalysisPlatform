@@ -299,6 +299,10 @@ msgid "Select All"
 msgstr "すべて選択"
 
 #: ap/templates/setting_module/proc_config_modals.html
+msgid "Download All"
+msgstr "すべてダウンロード"
+
+#: ap/templates/setting_module/proc_config_modals.html
 msgid "Copy All"
 msgstr "すべてコピー"
 
@@ -321,6 +325,10 @@ msgstr "データ読込"
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Do you want to import data"
 msgstr "データを読み込みしてもよろしいですか？"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Saved successfully"
+msgstr "設定を保存しました"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Could not access"
@@ -746,7 +754,7 @@ msgstr "不正な桁指定です。"
 
 # ap/templates/setting_module/trace_config.html
 msgid "i18nInvalidDeltaTime"
-msgstr "時間紐付とCutOffは整数でなければなりません。"
+msgstr "時間紐付とCutOffは実数でなければなりません。"
 
 # ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
@@ -1951,6 +1959,10 @@ msgid "Order"
 msgstr "順序"
 
 #: ap/templates/i18n.html
+msgid "Axis"
+msgstr "軸"
+
+#: ap/templates/i18n.html
 msgid "Priority PRIORITY"
 msgstr "第PRIORITY優先"
 
@@ -2665,6 +2677,7 @@ msgstr ""
 "    ・Cat  : カテゴリ値(Category)\n"
 "    ・Seri : シリアル(Serial)\n"
 "    ・CT   : サイクルタイム[sec]\n"
+"    ・Judge: 判定(1: OK, 0: NG)\n"
 
 #: ap/templates/i18n.html
 msgid "Cycle time"
@@ -2799,7 +2812,7 @@ msgstr "`__SERVER_INFO__`のハードディスクの容量が__LIMIT_PERCENT__%%
 
 #: ap/templates/macros.html
 msgid "Division number Hover RLP"
-msgstr "表示する分布の数(分割数)を入力します。2以上240以下の整数を入力してください。"
+msgstr "表示する分布の数(分割数)を入力します。2以上256以下の整数を入力してください。"
 
 #: ap/templates/macros.html
 msgid "Division number Hover StP"
@@ -2946,6 +2959,14 @@ msgstr "クリップボードへのコピーが成功しました。"
 #: ap/templates/i18n.html
 msgid "Failed to copy to clipboard"
 msgstr "クリップボードへのコピーに失敗しました。"
+
+#: ap/templates/i18n.html
+msgid "Success pasting from the clipboard"
+msgstr "クリップボードからの貼り付けに成功しました。"
+
+#: ap/templates/i18n.html
+msgid "Failed to paste from clipboard"
+msgstr "クリップボードからの貼り付けに失敗しました。"
 
 #: ap/templates/i18n.html
 msgid "Target variable"
@@ -3593,6 +3614,30 @@ msgstr ""
 "残りの指定した変数でこれをうまく説明 (推定) できるような回帰モデルを作成します。"
 
 #: ap/templates/templates/macros.html
+msgid "SkD hover plot relationship"
+msgstr "関係性"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot relationship positive"
+msgstr "正の相関"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot relationship negative"
+msgstr "負の相関"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot hover coefficient"
+msgstr "係数"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot hover variable"
+msgstr "変数"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot hover process"
+msgstr "工程"
+
+#: ap/templates/templates/macros.html
 msgid "GL target variable"
 msgstr ""
 "ここで選択した変数間の偏相関関係を可視化します。\n"
@@ -3699,6 +3744,10 @@ msgstr "NA率"
 msgid "Variable display ordering"
 msgstr "変数の表示順序設定"
 
+#: ap/templates/macros.html
+msgid "Variable axis setting"
+msgstr "変数の軸設定"
+
 #: ap/templates/tile_interface/tile_search_by_use.html
 msgid ""
 "You can find the recommended pages and their settings from what you want "
@@ -3748,6 +3797,10 @@ msgstr "ジャンプ可能なページの一覧です。"
 #: ap/templates/macros.html
 msgid "Recommended"
 msgstr "おすすめ"
+
+#: ap/templates/macros.html
+msgid "Selected items"
+msgstr "選択項目"
 
 #: ap/templates/i18n.html
 msgid "Threshold/Graph Config"
@@ -4004,6 +4057,10 @@ msgid "StNo:Int"
 msgstr "ステーションNo:Int"
 
 #: ap/templates/i18n.html
+msgid "JudgeNo"
+msgstr "`判定"
+
+#: ap/templates/i18n.html
 msgid "Could not read data"
 msgstr "ファイルの読み込みに失敗しました"
 
@@ -4176,6 +4233,10 @@ msgid "FolderBrowsePlaceholder"
 msgstr "Z:\\path\\to\\folder (ファイルサイズ:　無制限)"
 
 #: ap/templates/register_by_file.html
+msgid "SourceFileBrowsePlaceholder"
+msgstr "Z:\\path\\to\\folder (ファイルサイズ: 無制限) または Z:\\path\\to\\datafile.csv"
+
+#: ap/templates/register_by_file.html
 msgid "FileBrowsePlaceholder"
 msgstr "Z:\\path\\to\\datafile.csv"
 
@@ -4238,6 +4299,18 @@ msgstr ""
 "各プロセスの元データ (データベースやCSV等データファイルの中身) を確認できます。\n"
 "CSV等のデータファイルの場合は、最新のファイルの中身が表示されます。"
 
+#: ap/templates/register_by_file.html
+msgid "Import all files in the same folder"
+msgstr "同じフォルダの全ファイルを読み込む"
+
+#: ap/templates/register_by_file.html
+msgid "A path to datafile is specified"
+msgstr "データファイルまでのパスが指定されました。"
+
+#: ap/templates/register_by_file.html
+msgid "Only the specified file is imported"
+msgstr "指定したファイルのみ読み込まれます。"
+
 #: ap/templates/heatmap/heatmap.html
 msgid "Heatmap Plot Page Title"
 msgstr "ヒートマップ"
@@ -4248,11 +4321,15 @@ msgstr "変数間の関係をヒートマップで可視化できます。"
 
 #: ap/templates/heatmap/heatmap.html
 msgid "HMp show value description"
-msgstr "選択するx,yのデータ型は両方ともカテゴリ、あるいは整数のみとなります。"
+msgstr "両方ともカテゴリ(Cat, Str)、あるいは両方とも整数(Int)のみとなります。"
 
 #: ap/templates/heatmap/heatmap.html
 msgid "HMp color hover msg"
 msgstr "カラーマップ(z軸)の値の算出方法を指定します。数値の場合は平均などの統計値、カテゴリ値の場合は数え上げ等を選択できます。"
+
+#: ap/templates/heatmap/heatmap.html
+msgid "Go to SCP Msg"
+msgstr "HMpでは、選択する変数は両方ともカテゴリ(Cat, Str)、あるいは両方とも整数(Int)のみとなります。それ以外はScPを活用ください。"
 
 #: ap/templates/i18n.html
 msgid "If both x and y data types are categorical, please draw with HMP."
@@ -4283,6 +4360,21 @@ msgstr "Register all function columns in table into system."
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "ReloadButtonFunctionHoverMessage"
 msgstr "Reload to get all function columns of the process into system."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ProcDatetimeFormat"
+msgstr "日時形式 "
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ProcDatetimeFormatHoverMsg"
+msgstr ""
+"日時の形式を指定します。日付と時刻が別々の値の場合、指定した日時形式の日付と時刻の部分がそれぞれ適用されます。\n"
+"\n"
+"形式\t\t\t\t\t    例\n"
+"%%Y-%%m-%%d %%H:%%M:%%S.%%f\t2024-02-21 15:30:51.123\n"
+"%%Y-%%m-%%d %%I:%%M:%%S %%p\t2024-02-21 03:30:51 PM\n"
+"%%m/%%d/%%y %%H:%%M:%%S\t     02/21/24  15:30:51\n"
+"%%b %%d, %%Y %%H:%%M:%%S\t      Feb 21, 2024  15:30:51\n"
 
 #: ap/templates/i18n.html
 msgid "main::Date"
@@ -4335,10 +4427,13 @@ msgstr ""
 "also see the data that will be exported and stored in file path {0}"
 
 msgid "LinkWithTime"
-msgstr "時間紐付: 時間差 [sec]"
+msgstr "時間紐付: 時間差 [min]"
 
 msgid "i18nCutOff"
-msgstr "CutOff: [msec]"
+msgstr "CutOff: [min]"
+
+msgid "Result is empty, please check input params."
+msgstr "結果を空白です。入力パラメータを確認してください。"
 
 #: ap/templates/i18n.html
 msgid "Boolean"
@@ -4348,15 +4443,113 @@ msgstr "真偽値"
 msgid "CategoryOutput"
 msgstr "カテゴリ"
 
-#~ msgid ""
-#~ "Cast error: There are some columns "
-#~ "that cannot be cast to another "
-#~ "data type. Please check the real "
-#~ "data of the columns listed below. "
-#~ "You can also see the data that "
-#~ "will be exported and stored in "
-#~ "file path {0}"
-#~ msgstr ""
-#~ "キャストエラー：他のデータ型にキャストできない列があります。以下に示す列の実際のデータを確認してください。また、エクスポートされ保存されるデータもファイルパス"
-#~ " {0} で確認できます。"
+msgid "Data Source Name is empty"
+msgstr "データ ソース名が空です。"
+
+msgid "Process Name is empty"
+msgstr "プロセス名が空です。"
+
+#: ap/template/setting_module/system_config.html
+msgid "Backup data was started."
+msgstr "バックアップデータを始めました。"
+
+#: ap/template/setting_module/system_config.html
+msgid "Restore data was started."
+msgstr "データの復元を始めました。"
+
+#: ap/template/setting_module/system_config.html
+msgid "Backup data was finished."
+msgstr "バックアップデータを完了しました。"
+
+#: ap/template/setting_module/system_config.html
+msgid "Restore data was finished."
+msgstr "データの復元を完了しました。"
+
+msgid "Software Workshop Postgres"
+msgstr "ソフトウェア工房 Postgres"
+
+msgid "Unit"
+msgstr "単位"
+
+#: ap/templates/macros.html
+msgid "useODFCheckboxText"
+msgstr "オンデマンドフィルタ"
+
+#: ap/templates/macros.html
+msgid "useODFCheckboxHover"
+msgstr "オンデマンドフィルタで選択されたデータのみを表示します。"
+
+#: ap/templates/i18n.html
+msgid "dataTypeMainDatetimeHover"
+msgstr "アプリ上で日時として使用する列で、必ず1つ選択してください。 (複数選択不可)"
+
+#: ap/templates/i18n.html
+msgid "datatypeMainDateHover"
+msgstr "アプリ上で日付として使用する列。”main::Time”とセットで設定することで、アプリ上で日時として使用する”main::Datetime”を生成します。(複数選択不可)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeMainTimeHover"
+msgstr "アプリ上で時間として使用する列。”main::Date”とセットで設定することで、アプリ上で日時として使用する”main::Datetime”を生成します。(複数選択不可)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeMainSerialIntHover"
+msgstr "プロセス間のデータ紐付に使用するデータ型が整数の列。(複数選択不可)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeMainSerialStringHover"
+msgstr "プロセス間のデータ紐付に使用するデータ型が文字列の列。(複数選択不可)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeDatetimeKeyHover"
+msgstr ""
+"データを定期読込する際に、読み込んだデータの日時を記憶するために使用される日時データの列。main::Datetimeに設定した列の日時データの順にデータがインサートされないデータベースに対してデータの読込漏れを防ぐため、データベースに登録された日時データの列(created_at)"
+" が利用できる場合は設定を推奨。(複数選択不可)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeSerialIntHover"
+msgstr "“main::シリアル”だけではデータを一意に特定できない場合など、複数の列を使用して紐付を行う場合に選択してください。"
+
+#: ap/templates/i18n.html
+msgid "dataTypeSerialStringHover"
+msgstr "“main::シリアル”だけではデータを一意に特定できない場合など、複数の列を使用して紐付を行う場合に選択してください。"
+
+#: ap/templates/i18n.html
+msgid "dataTypeLineNameStrHover"
+msgstr "ラインの名前が保存された列に選択すると、設定なしで全数プロットのラベルプロット描画やフィルタの利用ができます。"
+
+#: ap/templates/i18n.html
+msgid "dataTypeLineNoIntHover"
+msgstr "ラインNoが保存された列に選択すると、設定なしで全数プロットのラベルプロット描画やフィルタの利用ができます。"
+
+#: ap/templates/i18n.html
+msgid "dataTypeEqNameStrHover"
+msgstr "設備の名前が保存された列に選択すると、設定なしで全数プロットのラベルプロット描画やフィルタの利用ができます。"
+
+#: ap/templates/i18n.html
+msgid "dataTypeEqNoIntHover"
+msgstr "設備Noが保存された列に選択すると、設定なしで全数プロットのラベルプロット描画やフィルタの利用ができます。"
+
+#: ap/templates/i18n.html
+msgid "dataTypePartNameStrHover"
+msgstr "製品の名前が保存された列に選択すると、設定なしで全数プロットのラベルプロット描画やフィルタの利用ができます。"
+
+#: ap/templates/i18n.html
+msgid "dataTypePartNoIntHover"
+msgstr "品番が保存された列に選択すると、設定なしで全数プロットのラベルプロット描画やフィルタの利用ができます。"
+
+#: ap/templates/i18n.html
+msgid "dataTypeStNoIntHover"
+msgstr "ステーションNoが保存された列に選択すると、設定なしで全数プロットのラベルプロット描画やフィルタの利用ができます。"
+
+#: ap/templates/i18n.html
+msgid "dataTypeJudgeHover"
+msgstr "検査結果などの判定結果が1と0の2値で保存された列に選択すると、判定(1: OK, 0: NG)としてグラフ描画やフィルタの利用ができます。"
+
+#: ap/templates/i18n.html
+msgid "judgementDataTypeHover"
+msgstr "判定(1: OK, 0: NG)"
+
+#: ap/templates/i18n.html
+msgid "Shown Name Required"
+msgstr "表示名を入力してください。"
 

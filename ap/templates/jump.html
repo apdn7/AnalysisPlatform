@@ -4,73 +4,239 @@
         <div class="modal-content">
             <div class="modal-body">
                 <!--    head actions    -->
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <h4>{{_('Jump to')}}</h4>
+                <div
+                    class="d-flex align-items-center justify-content-between mb-4"
+                >
+                    <h4>{{ _('Jump to') }}</h4>
                     <div class="d-flex align-items-center">
-                        <button type="button" id="jumpOKButton" class="btn btn-setting simple-btn mr-1">OK</button>
-                        <button type="button" class="btn btn-setting simple-btn" data-dismiss="modal" aria-label="Close" id="">Cancel</button>
+                        <button
+                            type="button"
+                            id="jumpOKButton"
+                            class="btn btn-setting simple-btn mr-1"
+                        >
+                            OK
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-setting simple-btn"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                            id=""
+                        >
+                            Cancel
+                        </button>
                     </div>
                 </div>
                 {{ macros.alert_message("jumpAlertMsg") }}
-                    <!--    body   -->
+                <!--    body   -->
                 <div class="jump-content">
                     <div class="jump-page-list">
                         <div class="jump-recommended">
-                            <h4 class="jump-recommended-header jump-sub-header">{{ _('Recommended') }}</h4>
-                            <div class="jump-recommended-list jump-list" id="recommendedList">
-                            </div>
+                            <h4 class="jump-recommended-header jump-sub-header">
+                                {{ _('Recommended') }}
+                            </h4>
+                            <div
+                                class="jump-recommended-list jump-list"
+                                id="recommendedList"
+                            ></div>
                         </div>
                         <div class="jump-all-page">
-                            <div class="jump-all-header collapsed" href="#jumpAllList" data-toggle="collapse" aria-expanded="true">
+                            <div
+                                class="jump-all-header collapsed"
+                                href="#jumpAllList"
+                                data-toggle="collapse"
+                                aria-expanded="true"
+                            >
                                 <div class="icon-col mr-2">
-                                    <a class="btn-collapse collapsed" href="#jumpAllList" data-toggle="collapse" aria-expanded="true"></a>
+                                    <a
+                                        class="btn-collapse collapsed"
+                                        href="#jumpAllList"
+                                        data-toggle="collapse"
+                                        aria-expanded="true"
+                                    ></a>
                                 </div>
-                                <h4 class="mb-0 jump-sub-header"><span class="hint-text" title="{{_('A list of pages that you can jump to.')}}">{{ _('ALL') }}</span></h4>
+                                <h4 class="mb-0 jump-sub-header">
+                                    <span
+                                        class="hint-text"
+                                        title="{{ _('A list of pages that you can jump to.') }}"
+                                        >{{ _('ALL') }}</span
+                                    >
+                                </h4>
                             </div>
-                                <!--         Jump all list                   -->
-                            <div id="jumpAllList" class="jump-all-list jump-list jump-recommended-list collapse">
-                            </div>
+                            <!--         Jump all list                   -->
+                            <div
+                                id="jumpAllList"
+                                class="jump-all-list jump-list jump-recommended-list collapse"
+                            ></div>
                         </div>
                     </div>
                     <div class="jump-sensor-list">
                         <h4 class="jump-sensor-list-header jump-sub-header">
-                            <span class="hint-text" title="{{_('Variable setting hover')}}">{{ _('Variable setting') }}</span>
+                            <span
+                                class="hint-text"
+                                title="{{ _('Variable setting hover') }}"
+                                >{{ _('Variable setting') }}</span
+                            >
                         </h4>
-                        <div class="custom-control custom-checkbox custom-control-inline jump-check-box-option" data-for="skd">
-                            <input type="checkbox" class="custom-control custom-control-input" id="jumpVariableSetting" onchange="bindChangeVariableOrderingSKD(this)" checked>
-                            <label class="custom-control-label" for="jumpVariableSetting">
-                                <span class="hint-text" title="{{ _('Select sensor hover') }}">{{ _('Select only the objective and top important variables (Max: 20)') }}</span>
-                            </label>
-                        </div>
-                        <div class="custom-control custom-checkbox custom-control-inline jump-check-box-option" data-for="rlp">
-                            <input type="checkbox" class="custom-control custom-control-input" id="jumpByEmd" onchange="jumpWithEMDAndNGCols(this)" checked>
-                            <label class="custom-control-label" for="jumpByEmd">
-                                <span class="hint-text" title="{{ _('Pass EMD values to the new page hover msg') }}">{{ _('Pass EMD values to the new page') }}</span>
-                            </label>
+                        <div class="jump-options-area">
+                            <div
+                                class="custom-control custom-checkbox custom-control-inline jump-check-box-option"
+                                data-for="skd"
+                            >
+                                <input
+                                    type="checkbox"
+                                    class="custom-control custom-control-input"
+                                    id="jumpVariableSetting"
+                                    onchange="bindChangeVariableOrderingSKD(this)"
+                                    checked
+                                />
+                                <label
+                                    class="custom-control-label"
+                                    for="jumpVariableSetting"
+                                >
+                                    <span
+                                        class="hint-text"
+                                        title="{{ _('Select sensor hover') }}"
+                                        >{{ _('Select only the objective and top important variables (Max: 20)') }}</span
+                                    >
+                                </label>
+                            </div>
+                            <div
+                                class="custom-control custom-checkbox custom-control-inline"
+                            >
+                                <input
+                                    type="checkbox"
+                                    class="custom-control custom-control-input"
+                                    id="useOdfSettingCheckbox"
+                                    checked
+                                />
+                                <label
+                                    class="custom-control-label"
+                                    for="useOdfSettingCheckbox"
+                                >
+                                    <span
+                                        class="hint-text"
+                                        title="{{ _('useODFCheckboxHover') }}"
+                                        >{{ _('useODFCheckboxText') }}</span
+                                    >
+                                </label>
+                            </div>
+                            <div
+                                class="custom-control custom-checkbox custom-control-inline jump-check-box-option"
+                                data-for="rlp"
+                            >
+                                <input
+                                    type="checkbox"
+                                    class="custom-control custom-control-input"
+                                    id="jumpByEmd"
+                                    onchange="jumpWithEMDAndNGCols(this)"
+                                    checked
+                                />
+                                <label
+                                    class="custom-control-label"
+                                    for="jumpByEmd"
+                                >
+                                    <span
+                                        class="hint-text"
+                                        title="{{ _('Pass EMD values to the new page hover msg') }}"
+                                        >{{ _('Pass EMD values to the new page') }}</span
+                                    >
+                                </label>
+                            </div>
                         </div>
                         <div class="jump-sensor-table">
-                            <div id="jumpSensorTbl_wrap" class="table-responsive" style="max-height: 73vh;">
-                                <table id="jumpSensorTbl" class="table table-bordered table-main table-bordered table-fixed table-dark table-striped table-hover table-hover-light">
+                            <div
+                                class="mb-2 d-flex justify-content-between align-items-center position-relative"
+                            >
+                                <div
+                                    class="d-flex justify-content-between align-items-center"
+                                >
+                                    <div
+                                        id="jumpSelectAllColumn"
+                                        class="custom-control custom-checkbox mr-3"
+                                        style=""
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="custom-control-input"
+                                            id="jumpSelectAllSensor"
+                                            onchange="handleJumpChangeSelectAll(this)"
+                                        />
+                                        <label
+                                            class="custom-control-label"
+                                            for="jumpSelectAllSensor"
+                                            >{{ _("Select All") }}</label
+                                        >
+                                    </div>
+                                    <div
+                                        id="jumpAutoCheckSelectedColumn"
+                                        class="custom-control custom-checkbox"
+                                        style=""
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="custom-control-input"
+                                            id="jumpAutoSelectedItems"
+                                            onchange="handleJumpSelectedItems(this)"
+                                        />
+                                        <label
+                                            class="custom-control-label"
+                                            for="jumpAutoSelectedItems"
+                                            >{{ _("Selected items") }}</label
+                                        >
+                                    </div>
+                                    <div class="jump-column-checked ml-3">
+                                        <div class="total-checked-columns">
+                                            <span id="jumpTotalCheckedColumn"
+                                                >0</span
+                                            >
+                                            <span>/</span>
+                                            <span id="jumpTotalColumns">0</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex ml-3">
+                                        <input
+                                            class="form-control"
+                                            id="jumpSearchInput"
+                                            placeholder="{{ _('Search') }}.."
+                                        />
+                                        <button
+                                            type="button"
+                                            id="jumpSetBtn"
+                                            class="btn simple-btn btn-setting"
+                                        >
+                                            Set
+                                        </button>
+                                        <button
+                                            type="button"
+                                            id="jumpResetBtn"
+                                            class="btn simple-btn btn-setting"
+                                        >
+                                            Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                id="jumpSensorTbl_wrap"
+                                class="table-responsive"
+                                style="max-height: 73vh;"
+                            >
+                                <table
+                                    id="jumpSensorTbl"
+                                    class="table table-bordered table-main table-bordered table-fixed table-dark table-striped table-hover table-hover-light"
+                                >
                                     <thead>
                                         <tr>
                                             <th class="select_vars"></th>
                                             <th class="object_var"></th>
-                                            <th>
-                                                {{ _('Order') }}
-                                            </th>
-                                            <th>
-                                                {{ _('Process Name') }}
-                                            </th>
-                                            <th>
-                                                {{ _('Column Name') }}
-                                            </th>
-                                            <th>
-                                                {{ _('Data Type') }}
-                                            </th>
+                                            <th>{{ _('Order') }}</th>
+                                            <th>{{ _('Process Name') }}</th>
+                                            <th>{{ _('Column Name') }}</th>
+                                            <th>{{ _('Data Type') }}</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                    </tbody>
+                                    <tbody></tbody>
                                 </table>
                             </div>
                         </div>

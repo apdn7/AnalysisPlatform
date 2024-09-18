@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const colorPalettes = [
     ['0', '#222222'],
     ['0.000001', '#18324c'],
@@ -6,7 +5,8 @@ const colorPalettes = [
     ['0.4', '#2d5e88'],
     ['0.6', '#3b7aae'],
     ['0.8', '#56b0f4'],
-    ['1', '#6dc3fd']];
+    ['1', '#6dc3fd'],
+];
 
 const generateHeatmapPlot = (prop, option, zoomRange) => {
     prop.org_array_x = [...prop.array_x];
@@ -15,14 +15,24 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
     let yRange = null;
     if (zoomRange) {
         if (!zoomRange['xaxis.autorange']) {
-            xRange = zoomRange['xaxis.range[0]'] && zoomRange['xaxis.range[1]'] ? [zoomRange['xaxis.range[0]'], zoomRange['xaxis.range[1]']] : null;
-            yRange = zoomRange['yaxis.range[0]'] && zoomRange['yaxis.range[1]'] ? [zoomRange['yaxis.range[0]'], zoomRange['yaxis.range[1]']] : null;
+            xRange =
+                zoomRange['xaxis.range[0]'] && zoomRange['xaxis.range[1]']
+                    ? [zoomRange['xaxis.range[0]'], zoomRange['xaxis.range[1]']]
+                    : null;
+            yRange =
+                zoomRange['yaxis.range[0]'] && zoomRange['yaxis.range[1]']
+                    ? [zoomRange['yaxis.range[0]'], zoomRange['yaxis.range[1]']]
+                    : null;
         }
     }
 
     // add prefix to change int to str type
-    const isXIntType = option.xDataType === DataTypes.INTEGER.name || Number(prop.array_x[0]) !== NaN;
-    const isYIntType = option.yDataType === DataTypes.INTEGER.name || Number(prop.array_y[0]) !== NaN;
+    const isXIntType =
+        option.xDataType === DataTypes.INTEGER.name ||
+        !isNaN(Number(prop.array_x[0]));
+    const isYIntType =
+        option.yDataType === DataTypes.INTEGER.name ||
+        !isNaN(Number(prop.array_y[0]));
     option.isXIntType = isXIntType;
     option.isYIntType = isYIntType;
 
@@ -34,30 +44,32 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
     } else {
         if (isXIntType) {
             const orgArrayX = [...prop.array_x];
-            prop.array_x = orgArrayX.map(val => `${STR_PREFIX}${val}`);
+            prop.array_x = orgArrayX.map((val) => `${STR_PREFIX}${val}`);
             prop.org_array_x = orgArrayX;
         }
 
         if (isYIntType) {
             const orgArrayY = [...prop.array_y];
-            prop.array_y = orgArrayY.map(val => `${STR_PREFIX}${val}`);
+            prop.array_y = orgArrayY.map((val) => `${STR_PREFIX}${val}`);
             prop.org_array_y = orgArrayY;
         }
     }
 
-    const data = [{
-        x: prop.array_x,
-        y: prop.array_y,
-        z: prop.array_z,
-        type: 'heatmap',
-        showscale: false,
-        hoverongaps: true,
-        uirevision: true,
-        hoverinfo: 'none',
-        colorscale: colorPalettes,
-        zmax: prop.zmax,
-        zmin: prop.zmin - 1,
-    }];
+    const data = [
+        {
+            x: prop.array_x,
+            y: prop.array_y,
+            z: prop.array_z,
+            type: 'heatmap',
+            showscale: false,
+            hoverongaps: true,
+            uirevision: true,
+            hoverinfo: 'none',
+            colorscale: colorPalettes,
+            zmax: prop.zmax,
+            zmin: prop.zmin - 1,
+        },
+    ];
 
     if (option.use_map_xy) {
         data[0].xgap = 2;
@@ -136,21 +148,25 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
 
 const makeHeatmapHoverInfoBox = (prop, xVal, yVal, option, x, y) => {
     if (!prop) return;
-    const j = prop.array_x.map(x => x.toString()).indexOf(xVal.toString());
-    const i = prop.array_y.map(x => x.toString()).indexOf(yVal.toString());
+    const j = prop.array_x.map((x) => x.toString()).indexOf(xVal.toString());
+    const i = prop.array_y.map((x) => x.toString()).indexOf(yVal.toString());
     const numberOfData = option.isShowNumberOfData ? prop.h_label : null;
-    const facet = option.isShowFacet ? `Lv1 = ${prop.v_label.toString().split('|')[0]} ${option.hasLv2 ? `, Lv2 = ${prop.v_label.toString().split('|')[1] || prop.h_label}` : ''}` : null;
+    const facet = option.isShowFacet
+        ? `Lv1 = ${prop.v_label.toString().split('|')[0]} ${option.hasLv2 ? `, Lv2 = ${prop.v_label.toString().split('|')[1] || prop.h_label}` : ''}`
+        : null;
     const div = option.isShowDiv ? prop.h_label : null;
-    let hoverData = !(option.use_map_xy) ? {
-            data_no: numberOfData,
-            facet,
-            category: div,
-            ratio: `${prop.array_z[i][j] || COMMON_CONSTANT.NA}%`,
-            n_total: prop.n_total,
-            from: formatDateTime(prop.time_min),
-            to: formatDateTime(prop.time_max),
-            n: prop.orig_array_z[i][j] || COMMON_CONSTANT.NA,
-        } : null;
+    let hoverData = !option.use_map_xy
+        ? {
+              data_no: numberOfData,
+              facet,
+              category: div,
+              ratio: `${prop.array_z[i][j] || COMMON_CONSTANT.NA}%`,
+              n_total: prop.n_total,
+              from: formatDateTime(prop.time_min),
+              to: formatDateTime(prop.time_max),
+              n: prop.orig_array_z[i][j] || COMMON_CONSTANT.NA,
+          }
+        : null;
     if (!hoverData) {
         // hover data for int heatmap
         hoverData = {
@@ -166,11 +182,11 @@ const makeHeatmapHoverInfoBox = (prop, xVal, yVal, option, x, y) => {
             n_total: prop.n_total,
             from: formatDateTime(prop.time_min),
             to: formatDateTime(prop.time_max),
-        }
+        };
     }
     showSCPDataTable(
-        hoverData
-        , {
+        hoverData,
+        {
             x: x - 55,
             y: y,
         },

@@ -1,7 +1,10 @@
+from __future__ import annotations
+
+import functools
 import os.path
 import traceback
 from datetime import datetime
-from typing import List
+from typing import List, Literal
 
 import numpy as np
 import pandas as pd
@@ -13,6 +16,7 @@ from ap.common.common_utils import (
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_ONLY_DIGIT,
     TXT_FILE_TYPE,
+    convert_numeric_by_type,
     convert_time,
     gen_transaction_table_name,
     get_basename,
@@ -97,6 +101,7 @@ PANDAS_DEFAULT_NA = {
     'n/a',
     'nan',
     'null',
+    'na',
 }
 NA_VALUES = {'na', '-', '--', '---', '#NULL!', '#REF!', '#VALUE!', '#NUM!', '#NAME?', '0/0'}
 PREVIEW_ALLOWED_EXCEPTIONS = {'-', '--', '---'}
@@ -105,8 +110,8 @@ INF_NEG_VALUES = {'-Inf', '-Infinity', '-1/0', float('-inf')}
 
 ALL_SYMBOLS = set(PANDAS_DEFAULT_NA | NA_VALUES | INF_VALUES | INF_NEG_VALUES)
 # let app can show preview and import all na column, as string
-NORMAL_NULL_VALUES = {'NA', 'na', 'null'}
-SPECIAL_SYMBOLS = ALL_SYMBOLS - NORMAL_NULL_VALUES - PREVIEW_ALLOWED_EXCEPTIONS
+NORMAL_NULL_VALUES = {'NA', 'na', 'n/a', 'N/A', '<NA>', 'null', 'NULL', 'nan'}
+# SPECIAL_SYMBOLS = ALL_SYMBOLS - NORMAL_NULL_VALUES - PREVIEW_ALLOWED_EXCEPTIONS
 IS_ERROR_COL = '___ERR0R___'
 ERR_COLS_NAME = '___ERR0R_C0LS___'
 
@@ -189,15 +194,11 @@ def check_db_con(db_type, host, port, dbname, schema, username, password):
     db_source.db_detail = db_source_detail
     db_source.type = db_type
 
-    # 戻り値の初期化
-    result = False
-
+    # if we cannot connect, this will raise Exception
     # コネクションをチェックする
-    with DbProxy(db_source, force_connect=True) as db_instance:
-        if db_instance.is_connected:
-            result = True
+    DbProxy.check_db_connection(db_source, force=True)
 
-    return result
+    return True
 
 
 @log_execution_time()
@@ -579,6 +580,12 @@ def strip_special_symbol(data, is_dict=False):
     # TODO: convert to dataframe than filter is faster , but care about generation purpose ,
     #  we just need to read some rows
 
+    def clean_value(val):
+        str_val = str(val)
+        if str_val in ALL_SYMBOLS or str_val.lower() in ALL_SYMBOLS:
+            return ''
+        return val
+
     if is_dict:
 
         def iter_func(x):
@@ -590,16 +597,10 @@ def strip_special_symbol(data, is_dict=False):
             return x
 
     for row in data:
-        is_ng = False
         if not row:
             continue
-        for val in iter_func(row):
-            if str(val).lower() in SPECIAL_SYMBOLS:
-                is_ng = True
-                break
-
-        if not is_ng:
-            yield row
+        new_row = {k: clean_value(v) for k, v in row.items()} if is_dict else [clean_value(v) for v in row]
+        yield new_row
 
 
 @log_execution_time()
@@ -694,6 +695,7 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
     :param exclude_cols:
     :return:
     """
+    from ap.api.setting_module.services.csv_import import convert_eu_decimal
 
     init_is_error_col(df)
 
@@ -719,6 +721,7 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
 
         # data type that user chose
         user_data_type = dic_use_cols[col_name].data_type
+        d_type = dic_use_cols[col_name].predict_type
 
         # do nothing with float column
         if col_name in float_cols and user_data_type != DataType.INTEGER.name:
@@ -736,13 +739,25 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
 
         # strip quotes and spaces
         dtype_name = df[col_name].dtype.name
-        if user_data_type in [DataType.INTEGER.name, DataType.REAL.name]:
+        if dtype_name == 'boolean':
+            df[col_name] = df[col_name].astype(pd.StringDtype()).str.lower()
+
+        # convert K sep Int|Real data type
+        if dic_use_cols[col_name].predict_type and DataType[d_type] in [
+            DataType.REAL_SEP,
+            DataType.INTEGER_SEP,
+            DataType.EU_REAL_SEP,
+            DataType.EU_INTEGER_SEP,
+        ]:
+            convert_eu_decimal(df, col_name, d_type)
+
+        if user_data_type in [DataType.INTEGER.name, DataType.REAL.name, DataType.BOOLEAN.name]:
             vals = df[col_name].copy()
 
             # convert numeric values
             numerics = pd.to_numeric(vals, errors='coerce')
+            numerics = convert_numeric_by_type(numerics, user_data_type)
             df[col_name] = numerics
-
             # strip quote space then convert non numeric values
             non_num_idxs = numerics.isna()
             non_numerics = vals.loc[non_num_idxs].dropna()
@@ -752,6 +767,7 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
 
                 # convert non numeric again
                 numerics = pd.to_numeric(non_numerics, errors='coerce')
+                numerics = convert_numeric_by_type(numerics, user_data_type)
                 df.loc[non_num_idxs, col_name] = numerics
 
                 # set error for non numeric values
@@ -781,28 +797,25 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
                 df.loc[df[col_name].isin([float('inf'), float('-inf')]), col_name] = nan
 
         elif user_data_type == DataType.TEXT.name:
-            if dtype_name == 'boolean':
-                df[col_name] = df[col_name].replace({True: 'True', False: 'False'})
+            idxs = df[col_name].dropna().index
+            if dtype_name == 'object':
+                df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str).str.strip("'").str.strip()
+            elif dtype_name == 'string':
+                df.loc[idxs, col_name] = df.loc[idxs, col_name].str.strip("'").str.strip()
             else:
-                idxs = df[col_name].dropna().index
-                if dtype_name == 'object':
-                    df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str).str.strip("'").str.strip()
-                elif dtype_name == 'string':
-                    df.loc[idxs, col_name] = df.loc[idxs, col_name].str.strip("'").str.strip()
-                else:
-                    # convert to string before insert to database
-                    df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str)
-                    continue
+                # convert to string before insert to database
+                df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str)
+                continue
 
-                if len(idxs):
-                    conditions = [
-                        df[col_name].isin(na_vals),
-                        df[col_name].isin(INF_VALUES),
-                        df[col_name].isin(INF_NEG_VALUES),
-                    ]
-                    return_vals = [nan, inf_val, inf_neg_val]
+            if len(idxs):
+                conditions = [
+                    df[col_name].isin(na_vals),
+                    df[col_name].isin(INF_VALUES),
+                    df[col_name].isin(INF_NEG_VALUES),
+                ]
+                return_vals = [nan, inf_val, inf_neg_val]
 
-                    df[col_name] = np.select(conditions, return_vals, df[col_name])
+                df[col_name] = np.select(conditions, return_vals, df[col_name])
     df.head()
 
 
@@ -965,14 +978,14 @@ def convert_df_col_to_utc(df, get_date_col, is_timezone_inside, db_time_zone, ut
 
 @log_execution_time()
 def convert_df_datetime_to_str(df: DataFrame, get_date_col):
-    return df[df[get_date_col].notnull()][get_date_col].dt.strftime(DATE_FORMAT_STR)
+    return df[df[get_date_col].notnull()][get_date_col].dt.strftime(DATE_FORMAT_STR).astype(pd.StringDtype())
 
 
 @log_execution_time()
 def validate_datetime(df: DataFrame, date_col, is_strip=True, add_is_error_col=True, null_is_error=True):
     dtype_name = df[date_col].dtype.name
     if dtype_name == 'object':
-        df[date_col] = df[date_col].astype(str)
+        df[date_col] = df[date_col].astype(pd.StringDtype())
     elif dtype_name != 'string':
         return
 
@@ -1199,34 +1212,84 @@ def get_df_first_n_last(df: DataFrame, first_count=10, last_count=10):
 
 
 @log_execution_time()
-def save_proc_data_count(db_instance, df: DataFrame, proc_id, get_date_col):
-    if not df.size or not get_date_col:
-        return None
+def save_proc_data_count(db_instance, df, proc_id, get_date_col):
+    save_proc_data_count_multiple_dfs(
+        db_instance,
+        proc_id=proc_id,
+        get_date_col=get_date_col,
+        dfs_push_to_db=df,
+    )
 
-    s = pd.to_datetime(df[get_date_col], errors='coerce')
-    s: Series = (s.dt.year * 1_00_00_00 + s.dt.month * 1_00_00 + s.dt.day * 1_00 + s.dt.hour).value_counts()
-    s.rename(DataCountTable.count.name, inplace=True)
-    count_df = s.reset_index(name=DataCountTable.count.name)
-    count_df.rename(columns={'index': DataCountTable.datetime.name}, inplace=True)
-    count_df[DataCountTable.datetime.name] = pd.to_datetime(
-        count_df[DataCountTable.datetime.name],
-        format='%Y%m%d%H',
-    ).dt.strftime(DATE_FORMAT_FOR_ONE_HOUR)
 
-    # # rename
-    # df = df.rename(columns={get_date_col: DataCountTable.get_date_col()})
-    #
-    # # group data by datetime time
-    # df[get_date_col] = df[get_date_col].apply(
-    #     lambda x: '{}'.format(datetime.strptime(x, DATE_FORMAT_STR).strftime(DATE_FORMAT_FOR_ONE_HOUR)),
-    # )
-    # count_df = df.groupby([get_date_col]).value_counts()
-    # count_df = count_df.to_frame(name=DataCountTable.count.name).reset_index()
+def save_proc_data_count_multiple_dfs(
+    db_instance,
+    *,
+    proc_id,
+    get_date_col,
+    dfs_push_to_db: list[pd.DataFrame] | pd.DataFrame = None,
+    dfs_pop_from_db: list[pd.DataFrame] | pd.DataFrame = None,
+    dfs_push_to_file: list[pd.DataFrame] | pd.DataFrame = None,
+    dfs_pop_from_file: list[pd.DataFrame] | pd.DataFrame = None,
+):
+    def check_args(dfs):
+        if dfs is None:
+            return []
+        if not isinstance(dfs, list):
+            return [dfs]
+        return dfs
 
+    dfs_push_to_db = check_args(dfs_push_to_db)
+    dfs_pop_from_db = check_args(dfs_pop_from_db)
+    dfs_push_to_file = check_args(dfs_push_to_file)
+    dfs_pop_from_file = check_args(dfs_pop_from_file)
+
+    get_proc_data_count_df_func = functools.partial(
+        get_proc_data_count_df,
+        get_date_col=get_date_col,
+    )
+    # TODO: aggregate to one df instead of run 4 times
+    aggregated_df = pd.DataFrame()
+
+    for df in dfs_push_to_db:
+        count_df = get_proc_data_count_df_func(df, is_db=True, decrease=False)
+        aggregated_df = pd.concat([aggregated_df, count_df])
+
+    for df in dfs_pop_from_db:
+        count_df = get_proc_data_count_df_func(df, is_db=True, decrease=True)
+        aggregated_df = pd.concat([aggregated_df, count_df])
+
+    for df in dfs_push_to_file:
+        count_df = get_proc_data_count_df_func(df, is_db=False, decrease=False)
+        aggregated_df = pd.concat([aggregated_df, count_df])
+
+    for df in dfs_pop_from_file:
+        count_df = get_proc_data_count_df_func(df, is_db=False, decrease=True)
+        aggregated_df = pd.concat([aggregated_df, count_df])
+
+    if aggregated_df.empty:
+        return
+
+    agg_keys = {DataCountTable.count.name: 'sum', DataCountTable.count_file.name: 'sum'}
+    aggregated_df = aggregated_df.groupby(DataCountTable.datetime.name).agg(agg_keys).reset_index()
+
+    sql_vals = aggregated_df.to_records(index=False).tolist()
     sql_params = get_insert_params(DataCountTable.get_keys())
     sql_insert = gen_bulk_insert_sql(DataCountTable.get_table_name(proc_id), *sql_params)
-    sql_vals = count_df.to_records(index=False).tolist()
+
     insert_data(db_instance, sql_insert, sql_vals)
+    set_all_cache_expired(CacheType.TRANSACTION_DATA)
+
+
+def get_proc_data_count_df(df, *, get_date_col, decrease: bool, is_db: bool):
+    if df.empty:
+        return pd.DataFrame()
+
+    count_column = DataCountTable.count.name if is_db else DataCountTable.count_file.name
+    count_df = calculate_value_counts_per_hours(df, get_date_col, count_column=count_column)
+    if decrease:
+        count_df[count_column] = -count_df[count_column]
+
+    return count_df
 
 
 @log_execution_time()
@@ -1280,3 +1343,29 @@ def save_failed_import_history(proc_id, job_info, error_type):
     # save import history before return
     # insert import history
     save_import_history(proc_id, job_info)
+
+
+@log_execution_time()
+def calculate_value_counts_per_hours(
+    df: DataFrame,
+    get_date_col,
+    count_column: Literal['count', 'count_file'] = DataCountTable.count.name,
+):
+    if not df.size or not get_date_col:
+        return None
+
+    s = pd.to_datetime(df[get_date_col], errors='coerce')
+    s: Series = (s.dt.year * 1_00_00_00 + s.dt.month * 1_00_00 + s.dt.day * 1_00 + s.dt.hour).value_counts()
+    count_df = s.rename(count_column).reset_index(name=count_column)
+    count_df.rename(columns={'index': DataCountTable.datetime.name}, inplace=True)
+    count_df[DataCountTable.datetime.name] = pd.to_datetime(
+        count_df[DataCountTable.datetime.name],
+        format='%Y%m%d%H',
+    ).dt.strftime(DATE_FORMAT_FOR_ONE_HOUR)
+
+    if count_column == DataCountTable.count.name:
+        count_df[DataCountTable.count_file.name] = 0
+    else:
+        count_df[DataCountTable.count.name] = 0
+
+    return count_df

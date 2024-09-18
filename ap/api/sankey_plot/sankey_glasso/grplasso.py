@@ -528,6 +528,7 @@ class GroupSankeyDataProcessor:
             'node_color': [],
             'edge_value': [],
             'edge_color': [],
+            'relationship': [],
         }
 
         self._add_node_colors()
@@ -573,11 +574,13 @@ class GroupSankeyDataProcessor:
     def _add_links_from_x_to_group(self):
         # Add links: x -> groups
         edge_colors = [self.color_link_positive if x > 0 else self.color_link_negative for x in self.coef_remained]
+        relationship = ['positive' if x > 0 else 'negative' for x in self.coef_remained]
         for i in range(self.num_col_remained):
             self.dic_skd['source'].append(i)
             self.dic_skd['target'].append(self._sensor_node_id_to_group_node_id(i))
             self.dic_skd['edge_value'].append(np.abs(self.coef_remained[i]))
             self.dic_skd['edge_color'].append(edge_colors[i])
+            self.dic_skd['relationship'].append(relationship[i])
 
     def _add_links_from_group_to_y(self):
         # Add links: groups -> y
@@ -586,6 +589,7 @@ class GroupSankeyDataProcessor:
             self.dic_skd['target'].append(self.num_col_remained + self.num_grp_remained)
             self.dic_skd['edge_value'].append(self.coef_grps[self.idx_grp_remained[i]])
             self.dic_skd['edge_color'].append('#696969')
+            self.dic_skd['relationship'].append('')
 
     def _sensor_id_to_group_id(self, sensor_id):
         group_id = self.dic_groups['idx_grps'][sensor_id]

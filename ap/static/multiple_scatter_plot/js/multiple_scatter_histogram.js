@@ -37,7 +37,7 @@ const genHistogramTrace = (plotData, scaleOption) => {
     if (kdeData.hist_labels && kdeData.kde) {
         const maxKDE = Math.max(...kdeData.kde);
         const maxHist = Math.max(...kdeData.hist_counts);
-        const transKDE = kdeData.kde.map(i => maxHist * i / maxKDE);
+        const transKDE = kdeData.kde.map((i) => (maxHist * i) / maxKDE);
         traces.push({
             line: {
                 color: 'orange',
@@ -60,7 +60,14 @@ const genHistogramTrace = (plotData, scaleOption) => {
     return [traces, fmt];
 };
 
-const genHistogramLayout = (xrange = false, yrange = false, fmt, isLargeOfSensors=false, chartLabel='') => {
+const genHistogramLayout = (
+    xrange = false,
+    yrange = false,
+    fmt,
+    isLargeOfSensors = false,
+    chartLabel = '',
+    labelFontSize,
+) => {
     const styleLayout = {
         font: {
             size: 11,
@@ -71,7 +78,7 @@ const genHistogramLayout = (xrange = false, yrange = false, fmt, isLargeOfSensor
             l: 7,
             r: 10,
             b: 5,
-            t: 10,
+            t: isLargeOfSensors ? 15 : 25,
             // pad: 5,
         },
         hovermode: 'closest',
@@ -109,11 +116,12 @@ const genHistogramLayout = (xrange = false, yrange = false, fmt, isLargeOfSensor
     if (yrange) {
         styleLayout.yaxis.range = yrange;
     }
+
     if (!isLargeOfSensors) {
         styleLayout.title = {
             text: chartLabel,
             font: {
-                size: 11,
+                size: labelFontSize,
                 color: '#65c5f1',
             },
             xref: 'paper',
@@ -125,7 +133,25 @@ const genHistogramLayout = (xrange = false, yrange = false, fmt, isLargeOfSensor
             b: 20,
             t: 25,
         };
+    } else {
+        styleLayout.title = {
+            text: chartLabel,
+            font: {
+                size: labelFontSize,
+                color: '#65c5f1',
+            },
+
+            xref: 'paper',
+            yref: 'container',
+            yanchor: 'top',
+            y: 0.95,
+            x: 0,
+            pad: {
+                t: 0,
+            },
+        };
     }
+
     return styleLayout;
 };
 
@@ -135,7 +161,10 @@ const addHistogramThresholds = (layout, maxHistNum, histLabels, xThreshold) => {
     const ref = { xaxis: 'x', yaxis: 'y' };
 
     if (histLabels.length > 0) {
-        layout.shapes = genThresholds(xThreshold, {}, ref, null, [0, maxHistNum]);
+        layout.shapes = genThresholds(xThreshold, {}, ref, null, [
+            0,
+            maxHistNum,
+        ]);
     }
 
     return layout;

@@ -7,8 +7,11 @@ import traceback
 
 import psycopg2
 import psycopg2.extras
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.sql import Select
 
 from ap.common.common_utils import strip_all_quote
+from ap.common.logger import log_execution_time
 
 logger = logging.getLogger(__name__)
 
@@ -238,7 +241,8 @@ class PostgreSQL:
     # colsとdict形式のrowsを返す
     # cols, rows = db1.run_sql("select * from tbl01")
     # という形で呼び出す
-    def run_sql(self, sql, row_is_dict=True):
+    @log_execution_time('POSTGRES')
+    def run_sql(self, sql, row_is_dict=True, params=None):
         if not self._check_connection():
             return False
         cur = self.connection.cursor()
@@ -246,7 +250,7 @@ class PostgreSQL:
         # how-do-i-get-a-list-of-column-names-from-a-psycopg2-cursor
         # カラム名がRenameされた場合も対応出来る形に処理を変更
         print(sql)
-        cur.execute(sql)
+        cur.execute(sql, params)
         # cursor.descriptionはcolumnの配列
         # そこから配列名(column[0])を取り出して配列columnsに代入
         cols = [column[0] for column in cur.description]
@@ -258,12 +262,12 @@ class PostgreSQL:
         cur.close()
         return cols, rows
 
-    def fetch_many(self, sql, size=10_000):
+    def fetch_many(self, sql, size=10_000, params=None):
         if not self._check_connection():
             return False
 
         cur = self.connection.cursor()
-        cur.execute(sql)
+        cur.execute(sql, params)
         cols = [column[0] for column in cur.description]
         yield cols
         while True:
@@ -317,3 +321,8 @@ class PostgreSQL:
             return True
 
         return False
+
+    @staticmethod
+    def gen_sql_and_params(stmt: Select) -> tuple[str, dict[str, str]]:
+        compiled_stmt = stmt.compile(dialect=postgresql.dialect())
+        return compiled_stmt.string, compiled_stmt.params

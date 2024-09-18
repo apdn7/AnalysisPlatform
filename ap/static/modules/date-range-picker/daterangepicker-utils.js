@@ -720,12 +720,12 @@ const initializeDateTimePicker = (dtId = null, isClassName = false, parentEl = n
     * - func: function
     * - ms: milliseconds delay
     */
-function delay(func, ms) {
-    let timer = 0
-    return function (...args) {
-        clearTimeout(timer)
-        timer = setTimeout(func.bind(this, ...args), ms || 0)
+function delay(func, ms, ...extendArgs) {
+    function inner(...args) {
+        clearTimeout(inner.timeoutID);
+        inner.timeoutID = setTimeout(func.bind(this, ...args, ...extendArgs), ms || 0);
     }
+    return inner;
 }
 
 let thisCalendar = null;

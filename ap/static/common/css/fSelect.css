@@ -14,7 +14,7 @@
     cursor: default;
     height: 36.5px;
     color: #444;
-    background-clip:padding-box;
+    background-clip: padding-box;
     border-radius: 0.25rem;
 }
 
@@ -31,7 +31,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    color:black
+    color: black;
 }
 
 .fs-arrow {

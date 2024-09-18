@@ -218,17 +218,28 @@ const whiskerPlot = (ctx, prop) => {
     return chart;
 };
 
-
 const getChartInforIndex = (plotData, clickedVal) => {
     const chartInfosY = plotData.chart_infos || [];
     const chartInfosYOrg = plotData.chart_infos_org || [];
-    const [latestChartInfoY, idx] = chooseLatestThresholds(chartInfosY, chartInfosYOrg, clickedVal);
+    const [latestChartInfoY, idx] = chooseLatestThresholds(
+        chartInfosY,
+        chartInfosYOrg,
+        clickedVal,
+    );
     return idx;
 };
 
-const genProp = (plotData, chartInforIndex = null, cfgYMin = null, cfgYMax = null) => {
-    const nonParametric = getNode(plotData.summaries[chartInforIndex], ['non_parametric']) || {};
-    const stats = getNode(plotData.summaries[chartInforIndex], ['basic_statistics']) || {};
+const genProp = (
+    plotData,
+    chartInforIndex = null,
+    cfgYMin = null,
+    cfgYMax = null,
+) => {
+    const nonParametric =
+        getNode(plotData.summaries[chartInforIndex], ['non_parametric']) || {};
+    const stats =
+        getNode(plotData.summaries[chartInforIndex], ['basic_statistics']) ||
+        {};
 
     let yMax = cfgYMax;
     let yMin = cfgYMin;
@@ -278,14 +289,40 @@ const showWhiskerHover = (e) => {
 
     // show hover
     const canvasId = e.chart.canvas.id;
-    const rec = $(`#${canvasId}`)[0].getBoundingClientRect();
+    const pos = calWhiskerParamTblRect(canvasId);
     const hoverElement = $(`#${canvasId}Hover`);
-    hoverElement.css('left', rec.x + rec.width - 35);
-    hoverElement.css('top', rec.y);
+    hoverElement.css('left', pos.left);
+    hoverElement.css('top', pos.top);
     hoverElement.css('display', 'block');
     hoverElement.css('visibility', 'visible');
     hoverElement.css('opacity', '1');
     // #s120b14 todo pin from mouse position to use copy button
+};
+
+const calWhiskerParamTblRect = (whiskerId) => {
+    const offsetTop = 0;
+    const whiskerHoverElem = $(`#${whiskerId}Hover`);
+    const whiskerRect = $(`#${whiskerId}`)[0].getBoundingClientRect();
+    const tblOffsetTop =
+        parseInt(whiskerHoverElem.css('padding-top').slice(0, -2)) +
+        parseInt(whiskerHoverElem.css('margin-top').slice(0, -2));
+    const tblOffsetBottom =
+        parseInt(whiskerHoverElem.css('padding-bottom').slice(0, -2)) +
+        parseInt(whiskerHoverElem.css('margin-bottom').slice(0, -2));
+    const tblHeight =
+        whiskerHoverElem.height() + tblOffsetBottom + tblOffsetTop - 35;
+    const tblVisible = $(window).height() - (whiskerRect.y + tblOffsetTop);
+    const overTblBottom = tblHeight - tblVisible;
+    const posLeft = whiskerRect.x + whiskerRect.width - 35;
+    let posTop = whiskerRect.y > 0 ? whiskerRect.y : offsetTop;
+    if (overTblBottom > 0) {
+        if (whiskerRect.y > overTblBottom) {
+            posTop = whiskerRect.y - overTblBottom;
+        } else {
+            posTop = offsetTop;
+        }
+    }
+    return { left: posLeft, top: posTop };
 };
 
 const hideAllWhiskerHover = () => {
@@ -314,7 +351,13 @@ const produceWhiskerPlots = (data) => {
     });
 };
 
-const drawSensorWhisker = (sensorIdx, plotData, clickedVal = null, cfgYMin = null, cfgYMax = null) => {
+const drawSensorWhisker = (
+    sensorIdx,
+    plotData,
+    clickedVal = null,
+    cfgYMin = null,
+    cfgYMax = null,
+) => {
     const canvasId = `whisker0${parseInt(sensorIdx) + 1}`;
     const canvasElement = $(`#${canvasId}`);
     const chartInforIndex = getChartInforIndex(plotData, clickedVal);

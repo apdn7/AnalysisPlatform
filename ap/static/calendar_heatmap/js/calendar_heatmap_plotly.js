@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 const funcTitle = {
     'Cycle Time [s]': 'CT [s]',
     'Range (max-min)': 'Range<br><sub>(max-min)</sub>',
@@ -7,19 +6,26 @@ const funcTitle = {
     'Count/Min': 'Count<br><sub>(Min)</sub>',
 };
 
-const getHalfOfScale = (colorScale, firstHalf=false) => {
+const getHalfOfScale = (colorScale, firstHalf = false) => {
     const centerIdx = colorScale.length / 2;
-    colorScale = colorScale.filter((color, idx) => firstHalf ? idx < centerIdx : idx >= centerIdx - 1);
-    return colorScale.map((color, idx) => [String(idx / (colorScale.length - 1)), color[1]]);
+    colorScale = colorScale.filter((color, idx) =>
+        firstHalf ? idx < centerIdx : idx >= centerIdx - 1,
+    );
+    return colorScale.map((color, idx) => [
+        String(idx / (colorScale.length - 1)),
+        color[1],
+    ]);
 };
 
 const genColorScale = (data, colorOption, commonRange = null) => {
     if (commonRange) {
-        data = [commonRange.zmin, commonRange.zmax]
+        data = [commonRange.zmin, commonRange.zmax];
     }
-    const minVal = Math.min(...data.filter(i => i !== null));
-    const maxVal = Math.max(...data.filter(i => i !== null));
-    const maxAbsVal = Math.max(...data.filter(i => i !== null).map(i => Math.abs(i)));
+    const minVal = Math.min(...data.filter((i) => i !== null));
+    const maxVal = Math.max(...data.filter((i) => i !== null));
+    const maxAbsVal = Math.max(
+        ...data.filter((i) => i !== null).map((i) => Math.abs(i)),
+    );
 
     let colorScale = colorPallets[colorOption].scale;
     // for blue and blue rev
@@ -33,9 +39,9 @@ const genColorScale = (data, colorOption, commonRange = null) => {
 
     let zmin = -maxAbsVal;
     let zmax = maxAbsVal;
-    colorScale = colorPallets[colorOption].isRev ?
-        reverseScale(dnJETColorScale) :
-        dnJETColorScale;
+    colorScale = colorPallets[colorOption].isRev
+        ? reverseScale(dnJETColorScale)
+        : dnJETColorScale;
     if (minVal >= 0) {
         zmin = 0;
         zmax = maxAbsVal;
@@ -53,7 +59,11 @@ const genColorScale = (data, colorOption, commonRange = null) => {
     };
 };
 const createHeatMap = (prop) => {
-    const colorScale = genColorScale(prop.z, prop.colorOption, prop.colorScaleCommon);
+    const colorScale = genColorScale(
+        prop.z,
+        prop.colorOption,
+        prop.colorScaleCommon,
+    );
     const common = {
         family: 'Calibri Light',
         tickSize: 10,
@@ -63,8 +73,11 @@ const createHeatMap = (prop) => {
         primaryColor: '#65c5f1',
     };
 
-    const customFuncTitle = Object.keys(funcTitle).includes(prop.aggFunction) ? funcTitle[prop.aggFunction] : prop.aggFunction;
-    const isChangeSize = prop.zFmt.includes('e') || Math.round(prop.zmax) > 1000;
+    const customFuncTitle = Object.keys(funcTitle).includes(prop.aggFunction)
+        ? funcTitle[prop.aggFunction]
+        : prop.aggFunction;
+    const isChangeSize =
+        prop.zFmt.includes('e') || Math.round(prop.zmax) > 1000;
 
     const heatmapTrace = {
         // name: [],
@@ -127,7 +140,7 @@ const createHeatMap = (prop) => {
             showline: true,
             tickmode: 'array',
             ticktext: prop.yTicktext,
-            tickvals: prop.yTickvals.map(y => y + 0.5),
+            tickvals: prop.yTickvals.map((y) => y + 0.5),
             tickfont: {
                 size: common.tickSize + 1,
                 family: common.family,
@@ -165,9 +178,9 @@ const createHeatMap = (prop) => {
         ...heatmapIconSettings,
         responsive: true, // responsive histogram
         useResizeHandler: true, // responsive histogram
-        style: {width: '100%', height: '100%'}, // responsive histogram
+        style: { width: '100%', height: '100%' }, // responsive histogram
     };
-    
+
     Plotly.react(prop.canvasId, {
         data,
         layout,
@@ -194,12 +207,13 @@ const createHeatMap = (prop) => {
             genDataPointHoverTable(
                 dataTable,
                 {
-                    x: data.event.pageX - 120, y: data.event.pageY,
+                    x: data.event.pageX - 120,
+                    y: data.event.pageY,
                 },
                 0,
                 true,
                 prop.canvasId,
-                1
+                1,
             );
         }
     });

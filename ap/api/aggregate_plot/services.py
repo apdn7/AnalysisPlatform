@@ -21,6 +21,7 @@ from ap.api.common.services.show_graph_services import (
     filter_cat_dict_common,
     get_data_from_db,
     get_filter_on_demand_data,
+    judge_data_conversion,
 )
 from ap.api.scatter_plot.services import gen_df
 from ap.common.constants import (
@@ -149,7 +150,11 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
     dic_param[ARRAY_PLOTDATA] = dic_data
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
     # calc y scale
-    min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param[ARRAY_PLOTDATA], str_cols)
+    min_max_list, all_graph_min, all_graph_max, max_common_y_scale_count = calc_raw_common_scale_y(
+        dic_param[ARRAY_PLOTDATA],
+        str_cols,
+        is_get_common_y_scale_count=True,
+    )
     calc_scale_info(
         graph_param.dic_proc_cfgs,
         dic_param[ARRAY_PLOTDATA],
@@ -157,6 +162,7 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
         all_graph_min,
         all_graph_max,
         str_cols,
+        max_common_y_scale_count=max_common_y_scale_count,
     )
 
     dic_param = get_filter_on_demand_data(dic_param)
@@ -199,6 +205,7 @@ def gen_df_direct_term(root_graph_param, dic_param, dic_cat_filters, use_expired
             dic_cat_filters,
             _use_expired_cache=use_expired_cache,
         )
+        df_term = judge_data_conversion(df_term, root_graph_param)
 
         df_term[DIVIDE_FMT_COL] = f'{term[START_DT]} | {term[END_DT]}'
 

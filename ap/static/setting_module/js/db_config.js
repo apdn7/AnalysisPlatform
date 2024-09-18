@@ -7,7 +7,7 @@ const MAX_NUMBER_OF_SENSOR = 100000000;
 const MIN_NUMBER_OF_SENSOR = 0;
 let isV2ProcessConfigOpening = false;
 let v2ImportInterval = null;
-const DUMMY_V2_PROCESS_NAME = 'DUMMY_V2_PROCESS_NAME'
+const DUMMY_V2_PROCESS_NAME = 'DUMMY_V2_PROCESS_NAME';
 // data type
 const originalTypes = {
     0: null,
@@ -91,7 +91,24 @@ const DB_CONFIGS = {
     V2: {
         name: 'v2 csv',
         configs: {
-            type: 'V2', directory: '', delimiter: 'Auto', use_os_timezone: false,
+            type: 'V2',
+            directory: '',
+            delimiter: 'Auto',
+            use_os_timezone: false,
+        },
+    },
+    SOFTWARE_WORKSHOP: {
+        name: 'software workshop',
+        configs: {
+            // type: 'POSTGRESQL', //'SOFTWARE_WORKSHOP',
+            type: 'SOFTWARE_WORKSHOP', //'SOFTWARE_WORKSHOP',
+            port: 5432,
+            schema: 'public',
+            dbname: '',
+            host: '',
+            username: '',
+            password: '',
+            use_os_timezone: false,
         },
     },
 };
@@ -114,18 +131,14 @@ const dbElements = {
 const DATETIME = originalTypes[4];
 
 const i18nDBCfg = {
-    subFolderWrongFormat: $('#i18nSubFolderWrongFormat')
-        .text(),
-    dirExist: $(`#${csvResourceElements.i18nDirExist}`)
-        .text(),
-    dirNotExist: $(`#${csvResourceElements.i18nDirNotExist}`)
-        .text(),
-    noDatetimeColMsg: $('#i18nNoDatetimeCol')
-        .text(),
+    subFolderWrongFormat: $('#i18nSubFolderWrongFormat').text(),
+    dirExist: $(`#${csvResourceElements.i18nDirExist}`).text(),
+    dirNotExist: $(`#${csvResourceElements.i18nDirNotExist}`).text(),
+    noDatetimeColMsg: $('#i18nNoDatetimeCol').text(),
     fileNotFound: $('#i18nFileNotFoundMsg'),
     couldNotReadData: $('#i18nCouldNotReadData'),
     dummyHeader: $('#i18nDummyHeader'),
-    partialDummyHeader: $('#i18nPartialDummyHeader')
+    partialDummyHeader: $('#i18nPartialDummyHeader'),
 };
 
 const triggerEvents = {
@@ -134,27 +147,33 @@ const triggerEvents = {
     ALL: 'all',
 };
 
-const checkFolderResources = (folderUrl) => {
+const checkFolderResources = async (folderUrl, originFolderUrl) => {
     $.ajax({
         url: csvResourceElements.apiCheckFolderUrl,
         method: 'POST',
         data: JSON.stringify({
             url: folderUrl,
+            isFile: await checkIsFilePath(folderUrl, originFolderUrl),
         }),
         contentType: 'application/json',
         success: (res) => {
             if (res.is_valid) {
-                displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
-                    message: i18nDBCfg.dirExist,
-                    is_error: false,
-                });
-                $(csvResourceElements.showResourcesBtnId)
-                    .trigger('click');
+                displayRegisterMessage(
+                    csvResourceElements.alertMsgCheckFolder,
+                    {
+                        message: i18nDBCfg.dirExist,
+                        is_error: false,
+                    },
+                );
+                $(csvResourceElements.showResourcesBtnId).trigger('click');
             } else {
-                displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
-                    message: res.err_msg,
-                    is_error: true,
-                });
+                displayRegisterMessage(
+                    csvResourceElements.alertMsgCheckFolder,
+                    {
+                        message: res.err_msg,
+                        is_error: true,
+                    },
+                );
                 // hide loading
                 $('#resourceLoading').hide();
                 return;
@@ -163,27 +182,26 @@ const checkFolderResources = (folderUrl) => {
     });
 };
 
-const changeBackgroundColor = (ele) => {
-    if ([DataTypes.STRING.name, DataTypes.REAL_SEP.name, DataTypes.EU_REAL_SEP.name].includes(ele.getAttribute('value'))) {
-        $(ele).closest('.config-data-type-dropdown').find('[name=dataType]')
-            .css('color', 'orange');
-    } else {
-        $(ele).closest('.config-data-type-dropdown').find('[name=dataType]')
-            .css('color', 'white');
-    }
-};
-
-const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = false) => {
+const showLatestRecordsFromDS = (
+    res,
+    hasDT = true,
+    useSuffix = true,
+    isV2 = false,
+) => {
     $(csvResourceElements.fileName).text(res.file_name);
     $(`${csvResourceElements.dataTbl} table thead tr`).html('');
     $(`${csvResourceElements.dataTbl} table tbody`).html('');
     $('#resourceLoading').hide();
     if (res.is_dummy_header) {
-        $(csvResourceElements.dummyHeaderModalMsg).text($(i18nDBCfg.dummyHeader).text());
+        $(csvResourceElements.dummyHeaderModalMsg).text(
+            $(i18nDBCfg.dummyHeader).text(),
+        );
         $(csvResourceElements.dummyHeaderModal).modal('show');
     }
     if (res.partial_dummy_header) {
-        $(csvResourceElements.dummyHeaderModalMsg).text($(i18nDBCfg.partialDummyHeader).text());
+        $(csvResourceElements.dummyHeaderModalMsg).text(
+            $(i18nDBCfg.partialDummyHeader).text(),
+        );
         $(csvResourceElements.dummyHeaderModal).modal('show');
     }
     let hasDuplCols = false;
@@ -192,7 +210,9 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
     const colsName = useSuffix ? res.header : res.org_headers;
     colsName.forEach((column, idx) => {
         let columnColor = dummyDatetimeIdx === idx ? ' dummy_datetime_col' : '';
-        const isDuplCol = res.has_dupl_cols ? res.same_values[idx].is_dupl : false;
+        const isDuplCol = res.has_dupl_cols
+            ? res.same_values[idx].is_dupl
+            : false;
         if (isDuplCol) {
             columnColor += ' dupl_col';
             hasDuplCols = true;
@@ -204,23 +224,25 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
                         <label class="column-name${columnColor}" for="">${column}</label>
                     </div>
                 </th>`;
-        $(`${csvResourceElements.dataTbl} table thead tr`)
-            .append(tblHeader);
+        $(`${csvResourceElements.dataTbl} table thead tr`).append(tblHeader);
     });
 
     res.content.forEach((row) => {
         let rowContent = '<tr>';
         row.forEach((val, idx) => {
             const datatype = predictedDatatypes[idx];
-            let columnColor = dummyDatetimeIdx === idx ? ' dummy_datetime_col' : '';
-            const isDuplCol = res.has_dupl_cols ? res.same_values[idx].is_dupl : false;
+            let columnColor =
+                dummyDatetimeIdx === idx ? ' dummy_datetime_col' : '';
+            const isDuplCol = res.has_dupl_cols
+                ? res.same_values[idx].is_dupl
+                : false;
             if (isDuplCol) {
                 columnColor += ' dupl_col';
             }
             let formattedVal = val;
             formattedVal = trimBoth(String(formattedVal));
             if (datatype === DataTypes.DATETIME.value) {
-               formattedVal = parseDatetimeStr(formattedVal);
+                formattedVal = parseDatetimeStr(formattedVal);
             } else if (datatype === DataTypes.INTEGER.value) {
                 formattedVal = parseIntData(formattedVal);
                 if (isNaN(formattedVal)) {
@@ -232,18 +254,21 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
             rowContent += `<td data-original="${val}" class="${columnColor}">${formattedVal}</td>`;
         });
         rowContent += '</tr>';
-        $(`${csvResourceElements.dataTbl} table tbody`)
-            .append(rowContent);
+        $(`${csvResourceElements.dataTbl} table tbody`).append(rowContent);
     });
     csvResourceElements.csvFileName = res.file_name;
     $(csvResourceElements.skipHead).val(res.skip_head);
     $(csvResourceElements.skipTail).val(res.skip_tail);
     $(`${csvResourceElements.dataTbl}`).show();
     updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), false);
-    if (!isV2 && (res.file_name && hasDT && ((res.has_dupl_cols && useSuffix) || !res.has_dupl_cols))) {
+    if (
+        !isV2 &&
+        res.file_name &&
+        hasDT &&
+        ((res.has_dupl_cols && useSuffix) || !res.has_dupl_cols)
+    ) {
         // if show preview table ok, enable submit button
-        $('button.saveDBInfoBtn[data-csv="1"]')
-            .removeAttr('disabled');
+        $('button.saveDBInfoBtn[data-csv="1"]').removeAttr('disabled');
         updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), true);
     }
     // show message in case of has duplicated cols
@@ -261,7 +286,7 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
 const addDummyDatetimeDS = (addCol = true) => {
     if (!addCol) {
         // update content of csv
-        latestRecords.content.forEach(row => row.shift());
+        latestRecords.content.forEach((row) => row.shift());
         latestRecords.dataType.shift();
         latestRecords.header.shift();
         latestRecords.org_headers.shift();
@@ -293,15 +318,51 @@ const genColSuffix = (agree = true) => {
     showLatestRecordsFromDS(latestRecords, useDummyDatetime, agree);
 };
 
+/**
+ * Check Url Is File Path or not
+ * @param {string} folderUrl - an Url string
+ * @param {string} originFolderUrl - an origin Url string
+ * @return {Promise<boolean>} - true: is file path, false: is not file path
+ */
+async function checkIsFilePath(folderUrl, originFolderUrl) {
+    const $filePathHiddenEl = $(csvResourceElements.isFilePathHidden);
+    let folderInfoPromise;
+    if ($filePathHiddenEl.val() === '') {
+        // in case of new data source and first time checking, always call api to check
+        folderInfoPromise = checkFolderOrFile(folderUrl);
+    } else if (folderUrl !== originFolderUrl) {
+        // in case of Url changed, call api to check
+        folderInfoPromise = checkFolderOrFile(folderUrl);
+    } else {
+        // in other cases, get value of isFilePath hidden input
+        folderInfoPromise = new Promise((resolve) =>
+            resolve({
+                isFile: $filePathHiddenEl.val().toLowerCase() === String(true),
+            }),
+        );
+    }
+
+    const folderInfo = await folderInfoPromise;
+    $filePathHiddenEl.val(folderInfo.isFile);
+    return folderInfo.isFile;
+}
 
 const showResources = async () => {
-    const folderUrl = $(csvResourceElements.folderUrlInput)
-        .val();
-    const db_code = $(csvResourceElements.showResourcesBtnId)
-        .data('itemId');
-    const isV2 = $(csvResourceElements.showResourcesBtnId).attr('data-isV2') === 'true' || false;
+    const folderUrl = $(csvResourceElements.folderUrlInput).val();
+    const originFolderUrl = $(csvResourceElements.folderUrlInput).data(
+        'originValue',
+    );
+    const isFilePath = await checkIsFilePath(folderUrl, originFolderUrl);
+    const db_code = $(csvResourceElements.showResourcesBtnId).data('itemId');
+    const isV2 =
+        $(csvResourceElements.showResourcesBtnId).attr('data-isV2') ===
+            'true' || false;
     const checkFolderAPI = '/ap/api/setting/check_folder';
-    const checkFolderRes = await fetchData(checkFolderAPI, JSON.stringify({url: folderUrl}), 'POST');
+    const checkFolderRes = await fetchData(
+        checkFolderAPI,
+        JSON.stringify({ url: folderUrl, isFile: isFilePath }),
+        'POST',
+    );
     if (checkFolderRes && !checkFolderRes.is_valid) {
         displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
             message: checkFolderRes.err_msg,
@@ -312,7 +373,7 @@ const showResources = async () => {
         return;
     }
     // get line skipping config
-    const lineSkipping = $('input[name=line_skip]').val();
+    const csvSkipHead = $('input[name=skip_head]').val() || null;
     const csvNRows = $(csvResourceElements.csvNRows).val() || null;
     const csvIsTranspose = $(csvResourceElements.csvIsTranspose).is(':checked');
     $.ajax({
@@ -324,9 +385,10 @@ const showResources = async () => {
             etl_func: $('[name=optionalFunction]').val(),
             delimiter: $(csvResourceElements.delimiter).val(),
             isV2,
-            line_skip: lineSkipping,
+            skip_head: csvSkipHead,
             n_rows: csvNRows,
             is_transpose: csvIsTranspose,
+            is_file: isFilePath,
         }),
         contentType: 'application/json',
         success: (res) => {
@@ -350,24 +412,39 @@ const showResources = async () => {
 
             if (isV2 && res.is_process_null) {
                 res.v2_processes = [DUMMY_V2_PROCESS_NAME];
-                res.v2_processes_shown_name = [$(dbConfigElements.csvDBSourceName).val()];
+                res.v2_processes_shown_name = [
+                    $(dbConfigElements.csvDBSourceName).val(),
+                ];
             }
             // update process of V2
             if (res.v2_processes && res.v2_processes.length) {
                 const v2ProcessList = res.v2_processes;
-                const v2ProcessShownNameList = res.v2_processes_shown_name || res.v2_processes;
+                const v2ProcessShownNameList =
+                    res.v2_processes_shown_name || res.v2_processes;
                 addProcessList(v2ProcessList, v2ProcessShownNameList);
                 $('input[name="v2Process"]').on('change', () => {
                     const selectedProcess = getCheckedV2Processes();
                     if (selectedProcess.length) {
                         // enable OK button
-                        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), true);
-                        $('button.saveDBInfoBtn[data-csv="1"]').prop('disabled', false);
+                        updateBtnStyleWithValidation(
+                            $(csvResourceElements.csvSubmitBtn),
+                            true,
+                        );
+                        $('button.saveDBInfoBtn[data-csv="1"]').prop(
+                            'disabled',
+                            false,
+                        );
                     } else {
-                        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), false);
-                        $('button.saveDBInfoBtn[data-csv="1"]').prop('disabled', true);
+                        updateBtnStyleWithValidation(
+                            $(csvResourceElements.csvSubmitBtn),
+                            false,
+                        );
+                        $('button.saveDBInfoBtn[data-csv="1"]').prop(
+                            'disabled',
+                            true,
+                        );
                     }
-                })
+                });
             }
         },
         error: (error) => {
@@ -377,14 +454,27 @@ const showResources = async () => {
                 message: i18nDBCfg.couldNotReadData.text(),
                 is_error: true,
             });
-        }
+        },
     });
 };
 
-const addProcessList = (procsIds, processList = [], checkedIds = [], parentId = 'v2ProcessSelection', name = 'v2Process') => {
+const addProcessList = (
+    procsIds,
+    processList = [],
+    checkedIds = [],
+    parentId = 'v2ProcessSelection',
+    name = 'v2Process',
+) => {
     $(`#${parentId}`).empty();
-    addGroupListCheckboxWithSearch(parentId, parentId + '__selection', '', procsIds, processList, {name: name, checkedIds: checkedIds})
-}
+    addGroupListCheckboxWithSearch(
+        parentId,
+        parentId + '__selection',
+        '',
+        procsIds,
+        processList,
+        { name: name, checkedIds: checkedIds },
+    );
+};
 
 const validateDBName = () => {
     let isOk = true;
@@ -395,7 +485,8 @@ const validateDBName = () => {
     }
 
     return {
-        isOk, message: $(dbConfigElements.i18nDbSourceEmpty).text(),
+        isOk,
+        message: $(dbConfigElements.i18nDbSourceEmpty).text(),
     };
 };
 
@@ -426,13 +517,11 @@ const validateExistDBName = (dbName) => {
 
     return {
         isOk,
-        message: $(dbConfigElements.i18nDbSourceExist)
-            .text(),
+        message: $(dbConfigElements.i18nDbSourceExist).text(),
     };
 };
 
 let tmpResource;
-
 
 // call backend API to save
 const saveDataSource = (dsCode, dsConfig) => {
@@ -444,8 +533,7 @@ const saveDataSource = (dsCode, dsConfig) => {
         },
         body: JSON.stringify(dsConfig),
     })
-        .then(response => response.clone()
-            .json())
+        .then((response) => response.clone().json())
         .then((json) => {
             displayRegisterMessage('#alert-msg-db', json.flask_message);
 
@@ -458,22 +546,21 @@ const saveDataSource = (dsCode, dsConfig) => {
             }
 
             // データソース名とコメントの値を設定する。
-            const dbType = currentDSTR.find('select[name="type"]')
-                .val();
+            const dbType = currentDSTR.find('select[name="type"]').val();
             if (dbType === DB_CONFIGS.CSV.configs.type) {
-                currentDSTR.find(`input[name="${itemName}"]`)
-                    .val($('#csvDBSourceName')
-                        .val());
-                currentDSTR.find('textarea[name="comment"]')
-                    .val($('#csvComment')
-                        .val());
+                currentDSTR
+                    .find(`input[name="${itemName}"]`)
+                    .val($('#csvDBSourceName').val());
+                currentDSTR
+                    .find('textarea[name="comment"]')
+                    .val($('#csvComment').val());
             } else {
-                currentDSTR.find(`input[name="${itemName}"]`)
-                    .val($(`#${dbType.toLowerCase()}_dbsourcename`)
-                        .val());
-                currentDSTR.find('textarea[name="comment"]')
-                    .val($(`#${dbType.toLowerCase()}_comment`)
-                        .val());
+                currentDSTR
+                    .find(`input[name="${itemName}"]`)
+                    .val($(`#${dbType.toLowerCase()}_dbsourcename`).val());
+                currentDSTR
+                    .find('textarea[name="comment"]')
+                    .val($(`#${dbType.toLowerCase()}_comment`).val());
             }
 
             // show toastr message to guide user to proceed to Process config
@@ -509,53 +596,56 @@ const saveV2DataSource = (dsConfig) => {
     fetch('api/setting/v2_data_source_save', {
         method: 'POST',
         headers: {
-            Accept: 'application/json', 'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify(dsConfig),
     })
-    .then(response => response.clone().json())
-    .then((json) => {
-        $('#modal-db-csv').modal('hide');
-        displayRegisterMessage('#alert-msg-db', json.flask_message);
-        if (json.flask_message.is_error) {
+        .then((response) => response.clone().json())
+        .then((json) => {
+            $('#modal-db-csv').modal('hide');
+            displayRegisterMessage('#alert-msg-db', json.flask_message);
+            if (json.flask_message.is_error) {
+                loading.hide();
+                return;
+            }
+            const dataSources = json.data.map((da) =>
+                JSON.parse(da.data_source),
+            );
+            let index = 0;
+            for (const dbs of dataSources) {
+                index += 1;
+                const itemName = 'name';
+                currentDSTR.attr('id', csvResourceElements.dsId + dbs.id);
+                currentDSTR.attr(csvResourceElements.dataSrcId, dbs.id);
+
+                // データソース名とコメントの値を設定する。
+                currentDSTR.find(`input[name="${itemName}"]`).val(dbs.name);
+                currentDSTR.find('textarea[name="comment"]').val(dbs.comment);
+                currentDSTR.find('select[name="type"]').val(dbs.type);
+                if (index < dataSources.length) {
+                    currentDSTR = addDBConfigRow();
+                }
+
+                const allDSID = cfgDS.map((datasource) => datasource.id);
+                if (allDSID.length && !allDSID.includes(dbs.id)) {
+                    cfgDS.push(dbs);
+                }
+            }
+            v2DataSources = null;
+            // show toastr message to guide user to proceed to Process config
+            showToastrToProceedProcessConfig();
             loading.hide();
-            return;
-        }
-        const dataSources = json.data.map(da => JSON.parse(da.data_source));
-        let index = 0;
-        for (const dbs of dataSources) {
-            index += 1;
-            const itemName = 'name';
-            currentDSTR.attr('id', csvResourceElements.dsId + dbs.id);
-            currentDSTR.attr(csvResourceElements.dataSrcId, dbs.id);
 
-            // データソース名とコメントの値を設定する。
-            currentDSTR.find(`input[name="${itemName}"]`).val(dbs.name);
-            currentDSTR.find('textarea[name="comment"]').val(dbs.comment);
-            currentDSTR.find('select[name="type"]').val(dbs.type);
-            if (index < dataSources.length) {
-                 currentDSTR = addDBConfigRow();
-            }
-
-            const allDSID = cfgDS.map(datasource => datasource.id);
-            if (allDSID.length && !allDSID.includes(dbs.id)) {
-                cfgDS.push(dbs);
-            }
-        }
-        v2DataSources = null;
-        // show toastr message to guide user to proceed to Process config
-        showToastrToProceedProcessConfig();
-        loading.hide();
-
-        // show v2 process config automatically
-        const dbsIds = json.data.map(da => da.id);
-        showAllV2ProcessConfigModal(dbsIds);
-    });
-}
+            // show v2 process config automatically
+            const dbsIds = json.data.map((da) => da.id);
+            showAllV2ProcessConfigModal(dbsIds);
+        });
+};
 
 const showAllV2ProcessConfigModal = (dbsIds) => {
     let index = 1;
-    v2ImportInterval = setInterval(() => {
+    v2ImportInterval = setInterval(async () => {
         if (index > dbsIds.length) {
             clearInterval(v2ImportInterval);
             isV2ProcessConfigOpening = false;
@@ -563,34 +653,33 @@ const showAllV2ProcessConfigModal = (dbsIds) => {
 
         if (!isV2ProcessConfigOpening) {
             resetIsShowFileName();
-            showV2ProcessConfigModal(dbsIds[index - 1]);
-            index ++;
+            await showV2ProcessConfigModal(dbsIds[index - 1]);
+            index++;
         }
-
     }, 1000);
 };
 
 const disableIsShowFileName = () => {
-    procModalElements.isShowFileName.prop("disabled", true);
-    procModalElements.isShowFileName.prop("checked", false);
+    procModalElements.isShowFileName.prop('disabled', true);
+    procModalElements.isShowFileName.prop('checked', false);
 };
 
 const resetIsShowFileName = () => {
-    procModalElements.isShowFileName.prop("disabled", false);
-    procModalElements.isShowFileName.prop("checked", false);
+    procModalElements.isShowFileName.prop('disabled', false);
+    procModalElements.isShowFileName.prop('checked', false);
 };
 
 const handleCloseProcConfigModal = () => {
     isV2ProcessConfigOpening = false;
+    isClickPreviewMergeMode = false;
     resetIsShowFileName();
-}
-
-const showV2ProcessConfigModal = (dbsId = null) => {
-    if (!dbsId) return;
-    showProcSettingModal(null, dbsId);
-    isV2ProcessConfigOpening = true;
 };
 
+const showV2ProcessConfigModal = async (dbsId = null) => {
+    if (!dbsId) return;
+    await showProcSettingModal(null, dbsId);
+    isV2ProcessConfigOpening = true;
+};
 
 // get csv column infos
 const getCsvColumns = () => {
@@ -599,7 +688,10 @@ const getCsvColumns = () => {
     const orders = [];
     // $(csvResourceElements.dataTypeSelector).each((i, item) => {
     $(csvResourceElements.dataTypePredicted).each((i, item) => {
-        const columnName = $(`#col-${i}`).parent().find(csvResourceElements.columnName).text();
+        const columnName = $(`#col-${i}`)
+            .parent()
+            .find(csvResourceElements.columnName)
+            .text();
         let dataType;
         if (parseInt($(item).val(), 10) === DataTypes.NONE.value) {
             dataType = originalTypes[3];
@@ -613,7 +705,6 @@ const getCsvColumns = () => {
     return [columnNames, columnTypes, orders];
 };
 
-// eslint-disable-next-line no-unused-vars
 const validateCsvInfo = (isV2) => {
     if (!validateDBName().isOk) {
         displayRegisterMessage('#alert-msg-csvDbname', {
@@ -624,7 +715,10 @@ const validateCsvInfo = (isV2) => {
     }
 
     // データベース名の存在をチェックする。
-    if (!validateExistDBName($(dbConfigElements.csvDBSourceName).val()).isOk && !isV2) {
+    if (
+        !validateExistDBName($(dbConfigElements.csvDBSourceName).val()).isOk &&
+        !isV2
+    ) {
         displayRegisterMessage('#alert-msg-csvDbname', {
             message: validateExistDBName().message,
             is_error: true,
@@ -657,12 +751,11 @@ const validateCsvInfo = (isV2) => {
     // }
 
     if (isWarning) {
-        $(csvResourceElements.csvConfirmModalMsg)
-            .text(`${msgWarnManyGetdate}${$(csvResourceElements.msgConfirm)
-                .text()}`);
+        $(csvResourceElements.csvConfirmModalMsg).text(
+            `${msgWarnManyGetdate}${$(csvResourceElements.msgConfirm).text()}`,
+        );
 
-        $(csvResourceElements.csvConfirmModal)
-            .modal('show');
+        $(csvResourceElements.csvConfirmModal).modal('show');
         return false;
     }
 
@@ -670,27 +763,21 @@ const validateCsvInfo = (isV2) => {
 };
 
 // gen csv info
-const genCsvInfo = () => {
+const genCsvInfo = async () => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dbType = currentDSTR.find('select[name="type"]')
-        .val();
-    const directory = $(csvResourceElements.folderUrlInput)
-        .val();
+    const dbType = currentDSTR.find('select[name="type"]').val();
+    const directory = $(csvResourceElements.folderUrlInput).val();
     // set default skipHead and skipTail
-    const skipHead = $(csvResourceElements.skipHead)
-        .val() || null;
-    const skipTail = $(csvResourceElements.skipTail)
-        .val() || null;
-    const csvNRows = $(csvResourceElements.csvNRows)
-        .val() || null;
-    const csvIsTranspose = $(csvResourceElements.csvIsTranspose)
-        .is(':checked');
-    const delimiter = $(csvResourceElements.delimiter)
-        .val();
-    const optionalFunction = $(csvResourceElements.optionalFunction)
-        .val();
+    const skipHead = $(csvResourceElements.skipHead).val() || null;
+    const skipTail = $(csvResourceElements.skipTail).val() || null;
+    const csvNRows = $(csvResourceElements.csvNRows).val() || null;
+    const csvIsTranspose = $(csvResourceElements.csvIsTranspose).is(':checked');
+    const delimiter = $(csvResourceElements.delimiter).val();
+    const optionalFunction = $(csvResourceElements.optionalFunction).val();
     const [columnNames, columnTypes, orders] = getCsvColumns();
     const isDummyHeader = $(csvResourceElements.isDummyHeader).val();
+    const isFilePath =
+        $(csvResourceElements.isFilePathHidden).val().toLowerCase() === 'true';
 
     // Get csv Information
     const csvColumns = [];
@@ -706,18 +793,16 @@ const genCsvInfo = () => {
         delimiter,
         csv_columns: csvColumns,
         dummy_header: isDummyHeader,
+        is_file_path: isFilePath,
     };
 
     const dictDataSrc = {
         id: dbItemId,
-        name: $('#csvDBSourceName')
-            .val(),
+        name: $('#csvDBSourceName').val(),
         type: dbType,
-        comment: $('#csvComment')
-            .val(),
+        comment: $('#csvComment').val(),
         csv_detail: dictCsvDetail,
     };
-
 
     for (let i = 0; i < columnNames.length; i++) {
         csvColumns.push({
@@ -742,14 +827,14 @@ const validateV2CSVDBSources = (dbs) => {
                 is_error: true,
             });
             isDuplicatedDBName = true;
-        };
+        }
     }
     return isDuplicatedDBName;
-}
+};
 
-const saveCSVDataSource = (isV2=false) => {
+const saveCSVDataSource = async (isV2 = false) => {
     const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dictDataSrc = genCsvInfo();
+    const dictDataSrc = await genCsvInfo();
 
     // save
     if (isV2) {
@@ -771,13 +856,18 @@ const saveCSVDataSource = (isV2=false) => {
     }
 
     // show toast after save
-    let dataTypes = $(csvResourceElements.dataTypeSelector)
-        .find('option:checked');
-    dataTypes = dataTypes.toArray()
-        .filter(dataType => Number(dataType.value) === DataTypes.STRING.value);
+    let dataTypes = $(csvResourceElements.dataTypeSelector).find(
+        'option:checked',
+    );
+    dataTypes = dataTypes
+        .toArray()
+        .filter(
+            (dataType) => Number(dataType.value) === DataTypes.STRING.value,
+        );
     if (dataTypes.length > 1) {
-        const warningMsg = `${dataTypes.length} ${$('#i18nTooManyString')
-            .text()}`;
+        const warningMsg = `${dataTypes.length} ${$(
+            '#i18nTooManyString',
+        ).text()}`;
         showToastrMsg(warningMsg);
     }
 };
@@ -786,18 +876,19 @@ const handleSaveV2DataSources = () => {
     if (v2DataSources) {
         saveV2DataSource(v2DataSources);
     }
-}
+};
 
 // save csv
-const saveCSVInfo = () => {
-    const hasCTCols = $(csvResourceElements.csvSubmitBtn)
-        .attr('data-has-ct') === 'true';
+const saveCSVInfo = async () => {
+    const hasCTCols =
+        $(csvResourceElements.csvSubmitBtn).attr('data-has-ct') === 'true';
     if (!hasCTCols) {
         return;
     }
-    const isV2 = $(csvResourceElements.csvSubmitBtn).attr('data-isV2') === 'true';
+    const isV2 =
+        $(csvResourceElements.csvSubmitBtn).attr('data-isV2') === 'true';
     if (validateCsvInfo(isV2)) {
-        saveCSVDataSource(isV2);
+        await saveCSVDataSource(isV2);
     }
 };
 
@@ -808,47 +899,36 @@ const saveCSVInfo = () => {
 // DBInfoの入力をチェックする
 const validateDBInfo = () => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dbType = currentDSTR.find('select[name="type"]')
-        .val();
+    const dbType = currentDSTR.find('select[name="type"]').val().toLowerCase();
+    const dbTypePrefix = dbType.toLowerCase();
     const dbItem = {};
     // Get DB Information
     const itemValues = {
         id: dbItemId,
-        name: $(`#${dbType}_dbsourcename`)
-            .val(),
+        name: $(`#${dbTypePrefix}_dbsourcename`).val(),
         type: dbType,
-        host: $(`#${dbType}_host`)
-            .val(),
-        port: $(`#${dbType}_port`)
-            .val(),
-        dbname: $(`#${dbType}_dbname`)
-            .val(),
-        schema: $(`#${dbType}_schema`)
-            .val(),
-        username: $(`#${dbType}_username`)
-            .val(),
-        password: $(`#${dbType}_password`)
-            .val(),
-        comment: $(`#${dbType}_comment`)
-            .val(),
-        use_os_timezone: $(`#${dbType}_use_os_timezone`)
-            .val() === 'true',
+        host: $(`#${dbTypePrefix}_host`).val(),
+        port: $(`#${dbTypePrefix}_port`).val(),
+        dbname: $(`#${dbTypePrefix}_dbname`).val(),
+        schema: $(`#${dbTypePrefix}_schema`).val(),
+        username: $(`#${dbTypePrefix}_username`).val(),
+        password: $(`#${dbTypePrefix}_password`).val(),
+        comment: $(`#${dbTypePrefix}_comment`).val(),
+        use_os_timezone: $(`#${dbTypePrefix}_use_os_timezone`).val() === 'true',
     };
     dbItem[dbItemId] = itemValues;
     const validated = DB.validate(dbItem);
     if (!validated.isValid) {
-        displayRegisterMessage(`#alert-${dbType}-validation`, {
-            message: $('#i18nDbSourceEmpty')
-                .text(),
+        displayRegisterMessage(`#alert-${dbTypePrefix}-validation`, {
+            message: $('#i18nDbSourceEmpty').text(),
             is_error: true,
         });
         return false;
     }
 
     // データベース名の存在をチェックする。
-    if (!validateExistDBName($(`#${dbType}_dbsourcename`)
-        .val()).isOk) {
-        displayRegisterMessage(`#alert-${dbType}-validation`, {
+    if (!validateExistDBName($(`#${dbTypePrefix}_dbsourcename`).val()).isOk) {
+        displayRegisterMessage(`#alert-${dbTypePrefix}-validation`, {
             message: validateExistDBName().message,
             is_error: true,
         });
@@ -861,41 +941,29 @@ const validateDBInfo = () => {
 // DBInfoを生成する。
 const genDBInfo = () => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dbType = currentDSTR.find('select[name="type"]')
-        .val();
+    const dbType = currentDSTR.find('select[name="type"]').val();
     const domDBPrefix = dbType.toLowerCase();
 
     // Get DB Information
     const dictDBDetail = {
         id: dbItemId,
-        name: $(`#${domDBPrefix}_dbsourcename`)
-            .val(),
+        name: $(`#${domDBPrefix}_dbsourcename`).val(),
         type: dbType,
-        host: $(`#${domDBPrefix}_host`)
-            .val(),
-        port: $(`#${domDBPrefix}_port`)
-            .val(),
-        dbname: $(`#${domDBPrefix}_dbname`)
-            .val(),
-        schema: $(`#${domDBPrefix}_schema`)
-            .val(),
-        username: $(`#${domDBPrefix}_username`)
-            .val(),
-        password: $(`#${domDBPrefix}_password`)
-            .val(),
-        comment: $(`#${domDBPrefix}_comment`)
-            .val(),
-        use_os_timezone: $(`#${domDBPrefix}_use_os_timezone`)
-            .val() === 'true',
+        host: $(`#${domDBPrefix}_host`).val(),
+        port: $(`#${domDBPrefix}_port`).val(),
+        dbname: $(`#${domDBPrefix}_dbname`).val(),
+        schema: $(`#${domDBPrefix}_schema`).val(),
+        username: $(`#${domDBPrefix}_username`).val(),
+        password: $(`#${domDBPrefix}_password`).val(),
+        comment: $(`#${domDBPrefix}_comment`).val(),
+        use_os_timezone: $(`#${domDBPrefix}_use_os_timezone`).val() === 'true',
     };
 
     const dictDataSrc = {
         id: dbItemId,
-        name: $(`#${domDBPrefix}_dbsourcename`)
-            .val(),
+        name: $(`#${domDBPrefix}_dbsourcename`).val(),
         type: dbType,
-        comment: $(`#${domDBPrefix}_comment`)
-            .val(),
+        comment: $(`#${domDBPrefix}_comment`).val(),
         db_detail: dictDBDetail,
     };
 
@@ -911,8 +979,7 @@ const saveDBDataSource = () => {
     saveDataSource(dataSrcId, dictDataSrc);
 
     // show toast after save
-    $('.modal')
-        .modal('hide');
+    $('.modal').modal('hide');
 };
 
 const saveDBInfo = () => {
@@ -921,36 +988,24 @@ const saveDBInfo = () => {
     }
 };
 
-
 // save db
 const saveDBInfo_old = () => {
-    const dbItemId = $(e)
-        .data('itemId');
-    const dbType = $(e)
-        .data('dbType');
+    const dbItemId = $(e).data('itemId');
+    const dbType = $(e).data('dbType');
     const dbItem = {};
     // Get DB Information
     const itemValues = {
         id: dbItemId,
-        name: $(`#${dbType}_dbsourcename`)
-            .val(),
+        name: $(`#${dbType}_dbsourcename`).val(),
         type: dbType,
-        host: $(`#${dbType}_host`)
-            .val(),
-        port: $(`#${dbType}_port`)
-            .val(),
-        dbname: $(`#${dbType}_dbname`)
-            .val(),
-        schema: $(`#${dbType}_schema`)
-            .val(),
-        username: $(`#${dbType}_username`)
-            .val(),
-        password: $(`#${dbType}_password`)
-            .val(),
-        comment: $(`#${dbType}_comment`)
-            .val(),
-        use_os_timezone: $(`#${dbType}_use_os_timezone`)
-            .val() === 'true',
+        host: $(`#${dbType}_host`).val(),
+        port: $(`#${dbType}_port`).val(),
+        dbname: $(`#${dbType}_dbname`).val(),
+        schema: $(`#${dbType}_schema`).val(),
+        username: $(`#${dbType}_username`).val(),
+        password: $(`#${dbType}_password`).val(),
+        comment: $(`#${dbType}_comment`).val(),
+        use_os_timezone: $(`#${dbType}_use_os_timezone`).val() === 'true',
     };
     dbItem[dbItemId] = itemValues;
     const validated = DB.validate(dbItem);
@@ -958,20 +1013,23 @@ const saveDBInfo_old = () => {
     if (validated.isValid) {
         DB.add(dbItem);
         if (dbType === DB_CONFIGS.SQLITE.configs.type) {
-            dbItem[dbItemId].dbname = $(`#${dbType}_dbname`)
-                .val();
-            DB.delete(dbItemId, ['host', 'port', 'schema', 'username', 'password']);
+            dbItem[dbItemId].dbname = $(`#${dbType}_dbname`).val();
+            DB.delete(dbItemId, [
+                'host',
+                'port',
+                'schema',
+                'username',
+                'password',
+            ]);
         }
 
         // call API here TODO test
         saveDataSource(dbItemId, dbItem);
-        $(`#modal-db-${dbType}`)
-            .modal('hide');
+        $(`#modal-db-${dbType}`).modal('hide');
         return true;
     }
     displayRegisterMessage(`#alert-${dbType}-validation`, {
-        message: $('#i18nDbSourceEmpty')
-            .text(),
+        message: $('#i18nDbSourceEmpty').text(),
         is_error: true,
     });
     // return false;
@@ -979,35 +1037,26 @@ const saveDBInfo_old = () => {
     // TODO: Error handle if validate is failed
     // TODO: clean modal's data
 };
-// eslint-disable-next-line no-unused-vars
+
 const updateDBTable = (trId) => {
-    const tableData = $(dbElements.tblDbConfigID)
-        .DataTable();
-    const currentRow = $(dbElements.tblDbConfigID)
-        .find(`tr[id='${trId}']`);
-    const input = currentRow.find('input[name=\'master-name\']');
-    const rowData = tableData.row(currentRow)
-        .data();
+    const tableData = $(dbElements.tblDbConfigID).DataTable();
+    const currentRow = $(dbElements.tblDbConfigID).find(`tr[id='${trId}']`);
+    const input = currentRow.find("input[name='master-name']");
+    const rowData = tableData.row(currentRow).data();
     input.attr('value', input.val());
     rowData[0] = input.get(0).outerHTML;
-    return tableData.row(currentRow)
-        .data(rowData)
-        .draw();
+    return tableData.row(currentRow).data(rowData).draw();
 };
-// eslint-disable-next-line no-unused-vars
+
 const addDBConfigRow = () => {
     // function to create db_id
-    const generateDbID = () => `db_${moment()
-        .format('YYMMDDHHmmssSSS')}`;
+    const generateDbID = () => `db_${moment().format('YYMMDDHHmmssSSS')}`;
 
     // Todo: Refactor i18n
     const dbConfigTextByLang = {
-        Setting: $('#i18nSetting')
-            .text(),
-        DSName: $('#i18nDataSourceName')
-            .text(),
-        Comment: $('#i18nComment')
-            .text(),
+        Setting: $('#i18nSetting').text(),
+        DSName: $('#i18nDataSourceName').text(),
+        Comment: $('#i18nComment').text(),
     };
 
     const rowNumber = $(`${dbElements.tblDbConfigID} tbody tr`).length;
@@ -1029,6 +1078,7 @@ const addDBConfigRow = () => {
                 <option value="${DB_CONFIGS.MSSQL.configs.type}">${DB_CONFIGS.MSSQL.name}</option>
                 <option value="${DB_CONFIGS.ORACLE.configs.type}">${DB_CONFIGS.ORACLE.name}</option>
                 <option value="${DB_CONFIGS.MYSQL.configs.type}">${DB_CONFIGS.MYSQL.name}</option>
+                <option value="${DB_CONFIGS.SOFTWARE_WORKSHOP.configs.type}">${DB_CONFIGS.SOFTWARE_WORKSHOP.name}</option>
             </select>
         </td>
         <td class="text-center">
@@ -1048,8 +1098,7 @@ const addDBConfigRow = () => {
             </button>
         </td>
     </tr>`;
-    $(`#${dbElements.tblDbConfig} > tbody:last-child`)
-        .append(row);
+    $(`#${dbElements.tblDbConfig} > tbody:last-child`).append(row);
     setTimeout(() => {
         scrollToBottom(`${dbElements.tblDbConfig}_wrap`);
     }, 200);
@@ -1059,20 +1108,15 @@ const addDBConfigRow = () => {
     // updateTableRowNumber(dbElements.tblDbConfig);
 };
 
-
 const deleteRow = (self) => {
-    $('#deleteDSModal')
-        .modal('show');
-    currentDSTR = $(self)
-        .closest('tr');
+    $('#deleteDSModal').modal('show');
+    currentDSTR = $(self).closest('tr');
 };
-
 
 const confirmDeleteDS = async () => {
     // save current data source tr element
     const dsCode = currentDSTR.attr(csvResourceElements.dataSrcId);
-    $(currentDSTR)
-        .remove();
+    $(currentDSTR).remove();
 
     // update row number
     // updateTableRowNumber(dbElements.tblDbConfig);
@@ -1096,13 +1140,15 @@ const confirmDeleteDS = async () => {
                     result = getNode(res, ['result', 'deleted_procs']);
 
                     // Delete record from DataSource
-
-                    $(`#tblDbConfig tr[data-ds-id=${dsCode}]`)
-                        .remove();
+                    $(`#tblDbConfig tr[data-ds-id=${dsCode}]`).remove();
 
                     // Delete all Process in DataSource parent
-                    $(`#tblProcConfig tr[data-ds-id=${dsCode}]`)
-                        .remove();
+                    $(`#tblProcConfig tr[data-ds-id=${dsCode}]`).remove();
+
+                    // Delete datasource option in select tag
+                    $(
+                        `select[name="databaseName"] option[value="${dsCode}"]`,
+                    ).remove();
 
                     // refresh Vis network
                     reloadTraceConfigFromDB();
@@ -1121,65 +1167,30 @@ const confirmDeleteDS = async () => {
 
     // delete from UI on success
     if (deletedProcs) {
-        $(`#${dsCode}`)
-            .remove();
+        $(`#${dsCode}`).remove();
 
         // remove the deleted DS config in global variable
         DB.delete(dsCode);
 
         // remove relevant processes in UI
         deletedProcs.forEach((procCode) => {
-            $(`#tblProcConfig tr[id=${procCode}]`)
-                .remove();
+            $(`#tblProcConfig tr[id=${procCode}]`).remove();
         });
     }
 };
 
 const showToastrToProceedProcessConfig = () => {
-    const msgContent = `<p>${$('#i18nProceedToProcessConfig')
-        .text()}</p>`;
+    const msgContent = `<p>${$('#i18nProceedToProcessConfig').text()}</p>`;
     showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
-};
-
-const parseIntData = (v) => {
-    let val = trimBoth(String(v));
-    if (isEmpty(val)) {
-        val = '';
-    } else {
-        val = parseInt(Number(val));
-        if (isNaN(val)) {
-            val = '';
-        }
-    }
-    return val;
-};
-
-const parseFloatData = (v) => {
-    let val = trimBoth(String(v));
-    if (isEmpty(val)) {
-        val = '';
-    } else if (val.toLowerCase() === COMMON_CONSTANT.INF.toLowerCase()) {
-        val = COMMON_CONSTANT.INF.toLowerCase();
-    } else if (val.toLowerCase() === COMMON_CONSTANT.MINF.toLowerCase()) {
-        val = COMMON_CONSTANT.MINF.toLowerCase();
-    } else {
-        // TODO why do we need to re-parse?
-        val = parseFloat(Number(val));
-        if (isNaN(val)) {
-            val = '';
-        }
-    }
-    return val;
 };
 
 const getDataTypeFromID = (dataTypeID) => {
     let currentDatType = '';
-    Object.keys(DataTypes)
-        .forEach((key) => {
-            if (DataTypes[key].value === Number(dataTypeID)) {
-                currentDatType = DataTypes[key].name;
-            }
-        });
+    Object.keys(DataTypes).forEach((key) => {
+        if (DataTypes[key].value === Number(dataTypeID)) {
+            currentDatType = DataTypes[key].name;
+        }
+    });
     return currentDatType;
 };
 
@@ -1210,29 +1221,34 @@ const changeSelectedColumnRaw = (ele, idx) => {
         },
     };
     // find column in setting table
-    const columnName = $(`table[name="latestDataTable"] thead th:eq(${idx})`)
-        .find('input')[0];
-    const columnInSelectedTable = columnName ? $('#processColumnsTable')
-        .find(`tr[uid="${columnName.value}"]`)[0] : null;
+    const columnName = $(
+        `table[name="latestDataTable"] thead th:eq(${idx})`,
+    ).find('input')[0];
+    const columnInSelectedTable = columnName
+        ? $('#processColumnsTable').find(`tr[uid="${columnName.value}"]`)[0]
+        : null;
 
     if (columnInSelectedTable) {
-        Object.keys(defaultOptions)
-            .forEach((key) => {
-                const activeDOM = $(columnInSelectedTable)
-                    .find(`input[name="${key}"]`);
-                activeDOM.prop('checked', defaultOptions[key].checked);
+        Object.keys(defaultOptions).forEach((key) => {
+            const activeDOM = $(columnInSelectedTable).find(
+                `input[name="${key}"]`,
+            );
+            activeDOM.prop('checked', defaultOptions[key].checked);
 
-                if (Number(ele.value) === DataTypes.DATETIME.value) {
-                    activeDOM.prop('disabled', false);
-                } else {
-                    activeDOM.prop('disabled', defaultOptions[key].disabled);
-                }
-            });
+            if (Number(ele.value) === DataTypes.DATETIME.value) {
+                activeDOM.prop('disabled', false);
+            } else {
+                activeDOM.prop('disabled', defaultOptions[key].disabled);
+            }
+        });
         let operatorOpt = '';
-        if (Number(ele.value) === DataTypes.REAL.value || Number(ele.value) === DataTypes.INTEGER.value) {
+        if (
+            Number(ele.value) === DataTypes.REAL.value ||
+            Number(ele.value) === DataTypes.INTEGER.value
+        ) {
             operatorOpt = operators[DataTypes.REAL.name];
-            const coefNumber = $(columnInSelectedTable)
-                .find('input[name="coef"]')[0] || '';
+            const coefNumber =
+                $(columnInSelectedTable).find('input[name="coef"]')[0] || '';
             if (!Number(coefNumber.value)) {
                 console.log('operator with string');
             }
@@ -1240,11 +1256,9 @@ const changeSelectedColumnRaw = (ele, idx) => {
             operatorOpt = operators.DEFAULT;
         }
         const operatorEle = Object.keys(operatorOpt)
-            .map(opt => `<option value="${opt}">${operatorOpt[opt]}</option>`)
+            .map((opt) => `<option value="${opt}">${operatorOpt[opt]}</option>`)
             .join('');
-        $(columnInSelectedTable)
-            .find('select[name="operator"]')
-            .html('');
+        $(columnInSelectedTable).find('select[name="operator"]').html('');
         $(columnInSelectedTable)
             .find('select[name="operator"]')
             .append('<option>---</option>');
@@ -1275,90 +1289,116 @@ const parseDataType = (ele, idx) => {
     // change background color
     changeBackgroundColor(ele);
 
-    const vals = [...procModalElements.processColumnsSampleDataTableBody.find(`tr:eq(${idx}) .sample-data`)].map(el => $(el));
+    const value = ele.getAttribute('raw-data-type');
+    const dataColumn = $(ele).closest('tr').find('input[type=checkbox]');
+    // do not parse `datetime`, `date`, and `time` here.
+    if (
+        value === DataTypes.DATETIME.name ||
+        value === DataTypes.DATE.name ||
+        value === DataTypes.TIME.name
+    ) {
+        const dataType = Object.entries(DataTypes).find(
+            ([dtype, definition]) => definition.name === value,
+        );
+        if (dataType !== null) {
+            const dataTypeName = dataType[1].name;
+            showProcDatetimeFormatSampleData({
+                colIdx: idx,
+                dataType: dataTypeName,
+            });
+            dataColumn.attr('raw-data-type', dataTypeName);
+        }
+        return;
+    }
+
+    const vals = [
+        ...procModalElements.processColumnsSampleDataTableBody.find(
+            `tr:eq(${idx}) .sample-data`,
+        ),
+    ].map((el) => $(el));
 
     const attrName = 'data-original';
 
     switch (ele.getAttribute('value')) {
-    case DataTypes.INTEGER.name:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            const isBigInt = Boolean(e.attr('is-big-int'));
-            if (!isBigInt) {
-                val = parseIntData(val);
+        case DataTypes.INTEGER.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                const isBigInt = Boolean(e.attr('is-big-int'));
+                if (!isBigInt) {
+                    val = parseIntData(val);
+                }
+                e.html(val);
             }
-            e.html(val);
-        }
-        break;
-    case DataTypes.REAL.name:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = parseFloatData(val);
-            e.html(val);
-        }
-        break;
-    case DataTypes.DATETIME.name:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = parseDatetimeStr(val);
-            e.html(val);
-        }
-        break;
-    case DataTypes.DATE.name:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = parseDatetimeStr(val, true);
-            e.html(val);
-        }
-        break;
-    case DataTypes.TIME.name:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = parseTimeStr(val);
-            e.html(val);
-        }
-        break;
-    case DataTypes.REAL_SEP.name:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = val.replaceAll(',', '');
-            val = parseFloatData(val);
-            e.html(val);
-        }
-        break;
-    case DataTypes.INTEGER_SEP.name:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = val.replaceAll(',', '');
-            val = parseIntData(val);
-            e.html(val);
-        }
-        break;
-    case DataTypes.EU_REAL_SEP.name:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = val.replaceAll('.', '');
-            val = val.replaceAll(',', '.');
-            val = parseFloatData(val);
-            e.html(val);
-        }
-        break;
-    case DataTypes.EU_INTEGER_SEP.name:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = val.replaceAll('.', '');
-            val = val.replaceAll(',', '.');
-            val = parseIntData(val);
-            e.html(val);
-        }
-        break;
-    default:
-        for (const e of vals) {
-            let val = e.attr(attrName);
-            val = trimBoth(String(val));
-            e.html(val);
-        }
-        break;
+            break;
+        case DataTypes.REAL.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = parseFloatData(val);
+                e.html(val);
+            }
+            break;
+        case DataTypes.DATETIME.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = parseDatetimeStr(val);
+                e.html(val);
+            }
+            break;
+        case DataTypes.DATE.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = parseDatetimeStr(val, true);
+                e.html(val);
+            }
+            break;
+        case DataTypes.TIME.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = parseTimeStr(val);
+                e.html(val);
+            }
+            break;
+        case DataTypes.REAL_SEP.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = val.replaceAll(',', '');
+                val = parseFloatData(val);
+                e.html(val);
+            }
+            break;
+        case DataTypes.INTEGER_SEP.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = val.replaceAll(',', '');
+                val = parseIntData(val);
+                e.html(val);
+            }
+            break;
+        case DataTypes.EU_REAL_SEP.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = val.replaceAll('.', '');
+                val = val.replaceAll(',', '.');
+                val = parseFloatData(val);
+                e.html(val);
+            }
+            break;
+        case DataTypes.EU_INTEGER_SEP.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = val.replaceAll('.', '');
+                val = val.replaceAll(',', '.');
+                val = parseIntData(val);
+                e.html(val);
+            }
+            break;
+        default:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = trimBoth(String(val));
+                e.html(val);
+            }
+            break;
     }
     // changeSelectedColumnRaw(ele, idx);
     updateSubmitBtn();
@@ -1372,180 +1412,198 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
 
     // show upon db types
     switch (selectedDatabaseType) {
-    case DB_CONFIGS.SQLITE.configs.type: {
-        if (!dictDataSrc.db_detail) {
-            $(`#${domModalPrefix}_dbname`)
-                .val('');
-            $(`#${domModalPrefix}_dbsourcename`)
-                .val('');
-            $(`#${domModalPrefix}_comment`)
-                .val('');
-        } else {
-            // load to modal
-            $(`#${domModalPrefix}_dbname`)
-                .val(dictDataSrc.db_detail.dbname);
-            $(`#${domModalPrefix}_dbsourcename`)
-                .val(dictDataSrc.name);
-            $(`#${domModalPrefix}_comment`)
-                .val(dictDataSrc.comment);
-        }
-        break;
-    }
-    case DB_CONFIGS.V2.configs.type:
-    case DB_CONFIGS.CSV.configs.type: {
-        // Default selected
-        $(csvResourceElements.alertMsgCheckFolder)
-            .hide();
-        $(csvResourceElements.dataTbl)
-            .hide();
-
-        $(`${dbConfigElements.csvModal} #okBtn`)
-            .data('itemId', dictDataSrc.id);
-        $(`${dbConfigElements.csvModal} #showResources`)
-            .data('itemId', dictDataSrc.id);
-
-        // Clear old input data
-        $(csvResourceElements.folderUrlInput)
-            .val('');
-
-        $(csvResourceElements.fileName)
-            .text('');
-
-        if (dictDataSrc.csv_detail) {
-            if (dictDataSrc.csv_detail.directory) {
-                $(csvResourceElements.folderUrlInput)
-                    .val(dictDataSrc.csv_detail.directory);
-            }
-
-            // Update default delimiter radio button by DB_CONFIGS
-            if (dictDataSrc.csv_detail.delimiter === 'CSV') {
-                $(csvResourceElements.csv)[0].checked = true;
-            } else if (dictDataSrc.csv_detail.delimiter === 'TSV') {
-                $(csvResourceElements.tsv)[0].checked = true;
-            } else if (dictDataSrc.csv_detail.delimiter === 'SMC') {
-                $(csvResourceElements.smc)[0].checked = true;
+        case DB_CONFIGS.SQLITE.configs.type: {
+            if (!dictDataSrc.db_detail) {
+                $(`#${domModalPrefix}_dbname`).val('');
+                $(`#${domModalPrefix}_dbsourcename`).val('');
+                $(`#${domModalPrefix}_comment`).val('');
             } else {
-                $(csvResourceElements.fileTypeAuto)[0].checked = true;
+                // load to modal
+                $(`#${domModalPrefix}_dbname`).val(
+                    dictDataSrc.db_detail.dbname,
+                );
+                $(`#${domModalPrefix}_dbsourcename`).val(dictDataSrc.name);
+                $(`#${domModalPrefix}_comment`).val(dictDataSrc.comment);
             }
-            // line skipping
-            const skipHead = dictDataSrc.csv_detail.skip_head;
-            const isDummyHeader = dictDataSrc.csv_detail.dummy_header;
-            const lineSkip = skipHead == 0 && !isDummyHeader ? '' : skipHead;
-            $(csvResourceElements.skipHead).val(lineSkip);
-            $(csvResourceElements.csvNRows).val(dictDataSrc.csv_detail.n_rows);
-            $(csvResourceElements.csvIsTranspose).prop('checked', !!dictDataSrc.csv_detail.is_transpose);
-
-            // load optional function
-            if (dictDataSrc.csv_detail.etl_func) {
-                $(csvResourceElements.optionalFunction)
-                    .select2()
-                    .val(dictDataSrc.csv_detail.etl_func)
-                    .trigger('change');
-            }
-        }
-
-        // load master name + comment
-        $('#csvDBSourceName')
-            .val(dictDataSrc.name);
-        $('#csvComment')
-            .val(dictDataSrc.comment);
-
-        // for V2 datasource
-        $(dbElements.v2ProcessDiv).hide();
-        if (DB_CONFIGS.V2.configs.type === selectedDatabaseType) {
-            domModalPrefix = 'csv';
-            $(dbElements.v2ProcessDiv).show();
-            // change title to V2 CSV
-            dbElements.CSVTitle.text(dbElements.CSVTitle.text().replace('CSV/TSV', 'V2 CSV'));
-            // hide skip line
-            $(csvResourceElements.skipHead).parent().hide();
-            // hide csv nrows
-            $(csvResourceElements.csvNRows).parent().hide();
-            // hide transpose
-            $(csvResourceElements.csvIsTranspose).parent().hide();
-
-            let processList = []
-            if (dictDataSrc.csv_detail.process_name) {
-                processList.push(dictDataSrc.csv_detail.process_name)
-            }
-            // add empty process
-            addProcessList(processList, processList, processList);
-            $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).attr('data-isV2', true);
-            $(`.saveDBInfoBtn`).attr('data-isV2', true);
-            $(csvResourceElements.showResourcesBtnId).attr('data-isV2', true);
-        } else {
-            // change title to csv / tsv
-            dbElements.CSVTitle.text(dbElements.CSVTitle.text().replace('V2 CSV', 'CSV/TSV'));
-            // show skip line
-            $(csvResourceElements.skipHead).parent().show();
-            // show csv nrows
-            $(csvResourceElements.csvNRows).parent().show();
-            // show transpose
-            $(csvResourceElements.csvIsTranspose).parent().show();
-        }
-        break;
-    }
-    default: {
-        if (!dictDataSrc.db_detail) {
             break;
         }
+        case DB_CONFIGS.V2.configs.type:
+        case DB_CONFIGS.CSV.configs.type: {
+            // Default selected
+            $(csvResourceElements.alertMsgCheckFolder).hide();
+            $(csvResourceElements.dataTbl).hide();
 
-        // Todo: Refactor Modal's inputs ID
-        $(`#${domModalPrefix}_dbsourcename`)
-            .val(dictDataSrc.name);
-        $(`#${domModalPrefix}_comment`)
-            .val(dictDataSrc.comment);
-        $(`#${domModalPrefix}_host`)
-            .val(dictDataSrc.db_detail.host);
-        $(`#${domModalPrefix}_port`)
-            .val(dictDataSrc.db_detail.port);
-        $(`#${domModalPrefix}_dbname`)
-            .val(dictDataSrc.db_detail.dbname);
-        $(`#${domModalPrefix}_schema`)
-            .val(dictDataSrc.db_detail.schema);
-        $(`#${domModalPrefix}_username`)
-            .val(dictDataSrc.db_detail.username);
-        $(`#${domModalPrefix}_password`)
-            .val(dictDataSrc.db_detail.password);
-        $(`#${domModalPrefix}_use_os_timezone`)
-            .val(dictDataSrc.db_detail.use_os_timezone);
-        $(eles.useOSTZOption)
-            .prop('checked', dictDataSrc.db_detail.use_os_timezone);
-        $(eles.useOSTZOption)
-            .data('previous-value', dictDataSrc.db_detail.use_os_timezone);
+            $(`${dbConfigElements.csvModal} #okBtn`).data(
+                'itemId',
+                dictDataSrc.id,
+            );
+            $(`${dbConfigElements.csvModal} #showResources`).data(
+                'itemId',
+                dictDataSrc.id,
+            );
 
-        const dbTypeLower = dictDataSrc.type ? dictDataSrc.type.toLowerCase() : '';
-        $(eles.useOSTZConfirmBtn)
-            .data('dbType', dbTypeLower);
-        break;
+            // Clear old input data
+            $(csvResourceElements.isFilePathHidden).val('');
+            $(csvResourceElements.folderUrlInput).val('');
+            $(csvResourceElements.folderUrlInput).data('originValue', '');
+
+            $(csvResourceElements.fileName).text('');
+
+            if (dictDataSrc.csv_detail) {
+                if (dictDataSrc.csv_detail.directory) {
+                    $(csvResourceElements.folderUrlInput).val(
+                        dictDataSrc.csv_detail.directory,
+                    );
+                    $(csvResourceElements.folderUrlInput).data(
+                        'originValue',
+                        dictDataSrc.csv_detail.directory,
+                    );
+                }
+                $(csvResourceElements.isFilePathHidden).val(
+                    dictDataSrc.csv_detail.is_file_path,
+                );
+
+                // Update default delimiter radio button by DB_CONFIGS
+                if (dictDataSrc.csv_detail.delimiter === 'CSV') {
+                    $(csvResourceElements.csv)[0].checked = true;
+                } else if (dictDataSrc.csv_detail.delimiter === 'TSV') {
+                    $(csvResourceElements.tsv)[0].checked = true;
+                } else if (dictDataSrc.csv_detail.delimiter === 'SMC') {
+                    $(csvResourceElements.smc)[0].checked = true;
+                } else {
+                    $(csvResourceElements.fileTypeAuto)[0].checked = true;
+                }
+                // line skipping
+                const skipHead = dictDataSrc.csv_detail.skip_head;
+                const isDummyHeader = dictDataSrc.csv_detail.dummy_header;
+                const lineSkip =
+                    skipHead == 0 && !isDummyHeader ? '' : skipHead;
+                $(csvResourceElements.skipHead).val(lineSkip);
+                $(csvResourceElements.csvNRows).val(
+                    dictDataSrc.csv_detail.n_rows,
+                );
+                $(csvResourceElements.csvIsTranspose).prop(
+                    'checked',
+                    !!dictDataSrc.csv_detail.is_transpose,
+                );
+
+                // load optional function
+                if (dictDataSrc.csv_detail.etl_func) {
+                    $(csvResourceElements.optionalFunction)
+                        .select2()
+                        .val(dictDataSrc.csv_detail.etl_func)
+                        .trigger('change');
+                }
+            }
+
+            // load master name + comment
+            $('#csvDBSourceName').val(dictDataSrc.name);
+            $('#csvComment').val(dictDataSrc.comment);
+
+            // for V2 datasource
+            $(dbElements.v2ProcessDiv).hide();
+            if (DB_CONFIGS.V2.configs.type === selectedDatabaseType) {
+                domModalPrefix = 'csv';
+                $(dbElements.v2ProcessDiv).show();
+                // change title to V2 CSV
+                dbElements.CSVTitle.text(
+                    dbElements.CSVTitle.text().replace('CSV/TSV', 'V2 CSV'),
+                );
+                // hide skip line
+                $(csvResourceElements.skipHead).parent().hide();
+                // hide csv nrows
+                $(csvResourceElements.csvNRows).parent().hide();
+                // hide transpose
+                $(csvResourceElements.csvIsTranspose).parent().hide();
+
+                let processList = [];
+                if (dictDataSrc.csv_detail.process_name) {
+                    processList.push(dictDataSrc.csv_detail.process_name);
+                }
+                // add empty process
+                addProcessList(processList, processList, processList);
+                $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).attr(
+                    'data-isV2',
+                    true,
+                );
+                $(`.saveDBInfoBtn`).attr('data-isV2', true);
+                $(csvResourceElements.showResourcesBtnId).attr(
+                    'data-isV2',
+                    true,
+                );
+            } else {
+                // change title to csv / tsv
+                dbElements.CSVTitle.text(
+                    dbElements.CSVTitle.text().replace('V2 CSV', 'CSV/TSV'),
+                );
+                // show skip line
+                $(csvResourceElements.skipHead).parent().show();
+                // show csv nrows
+                $(csvResourceElements.csvNRows).parent().show();
+                // show transpose
+                $(csvResourceElements.csvIsTranspose).parent().show();
+            }
+            break;
+        }
+        default: {
+            if (!dictDataSrc.db_detail) {
+                break;
+            }
+
+            // Todo: Refactor Modal's inputs ID
+            $(`#${domModalPrefix}_dbsourcename`).val(dictDataSrc.name);
+            $(`#${domModalPrefix}_comment`).val(dictDataSrc.comment);
+            $(`#${domModalPrefix}_host`).val(dictDataSrc.db_detail.host);
+            $(`#${domModalPrefix}_port`).val(dictDataSrc.db_detail.port);
+            $(`#${domModalPrefix}_dbname`).val(dictDataSrc.db_detail.dbname);
+            $(`#${domModalPrefix}_schema`).val(dictDataSrc.db_detail.schema);
+            $(`#${domModalPrefix}_username`).val(
+                dictDataSrc.db_detail.username,
+            );
+            $(`#${domModalPrefix}_password`).val(
+                dictDataSrc.db_detail.password,
+            );
+            $(`#${domModalPrefix}_use_os_timezone`).val(
+                dictDataSrc.db_detail.use_os_timezone,
+            );
+            $(eles.useOSTZOption).prop(
+                'checked',
+                dictDataSrc.db_detail.use_os_timezone,
+            );
+            $(eles.useOSTZOption).data(
+                'previous-value',
+                dictDataSrc.db_detail.use_os_timezone,
+            );
+
+            const dbTypeLower = dictDataSrc.type
+                ? dictDataSrc.type.toLowerCase()
+                : '';
+            $(eles.useOSTZConfirmBtn).data('dbType', dbTypeLower);
+            break;
+        }
     }
-    }
-
 
     //  TODO: refactor modal ID
-    $(`#modal-db-${domModalPrefix} input`)
-        .data('itemId', dictDataSrc.id);
-    $(`#modal-db-${domModalPrefix} select`)
-        .data('itemId', dictDataSrc.id);
-    $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`)
-        .data('itemId', dictDataSrc.id);
-    $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`)
-        .data('dbType', dictDataSrc.type);
-    $(`#modal-db-${domModalPrefix}`)
-        .modal('show');
+    $(`#modal-db-${domModalPrefix} input`).data('itemId', dictDataSrc.id);
+    $(`#modal-db-${domModalPrefix} select`).data('itemId', dictDataSrc.id);
+    $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).data(
+        'itemId',
+        dictDataSrc.id,
+    );
+    $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).data(
+        'dbType',
+        dictDataSrc.type,
+    );
+    $(`#modal-db-${domModalPrefix}`).modal('show');
     addAttributeToElement();
 };
 
 const checkDBConnection = (dbType, html, msgID) => {
     // reset connection status text
-    $(`#${msgID}`)
-        .html('');
-    $(`#${msgID}`)
-        .addClass('spinner-grow');
-    $(`#${msgID}`)
-        .removeClass('text-danger');
-    $(`#${msgID}`)
-        .removeClass('text-success');
+    $(`#${msgID}`).html('');
+    $(`#${msgID}`).addClass('spinner-grow');
+    $(`#${msgID}`).removeClass('text-danger');
+    $(`#${msgID}`).removeClass('text-success');
 
     // get form data
     const data = {
@@ -1554,24 +1612,21 @@ const checkDBConnection = (dbType, html, msgID) => {
 
     let dbName = '';
     if (dbType === DB_CONFIGS.SQLITE.configs.type) {
-        const filePath = $(`#${dbType}_dbname`)
-            .val();
+        const filePath = $(`#${dbType}_dbname`).val();
         dbName = filePath;
     } else {
-        dbName = $(`#modal-db-${dbType} input[name="${dbType}_dbname"]`)
-            .val();
+        dbName = $(`#modal-db-${dbType} input[name="${dbType}_dbname"]`).val();
     }
     Object.assign(data.db, {
-        host: $(`#modal-db-${dbType} input[name="${dbType}_host"]`)
-            .val(),
-        port: $(`#modal-db-${dbType} input[name="${dbType}_port"]`)
-            .val(),
-        schema: $(`#modal-db-${dbType} input[name="${dbType}_schema"]`)
-            .val(),
-        username: $(`#modal-db-${dbType} input[name="${dbType}_username"]`)
-            .val(),
-        password: $(`#modal-db-${dbType} input[name="${dbType}_password"]`)
-            .val(),
+        host: $(`#modal-db-${dbType} input[name="${dbType}_host"]`).val(),
+        port: $(`#modal-db-${dbType} input[name="${dbType}_port"]`).val(),
+        schema: $(`#modal-db-${dbType} input[name="${dbType}_schema"]`).val(),
+        username: $(
+            `#modal-db-${dbType} input[name="${dbType}_username"]`,
+        ).val(),
+        password: $(
+            `#modal-db-${dbType} input[name="${dbType}_password"]`,
+        ).val(),
         dbname: dbName,
         db_type: dbType,
     });
@@ -1584,8 +1639,7 @@ const checkDBConnection = (dbType, html, msgID) => {
         },
         body: JSON.stringify(data),
     })
-        .then(response => response.clone()
-            .json())
+        .then((response) => response.clone().json())
         .then((json) => {
             displayTestDBConnectionMessage(msgID, json.flask_message);
         });
@@ -1593,74 +1647,85 @@ const checkDBConnection = (dbType, html, msgID) => {
 
 const loadDetail = (self) => {
     // save current data source tr element
-    currentDSTR = $(self)
-        .closest('tr');
+    currentDSTR = $(self).closest('tr');
     const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dsType = currentDSTR.find('select[name="type"]')
-        .val();
+    const dsType = currentDSTR.find('select[name="type"]').val();
 
     // When click (+) to create blank item
     if (dataSrcId === null || dataSrcId === undefined) {
         let jsonDictDataSrc = {};
         switch (dsType) {
-        case DB_CONFIGS.SQLITE.configs.type: {
-            jsonDictDataSrc = {
-                id: null,
-                comment: '',
-                db_detail: DB_CONFIGS.SQLITE.configs,
-            };
-            break;
-        }
-        case DB_CONFIGS.POSTGRESQL.configs.type: {
-            jsonDictDataSrc = {
-                id: null,
-                comment: '',
-                db_detail: DB_CONFIGS.POSTGRESQL.configs,
-            };
-            break;
-        }
-        case DB_CONFIGS.MSSQL.configs.type: {
-            jsonDictDataSrc = {
-                id: null,
-                comment: '',
-                db_detail: DB_CONFIGS.MSSQL.configs,
-            };
-            break;
-        }
-        case DB_CONFIGS.ORACLE.configs.type: {
-            jsonDictDataSrc = {
-                id: null,
-                comment: '',
-                db_detail: DB_CONFIGS.ORACLE.configs,
-            };
-            break;
-        }
-        case DB_CONFIGS.MYSQL.configs.type: {
-            jsonDictDataSrc = {
-                id: null,
-                comment: '',
-                db_detail: DB_CONFIGS.MYSQL.configs,
-            };
-            break;
-        }
-        case DB_CONFIGS.CSV.configs.type: {
-            jsonDictDataSrc = {
-                id: null,
-                comment: '',
-                csv_detail: DB_CONFIGS.CSV.configs,
-            };
-            break;
-        }
-        case DB_CONFIGS.V2.configs.type: {
-            jsonDictDataSrc = {
-                id: null, comment: '', csv_detail: DB_CONFIGS.CSV.configs,
-            };
-            break;
-        }
+            case DB_CONFIGS.SQLITE.configs.type: {
+                jsonDictDataSrc = {
+                    id: null,
+                    comment: '',
+                    db_detail: DB_CONFIGS.SQLITE.configs,
+                };
+                break;
+            }
+            case DB_CONFIGS.POSTGRESQL.configs.type: {
+                jsonDictDataSrc = {
+                    id: null,
+                    comment: '',
+                    db_detail: DB_CONFIGS.POSTGRESQL.configs,
+                };
+                break;
+            }
+            case DB_CONFIGS.MSSQL.configs.type: {
+                jsonDictDataSrc = {
+                    id: null,
+                    comment: '',
+                    db_detail: DB_CONFIGS.MSSQL.configs,
+                };
+                break;
+            }
+            case DB_CONFIGS.ORACLE.configs.type: {
+                jsonDictDataSrc = {
+                    id: null,
+                    comment: '',
+                    db_detail: DB_CONFIGS.ORACLE.configs,
+                };
+                break;
+            }
+            case DB_CONFIGS.MYSQL.configs.type: {
+                jsonDictDataSrc = {
+                    id: null,
+                    comment: '',
+                    db_detail: DB_CONFIGS.MYSQL.configs,
+                };
+                break;
+            }
+            case DB_CONFIGS.CSV.configs.type: {
+                jsonDictDataSrc = {
+                    id: null,
+                    comment: '',
+                    csv_detail: DB_CONFIGS.CSV.configs,
+                };
+                break;
+            }
+            case DB_CONFIGS.V2.configs.type: {
+                jsonDictDataSrc = {
+                    id: null,
+                    comment: '',
+                    csv_detail: DB_CONFIGS.CSV.configs,
+                };
+                break;
+            }
+            case DB_CONFIGS.SOFTWARE_WORKSHOP.configs.type: {
+                jsonDictDataSrc = {
+                    id: null,
+                    comment: '',
+                    db_detail: DB_CONFIGS.SOFTWARE_WORKSHOP.configs,
+                };
+                break;
+            }
         }
         bindDBItemToModal(dsType, jsonDictDataSrc);
     } else {
-        const url = new URL(`${csvResourceElements.apiLoadDetail}/${dataSrcId}`, window.location.href).href;
+        const url = new URL(
+            `${csvResourceElements.apiLoadDetail}/${dataSrcId}`,
+            window.location.href,
+        ).href;
         fetch(url, {
             method: 'GET',
             headers: {
@@ -1668,8 +1733,7 @@ const loadDetail = (self) => {
                 'Content-Type': 'application/json',
             },
         })
-            .then(response => response.clone()
-                .json())
+            .then((response) => response.clone().json())
             .then((json) => {
                 if (json) {
                     bindDBItemToModal(dsType, json);
@@ -1684,34 +1748,37 @@ const searchDataSourceName = (element) => {
 
     // when input nothing or only white space characters, show all data source in list
     if (inputDataSourceName.length === 0) {
-        $('input[name="name"]')
-            .each(function () {
-                $(this.closest('tr[name="db-info"]'))
-                    .show();
-            });
+        $('input[name="name"]').each(function () {
+            $(this.closest('tr[name="db-info"]')).show();
+        });
 
         return;
     }
 
     // find and show data source who's name is same with user input
-    $('input[name="name"]')
-        .each(function () {
-            const currentRow = $(this.closest('tr[name="db-info"]'));
-            if (this.value.match(inputDataSourceName)) currentRow.show(); else currentRow.hide();
-        });
+    $('input[name="name"]').each(function () {
+        const currentRow = $(this.closest('tr[name="db-info"]'));
+        if (this.value.match(inputDataSourceName)) currentRow.show();
+        else currentRow.hide();
+    });
 };
 
 const getCheckedV2Processes = (name = 'v2Process') => {
-    return [...$(`input[name=${name}]:checked`).map((i, el) => $(el).val())].filter(val => val !== 'All');
+    return [
+        ...$(`input[name=${name}]:checked`).map((i, el) => $(el).val()),
+    ].filter((val) => val !== 'All');
 };
 
 const getV2ProcessData = (dictDataSrc) => {
     const v2Datasources = [];
     const v2SelectedProcess = getCheckedV2Processes();
     if (v2SelectedProcess.length) {
-        v2SelectedProcess.forEach(processName => {
-            const subDatasourceByProcess = JSON.parse(JSON.stringify(dictDataSrc));
-            const suffix = processName === DUMMY_V2_PROCESS_NAME ? '' : `_${processName}`;
+        v2SelectedProcess.forEach((processName) => {
+            const subDatasourceByProcess = JSON.parse(
+                JSON.stringify(dictDataSrc),
+            );
+            const suffix =
+                processName === DUMMY_V2_PROCESS_NAME ? '' : `_${processName}`;
             subDatasourceByProcess.name = `${subDatasourceByProcess.name}${suffix}`;
             subDatasourceByProcess.csv_detail.process_name = processName;
             subDatasourceByProcess.csv_detail.auto_link = false;
@@ -1723,94 +1790,88 @@ const getV2ProcessData = (dictDataSrc) => {
 
 $(() => {
     // drag & drop for tables
-    $(`#${dbElements.tblDbConfig} tbody`)
-        .sortable({
-            helper: dragDropRowInTable.fixHelper,
-            update: dragDropRowInTable.updateOrder,
-        });
+    $(`#${dbElements.tblDbConfig} tbody`).sortable({
+        helper: dragDropRowInTable.fixHelper,
+        update: dragDropRowInTable.updateOrder,
+    });
 
     // resort table
     dragDropRowInTable.sortRowInTable(dbElements.tblDbConfig);
 
-    $(csvResourceElements.connectResourceBtn)
-        .on('click', () => {
-            $(csvResourceElements.alertInternalError).hide();
-            const folderUrl = $(csvResourceElements.folderUrlInput)
-                .val();
-            checkFolderResources(folderUrl);
-        });
-    $(csvResourceElements.showResourcesBtnId)
-        .on('click', () => {
-            $('#resourceLoading')
-                .show();
-            showResources();
-        });
+    $(csvResourceElements.connectResourceBtn).on('click', () => {
+        $(csvResourceElements.alertInternalError).hide();
+        const folderUrl = $(csvResourceElements.folderUrlInput).val();
+        const originFolderUrl = $(csvResourceElements.folderUrlInput).data(
+            'originValue',
+        );
+        checkFolderResources(folderUrl, originFolderUrl).then(() => {});
+    });
+    $(csvResourceElements.showResourcesBtnId).on('click', () => {
+        $('#resourceLoading').show();
+        showResources();
+    });
 
-    $(csvResourceElements.csvConfirmRegister)
-        .on('click', (e) => {
-            saveCSVDataSource();
-        });
+    $(csvResourceElements.csvConfirmRegister).on('click', (e) => {
+        saveCSVDataSource().then(() => {});
+    });
 
     // Multiple modal
-    $(document)
-        .on('show.bs.modal', '.modal', (e) => {
-            const zIndex = 1040 + (10 * $('.modal:visible').length);
-            $(e.currentTarget)
-                .css('z-index', zIndex);
-            setTimeout(() => {
-                $('.modal-backdrop')
-                    .not('.modal-stack')
-                    .css('z-index', zIndex - 1)
-                    .addClass('modal-stack');
-            }, 0);
-        });
+    $(document).on('show.bs.modal', '.modal', (e) => {
+        const zIndex = 1040 + 10 * $('.modal:visible').length;
+        $(e.currentTarget).css('z-index', zIndex);
+        setTimeout(() => {
+            $('.modal-backdrop')
+                .not('.modal-stack')
+                .css('z-index', zIndex - 1)
+                .addClass('modal-stack');
+        }, 0);
+    });
 
     // add an empty db row if there is no db config
     setTimeout(() => {
-        const countDataSource = $(`${dbElements.tblDbConfigID} tbody tr[name=db-info]`).length;
+        const countDataSource = $(
+            `${dbElements.tblDbConfigID} tbody tr[name=db-info]`,
+        ).length;
         if (!countDataSource) {
             addDBConfigRow();
         }
     }, 500);
-    $(dbElements.divDbConfig)[0].addEventListener('mouseup', handleMouseUp, false);
+    $(dbElements.divDbConfig)[0].addEventListener(
+        'mouseup',
+        handleMouseUp,
+        false,
+    );
 
-    $(dbConfigElements.csvDBSourceName)
-        .on('mouseup', () => {
-            userEditedDSName = true;
-        });
-    $(csvResourceElements.folderUrlId)
-        .on('change', (e) => {
-            const fileName = $(e.currentTarget)
-                .val()
-                .replace(/"/g, '');
-            e.target.value = fileName;
-            const dbsName = $(dbConfigElements.csvDBSourceName).val();
-            if (!userEditedDSName || !dbsName) {
-                const fullPath = fileName.replace(/\\/g, '//');
-                const lastFolderName = fullPath.match(/([^\/]*)\/*$/)[1];
-                // autogen datasource name by latest folder name
-                $(dbConfigElements.csvDBSourceName)
-                    .val(lastFolderName);
-            }
-        });
+    $(dbConfigElements.csvDBSourceName).on('mouseup', () => {
+        userEditedDSName = true;
+    });
+    $(csvResourceElements.folderUrlId).on('change', (e) => {
+        const fileName = $(e.currentTarget).val().replace(/"/g, '');
+        e.target.value = fileName;
+        const dbsName = $(dbConfigElements.csvDBSourceName).val();
+        const existingDSID = $(dbConfigElements.csvDBSourceName).data('itemId');
+        if (!existingDSID && (!userEditedDSName || !dbsName)) {
+            const fullPath = fileName.replace(/\\/g, '//');
+            const lastFolderName = fullPath.match(/([^/]*)\/*$/)[1];
+            // autogen datasource name by latest folder name
+            $(dbConfigElements.csvDBSourceName).val(lastFolderName);
+        }
+    });
 
     // add event to dbElements.txbSearchDataSourceName
-    $(dbElements.txbSearchDataSourceName)
-        .keyup(searchDataSourceName);
+    $(dbElements.txbSearchDataSourceName).keyup(searchDataSourceName);
 
     // convert skipHead to blank if value is out of range
-    $(csvResourceElements.skipHead)
-        .on('change', (ele) => {
-            const skipHead = $(ele.currentTarget);
-            if (skipHead.is(':out-of-range')) {
-                skipHead.val('');
-            }
-        });
+    $(csvResourceElements.skipHead).on('change', (ele) => {
+        const skipHead = $(ele.currentTarget);
+        if (skipHead.is(':out-of-range')) {
+            skipHead.val('');
+        }
+    });
 
     // searchDataSource
     onSearchTableContent('searchDataSource', 'tblDbConfig');
     onSearchTableContent('searchProcConfig', 'tblProcConfig');
     sortableTable('tblDbConfig', [0, 1, 2, 4], 510, true);
     sortableTable('tblProcConfig', [0, 1, 2, 3, 5], 510, true);
-
 });

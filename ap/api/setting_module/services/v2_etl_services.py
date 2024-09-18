@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame, Series
 from pandas.errors import ParserError
+from sqlalchemy.orm import scoped_session
 
 from ap.common.common_utils import open_with_zip
 from ap.common.constants import (
@@ -43,6 +44,7 @@ from ap.setting_module.models import (
     CfgProcessUnusedColumn,
     crud_config,
     make_session,
+    use_meta_session,
 )
 from ap.setting_module.schemas import ProcessColumnSchema
 
@@ -102,17 +104,19 @@ def add_remaining_v2_columns(df, process_id):
 
 
 @log_execution_time()
-def get_datasource_type(process_id):
-    proc_cfg: CfgProcess = CfgProcess.query.get(process_id)
-    data_src: CfgDataSourceCSV = CfgDataSourceCSV.query.get(proc_cfg.data_source_id)
+def get_datasource_type(process_id, meta_session: scoped_session = None):
+    proc_cfg: CfgProcess = (meta_session.query(CfgProcess) if meta_session else CfgProcess.query).get(process_id)
+    data_src: CfgDataSourceCSV = (meta_session.query(CfgDataSourceCSV) if meta_session else CfgDataSourceCSV.query).get(
+        proc_cfg.data_source_id,
+    )
     if data_src:
         return data_src.cfg_data_source.type
     return None
 
 
 @log_execution_time()
-def is_v2_data_source(ds_type=None, process_id=None):
-    ds_type = ds_type or get_datasource_type(process_id)
+def is_v2_data_source(ds_type=None, process_id=None, meta_session: scoped_session = None):
+    ds_type = ds_type or get_datasource_type(process_id, meta_session=meta_session)
     if ds_type:
         return ds_type.lower() == DBType.V2.name.lower()
     return False
@@ -369,23 +373,24 @@ def build_read_csv_for_v2(file_path: str, datasource_type: DBType = DBType.V2, i
 
 
 @log_execution_time()
-def save_unused_columns(process_id, unused_columns):
-    is_v2 = is_v2_data_source(process_id=process_id)
+@use_meta_session()
+def save_unused_columns(process_id, unused_columns, meta_session: scoped_session = None):
+    is_v2 = is_v2_data_source(process_id=process_id, meta_session=meta_session)
     if not is_v2:
         return
 
     if unused_columns:
         unused_columns = [CfgProcessUnusedColumn(process_id=process_id, column_name=name) for name in unused_columns]
-        with make_session() as meta_session:
-            crud_config(
-                meta_session=meta_session,
-                data=unused_columns,
-                parent_key_names=CfgProcessUnusedColumn.process_id.key,
-                key_names=CfgProcessUnusedColumn.column_name.key,
-                model=CfgProcessUnusedColumn,
-            )
+        crud_config(
+            meta_session=meta_session,
+            data=unused_columns,
+            parent_key_names=CfgProcessUnusedColumn.process_id.key,
+            key_names=CfgProcessUnusedColumn.column_name.key,
+            model=CfgProcessUnusedColumn,
+            autocommit=False,
+        )
     else:
-        CfgProcessUnusedColumn.delete_all_columns_by_proc_id(process_id)
+        CfgProcessUnusedColumn.delete_all_columns_by_proc_id(process_id, meta_session=meta_session)
 
 
 @log_execution_time()

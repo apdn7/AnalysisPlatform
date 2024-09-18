@@ -65,7 +65,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nCTTypeExplain',
         org_type: 'DATETIME',
         operator: [''],
-        selectionBoxDisplay: 'Datetime'
+        selectionBoxDisplay: 'Datetime',
     },
     DATE: {
         name: 'DATE',
@@ -76,7 +76,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nCTTypeExplain',
         org_type: 'DATE',
         operator: [''],
-        selectionBoxDisplay: 'Datetime'
+        selectionBoxDisplay: 'Datetime',
     },
     TIME: {
         name: 'TIME',
@@ -87,7 +87,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nCTTypeExplain',
         org_type: 'TIME',
         operator: [''],
-        selectionBoxDisplay: 'Datetime'
+        selectionBoxDisplay: 'Datetime',
     },
     TEXT: {
         name: 'TEXT',
@@ -99,7 +99,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nString',
         org_type: 'TEXT',
         operator: ['', 'Valid-like'],
-        selectionBoxDisplay: "Str",
+        selectionBoxDisplay: 'Str',
     },
     REAL_SEP: {
         name: 'REAL_SEP',
@@ -164,12 +164,26 @@ const DataTypes = Object.freeze({
         name: 'BOOLEAN',
         short: 'Bool',
         i18nLabelID: 'i18nBool',
-    }
+        selectionBoxDisplay: 'Boolean',
+        column_type: 77,
+    },
+    JUDGE: {
+        name: 'JUDGE',
+        short: 'Judge',
+        i18nLabelID: 'i18nJudgementDataTypeHover',
+        exp: 'i18nJudge',
+    },
 });
 
 const dataTypeShort = (col) => {
     if (col.is_serial_no) {
         return DataTypes.SERIAL.short;
+    }
+    if (col.column_type === DataTypes.BOOLEAN.column_type) {
+        return DataTypes.BOOLEAN.short;
+    }
+    if (col.is_judge) {
+        return DataTypes.JUDGE.short;
     }
     if (col.is_int_category && !col.is_serial_no) {
         return DataTypes.CATEGORY.short;
@@ -178,28 +192,70 @@ const dataTypeShort = (col) => {
     return dataType ? DataTypes[dataType].short : '';
 };
 
-
 const filterTypes = {
     LINE: 'LINE',
     MACHINE: 'MACHINE_ID',
     PART_NO: 'PART_NO',
     OTHER: 'OTHER',
-}
+};
 
 const filterOptions = {
     NO_FILTER: 'NO_FILTER',
     ALL: 'ALL',
-}
+};
 
 const CfgProcess_CONST = {
-    REAL_TYPES: [DataTypes.REAL.name, DataTypes.EU_REAL_SEP.name, DataTypes.REAL_SEP.name],
-    NUMERIC_TYPES: [DataTypes.REAL.name, DataTypes.INTEGER.name, DataTypes.EU_REAL_SEP.name, DataTypes.REAL_SEP.name, DataTypes.INTEGER_SEP.name, DataTypes.EU_INTEGER_SEP.name],
-    NUMERIC_AND_STR_TYPES: [DataTypes.REAL.name, DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name, DataTypes.EU_REAL_SEP.name, DataTypes.REAL_SEP.name, DataTypes.INTEGER_SEP.name, DataTypes.EU_INTEGER_SEP.name],
-    ALL_TYPES: [DataTypes.DATETIME.name, DataTypes.REAL.name, DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name, DataTypes.EU_REAL_SEP.name, DataTypes.REAL_SEP.name, DataTypes.INTEGER_SEP.name, DataTypes.EU_INTEGER_SEP.name],
-    CATEGORY_TYPES: [DataTypes.STRING.name, DataTypes.INTEGER.name, DataTypes.TEXT.name, DataTypes.INTEGER_SEP.name, DataTypes.EU_INTEGER_SEP.name, DataTypes.BIG_INT.name],
+    REAL_TYPES: [
+        DataTypes.REAL.name,
+        DataTypes.EU_REAL_SEP.name,
+        DataTypes.REAL_SEP.name,
+    ],
+    NUMERIC_TYPES: [
+        DataTypes.REAL.name,
+        DataTypes.INTEGER.name,
+        DataTypes.EU_REAL_SEP.name,
+        DataTypes.REAL_SEP.name,
+        DataTypes.INTEGER_SEP.name,
+        DataTypes.EU_INTEGER_SEP.name,
+        DataTypes.DATETIME.name,
+    ],
+    NUMERIC_AND_STR_TYPES: [
+        DataTypes.REAL.name,
+        DataTypes.INTEGER.name,
+        DataTypes.STRING.name,
+        DataTypes.TEXT.name,
+        DataTypes.EU_REAL_SEP.name,
+        DataTypes.REAL_SEP.name,
+        DataTypes.INTEGER_SEP.name,
+        DataTypes.EU_INTEGER_SEP.name,
+    ],
+    ALL_TYPES: [
+        DataTypes.DATETIME.name,
+        DataTypes.REAL.name,
+        DataTypes.INTEGER.name,
+        DataTypes.STRING.name,
+        DataTypes.TEXT.name,
+        DataTypes.EU_REAL_SEP.name,
+        DataTypes.REAL_SEP.name,
+        DataTypes.INTEGER_SEP.name,
+        DataTypes.EU_INTEGER_SEP.name,
+    ],
+    CATEGORY_TYPES: [
+        DataTypes.STRING.name,
+        DataTypes.INTEGER.name,
+        DataTypes.TEXT.name,
+        DataTypes.INTEGER_SEP.name,
+        DataTypes.EU_INTEGER_SEP.name,
+        DataTypes.BIG_INT.name,
+    ],
     CT_TYPES: [DataTypes.DATETIME.name],
-    EU_TYPE_VALUE: [DataTypes.REAL_SEP.value, DataTypes.EU_REAL_SEP.value, DataTypes.INTEGER_SEP.value, DataTypes.EU_INTEGER_SEP.value]
-}
+    EU_TYPE_VALUE: [
+        DataTypes.REAL_SEP.value,
+        DataTypes.EU_REAL_SEP.value,
+        DataTypes.INTEGER_SEP.value,
+        DataTypes.EU_INTEGER_SEP.value,
+    ],
+};
 
 class CfgColumn {
     id;
@@ -215,18 +271,17 @@ class CfgColumn {
     is_serial_no;
     is_int_category;
     is_category;
+    is_judge;
     is_linking_column;
     operator;
     coef;
     order;
 
     constructor(inObj) {
-
         // set data
         Object.assign(this, inObj);
     }
 }
-
 
 class CfgFilter {
     id;
@@ -268,7 +323,6 @@ class CfgVisualization {
     }
 }
 
-
 class CfgProcess {
     id;
     name;
@@ -302,7 +356,7 @@ class CfgProcess {
         if (inObj && inObj.columns) {
             const colJsons = inObj.columns || [];
             for (const colJson of colJsons) {
-                this.addColumn(colJson)
+                this.addColumn(colJson);
             }
         }
 
@@ -329,69 +383,85 @@ class CfgProcess {
         const newColumn = new CfgColumn(column);
         this.columns.push(newColumn);
         this.dicColumns[newColumn.id] = newColumn;
-    }
+    };
 
     addFilter = (filter) => {
         this.filters.push(new CfgFilter(filter));
-    }
+    };
 
     addVisualization = (visualizationJson) => {
         this.visualizations.push(new CfgVisualization(visualizationJson));
-    }
+    };
 
     getColumns = () => {
         return this.columns;
-    }
+    };
 
     getColumnById = (colId) => {
         return this.dicColumns[colId];
-    }
+    };
 
     getFilters = () => {
         return this.filters;
-    }
+    };
 
     getVisualizations = () => {
         return this.visualizations;
-    }
+    };
 
     getFiltersByType = (filterType) => {
         if (this.filters) {
-            return this.filters.filter(pf => pf.filter_type === filterType);
+            return this.filters.filter((pf) => pf.filter_type === filterType);
         }
-        return;
-    }
+        return null;
+    };
 
     getOneFilterByType = (filterType) => {
-        const relevantFilters = this.filters.filter(filter => filter.filter_type === filterType);
+        const relevantFilters = this.filters.filter(
+            (filter) => filter.filter_type === filterType,
+        );
         if (relevantFilters.length) {
             return relevantFilters[0];
         }
         return null;
-    }
+    };
 
     getFilterByColumnId = (columnId) => {
-        const relevantFilters = this.filters.filter(filter => `${filter.column_id}` === `${columnId}`);
+        const relevantFilters = this.filters.filter(
+            (filter) => `${filter.column_id}` === `${columnId}`,
+        );
         if (relevantFilters.length) {
             return relevantFilters[0];
         }
         return null;
-    }
+    };
 
     getCategoryColumns() {
-        return this.columns.filter(col => CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type));
+        return this.columns.filter((col) =>
+            CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type),
+        );
     }
 
     getNumericColumns() {
-        return this.columns.filter(col => CfgProcess_CONST.NUMERIC_TYPES.includes(col.data_type));
+        return this.columns.filter((col) =>
+            CfgProcess_CONST.NUMERIC_TYPES.includes(col.data_type),
+        );
     }
 
     getCTColumn() {
-        return this.columns.filter(col => CfgProcess_CONST.CT_TYPES.includes(col.data_type) && col.is_get_date);
+        return this.columns.filter(
+            (col) =>
+                CfgProcess_CONST.CT_TYPES.includes(col.data_type) &&
+                col.is_get_date,
+        );
     }
 
     getDatetimeColumns() {
-        return this.columns.filter(col => CfgProcess_CONST.CT_TYPES.includes(col.data_type) && !col.is_get_date);
+        return this.columns.filter(
+            (col) =>
+                CfgProcess_CONST.CT_TYPES.includes(col.data_type) &&
+                !col.is_get_date,
+        );
     }
 
     updateColumns = async () => {
@@ -400,7 +470,7 @@ class CfgProcess {
         } else {
             await this.getColumnFromDB();
         }
-    }
+    };
 
     getColumnFromDB = async () => {
         const url = `/ap/api/setting/proc_config/${this.id}/columns`;
@@ -413,9 +483,7 @@ class CfgProcess {
                 this.dicColumns[cfgColumn.id] = cfgColumn;
             }
         }
-    }
-
-
+    };
 
     updateFilters = async () => {
         if (this.filters && this.filters.length) {
@@ -423,12 +491,12 @@ class CfgProcess {
         } else {
             await this.updateProcFilters();
         }
-    }
+    };
 
     // get filter from process config
     updateProcFilters = async () => {
         const url = `/ap/api/setting/proc_config/${this.id}/filters`;
-        const res = await  fetchData(url, {}, 'GET');
+        const res = await fetchData(url, {}, 'GET');
         this.filters = [];
         if (res.data) {
             for (let filterItem of res.data) {
@@ -436,23 +504,26 @@ class CfgProcess {
                 this.filters.push(cfgFilter);
             }
         }
-    }
+    };
 
     setColumnData = (columnId, data) => {
         this.dicColumnData[columnId] = data;
-    }
+    };
 
     getColumnData = (columnId) => {
         return this.dicColumnData[columnId] || [];
-    }
+    };
 
     updateColDataFromUDB = async (columnId) => {
-        if (this.dicColumnData[columnId] && this.dicColumnData[columnId].length) {
+        if (
+            this.dicColumnData[columnId] &&
+            this.dicColumnData[columnId].length
+        ) {
             return;
         } else {
             await this.getColumnDataFromUDB(columnId);
         }
-    }
+    };
 
     getColumnDataFromUDB = async (columnId) => {
         if (isEmpty(columnId)) return;
@@ -461,12 +532,12 @@ class CfgProcess {
         if (res.data) {
             this.dicColumnData[columnId] = res.data || [];
         }
-    }
-    
+    };
+
     getXAxisSetting = () => {
         const columns = this.columns;
         return columns;
-    }
+    };
 
     getCTRange = async () => {
         const url = `/ap/api/setting/proc_config/${this.id}/get_ct_range`;
@@ -474,7 +545,7 @@ class CfgProcess {
         if (res.data) {
             this.ct_range = res.data;
         }
-    }
+    };
 }
 
 class CfgDataSourceDB {
@@ -523,7 +594,7 @@ class CfgDataSourceCSV {
         this.csv_columns = [];
         const csv_cols = inObj.csv_columns || [];
         for (const csv_col of csv_cols) {
-            this.add_column(csv_col)
+            this.add_column(csv_col);
         }
     }
 
@@ -550,7 +621,7 @@ class CfgDataSource {
         this.processes = [];
         const procs = inObj.processes || [];
         for (const proc of procs) {
-            this.add_process(proc)
+            this.add_process(proc);
         }
 
         this.csv_detail = new CfgDataSourceCSV(inObj.csv_detail);
@@ -565,22 +636,24 @@ class CfgDataSource {
 function sortByOrderOrID(proc1, proc2) {
     const order1 = proc1.order + 1 || proc1.id;
     const order2 = proc2.order + 1 || proc2.id;
-    return ((order1 < order2) ? -1 : ((order1 > order2) ? 1 : 0));
+    return order1 < order2 ? -1 : order1 > order2 ? 1 : 0;
 }
 
 const genProcessDropdownData = (procConfigs = {}) => {
     const ids = [''];
     const names = ['---'];
-    Object.values(procConfigs).sort(sortByOrderOrID).forEach((proc) => {
-        ids.push(proc.id);
-        names.push({
-            shown_name: proc.shown_name,
-            name_en: proc.name_en,
+    Object.values(procConfigs)
+        .sort(sortByOrderOrID)
+        .forEach((proc) => {
+            ids.push(proc.id);
+            names.push({
+                shown_name: proc.shown_name,
+                name_en: proc.name_en,
+            });
         });
-    });
 
     return {
         ids,
         names,
     };
-}
+};

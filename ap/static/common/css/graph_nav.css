@@ -61,27 +61,39 @@
 }
 
 .graphNavButtons a:nth-child(1) {
-    transition: opacity 0.2s ease-in-out 0.3s, transform 0.15s ease-in-out;
+    transition:
+        opacity 0.2s ease-in-out 0.3s,
+        transform 0.15s ease-in-out;
 }
 
 .graphNavButtons a:nth-child(2) {
-    transition: opacity 0.2s ease-in-out 0.25s, transform 0.15s ease-in-out;
+    transition:
+        opacity 0.2s ease-in-out 0.25s,
+        transform 0.15s ease-in-out;
 }
 
 .graphNavButtons a:nth-child(3) {
-    transition: opacity 0.2s ease-in-out 0.2s, transform 0.15s ease-in-out;
+    transition:
+        opacity 0.2s ease-in-out 0.2s,
+        transform 0.15s ease-in-out;
 }
 
 .graphNavButtons a:nth-child(4) {
-    transition: opacity 0.2s ease-in-out 0.15s, transform 0.15s ease-in-out;
+    transition:
+        opacity 0.2s ease-in-out 0.15s,
+        transform 0.15s ease-in-out;
 }
 
 .graphNavButtons a:nth-child(5) {
-    transition: opacity 0.2s ease-in-out 0.10s, transform 0.15s ease-in-out;
+    transition:
+        opacity 0.2s ease-in-out 0.1s,
+        transform 0.15s ease-in-out;
 }
 
 .graphNavButtons a:nth-child(6) {
-    transition: opacity 0.2s ease-in-out 0.05s, transform 0.15s ease-in-out;
+    transition:
+        opacity 0.2s ease-in-out 0.05s,
+        transform 0.15s ease-in-out;
 }
 
 .graphNavActions a i {
@@ -118,5 +130,5 @@
 }
 
 .graphNavToggle:checked ~ .graphNavButton i {
-    transform: rotate(-45deg)
+    transform: rotate(-45deg);
 }

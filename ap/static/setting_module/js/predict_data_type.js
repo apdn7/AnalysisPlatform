@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-
 const isInteger = (x) => {
     let value = x;
     if (typeof value === 'string' && /^\s*(\+|-)?\d+\s*$/.test(value)) {
@@ -11,8 +9,7 @@ const isInteger = (x) => {
     return false;
 };
 
-// eslint-disable-next-line no-restricted-globals
-const isNumber = value => !isNaN(value);
+const isNumber = (value) => !isNaN(value);
 
 const predictValueDatatype = (value) => {
     if (isEmpty(value)) return DataTypes.NONE.value;
@@ -28,7 +25,6 @@ const predictValueDatatype = (value) => {
     return DataTypes.NONE.value;
 };
 
-// eslint-disable-next-line no-unused-vars
 const predictDatatypes = (csvData) => {
     if (isEmpty(csvData)) return [];
 
@@ -51,7 +47,10 @@ const predictDatatypes = (csvData) => {
 
                 // compare datatypes and decide
                 const currentDatatype = columnDatatype[fieldIndex];
-                if (!isEmpty(predictiveDatatype) && predictiveDatatype > currentDatatype) {
+                if (
+                    !isEmpty(predictiveDatatype) &&
+                    predictiveDatatype > currentDatatype
+                ) {
                     columnDatatype[fieldIndex] = predictiveDatatype;
                 }
             });

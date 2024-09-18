@@ -19,9 +19,10 @@ from ap.api.common.services.sql_generator import (
     SqlProcLinkKey,
     gen_show_stmt,
     gen_tracing_cte,
+    gen_tracing_cte_with_delta_time_cut_off,
 )
 from ap.api.common.services.utils import TraceGraph, gen_proc_time_label, gen_sql_and_params
-from ap.api.external_api.services import save_odf_data_of_request
+from ap.api.external_api.services import save_params_and_odf_data_of_request
 from ap.api.trace_data.services.regex_infinity import (
     check_validate_target_column,
     get_changed_value_after_validate,
@@ -65,6 +66,7 @@ from ap.common.constants import (
     CHART_INFOS,
     CHART_INFOS_ORG,
     COL_DATA_TYPE,
+    COL_ID,
     COLOR_ORDER,
     COMMON,
     COMMON_INFO,
@@ -112,6 +114,7 @@ from ap.common.constants import (
     ORG_NONE_IDXS,
     PRC_MAX,
     PRC_MIN,
+    PROC_NAME,
     RANK_COL,
     RL_HIST_COUNTS,
     RL_HIST_LABELS,
@@ -148,6 +151,7 @@ from ap.common.constants import (
     UNIQUE_COLOR,
     UNIQUE_DIV,
     UNIQUE_SERIAL,
+    UNIT,
     UNLINKED_IDXS,
     UNMATCHED_FILTER_IDS,
     UPPER_OUTLIER_IDXS,
@@ -161,8 +165,8 @@ from ap.common.constants import (
     DuplicateSerialCount,
     DuplicateSerialShow,
     FilterFunc,
+    JudgeDefinition,
     N,
-    Operator,
     RemoveOutlierType,
     YType,
 )
@@ -421,16 +425,31 @@ def gen_group_filter_list(df, graph_param, dic_param, others=[]):
 
     sorted_filter_cols = [col.id for col in filter_sensors if col.id in actual_filter_cols]
 
+    # if group_list has nan, an int64 column will be converted to float64, 1 -> 1.0
+    # should be keep original value of these columns, with convert nan to pd.NA first
     group_df = pd.DataFrame(columns=sorted_filter_cols, data=group_list)
+    for col in group_df:
+        group_df[col] = group_df[col].astype('Int64', errors='ignore')
 
+    # convert np.nan to NA_STR for filter
+    group_df.replace({np.nan: NA_STR}, inplace=True)
+    group_df = group_df.astype(str)
     dic_filter = {}
     for col in sorted_filter_cols:
         other_cols = list(sorted_filter_cols)
         other_cols.remove(col)
 
-        dic_filter[col] = {
-            vals[0]: dict(zip(other_cols, vals[1:])) for vals in group_df.groupby(col).agg(set).to_records().tolist()
-        }
+        dic_filter[col] = {}
+        unique_vals = group_df[col].unique()
+
+        for val in unique_vals:
+            is_na = pd.isna(val) or val == NA_STR
+            filtered_df = (
+                group_df[(group_df[col].isna()) | (group_df[col] == NA_STR)]
+                if is_na
+                else group_df[group_df[col] == val]
+            )
+            dic_filter[col][val] = {other_col: filtered_df[other_col].unique().tolist() for other_col in other_cols}
 
     dic_param['dic_filter'] = dic_filter
 
@@ -1820,6 +1839,7 @@ def gen_plotdata(
             END_COL_ID: col_id,
             END_COL_NAME: col_name,
             END_COL_SHOW_NAME: col_show_name,
+            UNIT: col_cfg.unit,
             CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
             COL_DATA_TYPE: col_cfg.data_type,
             END_PROC_NAME: proc_cfg.shown_name,
@@ -1884,6 +1904,7 @@ def gen_plotdata_fpp(
                 END_PROC_NAME: dic_proc_name[proc_id].shown_name,
                 END_COL_ID: col_id,
                 END_COL_NAME: col_name,
+                UNIT: col_cfg.unit,
                 END_COL_SHOW_NAME: col_show_name,
                 CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
                 COL_DATA_TYPE: col_cfg.data_type,
@@ -1913,7 +1934,12 @@ def gen_plotdata_fpp(
     return array_formval, plotdatas
 
 
-def set_chart_infos_to_plotdata(col_id, chart_infos, original_graph_configs, plotdata):
+def set_chart_infos_to_plotdata(
+    col_id,
+    chart_infos,
+    original_graph_configs,
+    plotdata,
+):
     """
     set chart config
     :param col_id:
@@ -2079,37 +2105,6 @@ def calc_upper_lower_range(array_y: Series):
             upper_range += 1
 
     return float(lower_range), float(upper_range)
-
-
-@log_execution_time()
-def apply_coef(df: DataFrame, graph_param: DicParam):
-    dic_proc_cfgs = graph_param.dic_proc_cfgs
-    for end_proc_info in graph_param.array_formval:
-        proc_cfg = dic_proc_cfgs.get(end_proc_info.proc_id)
-        if proc_cfg is None:
-            continue
-
-        end_cols = proc_cfg.get_cols(end_proc_info.col_ids) or []
-        for end_col in end_cols:
-            if not end_col.coef or not end_col.operator:
-                continue
-
-            label = gen_sql_label(end_col.id, end_col.column_name)
-            if label not in df.columns:
-                continue
-
-            if end_col.operator == Operator.REGEX.value:
-                df[label] = np.where(df[label].str.contains(end_col.coef), df[label], pd.NA)
-            elif end_col.operator == Operator.PLUS.value:
-                df[label] = df[label] + float(end_col.coef)
-            elif end_col.operator == Operator.MINUS.value:
-                df[label] = df[label] - float(end_col.coef)
-            elif end_col.operator == Operator.PRODUCT.value:
-                df[label] = df[label] * float(end_col.coef)
-            elif end_col.operator == Operator.DEVIDE.value:
-                df[label] = df[label] / float(end_col.coef)
-
-    return df
 
 
 def get_filter_detail_ids(dic_proc_cfgs: Dict[int, CfgProcess], proc_ids, column_ids):
@@ -2350,7 +2345,7 @@ def calc_data_per_group(min_val, max_val, box=THIN_DATA_CHUNK):
 
 
 @log_execution_time()
-def calc_raw_common_scale_y(plots, string_col_ids=None, y_col=ARRAY_Y):
+def calc_raw_common_scale_y(plots, string_col_ids=None, y_col=ARRAY_Y, is_get_common_y_scale_count=False):
     """
     calculate y min max in common scale
     :param plots:
@@ -2359,20 +2354,40 @@ def calc_raw_common_scale_y(plots, string_col_ids=None, y_col=ARRAY_Y):
     """
     y_commons = []
     min_max_list = []
+    # common_y_scale_count using for the chart that the calculated function is count
+    max_common_y_scale_count = 0
     for plot in plots:
         s = pd.Series(plot[y_col])
-
         s = s[s.notnull()]
+
         if not len(s):
             min_max_list.append((None, None))
-            continue
+            if is_get_common_y_scale_count:
+                # calculate and find min_max for none type number - start
+                plot_data = plot['data']
+                df_list = []
 
+                # append data to df
+                for entry in plot_data:
+                    df = pd.DataFrame(entry)
+                    df_list.append(df)
+
+                # merge df
+                non_empty_dfs = [df for df in df_list if not df.empty]
+                if non_empty_dfs:
+                    combined_df = pd.concat(df_list)
+                    # sum y by pair value
+                    sum_y = combined_df.groupby('x')['y'].sum()
+                    max_value = sum_y.max()
+                    if max_value > max_common_y_scale_count:
+                        max_common_y_scale_count = max_value
+                # calculate and find min_max for none type number - end
+            continue
         s = convert_series_to_number(s)
         # if s.dtypes == 'string':
         #     min_max_list.append((None, None))
         #     continue
         s_without_inf = s[np.isfinite(s)]
-
         min_val = s_without_inf.min()
         max_val = s_without_inf.max()
         if pd.isna(min_val):
@@ -2397,7 +2412,10 @@ def calc_raw_common_scale_y(plots, string_col_ids=None, y_col=ARRAY_Y):
         all_graph_min = min(y_commons)
         all_graph_max = max(y_commons)
 
-    return min_max_list, all_graph_min, all_graph_max
+    if is_get_common_y_scale_count:
+        return min_max_list, all_graph_min, all_graph_max, max_common_y_scale_count
+    else:
+        return min_max_list, all_graph_min, all_graph_max
 
 
 def detect_abnormal_data(series_x, series_y, none_idxs=None):
@@ -2549,6 +2567,7 @@ def calc_scale_info(
     end_col_id=END_COL_ID,
     y_col=ARRAY_Y,
     force_outlier=False,
+    max_common_y_scale_count=None,
 ):
     dic_datetime_cols = {}
     for idx, plotdata in enumerate(array_plotdata):
@@ -2573,19 +2592,6 @@ def calc_scale_info(
 
         array_y = plotdata.get(ARRAY_Y)
         array_x = plotdata.get(ARRAY_X)
-        if (not len(array_y)) or (not len(array_x)) or (string_col_ids and plotdata[END_COL_ID] in string_col_ids):
-            dic_base_scale = {
-                Y_MIN: y_min,
-                Y_MAX: y_max,
-                LOWER_OUTLIER_IDXS: [],
-                UPPER_OUTLIER_IDXS: [],
-            }
-            plotdata[SCALE_AUTO] = dic_base_scale
-            plotdata[SCALE_SETTING] = dic_base_scale
-            plotdata[SCALE_THRESHOLD] = dic_base_scale
-            plotdata[SCALE_COMMON] = dic_base_scale
-            plotdata[SCALE_FULL] = dic_base_scale
-            continue
 
         series_x = pd.Series(array_x)
         series_y = pd.Series(array_y)
@@ -2598,6 +2604,25 @@ def calc_scale_info(
         none_idxs = plotdata.get(NONE_IDXS)
         dic_abnormal_data = detect_abnormal_data(series_x, series_y, none_idxs)
         plotdata.update(dic_abnormal_data)
+        if (
+            (not len(array_y))
+            or (array_x is not None and not len(array_x))
+            or (string_col_ids and plotdata[END_COL_ID] in string_col_ids)
+        ):
+            dic_base_scale = {
+                Y_MIN: y_min,
+                Y_MAX: y_max,
+                LOWER_OUTLIER_IDXS: [],
+                UPPER_OUTLIER_IDXS: [],
+            }
+
+            plotdata[SCALE_AUTO] = dic_base_scale
+            plotdata[SCALE_SETTING] = dic_base_scale
+            plotdata[SCALE_THRESHOLD] = dic_base_scale
+            plotdata[SCALE_COMMON] = {**dic_base_scale, Y_MIN: 0, Y_MAX: max_common_y_scale_count}
+            plotdata[SCALE_FULL] = dic_base_scale
+            continue
+
         for _idxs in dic_abnormal_data.values():
             if _idxs:
                 # array_y[_idxs] = None
@@ -2609,24 +2634,38 @@ def calc_scale_info(
             series_y = series_y.loc[has_val_idxs]
 
         series_y = convert_series_to_number(series_y)
-        plotdata[SCALE_AUTO] = calc_auto_scale_y(plotdata, series_y, force_outlier=force_outlier)
-        if is_datetime_col:
-            plotdata[SCALE_AUTO][Y_MIN] = y_min
-
-        plotdata[SCALE_SETTING] = calc_setting_scale_y(plotdata, series_y)
-        plotdata[SCALE_THRESHOLD] = calc_threshold_scale_y(plotdata, series_y)
-        plotdata[SCALE_COMMON] = {
-            Y_MIN: all_graph_min,
-            Y_MAX: all_graph_max,
-            LOWER_OUTLIER_IDXS: [],
-            UPPER_OUTLIER_IDXS: [],
-        }
         plotdata[SCALE_FULL] = {
             Y_MIN: y_min,
             Y_MAX: y_max,
             LOWER_OUTLIER_IDXS: [],
             UPPER_OUTLIER_IDXS: [],
         }
+        plotdata[SCALE_AUTO] = calc_auto_scale_y(
+            plotdata,
+            series_y,
+            force_outlier=force_outlier,
+        )
+
+        if is_datetime_col:
+            plotdata[SCALE_AUTO][Y_MIN] = y_min
+
+        plotdata[SCALE_SETTING] = calc_setting_scale_y(
+            plotdata,
+            series_y,
+        )
+
+        plotdata[SCALE_THRESHOLD] = calc_threshold_scale_y(
+            plotdata,
+            series_y,
+        )
+
+        plotdata[SCALE_COMMON] = {
+            Y_MIN: all_graph_min,
+            Y_MAX: all_graph_max,
+            LOWER_OUTLIER_IDXS: [],
+            UPPER_OUTLIER_IDXS: [],
+        }
+
         if is_datetime_col:
             plotdata[SCALE_FULL][Y_MIN] = 0
 
@@ -3084,7 +3123,7 @@ def get_selected_cate_column_ids(dic_param: dict):
     cate_column_ids = []
     for cate_proc in dic_param[COMMON][CATE_PROCS]:
         for column_ids in [cate_proc[GET02_CATE_SELECT]]:
-            cate_column_ids.extend(column_ids)
+            cate_column_ids.extend(column_ids if isinstance(column_ids, list) else [column_ids])
     return [int(column_id) for column_id in set(cate_column_ids)]
 
 
@@ -3100,7 +3139,23 @@ def retrieve_order_setting(dic_proc_cfgs: Dict[int, CfgProcess], dic_param):
                 for order_id in order_cols
                 if order_id in dic_param[COMMON][DF_ALL_COLUMNS] or order_id in selected_cate_column_ids
             ]
+    # if having a facet but column is not selected, add it to dic_orders_column
+    cat_ex_boxes = dic_param[CAT_EXP_BOX]
+    if len(cat_ex_boxes) > 0:
+        for cat_ex_box in cat_ex_boxes:
+            proc_name = cat_ex_box[PROC_NAME]
+            column_id = cat_ex_box[COL_ID]
+
+            # add column_id of cat_exp_box to dict_orders_column
+            if proc_name in dic_orders_columns:
+                if column_id not in dic_orders_columns[proc_name]:
+                    dic_orders_columns[proc_name].append(column_id)
+            else:
+                # add new proc_name (in case that no column is selected)
+                dic_orders_columns[proc_name] = [column_id]
+
     dic_param[COMMON][AVAILABLE_ORDERS] = dic_orders_columns
+
     return dic_param
 
 
@@ -3333,7 +3388,7 @@ def get_filter_on_demand_data(dic_param, remove_filter_data=False):
         if key in dic_param:
             dic_param.pop(key)
 
-    save_odf_data_of_request(dic_param)
+    save_params_and_odf_data_of_request(dic_param)
 
     return dic_param
 
@@ -3402,6 +3457,9 @@ def get_data_from_db(
                     df[col_name] = calc_cycle_time_of_list(df[col_name])
                     df[categorized_col_name] = df[col_name].astype(float)
 
+    df = judge_data_conversion(df, graph_param)
+    df = boolean_data_conversion(df, graph_param)
+
     # on-demand filter
     if dic_filter:
         df = filter_df(graph_param.dic_proc_cfgs, df, dic_filter)
@@ -3423,8 +3481,6 @@ def get_data_from_db(
         df = remove_outlier(df, sensor_labels, graph_param)
 
     df = cast_df_number(df, graph_param)
-    # apply coef for text
-    df = apply_coef(df, graph_param)
     return df, actual_total_record, unique_serial_number
 
 
@@ -3766,6 +3822,8 @@ def gen_sql_proc_link_key_from_trace_keys(edge: CfgTrace) -> Tuple[List[SqlProcL
     self_sensor_keys: List[SqlProcLinkKey] = []
     target_sensor_keys: List[SqlProcLinkKey] = []
     for key in edge.trace_keys:
+        is_delta_time_cut_off_linked = key.delta_time is not None
+
         self_key = SqlProcLinkKey(
             id=key.self_column.id,
             name=gen_bridge_column_name(key.self_column.id, key.self_column.column_name),
@@ -3773,6 +3831,7 @@ def gen_sql_proc_link_key_from_trace_keys(edge: CfgTrace) -> Tuple[List[SqlProcL
             substr_to=key.self_column_substr_to,
             delta_time=key.delta_time,
             cut_off=key.cut_off,
+            is_delta_time_cut_off_linked=is_delta_time_cut_off_linked,
         )
         self_sensor_keys.append(self_key)
 
@@ -3784,6 +3843,7 @@ def gen_sql_proc_link_key_from_trace_keys(edge: CfgTrace) -> Tuple[List[SqlProcL
             # delta time and cut_off apply only self process link key, self_link_key + delta_time = target_link_key
             delta_time=None,
             cut_off=None,
+            is_delta_time_cut_off_linked=is_delta_time_cut_off_linked,
         )
         target_sensor_keys.append(target_key)
 
@@ -3831,15 +3891,9 @@ def gen_proc_link_from_sql(
         dict_cond_procs=dict_cond_procs,
     )
 
-    stmt = gen_show_stmt(cte_tracing=cte_tracing, sql_objs=sql_objs)
-    # if for_count:
-    #     stmt = gen_id_stmt(cte_tracing=cte_tracing)
-    # else:
-    #     stmt = gen_show_stmt(
-    #         cte_tracing=cte_tracing,
-    #         sql_objs=sql_objs,
-    #         # types_should_be_casted=[RawDataTypeDB.BOOLEAN],
-    #     )
+    cte_tracing_delta_time_cut_off = gen_tracing_cte_with_delta_time_cut_off(cte_tracing=cte_tracing, sql_objs=sql_objs)
+
+    stmt = gen_show_stmt(cte_tracing=cte_tracing_delta_time_cut_off, sql_objs=sql_objs)
 
     sql, params = gen_sql_and_params(stmt)
     return sql, params
@@ -3917,7 +3971,10 @@ def add_equation_column_to_df(df, function_detail, graph_config_data: ShowGraphC
     x_dtype = cfg_col_x.predict_type if cfg_col_x else None
     y_dtype = cfg_col_y.predict_type if cfg_col_y else None
 
-    return equation.evaluate(df, out_col=column_out, x_col=column_x, y_col=column_y, x_dtype=x_dtype, y_dtype=y_dtype)
+    df = equation.evaluate(df, out_col=column_out, x_col=column_x, y_col=column_y, x_dtype=x_dtype, y_dtype=y_dtype)
+    # update data type
+    cfg_col.predict_type = function_detail.return_type
+    return df
 
 
 def sorted_function_details(cfg_process_columns: list[CfgProcessColumn]) -> list[CfgProcessFunctionColumn]:
@@ -3947,4 +4004,39 @@ def get_equation_data(df, end_proc: EndProc):
             if pd.api.types.is_bool_dtype(original_type):
                 df[label] = df[label].str.lower()
 
+    return df
+
+
+@log_execution_time()
+def judge_data_conversion(df, graph_param, revert=False) -> DataFrame:
+    """
+    All data-type can be set as judge column
+    But, only 1|0 will be converted into OK|NG, anything else will be converted into null (pd.NA)
+    eg: input[1,0,NG,A,None,2] -> output[OK,NG,NA,NA,NA,NA]
+    """
+    judge_columns = graph_param.get_judge_variables()
+    if judge_columns:
+        if revert:
+            df[judge_columns] = df[judge_columns].replace(
+                {JudgeDefinition.OK.name: JudgeDefinition.OK.value, JudgeDefinition.NG.name: JudgeDefinition.NG.value},
+            )
+        else:
+            df[judge_columns] = (
+                df[judge_columns]
+                .astype(pd.BooleanDtype())
+                .replace({True: JudgeDefinition.OK.name, False: JudgeDefinition.NG.name})
+            )
+    return df
+
+
+@log_execution_time()
+def boolean_data_conversion(df, graph_param) -> DataFrame:
+    """
+    All data-type can be set as judge column
+    But, only 1|0 will be converted into OK|NG, anything else will be converted into null (pd.NA)
+    eg: input[1,0,NG,A,None,2] -> output[true,false,NA,NA,NA,NA]
+    """
+    boolean_columns = graph_param.get_boolean_variables()
+    for col in boolean_columns:
+        df[col] = df[col].astype(pd.BooleanDtype()).astype(pd.StringDtype()).str.lower()
     return df

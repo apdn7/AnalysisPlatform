@@ -56,12 +56,12 @@
 }
 
 .ridgeLineItem {
-	border: 1px solid #434343;
-	border-radius: 4px;
-	margin-bottom: 4px;
-	padding-top: 5px;
-	position: relative;
-	background-color: #222222;
+    border: 1px solid #434343;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    padding-top: 5px;
+    position: relative;
+    background-color: #222222;
     display: flex;
 }
 
@@ -116,7 +116,8 @@
     z-index: 100;
 }
 
-span.btn-anchor.pin, span.btn-anchor:hover {
+span.btn-anchor.pin,
+span.btn-anchor:hover {
     color: white;
 }
 

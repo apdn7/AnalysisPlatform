@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 
 {% block asset %}
-    <link href="{{ url_for('static', filename = 'plot_view/css/plot_view.css') }}" rel="stylesheet">
+    <link
+        href="{{ url_for('static', filename = 'plot_view/css/plot_view.css') }}"
+        rel="stylesheet"
+    />
     <script src="{{ url_for('static', filename = 'plot_view/js/plot_view.js') }}"></script>
     <script>
         gtag('config', GA_TRACKING_ID, {
-            'page_title': '{{ _("Plot View") }}',
+            page_title: '{{ _("Plot View") }}',
         });
     </script>
 {% endblock %}
@@ -19,115 +22,131 @@
         <div class="row graph-navi">
             <div class="col-sm-1">
                 <span class="plot-view-label">List</span>
-                <br>
-                <button class="btn clipboard" style="float:right;" data-clipboard-target="#listTable"
-                        title="">
+                <br />
+                <button
+                    class="btn clipboard"
+                    style="float:right;"
+                    data-clipboard-target="#listTable"
+                    title=""
+                >
                     <i class="fa fa-copy" aria-hidden="true"></i>
                 </button>
             </div>
             <div class="col-sm-11">
-                <br>
+                <br />
                 <div class="table-wrapper">
                     <table class="table" id="listTable">
                         <thead>
-                        <tr>
-                            {% for header in list_tbl_header %}
-                                <th scope="col">{{ header }}</th>
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for row in list_tbl_rows %}
                             <tr>
-                                {% for cell in row %}
-                                    <td>{{ cell }}</td>
+                                {% for header in list_tbl_header %}
+                                    <th scope="col">{{ header }}</th>
                                 {% endfor %}
                             </tr>
-                        {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for row in list_tbl_rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                        <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
         <div class="row graph-navi">
             <div class="col-sm-1">
                 <span class="plot-view-label">Stats</span>
-                <br>
-                <button class="btn clipboard" style="float:right;" data-clipboard-target="#statTable"
-                        title="">
-                    <i class="fa fa-copy" aria-hidden="true"></i></button>
+                <br />
+                <button
+                    class="btn clipboard"
+                    style="float:right;"
+                    data-clipboard-target="#statTable"
+                    title=""
+                >
+                    <i class="fa fa-copy" aria-hidden="true"></i>
+                </button>
             </div>
             <div class="col-sm-11">
-                <br>
+                <br />
                 <div class="table-wrapper">
                     <table class="table" id="statTable">
                         <thead>
-                        <tr>
-                            {% for header in stats_tbl_header %}
-                                <th scope="col">{{ header }}</th>
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for row in stats_tbl_data %}
                             <tr>
-                                {% for cell in row %}
-                                    <td>{{ cell }}</td>
+                                {% for header in stats_tbl_header %}
+                                    <th scope="col">{{ header }}</th>
                                 {% endfor %}
                             </tr>
-                        {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for row in stats_tbl_data %}
+                                <tr>
+                                    {% for cell in row %}
+                                        <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
         <div class="row graph-navi">
             <div class="col-sm-1">
                 <span class="plot-view-label">Full Link Data</span>
-                <br>
-                <button class="btn clipboard" style="float:right;" data-clipboard-target="#fullLinkTable"
-                        title="">
+                <br />
+                <button
+                    class="btn clipboard"
+                    style="float:right;"
+                    data-clipboard-target="#fullLinkTable"
+                    title=""
+                >
                     <i class="fa fa-copy" aria-hidden="true"></i>
                 </button>
             </div>
             <div class="col-sm-11">
-                <br>
+                <br />
                 <div class="table-wrapper">
                     <table class="table" id="fullLinkTable">
                         <thead>
-                        <tr>
-                            {% for header in full_link_tbl_header %}
-                                <th scope="col">{{ header }}</th>
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for row in full_link_tbl_rows %}
                             <tr>
-                                {% for cell in row %}
-                                    <td>{{ cell }}</td>
+                                {% for header in full_link_tbl_header %}
+                                    <th scope="col">{{ header }}</th>
                                 {% endfor %}
                             </tr>
-                        {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for row in full_link_tbl_rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                        <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
     </div>
 
     <div class="loading" style="display: none;"></div>
-    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
-    <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
-       target="_blank">{{ _("Click here to fix") }}</a>
+    <div style="display: none;" id="msgErrorDBConnection">
+        {{ _("Could not access") }}
+    </div>
+    <a
+        style="display: none;"
+        id="msgErrorDBConnectionAction"
+        href="{{ url_for('setting_module.config_screen') }}"
+        target="_blank"
+        >{{ _("Click here to fix") }}</a
+    >
 
     {{ optdata }}
 {% endblock %}
 
 {% block js %}
-    <script>
-    </script>
+    <script></script>
 {% endblock %}

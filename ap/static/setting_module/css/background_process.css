@@ -16,15 +16,19 @@ table.dataTable .odd {
     background-color: #303030 !important;
 }
 
-table.dataTable .odd:hover, table.dataTable .even:hover {
-    background-color: rgba(0,0,0,0.075) !important;
+table.dataTable .odd:hover,
+table.dataTable .even:hover {
+    background-color: rgba(0, 0, 0, 0.075) !important;
 }
 
-table.dataTable tbody th, table.dataTable tbody td {
+table.dataTable tbody th,
+table.dataTable tbody td {
     vertical-align: middle !important;
 }
 
-table.dataTable thead th, table.dataTable thead td, table.dataTable.no-footer {
+table.dataTable thead th,
+table.dataTable thead td,
+table.dataTable.no-footer {
     border-bottom: none !important;
     /* padding-left: 10px !important; */
 }
@@ -56,8 +60,8 @@ table#jobErrorDetailTable thead tr th {
 .job-id,
 .job-detail,
 .job-status,
-.job-duration{
-    text-align: center!important;
+.job-duration {
+    text-align: center !important;
 }
 
 #jobDataTable {
@@ -97,7 +101,7 @@ table#jobErrorDetailTable thead tr th {
     width: 22% !important;
 }
 
-button.dropdown-toggle{
+button.dropdown-toggle {
     /*width: 70px;*/
     text-align: left;
 }

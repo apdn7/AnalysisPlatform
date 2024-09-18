@@ -10,6 +10,7 @@ from ap.api.aggregate_plot.services import gen_agp_data
 from ap.api.categorical_plot.services import customize_dict_param
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
+from ap.api.common.services.show_graph_services import judge_data_conversion
 from ap.api.trace_data.services.csv_export import to_csv
 from ap.common.constants import (
     ARRAY_FORMVAL,
@@ -122,6 +123,8 @@ def data_export(export_type):
             None,
             max_graph_config[MaxGraphNumber.AGP_MAX_GRAPH.name],
         )
+        # export original value of judge variable
+        agp_df = judge_data_conversion(agp_df, graph_param, revert=True)
         end_proc_id = int(agp_dat[ARRAY_FORMVAL][0][END_PROC])
         proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name
         csv_list_name.append('{}.{}'.format(proc_name, export_type))

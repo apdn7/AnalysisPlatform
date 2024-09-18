@@ -74,11 +74,11 @@ a.link-address {
     text-align: center;
     text-decoration: none;
     outline: none;
-    transition: all .3s;
+    transition: all 0.3s;
 }
 
 .ghost-button:hover {
-    box-shadow: 0 0 45px rgba(255, 255, 255, .6);
+    box-shadow: 0 0 45px rgba(255, 255, 255, 0.6);
 }
 
 /* tile search by use */
@@ -115,16 +115,16 @@ a.link-address {
     border-right: 12px solid transparent;
     border-top: 12px solid #444444;
     float: left;
-    -webkit-transition: -webkit-transform .8s ease-in-out;
-    -moz-transition: -moz-transform .8s ease-in-out;
-    -o-transition: -o-transform .8s ease-in-out;
-    transition: transform .8s ease-in-out;
+    -webkit-transition: -webkit-transform 0.8s ease-in-out;
+    -moz-transition: -moz-transform 0.8s ease-in-out;
+    -o-transition: -o-transform 0.8s ease-in-out;
+    transition: transform 0.8s ease-in-out;
 }
 .btn-collapse.collapsed {
-    transform:rotate(-90deg);
-    -ms-transform:rotate(-90deg);
-    -webkit-transform:rotate(-90deg);
-    -o-transform:rotate(-90deg);
+    transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
 }
 .section-name {
     min-width: 60%;
@@ -133,7 +133,8 @@ a.link-address {
     width: 25px;
     margin-top: -5px;
 }
-.section-name, .icon-col {
+.section-name,
+.icon-col {
     display: flex;
 }
 .section-name h3 {
@@ -160,4 +161,3 @@ a.link-address {
 .collapsed-btn svg {
     margin-right: 4px;
 }
-

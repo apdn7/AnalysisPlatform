@@ -1,8 +1,22 @@
-const buildTimeSeriesSummaryResultsHTML = (summaryOption, tableIndex, generalInfo, beforeRankValues = null, stepChartSummary = null, isCTCol = false) => {
+const buildTimeSeriesSummaryResultsHTML = (
+    summaryOption,
+    tableIndex,
+    generalInfo,
+    beforeRankValues = null,
+    stepChartSummary = null,
+    isCTCol = false,
+    unit = null,
+) => {
     const { getProc } = generalInfo;
     const { getVal } = generalInfo;
     const { catExpBox } = generalInfo;
     let catExpBoxHtml = '';
+
+    if (unit && unit !== '' && unit !== 'Null') {
+        unit = ` [${unit}]`;
+    } else {
+        unit = '';
+    }
 
     let CTLabel = '';
     if (isCTCol) {
@@ -29,7 +43,7 @@ const buildTimeSeriesSummaryResultsHTML = (summaryOption, tableIndex, generalInf
             </tr>
             <tr>
                 <th colspan="2">
-                    <span class="prc-name" title="${getVal}">${getVal} ${CTLabel}</span>
+                    <span class="prc-name" title="${getVal}${unit}">${getVal}${unit} ${CTLabel}</span>
                 </td>
             </tr>
             ${catExpBoxHtml}
@@ -37,7 +51,13 @@ const buildTimeSeriesSummaryResultsHTML = (summaryOption, tableIndex, generalInf
         </table>
     `;
 
-    const summaryHtml = buildSummaryResultsHTML(summaryOption, tableIndex, generalInfo, beforeRankValues, stepChartSummary);
+    const summaryHtml = buildSummaryResultsHTML(
+        summaryOption,
+        tableIndex,
+        generalInfo,
+        beforeRankValues,
+        stepChartSummary,
+    );
 
     return `
         <div style="width: 100%">
@@ -45,11 +65,13 @@ const buildTimeSeriesSummaryResultsHTML = (summaryOption, tableIndex, generalInf
             ${summaryHtml}
         </div>
     `;
-
 };
 
 const removeClass = (element) => {
-    const colClasses = element.prop('className').split(' ').filter(x => x.startsWith('col-sm'));
+    const colClasses = element
+        .prop('className')
+        .split(' ')
+        .filter((x) => x.startsWith('col-sm'));
     for (const cls of colClasses) {
         element.removeClass(cls);
     }
@@ -116,7 +138,6 @@ const onChangeSummaryEventHandler = (showScatterPlot) => {
     });
 };
 
-
 const onChangeHistSummaryEventHandler = (e) => {
     let summaryHeight = null;
     const summaryClass = $(e).val();
@@ -159,7 +180,6 @@ const onChangeHistSummaryEventHandler = (e) => {
             $(`#${histogramId}`).css('height', chartHeight);
             Plotly.relayout(histogramId, {});
         });
-
 
         // mark this option as checked and remove others
         $(e).attr('data-checked', 'true');

@@ -19,14 +19,16 @@ canvas {
     min-width: 400px !important;
 }
 
-@keyframes rotate{
-    0%   {}
+@keyframes rotate {
+    0% {
+    }
     100% {
         transform: rotate(-360deg);
     }
 }
-@-webkit-keyframes rotate{
-    0%   {}
+@-webkit-keyframes rotate {
+    0% {
+    }
     100% {
         -webkit-transform: rotate(-360deg);
     }
@@ -42,12 +44,12 @@ canvas {
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(0, 0, 0, .5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
 
 .loading::before {
-    content: "";
+    content: '';
     display: block;
     position: fixed;
     left: 50%;
@@ -61,7 +63,7 @@ canvas {
 }
 
 .loading::after {
-    content: "";
+    content: '';
     display: block;
     position: fixed;
     left: 50%;
@@ -71,11 +73,10 @@ canvas {
     border-radius: 40px;
     margin-top: -10px;
     margin-left: -10px;
-    border: 4px solid #60ABB9;
+    border: 4px solid #60abb9;
     border-right: 4px solid white;
     animation: rotate 1s infinite linear;
 }
-
 
 .cate-plot-cards {
     display: inline-block;
@@ -85,7 +86,7 @@ canvas {
 
 .plotInfo {
     position: absolute;
-    background-color: rgba(27, 27, 27, .4);
+    background-color: rgba(27, 27, 27, 0.4);
     border: 1px solid #65c5f1;
     border-radius: 3px;
     display: none;
@@ -171,22 +172,22 @@ canvas {
 }
 
 #compareType .nav-pills {
-    border-radius: 4px 4px 0 0 ;
+    border-radius: 4px 4px 0 0;
 }
 
-#compareType .nav-item .active{
+#compareType .nav-item .active {
     background-color: #303030;
 }
 
-#compareType{
+#compareType {
     border-bottom: 0px;
 }
 
 #compareType .nav-item {
-    border-top: .5px solid #444;
-    border-left: .5px solid #444;
-    border-right: .5px solid #444;
-    border-radius: 4px 4px 0 0 ;
+    border-top: 0.5px solid #444;
+    border-left: 0.5px solid #444;
+    border-right: 0.5px solid #444;
+    border-radius: 4px 4px 0 0;
     margin-left: 1px;
     width: 225px;
     text-align: center;
@@ -202,11 +203,12 @@ canvas {
     border-top: 0px;
 }
 
-.summary-col{
+.summary-col {
     display: none;
 }
 
-.hist-summary, .hist-summary-detail {
+.hist-summary,
+.hist-summary-detail {
     font-size: 0.8vw;
     display: none;
 }
@@ -239,7 +241,7 @@ canvas {
     position: absolute;
 }
 
-.item-name{
+.item-name {
     color: #65c5f1;
     text-align: center;
     vertical-align: middle;
@@ -278,8 +280,8 @@ canvas {
     position: relative;
 }
 
-.histogram-tab-content.tab-content>.tab-pane {
-    display: block!important;
+.histogram-tab-content.tab-content > .tab-pane {
+    display: block !important;
     width: 100%;
     height: 100%;
     visibility: hidden;
@@ -287,7 +289,7 @@ canvas {
     z-index: -1;
 }
 
-.histogram-tab-content.tab-content>.tab-pane:not(:first-child) {
+.histogram-tab-content.tab-content > .tab-pane:not(:first-child) {
     position: absolute;
     top: -10px;
     left: 0;

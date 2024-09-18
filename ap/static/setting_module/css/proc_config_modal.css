@@ -7,13 +7,19 @@
     display: flex;
 }
 
-#processColumnsTable {
+#functionModal {
+    display: inline-block;
+    overflow: auto;
+    max-height: 219px;
+}
+
+[id^='processColumnsTable'] {
     position: sticky;
     left: 0;
     z-index: 999;
 }
 
-#processColumnsTableSampleData {
+[id^='processColumnsTableSampleData'] {
     position: relative;
     z-index: 0;
 }
@@ -54,7 +60,7 @@
 }
 
 .function-type-content input {
-    height: 35px!important;
+    height: 35px !important;
 }
 
 .proc-config-content table th.system,
@@ -63,7 +69,18 @@
     /*min-width: 200px;*/
 }
 
-.proc-config-content table tbody td input:not([name=coef], [name=a_n_s], [name=b_k], [name=c_t], [name=note]) {
+.proc-config-content
+    table
+    tbody
+    td
+    input:not(
+        [name='coef'],
+        [name='a_n_s'],
+        [name='b_k'],
+        [name='c_t'],
+        [name='note'],
+        [name='unit']
+    ) {
     width: fit-content;
 }
 
@@ -73,6 +90,16 @@
 
 .proc-config-content table th.column-order {
     min-width: 30px;
+}
+
+.proc-config-content table th.column-unit {
+    min-width: 75px;
+    max-width: 75px;
+}
+
+.proc-config-content table td.column-unit {
+    min-width: 75px;
+    max-width: 75px;
 }
 
 .proc-config-content table th {
@@ -98,91 +125,12 @@
     outline: thin solid white !important;
 }
 
-.data-type-selection {
-    background-color: #222222;
-    flex-direction: row;
-    width: fit-content;
-    border-radius: 3px;
-    display: none;
-    border: 1px solid #444444;
-}
-
-.data-type-selection.dropdown-menu.show {
-    display: flex!important;
-}
-
-.data-type-selection-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.data-type-selection-title {
-    text-align: left;
-    padding: 4px 4px 0px;
-    font-weight: bold;
-    color: grey;
-    display: inline-block;
-    border-bottom: 2px solid grey;
-    width: 100%;
-}
-
-.data-type-selection-box ul {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 4px;
-}
-
-.data-type-selection-box ul li {
-    padding: 0px 8px;
-    cursor: pointer;
-}
-
-.data-type-selection-box ul li:is([disabled="disabled"]) {
-    color: grey!important;
-}
-
-.data-type-selection-box ul li.active {
-    background-color: dodgerblue;
-}
-
-.gray .data-type-selection-content li {
-    color: white!important;
-}
-
-.data-type-selection-box ul li:not([disabled="disabled"]):hover {
-    background-color: dodgerblue;
-}
-
-.config-data-type-dropdown {
-    height: 25px;
-}
-
-
-.multi-level-dropdown > button {
-    width: 100% !important;
-    text-align: inherit;
-    position: sticky;
-}
-
-.config-data-type-dropdown button {
-    width: 100%;
-    padding: 0 15px 0 4px;
-    text-align: left;
-    position: relative;
-    height: 25px;
-}
-
-.row-item:not([checked="checked"]) {
+.row-item:not([checked='checked']) {
     color: gray !important;
 }
 
 .total-checked-columns {
     border-bottom: 1px solid white;
-}
-
-.gray .config-data-type-dropdown button,
-.gray .config-data-type-dropdown button span {
-    color: gray;
 }
 
 .scroll-content {
@@ -198,7 +146,7 @@
 
 .scroll-content span:hover {
     color: #999999;
-    transition: all .2s;
+    transition: all 0.2s;
 }
 
 .scroll-content span {
@@ -207,13 +155,14 @@
 }
 
 /*editmode css*/
-.editor input, .jdropdown-default .jdropdown-content {
+.editor input,
+.jdropdown-default .jdropdown-content {
     background-color: #303030;
 }
 .jdropdown-item {
     color: #ffffff;
 }
-.jexcel > tbody > tr > td:nth-child(n+3):nth-child(-n+5) {
+.jexcel > tbody > tr > td:nth-child(n + 3):nth-child(-n + 5) {
     text-align: left !important;
 }
 
@@ -227,15 +176,20 @@
 }
 
 #functionSettingModal span.select2-container--disabled {
-    background-color: #444444; !important;
+    background-color: #444444 !important;
 }
 
-#functionSettingModal span.select2-container--disabled .select2-selection--single {
-    background-color: unset!important;
-    border: none!important;
+#functionSettingModal
+    span.select2-container--disabled
+    .select2-selection--single {
+    background-color: unset !important;
+    border: none !important;
 }
 
-#functionSettingModal .select2-container .select2-selection--single .select2-selection__rendered {
+#functionSettingModal
+    .select2-container
+    .select2-selection--single
+    .select2-selection__rendered {
     padding-left: 0.5em;
 }
 
@@ -268,11 +222,11 @@
     /*padding-right: 4em;*/
 }
 
-#functionSettingModal .form-group{
+#functionSettingModal .form-group {
     margin-bottom: 2px !important;
 }
 
-#functionSettingModal .param-label{
+#functionSettingModal .param-label {
     /*margin-bottom: 0.1rem !important;*/
 }
 
@@ -288,12 +242,13 @@
     flex: 1;
 }
 
-#functionSettingModal .function-config-value span:not(.select2-selection__arrow),
+#functionSettingModal
+    .function-config-value
+    span:not(.select2-selection__arrow),
 #functionSettingModal .param-value-x span:not(.select2-selection__arrow),
 #functionSettingModal .param-value-y span:not(.select2-selection__arrow) {
     min-width: 75px;
 }
-
 
 #functionSettingModal .function-config-value span.select2-selection__rendered,
 #functionSettingModal .param-value-x span.select2-selection__rendered,
@@ -317,6 +272,7 @@
 #functionSettingModal .param-value-y {
     padding-left: 1px;
     flex: 1;
+    width: calc(100% - 50px);
 }
 
 #functionSettingModal input {
@@ -446,17 +402,20 @@
 }
 
 /* No longer support for change color when unselect/select */
-#functionTable tr[checked="checked"] label.row-item,
-#functionTable tr[checked="checked"] td.row-item,
-#functionTable tr[checked="checked"] input.row-item,
-#functionTable tr[checked="checked"] span.row-item,
-#functionTable tr[checked="checked"] select.row-item,
-#functionTable tr:not([checked="checked"]) label.row-item,
-#functionTable tr:not([checked="checked"]) td.row-item,
-#functionTable tr:not([checked="checked"]) input.row-item,
-#functionTable tr:not([checked="checked"]) span.row-item,
-#functionTable tr:not([checked="checked"]) select.row-item,
-#functionTable tr:not([checked="checked"]) td.row-item .config-data-type-dropdown {
+#functionTable tr[checked='checked'] label.row-item,
+#functionTable tr[checked='checked'] td.row-item,
+#functionTable tr[checked='checked'] input.row-item,
+#functionTable tr[checked='checked'] span.row-item,
+#functionTable tr[checked='checked'] select.row-item,
+#functionTable tr:not([checked='checked']) label.row-item,
+#functionTable tr:not([checked='checked']) td.row-item,
+#functionTable tr:not([checked='checked']) input.row-item,
+#functionTable tr:not([checked='checked']) span.row-item,
+#functionTable tr:not([checked='checked']) select.row-item,
+#functionTable
+    tr:not([checked='checked'])
+    td.row-item
+    .config-data-type-dropdown {
     color: white !important;
 }
 
@@ -475,8 +434,13 @@
     background-color: steelblue !important;
 }
 
-#functionTable tr.selected td div.config-data-type-dropdown span {
-    background-color: unset !important;
+#deleteFunctionColumnTable .show-raw-text,
+#functionUserSettingTable .show-raw-text,
+#functionTable .show-raw-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: 0;
 }
 
 #functionSettingChangeMark {
@@ -505,31 +469,42 @@
     overflow: auto;
 }
 
+#collapseFunctionConfig .copyFunctionDataSample {
+    margin-top: -25px;
+}
+
+/*Delete function column modal*/
+
+#deleteFunctionColumn .column-system-name,
+#deleteFunctionColumn .column-japanese-name,
+#deleteFunctionColumn .column-local-name,
+#deleteFunctionColumn .column-var-x,
+#deleteFunctionColumn .column-var-y {
+    min-width: 160px;
+    max-width: 160px;
+    overflow: hidden;
+}
+
 @media screen and (min-width: 1001px) and (max-width: 1700px) {
     #functionSettingModal .config-function-name-area {
-        min-width: calc(100% / 3);
-        max-width: calc(100% / 3);
+        min-width: 25%;
+        max-width: 25%;
     }
 
     #functionSettingModal .config-params-area {
-        min-width: calc(100% / 3);
-        max-width: calc(100% / 3);
-
+        min-width: 40%;
+        max-width: 40%;
     }
 
     #functionSettingModal .proc-config-content {
-        min-width: calc(100% / 3);
-        max-width: calc(100% / 3);
+        min-width: 35%;
+        max-width: 35%;
     }
 
-    #functionSettingModal .config-params-area-col {
-        min-width: calc(100% - 100% / 3);
-        max-width: calc(100% - 100% / 3);
-    }
-
-    #functionMessageHelper {
-        min-width: calc(100% / 3);
-        max-width: calc(100% / 3);
+    #functionSettingModal .config-params-area-col,
+    #functionSettingModal .function-description {
+        min-width: 50%;
+        max-width: 50%;
     }
 }
 
@@ -563,27 +538,71 @@
     #functionSettingModal .param-value-y {
         flex: 1;
     }
+
+    #functionSettingModal .config-params-area-col,
+    #functionSettingModal .function-description {
+        flex: unset;
+        max-width: unset;
+    }
+
+    #functionSettingModal .function-description {
+        margin-left: 115px;
+        padding-left: 0 !important;
+    }
+
+    #functionMessageHelper {
+        float: left;
+        width: calc((100% - 10px) / 2);
+        height: 103px;
+    }
+
+    #functionSettingModal .form-group #functionNote {
+        float: right;
+        width: calc((100% - 10px) / 2);
+        padding-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    #functionSettingModal .form-group #functionNote textarea {
+        height: 80px;
+        resize: none;
+    }
+
+    #functionSettingModal .form-group #functionNote label {
+        margin-bottom: 0;
+    }
+
+    #collapseFunctionConfig .copyFunctionDataSample {
+        margin-top: unset;
+        position: absolute;
+        top: 583px;
+        right: 15px;
+    }
 }
 
 #functionSettingModal .row-invalid {
     border: 3px solid red;
 }
-/* Function Info Table CSS - End */
 
+#procDateTimeFormatInput {
+    height: 30px;
+    min-width: 200px;
+}
+/* Function Info Table CSS - End */
 
 /* Merge mode */
 #procMergeModal {
     /*display: none;*/
 }
 
-#parentProcessTable .parent-process-rows, .merge-mode-sample-data
-{
+#parentProcessTable .parent-process-rows,
+.merge-mode-sample-data {
     background-color: #444444;
 }
 
 table#childProcessSampleData tbody tr td {
     min-width: 30px;
-    border-color: #5b5959!important;
+    border-color: #5b5959 !important;
 }
 
 table#childProcessColumns thead tr th {
@@ -592,19 +611,14 @@ table#childProcessColumns thead tr th {
 }
 
 .merge-mode-tables-left {
-    display: flex;
+    display: inline-block;
     position: sticky;
     left: 0;
     z-index: 999;
 }
 
-/*Using for scroll table*/
-/*.merge-mode-tables-base, .merge-mode-tables-child {*/
-/*    width: 25%;*/
-/*}*/
-
 #parentProcessTable {
-    width: 50% !important;
+    width: 100% !important;
 }
 
 #parentProcessTable th.system,
@@ -613,9 +627,13 @@ table#childProcessColumns thead tr th {
     min-width: 180px;
 }
 
-#parentProcessTable tbody.parent-process-rows tr td {
-    text-overflow: ellipsis;
+#parentProcessTable tbody.parent-process-rows tr td,
+#mergeModeSettingContent .column-format {
+    max-width: 180px;
     border-color: #5b5959 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #parentProcessSampleData tbody.merge-mode-sample-data tr td {
@@ -623,29 +641,71 @@ table#childProcessColumns thead tr th {
 }
 
 #childProcessColumns {
-    width: 10% !important;
+    /*width: 10% !important;*/
 }
 
 #childProcessSampleData {
-    width: 20% !important;
+    display: block;
+}
+
+#childProcessSampleData thead {
+    display: block;
+    margin-left: -2px;
 }
 
 #parentProcessSampleData {
+    display: block;
+}
+
+#parentProcessSampleData thead {
+    display: block;
+    margin-left: -3px;
+}
+
+#parentProcessSampleData thead *,
+#childProcessSampleData thead * {
+    display: block;
+}
+
+#parentProcessSampleData thead th {
+    display: block;
+    margin-top: -0.5px;
+}
+
+#childProcessSampleData thead th {
+    display: block;
+    margin-top: -0.5px;
+}
+#parentProcessSampleData tbody {
+    display: block;
+    overflow-x: auto;
+    margin-left: -3px;
+    margin-top: -2px;
+}
+
+#childProcessSampleData tbody {
+    display: block;
+    overflow-x: auto;
+    margin-left: -2px;
+    margin-top: -2px;
+}
+
+.merge-mode-tables-child {
+    flex-grow: 1;
+    height: fit-content;
     width: 20% !important;
 }
 
-.merge-mode-tables-child{
-    overflow-x: auto;
-    overflow-y: hidden;
-    height: fit-content;
-}
-
 .merge-mode-tables-base {
-    overflow-x: auto;
-    overflow-y: hidden;
+    flex-grow: 1;
     height: fit-content;
+    width: 20% !important;
 }
 
 .confirmation-modal {
     z-index: 1070 !important;
+}
+
+#mergeModeSettingContent .proc-config-content {
+    overflow-x: hidden;
 }

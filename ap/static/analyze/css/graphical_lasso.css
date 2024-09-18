@@ -24,12 +24,12 @@
     margin-top: -11px;
 }
 .tick {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  width: 1px;
-  background: white;
-  height: 5px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 1px;
+    background: white;
+    height: 5px;
 }
 .cmt-2 {
     margin-top: 2px;

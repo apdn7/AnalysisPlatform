@@ -6,6 +6,7 @@ import pydantic
 from pydantic import BaseModel
 
 INVALID_VALUE_MSG = 'Invalid value'
+MUST_HAVE_THE_SAME_TYPE_MSG = 'X and Y must have the same type'
 
 
 class ErrorField(BaseModel):
@@ -33,6 +34,12 @@ class FunctionFieldError(Exception):
 
     def parse(self) -> dict[str, Any]:
         return {'id': self.id, 'errors': self.errors}
+
+    def __repr__(self) -> str:
+        return '\n'.join(err.msg for err in self.errors)
+
+    def __str__(self) -> str:
+        return self.__repr__()
 
     @classmethod
     def from_pydantic_validation_error(

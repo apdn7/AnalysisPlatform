@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars,prefer-arrow-callback */
-
 let uniqueRequiredArr = [];
 let requiredInputs = null;
 let invalids = [];
@@ -8,22 +6,24 @@ let checkObjectiveVar = true; // option to validate objective var
 
 function getUniqueRequiredArr() {
     const uniqueNames = [];
-    return requiredInputs.map((i, el) => {
-        if (el.name === 'objectiveVar' && !checkObjectiveVar) {
+    return requiredInputs
+        .map((i, el) => {
+            if (el.name === 'objectiveVar' && !checkObjectiveVar) {
+                return null;
+            }
+            if (uniqueNames.indexOf(el.name) === -1) {
+                uniqueNames.push(el.name);
+                const type = el.tagName === 'INPUT' ? el.type : null;
+                return {
+                    tagName: el.tagName,
+                    name: el.name,
+                    id: el.id,
+                    type,
+                };
+            }
             return null;
-        }
-        if (uniqueNames.indexOf(el.name) === -1) {
-            uniqueNames.push(el.name);
-            const type = el.tagName === 'INPUT' ? el.type : null;
-            return {
-                tagName: el.tagName,
-                name: el.name,
-                id: el.id,
-                type,
-            };
-        }
-        return null;
-    }).filter(v => v !== null);
+        })
+        .filter((v) => v !== null);
 }
 
 function setClass(selector, className) {
@@ -31,11 +31,16 @@ function setClass(selector, className) {
 }
 
 function getValueSelect(name) {
-    return $(currentFormID).find(`select[name=${name}]`).children('option:selected').val();
+    return $(currentFormID)
+        .find(`select[name=${name}]`)
+        .children('option:selected')
+        .val();
 }
 
 function getValueCheckbox(name) {
-    return $(currentFormID).find(`input[type=checkbox][name=${name}]:checked`).val();
+    return $(currentFormID)
+        .find(`input[type=checkbox][name=${name}]:checked`)
+        .val();
 }
 
 function getValueText(name) {
@@ -43,7 +48,9 @@ function getValueText(name) {
 }
 
 function getValueRadio(name) {
-    return $(currentFormID).find(`input[type=radio][name=${name}]:checked`).val();
+    return $(currentFormID)
+        .find(`input[type=radio][name=${name}]:checked`)
+        .val();
 }
 
 function getValueInputByType(type, name) {
@@ -56,7 +63,6 @@ function getValueInputByType(type, name) {
     return getValueText(name);
 }
 
-
 function checkValidations(minMaxNumOfEndproc = null, formID = '') {
     invalids = [];
     if (formID) {
@@ -67,7 +73,6 @@ function checkValidations(minMaxNumOfEndproc = null, formID = '') {
 
     uniqueRequiredArr = getUniqueRequiredArr();
 
-    // eslint-disable-next-line no-restricted-syntax
     for (const ob of uniqueRequiredArr) {
         let value = null;
 
@@ -78,7 +83,8 @@ function checkValidations(minMaxNumOfEndproc = null, formID = '') {
         }
         if (!value) {
             if (/VALS_SELECT/.test(ob.name) || /end_proc/.test(ob.name)) {
-                if (!checkRelatedVariablesOfProcess(ob.name)) invalids.push({ name: ob.name, id: ob.id });
+                if (!checkRelatedVariablesOfProcess(ob.name))
+                    invalids.push({ name: ob.name, id: ob.id });
             } else {
                 invalids.push({ name: ob.name, id: ob.id });
             }
@@ -86,7 +92,10 @@ function checkValidations(minMaxNumOfEndproc = null, formID = '') {
     }
 
     if (minMaxNumOfEndproc) {
-        return invalids.length <= 0 && validateSelectedNumberOfEndProcs(minMaxNumOfEndproc);
+        return (
+            invalids.length <= 0 &&
+            validateSelectedNumberOfEndProcs(minMaxNumOfEndproc)
+        );
     }
 
     return invalids.length <= 0;
@@ -97,7 +106,7 @@ function updateStyleButtonByCheckingValid() {
     btn.removeAttr('disable');
     btn.removeAttr('style');
     const isValid = checkValidations();
-    if($(formElements.showCT_Time).length) {
+    if ($(formElements.showCT_Time).length) {
         if ($(formElements.showCT_Time)[0].ready === true) {
             $(formElements.showCT_Time).attr('disabled', false);
             $(formElements.showCT_Time)[0].ready = null;
@@ -126,10 +135,12 @@ function checkRelatedVariablesOfProcess(name) {
     const index = name.match(/\d+/g);
     const parent = $(`#end-proc-process-div-${index[1]}-parent`);
     const hasCatExp = parent.find('[name=catExpBox]').val();
-    const hasLabel = $(`[name=GET02_CATE_SELECT${index[1]}]:checked`).length > 0;
+    const hasLabel =
+        $(`[name=GET02_CATE_SELECT${index[1]}]:checked`).length > 0;
     const hasColor = parent.find('[name=colorVar]:checked').length > 0;
     //end_proc
-    const atLeastOneColumn = $('input[name^=GET02_VALS_SELECT]:checked').length > 0;
+    const atLeastOneColumn =
+        $('input[name^=GET02_VALS_SELECT]:checked').length > 0;
 
     return hasCatExp || hasLabel || hasColor || atLeastOneColumn;
 }
@@ -148,8 +159,14 @@ function updateStyleOfInvalidElements() {
             setClass(`#end-proc-process-div-${index}-parent`, 'invalid');
         } else if (/CATE_SELECT/.test(name)) {
             const index = name.match(/\d+/g);
-            setClass(`#end-proc-process-cate-div-${index[1]}-parent`, 'invalid');
-        } else if (/end_proc_cate/.test(name) || /categoryVariable/.test(name)) {
+            setClass(
+                `#end-proc-process-cate-div-${index[1]}-parent`,
+                'invalid',
+            );
+        } else if (
+            /end_proc_cate/.test(name) ||
+            /categoryVariable/.test(name)
+        ) {
             const index = name.match(/\d+/g);
             setClass(`#end-proc-process-cate-div-${index}-parent`, 'invalid');
         } else {
@@ -165,9 +182,12 @@ function updateStyleOfInvalidElements() {
         }
     }
     if (invalids.length) {
-        $('html, body').animate({
-            scrollTop: $(currentFormID).find('.invalid').offset().top - 100,
-        }, 300);
+        $('html, body').animate(
+            {
+                scrollTop: $(currentFormID).find('.invalid').offset().top - 100,
+            },
+            300,
+        );
     }
 }
 
@@ -196,7 +216,7 @@ function validateSelectedNumberOfEndProcs(minMaxNumOfEndproc) {
     const form = $(currentFormID);
     const formData = new FormData(form[0]);
     const endProcs = [];
-    // eslint-disable-next-line no-restricted-syntax
+
     for (const item of formData.entries()) {
         const key = item[0];
         const value = item[1];
@@ -209,19 +229,27 @@ function validateSelectedNumberOfEndProcs(minMaxNumOfEndproc) {
 
     if (min && max) {
         if (endProcs.length < min || endProcs.length > max) {
-            showToastrMsg(i18nCommon.availableSelectMinMaxSensor.replace('MIN', min).replace('MAX', max), MESSAGE_LEVEL.ERROR);
+            showToastrMsg(
+                i18nCommon.availableSelectMinMaxSensor
+                    .replace('MIN', min)
+                    .replace('MAX', max),
+                MESSAGE_LEVEL.ERROR,
+            );
 
             return false;
         }
     }
-    
+
     if (!min && max) {
         if (endProcs.length > max) {
-            showToastrMsg(i18nCommon.availableSelectMaxSensor.replace('MAX', max), MESSAGE_LEVEL.ERROR);
+            showToastrMsg(
+                i18nCommon.availableSelectMaxSensor.replace('MAX', max),
+                MESSAGE_LEVEL.ERROR,
+            );
             return false;
         }
     }
-    
+
     return true;
 }
 

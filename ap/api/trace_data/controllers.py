@@ -7,7 +7,9 @@ from ap import max_graph_config
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
 from ap.api.trace_data.services.data_count import get_data_count_by_time_range
-from ap.api.trace_data.services.time_series_chart import gen_graph_fpp
+from ap.api.trace_data.services.time_series_chart import (
+    gen_graph_fpp,
+)
 from ap.common.constants import CfgConstantType, DataCountType, MaxGraphNumber
 from ap.common.logger import log_execution_time
 from ap.common.services.form_env import (
@@ -148,10 +150,14 @@ def get_data_count():
     from_date = request_data.get('from') or None
     to_date = request_data.get('to') or None
     local_tz = request_data.get('timezone') or None
+    count_in_file = request_data.get('count_in_file', False)
+
     data_count = {}
     min_val = 0
     max_val = 0
     if process_id:
+        start_date, end_date = None, None
+
         if from_date and to_date:
             start_date = get_date_from_type(from_date, query_type, local_tz)
             end_date = get_date_from_type(to_date, query_type, local_tz, True)
@@ -162,6 +168,7 @@ def get_data_count():
             end_date,
             query_type,
             local_tz,
+            count_in_file=count_in_file,
         )
     out_dict = {
         'from': from_date,

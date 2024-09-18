@@ -1,55 +1,106 @@
 {% import 'macros.html' as macros %}
-<div class="modal fade db-modal" id="screenshotModal" tabindex="-1" role="dialog" aria-labelledby="screenshotLabel"
-     aria-hidden="true" data-backdrop="static" data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="screenshotModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="screenshotLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="screenshotLabel">{{ _("Download") }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title" id="screenshotLabel">
+                    {{ _("Download") }}
+                </h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="">
                     <div class="row">
-                        <div class="col-3"><span style="vertical-align: middle;">{{ _("File name") }}:</span></div>
-                        <div class="col-8">
-                            <input type="text" class=" form-control" name="screenshotFilename" id="screenshotFilename">
+                        <div class="col-3">
+                            <span style="vertical-align: middle;"
+                                >{{ _("File name") }}:</span
+                            >
                         </div>
-
+                        <div class="col-8">
+                            <input
+                                type="text"
+                                class=" form-control"
+                                name="screenshotFilename"
+                                id="screenshotFilename"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="download-timeout hide"></div>
-                <a id="download" class="btn btn-primary" download="screenshot.png" href=""
-                   onclick="downloadScreenshot(this);">
-                    <i class="fa fa-download" aria-hidden="true"></i> {{ _("Download") }}
+                <a
+                    id="download"
+                    class="btn btn-primary"
+                    download="screenshot.png"
+                    href=""
+                    onclick="downloadScreenshot(this);"
+                >
+                    <i class="fa fa-download" aria-hidden="true"></i>
+                    {{ _("Download") }}
                 </a>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Save user setting modal -->
-<div class="modal fade db-modal" id="saveUserSettingModal" tabindex="-1" role="dialog"
-     aria-labelledby="userSettingLabel"
-     aria-hidden="true"
-     data-backdrop="static"
-     data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="saveUserSettingModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="userSettingLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog" role="document" style="max-width: 1000px;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="userSettingLabel">{{ _("Save Setting") }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title" id="userSettingLabel">
+                    {{ _("Save Setting") }}
+                </h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form name="userSetting" id="userSetting" onsubmit="return false;">
-                    <input name="id" type="hidden" value="">
-                    <input name="page" type="hidden" value="">
+                <form
+                    name="userSetting"
+                    id="userSetting"
+                    onsubmit="return false;"
+                >
+                    <input name="id" type="hidden" value="" />
+                    <input name="page" type="hidden" value="" />
                     <div class="">
                         <div class="row">
                             <div class="col-sm-12">
@@ -57,24 +108,45 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-3 d-flex align-items-center"><span
-                                    style="vertical-align: middle;">{{ _("Title") }}:</span></div>
+                            <div class="col-3 d-flex align-items-center">
+                                <span style="vertical-align: middle;"
+                                    >{{ _("Title") }}:</span
+                                >
+                            </div>
                             <div class="col-8">
-                                <input type="text" class="form-control" name="title">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="title"
+                                />
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-3 d-flex align-items-center"><span
-                                    style="vertical-align: middle;">{{ _("Created by") }}:</span></div>
+                            <div class="col-3 d-flex align-items-center">
+                                <span style="vertical-align: middle;"
+                                    >{{ _("Created by") }}:</span
+                                >
+                            </div>
                             <div class="col-8">
-                                <input type="text" class="form-control" name="created_by" value="">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="created_by"
+                                    value=""
+                                />
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-3 d-flex align-items-center"><span
-                                    style="vertical-align: middle;">{{ _("Priority") }}:</span></div>
+                            <div class="col-3 d-flex align-items-center">
+                                <span style="vertical-align: middle;"
+                                    >{{ _("Priority") }}:</span
+                                >
+                            </div>
                             <div class="col-8">
-                                <select class="form-select form-control" name="priority">
+                                <select
+                                    class="form-select form-control"
+                                    name="priority"
+                                >
                                     <option value="5">5 (High)</option>
                                     <option value="4">4</option>
                                     <option value="3">3</option>
@@ -84,49 +156,88 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-3 d-flex align-items-center"><span
-                                    style="vertical-align: middle;">{{ _("Save Date & Time") }}:</span>
+                            <div class="col-3 d-flex align-items-center">
+                                <span style="vertical-align: middle;"
+                                    >{{ _("Save Date & Time") }}:</span
+                                >
                             </div>
                             <div class="col-8">
                                 <div class="custom-control custom-checkbox">
-                                    <input name="use_current_time" type="checkbox" class="custom-control-input"
-                                           id="useCurrentTime" checked="checked">
-                                    <label class="custom-control-label"
-                                           for="useCurrentTime">※ {{ _('If checked, the set date & time will also be saved.') }}</label>
+                                    <input
+                                        name="use_current_time"
+                                        type="checkbox"
+                                        class="custom-control-input"
+                                        id="useCurrentTime"
+                                        checked="checked"
+                                    />
+                                    <label
+                                        class="custom-control-label"
+                                        for="useCurrentTime"
+                                        >※
+                                        {{ _('If checked, the set date & time will also be saved.') }}</label
+                                    >
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-3 d-flex align-items-center"><span
-                                    style="vertical-align: middle;">{{ _("Description") }}:</span>
+                            <div class="col-3 d-flex align-items-center">
+                                <span style="vertical-align: middle;"
+                                    >{{ _("Description") }}:</span
+                                >
                             </div>
                             <div class="col-8">
-                                <input type="text" class="form-control" name="description">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="description"
+                                />
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-3 d-flex align-items-center"><span
-                                    style="vertical-align: middle;">{{ _("Share information") }}:</span>
+                            <div class="col-3 d-flex align-items-center">
+                                <span style="vertical-align: middle;"
+                                    >{{ _("Share information") }}:</span
+                                >
                             </div>
                             <div class="col-8">
                                 <div class="custom-control custom-checkbox">
-                                    <input name="share_info" type="checkbox" class="custom-control-input"
-                                           id="shareInfor" checked="checked">
-                                    <label class="custom-control-label"
-                                           for="shareInfor">※ {{ _('If checked, the settings can be shared.') }}</label>
+                                    <input
+                                        name="share_info"
+                                        type="checkbox"
+                                        class="custom-control-input"
+                                        id="shareInfor"
+                                        checked="checked"
+                                    />
+                                    <label
+                                        class="custom-control-label"
+                                        for="shareInfor"
+                                        >※
+                                        {{ _('If checked, the settings can be shared.') }}</label
+                                    >
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-3 d-flex align-items-center"><span
-                                    style="vertical-align: middle;">{{ _("Graph Setting") }}:</span>
+                            <div class="col-3 d-flex align-items-center">
+                                <span style="vertical-align: middle;"
+                                    >{{ _("Graph Setting") }}:</span
+                                >
                             </div>
                             <div class="col-8">
                                 <div class="custom-control custom-checkbox">
-                                    <input name="save_graph_settings" type="checkbox" class="custom-control-input"
-                                           id="saveOnDemand" checked="checked">
-                                    <label class="custom-control-label"
-                                           for="saveOnDemand">※ {{ _('If checked, the config on graph area will also be saved.') }}</label>
+                                    <input
+                                        name="save_graph_settings"
+                                        type="checkbox"
+                                        class="custom-control-input"
+                                        id="saveOnDemand"
+                                        checked="checked"
+                                    />
+                                    <label
+                                        class="custom-control-label"
+                                        for="saveOnDemand"
+                                        >※
+                                        {{ _('If checked, the config on graph area will also be saved.') }}</label
+                                    >
                                 </div>
                             </div>
                         </div>
@@ -134,179 +245,371 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button id="saveSettingConfirmBtn" class="btn btn-primary" data-toggle="modal"
-                        data-target="#saveSettingConfirmModal">
-                    <i class="fa fa-save" aria-hidden="true"></i> {{ _("Save") }}
+                <button
+                    id="saveSettingConfirmBtn"
+                    class="btn btn-primary"
+                    data-toggle="modal"
+                    data-target="#saveSettingConfirmModal"
+                >
+                    <i class="fa fa-save" aria-hidden="true"></i>
+                    {{ _("Save") }}
                 </button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
-<div id="saveSettingConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="saveSettingConfirmModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
             </div>
             <div class="modal-body">
-                <p class="modal-inform" id="saveSettingConfirmContent" style="white-space: pre-wrap">{{ _("Confirm to save your setting.") }}</p>
+                <p
+                    class="modal-inform"
+                    id="saveSettingConfirmContent"
+                    style="white-space: pre-wrap"
+                >
+                    {{ _("Confirm to save your setting.") }}
+                </p>
             </div>
             <div class="modal-footer">
-                <button id="saveSettingConfirmed" class="btn btn-primary" data-item-id=""
-                        data-dismiss="modal">{{ _('OK') }}</button>
-                <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+                <button
+                    id="saveSettingConfirmed"
+                    class="btn btn-primary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
-<div id="overwriteSaveSettingConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="overwriteSaveSettingConfirmModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
             </div>
             <div class="modal-body">
-                <p class="modal-inform">{{ _("Do you want to overwrite the setting?") }}</p>
+                <p class="modal-inform">
+                    {{ _("Do you want to overwrite the setting?") }}
+                </p>
                 <div class="custom-control custom-checkbox">
-                    <input name="save_graph_settings_overwrite" type="checkbox" class="custom-control-input"
-                           id="saveOnDemand2" checked="checked">
-                    <label class="custom-control-label"
-                           for="saveOnDemand2">※ {{ _('Also save the settings of the graph area (or clear)') }}</label>
+                    <input
+                        name="save_graph_settings_overwrite"
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="saveOnDemand2"
+                        checked="checked"
+                    />
+                    <label class="custom-control-label" for="saveOnDemand2"
+                        >※
+                        {{ _('Also save the settings of the graph area (or clear)') }}</label
+                    >
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="overwriteSaveSettingConfirmed" class="btn btn-primary" data-item-id=""
-                        data-dismiss="modal">{{ _('OK') }}
+                <button
+                    id="overwriteSaveSettingConfirmed"
+                    class="btn btn-primary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
                 </button>
-                <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
-<div id="deleteSettingConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="deleteSettingConfirmModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
             </div>
             <div class="modal-body">
-                <p class="modal-inform">{{ _("Do you want to delete this record?") }}</p>
+                <p class="modal-inform">
+                    {{ _("Do you want to delete this record?") }}
+                </p>
             </div>
             <div class="modal-footer">
-                <button id="delSettingConfirmed" class="btn btn-primary" data-item-id=""
-                        data-dismiss="modal" onclick="deleteUserSetting(this);">{{ _('OK') }}</button>
-                <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+                <button
+                    id="delSettingConfirmed"
+                    class="btn btn-primary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                    onclick="deleteUserSetting(this);"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 <!-- load saved information -->
-<div class="modal fade db-modal" id="loadUserSettingModal" tabindex="-1" role="dialog"
-     aria-labelledby="loadUserSettingLabel" aria-hidden="true"
-     data-backdrop="static" data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="loadUserSettingModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="loadUserSettingLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-between">
-                <h5 class="modal-title" id="loadUserSettingLabel">{{ _("Bookmark") }}</h5>
+                <h5 class="modal-title" id="loadUserSettingLabel">
+                    {{ _("Bookmark") }}
+                </h5>
                 <div class="d-flex justify-content-end">
-                    <input id="searchInTopTable" class="form-control common-search-input"
-                           placeholder="{{ _('Search') }}...">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <input
+                        id="searchInTopTable"
+                        class="form-control common-search-input"
+                        placeholder="{{ _('Search') }}..."
+                    />
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered table-fixed table-hover-light" id="tblUserSetting">
+                <table
+                    class="table table-bordered table-fixed table-hover-light"
+                    id="tblUserSetting"
+                >
                     <thead>
-                    <tr>
-                        <th scope="col">No.</th>
-                        <th scope="col" style="font-size: 12px;"><i class="fas fa-globe-americas"></i> / <i class="fas fa-lock"></i></th>
-                        <th scope="col">{{ _('Priority') }}</th>
-                        <th scope="col">{{ _('Title') }}</th>
-                        <th scope="col" class="min-100">{{ _('Created by') }}</th>
-                        <th scope="col">{{ _('Updated at') }}</th>
-                        <th title="{{ _('User Setting Open Explaining') }}" scope="col"><span class="hint-text">{{ _('Open') }}</span></th>
-                        <th title="{{ _('User Setting Read Explaining') }}" scope="col"><span class="hint-text">{{ _('Load') }}</span></th>
-                        <th title="{{ _('User Setting Edit Explaining') }}" scope="col"><span class="hint-text">{{ _('Edit') }}</span></th>
-                        <th title="{{ _('Link copy hover msg') }}" scope="col"><span class="hint-text">Link</span></th>
-                        <th scope="col">{{ _('Del') }}</th>
-                        <th scope="col">{{ _('Description') }}</th>
-                    </tr>
+                        <tr>
+                            <th scope="col">No.</th>
+                            <th scope="col" style="font-size: 12px;">
+                                <i class="fas fa-globe-americas"></i> /
+                                <i class="fas fa-lock"></i>
+                            </th>
+                            <th scope="col">{{ _('Priority') }}</th>
+                            <th scope="col">{{ _('Title') }}</th>
+                            <th scope="col" class="min-100">
+                                {{ _('Created by') }}
+                            </th>
+                            <th scope="col">{{ _('Updated at') }}</th>
+                            <th
+                                title="{{ _('User Setting Open Explaining') }}"
+                                scope="col"
+                            >
+                                <span class="hint-text">{{ _('Open') }}</span>
+                            </th>
+                            <th
+                                title="{{ _('User Setting Read Explaining') }}"
+                                scope="col"
+                            >
+                                <span class="hint-text">{{ _('Load') }}</span>
+                            </th>
+                            <th
+                                title="{{ _('User Setting Edit Explaining') }}"
+                                scope="col"
+                            >
+                                <span class="hint-text">{{ _('Edit') }}</span>
+                            </th>
+                            <th
+                                title="{{ _('Link copy hover msg') }}"
+                                scope="col"
+                            >
+                                <span class="hint-text">Link</span>
+                            </th>
+                            <th scope="col">{{ _('Del') }}</th>
+                            <th scope="col">{{ _('Description') }}</th>
+                        </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Close") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 <!-- end of loading setting information -->
 
-<div id="shutdownAppModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="shutdownAppModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
             </div>
             <div class="modal-body">
                 <p class="modal-inform">{{ _("Confirm Shutdown App") }}</p>
             </div>
             <div class="modal-footer">
-                <button id="btnConfirmShutdownApp" class="btn btn-danger" data-item-id=""
-                        data-dismiss="modal">{{ _('OK') }}</button>
-                <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+                <button
+                    id="btnConfirmShutdownApp"
+                    class="btn btn-danger"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 <!-- ScP change type modal confirm -->
-<div id="changeCompareTypeConfirm" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="changeCompareTypeConfirm"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
             </div>
             <div class="modal-body">
-                <p id="changeDivideOptionConfirmMessage" class="modal-inform text-center mb-0"
-                   style="white-space: pre-line"></p>
+                <p
+                    id="changeDivideOptionConfirmMessage"
+                    class="modal-inform text-center mb-0"
+                    style="white-space: pre-line"
+                ></p>
             </div>
             <div class="modal-footer">
-                <button id="changeCompareTypeConfirmOK" class="btn btn-primary" data-item-id=""
-                        data-dismiss="modal">{{ _('OK') }}
+                <button
+                    id="changeCompareTypeConfirmOK"
+                    class="btn btn-primary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
                 </button>
-                <button id="changeCompareTypeConfirmCancel" class="btn btn-secondary"
-                        data-dismiss="modal">{{ _('Cancel') }}</button>
+                <button
+                    id="changeCompareTypeConfirmCancel"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _('Cancel') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ScP change Div confirm -->
-<div id="changeDivInFacetConfirm" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="changeDivInFacetConfirm"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
             </div>
             <div class="modal-body">
-                <p id="changeDivConfirmationText" class="modal-inform text-center mb-0"
-                   style="white-space: pre-line"></p>
+                <p
+                    id="changeDivConfirmationText"
+                    class="modal-inform text-center mb-0"
+                    style="white-space: pre-line"
+                ></p>
             </div>
             <div class="modal-footer">
-                <button id="changeDivInFacetConfirmOK" class="btn btn-primary"
-                        data-dismiss="modal">{{ _('OK') }}
+                <button
+                    id="changeDivInFacetConfirmOK"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
                 </button>
-                <button id="changeDivInFacetConfirmCancel" class="btn btn-secondary"
-                        data-dismiss="modal">{{ _('Cancel') }}
+                <button
+                    id="changeDivInFacetConfirmCancel"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _('Cancel') }}
                 </button>
             </div>
         </div>
@@ -314,7 +617,12 @@
 </div>
 
 <div>
-    <ul id="contextMenuExport" class="context-menu" style="display:none;" name="contextMenu">
+    <ul
+        id="contextMenuExport"
+        class="context-menu"
+        style="display:none;"
+        name="contextMenu"
+    >
         <li class="menu-item" onclick="showGraphWithDebugInfo()">Export</li>
     </ul>
 </div>
@@ -326,310 +634,613 @@
 </div>
 
 <div>
-    <ul id="contextMenuImport" class="context-menu" style="display:none;" name="contextMenu">
+    <ul
+        id="contextMenuImport"
+        class="context-menu"
+        style="display:none;"
+        name="contextMenu"
+    >
         <li class="menu-item" onclick="openImportDialog()">Import</li>
     </ul>
 </div>
 
-<div class="modal fade db-modal" id="importForDebug" tabindex="-1" role="dialog" aria-labelledby="importLabel"
-     aria-hidden="true" data-backdrop="static" data-keyboard="false">
+<div
+    class="modal fade db-modal"
+    id="importForDebug"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="importLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="importLabel">Import Config And DataFrame.</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title" id="importLabel">
+                    Import Config And DataFrame.
+                </h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div id="selectFileForImport" class="card card-body drag-card">
-                    <div class="drag-area import-drag-area box has-advanced-upload">
-                        <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <div
+                        class="drag-area import-drag-area box has-advanced-upload"
+                    >
+                        <div class="icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
                         <div class="box__success"><span></span></div>
-                        <button id="importSelectFileBtn" class="btn btn-light">{{ _('Choose a file') }}</button>
-                        <input type="file" hidden id="importSelectFileInput" accept=".zip">
+                        <button id="importSelectFileBtn" class="btn btn-light">
+                            {{ _('Choose a file') }}
+                        </button>
+                        <input
+                            type="file"
+                            hidden
+                            id="importSelectFileInput"
+                            accept=".zip"
+                        />
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="importZipFile" onclick="zipImport()" class="btn btn-primary"
-                        data-dismiss="modal">{{ _('OK') }}</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                <button
+                    id="importZipFile"
+                    onclick="zipImport()"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _("Cancel") }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- confirm changed settings modal -->
-<div id="changeSettingConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="changeSettingConfirmModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
             </div>
             <div class="modal-body">
-                <p class="modal-inform mb-0"
-                   style="white-space: pre-line">{{_('Do you want to save settings changes?')}}</p>
+                <p class="modal-inform mb-0" style="white-space: pre-line">
+                    {{ _('Do you want to save settings changes?') }}
+                </p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" id="saveChangeSetting">{{ _('Save') }}
+                <button class="btn btn-primary" id="saveChangeSetting">
+                    {{ _('Save') }}
                 </button>
-                <button class="btn btn-primary" id="discardSaveChangeSetting">{{ _('Do not save') }}
+                <button class="btn btn-primary" id="discardSaveChangeSetting">
+                    {{ _('Do not save') }}
                 </button>
-                <button class="btn btn-secondary"
-                        data-dismiss="modal">{{ _('Cancel') }}</button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-
 <!-- confirm changed settings modal -->
-<div id="confirmAbortProcessModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="confirmAbortProcessModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
             </div>
             <div class="modal-body">
-                <p class="modal-inform mb-0"
-                   style="white-space: pre-line">{{_('Do you want to abort the process?')}}</p>
+                <p class="modal-inform mb-0" style="white-space: pre-line">
+                    {{ _('Do you want to abort the process?') }}
+                </p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" onclick="abortProcess()" data-dismiss="modal">{{ _('OK') }}
+                <button
+                    class="btn btn-primary"
+                    onclick="abortProcess()"
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
                 </button>
-                <button class="btn btn-secondary"
-                        data-dismiss="modal">{{ _('Cancel') }}</button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- confirm data has K sep -->
-<div id="confirmChangeKSepDataTypeModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="confirmChangeKSepDataTypeModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
             </div>
             <div class="modal-body">
-                <p class="modal-inform mb-0"
-                   style="white-space: pre-line">{{_('K sep type notification')}}</p>
+                <p class="modal-inform mb-0" style="white-space: pre-line">
+                    {{ _('K sep type notification') }}
+                </p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal">{{ _('OK') }}
+                <button class="btn btn-primary" data-dismiss="modal">
+                    {{ _('OK') }}
                 </button>
-                <button class="btn btn-secondary"
-                        data-dismiss="modal">{{ _('Cancel') }}</button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- confirm there is null value import data -->
-<div id="confirmNullValueInColumnModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="confirmNullValueInColumnModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
             </div>
             <div class="modal-body">
-                <p class="modal-inform mb-0"
-                   style="white-space: pre-line">{{_('Preview null value message')}}</p>
+                <p class="modal-inform mb-0" style="white-space: pre-line">
+                    {{ _('Preview null value message') }}
+                </p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal">{{ _('OK') }}
+                <button class="btn btn-primary" data-dismiss="modal">
+                    {{ _('OK') }}
                 </button>
-                <button class="btn btn-secondary"
-                        data-dismiss="modal">{{ _('Cancel') }}</button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- confirm there is same value import data -->
-<div id="confirmSameValueInColumnModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="confirmSameValueInColumnModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
             </div>
             <div class="modal-body">
-                <p class="modal-inform mb-0"
-                   style="white-space: pre-line">{{_('Preview same value message')}}</p>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-primary" data-dismiss="modal">{{ _('OK') }}
-				</button>
-				<button class="btn btn-secondary"
-						data-dismiss="modal">{{ _('Cancel') }}</button>
-			</div>
-		</div>
-	</div>
+                <p class="modal-inform mb-0" style="white-space: pre-line">
+                    {{ _('Preview same value message') }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">
+                    {{ _('OK') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
-<div id="dummyDatetimeProcConfirmationModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-lg modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">{{ _("Confirmation") }}</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			</div>
-			<div class="modal-body">
-				<p class="modal-inform modal-msg">{{ _('Dummy Datetime Generate On Proc Confirm Message') }}</p>
-			</div>
-			<div class="modal-footer">
-				<button onclick="addDummyDatetimePrc();" class="btn btn-primary"
-						data-dismiss="modal">{{ _('OK') }}</button>
-				<button onclick="addDummyDatetimePrc(false);" class="btn btn-secondary"
-						data-dismiss="modal">{{ _('Cancel') }}</button>
-			</div>
-		</div>
-	</div>
+<div
+    id="dummyDatetimeProcConfirmationModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-lg modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">
+                    {{ _('Dummy Datetime Generate On Proc Confirm Message') }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button
+                    onclick="addDummyDatetimePrc();"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button
+                    onclick="addDummyDatetimePrc(false);"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
-<div id="dummyDatetimeConfirmationModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-lg modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">{{ _("Confirmation") }}</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			</div>
-			<div class="modal-body">
-				<p class="modal-inform modal-msg">{{ _('Dummy Datetime Generate On DS Confirm Message') }}</p>
-			</div>
-			<div class="modal-footer">
-				<button onclick="addDummyDatetimeDS();" class="btn btn-primary"
-						data-dismiss="modal">{{ _('OK') }}</button>
-				<button onclick="addDummyDatetimeDS(false);" class="btn btn-secondary"
-						data-dismiss="modal">{{ _('Cancel') }}</button>
-			</div>
-		</div>
-	</div>
+<div
+    id="dummyDatetimeConfirmationModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-lg modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">
+                    {{ _('Dummy Datetime Generate On DS Confirm Message') }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button
+                    onclick="addDummyDatetimeDS();"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button
+                    onclick="addDummyDatetimeDS(false);"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
-<div id="duplColsModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">{{ _("Confirmation") }}</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			</div>
-			<div class="modal-body">
-				<p class="modal-inform modal-msg">{{ _('Because duplicate column names exist, a numeric suffix  added to the duplicate column names.') }}</p>
-			</div>
-			<div class="modal-footer">
-				<button onclick="genColSuffix(true);" class="btn btn-primary"
-						data-dismiss="modal">{{ _('OK') }}</button>
-				<button onclick="genColSuffix(false);" class="btn btn-secondary"
-						data-dismiss="modal">{{ _('Cancel') }}</button>
-			</div>
-		</div>
-	</div>
+<div
+    id="duplColsModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">
+                    {{ _('Because duplicate column names exist, a numeric suffix  added to the duplicate column names.') }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button
+                    onclick="genColSuffix(true);"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button
+                    onclick="genColSuffix(false);"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div id="dummyHeaderModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">{{ _("Confirmation") }}</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			</div>
-			<div class="modal-body">
-				<p class="modal-inform modal-msg"></p>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-primary"
-						data-dismiss="modal">{{ _('OK') }}</button>
-			</div>
-		</div>
-	</div>
+<div
+    id="dummyHeaderModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">
+                    {{ _('OK') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div id="removeErrorColumnMdl" class="modal fade in" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-confirm modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">{{ _("Confirmation") }}</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			</div>
-			<div class="modal-body scroll-body">
-				<p class="modal-inform modal-msg">{{ _('Do you want to uncheck problematic variables?') }}</p>
+<div
+    id="removeErrorColumnMdl"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-confirm modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
+            </div>
+            <div class="modal-body scroll-body">
+                <p class="modal-inform modal-msg">
+                    {{ _('Do you want to uncheck problematic variables?') }}
+                </p>
                 <table id="cols-variance-tbl">
                     <thead>
                         <tr>
                             <th></th>
                             <th>{{ _('Selected Variables') }}</th>
-                            <th><span class="hint-text" title="{{ _('ZeroVarianceTitle') }}">{{ _('Zero Variance') }}</span></th>
-                            <th><span class="hint-text" title="{{ _('NARateTitle') }}">{{ _('NA rate')}}</span></th>
+                            <th>
+                                <span
+                                    class="hint-text"
+                                    title="{{ _('ZeroVarianceTitle') }}"
+                                    >{{ _('Zero Variance') }}</span
+                                >
+                            </th>
+                            <th>
+                                <span
+                                    class="hint-text"
+                                    title="{{ _('NARateTitle') }}"
+                                    >{{ _('NA rate') }}</span
+                                >
+                            </th>
                         </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
                 <table id="cols-variance-tbl-multiple-range">
                     <thead>
                         <tr>
                             <th></th>
                             <th>{{ _('Selected Variables') }}</th>
-                            <th><span class="hint-text" title="{{ _('ZeroVarianceTitle') }}">{{ _('Zero Variance') }}(Train data)</span></th>
-                            <th><span class="hint-text" title="{{ _('NARateTitle') }}">{{ _('NA rate')}}(Train data)</span></th>
-                            <th><span class="hint-text" title="{{ _('ZeroVarianceTitle') }}">{{ _('Zero Variance') }}(Target data)</span></th>
-                            <th><span class="hint-text" title="{{ _('NARateTitle') }}">{{ _('NA rate')}}(Target data)</span></th>
+                            <th>
+                                <span
+                                    class="hint-text"
+                                    title="{{ _('ZeroVarianceTitle') }}"
+                                    >{{ _('Zero Variance') }}(Train data)</span
+                                >
+                            </th>
+                            <th>
+                                <span
+                                    class="hint-text"
+                                    title="{{ _('NARateTitle') }}"
+                                    >{{ _('NA rate') }}(Train data)</span
+                                >
+                            </th>
+                            <th>
+                                <span
+                                    class="hint-text"
+                                    title="{{ _('ZeroVarianceTitle') }}"
+                                    >{{ _('Zero Variance') }}(Target data)</span
+                                >
+                            </th>
+                            <th>
+                                <span
+                                    class="hint-text"
+                                    title="{{ _('NARateTitle') }}"
+                                    >{{ _('NA rate') }}(Target data)</span
+                                >
+                            </th>
                         </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
-			</div>
-			<div class="modal-footer">
-				<button onclick="reselectVariablesToShowGraph();" class="btn btn-primary"
-						data-dismiss="modal">{{ _('Reselect') }}</button>
-				<button class="btn btn-secondary"
-						data-dismiss="modal">{{ _('Cancel') }}</button>
-			</div>
-		</div>
-	</div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    onclick="reselectVariablesToShowGraph();"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    {{ _('Reselect') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div id="createV2ProcessDataSource" class="modal fade in" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">{{ _("Confirmation") }}</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			</div>
-			<div class="modal-body">
-				<p class="modal-inform modal-msg">{{ _('Generate several v2 data sources msg') }}</p>
-			</div>
-			<div class="modal-footer">
-				<button onclick="handleSaveV2DataSources()" class="btn btn-primary"
-						data-dismiss="modal">{{ _('OK') }}</button>
-				<button class="btn btn-secondary"
-						data-dismiss="modal">{{ _('Cancel') }}</button>
-			</div>
-		</div>
-	</div>
+<div
+    id="createV2ProcessDataSource"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">
+                    {{ _('Generate several v2 data sources msg') }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button
+                    onclick="handleSaveV2DataSources()"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="copyClipboardContent">
     <span style="color: black" id="copyClipboardContentText"></span>
-    <button id="copyUrlButton" data-clipboard-target="#copyClipboardContentText" class="btn btn-secondary clipboard"></button>
+    <button
+        id="copyUrlButton"
+        data-clipboard-target="#copyClipboardContentText"
+        class="btn btn-secondary clipboard"
+    ></button>
 </div>
 
-<div id="confirmMergeModeModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div
+    id="confirmMergeModeModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
             </div>
             <div class="modal-body">
-                <p class="modal-inform mb-0"
-                   style="white-space: pre-line">{{_('Redirect to merge mode')}}</p>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-primary" onclick="mergeModeProcess()">{{ _('OK') }}
-				</button>
-				<button class="btn btn-secondary"
-						data-dismiss="modal">{{ _('Cancel') }}</button>
-			</div>
-		</div>
-	</div>
+                <p class="modal-inform mb-0" style="white-space: pre-line">
+                    {{ _('Redirect to merge mode') }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="mergeModeProcess()">
+                    {{ _('OK') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div
+    id="confirmRegisterByFile"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    ×
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform">
+                    {{ _('A path to datafile is specified') }}
+                    {{ _('Only the specified file is imported') }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button
+                    id="register-one-file"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button
+                    id="register-all-file"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    {{ _('Import all files in the same folder') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

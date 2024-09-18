@@ -8,6 +8,8 @@ from ap.api.external_api.services import (
     Validation,
     cast_datetime_from_query_string,
     get_from_request_data_with_id,
+    get_selected_columns_from_trace_data_form,
+    get_values_by_parameter_name,
     save_request_option,
 )
 from ap.api.setting_module.services.common import save_user_settings
@@ -17,17 +19,25 @@ from ap.common.constants import (
     BOOKMARK_ID,
     BOOKMARK_TITLE,
     BOOKMARKS,
+    CAT_EXP_BOX,
+    CATE_PROCS,
     CHECKED,
     COLUMNS,
     CREATED_BY,
     DIC_CAT_FILTERS,
     DIV,
+    END_DATE,
     END_DATE_ID,
+    END_DATETIME,
     END_TIME_ID,
+    END_TM,
     FACET,
     FILTER,
     FIRST_END_PROC,
     FUNCTION,
+    GET02_CATE_SELECT,
+    LATEST,
+    OBJECTIVE,
     OD_FILTER,
     OPTION_ID,
     PRIORITY,
@@ -35,11 +45,16 @@ from ap.common.constants import (
     PROCESSES,
     RADIO_DEFAULT_INTERVAL,
     RADIO_RECENT_INTERVAL,
+    RECENT_TIME_INTERVAL,
     REQ_ID,
+    REQUEST_PARAMS,
     SAVE_DATETIME,
     SAVE_GRAPH_SETTINGS,
+    START_DATE,
     START_DATE_ID,
+    START_DATETIME,
     START_TIME_ID,
+    START_TM,
     TRACE_DATA_FORM,
     VALUE,
     PagePath,
@@ -139,7 +154,7 @@ def save_bookmark():
     data = json.loads(request.data)
 
     user_request = CfgRequest.get_by_req_id(data.get('req_id'))
-    request_params = json.loads(user_request.params)
+    request_params = json.loads(json.loads(user_request.params).get(REQUEST_PARAMS))
     settings = request_params.get('settings')
     setting_list = settings.get(TRACE_DATA_FORM)
     function = request_params.get(FUNCTION).upper()
@@ -162,17 +177,17 @@ def save_bookmark():
     bookmark_title = data.get(BOOKMARK_TITLE)
     if not bookmark_title:
         try:
-            endProcId = settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, FIRST_END_PROC)][VALUE]
-            endProcName = CfgProcess.get_proc_by_id(endProcId).name
-            startDate = settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, START_DATE_ID)][VALUE]
-            startTime = ''.join(
+            end_proc_id = settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, FIRST_END_PROC)][VALUE]
+            end_proc_name = CfgProcess.get_proc_by_id(end_proc_id).name
+            start_date = settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, START_DATE_ID)][VALUE]
+            start_time = ''.join(
                 settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, START_TIME_ID)][VALUE].split(':'),
             )
-            endDate = settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, END_DATE_ID)][VALUE]
-            endTime = ''.join(
+            end_date = settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, END_DATE_ID)][VALUE]
+            end_time = ''.join(
                 settings[TRACE_DATA_FORM][get_from_request_data_with_id(setting_list, END_TIME_ID)][VALUE].split(':'),
             )
-            bookmark_title = f'{function}_{endProcName}_{startDate}-{startTime}_{endDate}-{endTime}'
+            bookmark_title = f'{function}_{end_proc_name}_{start_date}-{start_time}_{end_date}-{end_time}'
         except Exception:
             bookmark_title = f'{function}_{datetime.now().strftime(API_DATETIME_FORMAT)}'
 
@@ -326,3 +341,61 @@ def register_datafile():
     request_string = request.query_string.decode('utf-8')
     target_url = f'{host_url}{page}?{request_string}&load_gui_from_url=1'
     return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/params', methods=['GET'])
+def get_param_by_req_id():
+    Validation(request).get_params().validate()
+    req_params = request.args
+
+    req_id = req_params.get(REQ_ID, None)
+
+    cfg_request = CfgRequest.get_by_req_id(req_id)
+    option_ids = CfgOption.get_option_ids(req_id)
+    cfg_request_params = json.loads(cfg_request.params)
+
+    bookmark_id = cfg_request_params.get('bookmark_id', None)
+    start_datetime = ''
+    end_datetime = ''
+    if cfg_request_params.get(START_DATE) and cfg_request_params.get(START_TM):
+        start_datetime = f'{cfg_request_params.get(START_DATE)}T{cfg_request_params.get(START_TM)}'
+    if cfg_request_params.get(END_DATE) and cfg_request_params.get(END_TM):
+        end_datetime = f'{cfg_request_params.get(END_DATE)}T{cfg_request_params.get(END_TM)}'
+    # no bookmark id found in params, that means the request was sent to /dn7
+    # TODO: May want to change the way form data is sent from frontend so we don't need to parse into integer
+    if not bookmark_id:
+        setting_params = json.loads(cfg_request_params.get(REQUEST_PARAMS))
+        trace_data_form = setting_params['settings'].get(TRACE_DATA_FORM)
+        filters = []
+        if cfg_request_params.get(CATE_PROCS):
+            for proc in cfg_request_params[CATE_PROCS]:
+                if proc.get(GET02_CATE_SELECT) and isinstance(proc.get(GET02_CATE_SELECT), list):
+                    for col in proc.get(GET02_CATE_SELECT):
+                        filters.append(int(col))
+                elif proc.get(GET02_CATE_SELECT) and not isinstance(proc.get(GET02_CATE_SELECT), list):
+                    filters.append(int(proc.get(GET02_CATE_SELECT)))
+        res = {
+            REQ_ID: req_id,
+            FUNCTION: setting_params.get(FUNCTION),
+            # Different graphs return different keys for columns selected, get columns from UI checkboxes for now
+            COLUMNS: get_selected_columns_from_trace_data_form(trace_data_form),
+            FACET: get_values_by_parameter_name(cfg_request_params, CAT_EXP_BOX, convert_to_int=True),
+            FILTER: filters,
+            DIV: int(cfg_request_params.get(DIV)) if cfg_request_params.get(DIV) else None,
+            START_DATETIME: start_datetime,
+            END_DATETIME: end_datetime,
+            LATEST: cfg_request_params.get(RECENT_TIME_INTERVAL),
+            OBJECTIVE: cfg_request_params.get(OBJECTIVE),
+            OPTION_ID: option_ids,
+        }
+    else:
+        res = {
+            REQ_ID: req_id,
+            BOOKMARK_ID: bookmark_id,
+            OPTION_ID: option_ids,
+            START_DATETIME: start_datetime,
+            END_DATETIME: end_datetime,
+            LATEST: cfg_request_params.get(RECENT_TIME_INTERVAL),
+        }
+    res = {k: v for k, v in res.items() if v}
+    return res

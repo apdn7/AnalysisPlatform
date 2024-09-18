@@ -5,6 +5,7 @@ from ap import MAIN_THREAD, SHUTDOWN, create_app, max_graph_config
 from ap.common.constants import ANALYSIS_INTERFACE_ENV, PORT, PROCESS_QUEUE
 from ap.common.logger import logger, set_log_config
 from ap.common.services.notify_listen import process_listen_job
+from ap.script.migrate_cfg_data_source_csv import migrate_skip_head_value
 
 env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
 
@@ -98,6 +99,7 @@ if is_main:
 
         # convert_user_setting()
         convert_user_setting_url()
+        migrate_skip_head_value()
 
         CfgConstant.initialize_disk_usage_limit()
         CfgConstant.initialize_max_graph_constants()

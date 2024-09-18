@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import queue
 from datetime import datetime
 from enum import Enum, auto
@@ -18,6 +20,8 @@ class AnnounceEvent(Enum):
     SHOW_GRAPH = auto()
     DISK_USAGE = auto()
     DATA_REGISTER = auto()
+    BACKUP_DATA_FINISHED = auto()
+    RESTORE_DATA_FINISHED = auto()
 
 
 class MessageAnnouncer:
@@ -92,13 +96,21 @@ class MessageAnnouncer:
             msg = f'event: {event}\n{msg}'
         return msg
 
-    def announce(self, data, event):
+    def announce(self, data, event, job_id: str | int = None):
+        """
+        Send message data to front-end by EVENT name
+
+        :param data: data want to send
+        :param event: event name
+        :param job_id: a job id to identity EVENT each other
+        """
         if not dic_config[MAIN_THREAD]:
             if self.dic_progress is None:
                 process_queue = read_pickle_file(get_multiprocess_queue_file())
                 self.dic_progress = process_queue[ListenNotifyType.JOB_PROGRESS.name]
 
-            self.dic_progress[event] = (data, event)
+            event_job_id = job_id if job_id else event
+            self.dic_progress[event_job_id] = (data, event)
             return
 
         # We go in reverse order because we might have to delete an element, which will shift the

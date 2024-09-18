@@ -44,21 +44,28 @@ class EquationSampleData(BaseModel):
         equation = get_function_class_by_id(equation_id=self.equation_id).from_kwargs(
             **self.model_dump(),
         )
-        sample_data = equation.evaluate(
+
+        evaluate = equation.evaluate(
             df,
             out_col=SAMPLE_DATA,
             x_col=ARRAY_X,
             y_col=ARRAY_Y,
             x_dtype=self.x_data_type,
             y_dtype=self.y_data_type,
-        )[SAMPLE_DATA]
+        )
+        sample_data = evaluate[SAMPLE_DATA]
         output_type = equation.get_output_type(x_data_type=self.x_data_type, y_data_type=self.y_data_type)
 
         # orjson can't parse infinity
         # https://github.com/ijl/orjson?tab=readme-ov-file#float
         sample_data = sample_data.replace({np.inf: 'inf', -np.inf: '-inf'})
+        if pd.api.types.is_bool_dtype(sample_data):
+            sample_data = sample_data.astype(pd.StringDtype()).str.lower()
 
-        return EquationSampleDataResponse(sample_data=sample_data.tolist(), output_type=output_type.value)
+        return EquationSampleDataResponse(
+            sample_data=sample_data.tolist(),
+            output_type=output_type.value,
+        )
 
 
 def get_all_normal_columns_for_functions(
@@ -131,6 +138,7 @@ def validate_functions_calculation(process_id: int, validation_errors: FunctionE
 
     for function in functions:
         function_id = function.get(CfgProcessFunctionColumn.function_id.key)
+        process_column_id = function.get(CfgProcessFunctionColumn.process_column_id.key)
         var_x = function.get(CfgProcessFunctionColumn.var_x.key)
         var_y = function.get(CfgProcessFunctionColumn.var_y.key)
 
@@ -147,7 +155,9 @@ def validate_functions_calculation(process_id: int, validation_errors: FunctionE
             **function,
         )
         try:
-            equation_sample_data.sample_data()
+            sample_data = equation_sample_data.sample_data()
+            # update data type
+            raw_data_types[process_column_id] = sample_data.output_type
         except FunctionFieldError as err:
             validation_errors.add_function_error(err.with_id(function_column_id))
 

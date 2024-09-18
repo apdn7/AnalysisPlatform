@@ -301,6 +301,10 @@ msgid "Select All"
 msgstr "Selectează tot"
 
 #: ap/templates/setting_module/proc_config_modals.html
+msgid "Download All"
+msgstr "Download All"
+
+#: ap/templates/setting_module/proc_config_modals.html
 msgid "Copy All"
 msgstr "Copy All"
 
@@ -323,6 +327,10 @@ msgstr "Import date"
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Do you want to import data"
 msgstr "Sunteți sigur că importați date?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Saved successfully"
+msgstr "Saved successfully"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Could not access"
@@ -2125,6 +2133,10 @@ msgid "Order"
 msgstr "Ordin"
 
 #: ap/templates/i18n.html
+msgid "Axis"
+msgstr "Axis"
+
+#: ap/templates/i18n.html
 msgid "Priority PRIORITY"
 msgstr "Prioritate"
 
@@ -3050,7 +3062,7 @@ msgstr ""
 msgid "Division number Hover RLP"
 msgstr ""
 "Introduceți numărul de distribuții care trebuie afișate (numărul de "
-"divizii). Introduceți un număr întreg de 2 sau 240 sau mai puțin."
+"divizii). Introduceți un număr întreg de 2 sau 256 sau mai puțin."
 
 #: ap/templates/macros.html
 msgid "Division number Hover StP"
@@ -3220,6 +3232,14 @@ msgstr "Copy to the clipboard was successful."
 #: ap/templates/i18n.html
 msgid "Failed to copy to clipboard"
 msgstr "Failed to copy to clipboard."
+
+#: ap/templates/i18n.html
+msgid "Success pasting from the clipboard"
+msgstr "Success pasting from the clipboard."
+
+#: ap/templates/i18n.html
+msgid "Failed to paste from clipboard"
+msgstr "Failed to paste from clipboard."
 
 #: ap/templates/i18n.html
 msgid "Target variable"
@@ -4006,6 +4026,30 @@ msgstr ""
 "using other selected variables."
 
 #: ap/templates/templates/macros.html
+msgid "SkD hover plot relationship"
+msgstr "Relationship"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot relationship positive"
+msgstr "Positive correlation"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot relationship negative"
+msgstr "Negative correlation"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot hover coefficient"
+msgstr "Coefficients"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot hover variable"
+msgstr "Variable"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover plot hover process"
+msgstr "Process"
+
+#: ap/templates/templates/macros.html
 #, fuzzy
 msgid "GL target variable"
 msgstr "Target variable"
@@ -4110,6 +4154,10 @@ msgstr "NA rate"
 msgid "Variable display ordering"
 msgstr "Variable display ordering"
 
+#: ap/templates/macros.html
+msgid "Variable axis setting"
+msgstr "Variable axis setting"
+
 #: ap/templates/tile_interface/tile_search_by_use.html
 msgid ""
 "You can find the recommended pages and their settings from what you want "
@@ -4163,6 +4211,10 @@ msgstr "A list of pages that you can jump to."
 #: ap/templates/macros.html
 msgid "Recommended"
 msgstr "Recommended"
+
+#: ap/templates/macros.html
+msgid "Selected items"
+msgstr "Selected items"
 
 #: ap/templates/i18n.html
 msgid "Threshold/Graph Config"
@@ -4449,6 +4501,10 @@ msgid "StNo:Int"
 msgstr "StNo:Int"
 
 #: ap/templates/i18n.html
+msgid "JudgeNo"
+msgstr "JudgeNo"
+
+#: ap/templates/i18n.html
 msgid "Could not read data"
 msgstr "Could not read data"
 
@@ -4665,6 +4721,10 @@ msgid "FolderBrowsePlaceholder"
 msgstr "Z:\\path\\to\\folder (File size: Unlimited)"
 
 #: ap/templates/register_by_file.html
+msgid "SourceFileBrowsePlaceholder"
+msgstr "Z:\\path\\to\\folder (File size: Unlimited) or Z:\\path\\to\\datafile.csv"
+
+#: ap/templates/register_by_file.html
 msgid "FileBrowsePlaceholder"
 msgstr "Z:\\path\\to\\datafile.csv"
 
@@ -4732,6 +4792,18 @@ msgstr ""
 "For data files such as CSV, the contents of the latest file will be "
 "displayed."
 
+#: ap/templates/register_by_file.html
+msgid "Import all files in the same folder"
+msgstr "Import all files in the same folder"
+
+#: ap/templates/register_by_file.html
+msgid "A path to datafile is specified"
+msgstr "A path to datafile is specified."
+
+#: ap/templates/register_by_file.html
+msgid "Only the specified file is imported"
+msgstr "Only the specified file is imported."
+
 #: ap/templates/heatmap/heatmap.html
 msgid "Heatmap Plot Page Title"
 msgstr "Heat Map"
@@ -4743,8 +4815,8 @@ msgstr "The relationship between variables can be visualized with a heat map."
 #: ap/templates/heatmap/heatmap.html
 msgid "HMp show value description"
 msgstr ""
-"The data types of x and y to be selected are both categorical or integer "
-"only."
+"The data types of x and y to be selected are both categorical (Cat, Str) "
+"or integer (Int) only."
 
 #: ap/templates/heatmap/heatmap.html
 msgid "HMp color hover msg"
@@ -4752,6 +4824,12 @@ msgstr ""
 "Specify the calculation method for the values of the color map (z-axis). "
 "For numerical values, statistical values such as average, and for "
 "categorical values, counting, etc."
+
+#: ap/templates/heatmap/heatmap.html
+msgid "Go to SCP Msg"
+msgstr ""
+"The HMp support both categorical (Cat, Str) or integer (Int) only. "
+"Otherwise, use ScP."
 
 #: ap/templates/i18n.html
 msgid "If both x and y data types are categorical, please draw with HMP."
@@ -4782,6 +4860,21 @@ msgstr "Register all function columns in table into system."
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "ReloadButtonFunctionHoverMessage"
 msgstr "Reload to get all function columns of the process into system."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ProcDatetimeFormat"
+msgstr "Datetime Format"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ProcDatetimeFormatHoverMsg"
+msgstr ""
+"Specifies the datetime format.\n"
+"\n"
+"Format\t\t\t\t\tExample\n"
+"%%Y-%%m-%%d %%H:%%M:%%S.%%f\t2024-02-21 15:30:51.123\n"
+"%%Y-%%m-%%d %%I:%%M:%%S %%p\t2024-02-21 03:30:51 PM\n"
+"%%m/%%d/%%y\t\t\t\t 02/21/2024\n"
+"%%b %%d, %%Y\t\t\t\t Feb 21, 2024\n"
 
 #: ap/templates/i18n.html
 msgid "main::Date"
@@ -4842,11 +4935,169 @@ msgstr "Link with time: diff [sec]"
 msgid "i18nCutOff"
 msgstr "CutOff: [msec]"
 
+msgid "Result is empty, please check input params."
+msgstr "Result is empty, please check input params."
+
 #: ap/templates/i18n.html
 msgid "Boolean"
 msgstr "Boolean"
 
 #: ap/templates/i18n.html
+#, fuzzy
 msgid "CategoryOutput"
-msgstr "Category"
+msgstr "Valoarea categoriei"
+
+# ap/template/setting_module/db_config_modals.html
+#, fuzzy
+msgid "Data Source Name is empty"
+msgstr "Numele sursei de date"
+
+#, fuzzy
+msgid "Process Name is empty"
+msgstr "Numele procesului"
+
+#: ap/template/setting_module/system_config.html
+msgid "Backup data was started."
+msgstr "Backup data was started."
+
+#: ap/template/setting_module/system_config.html
+msgid "Restore data was started."
+msgstr "Restore data was started."
+
+#: ap/template/setting_module/system_config.html
+msgid "Backup data was finished."
+msgstr "Backup data was finished."
+
+#: ap/template/setting_module/system_config.html
+msgid "Restore data was finished."
+msgstr "Restore data was finished."
+
+msgid "Software Workshop Postgres"
+msgstr "Software Workshop Postgres"
+
+msgid "Unit"
+msgstr "Unit"
+
+#: ap/templates/macros.html
+msgid "useODFCheckboxText"
+msgstr "On-demand filter"
+
+#: ap/templates/macros.html
+msgid "useODFCheckboxHover"
+msgstr "Display only the data selected by on-demand filter."
+
+#: ap/templates/i18n.html
+msgid "dataTypeMainDatetimeHover"
+msgstr ""
+"A column to be used as the datetime on the app. Please select at least "
+"one. (Multiple selections are not possible)"
+
+#: ap/templates/i18n.html
+msgid "datatypeMainDateHover"
+msgstr ""
+"A column used as the date on the app. By setting this together with "
+"`main::Time`, `main::Datetime` will be generated to be used as the "
+"datetime on the app. (Multiple selections are not possible)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeMainTimeHover"
+msgstr ""
+"A column used as the time on the app. By setting this together with "
+"`main::Date`, `main::Datetime` will be generated to be used as the "
+"datetime on the app. (Multiple selections are not possible)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeMainSerialIntHover"
+msgstr ""
+"A column whose data type is an integer used to link data between "
+"processes. (Multiple selections are not possible)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeMainSerialStringHover"
+msgstr ""
+"A column whose data type is a string used to link data between processes."
+" (Multiple selections are not possible)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeDatetimeKeyHover"
+msgstr ""
+"A date and time data column used to store the date and time of the data "
+"loaded when loading data periodically. In order to prevent data from "
+"being missed in databases where data is not inserted in the order of the "
+"date and time data in the column set in main::Datetime, we recommend "
+"setting this if the date and time data column (created_at) registered in "
+"the database is available. (Multiple selections not allowed)"
+
+#: ap/templates/i18n.html
+msgid "dataTypeSerialIntHover"
+msgstr ""
+"Select this if you want to use multiple columns for linking, such as when"
+" data cannot be uniquely identified by “main::Serial” alone."
+
+#: ap/templates/i18n.html
+msgid "dataTypeSerialStringHover"
+msgstr ""
+"Select this if you want to use multiple columns for linking, such as when"
+" data cannot be uniquely identified by “main::Serial” alone."
+
+#: ap/templates/i18n.html
+msgid "dataTypeLineNameStrHover"
+msgstr ""
+"When selected for a column where the line name is saved, you can use "
+"label plot drawing and filters for all number plots without setting."
+
+#: ap/templates/i18n.html
+msgid "dataTypeLineNoIntHover"
+msgstr ""
+"When selected for a column where the line number is saved, you can use "
+"label plot drawing and filters for all number plots without setting."
+
+#: ap/templates/i18n.html
+msgid "dataTypeEqNameStrHover"
+msgstr ""
+"When selected for a column where the equipment name is saved, you can use"
+" label plot drawing and filters for all number plots without setting."
+
+#: ap/templates/i18n.html
+msgid "dataTypeEqNoIntHover"
+msgstr ""
+"When selected for a column where the equipment number is saved, you can "
+"draw a label plot of the total number plot and use filters without any "
+"settings."
+
+#: ap/templates/i18n.html
+msgid "dataTypePartNameStrHover"
+msgstr ""
+"When selected for a column where the product name is saved, you can draw "
+"a label plot of the total number plot and use filters without any "
+"settings."
+
+#: ap/templates/i18n.html
+msgid "dataTypePartNoIntHover"
+msgstr ""
+"When selected for a column where the product number is saved, you can "
+"draw a label plot of the total number plot and use filters without any "
+"settings."
+
+#: ap/templates/i18n.html
+msgid "dataTypeStNoIntHover"
+msgstr ""
+"When selected for a column where the station number is saved, you can "
+"draw a label plot of the total number plot and use filters without any "
+"settings."
+
+#: ap/templates/i18n.html
+msgid "dataTypeJudgeHover"
+msgstr ""
+"When selected for a column in which the judgment results, such as test "
+"results, are saved as binary values of 1 and 0, you can use the judgment "
+"(1: OK, 0: NG) to draw graphs or use filters."
+
+#: ap/templates/i18n.html
+msgid "judgementDataTypeHover"
+msgstr "Judge(1: OK, 0:NG)"
+
+#: ap/templates/i18n.html
+msgid "Shown Name Required"
+msgstr "Please enter Shown Name."
 

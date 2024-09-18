@@ -7,28 +7,42 @@ const setAcceptTerms = () => {
     const apVersion = getAPVersion();
     const currentTermsOfUserAccepted = getTermsOfUserAccepted();
     currentTermsOfUserAccepted[apVersion] = 1;
-    localStorage.setItem(TERMS_OF_USE_KEY, JSON.stringify(currentTermsOfUserAccepted));
+    localStorage.setItem(
+        TERMS_OF_USE_KEY,
+        JSON.stringify(currentTermsOfUserAccepted),
+    );
     return true;
 };
 
 const getAPVersion = () => {
     try {
-        return decodeURIComponent(document.cookie.replace(new RegExp(`(?:(?:^|.*;)\\s*${encodeURIComponent('app_version').replace(/[\-\.\+\*]/g, '\\$&')}\\s*\\=\\s*([^;]*).*$)|^.*$`), '$1'));
+        return decodeURIComponent(
+            document.cookie.replace(
+                new RegExp(
+                    `(?:(?:^|.*;)\\s*${encodeURIComponent('app_version').replace(/[-.+*]/g, '\\$&')}\\s*\\=\\s*([^;]*).*$)|^.*$`,
+                ),
+                '$1',
+            ),
+        );
     } catch (e) {
         return '';
     }
 };
 
 const getTermsOfUserAccepted = () => {
-
     let currentTermsOfUserAccepted = localStorage.getItem(TERMS_OF_USE_KEY);
-    currentTermsOfUserAccepted = currentTermsOfUserAccepted ? JSON.parse(currentTermsOfUserAccepted) : null;
-    if (!currentTermsOfUserAccepted || !_.isObject(currentTermsOfUserAccepted)) {
+    currentTermsOfUserAccepted = currentTermsOfUserAccepted
+        ? JSON.parse(currentTermsOfUserAccepted)
+        : null;
+    if (
+        !currentTermsOfUserAccepted ||
+        !_.isObject(currentTermsOfUserAccepted)
+    ) {
         currentTermsOfUserAccepted = {};
     }
 
     return currentTermsOfUserAccepted;
-}
+};
 
 const getAcceptTerms = () => {
     const apVersion = getAPVersion();
@@ -37,7 +51,12 @@ const getAcceptTerms = () => {
 };
 
 const validateTerms = () => {
-    if ([TERMS_OF_USE_PAGE, PAGE_NOT_FOUND].includes(window.location.pathname) || getAcceptTerms()) {
+    if (
+        [TERMS_OF_USE_PAGE, PAGE_NOT_FOUND].includes(
+            window.location.pathname,
+        ) ||
+        getAcceptTerms()
+    ) {
         return;
     }
     // redirect terms of use page

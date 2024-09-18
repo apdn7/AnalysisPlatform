@@ -14,62 +14,85 @@
                 <div class="row">
                     <div class="col-xl-2 col-3">
                         <div class="d-flex justify-content-between">
-                        {{ macros.label(_("Target period")) }}
-                        {{ macros.paste_btn() }}
+                            {{ macros.label(_("Target period")) }}
+                            {{ macros.paste_btn() }}
                         </div>
                     </div>
                     <div class="col-xl-10 col-9">
                         <div class="row">
-                            {{macros.multiple_target_period(DivisionNumberHover=_('Division number Hover AgP'), rlp=True, cyclicCalender=True, dataNumber=True, WindowLengthHover=_('Window length Hover AgP'), IntervalHover=_('Interval Hover AgP'))}}
+                            {{ macros.multiple_target_period(DivisionNumberHover=_('Division number Hover AgP'), rlp=True, cyclicCalender=True, dataNumber=True, WindowLengthHover=_('Window length Hover AgP'), IntervalHover=_('Interval Hover AgP')) }}
                         </div>
                     </div>
                 </div>
             </div>
             {{ macros.cond_proc([],'', width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
-            <br class="graph-navi graph-navi-top-down">
-            <div class="d-flex align-items-center justify-content-center show-graph-div">
-                 {{ macros.order_btn() }}
+            <br class="graph-navi graph-navi-top-down" />
+            <div
+                class="d-flex align-items-center justify-content-center show-graph-div"
+            >
+                {{ macros.order_btn() }}
                 {{ macros.preprocess_options(isRealOnlyMsg=_('The target is a variable whose data type is Real')) }}
-                <button id="showGraphBtn" type="button" value="{{ _('Display graph') }}"
-                        onClick="showAgP();" class="btn btn-primary show-graph ml-3" title="Shortcut key: Ctrl+Enter">
-                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
-				{{ macros.export_gui() }}
-			</div>
-			<br>
-		</form>
-		{{ macros.cat_label_filter_modal() }}
+                <button
+                    id="showGraphBtn"
+                    type="button"
+                    value="{{ _('Display graph') }}"
+                    onClick="showAgP();"
+                    class="btn btn-primary show-graph ml-3"
+                    title="Shortcut key: Ctrl+Enter"
+                >
+                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                </button>
+                {{ macros.export_gui() }}
+            </div>
+            <br />
+        </form>
+        {{ macros.cat_label_filter_modal() }}
         {{ macros.end_col_order_modal() }}
         {{ macros.end_col_order_modal(graphArea='1') }}
         {{ macros.jump_modal() }}
-	</div>
+    </div>
 
-	<div class="result-section" id="scaleOption" style="display: none;">
-		<div class="y-scale-group tooltip-parent align-items-center mt-3 mb-2" id="graph-settings-area">
-			{{ macros.info_i_mark() }}
-			{{ macros.on_demand_filter() }}
+    <div class="result-section" id="scaleOption" style="display: none;">
+        <div
+            class="y-scale-group tooltip-parent align-items-center mt-3 mb-2"
+            id="graph-settings-area"
+        >
+            {{ macros.info_i_mark() }}
+            {{ macros.on_demand_filter() }}
             {{ macros.order_btn(graphArea='1', callbackFunc='() => {queryDataAndShowAGP();}') }}
             {{ macros.jump_button() }}
             {{ macros.graph_select_box(id='yScale', name='yScale', label=_('Range of Y axis'), values=['2', '4', '5'], texts=[_("Common scale"), _('Auto range'), _('Full range')], cl='ml-4', defaultValue='4', selectedValue='4') }}
-{#            {{ macros.switch_button(id='yAxisPercent', label='Y axis %', cl='ml-4', onChange='showYAxisPercent(this)') }}#}
+            {#            {{ macros.switch_button(id='yAxisPercent', label='Y axis %', cl='ml-4', onChange='showYAxisPercent(this)') }}#}
             {{ macros.graph_selection_percent_count(id='yAxisPercentOrCount', name="yAxisPercentOrCount", values=['count', 'yAxisTotal', 'yAxisFacet'], texts=['Count', 'Y axis % [Total]', 'Y axis % [per Facet]'], cl='ml-4', defaultValue='1', selectedValue='1', onChange='changeYAxisMode(this)') }}
-		</div>
-	</div>
-    <div class="plot-content">
-        <div id="agpCard" class="card ui-sortable" style="padding: 5px; display: none">
         </div>
+    </div>
+    <div class="plot-content">
+        <div
+            id="agpCard"
+            class="card ui-sortable"
+            style="padding: 5px; display: none"
+        ></div>
         <div id="stContentTab">
             <div class="setting-inform-content"></div>
         </div>
     </div>
     <div class=" loading"></div>
-    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
-    <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
-       target="_blank">{{ _("Click here to fix") }}</a>
-	{{ macros.data_point_info() }}
+    <div style="display: none;" id="msgErrorDBConnection">
+        {{ _("Could not access") }}
+    </div>
+    <a
+        style="display: none;"
+        id="msgErrorDBConnectionAction"
+        href="{{ url_for('setting_module.config_screen') }}"
+        target="_blank"
+        >{{ _("Click here to fix") }}</a
+    >
+    {{ macros.data_point_info() }}
     {{ optdata }}
 {% endblock %}
 
 {% block js %}
+    <!-- prettier-ignore-start -->
     <script>
         const procJsons = {{ list_procs | safe }};
         const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
@@ -79,10 +102,11 @@
             procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
+    <!-- prettier-ignore-end -->
     {% assets "js_agp" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% assets "css_agp" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}">
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 {% endblock %}

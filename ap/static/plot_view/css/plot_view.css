@@ -1,4 +1,5 @@
-.table th, .table td {
+.table th,
+.table td {
     padding: 0.1rem !important;
     vertical-align: middle;
     border: 1px solid #444;
@@ -7,8 +8,8 @@
 }
 
 .table-wrapper {
-	overflow-x: auto !important;
-  	white-space: nowrap;
+    overflow-x: auto !important;
+    white-space: nowrap;
     margin-bottom: 2rem;
 }
 
@@ -38,7 +39,7 @@ tbody {
 }
 
 thead {
-    color: #3385b7;;
+    color: #3385b7;
     font-family: Calibri Light;
     font-size: 0.9vw;
 }

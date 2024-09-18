@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
 {% block asset %}
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
 {% endblock %}
 
 {% block header %}
@@ -20,17 +23,23 @@
                             {{ macros.paste_btn(with_count=True) }}
                         </div>
                         <div class="mt-auto pl-3 pt-3">
-                             {{ macros.start_proc_select(procs, no_link_data=true) }}
+                            {{ macros.start_proc_select(procs, no_link_data=true) }}
                         </div>
                     </div>
                     <div class="col-xl-10 col-9">
                         <div class="row" id="end-proc-row">
-                             <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
-                            <button id="btn-add-end-proc" name="btnAddEndProc" type="button"
-                                    class="btn simple-btn">
-                                <i class="fas fa-plus-circle"></i>
-                            </button>
-                        </div>
+                            <div
+                                class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
+                            >
+                                <button
+                                    id="btn-add-end-proc"
+                                    name="btnAddEndProc"
+                                    type="button"
+                                    class="btn simple-btn"
+                                >
+                                    <i class="fas fa-plus-circle"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -38,7 +47,10 @@
             {{ macros.judgeCondition() }}
             {{ macros.data_finder_card() }}
             <!-- Date range -->
-            <div class="card-body table-bordered graph-navi" id="categorySrtPrc">
+            <div
+                class="card-body table-bordered graph-navi"
+                id="categorySrtPrc"
+            >
                 <div class="row">
                     <div class="col-xl-2 col-3">
                         <div class="d-flex justify-content-between">
@@ -48,67 +60,84 @@
                     </div>
                     <div class="col-xl-10 col-9">
                         <div class="row">
-                            {{ macros.multiple_target_period(rlp=True, DivisionNumberHover=_('Division number Hover RLP')) }}
+                            {{ macros.multiple_target_period(rlp=True, DivisionNumberHover=_('Division number Hover RLP'), cyclicTermDefault=250) }}
                         </div>
                     </div>
                 </div>
             </div>
 
             {{ macros.cond_proc([],'', prefix='category', title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
-            <br class="graph-navi graph-navi-top-down">
-            <div class="d-flex align-items-center justify-content-center show-graph-div">
-                 {{ macros.order_btn() }}
+            <br class="graph-navi graph-navi-top-down" />
+            <div
+                class="d-flex align-items-center justify-content-center show-graph-div"
+            >
+                {{ macros.order_btn() }}
                 {{ macros.emd_select(cl='mr-3') }}
                 {{ macros.preprocess_options() }}
-                <button type="button" value="{{ _('Display graph') }}" onClick="showGraph()"
-                        class="btn btn-primary show-graph ml-3" data-with-tab="true" title="Shortcut key: Ctrl+Enter">
-                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}</button>
-                {{ macros.export_gui()}}
+                <button
+                    type="button"
+                    value="{{ _('Display graph') }}"
+                    onClick="showGraph()"
+                    class="btn btn-primary show-graph ml-3"
+                    data-with-tab="true"
+                    title="Shortcut key: Ctrl+Enter"
+                >
+                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                </button>
+                {{ macros.export_gui() }}
             </div>
-            <br>
+            <br />
         </form>
         {{ macros.cat_label_filter_modal() }}
         {{ macros.end_col_order_modal() }}
         {{ macros.end_col_order_modal(graphArea='1') }}
         {{ macros.jump_modal() }}
     </div>
-    <br>
+    <br />
     <div id="CatePlotCards" style="display: none">
         <div class="row showOutlier">
-            <div class="col-12 d-flex align-items-center" id="graph-settings-area">
-                <div>
-                    {{ macros.info_i_mark() }}
-                </div>
-				{{ macros.on_demand_filter() }}
+            <div
+                class="col-12 d-flex align-items-center"
+                id="graph-settings-area"
+            >
+                <div>{{ macros.info_i_mark() }}</div>
+                {{ macros.on_demand_filter() }}
                 {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSortGraphPosition();}') }}
                 {{ macros.jump_button() }}
-				{{ macros.scale_option(name='yScaleOption', className='ml-4', onChange='changeRLPScale()') }}
-                {{ macros.switch_button(id='showXAxis', label=_('Show x-axis labels'), cl='ml-4', onChange='showXAxisLabel(this)')}}
+                {{ macros.scale_option(name='yScaleOption', className='ml-4', onChange='changeRLPScale()') }}
+                {{ macros.switch_button(id='showXAxis', label=_('Show x-axis labels'), cl='ml-4', onChange='showXAxisLabel(this)') }}
             </div>
         </div>
         <div class="plot-content">
-            <div class="card cate-plot-cards chart-wrapper clearfix ui-sortable" id="RLPCard">
-            </div>
+            <div
+                class="card cate-plot-cards chart-wrapper clearfix ui-sortable"
+                id="RLPCard"
+            ></div>
             <div id="stContentTab">
                 <div class="setting-inform-content"></div>
             </div>
         </div>
-
-
     </div>
-
 
     <div class="loading"></div>
     <div style="display: none;">
-        <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
-        <a style="display: none;" id="msgErrorDBConnectionAction" href="{{ url_for('setting_module.config_screen') }}"
-           target="_blank">{{ _('Click here to fix') }}</a>
+        <div style="display: none;" id="msgErrorDBConnection">
+            {{ _("Could not access") }}
+        </div>
+        <a
+            style="display: none;"
+            id="msgErrorDBConnectionAction"
+            href="{{ url_for('setting_module.config_screen') }}"
+            target="_blank"
+            >{{ _('Click here to fix') }}</a
+        >
     </div>
-	{{ macros.data_point_info() }}
+    {{ macros.data_point_info() }}
     {{ optdata }}
 {% endblock %}
 
 {% block js %}
+    <!-- prettier-ignore-start -->
     <script>
         const procJsons = {{ list_procs | safe }};
         const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
@@ -118,10 +147,11 @@
             procConfigs[cfgProcess.id] = cfgProcess;
         }
     </script>
+    <!-- prettier-ignore-end -->
     {% assets "js_rlp" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% assets "css_rlp" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}">
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 {% endblock %}
