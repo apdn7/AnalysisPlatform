@@ -5,7 +5,7 @@
 # Analysis Platform
 
 ```
-2024-07-22: version 4.7.1
+2024-09-18: version 4.7.3
 ```
 
 Analysis Platform is an open source web application to import, connect and visualize factory IoT data. It helps to collect, link and integrate data from multiple data sources.
@@ -65,10 +65,10 @@ Windows embeddable package, running the batch file is regarded as you agreed to 
 
 ## Requirements
 
-* Windows (Tested with Windows 10)
+* Windows (Tested with Windows 10), Windoes Server
 * Python (>=3.6) (Tested with Python 3.9.0, pip 22.2)
   * If you are going to use the Windows embeddable package, you do not have to install Python in your machine.  
-  (See section: For users: Run the Analysis Platform with the Windows embeddable package)
+  (See section: For users)
 
 ## Getting Started
 
@@ -78,8 +78,8 @@ You can install AP+DN7 on your PC using installer (batch file)
 
 For detailed instruction, please refer below documents (PDF):
 
-* EN: [Getting Started](https://github.com/apdn7/AnalysisPlatform/releases/download/v4.7.0/1_AP+DN7_GettingStarted_OSS_470_en.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15073708/AP%2BDN7_Setting_Manual_461_En.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806413/AP%2BDN7_User_Manual_FPP_En.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
-* JA: [Getting Started](https://github.com/apdn7/AnalysisPlatform/releases/download/v4.7.0/1_AP+DN7_GettingStarted_OSS_470_Ja.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15074076/AP%2BDN7_Setting_Manual_461_jp.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806414/AP-DN7_FPP_Jp0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
+* EN: [Getting Started](https://github.com/user-attachments/files/17042441/1_AP%2BDN7_GettingStarted_OSS_473_en.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15073708/AP%2BDN7_Setting_Manual_461_En.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806413/AP%2BDN7_User_Manual_FPP_En.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9314734/AP%2BDN7_FAQ_EN_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314737/AP%2BDN7_v4.0_QuickReference_EN.pdf)
+* JA: [Getting Started](https://github.com/user-attachments/files/17042443/1_AP%2BDN7_GettingStarted_OSS_473_ja.pdf) / [Data Import & Link Settings](https://github.com/apdn7/AnalysisPlatform/files/15074076/AP%2BDN7_Setting_Manual_461_jp.pdf) / [FPP](https://github.com/apdn7/AnalysisPlatform/files/9806414/AP-DN7_FPP_Jp0.pdf) / [FAQ](https://github.com/apdn7/AnalysisPlatform/files/9256487/AP%2BDN7_FAQ_JP_v1.0.pdf) / [Quick reference](https://github.com/apdn7/AnalysisPlatform/files/9314735/AP%2BDN7_v4.0_QuickReference_JP.pdf)
 
 ### For users
 
