@@ -74,7 +74,7 @@ Windows embeddable package, running the batch file is regarded as you agreed to 
 
 You can install AP+DN7 on your PC using installer (batch file)
 
-* [APDN7_installer.zip](https://github.com/user-attachments/files/15897388/APDN7_installer.zip)
+* [APDN7_installer.zip](https://github.com/user-attachments/files/17042671/APDN7_installer.zip)
 
 For detailed instruction, please refer below documents (PDF):
 
