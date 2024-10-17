@@ -469,8 +469,23 @@
     overflow: auto;
 }
 
-#collapseFunctionConfig .copyFunctionDataSample {
+#collapseFunctionConfig .functionSampleDataUtilities {
     margin-top: -25px;
+}
+
+#collapseFunctionConfig .functionSampleDataUtilities .custom-switch {
+    z-index: 10;
+}
+
+#collapseFunctionConfig
+    .functionSampleDataUtilities
+    .custom-switch
+    .custom-control-label
+    span {
+    position: absolute;
+    display: block;
+    top: calc(0.203125rem - 4px);
+    left: calc(-2.25rem - 55px);
 }
 
 /*Delete function column modal*/
@@ -572,7 +587,7 @@
         margin-bottom: 0;
     }
 
-    #collapseFunctionConfig .copyFunctionDataSample {
+    #collapseFunctionConfig .functionSampleDataUtilities {
         margin-top: unset;
         position: absolute;
         top: 583px;
@@ -688,6 +703,15 @@ table#childProcessColumns thead tr th {
     overflow-x: auto;
     margin-left: -2px;
     margin-top: -2px;
+}
+
+#parentProcessSampleData tbody::after,
+#childProcessSampleData tbody::after {
+    content: '';
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: transparent;
 }
 
 .merge-mode-tables-child {

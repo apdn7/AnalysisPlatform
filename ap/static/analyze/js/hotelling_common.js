@@ -30,7 +30,8 @@ const eles = {
     msgConfirmBtn: '#msgConfirmBtn',
     selectAll: '#selectAll',
     recentTimeIntervalInput: 'input[name="recentTimeInterval"]',
-    btnAddCondProc: '#btn-add-cond-proc',
+    btnAddTrainCondProc: '#trainbtn-add-cond-proc',
+    btnAddTestCondProc: '#btn-add-cond-proc',
     pcaConditionTbl: '#pcaConditionTbl',
     spinner: '#spinner',
     pcaConditionTblAllRows: '#pcaConditionTbl>tbody>tr',
@@ -58,7 +59,9 @@ const hideLoading = (divElement = null) => {
 const clickedPointTemplate = (xVal, yVal) => ({
     x: [xVal],
     y: [yVal],
-    text: [`xvar: ${xVal}<br />yvar: ${yVal}`],
+    text: [
+        `xvar: ${applySignificantDigit(xVal)}<br />yvar: ${applySignificantDigit(yVal)}`,
+    ],
     type: 'scatter',
     mode: 'markers',
     marker: {

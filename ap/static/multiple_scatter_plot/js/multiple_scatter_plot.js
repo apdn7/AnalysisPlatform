@@ -289,22 +289,18 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
             const kProcInfo = sensors[k].end_proc_name;
             const chartXLabel = `${iProcInfo}|${_pd.end_col_show_name}`;
             const chartYLabel = `${kProcInfo}|${sensors[i].end_col_show_name}`;
-            const chartTitle = isLargeOfSensors
-                ? chartXLabel.split('|')[0]
-                : chartXLabel;
-
             if (i === k) {
                 if (String(endProc) === String(startProc)) {
                     row += `<div class="hist-item chart-column-border graph-navi"
                     style="width:${canvasSize}%;height:calc(${canvasSize}vh - 1em); position: relative" 
-                    onmouseover="showChartTitle(this, ${isLargeOfSensors});"
+                    onmouseover="showChartTitle(this);"
                     onmouseleave="clearOldChartTitles();" 
                     data-x-title="${chartXLabel}" data-y-title="">
                     <div class="center" id="hist-${kProcId}-${iProcId}" style="width: 100%;height: 100%"></div></div>`;
                 } else {
                     row += `<div class="hist-item chart-column graph-navi"
                     style="width:${canvasSize}%;height:calc(${canvasSize}vh - 1em); position: relative"
-                    onmouseover="showChartTitle(this, ${isLargeOfSensors});" 
+                    onmouseover="showChartTitle(this);" 
                     onmouseleave="clearOldChartTitles();"
                     data-x-title="${chartXLabel}" data-y-title="">
                     <div class="center" id="hist-${kProcId}-${iProcId}" style="width: 100%;height: 100%"></div></div>`;
@@ -316,7 +312,7 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
             } else if (i < k) {
                 row += `<div class="sctr-item chart-column graph-navi"
                     style="width:${canvasSize}%;height:calc(${canvasSize}vh - 1em);" 
-                    onmouseover="showChartTitle(this, ${isLargeOfSensors});" 
+                    onmouseover="showChartTitle(this);" 
                     onmouseleave="clearOldChartTitles();"
                     data-y-title="${chartXLabel}" 
                     data-x-title="${chartYLabel}">
@@ -354,7 +350,7 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
         const [histTrace, fmt] = genHistogramTrace(plotData, xScaleOption);
 
         const customChartLabel = isLargeOfSensors
-            ? chartLabel.split('|')[0]
+            ? chartLabel.split('|')[1]
             : chartLabel;
         const chartWidth = $('.plot-content').width() / sensors.length;
 
@@ -783,10 +779,7 @@ const handleExportData = (type) => {
     showGraphAndDumpData(type, dumpData);
 };
 
-const showChartTitle = (chartDOM, showTitle = true) => {
-    if (!showTitle) {
-        return;
-    }
+const showChartTitle = (chartDOM) => {
     // reset title
     clearOldChartTitles();
 

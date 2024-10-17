@@ -481,24 +481,36 @@ const getVariableOrderingFromPage = (page) => {
     const isSkDPage = page === PAGE_NAME.skd;
     const isSkDSelectChecked = $(jumpEls.jumpVariableSetting).prop('checked');
     let orderings = {};
-    if (page === PAGE_NAME.skd) {
-        orderings = graphStore.getVariableOrdering(
-            procConfigs,
-            isSkDPage && isSkDSelectChecked,
-            !isSkDPage,
-        );
-    } else if (page === PAGE_NAME.rlp) {
-        const targetVars = graphStore.getTargetVariables(true);
-        orderings = {
-            ordering: targetVars,
-            orderingID: targetVars.map((col) => col.id),
-        };
-    } else {
-        orderings = graphStore.getVariableOrdering(
-            procConfigs,
-            false,
-            !isSkDPage,
-        );
+    switch (page) {
+        case PAGE_NAME.skd:
+            orderings = graphStore.getVariableOrdering(
+                procConfigs,
+                isSkDPage && isSkDSelectChecked,
+                !isSkDPage,
+            );
+            break;
+        case PAGE_NAME.rlp: {
+            const targetVars = graphStore.getTargetVariables(true);
+            orderings = {
+                ordering: targetVars,
+                orderingID: targetVars.map((col) => col.id),
+            };
+            break;
+        }
+        case PAGE_NAME.pca:
+            orderings = graphStore.getVariableOrdering(
+                procConfigs,
+                false,
+                false,
+                true,
+            );
+            break;
+        default:
+            orderings = graphStore.getVariableOrdering(
+                procConfigs,
+                false,
+                !isSkDPage,
+            );
     }
     return orderings;
 };
@@ -528,7 +540,14 @@ const bindVariableOrderingToModal = (
                 await procConfigs[Number(endProc.end_proc)].updateColumns();
             });
         }
-
+        if (currenPage === 'pca') {
+            varOrdering = graphStore.getVariableOrdering(
+                procConfigs,
+                false,
+                false,
+                true,
+            );
+        }
         if (currenPage === 'skd') {
             varOrdering = graphStore.getVariableOrdering(
                 procConfigs,

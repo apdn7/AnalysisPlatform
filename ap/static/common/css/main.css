@@ -664,7 +664,7 @@ textarea {
     .select2-selection__rendered {
     color: #ffffff;
     line-height: 34px;
-    padding-right: 0;
+    padding-right: 20px;
 }
 
 .select2-container--default
@@ -694,10 +694,6 @@ textarea {
     border: 1px solid #5897fb;
     background-color: #303030;
     color: #ffffff;
-}
-
-.select2-selection__rendered {
-    /*padding-left: 1rem !important;*/
 }
 
 .table th,
@@ -2008,7 +2004,9 @@ span.deleteicon input {
 }
 
 .custom-selection {
-    width: 200px;
+    /*width: 200px;*/
+    width: 100%;
+    padding-right: 20px;
     background-color: #222;
     line-height: 29px;
     border: 1px solid #222;
@@ -2234,9 +2232,12 @@ table.table-hover-light {
 }
 /* custom checkbox style*/
 .custom-checkbox .custom-control-label::before,
-.custom-control-label::after,
-.custom-control-input:checked ~ .custom-control-label::before,
-.custom-checkbox .custom-control-input:checked ~ .custom-control-label::after {
+.custom-checkbox .custom-control-label::after,
+.custom-control-input:checked ~ .custom-checkbox .custom-control-label::before,
+.custom-checkbox
+    .custom-control-input:checked
+    ~ .custom-checkbox
+    .custom-control-label::after {
     margin-top: -2px;
 }
 
@@ -2520,4 +2521,24 @@ svg.svg-inline--fa.fa-circle-right {
 
 #jumpSensorTbl .custom-control.custom-radio {
     padding: 0 0 0 30px;
+}
+
+.min-width-0 {
+    min-width: 0;
+}
+
+.select2-container .select2-selection--single {
+    width: 100%;
+}
+
+.select2-container .select2-dropdown {
+    width: 100%;
+    box-sizing: border-box;
+}
+.select2-container .select2-results__option,
+.select2-container .select2-results__option > .row > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }

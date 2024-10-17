@@ -90,6 +90,7 @@ from ap.common.constants import (
     REMOVE_OUTLIER_OBJECTIVE_VAR,
     REMOVE_OUTLIER_REAL_ONLY,
     REMOVE_OUTLIER_TYPE,
+    REMOVED_OUTLIERS,
     REQ_ID,
     REQUEST_PARAMS,
     RL_CATES,
@@ -120,8 +121,10 @@ from ap.common.constants import (
     UNMATCHED_FILTER_IDS,
     VAR_TRACE_TIME,
     X_OPTION,
+    YAML_FILTER_LINE_MACHINE_ID,
     DuplicateSerialCount,
     DuplicateSerialShow,
+    PCAFilterCondition,
     RemoveOutlierType,
 )
 from ap.common.services.http_content import json_dumps
@@ -219,7 +222,9 @@ common_startwith_keys = (
     SCP_HMP_Y_AXIS,
 )
 
+
 conds_startwith_keys = ('filter-', 'cond_', 'machine_id_multi')
+train_conds_startwith_keys = ('trainfilter-', 'traincond_', 'trainmachine_id_multi')
 
 category_startwith_keys = (CATE_PROC, GET02_CATE_SELECT)
 
@@ -287,6 +292,7 @@ def parse_multi_filter_into_one(dic_form):
     cond_procs = [{}]
     cate_procs = [{}]
     array_formval = []
+    train_cond_procs = [{}]
 
     # まずは空のキーで辞書の配列を初期化
     for idx in range(int(num_tbls)):
@@ -298,7 +304,7 @@ def parse_multi_filter_into_one(dic_form):
 
         value = remove_const_keyword(raw_value, [SELECT_ALL, None, ''])
         # filter-line-machine-id
-        if key.startswith('filter-line-machine-id') and value == []:
+        if (key.startswith((YAML_FILTER_LINE_MACHINE_ID, PCAFilterCondition.TRAIN_LINE_COND.value))) and value == []:
             value = [NO_FILTER]
 
         # Keyの文字列を解析
@@ -330,6 +336,12 @@ def parse_multi_filter_into_one(dic_form):
             for i in range(matched_idx - len(cond_procs) + 1):
                 cond_procs.append({})
             cond_procs[matched_idx][matched_key] = value
+        elif key.startswith(train_conds_startwith_keys):  # PCA
+            matched_key = m.group(1)
+            matched_idx = int(m.group(2)) - 1
+            for i in range(matched_idx - len(train_cond_procs) + 1):
+                train_cond_procs.append({})
+            train_cond_procs[matched_idx][matched_key] = value
         # category
         elif key.startswith(category_startwith_keys):
             matched_key = m.group(1)
@@ -360,6 +372,8 @@ def parse_multi_filter_into_one(dic_form):
 
     # cond_procs
     dic_parsed[COMMON][COND_PROCS] = [ele for ele in cond_procs if ele]
+    # for PCA filter condition
+    dic_parsed[COMMON][PCAFilterCondition.TRAIN_COND_PROCS.value] = [ele for ele in train_cond_procs if ele]
 
     # category procs
     dic_parsed[COMMON][CATE_PROCS] = [ele for ele in cate_procs if ele and ele.get(GET02_CATE_SELECT)]
@@ -415,12 +429,17 @@ def remove_const_keyword(value, keywords, is_multiple_selection=False):
     return edit_value
 
 
-def bind_condition_procs(dic_proc_cfgs: Dict[int, CfgProcess], dic_param):
+def bind_condition_procs(dic_proc_cfgs: Dict[int, CfgProcess], dic_param, prefix=''):
     dic_proc_filter_details = {}
     # condition
     cond_procs = []
-    for dic_cond in dic_param[COMMON][COND_PROCS]:
-        proc_id = dic_cond[COND_PROC]
+
+    cond_procs_key = f'{prefix}{COND_PROCS}'
+    if cond_procs_key not in dic_param[COMMON]:
+        return cond_procs
+
+    for dic_cond in dic_param[COMMON][cond_procs_key]:
+        proc_id = dic_cond[f'{prefix}{COND_PROC}']
         if not proc_id:
             continue
 
@@ -438,7 +457,7 @@ def bind_condition_procs(dic_proc_cfgs: Dict[int, CfgProcess], dic_param):
 
         for key, _vals in dic_cond.items():
             vals = _vals
-            if key == COND_PROC:
+            if key == f'{prefix}{COND_PROC}':
                 continue
 
             dic_filter_details = {}
@@ -462,7 +481,13 @@ def bind_condition_procs(dic_proc_cfgs: Dict[int, CfgProcess], dic_param):
 
 
 # @memoize()
-def bind_dic_param_to_class(dic_proc_cfgs: Dict[int, CfgProcess], trace_graph: TraceGraph, dic_card_orders, dic_param):
+def bind_dic_param_to_class(
+    dic_proc_cfgs: Dict[int, CfgProcess],
+    trace_graph: TraceGraph,
+    dic_card_orders,
+    dic_param,
+    is_train_data=False,
+):
     dic_common = dic_param[COMMON]
 
     # chart count
@@ -470,6 +495,11 @@ def bind_dic_param_to_class(dic_proc_cfgs: Dict[int, CfgProcess], trace_graph: T
 
     # conditions
     cond_procs = bind_condition_procs(dic_proc_cfgs, dic_param)
+
+    train_cond_procs = []
+    if is_train_data:
+        # pca train filter conditions
+        train_cond_procs = bind_condition_procs(dic_proc_cfgs, dic_param, prefix='train')
 
     # categories
     cate_procs = []
@@ -559,6 +589,7 @@ def bind_dic_param_to_class(dic_proc_cfgs: Dict[int, CfgProcess], trace_graph: T
         is_proc_linked=dic_common.get(IS_PROC_LINKED, False),
         is_nominal_scale=dic_common.get(IS_NOMINAL_SCALE, True),
         nominal_vars=dic_common.get(NOMINAL_VARS, None),
+        traincond_procs=train_cond_procs,
     )
 
     # use the first end proc as start proc
@@ -687,6 +718,7 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
         FILTER_DATA,
         NG_RATES,
         RL_CATES,
+        REMOVED_OUTLIERS,
     ]
     for key in updated_keys:
         if key not in dic_param:

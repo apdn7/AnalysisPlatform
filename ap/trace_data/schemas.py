@@ -185,6 +185,7 @@ class CommonParam:
     serial_orders: List[int]
 
     cond_procs: List[ConditionProc]
+    traincond_procs: List[ConditionProc]
     cate_procs: List[CategoryProc]
     threshold_boxes: List[int]
     cat_exp: List[int]
@@ -205,6 +206,8 @@ class CommonParam:
     nominal_vars: list
 
     cate_col_ids: list[int]
+
+    outliers = None
 
     def __init__(
         self,
@@ -260,6 +263,7 @@ class CommonParam:
         is_nominal_scale=True,
         nominal_vars=[],
         cate_col_ids=[],
+        traincond_procs=None,
     ):
         self.start_proc = int(start_proc) if str(start_proc).isnumeric() else None
         self.start_date = start_date
@@ -340,6 +344,9 @@ class CommonParam:
             self.nominal_vars = [int(nominal_vars)] if nominal_vars else None
 
         self.cate_col_ids = cate_col_ids
+
+        # pca multiple filter condition
+        self.traincond_procs = traincond_procs
 
 
 class DicParam:
@@ -523,14 +530,14 @@ class DicParam:
     def get_color_info(self, target_var, shown_name=False):
         color_id = self.get_color_id(target_var)
         if not color_id:
-            return None
+            return None, None
 
         color_col = self.get_col_info_by_id(color_id)
 
         if not shown_name:
-            return color_col[END_COL_NAME] or None
+            return color_col[END_COL_NAME] or None, color_col[DATA_GROUP_TYPE]
 
-        return color_col[SHOWN_NAME] or None
+        return color_col[SHOWN_NAME] or None, color_col[DATA_GROUP_TYPE]
 
     def get_all_col_cfgs(self):
         all_cols = []
@@ -571,7 +578,7 @@ class DicParam:
             all_columns = self.dic_proc_cfgs[end_proc.proc_id].columns
             required_column_ids = get_all_normal_columns_for_functions(end_proc.col_ids, all_columns)
             if required_column_ids:
-                self.add_proc_to_array_formval(end_proc.proc_id, required_column_ids)
+                end_proc.add_cols(required_column_ids)
 
     def get_process_by_id(self, proc_id):
         process = [proc for (_, proc) in self.dic_proc_cfgs.items() if proc.id == proc_id]

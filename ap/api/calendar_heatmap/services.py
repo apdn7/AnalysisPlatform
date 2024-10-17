@@ -48,6 +48,7 @@ from ap.common.constants import (
     MAX_TICKS,
     NA_STR,
     NOT_EXACT_MATCH_FILTER_IDS,
+    REMOVED_OUTLIERS,
     TIME_COL,
     TIME_COL_LOCAL,
     UNIQUE_SERIAL,
@@ -846,6 +847,8 @@ def gen_heatmap_data_as_dict(
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = not_exact_match_filter_ids
     # flag to show that trace result was limited
     dic_param[DATA_SIZE] = df.memory_usage(deep=True).sum()
+    # outliers count
+    dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
     # gen aggregate end col
     df: pd.DataFrame = create_agg_column(df, AGG_COL, hm_mode, hm_step, df_cells)

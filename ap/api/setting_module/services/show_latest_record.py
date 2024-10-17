@@ -14,7 +14,7 @@ from flask_babel import get_locale
 
 from ap import check_exist
 from ap.api.efa.services.etl import detect_file_path_delimiter, preview_data
-from ap.api.setting_module.services.csv_import import add_column_file_name, convert_csv_timezone, gen_dummy_header
+from ap.api.setting_module.services.csv_import import convert_csv_timezone, gen_dummy_header
 from ap.api.setting_module.services.data_import import (
     PANDAS_DEFAULT_NA,
     strip_special_symbol,
@@ -52,6 +52,7 @@ from ap.common.constants import (
     DATETIME_DUMMY,
     EMPTY_STRING,
     FILE_NAME,
+    HALF_WIDTH_SPACE,
     MAXIMUM_V2_PREVIEW_ZIP_FILES,
     PREVIEW_DATA_TIMEOUT,
     REVERSED_WELL_KNOWN_COLUMNS,
@@ -64,6 +65,7 @@ from ap.common.constants import (
     DataGroupType,
     DataType,
     DBType,
+    MasterDBType,
     RelationShip,
 )
 from ap.common.logger import log_execution_time
@@ -77,7 +79,7 @@ from ap.common.services.csv_content import (
     is_normal_csv,
     read_data,
 )
-from ap.common.services.csv_header_wrapr import gen_colsname_for_duplicated
+from ap.common.services.csv_header_wrapr import _translate_wellknown_jp2en, gen_colsname_for_duplicated
 from ap.common.services.data_type import gen_data_types
 from ap.common.services.jp_to_romaji_utils import change_duplicated_columns, to_romaji
 from ap.common.services.normalization import (
@@ -86,7 +88,7 @@ from ap.common.services.normalization import (
     normalize_str,
     unicode_normalize,
 )
-from ap.common.timezone_utils import gen_dummy_datetime
+from ap.common.timezone_utils import gen_dummy_datetime, gen_dummy_datetime_data
 from ap.setting_module.models import (
     CfgDataSource,
     CfgProcess,
@@ -96,6 +98,7 @@ from ap.setting_module.models import (
     make_session,
 )
 from ap.setting_module.schemas import VisualizationSchema
+from ap.setting_module.services.process_config import get_process_columns
 from ap.trace_data.transaction_model import TransactionData
 
 
@@ -110,6 +113,7 @@ def get_latest_records(
     filtered_process_name=None,
     process_factid=None,
     is_convert_datetime=True,
+    master_type: MasterDBType = None,
 ):
     previewed_files = None
     cols_with_types = []
@@ -118,6 +122,9 @@ def get_latest_records(
     etl_func = ''
     n_rows = None
     is_transpose = None
+    has_ct_col = True
+    dummy_datetime_idx = None
+    file_name_col_idx = None
 
     if data_source_id:
         data_source: CfgDataSource = CfgDataSource.query.get(data_source_id)
@@ -170,6 +177,9 @@ def get_latest_records(
         headers = normalize_list(dic_preview.get('header'))
         headers = [normalize_str(col) for col in headers]
         data_types = dic_preview.get('dataType')
+        has_ct_col = dic_preview.get('has_ct_col')
+        dummy_datetime_idx = dic_preview.get('dummy_datetime_idx')
+        file_name_col_idx = dic_preview.get('file_name_col_idx')
         same_values = dic_preview.get('same_values')
         is_v2_history = dic_preview.get('v2_type') == DBType.V2_HISTORY
         if headers and data_types:
@@ -179,6 +189,8 @@ def get_latest_records(
                 same_values,
                 is_v2_history,
                 column_raw_names,
+                dummy_datetime_idx=dummy_datetime_idx,
+                file_name_idx=file_name_col_idx,
             )
 
         # sort columns
@@ -194,6 +206,7 @@ def get_latest_records(
             data_source,
             table_name,
             process_factid=process_factid,
+            master_type=master_type,
         )
         data_types = [gen_data_types(df_rows[col]) for col in cols]
         same_values = check_same_values_in_df(df_rows, cols)
@@ -210,8 +223,6 @@ def get_latest_records(
 
     # change name if romaji cols is duplicated
     cols_with_types, cols_duplicated = change_duplicated_columns(cols_with_types)
-    has_ct_col = True
-    dummy_datetime_idx = None
     if is_csv_or_v2 and DataType.DATETIME.value not in data_types:
         dummy_datetime_idx = 0
         cols_with_types.insert(
@@ -224,15 +235,16 @@ def get_latest_records(
                 'check_same_value': {'is_null': False, 'is_same': False},
                 'is_checked': True,
                 'is_show': True,
+                'is_dummy_datetime': True,
             },
         )
         cols.insert(dummy_datetime_idx, DATETIME_DUMMY)
         if is_valid_list(df_rows):
             df_rows = gen_dummy_datetime(df_rows)
 
-    if DATETIME_DUMMY in cols or DataType.DATETIME.value not in data_types:
-        dummy_datetime_idx = 0
-        has_ct_col = False
+    # if DATETIME_DUMMY in cols or DataType.DATETIME.value not in data_types:
+    #     dummy_datetime_idx = 0
+    #     has_ct_col = False
 
     rows = []
     if is_valid_list(df_rows):
@@ -253,7 +265,45 @@ def get_latest_records(
         rows = transform_df_to_rows(cols, df_rows, limit)
 
     is_rdb = not is_csv_or_v2
-    return cols_with_types, rows, cols_duplicated, previewed_files, has_ct_col, dummy_datetime_idx, is_rdb
+    return (
+        cols_with_types,
+        rows,
+        cols_duplicated,
+        previewed_files,
+        has_ct_col,
+        dummy_datetime_idx,
+        is_rdb,
+        file_name_col_idx,
+    )
+
+
+def get_latest_record_from_preview_file(fp, proc_id, limit):
+    data = json.load(fp)
+    procCol = get_process_columns(proc_id)
+    dict_data = json.loads(data)
+    cols_org = dict_data.get('cols', [])
+    rows_org = dict_data.get('rows', [])
+    if not cols_org and not rows_org:
+        return dict_data
+
+    df_data = pd.DataFrame(rows_org)
+    column_name = [col['column_name'] for col in cols_org]
+    data_types = [DataType[col['data_type']].value for col in cols_org]
+    dupl_cols = []
+    _, df_data_details, org_headers, *_ = add_generated_datetime_column(
+        proc_id,
+        df_data,
+        column_name.copy(),
+        column_name.copy(),
+        dupl_cols,
+        data_types,
+    )
+    new_cols_name = list(set(org_headers) - set(column_name))
+    if new_cols_name:
+        col_add = next((col for col in reversed(procCol) if col.get('column_name') in new_cols_name), None)
+        dict_data['cols'].append(col_add)
+    dict_data['rows'] = transform_df_to_rows(org_headers, df_data_details, limit)
+    return dict_data
 
 
 # def get_col_type_as_cast(col_type):
@@ -274,22 +324,33 @@ def get_latest_records(
 #     return [dic_col_type.get(col) for col in cols]
 
 
-def get_info_from_db(data_source, table_name, process_factid: str | None = None, sql_limit: int = 2000):
+def get_info_from_db(
+    data_source: CfgDataSource,
+    table_name: str,
+    process_factid: str | None = None,
+    sql_limit: int = 2000,
+    master_type: MasterDBType = None,
+) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
     if data_source.type == DBType.SOFTWARE_WORKSHOP.name:
         return get_info_from_db_software_workshop(
             data_source.id,
             quality_measurements_table.name,
             process_factid,
+            master_type=master_type,
         )
     return get_info_from_db_normal(data_source.id, table_name, sql_limit)
 
 
 @lru_cache(maxsize=20)
-def get_info_from_db_normal(data_source_id, table_name, sql_limit: int = 2000):
+def get_info_from_db_normal(
+    data_source_id,
+    table_name,
+    sql_limit: int = 2000,
+) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
     data_source = CfgDataSource.query.get(data_source_id)
     with DbProxy(data_source) as db_instance:
         if not db_instance or not table_name:
-            return [], []
+            return [], pd.DataFrame(), {}
 
         if isinstance(db_instance, mssqlserver.MSSQLServer):
             cols, rows = db_instance.run_sql('select TOP {}  * from "{}"'.format(sql_limit, table_name), False)
@@ -308,18 +369,39 @@ def get_info_from_db_normal(data_source_id, table_name, sql_limit: int = 2000):
 
 @log_execution_time()
 @memoize(duration=300)
-def get_info_from_db_software_workshop(data_source_id, table_name, child_equip_id, sql_limit: int = 2000):
+def get_info_from_db_software_workshop(
+    data_source_id: int,
+    table_name: str,
+    child_equip_id: str,
+    sql_limit: int = 2000,
+    master_type: MasterDBType = MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT,
+) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
     data_source = CfgDataSource.query.get(data_source_id)
     with DbProxy(data_source) as db_instance:
         if not db_instance or not table_name or not child_equip_id:
-            return [], []
-        stmt = get_transaction_data_stmt(child_equip_id, limit=sql_limit, sort_by_time=False)
+            return [], pd.DataFrame(), {}
+        stmt = get_transaction_data_stmt(
+            child_equip_id,
+            limit=sql_limit,
+            master_type=master_type,
+        )
         sql, params = db_instance.gen_sql_and_params(stmt)
         cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
 
     df = pd.DataFrame(rows, columns=cols)
-    df = df.sort_values(by=quality_measurements_table.c.event_time.name)
+    if master_type == MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT:
+        return get_measurement_info_from_db_software_workshop(data_source.id, child_equip_id, df)
+    elif master_type == MasterDBType.SOFTWARE_WORKSHOP_HISTORY:
+        return get_history_info_from_db_software_workshop(data_source.id, child_equip_id, df)
+    else:
+        return cols, df, {}
 
+
+def get_measurement_info_from_db_software_workshop(
+    data_source_id: int,
+    child_equip_id: str,
+    df: pd.DataFrame,
+) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
     code_col = measurements_table.c.code.name
     unit_col = measurements_table.c.unit.name
 
@@ -331,11 +413,32 @@ def get_info_from_db_software_workshop(data_source_id, table_name, child_equip_i
         .set_index(code_col)[unit_col]  # convert to dictionary
         .to_dict()
     )
-    dict_code_with_name = get_code_name_mapping(data_source.id, child_equip_id)
+    dict_code_with_name = get_code_name_mapping(data_source_id, child_equip_id)
     dict_code_with_name = add_suffix_for_same_column_name(dict_code_with_name)
     dict_column_name_with_unit = {dict_code_with_name[code]: unit for code, unit in dict_code_with_unit.items()}
 
-    df = transform_df_for_software_workshop(df, data_source.id, child_equip_id)
+    df = transform_df_for_software_workshop(df, data_source_id, child_equip_id)
+    transform_cols = df.columns.to_list()
+    transform_rows = df.values.tolist()
+
+    df_rows = normalize_big_rows(transform_rows, transform_cols, strip_quote=False)
+
+    return transform_cols, df_rows, dict_column_name_with_unit
+
+
+def get_history_info_from_db_software_workshop(
+    data_source_id: int,
+    child_equip_id: str,
+    df: pd.DataFrame,
+) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
+    dict_column_name_with_unit = {}
+
+    df = transform_df_for_software_workshop(
+        df,
+        data_source_id,
+        child_equip_id,
+        master_type=MasterDBType.SOFTWARE_WORKSHOP_HISTORY,
+    )
     transform_cols = df.columns.to_list()
     transform_rows = df.values.tolist()
 
@@ -571,6 +674,7 @@ def preview_csv_data(
     )
     has_ct_col = True
     dummy_datetime_idx = None
+    file_name_col_idx = None
     if df_data_details is not None:
         # sort by datetime
         first_datetime_col_idx = None
@@ -598,23 +702,21 @@ def preview_csv_data(
             #     first_datetime_col_idx = header_names.index(col)
 
         df_data_details = df_data_details[0:limit]
-        # add file name column
-        if show_file_name_column:
-            df_data_details, org_headers, header_names, dupl_cols, data_types = add_show_file_name_column(
-                df_data_details,
-                csv_file,
-                org_headers,
+
+        if DataType.DATETIME.value not in data_types:
+            (
                 header_names,
+                df_data_details,
+                org_headers,
+                data_types,
                 dupl_cols,
+                dummy_datetime_idx,
+            ) = add_dummy_datetime_column(
+                header_names,
+                df_data_details,
+                org_headers,
                 data_types,
             )
-
-        if DataType.DATETIME.value not in data_types and DATETIME_DUMMY not in df_data_details.columns:
-            dummy_datetime_idx = 0
-            df_data_details = gen_dummy_datetime(df_data_details)
-            data_types.insert(dummy_datetime_idx, DataType.DATETIME.value)
-            header_names.insert(dummy_datetime_idx, DATETIME_DUMMY)
-            org_headers.insert(dummy_datetime_idx, DATETIME_DUMMY)
             has_ct_col = False
         elif first_datetime_col_idx:
             header_names = re_order_items_by_datetime_idx(first_datetime_col_idx, header_names)
@@ -625,13 +727,37 @@ def preview_csv_data(
         # check to add generated datetime column
         if current_process_id is not None:
             # we check datetime column and add this datetime column into details
-            df_data_details, org_headers, header_names, dupl_cols, data_types = add_generated_datetime_column(
+            (
+                header_names,
+                df_data_details,
+                org_headers,
+                data_types,
+                dupl_cols,
+                _,
+            ) = add_generated_datetime_column(
                 current_process_id,
                 df_data_details,
                 org_headers,
                 header_names,
                 dupl_cols,
                 data_types,
+            )
+
+        # add file name
+        if show_file_name_column:
+            (
+                header_names,
+                df_data_details,
+                org_headers,
+                data_types,
+                dupl_cols,
+                file_name_col_idx,
+            ) = add_show_file_name_column(
+                header_names,
+                df_data_details,
+                org_headers,
+                data_types,
+                csv_file,
             )
 
         same_values = check_same_values_in_df(df_data_details, header_names)
@@ -674,6 +800,7 @@ def preview_csv_data(
         'encoding': encoding,
         'is_dummy_header': dummy_header,
         'partial_dummy_header': partial_dummy_header,
+        'file_name_col_idx': file_name_col_idx,
     }
 
 
@@ -784,19 +911,25 @@ def preview_v2_data(
     # get DB Type and check if there is abnormal history
     if is_abnormal_v2 is None and not datasource_type:
         datasource_type, is_abnormal_v2, _ = get_v2_datasource_type_from_file(csv_file)
+
     header_names = rename_abnormal_history_col_names(datasource_type, header_names, is_abnormal_v2)
     header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
     df_data_details = normalize_big_rows(data_details, header_names)
     data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
-
     if show_file_name_column:
-        df_data_details, org_headers, header_names, dupl_cols, data_types = add_show_file_name_column(
-            df_data_details,
-            sorted_files[0],
-            org_headers,
+        (
             header_names,
-            dupl_cols,
+            df_data_details,
+            org_headers,
             data_types,
+            dupl_cols,
+            file_name_col_idx,
+        ) = add_show_file_name_column(
+            header_names,
+            df_data_details,
+            org_headers,
+            data_types,
+            csv_file,
         )
 
     has_ct_col = True
@@ -934,15 +1067,22 @@ def gen_cols_with_types(
     is_v2_history=False,
     column_raw_name=[],
     dict_column_name_and_unit={},
+    dummy_datetime_idx: int = None,
+    file_name_idx: int = None,
 ):
     ja_locale = False
     cols_with_types = []
     with suppress(Exception):
         ja_locale = get_locale().language == 'ja'
     has_is_get_date_col = False
+    has_is_serial_no_col = False
     if not column_raw_name:
         column_raw_name = cols
-    cols_raw_name_added_suffix, _ = gen_colsname_for_duplicated(column_raw_name.copy())
+    column_raw_name_normalize = [normalize_str(col) for col in column_raw_name.copy()]
+    cols_raw_name_added_suffix, _ = gen_colsname_for_duplicated(column_raw_name_normalize)
+    idx = 0
+    serial_name_jp = 'シリアル'
+    datetime_name_jp = '日時'
     for (
         col_name,
         col_raw_name,
@@ -951,44 +1091,84 @@ def gen_cols_with_types(
         same_value,
     ) in zip(cols, column_raw_name, cols_raw_name_added_suffix, data_types, same_values):
         is_date = False if has_is_get_date_col else DataType(data_type) is DataType.DATETIME
+        is_serial_no = (
+            DataType(data_type) in [DataType.TEXT, DataType.INTEGER]
+            and re.search(r'.*シリアル|serial.*', col_name.lower()) is not None
+        )
+        is_main_serial_no = False
         if is_date:
             has_is_get_date_col = True
+
+        if is_serial_no:
+            if has_is_serial_no_col:
+                is_serial_no = True
+            else:
+                is_main_serial_no = True
+                is_serial_no = False
+                has_is_serial_no_col = True
 
         is_big_int = DataType(data_type) is DataType.BIG_INT
         # add to output
         if col_name:
-            mapped_col_name = normalize_str(col_raw_name_added_suffix)
+            # when stripped col_raw_name is empty, use col_name (which are generated headers)
+            # TODO: should normalize_str() be used?
+            mapped_col_name = col_raw_name_added_suffix if col_raw_name.strip() else col_name
             column_name_extracted, unit = ColumnRawNameRule.extract_data(mapped_col_name)
+
             if ja_locale:
-                system_name = (
-                    to_romaji(column_name_extracted)
-                    if not is_v2_history
-                    else gen_v2_history_sub_part_no_column(column_name_extracted)
-                )
+                name_local = ''
+                if is_date:
+                    name_jp = datetime_name_jp
+                    name_en = _translate_wellknown_jp2en([datetime_name_jp])[0]
+                elif is_main_serial_no:
+                    name_jp = serial_name_jp
+                    name_en = _translate_wellknown_jp2en([serial_name_jp])[0]
+                else:
+                    name_jp = column_name_extracted
+                    name_en = (
+                        to_romaji(column_name_extracted)
+                        if not is_v2_history
+                        else gen_v2_history_sub_part_no_column(column_name_extracted)
+                    )
             else:
-                system_name = (
-                    remove_non_ascii_chars(column_name_extracted)
-                    if not is_v2_history
-                    else gen_v2_history_sub_part_no_column(column_name_extracted)
-                )
+                name_jp = ''
+                if is_date:
+                    name_en = _translate_wellknown_jp2en([datetime_name_jp])[0]
+                elif is_main_serial_no:
+                    name_en = _translate_wellknown_jp2en([serial_name_jp])[0]
+                else:
+                    name_en = (
+                        remove_non_ascii_chars(column_name_extracted)
+                        if not is_v2_history
+                        else gen_v2_history_sub_part_no_column(column_name_extracted)
+                    )
+                name_local = name_en
+
+            romaji = name_en
             unit = dict_column_name_and_unit.get(col_raw_name, unit)
             cols_with_types.append(
                 {
                     'column_name': col_name,
                     'data_type': DataType(data_type).name if not is_big_int else DataType.TEXT.name,
-                    'name_en': system_name,  # this is system_name
-                    'romaji': to_romaji(column_name_extracted),
+                    'name_en': name_en,  # this is system_name
+                    'romaji': romaji,
                     'is_get_date': is_date,
+                    'is_serial_no': is_serial_no,
+                    'is_main_serial_no': is_main_serial_no,
+                    'is_dummy_datetime': dummy_datetime_idx == idx if dummy_datetime_idx is not None else False,
+                    'is_file_name': file_name_idx == idx if file_name_idx is not None else False,
                     'check_same_value': same_value,
                     'is_big_int': is_big_int,
-                    'name_jp': column_name_extracted if ja_locale else '',
-                    'name_local': column_name_extracted if not ja_locale else '',
+                    'name_jp': name_jp,
+                    'name_local': name_local,
                     'column_raw_name': col_raw_name,
                     'unit': unit,
                     'is_checked': not same_value.get('is_null'),
                     'is_show': True,
                 },
             )
+
+        idx += 1
 
     return cols_with_types
 
@@ -1138,13 +1318,62 @@ def extract_data_detail(header_names, data_details, org_header=None):
     return df_data_details, org_headers, header_names, dupl_cols, data_types
 
 
-def add_show_file_name_column(df_data_details, csv_file, org_headers, header_names, dupl_cols, data_types):
-    data_types.insert(len(df_data_details.columns), DataType.TEXT.value)
-    header_names.insert(len(df_data_details.columns), FILE_NAME)
-    org_headers.insert(len(df_data_details.columns), FILE_NAME)
-    dupl_cols.append(False)
-    add_column_file_name(df_data_details, csv_file)
-    return df_data_details, org_headers, header_names, dupl_cols, data_types
+def add_new_column_with_data(
+    header_names,
+    df_data_details,
+    org_headers,
+    data_types,
+    index,
+    data,
+    new_data_type,
+    new_col_name,
+):
+    df_cols = df_data_details.columns.tolist()
+    header_names.insert(index, new_col_name)
+    header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
+    suffix_header_names = header_names.copy()
+    new_col = suffix_header_names.pop(index)
+    rename_cols = dict(zip(df_cols, suffix_header_names))
+    df_data_details = df_data_details.rename(columns=rename_cols)
+    org_headers.insert(index, new_col_name)
+    data_types.insert(index, new_data_type)
+    df_data_details.insert(loc=index, column=new_col, value=data)
+    return header_names, df_data_details, org_headers, data_types, dupl_cols
+
+
+def add_show_file_name_column(header_names, df_data_details, org_headers, data_types, file_path):
+    file_name_col_idx = len(header_names)
+    file_name = os.path.basename(file_path)
+    data = [file_name] * len(df_data_details)
+    data_type = DataType.TEXT.value
+    header_names, df_data_details, org_headers, data_types, dupl_cols = add_new_column_with_data(
+        header_names,
+        df_data_details,
+        org_headers,
+        data_types,
+        file_name_col_idx,
+        data,
+        data_type,
+        FILE_NAME,
+    )
+    return header_names, df_data_details, org_headers, data_types, dupl_cols, file_name_col_idx
+
+
+def add_dummy_datetime_column(header_names, df_data_details, org_headers, data_types):
+    dummy_datetime_col_idx = 0
+    data = gen_dummy_datetime_data(df_data_details)
+    data_type = DataType.DATETIME.value
+    header_names, df_data_details, org_headers, data_types, dupl_cols = add_new_column_with_data(
+        header_names,
+        df_data_details,
+        org_headers,
+        data_types,
+        dummy_datetime_col_idx,
+        data,
+        data_type,
+        DATETIME_DUMMY,
+    )
+    return header_names, df_data_details, org_headers, data_types, dupl_cols, dummy_datetime_col_idx
 
 
 def add_generated_datetime_column(
@@ -1156,18 +1385,47 @@ def add_generated_datetime_column(
     data_types,
 ):
     # get datetime column
-    main_datetime_columns = CfgProcessColumn.get_by_column_types([DataColumnType.DATETIME.value], [current_process_id])
-    if main_datetime_columns:
-        main_datetime_column = main_datetime_columns[0]
-        column_name = main_datetime_column.column_name
+    main_datetime_col = CfgProcessColumn.get_col_main_datetime(current_process_id)
+    main_date_col = CfgProcessColumn.get_col_main_date(current_process_id)
+    main_time_col = CfgProcessColumn.get_col_main_time(current_process_id)
+
+    if main_date_col and main_time_col:
+        column_name = main_datetime_col.column_name
         if column_name not in header_names:
-            data_types.append(DataType.DATETIME.value)
-            header_names.append(main_datetime_column.column_name)
-            org_headers.append(main_datetime_column.column_name)
-            dupl_cols.append(False)
+            index = len(df_data_details.columns)
             # TODO: add sample data for datetime column
+            data = [None] * len(df_data_details)
+            data_type = DataType.DATETIME.value
+            header_names, df_data_details, org_headers, data_types, dupl_cols = add_new_column_with_data(
+                header_names,
+                df_data_details,
+                org_headers,
+                data_types,
+                index,
+                data,
+                data_type,
+                column_name,
+            )
+
+            # add sample data for datetime column
             df_data_details[column_name] = None
-    return df_data_details, org_headers, header_names, dupl_cols, data_types
+            procCol = get_process_columns(current_process_id)
+            column_main_date_name = next(
+                (col['column_name'] for col in procCol if col.get('column_type') == DataColumnType.MAIN_DATE.value),
+                None,
+            )
+            column_main_time_name = next(
+                (col['column_name'] for col in procCol if col.get('column_type') == DataColumnType.MAIN_TIME.value),
+                None,
+            )
+            if column_main_date_name and column_main_time_name:
+                df_data_details[column_name] = (
+                    df_data_details[column_main_date_name].astype(str)
+                    + HALF_WIDTH_SPACE
+                    + df_data_details[column_main_time_name].astype(str)
+                )
+
+    return header_names, df_data_details, org_headers, data_types, dupl_cols, None
 
 
 @log_execution_time()

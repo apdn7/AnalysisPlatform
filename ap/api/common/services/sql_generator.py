@@ -225,7 +225,8 @@ class SqlProcLink:
         query_builder_time_col = query_builder.column(self.gen_proc_time_label(is_start_proc))
 
         for cfg_col in self.all_cfg_columns:
-            query_builder.add_column(column=cfg_col.bridge_column_name, label=cfg_col.gen_sql_label())
+            if cfg_col.existed_in_transaction_table():
+                query_builder.add_column(column=cfg_col.bridge_column_name, label=cfg_col.gen_sql_label())
 
         link_cols = []
         for col_label in self.all_link_keys_labels:

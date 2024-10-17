@@ -31,6 +31,7 @@ from ap.common.constants import (
     IS_SERIAL_NO,
     MATCHED_FILTER_IDS,
     NOT_EXACT_MATCH_FILTER_IDS,
+    REMOVED_OUTLIERS,
     SHOWN_NAME,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
@@ -73,6 +74,8 @@ def gen_graphical_lasso(graph_param, dic_param, df=None):
         )
         dic_param[UNIQUE_SERIAL] = unique_serial
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
+    # outlier count
+    dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
     convert_datetime_to_ct(df, graph_param)

@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import contextlib
 import glob
 import logging
 import os
@@ -6,7 +9,7 @@ from datetime import date as ddate
 from datetime import datetime, timedelta
 from datetime import time as dtime
 from functools import wraps
-from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+from logging.handlers import MemoryHandler, RotatingFileHandler, TimedRotatingFileHandler
 from pathlib import Path
 from time import perf_counter
 from typing import Callable, Dict, List, Optional, Union
@@ -18,8 +21,10 @@ tz = time.strftime('%z')
 LOG_FORMAT = '%(asctime)s' + tz + ' %(levelname)s: %(message)s'
 # LOG_FORMAT = '%(count)s %(asctime)s %(levelname)s: %(message)s'
 # buffer (records) to write log file
-# WRITE_BY_BUFFER = 1000
 WRITE_BY_BUFFER = 10_000
+# do not store record more than 1Kb, because 10_000 * 1Kb = 10Mb, this is more friendly to memory
+# 1Kb = 1024 u8 characters, normal string usually does not exceed this
+RECORD_MAX_BYTE = 1 * 1024
 # time interval (seconds) to write log file
 # default is 60 (1 minute)
 WRITE_BY_TIME = 60
@@ -27,7 +32,7 @@ WRITE_BY_TIME = 60
 # default is 86400 (1 day)
 
 ROTATE_BY_SIZE = 50 * 1024 * 1024  # 50MB
-BACKUP_COUNT_FOR_SIZE_ROTATED = 1000
+BACKUP_COUNT_FOR_SIZE_ROTATED = 10000
 
 DELETE_ZIPPED_FILE_OLDER_THAN = 5  # weeks
 
@@ -91,16 +96,34 @@ def get_base_filename(basedir, suffix=None):
     return os.path.join(basedir, create_log_filename_from_datetime(datetime.now(), suffix))
 
 
-def namer(name: str) -> str:
-    """Switch extensions for RotatingFileHandler. Used by logger's handler.
-    E.g: file.log.1 --> file.1.log
-    """
-    split_name = name.split('.')
-    if len(split_name) < 2:
+class CustomRotatingNamer:
+    def __init__(self, pid: str, datetime_format: str):
+        self.pid = pid
+        self.datetime_format = datetime_format
+
+    def __call__(self, name):
+        *prefix, log_ext, suffix = name.split('.')
+
+        # This is the default log file name perhaps
+        if log_ext != 'log':
+            return name
+
+        # check if this is datetime format from timed rotating handler
+        # timed rotating filename:
+        # file.log.2024-02-03_01-02-03 -> 20240203_010203_pid.log
+        with contextlib.suppress(ValueError):
+            # try to parse this, if we have error on this, the following codes will not be executed
+            _ = datetime.strptime(suffix, self.datetime_format)
+            dir_name = os.path.dirname(name)
+            return get_base_filename(dir_name, self.pid)
+
+        # rotating file name:
+        # file.log.1 --> file.1.log
+        if suffix.isdigit():
+            return '.'.join([*prefix, suffix, log_ext])
+
+        # something unexpected occur, we return default name created by stdlib
         return name
-    if split_name[-2] == 'log' and split_name[-1].isdigit():
-        split_name[-1], split_name[-2] = split_name[-2], split_name[-1]
-    return '.'.join(split_name)
 
 
 def rotator_wrapper(
@@ -200,182 +223,181 @@ class ZipFileHandler:
                 os.remove(file)
 
 
-class BatchAndRotatingHandler(TimedRotatingFileHandler, RotatingFileHandler):
-    # counter for batching write
-    _msg_counter = 0
-    # counter for time interval write
-    _start_time = 0
-    # max size of log file to rotate (bytes)
-    _max_size = 0
-    _basedir = None
-    _buffers = []
+class CustomRotatingHandler(TimedRotatingFileHandler, RotatingFileHandler):
+    """
+    Custom rotating handler for both time and size rotate
+    This is actually a bad design using diamond inheritance, however doing this way
+    would be safer since we do not handle stream and buffer directly
+    """
 
     def __init__(
         self,
         log_dir,
-        is_main=False,
+        is_main: bool = False,
+        # timed rotating handler parameters
         when: str = 'h',
         interval: int = 1,
+        at_time: Optional[time.time] = None,
+        # rotating handler parameters
         max_bytes: int = 0,
         backup_count: int = 0,
-        encoding: Optional[str] = None,
-        delay: bool = False,
-        at_time: Optional[time.time] = False,
-        rotate_by_job: bool = False,
-        write_by_buffer=WRITE_BY_BUFFER,
-        write_by_time=WRITE_BY_TIME,
     ):
-        self._log_dir = log_dir
-        self._pid = str(os.getpid())
-        self._suffix = f'{self._pid}_main' if is_main else self._pid
-        logfile = get_base_filename(self._log_dir, self._suffix)
-        TimedRotatingFileHandler.__init__(
-            self,
-            logfile,
-            when=when,
-            interval=interval,
-            backupCount=backup_count,
-            encoding=encoding,
-            delay=delay,
-            atTime=at_time,
-        )
+        pid = str(os.getpid())
+        suffix_pid = f'{pid}_main' if is_main else pid
+        filename = get_base_filename(log_dir, suffix_pid)
 
         RotatingFileHandler.__init__(
             self,
-            logfile,
+            filename,
+            encoding='utf-8',
             maxBytes=max_bytes,
             backupCount=backup_count,
-            encoding=encoding,
-            delay=delay,
+            delay=True,
+        )
+        TimedRotatingFileHandler.__init__(
+            self,
+            filename,
+            encoding='utf-8',
+            when=when,
+            interval=interval,
+            atTime=at_time,
+            delay=True,
+            # we don't use backup count here, but this is shared with rotating file handler ...
+            # if we don't set it, this __init__ will reset the count back to zero
+            backupCount=backup_count,
         )
 
-        self.write_by_buffer = write_by_buffer
-        self.write_by_time = write_by_time
-        self.namer = namer
+        # self.suffix here is actually a datetime format driven by `TimedRotatingFileHandler`
+        self.namer = CustomRotatingNamer(suffix_pid, self.suffix)
 
-        if not rotate_by_job:
-            print('This should only be used in test.')
-            self.rotator = rotator_wrapper(
-                ZipFileHandler.zip_all_previous_files,
-                ZipFileHandler.delete_old_zipped_files,
-            )
+        self.should_rollover_by_time = False
+        self.should_rollover_by_size = False
 
-    def set_base_dir(self, basedir):
-        self._basedir = basedir
+    def shouldRollover(self, record):  # noqa: N802 overwrite from standard lib
+        self.should_rollover_by_time = TimedRotatingFileHandler.shouldRollover(self, record)
+        self.should_rollover_by_size = RotatingFileHandler.shouldRollover(self, record)
+        return self.should_rollover_by_time or self.should_rollover_by_size
 
-    def timed_should_roll_over(self, record):
-        return TimedRotatingFileHandler.shouldRollover(self, record)
+    def doRollover(self):  # noqa: N802 overwrite from standard lib
+        if self.should_rollover_by_time:
+            TimedRotatingFileHandler.doRollover(self)
+        elif self.should_rollover_by_size:
+            RotatingFileHandler.doRollover(self)
+            self.recompute_rollover_at()
 
-    def batch_should_roll_over(self, record):
-        return RotatingFileHandler.shouldRollover(self, record)
-
-    def shouldRollover(self, record):  # noqa: N802, this method is inherited from standard library
-        return self.timed_should_roll_over(record) or self.batch_should_roll_over(record)
-
-    def is_should_write_log(self, elapsed_time):
-        if self._msg_counter >= self.write_by_buffer:
-            print('counter is {}'.format(self._msg_counter))
-        return elapsed_time >= self.write_by_time or self._msg_counter >= self.write_by_buffer
-
-    def emit(self, record):
-        try:
-            msg = self.format(record)
-            # open stream to write to RAM
-            if self.stream is None:
-                self.stream = self._open()
-            stream = self.stream
-
-            emit_time = int(time.time())
-            if not self._start_time:
-                self._start_time = int(time.time())
-            elapsed_time = emit_time - self._start_time
-
-            timed_should_rollover = self.timed_should_roll_over(record)
-            batch_should_rollover = self.batch_should_roll_over(record)
-            should_rollover = timed_should_rollover or batch_should_rollover
-            should_write_log = self.is_should_write_log(elapsed_time)
-            if should_write_log or should_rollover:
-                stream.write(msg + self.terminator)
-                if should_write_log and len(self._buffers):
-                    self.write_to_stream(stream)
-
-                if should_rollover:
-                    if timed_should_rollover:
-                        self.baseFilename = get_base_filename(self._log_dir, self._suffix)
-                        TimedRotatingFileHandler.doRollover(self)
-                    elif batch_should_rollover:
-                        RotatingFileHandler.doRollover(self)
-                    else:
-                        raise NotImplementedError
-
-                # reset batch size and time
-                self._start_time = 0
-                self.flush()
-            else:
-                # write all msg in batch before flush
-                self._buffers.append(msg)
-                self._msg_counter += 1
-        except RecursionError:  # See issue 36272
-            raise
-        except Exception as e:
-            print(e)
-            self.handleError(record)
-
-    def write_to_stream(self, stream):
-        for msg in self._buffers:
-            stream.write(msg + self.terminator)
-        self._buffers = []
-        self._msg_counter = 0
-
-    def force_flush(self):
-        if self.stream is None:
-            self.stream = self._open()
-        stream = self.stream
-
-        self.write_to_stream(stream)
-
-        self._start_time = 0
-        self.flush()
+    def recompute_rollover_at(self):
+        """
+        When RotatingFileHandler.doRollover occur,
+        we need to update `rolloverAt` for `TimedRotatingFileHandler` as well
+        These lines of code are hard-copied from `TimedRotatingFileHandler.doRollover` stdlib
+        """
+        # get the time that this sequence started at and make it a TimeTuple
+        currentTime = int(time.time())  # noqa
+        dstNow = time.localtime(currentTime)[-1]  # noqa
+        newRolloverAt = self.computeRollover(currentTime)  # noqa
+        while newRolloverAt <= currentTime:
+            newRolloverAt += self.interval
+        # If DST changes and midnight or weekly rollover, adjust for this.
+        if (self.when == 'MIDNIGHT' or self.when.startswith('W')) and not self.utc:
+            dstAtRollover = time.localtime(newRolloverAt)[-1]  # noqa
+            if dstNow != dstAtRollover:
+                if not dstNow:  # noqa DST kicks in before next rollover, so we need to deduct an hour
+                    addend = -3600
+                else:  # DST bows out before next rollover, so we need to add an hour
+                    addend = 3600
+                newRolloverAt += addend
+        self.rolloverAt = newRolloverAt
 
 
-def logger_force_flush():
-    for handler in logger.handlers:
-        if isinstance(handler, BatchAndRotatingHandler):
-            handler.force_flush()
+class CustomMemoryHandler(MemoryHandler):
+    def __init__(
+        self,
+        capacity,
+        target: CustomRotatingHandler | None = None,
+        record_max_bytes: int | None = None,
+        flush_interval: int | None = None,
+    ):
+        MemoryHandler.__init__(
+            self,
+            capacity=capacity,
+            target=target,
+            # never flush on any certain level
+            flushLevel=logging.CRITICAL * 2,
+        )
+        self.record_max_bytes = record_max_bytes
+
+        self.flush_interval = flush_interval
+        self.flush_at = None
+        if self.flush_interval is not None:
+            self.flush_at = int(time.time()) + self.flush_interval
+
+    def shouldFlush(self, record):  # noqa: N802 overwrite from standard lib
+        """
+        Determine if a record should trigger flush by `total records in buffer` and `record size`
+
+        - Total records in buffer: we rely on `MemoryHandler.shouldFlush`
+        - Record size: we use `RotatingFileHandler.shouldRollover` to check record byte size
+        """
+        if MemoryHandler.shouldFlush(self, record):
+            return True
+
+        if self.record_max_bytes is not None:
+            # these lines are copied from `RotatingFileHandler.shouldRollover`
+            msg = '%s\n' % self.format(record)
+            if len(msg) >= self.record_max_bytes:
+                return True
+
+        # should flush at some interval to avoid log stale
+        if self.flush_at is not None and self.flush_interval is not None:
+            current_time = int(time.time())
+            if current_time >= self.flush_at:
+                # recompute next flush at
+                self.flush_at = current_time + self.flush_interval
+                return True
+
+        return False
 
 
 def set_log_config(is_main=False):
     import ap
-    from ap import get_basic_yaml_obj
+    from ap import get_basic_yaml_obj, get_start_up_yaml_obj
     from ap.common.common_utils import make_dir
 
     basic_config_yaml = get_basic_yaml_obj()
-    log_level = basic_config_yaml.dic_config['info'].get(LOG_LEVEL) or ApLogLevel.INFO.name
+    log_level = basic_config_yaml.get_node(keys=('info', LOG_LEVEL), default_val=ApLogLevel.INFO.name)
     default_logger_level = logging.DEBUG if log_level == ApLogLevel.DEBUG.name else logging.INFO
 
-    # get log folder from config
-    log_dir = ap.dic_config.get('INIT_LOG_DIR')
-    # initiate log dir if not existing
-    make_dir(log_dir)
+    start_up_yaml = get_start_up_yaml_obj()
+    enable_file_log = start_up_yaml.get_node(keys=('setting_startup', 'enable_file_log'))
+    if enable_file_log is not None and str(enable_file_log).strip() == '1':
+        # get log folder from config
+        log_dir = ap.dic_config.get('INIT_LOG_DIR')
+        # initiate log dir if not existing
+        make_dir(log_dir)
 
-    file_handler = BatchAndRotatingHandler(
-        log_dir,
-        is_main,
-        when='midnight',
-        max_bytes=ROTATE_BY_SIZE,
-        backup_count=BACKUP_COUNT_FOR_SIZE_ROTATED,
-        encoding='utf8',
-        delay=True,
-        at_time=dtime(0, 0, 0),
-        rotate_by_job=True,
-    )
-    file_handler.setLevel(default_logger_level)
-    file_handler.setFormatter(formatter)
-    file_handler.set_base_dir(log_dir)
+        file_handler = CustomRotatingHandler(
+            log_dir,
+            is_main,
+            # timed rotating handler parameters
+            when='midnight',
+            at_time=dtime(0, 0, 0),
+            interval=WRITE_BY_TIME,
+            # rotating handler parameters
+            max_bytes=ROTATE_BY_SIZE,
+            backup_count=BACKUP_COUNT_FOR_SIZE_ROTATED,
+        )
+        file_handler.setFormatter(formatter)
 
-    # handle rotate log file by file-size
-    # file_handler.set_rotator(size=1000)
-    logger.addHandler(file_handler)
+        memory_handler = CustomMemoryHandler(
+            capacity=WRITE_BY_BUFFER,
+            target=file_handler,
+            record_max_bytes=RECORD_MAX_BYTE,
+            flush_interval=WRITE_BY_TIME,
+        )
+        memory_handler.setLevel(default_logger_level)
+
+        # handle rotate log file by file-size
+        logger.addHandler(memory_handler)
 
     # write log into console
     console_handler = logging.StreamHandler()

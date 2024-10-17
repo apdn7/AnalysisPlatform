@@ -1799,6 +1799,10 @@ msgid "CHMMean"
 msgstr "Mean"
 
 #: ap/templates/macros.html
+msgid "CHMSum"
+msgstr "Sum"
+
+#: ap/templates/macros.html
 msgid "CHMStd"
 msgstr "σ"
 
@@ -4072,6 +4076,10 @@ msgstr "進捗"
 msgid "Fine select hover msg"
 msgstr "軸上でフィルタリングできる範囲を細かく設定できます。ただし、NA(欠損値)やInf±(無限大)を含むレコードは除去されます。"
 
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Data view hover msg"
+msgstr "ハイライトされたデータの最新20件の詳細が、グラフの下に表示されます。"
+
 #: ap/templates/i18n.html
 msgid "LinkConfigurationNotExist"
 msgstr "紐付け設定がされていないため、グラフが表示されません。"
@@ -4331,6 +4339,10 @@ msgstr "カラーマップ(z軸)の値の算出方法を指定します。数値
 msgid "Go to SCP Msg"
 msgstr "HMpでは、選択する変数は両方ともカテゴリ(Cat, Str)、あるいは両方とも整数(Int)のみとなります。それ以外はScPを活用ください。"
 
+#: ap/templates/heatmap/heatmap.html
+msgid "Selected Color Agg Function incorrect"
+msgstr "Colorの変数を選択しない場合は\"Color\" -> \"その他\" の \"Ratio[%%]\"か\"Count\"を選択してください"
+
 #: ap/templates/i18n.html
 msgid "If both x and y data types are categorical, please draw with HMP."
 msgstr "x,y両方のデータ型がカテゴリの場合はHMpで描画ください。"
@@ -4431,6 +4443,15 @@ msgstr "時間紐付: 時間差 [min]"
 
 msgid "i18nCutOff"
 msgstr "CutOff: [min]"
+
+msgid "LinkWithTimeHoverMsg"
+msgstr ""
+"後のプロセスと前のプロセスの紐付けしたいそれぞれの日時データの時間差[min]を入力します。\n"
+"入力した時間差の値に最も近くなる日時データを持つデータ同士を紐付けします。\n"
+"ただし、後のプロセスに対して前のプロセスの日時データが大きくなる場合はデータ紐付けしません。"
+
+msgid "CutOffHoverMsg"
+msgstr "後のプロセスと前のプロセスの時間差がCutOff値よりも大きくなる場合は、データ紐付けをしません。"
 
 msgid "Result is empty, please check input params."
 msgstr "結果を空白です。入力パラメータを確認してください。"
@@ -4552,4 +4573,40 @@ msgstr "判定(1: OK, 0: NG)"
 #: ap/templates/i18n.html
 msgid "Shown Name Required"
 msgstr "表示名を入力してください。"
+
+#: ap/templates/i18n.html
+msgid "Sig digs"
+msgstr "有効桁"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeCsvTsvSsv"
+msgstr "CSV/TSV/SSV"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeSqlite"
+msgstr "SQLite"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypePostgresql"
+msgstr "PostgreSQL"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeMssql"
+msgstr "MSSQL Server"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeOracle"
+msgstr "ORACLE"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeMysql"
+msgstr "MySQL"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeV2Csv"
+msgstr "V2 CSV"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeSoftwareWorkshop"
+msgstr "V2 ソフトウェア工房インターフェース"
 

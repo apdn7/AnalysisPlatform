@@ -68,6 +68,7 @@ const dbConfigElements = {
     csvDBSourceName: '#csvDBSourceName',
     i18nDbSourceEmpty: '#i18nDbSourceEmpty',
     i18nDbSourceExist: '#i18nDbSourceExist',
+    sqliteDbSource: '#sqlite_dbname',
 };
 
 const withImportConstants = {

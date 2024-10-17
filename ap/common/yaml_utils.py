@@ -123,6 +123,21 @@ class YamlConfig:
 
         return node
 
+    @staticmethod
+    def set_node(dict_obj, keys, val=None):
+        if not isinstance(keys, list) and not isinstance(keys, tuple):
+            return
+        if len(keys) == 0:
+            return
+        node = dict_obj
+        for key in keys[:-1]:
+            if not isinstance(node, dict):
+                return
+            if key not in node:
+                node[key] = {}
+            node = node[key]
+        node[keys[-1]] = val
+
     # clear node by a specified key array
     def clear_node_by_key_path(self, keys):
         node = self.dic_config
@@ -168,6 +183,9 @@ class BasicConfigYaml(YamlConfig):
 
     def get_node(self, keys, default_val=None):
         return YamlConfig.get_node(self.dic_config, keys, default_val)
+
+    def set_node(self, keys, val=None):
+        return YamlConfig.set_node(self.dic_config, keys, val)
 
 
 def parse_bool_value(value):

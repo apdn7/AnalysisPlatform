@@ -58,6 +58,11 @@ const genDataPointHoverTable = (
     autoHide = true,
     chartID = null,
 ) => {
+    // get tooltips setting to show in charts
+    const tooltipsEnabled =
+        JSON.parse(localStorage.getItem('tooltipsEnabled')) !== false;
+    if (!tooltipsEnabled) return;
+
     initHoverInfoHandler(() => {
         const dpInforID = dpInfoCons.domID;
         $(`#${dpInforID} tbody`).html(dataTable);

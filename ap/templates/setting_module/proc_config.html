@@ -107,6 +107,7 @@
                                             data-ds-id="{{ proc_info.data_source.id }}"
                                             data-proc-id="{{ proc_info.id }}"
                                             data-proc-parent-id="{{ proc_info.parent_id or "" }}"
+                                            data-test-id="{{ proc_info.shown_name }}"
                                         >
                                             <td class="col-number">
                                                 {{ loop.index }}
@@ -217,7 +218,7 @@
     <script src="{{ url_for('setting_module.static', filename = 'js/function_config_modals.js') }}"></script>
     <!-- prettier-ignore-start -->
     <script>
-        const cfgDS = {{ all_datasource|safe }};
+        let cfgDS = {{ all_datasource|safe }};
         /**
          * A list of dictionary that contains all master function information
          * @type {Array<{

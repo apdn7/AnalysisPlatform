@@ -116,6 +116,7 @@ from ap.common.constants import (
     PRC_MIN,
     PROC_NAME,
     RANK_COL,
+    REMOVED_OUTLIERS,
     RL_HIST_COUNTS,
     RL_HIST_LABELS,
     ROWID,
@@ -672,6 +673,7 @@ def gen_df(root_graph_param, dic_param, dic_filter=None, add_dt_col=False, rank_
     dic_param[DATA_SIZE] = int(df.memory_usage(deep=True).sum())
     dic_param[UNIQUE_SERIAL] = unique_serial
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
+    dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
     return dic_param, df, graph_param_with_cate
 
@@ -1778,19 +1780,8 @@ def get_chart_info_detail(
 
 
 @log_execution_time()
-def order_end_proc_sensor(orig_graph_param: DicParam, reorder):
+def order_end_proc_sensor(orig_graph_param: DicParam, reorder, custom_order=None):
     dic_orders = orig_graph_param.dic_card_orders
-    # for proc in orig_graph_param.array_formval:
-    #     proc_id = proc.proc_id
-    #     orders = (
-    #             CfgConstant.get_value_by_type_name(
-    #                 type=CfgConstantType.TS_CARD_ORDER.name, name=proc_id
-    #             )
-    #             or '{}'
-    #     )
-    #     orders = json.loads(orders)
-    #     if orders:
-    #         dic_orders[proc_id] = orders
 
     lst_proc_end_col = []
     for proc in orig_graph_param.array_formval:
@@ -1799,6 +1790,18 @@ def order_end_proc_sensor(orig_graph_param: DicParam, reorder):
             proc_order = dic_orders.get(proc_id) or {}
             order = proc_order.get(str(col_id)) or 999
             lst_proc_end_col.append((proc_id, col_id, col_name, col_show_name, order))
+
+    # order lst_proc_end_col to custom_order
+    if custom_order:
+        order_pairs = []
+        for entry in custom_order:
+            proc_id = entry[END_PROC]
+            col_id = entry[GET02_VALS_SELECT]
+            order_pairs.append((proc_id, col_id))
+
+        lst_proc_end_col.sort(
+            key=lambda x: order_pairs.index((x[0], x[1])) if (x[0], x[1]) in order_pairs else float('inf'),
+        )
 
     if not reorder:
         return lst_proc_end_col
@@ -1813,10 +1816,10 @@ def gen_plotdata(
     chart_infos=None,
     original_graph_configs=None,
     reorder=True,
+    custom_order=None,
 ):
     # re-order proc-sensors to show to UI
-    lst_proc_end_col = order_end_proc_sensor(orig_graph_param, reorder)
-
+    lst_proc_end_col = order_end_proc_sensor(orig_graph_param, reorder, custom_order)
     cat_exp_box_cols = orig_graph_param.common.cat_exp or []
     cat_exp_box_proc_name = []
     dic_procs, dic_cols = get_cfg_proc_col_info(orig_graph_param.dic_proc_cfgs, cat_exp_box_cols)
@@ -2878,16 +2881,17 @@ def filter_df(dic_proc_cfgs: Dict[int, CfgProcess], df, dic_filter):
             vals = [float(val) for val in vals]
         elif dtype_name == DataType.TEXT.name:
             vals = [str(val) for val in vals]
-            df[sql_label] = df[sql_label].astype(str)
+            if sql_label in df.columns:
+                df[sql_label] = df[sql_label].astype(str)
         else:
             pass
 
         if is_filter_nan:
             vals += [np.nan, np.inf, -np.inf, 'nan', '<NA>', np.NAN, pd.NA]
 
-        df = df[df[sql_label].isin(vals)]
-
-        df[sql_label] = df[sql_label].replace(['nan', '<NA>'], np.nan)
+        if sql_label in df.columns:
+            df = df[df[sql_label].isin(vals)]
+            df[sql_label] = df[sql_label].replace(['nan', '<NA>'], np.nan)
 
     df.reset_index(drop=True, inplace=True)
     return df
@@ -2999,6 +3003,7 @@ def get_outlier_info(remove_outlier_type):
 
 @log_execution_time()
 def remove_outlier(df: DataFrame, sensor_labels, graph_param):
+    outliers = 0
     if df.empty:
         return df
     remove_outlier_type = graph_param.common.remove_outlier_type
@@ -3038,7 +3043,9 @@ def remove_outlier(df: DataFrame, sensor_labels, graph_param):
             condition = df_sub[target_col] > lower_whisker
 
         df.loc[condition, target_col] = pd.NA
+        outliers += condition.sum()
 
+    graph_param.common.outliers = int(outliers)
     return df
 
 
@@ -3470,15 +3477,24 @@ def get_data_from_db(
     if graph_param.common.is_remove_outlier:
         df = remove_outlier(df, sensor_labels, graph_param)
 
+    outliers = None
     if graph_param.common.remove_outlier_objective_var:
         objective_id = graph_param.common.objective_var
         sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id == objective_id]
         df = remove_outlier(df, sensor_labels, graph_param)
+        outliers = graph_param.common.outliers
 
     if graph_param.common.remove_outlier_explanatory_var:
         objective_id = graph_param.common.objective_var
         sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id != objective_id]
         df = remove_outlier(df, sensor_labels, graph_param)
+        if graph_param.common.outliers is not None:
+            if outliers is None:
+                outliers = graph_param.common.outliers
+            else:
+                outliers += graph_param.common.outliers
+        # outliers count
+        graph_param.common.outliers = outliers
 
     df = cast_df_number(df, graph_param)
     return df, actual_total_record, unique_serial_number

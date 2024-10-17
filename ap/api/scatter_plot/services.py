@@ -54,6 +54,7 @@ from ap.common.constants import (
     MATCHED_FILTER_IDS,
     N_TOTAL,
     NOT_EXACT_MATCH_FILTER_IDS,
+    REMOVED_OUTLIERS,
     ROWID,
     SCALE_AUTO,
     SCALE_COLOR,
@@ -100,7 +101,7 @@ from ap.common.services.request_time_out_handler import (
 )
 from ap.common.services.sse import MessageAnnouncer
 from ap.common.services.statistics import calc_summary_elements
-from ap.common.sigificant_digit import get_fmt_from_array
+from ap.common.sigificant_digit import get_fmt_from_array, get_fmt_from_color_setting
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 from ap.setting_module.models import CfgProcessColumn
 from ap.trace_data.schemas import DicParam
@@ -418,7 +419,12 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             # to show plotview
             graph['end_col_id'] = x_id
             graph['end_proc_id'] = x_proc_id
-            dic_param['color_fmt'] = get_fmt_from_array(df[color_label].to_list()) if color_label else ''
+
+            if color_order is ColorOrder.TIME or color_order is ColorOrder.ELAPSED_TIME:
+                dic_param['color_fmt'] = get_fmt_from_color_setting(df_graph[color_col].to_list(), color_order)
+            else:
+                dic_param['color_fmt'] = get_fmt_from_array(df[color_label].to_list()) if color_label else ''
+
     else:
         group_by_cols = []
         unique_data_cols = [cat_div_id, color_id]
@@ -541,6 +547,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     # flag to show that trace result was limited
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
     dic_param[UNIQUE_SERIAL] = unique_serial
+    dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
     # check show col and row labels
     is_show_h_label = False
@@ -659,7 +666,7 @@ def calc_scale(dic_proc_cfgs, df, col_id, col_label, dic_cols, chart_configs=Non
             ARRAY_Y: df[col_label],
         }
     else:
-        plot = {END_PROC_ID: None, END_COL_ID: None, ARRAY_X: [None], ARRAY_Y: df[col_label]}
+        plot = {END_PROC_ID: None, END_COL_ID: None, ARRAY_X: df[col_label], ARRAY_Y: df[col_label]}
 
     if chart_configs:
         plot[CHART_INFOS] = chart_configs

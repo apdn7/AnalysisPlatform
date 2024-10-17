@@ -582,20 +582,36 @@ $(() => {
     });
 
     // add first condition process
-    const condProcs = genProcessDropdownData(procConfigs);
-    const condProcItem = addCondProc(
-        condProcs.ids,
-        condProcs.names,
+    const trainCondProcs = genProcessDropdownData(procConfigs);
+    const trainCondProcItem = addCondProc(
+        trainCondProcs.ids,
+        trainCondProcs.names,
+        'train',
+        eles.formID,
+        'btn-add-cond-proc',
+        true,
+        true,
+    );
+    trainCondProcItem();
+
+    // click event of condition proc add button - train data
+    $(eles.btnAddTrainCondProc).on('click', () => trainCondProcItem());
+
+    // add first condition process
+    const testCondProcs = genProcessDropdownData(procConfigs);
+    const testCondProcItem = addCondProc(
+        testCondProcs.ids,
+        testCondProcs.names,
         '',
         eles.formID,
         'btn-add-cond-proc',
+        true,
+        true,
     );
-    condProcItem();
+    testCondProcItem();
 
-    // click even of condition proc add button
-    $(eles.btnAddCondProc).click(() => {
-        condProcItem();
-    });
+    // click event of condition proc add button - test data
+    $(eles.btnAddTestCondProc).on('click', () => testCondProcItem());
 
     $(eles.msgConfirmBtn).click(() => {
         confirmWarningAndGetPCA();

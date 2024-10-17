@@ -13,11 +13,11 @@ from ap.api.setting_module.services.software_workshop_etl_services import (
 from ap.api.setting_module.services.v2_etl_services import is_v2_data_source, save_unused_columns
 from ap.common.constants import (
     ID,
-    DataColumnType,
+    TABLE_PROCESS_NAME,
+    UNDER_SCORE,
     DataType,
     DBType,
     MasterDBType,
-    ProcessCfgConst,
 )
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.pydn.dblib.postgresql import PostgreSQL
@@ -31,8 +31,6 @@ from ap.setting_module.models import (
     CfgProcessColumn,
     CfgProcessFunctionColumn,
     CfgVisualization,
-    crud_config,
-    insert_or_update_config,
     make_session,
     use_meta_session,
 )
@@ -102,6 +100,7 @@ def get_all_visualizations():
 
 @use_meta_session()
 def create_or_update_process_cfg(proc_data, unused_columns, meta_session: scoped_session = None):
+    is_create_new = False
     need_to_deleted_cols = []
     transaction_ds = gen_data_source_of_universal_db(proc_data[ID])
     # get existing columns from transaction table
@@ -113,17 +112,10 @@ def create_or_update_process_cfg(proc_data, unused_columns, meta_session: scoped
                 if col_dat:
                     need_to_deleted_cols.append(col_dat.bridge_column_name)
 
-    # save process config
-    process: CfgProcess = insert_or_update_config(
-        meta_session=meta_session,
-        data=proc_data,
-        key_names=CfgProcess.id.key,
-        model=CfgProcess,
-        autocommit=False,
-    )
-
     # create column alchemy object + assign process id
-    columns = proc_data[ProcessCfgConst.PROC_COLUMNS.value]
+    process = CfgProcess(**proc_data)
+    columns = process.columns
+    dict_id_column_name = {}
     for proc_column in columns:
         # transform data type
         proc_column.predict_type = proc_column.data_type
@@ -132,28 +124,42 @@ def create_or_update_process_cfg(proc_data, unused_columns, meta_session: scoped
         if proc_column.data_type in (DataType.EU_INTEGER_SEP.name, DataType.INTEGER_SEP.name):
             proc_column.data_type = DataType.INTEGER.name
 
-        proc_column.process_id = process.id
         # transform english name
         if not proc_column.name_en:
             proc_column.name_en = to_romaji(proc_column.column_name)
 
-    # re-fill function columns to avoid deleting it
-    function_columns = CfgProcessColumn.get_by_column_types(
-        [DataColumnType.GENERATED_EQUATION.value],
-        proc_ids=[process.id],
-        session=meta_session,
-    )
-    columns.extend(function_columns)
+        # get id with name before save db
+        dict_id_column_name[proc_column.id] = proc_column.column_name
+        if proc_column.id and proc_column.id < 0:  # set None for new column
+            proc_column.id = None
+        for function_col in proc_column.function_details:
+            if function_col.id and function_col.id < 0:
+                function_col.id = None
 
-    # save columns
-    crud_config(
-        meta_session=meta_session,
-        data=columns,
-        parent_key_names=CfgProcessColumn.process_id.key,
-        key_names=CfgProcessColumn.column_name.key,
-        model=CfgProcessColumn,
-        autocommit=False,
-    )
+    if process.id:
+        # update process
+        process_exist: CfgProcess = meta_session.query(CfgProcess).get(process.id)
+        process.data_source = process_exist.data_source
+        process = meta_session.merge(process)
+    else:
+        # insert new process
+        meta_session.add(process)
+        is_create_new = True
+
+    meta_session.flush()
+    # Update process order
+    if is_create_new and not process.order:
+        process.update_order(meta_session, process.id, process.id - 1)
+    dict_column_name_with_id = {col.column_name: col.id for col in process.columns}
+    # assign process function after save process columns
+    for column in process.columns:
+        for func_col in column.function_details:
+            func_col: CfgProcessFunctionColumn
+            func_col.var_x = dict_column_name_with_id.get(dict_id_column_name.get(func_col.var_x))
+            func_col.var_y = dict_column_name_with_id.get(dict_id_column_name.get(func_col.var_y))
+
+    # update process function columns
+    meta_session.merge(process)
 
     # save uncheck cols of v2 only
     save_unused_columns(process.id, unused_columns, meta_session=meta_session)
@@ -164,7 +170,6 @@ def create_or_update_process_cfg(proc_data, unused_columns, meta_session: scoped
         trans_data.create_table(db_instance)
         # delete unused columns
         if len(need_to_deleted_cols):
-            # todo: upgrade sqlite3 into 3.40 to delete column
             trans_data.delete_columns(db_instance, need_to_deleted_cols)
 
     return process
@@ -177,12 +182,12 @@ def query_database_tables(db_id, process=None):
     if not data_source:
         return None
 
-    output = {'ds_type': data_source.type, 'tables': [], 'process_factids': [], 'process_factnames': []}
+    output = {'ds_type': data_source.type, 'tables': [], 'process_factids': [], 'master_types': []}
     if process:
         # if process register tables = selected table
         output['tables'] = [process.get('table_name', '')]
         output['process_factids'] = [process.get('process_factid', '')]
-        output['process_factnames'] = [process.get('process_factname', '')]
+        output['master_types'] = [process.get('master_type', '')]
         return output
     # return None if CSV
     if data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
@@ -190,10 +195,10 @@ def query_database_tables(db_id, process=None):
 
     updated_at = data_source.db_detail.updated_at
     if data_source.type == DBType.SOFTWARE_WORKSHOP.name:
-        tables, process_fact_ids, process_fact_names = get_list_process_software_workshop(data_source.id)
+        tables, process_fact_ids, master_types = get_list_process_software_workshop(data_source.id)
         output['tables'] = tables
         output['process_factids'] = process_fact_ids
-        output['process_factnames'] = process_fact_names
+        output['master_types'] = master_types
     else:
         output['tables'] = get_list_tables_and_views(data_source.id, updated_at)
 
@@ -253,11 +258,23 @@ def get_list_process_software_workshop(data_source_id, updated_at=None):
         sql, params = db_instance.gen_sql_and_params(stmt)
         cols, rows = db_instance.run_sql(sql, params=params)
 
-    df = pd.DataFrame(rows)
+    df_measurement = pd.DataFrame(rows)
+    df_measurement['data_type'] = MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT.get_data_type()
+    df_measurement['master_type'] = MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT.name
+    df_history = pd.DataFrame(rows)
+    df_history['data_type'] = MasterDBType.SOFTWARE_WORKSHOP_HISTORY.get_data_type()
+    df_history['master_type'] = MasterDBType.SOFTWARE_WORKSHOP_HISTORY.name
+    df = pd.concat([df_measurement, df_history]).sort_values(
+        by=[child_equips_table.c.child_equip_id.name, 'data_type'],
+        ascending=[True, False],
+    )
+
     process_fact_ids = df[child_equips_table.c.child_equip_id.name].to_list()
-    process_fact_names = df[CfgProcess.process_factname.name].to_list()
-    process_fact_names = normalize_list(process_fact_names)
-    return process_fact_names, process_fact_ids, process_fact_names
+    master_types = df['master_type'].to_list()
+    table_names = (df['data_type'] + UNDER_SCORE + df[TABLE_PROCESS_NAME]).to_list()
+    table_names = normalize_list(table_names)
+
+    return table_names, process_fact_ids, master_types
 
 
 def convert2serialize(obj):

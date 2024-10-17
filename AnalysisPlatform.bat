@@ -205,9 +205,7 @@ if %prod% == %product_dn% (
 ) else (
   pip install --no-cache-dir --no-warn-script-location -r %file_oss_prod%
 )
-IF exist %path_R% (
-  %path_R%\bin\R CMD BATCH "r_install_packages.r"
-)
+if exist %path_R% if %prod% == %product_dn% %path_R%\bin\R CMD BATCH "r_install_packages.r"
 
 if exist %ca_cert% call :REMOVE_CA_CERT
 
@@ -253,6 +251,11 @@ echo PATH=%PATH%
 echo:
 echo:
 
+:: If the app is already installed, it can be launched without network
+if %network_nck% == True (
+    set /a error=%error%-1
+)
+
 :: stop start.exe before run APDN7
 if errorlevel 0 (
   : Close start.exe if there is no error
@@ -261,6 +264,9 @@ if errorlevel 0 (
   : stop program if error
   exit /b
 )
+
+: ensure to assign the app title
+title %app_title%
 
 REM run application
 ECHO Starting Up Analysis Platform ...
@@ -590,10 +596,10 @@ setlocal
   echo   - proxy_http: %prxy% >> %filename%
   echo   - proxy_https: %prxs% >> %filename%
   echo   - network_nck: %var% >> %filename%
-  echo - setting_app: !!omap>> %filename%
   echo   - env_ap: %prod%>> %filename%
   echo   - flask_debug: %flask_debug% >> %filename%
   echo   - update_R: %update_R% >> %filename%
+  echo   - enable_file_log: %enable_file_log% >> %filename%
 
 endlocal
 exit /b

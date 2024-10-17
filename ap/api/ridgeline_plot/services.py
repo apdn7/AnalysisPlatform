@@ -71,6 +71,7 @@ from ap.common.constants import (
     NOT_EXACT_MATCH_FILTER_IDS,
     PROC_NAME,
     RATE,
+    REMOVED_OUTLIERS,
     RL_CATE_NAME,
     RL_CATES,
     RL_DATA,
@@ -306,6 +307,7 @@ def gen_rlp_data_by_term(graph_param, dic_param, max_graph=None):
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = []
     dic_param[ACTUAL_RECORD_NUMBER] = 0
     dic_param[UNIQUE_SERIAL] = 0
+    dic_param[REMOVED_OUTLIERS] = None
 
     term_results = []
     export_dfs = []
@@ -334,6 +336,11 @@ def gen_rlp_data_by_term(graph_param, dic_param, max_graph=None):
         dic_param[UNMATCHED_FILTER_IDS] += term_result.get(UNMATCHED_FILTER_IDS, [])
         dic_param[NOT_EXACT_MATCH_FILTER_IDS] += term_result.get(NOT_EXACT_MATCH_FILTER_IDS, [])
         dic_param[ACTUAL_RECORD_NUMBER] = term_result.get(ACTUAL_RECORD_NUMBER, 0)
+        if term_result.get(REMOVED_OUTLIERS) is not None:
+            if dic_param[REMOVED_OUTLIERS] is not None:
+                dic_param[REMOVED_OUTLIERS] += term_result.get(REMOVED_OUTLIERS)
+            else:
+                dic_param[REMOVED_OUTLIERS] = term_result.get(REMOVED_OUTLIERS)
 
         unique_serial = term_result.get(UNIQUE_SERIAL)
         if unique_serial is None:

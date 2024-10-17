@@ -24,7 +24,9 @@ from ap.common.constants import (
     PLOTLY_JSON,
     REMOVED_OUTLIER_NAN_TEST,
     REMOVED_OUTLIER_NAN_TRAIN,
+    REMOVED_OUTLIERS,
     ROWID,
+    SELECTED_VARS,
     SHORT_NAMES,
     UNIQUE_SERIAL,
     UNIQUE_SERIAL_TEST,
@@ -111,6 +113,7 @@ def run_pca(root_graph_param: DicParam, dic_param, sample_no=0):
         ARRAY_PLOTDATA: array_plotdata,
         CYCLE_IDS: cycle_ids,
         FILTER_ON_DEMAND: dic_output.get(FILTER_ON_DEMAND, {}),
+        REMOVED_OUTLIERS: dic_output.get(REMOVED_OUTLIERS, None),
     }, None
 
 
@@ -124,8 +127,9 @@ def gen_base_object(root_graph_param, dic_param):
         dic_sensor_headers = dict_train_data[DIC_SENSOR_HEADER]
         x_train = dict_train_data['df'][dic_sensor_headers].rename(columns=dic_sensor_headers)
         x_test = dict_data['df'][dic_sensor_headers].rename(columns=dic_sensor_headers)
+        dic_selected_vars = dic_output[SELECTED_VARS]
         var_names = x_train.columns.values
-        dic_biplot, dic_t2q_lrn, dic_t2q_tst = run_pca_and_calc_t2q(x_train, x_test, var_names)
+        dic_biplot, dic_t2q_lrn, dic_t2q_tst = run_pca_and_calc_t2q(x_train, x_test, var_names, dic_selected_vars)
 
     return dic_output, dic_biplot, dic_t2q_lrn, dic_t2q_tst, errors
 
@@ -148,6 +152,9 @@ def get_test_n_train_data(root_graph_param: DicParam, dic_param):
     graph_param, *_ = pca_bind_dic_param_to_class(root_graph_param, dic_param)
     train_graph_param, *_ = pca_bind_dic_param_to_class(root_graph_param, dic_param, is_train_data=True)
 
+    # add filter condition
+    train_graph_param = pca_bind_conditions(train_graph_param)
+
     dict_train_data = gen_trace_data(train_graph_param, root_graph_param, dic_cat_filters, use_expired_cache)
     dict_train_errors = dict_train_data.get('errors')
 
@@ -166,6 +173,7 @@ def get_test_n_train_data(root_graph_param: DicParam, dic_param):
 
     # count removed outlier, nan
     dic_output = {
+        SELECTED_VARS: dict_data[SELECTED_VARS],
         UNIQUE_SERIAL_TRAIN: dict_train_data.get(UNIQUE_SERIAL),
         UNIQUE_SERIAL_TEST: dict_data.get(UNIQUE_SERIAL),
         REMOVED_OUTLIER_NAN_TRAIN: int(dict_train_data[ACTUAL_RECORD_NUMBER]) - len(dict_train_data['df']),
@@ -175,6 +183,7 @@ def get_test_n_train_data(root_graph_param: DicParam, dic_param):
         'df': dict_data['df'],
         SHORT_NAMES: dict_data[SHORT_NAMES],
         FILTER_ON_DEMAND: dic_param[FILTER_ON_DEMAND],
+        REMOVED_OUTLIERS: graph_param.common.outliers,
     }
 
     return dic_output, dict_data, dict_train_data, errors
@@ -226,7 +235,7 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
         dic_var_name[id] = dic_sensor_headers[col_alias]
 
     if not actual_record_number:
-        return {'errors': {'error': True, 'selected_vars': dic_var_name, 'null_percent': {}, 'zero_variance': []}}
+        return {'errors': {'error': True, SELECTED_VARS: dic_var_name, 'null_percent': {}, 'zero_variance': []}}
     # sensor headers
     cols = list(dic_sensor_headers)
 
@@ -255,7 +264,7 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
             'errors': {
                 'error': True,
                 'errors': errors,
-                'selected_vars': dic_var_name,
+                SELECTED_VARS: dic_var_name,
                 'null_percent': dic_null_percent,
                 'zero_variance': err_cols,
             },
@@ -264,10 +273,11 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
     return {
         'df': df,
         'dic_sensor_headers': dic_sensor_headers,
+        SELECTED_VARS: dic_var_name,
         'errors': {
             'error': error,
             'errors': errors,
-            'selected_vars': dic_var_name,
+            SELECTED_VARS: dic_var_name,
             'null_percent': dic_null_percent,
             'zero_variance': err_cols,
         },
@@ -370,6 +380,12 @@ def calculate_data_size(output_dict):
     output_dict['dtsize_pca_biplot'] = dtsize_pca_biplot
 
 
+def pca_bind_conditions(graph_params: DicParam):
+    # overwrite cond_procs by train/test conditions
+    graph_params.common.cond_procs = graph_params.common.traincond_procs
+    return graph_params
+
+
 @log_execution_time()
 @abort_process_handler()
 def pca_bind_dic_param_to_class(root_graph_param: DicParam, dic_param, is_train_data=False):
@@ -378,6 +394,7 @@ def pca_bind_dic_param_to_class(root_graph_param: DicParam, dic_param, is_train_
         root_graph_param.trace_graph,
         root_graph_param.dic_card_orders,
         dic_param,
+        is_train_data=is_train_data,
     )
 
     dic_proc_cfgs = graph_param.dic_proc_cfgs
@@ -449,7 +466,7 @@ def gen_sensor_headers(orig_graph_param):
 
 
 @log_execution_time()
-def run_pca_and_calc_t2q(X_train, X_test, varnames: list) -> dict:
+def run_pca_and_calc_t2q(X_train, X_test, varnames: list, dic_selected_vars: dict) -> dict:
     """Run PCA and Calculate T2/Q Statistics/Contributions
 
     X_train and X_test must have same number of columns.
@@ -464,6 +481,8 @@ def run_pca_and_calc_t2q(X_train, X_test, varnames: list) -> dict:
         (ntest x p) pd.DataFrame of test data. Must be X_test.shape[1] == X_train.shape[1]
     varnames: list
         (p) Column names. Must be len(varnames) == X_train.shape[1]
+    dic_selected_vars: dict
+        (p) Dictionary of column id and column name. Must be len(dic_selected_vars) == X_train.shape[1]
     Returns
     ----------
     output_dict: dict
@@ -481,7 +500,7 @@ def run_pca_and_calc_t2q(X_train, X_test, varnames: list) -> dict:
     pca.fit(X_train)
     pca.x = pca.transform(X_train)
     pca.newx = pca.transform(X_test)
-    dic_biplot = _calc_biplot_data(pca, varnames)
+    dic_biplot = _calc_biplot_data(pca, varnames=varnames, dic_selected_vars=dic_selected_vars)
 
     threshold = 80
     num_pc = np.where(pca.cum_explained >= threshold)[0][0] + 1
@@ -554,7 +573,7 @@ class PCA:
 # ---------------------------
 
 
-def _calc_biplot_data(pca: dict, varnames: list, tgt_pc=[1, 2]) -> dict:
+def _calc_biplot_data(pca: dict, varnames: list, dic_selected_vars: dict, tgt_pc=[1, 2]) -> dict:
     """Generate a set of data for biplot
     Data for scatter plot, arrows, circles (and axis labels)
     """
@@ -567,6 +586,7 @@ def _calc_biplot_data(pca: dict, varnames: list, tgt_pc=[1, 2]) -> dict:
     res = {
         'pca_obj': pca,
         'varnames': varnames,
+        'dic_selected_vars': dic_selected_vars,
         'arr_biplot_lrn': pca.x[:, idx_tgt_pc],
         'arr_biplot_tst': pca.newx[:, idx_tgt_pc],
         'dic_arrows': dic_arrows,
@@ -742,8 +762,20 @@ def _gen_jsons_for_plotly(dic_biplot: dict, dic_t2q_lrn: dict, dic_t2q_tst: dict
     t2_contr = _extract_clicked_sample(dic_t2q_lrn['contr_t2'], dic_t2q_tst['contr_t2'], sample_no)
     q_contr = _extract_clicked_sample(dic_t2q_lrn['contr_q'], dic_t2q_tst['contr_q'], sample_no)
 
-    df_t2_contr = pd.DataFrame({'Var': dic_biplot['varnames'], 'Ratio': t2_contr / np.sum(np.abs(t2_contr))})
-    df_q_contr = pd.DataFrame({'Var': dic_biplot['varnames'], 'Ratio': q_contr / np.sum(np.abs(q_contr))})
+    df_t2_contr = pd.DataFrame(
+        {
+            'id': dic_biplot['dic_selected_vars'].keys(),
+            'Var': dic_biplot['dic_selected_vars'].values(),
+            'Ratio': t2_contr / np.sum(np.abs(t2_contr)),
+        },
+    )
+    df_q_contr = pd.DataFrame(
+        {
+            'id': dic_biplot['dic_selected_vars'].keys(),
+            'Var': dic_biplot['dic_selected_vars'].values(),
+            'Ratio': q_contr / np.sum(np.abs(q_contr)),
+        },
+    )
     df_t2_contr = df_t2_contr.sort_values('Ratio', ascending=False, key=abs).reset_index()
     df_q_contr = df_q_contr.sort_values('Ratio', ascending=False, key=abs).reset_index()
 

@@ -48,8 +48,8 @@ div#scatter-plot {
     height: 4.1vh; /* 0.1 to make borders ovelapped */
 }
 
-.table-dark th,
-.table-dark td {
+#dp-tbl > .table-dark th,
+#dp-tbl > .table-dark td {
     padding: 0.1rem 0.25rem !important;
     background-color: #222;
     border-top: none;

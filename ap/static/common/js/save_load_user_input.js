@@ -627,6 +627,14 @@ const saveLoadUserInput = (
                 // dynamic generate div
                 data.genBtnId = el.getAttribute(DYNAMIC_ELE_ATTR);
             }
+            // when jumping from PCA where there are datetimePickers for train and test
+            // use the datetime range picker of test data for the landing page
+            if (
+                data.id === 'datetimeRangePickertest' &&
+                data.name === 'DATETIME_RANGE_PICKER'
+            ) {
+                data.id = 'datetimeRangePicker';
+            }
 
             // convert data.name === 'DATETIME_RANGE_PICKER'
             if (data.name === 'DATETIME_RANGE_PICKER') {
@@ -669,8 +677,15 @@ const saveLoadUserInput = (
                         value: data.value,
                     });
                 }
+                // when landing page is PCA,
+                // datetime range picker's value is used for test data datetime range picker
+                serializeData.push({
+                    id: 'datetimeRangePickertest',
+                    name: 'DATETIME_RANGE_PICKER',
+                    type: 'text',
+                    value: data.value,
+                });
             }
-
             serializeData.push(data);
         });
 

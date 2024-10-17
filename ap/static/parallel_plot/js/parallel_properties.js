@@ -57,4 +57,18 @@ class ParallelProps {
         DESC: 'desc',
         ASC: 'asc',
     };
+
+    static colorBarSetting = {
+        nTickMax: 9,
+        nTickMin: 2,
+    };
+
+    static tickFormat = {
+        none: '',
+        integer: ',d',
+        patternLogarithm: new RegExp('^[.](\\d+)[e]$'),
+        logarithm: '^[.](\\d+)[e]$',
+        patternReal: new RegExp('^[,][.](\\d+)[f]$'),
+        real: '^[,][.](\\d+)[f]$',
+    };
 }

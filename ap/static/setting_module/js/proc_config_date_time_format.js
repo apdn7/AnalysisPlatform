@@ -263,7 +263,7 @@ const showInputFormatDatetimeData = (...rows) => {
                     ?.trim()
                     ?.toLowerCase() === String(true);
             if (isGeneratedMainDatetimeColumn) {
-                inputFormat = `${format.date} ${format.time}`;
+                inputFormat = inputFormat ?? `${format.date} ${format.time}`;
             }
 
             (dataTypeDropdownElement

@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from ap.common.constants import ColorOrder
+
 
 def signify_digit_pca(x, sig_dig=4):
     """
@@ -83,3 +85,16 @@ def signify_digit_pca_vector(input_array, sig_dig=4):
 
 def signify_digit(n, sig_digit=4):
     return signify_digit_pca(n, sig_digit)
+
+
+def get_fmt_from_color_setting(color_vals, color_setting):
+    scp_scatter_max_tick_vals = 5
+    color_max = max(color_vals)
+    color_min = min(color_vals)
+    fmt = get_fmt_from_array(color_vals)
+    if 'e' not in fmt:
+        if color_setting is ColorOrder.TIME:
+            return ',d'
+        if color_max - color_min > scp_scatter_max_tick_vals:
+            return ',d'
+    return fmt

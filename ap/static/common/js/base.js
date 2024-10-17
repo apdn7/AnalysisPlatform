@@ -62,6 +62,7 @@ const baseEles = {
     i18nErrorFullDiskMsg: '#i18nErrorFullDiskMsg',
     i18nCommonErrorMsg: '#i18nCommonErrorMsg',
     showGraphBtn: 'button.show-graph',
+    tooltipsEnableBtn: '#tooltipsEnableBtn',
 };
 
 // for master data group (column types)
@@ -80,6 +81,7 @@ const masterDataGroup = {
     PART_NAME: 24,
     PART_NO: 25,
     ST_NO: 26,
+    JUDGE: 76,
     GENERATED_EQUATION: 100,
 };
 
@@ -1106,6 +1108,13 @@ $(async () => {
     showBrowserSupportMsg();
 
     initCustomSelect();
+
+    // update tooltips status
+    // default is show tooltips on graph
+    // true || null: show, false: hide
+    const tooltipsStatus =
+        JSON.parse(localStorage.getItem('tooltipsEnabled')) !== false;
+    $(baseEles.tooltipsEnableBtn).prop('checked', tooltipsStatus).change();
 });
 
 const autoClickShowGraphButton = (loadingSetting, userSettingId) => {
@@ -1932,6 +1941,17 @@ const getUserSettingData = () => {
     return settingDat;
 };
 
+const setOutlierCount = (outliers) => {
+    // removing outliers: outliers = [0, >0]
+    // non-removing outliers: outliers = null
+    if (outliers !== null) {
+        $('#outlierCount').attr('title', `Removed: ${outliers}`);
+        $('#outlierCount').text(outliers);
+    } else {
+        $('#outlierCount').text('');
+    }
+};
+
 const showGraphCallApi = async (
     url,
     formData,
@@ -2087,6 +2107,9 @@ const showGraphCallApi = async (
                     res.actual_record_number,
                     res.unique_serial,
                 );
+
+                // show removed outliers count
+                setOutlierCount(res.outliers);
             } catch (e) {
                 console.error(e);
                 loadingHide();

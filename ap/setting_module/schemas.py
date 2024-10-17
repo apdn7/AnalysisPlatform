@@ -140,6 +140,7 @@ class ProcessColumnSchema(ma.SQLAlchemyAutoSchema):
     is_int_category = fields.Boolean(required=False, allow_none=True)
     is_judge = fields.Boolean(required=False, allow_none=True)
     is_linking_column = fields.Boolean(required=False, allow_none=True)
+    is_file_name = fields.Boolean(required=False, allow_none=True)
     unit = fields.String(required=False, allow_none=True)
 
     parent_column = Nested('ProcessColumnSchema', many=False, required=False)
@@ -218,7 +219,7 @@ class ProcessSchema(ma.SQLAlchemyAutoSchema):
     shown_name = fields.String(required=False, allow_none=True)
     is_show_file_name = fields.Boolean(required=False, allow_none=True)
     process_factid = fields.String(required=False, allow_none=True)
-    process_factname = fields.String(required=False, allow_none=True)
+    master_type = fields.String(required=False, allow_none=True)
     datetime_format = fields.String(required=False, allow_none=True)
 
 

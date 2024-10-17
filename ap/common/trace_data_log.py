@@ -9,12 +9,8 @@ from flask import current_app, g
 from pandas import DataFrame
 
 from ap.common.common_utils import create_file_path, write_to_pickle
-from ap.common.constants import IS_EXPORT_MODE, MPS, CsvDelimiter, FlaskGKey
+from ap.common.constants import GTAG_DEFAULT_TIMEOUT, IS_EXPORT_MODE, MPS, CsvDelimiter, FlaskGKey
 from ap.common.logger import log_execution_time
-
-# some environment can not access to google analytics ,
-# in this case send ga will be stoped in the next time
-is_send_google_analytics = True
 
 waiting_trace_records = []
 
@@ -44,7 +40,7 @@ def send_gtag(**kwargs):
             't': 'event',  # Event hit type.
         }
         data.update(kwargs)
-        conn = http.client.HTTPSConnection(MPS)
+        conn = http.client.HTTPSConnection(MPS, timeout=GTAG_DEFAULT_TIMEOUT)
         payload = ''
         headers = {}
         querystring = urlencode(data)
@@ -59,6 +55,7 @@ def send_gtag(**kwargs):
 class EventCategory(Enum):
     EXEC_TIME = 'ExecTime'
     INPUT_DATA = 'InputData'
+    APP_START = 'AppStart'
 
 
 class EventType(Enum):
@@ -75,6 +72,7 @@ class EventType(Enum):
     COG = 'COG'
     GL = 'GL'
     HMP = 'HMp'
+    APP = 'App'
 
 
 class EventAction(Enum):
@@ -83,6 +81,7 @@ class EventAction(Enum):
     CALLPKG = 'CallPkg'
     PLOT = 'Plot'
     DRAW = 'Draw'
+    START = 'Start'
 
 
 class Target(Enum):
@@ -207,7 +206,6 @@ def trace_log(keys=None, vals=None, save_log=True, output_key=None, send_ga=Fals
     def _trace_log(fn):
         @wraps(fn)
         def __trace_log(*args, **kwargs):
-            global is_send_google_analytics
             # set attribute first time
             set_log_attr(keys, vals)
             try:
@@ -243,8 +241,8 @@ def trace_log(keys=None, vals=None, save_log=True, output_key=None, send_ga=Fals
                     save_trace_log_db(data_frame=df)
 
                 # send data to GA
-                if is_send_google_analytics and send_ga:
-                    is_send_google_analytics = send_google_analytic()
+                if current_app.config.get('IS_SEND_GOOGLE_ANALYTICS') and send_ga:
+                    send_google_analytic()
 
             except Exception as e:
                 # save trace error

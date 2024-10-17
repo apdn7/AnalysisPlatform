@@ -16,6 +16,16 @@
                 class="show-graph-div d-flex justify-content-center align-items-center"
                 style="text-align: center;"
             >
+                {{
+                    macros.switch_button(
+                    id='tooltipsEnableBtn',
+                    name='tooltipsEnableBtn',
+                    label=_("Tooltips"),
+                    title=_('Tooltips'),
+                    cl='mr-3',
+                    onChange='tooltipsToggle(this)',
+                    defaultVal=True)
+                }}
                 {{ macros.preprocess_options(objExp=True, outlierDefault='Op1') }}
                 <button
                     id="scatter-btn"

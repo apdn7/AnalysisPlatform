@@ -81,15 +81,22 @@ table#jobErrorDetailTable thead tr th {
     padding-right: 10px !important;
 }
 
-.bootstrap-table .fixed-table-container .large-col {
+.bootstrap-table .fixed-table-container .db-name-col,
+.bootstrap-table .fixed-table-container .proc-name-col {
     width: 17% !important;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.bootstrap-table .fixed-table-container .minimal-col {
+.bootstrap-table .fixed-table-container .job-id-col,
+.bootstrap-table .fixed-table-container .job-progress-col,
+.bootstrap-table .fixed-table-container .job-status-col {
     width: 5.5% !important;
 }
 
-.bootstrap-table .fixed-table-container .medium-small-col {
+.bootstrap-table .fixed-table-container .job-name-col {
     width: 11% !important;
 }
 

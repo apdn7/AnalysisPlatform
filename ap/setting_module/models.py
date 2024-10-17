@@ -45,6 +45,7 @@ from ap.common.constants import (
     FlaskGKey,
     FunctionCastDataType,
     JobStatus,
+    MasterDBType,
     MaxGraphNumber,
     RawDataTypeDB,
     RelationShip,
@@ -564,14 +565,12 @@ class CfgProcessColumn(db.Model):
     raw_data_type = db.Column(db.Text())
     column_type = db.Column(db.Integer())
     predict_type = db.Column(db.Text())
-    # operator = db.Column(db.Text())
-    # coef = db.Column(db.Text())
     is_serial_no = db.Column(db.Boolean(), default=False)
     is_get_date = db.Column(db.Boolean(), default=False)
     is_dummy_datetime = db.Column(db.Boolean(), default=False)
     is_auto_increment = db.Column(db.Boolean(), default=False)
+    is_file_name = db.Column(db.Boolean(), default=False)
     parent_id = db.Column(db.Integer(), db.ForeignKey(id, ondelete='CASCADE'), nullable=True)
-    # parent_column_id = db.Column(db.Integer())
     order = db.Column(db.Integer())
     unit = db.Column(db.Text())
     function_details: list['CfgProcessFunctionColumn'] = db.relationship(
@@ -714,8 +713,8 @@ class CfgProcessColumn(db.Model):
 
     def existed_in_transaction_table(self):
         # this if master column, hence it does not exist
-        if self.is_master_data_column():
-            return False
+        # if self.is_master_data_column(): # ES not support
+        #     return False
 
         # this if not function column, hence it exists
         if not self.is_function_column:
@@ -726,6 +725,18 @@ class CfgProcessColumn(db.Model):
             return True
 
         return False
+
+    @classmethod
+    def get_col_main_datetime(cls, proc_id):
+        return cls.query.filter(cls.process_id == proc_id, cls.is_get_date == 1).first()
+
+    @classmethod
+    def get_col_main_date(cls, proc_id):
+        return cls.query.filter(cls.process_id == proc_id, cls.data_type == DataType.DATE.name).first()
+
+    @classmethod
+    def get_col_main_time(cls, proc_id):
+        return cls.query.filter(cls.process_id == proc_id, cls.data_type == DataType.TIME.name).first()
 
     @classmethod
     def get_serials(cls, proc_id):
@@ -810,11 +821,11 @@ class CfgProcess(db.Model):
     name_local = db.Column(db.Text())
     data_source_id = db.Column(db.Integer(), db.ForeignKey('cfg_data_source.id', ondelete='CASCADE'))
     table_name = db.Column(db.Text())
+    master_type = db.Column(db.Text())  # flag to determine measurement or history data
     comment = db.Column(db.Text())
     is_show_file_name = db.Column(db.Boolean(), default=None)
     file_name = db.Column(db.Text())
     process_factid = db.Column(db.Text())
-    process_factname = db.Column(db.Text())
     parent_id = db.Column(db.Integer(), db.ForeignKey(id, ondelete='CASCADE'), nullable=True)
     # parent_process_id = db.Column(db.Integer())
 
@@ -856,6 +867,10 @@ class CfgProcess(db.Model):
     def import_history_table_name(self):
         name = gen_import_history_table_name(self.id)
         return name
+
+    @hybrid_property
+    def is_measurement(self):
+        return self.master_type == MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT.name
 
     def get_shown_name(self):
         try:

@@ -108,6 +108,7 @@ const i18n = {
     colorScaleThreshold: $('#i18nThresholdLine').text(),
     colorScaleAuto: $('#i18nAutoRange').text(),
     colorScaleFull: $('#i18nFullRange').text(),
+    i18nErrorColorAggFunc: $('#i18nErrorColorAggFunc').text(),
 };
 
 const sortMatrixFunc = (a, b, asc = false, key = 'sort_key') => {
@@ -272,8 +273,8 @@ $(() => {
         showColor: true,
         hasDiv: true,
         hideRealVariable: true,
+        showFilter: true,
         disableSerialAsObjective: true,
-        isColorRequired: true,
     });
     endProcItem(() => {
         // show confirm when select Div
@@ -347,7 +348,21 @@ const validateDTypesForHMp = () => {
         showToastrMsg(i18n.i18nGotoSCPMsg, MESSAGE_LEVEL.ERROR);
         return false;
     }
+    // Show error message if not select a color variable and select color map (z-axis) not [Ratio(%)] or [Count]
+    const isErrorColorType = checkWrongColorType();
+    if (isErrorColorType) {
+        showToastrMsg(i18n.i18nErrorColorAggFunc, MESSAGE_LEVEL.ERROR);
+        return false;
+    }
     return true;
+};
+
+const checkWrongColorType = () => {
+    // Allow show HMP Heat Map graph with color map (z-axis) is [Ratio(%)] and [Count] when not select color variable
+    const includeOtherColor = ['ratio', 'count'];
+    const colorVarId = $('[name=colorVar]:checked').val();
+    const functionCate = $('#function_cate').val();
+    return !colorVarId && !includeOtherColor.includes(functionCate);
 };
 
 const hmpTracing = () => {
@@ -444,6 +459,7 @@ const genColorScaleBar = (
     title,
     customScaleSets = null,
     discreteColors = false,
+    height,
 ) => {
     const uniqueColorData = !discreteColors
         ? colorData.filter(onlyUniqueFilter)
@@ -462,6 +478,7 @@ const genColorScaleBar = (
                     text: title,
                     size: CONST.COLORBAR.fontsize,
                 },
+                len: 1.2,
             },
         },
     ];
@@ -483,6 +500,7 @@ const genColorScaleBar = (
     }
 
     const layout = {
+        height: height > 450 ? 450 : height,
         font: {
             color: CONST.WHITE, // text color
             size: CONST.COLORBAR.fontsize,
@@ -490,6 +508,7 @@ const genColorScaleBar = (
         margin: {
             r: 300,
             l: 100,
+            t: 15,
         },
         xaxis: {
             autorange: false,
@@ -646,7 +665,7 @@ const showSCP = async (
                     chartType,
                 )
             ) {
-                genHTMLContentMatrix(
+                const contentDomHeight = genHTMLContentMatrix(
                     scpMatrix,
                     'sctr-card',
                     xName,
@@ -656,9 +675,7 @@ const showSCP = async (
                     divNumber,
                 );
                 // get color agg function
-                const aggColorFunc = res.COMMON.is_cat_color
-                    ? res.COMMON.function_cate
-                    : res.COMMON.function_cate;
+                const aggColorFunc = res.COMMON.agg_color_function;
                 const option = {
                     isShowNumberOfData:
                         res.COMMON.compareType === els.dataNumberTerm,
@@ -676,6 +693,7 @@ const showSCP = async (
                         Object.values(discreteColorType).includes(aggColorFunc),
                     x_name: xName,
                     y_name: yName,
+                    colorBarHeight: contentDomHeight,
                 };
                 heatmapData = { scpMatrix, option, zoomRange };
                 genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
@@ -798,10 +816,10 @@ const genHTMLContentMatrix = (
     isDivNumber,
     stringCol = null,
 ) => {
-    let contentDOM = '';
     const totalRow = scpMatrix.length;
     const totalCol = scpMatrix[0].length;
     const firstLabelH = [];
+    let oneRowHeight;
     if (isShowFirstLabelH) {
         for (let i = 0; i < totalCol; i++) {
             for (let j = 0; j < totalRow; j++) {
@@ -813,99 +831,116 @@ const genHTMLContentMatrix = (
         }
     }
 
-    for (let i = 0; i < totalRow; i++) {
-        let column = '';
-        let vLabel = '';
-        for (let j = 0; j < totalCol; j++) {
-            let width;
-            let labelH = '';
-            const item = scpMatrix[i][j];
-            if (item) {
-                vLabel = item.v_label === null ? '' : item.v_label;
-            }
-
-            if (totalCol > 1) {
-                width =
-                    j === 0
-                        ? `calc(100% / ${totalCol} + 24px)`
-                        : `calc(100% / ${totalCol} - 6px - ${30 / (totalCol - 1)}px)`;
-            } else {
-                width = '100%';
-            }
-
-            if (isShowFirstLabelH) {
-                labelH = i === 0 ? firstLabelH[j] : '';
-            } else {
-                labelH = item
-                    ? item.h_label === null
-                        ? ''
-                        : item.h_label
-                    : '';
-            }
-
-            if (isShowDate) {
-                labelH =
-                    labelH &&
-                    labelH
-                        .split(COMMON_CONSTANT.EN_DASH)
-                        .map((vl) =>
-                            formatDateTime(vl.trim(), DATE_FORMAT_WITHOUT_TZ, {
-                                withMillisecs: false,
-                            }),
-                        )
-                        .join(` ${COMMON_CONSTANT.EN_DASH} `);
-            } else if (labelH && isDivNumber) {
-                labelH = `Cat${labelH}`;
-            }
-
-            const h = `<span class="title label-h" style="height: 18px">${labelH}</span>`;
-            const hHtml = isShowFirstLabelH ? (labelH ? h : '') : h;
-
-            column += `<div class="sctr-item chart-column graph-navi d-flex flex-column justify-content-end"
-            style="height: 100%; width: ${width}; margin: 0 3px;">
-                ${hHtml}
-                <div id="scp-${i}-${j}" style="width: 100%; flex: 1"></div>
-            </div>`;
-        }
-
-        const height =
-            i === totalRow - 1
-                ? `calc(100% / ${totalRow} + 20px)`
-                : `calc(100% / ${totalRow} - 10px)`;
-
-        contentDOM += `
-            <div style="width: 100%; height: ${height}; margin: 3px 0;" class="position-relative">
-                <div class="matrix-level cat-exp-box"><span class="show-detail">${vLabel}</span></div>
-                ${column}
-            </div>
-        `;
-    }
-
     // if stringCol = null => heatmap else violin
     const showDetailClass = (axis) => {
         if (!stringCol || stringCol === axis) {
             return 'show-detail';
         }
-
         return '';
     };
-    let chartDomHeight = 100;
-    const oneRowHeight = chartDomHeight / 7;
-    if (totalRow > MAX_MATRIX) {
-        chartDomHeight = totalRow * oneRowHeight;
-    }
-    const chartDom = `<div class="scpchart-wrapper d-flex" style="width: 100%; height: ${chartDomHeight}vh;">
-                <div class="flex-grow-1" id="scpChartGrp" style="width: calc(100% - 30px);">
-                  <div id="scpchart-content" class="position-relative" style="width: calc(100% - 50px); height:  calc(100% - 20px); margin-left: 50px;">
+
+    const genContentDOM = (contentWidth) => {
+        let contentDOM = '';
+        oneRowHeight =
+            totalCol > 1
+                ? contentWidth / totalCol - 6 - 30 / (totalCol - 1)
+                : contentWidth / totalCol - 6 - 30 / totalCol;
+
+        for (let i = 0; i < totalRow; i++) {
+            let height;
+            if (totalCol > 1) {
+                height =
+                    i === totalRow - 1
+                        ? `${contentWidth / totalCol - 6 - 30 / (totalCol - 1)}px`
+                        : `${contentWidth / totalCol - 6 - 30 / (totalCol - 1) - 10}px`;
+            } else {
+                height =
+                    i === totalRow - 1
+                        ? `${contentWidth / totalCol - 6 - 30 / totalCol}px`
+                        : `${contentWidth / totalCol - 6 - 30 / totalCol - 10}px`;
+            }
+            let column = '';
+            let vLabel = '';
+            for (let j = 0; j < totalCol; j++) {
+                let width;
+                let labelH = '';
+                const item = scpMatrix[i][j];
+                if (item) {
+                    vLabel = item.v_label === null ? '' : item.v_label;
+                }
+
+                if (totalCol > 1) {
+                    width =
+                        j === 0
+                            ? `${contentWidth / totalCol + 24}px`
+                            : `${contentWidth / totalCol - 6 - 30 / (totalCol - 1)}px`;
+                } else {
+                    width = '100%';
+                }
+
+                if (isShowFirstLabelH) {
+                    labelH = i === 0 ? firstLabelH[j] : '';
+                } else {
+                    labelH = item
+                        ? item.h_label === null
+                            ? ''
+                            : item.h_label
+                        : '';
+                }
+
+                if (isShowDate) {
+                    labelH =
+                        labelH &&
+                        labelH
+                            .split(COMMON_CONSTANT.EN_DASH)
+                            .map((vl) =>
+                                formatDateTime(
+                                    vl.trim(),
+                                    DATE_FORMAT_WITHOUT_TZ,
+                                    {
+                                        withMillisecs: false,
+                                    },
+                                ),
+                            )
+                            .join(` ${COMMON_CONSTANT.EN_DASH} `);
+                } else if (labelH && isDivNumber) {
+                    labelH = `Cat${labelH}`;
+                }
+
+                const h = `<span class="title label-h" style="height: 18px">${labelH}</span>`;
+                const hHtml = isShowFirstLabelH ? (labelH ? h : '') : h;
+
+                column += `<div class="sctr-item chart-column graph-navi d-flex flex-column justify-content-end"
+                        style="height: ${height}; width: ${width}; margin: 0 3px;">
+                            ${hHtml}
+                            <div id="scp-${i}-${j}" style="width: 100%; flex: 1"></div>
+                        </div>`;
+            }
+
+            contentDOM += `
+            <div style="width: 100%; height: ${height}; margin: 3px 0;" class="position-relative">
+                <div class="matrix-level cat-exp-box"><span class="show-detail">${vLabel}</span></div>
+                ${column}
+            </div>
+        `;
+        }
+        return `
                     <div class="position-absolute vertical-text" id="scpchart-ytitle">
                         <span class="${showDetailClass('y')}" data-id="${stringCol ? 'color' : 'y'}"
                         title="${yName}">${yName}</span>
                     </div>
                     ${contentDOM}
-                     <div id="scpchart-xtitle" class="position-absolute">
+                     <div id="scpchart-xtitle">
                           <span class="${showDetailClass('x')}" data-id="${stringCol ? 'color' : 'x'}"
                           title="${xName}">${xName}</span>
                      </div>
+        `;
+    };
+
+    const chartDom = `<div class="scpchart-wrapper d-flex">
+                <div class="flex-grow-1" id="scpChartGrp" style="width: calc(100% - 30px);">
+                  <div id="scpchart-content" class="position-relative" style="width: calc(100% - 50px); height:  calc(100% - 20px); margin-left: 50px;">
+                    
                     </div>
                 </div>
                 <div class="colorbar ${!stringCol ? 'none-margin' : ''}">
@@ -914,6 +949,14 @@ const genHTMLContentMatrix = (
         </div>
         `;
     $(`#${cardID}`).html(chartDom).css({ height: 'auto' });
+    const chartContentSelector = $(`#scpchart-content`);
+    const contentWidth = $(chartContentSelector).width();
+    // taking into account the width of the scrollbar
+    const contentDOM = genContentDOM(contentWidth - 18);
+    // make space for x label
+    const contentDomHeight = oneRowHeight * totalRow + 80;
+    $(chartContentSelector).html(contentDOM).css({ height: contentDomHeight });
+    return contentDomHeight;
 };
 
 const genHeatMapPlots = (
@@ -1075,6 +1118,7 @@ const genHeatMapPlots = (
         colorBarTitle,
         colorScale.scale,
         discreteColors,
+        option.colorBarHeight,
     );
 };
 
@@ -1239,7 +1283,7 @@ const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
 };
 
 const initFilterModal = (res) => {
-    // render cat, category label filer modal
+    // render cat, category label, filter in filter modal
     fillDataToFilterModal(res.filter_on_demand, () => {
         const setting = getCurrentSettings();
         handleSubmit(false, setting);

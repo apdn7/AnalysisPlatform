@@ -1,7 +1,7 @@
 import json
 import timeit
 
-from flask import Blueprint, request
+from flask import Blueprint, current_app, request
 
 from ap.analyze.services.sensor_list import get_sensors_incrementally
 from ap.api.analyze.services.pca import calculate_data_size, run_pca
@@ -25,6 +25,7 @@ from ap.common.constants import (
     PLOTLY_JSON,
     REMOVED_OUTLIER_NAN_TEST,
     REMOVED_OUTLIER_NAN_TRAIN,
+    REMOVED_OUTLIERS,
     SHORT_NAMES,
     START_PROC,
     UNIQUE_SERIAL,
@@ -45,7 +46,6 @@ from ap.common.services.import_export_config_n_data import (
 )
 from ap.common.trace_data_log import (
     EventType,
-    is_send_google_analytics,
     save_draw_graph_trace,
     save_input_data_to_file,
     trace_log_params,
@@ -77,9 +77,9 @@ def pca_modelling():
     dic_param = get_dic_form_from_debug_info(dic_param)
 
     # run PCA script
-    orig_send_ga_flg = is_send_google_analytics
+    orig_send_ga_flg = current_app.config.get('IS_SEND_GOOGLE_ANALYTICS')
     dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
-    graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+    graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param, is_train_data=True)
     dic_data, errors = run_pca(graph_param, dic_param, sample_no)
 
     if errors:
@@ -114,11 +114,12 @@ def pca_modelling():
             CYCLE_IDS: dic_data.get(CYCLE_IDS),
             COMMON: dic_param,
             FILTER_ON_DEMAND: dic_data.get(FILTER_ON_DEMAND),
+            REMOVED_OUTLIERS: dic_data.get(REMOVED_OUTLIERS, None),
         },
     )
 
     # send Google Analytics changed flag
-    if orig_send_ga_flg and not is_send_google_analytics:
+    if orig_send_ga_flg and not current_app.config.get('IS_SEND_GOOGLE_ANALYTICS'):
         output_dict.update({'is_send_ga_off': True})
 
     calculate_data_size(output_dict)

@@ -409,6 +409,9 @@
                                     <option value="iqr">
                                         {{ _('IQR (Q3-Q1)') }}
                                     </option>
+                                    <option value="sum">
+                                        {{ _('CHMSum') }}
+                                    </option>
                                 </select>
                                 {% if color_scale %}
                                     <select
@@ -548,6 +551,42 @@
     </div>
 {% endmacro %}
 
+<!-- condition proc for PCA -->
+{% macro cond_proc_train_test(title='', width=2, pysm=4, is_optional=false) %}
+    <div class="card-body table-bordered graph-navi" id="cndPrc">
+        <div class="row">
+            <div class="col-xl-{{ width }} col-3">
+                <div class="d-flex justify-content-between">
+                    {{ label(_('Filter'), title=title) }}
+                    {{ paste_btn() }}
+                </div>
+            </div>
+            <div class="col-xl-10 col-9 d-flex flex-wrap px-0">
+                {{ cond_proc_column(prefix='train', label_text=_("Training data"), title=_('Set training data to be regarded as normal situation.')) }}
+                {{ cond_proc_column(prefix='', label_text=_("Target data"), title=_('Set test data to be judged.')) }}
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro cond_proc_column(prefix='', label_text='', title='') %}
+    <div class="col-xl-6 col-12 px-0">
+        {{ label(label_text, title=title) }}
+        <div id="{{ prefix }}cond-proc-row">
+            <div class="col-12 p-1">
+                <button
+                    id="{{ prefix }}btn-add-cond-proc"
+                    name="btnAddCondProc"
+                    type="button"
+                    class="btn simple-btn"
+                >
+                    <i class="fas fa-plus-circle"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
 {% macro check_db_connection_message(dbType, html, btnID, msgID) %}
     <button
         id="{{ btnID }}"
@@ -673,6 +712,7 @@
                                 <option value="count">
                                     {{ _('CHMCount') }}
                                 </option>
+                                <option value="sum">{{ _('CHMSum') }}</option>
                             </select>
                         </div>
                         <div class="d-flex align-items-center mt-1">
@@ -2155,8 +2195,9 @@
             <input type="hidden" name="cleansing" value="" />
             <span
                 >{{ _('Cleansing') }}
-                <span id="cleansing-selected">{{ cleansing_val }}</span></span
-            >
+                <span id="cleansing-selected">{{ cleansing_val }}</span>
+                <span id="outlierCount" title="" class="hint-text"></span>
+            </span>
             <span class="selection__arrow"><b></b></span>
         </div>
         <div class="custom-selection-content" id="cleansing-content">

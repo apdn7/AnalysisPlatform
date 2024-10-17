@@ -36,17 +36,18 @@
                                 <option value="">---</option>
                                 {% for proc in procs %}
                                     {% if proc.data_source.type not in ['V2', 'SOFTWARE_WORKSHOP'] %}
-                                        <option value="{{ proc.id }}">
-                                            {% if proc.data_source.csv_detail %}
-                                                {{ proc.shown_name }}
-                                                ({{ proc.data_source.type }},
-                                                {{ proc.data_source.csv_detail.directory }})
-                                            {% else %}
-                                                {{ proc.shown_name }}
-                                                ({{ proc.data_source.type }},
-                                                {{ proc.table_name }},
-                                                {{ proc.data_source.db_detail.host or proc.data_source.db_detail.dbname }})
-                                            {% endif %}
+                                        {% set title_name = '' %}
+                                        {% if proc.data_source.csv_detail %}
+                                            {% set title_name = proc.shown_name ~ '(' ~ proc.data_source.type ~ "," ~ proc.data_source.csv_detail.directory ~ ')' %}
+                                        {% else %}
+                                            {% set title_name = proc.shown_name ~ '(' ~ proc.data_source.type ~ "," ~ proc.table_name ~ ',' ~ (proc.data_source.db_detail.host or proc.data_source.db_detail.dbname) ~ ')' %}
+                                        {% endif %}
+
+                                        <option
+                                            value="{{ proc.id }}"
+                                            title="{{ title_name }}"
+                                        >
+                                            {{ title_name }}
                                         </option>
                                     {% endif %}
                                 {% endfor %}

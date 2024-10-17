@@ -284,6 +284,10 @@ const genProp = (
 };
 
 const showWhiskerHover = (e) => {
+    const tooltipsEnabled =
+        JSON.parse(localStorage.getItem('tooltipsEnabled')) !== false;
+    if (!tooltipsEnabled) return;
+
     // hide all before show new
     hideAllWhiskerHover();
 

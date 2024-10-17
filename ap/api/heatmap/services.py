@@ -53,12 +53,14 @@ from ap.common.constants import (
     FULL_DIV,
     H_LABEL,
     HEATMAP_MATRIX,
+    HM_AGG_COLOR_FUNCTION,
     IS_CAT_COLOR,
     IS_DATA_LIMITED,
     MATCHED_FILTER_IDS,
     N_TOTAL,
     NOT_EXACT_MATCH_FILTER_IDS,
     ORIG_ARRAY_Z,
+    REMOVED_OUTLIERS,
     ROWID,
     SCALE_AUTO,
     SCALE_COLOR,
@@ -197,8 +199,10 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
         not_exact_match_filter_ids = []
         actual_record_number = 0
         unique_serial = 0
+        outliers = None
 
         dic_dfs = {}
+        graph_param = None
         terms = gen_time_conditions(dic_param)
         if df is None:
             for term in terms:
@@ -238,6 +242,13 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
                 unmatched_filter_ids += filter_ids[1]
                 not_exact_match_filter_ids += filter_ids[2]
 
+                # outliers count
+                if graph_param.common.outliers is not None:
+                    if outliers is None:
+                        outliers = graph_param.common.outliers
+                    else:
+                        outliers += graph_param.common.outliers
+
                 dic_dfs[h_keys] = df_term
         else:
             for idx, term in enumerate(terms):
@@ -247,7 +258,9 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
             graph_param = root_graph_param
             actual_record_number = dic_param.get(ACTUAL_RECORD_NUMBER)
             unique_serial = dic_param.get(UNIQUE_SERIAL)
+            outliers = graph_param.common.outliers
 
+        dic_param[REMOVED_OUTLIERS] = outliers
         dic_param = filter_cat_dict_common(df, dic_param, cat_exp, [], graph_param)
 
         # gen scatters
@@ -276,6 +289,9 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
             graph_param = root_graph_param
             actual_record_number = dic_param.get(ACTUAL_RECORD_NUMBER)
             unique_serial = dic_param.get(UNIQUE_SERIAL)
+
+        # outliers count
+        dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
         convert_datetime_to_ct(df, graph_param)
 
@@ -348,6 +364,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     # get agg function from GUI
     agg_func, color_bar_title, is_cat_color = get_color_agg_func(graph_param, color_id)
     # set title for heatmap color bar
+    dic_param[COMMON][HM_AGG_COLOR_FUNCTION] = agg_func
     dic_param[COLOR_BAR_TTTLE] = color_bar_title
     dic_param[IS_CAT_COLOR] = is_cat_color
 
@@ -372,8 +389,8 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
             dic_param[FULL_DIV] = np.arange(div_min, div_max + 1, div_step).tolist()
 
     # encode the colors which category variable be selected as colors
-    color_encode = dict(enumerate(pd.Series(df[color_label]).astype('category').cat.categories))
-    inv_encode = {v: k for k, v in color_encode.items()}
+    color_encode = dict(enumerate(pd.Series(df[color_label]).astype('category').cat.categories)) if color_id else None
+    inv_encode = {v: k for k, v in color_encode.items()} if color_id else None
     for graph in output_graphs:
         # handle x, y, z data
         array_x = graph[ARRAY_X]
@@ -384,7 +401,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
         missing_x = all_x - unique_x
         missing_y = all_y - unique_y
 
-        if is_cat_color:
+        if is_cat_color and color_id:
             graph[COLORS_ENCODE] = color_encode
             # encode origin colors
             graph[COLORS] = [inv_encode[_color_val] for _color_val in graph[COLORS]]
@@ -1342,29 +1359,20 @@ def gen_color_by_agg_func(x, y, color, aggfunc):
 
 
 def get_color_agg_func(graph_param, color_id):
-    is_cat_colors = True
+    is_cat_color = True
     color_agg_func = graph_param.common.hm_function_cate
+    color_bar_title = HMFunction[color_agg_func].value
 
-    if not color_id:
-        color_bar_title = color_agg_func.capitalize()
-        # If agg func is Ratio, show Ratio[%]
-        if color_agg_func == HMFunction.ratio.name:
-            color_bar_title = HMFunction.ratio.value
-        return color_agg_func, color_bar_title, is_cat_colors
+    if color_id:
+        [color_col] = graph_param.get_col_cfgs([color_id])
+        is_cat_color = color_col.is_category
+        if not color_col.is_category:
+            # re-assign the agg function if color is a categorical variable
+            color_agg_func = graph_param.common.hm_function_real
+            color_bar_title = HMFunction[color_agg_func].value
 
-    [color_col] = graph_param.get_col_cfgs([color_id])
-    is_cat_color = color_col.is_category
-    if not color_col.is_category:
-        color_agg_func = graph_param.common.hm_function_real
+        # If agg func is last/first, shw variable name of color
+        if color_agg_func in [HMFunction.first.name, HMFunction.last.name]:
+            color_bar_title = color_col.shown_name or color_col.column_name
 
-    color_bar_title = color_agg_func
-    # If agg func is last/first, shw variable name of color
-    if color_agg_func in [HMFunction.first.name, HMFunction.last.name]:
-        color_bar_title = color_col.shown_name or color_col.column_name
-
-    # If agg func is Ratio, show Ratio[%]
-    if color_agg_func == HMFunction.ratio.name:
-        color_bar_title = HMFunction.ratio.value
-
-    color_bar_title = color_bar_title.capitalize()
     return color_agg_func, color_bar_title, is_cat_color

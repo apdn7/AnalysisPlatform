@@ -24,13 +24,15 @@
  *    column_type: number,
  *    is_get_date: boolean,
  *    is_dummy_datetime: boolean,
+ *    is_file_name: boolean?,
  *    is_serial_no: boolean,
  *    is_show: boolean,
  *    is_master_col: boolean,
- *    is_checked?: boolean,
- *    is_big_int?: boolean,
- *    old_name_jp?: string,
- *    old_system_name?: string,
+ *    is_checked: boolean?,
+ *    is_big_int: boolean?,
+ *    old_name_jp: string?,
+ *    old_system_name: string?,
+ *    is_generated_datetime: boolean?,
  * }} ProcessColumnConfig
  */
 
@@ -44,7 +46,7 @@
  *        directory: string,
  *        delimiter: string,
  *        csv_columns: ProcessColumnConfig[],
- *        is_file_path?: boolean,
+ *        is_file_path: boolean?,
  *    },
  * }} DatasourceConfig
  */
@@ -66,7 +68,7 @@
  *    name: string,
  *    data_source: string | null,
  *    is_csv: boolean | null,
- *    origin_name?: string,  // This field serve for V2 processes
+ *    origin_name: string?,  // This field serve for V2 processes
  * }} ProcessConfig
  */
 
@@ -540,11 +542,6 @@ class ProcessConfigSection {
         isMainSection,
     ) {
         this.#determineSerialColumns(processConfig.columns);
-        // add dummy_datetime_idx to column
-        processConfig.columns.forEach(
-            (column) =>
-                (column.dummyDatetimeIdx = processConfig.dummy_datetime_idx),
-        );
         const [rowProcessColumnConfigHTMLs, rowSampleDataHTMLs] =
             this.generateProcessConfigBodyHTML(
                 processConfig.columns,
@@ -778,7 +775,7 @@ class ProcessConfigSection {
         processColumnConfigs.forEach((processColumnConfig, index) => {
             if (processColumnConfig.id == null) {
                 // Temporary set id if it is null to can generate HTML completely
-                processColumnConfig.id = index;
+                processColumnConfig.id = -index - 1;
             }
 
             rowSampleDataHTMLs.push(
@@ -934,6 +931,7 @@ class ProcessConfigSection {
         index,
     ) {
         // convert column_type to attr key
+        /** @type {ProcessColumnConfig & ColumnTypeInfo} */
         const col = {
             ...processColumnConfig,
             ...DataTypeDropdown_Controller.convertColumnTypeToAttrKey(
@@ -959,7 +957,6 @@ class ProcessConfigSection {
             }
         }
         const idSuffix = `_processId_${processColumnConfig.id}`;
-        const isDummyDatetime = col.dummyDatetimeIdx === index;
 
         return this.generateOneRowOfProcessColumnConfigHTML(
             index,
@@ -967,7 +964,6 @@ class ProcessConfigSection {
             getKey,
             dataTypeObject,
             isRegisterProc,
-            isDummyDatetime,
             idSuffix,
         );
     }
@@ -977,11 +973,9 @@ class ProcessConfigSection {
      * @public
      * @param {number} index
      * @param {ProcessColumnConfig} col
-     * @param {boolean} isChecked
      * @param {string} getKey
      * @param {DataTypeObject} dataTypeObject
      * @param {boolean} isRegisteredProcess
-     * @param {boolean} isDummyDatetime
      * @param {string} idSuffix
      * @return {string} - an HTML string of row
      */
@@ -991,7 +985,6 @@ class ProcessConfigSection {
         getKey,
         dataTypeObject,
         isRegisteredProcess,
-        isDummyDatetime = false,
         idSuffix = '',
     ) {
         const checkedAttr = col.is_checked ? 'checked=checked' : '';
@@ -1005,7 +998,7 @@ class ProcessConfigSection {
                 col.is_get_date) &&
             isRegisteredProcess;
         return `
-<tr class="${!col.is_show ? 'd-none' : ''} ${isDummyDatetime === true ? 'dummyDatetimeCol' : ''}"
+<tr class="${!col.is_show ? 'd-none' : ''} ${col.is_generated_datetime === true ? 'is-generated-datetime' : ''}"
     is-master-col="${col.is_master_col ?? ''}"
 >
     <td class="text-center show-raw-text row-item column-number" 
@@ -1039,7 +1032,8 @@ class ProcessConfigSection {
                    data-is_auto_increment="${col.is_auto_increment ?? false}"
                    data-is_serial_no="${col.is_serial_no ?? false}"
                    data-is_get_date="${col.is_get_date ?? false}"
-                   data-is_dummy_datetime="${isDummyDatetime}"
+                   data-is_dummy_datetime="${col.is_dummy_datetime ?? false}"
+                   data-is_file_name="${col.is_file_name ?? false}"
                    data-master_type="${col.master_type ?? ''}"
                    data-isnull="${col.check_same_value ? col.check_same_value.is_null : false}"
                    ${checkedAttr}
@@ -1054,7 +1048,12 @@ class ProcessConfigSection {
             <input id="isDummyDatetime${col.column_name}${idSuffix}" 
                    type="hidden" 
                    name="${procModalElements.isDummyDatetime}" 
-                   value="${isDummyDatetime}"
+                   value="${col.is_dummy_datetime ?? false}"
+            >
+            <input id="isFileName${col.column_name}${idSuffix}" 
+                   type="hidden" 
+                   name="${procModalElements.isFileName}" 
+                   value="${col.is_file_name ?? false}"
             >
             <input name="${procModalElements.columnRawName}" type="hidden" value="${col.column_raw_name ?? ''}">
         </div>
@@ -1221,8 +1220,6 @@ class ProcessConfigSection {
             getKey,
             dataTypeObject,
             isRegisterProc,
-            true,
-            undefined,
         );
         const $rowHtmlObject = $(rowHtml);
         $processColumnsTableBody.append(rowHtml);
@@ -1259,14 +1256,15 @@ class ProcessConfigSection {
         $processColumnsSampleDataTableBody,
     ) {
         // remove generated datetime column
-        const dummyDatetimeColRow =
-            $processColumnsTableBody.find('.dummyDatetimeCol');
-        if (dummyDatetimeColRow.length === 0) return;
+        const generatedDatetimeColRow = $processColumnsTableBody.find(
+            `.is-generated-datetime`,
+        );
+        if (generatedDatetimeColRow.length === 0) return;
 
-        const dummyDatetimeColIndex = dummyDatetimeColRow.index();
-        dummyDatetimeColRow.remove();
+        const generatedDatetimeColIndex = generatedDatetimeColRow.index();
+        generatedDatetimeColRow.remove();
         $processColumnsSampleDataTableBody
-            .find(`tr:eq(${dummyDatetimeColIndex})`)
+            .find(`tr:eq(${generatedDatetimeColIndex})`)
             .remove();
         reCalculateCheckedColumn(-1);
     }
@@ -1290,8 +1288,8 @@ class ProcessConfigSection {
         const $processColumnsSampleDataTableBody = $processColumnsTableBody
             .closest('div.proc-config-content')
             .find('table[name="processColumnsTableSampleData"] tbody');
-        const isMainDateTimeDummyColumnExist =
-            $processColumnsTableBody.find('.dummyDatetimeCol').length > 0;
+        const isGeneratedMainDateTimeColumnExist =
+            $processColumnsTableBody.find('.is-generated-datetime').length > 0;
 
         const $spanMainTime = $processColumnsTableBody.find(
             'span[name=dataType][checked][is_main_time=true]',
@@ -1306,7 +1304,7 @@ class ProcessConfigSection {
             ['is_get_date'].includes(attrKey) &&
             isMainTimeColumnChecked &&
             isMainDateColumnChecked &&
-            isMainDateTimeDummyColumnExist
+            isGeneratedMainDateTimeColumnExist
         ) {
             // In case there are generated main::Datetime, main::Date, main::Time columns and another column is
             // selected as main::Datetime -> change main::Date, main::Time column to normal type and remove generated
@@ -1330,7 +1328,7 @@ class ProcessConfigSection {
         ) {
             // In case there is only main::Date or main::Time column
             // when there is datetime column already generated, remove it
-            if (isMainDateTimeDummyColumnExist) {
+            if (isGeneratedMainDateTimeColumnExist) {
                 this.#removeGeneratedMainDatetimeColumn(
                     $processColumnsTableBody,
                     $processColumnsSampleDataTableBody,
@@ -1357,7 +1355,7 @@ class ProcessConfigSection {
                 );
             }
         } else if (isMainTimeColumnChecked && isMainDateColumnChecked) {
-            if (!isMainDateTimeDummyColumnExist) {
+            if (!isGeneratedMainDateTimeColumnExist) {
                 $(procModalElements.msgContent).text(
                     $(procModalElements.msgGenDateTime).text(),
                 );
@@ -1368,38 +1366,42 @@ class ProcessConfigSection {
                     $processColumnsSampleDataTableBody,
                 );
             }
-
-            const generatedDateTimeColName = 'DatetimeGenerated';
+            const generatedId = -100;
+            const defaultGeneratedDateTimeColName =
+                procModalElements.generatedDateTimeColumnName;
+            const generatedDateTimeColName = addSuffixDatetimeGenerated(
+                defaultGeneratedDateTimeColName,
+            );
             const generatedDateTimeCol = {
                 is_linking_column: false,
-                coef: null,
                 is_int_category: false,
                 data_type: DataTypes.DATETIME.name,
-                name_local: null,
                 is_auto_increment: null,
                 order: 0,
                 format: null,
                 process_id: currentProcessId,
                 column_raw_name: generatedDateTimeColName,
-                shown_name: generatedDateTimeColName,
+                shown_name: defaultGeneratedDateTimeColName,
                 column_name: generatedDateTimeColName,
                 function_details: [],
                 column_type: masterDataGroup.GENERATED,
                 is_get_date: true,
                 is_category: false,
-                is_dummy_datetime: true,
-                operator: null,
+                // Dummy datetime means that column is not from file and not from main:Datetime + main::Time
+                is_dummy_datetime: false,
+                is_generated_datetime: true,
                 is_serial_no: false,
                 raw_data_type: DataTypes.DATETIME.name,
-                name_jp: generatedDateTimeColName,
-                name_en: generatedDateTimeColName,
+                name_jp: defaultGeneratedDateTimeColName,
+                name_en: defaultGeneratedDateTimeColName,
+                name_local: defaultGeneratedDateTimeColName,
                 is_show: true,
                 is_master_col: false,
                 bridge_column_name: null,
                 master_type: null,
                 is_checked: true,
                 is_big_int: false,
-                id: '-1',
+                id: generatedId,
             };
             const dataTypeObject = {
                 ...generatedDateTimeCol,
@@ -1473,3 +1475,36 @@ class ProcessConfigSection {
         inner(ColumnTypeAttribute.MainDate);
     }
 }
+
+const addSuffixDatetimeGenerated = () => {
+    let datetimeGenerated = procModalElements.generatedDateTimeColumnName;
+    let suffix = '';
+    const searchName = datetimeGenerated;
+    const sameColumnNames = [
+        ...document
+            .getElementById('processColumnsTable')
+            .lastElementChild.querySelectorAll(`td.column-raw-name label`),
+    ]
+        .filter((input) => input.textContent.trim().includes(searchName))
+        .map((input) => input.textContent.trim());
+    const prefix = `${searchName}_`;
+    const validSameColumnNames = sameColumnNames
+        .filter(
+            (name) =>
+                name.includes(prefix) &&
+                name.replace(prefix, '').match(/^\d{2}$/) != null,
+        )
+        .sort((a, b) => a.localeCompare(b));
+    if (validSameColumnNames.length > 0) {
+        const lastName = validSameColumnNames[validSameColumnNames.length - 1];
+        suffix =
+            parseInt(
+                lastName.substring(lastName.length - 2, lastName.length),
+                10,
+            ) + 1;
+        suffix = `_${String(suffix).padStart(2, '0')}`;
+    } else if (sameColumnNames.length > 0) {
+        suffix = `_01`;
+    }
+    return `${datetimeGenerated}${suffix}`;
+};

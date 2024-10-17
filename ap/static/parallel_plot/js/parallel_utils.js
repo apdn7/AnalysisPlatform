@@ -366,17 +366,21 @@ class ParallelPlot {
         const irrNum =
             maxText.toString().includes('e') ||
             minText.toString().includes('e');
-        let tickVals = Array(...Array(10)).map((v, i) => {
-            const tickVal = minText + stepVals * i;
-            if (isInt) {
-                return parseInt(tickVal, 10);
-            }
+        let tickVals = Array(
+            ...new Set(
+                Array(...Array(10)).map((v, i) => {
+                    const tickVal = minText + stepVals * i;
+                    if (isInt) {
+                        return parseInt(tickVal, 10);
+                    }
 
-            if (fmt && (fmt.includes('e') || irrNum)) {
-                return applySignificantDigit(tickVal, 4, fmt);
-            }
-            return parseFloat(tickVal.toFixed(fractionDigit));
-        });
+                    if (fmt && (fmt.includes('e') || irrNum)) {
+                        return applySignificantDigit(tickVal, 4, fmt);
+                    }
+                    return parseFloat(tickVal.toFixed(fractionDigit));
+                }),
+            ),
+        );
 
         // check inf/-inf
 
@@ -584,12 +588,14 @@ class ParallelPlot {
 
         const fmt = this.traceData.fmt[colData.end_col_id];
         const [yMin, yMax] = [yScale['y-min'], yScale['y-max']];
+        const isIntColType =
+            colData.col_detail.data_type === DataTypes.INTEGER.name;
 
         let dim = this.genDimRangeText(
             colValue,
             colData.inf_idx,
             colData.m_inf_idx,
-            false,
+            isIntColType,
             fmt,
             this.settings.fineSelect,
             [yMin, yMax],
@@ -919,9 +925,12 @@ class ParallelPlot {
     genPCPData() {
         const fmt = this.traceData.fmt[this.objective.id];
         // get colors for lines from objective dimension data (replaced NA with naDumVal etc)
-        const colors = this.dimensions.filter(
+        const dimObjective = this.dimensions.filter(
             (i) => i.colId === this.objective.id,
-        )[0].values;
+        )[0];
+        const colors = dimObjective.values;
+        const { tickVals, tickText, nTicks } =
+            this.calcParcoordsLineColorBar(dimObjective);
         return [
             {
                 type: 'parcoords',
@@ -932,6 +941,9 @@ class ParallelPlot {
                     color: colors,
                     colorbar: {
                         tickformat: fmt,
+                        tickvals: tickVals,
+                        ticktext: tickText,
+                        nticks: nTicks,
                     },
                 },
                 labelfont: { size: 10.5 },
@@ -976,6 +988,88 @@ class ParallelPlot {
             this.selectedConstraintRange[colId] = constraintRange;
         } else {
             delete this.selectedConstraintRange[colId];
+        }
+    }
+
+    getTickFormat(format) {
+        const tickFormat = ParallelProps.tickFormat;
+        if (format === tickFormat.integer) return tickFormat.integer;
+        if (format === tickFormat.none) return tickFormat.none;
+        if (tickFormat.patternReal.test(format)) return tickFormat.real;
+        return tickFormat.logarithm;
+    }
+
+    formatTickVals(data, format) {
+        const tickFormatObj = ParallelProps.tickFormat;
+        if (format === tickFormatObj.real) {
+            const [, digit] = format.match(
+                ParallelProps.tickFormat.patternReal,
+            );
+            return data.map((v) => v.toFixed(digit));
+        }
+        return data;
+    }
+
+    calcParcoordsLineColorBar(dimObjective) {
+        const format = this.traceData.fmt[this.objective.id];
+        const nTickMax = ParallelProps.colorBarSetting.nTickMax;
+        const nTickMin = ParallelProps.colorBarSetting.nTickMin;
+        const tickFormat = this.getTickFormat(format);
+        const dataTickVals = dimObjective.tickvals;
+        let uniqueColorData;
+        let tickVals = null,
+            tickText = null,
+            nTicks = null;
+
+        const calcColorBarFormatChar = () => {
+            const tickValsOrg = [...dimObjective.tickvals];
+            const tickTextOrg = [...dimObjective.ticktext];
+            const valsIgnore = [
+                COMMON_CONSTANT.NA,
+                COMMON_CONSTANT.INF,
+                COMMON_CONSTANT.MINF,
+            ];
+            const indexIgnore = tickTextOrg.reduce(
+                (r, v, i) => r.concat(valsIgnore.includes(v) ? i : []),
+                [],
+            );
+            let tickVals = tickValsOrg.filter(
+                (_, index) => !indexIgnore.includes(index),
+            );
+            let tickText = tickTextOrg.filter(
+                (_, index) => !indexIgnore.includes(index),
+            );
+            if (tickVals.length > nTickMax) {
+                tickVals = getNValueInArray(tickVals, nTickMax);
+                tickText = getNValueInArray(tickText, nTickMax);
+            }
+            return { tickVals, tickText, nTicks };
+        };
+
+        const calcColorBarFormatNumeric = (uniqueColorData) => {
+            const lengthColorData = uniqueColorData.length;
+            if (lengthColorData > nTickMax) {
+                nTicks = nTickMax;
+            } else {
+                tickVals = this.formatTickVals(uniqueColorData, tickFormat);
+            }
+            return { tickVals, tickText, nTicks };
+        };
+
+        switch (tickFormat) {
+            case ParallelProps.tickFormat.none:
+                return calcColorBarFormatChar();
+            case ParallelProps.tickFormat.integer:
+                uniqueColorData = [...new Set(dataTickVals.map(Math.floor))];
+                return calcColorBarFormatNumeric(uniqueColorData, tickFormat);
+            case ParallelProps.tickFormat.real:
+                uniqueColorData = [...new Set(dataTickVals)];
+                return calcColorBarFormatNumeric(uniqueColorData, tickFormat);
+            case ParallelProps.tickFormat.logarithm:
+                uniqueColorData = [...new Set(dataTickVals)];
+                return calcColorBarFormatNumeric(uniqueColorData, tickFormat);
+            default:
+            // Nothing
         }
     }
 

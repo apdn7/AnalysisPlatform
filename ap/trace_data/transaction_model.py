@@ -71,7 +71,9 @@ class TransactionData:
         self.data_count_table_name = self.cfg_process.data_count_table_name
         self.import_history_table_name = self.cfg_process.import_history_table_name
 
-        self.cfg_process_columns = self.cfg_process.columns
+        self.cfg_process_columns = [
+            col for col in self.cfg_process.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value
+        ]
         self.serial_columns = []
 
         for cfg_process_column in self.cfg_process_columns:
