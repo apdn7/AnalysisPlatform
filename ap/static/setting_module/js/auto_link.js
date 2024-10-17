@@ -53,8 +53,8 @@ const collectCheckedProcessesForAutoLink = () => {
                     // CSV
                     selectedProcesses.push({
                         path: proc.data_source.csv_detail.directory,
-                        processes: [proc.name],
-                        ids: [proc.id],
+                        process_name: proc.name,
+                        process_id: proc.id,
                         date_col: datetimeCols[0].column_name,
                         serial_col: serialCols[0].column_name,
                         dbtype: dbsType,
@@ -65,8 +65,8 @@ const collectCheckedProcessesForAutoLink = () => {
                     selectedProcesses.push({
                         data_source_id: dbsId,
                         table_name: proc.table_name,
-                        processes: [proc.name],
-                        ids: [proc.id],
+                        process_name: proc.name,
+                        process_id: proc.id,
                         dbtype: dbsType,
                         date_col: datetimeCols[0].column_name,
                         serial_col: serialCols[0].column_name,
@@ -82,8 +82,8 @@ const collectCheckedProcessesForAutoLink = () => {
         const v2ProcIds = selectedV2Processes[path].map((proc) => proc.id);
         selectedProcesses.push({
             path,
-            processes: v2ProcNames,
-            ids: v2ProcIds,
+            process_names: v2ProcNames,
+            process_ids: v2ProcIds,
             dbtype: 'V2',
             date_col: null,
             serial_col: null,
@@ -167,13 +167,12 @@ const removeLinkedEdge = (procId) => {
     }
 };
 
-const handleAutoLinkV2Process = async () => {
+const handleAutolinkGroups = async () => {
     const selectedProcesses = collectCheckedProcessesForAutoLink();
     if (!selectedProcesses.length) return;
 
     loading.show();
-    const groupsOrderedProcesses =
-        await getV2OrderedProcesses(selectedProcesses);
+    const groupsOrderedProcesses = await getAutolinkGroups(selectedProcesses);
     loading.hide();
 
     // update order of process on tree list

@@ -88,3 +88,8 @@
         - gl
       unavailable:
         - pca
+    pca:
+      recommends:
+        - fpp
+      unavailable:
+        - pca

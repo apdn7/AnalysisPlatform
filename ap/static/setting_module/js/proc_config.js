@@ -289,7 +289,7 @@ const getProcInfo = async (procId) => {
                     res.tables.ds_type ===
                     DB_CONFIGS.SOFTWARE_WORKSHOP.configs.type;
                 const processFactIds = res.tables.process_factids;
-                const processFactNames = res.tables.process_factnames;
+                const masterTypes = res.tables.master_types;
                 res.tables.tables.forEach(function (tbl, index) {
                     const options = {
                         value: tbl,
@@ -297,8 +297,8 @@ const getProcInfo = async (procId) => {
                         process_fact_id: isSoftwareWorkshop
                             ? processFactIds[index]
                             : '',
-                        process_fact_name: isSoftwareWorkshop
-                            ? processFactNames[index]
+                        master_type: isSoftwareWorkshop
+                            ? masterTypes[index]
                             : '',
                     };
                     if (res.data.table_name === tbl) {
@@ -387,6 +387,8 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
     const isHasParentID = !isEmpty(parentID);
     const isMergeMode =
         isHasParentID || isMergeModeFromProcRow(dataRowID, procId);
+    currentProcDataCols = [];
+    FunctionInfo.loadFunctionListTableAndInitDropDown();
 
     if (procId && !isMergeMode) {
         await getProcInfo(procId);
@@ -544,7 +546,7 @@ const addProcToTable = (
     const rowNumber = $(`${procElements.tblProcConfigID} tbody tr`).length;
 
     const newRecord = `
-    <tr name="procInfo" ${procId ? `data-proc-id=${procId} id=proc_${procId}` : ''} ${dbsId ? `data-ds-id=${dbsId}` : ''} data-rowid="${dummyRowID}">
+    <tr name="procInfo" ${procId ? `data-proc-id=${procId} id=proc_${procId}` : ''} ${dbsId ? `data-ds-id=${dbsId}` : ''} data-rowid="${dummyRowID}" data-test-id="${procShownName || ''}">
         <td class="col-number">${rowNumber + 1}</td>
         <td>
             <input data-name-en="${procName}" data-name-jp="${nameJP || ''}" data-name-local="${nameLocal || ''}" name="processName" class="form-control" type="text"

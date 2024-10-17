@@ -1109,6 +1109,20 @@ const countTotalVariables = () => {
     }
 };
 
+const getEndProcVariableSelected = (cardElem) => {
+    const listEndProcValElem = cardElem.find(`[id*="list-end-proc-val"]`);
+    const listInputValElem = listEndProcValElem.find(
+        'input[name*="GET02_VALS_SELECT"]:not([id*="checkbox-all-end-proc-val"]):checked',
+    );
+    return listInputValElem.toArray().map((e) => $(e).attr('id'));
+};
+
+const removeLimitedCheckedList = (listDataRemove) => {
+    limitedCheckedList = limitedCheckedList.filter(
+        (el) => !listDataRemove.includes($(el).attr('id')),
+    );
+};
+
 const onChangeFilterCheckBox = (e) => {
     const parentDiv = $(e).closest('li.list-group-item.form-check').parent();
     const selector = 'input[name^=GET02_CATE_SELECT]';
@@ -1425,6 +1439,9 @@ const cardRemovalByClick = (
                 if (card && card.parent().parent().find('.card').length > 1) {
                     card.fadeOut();
                     setTimeout(() => {
+                        const variableSelected =
+                            getEndProcVariableSelected(card);
+                        removeLimitedCheckedList(variableSelected);
                         card.parent().remove();
                         countTotalVariables();
                         updateSelectedItems();
@@ -1514,7 +1531,7 @@ const condLineOnChange = async (
         const machineVals = [];
         const checkedIds = [];
         const parentId = `${prefix}cond-proc-machine-div-${count}`;
-        const elName = `machine_id_multi${count}`;
+        const elName = `${prefix}machine_id_multi${count}`;
         const elId = `${prefix}cond-proc-machine-${count}`;
 
         if (!isEmpty(procInfo)) {
@@ -1596,7 +1613,12 @@ const condLineOnChange = async (
 };
 
 // add condition Process children components ( line, machine , partno)
-const condProcOnChange = async (count, prefix = '', parentFormId = '') => {
+const condProcOnChange = async (
+    count,
+    prefix = '',
+    parentFormId = '',
+    is_pca_filter = false,
+) => {
     // remove old elements
     // TODO: make re-use function
     $(`#${prefix}cond-proc-line-${count}`).remove();
@@ -1634,14 +1656,16 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '') => {
             lineIds,
             lineVals,
             {
-                name: `filter-line-machine-id${count}`,
+                name: `${is_pca_filter ? prefix : ''}filter-line-machine-id${count}`,
                 noFilter: true,
                 thresholdBoxes,
             },
         );
 
         const lineInputs = $(
-            document.getElementsByName(`filter-line-machine-id${count}`),
+            document.getElementsByName(
+                `${is_pca_filter ? prefix : ''}filter-line-machine-id${count}`,
+            ),
         );
         let selectedLines = [];
         lineInputs.change(() => {
@@ -1677,7 +1701,7 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '') => {
             partnoIds,
             partnoVals,
             {
-                name: `filter-partno${count}`,
+                name: `${is_pca_filter ? prefix : ''}filter-partno${count}`,
                 noFilter: true,
                 thresholdBoxes,
             },
@@ -1700,7 +1724,7 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '') => {
                     filter.ids,
                     filter.vals,
                     {
-                        name: `filter-other-${filter.id}-${count}`,
+                        name: `${is_pca_filter ? prefix : ''}filter-other-${filter.id}-${count}`,
                         noFilter: true,
                         thresholdBoxes,
                     },
@@ -1720,6 +1744,8 @@ const addCondProc = (
     prefix = '',
     parentFormId = '',
     dataGenBtn = 'btn-add-cond-proc',
+    is_full_width = false,
+    is_pca_filter = false,
 ) => {
     let count = 1;
     const innerFunc = () => {
@@ -1736,8 +1762,12 @@ const addCondProc = (
         while (checkExistDataGenBtn(dataGenBtn, count, parentFormId)) {
             count = countUp(count);
         }
+        let half_col_style = 'col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12';
+        if (is_full_width) {
+            half_col_style = 'col-12';
+        }
 
-        const proc = `<div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+        const proc = `<div class="${half_col_style} p-1">
                     <div class="card cond-proc dynamic-element table-bordered py-sm-3 filter-condition-card">
                         <span class="pull-right clickable close-icon" data-effect="fadeOut">
                             <i class="fa fa-times"></i>
@@ -1745,8 +1775,8 @@ const addCondProc = (
                         <div class="d-flex align-items-center" id="${prefix}cond-proc-process-div-${count}">
                             <span class="mr-2">${i18nCommon.process}</span>
                             <div class="w-auto flex-grow-1">
-                                <select name="cond_proc${count}" class="form-control select2-selection--single select-n-columns" id="${prefix}cond-proc-process-${count}"
-                                    data-gen-btn="${dataGenBtn}" onchange=condProcOnChange(${count},'${prefix}','${parentFormId}')>
+                                <select name="${is_pca_filter ? prefix : ''}cond_proc${count}" class="form-control select2-selection--single select-n-columns" id="${prefix}cond-proc-process-${count}"
+                                    data-gen-btn="${dataGenBtn}" onchange="condProcOnChange(${count},'${prefix}','${parentFormId}', ${is_pca_filter})">
                                     ${itemList.join(' ')}
                                 </select>
                             </div>
@@ -1806,7 +1836,7 @@ const genTotalAndNonLinkedHTML = (summaryOption, generalInfo) => {
     if (`${generalInfo.endProcName}` !== `${generalInfo.startProc}`) {
         noLinkedHTML = `<tr>
             <td><span class="hint-text" title="${i18nCommon.hoverNoLinked}">P<sub>NoLinked</sub></span></td>
-            <td>${applySignificantDigit(summaryOption.countUnlinked)} (${applySignificantDigit(summaryOption.noLinkedPct)}%)</td>
+            <td>${applySignificantDigit(summaryOption.noLinkedPct)}% (${applySignificantDigit(summaryOption.countUnlinked)})</td>
         </tr>`;
     }
     return [nTotalHTML, noLinkedHTML];
@@ -1905,22 +1935,19 @@ const dateTimeRangePickerHTML = (
  * @description Resize select2 max height to bottom
  */
 const resizeListOptionSelect2 = (select2El) => {
-    select2El.off('select2:open');
-    select2El.on('select2:open', (e) => {
-        const selects = $(
-            '.select2-container.select2-container--default.select2-container--open',
-        );
-        const targetSelect = $(selects[selects.length - 1]);
-        const top = targetSelect.css('top');
-        const left = targetSelect.css('left');
-        const ul = targetSelect.find('.select2-results__options');
-        const selectDropdown = $('.select2-dropdown');
-        selectDropdown.css({
-            maxWidth: `calc(100vw - ${left} - 38px)`,
-        });
-        ul.css({
-            maxHeight: `calc(100vh - ${top} + ${window.scrollY - 48}px)`,
-        });
+    const selects = $(
+        '.select2-container.select2-container--default.select2-container--open',
+    );
+    const targetSelect = $(selects[selects.length - 1]);
+    const top = targetSelect.css('top');
+    const left = targetSelect.css('left');
+    const ul = targetSelect.find('.select2-results__options');
+    const selectDropdown = $('.select2-dropdown');
+    selectDropdown.css({
+        maxWidth: `calc(80vw - ${left} - 38px)`, // changed 100vw -> 80vw to make sense when open 2 select process
+    });
+    ul.css({
+        maxHeight: `calc(100vh - ${top} + ${window.scrollY - 48}px)`,
     });
 };
 
@@ -2182,4 +2209,11 @@ const checkIfProcessesAreLinked = async () => {
             });
         } else hideAlertMessages();
     }
+};
+
+const tooltipsToggle = (ele) => {
+    // to handle tooltips toggle
+    const status = $(ele).is(':checked');
+    localStorage.setItem('tooltipsEnabled', status);
+    console.log('tooltips enabled:' + status);
 };

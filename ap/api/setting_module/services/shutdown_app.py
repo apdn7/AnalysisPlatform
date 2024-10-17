@@ -1,3 +1,4 @@
+import logging
 import os
 from time import sleep
 
@@ -14,6 +15,7 @@ def shut_down_app():
     print('///////////// SHUTDOWN APP ///////////')
     background_announcer.announce(True, AnnounceEvent.SHUT_DOWN.name)
     dic_config[SHUTDOWN] = True
+    logging.shutdown()
     sleep(5)
 
     # close terminal

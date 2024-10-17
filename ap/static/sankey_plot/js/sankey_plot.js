@@ -156,13 +156,17 @@ const showBarGraph = (barJson) => {
 
     const trace = {
         x: barJson.x || [],
-        y: barJson.y || [],
-        text: barJson.text || [],
+        y:
+            barJson.y?.map((str) =>
+                str.length > 19 ? str?.slice(0, 19) + '...' : str,
+            ) || [],
+        text: barJson.text.map((number) => applySignificantDigit(number)) || [],
+        customdata: barJson.y,
         orientation: 'h',
         marker: {
             color: barJson.marker_color || [],
         },
-        hovertemplate: '%{text}<extra></extra>',
+        hovertemplate: '%{customdata}<br>' + '%{text}<br><extra></extra>',
         type: 'bar',
         insidetextanchor: 'start',
         insidetextfont: {
@@ -395,6 +399,51 @@ const showGroupLasso = (sankeyJson) => {
             return '';
         }
     };
+    // ############################# hover template for node of sankey - start
+    const nodeLabel = nodeJson?.label;
+    const linkValue = linkJson?.value;
+    const linkTarget = linkJson?.target;
+    const linkTargetSet = [...new Set(linkTarget)];
+
+    const nodeValue = [];
+    const incoming = [];
+    const outgoing = [];
+
+    const objectiveVarIndex = nodeLabel.length - 1;
+    nodeLabel.forEach((_, nodeIndex) => {
+        if (!nodeLabel || !linkValue || !linkTarget) return;
+        if (!linkTarget.includes(nodeIndex)) {
+            // Case1: not in linkTarget: incoming: 0, outgoing: 1, value: its value
+            incoming.push(0);
+            outgoing.push(1);
+            nodeValue.push(linkValue[nodeIndex]);
+        } else if (objectiveVarIndex === nodeIndex) {
+            // Case3: for objective_index (the last index in LinkTarget) => incoming: size of set of linkTarget (not include objectiveIndex), outgoing: 0, value: sum of case 1
+            const incomingValue = new Set(
+                linkTarget.filter((n) => n !== objectiveVarIndex),
+            ).size;
+            const value = linkValue.reduce(
+                (sum, value, nodeIndex) =>
+                    linkTargetSet.includes(nodeIndex) ? sum : sum + value,
+                0,
+            );
+            incoming.push(incomingValue);
+            outgoing.push(0);
+            nodeValue.push(value);
+        } else {
+            // Case2: for remaining case => calculate base on link_target and its nodeIndex to get incoming: count its index in linkTarget, outgoing: 1 and value: sum of
+            let value = 0;
+            linkTarget.forEach((targetValue, targetIndex) => {
+                if (targetValue === nodeIndex) {
+                    value += linkValue[targetIndex];
+                }
+            });
+            incoming.push(linkTarget.filter((n) => n === nodeIndex).length);
+            outgoing.push(1);
+            nodeValue.push(value);
+        }
+    });
+    // ############################# hover template for node of sankey - end
 
     const data = [
         {
@@ -407,12 +456,15 @@ const showGroupLasso = (sankeyJson) => {
                 relationship: linkJson.relationship || [],
                 label: linkJson.source.map(() => 'Connection strength:') || [],
                 hovertemplate:
-                    `<b>${i18n.SkDPlotHoverRelationship}:</b> %{customdata}<br>` +
-                    `<b>${i18n.SkDPlotHoverCoefficient}:</b> %{value:.2f}<br>` +
+                    `<b>${i18n.SkDPlotHoverRelationship}:</b> %{customdata[0]}<br>` +
+                    `<b>${i18n.SkDPlotHoverCoefficient}:</b> %{customdata[1]}<br>` +
                     `<b>${i18n.SkDPlotHoverVariable}:</b> %{source.label} <br>` +
                     `<b>${i18n.SkDPlotHoverProcess}:</b> %{target.label} <br>` +
                     '<extra></extra>',
-                customdata: linkJson?.relationship?.map(getRelationshipLabel),
+                customdata: linkJson?.relationship?.map((relation, index) => [
+                    getRelationshipLabel(relation),
+                    applySignificantDigit(linkJson.value[index]),
+                ]),
             },
             node: {
                 color: nodeJson.color || [],
@@ -425,6 +477,17 @@ const showGroupLasso = (sankeyJson) => {
                 thickness: 20,
                 x: nodeJson.x || [],
                 y: nodeJson.y || [],
+                hovertemplate:
+                    `%{customdata[0]}<br>` +
+                    `<b>Incoming flow count:</b> %{customdata[1]} <br>` +
+                    `<b>Outgoing flow count:</b> %{customdata[2]} <br>` +
+                    '<extra>%{customdata[3]}</extra>',
+                customdata: nodeJson.label.map((label, index) => [
+                    label,
+                    incoming[index],
+                    outgoing[index],
+                    applySignificantDigit(nodeValue[index]),
+                ]),
             },
             type: 'sankey',
             valueformat: '.2f',

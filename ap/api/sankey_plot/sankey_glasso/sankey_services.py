@@ -29,6 +29,7 @@ from ap.common.constants import (
     NOT_EXACT_MATCH_FILTER_IDS,
     NULL_PERCENT,
     OBJ_VAR,
+    REMOVED_OUTLIERS,
     SELECTED_VARS,
     SENSOR_IDS,
     SENSOR_NAMES,
@@ -119,6 +120,9 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
         )
         dic_param[UNIQUE_SERIAL] = unique_serial
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
+
+    # outliers count
+    dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
     convert_datetime_to_ct(df, graph_param)
 
@@ -411,13 +415,12 @@ def plot_barchart_grplasso(dic_bar: defaultdict, dic_proc_cfgs: dict, dic_col_pr
             sensor_label.append(label)
 
     bar_trace = {
-        'y': sensor_label,
         'x': np.abs(dic_bar[COEF]),
+        'y': sensor_label,
         'name': None,
         'orientation': 'h',
         'marker_color': dic_bar[BAR_COLORS],
-        'hovertemplate': '%{text}',
-        'text': np.round(dic_bar[COEF], 5),
+        'text': dic_bar[COEF],
     }
     return bar_trace
 

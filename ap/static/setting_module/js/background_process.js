@@ -187,14 +187,14 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
             ) {
                 tableBody.prepend(`
                 <tr id="job-${row.job_id}">
-                <td class="job-id minimal-col">${row.job_id}</td>
-                <td class="job-name medium-small-col">${convertJobName(row.job_name) || ' '}</td>
-                <td class="job-db-name large-col">${row.db_master_name}</td>
-                <td class="job-process-name large-col">${row.process_master_name}</td>
+                <td class="job-id job-id-col">${row.job_id}</td>
+                <td class="job-name job-name-col">${convertJobName(row.job_name) || ' '}</td>
+                <td class="job-db-name db-name-col">${row.db_master_name}</td>
+                <td class="job-process-name proc-name-col">${row.process_master_name}</td>
                 <td class="job-start-time duration-col">${moment(row.start_tm).format(DATE_FORMAT_WITHOUT_TZ)}</td>
                 <td class="job-duration duration-col">${row.duration}</td>
-                <td class="job-progress minimal-col">${progress}</td>
-                <td class="job-status minimal-col" data-status="${row.status}">${updatedStatus}</td>
+                <td class="job-progress job-progress-col">${progress}</td>
+                <td class="job-status job-status-col" data-status="${row.status}">${updatedStatus}</td>
                 <td class="job-detail detail-col">${jobDetailHTML}</td>
                 </tr>`);
             }

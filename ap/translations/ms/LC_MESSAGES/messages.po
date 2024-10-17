@@ -1932,6 +1932,10 @@ msgid "CHMMean"
 msgstr "Mean"
 
 #: ap/templates/macros.html
+msgid "CHMSum"
+msgstr "Sum"
+
+#: ap/templates/macros.html
 msgid "CHMStd"
 msgstr "σ"
 
@@ -4507,6 +4511,12 @@ msgstr ""
 "However, records containing NA (missing values) or Inf± (infinity) are "
 "removed."
 
+#: ap/templates/parallel_plot/parallel_plot.html
+msgid "Data view hover msg"
+msgstr ""
+"Details of the latest 20 records among the highlighted data is shown "
+"under the PCP chart."
+
 #: ap/templates/i18n.html
 msgid "LinkConfigurationNotExist"
 msgstr "The graph is not displayed because no linking settings have been made."
@@ -4819,6 +4829,12 @@ msgstr ""
 "The HMp support both categorical (Cat, Str) or integer (Int) only. "
 "Otherwise, use ScP."
 
+#: ap/templates/heatmap/heatmap.html
+msgid "Selected Color Agg Function incorrect"
+msgstr ""
+"If you do not select a Color variable, select \"Ratio[%%]\" or \"Count\" "
+"from \"Color\" -> \"Others\"."
+
 #: ap/templates/i18n.html
 msgid "If both x and y data types are categorical, please draw with HMP."
 msgstr "If both x and y data types are categorical, please draw with HMP."
@@ -4921,7 +4937,21 @@ msgid "LinkWithTime"
 msgstr "Link with time: diff [sec]"
 
 msgid "i18nCutOff"
-msgstr "CutOff: [msec]"
+msgstr "CutOff: [min]"
+
+msgid "LinkWithTimeHoverMsg"
+msgstr ""
+"Enter the time difference [min] between the datetime of the post and "
+"previous processes you want to link.\n"
+"The data with datetime that is closest to the time difference value you "
+"entered will be linked.\n"
+"However, if the datetime of the previous process is larger than that of "
+"the post process, the data will not be linked."
+
+msgid "CutOffHoverMsg"
+msgstr ""
+"If the time difference between the post process and the previous process "
+"is greater than the CutOff value, data linking will not be performed."
 
 msgid "Result is empty, please check input params."
 msgstr "Result is empty, please check input params."
@@ -5088,4 +5118,40 @@ msgstr "Judge(1: OK, 0:NG)"
 #: ap/templates/i18n.html
 msgid "Shown Name Required"
 msgstr "Please enter Shown Name."
+
+#: ap/templates/i18n.html
+msgid "Sig digs"
+msgstr "Sig digs"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeCsvTsvSsv"
+msgstr "CSV/TSV/SSV"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeSqlite"
+msgstr "SQLite"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypePostgresql"
+msgstr "PostgreSQL"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeMssql"
+msgstr "MSSQL Server"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeOracle"
+msgstr "ORACLE"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeMysql"
+msgstr "MySQL"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeV2Csv"
+msgstr "V2 CSV"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config.html
+msgid "DataSourceTypeSoftwareWorkshop"
+msgstr "Software Workshop Interface"
 

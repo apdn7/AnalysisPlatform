@@ -67,6 +67,16 @@
             <div
                 class="d-flex align-items-center justify-content-center show-graph-div"
             >
+                {{
+                    macros.switch_button(
+                    id='tooltipsEnableBtn',
+                    name='tooltipsEnableBtn',
+                    label=_("Tooltips"),
+                    title=_('Tooltips'),
+                    cl='mr-3',
+                    onChange='tooltipsToggle(this)',
+                    defaultVal=True)
+                }}
                 {{ macros.preprocess_options() }}
                 <button
                     type="button"

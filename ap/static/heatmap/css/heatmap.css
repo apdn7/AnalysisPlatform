@@ -49,7 +49,7 @@ canvas {
     display: inherit;
     font-size: 16px;
     border-bottom: 5px;
-    bottom: -10px;
+    padding-top: 20px;
 }
 
 #scpchart-ytitle {
@@ -57,7 +57,7 @@ canvas {
     color: #65c5f1;
     text-align: center;
     font-size: 14px;
-    left: -50px;
+    left: -20px;
 
     /* 3 dots */
     white-space: nowrap;
@@ -71,7 +71,7 @@ canvas {
     text-align: center;
     width: 100%;
     height: 100%;
-    padding: 5px 0px 35px 35px;
+    padding: 5px 0 0 35px;
 }
 
 #scpChartGrp {
@@ -82,7 +82,6 @@ canvas {
 
 .scpchart-wrapper {
     width: 100%;
-    height: 100vh;
 }
 
 .sctr-item {
@@ -98,8 +97,8 @@ canvas {
 .colorbar {
     flex-basis: 150px;
     vertical-align: middle;
-    margin: auto 0;
-    margin-left: -30px;
+    margin: auto 0 auto -30px;
+    /*max-height: 450px;*/
 }
 
 .colorbar .plot-container.plotly {

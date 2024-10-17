@@ -1,5 +1,51 @@
 # Releases
 
+## v4.7.4
+
+New features and improvements
+
+- (Config)
+  - Now automatically remove spaces at the beginning and end of the file/folder path given in Data Source Config and "Register by File" page
+  - Fixed the name of "Data Source Type" options in Data Source Config
+  - Improved to allow "Function" to be set at the same time as data import settings in Process Config
+  - Fixed the description of the "extract.reg(X, s, t)" function in the regular expression string extraction of "Function"
+  - Fixed the description of "Link with time" and "Cut off" that are displayed on the hover when linking datetime on Data Link Config
+  - Changed to display the objective variable at the top when jumping from a page with an objective variable to a page without an objective variable using the jump function
+  - Improved to allow the display order of processes to be rearranged in the dropdown for selecting processes on the visualization/analysis page  
+  <img src="https://github.com/user-attachments/assets/f1be6473-7d17-4572-b3b6-ba6213605e51" alt="SortProcess" width="600">
+  - Added a "Tooltips" button to toggle the display/hide of the hover that can be displayed from the graph  
+  <img src="https://github.com/user-attachments/assets/244d0aab-8305-4b3f-8bbf-904aa0020e81" alt="SortProcess" width="600">
+- (PCP)
+  - Added an on/off toggle button for "Data View" to display details of the latest 20 records of the highlighted data  
+  <img src="https://github.com/user-attachments/assets/90a6453d-3549-4bcd-a748-8aa17b7337e9" alt="SortProcess" width="600">
+  - The scale of the color bar now automatically adjusts to the data type. (For example, when the data type is "Judge" or "Boolean", only two scale values ​​are displayed)
+- (PCA)
+  - Improved to allow seperate filters to training data and target data
+    - For example, you can now train with only good product data and infer good/defective product data as target data
+  - Added jump button
+- (AgP)
+  - Changed to display OK in blue and NG in red for variables set to Judge data type
+- (SkD)
+  - Removed unnecessary white space in the bar graph on the right side of the graph area
+  - Improved the number of significant digits of the contribution value displayed on hover
+- (HMp)
+  - Added "Filter" checkbox to the dropdown for selecting variables
+  - Improved to make the aspect ratio of graphs
+
+Bug fix 
+
+- (Config)
+  - Fixed a bug where the target data source was not deleted from the list when the data source was deleted in Data Source Config
+  - Fixed a bug where suffixes for system names and Japanese/local names were not automatically generated when there were duplicate column names regardless of whether they contained full-width/half-width characters in Process Config
+  - Fixed a bug where the "interval(X, a, b)" in "Function" did not work for datetime generated from date(main::Date) and time(main::Time) in Process Config
+  - Fixed a bug where the estimated process order was sometimes displayed incorrectly in the "Auto link" function in Data Link Config
+  - Fixed a bug where background jobs in the app were sometimes deleted when a new process was registered
+- (MSP)
+  - Fixed a bug where "Process name" was displayed instead of "Variable name|Process name" when seven or more variables were selected
+- (ScP)
+  - Fixed a bug where the color bar was not displayed when the X-Y axis was swapped
+  - Fixed a bug where the color bar displayed incorrect scales when displaying a graph using time sorting and time progression
+
 ## v4.7.3
 
 New features and Improvements

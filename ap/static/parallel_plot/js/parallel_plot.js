@@ -19,7 +19,6 @@ const MAX_CAT_LABEL = 32;
 let latestDimensionInChart;
 let changeVariableOnly = false;
 let needUpdateDimColor = false;
-
 let onlyExportSelectedData = false;
 
 let pcpPlot = {};
@@ -38,6 +37,7 @@ const formElements = {
     END_PROC: 'end_proc',
     VAL_SELECTED: 'GET02_VALS_SELECT',
     fineSelectEl: $('input#findSelect'),
+    dataView: $('input#dataView'),
     showVar: $('select[name=show-var]'),
     yScaleOption: $('select[name=yScaleOption]'),
     showCT_Time: 'input#show-ct-time',
@@ -531,6 +531,15 @@ const onChangeFineSelect = () => {
         false,
         paracordTraces.options,
     );
+};
+
+const onChangeDataView = (e) => {
+    if (e.checked) {
+        // display dataViewTable when select range => turn on the DataView btn
+        getAndDisplayDataViewTable();
+    } else {
+        clearTableDataSelected();
+    }
 };
 
 const callToBackEndAPI = async (filter) => {
@@ -1449,10 +1458,7 @@ const getSelectedValues = () => {
             });
         }
         pcpPlot.setSelectedValue(selectedDimension.colId, constraintRange);
-        getSelectedDataFrame().then((r) => {
-            loadingHide();
-            handlerPCPDisplayTableDataSelected(r);
-        });
+        getAndDisplayDataViewTable();
     });
 };
 
@@ -1531,6 +1537,15 @@ const handlerPCPDisplayTableDataSelected = (dataSelected) => {
     // Handler display table data selected
     buildPCPTableDataSelectedHeader(colsName);
     buildPCPTableDataSelectedBody(rows);
+};
+
+const getAndDisplayDataViewTable = () => {
+    if (formElements.dataView.is(':checked')) {
+        getSelectedDataFrame().then((r) => {
+            loadingHide();
+            handlerPCPDisplayTableDataSelected(r);
+        });
+    }
 };
 
 const clearTableDataSelected = () => {

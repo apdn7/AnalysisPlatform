@@ -179,7 +179,7 @@ const handleOnChangeFolderAndFileUrl = async (isVerifyUrl) => {
     // remove add red border
     [registerFromFileEles.folderUrl, registerFromFileEles.refFileUrl].forEach(
         (el) => {
-            removeQuotesfromInputAndUpdate(el);
+            trimQuotesSpacesAndUpdate(el);
             removeLastBackslashFromInputAndUpdate(el);
         },
     );
@@ -1262,8 +1262,8 @@ const enableRegisterDataFileBtn = () => {
         .addClass('btn-primary');
 };
 
-const removeQuotesfromInputAndUpdate = (inputEl) => {
-    const url = $(inputEl).val().replace(/"/g, '');
+const trimQuotesSpacesAndUpdate = (inputEl) => {
+    const url = $(inputEl).val().replace(/"/g, '').trim();
     $(inputEl).val(url);
 };
 

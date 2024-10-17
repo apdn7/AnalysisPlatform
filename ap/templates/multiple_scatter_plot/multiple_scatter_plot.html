@@ -12,9 +12,19 @@
             {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
             <br class="graph-navi graph-navi-top-down" />
             <div
-                class="show-graph-div d-flex justify-content-center align-items-center"
+                class="d-flex align-items-center justify-content-center show-graph-div"
                 style="text-align: center;"
             >
+                {{
+                    macros.switch_button(
+                    id='tooltipsEnableBtn',
+                    name='tooltipsEnableBtn',
+                    label=_("Tooltips"),
+                    title=_('Tooltips'),
+                    cl='mr-3',
+                    onChange='tooltipsToggle(this)',
+                    defaultVal=True)
+                }}
                 {{ macros.order_btn() }}
                 {{ macros.preprocess_options() }}
                 <button

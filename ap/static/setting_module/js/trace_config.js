@@ -62,6 +62,8 @@ const i18nNames = {
     nodeLinkTitleReal: $('#i18nNodeLinkTitleReal').text(),
     linkWithTime: $('#i18nLinkWithTime').text(),
     i18nCutOff: $('#i18nCutOff').text(),
+    linkWithTimeHoverMsg: $('#i18nLinkWithTimeHoverMsg').text(),
+    cutOffHoverMsg: $('#i18nCutOffHoverMsg').text(),
 };
 const locale =
     docCookies.getItem('locale') === 'ja' ? 'jp' : docCookies.getItem('locale');
@@ -1007,13 +1009,13 @@ const saveTraceConfigToDB = () => {
     informLinkingJobStarted();
 };
 
-const getV2OrderedProcesses = async (data) => {
+const getAutolinkGroups = async (data) => {
     const res = await fetchData(
-        'api/setting/get_v2_ordered_processes',
+        'api/setting/get_autolink_groups',
         JSON.stringify(data),
         'POST',
     );
-    return res.ordered_processes;
+    return res.groups;
 };
 
 const syncVisData = (procs = []) => {
@@ -1613,12 +1615,16 @@ const updateTraceConfig = (element, index) => {
             <div id="delta-datetime" class="container trace-config-delta-time pb-2" name="trace-config-delta-time-${index}">
                 <div class="form-group">
                     <div class="row form-group col-md-8 mx-auto align-items-center">
-                        <span class="col-6 text-right">${i18nNames.linkWithTime}</span>
+                        <div class="col-6 text-right">
+                            <span class="hint-text" title="${i18nNames.linkWithTimeHoverMsg}">${i18nNames.linkWithTime}</span>
+                        </div>
                         <input name="deltaDatetime" class="form-control col-3" onchange="updateDatetimeReprValue(this)">
                         <span class="col-3" name="${tracingElements.datetimeReprClassName}">00:00:00</span>
                     </div>
                     <div class="row form-group col-md-8 mx-auto align-items-center">
-                        <span class="col-6 text-right">${i18nNames.i18nCutOff}</span>
+                        <div class="col-6 text-right">
+                            <span class="hint-text" title="${i18nNames.cutOffHoverMsg}">${i18nNames.i18nCutOff}</span>
+                        </div>
                         <input name="cutOff" class="form-control col-3" onchange="updateDatetimeReprValue(this)">
                         <span class="col-3" name="${tracingElements.datetimeReprClassName}">00:00:00</span>
                     </div>

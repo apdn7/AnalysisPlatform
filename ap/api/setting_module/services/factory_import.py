@@ -41,10 +41,12 @@ from ap.common.constants import (
     DATA_TYPE_ERROR_MSG,
     DATETIME_DUMMY,
     PAST_IMPORT_LIMIT_DATA_COUNT,
+    DataColumnType,
     DataType,
     DBType,
     JobStatus,
     JobType,
+    MasterDBType,
 )
 from ap.common.disk_usage import get_ip_address
 from ap.common.logger import log_execution_time, logger
@@ -214,7 +216,9 @@ def import_factory(proc_id):
             # Reassign attribute
             get_date_col = proc_cfg.get_date_col()
             proc_id = proc_cfg.id
-            cfg_columns = proc_cfg.columns
+            cfg_columns = [
+                col for col in proc_cfg.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value
+            ]
 
             is_import, rows, remain_rows = gen_import_data(_rows, remain_rows, auto_increment_idx)
             if not is_import:
@@ -226,7 +230,13 @@ def import_factory(proc_id):
             imported_end_time = str(df[auto_increment_col].max())
             # pivot if this is vertical data
             if proc_cfg.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
-                df = transform_df_for_software_workshop(df, proc_cfg.data_source_id, proc_cfg.process_factid)
+                df = transform_df_for_software_workshop(
+                    df,
+                    proc_cfg.data_source_id,
+                    proc_cfg.process_factid,
+                    master_type=MasterDBType[proc_cfg.master_type],
+                    rename_columns={col.column_raw_name: col.column_name for col in cfg_columns},
+                )
 
             # no records
             if not len(df):
@@ -296,7 +306,9 @@ def import_factory(proc_id):
                 orig_df = orig_df.rename(columns=dic_rename)
                 df_error = df_error.rename(columns=dic_rename)
                 proc_id = parent_id
-                cfg_columns = cfg_parent_proc.columns
+                cfg_columns = [
+                    col for col in cfg_parent_proc.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value
+                ]
                 get_date_col = cfg_parent_proc.get_date_col()
 
             # remove duplicate records which exists DB
@@ -506,7 +518,13 @@ def get_data_by_range_time(
     sql_limit,
 ):
     if proc_cfg.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
-        stmt = get_transaction_data_stmt(proc_cfg.process_factid, start_time, end_time, limit=sql_limit)
+        stmt = get_transaction_data_stmt(
+            proc_cfg.process_factid,
+            start_time,
+            end_time,
+            limit=sql_limit,
+            master_type=MasterDBType[proc_cfg.master_type],
+        )
         sql, params = db_instance.gen_sql_and_params(stmt)
     else:
         sql, params = get_data_by_range_time_sql(
@@ -662,11 +680,11 @@ def factory_past_data_transform(proc_id):
 
     # columns info
     proc_name = proc_cfg.name
-    column_names = [col.column_name for col in proc_cfg.columns]
+    cfg_columns = [col for col in proc_cfg.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value]
+    column_names = [col.column_name for col in cfg_columns]
     auto_increment_col = proc_cfg.get_auto_increment_col_else_get_date()
     auto_increment_idx = column_names.index(auto_increment_col)
-    dic_use_cols = {col.column_name: col for col in proc_cfg.columns}
-    cfg_columns = proc_cfg.columns
+    dic_use_cols = {col.column_name: col for col in cfg_columns}
 
     # get date time column
     get_date_col = proc_cfg.get_date_col()
@@ -761,14 +779,20 @@ def factory_past_data_transform(proc_id):
         df = pd.DataFrame(rows, columns=cols)
         # pivot if this is vertical data
         if proc_cfg.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
-            df = transform_df_for_software_workshop(df, proc_cfg.data_source_id, proc_cfg.process_factid)
+            df = transform_df_for_software_workshop(
+                df,
+                proc_cfg.data_source_id,
+                proc_cfg.process_factid,
+                master_type=MasterDBType[proc_cfg.master_type],
+                rename_columns={col.column_raw_name: col.column_name for col in cfg_columns},
+            )
 
         # no records
         if not len(df):
             error_type = DATA_TYPE_ERROR_EMPTY_DATA
             save_failed_import_history(proc_id, job_info, error_type)
             continue
-
+        # TODO: check merge mode
         # Convert UTC time
         for col, cfg_col in dic_use_cols.items():
             dtype = cfg_col.data_type

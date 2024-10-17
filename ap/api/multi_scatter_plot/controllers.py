@@ -1,7 +1,7 @@
 import json
 import timeit
 
-from flask import Blueprint, request
+from flask import Blueprint, current_app, request
 
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
@@ -35,7 +35,6 @@ from ap.common.services.import_export_config_n_data import (
 )
 from ap.common.trace_data_log import (
     EventType,
-    is_send_google_analytics,
     save_draw_graph_trace,
     save_input_data_to_file,
     trace_log_params,
@@ -64,14 +63,14 @@ def trace_data():
     dic_param = get_dic_form_from_debug_info(dic_param)
 
     # if universal call gen_dframe else gen_results
-    orig_send_ga_flg = is_send_google_analytics
+    orig_send_ga_flg = current_app.config.get('IS_SEND_GOOGLE_ANALYTICS')
 
     cache_dic_param, orig_graph_param, df = get_jump_emd_data(dic_form)
 
     if not orig_graph_param:
         dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
         orig_graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
-    dic_param, dic_data = gen_scatter_plot(orig_graph_param, cache_dic_param or dic_param, df)
+    dic_param, dic_data = gen_scatter_plot(orig_graph_param, cache_dic_param or dic_param, df, order_array_formval)
 
     # generate SCATTER_CONTOUR
     if order_array_formval:
@@ -94,7 +93,7 @@ def trace_data():
     dic_param = clear_unused_data(dic_param)
 
     # send Google Analytics changed flag
-    if orig_send_ga_flg and not is_send_google_analytics:
+    if orig_send_ga_flg and not current_app.config.get('IS_SEND_GOOGLE_ANALYTICS'):
         dic_param.update({'is_send_ga_off': True})
 
     # remove unused params

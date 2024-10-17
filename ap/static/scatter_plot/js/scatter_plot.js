@@ -10,6 +10,7 @@ const MAX_PLOT = 49;
 const MAX_MATRIX = 7;
 let currentMatrix = MAX_MATRIX;
 const STR_PREFIX = '*_/&＠*_$%#';
+const COLOR_TIME_SORT_MIN_VAL = 1;
 
 const formElements = {
     formID: '#traceDataForm',
@@ -47,6 +48,8 @@ const colorOrders = {
     2: 'time_numberings',
     3: 'elapsed_time',
 };
+
+const otherColors = ['time_numberings', 'elapsed_time'];
 
 const colorScales = {
     SETTING: 'scale_setting',
@@ -546,8 +549,11 @@ const getHtitle = (
     hTitle,
     colDat,
     divType,
+    numRows,
 ) => {
-    if (!colDat) return '';
+    if (!colDat && !isFirstRow && numRows > 1) {
+        return '';
+    }
 
     let hLabel = '';
     if (showVTitle && !isFirstRow) {
@@ -582,6 +588,8 @@ const genScatterPlots = (
 ) => {
     let scatterDat = [];
     const unique_color = res.filter_on_demand.color;
+    const isTimeNumberOrder = colorOrdering === colorOrders[2];
+    const isUseColorVar = !otherColors.includes(colorOrdering);
     const colorOrderVar =
         (colorOrdering === colorOrders[1] ? colorOrders[0] : colorOrdering) ||
         colorOrders[0];
@@ -612,9 +620,16 @@ const genScatterPlots = (
     let [minColorVal, maxColorVal] = findMinMax(allColorValSets);
     // category color, reassign by key instead of value
     // ['pass', 'fail'] -> [0, 1]
-    if (!res.scale_color) {
+    if (isUseColorVar && !res.scale_color) {
         const encodingCategoryColor = allColorValSets.map((v, k) => k);
         [minColorVal, maxColorVal] = findMinMax(encodingCategoryColor);
+    }
+    if (isTimeNumberOrder) {
+        // If divide option is [Divide by data's number (Cyclic)] => set maxColorVal is [Number of data]
+        const dataNumber = parseInt(res.COMMON.dataNumber);
+        minColorVal = COLOR_TIME_SORT_MIN_VAL;
+        maxColorVal =
+            dataNumber && dataNumber < maxColorVal ? dataNumber : maxColorVal;
     }
     let minColorRange = minColorVal;
     let maxColorRange = maxColorVal;
@@ -622,7 +637,8 @@ const genScatterPlots = (
     if (!colorScaleOption) {
         colorScaleOption = colorScales.AUTO;
     }
-    if (colorScaleOption) {
+    // Ignore update [minColorRange, maxColorRange] follow scale_color (color variable) for case setting color is [Time sort] or [Elapsed Time]
+    if (isUseColorVar && colorScaleOption) {
         const scaleColorSettings = res.scale_color
             ? res.scale_color[colorScaleOption]
             : {};
@@ -711,6 +727,7 @@ const genScatterPlots = (
                 hTitle,
                 col,
                 res.div_data_type,
+                reversedMatrix.length,
             );
             layoutAttributes.rowIdx = r;
             layoutAttributes.colIdx = c;
@@ -875,9 +892,10 @@ const genScatterPlots = (
                 };
                 scatterDat.push(scatterItemOutsideColorRange);
             }
-            const colorRange = res.scale_color
-                ? traceDataInsideColorRange.color_val
-                : colors;
+            const colorRange =
+                !isUseColorVar || res.scale_color
+                    ? traceDataInsideColorRange.color_val
+                    : colors;
             const scatterItemInsideColorRange = {
                 legendgroup: '',
                 marker: {
@@ -952,7 +970,9 @@ const genScatterPlots = (
         layout.coloraxis.colorbar.tickvals = ticksColor;
         [layout.coloraxis.cmin, layout.coloraxis.cmax] = findMinMax(ticksColor);
     } else {
-        const isIntColor = res.color_type === DataTypes.INTEGER.name;
+        let isIntColor = isTimeNumberOrder
+            ? true
+            : res.color_type === DataTypes.INTEGER.name;
         const customTicks = genLinearColorBar(
             [minColorRange, maxColorRange],
             isIntColor,
@@ -962,12 +982,15 @@ const genScatterPlots = (
         layout.coloraxis.colorbar.ticktext = customTicks;
         // reassign colorbar range to show first tick and last tick
         if (customTicks.length) {
-            let colorCMax = customTicks[customTicks.length - 1];
+            let colorCMax = customTicks[customTicks.length - 1].replace(
+                /,/g,
+                '',
+            );
             colorCMax = Number(colorCMax);
             if (colorCMax > layout.coloraxis.cmax) {
                 layout.coloraxis.cmax = colorCMax;
             }
-            let colorCMin = customTicks[0];
+            let colorCMin = customTicks[0].replace(/,/g, '');
             colorCMin = Number(colorCMin);
             if (colorCMin < layout.coloraxis.cmin) {
                 layout.coloraxis.cmin = colorCMin;

@@ -26,6 +26,13 @@ if is_main:
     from ap.common.common_utils import bundle_assets, init_process_queue
     from ap.common.constants import APP_DB_FILE, CfgConstantType
     from ap.common.memoize import clear_cache
+    from ap.common.trace_data_log import (
+        EventAction,
+        EventCategory,
+        EventType,
+        Location,
+        send_gtag,
+    )
     from ap.script.convert_user_setting import convert_user_setting_url
     from ap.script.disable_terminal_close_button import disable_terminal_close_btn
     from ap.script.hot_fix.fix_db_issues import unlock_db
@@ -38,7 +45,6 @@ if is_main:
     # except Exception as e:
     #     # reuse the scheduler file
     #     logger.exception(e)
-
     # main params
     dic_start_up = get_start_up_yaml_obj().dic_config
     if dic_start_up:
@@ -171,6 +177,16 @@ if is_main:
             from waitress import serve
 
             print('Production Waitress server !!!')
+            with app.app_context():
+                # If the result of sending first Gtag is a failure,
+                # the environment is deemed as unable to connect to GA
+                # GA will no longer be sent after this
+                if not send_gtag(
+                    ec=EventCategory.APP_START.value,
+                    ea=EventType.APP.value + '_lt',
+                    el=Location.PYTHON.value + EventAction.START.value,
+                ):
+                    app.config.update({'IS_SEND_GOOGLE_ANALYTICS': False})
             serve(app, host='0.0.0.0', port=port, threads=20)
     finally:
         dic_config[SHUTDOWN] = True

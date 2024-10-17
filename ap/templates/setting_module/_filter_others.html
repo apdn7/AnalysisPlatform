@@ -41,7 +41,40 @@
                                         placeholder="{{ _('Search') }}..."
                                     />
                                 </div>
-
+                                <!--                            v4.7.4.240: use edit mode, not use copy paste-->
+                                <!--                                <button-->
+                                <!--                                    name="downloadFilterOthersConfig"-->
+                                <!--                                    type="button"-->
+                                <!--                                    class="btn p-0 mr-1 top-index"-->
+                                <!--                                    data-toggle="tooltip"-->
+                                <!--                                    id="downloadFilterOthersAllBtn"-->
+                                <!--                                    data-placement="top"-->
+                                <!--                                    title="{{ _('Download All') }}"-->
+                                <!--                                >-->
+                                <!--                                    <i class="fa fa-download"></i>-->
+                                <!--                                </button>-->
+                                <!--                                <button-->
+                                <!--                                    name="copyFilterOthersConfig"-->
+                                <!--                                    type="button"-->
+                                <!--                                    class="btn p-0 mr-1 top-index"-->
+                                <!--                                    data-toggle="tooltip"-->
+                                <!--                                    id="copyFilterOthersAllBtn"-->
+                                <!--                                    data-placement="top"-->
+                                <!--                                    title="{{ _('Copy All') }}"-->
+                                <!--                                >-->
+                                <!--                                    <i class="fa fa-copy"></i>-->
+                                <!--                                </button>-->
+                                <!--                                <button-->
+                                <!--                                    name="pasteFilterOthersConfig"-->
+                                <!--                                    type="button"-->
+                                <!--                                    class="btn p-0 mr-1 top-index"-->
+                                <!--                                    data-toggle="tooltip"-->
+                                <!--                                    id="pasteFilterOthersAllBtn"-->
+                                <!--                                    data-placement="top"-->
+                                <!--                                    title="{{ _('Paste All') }}"-->
+                                <!--                                >-->
+                                <!--                                    <i class="fa fa-file-import"></i>-->
+                                <!--                                </button>-->
                                 <button
                                     name="configDelete"
                                     type="button"
@@ -113,7 +146,10 @@
                                     </th>
                                     <th
                                         class="filter-condition text-center"
-                                        title="{{ _("Please enter a character string for the filter condition.") }}"
+                                        title="{{
+                                            _(" Please enter a character string for the filter condition.
+                                            ")
+                                        }}"
                                     >
                                         <span class="hint-text"
                                             >{{ _("Filter") }}</span
@@ -121,7 +157,10 @@
                                     </th>
                                     <th
                                         class="text-center"
-                                        title="{{ _("Search Options") }}"
+                                        title="{{
+                                            _(" Search Options
+                                            ")
+                                        }}"
                                     >
                                         <span class="hint-text"
                                             >{{ _("Filter Type") }}</span

@@ -48,6 +48,25 @@ def migrate_existing_m_funcions(app_db_src):
     app_db.disconnect()
 
 
+def migrate_set_order_of_cfg_function_column_null(app_db_src):
+    from ap.setting_module.models import CfgProcessFunctionColumn, MFunction, CfgProcessColumn
+
+    app_db = sqlite.SQLite3(app_db_src)
+    app_db.connect()
+
+    is_col_existing = app_db.is_column_existing('cfg_process_function_column', 'order')
+    if is_col_existing:
+        sql = f'''
+            ALTER TABLE 'cfg_process_function_column' DROP COLUMN "order";
+            '''
+        app_db.execute_sql(sql)
+        sql = f'''
+            ALTER TABLE 'cfg_process_function_column' ADD COLUMN "order" INTEGER;
+            '''
+        app_db.execute_sql(sql)
+    app_db.disconnect()
+
+
 def update_data_type_for_function_column_and_remove_unused_column(app_db_src):
     from ap.setting_module.models import CfgProcessFunctionColumn
 

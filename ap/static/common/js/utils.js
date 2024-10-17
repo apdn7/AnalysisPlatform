@@ -237,6 +237,8 @@ const CONST = {
 
     SCP_HMP_X_AXIS: 'SCP_HMP_X_AXIS',
     SCP_HMP_Y_AXIS: 'SCP_HMP_Y_AXIS',
+
+    OBJ_VAR: 'objectiveVar',
 };
 const chmColorPalettes = [
     ['0', '#18324c'],
@@ -1755,17 +1757,25 @@ const findMinMax = (arr = []) => {
 
 const formatResultMulti = (data) => {
     let classAttr = $(data.element).attr('class');
+    let columnName = $(data.element).attr('title');
+
     const hasClass = typeof classAttr !== 'undefined';
     classAttr = hasClass ? ` ${classAttr}` : '';
+    const id = data.id;
+    const attrDataId = id !== undefined ? ` data-id=${id}` : '';
+    const attrDataTitle = columnName ? ` data-title=${columnName}` : '';
 
-    let columnName = $(data.element).attr('title');
     if (columnName === undefined) {
         columnName = '---';
     }
 
     const $result = $(
         `${
-            '<div class="row">' + '<div class="col-md-6 col-xs-6'
+            '<div class="row"' +
+            attrDataId +
+            attrDataTitle +
+            '>' +
+            '<div class="col-md-6 col-xs-6'
         }${classAttr}">${columnName}</div>` +
             `<div class="col-md-6 col-xs-6${classAttr}">${data.text}</div>` +
             '</div>',
@@ -1859,15 +1869,98 @@ const setSelect2Selection = (parent = null, additionalOption = {}) => {
                 select2El = ele.select2(dicOptions);
             }
 
+            // Handler for user control the order of process name in drop down of config page and show graph page
+            let sortSpan = '';
+            if (isEndProcProcessSelectBox(this)) {
+                sortSpan = `<div style="position:absolute; top: 20px; right: 4px;">
+                        <span style="font-size:16px" class="mr-1 sortCol select2-sort-icon" title="Sort">
+                            <i class="fa fa-sm fa-play asc"></i>
+                            <i class="fa fa-sm fa-play desc"></i>
+                        </span>
+                    </div>`;
+            }
+
             // Add placeholder in search input
             $(ele)
                 .data('select2')
                 .$dropdown.find(':input.select2-search__field')
-                .attr('placeholder', i18nCommon.search + '...');
-
-            resizeListOptionSelect2(select2El);
+                .attr('placeholder', i18nCommon.search + '...')
+                .parent()
+                .append(sortSpan);
+            handlerSelectEvent(select2El);
         },
     );
+};
+
+const isEndProcProcessSelectBox = (targetElm) => {
+    const endProcIds = ['start_proc', 'end_proc', 'cond_proc', 'databaseName'];
+    const elmId = $(targetElm).attr('name');
+    if (elmId) {
+        return endProcIds.includes(elmId.replace(/\d+$/, ''));
+    }
+    return false;
+};
+
+const handlerSelectEvent = (select2El) => {
+    let sortPaths = null;
+    const sortResultOptions = (isAsc = true, attrSort) => {
+        const ulResultOption = $('.select2-results__options');
+        Array.from(ulResultOption.find('li'))
+            .sort((a, b) => {
+                const val1 = $(a).find('.row').data(attrSort);
+                const val2 = $(b).find('.row').data(attrSort);
+                if (val1 && val2) {
+                    if (isAsc)
+                        return val1.toUpperCase() > val2.toUpperCase() ? 1 : -1;
+                    return val1.toUpperCase() > val2.toUpperCase() ? -1 : 1;
+                }
+            })
+            .forEach((li) => ulResultOption.append(li));
+    };
+    const handleSortEvent = (event) => {
+        let asc = true;
+        const sortEl = $(event.target.closest('.sortCol'));
+        const isFirstClick = sortEl.attr('clicked');
+        if (isFirstClick) {
+            asc = false;
+            sortEl.removeAttr('clicked');
+            sortEl.removeClass('asc');
+            sortEl.addClass('desc');
+        } else {
+            sortEl.attr('clicked', '0');
+            sortEl.removeClass('desc');
+            sortEl.addClass('asc');
+        }
+        sortResultOptions(asc, 'title');
+    };
+    const addEventListenerSelect2Sorter = () => {
+        $('.select2-sort-icon').removeClass('asc desc');
+        // Add sort event after select2 dropdown shown
+        setTimeout(function () {
+            sortPaths = document.querySelectorAll('.select2-sort-icon path');
+            for (let i = 0; i < sortPaths?.length; i++) {
+                sortPaths[i].addEventListener('click', handleSortEvent);
+            }
+        }, 50);
+    };
+
+    const destroySelect2IconSorter = () => {
+        for (let i = 0; i < sortPaths?.length; i++) {
+            sortPaths[i].removeEventListener('click', handleSortEvent);
+        }
+    };
+
+    // Triggered whenever the dropdown is opened
+    select2El.off('select2:open');
+    select2El.on('select2:open', (e) => {
+        resizeListOptionSelect2(select2El);
+        addEventListenerSelect2Sorter();
+    });
+    // Triggered before the dropdown is closed
+    select2El.off('select2:closing');
+    select2El.on('select2:closing', (e) => {
+        destroySelect2IconSorter();
+    });
 };
 
 const uniq = (vals) => [...new Set(vals)];
@@ -2432,8 +2525,8 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
                             <i class="fa fa-times"></i>
                         </span>
                         <div class="d-flex align-items-center" id="end-proc-process-div-${count}">
-                            <span class="mr-2">${i18nCommon.process}</span>
-                            <div class="w-auto flex-grow-1 position-relative">
+                            <span class="mr-2 text-nowrap">${i18nCommon.process}</span>
+                            <div class="w-auto flex-grow-1 position-relative min-width-0">
                                 <i id="no-link-with-start-proc-${count}" class="fas fa-triangle-exclamation position-absolute blink" style="top: 10px; right: 60px; z-index: 1; display: none; color:yellow;"></i>
                                 <span class="position-absolute count-variable-label" style="top: 7px; right: 40px; z-index: 1;" id="count-variables-${count}">0</span>
                                 <select class="form-control select2-selection--single
@@ -2457,6 +2550,10 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
             if (isShowCTTime !== undefined && props.hideCTCol !== undefined) {
                 props.hideCTCol = isShowCTTime ? !isShowCTTime : true;
             }
+            const variableSelected = getEndProcVariableSelected(
+                $(e.currentTarget).closest('.card'),
+            );
+            removeLimitedCheckedList(variableSelected);
             endProcMultiSelectOnChange(eleNumber, props).then((r) => {
                 if (onChangeCallbackFunc) {
                     if (onChangeCallbackDicParam) {
@@ -3027,6 +3124,7 @@ class GraphStore {
         procConfig,
         useFeatureImportance = true,
         loadByOrderIDs = false,
+        useT2Ordering = false,
     ) {
         const ordering = [];
         let orderingID = [];
@@ -3072,6 +3170,9 @@ class GraphStore {
             sensorList = latestSortColIds.map((val) =>
                 Number(val.split('-')[1]),
             );
+        }
+        if (useT2Ordering) {
+            sensorList = currentTrace['json_t2_contribution']['id'];
         }
         orderingID = [...orderingID, ...sensorList];
         allColIds = [...orderingID, ...endProcColIds.map((col) => col.id)];

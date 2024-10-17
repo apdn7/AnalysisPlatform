@@ -29,6 +29,7 @@ ACTUAL_RECORD_NUMBER_TRAIN = 'actual_record_number_train'
 ACTUAL_RECORD_NUMBER_TEST = 'actual_record_number_test'
 REMOVED_OUTLIER_NAN_TRAIN = 'removed_outlier_nan_train'
 REMOVED_OUTLIER_NAN_TEST = 'removed_outlier_nan_test'
+REMOVED_OUTLIERS = 'outliers'
 CAST_INF_VALS = 'cast_inf_vals'
 
 YAML_CONFIG_BASIC = 'basic'
@@ -402,6 +403,7 @@ HM_STEP = 'step'
 HM_MODE = 'mode'
 HM_FUNCTION_REAL = 'function_real'
 HM_FUNCTION_CATE = 'function_cate'
+HM_AGG_COLOR_FUNCTION = 'agg_color_function'
 HM_TRIM = 'remove_outlier'
 CELL_SUFFIX = '_cell'
 AGG_COL = 'agg_col'
@@ -421,6 +423,7 @@ DIVIDE_OFFSET = 'divideOffset'
 DIVIDE_FMT = 'divideFormat'
 DIVIDE_FMT_COL = 'divide_format'
 COLOR_NAME = 'color_name'
+COLOR_COLUMN_TYPE = 'color_column_type'
 DATA = 'data'
 SHOWN_NAME = 'shown_name'
 COL_DATA_TYPE = 'data_type'
@@ -439,19 +442,20 @@ SCP_HMP_Y_AXIS = 'SCP_HMP_Y_AXIS'
 
 
 class HMFunction(Enum):
-    max = auto()
-    min = auto()
-    mean = auto()
-    std = auto()
-    range = auto()
-    median = auto()
-    count = auto()
+    max = 'Max'
+    min = 'Min'
+    mean = 'Mean'
+    sum = 'Sum'
+    std = 'Std'
+    range = 'Range'
+    median = 'Median'
+    count = 'Count'
     count_per_hour = auto()
     count_per_min = auto()
-    first = auto()
-    last = auto()
+    first = 'First'
+    last = 'Last'
     time_per_count = auto()
-    iqr = auto()
+    iqr = 'IQR'
     ratio = 'Ratio[%]'
 
 
@@ -573,6 +577,7 @@ SQL_REGEXP_FUNC = 'REGEXP'
 MPS = 'www.google-analytics.com'
 R_PORTABLE = 'R-Portable'
 R_LIB_VERSION = 'R_LIB_VERSION'
+GTAG_DEFAULT_TIMEOUT = 3
 
 # Message
 MSG_DB_CON_FAILED = 'Database connection failed! Please check your database connection information'
@@ -859,6 +864,7 @@ TRACE_TIME = 'traceTime'
 IS_GRAPH_LIMITED = 'isGraphLimited'
 
 IMAGES = 'images'
+TABLE_PROCESS_NAME = 'table_process'
 
 # language
 LANGUAGES = [
@@ -1439,6 +1445,8 @@ class MasterDBType(BaseEnum):
     V2_HISTORY = auto()
     OTHERS = auto()
     V2_MULTI_HISTORY = auto()
+    SOFTWARE_WORKSHOP_MEASUREMENT = auto()
+    SOFTWARE_WORKSHOP_HISTORY = auto()
 
     @classmethod
     def is_v2_group(cls, master_type: str):
@@ -1447,6 +1455,14 @@ class MasterDBType(BaseEnum):
     @classmethod
     def is_efa_group(cls, master_type: str):
         return master_type in [cls.EFA.name, cls.EFA_HISTORY.name]
+
+    def get_data_type(self):
+        if self in [self.SOFTWARE_WORKSHOP_MEASUREMENT, self.V2, self.V2_MULTI, self.EFA]:
+            return 'measurement'
+        elif self in [self.SOFTWARE_WORKSHOP_HISTORY, self.V2_HISTORY, self.V2_MULTI_HISTORY, self.EFA_HISTORY]:
+            return 'history'
+
+        return None
 
 
 OSERR = {22: 'Access denied', 2: 'Folder not found', 20: 'Not a folder'}
@@ -1910,3 +1926,10 @@ TIME_TYPE_REGEX = (
 class JudgeDefinition(BaseEnum):
     OK = 1
     NG = 0
+
+
+class PCAFilterCondition(BaseEnum):
+    TRAIN_COND_PROCS = 'traincond_procs'
+    # train data conditions
+    TRAIN_COND_PROC = 'traincond_proc'
+    TRAIN_LINE_COND = 'trainfilter-line-machine-id'

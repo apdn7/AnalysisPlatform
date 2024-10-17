@@ -181,46 +181,54 @@
                                                     name="type"
                                                     class="form-control"
                                                 >
-                                                    {% for dbtype in ('CSV', 'V2', 'SQLITE','POSTGRESQL', 'MSSQLSERVER', 'ORACLE', 'MYSQL', 'SOFTWARE_WORKSHOP') %}
-                                                        {% if dbtype == db_info.type.data %}
-                                                            {% if dbtype == 'CSV' %}
-                                                                <option
-                                                                    value="{{ dbtype }}"
-                                                                    selected
-                                                                >
-                                                                    csv/tsv
-                                                                </option>
-                                                            {% elif dbtype == 'V2' %}
-                                                                <option
-                                                                    value="{{ dbtype }}"
-                                                                    selected
-                                                                >
-                                                                    V2 csv
-                                                                </option>
-                                                            {% else %}
-                                                                <option
-                                                                    value="{{ dbtype }}"
-                                                                    selected
-                                                                >
-                                                                    {{ dbtype.lower() }}
-                                                                </option>
-                                                            {% endif %}
-                                                        {% else %}
-                                                            {% if dbtype == 'CSV' %}
-                                                                <option
-                                                                    value="{{ dbtype }}"
-                                                                >
-                                                                    csv/tsv
-                                                                </option>
-                                                            {% else %}
-                                                                <option
-                                                                    value="{{ dbtype }}"
-                                                                >
-                                                                    {{ dbtype.lower() }}
-                                                                </option>
-                                                            {% endif %}
-                                                        {% endif %}
-                                                    {% endfor %}
+                                                    <option
+                                                        value="CSV"
+                                                        {% if db_info.type.data == 'CSV' %}selected{% endif %}
+                                                    >
+                                                        {{ _('DataSourceTypeCsvTsvSsv') }}
+                                                    </option>
+                                                    <option
+                                                        value="SQLITE"
+                                                        {% if db_info.type.data == 'SQLITE' %}selected{% endif %}
+                                                    >
+                                                        {{ _('DataSourceTypeSqlite') }}
+                                                    </option>
+                                                    <option
+                                                        value="POSTGRESQL"
+                                                        {% if db_info.type.data == 'POSTGRESQL' %}selected{% endif %}
+                                                    >
+                                                        {{ _('DataSourceTypePostgresql') }}
+                                                    </option>
+                                                    <option
+                                                        value="MSSQLSERVER"
+                                                        {% if db_info.type.data == 'MSSQLSERVER' %}selected{% endif %}
+                                                    >
+                                                        {{ _('DataSourceTypeMssql') }}
+                                                    </option>
+                                                    <option
+                                                        value="ORACLE"
+                                                        {% if db_info.type.data == 'ORACLE' %}selected{% endif %}
+                                                    >
+                                                        {{ _('DataSourceTypeOracle') }}
+                                                    </option>
+                                                    <option
+                                                        value="MYSQL"
+                                                        {% if db_info.type.data == 'MYSQL' %}selected{% endif %}
+                                                    >
+                                                        {{ _('DataSourceTypeMysql') }}
+                                                    </option>
+                                                    <option
+                                                        value="V2"
+                                                        {% if db_info.type.data == 'V2' %}selected{% endif %}
+                                                    >
+                                                        {{ _('DataSourceTypeV2Csv') }}
+                                                    </option>
+                                                    <option
+                                                        value="SOFTWARE_WORKSHOP"
+                                                        {% if db_info.type.data == 'SOFTWARE_WORKSHOP' %}selected{% endif %}
+                                                    >
+                                                        {{ _('DataSourceTypeSoftwareWorkshop') }}
+                                                    </option>
                                                 </select>
                                             </td>
                                             <td class="text-center">

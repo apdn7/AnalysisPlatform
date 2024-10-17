@@ -72,6 +72,8 @@ class Config(object):
     INIT_APP_DB_FILE = os.path.join(INIT_CONFIG_DIR, 'app.sqlite3')
     INIT_BASIC_CFG_FILE = os.path.join(INIT_CONFIG_DIR, 'basic_config.yml')
 
+    IS_SEND_GOOGLE_ANALYTICS = True
+
 
 class ProdConfig(Config):
     DEBUG = False

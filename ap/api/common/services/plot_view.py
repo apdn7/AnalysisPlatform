@@ -68,7 +68,13 @@ def gen_graph_plot_view(graph_param: DicParam, dic_param, dic_form, cycle_id, po
 
     # get chart infos
     chart_infos, original_graph_configs = get_chart_infos(graph_param, dic_data, times)
-    _, dic_param[ARRAY_PLOTDATA] = gen_plotdata(graph_param, dic_data, chart_infos, original_graph_configs)
+    _, dic_param[ARRAY_PLOTDATA] = gen_plotdata(
+        graph_param,
+        dic_data,
+        chart_infos,
+        original_graph_configs,
+        custom_order=None,
+    )
 
     # calculate_summaries
     calc_summaries(dic_param)

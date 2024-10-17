@@ -8,7 +8,7 @@ from flask_babel import gettext as _
 
 from ap import background_jobs, dic_config
 from ap.api.common.services.show_graph_services import check_path_exist, sorted_function_details
-from ap.api.setting_module.services.autolink import SortMethod, get_processes_id_order
+from ap.api.setting_module.services.autolink import Autolink
 from ap.api.setting_module.services.common import (
     delete_user_setting_by_id,
     get_all_user_settings,
@@ -45,6 +45,7 @@ from ap.api.setting_module.services.show_latest_record import (
     gen_preview_data_check_dict,
     gen_v2_columns_with_types,
     get_last_distinct_sensor_values,
+    get_latest_record_from_preview_file,
     get_latest_records,
     get_preview_data_files,
     preview_csv_data,
@@ -80,6 +81,7 @@ from ap.common.constants import (
     DataType,
     JobStatus,
     JobType,
+    MasterDBType,
     ProcessCfgConst,
     RawDataTypeDB,
     RelationShip,
@@ -310,16 +312,14 @@ def get_database_tables_source():
 
 @api_setting_module_blueprint.route('/database_table/<db_id>', methods=['GET'])
 def get_database_table(db_id):
+    response_dict = {'tables': [], 'process_factids': [], 'master_types': [], 'msg': 'Invalid data source id'}
     if not db_id:
-        return jsonify({'tables': [], 'msg': 'Invalid data source id'}), 400
+        return jsonify(response_dict), 400
 
     tables = query_database_tables(db_id)
 
     if tables is None:
-        return (
-            jsonify({'tables': [], 'process_factnames': [], 'process_factids': [], 'msg': 'Invalid data source id'}),
-            400,
-        )
+        return jsonify(response_dict), 400
     else:
         return jsonify(tables), 200
 
@@ -384,13 +384,15 @@ def show_latest_records():
     folder = dic_form.get('folder') or None
     current_process_id = dic_form.get('currentProcessId', None)
     process_factid = dic_form.get('processFactId', None)
+    master_type = dic_form.get('masterType', None)
+    master_type = MasterDBType[master_type] if master_type else None
     if current_process_id and current_process_id != 'null' and not file_name:
         # get data from db or csv
         file_name = get_preview_data_files(data_source_id, table_name, process_factid)
         if file_name:
             with open(file_name, 'r') as file:
-                data = json.load(file)
-            return data
+                data = get_latest_record_from_preview_file(file, current_process_id, limit)
+            return json_dumps(data)
 
     latest_rec = get_latest_records(
         data_source_id,
@@ -401,6 +403,7 @@ def show_latest_records():
         current_process_id,
         process_factid=process_factid,
         is_convert_datetime=False,
+        master_type=master_type,
     )
 
     result = {
@@ -411,6 +414,7 @@ def show_latest_records():
         'has_ct_col': None,
         'dummy_datetime_idx': None,
         'is_rdb': False,
+        'file_name_col_idx': None,
     }
     if latest_rec:
         (
@@ -421,6 +425,7 @@ def show_latest_records():
             has_ct_col,
             dummy_datetime_idx,
             is_rdb,
+            file_name_col_idx,
         ) = latest_rec
         dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
         data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
@@ -433,6 +438,7 @@ def show_latest_records():
             'dummy_datetime_idx': None if is_rdb else dummy_datetime_idx,
             'data_group_type': data_group_type,
             'is_rdb': is_rdb,
+            'file_name_col_idx': file_name_col_idx,
         }
     result = json_dumps(result)
     save_preview_data_file(int(data_source_id), result, table_name=table_name, process_factid=process_factid)
@@ -668,7 +674,8 @@ def post_function_config():
     proc_id = data.get('process_id')
     dict_rename_col_id = {}
     sorted_functions = sorted(functions, key=lambda x: x.get(CfgProcessFunctionColumn.order.key))
-    validate_functions(proc_id, sorted_functions)
+    process_cols = CfgProcessColumn.get_by_process_id(str(proc_id))
+    validate_functions(process_cols, sorted_functions)
 
     with make_session() as meta_session:
         df_function_column = CfgProcessFunctionColumn.get_by_process_id(proc_id, session=meta_session)
@@ -749,6 +756,14 @@ def post_proc_config():
     process_schema = ProcessSchema()
     proc_data = process_schema.load(request.json.get('proc_config'))
     unused_columns = request.json.get('unused_columns', [])
+    # validate function column
+    function_columns = []
+    columns = proc_data.get('columns')
+    for col in columns:
+        function_columns.extend(col.function_details)
+
+    sorted_functions = sorted(function_columns, key=lambda x: x.order)
+    validate_functions(columns, sorted_functions)
     should_import_data = request.json.get('import_data')
 
     try:
@@ -806,7 +821,9 @@ def post_proc_config():
             #         )
 
         target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
-        remove_jobs(target_jobs, proc_id)
+        # remove job of re-registered process => then import job again
+        if proc_id:
+            remove_jobs(target_jobs, proc_id)
 
         process = create_or_update_process_cfg(proc_data, unused_columns)
 
@@ -1342,12 +1359,12 @@ def check_exist_title_setting():
     return jsonify({'status': 'ok', 'is_exist': is_exist}), 200
 
 
-@api_setting_module_blueprint.route('/get_v2_ordered_processes', methods=['POST'])
-def get_v2_auto_link_ordered_processes():
+@api_setting_module_blueprint.route('/get_autolink_groups', methods=['POST'])
+def get_autolink_groups():
     try:
         params = json.loads(request.data)
-        groups_processes = get_processes_id_order(params, method=SortMethod.FunctionCountReversedOrder)
-        return jsonify({'status': 'ok', 'ordered_processes': groups_processes}), 200
+        groups = Autolink.get_autolink_groups(params)
+        return jsonify({'status': 'ok', 'groups': groups}), 200
     except Exception as ex:
         logger.exception(ex)
         return jsonify({'status': 'error'}), 500
@@ -1441,6 +1458,7 @@ def redirect_to_page():
 
 @api_setting_module_blueprint.route('/function_config/sample_data', methods=['POST'])
 def equations_sample_data():
+    # convert json to EquationSampleData
     equation_sample_data = EquationSampleData.model_validate_json(request.data)
     return orjson_dumps(equation_sample_data.sample_data())
 
@@ -1452,6 +1470,12 @@ def get_function_infos():
     cfg_process_columns: list[CfgProcessColumn] = CfgProcessColumn.get_by_process_id(process_id)
     dict_cfg_process_column = {cfg_process_column.id: cfg_process_column for cfg_process_column in cfg_process_columns}
     result = []
+
+    # dictionary to store mapping column ids to function column ids
+    # since function ids are sorted by order, we will update this when iterating
+    # to make sure a function column is used by varX, varY with correct column id and function column id
+    seen_function_column_ids = {}
+
     for function_detail in sorted_function_details(cfg_process_columns):
         process_col: CfgProcessColumn = dict_cfg_process_column[function_detail.process_column_id]
         function_id = function_detail.function_id
@@ -1464,17 +1488,26 @@ def get_function_infos():
         y_data_type = ''
         var_x_data = []
         var_y_data = []
+        var_x_function_column_id = None
+        var_y_function_column_id = None
+
         if var_x:
             column_x: CfgProcessColumn = dict_cfg_process_column[var_x]
             var_x_name = column_x.shown_name
             x_data_type = column_x.data_type
             var_x_data = dict_sample_data[str(var_x)]
+            if column_x.function_details:
+                var_x_function_column_id = seen_function_column_ids.get(var_x, None)
 
         if var_y:
             column_y: CfgProcessColumn = dict_cfg_process_column[var_y]
             var_y_name = column_y.shown_name
             y_data_type = column_y.data_type
             var_y_data = dict_sample_data[str(var_y)]
+            if column_y.function_details:
+                var_y_function_column_id = seen_function_column_ids.get(var_y, None)
+
+        seen_function_column_ids[function_detail.process_column_id] = function_detail.id
 
         # TODO: change if Khanh san change EquationSampleData
         equation_sample_data = EquationSampleData(
@@ -1512,8 +1545,14 @@ def get_function_infos():
             'processColumnId': process_col.id,
             'functionColumnId': function_detail.id,
             'functionId': function_id,
-            'varX': var_x,
-            'varY': var_y,
+            'varX': {
+                'processColumnId': var_x,
+                'functionColumnId': var_x_function_column_id,
+            },
+            'varY': {
+                'processColumnId': var_y,
+                'functionColumnId': var_y_function_column_id,
+            },
             'index': function_detail.order,
         }
         result.append(function_info)

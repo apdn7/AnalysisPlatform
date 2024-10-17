@@ -289,13 +289,18 @@ def add_days_from_utc(dt_str, days):
     return str(datetime.strftime(dt_obj, DATE_FORMAT))
 
 
-def gen_dummy_datetime(df, start_date=None):
+def gen_dummy_datetime_data(df, start_date=None):
     if not start_date:
         # from is zero
         start_date = '{}-{}-01'.format(date.today().year, date.today().month)
     start_date = convert_dt_str_to_simple_local(start_date)
-    dummy_datetime = pd.date_range(start=start_date, periods=df.shape[0], freq='10s', tz=tz.tzlocal())
-    df.insert(loc=0, column=DATETIME_DUMMY, value=dummy_datetime)
+    data = pd.date_range(start=start_date, periods=df.shape[0], freq='10s', tz=tz.tzlocal())
+    return data
+
+
+def gen_dummy_datetime(df, start_date=None, dummy_datetime_col=DATETIME_DUMMY):
+    data = gen_dummy_datetime_data(df, start_date)
+    df.insert(loc=0, column=dummy_datetime_col, value=data)
     return df
 
 

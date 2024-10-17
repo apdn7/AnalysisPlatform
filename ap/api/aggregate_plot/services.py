@@ -34,6 +34,7 @@ from ap.common.constants import (
     COL_DATA_TYPE,
     COL_DETAIL_NAME,
     COL_TYPE,
+    COLOR_COLUMN_TYPE,
     COLOR_NAME,
     COMMON,
     DATA,
@@ -45,6 +46,7 @@ from ap.common.constants import (
     FMT,
     IS_CATEGORY,
     IS_GRAPH_LIMITED,
+    REMOVED_OUTLIERS,
     RL_CATEGORY,
     RL_DIRECT_TERM,
     START_DATE,
@@ -119,6 +121,7 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
 
         dic_param[ACTUAL_RECORD_NUMBER] = actual_number_records
         dic_param[UNIQUE_SERIAL] = duplicated_serials
+        dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
     export_data = df.copy()
@@ -149,6 +152,7 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
     dic_data, str_cols, is_graph_limited = gen_agp_data_from_df(df, graph_param, max_graph)
     dic_param[ARRAY_PLOTDATA] = dic_data
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
+    dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
     # calc y scale
     min_max_list, all_graph_min, all_graph_max, max_common_y_scale_count = calc_raw_common_scale_y(
         dic_param[ARRAY_PLOTDATA],
@@ -190,6 +194,7 @@ def gen_df_direct_term(root_graph_param, dic_param, dic_cat_filters, use_expired
     total_record = 0
     terms = gen_time_conditions(dic_param)
     df = None
+    outliers = None
     for term in terms:
         # create dic_param for each term from original dic_param
         term_dic_param = copy.deepcopy(dic_param)
@@ -217,6 +222,13 @@ def gen_df_direct_term(root_graph_param, dic_param, dic_cat_filters, use_expired
             duplicated += _duplicated
         total_record += record_number
 
+        # outliers count
+        if graph_param.common.outliers is not None:
+            if outliers is None:
+                outliers = graph_param.common.outliers
+            else:
+                outliers += graph_param.common.outliers
+    root_graph_param.common.outliers = outliers
     return df, total_record, duplicated
 
 
@@ -289,10 +301,11 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
         if general_col_info is None:
             continue
 
-        color_show_name = graph_param.get_color_info(target_var, shown_name=True)
+        color_show_name, color_column_type = graph_param.get_color_info(target_var, shown_name=True)
 
         agp_obj = {
             COLOR_NAME: color_show_name,
+            COLOR_COLUMN_TYPE: color_column_type,
             AGG_FUNC: agg_func_show,
             DATA: [],
             CAT_EXP_BOX: [],
@@ -594,7 +607,7 @@ def get_agg_lamda_func(df: DataFrameGroupBy, target_var, agg_func_name) -> pd.Da
         agg_params = {target_var: range_func}
         agg_df = df.agg(agg_params)
     else:
-        # median, mean, min, max
+        # median, mean, min, max, sum
         agg_df = df.agg(func=agg_func_name, numeric_only=False)
     return agg_df
 

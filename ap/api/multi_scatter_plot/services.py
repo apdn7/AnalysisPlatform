@@ -51,6 +51,7 @@ from ap.common.constants import (
     ORG_ARRAY_Y,
     PCORR,
     PROC_NAME,
+    REMOVED_OUTLIERS,
     ROWID,
     SCALE_AUTO,
     SCALE_COMMON,
@@ -87,7 +88,7 @@ from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey
     send_ga=True,
 )
 @memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
-def gen_scatter_plot(graph_param, dic_param, df=None):
+def gen_scatter_plot(graph_param, dic_param, df=None, custom_order=None):
     """tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
@@ -120,6 +121,7 @@ def gen_scatter_plot(graph_param, dic_param, df=None):
         )
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
         dic_param[UNIQUE_SERIAL] = unique_serial
+        dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
     dic_param = filter_cat_dict_common(
         df,
@@ -161,6 +163,7 @@ def gen_scatter_plot(graph_param, dic_param, df=None):
         chart_infos,
         chart_infos_org,
         reorder=False,
+        custom_order=custom_order,
     )
 
     if ROWID in df.columns:

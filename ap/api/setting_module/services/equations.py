@@ -26,6 +26,8 @@ class EquationSampleData(BaseModel):
     var_y: list[Any] = Field(default=[], alias='Y')
     x_data_type: Optional[str] = None
     y_data_type: Optional[str] = None
+    datetime_format: Optional[str] = None
+    is_datetime_format: Optional[bool] = None
     a: Optional[str] = None
     b: Optional[str] = None
     c: Optional[str] = None
@@ -41,6 +43,20 @@ class EquationSampleData(BaseModel):
                 ARRAY_Y: pd.Series(self.var_y),
             },
         )
+
+        dic_data_type = {
+            ARRAY_X: self.x_data_type,
+            ARRAY_Y: self.y_data_type,
+        }
+
+        datetime_format = self.datetime_format if self.datetime_format is not None and self.is_datetime_format else None
+
+        # Convert datetime format before evaluation
+        if datetime_format is not None:
+            from ap.api.setting_module.services.csv_import import convert_datetime_format
+
+            df = convert_datetime_format(df, dic_data_type, datetime_format)
+
         equation = get_function_class_by_id(equation_id=self.equation_id).from_kwargs(
             **self.model_dump(),
         )
@@ -128,31 +144,32 @@ def remove_all_function_columns(session, proc_id):
     return True
 
 
-def validate_functions_calculation(process_id: int, validation_errors: FunctionErrors, functions: list[dict[str, Any]]):
-    if not functions or process_id is None:
-        return
-
-    raw_data_types = {cfg_col.id: cfg_col.data_type for cfg_col in CfgProcessColumn.get_by_process_id(str(process_id))}
+def validate_functions_calculation(
+    columns,
+    validation_errors: FunctionErrors,
+    functions: list[CfgProcessFunctionColumn[str, Any]],
+):
+    raw_data_types = {cfg_col.id: cfg_col.data_type for cfg_col in columns}
     sample_data_x = [None for _ in range(5)]
     sample_data_y = [None for _ in range(5)]
 
     for function in functions:
-        function_id = function.get(CfgProcessFunctionColumn.function_id.key)
-        process_column_id = function.get(CfgProcessFunctionColumn.process_column_id.key)
-        var_x = function.get(CfgProcessFunctionColumn.var_x.key)
-        var_y = function.get(CfgProcessFunctionColumn.var_y.key)
+        function_id = function.function_id
+        process_column_id = function.process_column_id
+        var_x = function.var_x
+        var_y = function.var_y
 
-        function_column_id = function.get(CfgProcessFunctionColumn.id.key)
-        raw_data_type = function.get(CfgProcessFunctionColumn.return_type.key)
+        function_column_id = function.id
+        raw_data_type = function.return_type
         raw_data_types[function_column_id] = raw_data_type
-
+        dict_func_col = function.as_dict()
         equation_sample_data = EquationSampleData(
             equation_id=function_id,
             X=sample_data_x,
             Y=sample_data_y,
             x_data_type=raw_data_types.get(var_x),
             y_data_type=raw_data_types.get(var_y),
-            **function,
+            **dict_func_col,
         )
         try:
             sample_data = equation_sample_data.sample_data()
@@ -162,13 +179,13 @@ def validate_functions_calculation(process_id: int, validation_errors: FunctionE
             validation_errors.add_function_error(err.with_id(function_column_id))
 
 
-def validate_functions_empty_system_name(validation_errors: FunctionErrors, functions: list[dict[str, Any]]):
+def validate_functions_empty_system_name(validation_errors: FunctionErrors, functions: list[CfgProcessFunctionColumn]):
     invalid_function_column_ids: list[int] = []
     for function in functions:
-        process_column = function.get('process_column')
-        name_en = process_column.get(CfgProcessColumn.name_en.key)
+        process_column = function.cfg_process_column
+        name_en = process_column.name_en
         if not name_en:
-            invalid_function_column_ids.append(function.get('id'))
+            invalid_function_column_ids.append(function.id)
     if invalid_function_column_ids:
         validation_errors.add_function_error(
             *(
@@ -183,7 +200,7 @@ def validate_functions_empty_system_name(validation_errors: FunctionErrors, func
 
 def validate_duplicated_function_name_for_key(
     key: Literal['name_en', 'name_jp', 'name_local'],
-    functions: list[dict[str, Any]],
+    functions: list[CfgProcessFunctionColumn],
     cfg_process_columns: list[CfgProcessColumn],
 ):
     invalid_function_column_ids: list[int] = []
@@ -193,15 +210,15 @@ def validate_duplicated_function_name_for_key(
     # key: name, value: list of function column ids
     function_name_columns_dict: dict[str, list[int]] = {}
     for function in functions:
-        process_column = function.get('process_column')
+        process_column = function.cfg_process_column.as_dict()
         if not process_column:
             continue
 
         # skip me function
-        if function.get('is_me_function'):
+        if function.is_me_function:
             continue
 
-        function_column_id = function.get('id')
+        function_column_id = function.id
         name = process_column.get(key)
         # do not validate empty name
         if not name:
@@ -222,14 +239,10 @@ def validate_duplicated_function_name_for_key(
 
 
 def validate_functions_duplicated_names(
-    process_id: int,
+    cfg_process_columns,
     validation_errors: FunctionErrors,
-    functions: list[dict[str, Any]],
+    functions: list[CfgProcessFunctionColumn],
 ):
-    if not functions or process_id is None:
-        return
-
-    cfg_process_columns = CfgProcessColumn.get_by_process_id(str(process_id))
     cfg_process_columns = [cfg_col for cfg_col in cfg_process_columns if not cfg_col.is_generate_equation_column()]
 
     for key in [CfgProcessColumn.name_en.key, CfgProcessColumn.name_jp.key, CfgProcessColumn.name_local.key]:
@@ -242,14 +255,18 @@ def validate_functions_duplicated_names(
         )
 
 
-def validate_functions_define_by_undefined_columns(validation_errors: FunctionErrors, functions: list[dict[str, Any]]):
-    seen_process_column_ids = set()
+def validate_functions_define_by_undefined_columns(
+    cfg_process_columns,
+    validation_errors: FunctionErrors,
+    functions: list[CfgProcessFunctionColumn],
+):
+    seen_process_column_ids = {col.id for col in cfg_process_columns}
     invalid_function_column_ids = set()
 
     for function in functions:
-        column_id = function.get(CfgProcessFunctionColumn.process_column_id.key)
-        var_x = function.get(CfgProcessFunctionColumn.var_x.key)
-        var_y = function.get(CfgProcessFunctionColumn.var_y.key)
+        column_id = function.process_column_id
+        var_x = function.var_x
+        var_y = function.var_y
 
         for id in [var_x, var_y]:
             # column with var_x, var_y that depends on other undefined columns
@@ -273,12 +290,12 @@ def validate_functions_define_by_undefined_columns(validation_errors: FunctionEr
         )
 
 
-def validate_functions(process_id: int, functions: list[dict[str, Any]]):
+def validate_functions(process_columns: list, functions: list[CfgProcessFunctionColumn]):
     validation_errors = FunctionErrors()
-    validate_functions_calculation(process_id, validation_errors, functions)
+    validate_functions_calculation(process_columns, validation_errors, functions)
     validate_functions_empty_system_name(validation_errors, functions)
-    validate_functions_duplicated_names(process_id, validation_errors, functions)
-    validate_functions_define_by_undefined_columns(validation_errors, functions)
+    validate_functions_duplicated_names(process_columns, validation_errors, functions)
+    validate_functions_define_by_undefined_columns(process_columns, validation_errors, functions)
 
     if validation_errors.has_error():
         raise validation_errors

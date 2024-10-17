@@ -28,6 +28,16 @@
             <div
                 class="d-flex align-items-center justify-content-center show-graph-div"
             >
+                {{
+                    macros.switch_button(
+                    id='tooltipsEnableBtn',
+                    name='tooltipsEnableBtn',
+                    label=_("Tooltips"),
+                    title=_('Tooltips'),
+                    cl='mr-3',
+                    onChange='tooltipsToggle(this)',
+                    defaultVal=True)
+                }}
                 <!-- order xy outside chart -->
                 {{ macros.order_btn() }}
                 {{ macros.preprocess_options() }}
@@ -48,7 +58,7 @@
             {{ macros.end_col_order_modal(isSwitchXY=true) }}
             {{ macros.end_col_order_modal(graphArea='1', isSwitchXY=true) }}
         </form>
-        {{ macros.cat_label_filter_modal(scp=true) }}
+        {{ macros.cat_label_filter_modal() }}
         {{ macros.jump_modal() }}
     </div>
     <br />
@@ -59,7 +69,7 @@
                 {{ macros.info_i_mark() }}
                 {{ macros.on_demand_filter() }}
                 <!-- setting x_y axis -->
-                {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSubmit(false, false);}') }}
+                {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSubmit(false, getCurrentSettings());}') }}
                 {{ macros.jump_button() }}
                 {{ macros.scale_option(name='scpChartScale', label=_('XY axis'), className='mr-4 ml-4') }}
                 <div class="d-flex align-items-center mr-4">
@@ -68,6 +78,7 @@
                         name="scpColorScale"
                         default-value="AUTO"
                         class="form-control border-white w-auto scale-dropdown ml-1"
+                        style="min-width: max-content;"
                     ></select>
                     <select
                         id="hmColor"

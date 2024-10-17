@@ -41,6 +41,7 @@ from ap.common.constants import (
     NA_STR,
     NOT_EXACT_MATCH_FILTER_IDS,
     PROC_LINK_ORDER,
+    REMOVED_OUTLIERS,
     SERIAL_DATA,
     SERIALS,
     START_PROC,
@@ -106,6 +107,9 @@ def gen_graph_paracords(graph_param, dic_param, df=None):
         unmatched_filter_ids,
         not_exact_match_filter_ids,
     ) = main_check_filter_detail_match_graph_data(graph_param, df)
+
+    # outliers count
+    dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
     # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
     dic_param[MATCHED_FILTER_IDS] = matched_filter_ids

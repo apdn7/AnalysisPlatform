@@ -71,6 +71,7 @@ from ap.common.constants import (
     NUM_CHARS_THRESHOLD,
     TIME_TYPE_REGEX,
     CSVExtTypes,
+    DataColumnType,
     DataType,
     DBType,
     JobStatus,
@@ -193,8 +194,19 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
 
     # get header
     headers = data_src.get_column_names_with_sorted()
-    dic_use_cols = {col.column_name: col for col in proc_cfg.columns}
-    use_dummy_datetime = DATETIME_DUMMY in dic_use_cols
+    dic_use_cols = {
+        col.column_name: col for col in proc_cfg.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value
+    }
+    use_dummy_datetime = False
+    dummy_datetime_col = DATETIME_DUMMY
+    file_name_col = FILE_NAME
+    for col in proc_cfg.columns:
+        if col.is_dummy_datetime:
+            use_dummy_datetime = True
+            dummy_datetime_col = col.column_name
+
+        if col.is_file_name:
+            file_name_col = col.column_name
 
     latest_record = None
     # find last records in case of dummy datetime is used
@@ -228,8 +240,8 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
         is_abnormal = True
         default_csv_param['names'] = headers
         use_col_names = headers
-        if use_dummy_datetime and DATETIME_DUMMY in use_col_names:
-            use_col_names.remove(DATETIME_DUMMY)
+        if use_dummy_datetime and dummy_datetime_col in use_col_names:
+            use_col_names.remove(dummy_datetime_col)
         # check for skip_head = None to prevent TypeError when adding 1
         data_first_row = (skip_head if skip_head is not None else 0) + 1
         head_skips = list(range(data_first_row))
@@ -291,6 +303,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
             # in case if v2, assume that there is not missing columns from v2 files
             if not is_v2_datasource:
                 # check missing columns
+                # TODO: Tuan refactor
                 check_file = read_data(
                     transformed_file,
                     skip_head=data_src.skip_head,
@@ -300,7 +313,6 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                     do_normalize=False,
                 )
                 org_csv_cols = next(check_file)
-
                 if data_src.dummy_header:
                     # generate column name if there is not header in file
                     org_csv_cols, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols, skip_head=data_src.skip_head)
@@ -311,9 +323,20 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                         _, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols)
                         csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
                     else:
-                        csv_cols = normalize_list(org_csv_cols)
+                        # for the column names with only spaces, we need to generate dummy headers for them
+                        _, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols)
+                        csv_cols = normalize_list(csv_cols)
                     # try to convert ➊ irregular number from csv columns
                     csv_cols = [normalize_str(col) for col in csv_cols]
+
+                # add file for add suffix same show latest record
+                if proc_cfg.is_show_file_name:
+                    csv_cols.append(FILE_NAME)
+                    org_csv_cols.append(FILE_NAME)
+                if use_dummy_datetime:
+                    csv_cols.append(DATETIME_DUMMY)
+                    org_csv_cols.append(DATETIME_DUMMY)
+
                 csv_cols, with_dupl_cols = add_suffix_if_duplicated(csv_cols)
                 dic_csv_cols = dict(zip(csv_cols, with_dupl_cols))
                 # add suffix to origin csv cols
@@ -333,9 +356,9 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                 valid_with_dupl_cols = [dic_csv_cols[col] for col in valid_columns]
                 dic_valid_csv_cols = dict(zip(valid_columns, valid_with_dupl_cols))
 
-            if DATETIME_DUMMY in missing_cols:
+            if dummy_datetime_col in missing_cols:
                 # remove dummy col before check
-                missing_cols.remove(DATETIME_DUMMY)
+                missing_cols.remove(dummy_datetime_col)
 
             if missing_cols and not is_v2_datasource:
                 err_msg = f"File {transformed_file} doesn't contain expected columns: {list(set(dic_use_cols))}"
@@ -380,6 +403,15 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                     dic_org_csv_cols,
                 )
                 use_col_names = [col for col in valid_columns if col]
+                # remove file name in usecols after add suffix
+                if use_dummy_datetime:
+                    default_csv_param['usecols'] = default_csv_param['usecols'][:-1]
+                    if dummy_datetime_col in use_col_names:
+                        use_col_names.remove(dummy_datetime_col)
+
+                if proc_cfg.is_show_file_name:
+                    default_csv_param['usecols'] = default_csv_param.get('usecols')[:-1]
+                    use_col_names = use_col_names[:-1]
             else:
                 # dummy header
                 default_csv_param['names'] = csv_cols
@@ -448,12 +480,11 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                 encoding=encoding,
             )
             # validate column name
-            validate_columns(dic_use_cols, df_one_file.columns, use_dummy_datetime)
+            validate_columns(dic_use_cols, df_one_file.columns, use_dummy_datetime, dummy_datetime_col)
 
         file_record_count = len(df_one_file)
-
-        if dic_use_cols.get(FILE_NAME):
-            add_column_file_name(df_one_file, transformed_file)
+        if proc_cfg.is_show_file_name:
+            add_column_file_name(df_one_file, transformed_file, file_name_col=file_name_col)
 
         # no records
         if not file_record_count:
@@ -470,13 +501,13 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
             cols, vals = csv_data_with_headers(csv_file_name, data_src)
             df_one_file[cols] = vals
             dic_use_cols_for_abnormal = dic_use_cols.copy()
-            if use_dummy_datetime and DATETIME_DUMMY in dic_use_cols_for_abnormal:
-                dic_use_cols_for_abnormal.pop(DATETIME_DUMMY)
+            if use_dummy_datetime and dummy_datetime_col in dic_use_cols_for_abnormal:
+                dic_use_cols_for_abnormal.pop(dummy_datetime_col)
             # remove unused columns
             df_one_file = df_one_file[list(dic_use_cols_for_abnormal)]
 
-        if use_dummy_datetime and DATETIME_DUMMY not in df_one_file.columns:
-            df_one_file = gen_dummy_datetime(df_one_file, dummy_datetime_from)
+        if use_dummy_datetime and dummy_datetime_col not in df_one_file.columns:
+            df_one_file = gen_dummy_datetime(df_one_file, dummy_datetime_from, dummy_datetime_col=dummy_datetime_col)
             dummy_datetime_from = get_next_datetime_value(df_one_file.shape[0], dummy_datetime_from)
 
         # mark file
@@ -650,7 +681,7 @@ def filter_import_target_file(proc_id, all_files, dic_success_file: dict, dic_er
 
 
 @log_execution_time()
-def validate_columns(checked_cols, csv_cols, use_dummy_datetime):
+def validate_columns(checked_cols, csv_cols, use_dummy_datetime, dummy_datetime_col):
     """
     check if checked column exists in csv file
     :param use_dummy_datetime:
@@ -662,8 +693,8 @@ def validate_columns(checked_cols, csv_cols, use_dummy_datetime):
     valid_cols = list(set(checked_cols).intersection(csv_cols))
     ng_cols = [] if len(valid_cols) else list(csv_cols)
     # remove dummy datetime columns from set to skip validate this column
-    if use_dummy_datetime and DATETIME_DUMMY in ng_cols:
-        ng_cols.remove(DATETIME_DUMMY)
+    if use_dummy_datetime and dummy_datetime_col in ng_cols:
+        ng_cols.remove(dummy_datetime_col)
     # if all columns from csv file is not included in db, raise exception
     if ng_cols:
         raise Exception('CSVファイルの列名・列数が正しくないです。')
@@ -1020,12 +1051,12 @@ def time_transform(time_series):
 
 
 @log_execution_time()
-def convert_datetime_format(df, dic_use_cols, datetime_format: Optional[str] = None):
+def convert_datetime_format(df, dic_data_type, datetime_format: Optional[str] = None):
     datetime_format_obj = DateTimeFormatUtils.get_datetime_format(datetime_format)
-    for col, cfg_col in dic_use_cols.items():
+    for col, data_type in dic_data_type.items():
         if col not in df.columns:
             continue
-        if cfg_col.data_type == DataType.DATETIME.name:
+        if data_type == DataType.DATETIME.name:
             # Convert datetime base on datetime format
             if datetime_format_obj.datetime_format:
                 datetime_series = pd.to_datetime(
@@ -1044,10 +1075,10 @@ def convert_datetime_format(df, dic_use_cols, datetime_format: Optional[str] = N
                 df[col] = df[col].astype(str)
             elif dtype_name != 'string':
                 continue
-            date_only = cfg_col.data_type == DataType.DATE.name
+            date_only = data_type == DataType.DATE.name
             df[col] = datetime_transform(df[col], date_only=date_only)
 
-        elif cfg_col.data_type == DataType.DATE.name:
+        elif data_type == DataType.DATE.name:
             # Convert date base on date format
             if datetime_format_obj.date_format:
                 date_series = pd.to_datetime(
@@ -1070,7 +1101,7 @@ def convert_datetime_format(df, dic_use_cols, datetime_format: Optional[str] = N
             date_series = date_series.astype('string')
             df[col] = date_transform(date_series).replace({pd.NaT: DEFAULT_NONE_VALUE})
 
-        elif cfg_col.data_type == DataType.TIME.name:
+        elif data_type == DataType.TIME.name:
             # Convert time base on time format
             if datetime_format_obj.time_format:
                 time_series = pd.to_datetime(
@@ -1097,28 +1128,6 @@ def convert_datetime_format(df, dic_use_cols, datetime_format: Optional[str] = N
 
 
 @log_execution_time()
-def datetime_processing(df, dic_use_cols, get_date_col, null_is_error=True):
-    # remove FILE INDEX col
-    if FILE_IDX_COL in df.columns:
-        df.drop(FILE_IDX_COL, axis=1, inplace=True)
-    for col, cfg_col in dic_use_cols.items():
-        if cfg_col.data_type != DataType.DATETIME.name:
-            continue
-
-        # convert datatime type 2023年01月02日 -> 2023-01-02 00:00:00
-        convert_datetime_format(df, col)
-
-        if col == get_date_col:
-            # validate datetime
-            validate_datetime(df, col, null_is_error=null_is_error)
-
-        # convert timezone to UTC
-        convert_csv_timezone(df, col)
-
-    return df
-
-
-@log_execution_time()
 def import_df(proc_id, df, dic_use_cols, get_date_col, job_info=None, trans_data=None):
     if not len(df):
         return 0, None, None
@@ -1128,9 +1137,11 @@ def import_df(proc_id, df, dic_use_cols, get_date_col, job_info=None, trans_data
 
     # convert datatime type 2023年01月02日 -> 2023-01-02 00:00:00
     cfg_process = CfgProcess.get_proc_by_id(proc_id)
-    df = convert_datetime_format(df, dic_use_cols, datetime_format=cfg_process.datetime_format)
-
+    # get dic_data_type from dic_use_cols
+    dic_data_type = {col: cfg_col.data_type for col, cfg_col in dic_use_cols.items()}
+    df = convert_datetime_format(df, dic_data_type, datetime_format=cfg_process.datetime_format)
     # make datetime main from date:main and time:main
+    # TODO: fix bug not validate after merge
     if trans_data and trans_data.main_date_column and trans_data.main_time_column:
         merge_is_get_date_from_date_and_time(
             df,
@@ -1195,7 +1206,9 @@ def import_df(proc_id, df, dic_use_cols, get_date_col, job_info=None, trans_data
         orig_df = orig_df.rename(columns=dic_rename)
         df_error = df_error.rename(columns=dic_rename)
         proc_id = parent_id
-        cfg_columns = cfg_parent_proc.columns
+        cfg_columns = [
+            col for col in cfg_parent_proc.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value
+        ]
         get_date_col = cfg_parent_proc.get_date_col()
 
     df_duplicate = remove_duplicates(df, orig_df, df_error, proc_id, get_date_col, cfg_columns)
@@ -1346,9 +1359,11 @@ def gen_dummy_header(header_names, data_details=None, skip_head=None):
             data_details = [header_names] + data_details
         header_names = ['col'] * len(header_names)
         dummy_header = True
-
-    if EMPTY_STRING in header_names:
-        header_names = [name or 'col' for name in header_names]
+    # columns with only spaces are treated the same way as empty column names
+    # TODO: should normalize or strip be used here?
+    stripped_header_names = [name.strip() for name in header_names]
+    if EMPTY_STRING in stripped_header_names:
+        header_names = ['col' if normalize_str(name) is EMPTY_STRING else name for name in header_names]
         partial_dummy_header = True
 
     return org_header, header_names, dummy_header, partial_dummy_header, data_details
@@ -1387,6 +1402,6 @@ def merge_is_get_date_from_date_and_time(df, get_date_col, date_main_col, time_m
         df[get_date_col] = remove_timezone_inside(df[get_date_col], is_timezone_inside)
 
 
-def add_column_file_name(df, file_path):
+def add_column_file_name(df, file_path, file_name_col=FILE_NAME):
     file_name = os.path.basename(file_path)
-    df[FILE_NAME] = file_name
+    df[file_name_col] = file_name

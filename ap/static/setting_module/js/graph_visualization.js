@@ -1,3 +1,5 @@
+const TAB_CHAR = '\t';
+const NEW_LINE_CHAR = '\n';
 const visualModule = (() => {
     const card = $('#visualization.card');
     // elements
@@ -48,6 +50,9 @@ const visualModule = (() => {
         spreadsheetID: 'masterSM',
         confirmSwitchButton: '#confirmSwitch',
         filterConfirmSwitchModal: '#filterConfirmSwitchModal',
+        graphConfigDownloadAllBtn: '#graphConfigDownloadAllBtn',
+        graphConfigCopyAllBtn: '#graphConfigCopyAllBtn',
+        graphConfigPasteAllBtn: '#graphConfigPasteAllBtn',
     };
 
     // yaml keys
@@ -1550,6 +1555,8 @@ const visualModule = (() => {
         updateLabel,
         showSpreadMode,
         initRowEvents,
+        getSettingModeData,
+        mergeData,
         eles,
     };
 })();
@@ -1601,6 +1608,24 @@ $(() => {
     $(visualModule.eles.changeModeBtn).click(() => {
         visualModule.showSpreadMode();
     });
+
+    // download all setting graph config
+    $(visualModule.eles.graphConfigDownloadAllBtn)
+        .off('click')
+        .click(downloadAllMasterConfigInfo);
+    // copy all setting graph config
+    $(visualModule.eles.graphConfigCopyAllBtn)
+        .off('click')
+        .click(copyAllGraphConfig);
+    // paste all setting graph config
+    $(visualModule.eles.graphConfigPasteAllBtn)
+        .off('click')
+        .click(pasteAllGraphConfigInfo);
+
+    // showHideCopyPasteButtons([
+    //     visualModule.eles.graphConfigCopyAllBtn,
+    //     visualModule.eles.graphConfigPasteAllBtn,
+    // ]);
 
     $(visualModule.eles.confirmSwitchButton)
         .off('click')

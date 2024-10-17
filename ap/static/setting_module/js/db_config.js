@@ -21,6 +21,7 @@ const originalTypes = {
 const DB_CONFIGS = {
     POSTGRESQL: {
         name: 'postgresql',
+        i18nLabel: $('#i18nDSTypePostgresql').text(),
         configs: {
             type: 'POSTGRESQL',
             port: 5432,
@@ -34,6 +35,7 @@ const DB_CONFIGS = {
     },
     SQLITE: {
         name: 'sqlite',
+        i18nLabel: $('#i18nDSTypeSqlite').text(),
         configs: {
             type: 'SQLITE',
             dbname: '',
@@ -42,6 +44,7 @@ const DB_CONFIGS = {
     },
     MSSQL: {
         name: 'mssqlserver',
+        i18nLabel: $('#i18nDSTypeMssql').text(),
         configs: {
             type: 'MSSQLSERVER',
             port: 1433,
@@ -55,6 +58,7 @@ const DB_CONFIGS = {
     },
     MYSQL: {
         name: 'mysql',
+        i18nLabel: $('#i18nDSTypeMysql').text(),
         configs: {
             type: 'MYSQL',
             port: 3306,
@@ -68,6 +72,7 @@ const DB_CONFIGS = {
     },
     ORACLE: {
         name: 'oracle',
+        i18nLabel: $('#i18nDSTypeOracle').text(),
         configs: {
             type: 'ORACLE',
             port: 1521,
@@ -81,6 +86,7 @@ const DB_CONFIGS = {
     },
     CSV: {
         name: 'csv/tsv',
+        i18nLabel: $('#i18nDSTypeCsvTsvSsv').text(),
         configs: {
             type: 'CSV',
             directory: '',
@@ -90,6 +96,7 @@ const DB_CONFIGS = {
     },
     V2: {
         name: 'v2 csv',
+        i18nLabel: $('#i18nDSTypeV2Csv').text(),
         configs: {
             type: 'V2',
             directory: '',
@@ -99,9 +106,9 @@ const DB_CONFIGS = {
     },
     SOFTWARE_WORKSHOP: {
         name: 'software workshop',
+        i18nLabel: $('#i18nDSTypeSoftwareWorkshop').text(),
         configs: {
-            // type: 'POSTGRESQL', //'SOFTWARE_WORKSHOP',
-            type: 'SOFTWARE_WORKSHOP', //'SOFTWARE_WORKSHOP',
+            type: 'SOFTWARE_WORKSHOP',
             port: 5432,
             schema: 'public',
             dbname: '',
@@ -582,6 +589,11 @@ const saveDataSource = (dsCode, dsConfig) => {
                 }
                 if (isNew) {
                     cfgDS.push(newDataSrc);
+
+                    // update datasource in list of selection
+                    $('select[name=databaseName]').append(
+                        `<option data-ds-type="${newDataSrc.type}" value="${newDataSrc.id}">${newDataSrc.name}</option>`,
+                    );
                 }
             }
         })
@@ -673,6 +685,7 @@ const handleCloseProcConfigModal = () => {
     isV2ProcessConfigOpening = false;
     isClickPreviewMergeMode = false;
     resetIsShowFileName();
+    functionConfigResetDefaultValues();
 };
 
 const showV2ProcessConfigModal = async (dbsId = null) => {
@@ -1071,14 +1084,14 @@ const addDBConfigRow = () => {
         </td>
         <td class="text-center">
         <select name="type" class="form-control">
-                <option value="${DB_CONFIGS.CSV.configs.type}">${DB_CONFIGS.CSV.name}</option>
-                <option value="${DB_CONFIGS.V2.configs.type}">${DB_CONFIGS.V2.name}</option>
-                <option value="${DB_CONFIGS.SQLITE.configs.type}">${DB_CONFIGS.SQLITE.name}</option>
-                <option value="${DB_CONFIGS.POSTGRESQL.configs.type}">${DB_CONFIGS.POSTGRESQL.name}</option>
-                <option value="${DB_CONFIGS.MSSQL.configs.type}">${DB_CONFIGS.MSSQL.name}</option>
-                <option value="${DB_CONFIGS.ORACLE.configs.type}">${DB_CONFIGS.ORACLE.name}</option>
-                <option value="${DB_CONFIGS.MYSQL.configs.type}">${DB_CONFIGS.MYSQL.name}</option>
-                <option value="${DB_CONFIGS.SOFTWARE_WORKSHOP.configs.type}">${DB_CONFIGS.SOFTWARE_WORKSHOP.name}</option>
+                <option value="${DB_CONFIGS.CSV.configs.type}">${DB_CONFIGS.CSV.i18nLabel}</option>
+                <option value="${DB_CONFIGS.SQLITE.configs.type}">${DB_CONFIGS.SQLITE.i18nLabel}</option>
+                <option value="${DB_CONFIGS.POSTGRESQL.configs.type}">${DB_CONFIGS.POSTGRESQL.i18nLabel}</option>
+                <option value="${DB_CONFIGS.MSSQL.configs.type}">${DB_CONFIGS.MSSQL.i18nLabel}</option>
+                <option value="${DB_CONFIGS.ORACLE.configs.type}">${DB_CONFIGS.ORACLE.i18nLabel}</option>
+                <option value="${DB_CONFIGS.MYSQL.configs.type}">${DB_CONFIGS.MYSQL.i18nLabel}</option>
+                <option value="${DB_CONFIGS.V2.configs.type}">${DB_CONFIGS.V2.i18nLabel}</option>
+                <option value="${DB_CONFIGS.SOFTWARE_WORKSHOP.configs.type}">${DB_CONFIGS.SOFTWARE_WORKSHOP.i18nLabel}</option>
             </select>
         </td>
         <td class="text-center">
@@ -1152,6 +1165,9 @@ const confirmDeleteDS = async () => {
 
                     // refresh Vis network
                     reloadTraceConfigFromDB();
+
+                    // update datasource
+                    cfgDS = $.grep(cfgDS, (e) => e.id !== dsCode);
                 },
                 error: () => {
                     result = null;
@@ -1845,8 +1861,11 @@ $(() => {
     $(dbConfigElements.csvDBSourceName).on('mouseup', () => {
         userEditedDSName = true;
     });
+    $(dbConfigElements.sqliteDbSource).on('change', (e) => {
+        e.target.value = $(e.currentTarget).val().replace(/"/g, '').trim();
+    });
     $(csvResourceElements.folderUrlId).on('change', (e) => {
-        const fileName = $(e.currentTarget).val().replace(/"/g, '');
+        const fileName = $(e.currentTarget).val().replace(/"/g, '').trim();
         e.target.value = fileName;
         const dbsName = $(dbConfigElements.csvDBSourceName).val();
         const existingDSID = $(dbConfigElements.csvDBSourceName).data('itemId');

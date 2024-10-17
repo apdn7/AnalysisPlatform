@@ -254,9 +254,11 @@ def create_app(object_name=None, is_main=False):
     from .script.migrate_csv_save_graph_settings import migrate_csv_save_graph_settings
     from .script.migrate_process_file_name_column import (
         migrate_cfg_process_add_file_name,
+        migrate_cfg_process_column_add_column_raw_dtype,
         migrate_cfg_process_column_add_column_raw_name,
         migrate_cfg_process_column_add_column_type,
         migrate_cfg_process_column_add_parent_id,
+        migrate_cfg_process_column_change_all_generated_datetime_column_type,
     )
     from .setting_module import create_module as setting_create_module
     from .table_viewer import create_module as table_viewer_create_module
@@ -393,9 +395,11 @@ def create_app(object_name=None, is_main=False):
         migrate_cfg_data_source_csv(app.config[APP_DB_FILE])
         migrate_cfg_process_add_file_name(app.config[APP_DB_FILE])
         migrate_cfg_process_column_add_column_raw_name(app.config[APP_DB_FILE])
+        migrate_cfg_process_column_add_column_raw_dtype(app.config[APP_DB_FILE])
         migrate_cfg_process_column_add_column_type(app.config[APP_DB_FILE])
         migrate_cfg_process_column_add_parent_id(app.config[APP_DB_FILE])
         migrate_cfg_process_column(app.config[APP_DB_FILE])
+        migrate_cfg_process_column_change_all_generated_datetime_column_type(app.config[APP_DB_FILE])
         migrate_cfg_process(app.config[APP_DB_FILE])
 
         # migrate function data

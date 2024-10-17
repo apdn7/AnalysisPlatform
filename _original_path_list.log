@@ -12,6 +12,7 @@
 .\pyproject.toml
 .\README.md
 .\RELEASE.md
+.\r_install_packages.r
 .\start.exe
 .\startup.ini
 .\start_ap.bat
@@ -605,6 +606,7 @@
 .\ap\static\setting_module\js\cfg_filter_funcs.js
 .\ap\static\setting_module\js\cfg_filter_main.js
 .\ap\static\setting_module\js\config_view.js
+.\ap\static\setting_module\js\copy_paste_utils.js
 .\ap\static\setting_module\js\db_config.js
 .\ap\static\setting_module\js\failed_cast_data_modal.js
 .\ap\static\setting_module\js\function_config_modals.js

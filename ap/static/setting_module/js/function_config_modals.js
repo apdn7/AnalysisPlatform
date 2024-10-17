@@ -11,11 +11,21 @@ const REQUIRED_VALUE_PREFIX = 'required-';
 const TAB_CHAR = '\t';
 const NEW_LINE_CHAR = '\n';
 const BORDER_RED_CLASS = 'column-name-invalid';
+const DATA_ORIGIN_ATTR = 'data-origin';
+const IS_NUMBER_ATTR = 'is-number';
 
 const CLASSES_FUNCTION = 'sample-data show-raw-text';
 const ARRAY_ANS = ['a', 'n', 's'];
 const ARRAY_BK = ['b', 'k'];
 const ARRAY_CT = ['c', 't'];
+const NUMERIC_TYPES = [
+    DataTypes.REAL.name,
+    DataTypes.INTEGER.name,
+    DataTypes.EU_REAL_SEP.name,
+    DataTypes.REAL_SEP.name,
+    DataTypes.INTEGER_SEP.name,
+    DataTypes.EU_INTEGER_SEP.name,
+];
 let /** @type {function(): void} */ removeAllSyncEvents;
 
 const functionConfigElements = {
@@ -139,6 +149,8 @@ const functionConfigElements = {
         'downloadFunctionDataSampleBtn',
     ),
     /** @type HTMLButtonElement */
+    appySignifiCheckbox: document.getElementById('signifiCheckbox'),
+    /** @type HTMLButtonElement */
     copySampleDataBtn: document.getElementById('copyFunctionDataSampleBtn'),
     /** @type HTMLButtonElement */
     registerBtn: document.getElementById('functionConfigModalRegisterBtn'),
@@ -196,8 +208,8 @@ function htmlToElement(html) {
  * @property {?number|string} processColumnId - id of process column
  * @property {?number|string} functionColumnId - id of function column
  * @property {?number|string} functionId - id of function
- * @property {?number|string} varX - id of X column
- * @property {?number|string} varY - id of Y column
+ * @property {{processColumnId: ?number|string, functionColumnId: ?number|string}} varX - id of X column
+ * @property {{processColumnId: ?number|string, functionColumnId: ?number|string}} varY - id of Y column
  * @property {?number|string} index - row Index in Function Table
  */
 class FunctionInfo {
@@ -205,7 +217,7 @@ class FunctionInfo {
      * New process column id. That will be decrease for each time be called
      * @type {number}
      */
-    static #newProcessColumnId = -1;
+    static #newProcessColumnId = -10000; // set -10000 because to avoid duplication with the id column
     /**
      * New function column id. That will be decrease for each time be called
      * @type {number}
@@ -241,8 +253,8 @@ class FunctionInfo {
      *    processColumnId: ?number|string,
      *    functionColumnId: ?number|string,
      *    functionId: ?number|string,
-     *    varX: ?number|string,
-     *    varY: ?number|string,
+     *    varX: {processColumnId: ?number|string, functionColumnId: ?number|string},
+     *    varY: {processColumnId: ?number|string, functionColumnId: ?number|string},
      *    index: ?number|string,
      * }} functionInfo - function information
      * @constructor
@@ -276,6 +288,9 @@ class FunctionInfo {
         this.systemName = systemName;
         this.japaneseName = japaneseName;
         this.localName = localName;
+        this.shownName = isJPLocale
+            ? this.japaneseName
+            : this.localName || this.systemName;
         this.varXName = varXName;
         this.varYName = varYName;
         this.coeANS = coeANS;
@@ -285,47 +300,30 @@ class FunctionInfo {
         this.sampleDatas = sampleDatas;
         this.isChecked = isChecked;
         this.isMeFunction = functionName.startsWith('me.');
-        /** @type ?number */
-        this.processColumnId = !(
-            isNaN(processColumnId) ||
-            processColumnId == null ||
-            processColumnId === ''
-        )
-            ? parseInt(processColumnId, 10)
-            : null;
-        /** @type ?number */
-        this.functionColumnId = !(
-            isNaN(functionColumnId) ||
-            functionColumnId == null ||
-            functionColumnId === ''
-        )
-            ? parseInt(functionColumnId, 10)
-            : null;
-        /** @type ?number */
-        this.functionId = !(
-            isNaN(functionId) ||
-            functionId == null ||
-            functionId === ''
-        )
-            ? parseInt(functionId, 10)
-            : null;
-        /** @type ?number */
-        this.varX = !(isNaN(varX) || varX == null || varX === '')
-            ? parseInt(varX, 10)
-            : null;
-        /** @type ?number */
-        this.varY = !(isNaN(varY) || varY == null || varY === '')
-            ? parseInt(varY, 10)
-            : null;
-        /** @type ?number */
-        this.index = !(isNaN(index) || index == null || index === '')
-            ? parseInt(index, 10)
-            : null;
-
-        this.shownName = isJPLocale
-            ? this.japaneseName
-            : this.localName || this.systemName;
+        this.processColumnId = FunctionInfo.parseValueToInt(processColumnId);
+        this.functionColumnId = FunctionInfo.parseValueToInt(functionColumnId);
+        this.functionId = FunctionInfo.parseValueToInt(functionId);
+        this.index = FunctionInfo.parseValueToInt(index);
+        this.varX = FunctionInfo.parseObjectValuesToInt(varX);
+        this.varY = FunctionInfo.parseObjectValuesToInt(varY);
     }
+
+    /**
+     * @param {?number|string} value
+     * @return ?number
+     */
+    static parseValueToInt = (value) =>
+        isNaN(value) || value == null || value === ''
+            ? null
+            : parseInt(value, 10);
+
+    /**
+     * Parse all object values to integer
+     * @param {object} obj
+     * @return {Object.<string, ?number>}
+     */
+    static parseObjectValuesToInt = (obj) =>
+        _.mapValues(obj, FunctionInfo.parseValueToInt);
 
     /**
      * Format sample data
@@ -384,6 +382,12 @@ class FunctionInfo {
      * @return {boolean} true is equal, otherwise
      */
     isEqual(functionInfo) {
+        // sometimes, varX and varY is missing, we need to manually convert them here
+        const convertVar = (functionVar) =>
+            FunctionInfo.parseObjectValuesToInt({
+                processColumnId: functionVar.processColumnId,
+                functionColumnId: functionVar.functionColumnId,
+            });
         return (
             this.functionName === functionInfo.functionName &&
             // we don't check output because this is not something user can modify
@@ -399,8 +403,8 @@ class FunctionInfo {
             this.processColumnId === functionInfo.processColumnId &&
             this.functionColumnId === functionInfo.functionColumnId &&
             this.functionId === functionInfo.functionId &&
-            this.varX === functionInfo.varX &&
-            this.varY === functionInfo.varY
+            _.isEqual(convertVar(this.varX), convertVar(functionInfo.varX)) &&
+            _.isEqual(convertVar(this.varY), convertVar(functionInfo.varY))
         );
     }
 
@@ -444,11 +448,13 @@ class FunctionInfo {
             varX = null;
             varXName = '';
         } else {
-            varX = selectedVarXElement.value.trim();
+            varX = FunctionInfo.getDropDownOptionValue(
+                selectedVarXElement.value,
+            );
             varXName = selectedVarXElement.textContent.trim();
             if (functionName.startsWith('me.')) {
                 // In case of function me, process id will be id of varX
-                processColumnId = varX;
+                processColumnId = varX.processColumnId;
             }
         }
 
@@ -460,7 +466,9 @@ class FunctionInfo {
             varY = null;
             varYName = '';
         } else {
-            varY = selectedVarYElement.value.trim();
+            varY = FunctionInfo.getDropDownOptionValue(
+                selectedVarYElement.value,
+            );
             varYName = selectedVarYElement.textContent.trim();
         }
 
@@ -524,10 +532,16 @@ class FunctionInfo {
             .value.trim();
         const columnVarX = rowElement.querySelector(`td.column-var-x`);
         const varXName = columnVarX.textContent.trim();
-        const varX = columnVarX.dataset.varX;
+        const varX = {
+            processColumnId: columnVarX.dataset.varXProcessColumnId,
+            functionColumnId: columnVarX.dataset.varXFunctionColumnId,
+        };
         const columnVarY = rowElement.querySelector(`td.column-var-y`);
         const varYName = columnVarY.textContent.trim();
-        const varY = columnVarY.dataset.varY;
+        const varY = {
+            processColumnId: columnVarY.dataset.varYProcessColumnId,
+            functionColumnId: columnVarY.dataset.varYFunctionColumnId,
+        };
         const coeANS = rowElement
             .querySelector('td.column-coe-ans input')
             .value.trim();
@@ -589,10 +603,12 @@ class FunctionInfo {
         functionConfigElements.systemNameElement.value = this.systemName;
         functionConfigElements.japaneseNameElement.value = this.japaneseName;
         functionConfigElements.localNameElement.value = this.localName;
-        functionConfigElements.varXElement.value = String(this.varX);
-        $(functionConfigElements.varXElement).change();
-        functionConfigElements.varYElement.value = String(this.varY);
-        $(functionConfigElements.varYElement).change();
+        $(functionConfigElements.varXElement)
+            .val(FunctionInfo.setDropDownOptionValue(this.varX))
+            .change();
+        $(functionConfigElements.varYElement)
+            .val(FunctionInfo.setDropDownOptionValue(this.varY))
+            .change();
         functionConfigElements.coeANSElement.value = String(this.coeANS);
         functionConfigElements.coeBKElement.value = String(this.coeBK);
         functionConfigElements.coeCTElement.value = String(this.coeCT);
@@ -615,7 +631,6 @@ class FunctionInfo {
      * @param {HTMLElement} element
      */
     static removeInvalidStatus(element) {
-        // TODO: remove invalid status for both jquery and html element
         element.classList.remove(BORDER_RED_CLASS);
     }
 
@@ -624,7 +639,6 @@ class FunctionInfo {
      * @param {HTMLElement} element
      */
     static setInvalidStatus(element) {
-        // TODO: set invalid status for both jquery and html element
         element.classList.add(BORDER_RED_CLASS);
     }
 
@@ -634,7 +648,6 @@ class FunctionInfo {
      * @return boolean
      */
     static isInvalidStatus(element) {
-        // TODO: check invalid status for both jquery and html element
         return element.classList.contains(BORDER_RED_CLASS);
     }
 
@@ -655,7 +668,11 @@ class FunctionInfo {
     static clearSampleData() {
         functionConfigElements.sampleDataElement.lastElementChild
             .querySelectorAll('td:first-child')
-            .forEach((td) => (td.textContent = ''));
+            .forEach((td) => {
+                td.textContent = '';
+                td.setAttribute(DATA_ORIGIN_ATTR, '');
+                td.setAttribute(IS_NUMBER_ATTR, false);
+            });
     }
 
     /**
@@ -686,8 +703,9 @@ class FunctionInfo {
     /**
      * Fill sample data to selected function row
      * @param {string[]} sampleData - a list of data
+     * @param {boolean} isNumber - a boolean of data type is number
      */
-    static fillSampleDataToSelectedFunctionRow(sampleData) {
+    static fillSampleDataToSelectedFunctionRow(sampleData, isNumber) {
         const selectedRow =
             functionConfigElements.functionTableElement.lastElementChild.querySelector(
                 'tr.selected',
@@ -700,7 +718,10 @@ class FunctionInfo {
             'td.column-sample-data ',
         );
         tableSampleDataNodes.forEach((node, index) => {
-            node.innerHTML = sampleData[index] ?? '';
+            node.innerHTML =
+                formatSignifiValue(sampleData[index], isNumber) ?? '';
+            node.setAttribute(DATA_ORIGIN_ATTR, sampleData[index]);
+            node.setAttribute(IS_NUMBER_ATTR, isNumber);
         });
     }
 
@@ -851,6 +872,16 @@ class FunctionInfo {
         );
         const index = this.index;
         const newSampleData = this.sampleDatas;
+        const isNumber = NUMERIC_TYPES.includes(this.output);
+
+        const {
+            processColumnId: xProcessColumnId,
+            functionColumnId: xFunctionColumnId,
+        } = this.varX;
+        const {
+            processColumnId: yProcessColumnId,
+            functionColumnId: yFunctionColumnId,
+        } = this.varY;
 
         const newRowHtml =
             `<tr data-index="${index}" checked="${this.isChecked ? 'checked' : ''}">` +
@@ -875,8 +906,8 @@ class FunctionInfo {
             '<td class="column-local-name row-item" data-column-title="name_local">' +
             `<input type="text" name="name_local" class="form-control row-item" value="${this.localName ?? ''}" ${this.isMeFunction ? 'disabled' : ''}>` +
             '</td>' +
-            `<td class="column-var-x row-item show-raw-text" data-column-title="x" data-var-x="${this.varX ?? ''}">${this.varXName ?? ''}</td>` +
-            `<td class="column-var-y row-item show-raw-text" data-column-title="y" data-var-y="${this.varY ?? ''}">${this.varYName ?? ''}</td>` +
+            `<td class="column-var-x row-item show-raw-text" data-column-title="x" data-var-x-process-column-id="${xProcessColumnId ?? ''}" data-var-x-function-column-id="${xFunctionColumnId ?? ''}">${this.varXName ?? ''}</td>` +
+            `<td class="column-var-y row-item show-raw-text" data-column-title="y" data-var-y-process-column-id="${yProcessColumnId ?? ''}" data-var-y-function-column-id="${yFunctionColumnId ?? ''}">${this.varYName ?? ''}</td>` +
             `<td class="column-coe-ans row-item" data-column-title="a_n_s">` +
             `<input type="text" name="a_n_s" class="form-control row-item" value="${this.coeANS ?? ''}" ${!hasANS ? 'disabled' : ''}>` +
             '</td>' +
@@ -890,11 +921,11 @@ class FunctionInfo {
             `<input type="text" name="note" class="form-control row-item" value="${this.note ?? ''}">` +
             '</td>' +
             `<td class="column-output row-item show-raw-text" data-column-title="output" data-raw-data-type="${this.output ?? ''}">${FunctionInfo.getLabelRawDataType(this.output ?? '')}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-column-title="sample_data">${newSampleData[0] ?? ''}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-column-title="sample_data">${newSampleData[1] ?? ''}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-column-title="sample_data">${newSampleData[2] ?? ''}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-column-title="sample_data">${newSampleData[3] ?? ''}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-column-title="sample_data">${newSampleData[4] ?? ''}</td>` +
+            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[0] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[0], isNumber)}</td>` +
+            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[1] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[1], isNumber)}</td>` +
+            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[2] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[2], isNumber)}</td>` +
+            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[3] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[3], isNumber)}</td>` +
+            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[4] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[4], isNumber)}</td>` +
             '</tr>';
 
         /** @type HTMLTableRowElement */
@@ -929,7 +960,10 @@ class FunctionInfo {
         );
 
         //Update prc PreviewDataOfFunctionColumn
-        prcPreviewDataOfFunctionColumn[this.processColumnId] = this.sampleDatas;
+        setPreviewDataForFunctionColumns(
+            this.functionColumnId,
+            this.sampleDatas,
+        );
 
         // Trigger change event
         if (this.isChecked) {
@@ -969,10 +1003,12 @@ class FunctionInfo {
             this.localName;
 
         const columnVarX = rowElement.querySelector(`td.column-var-x`);
-        columnVarX.dataset.varX = this.varX;
+        columnVarX.dataset.varXProcessColumnId = this.varX.processColumnId;
+        columnVarX.dataset.varXFunctionColumnId = this.varX.functionColumnId;
         columnVarX.textContent = this.varXName;
         const columnVarY = rowElement.querySelector(`td.column-var-y`);
-        columnVarY.dataset.varY = this.varY;
+        columnVarX.dataset.varYProcessColumnId = this.varY.processColumnId;
+        columnVarX.dataset.varYFunctionColumnId = this.varY.functionColumnId;
         columnVarY.textContent = this.varYName;
 
         const inputANS = rowElement.querySelector(`td.column-coe-ans input`);
@@ -993,6 +1029,7 @@ class FunctionInfo {
         columnOutput.textContent = FunctionInfo.getLabelRawDataType(
             this.output,
         );
+        const isNumber = NUMERIC_TYPES.includes(this.output);
 
         /** @type {NodeListOf<HTMLTableCellElement>} */
         const sampleCells = rowElement.querySelectorAll(
@@ -1002,9 +1039,16 @@ class FunctionInfo {
         sampleCells.forEach((cell, index) => {
             console.log('this.sampleDatas[index]', this.sampleDatas[index]);
             if (this.sampleDatas[index]) {
-                cell.textContent = this.sampleDatas[index];
+                cell.setAttribute(DATA_ORIGIN_ATTR, this.sampleDatas[index]);
+                cell.setAttribute(IS_NUMBER_ATTR, isNumber);
+                cell.textContent = formatSignifiValue(
+                    this.sampleDatas[index],
+                    isNumber,
+                );
             } else {
                 cell.textContent = '';
+                cell.setAttribute(DATA_ORIGIN_ATTR, '');
+                cell.setAttribute(IS_NUMBER_ATTR, '');
             }
         });
 
@@ -1015,7 +1059,10 @@ class FunctionInfo {
         // });
 
         // update prc PreviewDataOfFunctionColumn
-        prcPreviewDataOfFunctionColumn[this.processColumnId] = this.sampleDatas;
+        setPreviewDataForFunctionColumns(
+            this.functionColumnId,
+            this.sampleDatas,
+        );
     }
 
     /**
@@ -1032,9 +1079,6 @@ class FunctionInfo {
             'change',
             FunctionInfo.changeSelectionStatusEvent,
         );
-        const processColumnId = rowElement.querySelector(
-            `td.column-function-name`,
-        ).dataset.processColumnId;
 
         // Update number of checked records and total records
         const totalColumns =
@@ -1073,15 +1117,22 @@ class FunctionInfo {
             FunctionInfo.resetStatusOfEditingFunction(rowElement);
         }
 
+        const columnFunctionName = rowElement.querySelector(
+            `td.column-function-name`,
+        );
+        const dropDownOptionValue = FunctionInfo.setDropDownOptionValue({
+            processColumnId: columnFunctionName.dataset.processColumnId,
+            functionColumnId: columnFunctionName.dataset.functionColumnId,
+        });
+
         // Remove in X & Y select boxes
         [
             functionConfigElements.varXElement,
             functionConfigElements.varYElement,
         ].forEach((selectElement) => {
-            const isTargetOption =
-                String(selectElement.value) === String(processColumnId);
+            const isTargetOption = selectElement.value === dropDownOptionValue;
             $(selectElement)
-                .find(`option[value="${processColumnId}"]`)
+                .find(`option[value="${dropDownOptionValue}"]`)
                 .remove();
             if (isTargetOption) {
                 $(selectElement).val('').change();
@@ -1164,9 +1215,9 @@ class FunctionInfo {
     static getAllFunctionInfosApi(processId, colIds) {
         const dictSampleData = {};
         for (const colId of colIds) {
-            dictSampleData[colId] =
-                prcPreviewDataOfFunctionColumn[colId] ||
-                prcPreviewWith1000Data[colId];
+            dictSampleData[colId] = getSampleDataByFunctionColumnIdOrColumnId({
+                processColumnId: colId,
+            });
         }
         return fetch('/ap/api/setting/function_config/get_function_infos', {
             method: 'POST',
@@ -1183,10 +1234,11 @@ class FunctionInfo {
             .then((/** @type {{functionData: {}}} */ responseData) =>
                 responseData.functionData?.map((funcData) => {
                     // add functionInfo data to prc-PreviewDataOfFunctionColumn with a key is functionColumnId
-                    const { processColumnId, sampleDatas } = funcData;
-                    prcPreviewDataOfFunctionColumn[processColumnId] =
-                        sampleDatas;
-
+                    const { functionColumnId, sampleDatas } = funcData;
+                    setPreviewDataForFunctionColumns(
+                        functionColumnId,
+                        sampleDatas,
+                    );
                     return {
                         ...funcData,
                         coeANS: funcData.a || funcData.n || funcData.s,
@@ -1219,8 +1271,7 @@ class FunctionInfo {
             /**
              * Remove event listener and row
              * @param {HTMLTableRowElement} row - a function row HTML
-             */
-            (row) => FunctionInfo.deleteFunctionRow(row),
+             */ (row) => FunctionInfo.deleteFunctionRow(row),
         );
     }
 
@@ -1313,7 +1364,10 @@ class FunctionInfo {
         functionConfigElements.noteElement.value = '';
         functionConfigElements.sampleDataElement.lastElementChild
             .querySelectorAll('td')
-            .forEach((td) => (td.textContent = ''));
+            .forEach((td) => {
+                td.textContent = '';
+                td.setAttribute(DATA_ORIGIN_ATTR, '');
+            });
 
         $(functionConfigElements.varXElement).empty();
         $(functionConfigElements.varYElement).empty();
@@ -1340,6 +1394,57 @@ class FunctionInfo {
     }
 
     /**
+     * Create a unique dropdown value for X and Y based on functionColumnId and processColumnId
+     * @param {number | string} functionColumnId
+     * @param {number | string} processColumnId
+     * @returns {string}
+     */
+    static setDropDownOptionValue = (
+        { processColumnId, functionColumnId } = {
+            processColumnId: null,
+            functionColumnId: null,
+        },
+    ) => {
+        if (functionColumnId == null && processColumnId == null) {
+            return '';
+        }
+
+        const processColumnIdString =
+            processColumnId != null ? processColumnId.toString() : '';
+        const functionColumnIdString =
+            functionColumnId != null ? functionColumnId.toString() : '';
+        return `${processColumnIdString}_${functionColumnIdString}`;
+    };
+
+    /** Extract functionColumnId and processColumnId from dropdown option value
+     * @param {string} value
+     * @returns {{processColumnId: ?number, functionColumnId: ?number}}
+     */
+    static getDropDownOptionValue = (value) => {
+        let processColumnId = null;
+        let functionColumnId = null;
+
+        const values = value.trim().split('_');
+        if (values.length === 2) {
+            processColumnId = values[0];
+            functionColumnId = values[1];
+        }
+        return FunctionInfo.parseObjectValuesToInt({
+            processColumnId,
+            functionColumnId,
+        });
+    };
+
+    static getVarXId = () =>
+        FunctionInfo.getDropDownOptionValue(
+            functionConfigElements.varXElement.value,
+        );
+    static getVarYId = () =>
+        FunctionInfo.getDropDownOptionValue(
+            functionConfigElements.varYElement.value,
+        );
+
+    /**
      * Initialize select2 for selection of VarX/VarY
      * @param {HTMLOptionElement} selectedFunction - a selected option of Function
      */
@@ -1363,15 +1468,20 @@ class FunctionInfo {
             varYElement: $varYElement.find('option:checked').val(),
         };
         const updateOptions = (
-            columnId,
+            processColumnId,
+            functionColumnId,
             columnRawDataType,
             $varElement,
             supportTypes,
             newOption,
             keySelectedValue,
         ) => {
+            const dropDownOptionValue = FunctionInfo.setDropDownOptionValue({
+                processColumnId,
+                functionColumnId,
+            });
             const $existOption = $varElement.find(
-                `option[value="${columnId}"]`,
+                `option[value=${dropDownOptionValue}]`,
             );
             if (
                 supportTypes.includes(columnRawDataType) &&
@@ -1383,72 +1493,33 @@ class FunctionInfo {
                 $existOption.length > 0
             ) {
                 $existOption.remove();
-                if (columnId === selectedValue[keySelectedValue]) {
+                if (processColumnId === selectedValue[keySelectedValue]) {
                     selectedValue[keySelectedValue] = '';
                 }
             }
         };
 
-        const removeOptions = (columnId, $varElement) => {
-            $varElement.find(`option[value="${columnId}"]`).remove();
+        const removeOptions = (
+            processColumnId,
+            functionColumnId,
+            $varElement,
+        ) => {
+            const dropDownOptionValue = FunctionInfo.setDropDownOptionValue({
+                processColumnId,
+                functionColumnId,
+            });
+            $varElement.find(`option[value="${dropDownOptionValue}"]`).remove();
         };
 
-        const normalColumns = currentProcDataCols.filter((col) => {
-            const shouldSkipSerial = !showSerial && col.is_serial_no;
-            return !shouldSkipSerial;
-        });
+        const { shouldSelectDropDowns, shouldIgnoreDropDowns } =
+            FunctionInfo.getDropDownOptionsForXY(showSerial);
 
-        // remove previously added ignored columns
-        const ignoreNormalColumns = currentProcDataCols.filter(
-            (col) => !showSerial && col.is_serial_no,
-        );
-
-        ignoreNormalColumns.forEach((c) => {
-            removeOptions(c.id, $varXElement);
-            removeOptions(c.id, $varYElement);
-        });
-
-        const allFunctionInfos = FunctionInfo.collectAllFunctionRows();
-
-        // if we are editing a row, we must exclude self and parents
-        const ignoreFunctionColumns = [];
-        const selectedRow =
-            functionConfigElements.functionTableElement.lastElementChild.querySelector(
-                'tr.selected',
-            );
-        if (selectedRow) {
-            const selectedFunctionInfo =
-                FunctionInfo.collectFunctionInfoByRow(selectedRow);
-            ignoreFunctionColumns.push(selectedFunctionInfo.functionColumnId);
-        }
-
-        // remove all ignored function columns
-        ignoreFunctionColumns.forEach((columnId) => {
-            removeOptions(columnId, $varXElement);
-            removeOptions(columnId, $varYElement);
-        });
-
-        const functionColumns = allFunctionInfos
-            .filter(
-                (col) => !ignoreFunctionColumns.includes(col.functionColumnId),
-            )
-            .map((col) => {
-                return {
-                    id: col.processColumnId,
-                    column_raw_name: col.systemName,
-                    raw_data_type: col.output,
-                    data_type: col.output,
-                    column_type: masterDataGroup.GENERATED_EQUATION,
-                    name_en: col.systemName,
-                    name_jp: col.japaneseName,
-                    name_local: col.localName,
-                    shown_name: col.shownName,
-                };
-            });
-
-        [...normalColumns, ...functionColumns].forEach((col) => {
+        shouldSelectDropDowns.forEach((col) => {
             const options = {
-                value: col.id,
+                value: FunctionInfo.setDropDownOptionValue({
+                    processColumnId: col.id,
+                    functionColumnId: col.function_column_id,
+                }),
                 text: col.shown_name || col.column_raw_name,
                 'raw-data-type': col.data_type,
                 'column-type': col.column_type,
@@ -1460,6 +1531,7 @@ class FunctionInfo {
 
             updateOptions(
                 col.id,
+                col.function_column_id,
                 col.data_type,
                 $varXElement,
                 xTypes,
@@ -1468,6 +1540,7 @@ class FunctionInfo {
             );
             updateOptions(
                 col.id,
+                col.function_column_id,
                 col.data_type,
                 $varYElement,
                 yTypes,
@@ -1476,9 +1549,141 @@ class FunctionInfo {
             );
         });
 
+        shouldIgnoreDropDowns.forEach((c) => {
+            removeOptions(c.id, c.function_column_id, $varXElement);
+            removeOptions(c.id, c.function_column_id, $varYElement);
+        });
+
         $varXElement.val(selectedValue['varXElement']).change();
         $varYElement.val(selectedValue['varYElement']).change();
     }
+
+    /**
+     * Get all dropdown for var x and var y
+     * We must:
+     * - Do not select serial columns if this function ignore serial columns
+     * - If me function exist, only show the latest me function columns
+     * However, if we are selecting a row:
+     * - If this row is not me function column, we simply ignore it
+     * - If this row is me function column, we must select the PREVIOUS one, and ignore others
+     *   Need to note that, if there is only one me function column in the chain
+     *   E.g. Serial -> me.substr(Serial). We will show Serial (which is a normal column)
+     * @param {boolean} showSerial
+     */
+    static getDropDownOptionsForXY = (showSerial) => {
+        const functionInfoToNormalColumnDesc = (col) => ({
+            id: col.processColumnId,
+            function_column_id: col.functionColumnId,
+            column_raw_name: col.systemName,
+            raw_data_type: col.output,
+            data_type: col.output,
+            column_type: masterDataGroup.GENERATED_EQUATION,
+            name_en: col.systemName,
+            name_jp: col.japaneseName,
+            name_local: col.localName,
+            shown_name: col.shownName,
+            is_me: col.isMeFunction,
+        });
+
+        // need to parse column id and function column id to integer before comparing
+        const parseIntColumnDesc = (col) => {
+            const parsedIntColumns = FunctionInfo.parseObjectValuesToInt({
+                id: col.id,
+                function_column_id: col.function_column_id,
+            });
+            return { ...col, ...parsedIntColumns };
+        };
+
+        if (currentProcDataCols.length === 0) {
+            currentProcDataCols = currentLatestProcDataCols;
+        }
+        const allNormalColumns = [...currentProcDataCols];
+        const allFunctionColumns = FunctionInfo.collectAllFunctionRows().map(
+            functionInfoToNormalColumnDesc,
+        );
+        const allColumns = [...allNormalColumns, ...allFunctionColumns].map(
+            parseIntColumnDesc,
+        );
+
+        // we traverse and select columns from allColumns
+        // we prefer select columns appear later (since this might be me column)
+        // ONLY 1 process column id should be selected
+        let selectedColumns = [];
+        const addOrModifySelectedColumn = (column) => {
+            if (column == null || column.id == null) {
+                return;
+            }
+            // overwrite column id if existed, otherwise add new
+            const index = selectedColumns.findIndex(
+                (col) => col.id === column.id,
+            );
+            if (index > -1) {
+                selectedColumns[index] = column;
+            } else {
+                selectedColumns.push(column);
+            }
+        };
+
+        allColumns.forEach(addOrModifySelectedColumn);
+
+        // ignore serial columns if needed
+        selectedColumns = selectedColumns.filter((column) => {
+            const shouldIgnoreSerial =
+                !showSerial &&
+                (column.is_serial_no || column.is_main_serial_no);
+            return !shouldIgnoreSerial;
+        });
+
+        // ignore currently clicked row
+        const currentlyClickedFunctionRow =
+            functionConfigElements.functionTableElement.lastElementChild.querySelector(
+                'tr.selected',
+            );
+        if (currentlyClickedFunctionRow) {
+            const currentlyClickedFunctionInfo =
+                FunctionInfo.collectFunctionInfoByRow(
+                    currentlyClickedFunctionRow,
+                );
+            if (!currentlyClickedFunctionInfo.isMeFunction) {
+                // greedily ignore non me function column
+                selectedColumns = selectedColumns.filter(
+                    (col) =>
+                        col.id !== currentlyClickedFunctionInfo.processColumnId,
+                );
+            }
+            // reselect varX and varY for clicked column
+            // find these column inside `allColumns`
+            const findVarInAllColumns = (rawColumn) => {
+                const normalizedCol = parseIntColumnDesc(
+                    functionInfoToNormalColumnDesc(rawColumn),
+                );
+                return allColumns.find(
+                    (col) =>
+                        col.id === normalizedCol.id &&
+                        col.function_column_id ===
+                            normalizedCol.function_column_id,
+                );
+            };
+            const varX = findVarInAllColumns(currentlyClickedFunctionInfo.varX);
+            const varY = findVarInAllColumns(currentlyClickedFunctionInfo.varY);
+            addOrModifySelectedColumn(varX);
+            addOrModifySelectedColumn(varY);
+        }
+
+        const isSelect = (column) =>
+            selectedColumns.some(
+                (col) =>
+                    col.id === column.id &&
+                    col.function_column_id === column.function_column_id,
+            );
+
+        const shouldSelectDropDowns = allColumns.filter(isSelect);
+        const shouldIgnoreDropDowns = allColumns.filter(
+            (column) => !isSelect(column),
+        );
+
+        return { shouldSelectDropDowns, shouldIgnoreDropDowns };
+    };
 
     /**
      * Initialize select2 for selection of Function Name
@@ -1713,8 +1918,8 @@ class FunctionInfo {
         );
         const isInvalidParams =
             selectedFunction == null ||
-            (isHasVarX && inputFunctionInfo.varX == null) ||
-            (isHasVarY && inputFunctionInfo.varY == null) ||
+            (isHasVarX && _.isEmpty(inputFunctionInfo.varX)) ||
+            (isHasVarY && _.isEmpty(inputFunctionInfo.varY)) ||
             (functionConfigElements.coeANSElement.required &&
                 inputFunctionInfo.coeANS === '') ||
             isInvalidCoeANS ||
@@ -2026,41 +2231,45 @@ function showDeleteFunctionConfirmation(event) {
     );
     const functionInfos = FunctionInfo.collectAllFunctionRows();
 
-    const deletingFunctionColumnIds = new Set();
-    const deletingProcessColumnIds = new Set();
-    for (const functionInfo of functionInfos) {
-        let deleting = false;
-
-        // determine if this column is being deleted
-        if (functionInfo.isChecked) {
-            // checked functions should be deleted
-            deletingFunctionColumnIds.add(functionInfo.functionColumnId);
-            deleting = true;
-        } else {
-            // unchecked functions but depend on other deleting functions should be deleted as well
-            if (
-                deletingProcessColumnIds.has(functionInfo.varX) ||
-                deletingProcessColumnIds.has(functionInfo.varY)
-            ) {
-                deletingFunctionColumnIds.add(functionInfo.functionColumnId);
-                deleting = true;
+    // reverse mapping from varX and varY to functionColumnId
+    const varToFunctionColumnId = functionInfos.reduce((acc, currentValue) => {
+        const xKey = currentValue.varX.functionColumnId;
+        const yKey = currentValue.varY.functionColumnId;
+        for (const key of [xKey, yKey]) {
+            if (key != null) {
+                (acc[key] || (acc[key] = [])).push(
+                    currentValue.functionColumnId,
+                );
             }
         }
+        return acc;
+    }, {});
 
-        // mark this as deleting function
-        if (deleting) {
-            deletingProcessColumnIds.add(functionInfo.processColumnId);
+    let processingFunctionColumnIds = functionInfos
+        .filter((info) => info.isChecked)
+        .map((functionInfo) => functionInfo.functionColumnId);
+    const deletingFunctionColumnIds = new Set();
+    while (processingFunctionColumnIds.length > 0) {
+        const functionColumnId = processingFunctionColumnIds.shift();
+        if (deletingFunctionColumnIds.has(functionColumnId)) {
+            continue;
         }
+        deletingFunctionColumnIds.add(functionColumnId);
+        const shouldDeleteFunctionColumnIds =
+            varToFunctionColumnId[functionColumnId] ?? [];
+        processingFunctionColumnIds = processingFunctionColumnIds.concat(
+            shouldDeleteFunctionColumnIds,
+        );
     }
 
     // Add related function columns into table
-    let htmlRows = '';
-    functionInfos
-        .filter((functionInfo) =>
-            deletingFunctionColumnIds.has(functionInfo.functionColumnId),
-        )
-        .forEach(function (functionInfo, index) {
-            htmlRows +=
+    const deletingFunctionInfos = functionInfos.filter((functionInfo) =>
+        deletingFunctionColumnIds.has(functionInfo.functionColumnId),
+    );
+    functionConfigElements.deleteFunctionColumnTableBody.innerHTML =
+        deletingFunctionInfos.reduce(
+            (htmlRows, functionInfo, index) =>
+                htmlRows +
                 `<tr>` +
                 `<td class="sample-data show-raw-text column-index" name="index" data-column-title="index" data-is-me-function="${functionInfo.isMeFunction}" data-process-column-id="${functionInfo.processColumnId}" data-function-column-id="${functionInfo.functionColumnId}">${index + 1}</td>` +
                 `<td class="sample-data show-raw-text column-system-name" name="systemName" data-column-title="systemName">${functionInfo.systemName}</td>` +
@@ -2068,9 +2277,10 @@ function showDeleteFunctionConfirmation(event) {
                 `<td class="sample-data show-raw-text column-local-name" name="localName" data-column-title="localName">${functionInfo.localName}</td>` +
                 `<td class="sample-data show-raw-text column-var-x" name="varXName" data-column-title="varXName" data-var-x-id="${functionInfo.varX}">${functionInfo.varXName}</td>` +
                 `<td class="sample-data show-raw-text column-var-x" name="varYName" data-column-title="varYName" data-var-y-id="${functionInfo.varY}">${functionInfo.varYName}</td>` +
-                '</tr>';
-        });
-    functionConfigElements.deleteFunctionColumnTableBody.innerHTML = htmlRows;
+                '</tr>',
+            '',
+        );
+
     functionConfigElements.deleteFunctionColumnTableBody
         .querySelectorAll('td')
         .forEach((cell) =>
@@ -2082,145 +2292,65 @@ function showDeleteFunctionConfirmation(event) {
     $('#deleteFunctionColumnModal').modal('show');
 }
 
-/**
- * register Function
- * @param {PointerEvent} event
- */
-function registerFunctionInfo(event) {
-    const functions = collectFunctionDatasForRegister();
-    const procId = procModalElements.procID.val();
-    const data = {
-        process_id: procId,
-        functions: functions,
-    };
+function genFunctionErrorMessage(errorResponses) {
+    const setErrorMsgs = new Set();
+    for (const [functionColumnId, rowErrors] of Object.entries(
+        errorResponses,
+    )) {
+        const row =
+            functionConfigElements.functionTableElement.lastElementChild.querySelector(
+                `tr td[data-function-column-id='${functionColumnId}']`,
+            ).parentNode;
 
-    loadingShowImmediately();
-    fetch('api/setting/function_config', {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    })
-        .then((response) => response.json())
-        .then((res) => {
-            let messageInfo = generateRegisterMessage(
-                $('#i18nSavedSuccessfully').text(),
-            );
-            if (Object.prototype.hasOwnProperty.call(res, 'cfg_col_ids')) {
-                hideAlertMessages();
-                FunctionInfo.removeAllFunctionRows();
-                FunctionInfo.resetStatusOfEditingFunction();
-                FunctionInfo.resetInputFunctionInfo();
-                FunctionInfo.getAllFunctionInfosApi(
-                    procId,
-                    res.cfg_col_ids,
-                ).then(FunctionInfo.loadFunctionListTableAndInitDropDown);
+        // Reset the 'invalid' status from each element
+        FunctionInfo.resetInvalidStatus(row);
 
-                // update prc PreviewDataOfFunctionColumn when register
-                for (let key in prcPreviewDataOfFunctionColumn) {
-                    if (parseInt(key) < 0) {
-                        delete prcPreviewDataOfFunctionColumn[key];
-                    }
-                }
+        // Find error targets and border red it
+        for (const rowError of rowErrors) {
+            let fieldName = rowError['field'];
+            if (ARRAY_ANS.includes(fieldName)) {
+                fieldName = 'a_n_s';
+            } else if (ARRAY_BK.includes(fieldName)) {
+                fieldName = 'b_k';
+            } else if (ARRAY_CT.includes(fieldName)) {
+                fieldName = 'c_t';
+            }
+            let errorMsg;
+            if (fieldName === 'name_jp') {
+                errorMsg = $(procModali18n.duplicatedJapaneseName).text() || '';
+            } else if (fieldName === 'name_en') {
+                errorMsg = $(procModali18n.duplicatedSystemName).text() || '';
+            } else if (fieldName === 'name_local') {
+                errorMsg = $(procModali18n.duplicatedLocalName).text() || '';
             } else {
-                const errorResponses = res;
-                const setErrorMsgs = new Set();
-                for (const [functionColumnId, rowErrors] of Object.entries(
-                    errorResponses,
-                )) {
-                    const row =
-                        functionConfigElements.functionTableElement.lastElementChild.querySelector(
-                            `tr td[data-function-column-id='${functionColumnId}']`,
-                        ).parentNode;
-
-                    // Reset the 'invalid' status from each element
-                    FunctionInfo.resetInvalidStatus(row);
-
-                    // Find error targets and border red it
-                    for (const rowError of rowErrors) {
-                        let fieldName = rowError['field'];
-                        if (ARRAY_ANS.includes(fieldName)) {
-                            fieldName = 'a_n_s';
-                        } else if (ARRAY_BK.includes(fieldName)) {
-                            fieldName = 'b_k';
-                        } else if (ARRAY_CT.includes(fieldName)) {
-                            fieldName = 'c_t';
-                        }
-                        let errorMsg;
-                        if (fieldName === 'name_jp') {
-                            errorMsg =
-                                $(
-                                    procModali18n.duplicatedJapaneseName,
-                                ).text() || '';
-                        } else if (fieldName === 'name_en') {
-                            errorMsg =
-                                $(procModali18n.duplicatedSystemName).text() ||
-                                '';
-                        } else if (fieldName === 'name_local') {
-                            errorMsg =
-                                $(procModali18n.duplicatedLocalName).text() ||
-                                '';
-                        } else {
-                            errorMsg = rowError['msg'];
-                        }
-
-                        // Set class invalid to border red error targets
-                        if (!fieldName) {
-                            $(row).addClass('row-invalid');
-                        } else {
-                            const inputEle = row.querySelector(
-                                `input[name="${fieldName}"]`,
-                            );
-                            FunctionInfo.setInvalidStatus(inputEle);
-                        }
-                        setErrorMsgs.add(errorMsg);
-                    }
-                }
-
-                // Show toast error messages
-                const errorMsgs = Array.from(setErrorMsgs) || [];
-                if (errorMsgs.length > 0) {
-                    messageInfo = generateRegisterMessage(
-                        Array.from(errorMsgs).join('<br>'),
-                        true,
-                        false,
-                    );
-                }
-            }
-            displayRegisterMessage(procModalElements.alertProcessNameErrorMsg, {
-                message: messageInfo.message,
-                is_error: messageInfo.isError,
-                is_warning: messageInfo.isWarning,
-            });
-        })
-        .catch((res) => {
-            const errorResponses = res['responseJSON'];
-            const setErrorMsgs = new Set();
-            if (errorResponses.code === 500) {
-                setErrorMsgs.add(errorResponses.message);
+                errorMsg = rowError['msg'];
             }
 
-            // Show toast error messages
-            const errorMsgs = Array.from(setErrorMsgs) || [];
-            if (errorMsgs.length > 0) {
-                const messageStr = Array.from(errorMsgs).join('<br>');
-                displayRegisterMessage(
-                    procModalElements.alertProcessNameErrorMsg,
-                    {
-                        message: messageStr,
-                        is_error: true,
-                        is_warning: false,
-                    },
+            // Set class invalid to border red error targets
+            if (!fieldName) {
+                $(row).addClass('row-invalid');
+            } else {
+                const inputEle = row.querySelector(
+                    `input[name="${fieldName}"]`,
                 );
+                FunctionInfo.setInvalidStatus(inputEle);
             }
-        });
-    FunctionInfo.resetInputFunctionInfo(true, false);
-    FunctionInfo.resetStatusOfEditingFunction();
-    FunctionInfo.updateStatusErrorCheckbox();
-    FunctionInfo.initDropdownFunctionName();
-    loadingHide();
+            setErrorMsgs.add(errorMsg);
+        }
+    }
+
+    // Show toast error messages
+    const errorMsgs = Array.from(setErrorMsgs) || [];
+    if (errorMsgs.length > 0) {
+        const messageInfo = generateRegisterMessage(
+            Array.from(errorMsgs).join('<br>'),
+            true,
+            false,
+        );
+        return messageInfo;
+    } else {
+        return;
+    }
 }
 
 /**
@@ -2233,7 +2363,7 @@ function collectAllFunctionInfo() {
             .firstElementChild.children,
     ]
         .map((th) => {
-            const columnName = th.dataset.columnName.trim();
+            const columnName = th.innerText.trim();
             if (th.getAttribute('colspan') == null) {
                 return columnName;
             }
@@ -2246,18 +2376,7 @@ function collectAllFunctionInfo() {
         ...functionConfigElements.functionTableElement.lastElementChild
             .children,
     ]
-        .map((tr) =>
-            [...tr.children]
-                .map((td) => {
-                    const inputEl = td.querySelector('input[type="text"]');
-                    if (inputEl != null) {
-                        return inputEl.value.trim();
-                    }
-
-                    return td.textContent.trim();
-                })
-                .join(TAB_CHAR),
-        )
+        .map((tr) => getTRDataValues(tr).join(TAB_CHAR))
         .join(NEW_LINE_CHAR);
     return [headerText, bodyText].join(NEW_LINE_CHAR);
 }
@@ -2510,12 +2629,12 @@ const handleDeleteFunctionColumns = () => {
     [...functionConfigElements.deleteFunctionColumnTableBody.children].forEach(
         (tr) => {
             const numberCell = tr.firstElementChild;
-            const columnId = numberCell.dataset.functionColumnId;
-            delete prcPreviewDataOfFunctionColumn?.[columnId];
+            const functionColumnId = numberCell.dataset.functionColumnId;
+            deleteFunctionSampleData(functionColumnId);
 
             functionConfigElements.functionTableElement.lastElementChild
                 .querySelectorAll(
-                    `tr td[data-function-column-id='${columnId}']`,
+                    `tr td[data-function-column-id='${functionColumnId}']`,
                 )
                 .forEach((columnFunctionName) => {
                     const rowElement = columnFunctionName.parentElement;
@@ -2944,7 +3063,8 @@ const changeFunctionColumnName = (el, colTableIdx) => {
 
     // Get sample data of selected column
     const selectedColumn = el.selectedOptions[0];
-    const columnId = selectedColumn.value;
+    const { processColumnId, functionColumnId } =
+        FunctionInfo.getDropDownOptionValue(selectedColumn.value);
     const columnType = selectedColumn.getAttribute('column-type');
     const selectedFunction =
         functionConfigElements.functionNameElement.selectedOptions[0];
@@ -2968,82 +3088,61 @@ const changeFunctionColumnName = (el, colTableIdx) => {
             functionConfigElements.localNameElement.value;
     }
 
-    const getSampleDataValues = () => {
-        let sampleDataValues = [];
-
-        // case 1: get data from generated function column
-        if (Number(columnType) === masterDataGroup.GENERATED_EQUATION) {
-            sampleDataValues = collectSampleDataUnique(columnId);
-        } else {
-            // case 2: function me
-            const rows = $(functionConfigElements.functionTableElement)
-                .find(`tr td[data-var-x=${columnId}]`)
-                .parent();
-            if (rows.length) {
-                const childrenMeFunctionRows = [];
-                for (const row of rows) {
-                    const functionName = $(row)
-                        .find(`td[data-column-title="is_checked"] label`)
-                        .text();
-                    if (functionName.startsWith('me.')) {
-                        childrenMeFunctionRows.push(row);
-                    }
-                }
-                if (childrenMeFunctionRows.length) {
-                    // TODO: fix edit row
-                    // case 2.1: select function me => get data from selected row
-                    if (isFunctionColSelected) {
-                        const selectedFuncColRowEl = $(
-                            functionConfigElements.functionTableElement,
-                        ).find('tr.selected');
-                        const selectedFunctionColId = $(selectedFuncColRowEl)
-                            .find('td:nth-child(2)')
-                            .data('process-column-id');
-                        sampleDataValues = collectSampleDataUnique(
-                            selectedFunctionColId,
-                        );
-                    } else {
-                        // case 2.2: get data from the last row of function table column
-                        const meFunctionColumnId = $(
-                            childrenMeFunctionRows.at(-1),
-                        )
-                            .find('td:nth-child(2)')
-                            .data('process-column-id');
-                        sampleDataValues =
-                            collectSampleDataUnique(meFunctionColumnId);
-                    }
-                } else {
-                    sampleDataValues = collectSampleDataUnique(columnId);
-                }
-            } else {
-                sampleDataValues = collectSampleDataUnique(columnId);
-            }
-        }
-
-        return sampleDataValues;
-    };
-
     // check X and Y is enabled or not
     const isDisabledX = functionConfigElements.varXElement.disabled;
     const isDisabledY = functionConfigElements.varYElement.disabled;
     const isCalculatedXAndY = !isDisabledX && !isDisabledY;
 
     // check value of X and Y
-    const xColumnId = functionConfigElements.varXElement.value;
-    const yColumnId = functionConfigElements.varYElement.value;
-    const isHasXYValue = xColumnId !== '' && yColumnId !== '';
+    const varXId = FunctionInfo.getVarXId();
+    const varYId = FunctionInfo.getVarYId();
+    const isHasXYValue =
+        (varXId.processColumnId != null || varXId.functionColumnId != null) &&
+        (varYId.processColumnId != null || varYId.functionColumnId != null);
+
+    const xDataType =
+        functionConfigElements.varXElement.selectedOptions[0].getAttribute(
+            'raw-data-type',
+        );
+    let yDataType = '';
+    if (isHasXYValue) {
+        yDataType =
+            functionConfigElements.varYElement.selectedOptions[0].getAttribute(
+                'raw-data-type',
+            );
+    }
 
     if (!isCalculatedXAndY) {
         // fill dataY empty
-        const dataByX = getSampleDataValues();
+        const dataByX = getSampleDataX();
+        const originalDataByX = getSampleDataX({ isRawData: true });
         let dataByY = Array(dataByX.length).fill('');
-        getUniqueAndSlideData(dataByX, dataByY);
+        let originalDataByY = Array(dataByX.length).fill('');
+        getUniqueAndSlideData(
+            dataByX,
+            dataByY,
+            xDataType,
+            yDataType,
+            originalDataByX,
+            originalDataByY,
+            false,
+        );
     }
     if (isHasXYValue && isCalculatedXAndY) {
         // map data by ID
-        const dataByX = getSampleDataByColumnId(xColumnId);
-        const dataByY = getSampleDataByColumnId(yColumnId);
-        getUniqueAndSlideData(dataByX, dataByY);
+        const dataByX = getSampleDataX();
+        const dataByY = getSampleDataY();
+        const originalDataByX = getSampleDataX({ isRawData: true });
+        const originalDataByY = getSampleDataY({ isRawData: true });
+        getUniqueAndSlideData(
+            dataByX,
+            dataByY,
+            xDataType,
+            yDataType,
+            originalDataByX,
+            originalDataByY,
+            true,
+        );
     }
 
     // Set default system name if it is new function column (not editing mode)
@@ -3055,61 +3154,132 @@ const changeFunctionColumnName = (el, colTableIdx) => {
 /**
  * Get unique data and slice to 50 data
  * @param {array} dataByX - sample data of column x
- * @param {array} dataByY - sample data of column x
+ * @param {array} dataByY - sample data of column y
+ * @param {array} originalDataByX - raw data of column x
+ * @param {array} originalDataByY - raw data of column y
+ * @param {string} xDataType - data type of column x
+ * @param {string} yDataType - data type of column y
+ * @param {boolean} isBothXY
  * @param {int} limit - limit slice
  */
-const getUniqueAndSlideData = (dataByX, dataByY, limit = 50) => {
+const getUniqueAndSlideData = (
+    dataByX,
+    dataByY,
+    xDataType,
+    yDataType,
+    originalDataByX,
+    originalDataByY,
+    isBothXY = false,
+    limit = 50,
+) => {
     const mapDataByXY = _.zip(dataByX ?? [], dataByY ?? []);
+    const mapOriginalDataByXY = _.zip(
+        originalDataByX ?? [],
+        originalDataByY ?? [],
+    );
 
     // get unique data and slice to 50 data
     const uniqueDataByXY = Array.from(
         new Set(mapDataByXY?.map((item) => JSON.stringify(item))),
     )
         .map((item) => JSON.parse(item))
-        .slice(0, 50);
+        .slice(0, limit);
 
-    //sort empty string to last
-    uniqueDataByXY.sort((x, y) => {
-        const [aX, aY] = x;
-        const [bX, bY] = y;
+    // get unique original data
+    const uniqueOriginDataByXY = Array.from(
+        new Set(mapOriginalDataByXY?.map((item) => JSON.stringify(item))),
+    )
+        .map((item) => JSON.parse(item))
+        .slice(0, limit);
 
-        // check empty value
-        const aXIsEmpty = aX === '';
-        const bXIsEmpty = bX === '';
-        const aYIsEmpty = aY === '';
-        const bYIsEmpty = bY === '';
-
-        // x and y not empty
-        if (!aXIsEmpty && !aYIsEmpty && (bXIsEmpty || bYIsEmpty)) return -1;
-        if (!bXIsEmpty && !bYIsEmpty && (aXIsEmpty || aYIsEmpty)) return 1;
-
-        // x not empty, y empty
-        if (!aXIsEmpty && aYIsEmpty && (bXIsEmpty || !bYIsEmpty)) return -1;
-        if (!bXIsEmpty && bYIsEmpty && (aXIsEmpty || !aYIsEmpty)) return 1;
-
-        // x empty, y not empty
-        if (aXIsEmpty && !aYIsEmpty && (bXIsEmpty || bYIsEmpty)) return -1;
-        if (bXIsEmpty && !bYIsEmpty && (aXIsEmpty || aYIsEmpty)) return 1;
-
-        // x and y empty
-        if (aXIsEmpty && aYIsEmpty && bXIsEmpty && bYIsEmpty) return 0;
-
-        return 0;
-    });
-    const [uniqueDataByX, uniqueDataByY] = _.unzip(uniqueDataByXY);
+    const [uniqueDataByX, uniqueDataByY] = sortEmptyStringDataXY(
+        isBothXY,
+        uniqueDataByXY,
+    );
+    const [uniqueOriginalDataByX, uniqueOriginDataByY] = sortEmptyStringDataXY(
+        isBothXY,
+        uniqueOriginDataByXY,
+    );
 
     // re-update data of X and Y with index of X (2) and Y(3) in functionSampleTable data
-    _.zip([2, 3], [uniqueDataByX, uniqueDataByY]).forEach(
-        ([colTableIdx, renderData]) => {
-            renderDataToFunctionSampleData({
-                renderData,
-                colTableIdx,
-            });
-        },
-    );
+    _.zip(
+        [2, 3],
+        [xDataType, yDataType],
+        [uniqueDataByX, uniqueDataByY],
+        [uniqueOriginalDataByX, uniqueOriginDataByY],
+    ).forEach(([colTableIdx, dataType, renderData, originalData]) => {
+        renderDataToFunctionSampleData({
+            renderData,
+            originalData,
+            dataType,
+            colTableIdx,
+        });
+    });
 };
 
-const renderDataToFunctionSampleData = ({ renderData, colTableIdx }) => {
+const sortEmptyStringDataXY = (isBothXY, uniqueDataByXY) => {
+    //Sort empty string to last
+    //1. 1st row: Both x and y are not NA
+    //2. 2nd row: first record where x is empty and y is not empty
+    //3. 3rd row: first record where x not empty and y is empty
+    //4. 4th row and on: both X and Y are not NA, unique
+    let firstRowIndex;
+    let secondIndex;
+    let threeRowIndex;
+    let otherRowIndexes = [];
+
+    if (isBothXY) {
+        // Find indices
+        uniqueDataByXY.forEach((item, index) => {
+            const x = item[0];
+            const y = item[1];
+            // 1st row: Both x and y are not NA
+            if (x !== '' && y !== '' && firstRowIndex === undefined) {
+                firstRowIndex = index;
+                return;
+            }
+            // 2nd row: first record where x is empty and y is not empty
+            if (x === '' && y !== '' && secondIndex === undefined) {
+                secondIndex = index;
+                return;
+            }
+            // 3rd row: first record where x not empty and y is empty
+            if (x !== '' && y === '' && threeRowIndex === undefined) {
+                threeRowIndex = index;
+                return;
+            }
+            // 4th row and on: both X and Y are not NA, unique
+            if (x !== '' && y !== '' && firstRowIndex !== undefined) {
+                otherRowIndexes.push(index);
+            }
+        });
+    } else {
+        // Find indices
+        uniqueDataByXY.forEach((item, index) => {
+            const x = item[0];
+            // 4th row and on: both X and Y are not NA, unique
+            if (x !== '') {
+                otherRowIndexes.push(index);
+            }
+        });
+    }
+
+    const sortedUniqueDataByXY = [
+        uniqueDataByXY[firstRowIndex],
+        uniqueDataByXY[secondIndex],
+        uniqueDataByXY[threeRowIndex],
+        ...uniqueDataByXY.filter((_, index) => otherRowIndexes.includes(index)),
+    ];
+
+    return _.unzip(sortedUniqueDataByXY);
+};
+
+const renderDataToFunctionSampleData = ({
+    renderData,
+    originalData,
+    dataType,
+    colTableIdx,
+}) => {
     const trEls = $(functionConfigElements.sampleDataElement).find(`tbody tr`);
     const tableSampleDataBodyEl = $(
         functionConfigElements.sampleDataElement,
@@ -3137,58 +3307,90 @@ const renderDataToFunctionSampleData = ({ renderData, colTableIdx }) => {
         `tbody tr td:nth-child(${colTableIdx})`,
     );
     // map data to table
-    for (const index of Array(renderData.length).keys()) {
-        $(elements[index]).html(renderData[index] ?? '');
-    }
-};
-
-const getSampleDataByColumnId = (columnId) => {
-    // get data in prcPreviewDataOfFunctionColumn if null|undefined => get in prcPreviewWith1000Data
-    return (
-        prcPreviewDataOfFunctionColumn[columnId] ||
-        prcPreviewWith1000Data[columnId]
+    const isNumber = NUMERIC_TYPES.includes(dataType);
+    _.zip(elements, renderData, originalData).forEach(
+        ([ele, value, originalData]) => {
+            $(ele).html(formatSignifiValue(value, isNumber));
+            $(ele).attr(DATA_ORIGIN_ATTR, originalData);
+            $(ele).attr(IS_NUMBER_ATTR, isNumber);
+        },
     );
 };
 
+const setPreviewDataForFunctionColumns = (functionColumnId, sampleDatas) => {
+    prcPreviewDataOfFunctionColumn[functionColumnId] = sampleDatas;
+};
+
 /**
- * Get sample data based on column ids
- * @param {string} columnId
+ * @param {?number|string} functionColumnId
+ * @param {?number|string} processColumnId
+ * @param {boolean} isRawData
+ * @returns string[]
+ */
+const getSampleDataByFunctionColumnIdOrColumnId = (
+    { functionColumnId, processColumnId, isRawData } = {
+        functionColumnId: null,
+        processColumnId: null,
+        isRawData: false,
+    },
+) => {
+    // get data in prcPreviewDataOfFunctionColumn if null|undefined => get in prcPreviewWith1000Data
+    // TODO: parse to int
+    if (isRawData) {
+        return (
+            prcPreviewDataOfFunctionColumn[functionColumnId] ||
+            prcRawDataWith1000Data[processColumnId]
+        );
+    }
+    return (
+        prcPreviewDataOfFunctionColumn[functionColumnId] ||
+        prcPreviewWith1000Data[processColumnId]
+    );
+};
+
+const getSampleDataX = ({ isRawData } = { isRawData: false }) =>
+    getSampleDataByFunctionColumnIdOrColumnId({
+        ...FunctionInfo.getVarXId(),
+        isRawData: isRawData,
+    });
+const getSampleDataY = ({ isRawData } = { isRawData: false }) =>
+    getSampleDataByFunctionColumnIdOrColumnId({
+        ...FunctionInfo.getVarYId(),
+        isRawData: isRawData,
+    });
+
+const deleteNewlyAddedFunctionColumnSampleData = () => {
+    const newlyAddedFunctionColumnIds = Object.keys(
+        prcPreviewDataOfFunctionColumn,
+    ).filter((functionColumnId) => parseInt(functionColumnId) < 0);
+    newlyAddedFunctionColumnIds.forEach(deleteFunctionSampleData);
+};
+
+const deleteFunctionSampleData = (functionColumnId) => {
+    delete prcPreviewDataOfFunctionColumn?.[functionColumnId];
+};
+/**
+ * Get sample data based on function column id or column id
+ * @param {?number|string} functionColumnId
+ * @param {?number|string} processColumnId
  * @return {string[]} - a list that contains sample data
  */
-const collectSampleDataUnique = (columnId) => {
-    let data = getSampleDataByColumnId(columnId);
+const collectSampleDataUnique = ({ functionColumnId, processColumnId }) => {
+    const data = getSampleDataByFunctionColumnIdOrColumnId({
+        functionColumnId,
+        processColumnId,
+    });
     // return new sampleDataValues with 50 unique data
     return [...new Set(data)].slice(0, 50);
 };
 
-/**
- * Get sample data based on column ids
- * @param {number} columnId
- * @return {string[]} - a list that contains sample data
- */
-const collectSampleData = (columnId) => {
-    const colIdx = procModalElements.processColumnsTableBody
-        .find(`td[title="index"][data-column-id="${columnId}"]`)
-        .attr('data-col-idx');
-
-    // find originalColName by columnId
-    const originalNameColName = procModalElements.processColumnsTableBody
-        .find(`td[title="index"][data-column-id="${columnId}"]`)
-        .next()
-        .find('input')
-        .val();
-
-    // find data by originalName
-    return getSampleDataByColumnId(columnId);
-};
-
-const collectEquationSampleData = (idx) => {
+const collectEquationOriginSampleData = (idx) => {
     const elements = $(functionConfigElements.sampleDataElement).find(
         `tbody tr td:nth-child(${idx})`,
     );
     let sampleDataValues = [];
     for (const e of elements) {
-        sampleDataValues.push($(e).text());
+        sampleDataValues.push(e.getAttribute(DATA_ORIGIN_ATTR));
     }
     return sampleDataValues;
 };
@@ -3197,10 +3399,18 @@ const collectEquationSampleData = (idx) => {
  * Show sample datas base on function inputs
  */
 const showResultFunction = delay(() => {
-    const getValues = (columnId) =>
-        (getSampleDataByColumnId(columnId) ?? []).map((v) => String(v ?? ''));
-    const xValues = getValues(functionConfigElements.varXElement.value);
-    const yValues = getValues(functionConfigElements.varYElement.value);
+    const getValues = (element) => {
+        const selection = FunctionInfo.getDropDownOptionValue(element.value);
+        const sampleDatas =
+            getSampleDataByFunctionColumnIdOrColumnId({
+                ...selection,
+                isRawData: true,
+            }) ?? [];
+        return sampleDatas.map((v) => String(v ?? ''));
+    };
+    // TODO(khanhdq): use getSampleDataX() and getSampleDataY() here
+    const xRawValues = getValues(functionConfigElements.varXElement);
+    const yRawValues = getValues(functionConfigElements.varYElement);
     const xDataType = $(functionConfigElements.varXElement)
         .find(':selected')
         .attr('raw-data-type');
@@ -3211,6 +3421,12 @@ const showResultFunction = delay(() => {
         ':selected',
     );
     const equationId = selectedFunction.val();
+    // get datetime format to convert
+    const datetimeFormat = procModalElements.procDateTimeFormatInput
+        .val()
+        .trim();
+    const isDatetimeFormat =
+        procModalElements.procDateTimeFormatCheckbox.is(':checked');
     const {
         a = null,
         b = null,
@@ -3225,13 +3441,13 @@ const showResultFunction = delay(() => {
         functionConfigElements.coeBKElement.value,
         functionConfigElements.coeCTElement.value,
     );
-    const isAllXValuesEmpty = xValues.every((element) => element === '');
-    const isAllYValuesEmpty = yValues.every((element) => element === '');
+    const isAllXValuesEmpty = xRawValues.every((element) => element === '');
+    const isAllYValuesEmpty = yRawValues.every((element) => element === '');
 
     const data = {
-        X: xValues,
+        X: xRawValues,
         x_data_type: xDataType,
-        Y: yValues,
+        Y: yRawValues,
         y_data_type: yDataType,
         a,
         b,
@@ -3241,6 +3457,8 @@ const showResultFunction = delay(() => {
         s,
         t,
         equation_id: equationId,
+        datetime_format: datetimeFormat,
+        is_datetime_format: isDatetimeFormat,
     };
     fetch('/ap/api/setting/function_config/sample_data', {
         method: 'POST',
@@ -3259,7 +3477,9 @@ const showResultFunction = delay(() => {
             } else {
                 /** @type {string[]} */
                 const sampleData = jsonParse(data.sample_data);
-
+                // const { xValues, yValues } = getXYValues();
+                const xValues = getSampleDataX({ isRawData: true }) || [];
+                const yValues = getSampleDataY({ isRawData: true }) || [];
                 // Find result of unique X & Y
                 const xYResult = Object.fromEntries(
                     _.zip(_.zip(xValues, yValues), sampleData),
@@ -3267,8 +3487,8 @@ const showResultFunction = delay(() => {
                 const uniqueXYResult = Object.fromEntries(
                     _.zip(
                         _.zip(
-                            collectEquationSampleData(2),
-                            collectEquationSampleData(3),
+                            collectEquationOriginSampleData(2),
+                            collectEquationOriginSampleData(3),
                         ),
                         [],
                     ),
@@ -3280,17 +3500,24 @@ const showResultFunction = delay(() => {
                 functionConfigElements.sampleDataElement.result = sampleData;
 
                 FunctionInfo.setOutputDataType(data.output_type);
+                const isNumber = NUMERIC_TYPES.includes(data.output_type);
                 const elements = $(
                     functionConfigElements.sampleDataElement,
                 ).find(`tbody tr td:nth-child(1)`);
                 for (const index of Array(resultValues.length).keys()) {
                     let val = resultValues[index];
+                    $(elements[index]).attr(DATA_ORIGIN_ATTR, val);
+                    $(elements[index]).attr(IS_NUMBER_ATTR, isNumber);
                     if (data.output_type === DataTypes.DATETIME.name) {
                         val = parseDatetimeStr(val);
                     }
-                    $(elements[index]).html(applySignificantDigit(val));
+                    val = formatSignifiValue(val, isNumber);
+                    $(elements[index]).html(val);
                 }
-                FunctionInfo.fillSampleDataToSelectedFunctionRow(sampleData);
+                FunctionInfo.fillSampleDataToSelectedFunctionRow(
+                    sampleData,
+                    isNumber,
+                );
                 const isResultsEmpty = resultValues.every(
                     (element) => element === null,
                 );
@@ -3470,19 +3697,19 @@ function separateArgumentsOfFunction(functionId, coeANS, coeBK, coeCT) {
  * @return {*[]} - a list of dictionary
  */
 function collectFunctionDatasForRegister() {
-    const functions = [];
+    const dictProcessFunctionColumn = {};
     FunctionInfo.collectAllFunctionRows().forEach((functionInfo) => {
         const isGetDate = false;
         const isSerial = false;
         const columnType = masterDataGroup.GENERATED_EQUATION;
 
         if (functionInfo.isMeFunction) {
-            functionInfo.processColumnId = functionInfo.varX;
+            functionInfo.processColumnId = functionInfo.varX.processColumnId;
         }
 
         const dicCfgProcessColumn = {
-            id: functionInfo.processColumnId,
-            process_id: procModalElements.procID.val(),
+            id: functionInfo.processColumnId || null,
+            process_id: procModalElements.procID.val() || null,
             column_name: functionInfo.systemName,
             column_raw_name: functionInfo.systemName,
             name_en: functionInfo.systemName,
@@ -3493,6 +3720,7 @@ function collectFunctionDatasForRegister() {
             column_type: columnType,
             is_get_date: isGetDate,
             is_serial_no: isSerial,
+            function_details: [],
         };
 
         const {
@@ -3511,11 +3739,11 @@ function collectFunctionDatasForRegister() {
         );
 
         const dicCfgProcessFunctionColumn = {
-            id: functionInfo.functionColumnId,
-            process_column_id: functionInfo.processColumnId,
+            id: functionInfo.functionColumnId || null,
+            process_column_id: functionInfo.processColumnId || null,
             function_id: functionInfo.functionId,
-            var_x: functionInfo.varX,
-            var_y: functionInfo.varY,
+            var_x: functionInfo.varX.processColumnId,
+            var_y: functionInfo.varY.processColumnId,
             return_type: functionInfo.output,
             a,
             b,
@@ -3525,15 +3753,23 @@ function collectFunctionDatasForRegister() {
             s,
             t,
             note: functionInfo.note,
-            is_me_function: functionInfo.isMeFunction,
-            process_column: dicCfgProcessColumn,
+            // is_me_function: functionInfo.isMeFunction,
+            // process_column: dicCfgProcessColumn,
             order: functionInfo.index,
         };
-
-        functions.push(dicCfgProcessFunctionColumn);
+        if (dictProcessFunctionColumn[dicCfgProcessColumn.id]) {
+            const column = dictProcessFunctionColumn[dicCfgProcessColumn.id];
+            column.function_details.push(dicCfgProcessFunctionColumn);
+        } else {
+            dicCfgProcessColumn.function_details.push(
+                dicCfgProcessFunctionColumn,
+            );
+            dictProcessFunctionColumn[dicCfgProcessColumn.id] =
+                dicCfgProcessColumn;
+        }
     });
 
-    return functions;
+    return dictProcessFunctionColumn;
 }
 
 /**
@@ -3552,12 +3788,7 @@ function reloadFunctionInfo(event) {
         .then(FunctionInfo.loadFunctionListTableAndInitDropDown)
         .finally(loadingHide);
 
-    // update prc PreviewDataOfFunctionColumn
-    for (let key in prcPreviewDataOfFunctionColumn) {
-        if (parseInt(key) < 0) {
-            delete prcPreviewDataOfFunctionColumn[key];
-        }
-    }
+    deleteNewlyAddedFunctionColumnSampleData();
 }
 
 /**
@@ -3597,8 +3828,7 @@ function syncInputConfigAndTable() {
                             functionConfigElements.coeCTElement,
                             rowElement.querySelector('input[name="c_t"]'),
                             true,
-                        ),
-                        // sync without reload
+                        ), // sync without reload
                         syncInputConfigAndTableEvents(
                             functionConfigElements.noteElement,
                             rowElement.querySelector('input[name="note"]'),
@@ -3620,8 +3850,7 @@ function syncInputConfigAndTable() {
                                 'input[name="name_local"]',
                             ),
                             false,
-                        ),
-                        // sync select dropdown
+                        ), // sync select dropdown
                         syncSelectConfigAndTableEvents(
                             functionConfigElements.varXElement,
                             rowElement.querySelector('td.column-var-x'),
@@ -3682,32 +3911,71 @@ function disableDragAndDropFunctionTable() {
  * @return {string} - a string contains all records
  */
 function collectFunctionSampleData() {
-    /**
-     * Collect values of row
-     * @param {NodeListOf<HTMLTableCellElement>} nodeList - list of cells in row
-     * @return {string}
-     */
-    const collectRow = (nodeList) =>
-        Array.from(nodeList)
-            .map((cell) => cell.textContent.trim())
-            .join('\t') + '\n';
-
     // Extract table headers
-    let text = collectRow(
-        functionConfigElements.sampleDataElement.querySelectorAll(
+    let headerText = [
+        ...functionConfigElements.sampleDataElement.querySelectorAll(
             'thead tr th',
         ),
-    );
+    ]
+        .map((cell) => cell.textContent.trim())
+        .join(TAB_CHAR);
 
     // Extract table rows
-    functionConfigElements.sampleDataElement
-        .querySelectorAll('tbody tr')
-        .forEach((row) => {
-            text += collectRow(row.querySelectorAll('td'));
-        });
+    const bodyText = [
+        ...functionConfigElements.sampleDataElement.querySelectorAll(
+            'tbody tr',
+        ),
+    ]
+        .map((tr) => getTRDataValues(tr).join(TAB_CHAR))
+        .join(NEW_LINE_CHAR);
 
-    return text;
+    return [headerText, bodyText].join(NEW_LINE_CHAR);
 }
+
+/**
+ * Show/hide data with format signifi
+ * @param {PointerEvent} event
+ */
+function applySignifiDataHandler(event) {
+    // get row of function column
+    const functionColumnRows =
+        functionConfigElements.functionTableElement.querySelectorAll(
+            'tbody tr',
+        );
+    const sampleDataElements = Array.from(functionColumnRows).flatMap((row) =>
+        Array.from(row.querySelectorAll('.column-sample-data')),
+    );
+    const previewSampleDataElements = [1, 2, 3].flatMap((colIndex) =>
+        Array.from(
+            functionConfigElements.sampleDataElement.querySelectorAll(
+                `tbody tr td:nth-child(${colIndex})`,
+            ),
+        ),
+    );
+    const formatElements = [
+        ...sampleDataElements,
+        ...previewSampleDataElements,
+    ];
+    formatElements.forEach((row) => {
+        const isNumber = row.getAttribute(IS_NUMBER_ATTR) === 'true';
+        const originValue = row.getAttribute(DATA_ORIGIN_ATTR);
+        row.textContent = formatSignifiValue(originValue, isNumber);
+    });
+}
+
+/**
+ *  Format data with signifi
+ * @param {string || number} value - origin value
+ * @param {boolean} isNumber - check number or string
+ */
+
+const formatSignifiValue = (value, isNumber) => {
+    const isApplySignifi = functionConfigElements.appySignifiCheckbox.checked;
+    if (isNumber && value) {
+        value = Number(value);
+    }
+    return isApplySignifi ? applySignificantDigit(value) : value;
+};
 
 /**
  * Download all records in function sample data table
@@ -3762,6 +4030,13 @@ function showHideCopyPasteFunctionConfigButtons() {
 }
 
 /**
+ *  Reset function config default values if needed
+ */
+const functionConfigResetDefaultValues = () => {
+    functionConfigElements.appySignifiCheckbox.checked = true;
+};
+
+/**
  *
  */
 (() => {
@@ -3786,10 +4061,10 @@ function showHideCopyPasteFunctionConfigButtons() {
         'click',
         showDeleteFunctionConfirmation,
     );
-    functionConfigElements.registerBtn.addEventListener(
-        'click',
-        registerFunctionInfo,
-    );
+    // functionConfigElements.registerBtn.addEventListener(
+    //     'click',
+    //     registerFunctionInfo,
+    // );
     functionConfigElements.downloadAllBtn.addEventListener(
         'click',
         downloadAllFunctionInfo,
@@ -3871,6 +4146,10 @@ function showHideCopyPasteFunctionConfigButtons() {
     functionConfigElements.downloadSampleDataBtn.addEventListener(
         'click',
         downloadFunctionSampleDataHandler,
+    );
+    functionConfigElements.appySignifiCheckbox.addEventListener(
+        'change',
+        applySignifiDataHandler,
     );
     functionConfigElements.copySampleDataBtn.addEventListener(
         'click',

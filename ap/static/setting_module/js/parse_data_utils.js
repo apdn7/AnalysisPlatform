@@ -351,3 +351,81 @@ const parseDataType_New = (ele, idx, dataTypeDropdownElement = null) => {
             break;
     }
 };
+
+const parseProcDatetimeFormatSampleData = (dataType, val) => {
+    const condition = displayDatetimeFormatCondition();
+
+    if (condition.showRawData) {
+        return val;
+    } else if (condition.showInputFormat) {
+        return parseProcDatetimeInputFormat(dataType, val);
+    } else if (condition.showAutoFormat) {
+        return parseProcDatetimeAutoFormat(dataType, val);
+    }
+};
+
+const parseProcDatetimeInputFormat = (dataType, val) => {
+    const format = getDatetimeFormat();
+    let inputFormat = null,
+        outputFormat = null;
+    switch (dataType) {
+        case DataTypes.DATETIME.name:
+            inputFormat = format.datetime;
+            outputFormat = PROC_CONFIG_DATETIME_FORMAT;
+            break;
+        case DataTypes.DATE.name:
+            inputFormat = format.date;
+            outputFormat = PROC_CONFIG_DATE_FORMAT;
+            break;
+        case DataTypes.TIME.name:
+            inputFormat = format.time;
+            outputFormat = PROC_CONFIG_TIME_FORMAT;
+            break;
+        default:
+            break;
+    }
+    const momentFormat = strftimeToMomentFormat(inputFormat);
+    const momentDate = moment(val, momentFormat, true);
+
+    return momentDate.isValid() ? momentDate.format(outputFormat) : '';
+};
+
+const parseProcDatetimeAutoFormat = (datatype, val) => {
+    let formats = null;
+    let outputFormat = null;
+    let outputGroup = null;
+
+    switch (datatype) {
+        case DataTypes.DATETIME.name:
+            formats = REGEX_FORMATS_DATETIME;
+            outputFormat = PROC_CONFIG_DATETIME_FORMAT;
+            outputGroup = REGEX_GROUP_DATETIME;
+            break;
+        case DataTypes.DATE.name:
+            formats = REGEX_FORMATS_DATE;
+            outputFormat = PROC_CONFIG_DATE_FORMAT;
+            outputGroup = REGEX_GROUP_DATE;
+            break;
+        case DataTypes.TIME.name:
+            formats = REGEX_FORMATS_TIME;
+            outputFormat = PROC_CONFIG_TIME_FORMAT;
+            outputGroup = REGEX_GROUP_TIME;
+            break;
+        default:
+            break;
+    }
+
+    if (formats === null) {
+        return '';
+    }
+
+    const originalData = trimBoth(val);
+    const correctFormat = formats.find((format) =>
+        originalData.every((v) => v.match(format) !== null),
+    );
+
+    const replaceByGroup = originalData.replace(correctFormat, outputGroup);
+
+    const momentDate = moment(replaceByGroup, outputFormat);
+    return momentDate.isValid() ? momentDate.format(outputFormat) : '';
+};

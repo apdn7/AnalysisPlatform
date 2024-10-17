@@ -48,28 +48,38 @@
                     <div class="col-xl-10 col-9">
                         <div class="row">
                             <div
-                                class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
+                                class="mb-4 d-flex flex-column col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
                             >
-                                <div class="mb-4 d-flex flex-column">
-                                    {{ macros.label(_("Training data"), title=_('Set training data to be regarded as normal situation.')) }}
-                                    {{ macros.start_proc_interval(showAutoUpdate=false, prefix='train', disableLatest=true, name='trainTime') }}
-                                </div>
-                                <div class="d-flex flex-column">
-                                    {{ macros.label(_("Target data"), title=_('Set test data to be judged.')) }}
-                                    {{ macros.start_proc_interval(showAutoUpdate=True, prefix='test', name='testTraceTime', wrapID='testing-data-wrapper') }}
-                                </div>
+                                {{ macros.label(_("Training data"), title=_('Set training data to be regarded as normal situation.')) }}
+                                {{ macros.start_proc_interval(showAutoUpdate=false, prefix='train', disableLatest=true, name='trainTime') }}
+                            </div>
+                            <div
+                                class="d-flex flex-column col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
+                            >
+                                {{ macros.label(_("Target data"), title=_('Set test data to be judged.')) }}
+                                {{ macros.start_proc_interval(showAutoUpdate=True, prefix='test', name='testTraceTime', wrapID='testing-data-wrapper') }}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- cond prod -->
-            {{ macros.cond_proc([],'',title=_('Item Filter: Limits data (analyse & display) to be displayed to a subset.')) }}
+            {{ macros.cond_proc_train_test(title=_('Item Filter: Limits data (analyse & display) to be displayed to a subset.')) }}
             <!-- Form action -->
             <br class="graph-navi graph-navi-top-down" />
             <div
                 class="d-flex align-items-center justify-content-center show-graph-div"
             >
+                {{
+                    macros.switch_button(
+                    id='tooltipsEnableBtn',
+                    name='tooltipsEnableBtn',
+                    label=_("Tooltips"),
+                    title=_('Tooltips'),
+                    cl='mr-3',
+                    onChange='tooltipsToggle(this)',
+                    defaultVal=True)
+                }}
                 {{ macros.preprocess_options(outlierDefault='Op5') }}
                 <button
                     type="button"
@@ -85,12 +95,14 @@
             <br />
         </form>
         {{ macros.cat_label_filter_modal() }}
+        {{ macros.jump_modal() }}
     </div>
     <br />
     <div id="plot-card-container" class="plot-content" style="display: none;">
         <div class="mb-2 d-flex align-items-center" id="graph-settings-area">
             {{ macros.info_i_mark() }}
             {{ macros.on_demand_filter() }}
+            {{ macros.jump_button() }}
         </div>
         <div class="card graph-navi" id="plot-cards">
             <div class="row">

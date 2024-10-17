@@ -28,6 +28,16 @@
             <div
                 class="d-flex align-items-center justify-content-center show-graph-div"
             >
+                {{
+                    macros.switch_button(
+                    id='tooltipsEnableBtn',
+                    name='tooltipsEnableBtn',
+                    label=_("Tooltips"),
+                    title=_('Tooltips'),
+                    cl='mr-3',
+                    onChange='tooltipsToggle(this)',
+                    defaultVal=True)
+                }}
                 <!-- order xy outside chart -->
                 {{ macros.order_btn() }}
                 {{ macros.preprocess_options() }}
@@ -60,7 +70,7 @@
                 {{ macros.on_demand_filter() }}
 
                 <!-- setting x_y axis -->
-                {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSubmit(false, false);}') }}
+                {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSubmit(false, getCurrentSettings());}') }}
 
                 {{ macros.jump_button() }}
                 {{ macros.scale_option(name='scpChartScale', label=_('XY axis'), className='mr-4 ml-4') }}

@@ -219,6 +219,7 @@ def get_proc_config_infos(dic_preview: dict, limit: int = 5, is_v2=False, proces
             has_ct_col,
             dummy_datetime_idx,
             is_rdb,
+            file_name_col_idx,
         ) = latest_rec
         dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
         data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
@@ -235,6 +236,7 @@ def get_proc_config_infos(dic_preview: dict, limit: int = 5, is_v2=False, proces
             'dummy_datetime_idx': None if is_rdb else dummy_datetime_idx,
             'data_group_type': data_group_type,
             'is_rdb': is_rdb,
+            'file_name_col_idx': file_name_col_idx,
         }
         process_configs.append(process_config)
 

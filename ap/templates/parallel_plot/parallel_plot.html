@@ -24,6 +24,16 @@
                 class="show-graph-div d-flex justify-content-center align-items-center"
                 style="text-align: center;"
             >
+                {{
+                    macros.switch_button(
+                    id='tooltipsEnableBtn',
+                    name='tooltipsEnableBtn',
+                    label=_("Tooltips"),
+                    title=_('Tooltips'),
+                    cl='mr-3',
+                    onChange='tooltipsToggle(this)',
+                    defaultVal=True)
+                }}
                 {{ macros.order_btn() }}
                 {{ macros.preprocess_options(objExp=True) }}
                 <button
@@ -65,6 +75,8 @@
             {{ macros.scale_option(name='yScaleOption', className='ml-4', onChange='onChangeYScale(this)', defaultOption='4') }}
 
             {{ macros.switch_button(id='findSelect', label=_('Fine Select'), title=_('Fine select hover msg'), cl='ml-4', onChange='onChangeFineSelect()') }}
+            {{ macros.switch_button(id='dataView', label=_('Data View'), title=_('Data view hover msg'), cl='ml-4', onChange='onChangeDataView(this)') }}
+
             <div class="d-flex flex-row-reverse flex-grow-1"></div>
         </div>
         <div class="card chart-wrapper chart-margin">

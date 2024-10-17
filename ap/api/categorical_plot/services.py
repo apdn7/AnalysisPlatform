@@ -76,6 +76,7 @@ from ap.common.constants import (
     MATCHED_FILTER_IDS,
     NA_STR,
     NOT_EXACT_MATCH_FILTER_IDS,
+    REMOVED_OUTLIERS,
     SCALE_AUTO,
     SCALE_COMMON,
     SCALE_FULL,
@@ -229,6 +230,8 @@ def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None, df
     dic_param[MATCHED_FILTER_IDS] = matched_filter_ids
     dic_param[UNMATCHED_FILTER_IDS] = unmatched_filter_ids
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = not_exact_match_filter_ids
+    dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
+
     set_str_rank_to_dic_param(dic_param, dic_ranks, dic_str_cols, is_stp=True)
 
     # get visualization setting
@@ -368,6 +371,7 @@ def gen_trace_data_by_term(graph_param, dic_param, max_graph=None, df_cache=None
     dic_param[NOT_EXACT_MATCH_FILTER_IDS] = []
     dic_param[ACTUAL_RECORD_NUMBER] = 0
     dic_param[UNIQUE_SERIAL] = 0
+    dic_param[REMOVED_OUTLIERS] = None
 
     if max_graph and len(terms) > max_graph:
         terms = terms[:max_graph]
@@ -396,6 +400,11 @@ def gen_trace_data_by_term(graph_param, dic_param, max_graph=None, df_cache=None
         dic_param[UNMATCHED_FILTER_IDS] += term_result.get(UNMATCHED_FILTER_IDS, [])
         dic_param[NOT_EXACT_MATCH_FILTER_IDS] += term_result.get(NOT_EXACT_MATCH_FILTER_IDS, [])
         dic_param[ACTUAL_RECORD_NUMBER] += term_result.get(ACTUAL_RECORD_NUMBER, 0)
+        if term_result.get(REMOVED_OUTLIERS) is not None:
+            if dic_param[REMOVED_OUTLIERS] is not None:
+                dic_param[REMOVED_OUTLIERS] += term_result.get(REMOVED_OUTLIERS)
+            else:
+                dic_param[REMOVED_OUTLIERS] = term_result.get(REMOVED_OUTLIERS)
 
         unique_serial = term_result.get(UNIQUE_SERIAL)
         if unique_serial is None:
@@ -895,6 +904,8 @@ def gen_graph_cyclic(graph_param, dic_param, terms, max_graph=None, df=None):
     if is_graph_limited:
         dic_param[IS_GRAPH_LIMITED] = True
 
+    dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
+
     return dic_param, export_df
 
 
@@ -972,6 +983,8 @@ def gen_graph_term(graph_param, dic_param, max_graph=None, df=None):
     dic_data, is_graph_limited, _ = split_data_by_condition(dic_data, show_graph_param, max_graph)
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
     dic_param[ARRAY_PLOTDATA] = gen_plotdata_one_proc(dic_proc_cfgs, dic_data, cat_exp_box_cols)
+    dic_param[REMOVED_OUTLIERS] = show_graph_param.common.outliers
+
     set_str_rank_to_dic_param(dic_param, dic_ranks, dic_str_cols, is_stp=True)
     # get graph configs
     times = df[TIME_COL].tolist() or []

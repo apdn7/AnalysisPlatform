@@ -10,6 +10,11 @@ const COLOR_DEFAULT = [
     '#bcbd22',
 ];
 
+const JUDGE_COLOR_DEFAULT = {
+    OK: '#1f77b4',
+    NG: '#d62728',
+};
+
 const drawAgPPlot = (
     data,
     plotData,
@@ -22,8 +27,14 @@ const drawAgPPlot = (
     divFromTo,
     isCommonScale = false,
 ) => {
-    const { agg_function, color_name, unique_color, fmt, shown_name } =
-        plotData;
+    const {
+        agg_function,
+        color_name,
+        color_column_type,
+        unique_color,
+        fmt,
+        shown_name,
+    } = plotData;
 
     const isLineChart = agg_function && agg_function.toLowerCase() !== 'count';
     const showPercent =
@@ -36,7 +47,7 @@ const drawAgPPlot = (
     const tickLen = xTitles.length ? xTitles[0].length : 0;
     const tickSize = tickLen > 5 ? 10 : 12;
 
-    data = prepareColorForTrace(data, unique_color);
+    data = prepareColorForTrace(data, unique_color, color_column_type);
     if (isLineChart && yScale) {
         data = getOutlierTraceData(data, yScale, plotData);
     }
@@ -247,12 +258,19 @@ const reduceTicksArray = (array, tickLen) => {
     return res;
 };
 
-const prepareColorForTrace = (data, uniqueColor) => {
+const prepareColorForTrace = (data, uniqueColor, colorColumnType) => {
     let styles = [];
+    const getDefaultColor = (colorType, colorName, index) => {
+        let color = COLOR_DEFAULT[index];
+        // When variable data type is judge: Change color scale to OK:Blue, NG:Red in AgP
+        if (colorType === masterDataGroup.JUDGE)
+            color = JUDGE_COLOR_DEFAULT[colorName];
+        return color;
+    };
     if (uniqueColor.length > 0) {
         styles = uniqueColor.map((color, k) => ({
             target: color,
-            color: COLOR_DEFAULT[k],
+            color: getDefaultColor(colorColumnType, color, k),
         }));
     } else {
         styles = data.map((data, k) => ({
