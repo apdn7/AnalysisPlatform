@@ -1059,11 +1059,11 @@ const reloadTraceConfigFromDB = (isUpdatePosition = true) => {
             const { procs } = JSON.parse(json.trace_config);
 
             // broadcast to another tabs to update process information
-            handleSSEMessage({
+            bc.postMessage({
                 type: serverSentEventType.reloadTraceConfig,
                 data: { procs, isUpdatePosition },
-                broadcastType: ShouldBroadcast.YES,
             });
+            doReloadTraceConfig(procs, isUpdatePosition);
         })
         .catch((e) => {
             console.log(e);

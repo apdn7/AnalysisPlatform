@@ -340,6 +340,7 @@ def get_latest_records_for_register_by_file(file_name: str = None, directory: st
         max_records=1000,
         file_name=file_name,
         skip_head=skip_head,
+        is_convert_datetime=False,
     )
 
     dic_preview['is_file_path'] = file_name is not None

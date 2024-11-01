@@ -59,6 +59,7 @@ from ap.api.trace_data.services.proc_link import add_gen_proc_link_job, add_rest
 from ap.api.trace_data.services.proc_link_simulation import sim_gen_global_id
 from ap.common.backup_db import backup_config_db
 from ap.common.common_utils import (
+    add_seconds,
     get_files,
     get_hostname,
     is_empty,
@@ -90,9 +91,10 @@ from ap.common.constants import (
 )
 from ap.common.cryptography_utils import encrypt
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue, EventRemoveJobs
+from ap.common.scheduler import lock
 from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.common.services.sse import MessageAnnouncer
+from ap.common.services.sse import background_announcer
 from ap.setting_module.models import (
     AppLog,
     CfgCsvColumn,
@@ -486,14 +488,33 @@ def get_background_jobs():
     return jsonify(background_jobs), 200
 
 
-@api_setting_module_blueprint.route('/listen_background_job/<uuid>', methods=['GET'])
-def listen_background_job(uuid: str):
-    """Create a streamer for communicating with front-end.
-    We don't need to check if this streamer is duplicated or not,
-    because only one-client (one target browser) can communicate with this at a time.
-    """
-    streamer = MessageAnnouncer.get_or_create_streamer(uuid)
-    return Response(streamer.stream(), mimetype='text/event-stream')
+@api_setting_module_blueprint.route('/listen_background_job/<is_force>/<uuid>/<main_tab_uuid>', methods=['GET'])
+def listen_background_job(is_force: str, uuid: str, main_tab_uuid: str):
+    is_reject = False
+    is_force = int(is_force)
+    compare_time = add_seconds(seconds=-background_announcer.FORCE_SECOND)
+    with lock:
+        start_time = None
+        if background_announcer.is_exist(uuid):
+            if is_force:
+                start_time = background_announcer.get_start_date(uuid)
+                if start_time >= compare_time:
+                    is_reject = True
+            elif not background_announcer.is_exist(uuid, main_tab_uuid=main_tab_uuid):
+                is_reject = True
+
+        logger.debug(
+            f'[SSE] {"Rejected" if is_reject else "Accepted"}: UUID = {uuid}; main_tab_uuid = {main_tab_uuid};'
+            f' is_force = {is_force}; compare_time = {compare_time}; start_time = {start_time};',
+        )
+
+        if is_reject:
+            return Response('SSE Rejected', status=202)
+
+        return Response(
+            background_announcer.init_stream_sse(uuid, main_tab_uuid),
+            mimetype='text/event-stream',
+        )
 
 
 @api_setting_module_blueprint.route('/check_folder', methods=['POST'])

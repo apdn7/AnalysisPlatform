@@ -12,7 +12,7 @@ from ap.common.multiprocess_sharing import (
     EventShutDown,
 )
 from ap.common.scheduler import remove_jobs
-from ap.common.services.sse import MessageAnnouncer
+from ap.common.services.sse import background_announcer
 
 
 class EventListener:
@@ -49,7 +49,7 @@ class EventListener:
     @staticmethod
     def background_announce(event: Event):
         if isinstance(event, EventBackgroundAnnounce):
-            MessageAnnouncer.announce(event)
+            background_announcer.announce(event.data, event.event.name, event.job_id)
 
     @staticmethod
     def shutdown_app(event: Event):

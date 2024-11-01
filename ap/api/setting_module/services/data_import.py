@@ -985,7 +985,14 @@ def convert_df_datetime_to_str(df: DataFrame, get_date_col):
 
 
 @log_execution_time()
-def validate_datetime(df: DataFrame, date_col, is_strip=True, add_is_error_col=True, null_is_error=True):
+def validate_datetime(
+    df: DataFrame,
+    date_col,
+    is_strip=True,
+    add_is_error_col=True,
+    null_is_error=True,
+    is_convert_datetime=True,
+):
     dtype_name = df[date_col].dtype.name
     if dtype_name == 'object':
         df[date_col] = df[date_col].astype(pd.StringDtype())
@@ -1001,7 +1008,8 @@ def validate_datetime(df: DataFrame, date_col, is_strip=True, add_is_error_col=T
     if not null_is_error:
         idxs = ~(df[date_col].isin(na_value))
 
-    df[date_col] = pd.to_datetime(df[date_col], errors='coerce')  # failed records -> pd.NaT
+    if is_convert_datetime:
+        df[date_col] = pd.to_datetime(df[date_col], errors='coerce')  # failed records -> pd.NaT
 
     # mark error records
     if add_is_error_col:

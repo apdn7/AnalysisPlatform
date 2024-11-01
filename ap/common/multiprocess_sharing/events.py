@@ -2,7 +2,7 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from ap.common.constants import AnnounceEvent, CacheType, JobType
 from ap.common.multiprocess_sharing.event_base import EventBaseFunction
@@ -124,7 +124,6 @@ class EventBackgroundAnnounce(BaseModel):
     data: Any
     event: AnnounceEvent
     job_id: Optional[Any] = None  # FIXME: change to correct type later
-    timestamp: datetime = Field(default_factory=datetime.now)
 
 
 class EventShutDown(BaseModel):

@@ -356,7 +356,6 @@
 .\ap\static\common\js\jump_function.js
 .\ap\static\common\js\modern_screenshot.js
 .\ap\static\common\js\save_load_user_input.js
-.\ap\static\common\js\sse.js
 .\ap\static\common\js\summary_table.js
 .\ap\static\common\js\take_screenshot.js
 .\ap\static\common\js\terms_of_use.js
@@ -437,8 +436,6 @@
 .\ap\static\heatmap\css\heatmap.css
 .\ap\static\heatmap\js\heatmap_main.js
 .\ap\static\heatmap\js\heatmap_plot.js
-.\ap\static\modules\broadcast-channel\browser.js
-.\ap\static\modules\broadcast-channel\browser.min.js
 .\ap\static\modules\date-range-picker\daterangepicker-utils.js
 .\ap\static\modules\date-range-picker\daterangepicker.css
 .\ap\static\modules\date-range-picker\daterangepicker.js

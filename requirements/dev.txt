@@ -10,5 +10,3 @@ black==23.3.0
 ruff==0.1.*
 pytest-xdist==3.5.0
 vulture==2.9.1
-pytest-rerunfailures
-pytest-timeout

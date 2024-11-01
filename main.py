@@ -8,7 +8,6 @@ from ap.common.constants import ANALYSIS_INTERFACE_ENV, PORT
 from ap.common.event_listeners import EventListener
 from ap.common.logger import LOG_FORMAT, get_log_handlers, get_log_level, is_enable_log_file
 from ap.common.multiprocess_sharing import EventQueue
-from ap.common.services.sse import MessageAnnouncer
 from ap.script.migrate_cfg_data_source_csv import migrate_skip_head_value
 
 env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
@@ -91,8 +90,6 @@ if is_main:
         EventListener.shutdown_app,
     )
     EventQueue.start_listening()
-
-    MessageAnnouncer.start_background_cleanup_streamers()
 
     # Universal DB init
     # init_db(app)

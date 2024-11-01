@@ -164,6 +164,13 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     # start job
     yield 0
 
+    data_register_data = {
+        'RegisterByFileRequestID': register_by_file_request_id,
+        'status': JobStatus.PROCESSING.name,
+        'is_first_imported': False,  # show loading status after register a import job
+    }
+    EventQueue.put(EventBackgroundAnnounce(data=data_register_data, event=AnnounceEvent.DATA_REGISTER))
+
     # get db info
     proc_cfg: CfgProcess = CfgProcess.query.get(proc_id)
     if not proc_cfg:

@@ -632,7 +632,7 @@ def preview_csv_data(
     is_transpose: bool = False,
     show_file_name_column=False,
     current_process_id=None,
-    is_convert_datetime=True,
+    is_convert_datetime=False,
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
 
@@ -704,7 +704,13 @@ def preview_csv_data(
             if DataType(dtype) is not DataType.DATETIME:
                 continue
             # Convert UTC time
-            # validate_datetime(df_data_details, col, False, False)
+            validate_datetime(
+                df_data_details,
+                col,
+                is_strip=False,
+                add_is_error_col=False,
+                is_convert_datetime=is_convert_datetime,
+            )
             # When show sample data on Process Config, it will show raw data of datetime value.
             if is_convert_datetime:
                 convert_csv_timezone(df_data_details, col)

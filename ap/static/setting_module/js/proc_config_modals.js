@@ -2469,6 +2469,7 @@ const getHorizontalSettingModeRows = () => {
     return zip(...rowData);
 };
 
+// TODO: Does this need to return a list?
 const convertEnglishRomaji = async (englishNames = []) => {
     const result = await fetch('api/setting/list_to_english', {
         method: 'POST',

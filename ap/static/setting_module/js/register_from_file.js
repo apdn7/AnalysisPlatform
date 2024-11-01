@@ -542,16 +542,6 @@ async function renderDatasourceConfig(data) {
         urlInfo.isFile ? urlInfo.fileUrl : urlInfo.url,
         urlInfo.isFile,
     );
-    if (data.datasourceConfig?.master_type === 'V2') {
-        // In case of V2 data
-    } else {
-        // TODO: check this code necessary ???
-        // In case of OTHER csv
-        fillProcessName(
-            urlInfo.isFile ? urlInfo.fileUrl : urlInfo.url,
-            urlInfo.isFile,
-        );
-    }
 
     const datasourceNameElement = document.getElementById('databaseName');
     data.datasourceConfig.name = datasourceNameElement.value.trim();
@@ -624,6 +614,11 @@ async function convertStructureData(data) {
     // assign Process name after scanning data (Register by file)
     if (isJPLocale) {
         procData.name_jp = dataSourceAndProcessName;
+        // TODO: Should this be returned from backend?
+        const romaji_names = await convertEnglishRomaji([
+            dataSourceAndProcessName,
+        ]);
+        procData.name_en = romaji_names[0];
     } else {
         procData.name_local = dataSourceAndProcessName;
     }
@@ -1164,7 +1159,6 @@ const updateDataRegisterStatus = (postDat) => {
 
     // redirect if first chunk of data be imported
     if (postDat.data.is_first_imported) {
-        console.log(postDat.data.process_id);
         if (!window.sseProcessIds.includes(postDat.data.process_id)) {
             // Add process id into ready list that contains processes have already imported data
             window.sseProcessIds.push(postDat.data.process_id);
