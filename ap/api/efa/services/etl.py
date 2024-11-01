@@ -1,3 +1,5 @@
+import logging
+
 from ap.common.common_utils import (
     detect_encoding,
     get_base_dir,
@@ -8,7 +10,7 @@ from ap.common.common_utils import (
     open_with_zip,
 )
 from ap.common.constants import CfgConstantType, CsvDelimiter
-from ap.common.logger import log_execution_time, logger
+from ap.common.logger import log_execution_time
 from ap.common.services.sse import MessageAnnouncer
 from ap.script.r_scripts.wrapr import wrapr_utils
 from ap.setting_module.models import CfgConstant
@@ -17,6 +19,8 @@ FILE = 'etl_spray_shape.R'
 
 UNKNOWN_ERROR_MESSAGE = 'NO OUTPUT FROM R SCRIPT'
 NO_DATA_ERROR = 'NoDataError'
+
+logger = logging.getLogger(__name__)
 
 
 @log_execution_time()
@@ -110,7 +114,7 @@ def call_com_view(fname, out_dir):
         pipe = wrapr_utils.RPipeline(get_wrapr_path(), out_dir, use_pkl=False, verbose=True)
         out = pipe.run(dic_data, [dic_task])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         return e
 
     if out:

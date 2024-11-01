@@ -53,7 +53,7 @@ from ap.common.constants import (
 )
 from ap.common.cryptography_utils import decrypt_pwd
 from ap.common.datetime_format_utils import DateTimeFormatUtils
-from ap.common.memoize import set_all_cache_expired
+from ap.common.multiprocess_sharing import EventExpireCache, EventQueue
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import model_normalize
@@ -2225,13 +2225,13 @@ def make_f(model):
     def before_insert(_mapper, _connection, target):
         model_normalize(target)
         if isinstance(target, list_of_target):
-            set_all_cache_expired(CacheType.CONFIG_DATA)
+            EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
 
     @event.listens_for(model, 'before_update')
     def before_update(_mapper, _connection, target):
         model_normalize(target)
         if isinstance(target, list_of_target):
-            set_all_cache_expired(CacheType.CONFIG_DATA)
+            EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
 
 
 def add_listen_event():

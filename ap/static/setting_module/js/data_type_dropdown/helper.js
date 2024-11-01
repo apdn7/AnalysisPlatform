@@ -222,12 +222,10 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         } else {
             // select all other data type option -> add disabled
             let dataTypeAllows = [dataType];
-            if (
-                [DataTypes.REAL.name, DataTypes.INTEGER.name].includes(dataType)
-            ) {
-                dataTypeAllows.push(DataTypes.TEXT.name);
-                if ([DataTypes.INTEGER.name].includes(dataType)) {
-                    dataTypeAllows.push(DataTypes.REAL.name);
+            const indexOrder = this.DataTypeOrder.indexOf(dataType);
+            if (indexOrder !== -1) {
+                for (let i = indexOrder; i < this.DataTypeOrder.length; i++) {
+                    dataTypeAllows.push(this.DataTypeOrder[i]);
                 }
             }
 

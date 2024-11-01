@@ -52,9 +52,9 @@ const parseFloatData = (v) => {
  */
 const parseBooleanData = (v) => {
     let val = trimBoth(String(v));
-    if (val === '1' || val === 1) {
+    if (['1', 'true'].includes(val)) {
         val = 'true';
-    } else if (val === '0' || val === 0) {
+    } else if (['0', 'false'].includes(val)) {
         val = 'false';
     } else {
         val = '';
@@ -109,7 +109,7 @@ const parseDataTypeProc = (ele, idx, dataTypeDropdownElement = null) => {
         case DataTypes.INTEGER.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
-                const isBigInt = Boolean(e.attr('is-big-int'));
+                const isBigInt = !!+e.attr('is-big-int');
                 if (!isBigInt) {
                     val = parseIntData(val);
                 }
@@ -420,8 +420,8 @@ const parseProcDatetimeAutoFormat = (datatype, val) => {
     }
 
     const originalData = trimBoth(val);
-    const correctFormat = formats.find((format) =>
-        originalData.every((v) => v.match(format) !== null),
+    const correctFormat = formats.find(
+        (format) => originalData.match(format) !== null,
     );
 
     const replaceByGroup = originalData.replace(correctFormat, outputGroup);

@@ -1,4 +1,5 @@
 import colorsys
+import logging
 
 import numpy as np
 import pandas as pd
@@ -14,6 +15,8 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+
+logger = logging.getLogger(__name__)
 
 # - preprocess_skdpage()
 #   # group lasso
@@ -99,7 +102,7 @@ def preprocess_skdpage(
     if np.issubdtype(type(y[0]), np.integer) and len(uniq_vals) == 2:
         is_binary = True
         y = y.astype(np.int64)
-        print('Detected integer with 2 values. Fitting logistic regression model')
+        logger.info('Detected integer with 2 values. Fitting logistic regression model')
 
     # resample data if exceed max_datapoints
     # - stratified sampling when binary
@@ -114,7 +117,7 @@ def preprocess_skdpage(
         X = X.iloc[idx, :].reset_index(drop=True)
         y = y[idx]
         if verbose:
-            print('Number of data points exceeded {}. Data is automatically resampled. '.format(max_datapoints))
+            logger.info(f'Number of data points exceeded {max_datapoints}. Data is automatically resampled. ')
     y = y.reshape(-1, 1)
 
     # group lasso and ridge regression
@@ -220,10 +223,14 @@ def calc_coef_and_group_order(
     )
 
     if verbose:
-        print('==========')
-        print('Group order: {}'.format(dic_groups['uniq_grps'][group_order]))
-        print('Index used for ridge: {}'.format(idx_for_ridge))
-        print('Coef: {}'.format(coef))
+        logger.info(
+            f'''\
+==========
+Group order: {dic_groups["uniq_grps"][group_order]}
+Index used for ridge: {idx_for_ridge}
+Coef: {coef}
+''',
+        )
 
     if is_binary is False:
         fitted_values = y_scaler.inverse_transform(fitted_values)
@@ -240,7 +247,7 @@ def labelencode_by_stat(x, y, how='mean', is_nominal_scale=True):
     elif how == 'median':
         vals = df.groupby(by='x').median().reset_index()
     else:
-        print('Invalid value for argument "how". mean is used.')
+        logger.warning('Invalid value for argument "how". mean is used.')
         vals = df.groupby(by='x').mean().reset_index()
 
     factor_orders = vals['x'].values
@@ -299,10 +306,14 @@ def fit_grplasso(X, y, grps, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_b
         bic[i] = calc_bic(gl.predict(X).flatten(), y, gl.coef_)
 
         if verbose:
-            print('==========')
-            print('penalty: {}'.format(rho))
-            print('BIC={}'.format(np.round(bic[i], 2)))
-            print('Number of dropped columns: {}'.format(np.sum(coef_history[i, :] == 0.0)))
+            logger.info(
+                f'''\
+==========
+penalty: {rho}
+BIC={np.round(bic[i], 2)}
+Number of dropped columns: {np.sum(coef_history[i, :] == 0.0)}
+''',
+            )
 
     return coef_history, bic
 
@@ -643,7 +654,7 @@ class GroupSankeyDataProcessor:
             for i, j in enumerate(idx_sensors_in_group):
                 wt = wt_sensor[j]
                 if self.verbose:
-                    print('j={}, name={}, wt={}'.format(j, self.dic_skd['node_labels'][i], wt))
+                    logger.info(f'j={j}, name={self.dic_skd["node_labels"][i]}, wt={wt}')
                 node_x[self._sensor_id_to_sensor_node_id(j)] = 0.05
                 node_y[self._sensor_id_to_sensor_node_id(j)] = sensor_y + (wt / 2)
                 sensor_y += wt
@@ -652,8 +663,8 @@ class GroupSankeyDataProcessor:
         # normalize y positions
         node_groups_on_graph = [self._group_id_to_group_node_id(x) for x in self.idx_grp_remained]
         node_sensor_on_graph = [self._sensor_id_to_sensor_node_id(x) for x in self.idx_col_remained]
-        node_y[node_groups_on_graph] = node_y[node_groups_on_graph] / np.max(node_y[node_groups_on_graph])
-        node_y[node_sensor_on_graph] = node_y[node_sensor_on_graph] / np.max(node_y[node_sensor_on_graph])
+        node_y[node_groups_on_graph] /= np.max(node_y[node_groups_on_graph])
+        node_y[node_sensor_on_graph] /= np.max(node_y[node_sensor_on_graph])
         if self.num_grp_remained == 1:
             node_y[node_groups_on_graph] = 0.5
             node_x[node_groups_on_graph] = 0.5
@@ -665,9 +676,10 @@ class GroupSankeyDataProcessor:
         self.dic_skd['node_y'] = node_y
 
         if self.verbose:
-            print('num_nodes: {}'.format(num_nodes))
-            print(
-                'Node x, y positions in Skd:\n{}'.format(
-                    np.vstack([self.dic_skd['node_labels'], np.round(node_x, 2), np.round(node_y, 2)]).T,
-                ),
+            logger.info(
+                f'''\
+num_nodes: {num_nodes}'
+Node x, y positions in Skd:
+{np.vstack([self.dic_skd['node_labels'], np.round(node_x, 2), np.round(node_y, 2)]).T}
+''',
             )

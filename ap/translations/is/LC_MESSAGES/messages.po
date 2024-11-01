@@ -3066,6 +3066,16 @@ msgstr "Forwards"
 msgid "Number of graph on column"
 msgstr "Fjöldi samsæri á dálki"
 
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Arrange Div Title"
+msgstr ""
+"When the graph is split and displayed, when it is OFF, only graphs with "
+"data will be displayed, and when it is ON, graphs will be displayed even "
+"if there is no data.\n"
+"Example) In the case of “Divide by term (Cyclic)”, when it is OFF, the "
+"graph of the period with no data will not be displayed, and when it is "
+"ON, it will be displayed."
+
 #: ap/templates/i18n.html
 msgid "Label Variable Description"
 msgstr ""
@@ -4465,7 +4475,10 @@ msgstr "JudgeNo"
 
 #: ap/templates/i18n.html
 msgid "Could not read data"
-msgstr "Could not read data"
+msgstr ""
+"Failed to read the file. The reason could be one of the following:<br>- "
+"The number of headers and columns do not match<br>- Encoding with UTF-8 "
+"and SHIFT-JIS failed"
 
 #: ap/templates/setting_module/background_job.html
 msgid "Progress"
@@ -4836,17 +4849,6 @@ msgstr "Reload to get all function columns of the process into system."
 msgid "ProcDatetimeFormat"
 msgstr "Datetime Format"
 
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "ProcDatetimeFormatHoverMsg"
-msgstr ""
-"Specifies the datetime format.\n"
-"\n"
-"Format\t\t\t\t\tExample\n"
-"%%Y-%%m-%%d %%H:%%M:%%S.%%f\t2024-02-21 15:30:51.123\n"
-"%%Y-%%m-%%d %%I:%%M:%%S %%p\t2024-02-21 03:30:51 PM\n"
-"%%m/%%d/%%y\t\t\t\t 02/21/2024\n"
-"%%b %%d, %%Y\t\t\t\t Feb 21, 2024\n"
-
 #: ap/templates/i18n.html
 msgid "main::Date"
 msgstr "main::Date"
@@ -5121,4 +5123,16 @@ msgstr "V2 CSV"
 #: ap/templates/i18n.html ap/templates/setting_module/db_config.html
 msgid "DataSourceTypeSoftwareWorkshop"
 msgstr "Software Workshop Interface"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ProcDatetimeFormatHoverMsg"
+msgstr ""
+"Specifies the datetime format.\n"
+"\n"
+"Format\t\t\t\t\tExample\n"
+"%%Y-%%m-%%d %%H:%%M:%%S.%%f\t2024-02-21 15:30:51.123\n"
+"%%Y-%%m-%%d %%I:%%M:%%S %%p\t2024-02-21 03:30:51 PM\n"
+"%%m/%%d/%%y\t\t\t\t 02/21/2024\n"
+"%%b %%d, %%Y\t\t\t\t Feb 21, 2024\n"
+"%%Y%%m%%d%%H%%M\t\t\t 202409251400\n"
 

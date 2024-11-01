@@ -2,6 +2,10 @@ import re
 
 from ap.common.constants import CfgConstantType
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def convert_user_setting_url():
     from ap.setting_module.models import make_session, CfgUserSetting, CfgConstant
@@ -22,7 +26,7 @@ def convert_user_setting_url():
         "skd": ["sankey_plot"],
         "cog": ["co_occurrence"],
     }
-    print("------------CONVERT USER SETTING URL OF OLD VERSION: START  ------------")
+    logger.info("------------CONVERT USER SETTING URL OF OLD VERSION: START  ------------")
 
     with make_session() as meta_session:
         user_settings = meta_session.query(CfgUserSetting).order_by(CfgUserSetting.updated_at).all()
@@ -34,5 +38,5 @@ def convert_user_setting_url():
                     user_setting.page = re.sub(old_url, url, user_setting.page)
 
     CfgConstant.create_or_update_by_type(CfgConstantType.CONVERTED_USER_SETTING_URL.name, const_value=1)
-    print("------------CONVERT USER SETTING URL OF OLD VERSION: END  ------------")
+    logger.info("------------CONVERT USER SETTING URL OF OLD VERSION: END  ------------")
     return True

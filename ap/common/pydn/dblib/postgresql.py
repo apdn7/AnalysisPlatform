@@ -3,7 +3,6 @@
 # Author: Masato Yasuda (2018/01/04)
 
 import logging
-import traceback
 
 import psycopg2
 import psycopg2.extras
@@ -30,14 +29,18 @@ class PostgreSQL:
         self.connection = None
 
     def dump(self):
-        print('===== DUMP RESULT =====')
-        print('DB Type: PostgreSQL')
-        print('self.host: ' + self.host)
-        print('self.port: ' + str(self.port))
-        print('self.dbname: ' + self.dbname)
-        print('self.username: ' + self.username)
-        print('self.is_connected: ', self.is_connected)
-        print('=======================')
+        logger.info(
+            f'''\
+===== DUMP RESULT =====
+DB Type: PostgreSQL
+self.host: {self.host}
+self.port: {self.port}
+self.dbname: {self.dbname}
+self.username: {self.username}
+self.is_connected: {self.is_connected}
+======================='
+''',
+        )
 
     def connect(self):
         dsn = 'host={0:s} '.format(self.host)
@@ -57,7 +60,7 @@ class PostgreSQL:
                 if cur.rowcount:
                     cur.execute('SET search_path TO {0:s}'.format(self.schema))
                 else:
-                    print('Schema is not exists!!!')
+                    logger.warning('Schema is not exists!!!')
                     self.disconnect()
             else:
                 # Get current schema
@@ -67,11 +70,8 @@ class PostgreSQL:
                 self.schema = default_schema[0]
             cur.close()
             return self.connection
-        except Exception:
-            print('Cannot connect to db')
-            print('>>> traceback <<<')
-            traceback.print_exc()
-            print('>>> end of traceback <<<')
+        except Exception as e:
+            logger.exception(e)
             return False
 
     def disconnect(self):
@@ -91,12 +91,12 @@ class PostgreSQL:
                 sql += ','
             sql += val['name'] + ' ' + val['type']
         sql += ')'
-        print(sql)
+        logger.info(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + ' created!')
+        logger.info(f'{tblname} created!')
 
     # テーブル名を配列として返す
     def list_tables(self):
@@ -147,7 +147,7 @@ class PostgreSQL:
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + ' dropped!')
+        logger.info(f'{tblname} dropped!')
 
     # テーブルのカラムのタイプを辞書の配列として返す
     # columns:
@@ -230,12 +230,12 @@ class PostgreSQL:
 
             sql += ')'
 
-        # print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print('Dummy data was inserted to {}!'.format(tblname))
+
+        logger.info(f'Dummy data was inserted to {tblname}!')
 
     # SQLをそのまま実行
     # colsとdict形式のrowsを返す
@@ -249,7 +249,7 @@ class PostgreSQL:
         # https://stackoverflow.com/questions/10252247/
         # how-do-i-get-a-list-of-column-names-from-a-psycopg2-cursor
         # カラム名がRenameされた場合も対応出来る形に処理を変更
-        print(sql)
+        logger.info(sql)
         cur.execute(sql, params)
         # cursor.descriptionはcolumnの配列
         # そこから配列名(column[0])を取り出して配列columnsに代入
@@ -288,7 +288,6 @@ class PostgreSQL:
             return False
 
         cur = self.connection.cursor()
-        # print(sql)
         res = cur.execute(sql)
         cur.close()
         self.connection.commit()
@@ -302,7 +301,7 @@ class PostgreSQL:
             tz_offset = str(rows[0]['TimeZone'])
             return tz_offset
         except Exception as e:
-            print(e)
+            logger.exception(e)
             return None
 
     # private functions
@@ -311,7 +310,7 @@ class PostgreSQL:
         if self.is_connected:
             return True
         # 接続していないなら
-        print('Connection is not Initialized. Please run connect() to connect to DB')
+        logger.warning('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def is_timezone_hold_column(self, tbl, col):

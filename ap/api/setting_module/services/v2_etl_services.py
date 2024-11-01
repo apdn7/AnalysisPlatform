@@ -48,6 +48,8 @@ from ap.setting_module.models import (
 )
 from ap.setting_module.schemas import ProcessColumnSchema
 
+logger = logging.getLogger(__name__)
+
 
 @log_execution_time()
 def predict_v2_data_type(columns, df):
@@ -154,7 +156,7 @@ def get_preview_processes_v2(
                     unique_processes = df_chunk[process_col_name].dropna().unique()
                     found_processes.update(unique_processes)
         except Exception:
-            logging.error(f"Couldn't read data from {f_name}")
+            logger.error(f"Couldn't read data from {f_name}")
     return list(found_processes)
 
 
@@ -202,8 +204,8 @@ def get_df_v2_process_single_file(
                 df_process = df_process.drop_duplicates()
                 df = pd.concat([df, df_process])
                 df = df.drop_duplicates()
-    except Exception:
-        logging.error(f"Couldn't read data from {v2_file}")
+    except Exception as e:
+        logger.error(f"Couldn't read data from {v2_file}: {e}")
 
     # rename abnormal history name
     if is_abnormal_v2 and datasource_type == DBType.V2_HISTORY:

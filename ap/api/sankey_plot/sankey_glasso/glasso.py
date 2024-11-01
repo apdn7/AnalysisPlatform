@@ -1,6 +1,10 @@
+import logging
+
 import numpy as np
 from sklearn.covariance import empirical_covariance, graphical_lasso
 from sklearn.preprocessing import StandardScaler
+
+logger = logging.getLogger(__name__)
 
 
 class GaussianGraphicalModel:
@@ -128,7 +132,7 @@ class GaussianGraphicalModel:
             num_dir_vars = self._count_direct_vars(parcor, idx_tgt)
             # do we have enough variables?
             if num_dir_vars >= self.num_directs:
-                print('Converged. alpha: {}, num_dir_vars: {}'.format(alphas[i], num_dir_vars))
+                logger.info(f'Converged. alpha: {alphas[i]}, num_dir_vars: {num_dir_vars}')
                 break
 
         self.alpha = alphas[i]

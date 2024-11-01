@@ -2,16 +2,11 @@
 // term of use
 validateTerms();
 const GA_TRACKING_ID = 'G-9DJ9TV72B5';
-const HEART_BEAT_MILLI = 2500;
-const RE_HEART_BEAT_MILLI = HEART_BEAT_MILLI * 4;
 let scpSelectedPoint = null;
 let scpCustomData = null;
-/** @type {EventSource} */
-let serverSentEventCon = null;
 let loadingProgressBackend = 0;
 let formDataQueried = null;
 let clearOnFlyFilter = false;
-const serverSentEventUrl = '/ap/api/setting/listen_background_job';
 
 let problematicData = null;
 let problematicPCAData = null;
@@ -19,28 +14,9 @@ let problematicPCAData = null;
 let originalUserSettingInfo;
 let isGraphShown = false;
 let requestStartedAt;
-let handleHeartbeat;
 let isDirectFromJumpFunction = false;
 let isLoadingUserSetting = false;
 let isAdmin = false;
-
-const serverSentEventType = {
-    ping: 'ping',
-    timeout: 'timeout',
-    closeOldSSE: 'close_old_sse',
-    jobRun: 'JOB_RUN',
-    procLink: 'PROC_LINK',
-    shutDown: 'SHUT_DOWN',
-    dataTypeErr: 'DATA_TYPE_ERR',
-    emptyFile: 'EMPTY_FILE',
-    pcaSensor: 'PCA_SENSOR',
-    showGraph: 'SHOW_GRAPH',
-    diskUsage: 'DISK_USAGE',
-    reloadTraceConfig: 'RELOAD_TRACE_CONFIG',
-    dataRegister: 'DATA_REGISTER',
-    backupDataFinished: 'BACKUP_DATA_FINISHED',
-    restoreDataFinished: 'RESTORE_DATA_FINISHED',
-};
 
 const KEY_CODE = {
     ENTER: 13,
@@ -177,232 +153,19 @@ const colorPallets = {
     },
 };
 
-const channelType = {
-    heartBeat: 'heart-beat',
-    sseMsg: 'sse-msg',
-    sseErr: 'sse-error',
-};
-
-// Broadcast channel for SSE
-let bc = {
-    onmessage: () => {},
-    postMessage: () => {},
-};
-
-try {
-    bc = new BroadcastChannel('sse');
-} catch (e) {
-    // Broadcast is not support safari version less than 15.4
-    console.log(e);
-}
-
-function postHeartbeat() {
-    // send heart beat
-    if (
-        serverSentEventCon &&
-        serverSentEventCon.readyState === serverSentEventCon.OPEN
-    ) {
-        // console.log(toLocalTime(), 'post heart beat');
-        bc.postMessage({ type: channelType.heartBeat });
-        consoleLogDebug(`[SSE][Main] Broadcast: ${channelType.heartBeat}`);
-    } else {
-        consoleLogDebug(
-            `[SSE] Status code: ${(serverSentEventCon ?? {}).readyState}`,
-        );
-        // make new SSE connection
-        openServerSentEvent(true);
-        // console.log(toLocalTime(), 'force request');
-    }
-}
-
-// Handle SSE messages and errors
-const handleSSEMessage = (event) => {
-    // console.log(toLocalTime(), event.data);
-    const { type, data } = event.data;
-    if (type === channelType.heartBeat) {
-        consoleLogDebug(`[SSE][Sub] ${type}`);
-        delayPostHeartBeat(RE_HEART_BEAT_MILLI);
-        if (serverSentEventCon) {
-            serverSentEventCon.close();
-        }
-    } else {
-        consoleLogDebug(`[SSE][Sub] ${type}\n${JSON.stringify(data)}`);
-        // data type error
-        if (type === serverSentEventType.dataTypeErr) {
-            handleError(data);
-        }
-
-        // import empty file
-        if (type === serverSentEventType.emptyFile) {
-            handleEmptyFile(data);
-        }
-
-        // fetch pca data
-        if (type === serverSentEventType.pcaSensor) {
-            if (typeof appendSensors !== 'undefined') {
-                appendSensors(data);
-            }
-        }
-
-        // fetch show graph progress
-        if (type === serverSentEventType.showGraph) {
-            if (typeof showGraphProgress !== 'undefined') {
-                showGraphProgress(data);
-            }
-        }
-
-        // show warning/error message about disk usage
-        if (type === serverSentEventType.diskUsage) {
-            if (typeof checkDiskCapacity !== 'undefined') {
-                checkDiskCapacity(data);
-            }
-        }
-
-        if (type === serverSentEventType.jobRun) {
-            if (typeof updateBackgroundJobs !== 'undefined') {
-                updateBackgroundJobs(data);
-            }
-        }
-
-        if (type === serverSentEventType.shutDown) {
-            if (typeof shutdownApp !== 'undefined') {
-                shutdownApp();
-            }
-        }
-
-        if (type === serverSentEventType.procLink) {
-            // calculate proc link count
-            if (typeof realProcLink !== 'undefined') {
-                realProcLink(false);
-                setTimeout(hideAlertMessages, 3000);
-            }
-
-            if (typeof handleSourceListener !== 'undefined') {
-                handleSourceListener();
-            }
-        }
-
-        if (type === serverSentEventType.reloadTraceConfig) {
-            if (typeof doReloadTraceConfig !== 'undefined') {
-                const { procs: procs, isUpdatePosition: isUpdatePosition } =
-                    data;
-                doReloadTraceConfig(procs, isUpdatePosition);
-            }
-        }
-
-        // for data register page
-        if (type === serverSentEventType.dataRegister) {
-            if (typeof updateDataRegisterStatus !== 'undefined') {
-                updateDataRegisterStatus({ type, data });
-            }
-        }
-
-        if (type === serverSentEventType.backupDataFinished) {
-            if (typeof showBackupDataFinishedToastr !== 'undefined') {
-                showBackupDataFinishedToastr();
-            }
-        }
-
-        if (type === serverSentEventType.restoreDataFinished) {
-            if (typeof showRestoreDataFinishedToastr !== 'undefined') {
-                showRestoreDataFinishedToastr();
-            }
-        }
-    }
-};
-
-const delayPostHeartBeat = (
-    () =>
-    (ms = 0, ...args) => {
-        if (this.__heartBeatIntervalID__)
-            clearInterval(this.__heartBeatIntervalID__);
-        this.__heartBeatIntervalID__ = setInterval(
-            postHeartbeat,
-            ms || 0,
-            ...args,
-        );
-    }
-)();
 const isDebugMode = localStorage.getItem('DEBUG')
     ? localStorage.getItem('DEBUG').trim().toLowerCase() === 'true'
     : false;
 
-const consoleLogDebug = (msg = '') => {
+const consoleLogDebug = (msg = '', data = null) => {
     // If you want to show log, you must set DEBUG=true on localStorage first !!!
     if (!isDebugMode) return;
-    console.debug(msg);
-};
-
-const openServerSentEvent = (isForce = false) => {
-    if (isForce || serverSentEventCon == null) {
-        consoleLogDebug(`[SSE] Make new SSE connection...`);
-
-        let uuid = localStorage.getItem('uuid');
-        if (uuid == null) {
-            uuid = create_UUID();
-            localStorage.setItem('uuid', uuid);
-        }
-
-        let mainTabUUID = window.name;
-        if (mainTabUUID == null || mainTabUUID === '') {
-            mainTabUUID = create_UUID();
-            window.name = mainTabUUID;
-        }
-
-        const force = isForce ? 1 : 0;
-        serverSentEventCon = new EventSource(
-            `${serverSentEventUrl}/${force}/${uuid}/${mainTabUUID}`,
-        );
-
-        serverSentEventCon.onerror = (err) => {
-            delayPostHeartBeat(RE_HEART_BEAT_MILLI);
-
-            if (!bc.onmessage) {
-                bc.onmessage = handleSSEMessage;
-            }
-            if (serverSentEventCon) {
-                serverSentEventCon.close();
-                consoleLogDebug(`[SSE] SSE connection closed`);
-            }
-        };
-
-        serverSentEventCon.addEventListener(
-            serverSentEventType.ping,
-            (event) => {
-                bc.postMessage({ type: channelType.heartBeat });
-                consoleLogDebug(
-                    `[SSE][Main] Broadcast: ${channelType.heartBeat}`,
-                );
-
-                delayPostHeartBeat(HEART_BEAT_MILLI);
-
-                if (!bc.onmessage) {
-                    bc.onmessage = handleSSEMessage;
-                }
-                // listenSSE();
-                notifyStatusSSE();
-            },
-            false,
-        );
-
-        serverSentEventCon.addEventListener(
-            serverSentEventType.timeout,
-            (event) => {
-                consoleLogDebug(`[SSE][Main] Server feedback: timeout`);
-            },
-            false,
-        );
-
-        serverSentEventCon.addEventListener(
-            serverSentEventType.closeOldSSE,
-            (event) => {
-                consoleLogDebug(`[SSE][Main] Server feedback: closeOldSSE`);
-                serverSentEventCon.close();
-                consoleLogDebug(`[SSE] SSE connection closed`);
-            },
-            false,
-        );
+    if (data != null) {
+        const dataStr = '\n' + JSON.stringify(data);
+        console.debug(msg, dataStr);
+        return;
     }
+    console.debug(msg);
 };
 
 const divideOptions = {
@@ -464,215 +227,6 @@ function showGraphProgress(data) {
         loadingProgressBackend = data;
     }
 }
-
-// import job data type error notification
-const notifyStatusSSE = () => {
-    if (!serverSentEventCon) {
-        return;
-    }
-
-    // data type error
-    serverSentEventCon.addEventListener(
-        serverSentEventType.dataTypeErr,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.dataTypeErr}\n${event.data}`,
-            );
-            bc.postMessage({
-                type: serverSentEventType.dataTypeErr,
-                data: data,
-            });
-            handleError(data);
-        },
-        false,
-    );
-
-    // import empty file
-    serverSentEventCon.addEventListener(
-        serverSentEventType.emptyFile,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.emptyFile}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.emptyFile, data: data });
-            handleEmptyFile(data);
-        },
-        false,
-    );
-
-    // fetch pca data
-    serverSentEventCon.addEventListener(
-        serverSentEventType.pcaSensor,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.pcaSensor}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.pcaSensor, data: data });
-            if (typeof appendSensors !== 'undefined') {
-                appendSensors(data);
-            }
-        },
-        false,
-    );
-
-    // fetch show graph progress
-    serverSentEventCon.addEventListener(
-        serverSentEventType.showGraph,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.showGraph}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.showGraph, data: data });
-            if (typeof showGraphProgress !== 'undefined') {
-                showGraphProgress(data);
-            }
-        },
-        false,
-    );
-
-    // show warning/error message about disk usage
-    serverSentEventCon.addEventListener(
-        serverSentEventType.diskUsage,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.diskUsage}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.diskUsage, data: data });
-            if (typeof checkDiskCapacity !== 'undefined') {
-                checkDiskCapacity(data);
-            }
-        },
-        false,
-    );
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.jobRun,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.jobRun}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.jobRun, data: data });
-            if (typeof updateBackgroundJobs !== 'undefined') {
-                updateBackgroundJobs(data);
-            }
-        },
-        false,
-    );
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.shutDown,
-        (event) => {
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.shutDown}\n${true}`,
-            );
-            bc.postMessage({ type: serverSentEventType.shutDown, data: true });
-            if (typeof shutdownApp !== 'undefined') {
-                shutdownApp();
-            }
-        },
-        false,
-    );
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.procLink,
-        (event) => {
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.procLink}\n${true}`,
-            );
-            bc.postMessage({ type: serverSentEventType.procLink, data: true });
-            // calculate proc link count
-            if (typeof realProcLink !== 'undefined') {
-                realProcLink(false);
-                setTimeout(hideAlertMessages, 3000);
-            }
-
-            if (typeof handleSourceListener !== 'undefined') {
-                handleSourceListener();
-            }
-        },
-        false,
-    );
-
-    // for data register page
-    serverSentEventCon.addEventListener(
-        serverSentEventType.dataRegister,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.dataRegister}\n${true}`,
-            );
-            const postDat = {
-                type: serverSentEventType.dataRegister,
-                data: data,
-            };
-            bc.postMessage(postDat);
-            if (typeof updateDataRegisterStatus !== 'undefined') {
-                updateDataRegisterStatus(postDat);
-            }
-        },
-        false,
-    );
-    // serverSentEventCon.addEventListener(serverSentEventType.dataRegister, (event) => {
-    //     const data = JSON.parse(event.data);
-    //     consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.dataRegister}\n${true}`);
-    //     const postDat = {type: serverSentEventType.dataRegister, data: data};
-    //     bc.postMessage(postDat);
-    //     if (typeof updateDataRegisterStatus !== 'undefined') {
-    //         updateDataRegisterStatus(postDat);
-    //     }
-    // }, false);
-    // serverSentEventCon.addEventListener(serverSentEventType.dataRegisterFinished, (event) => {
-    //     const data = JSON.parse(event.data);
-    //     consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.dataRegisterFinished}\n${true}`);
-    //     const postDat = {type: serverSentEventType.dataRegisterFinished, data: data};
-    //     bc.postMessage(postDat);
-    //     if (typeof updateDataRegisterStatus !== 'undefined') {
-    //         updateDataRegisterStatus(postDat);
-    //     }
-    // }, false);
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.backupDataFinished,
-        (event) => {
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.backupDataFinished}\n${true}`,
-            );
-            bc.postMessage({
-                type: serverSentEventType.backupDataFinished,
-                data: true,
-            });
-            // calculate proc link count
-            if (typeof showBackupDataFinishedToastr !== 'undefined') {
-                showBackupDataFinishedToastr();
-            }
-        },
-        false,
-    );
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.restoreDataFinished,
-        (event) => {
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.restoreDataFinished}\n${true}`,
-            );
-            bc.postMessage({
-                type: serverSentEventType.restoreDataFinished,
-                data: true,
-            });
-            // calculate proc link count
-            if (typeof showRestoreDataFinishedToastr !== 'undefined') {
-                showRestoreDataFinishedToastr();
-            }
-        },
-        false,
-    );
-};
 
 const checkDiskCapacity = (data) => {
     const edgeServerType = 'EdgeServer';
@@ -947,9 +501,6 @@ $(async () => {
     SetAppEnv();
     getFiscalYearStartMonth();
 
-    // heart beat
-    // notifyStatusSSE();
-    openServerSentEvent();
     // click shutdown event
     $('body').click((e) => {
         if ($(e.target).closest(baseEles.shutdownApp).length) {
@@ -996,6 +547,16 @@ $(async () => {
         }, 100);
     } else if (needToLoaUserSettingsFromUrl()) {
         const newUserSetting = await makeUserSettingFromParams();
+        const isUseDummyDatetime = getParamFromUrl('is_dummy_datetime');
+        if (isUseDummyDatetime) {
+            const xOrderIndex = {
+                id: 'xOption',
+                name: 'xOption',
+                type: 'select-one',
+                value: 'INDEX',
+            };
+            newUserSetting.settings.traceDataForm.push(xOrderIndex);
+        }
         applyUserSetting(newUserSetting, null, true);
         autoClickShowGraphButton(null, 1);
     } else {
@@ -1780,6 +1341,22 @@ const initCommonSearchInput = (inputElement, className = '') => {
         e.which = KEY_CODE.ENTER;
         e.keyCode = KEY_CODE.ENTER;
         $(this).prev('input').val('').trigger('input').focus().trigger(e);
+    });
+};
+
+const initRemoveSearchInputEvent = (element) => {
+    $(element).off('click');
+    $(element).on('click', function () {
+        const $ElmSearchInput = $(this).prev('input');
+        const searchInputID = $ElmSearchInput.attr('id');
+        const keyEnterEvent = new KeyboardEvent('keyup', {
+            key: 'Enter',
+            keyCode: 13,
+            which: 13,
+        });
+        const elmSearchInput = document.getElementById(searchInputID);
+        $ElmSearchInput.val('').trigger('input').focus();
+        elmSearchInput.dispatchEvent(keyEnterEvent);
     });
 };
 
@@ -2646,4 +2223,19 @@ const checkAsNominalScale = () => {
     const allItems = $('input[name=graph_nominal_scale]').length;
     const checkAll = nomialScaleItems == allItems;
     $('input[name=nominal_scale_all]').prop('checked', checkAll);
+};
+
+const showHideGraphSetting = (plotData) => {
+    const elmArrangeDivSwitch = $('.arrange-div-switch');
+    const divideByTerm = [divideOptions.cyclicTerm, divideOptions.directTerm];
+    const isIntDivDataType = plotData.div_data_type === DataTypes.INTEGER.name;
+    elmArrangeDivSwitch[0].style.setProperty('display', 'none', 'important');
+    if (
+        isIntDivDataType ||
+        divideByTerm.includes(plotData.COMMON.compareType)
+    ) {
+        elmArrangeDivSwitch.show();
+    }
+    $('#colorSettingGrp').show();
+    $('#sctr-card-parent').show();
 };

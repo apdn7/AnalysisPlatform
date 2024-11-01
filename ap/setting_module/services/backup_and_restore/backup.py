@@ -1,8 +1,9 @@
 import pandas as pd
 
 from ap.api.setting_module.services.data_import import save_proc_data_count_multiple_dfs
+from ap.common.constants import AnnounceEvent
+from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
-from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.setting_module.services.backup_and_restore.backup_file_manager import BackupKey, BackupKeysManager
 from ap.setting_module.services.backup_and_restore.duplicated_check import (
     get_df_insert_and_duplicated_ids,
@@ -28,7 +29,7 @@ def backup_db_data(process_id: int, start_time: str, end_time: str):
         backup_db_data_from_key(transaction_data, backup_keys_manager, backup_key)
         yield (i + 1) * 100 / total_backup_keys
 
-    background_announcer.announce(True, AnnounceEvent.BACKUP_DATA_FINISHED.name)
+    EventQueue.put(EventBackgroundAnnounce(data=True, event=AnnounceEvent.BACKUP_DATA_FINISHED))
 
 
 def backup_db_data_from_key(

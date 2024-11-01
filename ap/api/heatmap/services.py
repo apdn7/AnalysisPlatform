@@ -50,12 +50,12 @@ from ap.common.constants import (
     END_DATE,
     END_PROC_ID,
     END_TM,
-    FULL_DIV,
     H_LABEL,
     HEATMAP_MATRIX,
     HM_AGG_COLOR_FUNCTION,
     IS_CAT_COLOR,
     IS_DATA_LIMITED,
+    IS_EMPTY_GRAPH,
     MATCHED_FILTER_IDS,
     N_TOTAL,
     NOT_EXACT_MATCH_FILTER_IDS,
@@ -97,7 +97,7 @@ from ap.common.constants import (
     MaxGraphNumber,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
@@ -126,7 +126,7 @@ TOTAL_VIOLIN_PLOT = 200
     (EventType.HMP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     """tracing data to show graph
     1 start point x n end point
@@ -336,6 +336,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
                 chart_type,
             )
         else:
+            cat_div_type = dic_cols[cat_div_id].data_type if cat_div_id else None
             output_graphs, output_times = gen_scatter_cat_div(
                 root_graph_param.dic_proc_cfgs,
                 matrix_col,
@@ -348,6 +349,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
                 color_label,
                 level_labels,
                 chart_type,
+                cat_div_type,
             )
 
     # check graphs
@@ -379,14 +381,14 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
         all_x, all_y = get_heatmap_distinct(output_graphs)
 
     # to apply the arrange-graph feature if data divided by div
-    if cat_div_id:
-        [div_col_data] = graph_param.get_col_cfgs([cat_div_id])
-        if cat_div_label in df.columns and not div_col_data.is_category:
-            div_min = df[cat_div_label].min()
-            div_max = df[cat_div_label].max()
-            # find step of div range
-            [div_step] = df[cat_div_label].diff().shift(-1).mode()
-            dic_param[FULL_DIV] = np.arange(div_min, div_max + 1, div_step).tolist()
+    # if cat_div_id:
+    #     [div_col_data] = graph_param.get_col_cfgs([cat_div_id])
+    #     if cat_div_label in df.columns and not div_col_data.is_category:
+    #         div_min = df[cat_div_label].min()
+    #         div_max = df[cat_div_label].max()
+    #         # find step of div range
+    #         [div_step] = df[cat_div_label].diff().shift(-1).mode()
+    #         dic_param[FULL_DIV] = np.arange(div_min, div_max + 1, div_step).tolist()
 
     # encode the colors which category variable be selected as colors
     color_encode = dict(enumerate(pd.Series(df[color_label]).astype('category').cat.categories)) if color_id else None
@@ -395,8 +397,8 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
         # handle x, y, z data
         array_x = graph[ARRAY_X]
         array_y = graph[ARRAY_Y]
-        unique_x = set(array_x.drop_duplicates().tolist())
-        unique_y = set(array_y.drop_duplicates().tolist())
+        unique_x = set(array_x)
+        unique_y = set(array_y)
 
         missing_x = all_x - unique_x
         missing_y = all_y - unique_y
@@ -525,9 +527,9 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     # output graphs
     dic_param[ARRAY_PLOTDATA] = [convert_series_to_list(graph) for graph in output_graphs]
     if ROWID in df.columns:
-        dic_param[CYCLE_IDS] = df.rowid.tolist()
+        dic_param[CYCLE_IDS] = df.rowid
     else:
-        dic_param[CYCLE_IDS] = []
+        dic_param[CYCLE_IDS] = pd.Series([])
 
     dic_param[IS_DATA_LIMITED] = is_data_limited
     dic_param['is_x_category'] = x_category
@@ -752,16 +754,6 @@ def get_v_keys_str(v_keys):
 
 
 @log_execution_time()
-def calc_elapsed_times(df_data, time_col):
-    elapsed_times = pd.to_datetime(df_data[time_col]).sort_values()
-    elapsed_times = elapsed_times.iloc[0:] - elapsed_times.iat[0]
-    elapsed_times = elapsed_times.dt.total_seconds().fillna(0)
-    elapsed_times = elapsed_times.sort_index()
-    elapsed_times = elapsed_times.convert_dtypes()
-    return elapsed_times
-
-
-@log_execution_time()
 @abort_process_handler()
 def gen_scatter_data_count(
     dic_proc_cfgs,
@@ -943,7 +935,13 @@ def gen_scatter_by_cyclic(
     output_graphs = []
     output_times = []
     for h_key, dic_group in dic_groups.items():
-        h_keys_str = f'{h_key[0]} – {h_key[1]}'
+        time_min = f'{h_key[0]}'
+        time_max = f'{h_key[1]}'
+        h_keys_str = f'{time_min} – {time_max}'
+        if not dic_group:
+            empty_dic_data, empty_output_time = gen_empty_dic_graphs(facet_keys, h_keys_str, None, time_min, time_max)
+            output_times.extend(empty_output_time)
+            output_graphs.extend(empty_dic_data)
 
         for v_keys, df_data in dic_group.items():
             if v_keys not in facet_keys:
@@ -983,9 +981,11 @@ def gen_scatter_cat_div(
     color=None,
     levels=None,
     chart_type=None,
+    cat_div_type=None,
 ):
     """
     category divide
+    :param dic_proc_cfgs
     :param matrix_col:
     :param df:
     :param x_proc_id:
@@ -995,6 +995,8 @@ def gen_scatter_cat_div(
     :param cat_div:
     :param color:
     :param levels:
+    :param chart_type:
+    :param cat_div_type:
     :return:
     """
     if levels is None:
@@ -1005,7 +1007,13 @@ def gen_scatter_cat_div(
     # time_col = [col for col in df.columns if col.startswith(TIME_COL)][0]
 
     # remove missing data
-    df = drop_missing_data(df, [x, y, cat_div, color] + levels)
+    if cat_div_type == DataType.INTEGER.name:
+        df = drop_missing_data(df, [cat_div])
+    else:
+        df = drop_missing_data(df, [x, y, cat_div, color] + levels)
+
+    list_cols_drop_na = [x, y, color] + levels if color else [x, y] + levels
+    list_na_indexes = df[df[list_cols_drop_na].isna().any(axis=1)].index.tolist()
 
     h_group_col = cat_div
     if not h_group_col and len(levels) > 1:
@@ -1032,13 +1040,28 @@ def gen_scatter_cat_div(
     output_times = []
     for h_key, dic_group in dic_groups.items():
         h_keys_str = h_key
+        count_h_key = 0
 
         for v_keys, df_data in dic_group.items():
+            for idx in list_na_indexes:
+                if idx in df_data.index:
+                    df_data.drop(idx, inplace=True)
             if v_keys not in facet_keys:
+                count_h_key += 1
+                if count_h_key == len(dic_group) and all(val is not None for val in facet_keys):
+                    empty_dic_data, empty_output_time = gen_empty_dic_graphs(facet_keys, h_keys_str, None, None, None)
+                    output_times.extend(empty_output_time)
+                    output_graphs.extend(empty_dic_data)
                 continue
 
             v_keys_str = get_v_keys_str(v_keys)
             # elapsed_times = calc_elapsed_times(df_data, time_col)
+
+            if df_data.empty:
+                empty_dic_data, empty_output_time = gen_empty_dic_graphs([v_keys], h_keys_str, None, None, None)
+                output_times.extend(empty_output_time)
+                output_graphs.extend(empty_dic_data)
+                continue
 
             # v_label : name ( not id )
             dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col)
@@ -1112,7 +1135,14 @@ def gen_scatter_by_direct_term(
     output_graphs = []
     output_times = []
     for h_key, dic_group in dic_groups.items():
-        h_keys_str = f'{h_key[0]} {h_key[1]} – {h_key[2]} {h_key[3]}'
+        time_min = f'{h_key[0]} {h_key[1]}'
+        time_max = f'{h_key[2]} {h_key[3]}'
+        h_keys_str = f'{time_min} – {time_max}'
+        # show empty graphs when toggle ON [Arrange Div] switch
+        if not dic_group:
+            empty_dic_data, empty_output_time = gen_empty_dic_graphs(facet_keys, h_keys_str, None, time_min, time_max)
+            output_times.extend(empty_output_time)
+            output_graphs.extend(empty_dic_data)
 
         for v_keys, df_data in dic_group.items():
             if v_keys not in facet_keys:
@@ -1149,8 +1179,8 @@ def gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_
     dic_data = {
         H_LABEL: h_keys_str,
         V_LABEL: v_keys_str,
-        ARRAY_X: df_data[x],
-        ARRAY_Y: df_data[y],
+        ARRAY_X: df_data[x].reset_index(drop=True),
+        ARRAY_Y: df_data[y].reset_index(drop=True),
         COLORS: df_data[color] if color else [],
         TIMES: times,
         TIME_MIN: time_min,
@@ -1163,85 +1193,57 @@ def gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_
 
 @log_execution_time()
 @abort_process_handler()
-def gen_df_limit_data(graph, keys, limit=None):
-    is_limit = False
-    dic_data = {}
-    for key in keys:
-        count = len(graph[key])
-        if not count:
-            continue
-
-        if limit is None or count <= limit:
-            dic_data[key] = graph[key]
-        else:
-            is_limit = True
-            dic_data[key] = graph[key][:limit]
-
-    return pd.DataFrame(dic_data), is_limit
-
-
-@log_execution_time()
-@abort_process_handler()
-def sort_df(df, columns):
-    cols = [col for col in columns if col in df.columns]
-    df.sort_values(by=cols, inplace=True)
-
-    return df
-
-
-@log_execution_time()
-@abort_process_handler()
-def get_most_common_in_graphs(graphs, columns, first_most_common):
-    data = []
-    for graph in graphs:
-        vals = pd.DataFrame({col: graph[col] for col in columns}).drop_duplicates().to_records(index=False).tolist()
-        data += vals
-
-    original_vals = [key for key, _ in Counter(data).most_common(None)]
-    most_vals = [key for key, _ in Counter(data).most_common(first_most_common)]
-    if len(columns) == 1:
-        most_vals = [vals[0] for vals in most_vals]
-
-    is_reduce_violin_number = len(original_vals) > len(most_vals)
-
-    return most_vals, is_reduce_violin_number
-
-
-@log_execution_time()
-@abort_process_handler()
-def filter_violin_df(df, cols, most_vals):
-    df_result = df[df.set_index(cols).index.isin(most_vals)]
-    return df_result
+def gen_empty_dic_graphs(facet_keys, h_keys_str, v_keys_str, time_min, time_max, sort_key=None):
+    dic_data = {
+        H_LABEL: h_keys_str,
+        V_LABEL: v_keys_str,
+        ARRAY_X: pd.Series(),
+        ARRAY_Y: pd.Series(),
+        COLORS: pd.Series(),
+        TIMES: pd.Series(),
+        TIME_MIN: time_min,
+        TIME_MAX: time_max,
+        N_TOTAL: 0,
+        SORT_KEY: h_keys_str if sort_key is None else sort_key,
+        X_SERIAL: [],
+        Y_SERIAL: [],
+        CYCLE_IDS: [],
+        IS_EMPTY_GRAPH: True,
+    }
+    output_time = ([], [])
+    dic_graphs = [{**dic_data.copy(), V_LABEL: get_v_keys_str(v_key)} for v_key in facet_keys]
+    output_times = [output_time for _ in facet_keys]
+    return dic_graphs, output_times
 
 
 @log_execution_time()
 @abort_process_handler()
 def get_heatmap_distinct(graphs):
-    array_x = []
-    array_y = []
+    array_x = pd.Series([])
+    array_y = pd.Series([])
     for graph in graphs:
-        array_x += graph[ARRAY_X].drop_duplicates().tolist()
-        array_y += graph[ARRAY_Y].drop_duplicates().tolist()
+        array_x = array_x.append(graph[ARRAY_X].drop_duplicates())
+        array_y = array_y.append(graph[ARRAY_Y].drop_duplicates())
 
     return set(array_x), set(array_y)
 
 
 @log_execution_time()
 def get_heatmap_range_with_steps(graphs, step=1):
-    array_x, array_y, range_x, range_y = [], [], [], []
+    array_x, array_y, range_x, range_y = pd.Series([]), pd.Series([]), pd.Series([]), pd.Series([])
     for graph in graphs:
-        range_x += graph[ARRAY_X].drop_duplicates().tolist()
-        range_y += graph[ARRAY_Y].drop_duplicates().tolist()
+        range_x = range_x.append(graph[ARRAY_X].drop_duplicates())
+        range_y = range_y.append(graph[ARRAY_Y].drop_duplicates())
 
-    for i, v in enumerate(range(min(range_x), max(range_x))):
+    for i, v in enumerate(range(range_x.min(), range_x.max())):
         if not i:
-            array_x += [v]
-        array_x += [array_x[-1] + step]
+            array_x = array_x.append(pd.Series([v]))
+        array_x = array_x.append(pd.Series([array_x.iloc[-1] + step]))
 
-    for i, v in enumerate(range(min(range_y), max(range_y))):
+    for i, v in enumerate(range(range_y.min(), range_y.max())):
         if not i:
-            array_y += [v]
-        array_y += [array_y[-1] + step]
+            array_y = array_y.append(pd.Series([v]))
+        array_y = array_y.append(pd.Series([array_y.iloc[-1] + step]))
     return set(array_x), set(array_y)
 
 
@@ -1259,7 +1261,7 @@ def get_proc_serials(df: DataFrame, serial_cols: List[CfgProcessColumn]):
     for col in serial_cols:
         sql_label = gen_sql_label(col.id, col.column_name)
         if sql_label in df.columns:
-            dic_serial = {'col_name': col.shown_name, 'data': df[sql_label].tolist()}
+            dic_serial = {'col_name': col.shown_name, 'data': df[sql_label]}
             serials.append(dic_serial)
 
     return serials
@@ -1281,40 +1283,6 @@ def reduce_data_by_number(df, max_graph, recent_flg=None):
             df = df[df[DATA_COUNT_COL] < first_num]
 
     return df
-
-
-@log_execution_time()
-def gen_map_xy_heatmap_matrix(x_name, y_name, all_x, all_y, graph):
-    array_x = graph[ARRAY_X]
-    array_y = graph[ARRAY_Y]
-    unique_x = set(array_x.drop_duplicates().tolist())
-    unique_y = set(array_y.drop_duplicates().tolist())
-
-    missing_x = all_x - unique_x
-    missing_y = all_y - unique_y
-    map_xy_array_z = pd.crosstab(array_y, array_x, values=graph[COLORS], aggfunc='first')
-    for key in missing_x:
-        map_xy_array_z[key] = None
-
-    sorted_cols = sorted(map_xy_array_z.columns)
-    map_xy_array_z = map_xy_array_z[sorted_cols]
-
-    missing_data = [None] * len(missing_y)
-    df_missing = pd.DataFrame({col: missing_data for col in map_xy_array_z.columns}, index=missing_y)
-    map_xy_array_z = pd.concat([map_xy_array_z, df_missing])
-    map_xy_array_z.sort_index(inplace=True)
-
-    # limit 10K cells
-    if map_xy_array_z.size > HEATMAP_COL_ROW * HEATMAP_COL_ROW:
-        map_xy_array_z = map_xy_array_z[:HEATMAP_COL_ROW][map_xy_array_z.columns[:HEATMAP_COL_ROW]]
-
-    graph[X_NAME] = x_name
-    graph[Y_NAME] = y_name
-    graph[HEATMAP_MATRIX] = {
-        'z': matrix(map_xy_array_z),
-        'x': all_x,
-        'y': all_y,
-    }
 
 
 @log_execution_time()

@@ -1,12 +1,15 @@
+import logging
 import os
 import sys
 
 import pandas as pd
 
-from ap.common.logger import log_execution, logger
+from ap.common.logger import log_execution_time
+
+logger = logging.getLogger(__name__)
 
 
-@log_execution()
+@log_execution_time()
 def check_sum():
     orig_file = '_original_check_sum_.txt'
     curr_file = '_check_sum_.txt'

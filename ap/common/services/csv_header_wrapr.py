@@ -1,6 +1,7 @@
 import datetime
 import io
 import itertools
+import logging
 import re
 import unicodedata
 from collections import Counter
@@ -10,8 +11,9 @@ import numpy as np
 import pandas as pd
 
 from ap.common.constants import WR_CTGY, WR_HEAD, WR_HEADER_NAMES, WR_RPLC, WR_TYPES, WR_VALUES, DataType
-from ap.common.logger import logger
 from ap.common.services.normalization import normalize_list
+
+logger = logging.getLogger(__name__)
 
 
 def get_file_info_py(target_file):
@@ -192,7 +194,7 @@ def filechecker(fpath: str, nrows_to_check=20) -> dict:
     info = {'encd': encd, 'sepr': sep_str, 'ncol': ncols, 'na_s': nas['str'], 'expt': nas['exc']}
     hdr = parse_header(dlist, arr_dat, info)
     if len(hdr['row']) == 0:
-        print('No header detected')
+        logger.info('No header detected')
     info['skip'] = hdr['skip']
     head = summarize_header_as_df(hdr, info)
     ctgy = summarize_category_as_df(hdr, info, head['main'].values)

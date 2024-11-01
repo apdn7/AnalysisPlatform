@@ -124,7 +124,8 @@ def data_export(export_type):
             max_graph_config[MaxGraphNumber.AGP_MAX_GRAPH.name],
         )
         # export original value of judge variable
-        agp_df = judge_data_conversion(agp_df, graph_param, revert=True)
+        judge_columns = graph_param.get_judge_variables()
+        agp_df = judge_data_conversion(agp_df, judge_columns, revert=True)
         end_proc_id = int(agp_dat[ARRAY_FORMVAL][0][END_PROC])
         proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name
         csv_list_name.append('{}.{}'.format(proc_name, export_type))

@@ -2851,6 +2851,16 @@ msgstr "Forwards"
 msgid "Number of graph on column"
 msgstr "列的图数"
 
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Arrange Div Title"
+msgstr ""
+"When the graph is split and displayed, when it is OFF, only graphs with "
+"data will be displayed, and when it is ON, graphs will be displayed even "
+"if there is no data.\n"
+"Example) In the case of “Divide by term (Cyclic)”, when it is OFF, the "
+"graph of the period with no data will not be displayed, and when it is "
+"ON, it will be displayed."
+
 #: ap/templates/i18n.html
 msgid "Label Variable Description"
 msgstr "用作图表顶部的标签显示的分类变量（零件号，站点等）用于可视化定性变量的更改点（零件号切换等）。"
@@ -4603,17 +4613,6 @@ msgstr "Reload to get all function columns of the process into system."
 msgid "ProcDatetimeFormat"
 msgstr "Datetime Format"
 
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "ProcDatetimeFormatHoverMsg"
-msgstr ""
-"Specifies the datetime format.\n"
-"\n"
-"Format\t\t\t\t\tExample\n"
-"%%Y-%%m-%%d %%H:%%M:%%S.%%f\t2024-02-21 15:30:51.123\n"
-"%%Y-%%m-%%d %%I:%%M:%%S %%p\t2024-02-21 03:30:51 PM\n"
-"%%m/%%d/%%y\t\t\t\t 02/21/2024\n"
-"%%b %%d, %%Y\t\t\t\t Feb 21, 2024\n"
-
 #: ap/templates/i18n.html
 msgid "main::Date"
 msgstr "main::Date"
@@ -4888,4 +4887,16 @@ msgstr "V2 CSV"
 #: ap/templates/i18n.html ap/templates/setting_module/db_config.html
 msgid "DataSourceTypeSoftwareWorkshop"
 msgstr "Software Workshop Interface"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ProcDatetimeFormatHoverMsg"
+msgstr ""
+"Specifies the datetime format.\n"
+"\n"
+"Format\t\t\t\t\tExample\n"
+"%%Y-%%m-%%d %%H:%%M:%%S.%%f\t2024-02-21 15:30:51.123\n"
+"%%Y-%%m-%%d %%I:%%M:%%S %%p\t2024-02-21 03:30:51 PM\n"
+"%%m/%%d/%%y\t\t\t\t 02/21/2024\n"
+"%%b %%d, %%Y\t\t\t\t Feb 21, 2024\n"
+"%%Y%%m%%d%%H%%M\t\t\t 202409251400\n"
 

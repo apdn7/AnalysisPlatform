@@ -125,7 +125,21 @@ const filterDataModal = {
     div: [],
 };
 
+const isPageHaveLabelAndFilter = () => {
+    const currentPage = getCurrentPage();
+    return currentPage === PAGE_NAME.fpp;
+};
+
 function fillDataToFilterModal(data = filterDataModal, callback) {
+    const [categoriesLabel, categoriesFilter] = getLabelAndFilterValues();
+    if (isPageHaveLabelAndFilter()) {
+        data.filter = data.filter.filter((e) =>
+            categoriesFilter.includes(e.column_id),
+        );
+        data.category = data.category.filter((item, index, self) =>
+            categoriesLabel.includes(item.column_id),
+        );
+    }
     let facetHtml = renderFilterHtml(data.facet);
     let categoryHtml = renderFilterHtml(data.category);
     // sort categoryVars by alphabet name

@@ -1,6 +1,5 @@
 import logging
 import re
-import traceback
 
 import cx_Oracle
 from dateutil import tz
@@ -21,14 +20,18 @@ class Oracle:
         self.is_connected = False
 
     def dump(self):
-        print('===== DUMP RESULT =====')
-        print('DB Type: Oracle')
-        print('self.host: ' + self.host)
-        print('self.port: ' + str(self.port))
-        print('self.dbname: ' + self.dbname)
-        print('self.username: ' + self.username)
-        print('self.is_connected: ', self.is_connected)
-        print('=======================')
+        logger.info(
+            f'''\
+===== DUMP RESULT =====
+DB Type: Oracle
+self.host: {self.host}
+self.port: {self.port}
+self.dbname: {self.dbname}
+self.username: {self.username}
+self.is_connected: {self.is_connected}
+=======================
+''',
+        )
 
     def connect(self):
         dsn = cx_Oracle.makedsn(self.host, self.port, service_name=self.dbname)
@@ -42,11 +45,8 @@ class Oracle:
             )
             self.is_connected = True
             return self.connection
-        except Exception:
-            print('Cannot connect to db')
-            print('>>> traceback <<<')
-            traceback.print_exc()
-            print('>>> end of traceback <<<')
+        except Exception as e:
+            logger.exception(e)
             return False
 
     def disconnect(self):
@@ -66,12 +66,12 @@ class Oracle:
                 sql += ','
             sql += val['name'] + ' ' + val['type']
         sql += ')'
-        print(sql)
+        logger.info(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + ' created!')
+        logger.info(f'{tblname} created!')
 
     # テーブル名の配列を取得
     def list_tables(self):
@@ -109,9 +109,9 @@ class Oracle:
         try:
             cur.execute(sql)
             self.connection.commit()
-            print(tblname + ' dropped!')
-        except Exception:
-            print(tblname + ' is not found!')
+            logger.info(f'{tblname} dropped!')
+        except Exception as e:
+            logger.exception(e)
         finally:
             cur.close()
 
@@ -203,10 +203,10 @@ class Oracle:
             sql = Oracle.convert_sql(sql)
             cur.execute(sql)
             cur.close()
-            print('Inserted {} rows'.format(len(chunk)))
+            logger.info(f'Inserted {len(chunk)} rows')
         self.connection.commit()
 
-        print('Dummy data was inserted to {0:s}!'.format(tblname))
+        logger.info(f'Dummy data was inserted to {tblname}')
 
     # SQLをこのまま実行
     # [以下、結果をDict形式で返す方法]
@@ -217,7 +217,7 @@ class Oracle:
     def run_sql(self, sql, row_is_dict=True):
         if not self._check_connection():
             return False
-        print(sql)
+        logger.info(sql)
         cur = self._create_cursor_with_date_time_format()
         sql = Oracle.convert_sql(sql)
 
@@ -263,7 +263,7 @@ class Oracle:
 
         cur = self._create_cursor_with_date_time_format()
         sql = Oracle.convert_sql(sql)
-        print(sql)
+        logger.info(sql)
         try:
             cur.execute(sql)
             self.connection.commit()
@@ -278,7 +278,7 @@ class Oracle:
         if self.is_connected:
             return True
         # 接続していないなら
-        print('Connection is not Initialized. Please run connect() to connect to DB')
+        logger.warning('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def _create_cursor_with_date_time_format(self):

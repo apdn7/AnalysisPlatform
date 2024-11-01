@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import List, Optional, Set, Union
 
@@ -38,6 +39,8 @@ from ap.setting_module.models import (
     CfgTraceKey,
 )
 from ap.trace_data.database_index import ColumnInfo, MultipleIndexes, SingleIndex, add_multiple_indexes_to_set
+
+logger = logging.getLogger(__name__)
 
 
 class TransactionData:
@@ -195,7 +198,6 @@ class TransactionData:
         # cat_counts = transaction_data_obj.get_count_by_category(db_instance)
         # dic_cat_count = {_dic_cat['data_id']: _dic_cat for _dic_cat in cat_counts}
         dic_db_cols = {col.column_name: col for col in db_columns}  # TODO: Use id
-        # lock = dic_config[PROCESS_QUEUE][LOCK]
         for request_column in request_columns:
             column = dic_db_cols.get(request_column.column_name)
             if column is None:
@@ -263,7 +265,7 @@ class TransactionData:
         try:
             series_distinct_value.astype(as_type)
         except Exception as e:
-            print(e)
+            logger.error(e)
             return False
 
         return True
@@ -801,7 +803,7 @@ class TransactionData:
     def select_distinct_data(self, db_instance, col_name, limit=1000):
         sql = f'SELECT DISTINCT {col_name} FROM {self.table_name} ORDER BY {col_name} ASC LIMIT {limit}'
         _, rows = db_instance.run_sql(sql, row_is_dict=False)
-        vals = [row[0] for row in rows if row[0]]
+        vals = [row[0] for row in rows if row[0] is not None]
         return vals
 
     def select_data(self, db_instance, col_names, limit=1000):

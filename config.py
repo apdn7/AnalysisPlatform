@@ -1,10 +1,12 @@
+import logging
 import os
 
 from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 from ap.common.common_utils import resource_path
-from ap.common.logger import logger
+
+logger = logging.getLogger(__name__)
 
 basedir = os.getcwd()
 
@@ -30,7 +32,7 @@ class Config(object):
     os.environ['PATH'] = '{};{}'.format(ORACLE_PATH_WITH_VERSION, os.environ.get('PATH', ''))
 
     logger.info(os.environ['PATH'])
-    print(R_PORTABLE)
+    logger.info(R_PORTABLE)
 
     BABEL_DEFAULT_LOCALE = 'en'
 

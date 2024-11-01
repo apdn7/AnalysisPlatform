@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import logging
 import sqlite3
-import traceback
 from datetime import datetime
 
 from dateutil import tz
@@ -30,12 +29,16 @@ class SQLite3:
         self.isolation_level = isolation_level
 
     def dump(self):
-        print('===== DUMP RESULT =====')
-        print('DB Type: SQLite3')
-        print('self.dbname: {}'.format(self.dbname))
-        print('self.isolation_level: {}'.format('IMMEDIATE' if self.isolation_level else None))
-        print('self.is_connected: {}'.format(self.is_connected))
-        print('=======================')
+        logger.info(
+            f'''\
+===== DUMP RESULT =====
+DB Type: SQLite3'
+self.dbname: {self.dbname}
+self.isolation_level: {"IMMEDIATE" if self.isolation_level else None}
+self.is_connected: {self.is_connected}
+=======================
+''',
+        )
 
     def connect(self):
         try:
@@ -50,11 +53,8 @@ class SQLite3:
             self.cursor = self.connection.cursor()
             self.dump()
             return self.connection
-        except Exception:
-            print('Cannot connect to db')
-            print('>>> traceback <<<')
-            traceback.print_exc()
-            print('>>> end of traceback <<<')
+        except Exception as e:
+            logger.exception(e)
             return False
 
     # def is_sqlite(self):
@@ -91,7 +91,7 @@ class SQLite3:
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
-        print(tblname + ' created!')
+        logger.info(f'{tblname} created!')
 
     # 作成済みのテーブルを配列として返す
     def list_tables(self):
@@ -128,7 +128,7 @@ class SQLite3:
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
-        print(tblname + ' dropped!')
+        logger.info(f'{tblname} dropped!')
 
     # テーブルのカラムのタイプを辞書の配列として返す
     # columns:
@@ -199,7 +199,7 @@ class SQLite3:
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print('Dummy data was inserted to {}!'.format(tblname))
+        logger.info(f'Dummy data was inserted to {tblname}!')
 
     def get_column_type(self, tblname, colname) -> str | None:
         sql = f'PRAGMA TABLE_INFO({tblname})'
@@ -314,7 +314,7 @@ class SQLite3:
         if self.is_connected:
             return True
         # 接続していないなら
-        print('Connection is not Initialized. Please run connect() to connect to DB')
+        logger.warning('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def is_timezone_hold_column(self, tbl, col):

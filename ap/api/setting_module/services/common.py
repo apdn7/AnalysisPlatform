@@ -1,7 +1,10 @@
+import logging
+
 from ap.common.common_utils import parse_int_value
-from ap.common.logger import logger
 from ap.setting_module.models import CfgUserSetting, insert_or_update_config, make_session
 from ap.setting_module.schemas import CfgUserSettingSchema
+
+logger = logging.getLogger(__name__)
 
 
 def is_local_client(req):

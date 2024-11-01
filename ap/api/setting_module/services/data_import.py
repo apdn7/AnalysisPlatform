@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import functools
+import logging
 import os.path
-import traceback
 from datetime import datetime
 from typing import List, Literal
 
@@ -48,8 +48,8 @@ from ap.common.constants import (
     JobType,
 )
 from ap.common.disk_usage import get_ip_address
-from ap.common.logger import log_execution_time, logger
-from ap.common.memoize import set_all_cache_expired
+from ap.common.logger import log_execution_time
+from ap.common.multiprocess_sharing import EventExpireCache, EventQueue
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services import csv_header_wrapr as chw
 from ap.common.services.csv_content import read_data
@@ -64,6 +64,8 @@ from ap.setting_module.models import (
     CfgProcessColumn,
 )
 from ap.trace_data.transaction_model import DataCountTable, ImportHistoryTable, TransactionData
+
+logger = logging.getLogger(__name__)
 
 # csv_import : max id of cycles
 # ( because of csv import performance, we make a deposit/a guess of cycle id number
@@ -151,9 +153,7 @@ def import_data(df, proc_id, get_date_col, cfg_columns: List[CfgProcessColumn], 
     # insert import history
     save_import_history(proc_id, job_info=job_info)
 
-    # clear cache
-    # TODO: clear cache in main thread
-    set_all_cache_expired(CacheType.TRANSACTION_DATA)
+    EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
 
     return cycles_len
 
@@ -165,8 +165,8 @@ def import_data(df, proc_id, get_date_col, cfg_columns: List[CfgProcessColumn], 
 def update_or_create_constant_by_type(const_type, value=0):
     try:
         CfgConstant.create_or_update_by_type(const_type=const_type, const_value=value)
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
         return False
 
     return True
@@ -545,9 +545,9 @@ def csv_data_with_headers(csv_file_name, data_src):
                 WR_VALUES: [line, process, machine],
             }
             return etl_headers[WR_HEADER_NAMES], etl_headers[WR_VALUES]
-        except Exception:
+        except Exception as e:
             read_directly_ok = False
-            traceback.print_exc()
+            logger.exception(e)
 
     # if there is no flag in DB or failed to read file directly -> call R script + save flag
     if not efa_header_exists or not read_directly_ok:
@@ -764,6 +764,9 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
             if len(non_numerics):
                 non_num_idxs = non_numerics.index
                 non_numerics = non_numerics.astype(str).str.strip("'").str.strip()
+
+                if user_data_type == DataType.BOOLEAN.name:
+                    non_numerics = non_numerics.replace(['true', True], 1).replace(['false', False], 0)
 
                 # convert non numeric again
                 numerics = pd.to_numeric(non_numerics, errors='coerce')
@@ -1186,8 +1189,7 @@ def insert_data_to_db(cycle_vals, sql_insert_cycle):
         # insert cycle
         insert_data(db_instance, sql_insert_cycle, cycle_vals)
 
-    # clear cache
-    set_all_cache_expired(CacheType.TRANSACTION_DATA)
+    EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
 
 
 @log_execution_time()
@@ -1277,7 +1279,7 @@ def save_proc_data_count_multiple_dfs(
     sql_insert = gen_bulk_insert_sql(DataCountTable.get_table_name(proc_id), *sql_params)
 
     insert_data(db_instance, sql_insert, sql_vals)
-    set_all_cache_expired(CacheType.TRANSACTION_DATA)
+    EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
 
 
 def get_proc_data_count_df(df, *, get_date_col, decrease: bool, is_db: bool):

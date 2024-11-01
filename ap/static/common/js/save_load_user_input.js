@@ -1011,6 +1011,15 @@ const saveLoadUserInput = (
                 }
             }
 
+            if (input.type === 'select-one') {
+                // check available options
+                const availableOptions = Array.from(input.options).map(
+                    (opt) => opt.value,
+                );
+                if (!availableOptions.includes(v.value)) {
+                    continue;
+                }
+            }
             input.value = v.value;
             callAllEvent(input);
         }

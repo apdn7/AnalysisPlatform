@@ -125,7 +125,12 @@ def trace_data():
     if df is not None:
         graph_param = bind_dic_param_to_class(new_dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
         # dic_param = bind_ng_rate_to_dic_param(graph_param, dic_param)
-        cache_jump_key(dic_form.get(REQUEST_THREAD_ID, [None])[0], dic_param, graph_param, df)
+        cache_jump_key(
+            jump_key=dic_form.get(REQUEST_THREAD_ID, [None])[0],
+            dic_param=dic_param,
+            graph_param=graph_param,
+            df=df,
+        )
     return out_dict, 200
 
 

@@ -84,6 +84,8 @@ CONSTRAINT_RANGE = 'constraint_range'
 SELECTED = 'selected'
 ONLY_EXPORT_DATA_SELECTED = 'only_export_data_selected'
 
+IDLE_MONITORING_INTERVAL = 5 * 60  # 5 minutes
+
 
 class ApLogLevel(Enum):
     DEBUG = auto()
@@ -294,6 +296,7 @@ SORT_KEY = 'sort_key'
 FILTER_ON_DEMAND = 'filter_on_demand'
 DIV_FROM_TO = 'div_from_to'
 PROC_LINK_ORDER = 'proc_link_order'
+IS_EMPTY_GRAPH = 'is_empty_graph'
 
 UNIQUE_SERIAL = 'unique_serial'
 UNIQUE_SERIAL_TRAIN = 'unique_serial_train'
@@ -1757,14 +1760,12 @@ class PagePath(Enum):
     REGISTER_DATA_FILE = 'ap/register_by_file'
 
 
-PROCESS_QUEUE = '_queue'
 MAIN_THREAD = 'MAIN_THREAD'
 SHUTDOWN = 'SHUTDOWN'
 PORT = 'PORT'
 
 
 # class DicConfig(BaseEnum):
-#     PROCESS_QUEUE = auto()
 #     DB_SECRET_KEY = auto()
 #     SQLITE_CONFIG_DIR = auto()
 #     APP_DB_FILE = auto()
@@ -1772,12 +1773,18 @@ PORT = 'PORT'
 #     TESTING = auto()
 
 
-class ListenNotifyType(BaseEnum):
-    JOB_PROGRESS = auto()
-    ADD_JOB = auto()
-    RESCHEDULE_JOB = auto()
-    RUNNING_JOB = auto()
-    CLEAR_CACHE = auto()
+class AnnounceEvent(Enum):
+    JOB_RUN = auto()
+    PROC_LINK = auto()
+    SHUT_DOWN = auto()
+    DATA_TYPE_ERR = auto()
+    EMPTY_FILE = auto()
+    PCA_SENSOR = auto()
+    SHOW_GRAPH = auto()
+    DISK_USAGE = auto()
+    DATA_REGISTER = auto()
+    BACKUP_DATA_FINISHED = auto()
+    RESTORE_DATA_FINISHED = auto()
 
 
 class JobType(Enum):

@@ -187,6 +187,9 @@ class SqlProcLink:
             assert cond_proc.proc_id == self.process_id
             for col_id, filters in cond_proc.dic_col_id_filters.items():
                 cfg_column = self.trans_data.get_cfg_column_by_id(col_id)
+                if not cfg_column or len(cfg_column.function_details):
+                    continue
+
                 col_name_alias = gen_alias_col_name(self.trans_data, cfg_column.bridge_column_name)
                 col = cte.c.get(col_name_alias)
                 assert col is not None, f'{col_name_alias} must exist'

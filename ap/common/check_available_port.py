@@ -1,11 +1,14 @@
+import logging
 import socket as s
 import sys
 
 from ap.common.common_utils import parse_int_value
-from ap.common.logger import log_execution, logger
+from ap.common.logger import log_execution_time
+
+logger = logging.getLogger(__name__)
 
 
-@log_execution()
+@log_execution_time()
 def check_available_port(port):
     port = parse_int_value(port)
     sock = s.socket(s.AF_INET, s.SOCK_STREAM)
@@ -24,10 +27,10 @@ def check_available_port(port):
 
             sys.exit()
     except (s.timeout, s.gaierror) as ex:
-        logger.error('Checking port availability timeout!', ex)
+        logger.error(f'Checking port availability timeout! {ex}')
         # logger.exception(ex)
     except Exception as ex:
-        logger.error('Checking port availability error!', ex)
+        logger.error(f'Checking port availability error! {ex}')
         # logger.exception(ex)
     finally:
         sock.close()

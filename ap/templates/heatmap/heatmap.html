@@ -125,9 +125,7 @@
                         <option value="">{{ _('Forwards') }}</option>
                     </select>
                 </div>
-                <div id="arrangeGraph" class="d-flex align-items-center mr-4">
-                    {{ macros.switch_button(id='rangeDiv', label=_('Arrange'), onChange='rearrangeHeatmap()') }}
-                </div>
+                {{ macros.switch_button(id='hmpArrangeDiv', label=_('Arrange Div'), title=_('Arrange Div Title'), cl='arrange-div-switch mr-4') }}
             </div>
         </div>
     </div>

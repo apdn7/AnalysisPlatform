@@ -364,8 +364,8 @@ class ParallelPlot {
         const stepVals = rangeVals / 9;
         const fractionDigit = rangeVals <= 1 ? 4 : 2; // change 3 => 4 to fix 0.0000
         const irrNum =
-            maxText.toString().includes('e') ||
-            minText.toString().includes('e');
+            maxText?.toString().includes('e') ||
+            minText?.toString().includes('e');
         let tickVals = Array(
             ...new Set(
                 Array(...Array(10)).map((v, i) => {
@@ -618,9 +618,17 @@ class ParallelPlot {
         dim = this.rearrangeDimValue(colData, dim, false);
         // get dimRange in dim.tickvals instead of dim.values
         const dimRange = findMinMax(dim.tickvals);
-        const dimRangeValue = findMinMax(dim.values);
-        dimRange[0] = Math.min(dimRange[0], dimRangeValue[0]);
-        dimRange[1] = Math.max(dimRange[1], dimRangeValue[1]);
+        // if auto range & full range
+        // extend dimension range
+        const isExtendingRange = [
+            scaleOptionConst.AUTO,
+            scaleOptionConst.FULL_RANGE,
+        ].includes(this.settings.yScaleOption);
+        if (isExtendingRange) {
+            const dimRangeValue = findMinMax(dim.values);
+            dimRange[0] = Math.min(dimRange[0], dimRangeValue[0]);
+            dimRange[1] = Math.max(dimRange[1], dimRangeValue[1]);
+        }
         let corr = getCorrelation(
             this.traceData.corrs,
             colData.col_detail.col_id,
@@ -826,9 +834,12 @@ class ParallelPlot {
 
         if (this.settings.orderBy === ParallelProps.orderBy.process) {
             const order = this.traceData.proc_link_order;
-            otherDimensions = otherDimensions.sort(
-                (x, y) => order.indexOf(x.process) - order.indexOf(y.process),
-            );
+            if (order) {
+                otherDimensions = otherDimensions?.sort(
+                    (x, y) =>
+                        order.indexOf(x.process) - order.indexOf(y.process),
+                );
+            }
         }
         let nonObjectiveDimension = [...otherDimensions, ...explainDimension];
         // append objectiveDimension at the end after sorting
@@ -1000,6 +1011,7 @@ class ParallelPlot {
     }
 
     formatTickVals(data, format) {
+        if (!data.length) return data;
         const tickFormatObj = ParallelProps.tickFormat;
         if (format === tickFormatObj.real) {
             const [, digit] = format.match(

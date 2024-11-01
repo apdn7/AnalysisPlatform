@@ -113,6 +113,11 @@ const ALL_DIVISION = {
     },
 };
 
+const TRANSFORM_AGG_TO_FILTER = {
+    page: ['hmp'],
+    agg_name: ['function_real', 'function_cate'],
+};
+
 $(() => {
     initCommonSearchInput($(jumpEls.searchInput));
     // Handler set search input button
@@ -599,6 +604,23 @@ const showErrorMsg = (errMsg) => {
         is_error: true,
     });
 };
+
+const getColorVar = () => {
+    const colorVar = $('input[name=colorVar]:checked');
+    if (colorVar.length) {
+        let groupName = colorVar
+            .parents('ul')
+            .find('input[type=checkbox]')[0].name;
+        if (groupName) {
+            groupName = groupName.replace('VALS', 'CATE');
+        }
+        const colorID = colorVar[0].value;
+
+        return { groupName, colorID };
+    }
+    return undefined;
+};
+
 const handleClickOKJumpButton = (e) => {
     e.preventDefault();
     // get selected target page
@@ -752,6 +774,22 @@ const handleClickOKJumpButton = (e) => {
             value: $('#datetimeRangeShowValue').text(),
             type: 'text',
         });
+    }
+
+    // check to transform color variable to filter in target page
+    const needToTransformFilter = TRANSFORM_AGG_TO_FILTER.page.includes(page);
+    if (needToTransformFilter) {
+        const colorVar = getColorVar();
+        if (colorVar) {
+            // add filter column in target setting
+            dumpedUserSetting.push({
+                checked: true,
+                id: `categoryFilter-${colorVar.colorID}`,
+                name: colorVar.groupName,
+                type: 'checkbox',
+                value: colorVar.colorID,
+            });
+        }
     }
 
     // get sorted columns

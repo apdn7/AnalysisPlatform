@@ -18,7 +18,7 @@ from ap.common.constants import (
     Y_MIN,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.request_time_out_handler import abort_process_handler
 from ap.common.services.statistics import convert_series_to_number
 from ap.common.sigificant_digit import get_fmt_from_array
@@ -142,7 +142,7 @@ def calculate_kde_trace_data(plotdata, bins=128, height=1, full_array_y=None):
     return kde_list
 
 
-@memoize()
+@CustomCache.memoize()
 def calc_kde(data, bins, height, sample_data, std_value, y_max, y_min):
     try:
         # grid points
@@ -173,9 +173,9 @@ def is_numeric(n):
 def get_bound(plotdata):
     bounds = []
     for _, ridgeline in enumerate(plotdata):
-        array_x = ridgeline.get(ARRAY_X)
+        array_x = ridgeline.get(ARRAY_X, pd.Series())
         data = [e for e in array_x if is_numeric(e)]
-        if data:
+        if len(data):
             # remove inf, nan in data
             data_np = np.array(data)
             data_np = convert_series_to_number(data_np)
@@ -266,14 +266,14 @@ def detect_abnormal_count_values(
     # np.random.default_rng() is much faster than np.random.choice()
     if len(x) > max_sample_size:
         if verbose:
-            print(f'resampled: exceeded {max_sample_size} data points')
+            logger.info(f'resampled: exceeded {max_sample_size} data points')
         rng = np.random.default_rng(1)  # fix random seed
         x = rng.choice(x, max_sample_size, replace=False)
 
     uniq, count = np.unique(x, return_counts=True)
     if len(uniq) < min_uniques:
         if verbose:
-            print(f'Number of unique values where less than {min_uniques}')
+            logger.info(f'Number of unique values where less than {min_uniques}')
         return []
 
     # average counts of left and right unique values
@@ -290,9 +290,9 @@ def detect_abnormal_count_values(
     val_outlier = np.sort(values_detected[idx_desc[:nmax]])  # return values in ascending order
     if verbose:
         if len(val_outlier) > 0:
-            print('detected: {}'.format(val_outlier))
+            logger.info(f'detected: {val_outlier}')
         else:
-            print('outlier not detected')
+            logger.info('outlier not detected')
 
     return val_outlier
 

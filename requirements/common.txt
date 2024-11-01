@@ -47,4 +47,7 @@ Flask-Assets==2.0
 orjson==3.9.1
 pywin32==306
 typing-extensions==4.7.1
-pydantic==2.2
+pydantic==2.9.2
+cachelib==0.13.0
+diskcache==5.6.3
+filelock==3.13.1

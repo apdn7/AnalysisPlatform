@@ -112,6 +112,7 @@ const drawAgPPlot = (
             bgcolor: 'transparent',
             xanchor: 'right',
             x: 1.07,
+            traceorder: 'normal',
             // itemsizing: "constant",
             // itemwidth: 200
         },

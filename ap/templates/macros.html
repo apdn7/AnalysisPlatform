@@ -980,7 +980,7 @@
 <!-- -->
 
 <!-- Graph range dropdown -->
-{% macro scale_option(name='yScaleGroup', label=_('Range of Y axis'), className='', onChange='', defaultOption='1') %}
+{% macro scale_option(name='yScaleGroup', label=_('Range of Y axis'), className='', onChange='', defaultOption='1', id='') %}
     <div class="d-flex align-items-center ml-2 {{ className }}">
         <span class="mr-2"> {{ label }} </span>
         <select
@@ -988,6 +988,7 @@
             name="{{ name }}"
             onchange="{{ onChange }}"
             class="form-control border-white w-auto scale-dropdown y-axis-scale"
+            id="{{ id }}"
         >
             <option value="1">{{ _('Setting scale') }}</option>
             <option value="2">{{ _('Common scale') }}</option>
@@ -1068,18 +1069,18 @@
                                     class="d-flex ui-sortable"
                                 ></div>
                             </div>
-                            <div class="mr-2 cats-exp-box">
-                                <span
-                                    id="filterBoxTitle"
-                                    class="cat-title ui-sortable"
-                                    >{{ 'Filter' }}</span
-                                >
-                                <div
-                                    id="filterBox"
-                                    class="d-flex ui-sortable"
-                                ></div>
-                            </div>
                         {% endif %}
+                        <div class="mr-2 cats-exp-box">
+                            <span
+                                id="filterBoxTitle"
+                                class="cat-title ui-sortable"
+                                >{{ 'Filter' }}</span
+                            >
+                            <div
+                                id="filterBox"
+                                class="d-flex ui-sortable"
+                            ></div>
+                        </div>
                         <div class="mr-2 cats-exp-box">
                             <span id="catExpBoxTitle" class="cat-title"
                                 >{{ _('Facet') }}</span

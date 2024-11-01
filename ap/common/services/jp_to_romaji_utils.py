@@ -1,15 +1,15 @@
 import collections
 import re
-from functools import lru_cache
 
 import cutlet
 
+from ap.common.memoize import CustomCache
 from ap.common.services.normalization import normalize_str
 
 conv = cutlet.Cutlet()
 
 
-@lru_cache(maxsize=1000)
+@CustomCache.memoize()
 def to_romaji(input_str, convert_irregular_chars=True):
     normalized_input = input_str
     # convert postal mark in string to `post`, done before normalize_str

@@ -2,6 +2,7 @@ import copy
 import functools
 import json
 import locale
+import logging
 import os
 import pickle
 import re
@@ -14,9 +15,8 @@ from datetime import datetime, timedelta
 from enum import Enum
 from io import IOBase
 from itertools import permutations
-from multiprocessing import Manager
 from pathlib import Path
-from typing import IO, Any, List, TextIO, Union
+from typing import IO, Any, List, TextIO, Type, Union
 
 import chardet
 import numpy as np
@@ -28,6 +28,7 @@ from dateutil.relativedelta import relativedelta
 from flask import g
 from flask_assets import Bundle, Environment
 from pandas import DataFrame, Series
+from pandas.core.arrays.integer import INT_STR_TO_DTYPE
 from pandas.io import parquet
 from pyarrow import feather
 
@@ -40,7 +41,6 @@ from ap.common.constants import (
     INT64_MAX,
     INT64_MIN,
     LANGUAGES,
-    PROCESS_QUEUE,
     SAFARI_SUPPORT_VER,
     SCP_HMP_X_AXIS,
     SCP_HMP_Y_AXIS,
@@ -56,11 +56,11 @@ from ap.common.constants import (
     FileExtension,
     FilterFunc,
     FlaskGKey,
-    ListenNotifyType,
 )
-from ap.common.logger import log_execution_time, logger
-from ap.common.services.jp_to_romaji_utils import replace_special_symbols, to_romaji
+from ap.common.logger import log_execution_time
 from ap.common.services.normalization import NORMALIZE_FORM_NFKD, normalize_str, unicode_normalize
+
+logger = logging.getLogger(__name__)
 
 TXT_FILE_TYPE = '.txt'
 DATE_FORMAT_STR = '%Y-%m-%dT%H:%M:%S.%fZ'
@@ -522,7 +522,7 @@ def resource_path(*relative_path, level=AbsPath.SHOW):
 #             output = self.r.get(output_var)
 #             _number_of_recheck_r_output -= 1
 #
-#         print(_number_of_recheck_r_output, output)
+#         logger.info(_number_of_recheck_r_output, output)
 #         return output
 
 
@@ -1097,7 +1097,7 @@ def write_feather_file(df: DataFrame, file):
     try:
         feather.write_feather(df.reset_index(drop=True), file, compression='lz4')
     except Exception as e:
-        print(str(e))
+        logger.error(e)
         for col in df.columns:
             if df[col].dtype.name in ('object', 'category'):
                 df[col] = np.where(pd.isnull(df[col]), None, df[col].astype(str))
@@ -1115,7 +1115,7 @@ def write_parquet_file(df: DataFrame, file):
     try:
         parquet.to_parquet(df.reset_index(drop=True), file, compression='gzip')
     except Exception as e:
-        print(str(e))
+        logger.error(e)
         for col in df.columns:
             if df[col].dtype.name in ('object', 'category'):
                 df[col] = np.where(pd.isnull(df[col]), None, df[col].astype(str))
@@ -1317,6 +1317,8 @@ def gen_import_history_table_name(proc_id: int):
 
 
 def gen_bridge_column_name(id, name):
+    from ap.common.services.jp_to_romaji_utils import to_romaji
+
     name = to_romaji(name)
     return f"_{id}_{name.replace('-', '_').lower()}"[:50]
 
@@ -1340,42 +1342,9 @@ def gen_sqlite3_file_name(proc_id=None):
     return os.path.join(dic_config[UNIVERSAL_DB_FILE], file_name)
 
 
-def init_process_queue():
-    manager = Manager()
-    process_queue = manager.dict()
-    # process_queue[LOCK] = manager.Lock()
-    # process_queue[MAPPING_DATA_LOCK] = manager.Lock()
-    for notify_type in ListenNotifyType.__members__:
-        process_queue[notify_type] = manager.dict()
-
-    write_to_pickle(process_queue, get_multiprocess_queue_file())
-    return process_queue
-
-
-def get_process_queue():
-    from ap import dic_config
-
-    process_queue = dic_config.get(PROCESS_QUEUE)
-    if process_queue is None:
-        process_queue_file = get_multiprocess_queue_file()
-        if os.path.exists(process_queue_file):
-            try:
-                process_queue = read_pickle_file(get_multiprocess_queue_file())
-            except Exception as e:
-                # in case of old file, renew file
-                logger.warning(e)
-                process_queue = init_process_queue()
-        else:
-            process_queue = init_process_queue()
-
-    return process_queue
-
-
-def get_multiprocess_queue_file():
-    return os.path.join(get_data_path(), 'process_queue.pickle')
-
-
 def remove_non_ascii_chars(string, convert_irregular_chars=True):
+    from ap.common.services.jp_to_romaji_utils import replace_special_symbols
+
     # special case for vietnamese: đ letter
     normalized_input = re.sub(r'[đĐ]', 'd', string)
 
@@ -1478,6 +1447,42 @@ def get_month_diff(str_min_datetime, str_max_datetime):
 
 def is_boolean(data: Series):
     return (data >= 0) & (data <= 1)
+
+
+def is_not_string_series(data: Series) -> Series:
+    return data.apply(lambda x: not isinstance(x, str))
+
+
+def is_string_boolean_series(data: Series) -> Series:
+    return data.isin(['true', 'false'])
+
+
+def is_only_type(series: Series, data_type: Type) -> bool:
+    return series.apply(lambda x: type(x) == data_type).all()
+
+
+def is_only_integer(series: Series) -> bool:
+    pandas_integer_types = [type(dtype) for dtype in INT_STR_TO_DTYPE.values()]
+    numpy_integer_types = [dtype.type for dtype in INT_STR_TO_DTYPE.values()]
+    integer_types = [int, *pandas_integer_types, *numpy_integer_types]
+    return any(is_only_type(series, int_type) for int_type in integer_types)
+
+
+def is_boolean_dtype(series: Series) -> bool:
+    from ap.api.setting_module.services.data_import import ALL_SYMBOLS
+
+    unique_values: Series = pd.Series(series.unique()).replace(ALL_SYMBOLS, pd.NA).dropna()
+    if len(unique_values) == 2 and (
+        (
+            is_not_string_series(unique_values).all()
+            and is_boolean(unique_values).all()
+            and (is_only_type(unique_values, bool) or is_only_integer(unique_values))
+        )
+        or is_string_boolean_series(unique_values).all()
+    ):
+        return True
+
+    return False
 
 
 def is_int_64(data: Series):

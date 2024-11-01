@@ -183,6 +183,9 @@ const checkFolderResources = async (folderUrl, originFolderUrl) => {
                 );
                 // hide loading
                 $('#resourceLoading').hide();
+                // hide preview table
+                $(csvResourceElements.dataTbl).hide();
+                disabledSaveDBBtn();
                 return;
             }
         },
@@ -248,9 +251,7 @@ const showLatestRecordsFromDS = (
             }
             let formattedVal = val;
             formattedVal = trimBoth(String(formattedVal));
-            if (datatype === DataTypes.DATETIME.value) {
-                formattedVal = parseDatetimeStr(formattedVal);
-            } else if (datatype === DataTypes.INTEGER.value) {
+            if (datatype === DataTypes.INTEGER.value) {
                 formattedVal = parseIntData(formattedVal);
                 if (isNaN(formattedVal)) {
                     formattedVal = '';
@@ -456,9 +457,12 @@ const showResources = async () => {
         },
         error: (error) => {
             $('#resourceLoading').hide();
+            // disabled OK Button
+            disabledSaveDBBtn();
+
             hideAlertMessages();
             displayRegisterMessage(csvResourceElements.alertInternalError, {
-                message: i18nDBCfg.couldNotReadData.text(),
+                message: i18nDBCfg.couldNotReadData.html(),
                 is_error: true,
             });
         },
@@ -1171,6 +1175,8 @@ const confirmDeleteDS = async () => {
                 },
                 error: () => {
                     result = null;
+                    // disabled OK Button
+                    disabledSaveDBBtn();
                 },
             });
             return result;
@@ -1339,7 +1345,7 @@ const parseDataType = (ele, idx) => {
         case DataTypes.INTEGER.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
-                const isBigInt = Boolean(e.attr('is-big-int'));
+                const isBigInt = !!+e.attr('is-big-int');
                 if (!isBigInt) {
                     val = parseIntData(val);
                 }
@@ -1804,6 +1810,14 @@ const getV2ProcessData = (dictDataSrc) => {
     return v2Datasources;
 };
 
+// disabled OK Button when error happening
+const disabledSaveDBBtn = () => {
+    $(csvResourceElements.csvSubmitBtn).attr('data-has-ct', 'false');
+    $(csvResourceElements.csvSubmitBtn)
+        .removeClass(' btn-primary')
+        .addClass('btn saveDBInfoBtn btn-secondary');
+};
+
 $(() => {
     // drag & drop for tables
     $(`#${dbElements.tblDbConfig} tbody`).sortable({
@@ -1864,17 +1878,35 @@ $(() => {
     $(dbConfigElements.sqliteDbSource).on('change', (e) => {
         e.target.value = $(e.currentTarget).val().replace(/"/g, '').trim();
     });
-    $(csvResourceElements.folderUrlId).on('change', (e) => {
-        const fileName = $(e.currentTarget).val().replace(/"/g, '').trim();
-        e.target.value = fileName;
-        const dbsName = $(dbConfigElements.csvDBSourceName).val();
-        const existingDSID = $(dbConfigElements.csvDBSourceName).data('itemId');
-        if (!existingDSID && (!userEditedDSName || !dbsName)) {
-            const fullPath = fileName.replace(/\\/g, '//');
-            const lastFolderName = fullPath.match(/([^/]*)\/*$/)[1];
-            // autogen datasource name by latest folder name
-            $(dbConfigElements.csvDBSourceName).val(lastFolderName);
-        }
+
+    let debounceTimer;
+    $(csvResourceElements.folderUrlId).on('input', (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            // hide elert message, preview table and ds name when the input is empty
+            if ($(csvResourceElements.folderUrlInput).val().length === 0) {
+                $(csvResourceElements.alertMsgCheckFolder).hide();
+                $(csvResourceElements.dataTbl).hide();
+                $(dbConfigElements.csvDBSourceName).val('');
+                return;
+            }
+
+            const fileName = $(e.currentTarget).val().replace(/"/g, '').trim();
+            e.target.value = fileName;
+            const dbsName = $(dbConfigElements.csvDBSourceName).val();
+            const existingDSID = $(dbConfigElements.csvDBSourceName).data(
+                'itemId',
+            );
+            if (!existingDSID && (!userEditedDSName || !dbsName)) {
+                const fullPath = fileName.replace(/\\/g, '//');
+                const lastFolderName = fullPath.match(/([^/]*)\/*$/)[1];
+                // autogen datasource name by latest folder name
+                $(dbConfigElements.csvDBSourceName).val(lastFolderName);
+            }
+            // handle show data when enter a path to the input in Data Source Config
+            $(csvResourceElements.connectResourceBtn).trigger('click');
+            $(csvResourceElements.showResourcesBtnId).trigger('click');
+        }, 300); // delay input 300ms
     });
 
     // add event to dbElements.txbSearchDataSourceName

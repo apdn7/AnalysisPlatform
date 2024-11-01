@@ -83,7 +83,7 @@ from ap.common.constants import (
     CacheType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
@@ -108,7 +108,7 @@ from ap.trace_data.schemas import DicParam
     (EventType.FPP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     (
         dic_param,
@@ -279,7 +279,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     for dic_cate in dic_param.get(CATEGORY_DATA) or []:
         col_id = dic_cate['column_id']
         dic_cate[UNIQUE_CATEGORIES] = dic_unique_cate[col_id][UNIQUE_CATEGORIES] if dic_unique_cate.get(col_id) else []
-        if len(set(dic_cate.get('data', []))) > CAT_UNIQUE_LIMIT:
+        if len(set(dic_cate.get('data', pd.Series()))) > CAT_UNIQUE_LIMIT:
             dic_cate[IS_OVER_UNIQUE_LIMIT] = True
         else:
             dic_cate[IS_OVER_UNIQUE_LIMIT] = False
@@ -291,7 +291,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     # get order column data
     retrieve_order_setting(dic_proc_cfgs, dic_param)
 
-    dic_param = get_filter_on_demand_data(dic_param, remove_filter_data=True)
+    dic_param = get_filter_on_demand_data(dic_param)
 
     return dic_param
 
@@ -303,7 +303,7 @@ def set_str_category_data(dic_param, dic_ranks):
         if col_id not in dic_ranks:
             continue
 
-        dic_cate['data'] = pd.Series(dic_cate.get('data')).map(dic_ranks[col_id]).tolist()
+        dic_cate['data'] = pd.Series(dic_cate.get('data')).map(dic_ranks[col_id])  # TODO: check
 
 
 @log_execution_time()
@@ -351,7 +351,7 @@ def gen_thin_dic_param(graph_param, df, dic_param, dic_cat_exp_labels=None, dic_
         sql_label_count = gen_sql_label(SLOT_COUNT, sql_label)
 
         if time_label in df_cat_exp.columns:
-            plot[ARRAY_X] = df_cat_exp[time_label].replace({np.nan: None}).tolist()
+            plot[ARRAY_X] = df_cat_exp[time_label]
             # get chart infos
             plot[CHART_INFOS_ORG], plot[CHART_INFOS] = get_chart_info_detail(
                 graph_param.dic_proc_cfgs,
@@ -366,34 +366,30 @@ def gen_thin_dic_param(graph_param, df, dic_param, dic_cat_exp_labels=None, dic_
             )
 
         if min_label in df_cat_exp.columns:
-            plot[ARRAY_Y_MIN] = (
-                df_cat_exp[min_label]
-                .replace({pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'})
-                .tolist()
+            plot[ARRAY_Y_MIN] = df_cat_exp[min_label].replace(
+                {pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'},
             )
 
         if max_label in df_cat_exp.columns:
-            plot[ARRAY_Y_MAX] = (
-                df_cat_exp[max_label]
-                .replace({pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'})
-                .tolist()
+            plot[ARRAY_Y_MAX] = df_cat_exp[max_label].replace(
+                {pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'},
             )
 
         if cycle_label in df_cat_exp.columns:
-            plot[CYCLE_IDS] = df_cat_exp[cycle_label].tolist()
+            plot[CYCLE_IDS] = df_cat_exp[cycle_label]
 
         if sql_label_from in df_cat_exp.columns:
-            plot[SLOT_FROM] = df_cat_exp[sql_label_from].tolist()
+            plot[SLOT_FROM] = df_cat_exp[sql_label_from]
 
         if sql_label_to in df_cat_exp.columns:
-            plot[SLOT_TO] = df_cat_exp[sql_label_to].tolist()
+            plot[SLOT_TO] = df_cat_exp[sql_label_to]
 
         if sql_label_count in df_cat_exp.columns:
-            plot[SLOT_COUNT] = df_cat_exp[sql_label_count].tolist()
+            plot[SLOT_COUNT] = df_cat_exp[sql_label_count]
 
         if plot[END_COL_ID] in dic_ranks:
             # category variable
-            p_array_y = pd.Series(plot[ARRAY_Y]).dropna().tolist()
+            p_array_y = pd.Series(plot[ARRAY_Y]).dropna()
             cat_size = 0
             if len(p_array_y):
                 cat_size = np.unique(p_array_y).size

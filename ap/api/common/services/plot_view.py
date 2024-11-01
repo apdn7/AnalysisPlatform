@@ -64,7 +64,7 @@ def gen_graph_plot_view(graph_param: DicParam, dic_param, dic_form, cycle_id, po
     )
     cate_graph_param.add_cate_procs_to_array_formval()
     dic_data = gen_dic_data_from_df(df, cate_graph_param)
-    times = df[TIME_COL].tolist() or []
+    times = df[TIME_COL]
 
     # get chart infos
     chart_infos, original_graph_configs = get_chart_infos(graph_param, dic_data, times)

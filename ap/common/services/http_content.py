@@ -4,6 +4,7 @@ from decimal import Decimal
 from fractions import Fraction
 from functools import singledispatch
 
+import numpy as np
 import pandas as pd
 import simplejson
 from numpy import float32, float64, int8, int16, int32, int64, ndarray
@@ -34,7 +35,6 @@ def json_serial(obj):
 @json_serial.register(datetime)
 @json_serial.register(time)
 def _(obj):
-    # print(type(obj), obj)
     return obj.isoformat()
 
 
@@ -56,7 +56,6 @@ def _(obj):
 
 @json_serial.register(DataType)
 def _(obj):
-    # print(type(obj), obj)
     return obj.value
 
 
@@ -88,6 +87,7 @@ def _(obj):
 
 @json_serial.register(type(pd.NA))
 @json_serial.register(type(pd.NaT))
+@json_serial.register(type(np.nan))
 def _(obj):
     return None
 

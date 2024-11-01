@@ -4,9 +4,11 @@ import socket
 
 from ap.common.constants import DiskUsageStatus
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.http_content import json_dumps
 from ap.setting_module.models import CfgConstant
+
+logger = logging.getLogger(__name__)
 
 # Workaround for unnecessarily failing gethostbyname from a worker thread (https://bugs.python.org/issue29288)
 u''.encode('idna')
@@ -29,7 +31,7 @@ class MainDiskUsage(DiskUsageInterface):
         return shutil.disk_usage(path=path)
 
 
-@memoize(duration=60)
+@CustomCache.memoize(duration=60)
 def get_disk_usage_percent(path=None):
     """
     Gets disk usage information.
@@ -70,7 +72,7 @@ def get_disk_capacity():
     :return: <b>DiskCapacityException</b> object that include disk status, used percent and message if have.
     """
     disk_status, used_percent, dict_limit_capacity = get_disk_usage_percent()
-    print(f'Disk usage: {used_percent}% - {disk_status.name}')
+    logger.info(f'Disk usage: {used_percent}% - {disk_status.name}')
 
     message = ''
     if disk_status == DiskUsageStatus.Full:
@@ -179,12 +181,12 @@ def add_disk_capacity_into_response(response, disk_capacity):
 
 
 @log_execution_time()
-@memoize(duration=60)
+@CustomCache.memoize(duration=60)
 def get_ip_address():
     try:
         hostname = socket.gethostname()
         ip_addr = socket.gethostbyname(hostname)
         return ip_addr
     except LookupError as e:
-        logging.error(e)
+        logger.error(e)
         return ''

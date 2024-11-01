@@ -38,6 +38,15 @@ const narrowText = (text = '', n = 17) => {
 };
 
 const genScatterLayout = (chartOptions) => {
+    // add default len for colorBar and resize colorBar
+    let colorBarLength = 0.5;
+    let colorBarHeight = chartOptions.totalHeight * colorBarLength;
+
+    if (colorBarHeight >= 450) {
+        colorBarHeight = 450;
+        colorBarLength = colorBarHeight / chartOptions.totalHeight;
+    }
+
     const [tickVals, tickText] = buildCategoryColors(
         chartOptions.colorsValSets,
     );
@@ -51,7 +60,7 @@ const genScatterLayout = (chartOptions) => {
                 title: {
                     text: colorbarTitle,
                 },
-                len: 0.5,
+                len: colorBarLength,
                 ticks: 'outside',
                 ticklabeloverflow: 'allow',
                 // tickmode: 'array',

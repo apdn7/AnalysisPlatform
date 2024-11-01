@@ -3,6 +3,7 @@ const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 20;
 const MAX_NUMBER_OF_SENSOR = 20;
 const MIN_NUMBER_OF_SENSOR = 0;
+const MAX_CATEGORY_SHOW = 30;
 let tabID = null;
 const graphStore = new GraphStore();
 let isValid = false;
@@ -165,6 +166,7 @@ $(() => {
         showCatExp: true,
         isRequired: true,
         showLabel: true,
+        showFilter: true,
     });
     endProcItem();
 
@@ -542,11 +544,15 @@ const produceExceptionArrayY = (
         plotDataExColor[idx] = CONST.COLOR_NONE;
     }
     for (const idx of outlierIdxs || []) {
-        arrayYEx[idx] = plotdata[idx] > yMax ? yMax : plotdata[idx];
+        const outlierVal = plotdata[idx];
+        arrayYEx[idx] =
+            outlierVal > yMax || outlierVal < yMax ? yMax : outlierVal;
         plotDataExColor[idx] = CONST.COLOR_OUTLIER;
     }
     for (const idx of negOutlierIdxs || []) {
-        arrayYEx[idx] = plotdata[idx] < yMin ? yMin : plotdata[idx];
+        const negOutlierVal = plotdata[idx];
+        arrayYEx[idx] =
+            plotdata[idx] < yMin || negOutlierVal > yMin ? yMin : negOutlierVal;
         plotDataExColor[idx] = CONST.COLOR_OUTLIER;
     }
     for (const idx of unlinkedIdxs || []) {
@@ -1130,7 +1136,7 @@ const drawHistogramsTab = (
 
             const isLimitCat =
                 plotdata.is_cat_limited ||
-                (isCategory && allGroupNames.id.length >= 29);
+                (isCategory && allGroupNames.id.length >= MAX_CATEGORY_SHOW);
             const generalInfo = {
                 getVal,
                 startProc,
@@ -1317,9 +1323,26 @@ const collectFormDataTrace = (clearOnFlyFilter, autoUpdate = false) => {
     return formData;
 };
 
+const deleteFormDataKeysDuplicate = (formData, keyRemove) => {
+    const uniqueCateSelect = [];
+    const uniqueFormData = new FormData();
+    for (const [key, value] of formData.entries()) {
+        if (key.includes(keyRemove)) {
+            const uniqueKey = `${key}_${value}`;
+            if (!uniqueCateSelect.includes(uniqueKey)) {
+                uniqueCateSelect.push(uniqueKey);
+                uniqueFormData.append(key, value);
+            }
+            continue;
+        }
+        uniqueFormData.append(key, value);
+    }
+    return uniqueFormData;
+};
+
 const traceData = (clearOnFlyFilter, autoUpdate) => {
     let formData = collectFormDataTrace(clearOnFlyFilter, autoUpdate);
-
+    formData = deleteFormDataKeysDuplicate(formData, 'GET02_CATE_SELECT');
     formData = handleXSettingOnGUI(formData);
     showGraphCallApi(
         '/ap/api/fpp/index',

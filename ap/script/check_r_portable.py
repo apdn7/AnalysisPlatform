@@ -3,12 +3,13 @@ import shutil
 import time
 import traceback
 
-from ap.common.logger import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 from ap import get_basic_yaml_obj
 from ap.common.common_utils import resource_path
 from ap.common.constants import AbsPath, R_PORTABLE, YAML_INFO, YAML_R_PATH, R_LIB_VERSION
-from ap.common.logger import log_execution
 
 
 def copy_with_update(src, dst, symlinks=False, ignore=None):
@@ -70,13 +71,13 @@ def should_update_r(source_dir, dest_dir):
 
         if dest_version < src_version:
             return True
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
 
     return False
 
 
-@log_execution()
+@log_execution_time()
 def check_and_copy_r_portable():
     basic_config_yaml = get_basic_yaml_obj()
     source = basic_config_yaml.get_node([YAML_INFO, YAML_R_PATH])
@@ -90,9 +91,9 @@ def check_and_copy_r_portable():
 
     try:
         should_update = should_update_r(source_r_portable_dir, dest_r_portable_dir)
-        print("Should update R libraries: ", should_update)
+        logger.info("Should update R libraries: ", should_update)
         if should_update:
-            print(
+            logger.info(
                 "Copying R libraries from {src} to {dest} ...".format(
                     src=source_r_portable_dir, dest=dest_r_portable_dir
                 )
@@ -100,9 +101,9 @@ def check_and_copy_r_portable():
             copy_with_update(source_r_portable_dir, dest_r_portable_dir)
 
             end = time.time()
-            print("DONE updating R in {sec} seconds".format(sec=(end - start)))
             logger.info("DONE updating R in {sec} seconds".format(sec=(end - start)))
-    except Exception as ex:
-        traceback.print_exc()
+            logger.info("DONE updating R in {sec} seconds".format(sec=(end - start)))
+    except Exception as e:
         end = time.time()
-        logger.error("ERROR updating R in {sec} seconds. Error: {err}".format(sec=(end - start), err=ex))
+        logger.error(f"ERROR updating R in {end - start} seconds")
+        logger.exception(e)

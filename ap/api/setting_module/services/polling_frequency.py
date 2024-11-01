@@ -1,18 +1,22 @@
+import collections
+import logging
 from datetime import datetime
-from typing import List
 
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 from pytz import utc
 
-from ap import dic_request_info, scheduler
+from ap import dic_request_info
 from ap.api.setting_module.services.csv_import import import_csv_job
 from ap.api.setting_module.services.factory_import import factory_past_data_transform_job, import_factory_job
 from ap.common.common_utils import add_seconds
-from ap.common.constants import LAST_REQUEST_TIME, CfgConstantType, DBType, JobType
-from ap.common.logger import log_execution_time, logger
-from ap.common.scheduler import add_job_to_scheduler, remove_jobs, scheduler_app_context
+from ap.common.constants import IDLE_MONITORING_INTERVAL, LAST_REQUEST_TIME, CfgConstantType, DBType, JobType
+from ap.common.logger import log_execution_time
+from ap.common.multiprocess_sharing import EventAddJob, EventQueue, EventRemoveJobs
+from ap.common.scheduler import scheduler_app_context
 from ap.setting_module.models import CfgConstant, CfgProcess
+
+logger = logging.getLogger(__name__)
 
 
 @log_execution_time()
@@ -29,7 +33,7 @@ def change_polling_all_interval_jobs(interval_sec=None, run_now=False, is_user_r
     target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT]
 
     # remove jobs
-    remove_jobs(target_jobs)
+    EventQueue.put(EventRemoveJobs(job_types=target_jobs))
 
     if interval_sec is None:
         interval_sec = CfgConstant.get_value_by_type_first(CfgConstantType.POLLING_FREQUENCY.name, int)
@@ -39,14 +43,38 @@ def change_polling_all_interval_jobs(interval_sec=None, run_now=False, is_user_r
         return
 
     # add new jobs with new interval
-    procs: List[CfgProcess] = CfgProcess.query.all()
+    # need to call list map, so that we can load all params data, otherwise the data will be staled
+    params = list(map(add_import_job_params, CfgProcess.query.all()))
+    for param in params:
+        add_import_job(
+            process_id=param.process_id,
+            process_name=param.process_name,
+            data_source_id=param.data_source_id,
+            data_source_type=param.data_source_type,
+            interval_sec=interval_sec,
+            run_now=run_now,
+            is_user_request=is_user_request,
+        )
 
-    for proc_cfg in procs:
-        add_import_job(proc_cfg, interval_sec=interval_sec, run_now=run_now, is_user_request=is_user_request)
+
+def add_import_job_params(proc_cfg: CfgProcess):
+    ImportJobParam = collections.namedtuple(
+        'ImportJobParam',
+        ['process_id', 'process_name', 'data_source_id', 'data_source_type'],
+    )
+    return ImportJobParam(
+        process_id=proc_cfg.id,
+        process_name=proc_cfg.name,
+        data_source_id=proc_cfg.data_source_id,
+        data_source_type=proc_cfg.data_source.type,
+    )
 
 
 def add_import_job(
-    proc_cfg: CfgProcess,
+    process_id: int,
+    process_name: str,
+    data_source_id: int,
+    data_source_type: str,
     interval_sec=None,
     run_now=None,
     is_user_request: bool = False,
@@ -60,85 +88,81 @@ def add_import_job(
     else:
         trigger = DateTrigger(datetime.now().astimezone(utc), timezone=utc)
 
-    if proc_cfg.data_source.type.lower() in [DBType.CSV.value.lower(), DBType.V2.value.lower()]:
-        job_name = JobType.CSV_IMPORT.name
+    next_run_time = None
+    if run_now:
+        next_run_time = datetime.now().astimezone(utc)
+
+    if data_source_type.lower() in [DBType.CSV.value.lower(), DBType.V2.value.lower()]:
+        job_type = JobType.CSV_IMPORT
         import_func = import_csv_job
     else:
-        job_name = JobType.FACTORY_IMPORT.name
+        job_type = JobType.FACTORY_IMPORT
         import_func = import_factory_job
 
-    job_id = f'{job_name}_{proc_cfg.id}'
-    dic_import_param = {
-        '_job_id': job_id,
-        '_job_name': job_name,
-        '_db_id': proc_cfg.data_source_id,
-        '_proc_id': proc_cfg.id,
-        '_proc_name': proc_cfg.name,
-        'proc_id': proc_cfg.id,
-        'is_user_request': is_user_request,
-        'register_by_file_request_id': register_by_file_request_id,
-    }
-
-    add_job_to_scheduler(job_id, job_name, trigger, import_func, run_now, dic_import_param)
-
-
-def is_job_added(scheduler_job, prev_job, last_job):
-    if not scheduler_job and (
-        (prev_job is None and last_job is None) or (prev_job is not None and last_job.id == prev_job.id)
-    ):
-        return False
-    return True
+    EventQueue.put(
+        EventAddJob(
+            fn=import_func,
+            kwargs={
+                'is_user_request': is_user_request,
+                'register_by_file_request_id': register_by_file_request_id,
+            },
+            job_type=job_type,
+            data_source_id=data_source_id,
+            process_id=process_id,
+            process_name=process_name,
+            replace_existing=True,
+            trigger=trigger,
+            next_run_time=next_run_time,
+        ),
+    )
 
 
 @log_execution_time()
 def add_idle_mornitoring_job():
-    scheduler.add_job(
-        JobType.IDLE_MORNITORING.name,
-        idle_monitoring,
-        name=JobType.IDLE_MORNITORING.name,
-        replace_existing=True,
-        trigger=IntervalTrigger(seconds=5 * 60, timezone=utc),
-        kwargs={'_job_id': JobType.IDLE_MORNITORING.name, '_job_name': JobType.IDLE_MORNITORING.name},
-        executor='threadpool',
+    EventQueue.put(
+        EventAddJob(
+            fn=idle_monitoring,
+            job_type=JobType.IDLE_MORNITORING,
+            replace_existing=True,
+            trigger=IntervalTrigger(seconds=IDLE_MONITORING_INTERVAL, timezone=utc),
+            executor='threadpool',
+        ),
     )
 
     return True
 
 
 @scheduler_app_context
-def idle_monitoring(_job_id=None, _job_name=None):
+def idle_monitoring():
     """
     check if system if idle
 
     """
     # check last request > now() - 5 minutes
     last_request_time = dic_request_info.get(LAST_REQUEST_TIME, datetime.utcnow())
-    if last_request_time > add_seconds(seconds=-5 * 60):
+    if last_request_time > add_seconds(seconds=-IDLE_MONITORING_INTERVAL):
         return
 
     # delete unused processes
     # add_del_proc_job()
 
     processes = CfgProcess.get_all(with_parent=True)
-    for proc_cfg in processes:
-        if proc_cfg.data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
+    # need to call list map, so that we can load all params data, otherwise the data will be staled
+    params = list(map(add_import_job_params, processes))
+    for param in params:
+        if param.data_source_type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
             continue
 
-        job_id = f'IDLE_MONITORING: {JobType.FACTORY_PAST_IMPORT.name}_{proc_cfg.id}'
-        logger.info(job_id)
-        dic_import_param = {
-            '_job_id': job_id,
-            '_job_name': JobType.FACTORY_PAST_IMPORT.name,
-            '_db_id': proc_cfg.data_source_id,
-            '_proc_id': proc_cfg.id,
-            '_proc_name': proc_cfg.name,
-            'proc_id': proc_cfg.id,
-        }
-        scheduler.add_job(
-            job_id,
-            factory_past_data_transform_job,
-            trigger=DateTrigger(datetime.now().astimezone(utc), timezone=utc),
-            name=JobType.FACTORY_PAST_IMPORT.name,
-            replace_existing=True,
-            kwargs=dic_import_param,
+        EventQueue.put(
+            EventAddJob(
+                fn=factory_past_data_transform_job,
+                kwargs={'process_id': param.process_id},
+                job_type=JobType.FACTORY_PAST_IMPORT,
+                job_id_prefix=JobType.IDLE_MORNITORING.name,
+                data_source_id=param.data_source_id,
+                process_id=param.process_id,
+                process_name=param.process_name,
+                trigger=DateTrigger(datetime.now().astimezone(utc), timezone=utc),
+                replace_existing=True,
+            ),
         )

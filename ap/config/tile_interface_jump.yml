@@ -93,3 +93,10 @@
         - fpp
       unavailable:
         - pca
+    hmp:
+      recommends:
+        - fpp
+        - chm
+        - agp
+      unavailable:
+        - pca

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import csv
+import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Annotated, Any, Literal, Optional
@@ -32,8 +33,10 @@ from ap.common.constants import (
     DBType,
     MasterDBType,
 )
-from ap.common.logger import log_execution_time, logger
+from ap.common.logger import log_execution_time
 from ap.setting_module.models import CfgDataSource, CfgProcess, CfgProcessColumn
+
+logger = logging.getLogger(__name__)
 
 AUTO_LINK_ID = 'id'
 DATE = 'date'
@@ -360,7 +363,7 @@ class AutolinkDB(BaseModel):
         autolink_data.update(df, self.date_col, self.serial_col)
         # we do not try to loop until getting enough data from factory database ...
         if not autolink_data.has_enough_data():
-            logger.warn(
+            logger.warning(
                 f'Autolink data for process {self.process_id}'
                 f'does not have {AUTOLINK_TOTAL_RECORDS_PER_SOURCE} records',
             )

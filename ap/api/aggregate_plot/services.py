@@ -19,9 +19,11 @@ from ap.api.common.services.show_graph_services import (
     convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
+    get_chart_infos,
     get_data_from_db,
     get_filter_on_demand_data,
     judge_data_conversion,
+    set_chart_infos_to_plotdata,
 )
 from ap.api.scatter_plot.services import gen_df
 from ap.common.constants import (
@@ -40,6 +42,7 @@ from ap.common.constants import (
     DATA,
     DIV_FROM_TO,
     DIVIDE_FMT_COL,
+    END_COL_ID,
     END_DATE,
     END_DT,
     END_TM,
@@ -61,7 +64,7 @@ from ap.common.constants import (
     HMFunction,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
@@ -88,7 +91,7 @@ MAX_ALLOW_GROUPS = 9
     (EventType.AGP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None):
     (
         dic_param,
@@ -153,6 +156,10 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
     dic_param[ARRAY_PLOTDATA] = dic_data
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
     dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
+    chart_infos, original_graph_configs = get_chart_infos(graph_param)
+    for plot in dic_param[ARRAY_PLOTDATA]:
+        set_chart_infos_to_plotdata(plot[END_COL_ID], chart_infos, original_graph_configs, plot)
+
     # calc y scale
     min_max_list, all_graph_min, all_graph_max, max_common_y_scale_count = calc_raw_common_scale_y(
         dic_param[ARRAY_PLOTDATA],
@@ -210,7 +217,8 @@ def gen_df_direct_term(root_graph_param, dic_param, dic_cat_filters, use_expired
             dic_cat_filters,
             _use_expired_cache=use_expired_cache,
         )
-        df_term = judge_data_conversion(df_term, root_graph_param)
+        judge_columns = root_graph_param.get_judge_variables()
+        df_term = judge_data_conversion(df_term, judge_columns)
 
         df_term[DIVIDE_FMT_COL] = f'{term[START_DT]} | {term[END_DT]}'
 
@@ -309,7 +317,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             AGG_FUNC: agg_func_show,
             DATA: [],
             CAT_EXP_BOX: [],
-            UNIQUE_DIV: unique_div_vars,
+            UNIQUE_DIV: sort_ok_ng(unique_div_vars),
             FMT: None,
         }
         general_col_info.update(agp_obj)
@@ -385,7 +393,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
                         is_graph_limited = True
                         return plot_data, str_cols, is_graph_limited
 
-                    array_y = []
+                    array_y = pd.Series([])
                     try:
                         sub_sub_df = sub_df.xs(facet2)
                         data, array_y = get_data_for_target_var_without_facets(
@@ -411,6 +419,16 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
                     plot_data.append(col_info)
 
     return plot_data, str_cols, is_graph_limited
+
+
+def sort_ok_ng(list):
+    ok_index = list.index('OK') if 'OK' in list else None
+    ng_index = list.index('NG') if 'NG' in list else None
+
+    # change position of OK an NG
+    if ok_index is not None and ng_index is not None and ok_index > ng_index:
+        list[ok_index], list[ng_index] = list[ng_index], list[ok_index]
+    return list
 
 
 def get_div_col_name(graph_param: DicParam) -> str:
@@ -513,13 +531,13 @@ def get_data_for_target_var_without_facets(
 
     color_id = graph_param.get_color_id(target_var)
 
-    full_array_y = []
+    full_array_y = pd.Series([])
 
     def gen_trace_data(sub_df: pd.DataFrame, col_name: str) -> Dict[str, Any]:
-        y = list(sub_df[target_col_name].values)
+        y = sub_df[target_col_name].reset_index(drop=True)
 
         trace_data = {
-            'x': sub_df[target_col_name].index.tolist(),
+            'x': pd.Series(sub_df[target_col_name].index),
             'y': y,
             COL_DETAIL_NAME: col_name,
             COL_TYPE: chart_type,
@@ -531,14 +549,18 @@ def get_data_for_target_var_without_facets(
 
     if color_id is None:
         data, array_y = gen_trace_data(df, target_col.shown_name)
-        full_array_y += array_y if is_real_data else []
+        if is_real_data:
+            full_array_y = full_array_y.append(array_y)
+
         plot_data = [data]
     else:
         plot_data = []
         for color in sorted_colors:
             try:
                 data, array_y = gen_trace_data(df.xs(color), color)
-                full_array_y += array_y if is_real_data else []
+                if is_real_data:
+                    full_array_y = full_array_y.append(array_y)
+
                 plot_data.append(data)
             except KeyError:
                 pass

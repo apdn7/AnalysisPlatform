@@ -1,35 +1,34 @@
 import datetime as dt
+import logging
 import math
 import re
-import traceback
 from typing import List
 
-from ap import PROCESS_QUEUE, ListenNotifyType, db, dic_config
+from ap import db
 from ap.api.common.services.show_graph_database import DictToClass
 from ap.common.common_utils import (
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_FACTORY_DB,
     convert_time,
     get_current_timestamp,
-    get_multiprocess_queue_file,
-    read_pickle_file,
 )
 from ap.common.constants import (
     ALMOST_COMPLETE_PERCENT,
     COMPLETED_PERCENT,
     ID,
     UNKNOWN_ERROR_TEXT,
+    AnnounceEvent,
     CacheType,
     DiskUsageStatus,
     JobStatus,
     JobType,
 )
 from ap.common.disk_usage import get_disk_capacity_once
-from ap.common.logger import log_execution_time, logger
-from ap.common.memoize import memoize
+from ap.common.logger import log_execution_time
+from ap.common.memoize import CustomCache
+from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue, EventRunFunction
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.error_message_handler import ErrorMessageHandler
-from ap.common.services.sse import AnnounceEvent
 from ap.common.timezone_utils import choose_utc_convert_func
 from ap.setting_module.models import (
     CfgDataSource,
@@ -39,6 +38,8 @@ from ap.setting_module.models import (
     make_session,
 )
 from ap.trace_data.transaction_model import TransactionData
+
+logger = logging.getLogger(__name__)
 
 JOB_ID = 'job_id'
 JOB_NAME = 'job_name'
@@ -59,7 +60,7 @@ ERROR_MSG = 'error_msg'
 previous_disk_status = DiskUsageStatus.Normal
 
 
-@memoize(cache_type=CacheType.CONFIG_DATA)
+@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
 def get_all_proc_shown_names():
     return {proc.id: proc.shown_name for proc in CfgProcess.get_all(with_parent=True)}
 
@@ -130,8 +131,8 @@ def send_processing_info(
     process_id=None,
     process_name=None,
     after_success_func=None,
+    after_success_func_kwargs=None,
     is_check_disk=True,
-    **kwargs,
 ):
     """send percent, status to client
 
@@ -141,9 +142,6 @@ def send_processing_info(
     """
     # add new job
     global previous_disk_status
-    process_queue = read_pickle_file(get_multiprocess_queue_file())
-    dic_config[PROCESS_QUEUE] = process_queue
-    dic_progress = process_queue[ListenNotifyType.JOB_PROGRESS.name]
     error_msg_handler = ErrorMessageHandler()
 
     start_tm = dt.datetime.utcnow()
@@ -200,8 +198,13 @@ def send_processing_info(
 
                 if disk_capacity:
                     if previous_disk_status != disk_capacity.disk_status:
-                        # background_announcer.announce(disk_capacity.to_dict(), AnnounceEvent.DISK_USAGE.name)
-                        dic_progress[job.id] = (disk_capacity.to_dict(), AnnounceEvent.DISK_USAGE.name)
+                        EventQueue.put(
+                            EventBackgroundAnnounce(
+                                job_id=job.id,
+                                data=disk_capacity.to_dict(),
+                                event=AnnounceEvent.DISK_USAGE,
+                            ),
+                        )
                         previous_disk_status = disk_capacity.disk_status
 
                     if disk_capacity.disk_status == DiskUsageStatus.Full:
@@ -225,10 +228,13 @@ def send_processing_info(
 
                 if job_type is JobType.CSV_IMPORT and job_info.empty_files:
                     # empty files
-                    # background_announcer.announce(job_info.empty_files, AnnounceEvent.EMPTY_FILE.name,)
-                    # process_queue.put_nowait((job_info.empty_files, AnnounceEvent.EMPTY_FILE.name))
-                    # process_queue.send((job_info.empty_files, AnnounceEvent.EMPTY_FILE.name))
-                    dic_progress[job.id] = (job_info.empty_files, AnnounceEvent.EMPTY_FILE.name)
+                    EventQueue.put(
+                        EventBackgroundAnnounce(
+                            job_id=job.id,
+                            data=job_info.empty_files,
+                            event=AnnounceEvent.EMPTY_FILE,
+                        ),
+                    )
 
                 # job err msg
                 update_job_management_status_n_error(job, job_info)
@@ -240,12 +246,8 @@ def send_processing_info(
             job = update_job_management(job)
 
             # emit successful import data
-            if prev_job_info and prev_job_info.has_record and after_success_func:
-                proc_link_publish_flg = job_type in (
-                    JobType.FACTORY_IMPORT,
-                    JobType.CSV_IMPORT,
-                )
-                after_success_func(publish=proc_link_publish_flg)
+            if prev_job_info and prev_job_info.has_record and after_success_func and after_success_func_kwargs:
+                EventQueue.put(EventRunFunction(fn=after_success_func, kwargs=after_success_func_kwargs))
 
             # stop while loop
             break
@@ -254,16 +256,14 @@ def send_processing_info(
             db.session.rollback()
             message = error_msg_handler.msg_from_exception(exception=e)
             job = update_job_management(job, message)
-            logger.exception(str(e))
-            traceback.print_exc()
+            logger.exception(e)
             break
         finally:
             # notify if data type error greater than 100
             if notify_data_type_error_flg and prev_job_info and prev_job_info.data_type_error_cnt > COMPLETED_PERCENT:
-                # background_announcer.announce(job.db_name, AnnounceEvent.DATA_TYPE_ERR.name)
-                # process_queue.put_nowait((job.db_name, AnnounceEvent.DATA_TYPE_ERR.name))
-                # process_queue.send((job.db_name, AnnounceEvent.DATA_TYPE_ERR.name))
-                dic_progress[job.id] = (job.db_name, AnnounceEvent.DATA_TYPE_ERR.name)
+                EventQueue.put(
+                    EventBackgroundAnnounce(job_id=job.id, data=job.db_name, event=AnnounceEvent.DATA_TYPE_ERR),
+                )
 
                 dic_res[job.id][DATA_TYPE_ERR] = True
                 notify_data_type_error_flg = False
@@ -272,23 +272,20 @@ def send_processing_info(
             dic_res[job.id][DONE_PERCENT] = job.done_percent
             dic_res[job.id][END_TM] = job.end_tm
             dic_res[job.id][DURATION] = round((dt.datetime.utcnow() - start_tm).total_seconds(), 2)
-            # background_announcer.announce(dic_res, AnnounceEvent.JOB_RUN.name)
-            # process_queue.put_nowait((dic_res, AnnounceEvent.JOB_RUN.name))
-            # process_queue.send((dic_res, AnnounceEvent.JOB_RUN.name))
-            dic_progress[job.id] = (dic_res, AnnounceEvent.JOB_RUN.name)
+            EventQueue.put(EventBackgroundAnnounce(job_id=job.id, data=dic_res, event=AnnounceEvent.JOB_RUN))
 
     dic_res[job.id][STATUS] = str(job.status)
-    # background_announcer.announce(dic_res, AnnounceEvent.JOB_RUN.name)
-    # process_queue.put_nowait((dic_res, AnnounceEvent.JOB_RUN.name))
-    # process_queue.send((dic_res, AnnounceEvent.JOB_RUN.name))
-    dic_progress[job.id] = (dic_res, AnnounceEvent.JOB_RUN.name)
+    EventQueue.put(EventBackgroundAnnounce(job_id=job.id, data=dic_res, event=AnnounceEvent.JOB_RUN))
     if job.job_type == JobType.CSV_IMPORT.name:
         dic_register_progress = {
             'status': job.status,
             'process_id': job.process_id,
             'is_first_imported': False,
         }
-        dic_progress[f'{job.id}_register_by_file'] = (dic_register_progress, AnnounceEvent.DATA_REGISTER.name)
+        # TODO: change job id?
+        EventQueue.put(
+            EventBackgroundAnnounce(job_id=job.id, data=dic_register_progress, event=AnnounceEvent.DATA_REGISTER),
+        )
 
 
 def update_job_management(job, err=None):

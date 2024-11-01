@@ -1,4 +1,5 @@
 import http.client
+import logging
 import time
 from enum import Enum, auto
 from functools import wraps
@@ -11,6 +12,9 @@ from pandas import DataFrame
 from ap.common.common_utils import create_file_path, write_to_pickle
 from ap.common.constants import GTAG_DEFAULT_TIMEOUT, IS_EXPORT_MODE, MPS, CsvDelimiter, FlaskGKey
 from ap.common.logger import log_execution_time
+
+logger = logging.getLogger(__name__)
+
 
 waiting_trace_records = []
 
@@ -44,7 +48,7 @@ def send_gtag(**kwargs):
         payload = ''
         headers = {}
         querystring = urlencode(data)
-        print(querystring)
+        logger.info(querystring)
         conn.request('POST', '/collect?' + querystring, payload, headers)
         res = conn.getresponse()
         return res.status

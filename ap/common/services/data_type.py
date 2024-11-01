@@ -202,7 +202,7 @@ def check_large_int_type(val):
 
 
 def check_data_type_series(orig_series: Series):
-    from ap.common.common_utils import is_boolean
+    from ap.common.common_utils import is_boolean_dtype
 
     series: Series = convert_df_str_to_others(orig_series)
 
@@ -221,7 +221,7 @@ def check_data_type_series(orig_series: Series):
         return check_float_type(orig_series, series)
 
     if 'int' in series_type:
-        if sum(is_boolean(series)) == len(series):
+        if is_boolean_dtype(series):
             return DataType.BOOLEAN.value
 
         # BIG INT
@@ -239,6 +239,9 @@ def check_data_type_series(orig_series: Series):
 
     if 'time' in series_type:
         return DataType.DATETIME.value
+
+    if (series_type in [pd.StringDtype.name, np.object.__name__]) and is_boolean_dtype(series):
+        return DataType.BOOLEAN.value
 
     return None
 

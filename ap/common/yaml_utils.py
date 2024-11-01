@@ -1,5 +1,5 @@
+import logging
 import os
-import traceback
 from collections import OrderedDict
 
 from ruamel import yaml
@@ -12,6 +12,8 @@ from ap.common.common_utils import (
     dict_deep_merge,
 )
 from ap.common.constants import AP_TILE, DN7_TILE, SEARCH_USAGE, TILE_JUMP_CFG, TILE_MASTER
+
+logger = logging.getLogger(__name__)
 
 # yaml config files name
 YAML_CONFIG_BASIC_FILE_NAME = 'basic_config.yml'
@@ -78,10 +80,8 @@ class YamlConfig:
                 yaml.dump(dict_obj, outfile, default_flow_style=False, allow_unicode=True)
 
             return True
-        except Exception:
-            print('>>> traceback <<<')
-            traceback.print_exc()
-            print('>>> end of traceback <<<')
+        except Exception as e:
+            logger.exception(e)
             return False
 
     def update_yaml(self, dict_obj, key_paths=None):

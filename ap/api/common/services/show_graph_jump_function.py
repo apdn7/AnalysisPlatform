@@ -146,7 +146,7 @@ def gen_emd_df(dic_param, graph_param, with_judge=True):
 @log_execution_time()
 def get_jump_emd_data(dic_form):
     jump_key = dic_form.get('jump_key', [None])[0]
-    cache_dic_param, graph_param, df = cache_jump_key(jump_key)
+    cache_dic_param, graph_param, df = cache_jump_key(jump_key=jump_key)
 
     if cache_dic_param is None:
         return cache_dic_param, graph_param, df

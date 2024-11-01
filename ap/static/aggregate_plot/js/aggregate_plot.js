@@ -17,6 +17,27 @@ let useDivFromTo = [];
 let countByXAxis = {};
 let countByFacet = {};
 
+const Y_SCALE_METHODS = {
+    AGG_FUNCT: {
+        MEDIAN: 'median',
+        MEAN: 'mean',
+    },
+    OPTIONS: {
+        GRAPH_CFG: 1,
+        COMMON: 2,
+        THRESHOLD_CFG: 3,
+        AUTO_RANGE: 4,
+        FULL_RANGE: 5,
+    },
+    SCALE_NAME: {
+        1: 'scale_setting',
+        2: 'scale_common',
+        3: 'scale_threshold',
+        4: 'scale_auto',
+        5: 'scale_full',
+    },
+};
+
 const eles = {
     endProcSelectedItem: '#end-proc-row select',
 };
@@ -25,6 +46,8 @@ const i18n = {
     selectDivRequiredMessage: $('#i18nSelectDivMessage').text(),
     allSelection: $('#i18nAllSelection').text(),
     outlier: $('#i18nOutlierVal').text(),
+    graphCfg: $('#i18nSettingScale').text(),
+    thresholdCfg: $('#i18nThresholdLine').text(),
 };
 
 const formElements = {
@@ -149,6 +172,7 @@ $(() => {
         showColor: true,
         colorAsDropdown: true,
         hasDiv: true,
+        showFilter: true,
     });
     endProcItem(() => {
         onChangeDivInFacet();
@@ -423,6 +447,29 @@ const drawAGP = (
     fillDataToFilterModal(orgData.filter_on_demand, () => {
         queryDataAndShowAGP(false);
     });
+
+    // show/hide yScale Option: Graph Config & Threshold Config
+    // in case of Agg Function is Mean/Median only
+    yScaleOptionHandle(orgData.COMMON.function_real);
+};
+
+const yScaleOptionHandle = (aggFunct) => {
+    const isShowOptions = [
+        Y_SCALE_METHODS.AGG_FUNCT.MEAN,
+        Y_SCALE_METHODS.AGG_FUNCT.MEDIAN,
+    ].includes(aggFunct);
+
+    [
+        Y_SCALE_METHODS.OPTIONS.GRAPH_CFG,
+        Y_SCALE_METHODS.OPTIONS.THRESHOLD_CFG,
+    ].forEach((option) => {
+        const scale = formElements.scaleOption.find(`option[value=${option}]`);
+        if (isShowOptions) {
+            scale.show();
+        } else {
+            scale.hide();
+        }
+    });
 };
 
 const dumpData = (exportType, dataSrc) => {
@@ -528,7 +575,10 @@ const renderAgPChartLayout = (
                  </div>
             </div>
             <div class="chart-area">
-                <div style="width: 100%; height: 100%" id="${chartId}"></div>
+                <div style="width: 100%; height: 100%" 
+                    id="${chartId}" 
+                    data-test-y-max="${chartOption.scale.ymax ?? ''}" 
+                    data-test-y-min="${chartOption.scale.ymin ?? ''}"></div>
             </div>
         </div>
     `;
@@ -578,6 +628,14 @@ const renderAgPAllChart = (
             facetLevel1,
             facetLevel2,
             chartId: canvasId,
+            scale: {
+                ymax: plotData[Y_SCALE_METHODS.SCALE_NAME[scaleOption]][
+                    'y-max'
+                ],
+                ymin: plotData[Y_SCALE_METHODS.SCALE_NAME[scaleOption]][
+                    'y-min'
+                ],
+            },
         };
         const isCTCol = isCycleTimeCol(end_proc_id, end_col_id);
         const chartHtml = renderAgPChartLayout(

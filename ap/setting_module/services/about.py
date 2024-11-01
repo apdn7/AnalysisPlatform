@@ -1,7 +1,10 @@
+import logging
 import re
 
 import markdown2
 from flask import Markup
+
+logger = logging.getLogger(__name__)
 
 
 def markdown_to_html(markdown_file_path):
@@ -22,7 +25,7 @@ def markdown_to_html(markdown_file_path):
 
 
 def split_css_html(about_fpath):
-    print('about_fpath', about_fpath)
+    logger.info(f'about_fpath: {about_fpath}')
     regex_css = r'\<style[^>]*>.*\<\/style[ ]*>'
 
     with open(about_fpath, 'r', encoding='utf-8') as f:

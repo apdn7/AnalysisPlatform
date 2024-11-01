@@ -1,5 +1,6 @@
 import atexit
 import contextlib
+import logging
 import os
 import time
 from datetime import datetime, timedelta
@@ -42,7 +43,6 @@ from ap.common.constants import (
     LOG_LEVEL,
     MAIN_THREAD,
     PORT,
-    PROCESS_QUEUE,
     REQUEST_THREAD_ID,
     SERVER_ADDR,
     SHUTDOWN,
@@ -59,10 +59,9 @@ from ap.common.constants import (
     AppGroup,
     AppSource,
     FlaskGKey,
-    ListenNotifyType,
     MaxGraphNumber,
 )
-from ap.common.logger import log_execution, logger
+from ap.common.logger import log_execution_time
 from ap.common.services.http_content import json_dumps
 from ap.common.services.request_time_out_handler import RequestTimeOutAPI, set_request_g_dict
 from ap.common.trace_data_log import TraceErrKey, get_log_attr
@@ -78,9 +77,10 @@ from ap.equations.error import FunctionErrors, FunctionFieldError
 from ap.script.migrate_delta_time import migrate_delta_time_in_cfg_trace_key
 from ap.script.migrate_m_function import migrate_m_function_data
 
+logger = logging.getLogger(__name__)
+
 dic_config = {
     MAIN_THREAD: None,
-    PROCESS_QUEUE: None,
     DB_SECRET_KEY: None,
     SQLITE_CONFIG_DIR: None,
     APP_DB_FILE: None,
@@ -104,38 +104,10 @@ max_graph_config = {
 class CustomizeScheduler(APScheduler):
     RESCHEDULE_SECONDS = 30
 
-    @staticmethod
-    def manage_pipe():
-        if not dic_config[MAIN_THREAD]:
-            return
-
-        # parent_pipe, child_pipe = dic_config[MANAGER].Pipe()
-        # parent_pipe, child_pipe = Pipe()
-        # dic_config[PROCESS_QUEUE][job_id] = parent_pipe
-
-        # return child_pipe
-        return dic_config[PROCESS_QUEUE]
-
-    @staticmethod
-    def _notify_info(notify_type: ListenNotifyType, id, func, **kwargs):
-        # kwargs = codecs.encode(pickle.dumps(kwargs), 'base64').decode()
-        func_module = func.__module__
-        func_name = func.__qualname__
-        with contextlib.suppress(Exception):
-            dic_config[PROCESS_QUEUE][notify_type.name][id] = (id, func_module, func_name, kwargs)
-
     def add_job(self, id, func, **kwargs):
-        if not dic_config[MAIN_THREAD]:
-            self._notify_info(ListenNotifyType.ADD_JOB, id, func, **kwargs)
-            return
-
         super().add_job(id, func, **kwargs)
 
     def reschedule_job(self, id, func, func_params):
-        if not dic_config[MAIN_THREAD]:
-            self._notify_info(ListenNotifyType.RESCHEDULE_JOB, id, func, **func_params)
-            return
-
         job = scheduler.get_job(id)
         run_time = datetime.now().astimezone(utc) + timedelta(seconds=self.RESCHEDULE_SECONDS)
         if job:
@@ -419,7 +391,9 @@ def create_app(object_name=None, is_main=False):
 
     # Shut down the scheduler when exiting the app
     atexit.register(
-        lambda: scheduler.shutdown() if scheduler.state != STATE_STOPPED else print('Scheduler is already shutdown'),
+        lambda: scheduler.shutdown()
+        if scheduler.state != STATE_STOPPED
+        else logger.info('Scheduler is already shutdown'),
     )
 
     @app.route('/ping')
@@ -600,7 +574,7 @@ def create_app(object_name=None, is_main=False):
     return app
 
 
-@log_execution()
+@log_execution_time()
 def init_db(app):
     """
     init db with some parameter
@@ -623,12 +597,12 @@ def init_db(app):
     #     dbapi_conn.connection.create_function(SQL_REGEXP_FUNC, 2, sql_regexp)
 
 
-@log_execution()
+@log_execution_time()
 def get_basic_yaml_obj():
     return dic_yaml_config_instance[YAML_CONFIG_BASIC]
 
 
-@log_execution()
+@log_execution_time()
 def get_start_up_yaml_obj():
     return dic_yaml_config_instance[YAML_START_UP]
 

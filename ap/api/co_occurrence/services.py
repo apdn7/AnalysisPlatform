@@ -1,4 +1,5 @@
 import itertools
+import logging
 
 import numpy as np
 import pandas as pd
@@ -6,11 +7,12 @@ from flask_babel import gettext as _
 from pandas import DataFrame
 
 from ap.common.constants import CUM_RATIO_VALUE, AggregateBy
-from ap.common.logger import logger
 from ap.common.services.request_time_out_handler import abort_process_handler
 from ap.common.services.sse import MessageAnnouncer
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 from ap.common.yaml_utils import YamlConfig
+
+logger = logging.getLogger(__name__)
 
 dic_colors = {
     'bar_highlight': '#729e44',  # green, same as other charts
@@ -160,9 +162,13 @@ def calc_pareto(df: pd.DataFrame):
     total_occurrences = df.drop(drop_col, axis='columns').sum(axis='index').sort_values(ascending=False)
     cum_occurrences_ratio = total_occurrences.cumsum() / total_occurrences.sum()
     alarm_names = total_occurrences.index.values
-    print('alarm names: ', alarm_names[:5], '...')
-    print('total number of alarms: ', total_occurrences.values[:5], '...')
-    print('cumulative ratio of number of alarms [%]: ', cum_occurrences_ratio.values[:5], '...')
+    logger.info(
+        f'''\
+alarm names: {alarm_names[:5]} ...
+total number of alarms: {total_occurrences.values[:5]} ...
+cumulative ratio of number of alarms [%]: {cum_occurrences_ratio.values[:5]} ...
+''',
+    )
 
     # change color of bar (highlight cumulative ratio <= 80%)
     # note that this list is not in the original column order.

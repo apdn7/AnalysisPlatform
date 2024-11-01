@@ -1,4 +1,4 @@
-import traceback
+import logging
 from collections import defaultdict
 from copy import deepcopy
 
@@ -116,7 +116,7 @@ from ap.common.constants import (
     Y,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.ana_inf_data import calculate_kde_for_ridgeline, get_bound, get_grid_points
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -128,6 +128,8 @@ from ap.common.timezone_utils import from_utc_to_localtime
 from ap.common.trace_data_log import EventAction, EventType, Target, trace_log
 from ap.setting_module.models import CfgProcess, CfgProcessColumn
 
+logger = logging.getLogger(__name__)
+
 
 @log_execution_time()
 @request_timeout_handling()
@@ -137,7 +139,7 @@ from ap.setting_module.models import CfgProcess, CfgProcessColumn
     (EventType.RLP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_trace_data_by_cyclic(graph_param, dic_param, max_graph=None):
     dic_param, export_df = gen_trace_data_by_cyclic_common(graph_param, dic_param)
     term_groups = [gen_term_groups(term) for term in dic_param.get('time_conds')] or []
@@ -183,7 +185,7 @@ def gen_trace_data_by_cyclic(graph_param, dic_param, max_graph=None):
     (EventType.RLP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None):
     """tracing data to show graph
     1 start point x n end point
@@ -259,7 +261,7 @@ def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None):
         max_graph,
     )
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
-    dic_param[TIMES] = df[TIME_COL].tolist()
+    dic_param[TIMES] = df[TIME_COL]
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
 
     # get visualization setting
@@ -293,7 +295,7 @@ def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None):
     (EventType.RLP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_rlp_data_by_term(graph_param, dic_param, max_graph=None):
     """rlp data to show graph
     filter by condition points that between start point and end_point
@@ -644,7 +646,7 @@ def merge_data_by_terms(data_list, terms):
         term_name = gen_term_groups(term)
         if term_name not in term_of_data:
             # append empty data of ridgeline if there is no data
-            data_list.append({'array_x': [], 'cate_name': term_name})
+            data_list.append({'array_x': pd.Series(), 'cate_name': term_name})
     # sort terms in case of cylic terms
     data_list = sorted(data_list, key=lambda x: x['cate_name'])
     return data_list
@@ -681,7 +683,7 @@ def gen_cyclic_term_plotdata(dic_data, dic_param, max_graph=None):
         dic_group_by_cat = {}
         for dic_plot in dic_data[int(sensor)]:
             array_y = dic_plot[ARRAY_Y]
-            if array_y:
+            if len(array_y):
                 term_obj = dic_param[TIME_CONDS][dic_plot['term_id']]
                 cate_name_str = f'{term_obj[START_DT]} | {term_obj[END_DT]}'
                 group_name = dic_plot.get(CAT_EXP_BOX) or ''
@@ -799,7 +801,7 @@ def gen_rlp_kde(dic_param):
         plotdata_rlp = plotdata.get(RL_RIDGELINES)
         sensor_id = plotdata.get(SENSOR_ID)
         if sensor_id not in fmt:
-            fmt[sensor_id] = []
+            fmt[sensor_id] = pd.Series()
 
         # default_scale_ymin, default_scale_ymax = plotdata[SCALE_SETTING]['y-min'], plotdata[SCALE_SETTING]['y-max']
         default_scale_ymin = plotdata[SCALE_SETTING]['y-min']
@@ -813,8 +815,8 @@ def gen_rlp_kde(dic_param):
             bounds = get_bound(plotdata_rlp)
         grid_points = get_grid_points(plotdata_rlp, bounds=bounds)
         for num, ridgeline in enumerate(plotdata_rlp):
-            array_x = ridgeline.get(ARRAY_X)
-            fmt[sensor_id] += array_x
+            array_x = ridgeline.get(ARRAY_X, pd.Series())
+            fmt[sensor_id] = fmt[sensor_id].append(array_x.reset_index(drop=True))
             ridgeline[RL_KDE] = calculate_kde_for_ridgeline(array_x, grid_points, height=3, use_hist_counts=True)
 
     for idx in fmt:
@@ -946,8 +948,8 @@ def add_threshold_configs(dic_param, graph_param):
                 plotdata[CHART_INFOS_ORG] = chart_info_cond_proc_org
                 plotdata[Y_MIN] = y_min
                 plotdata[Y_MAX] = y_max
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
 
 
 @log_execution_time()
@@ -1010,12 +1012,9 @@ def calc_rlp_scale_info(
         dic_abnormal_data = detect_abnormal_data(series_x, series_y, none_idxs)
         plotdata.update(dic_abnormal_data)
         for _idxs in dic_abnormal_data.values():
-            if _idxs:
-                # array_y[_idxs] = None
-                for _idx in _idxs:
-                    array_y[_idx] = None
+            series_y.loc[_idxs] = None
 
-        series_y = pd.Series(array_y)
+        plotdata[ARRAY_Y] = series_y.copy()
         if has_val_idxs is not None:
             series_y = series_y.loc[has_val_idxs]
 

@@ -214,11 +214,19 @@ const handleOnChangeFolderAndFileUrl = async (isVerifyUrl) => {
         formData.set('folder', urlInfo.url);
         formData.set('fileName', urlInfo.fileUrl);
     }
-    const request = getLatestRecord(formData);
 
-    await handleResponseData(request);
-
-    enableRegisterDataFileBtn();
+    try {
+        const request = getLatestRecord(formData);
+        await handleResponseData(request);
+        enableRegisterDataFileBtn();
+    } catch (e) {
+        addMessengerToProgressBar(
+            registerI18n.i18nScanning,
+            ICON_STATUS.WARNING,
+            registerSteps.SCANNING,
+            true,
+        );
+    }
 };
 
 const fillDatasourceName = (url, isFile) => {
@@ -510,6 +518,12 @@ const getLatestRecord = (data) =>
                 },
                 error: (jqXHR, textStatus, errorThrown) => {
                     reject(jqXHR, textStatus, errorThrown);
+                    // addMessengerToProgressBar(
+                    //     registerI18n.i18nScanning,
+                    //     ICON_STATUS.WARNING,
+                    //     registerSteps.SCANNING,
+                    // );
+                    // return false;
                 },
             }).then(() => {});
         } catch (e) {
@@ -598,19 +612,24 @@ async function convertStructureData(data) {
         urlInfo.isFile,
     );
     const otherData = /** @type OtherProcessData */ data.processConfigs[0];
+    const procData = {
+        columns: otherData.cols,
+        is_csv: true,
+        name: dataSourceAndProcessName,
+        name_en: dataSourceAndProcessName,
+        shown_name: dataSourceAndProcessName,
+        origin_name: dataSourceAndProcessName,
+        dummy_datetime_idx: otherData.dummy_datetime_idx,
+    };
+    // assign Process name after scanning data (Register by file)
+    if (isJPLocale) {
+        procData.name_jp = dataSourceAndProcessName;
+    } else {
+        procData.name_local = dataSourceAndProcessName;
+    }
     return [
         {
-            data: {
-                columns: otherData.cols,
-                is_csv: true,
-                name: dataSourceAndProcessName,
-                name_en: dataSourceAndProcessName,
-                name_jp: dataSourceAndProcessName,
-                name_local: null,
-                shown_name: dataSourceAndProcessName,
-                origin_name: dataSourceAndProcessName,
-                dummy_datetime_idx: otherData.dummy_datetime_idx,
-            },
+            data: procData,
             rows: otherData.rows,
         },
     ];
@@ -680,6 +699,12 @@ function renderProcessConfig(data) {
         }
 
         processConfigSectionObj.injectEvents();
+    });
+
+    // Uncheck of Filename in [Register by File] as default
+    const elmsInputFileName = $('input[data-is_file_name="true"]');
+    elmsInputFileName.each(function () {
+        $(this).prop('checked', false).trigger('change');
     });
 }
 
@@ -793,9 +818,11 @@ const checkDuplicatedProcessName = async (
 
 const getDbSourceAndProcessNameFromUrl = (url, isFile) => {
     const fullPath = url.replace(/\\/g, '/').split('/');
-    return isFile
-        ? fullPath[fullPath.length - 2]
-        : fullPath[fullPath.length - 1];
+    let lastPath = fullPath[fullPath.length - 1];
+    if (isFile) {
+        lastPath = lastPath.substring(0, lastPath.lastIndexOf('.'));
+    }
+    return lastPath;
 };
 
 /**

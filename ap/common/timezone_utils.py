@@ -1,3 +1,4 @@
+import logging
 import math
 import re
 from datetime import date, datetime, timedelta, timezone
@@ -17,8 +18,10 @@ from ap.common.common_utils import (
     add_double_quotes,
 )
 from ap.common.constants import DATETIME_DUMMY, MAX_DATETIME_STEP_PER_DAY, DataCountType
-from ap.common.logger import log_execution_time, logger
+from ap.common.logger import log_execution_time
 from ap.common.pydn.dblib import mssqlserver, mysql, oracle
+
+logger = logging.getLogger(__name__)
 
 
 @log_execution_time()

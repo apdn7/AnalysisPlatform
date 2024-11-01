@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pandas as pd
 from scipy.linalg import pinv
@@ -65,8 +67,8 @@ from ap.common.constants import (
     UNMATCHED_FILTER_IDS,
     CacheType,
 )
-from ap.common.logger import log_execution_time, logger
-from ap.common.memoize import memoize
+from ap.common.logger import log_execution_time
+from ap.common.memoize import CustomCache
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -76,6 +78,8 @@ from ap.common.services.request_time_out_handler import (
 from ap.common.services.sse import MessageAnnouncer
 from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
+
+logger = logging.getLogger(__name__)
 
 
 @log_execution_time('[MULTI SCATTER PLOT]')
@@ -87,7 +91,7 @@ from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey
     (EventType.MSP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_scatter_plot(graph_param, dic_param, df=None, custom_order=None):
     """tracing data to show graph
     1 start point x n end point
@@ -152,7 +156,7 @@ def gen_scatter_plot(graph_param, dic_param, df=None, custom_order=None):
         dic_param,
     )
     dic_data = gen_dic_data_from_df(df, orig_graph_param)
-    times = df[TIME_COL].tolist() or []
+    times = df[TIME_COL]
 
     # get chart infos
     chart_infos, chart_infos_org = get_chart_infos(orig_graph_param, dic_data, times)
@@ -167,7 +171,7 @@ def gen_scatter_plot(graph_param, dic_param, df=None, custom_order=None):
     )
 
     if ROWID in df.columns:
-        dic_param[CYCLE_IDS] = df.rowid.tolist()
+        dic_param[CYCLE_IDS] = df.rowid
 
     # convert irregular data
     make_irregular_data_none(dic_param)
@@ -214,8 +218,8 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
 
     df = pd.DataFrame(data)
     df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna()
-    array_y1 = df['array_y1'].to_numpy()
-    array_y2 = df['array_y2'].to_numpy()
+    array_y1 = df['array_y1'].to_numpy(dtype=float)
+    array_y2 = df['array_y2'].to_numpy(dtype=float)
     datetime = df[DATETIME].to_numpy()
     serials = df[SERIALS].to_numpy() if SERIALS in df.columns else []
     cycle_ids = df[CYCLE_IDS].to_numpy() if CYCLE_IDS in df.columns else []
@@ -255,9 +259,9 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
             flg_outlier = get_outlier_flg(hist, kde_gridpoints, num_outliers, num_bins)
             # normalize and change to log scale (fit to Logarithm)
             z_value = np.log(kde_gridpoints.ravel() / np.max(kde_gridpoints.ravel()) * 1000 + 1)
-            datetime = datetime[flg_outlier] if len(datetime) == len(array_y1) else []
-            serials = serials[flg_outlier] if len(serials) == len(array_y1) else []
-            cycle_ids = cycle_ids[flg_outlier] if len(cycle_ids) == len(array_y1) else []
+            datetime = datetime[flg_outlier] if len(datetime) == len(array_y1) else pd.Series()
+            serials = serials[flg_outlier] if len(serials) == len(array_y1) else pd.Series()
+            cycle_ids = cycle_ids[flg_outlier] if len(cycle_ids) == len(array_y1) else pd.Series()
             contour_data = {
                 'x': x_grid,
                 'y': y_grid,
@@ -535,6 +539,7 @@ def gen_scatter_n_contour_data(dic_param: dict, dic_data, use_contour):
     return scatter_contours, is_show_contour_only
 
 
+@log_execution_time()
 def partial_corr(data, corr_only=False):
     # transpose dataframe before compute correlation
     # correlation_mat = np.corrcoef(data.T)
@@ -580,8 +585,8 @@ def calc_partial_corr(dic_param):
         plot_list[plotdata[END_COL_ID]] = get_org_plotdat(plotdata)
         if ORG_ARRAY_Y in plotdata:
             del plotdata[ORG_ARRAY_Y]
-    df = pd.DataFrame(plot_list)
-    columns = df.columns.to_list()
+    df = pd.DataFrame(plot_list).replace(dict.fromkeys(ALL_SYMBOLS, np.nan))
+    columns = df.columns
 
     corrs = {CORR: {}, PCORR: {}, NTOTALS: {}}  # correlation coefficient  # partial correlation
     dic_param[CORRS] = corrs
@@ -590,19 +595,25 @@ def calc_partial_corr(dic_param):
         return dic_param
 
     scaler = StandardScaler()
-    clean_df = df.replace(dict.fromkeys(ALL_SYMBOLS, np.nan)).dropna()
+    clean_df = df.dropna()
     p_corr_mat = None
     if len(clean_df):
         data = scaler.fit_transform(clean_df)
         p_corr_mat, _ = partial_corr(data)
 
+    temp_corrs = {}
     for k, col in enumerate(columns):
         corrs[CORR][col] = {}
         corrs[PCORR][col] = {}
         corrs[NTOTALS][col] = {}
         for i, row in enumerate(columns):
+            # get existing coors value of (col, row) in temp_corrs instead of re-calculate
+            if (col, row) in temp_corrs:
+                corrs[CORR][col][row], corrs[PCORR][col][row], corrs[NTOTALS][col][row] = temp_corrs[(col, row)]
+                continue
+
             df_pair = df[[col, row]]
-            df_pair = df_pair.replace(dict.fromkeys(ALL_SYMBOLS, np.nan)).dropna()
+            df_pair = df_pair.dropna()
             if df_pair.empty:
                 continue
 
@@ -611,6 +622,10 @@ def calc_partial_corr(dic_param):
             corrs[CORR][col][row] = corr_mat[0][1]
             corrs[PCORR][col][row] = signify_digit(p_corr_mat[k][i]) if p_corr_mat is not None else None
             corrs[NTOTALS][col][row] = df_pair.shape[0]
+
+            # save CORR, PCORR, NTotale to temp_corrs
+            temp_corrs[(col, row)] = (corrs[CORR][col][row], corrs[PCORR][col][row], corrs[NTOTALS][col][row])
+            temp_corrs[(row, col)] = temp_corrs[(col, row)]
 
     dic_param[CORRS] = corrs
     return dic_param
@@ -656,8 +671,8 @@ def gen_heatmap_data_from_msp(dic_param, dic_proc_cfgs):
             x.append(x_label)
 
             # remove unused data
-            sensor_data[ARRAY_X] = []
-            sensor_data[ARRAY_Y] = []
+            sensor_data[ARRAY_X] = pd.Series()
+            sensor_data[ARRAY_Y] = pd.Series()
 
         for id in y_sensor_ids:
             # in case there is no data

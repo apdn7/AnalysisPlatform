@@ -42,6 +42,7 @@ select = [
     "N812",
     "N814",
     "N999",
+    "T201",
 ]
 ignore = [
     "E711", # MUST IGNORE , because == vs None in numpy, sqlalquemy

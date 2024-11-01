@@ -176,6 +176,9 @@ const functionConfigElements = {
     deleteFunctionColumnTableElement: document.getElementById(
         'deleteFunctionColumnTable',
     ),
+    removeInputSearch: document.getElementsByClassName(
+        'function-remove-search',
+    ),
 };
 
 /**
@@ -1007,8 +1010,8 @@ class FunctionInfo {
         columnVarX.dataset.varXFunctionColumnId = this.varX.functionColumnId;
         columnVarX.textContent = this.varXName;
         const columnVarY = rowElement.querySelector(`td.column-var-y`);
-        columnVarX.dataset.varYProcessColumnId = this.varY.processColumnId;
-        columnVarX.dataset.varYFunctionColumnId = this.varY.functionColumnId;
+        columnVarY.dataset.varYProcessColumnId = this.varY.processColumnId;
+        columnVarY.dataset.varYFunctionColumnId = this.varY.functionColumnId;
         columnVarY.textContent = this.varYName;
 
         const inputANS = rowElement.querySelector(`td.column-coe-ans input`);
@@ -1346,6 +1349,9 @@ class FunctionInfo {
         functionConfigElements.localNameElement.value = '';
         functionConfigElements.localNameElement.dataset.originGeneratedName =
             '';
+
+        functionConfigElements.searchInput.value = '';
+        functionConfigElements.searchFunctionNameInput.value = '';
 
         $(functionConfigElements.varXElement).val('').change();
         $(functionConfigElements.varYElement).val('').change();
@@ -2831,22 +2837,22 @@ const changeFunctionNameEvent = (event) => {
             functionConfigElements.varXLabelElement.innerHTML = 'X:';
             functionConfigElements.xSampleDataLabel.innerHTML = 'X';
         }
-        functionConfigElements.varXElement.disabled = false;
+        $(functionConfigElements.varXElement).select2({ disabled: false });
         $(functionConfigElements.varXElement)
             .val(functionConfigElements.varXElement.value)
             .change();
     } else {
-        functionConfigElements.varXElement.disabled = true;
+        $(functionConfigElements.varXElement).select2({ disabled: true });
         $(functionConfigElements.varXElement).val('').change();
     }
 
     if (isHasYParam) {
-        functionConfigElements.varYElement.disabled = false;
+        $(functionConfigElements.varYElement).select2({ disabled: false });
         $(functionConfigElements.varYElement)
             .val(functionConfigElements.varYElement.value)
             .change();
     } else {
-        functionConfigElements.varYElement.disabled = true;
+        $(functionConfigElements.varYElement).select2({ disabled: true });
         $(functionConfigElements.varYElement).val('').change();
     }
 

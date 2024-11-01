@@ -152,4 +152,22 @@ class DataTypeDropdown_Constant {
         is_auto_increment: false,
         is_int_cat: false,
     });
+
+    /**
+     * A list of data types sorted in ascending order by data type
+     * @type {Readonly<String[]>}
+     */
+    static DataTypeOrder = Object.freeze([
+        DataTypes.JUDGE.name,
+        DataTypes.BOOLEAN.name,
+        DataTypes.INTEGER.name,
+        DataTypes.INTEGER.name,
+        DataTypes.INTEGER_SEP.name,
+        DataTypes.EU_INTEGER_SEP.name,
+        DataTypes.BIG_INT.name,
+        DataTypes.REAL.name,
+        DataTypes.REAL_SEP.name,
+        DataTypes.EU_REAL_SEP.name,
+        DataTypes.TEXT.name,
+    ]);
 }
