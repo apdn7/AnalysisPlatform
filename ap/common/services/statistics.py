@@ -24,8 +24,8 @@ from ap.common.sigificant_digit import signify_digit
 @log_execution_time()
 def calc_summary_elements(plot):
     none_ids = plot.get(NONE_IDXS)
-    array_y = plot.get(ARRAY_Y) or []
-    array_x = plot.get(ARRAY_X) or []
+    array_y = plot.get(ARRAY_Y, pd.Series())
+    array_x = plot.get(ARRAY_X, pd.Series())
     empty_summary = {'count': {}, 'basic_statistics': {}, 'non_parametric': {}}
     if len(array_x) != len(array_y):
         return [empty_summary]
@@ -45,7 +45,8 @@ def calc_summary_elements(plot):
     #     return [empty_summary for _ in chart_infos]
 
     summaries = []
-    df[ARRAY_Y] = df[ARRAY_Y].apply(lambda y: np.nan if pd.isna(y) else y)
+    df[ARRAY_Y] = df[ARRAY_Y].astype('float')
+    # df.loc[pd.isna(df[ARRAY_Y]), ARRAY_Y] = np.nan
 
     # if df[ARRAY_Y].dtypes == 'object':
     #     return [empty_summary]

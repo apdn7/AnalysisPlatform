@@ -132,9 +132,6 @@ def select_data():
         df = df.loc[selected_index]
         # return top 20 values of df, sorted by time descending
         df.sort_values(by=TIME_COL, ascending=False, inplace=True)
-        # fill values for displaying on frontend
-        df = df.astype(pd.StringDtype())
-        df.fillna(EMPTY_STRING, inplace=True)
         df = df.head(20)
 
     processed_df = export_preprocessing(
@@ -143,6 +140,9 @@ def select_data():
         client_timezone=client_timezone,
         terms=None,
     )
+    # fill empty values for displaying on frontend
+    processed_df = processed_df.astype(pd.StringDtype())
+    processed_df.fillna(EMPTY_STRING, inplace=True)
     result = processed_df.to_dict(orient='records')
     response = {'cols': processed_df.columns.values, 'rows': result, 'cols_name': list(processed_df.columns.values)}
     return json_dumps(response), 200

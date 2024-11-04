@@ -1,4 +1,7 @@
-print('wrap pyper')
+import logging
+
+logger = logging.getLogger(__name__)
+logger.debug('wrap pyper')
 
 
 class R:

@@ -8,6 +8,11 @@ import time
 from pathlib import Path
 import unicodedata
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 SCREEN_SHOT_FOLDER = Path('C:/') / 'workspace' / 'CICD' / 'frontend' / 'screenshot'
 ROOT_PATH = Path(__file__).parent.parent.parent
 INIT_BASIC_CONFIG_FILE = ROOT_PATH / 'init' / 'basic_config.yml'
@@ -38,7 +43,7 @@ def change_screenshots_folder(screenshots_folder: Path):
         text = re.sub(r"screenshotsFolder: .*,", f"screenshotsFolder: '{folder_path}',", text)
         f.seek(0)
         f.write(text)
-    print(f"Screenshot folder ('{folder_path}') is updated in '{E2E_CONFIG_FILE}' file.")
+    logger.info(f"Screenshot folder ('{folder_path}') is updated in '{E2E_CONFIG_FILE}' file.")
 
 
 def create_screenshot_folder(branch_name: str) -> Path:
@@ -50,14 +55,14 @@ def create_screenshot_folder(branch_name: str) -> Path:
 
     screenshot_folder = SCREEN_SHOT_FOLDER / sanitized_name
     screenshot_folder.mkdir(parents=True, exist_ok=True)
-    print(f"Screenshot folder is: '{screenshot_folder}'.")
+    logger.info(f"Screenshot folder is: '{screenshot_folder}'.")
     return screenshot_folder
 
 
 def create_screenshot_folder_local() -> Path:
     screenshot_folder = SCREEN_SHOT_FOLDER_LOCAL
     screenshot_folder.mkdir(parents=True, exist_ok=True)
-    print(f"Screenshot folder is: '{screenshot_folder}'.")
+    logger.info(f"Screenshot folder is: '{screenshot_folder}'.")
     return screenshot_folder
 
 
@@ -65,7 +70,7 @@ def find_unused_port() -> int:
     sock = socket.socket()
     sock.bind(('', 0))
     port = sock.getsockname()[1]
-    print(f"Web port is: {port}")
+    logger.info(f"Web port is: {port}")
     return port
 
 
@@ -75,7 +80,7 @@ def change_port_in_basic_config(basic_config_path: Path, new_port: int) -> None:
         content = re.sub(r'- port-no: \d+', f'- port-no: {new_port}', content)
         file.seek(0)
         file.write(content)
-    print(f"Web port {new_port} is updated in '{basic_config_path}' file.")
+    logger.info(f"Web port {new_port} is updated in '{basic_config_path}' file.")
 
 
 def change_port_for_web(port: int | None, is_local: bool = False) -> None:
@@ -92,7 +97,7 @@ def change_port_for_web(port: int | None, is_local: bool = False) -> None:
         text = re.sub(r"baseUrl: 'http://localhost:\d+'", f"baseUrl: 'http://localhost:{port}'", text)
         f.seek(0)
         f.write(text)
-    print(f"Web port {port} is updated in '{E2E_CONFIG_FILE}' file.")
+    logger.info(f"Web port {port} is updated in '{E2E_CONFIG_FILE}' file.")
 
 
 def get_web_port() -> int | None:
@@ -105,7 +110,7 @@ def get_web_port() -> int | None:
     if match:
         port = int(match.group(1))
 
-    print(f"Web port is: {port}")
+    logger.info(f"Web port is: {port}")
     return port
 
 
@@ -116,10 +121,10 @@ def replace_basic_config_file() -> None:
 def copy_tests_instance_to_instance_folder() -> None:
     if os.path.isdir(INSTANCE_FOLDER):
         shutil.rmtree(INSTANCE_FOLDER)
-        print(f"'{INSTANCE_FOLDER}' folder is removed.")
+        logger.info(f"'{INSTANCE_FOLDER}' folder is removed.")
 
     shutil.copytree(E2E_INSTANCE_FOLDER, INSTANCE_FOLDER)
-    print(f"Copied '{E2E_INSTANCE_FOLDER}' folder to '{INSTANCE_FOLDER}' folder")
+    logger.info(f"Copied '{E2E_INSTANCE_FOLDER}' folder to '{INSTANCE_FOLDER}' folder")
 
 
 def setup(branch_name: str | None) -> None:

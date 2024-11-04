@@ -12,7 +12,7 @@ from ap.common.constants import (
     RawDataTypeDB,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.setting_module.models import CfgConstant, CfgProcess, CfgProcessColumn, CfgTrace, make_session
 from ap.setting_module.schemas import ShowGraphSchema, TraceSchema
 
@@ -243,7 +243,7 @@ def preprocess_process(process: CfgProcess) -> CfgProcess:
 
 
 @log_execution_time()
-@memoize(cache_type=CacheType.CONFIG_DATA)
+@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
 def get_config_data():
     """
     get all process from graph_param then gen its json

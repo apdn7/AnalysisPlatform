@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from ap.common.common_utils import add_suffix_for_same_column_name
 from ap.common.constants import TABLE_PROCESS_NAME, UNDER_SCORE, BaseEnum, MasterDBType
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.pydn.dblib.db_proxy import DbProxy
 from ap.setting_module.models import CfgDataSource
 
@@ -353,7 +353,7 @@ def get_history_transaction_data_stmt(
     return stmt
 
 
-@memoize(is_save_file=True)
+@CustomCache.memoize()
 def get_code_name_mapping(data_source_id: int, process_factid: str) -> dict[str, str]:
     data_source = CfgDataSource.query.get(data_source_id)
     with DbProxy(data_source) as db_instance:

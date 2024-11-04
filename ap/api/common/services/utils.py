@@ -11,7 +11,7 @@ from sqlalchemy.dialects import sqlite
 
 from ap.common.constants import TIME_COL, WELL_KNOWN_COLUMNS, DataGroupType, MasterDBType
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.pydn.dblib.sqlite import SQLite3
 from ap.setting_module.models import CfgProcess
 
@@ -276,7 +276,7 @@ def get_well_known_columns_for_v2_type(
     return {col: group_type for col, group_type in zip(cols, group_types) if group_type is not None}
 
 
-@memoize()
+@CustomCache.memoize()
 def get_well_known_columns(master_type: str, cols: list[str] | set[str] | None = None) -> dict[str, int]:
     old_well_known_columns = WELL_KNOWN_COLUMNS.get(master_type, {})
     if not cols:

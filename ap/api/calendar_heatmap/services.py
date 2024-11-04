@@ -1,3 +1,4 @@
+import logging
 import math
 from datetime import datetime, timedelta
 from typing import Dict
@@ -57,22 +58,27 @@ from ap.common.constants import (
     X_TICKVAL,
     Y_TICKTEXT,
     Y_TICKVAL,
+    AnnounceEvent,
     CacheType,
     DataType,
     HMFunction,
     MaxGraphNumber,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
+from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
 )
-from ap.common.services.sse import AnnounceEvent, MessageAnnouncer, background_announcer
+from ap.common.services.sse import MessageAnnouncer
 from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 from ap.setting_module.models import CfgProcess
 from ap.trace_data.schemas import DicParam
+
+logger = logging.getLogger(__name__)
+
 
 CHM_AGG_FUNC = [HMFunction.median.name, HMFunction.mean.name, HMFunction.std.name]
 
@@ -86,7 +92,7 @@ CHM_AGG_FUNC = [HMFunction.median.name, HMFunction.mean.name, HMFunction.std.nam
     (EventType.CHM, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_heatmap_data(root_graph_param, dic_param, df=None):
     (
         dic_param,
@@ -157,7 +163,6 @@ def limit_num_cells(df_cells: pd.DataFrame, end_tm, limit=10000):
     """Limit number of cells to 10k including empty cells"""
     # is_res_limited = df_cells.index.size > limit
 
-    # print("///// is_res_limited: ", is_res_limited, ': ', df_cells.index.size)
     df_cells: pd.DataFrame = df_cells.loc[:limit]
 
     # update new end_time to 10000 cells
@@ -203,14 +208,16 @@ def fill_empty_cells(df_cells: pd.DataFrame, dic_df_proc, var_agg_col=None):
                 }
                 df_cates = list(dic_df_cate.items())[:30]
                 for cate_value, df_cate in df_cates:
-                    dic_df_proc[proc_id][end_col][cate_value] = (
-                        df_cells.set_index(AGG_COL)
-                        .join(df_cate, how='left', lsuffix=CELL_SUFFIX)
-                        .replace({np.nan: None})
+                    dic_df_proc[proc_id][end_col][cate_value] = df_cells.set_index(AGG_COL).join(
+                        df_cate,
+                        how='left',
+                        lsuffix=CELL_SUFFIX,
                     )
             else:
-                dic_df_proc[proc_id][end_col] = (
-                    df_cells.set_index(AGG_COL).join(df_sensor, how='left', lsuffix=CELL_SUFFIX).replace({np.nan: None})
+                dic_df_proc[proc_id][end_col] = df_cells.set_index(AGG_COL).join(
+                    df_sensor,
+                    how='left',
+                    lsuffix=CELL_SUFFIX,
                 )
     return dic_df_proc
 
@@ -253,14 +260,14 @@ def get_x_ticks(df: pd.DataFrame):
     df_ticks = df_ticks.drop_duplicates('x_label', keep='first')
     size = df_ticks.index.size
     if size <= MAX_TICKS:
-        return df_ticks['x'].tolist(), df_ticks['x_label'].tolist()
+        return df_ticks['x'], df_ticks['x_label']
 
     step = math.ceil(size / MAX_TICKS)
     indices = np.array(range(size))
     selected_indices = indices[0:-1:step]
     df_ticks = df_ticks.reset_index()
     df_ticks = df_ticks.loc[df_ticks.index.intersection(selected_indices)]
-    return df_ticks['x'].tolist(), df_ticks['x_label'].tolist()
+    return df_ticks['x'], df_ticks['x_label']
 
 
 def build_hover(df, end_col, hm_function):
@@ -272,7 +279,7 @@ def build_hover(df, end_col, hm_function):
         + df[end_col].apply(signify_digit).astype(str).str.replace(r'None|nan', NA_STR, regex=True)
         + '<br>'
     )
-    return df['hover'].to_list()
+    return df['hover']
 
 
 def build_plot_data(df, end_col, hm_function):
@@ -281,9 +288,9 @@ def build_plot_data(df, end_col, hm_function):
     df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan))
     df = df.where(pd.notnull(df), None)
 
-    x = df['x'].to_list()
-    y = df['y'].to_list()
-    z = df[end_col].to_list()
+    x = df['x'].reset_index(drop=True)
+    y = df['y'].reset_index(drop=True)
+    z = df[end_col].reset_index(drop=True)
 
     # build color scale
     z_min = df[end_col].dropna().min()
@@ -398,7 +405,7 @@ def gen_agg_col(df: pd.DataFrame, hm_mode, hm_step, client_tz):
     """Aggregate data by time"""
     pd_step = convert_to_pandas_step(hm_step, hm_mode)
     df[TIME_COL_LOCAL] = pd.to_datetime(df[TIME_COL], utc=True).dt.tz_convert(tz=client_tz)
-    print(df.index.size)
+    logger.info(df.index.size)
     if hm_mode == HM_WEEK_MODE:
         # .astype(str).str[:13] or 16 sometimes doesn't work as expected
         df[AGG_COL] = df[TIME_COL_LOCAL].dt.floor(pd_step, ambiguous='infer').dt.strftime('%Y-%m-%d %H')
@@ -682,14 +689,16 @@ def create_agg_column(df, agg_col=AGG_COL, hm_mode=7, hm_step=4, df_cells=None):
     dt = pd.to_datetime(df[TIME_COL], format='%Y-%m-%dT%H:%M', utc=True)
     df[agg_col] = None
     #
-    group_list = df_cells[TIME_COL].tolist()
-    next_cell = (
-        group_list[-1] + pd.Timedelta(minutes=hm_step) if hm_mode == 1 else group_list[-1] + pd.Timedelta(hours=hm_step)
+    group_list = df_cells[TIME_COL]
+    next_cell = pd.Series(
+        group_list.iloc[-1] + pd.Timedelta(minutes=hm_step)
+        if hm_mode == 1
+        else group_list.iloc[-1] + pd.Timedelta(hours=hm_step),
     )
-    group_list.append(next_cell)
-    group_list = pd.to_datetime(group_list, format='%Y-%m-%dT%H:%M', utc=True)
+    group_list = group_list.append(next_cell)
+    group_list = pd.to_datetime(group_list, format='%Y-%m-%dT%H:%M', utc=True).reset_index(drop=True)
 
-    labels = df_cells[AGG_COL].tolist()
+    labels = df_cells[AGG_COL]
     for i, label in enumerate(labels):
         start_time = group_list[i]
         end_time = group_list[i + 1]
@@ -858,7 +867,7 @@ def gen_heatmap_data_as_dict(
     num_proc = len(dic_proc_cfgs.keys()) or 1
     for idx, (proc_id, proc_config) in enumerate(dic_proc_cfgs.items()):
         pct_start = (idx + 1) * 50 / num_proc  # to report progress
-        background_announcer.announce(pct_start, AnnounceEvent.SHOW_GRAPH.name)
+        EventQueue.put(EventBackgroundAnnounce(data=pct_start, event=AnnounceEvent.SHOW_GRAPH))
         if graph_param.is_end_proc(proc_id):
             dic_df_proc[proc_id] = graph_heatmap_data_one_proc(
                 df,
@@ -895,7 +904,7 @@ def get_target_variable_data_from_df(df, dic_proc_cfgs, graph_param, cat_only=Tr
         col_label = col_labels[i]
         if col_label not in df:
             continue
-        variable['array_y'] = df[col_label].to_list()
+        variable['array_y'] = df[col_label]
         variable['end_proc_name'] = dic_proc_cfgs[variable['end_proc_id']].shown_name
         if cat_only:
             int_cols = dic_proc_cfgs[variable['end_proc_id']].get_cols_by_data_type(DataType.INTEGER, True)

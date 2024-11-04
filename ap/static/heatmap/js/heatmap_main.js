@@ -81,6 +81,8 @@ const els = {
     scpChartScale: 'scpChartScale',
     colNumber: 'colNumber',
     hmColorSelect: 'hmColor',
+    arrangeDivSwitch: 'arrange-div-switch',
+    hmpArrangeDiv: 'hmpArrangeDiv',
 };
 
 const i18n = {
@@ -339,11 +341,24 @@ $(() => {
 const loading = $('.loading');
 
 const validateDTypesForHMp = () => {
-    const targetVariableTypes = [
-        ...$('input[name^=GET02_VALS_SELECT]:checked'),
-    ].map((el) => $(`#dataType-${$(el).val()}`).val());
+    const selectedVariables = [...$('input[name^=GET02_VALS_SELECT]:checked')];
+
+    const targetVariableTypes = selectedVariables.map((el) =>
+        $(`#dataType-${$(el).val()}`).val(),
+    );
     const selectedTypes = new Set(targetVariableTypes).size;
-    if (selectedTypes > 1) {
+
+    // add case "Cat" and "Str" to show in HMp
+    const catStrType = ['Cat', 'Str'];
+    const targetVariableShownType = selectedVariables.map((el) =>
+        $(el).attr('data-type-shown-name'),
+    );
+
+    const isAllowedCatStrType =
+        JSON.stringify(catStrType.sort()) ===
+        JSON.stringify(targetVariableShownType.sort());
+
+    if (selectedTypes > 1 && !isAllowedCatStrType) {
         // show error msg
         showToastrMsg(i18n.i18nGotoSCPMsg, MESSAGE_LEVEL.ERROR);
         return false;
@@ -619,9 +634,7 @@ const showSCP = async (
         response = res;
         // remove old hover infor violin and heatmap
         removeHoverInfo();
-        $('#colorSettingGrp').show();
-
-        $('#sctr-card-parent').show();
+        showHideGraphSetting(res);
         resetChartSize();
         const scpData = res.array_plotdata;
         const chartType = res.chartType || 'scatter';
@@ -642,8 +655,18 @@ const showSCP = async (
         const isShowDate =
             res.COMMON.compareType === els.cyclicTerm ||
             res.COMMON.compareType === els.directTerm;
+
+        const cloneScpPlotData = () => {
+            const isShowArrangeDiv = $(`#${els.hmpArrangeDiv}`).is(':checked');
+            let scpCloneData = JSON.parse(JSON.stringify(scpData));
+            if (isShowArrangeDiv) return scpCloneData;
+
+            // Ignore empty graphs
+            return scpCloneData.filter((plot) => !plot.is_empty_graph);
+        };
+
         const showGraph = (settings = { isShowForward: false }) => {
-            const scpCloneData = JSON.parse(JSON.stringify(scpData));
+            const scpCloneData = cloneScpPlotData();
             let sortKey = 'sort_key';
             scpCloneData.sort((a, b) => b.h_label - a.h_label);
             sortKey = 'h_label';
@@ -776,11 +799,24 @@ const showSCP = async (
                 });
         };
 
+        const onChangeArrangeDiv = () => {
+            $(`#${els.hmpArrangeDiv}`)
+                .off('change')
+                .on('change', (event) => {
+                    loadingShow();
+                    setTimeout(() => {
+                        const graphSettings = getCurrentSettings();
+                        showGraph(graphSettings);
+                    }, 1000);
+                });
+        };
+
         onChangeHmColor();
         onChangeColorScale();
         onShowBackward();
         onChangeChartScale();
         onChangeColNumber();
+        onChangeArrangeDiv();
     }
 
     loadingHide();
@@ -802,8 +838,16 @@ const resetGraphSetting = () => {
     $(`select[name=${els.hmColorSelect}]`).val('BLUE');
 
     // reset arrange button
-    $('input#rangeDiv').prop('checked', false);
+    // $('input#rangeDiv').prop('checked', false);
     currentMatrix = MAX_MATRIX;
+
+    // Reset Arrange Div switch button to OFF
+    $(`.${els.arrangeDivSwitch}`)[0].style.setProperty(
+        'display',
+        'none',
+        'important',
+    );
+    $(`input#${els.hmpArrangeDiv}`).prop('checked', false);
 };
 
 const genHTMLContentMatrix = (

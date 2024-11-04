@@ -41,7 +41,7 @@ from ap.common.constants import (
     ErrorMsg,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
@@ -82,7 +82,7 @@ colors = [
     (EventType.SKD, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
     """tracing data to show graph
     1 start point x n end point

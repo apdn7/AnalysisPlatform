@@ -4,17 +4,19 @@ from time import sleep
 
 from flask import request
 
-from ap import SHUTDOWN, dic_config
+from ap.common.constants import AnnounceEvent
 from ap.common.logger import log_execution_time
-from ap.common.services.sse import AnnounceEvent, background_announcer
+from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue, EventShutDown
 from ap.script.disable_terminal_close_button import close_terminal
+
+logger = logging.getLogger(__name__)
 
 
 @log_execution_time()
 def shut_down_app():
-    print('///////////// SHUTDOWN APP ///////////')
-    background_announcer.announce(True, AnnounceEvent.SHUT_DOWN.name)
-    dic_config[SHUTDOWN] = True
+    logger.info('///////////// SHUTDOWN APP ///////////')
+    EventQueue.put(EventBackgroundAnnounce(data=True, event=AnnounceEvent.SHUT_DOWN))
+    EventQueue.put(EventShutDown())
     logging.shutdown()
     sleep(5)
 

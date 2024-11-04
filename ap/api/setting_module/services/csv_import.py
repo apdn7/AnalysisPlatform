@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import math
 import os.path
 import re
@@ -70,6 +71,7 @@ from ap.common.constants import (
     FILE_NAME,
     NUM_CHARS_THRESHOLD,
     TIME_TYPE_REGEX,
+    AnnounceEvent,
     CSVExtTypes,
     DataColumnType,
     DataType,
@@ -79,7 +81,8 @@ from ap.common.constants import (
 )
 from ap.common.datetime_format_utils import DateTimeFormatUtils
 from ap.common.disk_usage import get_ip_address
-from ap.common.logger import log_execution_time, logger
+from ap.common.logger import log_execution_time
+from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import scheduler_app_context
 from ap.common.services.csv_content import (
@@ -94,7 +97,6 @@ from ap.common.services.csv_header_wrapr import (
     transform_duplicated_col_suffix_to_pandas_col,
 )
 from ap.common.services.normalization import normalize_list, normalize_str
-from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.common.timezone_utils import (
     add_days_from_utc,
     gen_dummy_datetime,
@@ -112,38 +114,28 @@ from ap.trace_data.transaction_model import TransactionData
 
 # pd.options.mode.chained_assignment = None  # default='warn'
 
+logger = logging.getLogger(__name__)
+
 
 @scheduler_app_context
 def import_csv_job(
-    _job_id,
-    _job_name,
-    _db_id,
-    _proc_id,
-    _proc_name,
-    proc_id,
+    process_id: int,
+    process_name: str,
+    data_source_id: int,
     is_user_request: bool = False,
     register_by_file_request_id: str = None,
-    **kwargs,
 ):
-    """scheduler job import csv
+    """scheduler job import csv"""
 
-    Keyword Arguments:
-        _job_id {[type]} -- [description] (default: {None})
-        _job_name {[type]} -- [description] (default: {None})
-    """
-
-    def _add_gen_proc_link_job(*_args, **_kwargs):
-        add_gen_proc_link_job(process_id=proc_id, is_user_request=is_user_request, *_args, **_kwargs)
-
-    gen = import_csv(proc_id, register_by_file_request_id=register_by_file_request_id)
+    gen = import_csv(process_id, register_by_file_request_id=register_by_file_request_id)
     send_processing_info(
         gen,
         JobType.CSV_IMPORT,
-        db_code=_db_id,
-        process_id=_proc_id,
-        process_name=_proc_name,
-        after_success_func=_add_gen_proc_link_job,
-        **kwargs,
+        db_code=data_source_id,
+        process_id=process_id,
+        process_name=process_name,
+        after_success_func=add_gen_proc_link_job,
+        after_success_func_kwargs={'process_id': process_id, 'is_user_request': is_user_request, 'publish': True},
     )
 
 
@@ -172,8 +164,18 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     # start job
     yield 0
 
+    data_register_data = {
+        'RegisterByFileRequestID': register_by_file_request_id,
+        'status': JobStatus.PROCESSING.name,
+        'is_first_imported': False,  # show loading status after register a import job
+    }
+    EventQueue.put(EventBackgroundAnnounce(data=data_register_data, event=AnnounceEvent.DATA_REGISTER))
+
     # get db info
     proc_cfg: CfgProcess = CfgProcess.query.get(proc_id)
+    if not proc_cfg:
+        return
+
     data_src: CfgDataSourceCSV = CfgDataSourceCSV.query.get(proc_cfg.data_source_id)
     is_v2_datasource = is_v2_data_source(ds_type=data_src.cfg_data_source.type)
 
@@ -315,16 +317,16 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                 org_csv_cols = next(check_file)
                 if data_src.dummy_header:
                     # generate column name if there is not header in file
-                    org_csv_cols, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols, skip_head=data_src.skip_head)
+                    org_csv_cols, csv_cols, *_ = gen_dummy_header(org_csv_cols, skip_head=data_src.skip_head)
                     csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
                 else:
                     # need to convert header in case of transposed
                     if data_src.is_transpose:
-                        _, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols)
+                        _, csv_cols, *_ = gen_dummy_header(org_csv_cols)
                         csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
                     else:
                         # for the column names with only spaces, we need to generate dummy headers for them
-                        _, csv_cols, _, _, _ = gen_dummy_header(org_csv_cols)
+                        _, csv_cols, *_ = gen_dummy_header(org_csv_cols)
                         csv_cols = normalize_list(csv_cols)
                     # try to convert ➊ irregular number from csv columns
                     csv_cols = [normalize_str(col) for col in csv_cols]
@@ -415,6 +417,10 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
             else:
                 # dummy header
                 default_csv_param['names'] = csv_cols
+                if use_dummy_datetime:
+                    default_csv_param['names'] = default_csv_param['names'][:-1]
+                if proc_cfg.is_show_file_name:
+                    default_csv_param['names'] = default_csv_param.get('names')[:-1]
 
         # read csv file
         default_csv_param['dtype'] = {
@@ -536,10 +542,12 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                     'is_first_imported': True,
                     'use_dummy_datetime': use_dummy_datetime,
                 }
-                background_announcer.announce(
-                    data_register_data,
-                    AnnounceEvent.DATA_REGISTER.name,
-                    f'{AnnounceEvent.DATA_REGISTER.name}_{proc_id}',
+                EventQueue.put(
+                    EventBackgroundAnnounce(
+                        job_id=f'{AnnounceEvent.DATA_REGISTER.name}_{proc_id}',
+                        data=data_register_data,
+                        event=AnnounceEvent.DATA_REGISTER,
+                    ),
                 )
             is_first_chunk = False
 
@@ -588,10 +596,12 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                 'is_first_imported': True,
                 'use_dummy_datetime': use_dummy_datetime,
             }
-            background_announcer.announce(
-                data_register_data,
-                AnnounceEvent.DATA_REGISTER.name,
-                f'{AnnounceEvent.DATA_REGISTER.name}_{proc_id}',
+            EventQueue.put(
+                EventBackgroundAnnounce(
+                    job_id=f'{AnnounceEvent.DATA_REGISTER.name}_{proc_id}',
+                    data=data_register_data,
+                    event=AnnounceEvent.DATA_REGISTER,
+                ),
             )
 
         df_error_cnt = len(df_error)
@@ -758,8 +768,12 @@ def csv_to_df(
     try:
         df = read_csv_with_transpose(transformed_file, is_transpose=data_src.is_transpose, **read_csv_param)
     except UnicodeDecodeError:
-        read_csv_param.update({'encoding': 'unicode_escape'})
-        df = read_csv_with_transpose(transformed_file, is_transpose=data_src.is_transpose, **read_csv_param)
+        try:
+            read_csv_param.update({'encoding': 'unicode_escape'})
+            df = read_csv_with_transpose(transformed_file, is_transpose=data_src.is_transpose, **read_csv_param)
+        except Exception:
+            del read_csv_param['encoding']  # not use encoding
+            df = read_csv_with_transpose(transformed_file, is_transpose=data_src.is_transpose, **read_csv_param)
 
     df.dropna(how='all', inplace=True)
 
@@ -1325,6 +1339,9 @@ def get_same_cols_from_dfs(all_cols, df_cols):
 
 
 def is_header_contains_invalid_chars(header_names: list[str]) -> bool:
+    if not header_names:
+        return False
+
     first_row = ''.join(header_names)
     total_num = len(first_row)
     subst_num = len(re.findall(r'[\d\s\t,.:;\-/ ]', first_row))
@@ -1366,7 +1383,9 @@ def gen_dummy_header(header_names, data_details=None, skip_head=None):
         header_names = ['col' if normalize_str(name) is EMPTY_STRING else name for name in header_names]
         partial_dummy_header = True
 
-    return org_header, header_names, dummy_header, partial_dummy_header, data_details
+    is_gen_cols = [col_name != org_header[i] for i, col_name in enumerate(header_names)]
+
+    return org_header, header_names, dummy_header, partial_dummy_header, data_details, is_gen_cols
 
 
 def merge_is_get_date_from_date_and_time(df, get_date_col, date_main_col, time_main_col, is_csv_or_v2=True):

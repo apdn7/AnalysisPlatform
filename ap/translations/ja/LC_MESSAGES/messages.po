@@ -2854,6 +2854,12 @@ msgstr "後向き"
 msgid "Number of graph on column"
 msgstr "グラフ列数"
 
+#: ap/templates/scatter_plot/scatter_plot.html
+msgid "Arrange Div Title"
+msgstr ""
+"グラフが分割されて表示されたとき、OFFのときはデータが存在するグラフのみ表示し、ONのときはデータが存在しなくてもグラフを表示します。例) \n"
+"期間分解(繰返入力)の場合、データが存在しない期間のグラフをOFFのときはグラフ表示せず、ONのときはグラフ表示します"
+
 #: ap/templates/i18n.html
 msgid "Label Variable Description"
 msgstr "カテゴリ変数(品番・ステーションNoなど)の状況をグラフ上部に水色のラベルで表示します。ラベルの切り替わりが変化点(品番切替など)になります。データ型(Type)がカテゴリ(Cat)と文字列(Str)とシリアル(Seri)の変数を選択できます。"
@@ -4066,7 +4072,9 @@ msgstr "`判定"
 
 #: ap/templates/i18n.html
 msgid "Could not read data"
-msgstr "ファイルの読み込みに失敗しました"
+msgstr ""
+"以下の理由でファイルの読み込みに失敗しました：<br>・ファイルのヘッダー数とデータ数が異なります<br>・UTF-8とSHIFT-"
+"JISでの文字化が失敗しました"
 
 #: ap/templates/setting_module/background_job.html
 msgid "Progress"
@@ -4377,17 +4385,6 @@ msgstr "Reload to get all function columns of the process into system."
 msgid "ProcDatetimeFormat"
 msgstr "日時形式 "
 
-#: ap/templates/setting_module/proc_config_modals.html
-msgid "ProcDatetimeFormatHoverMsg"
-msgstr ""
-"日時の形式を指定します。日付と時刻が別々の値の場合、指定した日時形式の日付と時刻の部分がそれぞれ適用されます。\n"
-"\n"
-"形式\t\t\t\t\t    例\n"
-"%%Y-%%m-%%d %%H:%%M:%%S.%%f\t2024-02-21 15:30:51.123\n"
-"%%Y-%%m-%%d %%I:%%M:%%S %%p\t2024-02-21 03:30:51 PM\n"
-"%%m/%%d/%%y %%H:%%M:%%S\t     02/21/24  15:30:51\n"
-"%%b %%d, %%Y %%H:%%M:%%S\t      Feb 21, 2024  15:30:51\n"
-
 #: ap/templates/i18n.html
 msgid "main::Date"
 msgstr "main::Date"
@@ -4609,4 +4606,16 @@ msgstr "V2 CSV"
 #: ap/templates/i18n.html ap/templates/setting_module/db_config.html
 msgid "DataSourceTypeSoftwareWorkshop"
 msgstr "V2 ソフトウェア工房インターフェース"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ProcDatetimeFormatHoverMsg"
+msgstr ""
+"日時の形式を指定します。日付と時刻が別々の値の場合、指定した日時形式の日付と時刻の部分がそれぞれ適用されます。\n"
+"\n"
+"形式\t\t\t\t\t    例\n"
+"%%Y-%%m-%%d %%H:%%M:%%S.%%f\t2024-02-21 15:30:51.123\n"
+"%%Y-%%m-%%d %%I:%%M:%%S %%p\t2024-02-21 03:30:51 PM\n"
+"%%m/%%d/%%y %%H:%%M:%%S\t     02/21/24  15:30:51\n"
+"%%b %%d, %%Y %%H:%%M:%%S\t      Feb 21, 2024  15:30:51\n"
+"%%Y%%m%%d%%H%%M\t\t       202409251400\n"
 

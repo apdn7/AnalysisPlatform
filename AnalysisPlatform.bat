@@ -34,9 +34,9 @@ if exist %file_prod% (
 echo:
 
 : Run start program
-: Close old start.exe before run
+: Close old start_ap.exe before run
 call :stopLoadingApp
-start "" start.exe %port%
+start "" start_ap.exe %port%
 echo.
 echo.> %stage_status%
 
@@ -256,9 +256,9 @@ if %network_nck% == True (
     set /a error=%error%-1
 )
 
-:: stop start.exe before run APDN7
+:: stop start_ap.exe before run APDN7
 if errorlevel 0 (
-  : Close start.exe if there is no error
+  : Close start_ap.exe if there is no error
   call :stopLoadingApp
 ) else (
   : stop program if error
@@ -606,7 +606,7 @@ exit /b
 :end
 
 :stopLoadingApp
-for /f "usebackq tokens=2" %%a in (`tasklist /FO list /FI "imagename eq start.exe" ^| find /i "PID:"`) do (
+for /f "usebackq tokens=2" %%a in (`tasklist /FO list /FI "imagename eq start_ap.exe" ^| find /i "PID:"`) do (
   taskkill /F /pid %%a >nul 2>&1
 )
 exit /b

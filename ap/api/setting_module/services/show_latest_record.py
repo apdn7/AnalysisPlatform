@@ -5,7 +5,6 @@ import os
 import re
 import time
 from contextlib import suppress
-from functools import lru_cache
 from itertools import islice
 from typing import List
 
@@ -69,7 +68,7 @@ from ap.common.constants import (
     RelationShip,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.pydn.dblib import mssqlserver, oracle
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services import csv_header_wrapr as chw
@@ -125,6 +124,7 @@ def get_latest_records(
     has_ct_col = True
     dummy_datetime_idx = None
     file_name_col_idx = None
+    is_gen_cols = []
 
     if data_source_id:
         data_source: CfgDataSource = CfgDataSource.query.get(data_source_id)
@@ -182,6 +182,7 @@ def get_latest_records(
         file_name_col_idx = dic_preview.get('file_name_col_idx')
         same_values = dic_preview.get('same_values')
         is_v2_history = dic_preview.get('v2_type') == DBType.V2_HISTORY
+        is_gen_cols = dic_preview.get('is_gen_cols')
         if headers and data_types:
             cols_with_types = gen_cols_with_types(
                 headers,
@@ -191,6 +192,7 @@ def get_latest_records(
                 column_raw_names,
                 dummy_datetime_idx=dummy_datetime_idx,
                 file_name_idx=file_name_col_idx,
+                is_gen_cols=is_gen_cols,
             )
 
         # sort columns
@@ -341,7 +343,7 @@ def get_info_from_db(
     return get_info_from_db_normal(data_source.id, table_name, sql_limit)
 
 
-@lru_cache(maxsize=20)
+@CustomCache.memoize(duration=300)
 def get_info_from_db_normal(
     data_source_id,
     table_name,
@@ -368,7 +370,7 @@ def get_info_from_db_normal(
 
 
 @log_execution_time()
-@memoize(duration=300)
+@CustomCache.memoize(duration=300)
 def get_info_from_db_software_workshop(
     data_source_id: int,
     table_name: str,
@@ -451,6 +453,9 @@ def get_history_info_from_db_software_workshop(
 def get_last_distinct_sensor_values(cfg_col_id):
     cfg_col: CfgProcessColumn = CfgProcessColumn.query.get(cfg_col_id)
     trans_data = TransactionData(cfg_col.process_id)
+    if len(cfg_col.function_details):  # in db not save data of function column
+        return []
+
     col_name = cfg_col.bridge_column_name
     with DbProxy(gen_data_source_of_universal_db(cfg_col.process_id), True) as db_instance:
         unique_sensor_vals = trans_data.select_distinct_data(db_instance, col_name, limit=1000)
@@ -493,6 +498,8 @@ def get_csv_data_from_files(
     skip_tail = 0
     encoding = None
     skip_head_detected = None
+    header_names = []
+    data_details = []
 
     # call efa etl
     has_data_file = None
@@ -591,14 +598,24 @@ def get_csv_data_from_files(
 
     # check for header and generate column name
     # TODO: We should make use of dummy_header variable of data_src if data_src already exists and not check again
-    org_header, header_names, dummy_header, partial_dummy_header, data_details = gen_dummy_header(
+    org_header, header_names, dummy_header, partial_dummy_header, data_details, is_gen_cols = gen_dummy_header(
         header_names,
         data_details,
         skip_head,
     )
 
     skip_head = skip_head_detected if skip_head_detected else skip_head
-    return org_header, header_names, dummy_header, partial_dummy_header, data_details, encoding, skip_tail, skip_head
+    return (
+        org_header,
+        header_names,
+        dummy_header,
+        partial_dummy_header,
+        data_details,
+        encoding,
+        skip_tail,
+        skip_head,
+        is_gen_cols,
+    )
 
 
 @log_execution_time()
@@ -615,7 +632,7 @@ def preview_csv_data(
     is_transpose: bool = False,
     show_file_name_column=False,
     current_process_id=None,
-    is_convert_datetime=True,
+    is_convert_datetime=False,
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
 
@@ -656,6 +673,7 @@ def preview_csv_data(
         encoding,
         skip_tail,
         skip_head_detected,
+        is_gen_cols,
     ) = get_csv_data_from_files(
         sorted_files,
         skip_head=skip_head,
@@ -686,7 +704,13 @@ def preview_csv_data(
             if DataType(dtype) is not DataType.DATETIME:
                 continue
             # Convert UTC time
-            validate_datetime(df_data_details, col, False, False)
+            validate_datetime(
+                df_data_details,
+                col,
+                is_strip=False,
+                add_is_error_col=False,
+                is_convert_datetime=is_convert_datetime,
+            )
             # When show sample data on Process Config, it will show raw data of datetime value.
             if is_convert_datetime:
                 convert_csv_timezone(df_data_details, col)
@@ -711,11 +735,13 @@ def preview_csv_data(
                 data_types,
                 dupl_cols,
                 dummy_datetime_idx,
+                is_gen_cols,
             ) = add_dummy_datetime_column(
                 header_names,
                 df_data_details,
                 org_headers,
                 data_types,
+                is_gen_cols=is_gen_cols,
             )
             has_ct_col = False
         elif first_datetime_col_idx:
@@ -752,12 +778,14 @@ def preview_csv_data(
                 data_types,
                 dupl_cols,
                 file_name_col_idx,
+                is_gen_cols,
             ) = add_show_file_name_column(
                 header_names,
                 df_data_details,
                 org_headers,
                 data_types,
                 csv_file,
+                is_gen_cols,
             )
 
         same_values = check_same_values_in_df(df_data_details, header_names)
@@ -801,6 +829,7 @@ def preview_csv_data(
         'is_dummy_header': dummy_header,
         'partial_dummy_header': partial_dummy_header,
         'file_name_col_idx': file_name_col_idx,
+        'is_gen_cols': is_gen_cols,
     }
 
 
@@ -916,6 +945,7 @@ def preview_v2_data(
     header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
     df_data_details = normalize_big_rows(data_details, header_names)
     data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
+    file_name_col_idx = None
     if show_file_name_column:
         (
             header_names,
@@ -924,12 +954,14 @@ def preview_v2_data(
             data_types,
             dupl_cols,
             file_name_col_idx,
+            _,
         ) = add_show_file_name_column(
             header_names,
             df_data_details,
             org_headers,
             data_types,
             csv_file,
+            is_gen_cols=None,
         )
 
     has_ct_col = True
@@ -996,6 +1028,8 @@ def preview_v2_data(
         'v2_type': datasource_type.value,
         'encoding': encoding,
         'is_process_null': not v2_process_names,
+        'file_name_col_idx': file_name_col_idx,
+        'is_gen_cols': [False] * len(header_names),
     }
 
 
@@ -1059,7 +1093,7 @@ def gen_v2_history_sub_part_no_column(column_name):
 
 
 @log_execution_time()
-@memoize(is_save_file=False)
+@CustomCache.memoize()
 def gen_cols_with_types(
     cols,
     data_types,
@@ -1069,9 +1103,14 @@ def gen_cols_with_types(
     dict_column_name_and_unit={},
     dummy_datetime_idx: int = None,
     file_name_idx: int = None,
+    is_gen_cols=[],
 ):
-    ja_locale = False
     cols_with_types = []
+    ja_locale = False
+
+    if not len(is_gen_cols):
+        is_gen_cols = [False] * len(cols)
+
     with suppress(Exception):
         ja_locale = get_locale().language == 'ja'
     has_is_get_date_col = False
@@ -1089,7 +1128,8 @@ def gen_cols_with_types(
         col_raw_name_added_suffix,
         data_type,
         same_value,
-    ) in zip(cols, column_raw_name, cols_raw_name_added_suffix, data_types, same_values):
+        is_gen_col,
+    ) in zip(cols, column_raw_name, cols_raw_name_added_suffix, data_types, same_values, is_gen_cols):
         is_date = False if has_is_get_date_col else DataType(data_type) is DataType.DATETIME
         is_serial_no = (
             DataType(data_type) in [DataType.TEXT, DataType.INTEGER]
@@ -1112,7 +1152,7 @@ def gen_cols_with_types(
         if col_name:
             # when stripped col_raw_name is empty, use col_name (which are generated headers)
             # TODO: should normalize_str() be used?
-            mapped_col_name = col_raw_name_added_suffix if col_raw_name.strip() else col_name
+            mapped_col_name = col_raw_name_added_suffix if (col_raw_name.strip() and not is_gen_col) else col_name
             column_name_extracted, unit = ColumnRawNameRule.extract_data(mapped_col_name)
 
             if ja_locale:
@@ -1306,7 +1346,6 @@ def re_order_items_by_datetime_idx(datetime_idx: int, items: List) -> List:
 
 
 @log_execution_time()
-# @memoize(is_save_file=False)
 def extract_data_detail(header_names, data_details, org_header=None):
     org_headers = org_header or header_names.copy()
     # normalization
@@ -1327,6 +1366,7 @@ def add_new_column_with_data(
     data,
     new_data_type,
     new_col_name,
+    is_gen_cols=None,
 ):
     df_cols = df_data_details.columns.tolist()
     header_names.insert(index, new_col_name)
@@ -1338,15 +1378,17 @@ def add_new_column_with_data(
     org_headers.insert(index, new_col_name)
     data_types.insert(index, new_data_type)
     df_data_details.insert(loc=index, column=new_col, value=data)
-    return header_names, df_data_details, org_headers, data_types, dupl_cols
+    if is_gen_cols:
+        is_gen_cols.insert(index, False)
+    return header_names, df_data_details, org_headers, data_types, dupl_cols, is_gen_cols
 
 
-def add_show_file_name_column(header_names, df_data_details, org_headers, data_types, file_path):
+def add_show_file_name_column(header_names, df_data_details, org_headers, data_types, file_path, is_gen_cols=None):
     file_name_col_idx = len(header_names)
     file_name = os.path.basename(file_path)
     data = [file_name] * len(df_data_details)
     data_type = DataType.TEXT.value
-    header_names, df_data_details, org_headers, data_types, dupl_cols = add_new_column_with_data(
+    header_names, df_data_details, org_headers, data_types, dupl_cols, is_gen_cols = add_new_column_with_data(
         header_names,
         df_data_details,
         org_headers,
@@ -1355,15 +1397,16 @@ def add_show_file_name_column(header_names, df_data_details, org_headers, data_t
         data,
         data_type,
         FILE_NAME,
+        is_gen_cols,
     )
-    return header_names, df_data_details, org_headers, data_types, dupl_cols, file_name_col_idx
+    return header_names, df_data_details, org_headers, data_types, dupl_cols, file_name_col_idx, is_gen_cols
 
 
-def add_dummy_datetime_column(header_names, df_data_details, org_headers, data_types):
+def add_dummy_datetime_column(header_names, df_data_details, org_headers, data_types, is_gen_cols=None):
     dummy_datetime_col_idx = 0
     data = gen_dummy_datetime_data(df_data_details)
     data_type = DataType.DATETIME.value
-    header_names, df_data_details, org_headers, data_types, dupl_cols = add_new_column_with_data(
+    header_names, df_data_details, org_headers, data_types, dupl_cols, is_gen_cols = add_new_column_with_data(
         header_names,
         df_data_details,
         org_headers,
@@ -1372,8 +1415,9 @@ def add_dummy_datetime_column(header_names, df_data_details, org_headers, data_t
         data,
         data_type,
         DATETIME_DUMMY,
+        is_gen_cols,
     )
-    return header_names, df_data_details, org_headers, data_types, dupl_cols, dummy_datetime_col_idx
+    return header_names, df_data_details, org_headers, data_types, dupl_cols, dummy_datetime_col_idx, is_gen_cols
 
 
 def add_generated_datetime_column(
@@ -1396,7 +1440,7 @@ def add_generated_datetime_column(
             # TODO: add sample data for datetime column
             data = [None] * len(df_data_details)
             data_type = DataType.DATETIME.value
-            header_names, df_data_details, org_headers, data_types, dupl_cols = add_new_column_with_data(
+            header_names, df_data_details, org_headers, data_types, dupl_cols, _ = add_new_column_with_data(
                 header_names,
                 df_data_details,
                 org_headers,

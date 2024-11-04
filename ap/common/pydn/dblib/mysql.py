@@ -26,14 +26,18 @@ class MySQL:
         self.connection = None
 
     def dump(self):
-        print('===== DUMP RESULT =====')
-        print('DB Type: MySQL')
-        print('self.host: ' + self.host)
-        print('self.port: ' + str(self.port))
-        print('self.dbname: ' + self.dbname)
-        print('self.username: ' + self.username)
-        print('self.is_connected: ', self.is_connected)
-        print('=======================')
+        logger.info(
+            f'''\
+===== DUMP RESULT =====
+DB Type: MySQL
+self.host: {self.host}
+self.port: {self.port}
+self.dbname: {self.dbname}
+self.username: {self.username}
+self.is_connected: {self.is_connected}
+=======================
+''',
+        )
 
     def connect(self):
         try:
@@ -48,11 +52,9 @@ class MySQL:
             # cursorclass=pymysql.cursors.DictCursor)
             self.is_connected = True
             return self.connection
-        except Exception:
-            print('Cannot connect to db')
-            print('>>> traceback <<<')
-            traceback.print_exc()
-            print('>>> end of traceback <<<')
+        except Exception as e:
+            logger.exception(e)
+            traceback
             return False
 
     def disconnect(self):
@@ -73,12 +75,12 @@ class MySQL:
 
             sql += val['name'] + ' ' + val['type']
         sql += ')'
-        print(sql)
+        logger.info(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + ' created!')
+        logger.info(f'{tblname} created!')
 
     # 作成済みのテーブルを配列として返す
     def list_tables(self):
@@ -118,7 +120,7 @@ class MySQL:
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + ' dropped!')
+        logger.info(f'{tblname} dropped!')
 
     # テーブルのカラムのタイプを辞書の配列として返す
     # columns:
@@ -187,12 +189,11 @@ class MySQL:
             sql += ')'
 
         sql = sql.replace('"', '`')
-        # print(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print('Dummy data was inserted to {}!'.format(tblname))
+        logger.info(f'Dummy data was inserted to {tblname}!')
 
     # SQLをそのまま実行。
     # cols, rows = db1.run_sql("select * from tbl01")
@@ -240,7 +241,7 @@ class MySQL:
             return tz_offset
 
         except Exception as e:
-            print(e)
+            logger.exception(e)
 
         return None
 
@@ -253,9 +254,8 @@ class MySQL:
             return False
 
         cur = self.connection.cursor()
-        # print(sql)
         sql = sql.replace('"', '`')
-        print(sql)
+        logger.info(sql)
         res = cur.execute(sql)
         cur.close()
         self.connection.commit()
@@ -268,7 +268,7 @@ class MySQL:
         if self.is_connected:
             return True
         # 接続していないなら
-        print('Connection is not Initialized. Please run connect() to connect to DB')
+        logger.warning('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def is_timezone_hold_column(self, tbl, col):

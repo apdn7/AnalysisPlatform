@@ -408,14 +408,21 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
         const processName = parentDataRow.find('input[name=processName]').val();
         const processNameLocal =
             docCookies.getItem('locale') === 'ja' ? 'jp' : 'en';
-        // get base process id
-        let baseProc = getBaseProcessInfo(
-            parentID,
-            processName,
-            processNameLocal,
-        );
-        // fill data for merge mode modal
-        mergeModeProcess(procId, dataRowID, baseProc, dbsId);
+
+        let checkInterval = setInterval(() => {
+            // check processes is available after call trace_config api
+            if (!isEmpty(processes)) {
+                clearInterval(checkInterval);
+                // get base process id
+                let baseProc = getBaseProcessInfo(
+                    parentID,
+                    processName,
+                    processNameLocal,
+                );
+                // fill data for merge mode modal
+                mergeModeProcess(procId, dataRowID, baseProc, dbsId);
+            }
+        }, 300);
     } else {
         //set attribute for Ok btn
         $(procModalElements.confirmImportDataBtn).attr(
@@ -465,9 +472,10 @@ const changeDataSource = (e) => {
         .find("input[name='processName']")
         .val();
 
-    if (dsType === 'CSV' || dsType === 'V2') {
+    if (dsType === 'CSV' || dsType === 'V2' || !dsType) {
         if (tableDOM) {
             $(tableDOM).hide();
+            $(tableDOM).next().hide();
         }
     } else {
         const databaseId = $(e).val();
@@ -509,6 +517,7 @@ const changeDataSource = (e) => {
                 ].join('');
                 if (tableDOM) {
                     $(tableDOM).show();
+                    $(tableDOM).next().show();
                     $(tableDOM).html(tableOptions);
                 }
             },
@@ -553,7 +562,7 @@ const addProcToTable = (
                 placeholder="${procConfigTextByLang.procName}" value="${procShownName || ''}" ${procName ? 'disabled' : ''} ${dragDropRowInTable.DATA_ORDER_ATTR}
                 onfocusout="hideDataSourceRegistered(this)">
         </td>
-        <td class="text-center">
+        <td>
             <select class="form-control" name="databaseName" ${dbsId ? 'disabled' : ''}
                 onchange="changeDataSource(this);" onfocusin="focusInSelectDataSource(this)">${DSSelectionWithDefaultVal}</select>
         </td>
@@ -586,6 +595,29 @@ const addProcToTable = (
             $(procElements.tableProcList)[0],
         ); // set proc table order
     }
+
+    // Add search input for dropdown in database and tableName
+    if (!procId) {
+        const selectEls = $(`tr[data-rowid="${dummyRowID}"]`).find('select');
+        $(selectEls).each(function () {
+            $(this).select2({
+                minimumResultsForSearch: 0,
+                dropdownAutoWidth: true,
+                language: {
+                    noResults: function (params) {
+                        return i18nCommon.notApplicable;
+                    },
+                },
+            });
+
+            // Set placeholder for each select2 instance
+            $(this)
+                .data('select2')
+                .$dropdown.find(':input.select2-search__field')
+                .attr('placeholder', i18nCommon.search + '...');
+        });
+    }
+
     setTimeout(() => {
         scrollToBottom(`${procElements.tblProcConfig}_wrap`);
     }, 200);

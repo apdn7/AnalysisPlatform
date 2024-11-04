@@ -1,10 +1,13 @@
 import contextlib
+import logging
 import os
 
-from ap import MAIN_THREAD, SHUTDOWN, create_app, max_graph_config
-from ap.common.constants import ANALYSIS_INTERFACE_ENV, PORT, PROCESS_QUEUE
-from ap.common.logger import logger, set_log_config
-from ap.common.services.notify_listen import process_listen_job
+from ap import SHUTDOWN, create_app, dic_config, get_basic_yaml_obj, get_start_up_yaml_obj, max_graph_config
+from ap.common import multiprocess_sharing
+from ap.common.constants import ANALYSIS_INTERFACE_ENV, PORT
+from ap.common.event_listeners import EventListener
+from ap.common.logger import LOG_FORMAT, get_log_handlers, get_log_level, is_enable_log_file
+from ap.common.multiprocess_sharing import EventQueue
 from ap.script.migrate_cfg_data_source_csv import migrate_skip_head_value
 
 env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
@@ -13,17 +16,31 @@ is_main = __name__ == '__main__'
 
 app = create_app('config.%sConfig' % env.capitalize(), is_main)
 
-set_log_config(is_main)
+basic_config_yaml = get_basic_yaml_obj()
+start_up_yaml = get_start_up_yaml_obj()
+
+log_handlers = get_log_handlers(
+    log_dir=dic_config.get('INIT_LOG_DIR'),
+    log_level=get_log_level(basic_config_yaml),
+    enable_log_file=is_enable_log_file(start_up_yaml),
+    is_main=is_main,
+)
+
+# We set log level debug here to write many log to console.
+# However, this setting does not affect to files because we force set them inside handler.
+logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG, handlers=log_handlers)
+
+logger = logging.getLogger(__name__)
 
 if is_main:
     from datetime import datetime
 
-    from ap import dic_config, get_basic_yaml_obj, get_start_up_yaml_obj, scheduler
+    from ap import scheduler
     from ap.common.backup_db import add_backup_dbs_job
     from ap.common.check_available_port import check_available_port
     from ap.common.clean_expired_request import add_job_delete_expired_request
     from ap.common.clean_old_data import add_job_delete_old_zipped_log_files, add_job_zip_all_previous_log_files
-    from ap.common.common_utils import bundle_assets, init_process_queue
+    from ap.common.common_utils import bundle_assets
     from ap.common.constants import APP_DB_FILE, CfgConstantType
     from ap.common.memoize import clear_cache
     from ap.common.trace_data_log import (
@@ -37,30 +54,20 @@ if is_main:
     from ap.script.disable_terminal_close_button import disable_terminal_close_btn
     from ap.script.hot_fix.fix_db_issues import unlock_db
 
+    multiprocess_sharing.start_sharing_instance_server()
+
     port = None
 
-    # delete scheduler db file because of old process queue inside
-    # try:
-    #     delete_file(app.config['SCHEDULER_FULL_PATH'])
-    # except Exception as e:
-    #     # reuse the scheduler file
-    #     logger.exception(e)
-    # main params
-    dic_start_up = get_start_up_yaml_obj().dic_config
+    dic_start_up = start_up_yaml.dic_config
     if dic_start_up:
-        port = get_start_up_yaml_obj().dic_config['setting_startup'].get('port', None)
+        port = dic_start_up['setting_startup'].get('port', None)
 
     if not port:
-        basic_config_yaml = get_basic_yaml_obj()
         port = basic_config_yaml.dic_config['info'].get('port-no') or app.config.get(PORT)
 
     check_available_port(port)
 
     dic_config[PORT] = int(port)
-
-    # processes queue
-    dic_config[MAIN_THREAD] = True
-    dic_config[PROCESS_QUEUE] = init_process_queue()
 
     # update interrupt jobs by shutdown immediately
     with app.app_context():
@@ -69,10 +76,20 @@ if is_main:
         with contextlib.suppress(Exception):
             JobManagement.update_interrupt_jobs()
 
-    print('SCHEDULER START!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    logger.debug('SCHEDULER START')
 
     scheduler.start()
-    process_listen_job()
+
+    EventQueue.add_event_listeners(
+        EventListener.add_job,
+        EventListener.reschedule_job,
+        EventListener.remove_job,
+        EventListener.run_function,
+        EventListener.clear_cache,
+        EventListener.background_announce,
+        EventListener.shutdown_app,
+    )
+    EventQueue.start_listening()
 
     # Universal DB init
     # init_db(app)
@@ -169,14 +186,12 @@ if is_main:
     try:
         app.config.update({'app_startup_time': datetime.utcnow()})
         if env == 'dev':
-            print('Development Flask server !!!')
-            # use_reloader=False to avoid scheduler load twice
+            logger.info('Development Flask server !!!')
             app.run(host='0.0.0.0', port=port, threaded=True, debug=is_debug, use_reloader=False)
-            # app.run(host="0.0.0.0", port=port, threaded=True, debug=is_debug)
         else:
             from waitress import serve
 
-            print('Production Waitress server !!!')
+            logger.info('Production Waitress server !!!')
             with app.app_context():
                 # If the result of sending first Gtag is a failure,
                 # the environment is deemed as unable to connect to GA
@@ -190,4 +205,4 @@ if is_main:
             serve(app, host='0.0.0.0', port=port, threads=20)
     finally:
         dic_config[SHUTDOWN] = True
-        print('End server!!!')
+        logger.info('End server !!!')

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import pandas as pd
@@ -49,7 +50,7 @@ from ap.common.constants import (
     MasterDBType,
 )
 from ap.common.disk_usage import get_ip_address
-from ap.common.logger import log_execution_time, logger
+from ap.common.logger import log_execution_time
 from ap.common.pydn.dblib import mssqlserver, mysql, oracle, sqlite
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import scheduler_app_context
@@ -61,6 +62,8 @@ from ap.setting_module.services.background_process import (
     send_processing_info,
 )
 from ap.trace_data.transaction_model import TransactionData
+
+logger = logging.getLogger(__name__)
 
 MAX_RECORD = 1_000_000
 SQL_FACTORY_LIMIT = 5_000_000
@@ -75,34 +78,22 @@ SQL_FACTORY_LIMIT_DAYS = 16
 
 @scheduler_app_context
 def import_factory_job(
-    _job_id,
-    _job_name,
-    _db_id,
-    _proc_id,
-    _proc_name,
-    proc_id,
+    process_id: int,
+    process_name: str,
+    data_source_id: int,
     is_user_request: bool = False,
-    **kwargs,
 ):
-    """scheduler job import factory data
+    """scheduler job import factory data"""
 
-    Keyword Arguments:
-        _job_id {[type]} -- [description] (default: {None})
-        _job_name {[type]} -- [description] (default: {None})
-    """
-
-    def _add_gen_proc_link_job(*_args, **_kwargs):
-        add_gen_proc_link_job(process_id=proc_id, is_user_request=is_user_request, *_args, **_kwargs)
-
-    gen = import_factory(proc_id)
+    gen = import_factory(process_id)
     send_processing_info(
         gen,
         JobType.FACTORY_IMPORT,
-        db_code=_db_id,
-        process_id=_proc_id,
-        process_name=_proc_name,
-        after_success_func=_add_gen_proc_link_job,
-        **kwargs,
+        db_code=data_source_id,
+        process_id=process_id,
+        process_name=process_name,
+        after_success_func=add_gen_proc_link_job,
+        after_success_func_kwargs={'process_id': process_id, 'is_user_request': is_user_request, 'publish': True},
     )
 
 
@@ -410,14 +401,18 @@ def calc_sql_range_days():
         day_cnt = max(day_cnt, limit_min_day)
         # day range for next time import
 
-        logger.debug('== factory import info ==')
-        logger.debug('cur_day_cnt: {}'.format(cur_day_cnt))
-        logger.debug('cur_record_cnt: {}'.format(cur_record_cnt))
-        logger.debug('limit_record: {}'.format(limit_record))
-        logger.debug('limit_max_day: {}'.format(limit_max_day))
-        logger.debug('limit_min_day: {}'.format(limit_min_day))
-        logger.debug('next time range: day_cnt: {}'.format(day_cnt))
-        logger.debug('== end of factory import info ==')
+        logger.debug(
+            f'''\
+== factory import info ==
+cur_day_cnt: {cur_day_cnt}
+cur_record_cnt: {cur_record_cnt}
+limit_record: {limit_record}
+limit_max_day: {limit_max_day}
+limit_min_day: {limit_min_day}
+next time range: day_cnt: {day_cnt}
+== end of factory import info ==
+''',
+        )
 
         return day_cnt
 
@@ -635,26 +630,18 @@ def get_tzoffset_of_random_record(data_source, table_name, get_date_col):
 
 
 @scheduler_app_context
-def factory_past_data_transform_job(_job_id, _job_name, _db_id, _proc_id, _proc_name, proc_id, **kwargs):
-    """scheduler job import factory data
+def factory_past_data_transform_job(process_id: int, process_name: str, data_source_id: int):
+    """scheduler job import factory data"""
 
-    Keyword Arguments:
-        _job_id {[type]} -- [description] (default: {None})
-        _job_name {[type]} -- [description] (default: {None})
-    """
-
-    def _add_gen_proc_link_job(*_args, **_kwargs):
-        add_gen_proc_link_job(process_id=proc_id, *_args, **_kwargs)
-
-    gen = factory_past_data_transform(proc_id)
+    gen = factory_past_data_transform(process_id)
     send_processing_info(
         gen,
         JobType.FACTORY_PAST_IMPORT,
-        db_code=_db_id,
-        process_id=_proc_id,
-        process_name=_proc_name,
-        after_success_func=_add_gen_proc_link_job,
-        **kwargs,
+        db_code=data_source_id,
+        process_id=process_id,
+        process_name=process_name,
+        after_success_func=add_gen_proc_link_job,
+        after_success_func_kwargs={'process_id': process_id},
     )
 
 

@@ -138,7 +138,8 @@ def gen_df_export(graph_param, dic_param):
     df, *_ = get_data_from_db(graph_param, dic_cat_filters)
 
     # export original value of judge variable
-    df = judge_data_conversion(df, graph_param, revert=True)
+    judge_columns = graph_param.get_judge_variables()
+    df = judge_data_conversion(df, judge_columns, revert=True)
     return df
 
 

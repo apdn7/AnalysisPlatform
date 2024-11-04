@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from pydantic.functional_validators import field_validator
 
 from ap.common.constants import EMPTY_STRING, MULTIPLE_VALUES_CONNECTOR, DataTypeEncode, RawDataTypeDB
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.equations.error import INVALID_VALUE_MSG, MUST_HAVE_THE_SAME_TYPE_MSG, ErrorField, FunctionFieldError
 from ap.setting_module.models import MFunction
 
@@ -185,7 +185,7 @@ class BaseFunction(BaseModel):
         return cls.get_function_orm().get_variables()
 
     @classmethod
-    @memoize()
+    @CustomCache.memoize()
     def get_function_orm(cls) -> MFunction | None:
         for function_id, klass in EQUATION_DEFINITION.items():
             if klass == cls:
@@ -264,6 +264,7 @@ class BaseFunction(BaseModel):
         if df.empty:
             result_series = pd.Series([])
         else:
+            df.reset_index(inplace=True, drop=True)
             m_function = self.get_function_orm()
 
             series_x = None

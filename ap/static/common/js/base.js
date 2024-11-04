@@ -996,6 +996,16 @@ $(async () => {
         }, 100);
     } else if (needToLoaUserSettingsFromUrl()) {
         const newUserSetting = await makeUserSettingFromParams();
+        const isUseDummyDatetime = getParamFromUrl('is_dummy_datetime');
+        if (isUseDummyDatetime) {
+            const xOrderIndex = {
+                id: 'xOption',
+                name: 'xOption',
+                type: 'select-one',
+                value: 'INDEX',
+            };
+            newUserSetting.settings.traceDataForm.push(xOrderIndex);
+        }
         applyUserSetting(newUserSetting, null, true);
         autoClickShowGraphButton(null, 1);
     } else {
@@ -1780,6 +1790,22 @@ const initCommonSearchInput = (inputElement, className = '') => {
         e.which = KEY_CODE.ENTER;
         e.keyCode = KEY_CODE.ENTER;
         $(this).prev('input').val('').trigger('input').focus().trigger(e);
+    });
+};
+
+const initRemoveSearchInputEvent = (element) => {
+    $(element).off('click');
+    $(element).on('click', function () {
+        const $ElmSearchInput = $(this).prev('input');
+        const searchInputID = $ElmSearchInput.attr('id');
+        const keyEnterEvent = new KeyboardEvent('keyup', {
+            key: 'Enter',
+            keyCode: 13,
+            which: 13,
+        });
+        const elmSearchInput = document.getElementById(searchInputID);
+        $ElmSearchInput.val('').trigger('input').focus();
+        elmSearchInput.dispatchEvent(keyEnterEvent);
     });
 };
 
@@ -2646,4 +2672,19 @@ const checkAsNominalScale = () => {
     const allItems = $('input[name=graph_nominal_scale]').length;
     const checkAll = nomialScaleItems == allItems;
     $('input[name=nominal_scale_all]').prop('checked', checkAll);
+};
+
+const showHideGraphSetting = (plotData) => {
+    const elmArrangeDivSwitch = $('.arrange-div-switch');
+    const divideByTerm = [divideOptions.cyclicTerm, divideOptions.directTerm];
+    const isIntDivDataType = plotData.div_data_type === DataTypes.INTEGER.name;
+    elmArrangeDivSwitch[0].style.setProperty('display', 'none', 'important');
+    if (
+        isIntDivDataType ||
+        divideByTerm.includes(plotData.COMMON.compareType)
+    ) {
+        elmArrangeDivSwitch.show();
+    }
+    $('#colorSettingGrp').show();
+    $('#sctr-card-parent').show();
 };

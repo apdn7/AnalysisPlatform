@@ -95,6 +95,8 @@ const els = {
     scpChartScale: 'scpChartScale',
     colNumber: 'colNumber',
     selectPlotType: 'selectPlotType',
+    arrangeDivSwitch: 'arrange-div-switch',
+    scpArrangeDiv: 'scpArrangeDiv',
 };
 
 const i18n = {
@@ -268,6 +270,7 @@ $(() => {
         isRequired: true,
         showColor: true,
         hasDiv: true,
+        showFilter: true,
     });
     endProcItem(() => {
         // show confirm when select Div
@@ -585,6 +588,7 @@ const genScatterPlots = (
     colorOrdering = undefined,
     chartScale = undefined,
     plotType = plotTypeConst.POINT.name,
+    actualHeight,
 ) => {
     let scatterDat = [];
     const unique_color = res.filter_on_demand.color;
@@ -608,7 +612,9 @@ const genScatterPlots = (
     }
     if (!allColorValSets.length || colorOrderVar !== colorOrders[0]) {
         res.array_plotdata.forEach((item) => {
-            allColorValSets = [...allColorValSets, ...item[colorOrderVar]];
+            if (item[colorOrderVar] && item[colorOrderVar].length) {
+                allColorValSets = [...allColorValSets, ...item[colorOrderVar]];
+            }
         });
     }
     if (unique_color.length && colorOrderVar === colorOrders[0]) {
@@ -661,6 +667,7 @@ const genScatterPlots = (
         xFmt: res.x_fmt || '',
         yFmt: res.y_fmt || '',
         colorFmt: res.color_fmt || '',
+        totalHeight: actualHeight,
     };
     const layout = genScatterLayout(chartOptions);
     const isShowRow = res.is_show_v_label;
@@ -1243,10 +1250,17 @@ const genVLabels = (
     }
     figSize -= 3;
     let vLabelHtml = '';
-    const t = figSize / 2 + 50;
-    const spaceY = (chartHeight - 200) * SCATTER_MARGIN.Y_NORMAL;
+    const distanceTop = 40;
+    const distanceBottom = 60;
+    const distanceFromLabelToChart = 30;
+    const segmentHeight = chartHeight - distanceTop - distanceBottom; // chart height without gap above and below
+    const heightOfElement = segmentHeight / vLabels.length; // height for element
+    const padding = 25; // gap between charts
+
     vLabels.forEach((vLabel, i) => {
-        const top = i === 0 ? t : i * (figSize + spaceY) + t;
+        const startPosition =
+            distanceFromLabelToChart + (i * heightOfElement + padding);
+        const top = startPosition + heightOfElement / 2;
         vLabelHtml += `<div id="scp-vlabel-${i}" class="matrix-level cat-exp-box position-absolute scp-html-tag" i="${i}" style="height: 0px;left: ${(figSize / 2) * -1 + 50}px; top: ${top}px;"><span class="show-detail" style="line-height: 1; text-overflow: ellipsis; overflow: hidden;">${vLabel}</span></div>`;
     });
 
@@ -1291,12 +1305,18 @@ const setChartSize = (
     let yFig = (chartH - yM2 * (nRow - 1)) / nRow;
 
     // Aspect ratio 1:1
-    xFig = xFig > yFig ? yFig : xFig;
-    yFig = yFig > xFig ? xFig : yFig;
+    const size = Math.min(xFig, yFig);
+    xFig = yFig = size;
 
     // Actual page layout
     let actualXPage = xFig * nCol + xM1 + xM3 + xM2 * (nCol - 1);
     let actualYPage = yFig * nRow + hOffset + yM2 * (nRow - 1);
+
+    if (actualXPage < xPage) {
+        actualXPage = xPage;
+        yFig = actualXPage / nCol;
+        actualYPage = yFig * nRow - (hOffset + yM2 * (nRow - 1));
+    }
 
     if (actualXPage * SCATTER_MARGIN.X_NORMAL < MIN_X_MARGIN) {
         const addMargin =
@@ -1352,9 +1372,7 @@ const showSCP = async (
         response = res;
         // remove old hover infor violin and heatmap
         removeHoverInfo();
-        $('#colorSettingGrp').show();
-
-        $('#sctr-card-parent').show();
+        showHideGraphSetting(res);
         resetChartSize();
         const scpData = res.array_plotdata;
         const chartType = res.chartType || 'scatter';
@@ -1372,8 +1390,17 @@ const showSCP = async (
         const isShowDate =
             res.COMMON.compareType === els.cyclicTerm ||
             res.COMMON.compareType === els.directTerm;
+
+        const cloneScpPlotData = () => {
+            const isShowArrangeDiv = $(`#${els.scpArrangeDiv}`).is(':checked');
+            let scpCloneData = JSON.parse(JSON.stringify(scpData));
+            if (isShowArrangeDiv) return scpCloneData;
+
+            // Ignore empty graphs
+            return scpCloneData.filter((plot) => !plot.is_empty_graph);
+        };
         const showGraph = (settings = { isShowForward: false }) => {
-            const scpCloneData = JSON.parse(JSON.stringify(scpData));
+            const scpCloneData = cloneScpPlotData();
             const [matrix, vLabels, hLabels] = genGraphMatrix(
                 scpCloneData,
                 res.is_show_v_label,
@@ -1419,6 +1446,7 @@ const showSCP = async (
                     settings.colorOrdering,
                     settings.chartScale,
                     settings.plotType || plotTypeConst.POINT.name,
+                    actualHeight,
                 );
                 genVLabels(
                     vLabels,
@@ -1449,6 +1477,7 @@ const showSCP = async (
                             settings.colorOrdering,
                             settings.chartScale,
                             settings.plotType,
+                            actualHeight,
                         );
                         genVLabels(
                             vLabels,
@@ -1633,12 +1662,25 @@ const showSCP = async (
                 });
         };
 
+        const onChangeArrangeDiv = () => {
+            $(`#${els.scpArrangeDiv}`)
+                .off('change')
+                .on('change', (event) => {
+                    loadingShow();
+                    setTimeout(() => {
+                        const graphSettings = getCurrentSettings();
+                        showGraph(graphSettings);
+                    }, 1000);
+                });
+        };
+
         onChangeColorOrder();
         onChangeColorScale();
         onShowBackward();
         onChangeChartScale();
         onChangeColNumber();
         onChangePlotType();
+        onChangeArrangeDiv();
     }
 
     loadingHide();
@@ -1662,6 +1704,14 @@ const resetGraphSetting = () => {
 
     $(`select[name=${els.selectPlotType}]`).val('POINT');
     currentMatrix = MAX_MATRIX;
+
+    // Reset Arrange Div switch button to OFF
+    $(`.${els.arrangeDivSwitch}`)[0].style.setProperty(
+        'display',
+        'none',
+        'important',
+    );
+    $(`input#${els.scpArrangeDiv}`).prop('checked', false);
 };
 
 const genHTMLContentMatrix = (
@@ -2271,7 +2321,9 @@ const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
             // check result and show toastr msg
             if (
                 isEmpty(res.array_plotdata) ||
-                isEmpty(res.array_plotdata[0].array_y)
+                isEmpty(
+                    res.array_plotdata.find((d) => !d.is_empty_graph).array_y,
+                )
             ) {
                 showToastrAnomalGraph();
             }
@@ -2337,6 +2389,7 @@ const getCurrentSettings = () => {
     currentMatrix = Number(colNumber);
 
     const plotType = $(`select[name=${els.selectPlotType}]`).val();
+    const isShowArrangeDiv = $(`#${els.scpArrangeDiv}`).is(':checked');
 
     return {
         chartScale,
@@ -2346,6 +2399,7 @@ const getCurrentSettings = () => {
         colNumber,
         colorOrderVal,
         plotType,
+        isShowArrangeDiv,
     };
 };
 

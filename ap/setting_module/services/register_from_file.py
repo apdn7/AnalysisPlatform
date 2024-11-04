@@ -6,7 +6,7 @@ import datetime
 from sqlalchemy.orm import scoped_session
 
 from ap.api.common.services.utils import get_specific_v2_type_based_on_column_names
-from ap.api.setting_module.services.polling_frequency import add_import_job
+from ap.api.setting_module.services.polling_frequency import add_import_job, add_import_job_params
 from ap.api.setting_module.services.show_latest_record import (
     gen_preview_data_check_dict,
     get_latest_records,
@@ -26,12 +26,15 @@ from ap.common.constants import (
     MAXIMUM_V2_PREVIEW_ZIP_FILES,
     CacheType,
     DataColumnType,
+    DataType,
     DBType,
     MasterDBType,
+    MaxGraphNumber,
     PagePath,
     RelationShip,
+    max_graph_number,
 )
-from ap.common.memoize import set_all_cache_expired
+from ap.common.multiprocess_sharing import EventExpireCache, EventQueue
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.jp_to_romaji_utils import to_romaji
 
@@ -65,7 +68,15 @@ def get_url_to_redirect(request, proc_ids, page):
     col_ids = []
     for proc_id in proc_ids:
         proc_cfg = CfgProcess.get_proc_by_id(proc_id)
-        col_ids.extend([str(col.id) for col in proc_cfg.columns if col.is_serial_no or col.is_get_date])
+        # Case redirect to FPP page (filter 20 data type Real or Integer)
+        if page in PagePath.FPP.value:
+            max_graph = max_graph_number[MaxGraphNumber.FPP_MAX_GRAPH.name]
+            data_types_allow = [DataType.INTEGER.name, DataType.REAL.name]
+            col_ids.extend(
+                [str(col.id) for col in proc_cfg.columns if col.data_type in data_types_allow][:max_graph],
+            )
+        else:
+            col_ids.extend([str(col.id) for col in proc_cfg.columns if col.is_serial_no or col.is_get_date])
     target_col_ids = ','.join(col_ids)
 
     # get start_datetime and end_datetime
@@ -75,6 +86,7 @@ def get_url_to_redirect(request, proc_ids, page):
         min_datetime = trans_data.get_min_date_time_by_process_id(db_instance)
 
     host_url = request.host_url
+    param_is_dummy_datetime = '&is_dummy_datetime=1' if page in PagePath.FPP.value else ''
     month_diff = get_month_diff(min_datetime, max_datetime)
     if page in PagePath.FPP.value and month_diff > 1:
         min_datetime = add_months(max_datetime, -1)
@@ -84,7 +96,7 @@ def get_url_to_redirect(request, proc_ids, page):
     end_procs = ','.join([str(_id) for _id in proc_ids])
 
     # get target page from bookmark
-    target_url = f'{host_url}{page}?columns={target_col_ids}&start_datetime={min_datetime}&end_datetime={max_datetime}&end_procs=[{end_procs}]&load_gui_from_url=1&page={page.split("/")[1]}'  # noqa
+    target_url = f'{host_url}{page}?columns={target_col_ids}&start_datetime={min_datetime}&end_datetime={max_datetime}&end_procs=[{end_procs}]&load_gui_from_url=1{param_is_dummy_datetime}&page={page.split("/")[1]}'  # noqa
     return target_url
 
 
@@ -328,6 +340,7 @@ def get_latest_records_for_register_by_file(file_name: str = None, directory: st
         max_records=1000,
         file_name=file_name,
         skip_head=skip_head,
+        is_convert_datetime=False,
     )
 
     dic_preview['is_file_path'] = file_name is not None
@@ -642,15 +655,22 @@ def handle_importing_by_one_click(request):
             process = generate_process_config(meta_session, request_proc_config, cfg_data_source.id)
             processes.append(process)
 
-    set_all_cache_expired(CacheType.CONFIG_DATA)
+    EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
+
+    # get process ids before importing, this can make data stale
+    # need to call list map, so that we can load all params data, otherwise the data will be staled
+    params = list(map(add_import_job_params, processes))
 
     # Add import data job
-    for process in processes:  # type: CfgProcess
+    for param in params:
         add_import_job(
-            process,
+            process_id=param.process_id,
+            process_name=param.process_name,
+            data_source_id=param.data_source_id,
+            data_source_type=param.data_source_type,
             run_now=True,
             is_user_request=True,
             register_by_file_request_id=register_by_file_request_id,
         )
 
-    return [proc.id for proc in processes]
+    return [param.process_id for param in params]

@@ -17,5 +17,4 @@ parallel_plot_blueprint = Blueprint(
 @parallel_plot_blueprint.route('/pcp')
 def index():
     output_dict = get_common_config_data()
-    # print(kde_data)
     return render_template('parallel_plot.html', **output_dict)

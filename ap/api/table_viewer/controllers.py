@@ -122,7 +122,7 @@ def get_csv_data(csv_detail, sort_colum, sort_order, limit):
         with_encoding=True,
     )
     # TODO: Should we use preview_csv_data for this instead?
-    org_header, header_names, _, _, data_details, encoding, skip_tail, _ = get_csv_data_from_files(
+    (org_header, header_names, _, _, data_details, encoding, skip_tail, *_) = get_csv_data_from_files(
         [latest_file],
         skip_head=skip_head,
         n_rows=csv_detail.n_rows,

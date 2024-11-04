@@ -154,12 +154,18 @@ const showBarGraph = (barJson) => {
         return;
     }
 
+    function wraptext(text, maxLength) {
+        if (text.length <= maxLength) {
+            return text;
+        }
+        return text.slice(0, maxLength) + '...';
+    }
+
+    const wrappedLabels = barJson.y?.map((label) => wraptext(label, 19));
+
     const trace = {
         x: barJson.x || [],
-        y:
-            barJson.y?.map((str) =>
-                str.length > 19 ? str?.slice(0, 19) + '...' : str,
-            ) || [],
+        y: barJson.y || [],
         text: barJson.text.map((number) => applySignificantDigit(number)) || [],
         customdata: barJson.y,
         orientation: 'h',
@@ -369,6 +375,8 @@ const showBarGraph = (barJson) => {
             },
             zerolinecolor: '#283442',
             zerolinewidth: 2,
+            tickvals: barJson.y || [],
+            ticktext: wrappedLabels,
         },
     };
 

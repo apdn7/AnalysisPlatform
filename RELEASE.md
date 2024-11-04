@@ -1,5 +1,50 @@
 # Releases
 
+## v4.7.5
+
+New features and improvements
+
+- (Common)
+  - Improved overall performance of AP+DN7
+  - Enable "Filter" checkbox of Display variable setting to all visualization tools
+- (PCP)
+  - Enabled Auto-update
+  - Improved computation time
+- (AgP)
+  - Enabled Y-axis options
+- (ScP)
+  - Now shows in 1:1 aspect ratio like HmP
+- (Config)
+  - Config Page: Added search box to Dropdown lists on Data Source Config and Process Config
+  - Data Source Config / Process Config: Now show raw data for datetime
+  - Data Source Config: Now automatically preview data after path is given
+  - Data Source Config: A more detailed warning message is now shown when a data file cannot be previewed
+  - Process Config: Data type of columns with values all 0 or all 1 is now estimated as an integer
+  - Process Config: Added an example of datetime format on hover message
+  - Process Config: Filename is unchecked by default
+  - Merge Mode: Improved visibility of sample data
+  - Function: Improved visibility. You can now click expansion button of Function to automatically scroll down
+  - Function: Search box in "New function" modal now has an 'x' (close) button to clear input
+  - Register by file: Now assigns the file name instead of folder name as process name by default
+
+Bug fix
+
+- (FPP)
+  - Fixed a bug of rounding up the tick values of the Y axis incorrectly
+- (PCP)
+  - Fixed a bug where Categorical-only mode can not be visualized
+  - Fixed a bug where highlighting fails when the data does not have fully linked
+  - Fixed a bug where incorrect graph range is applied after Display Config
+- (HMp)
+  - Fixed a bug where unable to show graph with Category and String as input
+- (Config)
+  - Data Link: Fixed a bug where autolink cannot be executed for `DatetimeGenerated` column
+  - Data Import: Fixed a bug where files cannot be read with unicode_escape
+  - Register by File: Fixed a bug where automatically fills Japanese instead of Local name in English language mode
+  - Fixed a bug where some input fields (comment, datetime format, etc) are not reset upon closing modals
+- (Misc)
+  - Fixed a bug where console window does not close automatically when shutting down AP+DN7 
+
 ## v4.7.4
 
 New features and improvements

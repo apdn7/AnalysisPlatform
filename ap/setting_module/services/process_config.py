@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import lru_cache
+import logging
 
 import pandas as pd
 from sqlalchemy.orm import scoped_session
@@ -19,6 +19,7 @@ from ap.common.constants import (
     DBType,
     MasterDBType,
 )
+from ap.common.memoize import CustomCache
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.pydn.dblib.postgresql import PostgreSQL
 from ap.common.services.jp_to_romaji_utils import to_romaji
@@ -42,6 +43,8 @@ from ap.setting_module.schemas import (
     ProcessVisualizationSchema,
 )
 from ap.trace_data.transaction_model import TransactionData
+
+logger = logging.getLogger(__name__)
 
 
 def get_all_process(with_parent=True):
@@ -141,6 +144,19 @@ def create_or_update_process_cfg(proc_data, unused_columns, meta_session: scoped
         process_exist: CfgProcess = meta_session.query(CfgProcess).get(process.id)
         process.data_source = process_exist.data_source
         process = meta_session.merge(process)
+
+        # Update child processes with parent_id
+        sys_name = proc_data.get('name')
+        name_jp = proc_data.get('name_jp')
+        name_en = proc_data.get('name_en')
+        name_local = proc_data.get('name_local')
+        child_processes = meta_session.query(CfgProcess).filter_by(parent_id=process.id).all()
+        for child_process in child_processes:
+            child_process.name = sys_name
+            child_process.name_jp = name_jp
+            child_process.name_en = name_en
+            child_process.name_local = name_local
+
     else:
         # insert new process
         meta_session.add(process)
@@ -238,10 +254,10 @@ def query_database_tables_core(data_source: CfgDataSource, table_prefix):
     return output
 
 
-@lru_cache(maxsize=20)
+@CustomCache.memoize(duration=300)
 def get_list_tables_and_views(data_source_id, updated_at=None):
     # updated_at only for cache
-    print('database config updated_at:', updated_at, ', so cache can not be used')
+    logger.info(f'database config updated_at: {updated_at} so cache can not be used')
     with DbProxy(data_source_id) as db_instance:
         tables = db_instance.list_tables_and_views()
 
@@ -249,10 +265,10 @@ def get_list_tables_and_views(data_source_id, updated_at=None):
     return tables
 
 
-@lru_cache(maxsize=20)
+@CustomCache.memoize(duration=300)
 def get_list_process_software_workshop(data_source_id, updated_at=None):
     # updated_at only for cache
-    print('database config updated_at:', updated_at, ', so cache can not be used')
+    logger.info(f'database config updated_at: {updated_at} so cache can not be used')
     with DbProxy(data_source_id) as db_instance:
         stmt = get_processes_stmt(limit=None)
         sql, params = db_instance.gen_sql_and_params(stmt)

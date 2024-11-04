@@ -41,6 +41,7 @@ const formElements = {
     showVar: $('select[name=show-var]'),
     yScaleOption: $('select[name=yScaleOption]'),
     showCT_Time: 'input#show-ct-time',
+    autoUpdateInterval: $('#autoUpdateInterval'),
 };
 
 const tableSelectedDataElems = {
@@ -302,7 +303,10 @@ const getSensorTypes = (sensorDat) => {
     return paracordsSetting.showVariables.ALL;
 };
 
-const collectFormDataPCP = (clearOnFlyFilter) => {
+const collectFormDataPCP = (clearOnFlyFilter, autoUpdate = false) => {
+    if (autoUpdate) {
+        return genDatetimeRange(lastUsedFormData);
+    }
     let formData = collectFormData(formElements.formID);
     if (clearOnFlyFilter) {
         formData = mergeTargetProc(formData);
@@ -374,6 +378,8 @@ const showParallelGraph = (
                 null,
                 true,
             );
+
+            setPollingData(formData, handleSetPollingData, []);
 
             // show info table
             showInfoTable(res);
@@ -510,7 +516,6 @@ const handleSelectMenuItem = (e, updatePosition = false) => {
 };
 
 const onChangeYScale = (selection) => {
-    showParacordWithSettings(true);
     const settings = getSettingOptions();
     showParacords(
         paracordTraces,
@@ -542,10 +547,13 @@ const onChangeDataView = (e) => {
     }
 };
 
-const callToBackEndAPI = async (filter) => {
+const callToBackEndAPI = async (
+    filter,
+    clearOnFlyFilter = false,
+    autoUpdate = false,
+) => {
     loadingShow();
-    const formData = collectFormDataPCP(false);
-
+    const formData = collectFormDataPCP(clearOnFlyFilter, autoUpdate);
     showGraphCallApi(
         '/ap/api/pcp/index',
         formData,
@@ -572,10 +580,17 @@ const callToBackEndAPI = async (filter) => {
                 $('#updateParacords').addClass('hide');
             }
 
+            setPollingData(formData, handleSetPollingData, []);
+
             removeOutlierOptionChanged = false;
             removeOutliers = 0;
         },
     );
+};
+
+const handleSetPollingData = () => {
+    const settings = collectFormDataPCP(false);
+    callToBackEndAPI(settings, false, true);
 };
 
 const showParacordWithSettings = async (filter = false) => {

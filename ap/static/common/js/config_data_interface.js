@@ -69,7 +69,7 @@ const DataTypes = Object.freeze({
     },
     DATE: {
         name: 'DATE',
-        value: 4,
+        value: 12,
         label: $('#i18nMainDate').text() || '日付',
         i18nLabelID: 'i18nMainDate',
         short: 'Date',
@@ -80,7 +80,7 @@ const DataTypes = Object.freeze({
     },
     TIME: {
         name: 'TIME',
-        value: 4,
+        value: 13,
         label: $('#i18nMainTime').text() || '日付',
         i18nLabelID: 'i18nMainTime',
         short: 'Time',
@@ -163,6 +163,7 @@ const DataTypes = Object.freeze({
     BOOLEAN: {
         name: 'BOOLEAN',
         short: 'Bool',
+        value: 11,
         i18nLabelID: 'i18nBool',
         selectionBoxDisplay: 'Boolean',
         column_type: 77,

@@ -41,7 +41,7 @@ const procModalElements = {
     procNameMergeMode: $('#procSettingMergeModeModal input[name=processName]'),
     procJapaneseName: $('#procSettingModal input[name=processJapaneseName]'),
     procLocalName: $('#procSettingModal input[name=processLocalName]'),
-    comment: $('#procSettingModal input[name=comment]'),
+    comment: $('#procSettingModal input[name=cfgProcComment]'),
     isShowFileName: $('#procSettingModal input[name=isShowFileName]'),
     databases: $('#procSettingModal select[name=databaseName]'),
     databasesMergeMode: $(
@@ -86,6 +86,7 @@ const procModalElements = {
     confirmNullValue: '#confirmNullValueInColumnModal',
     confirmSameValue: '#confirmSameValueInColumnModal',
     confirmMergeMode: '#confirmMergeModeModal',
+    removeFuncInputSearch: '.function-remove-search',
     dateTime: 'dateTime',
     serial: 'serial',
     mainSerial: 'mainSerial',
@@ -188,7 +189,14 @@ const procModalElements = {
     mergeModeTables: $(
         '#procSettingMergeModeModal select[name=childTableName]',
     ),
+    mergeModeInputComment: $(
+        '#procSettingMergeModeModal input[name=cfgProcComment]',
+    ),
+    mergeProcSearchInput: $(
+        '#procSettingMergeModeModal input#mergeProcSearchInput',
+    ),
     generatedDateTimeColumnName: 'DatetimeGenerated',
+    collapseFunctionConfigID: '#functionSettingWithCollapse',
 };
 
 const procModali18n = {
@@ -779,6 +787,7 @@ const generateProcessList = (
     handleHoverProcessColumnsTableRow();
     validateSelectedColumnInput();
     showProcDatetimeFormatSampleData();
+    resizeMaxHeightProcColumnTable();
 };
 
 const generatedDateTimeSampleData = (dateColId, timeColId) => {
@@ -849,7 +858,6 @@ const cleanOldData = () => {
     procModalElements.procLocalName.val('');
     procModalElements.procJapaneseName.val('');
     procModalElements.procID.val('');
-    procModalElements.comment.val('');
     procModalElements.databases.html('');
     procModalElements.tables.html('');
     procModalElements.tables.prop('disabled', false);
@@ -858,6 +866,12 @@ const cleanOldData = () => {
     procModalElements.processColumnsTableBody.empty();
     procModalElements.processColumnsSampleDataTableBody.empty();
     procModalElements.fileName.val('');
+
+    procModalElements.mergeModeInputComment.val('');
+    procModalElements.mergeProcSearchInput.val('');
+
+    procModalElements.procDateTimeFormatCheckbox.prop('checked', false);
+    $(procModalElements.procDateTimeFormatInput).val('');
 };
 
 /**
@@ -2110,35 +2124,37 @@ const saveProcCfg = (
                         res.data.data_source.id,
                     );
                 } else {
-                    $(currentProcItem)
-                        .find('input[name="processName"]')
-                        .val(res.data.shown_name)
-                        .prop('disabled', true);
-                    $(currentProcItem)
-                        .find('input[name="processName"]')
-                        .attr('data-name-en', res.data.name_en);
-                    $(currentProcItem)
-                        .find('input[name="processName"]')
-                        .attr('data-name-jp', res.data.name_jp);
-                    $(currentProcItem)
-                        .find('input[name="processName"]')
-                        .attr('data-name-local', res.data.name_local);
-                    $(currentProcItem)
-                        .find('select[name="databaseName"]')
-                        .val(res.data.data_source.id)
-                        .prop('disabled', true);
+                    // update parent process name
+                    updateProcessName({ trEl: currentProcItem, res });
+
+                    // update name for child process:
+                    const childProcesses = $(
+                        `#tblProcConfig tr[data-proc-parent-id="${res.data.id}"`,
+                    );
+                    childProcesses.each((_, child) => {
+                        updateProcessName({ trEl: child, res });
+                    });
+
+                    // change selectEl to inputEl (databaseName)
+                    handleChangeSelectToInput({
+                        element: currentProcItem,
+                        elName: 'databaseName',
+                        value: res.data.data_source.name,
+                    });
 
                     if (!['CSV', 'V2'].includes(res.data.data_source.type)) {
-                        $(currentProcItem)
-                            .find('select[name="tableName"]')
-                            .append(
-                                `<option value="${res.data.table_name}" selected="selected">${res.data.table_name}</option>`,
-                            )
-                            .prop('disabled', true);
+                        // change selectEl to inputEl (tableName)
+                        handleChangeSelectToInput({
+                            element: currentProcItem,
+                            elName: 'tableName',
+                            value: res.data.table_name,
+                        });
                     } else {
                         $(currentProcItem)
                             .find('select[name="tableName"]')
                             .remove();
+                        // remove span of select2 in td > select[name="tableName"] if DS is CSV/TSV
+                        $(currentProcItem).find('td').eq(3).empty();
                     }
 
                     $(currentProcItem)
@@ -2215,6 +2231,39 @@ const saveProcCfg = (
         });
 
     $(`#tblProcConfig #${procModalCurrentProcId}`).data('type', '');
+};
+
+// update name after save proc
+const updateProcessName = ({ trEl, res }) => {
+    $(trEl)
+        .find('input[name="processName"]')
+        .val(res.data.shown_name)
+        .prop('disabled', true);
+    $(trEl)
+        .find('input[name="processName"]')
+        .attr('data-name-en', res.data.name_en);
+    $(trEl)
+        .find('input[name="processName"]')
+        .attr('data-name-jp', res.data.name_jp);
+    $(trEl)
+        .find('input[name="processName"]')
+        .attr('data-name-local', res.data.name_local);
+};
+
+// change select2 to input
+const handleChangeSelectToInput = ({ element, elName, value }) => {
+    const $newInputEl = $('<input>', {
+        type: 'text',
+        name: elName,
+        class: 'form-control already-convert-hankaku',
+        value: value,
+        disabled: true,
+    });
+
+    // change selectEl => inputEls
+    const selectEl = $(element).find(`select[name=${elName}]`);
+    $(selectEl).next().remove(); // remove spanEl of select2
+    $(selectEl).replaceWith($newInputEl);
 };
 
 /**
@@ -2420,6 +2469,7 @@ const getHorizontalSettingModeRows = () => {
     return zip(...rowData);
 };
 
+// TODO: Does this need to return a list?
 const convertEnglishRomaji = async (englishNames = []) => {
     const result = await fetch('api/setting/list_to_english', {
         method: 'POST',
@@ -2998,6 +3048,7 @@ const getProcessNameByLocale = () => {
         $(procModalElements.procModal).css('display') !== 'none';
     const isDisplayProcMergeModeModal =
         $(procModalElements.procMergeModeModal).css('display') !== 'none';
+
     const processNameLocal =
         docCookies.getItem('locale') === 'ja' ? 'jp' : 'en';
     // local name || english name
@@ -3184,6 +3235,7 @@ const reCalculateCheckedColumn = (newColNumber) => {
 
 const initSearchProcessColumnsTable = () => {
     initCommonSearchInput(procModalElements.searchInput);
+    initRemoveSearchInputEvent(procModalElements.removeFuncInputSearch);
     procModalElements.searchInput.on('keypress input', function (event) {
         const keyCode = event.keyCode;
         let value = stringNormalization(this.value.toLowerCase());
@@ -4102,6 +4154,24 @@ const clearMergeModeModal = () => {
     baseProcDataCols = null;
 };
 
+const resizeMaxHeightProcColumnTable = () => {
+    const elementFunction = document.getElementById(
+        'functionSettingWithCollapse',
+    );
+    const functionAreaRect = elementFunction.getBoundingClientRect();
+    const screenHeight = window.innerHeight;
+    if (functionAreaRect.bottom > screenHeight) {
+        const functionAreaHidden = Math.ceil(
+            functionAreaRect.bottom - screenHeight,
+        );
+        const maxHeightColumnTable = `calc(100vh - ${370 + functionAreaHidden}px`;
+        $('#procSettingContent .proc-config-content').css(
+            'max-height',
+            maxHeightColumnTable,
+        );
+    }
+};
+
 $(`${procModalElements.mergeModeTableChild} table tbody`).on(
     'scroll',
     function () {
@@ -4117,5 +4187,18 @@ $(`${procModalElements.mergeModeTableBase} table tbody`).on(
         $(`${procModalElements.mergeModeTableChild} table tbody`).scrollLeft(
             $(this).scrollLeft(),
         );
+    },
+);
+
+$(procModalElements.collapseFunctionConfigID).on(
+    'shown.bs.collapse',
+    function (event) {
+        const elmFunction = document.querySelector(
+            procModalElements.collapseFunctionConfigID,
+        );
+        elmFunction.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        });
     },
 );

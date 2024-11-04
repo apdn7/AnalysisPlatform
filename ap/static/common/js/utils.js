@@ -9,8 +9,8 @@ const RLP_DUMMY_ID = 1000001;
 const EMD_DIFF_ID = 1000000;
 
 // FPP: If yScale is Threshold: this number is the margin between threshold line (red line) with the border of the chart
-// margin is 4.5%
-const FPP_THRESHOLD_MARGIN = 0.045;
+// margin is 10%
+const FPP_THRESHOLD_MARGIN = 0.1;
 
 const localeConst = {
     JP: 'ja',
@@ -5452,20 +5452,25 @@ const getFmtValueOfArrayTrim5Percent = (array) => {
 };
 
 const getFmtValueOfArray = (array) => {
+    const sortedArray = [...array].sort();
+    const { sigDigit, usageNum } = getSigDigitOfArray(sortedArray);
+    const fmt =
+        sortedArray.length > 0 ? significantDigitFmt(usageNum, sigDigit) : '';
+    return fmt === ',.1f' ? ',.2f' : fmt;
+};
+
+const getSigDigitOfArray = (array) => {
     const decimal = '.';
-    let sortedArray = [...array].sort();
     let usageNum = 0;
     let sigDigit = 0;
-    sortedArray.forEach((num) => {
+    array.forEach((num) => {
         const vals = String(num).split(decimal);
         if (vals.length > 1 && vals[1].length > sigDigit) {
             sigDigit = vals[1].length;
             usageNum = num;
         }
     });
-    const fmt =
-        sortedArray.length > 0 ? significantDigitFmt(usageNum, sigDigit) : '';
-    return fmt === ',.1f' ? ',.2f' : fmt;
+    return { sigDigit, usageNum };
 };
 
 const alignLengthTickLabels = (ticks) => {

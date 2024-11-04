@@ -38,12 +38,6 @@ DELETE_ZIPPED_FILE_OLDER_THAN = 5  # weeks
 
 logger = logging.getLogger(__name__)
 
-# do not emit root's logger message
-logger.propagate = False
-
-# set logging level for application, global use
-logger.setLevel(logging.DEBUG)
-
 # set log format
 formatter = logging.Formatter(LOG_FORMAT)
 
@@ -53,9 +47,6 @@ ZIP_FILENAME_FORMAT = '%Yw%W_%m%d'
 
 ZIP_LOG_INTERVAL = 60 * 60 * 24 * 7  # 7 day
 CLEAN_ZIP_INTERVAL = 60 * 60 * 24 * 7 * 4  # 4 weeks
-
-# loglevel for chardet encoding detect
-logging.getLogger('chardet.charsetprober').setLevel(logging.INFO)
 
 
 def shift_date_to_monday(dt: datetime) -> datetime:
@@ -212,7 +203,7 @@ class ZipFileHandler:
         return current_date_monday - creation_date_monday >= timedelta(weeks=week_offset)
 
     @staticmethod
-    def delete_old_zipped_files(path: Path):
+    def delete_old_zipped_files(path: Path, **kwargs):
         """Delete zip file older than day_offset"""
         current_date = datetime.now()
         for file in glob.glob(os.path.join(path, '*.zip')):
@@ -358,22 +349,31 @@ class CustomMemoryHandler(MemoryHandler):
         return False
 
 
-def set_log_config(is_main=False):
-    import ap
-    from ap import get_basic_yaml_obj, get_start_up_yaml_obj
-    from ap.common.common_utils import make_dir
-
-    basic_config_yaml = get_basic_yaml_obj()
+def get_log_level(basic_config_yaml) -> int:
     log_level = basic_config_yaml.get_node(keys=('info', LOG_LEVEL), default_val=ApLogLevel.INFO.name)
     default_logger_level = logging.DEBUG if log_level == ApLogLevel.DEBUG.name else logging.INFO
+    return default_logger_level
 
-    start_up_yaml = get_start_up_yaml_obj()
+
+def is_enable_log_file(start_up_yaml) -> bool:
     enable_file_log = start_up_yaml.get_node(keys=('setting_startup', 'enable_file_log'))
-    if enable_file_log is not None and str(enable_file_log).strip() == '1':
-        # get log folder from config
-        log_dir = ap.dic_config.get('INIT_LOG_DIR')
+    return enable_file_log is not None and str(enable_file_log).strip() == '1'
+
+
+def get_log_handlers(
+    log_dir: str,
+    log_level=logging.INFO,
+    enable_log_file: bool = True,
+    is_main: bool = False,
+):
+    handlers = []
+
+    # loglevel for chardet encoding detect, avoid it emit too many messages
+    logging.getLogger('chardet.charsetprober').setLevel(logging.INFO)
+
+    if enable_log_file:
         # initiate log dir if not existing
-        make_dir(log_dir)
+        os.makedirs(log_dir, exist_ok=True)
 
         file_handler = CustomRotatingHandler(
             log_dir,
@@ -387,6 +387,7 @@ def set_log_config(is_main=False):
             backup_count=BACKUP_COUNT_FOR_SIZE_ROTATED,
         )
         file_handler.setFormatter(formatter)
+        file_handler.setLevel(log_level)
 
         memory_handler = CustomMemoryHandler(
             capacity=WRITE_BY_BUFFER,
@@ -394,58 +395,17 @@ def set_log_config(is_main=False):
             record_max_bytes=RECORD_MAX_BYTE,
             flush_interval=WRITE_BY_TIME,
         )
-        memory_handler.setLevel(default_logger_level)
 
         # handle rotate log file by file-size
-        logger.addHandler(memory_handler)
+        handlers.append(memory_handler)
 
     # write log into console
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
 
+    handlers.append(console_handler)
 
-def log_execution(prefix='', logging_exception=True):
-    """Decorator to log function run time
-    Arguments:
-        fn {function} -- [description]
-        prefix {string} -- prefix set to logged message
-    Returns:
-        fn {function} -- [description]
-    """
-
-    def decorator(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            start_dt = datetime.utcnow()
-            start = perf_counter()
-
-            log_args = str(args)
-            log_kwargs = str(kwargs)
-            try:
-                logger.info(f'{prefix}{fn.__name__}; START; {log_args}; {log_kwargs}')
-                result = fn(*args, **kwargs)
-            except Exception as e:
-                if logging_exception:
-                    logger.exception(e)
-                raise e
-            finally:
-                end = perf_counter()
-                count_time = end - start
-                log_func = logger.info if count_time >= 1 else logger.debug
-                log_func(
-                    '{0}Function: {1}; START: {2}; ExecTime: {3:.6f}s;'.format(
-                        prefix,
-                        fn.__name__,
-                        start_dt,
-                        end - start,
-                    ),
-                )
-            return result
-
-        return wrapper
-
-    return decorator
+    return handlers
 
 
 def bind_user_info(req=None, res=None):

@@ -1,3 +1,4 @@
+import logging
 import timeit
 from copy import deepcopy
 
@@ -28,7 +29,6 @@ from ap.common.constants import (
     CSVExtTypes,
     MaxGraphNumber,
 )
-from ap.common.logger import logger
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
     bind_dic_param_to_class,
@@ -49,6 +49,7 @@ from ap.common.trace_data_log import (
     trace_log_params,
 )
 
+logger = logging.getLogger(__name__)
 api_categorical_plot_blueprint = Blueprint('api_categorical_plot', __name__, url_prefix='/ap/api/stp')
 
 
@@ -134,7 +135,7 @@ def trace_data():
 @api_categorical_plot_blueprint.route('/image/<filename>')
 def download_file(filename):
     dir_data_view = resource_path('data', 'view', level=AbsPath.SHOW)
-    logger.info('dir_data_view: {}; filename: {}'.format(dir_data_view, filename))
+    logger.info(f'dir_data_view: {dir_data_view}; filename: {filename}')
 
     return send_from_directory(dir_data_view, filename)
 

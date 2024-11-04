@@ -606,6 +606,7 @@ const initVisData = (processesArray) => {
     // create Vis nodes from processes data
     let procTraces = [];
     processes = {};
+    const temp_processes = {}; // wait for get all processes while trace_config_api is running
     for (const key in processesArray) {
         const procCopy = { ...processesArray[key] };
         procCopy.master = procCopy.shown_name;
@@ -617,8 +618,9 @@ const initVisData = (processesArray) => {
         if (!isEmpty(trace)) {
             procTraces = [...procTraces, ...trace];
         }
-        processes[procCopy.id] = procCopy;
+        temp_processes[procCopy.id] = procCopy;
     }
+    processes = { ...temp_processes };
 
     // create Vis edge from processes trace data
     // use trace forward to create edges

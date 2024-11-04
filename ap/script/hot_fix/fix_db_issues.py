@@ -1,19 +1,21 @@
-from typing import List
-
+from ap.common.logger import log_execution_time
 from ap.common.common_utils import copy_file, delete_file, rename_file
 from ap.common.constants import DB_BACKUP_SUFFIX
-from ap.common.logger import log_execution
 from ap.setting_module.models import ProcLinkCount
 
+import logging
 
-# @log_execution()
+logger = logging.getLogger(__name__)
+
+
+# @log_execution_time()
 # def fix_blank_string_port():
 #     """
 #     update blank string port to None
 #     :return:
 #     """
 #     try:
-#         print("------------HOT FIX BLANK PORT: START  ------------")
+#         logger.info("------------HOT FIX BLANK PORT: START  ------------")
 #         from ap.setting_module.models import make_session, CfgDataSourceDB
 #
 #         with make_session() as meta_session:
@@ -23,12 +25,12 @@ from ap.setting_module.models import ProcLinkCount
 #                     continue
 #                 if str(db_detail.port).strip() == "":
 #                     db_detail.port = None
-#         print("------------HOT FIX BLANK PORT: END  ------------")
+#         logger.info("------------HOT FIX BLANK PORT: END  ------------")
 #     except Exception:
 #         pass
 
 
-@log_execution()
+@log_execution_time()
 def unlock_db(db_path):
     """
     unlock db
@@ -36,19 +38,19 @@ def unlock_db(db_path):
     :return:
     """
     try:
-        print("------------UNLOCK DB: START  ------------", db_path)
+        logger.info("------------UNLOCK DB: START  ------------", db_path)
         tmp = db_path + DB_BACKUP_SUFFIX
         delete_file(tmp)
         rename_file(db_path, tmp)
         copy_file(tmp, db_path)
-        print("------------UNLOCK DB: END  ------------")
+        logger.info("------------UNLOCK DB: END  ------------")
     except Exception:
-        print("Can not unlock db. Some processes are using database file.")
+        logger.info("Can not unlock db. Some processes are using database file.")
 
 
 def reset_import_history(app):
     try:
-        print("------------RESET IMPORT HISTORY: START  ------------")
+        logger.info("------------RESET IMPORT HISTORY: START  ------------")
         with app.app_context():
             from ap.setting_module.models import (
                 make_session,
@@ -59,6 +61,6 @@ def reset_import_history(app):
                 meta_session.query(JobManagement).delete()
                 meta_session.query(ProcLinkCount).delete()
 
-        print("------------RESET IMPORT HISTORY: END  ------------")
+        logger.info("------------RESET IMPORT HISTORY: END  ------------")
     except Exception:
-        print("Try to reset import history , but tables are not exist")
+        logger.info("Try to reset import history , but tables are not exist")

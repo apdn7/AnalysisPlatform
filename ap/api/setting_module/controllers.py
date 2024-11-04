@@ -1,6 +1,6 @@
 import json
+import logging
 import os
-import traceback
 
 import flask
 from flask import Blueprint, Response, jsonify, request
@@ -34,6 +34,7 @@ from ap.api.setting_module.services.filter_settings import (
 )
 from ap.api.setting_module.services.polling_frequency import (
     add_import_job,
+    add_import_job_params,
     change_polling_all_interval_jobs,
 )
 from ap.api.setting_module.services.process_delete import (
@@ -74,6 +75,7 @@ from ap.common.constants import (
     UI_ORDER_DB,
     WITH_IMPORT_OPTIONS,
     Action,
+    AnnounceEvent,
     AppEnv,
     CfgConstantType,
     CSVExtTypes,
@@ -88,11 +90,11 @@ from ap.common.constants import (
     dict_dtype,
 )
 from ap.common.cryptography_utils import encrypt
-from ap.common.logger import logger
-from ap.common.scheduler import lock, remove_jobs
+from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue, EventRemoveJobs
+from ap.common.scheduler import lock
 from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.common.services.sse import AnnounceEvent, background_announcer
+from ap.common.services.sse import background_announcer
 from ap.setting_module.models import (
     AppLog,
     CfgCsvColumn,
@@ -134,6 +136,7 @@ from ap.setting_module.services.trace_config import (
     trace_config_crud,
 )
 
+logger = logging.getLogger(__name__)
 api_setting_module_blueprint = Blueprint('api_setting_module', __name__, url_prefix='/ap/api/setting')
 
 
@@ -470,6 +473,7 @@ def get_csv_resources():
             is_transpose=is_transpose,
             limit=5,
             file_name=folder_url if is_file else None,
+            is_convert_datetime=False,
         )
     rows = dic_output['content']
     previewed_files = dic_output['previewed_files']
@@ -614,8 +618,8 @@ def save_order(order_name):
                 for key, val in orders.items():
                     CfgProcess.update_order(meta_session, key, val)
 
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
         return jsonify({}), 500
 
     return jsonify({}), 200
@@ -648,9 +652,8 @@ def stop_jobs():
         # backup database now
         # add_backup_dbs_job(True)
         backup_config_db()
-    except Exception as ex:
-        traceback.print_exc()
-        logger.error(ex)
+    except Exception as e:
+        logger.exception(e)
 
     # add a job to check for shutdown time
     # add_shutdown_app_job()
@@ -823,7 +826,7 @@ def post_proc_config():
         target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
         # remove job of re-registered process => then import job again
         if proc_id:
-            remove_jobs(target_jobs, proc_id)
+            EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=proc_id))
 
         process = create_or_update_process_cfg(proc_data, unused_columns)
 
@@ -833,7 +836,15 @@ def post_proc_config():
 
         # import data
         if should_import_data:
-            add_import_job(process, run_now=True, is_user_request=True)
+            import_params = add_import_job_params(process)
+            add_import_job(
+                process_id=import_params.process_id,
+                process_name=import_params.process_name,
+                data_source_id=import_params.data_source_id,
+                data_source_type=import_params.data_source_type,
+                run_now=True,
+                is_user_request=True,
+            )
 
         return (
             jsonify(
@@ -844,13 +855,13 @@ def post_proc_config():
             ),
             200,
         )
-    except Exception as ex:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
         return (
             jsonify(
                 {
                     'status': 500,
-                    'message': str(ex),
+                    'message': str(e),
                 },
             ),
             500,
@@ -869,8 +880,8 @@ def get_trace_configs():
             if not proc_data['name_en']:
                 proc_data['name_en'] = to_romaji(proc_data['name'])
         return {'trace_config': json_dumps({'procs': procs})}, 200
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
         return jsonify({}), 500
 
 
@@ -885,8 +896,8 @@ def save_trace_configs():
         trace_config_crud(traces)
         add_restructure_indexes_job()
         add_gen_proc_link_job(is_user_request=True)
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
         return json_dumps({}), 500
 
     return json_dumps({}), 200
@@ -1114,8 +1125,8 @@ def save_filter_config_configs():
 
         proc_id = params.get('processId')
         process = get_process_cfg(proc_id)
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
         return jsonify({}), 500
 
     return jsonify({'proc': process, 'filter_id': filter_id}), 200
@@ -1128,8 +1139,8 @@ def delete_filter_config(filter_id):
     """
     try:
         delete_cfg_filter_from_db(filter_id)
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
         return jsonify({}), 500
 
     return jsonify({}), 200
@@ -1165,13 +1176,13 @@ def post_master_visualizations_config(proc_id):
             ),
             200,
         )
-    except Exception as ex:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
         return (
             jsonify(
                 {
                     'status': 500,
-                    'message': str(ex),
+                    'message': str(e),
                 },
             ),
             500,
@@ -1438,7 +1449,7 @@ def register_source_and_proc():
             'status': JobStatus.PROCESSING.name,
             'is_first_imported': False,
         }
-        background_announcer.announce(data_register_data, AnnounceEvent.DATA_REGISTER.name)
+        EventQueue.put(EventBackgroundAnnounce(data=data_register_data, event=AnnounceEvent.DATA_REGISTER))
     except Exception as e:
         logger.exception(e)
         data = {'message': _('Database Setting failed to save'), 'is_error': True, 'detail': str(e)}
@@ -1582,8 +1593,8 @@ def delete_function_column_config():
         with make_session() as session:
             CfgProcessColumn.delete_by_ids(column_ids, session=session)
             CfgProcessFunctionColumn.delete_by_ids(function_column_ids, session=session)
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
         return json_dumps({}), 500
 
     return json_dumps({}), 200
@@ -1600,7 +1611,7 @@ def backup_data():
     end_time = data.get('end_time')
     if process_id:
         target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
-        remove_jobs(target_jobs, proc_id=process_id)
+        EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=process_id))
     add_backup_data_job(process_id, start_time, end_time)
     return json_dumps({}), 200
 
@@ -1616,6 +1627,6 @@ def restore_data():
     end_time = data.get('end_time')
     if process_id:
         target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
-        remove_jobs(target_jobs, proc_id=process_id)
+        EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=process_id))
     add_restore_data_job(process_id, start_time, end_time)
     return json_dumps({}), 200

@@ -1396,11 +1396,14 @@
             <div class="modal-header">
                 <h4 class="modal-title">{{ _('New function') }}</h4>
                 <div class="" style="width: 350px;">
-                    <input
-                        class="form-control"
-                        id="functionSearchFunctionNameInput"
-                        placeholder="{{ _('Search') }}.."
-                    />
+                    <span class="deleteicon d-block">
+                        <input
+                            class="form-control"
+                            id="functionSearchFunctionNameInput"
+                            placeholder="{{ _('Search') }}.."
+                        />
+                        <span class="function-remove-search">x</span>
+                    </span>
                 </div>
             </div>
             <div class="modal-body">

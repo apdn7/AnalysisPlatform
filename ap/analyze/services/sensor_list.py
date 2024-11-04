@@ -1,9 +1,9 @@
 from collections import defaultdict
 
-from ap.common.constants import PCA_SAMPLE_DATA, DataType
+from ap.common.constants import PCA_SAMPLE_DATA, AnnounceEvent, DataType
 from ap.common.logger import log_execution_time
+from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
-from ap.common.services.sse import AnnounceEvent, background_announcer
 from ap.common.sigificant_digit import signify_digit_pca_vector
 from ap.setting_module.models import CfgProcess
 from ap.trace_data.transaction_model import TransactionData
@@ -134,7 +134,7 @@ def get_sample_data(columns, limit=None):
             col['tooltip'] = produce_tool_tip_data(col_name=cfg_col_name, lst_sensor_vals=signified_sensor_vals)
             samples.append(col)
             if count % 60 == 0:
-                background_announcer.announce(samples, AnnounceEvent.PCA_SENSOR.name)
+                EventQueue.put(EventBackgroundAnnounce(data=samples, event=AnnounceEvent.PCA_SENSOR))
                 samples = []
 
             if count > PCA_SAMPLE_DATA:
@@ -143,10 +143,9 @@ def get_sample_data(columns, limit=None):
             count += 1
 
     if samples:
-        background_announcer.announce(samples, AnnounceEvent.PCA_SENSOR.name)
+        EventQueue.put(EventBackgroundAnnounce(data=samples, event=AnnounceEvent.PCA_SENSOR))
 
 
-# @lru_cache(2000)
 # def get_sensor_first_records(cfg_col_id, cfg_col_name, sensor_id, sensor_type, limit=100):
 #     data_type = DataType(sensor_type)
 #     sensor_val_cls = find_sensor_class(sensor_id, data_type)

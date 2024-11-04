@@ -1,4 +1,4 @@
-import traceback
+import logging
 from collections import OrderedDict, defaultdict
 from copy import deepcopy
 from datetime import datetime, timedelta
@@ -98,7 +98,7 @@ from ap.common.constants import (
     DBType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -109,6 +109,8 @@ from ap.common.services.sse import MessageAnnouncer
 from ap.common.services.statistics import calc_summaries, calc_summaries_cate_var
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 from ap.setting_module.models import CfgDataSource, CfgProcess
+
+logger = logging.getLogger(__name__)
 
 
 @log_execution_time()
@@ -163,7 +165,7 @@ def gen_graph_param(graph_param, dic_param, with_ct_col=False):
     (EventType.STP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None, df=None):
     """tracing data to show graph
     1 start point x n end point
@@ -279,8 +281,8 @@ def add_threshold_configs(dic_param, orig_graph_param):
                     plotdata[CHART_INFOS_ORG] = chart_info_cond_proc_org
                     plotdata[Y_MIN] = y_min
                     plotdata[Y_MAX] = y_max
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.exception(e)
 
 
 @abort_process_handler()
@@ -291,7 +293,7 @@ def add_threshold_configs(dic_param, orig_graph_param):
     (EventType.STP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_trace_data_by_cyclic(graph_param, dic_param, max_graph=None, df=None):
     dic_param, _ = gen_trace_data_by_cyclic_common(graph_param, dic_param, max_graph, df)
 
@@ -358,7 +360,7 @@ def gen_dic_param_terms(dic_param):
     (EventType.STP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_trace_data_by_term(graph_param, dic_param, max_graph=None, df_cache=None):
     """tracing data to show graph
     filter by condition points that between start point and end_point
@@ -585,8 +587,8 @@ def split_data_by_condition(dic_data, graph_param, max_graph=None):
             group_by_cols.append(col)
             if col not in dic_data_for_df:
                 for dic_col in dic_data.values():
-                    vals = dic_col.get(col)
-                    if vals:
+                    vals = dic_col.get(col, pd.Series())
+                    if len(vals):
                         dic_data_for_df[col] = vals
                         break
 
@@ -631,18 +633,18 @@ def split_data_by_div(dic_data, div_names):
             for group_name, group_val in sensor_data.items():
                 for div in div_names:
                     if str(div) not in group_val.keys():
-                        group_val[str(div)] = {'array_x': [], 'array_y': []}
+                        group_val[str(div)] = {'array_x': pd.Series(), 'array_y': pd.Series()}
                 rlp_data_with_div[sensor_id][group_name] = OrderedDict(sorted(group_val.items()))
     return rlp_data_with_div
 
 
 def gen_plotdata_without_group_by(df, end_cols):
     dic_output = {}
-    array_x = df[TIME_COL].to_list()
+    array_x = df[TIME_COL]
     for end_col in end_cols:
         dic_cate = defaultdict(dict)
         dic_output[end_col] = dic_cate
-        dic_cate[None] = {ARRAY_X: array_x, ARRAY_Y: df[end_col].to_list()}
+        dic_cate[None] = {ARRAY_X: array_x, ARRAY_Y: df[end_col]}
 
     return dic_output
 
@@ -670,8 +672,8 @@ def gen_plotdata_with_group_by(df, end_cols, group_by_cols):
             if div_group not in group_names:
                 group_names.append(div_group)
             dic_cate[group_name] = {
-                ARRAY_X: df.loc[idxs, TIME_COL].to_list(),
-                ARRAY_Y: rows.to_list(),
+                ARRAY_X: df.loc[idxs, TIME_COL],
+                ARRAY_Y: rows,
             }
 
     return dic_output, group_names
@@ -884,7 +886,7 @@ def gen_graph_cyclic(graph_param, dic_param, terms, max_graph=None, df=None):
         dic_data_for_graph_configs = {}
         for end_proc in end_procs:
             time_col_alias = f'{TIME_COL}_{end_proc.proc_id}'
-            end_col_time = df_chunk[time_col_alias].to_list()
+            end_col_time = df_chunk[time_col_alias]
             dic_data_for_graph_configs[end_proc.proc_id] = {TIME_COL: end_col_time}
 
         chart_infos, original_graph_configs = get_chart_infos(graph_param, dic_data_for_graph_configs, times)
@@ -987,14 +989,14 @@ def gen_graph_term(graph_param, dic_param, max_graph=None, df=None):
 
     set_str_rank_to_dic_param(dic_param, dic_ranks, dic_str_cols, is_stp=True)
     # get graph configs
-    times = df[TIME_COL].tolist() or []
+    times = df[TIME_COL]
     end_procs = show_graph_param.array_formval
     dic_data_for_graph_configs = {}
     for end_proc in end_procs:
         if not len(df):
             continue
         time_col_alias = f'{TIME_COL}_{end_proc.proc_id}'
-        end_col_time = df[time_col_alias].to_list()
+        end_col_time = df[time_col_alias]
         dic_data_for_graph_configs[end_proc.proc_id] = {TIME_COL: end_col_time}
 
     chart_infos, original_graph_configs = get_chart_infos(show_graph_param, dic_data_for_graph_configs, times)

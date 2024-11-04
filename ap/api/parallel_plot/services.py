@@ -52,7 +52,7 @@ from ap.common.constants import (
     DataType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
@@ -72,7 +72,7 @@ from ap.trace_data.schemas import DicParam
     (EventType.PCP, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_graph_paracords(graph_param, dic_param, df=None):
     """tracing data to show graph
     1 start point x n end points
@@ -207,14 +207,14 @@ def gen_dic_data_from_df(df: DataFrame, graph_param: DicParam):
         for col_id, col_name in zip(proc.col_ids, proc.col_names):
             sql_label = gen_sql_label(col_id, col_name)
             if sql_label in df.columns:
-                dic_data[proc.proc_id][col_id] = df[sql_label].replace({np.nan: None}).tolist()
+                dic_data[proc.proc_id][col_id] = df[sql_label]
             else:
-                dic_data[proc.proc_id][col_id] = [None] * df.index.size
+                dic_data[proc.proc_id][col_id] = pd.Series([None] * df.index.size)
 
         dic_data[proc.proc_id][TIME_COL] = []
         time_col_alias = '{}_{}'.format(TIME_COL, proc.proc_id)
         if time_col_alias in df:
-            dic_data[proc.proc_id][TIME_COL] = df[time_col_alias].replace({np.nan: None}).tolist()
+            dic_data[proc.proc_id][TIME_COL] = df[time_col_alias]
 
     return dic_data
 
@@ -227,9 +227,9 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
         serial_cols = dic_proc_cfgs[proc_id].get_serials(column_name_only=False)
         sql_labels = [gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols]
         if sql_labels and all(item in df.columns for item in sql_labels):
-            dic_param[SERIAL_DATA][proc_id] = df[sql_labels].replace({np.nan: ''}).to_records(index=False).tolist()
+            dic_param[SERIAL_DATA][proc_id] = df[sql_labels].replace({np.nan: ''})
         else:
-            dic_param[SERIAL_DATA][proc_id] = []
+            dic_param[SERIAL_DATA][proc_id] = pd.Series()
 
 
 # @log_execution_time()
@@ -357,16 +357,16 @@ def gen_plotdata(
         rank_value = {}
         col_cfg = dic_proc_cfg[proc_id].get_col(col_id)
         array_y = dic_data[proc_id][col_id]
-        org_array_y = []
+        org_array_y = pd.Series([])
         categorized_data = []
 
         if col_cfg:
             # if get_cols[0].data_type == DataType.TEXT.name and len(array_y_without_na):
             is_categorical_sensor = col_cfg.is_category
             if is_categorical_sensor:
-                cat_array_y = pd.Series(array_y).astype('category').cat
-                na_vals = pd.Series(array_y).isnull().sum()
-                array_y = cat_array_y.codes.tolist()
+                cat_array_y = array_y.astype('category').cat
+                na_vals = array_y.isnull().sum()
+                array_y = cat_array_y.codes
 
                 rank_value = {-1: NA_STR}
                 if len(cat_array_y.categories.to_list()):

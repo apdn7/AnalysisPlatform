@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from pandas import Series
 
 from ap.common.constants import ColorOrder
 
@@ -45,6 +46,8 @@ def signify_digit_fmt(x, sig_dig=4):
 
 
 def get_fmt_from_array(arr, sig_dit=4):
+    if isinstance(arr, Series):
+        arr = arr.to_list()
     if len(arr) == 0:
         return ''
     if isinstance(arr[0], str):

@@ -359,6 +359,7 @@ const addGroupListCheckboxWithSearch = (
         isGetDate = false,
         objectiveSelectionDOM = null,
         categoryLabelDOM = null,
+        categoryFilterDOM = null,
         colorDOM = null,
         judgeDOM = null,
     ) => {
@@ -431,10 +432,16 @@ const addGroupListCheckboxWithSearch = (
                                       ${colDataTypeShowName}${hiddenDataTypeInput}
                                  </div>`;
                     }
-                    if (i === indexDic.label || i === indexDic.filter) {
+                    if (i === indexDic.label) {
                         // label or Filter
-                        html += `<div class="col ${checkboxClass} fit-item text-center small-col pr-1 d-flex pl-5" title="${props.showFilter ? 'Filter' : 'Label'}">
+                        html += `<div class="col ${checkboxClass} fit-item text-center small-col pr-1 d-flex pl-5" title="Label">
                                     ${categoryLabelDOM || ''}
+                                 </div>`;
+                    }
+                    if (i === indexDic.filter) {
+                        // label or Filter
+                        html += `<div class="col ${checkboxClass} fit-item text-center small-col pr-1 d-flex pl-5" title="Filter">
+                                    ${categoryFilterDOM || ''}
                                  </div>`;
                     }
                     if (i === indexDic.color) {
@@ -585,9 +592,7 @@ const addGroupListCheckboxWithSearch = (
                 <label title="" class="custom-control-label${uncheckRadio}" for="${objectiveChkBoxId}"></label>`;
         }
 
-        let categoryLabelDOM = null;
-        if (props.showLabel || props.showFilter) {
-            const clChkBoxId = `categoryLabel-${itemId}`;
+        const genCheckBoxLabelOrFilter = (clChkBoxId) => {
             let clSelection = '';
             let checked = '';
             // todo: check category item
@@ -610,11 +615,22 @@ const addGroupListCheckboxWithSearch = (
                     DataTypes.TEXT.name,
                 ].includes(colDataType)
             ) {
-                categoryLabelDOM = `<input title="" onchange="onChangeFilterCheckBox(this)" type="checkbox" name="GET02_CATE_SELECT${categoryGroupId}"
+                return `<input title="" onchange="onChangeFilterCheckBox(this)" type="checkbox" name="GET02_CATE_SELECT${categoryGroupId}"
                     class="custom-control-input not-autocheck as-label-input" value="${itemId}"
                     id="${clChkBoxId}"${clSelection} data-autoselect="false" ${checked}>
                     <label title="" class="custom-control-label" for="${clChkBoxId}"></label>`;
             }
+        };
+
+        let categoryLabelDOM = null;
+        if (props.showLabel) {
+            const clChkBoxId = `categoryLabel-${itemId}`;
+            categoryLabelDOM = genCheckBoxLabelOrFilter(clChkBoxId);
+        }
+        let categoryFilterDOM = null;
+        if (props.showFilter) {
+            const clChkBoxId = `categoryFilter-${itemId}`;
+            categoryFilterDOM = genCheckBoxLabelOrFilter(clChkBoxId);
         }
 
         const isColorRequired = props.isColorRequired ? requiredInputClass : '';
@@ -694,6 +710,7 @@ const addGroupListCheckboxWithSearch = (
                 isGetDate,
                 objectiveSelectionDOM,
                 categoryLabelDOM,
+                categoryFilterDOM,
                 colorDOM,
                 judgeDOM,
             ),
@@ -734,7 +751,7 @@ const addGroupListCheckboxWithSearch = (
         i18nHoverText.judgeHoverMsg,
     );
     // change Title on On-demand filter
-    $('#categoriesBoxTitle').text(!props.showFilter ? 'Label' : 'Filter');
+    $('#categoriesBoxTitle').text(props.showLabel ? 'Label' : 'Filter');
     const categoryLabelColDOM = genColDOM(
         props.showLabel,
         'Label',
@@ -2216,4 +2233,18 @@ const tooltipsToggle = (ele) => {
     const status = $(ele).is(':checked');
     localStorage.setItem('tooltipsEnabled', status);
     console.log('tooltips enabled:' + status);
+};
+
+const getLabelAndFilterValues = () => {
+    const categoriesFilter = $('input[id^=categoryFilter]:checked')
+        .map(function () {
+            return parseInt($(this).val());
+        })
+        .get();
+    const categoriesLabel = $('input[id^=categoryLabel]:checked')
+        .map(function () {
+            return parseInt($(this).val());
+        })
+        .get();
+    return [categoriesLabel, categoriesFilter];
 };

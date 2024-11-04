@@ -4,6 +4,11 @@ import time
 
 import pyper
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 r = pyper.R(use_dict=True)
 r('source("./ap/script/r_scripts/common.r")')
 
@@ -20,7 +25,7 @@ def ext():
             result = fn(*args, **kwargs)
             et = time.time() + 0.005
             exec_time = round((et - st) * 1000)  # milliseconds
-            print("Function `{:s}` executed in {:f} milliseconds!".format(fn.__name__, exec_time))
+            logger.info("Function `{:s}` executed in {:f} milliseconds!".format(fn.__name__, exec_time))
             return result
 
         return wrapper

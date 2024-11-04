@@ -5,6 +5,9 @@ import time
 import unicodedata
 import base64
 from contextlib import contextmanager
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CallR:
@@ -21,7 +24,7 @@ class CallR:
         Notes:
             Sys.setenv(lang="en") is to not print R message in multibyte string
         """
-        print("Start R.")
+        logger.info("Start R.")
         self.verbose = verbose
 
         # start R with specified binary
@@ -59,25 +62,25 @@ class CallR:
     def run_expr(self, expr: str, pass_base64=True):
         # run R expression
         # expr (str) R expression to run.
-        #   - print() is to print R messages (default: True)
+        #   - logger.info() is to print R messages (default: True)
         #   - it is safe to replace escape to slash
         #   - wrap expr with e <- try() for error handling
         # base64 if True, pass the expression with base64
         #   - pyper can not pass multibyte string
         expr = expr.replace("\\", "/")
         expr = "e <- try(" + expr + ", silent = FALSE)"
-        print("running R. expr={}".format(expr))
+        logger.info("running R. expr={}".format(expr))
         if pass_base64:
             expr = base64.b64encode(str(expr).encode("utf8"))
             expr = str(expr.decode())
-            print("with base64 encoding. expr={}".format(expr))
+            logger.info("with base64 encoding. expr={}".format(expr))
             expr = "e <- try(expr <- rawToChar(base64enc::base64decode('" + expr + "')), silent = TRUE)"
             self.r_session(expr)
             expr = "e <- try(Encoding(expr) <- 'UTF-8', silent = TRUE)"
             self.r_session(expr)
             expr = "e <-try(eval(parse(text = enquote(expr))), silent = TRUE)"
         if self.verbose:
-            print(self.r_session(expr))
+            logger.info(self.r_session(expr))
         else:
             self.r_session(expr)
 
@@ -119,7 +122,7 @@ class RPipeline:
             dir_out    (str) Where to save pickle file. Can be ignored.
                              If any fname_* is givien, file will be saved in the same directory.
                              If not, file will be saved in current directory.
-            verbose   (bool) If True, R expression runs with print() + elapse time (python) is printed
+            verbose   (bool) If True, R expression runs with logger.info() + elapse time (python) is printed
             use_rds   (bool) If True, .rds file will be used if possible.
             use_pkl   (bool) If False, final result of executed function will be returned by pyper (not by pickle).
                              Use with care (passing complex / multibyte data by pyper may cause errors)
@@ -151,10 +154,10 @@ class RPipeline:
             pypath = None
             if self.rportable_path is not None:
                 rpath = os.path.join(self.rportable_path, "bin", "R.exe")
-                print("`R-PORTABLE` : {}".format(self.rportable_path))
+                logger.info("`R-PORTABLE` : {}".format(self.rportable_path))
             if (self.use_pkl is True) and (self.rportable_path is not None):
                 pypath = glob.glob("{}/python/python-*/python.exe".format(self.rportable_path))[0]
-                print("python binary : {}".format(pypath))
+                logger.info("python binary : {}".format(pypath))
 
             # start R process and load wrapper function
             self.r = CallR(rpath, pypath, self.use_pkl, self.verbose)
@@ -187,13 +190,13 @@ class RPipeline:
                 }
         """
 
-        print("Pipeline start: {}".format([x["func"] for x in tasks]))
+        logger.info("Pipeline start: {}".format([x["func"] for x in tasks]))
         self.dic_data = dic_data.copy()
         self.tasks = [x.copy() for x in tasks]
         self.res = []
 
         for t, task in enumerate(tasks):
-            print("Task: {}".format(task["func"]))
+            logger.info("Task: {}".format(task["func"]))
 
             with self._timer(task["func"]):
                 with self._timer("{}: load source file".format(task["func"])):
@@ -201,21 +204,23 @@ class RPipeline:
                     fpath = glob.glob("{}/{}/*/{}".format(self.dir_wrapr, self.dir_func, fname))[0]
                     self.r.load_rfile(fpath)
                     if self.r.err["err"] is not None:
-                        print("R ERROR: message={}".format(self.r.err))
+                        logger.info("R ERROR: message={}".format(self.r.err))
                         return self.r.err
 
                 with self._timer("{}: run R expr".format(task["func"])):
                     expr = self._gen_r_expr(t, task)
                     self.r.run_expr(expr, pass_base64=False)
                     if self.r.err["err"] is not None:
-                        print("R ERROR: message={}".format(self.r.err))
+                        logger.info("R ERROR: message={}".format(self.r.err))
                         return self.r.err
                     res = self.r.get_obj("res")
-                    res = self._decode_all_base64(res)
-                    self.res.append(res)
+
+                    if res:
+                        res = self._decode_all_base64(res)
+                        self.res.append(res)
 
         # return info of the last task
-        return self.res[-1]
+        return self.res[-1] if len(self.res) else None
 
     def _gen_r_expr(self, t, task):
         # are we going to save results as .rds file?
@@ -330,9 +335,9 @@ class RPipeline:
     def _timer(self, name):
         t0 = time.time()
         if self.verbose:
-            print("[{}] start".format(name))
+            logger.info("[{}] start".format(name))
         yield
         ptime_sec = time.time() - t0
         self.ptime_sec[name] = ptime_sec
         if self.verbose:
-            print("[{}] done in {:.2f} s".format(name, ptime_sec))
+            logger.info("[{}] done in {:.2f} s".format(name, ptime_sec))

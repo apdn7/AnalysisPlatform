@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Start up AP+DN7</title>
+        <style>
+            body {
+                background-color: black;
+                font-family: Arial, sans-serif;
+                font-size: medium;
+                text-align: center;
+                color: gray;
+            }
+            .apdn7 {
+                width: 20%;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                transition: opacity 4s;
+                opacity: 0;
+            }
+        </style>
+        <script>
+            // server is restart but API not found
+            const HTTP_RESPONSE_CODE = {
+                OK: 200,
+                NOT_FOUND: 404,
+            };
+            const END_POINTS = {
+                HOME_PAGE: 'http://localhost',
+                STAGE_STATUS_PAGE: '/stages',
+                ERROR_PAGE: '/error',
+            };
+        </script>
+    </head>
+    <body>
+        <p id="loading">Now loading</p>
+        <p id="checkURL"></p>
+        <img
+            id="apdn7"
+            class="apdn7"
+            src="{{ url_for('static', filename='img/logo.png') }}"
+        />
+
+        <script>
+            const loading = document.getElementById('loading');
+            const img = document.getElementById('apdn7');
+
+            setInterval(function () {
+                loading.textContent += '.';
+            }, 1000); // every 1 sec
+
+            setInterval(function () {
+                // img.style.opacity = 0  Fadeout
+                // img.style.opacity = 1  Fadein
+                img.style.opacity = !img.style.opacity | 0;
+            }, 5000); // every 5 sec
+
+            const get_data = async (url, interval) => {
+                const stageResponse = await fetch(url, { cache: 'no-cache' });
+                if (stageResponse.status === HTTP_RESPONSE_CODE.OK) {
+                    const stageData = await stageResponse.json();
+                    // stage status not null == initiating error occurred
+                    if (stageData.status) {
+                        clearInterval(interval); // Stop checking once we have redirected
+                        window.location.href = END_POINTS.ERROR_PAGE;
+                    }
+                }
+                if (stageResponse.status === HTTP_RESPONSE_CODE.NOT_FOUND) {
+                    // redirect to AP if start program is finished
+                    window.location.href = checkURL;
+                }
+                // else wait to server restarting
+            };
+            // Get the port number from the query parameters
+            const port = window.location.port;
+            // Use the port number in the checkURL
+            const checkURL = END_POINTS.HOME_PAGE + (port ? ':' + port : '');
+            document.getElementById('checkURL').textContent = checkURL;
+            const interval = setInterval(function () {
+                get_data(END_POINTS.STAGE_STATUS_PAGE, interval);
+            }, 5000); // every 5 sec
+        </script>
+    </body>
+</html>

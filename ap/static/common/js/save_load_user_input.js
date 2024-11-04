@@ -1011,6 +1011,15 @@ const saveLoadUserInput = (
                 }
             }
 
+            if (input.type === 'select-one') {
+                // check available options
+                const availableOptions = Array.from(input.options).map(
+                    (opt) => opt.value,
+                );
+                if (!availableOptions.includes(v.value)) {
+                    continue;
+                }
+            }
             input.value = v.value;
             callAllEvent(input);
         }
@@ -1028,7 +1037,8 @@ const saveLoadUserInput = (
             let eleSelector;
             if (
                 v.name === CYCLIC_TERM.DIV_CALENDER ||
-                v.name === 'autoUpdateInterval'
+                v.name === 'autoUpdateInterval' ||
+                v.name.includes('GET02_CATE_SELECT')
             ) {
                 eleSelector = buildEleSelector(null, null, v.id);
             } else {

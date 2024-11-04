@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 # Author: Masato Yasuda (2018/01/04)
 
+import logging
 import threading
-import traceback
 
 from dateutil import parser
 from pymssql import connect as mssqlconnect
 
 from ap.common.common_utils import strip_all_quote
 from ap.common.constants import DATABASE_LOGIN_TIMEOUT
+
+logger = logging.getLogger(__name__)
 
 # import pyodbc
 
@@ -41,15 +43,19 @@ class MSSQLServer:
             self._schema_withdot = ''
 
     def dump(self):
-        print('===== DUMP RESULT =====')
-        print('DB Type: MS SQL Server')
-        print('self.host: ' + self.host)
-        print('self.port: ' + str(self.port))
-        print('self.dbname: ' + self.dbname)
-        print('self.username: ' + self.username)
-        print('self.schema: ' + str(self.schema or ''))
-        print('self.is_connected: ', self.is_connected)
-        print('=======================')
+        logger.info(
+            f'''\
+===== DUMP RESULT =====
+DB Type: MS SQL Server
+self.host: {self.host}
+self.port: {self.port}
+self.dbname: {self.dbname}
+self.username: {self.username}
+self.schema: {self.schema or ''}
+self.is_connected: {self.is_connected}
+======================='
+''',
+        )
 
     def try_connect(self):
         def try_connect_inner():
@@ -93,11 +99,8 @@ class MSSQLServer:
                     self.is_connected = self._schema in schemas
 
             return self.connection
-        except Exception:
-            print('Cannot connect to db')
-            print('>>> traceback <<<')
-            traceback.print_exc()
-            print('>>> end of traceback <<<')
+        except Exception as e:
+            logger.exception(e)
             return False
 
     def disconnect(self):
@@ -121,7 +124,7 @@ class MSSQLServer:
         cur.execute('select schema_name from information_schema.schemata')
         rows = cur.fetchall()
         rows = [col[0] for col in rows]
-        print('rows', rows)
+        logger.info(f'rows: {rows}')
         cur.close()
         return rows
 
@@ -137,12 +140,12 @@ class MSSQLServer:
                 sql += ','
             sql += val['name'] + ' ' + val['type']
         sql += ')'
-        print(sql)
+        logger.info(sql)
         cur = self.connection.cursor()
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + ' created!')
+        logger.info(f'{tblname} created!')
 
     # テーブル名の配列を取得
     def list_tables(self):
@@ -151,7 +154,7 @@ class MSSQLServer:
         # Only list tables of default schema (default schema name can be got by "SCHEMA_NAME()")
         schema = f"'{self._schema}'" if self._schema else 'SCHEMA_NAME()'
         sql = f"select name from sys.objects where type='U' and SCHEMA_NAME(schema_id)={schema}"
-        print('sql', sql)
+        logger.info(f'sql {sql}')
         cur = self.connection.cursor()
         cur.execute(sql)
         results = []
@@ -167,7 +170,7 @@ class MSSQLServer:
         # Only list tables of default schema (default schema name can be got by "SCHEMA_NAME()")
         schema = f"'{self._schema}'" if self._schema else 'SCHEMA_NAME()'
         sql = f"select name from sys.objects where SCHEMA_NAME(schema_id)={schema} and (type='U' or type='V')"
-        print('sql', sql)
+        logger.info(f'sql {sql}')
         cur = self.connection.cursor()
         cur.execute(sql)
         results = []
@@ -185,7 +188,7 @@ class MSSQLServer:
         cur.execute(sql)
         cur.close()
         self.connection.commit()
-        print(tblname + ' dropped!')
+        logger.info(f'{tblname} dropped!')
 
     # テーブルのカラムのタイプを辞書の配列として返す(元々はtbl_get_valtypes関数)
     # columns:
@@ -200,7 +203,7 @@ class MSSQLServer:
                  from sys.columns c
                  inner join sys.objects o on c.object_id = o.object_id
                  where SCHEMA_NAME(o.schema_id)={schema} and o.name=N'{tblname}'"""
-        print('sql', sql)
+        logger.info(f'sql {sql}')
 
         cur = self.connection.cursor()
         cur.execute(sql)
@@ -263,7 +266,7 @@ class MSSQLServer:
                 self.connection.commit()
                 sql = sql_template
                 start_batch = True
-        print('Dummy data was inserted to ' + tblname)
+        logger.info(f'Dummy data was inserted to {tblname}')
 
     # SQLをこのまま実行
     # [以下、結果をDict形式で返す方法]
@@ -322,7 +325,7 @@ class MSSQLServer:
         if self.is_connected:
             return True
         # 接続していないなら
-        print('Connection is not Initialized. Please run connect() to connect to DB')
+        logger.warning('Connection is not Initialized. Please run connect() to connect to DB')
         return False
 
     def execute_sql(self, sql):
@@ -351,7 +354,7 @@ class MSSQLServer:
         if not self._table_views:
             self._table_views = self.list_tables_and_views()
 
-        print('tables', self._table_views)
+        logger.info(f'tables {self._table_views}')
 
         for table in self._table_views:
             sql = sql.replace(f'"{table}"', f'{self._schema_withdot}"{table}"')

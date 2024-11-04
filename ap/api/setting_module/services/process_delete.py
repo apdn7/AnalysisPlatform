@@ -1,26 +1,8 @@
 from ap.common.common_utils import delete_file, gen_sqlite3_file_name
 from ap.common.constants import JobType
 from ap.common.logger import log_execution_time
-from ap.common.scheduler import remove_jobs
+from ap.common.multiprocess_sharing import EventQueue, EventRemoveJobs
 from ap.setting_module.models import CfgDataSource, CfgProcess, JobManagement, make_session
-
-# @scheduler_app_context
-# def delete_process_job(_job_id=None, _job_name=None, *args, **kwargs):
-#     """scheduler job to delete process from db
-#
-#     Keyword Arguments:
-#         _job_id {[type]} -- [description] (default: {None})
-#         _job_name {[type]} -- [description] (default: {None})
-#     """
-#     gen = delete_process(*args, **kwargs)
-#     send_processing_info(
-#         gen,
-#         JobType.DEL_PROCESS,
-#         db_code=kwargs.get('db_id'),
-#         process_id=kwargs.get('proc_id'),
-#         is_check_disk=False,
-#     )
-
 
 # @log_execution_time()
 # def delete_process():
@@ -42,7 +24,7 @@ from ap.setting_module.models import CfgDataSource, CfgProcess, JobManagement, m
 #     yield 100
 
 
-# @log_execution()
+# @log_execution_time()
 # def add_del_proc_job():
 #     missing_procs = get_unused_procs()
 #
@@ -67,7 +49,7 @@ def delete_proc_cfg_and_relate_jobs(proc_id):
     # stop all jobs before deleting
     target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
     for proc_id in deleting_process_ids:
-        remove_jobs(target_jobs, proc_id)
+        EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=proc_id))
 
     CfgProcess.batch_delete(deleting_process_ids)
 

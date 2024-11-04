@@ -35,7 +35,7 @@ from ap.common.constants import (
     DataType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.pysize import get_size
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -66,7 +66,7 @@ from ap.trace_data.schemas import DicParam
     (EventType.PCA, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def run_pca(root_graph_param: DicParam, dic_param, sample_no=0):
     """run pca package to get graph jsons"""
 

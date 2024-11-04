@@ -1,4 +1,5 @@
 import colorsys
+import logging
 
 import numpy as np
 import pandas as pd
@@ -38,12 +39,14 @@ from ap.common.constants import (
     CacheType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import memoize
+from ap.common.memoize import CustomCache
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
 )
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
+
+logger = logging.getLogger(__name__)
 
 
 @log_execution_time('[TRACE DATA]')
@@ -54,7 +57,7 @@ from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey
     (EventType.GL, EventAction.PLOT, Target.GRAPH),
     send_ga=True,
 )
-@memoize(is_save_file=True, cache_type=CacheType.TRANSACTION_DATA)
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_graphical_lasso(graph_param, dic_param, df=None):
     (
         dic_param,
@@ -253,7 +256,7 @@ def _preprocess_glasso_data(X, idx_tgt, cat_cols, max_datapoints=10_000, verbose
         np.random.seed(1)
         X = X.sample(n=max_datapoints, replace=False)
         if verbose:
-            print('Number of data points exceeded {}. Data is automatically resampled. '.format(max_datapoints))
+            logger.info('Number of data points exceeded {max_datapoints}. Data is automatically resampled.')
 
     # convert string variables
     if (idx_tgt is not None) and (len(cat_cols) > 0):
@@ -320,7 +323,7 @@ class GaussianGraphicalModel:
         emp_cov = empirical_covariance(X)
         eigenvals, _ = np.linalg.eig(emp_cov)
         if np.max(eigenvals) - np.min(eigenvals) > 1:
-            print('Shrink covariance, as detected broad eigenvalue range of covariance matrix.')
+            logger.info('Shrink covariance, as detected broad eigenvalue range of covariance matrix.')
             emp_cov = shrunk_covariance(emp_cov, shrinkage=0.8)
 
         # fit glasso along specified alphas
@@ -331,8 +334,9 @@ class GaussianGraphicalModel:
                 dic_res['alpha'].append(alpha)
                 dic_res['parcor'].append(self._precision2parcor(pmat))
                 dic_res['ebic'].append(self._calc_extended_bic(pmat, emp_cov, X.shape[0]))
-            except Exception:
-                print('Poorly conditioned on alpha={}. Skip'.format(alpha))
+            except Exception as e:
+                logger.exception(e)
+                logger.info(f'Poorly conditioned on alpha={alpha}. Skip')
 
         self.results = dic_res
 
@@ -377,7 +381,7 @@ class GaussianGraphicalModel:
             best_parcor = self.results['parcor'][0]
             for i in reversed(range(len(self.alphas))):
                 num_direct_vars = np.sum(self.results['parcor'][i][self.idx_target, :] != 0)
-                print('alpha: {}, num_direct_vars: {}'.format(self.alphas[i], num_direct_vars))
+                logger.info(f'alpha: {self.alphas[i]}, num_direct_vars: {num_direct_vars}')
                 if num_direct_vars >= obj_num:
                     best_alpha = self.alphas[i]
                     best_parcor = self.results['parcor'][i]
@@ -442,11 +446,11 @@ def _gen_node_positions(parcor, idx_target=None):
         idx_remain = np.setdiff1d(idx_all, idx_tgt)
         idx_per_layer = [np.array(idx_tgt)]
         if verbose:
-            print('==========\nall: {}'.format(idx_all))
+            logger.info('==========\nall: {idx_all}')
         for i in range(1, num_layers):
             if verbose:
-                print('from: {}'.format(idx_remain))
-                print('to: {}'.format(idx_per_layer[i - 1]))
+                logger.info('from: {idx_remain}')
+                logger.info(f'to: {idx_per_layer[i - 1]}')
             connected_idx = extract_connected_idx(parcor, from_idx=idx_remain, to_idx=idx_per_layer[i - 1])
             idx_remain = np.setdiff1d(idx_remain, connected_idx)
             if len(connected_idx) == 0:
@@ -455,8 +459,8 @@ def _gen_node_positions(parcor, idx_target=None):
                 break
             idx_per_layer.append(connected_idx)
             if verbose:
-                print('added: {}'.format(connected_idx))
-                print('remain: {}'.format(idx_remain))
+                logger.info(f'added: {connected_idx}')
+                logger.info(f'remain: {idx_remain}')
         idx_per_layer.append(idx_remain)
         return idx_per_layer
 

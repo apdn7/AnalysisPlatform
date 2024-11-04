@@ -1,27 +1,15 @@
 from __future__ import annotations
 
+import logging
 import queue
 from datetime import datetime
-from enum import Enum, auto
 from functools import wraps
 
-from ap import dic_config, json_dumps, logger
-from ap.common.common_utils import get_multiprocess_queue_file, read_pickle_file
-from ap.common.constants import LISTEN_BACKGROUND_TIMEOUT, MAIN_THREAD, ListenNotifyType
+from ap import json_dumps
+from ap.common.constants import LISTEN_BACKGROUND_TIMEOUT, AnnounceEvent
+from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 
-
-class AnnounceEvent(Enum):
-    JOB_RUN = auto()
-    PROC_LINK = auto()
-    SHUT_DOWN = auto()
-    DATA_TYPE_ERR = auto()
-    EMPTY_FILE = auto()
-    PCA_SENSOR = auto()
-    SHOW_GRAPH = auto()
-    DISK_USAGE = auto()
-    DATA_REGISTER = auto()
-    BACKUP_DATA_FINISHED = auto()
-    RESTORE_DATA_FINISHED = auto()
+logger = logging.getLogger(__name__)
 
 
 class MessageAnnouncer:
@@ -29,7 +17,6 @@ class MessageAnnouncer:
 
     def __init__(self):
         self.dic_listeners = {}
-        self.dic_progress = None
 
     def init_stream_sse(self, uuid: str, main_tab_uuid: str):
         try:
@@ -104,14 +91,6 @@ class MessageAnnouncer:
         :param event: event name
         :param job_id: a job id to identity EVENT each other
         """
-        if not dic_config[MAIN_THREAD]:
-            if self.dic_progress is None:
-                process_queue = read_pickle_file(get_multiprocess_queue_file())
-                self.dic_progress = process_queue[ListenNotifyType.JOB_PROGRESS.name]
-
-            event_job_id = job_id if job_id else event
-            self.dic_progress[event_job_id] = (data, event)
-            return
 
         # We go in reverse order because we might have to delete an element, which will shift the
         # indices backward
@@ -176,7 +155,7 @@ class MessageAnnouncer:
             def wrapper(*args, **kwargs):
                 try:
                     result = fn(*args, **kwargs)
-                    background_announcer.announce(percent, AnnounceEvent.SHOW_GRAPH.name)
+                    EventQueue.put(EventBackgroundAnnounce(data=percent, event=AnnounceEvent.SHOW_GRAPH))
                 except Exception as e:
                     raise e
 

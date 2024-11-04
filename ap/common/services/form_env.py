@@ -480,7 +480,7 @@ def bind_condition_procs(dic_proc_cfgs: Dict[int, CfgProcess], dic_param, prefix
     return cond_procs
 
 
-# @memoize()
+# @CustomCache.memoize()
 def bind_dic_param_to_class(
     dic_proc_cfgs: Dict[int, CfgProcess],
     trace_graph: TraceGraph,

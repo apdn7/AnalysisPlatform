@@ -661,7 +661,11 @@ const orderCategoryWithOrderSeries = (traceData, clearOnFlyFilter) => {
 };
 
 const produceCategoricalTable = (traceData, options = {}) => {
-    const { category } = traceData.filter_on_demand;
+    const [categoriesLabel, _] = getLabelAndFilterValues();
+    let { category } = traceData.filter_on_demand;
+    category = category.filter((cate) =>
+        categoriesLabel.includes(cate.column_id),
+    );
     // fix x-axis with datetime range
     const startDt = traceData.COMMON[CONST.STARTDATE];
     const startTm = traceData.COMMON[CONST.STARTTIME];

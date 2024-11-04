@@ -1,13 +1,17 @@
+import logging
 from datetime import datetime, timedelta
 
 import pytz
 from apscheduler.triggers.cron import CronTrigger
 
-from ap import db, scheduler
+from ap import db
 from ap.common.constants import JobType
 from ap.common.logger import log_execution_time
+from ap.common.multiprocess_sharing import EventAddJob, EventQueue
 from ap.common.scheduler import scheduler_app_context
 from ap.setting_module.models import CfgRequest
+
+logger = logging.getLogger(__name__)
 
 
 def get_expired_reqs():
@@ -19,23 +23,21 @@ def get_expired_reqs():
 
 
 @scheduler_app_context
-def delete_old_requests(_job_id=None, _job_name=None):
+def delete_old_requests():
     expired_reqs = get_expired_reqs()
     if expired_reqs:
         for request in expired_reqs:
             db.session.delete(request)
             db.session.commit()
 
-        print('-------- EXPIRED REQUESTS DELETED --------')
+        logger.info('-------- EXPIRED REQUESTS DELETED --------')
     else:
-        print('-------- NO REQUEST TO DELETE --------')
-
-    # add_job_delete_expired_request(run_now=False)
+        logger.info('-------- NO REQUEST TO DELETE --------')
 
 
 @log_execution_time()
 def add_job_delete_expired_request(run_now=True):
-    print(f'-------- ADD JOB {JobType.CLEAN_EXPIRED_REQUEST.name} --------')
+    logger.info(f'-------- ADD JOB {JobType.CLEAN_EXPIRED_REQUEST.name} --------')
 
     run_time = (0, 0, 0)
     # generate datetime of today
@@ -46,20 +48,13 @@ def add_job_delete_expired_request(run_now=True):
     utc_datetime = local_datetime.astimezone(pytz.utc)
     trigger = CronTrigger(hour=utc_datetime.hour, minute=run_time[1], second=run_time[2], timezone=pytz.utc)
 
-    dic_params = {}
-    if run_now:
-        run_time = datetime.utcnow()
-        dic_params = {'next_run_time': run_time}
-
-    scheduler.add_job(
-        JobType.CLEAN_EXPIRED_REQUEST.name,
-        delete_old_requests,
-        trigger=trigger,
-        replace_existing=True,
-        kwargs={
-            '_job_id': JobType.CLEAN_EXPIRED_REQUEST.name,
-            '_job_name': JobType.CLEAN_EXPIRED_REQUEST.name,
-        },
-        **dic_params,
+    EventQueue.put(
+        EventAddJob(
+            fn=delete_old_requests,
+            job_type=JobType.CLEAN_EXPIRED_REQUEST,
+            trigger=trigger,
+            replace_existing=True,
+            next_run_time=datetime.utcnow() if run_now else None,
+        ),
     )
     return True
