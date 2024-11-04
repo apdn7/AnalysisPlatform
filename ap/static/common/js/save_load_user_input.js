@@ -1037,7 +1037,8 @@ const saveLoadUserInput = (
             let eleSelector;
             if (
                 v.name === CYCLIC_TERM.DIV_CALENDER ||
-                v.name === 'autoUpdateInterval'
+                v.name === 'autoUpdateInterval' ||
+                v.name.includes('GET02_CATE_SELECT')
             ) {
                 eleSelector = buildEleSelector(null, null, v.id);
             } else {
