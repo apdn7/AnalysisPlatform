@@ -5452,25 +5452,20 @@ const getFmtValueOfArrayTrim5Percent = (array) => {
 };
 
 const getFmtValueOfArray = (array) => {
-    const sortedArray = [...array].sort();
-    const { sigDigit, usageNum } = getSigDigitOfArray(sortedArray);
-    const fmt =
-        sortedArray.length > 0 ? significantDigitFmt(usageNum, sigDigit) : '';
-    return fmt === ',.1f' ? ',.2f' : fmt;
-};
-
-const getSigDigitOfArray = (array) => {
     const decimal = '.';
+    let sortedArray = [...array].sort();
     let usageNum = 0;
     let sigDigit = 0;
-    array.forEach((num) => {
+    sortedArray.forEach((num) => {
         const vals = String(num).split(decimal);
         if (vals.length > 1 && vals[1].length > sigDigit) {
             sigDigit = vals[1].length;
             usageNum = num;
         }
     });
-    return { sigDigit, usageNum };
+    const fmt =
+        sortedArray.length > 0 ? significantDigitFmt(usageNum, sigDigit) : '';
+    return fmt === ',.1f' ? ',.2f' : fmt;
 };
 
 const alignLengthTickLabels = (ticks) => {

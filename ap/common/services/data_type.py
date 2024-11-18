@@ -271,7 +271,8 @@ def convert_df_str_to_others(orig_series):
 
     if series is None:
         # Only cast datetime with string len >= 10
-        if orig_series.str.len().min() < MIN_DATETIME_LEN:
+        # cast to string before using .str accessor
+        if orig_series.astype(str).str.len().min() < MIN_DATETIME_LEN:
             return orig_series
 
         with contextlib.suppress(Exception):

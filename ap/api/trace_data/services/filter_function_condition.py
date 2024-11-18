@@ -13,7 +13,7 @@ def filter_function_column(df: DataFrame, condition_proc: ConditionProc, end_pro
     # AND
     for column_id, filter_details in condition_proc.dic_col_id_filters.items():
         filter_column = end_proc.cfg_proc.get_col(column_id)
-        if not filter_details:
+        if not filter_column or not filter_details:
             continue
 
         if not len(filter_column.function_details):

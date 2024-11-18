@@ -1320,7 +1320,9 @@ def gen_bridge_column_name(id, name):
     from ap.common.services.jp_to_romaji_utils import to_romaji
 
     name = to_romaji(name)
-    return f"_{id}_{name.replace('-', '_').lower()}"[:50]
+    # clear column name
+    name = re.sub(r'[^A-Za-z0-9_]', '_', name)
+    return f'_{id}_{name.lower()}'[:50]
 
 
 def gen_end_proc_start_end_time(start_tm, end_tm, return_string: bool = True, buffer_days=14):

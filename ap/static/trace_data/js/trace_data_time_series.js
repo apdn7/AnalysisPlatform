@@ -701,24 +701,7 @@ function YasuTsChart(
                             // end limit 8 ticks
                         } else {
                             const ticks = axis.ticks.map((tick) => tick.value);
-                            const formatFloat = '^[,][.](\\d+)[f]$';
-                            const { sigDigit } = getSigDigitOfArray([
-                                minY,
-                                maxY,
-                            ]);
-                            const yTickFmt = getFmtValueOfArray(ticks);
-                            const yTickMax = Math.max(...ticks);
-                            const yTickMin = Math.min(...ticks);
-                            y_fmt = yTickFmt;
-                            if (yTickFmt.includes('f')) {
-                                const [, sigDigitFmt] =
-                                    yTickFmt.match(formatFloat);
-                                y_fmt =
-                                    sigDigit > Number(sigDigitFmt) &&
-                                    yTickMax - yTickMin < 1
-                                        ? `,.${sigDigit + 1}f`
-                                        : yTickFmt;
-                            }
+                            y_fmt = getFmtValueOfArray(ticks);
                         }
                         return;
                     },

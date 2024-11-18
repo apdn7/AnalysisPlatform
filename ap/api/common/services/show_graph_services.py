@@ -1032,8 +1032,9 @@ def gen_graph_df(
     df = judge_data_conversion(df, judge_columns)
     df = boolean_data_conversion(df, boolean_columns)
     # filter function column
-    for condition_proc in cond_procs:
-        df = filter_function_column(df, condition_proc, end_proc)
+    for end_proc in end_procs:
+        for condition_proc in cond_procs:
+            df = filter_function_column(df, condition_proc, end_proc)
 
     return df, actual_record_number, unique_serial
 
