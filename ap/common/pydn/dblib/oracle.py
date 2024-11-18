@@ -305,11 +305,14 @@ self.is_connected: {self.is_connected}
         """
         timestamp_frm = "'YYYY-MM-DD HH24:MI:SS.FF3'"
         timestamp_z_frm = "'YYYY-MM-DD HH24:MI:SS.FF3TZR'"
+        # timestamp_z_frm_6 = "'YYYY-MM-DD HH24:MI:SS.FF6TZR'"
         timestamp_tz_frm = "'YYYY-MM-DD HH24:MI:SS.FF3 TZH:TZM'"
         regex_str = r"('\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{3}')"
         regex_z_str = r"('\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{3}Z')"
+        # regex_z_str_6 = r"('\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{6}Z')"
         regex_tz_str = r"('\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{3}\s[+-]?\d{1,2}:\d{2}')"
         new_sql = re.sub(regex_str, f'TO_TIMESTAMP(\\1,{timestamp_frm})', sql)
+        # new_sql = re.sub(regex_z_str_6, f'TO_TIMESTAMP_TZ(\\1,{timestamp_z_frm_6})', new_sql)
         new_sql = re.sub(regex_z_str, f'TO_TIMESTAMP_TZ(\\1,{timestamp_z_frm})', new_sql)
         new_sql = re.sub(regex_tz_str, f'TO_TIMESTAMP_TZ(\\1,{timestamp_tz_frm})', new_sql)
         # new_sql = re.sub(regex_str, f'TO_CHAR(TO_TIMESTAMP(\\1,{timestamp_frm}),{timestamp_frm})', sql)

@@ -1,5 +1,16 @@
 # Releases
 
+## v4.7.6
+
+Bug fix
+
+- Fixed a bug where some data periods were not imported from a database
+- Fixed a bug where data preview did not appear in Process Config page from a database which has a date column
+- Fixed a bug where data importing failes when CSV/TSV file has an empty column name
+- Fixed a bug of significant digits on the Y axis of the graph in Full-points Plot (FPP)
+- Fixed a bug where some data periods to not be imported from the Software Workshop interface (PostgreSQL)
+
+
 ## v4.7.5
 
 New features and improvements

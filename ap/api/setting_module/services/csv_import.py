@@ -280,7 +280,10 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     is_first_chunk = True
     error_type = None
     chunk_size = record_per_commit * 100
+    origin_default_csv_param = default_csv_param.copy()
     for idx, (csv_file_name, transformed_file) in enumerate(import_targets):
+        # Because each file has a different structure, it will read according to different parameters
+        default_csv_param = origin_default_csv_param.copy()
         job_info.target = csv_file_name
 
         if not dic_imported_row:
@@ -298,6 +301,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
             with_encoding=True,
         )
         # check missing columns
+        partial_dummy_header = False
         if is_abnormal is False:
             dic_csv_cols = None
             dic_org_csv_cols = None
@@ -326,7 +330,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                         csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
                     else:
                         # for the column names with only spaces, we need to generate dummy headers for them
-                        _, csv_cols, *_ = gen_dummy_header(org_csv_cols)
+                        _, csv_cols, _, partial_dummy_header, *_ = gen_dummy_header(org_csv_cols)
                         csv_cols = normalize_list(csv_cols)
                     # try to convert ➊ irregular number from csv columns
                     csv_cols = [normalize_str(col) for col in csv_cols]
@@ -399,7 +403,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                 continue
 
             # default_csv_param['usecols'] = [i for i, col in enumerate(valid_columns) if col]
-            if not data_src.dummy_header:
+            if not data_src.dummy_header and not partial_dummy_header:
                 default_csv_param['usecols'] = transform_duplicated_col_suffix_to_pandas_col(
                     dic_valid_csv_cols,
                     dic_org_csv_cols,
@@ -484,6 +488,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                 dic_use_cols=dic_use_cols,
                 col_names=use_col_names,
                 encoding=encoding,
+                is_partial_dummy_header=partial_dummy_header,
             )
             # validate column name
             validate_columns(dic_use_cols, df_one_file.columns, use_dummy_datetime, dummy_datetime_col)
@@ -723,11 +728,15 @@ def csv_to_df(
     dic_use_cols=None,
     col_names=None,
     encoding=None,
+    is_partial_dummy_header=False,
 ):
     # read csv file
     read_csv_param = {}
     if default_csv_param:
         read_csv_param.update(default_csv_param)
+
+    if is_partial_dummy_header:  # skip header
+        head_skips = head_skips + [max(head_skips) + 1] if len(head_skips) else [0]
 
     read_csv_param.update(
         {
@@ -741,7 +750,6 @@ def csv_to_df(
                 'header': 0,
             },
         )
-
     # assign n_rows with is_transpose
     n_rows = get_limit_records(is_transpose=data_src.is_transpose, n_rows=data_src.n_rows)
     read_csv_param.update({'nrows': n_rows})

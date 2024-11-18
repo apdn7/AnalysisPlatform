@@ -29,7 +29,6 @@ from ap.api.setting_module.services.software_workshop_etl_services import (
 )
 from ap.api.trace_data.services.proc_link import add_gen_proc_link_job
 from ap.common.common_utils import (
-    DATE_FORMAT_STR_FACTORY_DB,
     DATE_FORMAT_STR_ONLY_DIGIT,
     add_days,
     add_double_quotes,
@@ -67,6 +66,7 @@ logger = logging.getLogger(__name__)
 
 MAX_RECORD = 1_000_000
 SQL_FACTORY_LIMIT = 5_000_000
+SOFTWARE_WORKSHOP_FACTORY_LIMIT = 20_000
 SQL_DAY = 1
 SQL_DAYS_AGO = 30
 FETCH_MANY_SIZE = 20_000
@@ -163,7 +163,6 @@ def import_factory(proc_id):
     job_info.job_id = job_id
     data_source_name = proc_cfg.data_source.name
     table_name = proc_cfg.table_name
-    has_data = True
 
     while inserted_row_count < MAX_RECORD and is_import:
         # get sql range
@@ -187,17 +186,18 @@ def import_factory(proc_id):
 
         # no data in range, stop
         if start_time > fac_max_date:
-            has_data = False
             break
 
         # validate import date range
         if end_time >= fac_max_date:
+            # this is not necessary for now
+            # the next import_from is determined by the imported_end_time
+            # end_time = fac_max_date
             is_import = False
 
         # get data from factory
         data = get_factory_data(proc_cfg, column_names, auto_increment_col, start_time, end_time)
         if not data:
-            has_data = False
             break
 
         cols = next(data)
@@ -321,7 +321,7 @@ def import_factory(proc_id):
 
             # to save into
             job_info.import_from = start_time
-            job_info.import_to = imported_end_time
+            job_info.import_to = format_factory_date_to_meta_data(imported_end_time, is_tz_col)
 
             job_info.status = JobStatus.DONE.name
             if error_type:
@@ -350,17 +350,17 @@ def import_factory(proc_id):
                 f'FACTORY DATA IMPORT SQL(days = {sql_day}, records = {total_row}, range = {start_time} - {end_time})',
             )
 
-    if not has_data:
-        # save record into factory import to start job FACTORY PAST
-        gen_import_job_info(job_info, 0, start_time, start_time)
-        job_info.auto_increment_col_timezone = is_tz_col
-        job_info.percent = 100
-        # insert import history
-        job_info.import_type = JobType.FACTORY_IMPORT.name
-        job_info.import_from = start_time
-        job_info.import_to = start_time
-        save_import_history(proc_id, job_info=job_info)
-        yield job_info
+    # if not has_data:
+    #     # save record into factory import to start job FACTORY PAST
+    #     gen_import_job_info(job_info, 0, start_time, start_time)
+    #     job_info.auto_increment_col_timezone = is_tz_col
+    #     job_info.percent = 100
+    #     # insert import history
+    #     job_info.import_type = JobType.FACTORY_IMPORT.name
+    #     job_info.import_from = start_time
+    #     job_info.import_to = start_time
+    #     save_import_history(proc_id, job_info=job_info)
+    #     yield job_info
 
 
 @log_execution_time()
@@ -455,14 +455,9 @@ def get_sql_range_time(
     end_time = add_days(start_time, days=range_day)
 
     # convert to string
-    start_time = convert_time(start_time, format_str=DATE_FORMAT_STR_FACTORY_DB, only_millisecond=True)
-    end_time = convert_time(end_time, format_str=DATE_FORMAT_STR_FACTORY_DB, only_millisecond=True)
-    filter_time = convert_time(filter_time, format_str=DATE_FORMAT_STR_FACTORY_DB, only_millisecond=True)
-
-    if is_tz_col:
-        start_time += 'Z'
-        end_time += 'Z'
-        filter_time += 'Z'
+    start_time = format_factory_date_to_meta_data(start_time, is_tz_col=is_tz_col)
+    end_time = format_factory_date_to_meta_data(end_time, is_tz_col=is_tz_col)
+    filter_time = format_factory_date_to_meta_data(filter_time, is_tz_col=is_tz_col)
 
     return start_time, end_time, filter_time
 
@@ -517,7 +512,7 @@ def get_data_by_range_time(
             proc_cfg.process_factid,
             start_time,
             end_time,
-            limit=sql_limit,
+            limit=SOFTWARE_WORKSHOP_FACTORY_LIMIT,
             master_type=MasterDBType[proc_cfg.master_type],
         )
         sql, params = db_instance.gen_sql_and_params(stmt)

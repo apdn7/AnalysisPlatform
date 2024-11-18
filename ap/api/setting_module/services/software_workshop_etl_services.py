@@ -225,9 +225,9 @@ def get_master_data_stmt(
     if process_factid is not None:
         conditions.append(target_table.c.child_equip_id == process_factid)
     if start_date is not None:
-        conditions.append(target_table.c.event_time >= start_date)
+        conditions.append(target_table.c.event_time > start_date)
     if end_date is not None:
-        conditions.append(target_table.c.event_time < end_date)
+        conditions.append(target_table.c.event_time <= end_date)
 
     stmt = sa.select(
         [
