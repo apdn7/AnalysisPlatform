@@ -1073,78 +1073,93 @@ def time_transform(time_series):
 
 
 @log_execution_time()
-def convert_datetime_format(df, dic_data_type, datetime_format: Optional[str] = None):
+def convert_datetime_format(df, dic_data_type, datetime_format: Optional[str] = None, tzinfo: Optional[str] = None):
     datetime_format_obj = DateTimeFormatUtils.get_datetime_format(datetime_format)
     for col, data_type in dic_data_type.items():
         if col not in df.columns:
             continue
-        if data_type == DataType.DATETIME.name:
-            # Convert datetime base on datetime format
-            if datetime_format_obj.datetime_format:
-                datetime_series = pd.to_datetime(
-                    df[col],
-                    errors='coerce',
-                    format=datetime_format_obj.datetime_format,
-                )
-                non_na_datetime_series = datetime_series[datetime_series.notnull()]
-                df[col] = non_na_datetime_series.dt.strftime(SQLiteFormatStrings.DATETIME.value).astype(
-                    pd.StringDtype(),
-                )
-                continue
+        try:
+            if data_type == DataType.DATETIME.name:
+                # Convert datetime base on datetime format
+                if datetime_format_obj.datetime_format:
+                    datetime_series = pd.to_datetime(
+                        df[col],
+                        errors='coerce',
+                        format=datetime_format_obj.datetime_format,
+                    )
+                    non_na_datetime_series = datetime_series[datetime_series.notnull()]
+                    if tzinfo:
+                        if non_na_datetime_series.dt.tz:
+                            df[col] = non_na_datetime_series.dt.tz_convert(tzinfo).astype(pd.StringDtype())
+                        else:
+                            df[col] = non_na_datetime_series.dt.tz_localize(tzinfo).astype(pd.StringDtype())
+                    else:
+                        df[col] = non_na_datetime_series.dt.strftime(SQLiteFormatStrings.DATETIME.value).astype(
+                            pd.StringDtype(),
+                        )
+                    continue
 
-            dtype_name = df[col].dtype.name
-            if dtype_name == 'object':
-                df[col] = df[col].astype(str)
-            elif dtype_name != 'string':
-                continue
-            date_only = data_type == DataType.DATE.name
-            df[col] = datetime_transform(df[col], date_only=date_only)
+                dtype_name = df[col].dtype.name
+                if dtype_name == 'object':
+                    df[col] = df[col].astype(str)
+                elif dtype_name != 'string':
+                    continue
+                date_only = data_type == DataType.DATE.name
+                df[col] = datetime_transform(df[col], date_only=date_only)
+                if tzinfo:
+                    df[col] = pd.to_datetime(df[col], errors='coerce')
+                    if df[col].dt.tz:
+                        df[col] = df[col].dt.tz_convert(tzinfo).astype(pd.StringDtype())
+                    else:
+                        df[col] = df[col].dt.tz_localize(tzinfo).astype(pd.StringDtype())
 
-        elif data_type == DataType.DATE.name:
-            # Convert date base on date format
-            if datetime_format_obj.date_format:
-                date_series = pd.to_datetime(
-                    df[col],
-                    errors='coerce',
-                    format=datetime_format_obj.date_format,
-                )
-                non_na_date_series = date_series[date_series.notnull()]
-                df[col] = non_na_date_series.dt.strftime(SQLiteFormatStrings.DATE.value).astype(pd.StringDtype())
-                continue
+            elif data_type == DataType.DATE.name:
+                # Convert date base on date format
+                if datetime_format_obj.date_format:
+                    date_series = pd.to_datetime(
+                        df[col],
+                        errors='coerce',
+                        format=datetime_format_obj.date_format,
+                    )
+                    non_na_date_series = date_series[date_series.notnull()]
+                    df[col] = non_na_date_series.dt.strftime(SQLiteFormatStrings.DATE.value).astype(pd.StringDtype())
+                    continue
 
-            if pd.api.types.is_datetime64_dtype(df[col]):
-                df[col] = df[col].dt.strftime(SQLiteFormatStrings.DATE.value).astype(pd.StringDtype())
-                continue
+                if pd.api.types.is_datetime64_dtype(df[col]):
+                    df[col] = df[col].dt.strftime(SQLiteFormatStrings.DATE.value).astype(pd.StringDtype())
+                    continue
 
-            date_series = pd.to_datetime(df[col], errors='coerce')
-            date_series.update(date_series[date_series.notnull()].dt.strftime(SQLiteFormatStrings.DATE.value))
-            unknown_series = df[date_series.isnull()][col].astype('string')
-            date_series.update(unknown_series)
-            date_series = date_series.astype('string')
-            df[col] = date_transform(date_series).replace({pd.NaT: DEFAULT_NONE_VALUE})
+                date_series = pd.to_datetime(df[col], errors='coerce')
+                date_series.update(date_series[date_series.notnull()].dt.strftime(SQLiteFormatStrings.DATE.value))
+                unknown_series = df[date_series.isnull()][col].astype('string')
+                date_series.update(unknown_series)
+                date_series = date_series.astype('string')
+                df[col] = date_transform(date_series).replace({pd.NaT: DEFAULT_NONE_VALUE})
 
-        elif data_type == DataType.TIME.name:
-            # Convert time base on time format
-            if datetime_format_obj.time_format:
-                time_series = pd.to_datetime(
-                    df[col],
-                    errors='coerce',
-                    format=datetime_format_obj.time_format,
-                )
-                non_na_time_series = time_series[time_series.notnull()]
-                df[col] = non_na_time_series.dt.strftime(SQLiteFormatStrings.TIME.value).astype(pd.StringDtype())
-                continue
+            elif data_type == DataType.TIME.name:
+                # Convert time base on time format
+                if datetime_format_obj.time_format:
+                    time_series = pd.to_datetime(
+                        df[col],
+                        errors='coerce',
+                        format=datetime_format_obj.time_format,
+                    )
+                    non_na_time_series = time_series[time_series.notnull()]
+                    df[col] = non_na_time_series.dt.strftime(SQLiteFormatStrings.TIME.value).astype(pd.StringDtype())
+                    continue
 
-            if pd.api.types.is_datetime64_dtype(df[col]):
-                df[col] = df[col].dt.strftime(SQLiteFormatStrings.TIME.value).astype(pd.StringDtype())
-                continue
+                if pd.api.types.is_datetime64_dtype(df[col]):
+                    df[col] = df[col].dt.strftime(SQLiteFormatStrings.TIME.value).astype(pd.StringDtype())
+                    continue
 
-            time_series = pd.to_datetime(df[col], errors='coerce')
-            time_series.update(time_series[time_series.notnull()].dt.strftime(SQLiteFormatStrings.TIME.value))
-            unknown_series = df[time_series.isnull()][col].astype('string')
-            time_series.update(unknown_series)
-            time_series = time_transform(time_series).replace({pd.NaT: DEFAULT_NONE_VALUE})
-            df[col] = time_series
+                time_series = pd.to_datetime(df[col], errors='coerce')
+                time_series.update(time_series[time_series.notnull()].dt.strftime(SQLiteFormatStrings.TIME.value))
+                unknown_series = df[time_series.isnull()][col].astype('string')
+                time_series.update(unknown_series)
+                time_series = time_transform(time_series).replace({pd.NaT: DEFAULT_NONE_VALUE})
+                df[col] = time_series
+        except Exception:
+            df[col] = DEFAULT_NONE_VALUE
 
     return df
 

@@ -87,14 +87,14 @@ def get_current_timestamp(format_str=DATE_FORMAT_STR):
 
 class PostgresFormatStrings(Enum):
     DATE = '%Y-%m-%d'
-    TIME = '%H:%M:%S'
+    TIME = '%H:%M:%S'  # time not support milliseconds
     DATETIME = '%Y-%m-%d %H:%M:%S.%f'
 
 
 class SQLiteFormatStrings(Enum):
     DATE = '%Y-%m-%d'
     TIME = '%H:%M:%S'
-    DATETIME = '%Y-%m-%d %H:%M:%S'
+    DATETIME = '%Y-%m-%d %H:%M:%S.%f'
 
 
 def parse_int_value(value):

@@ -333,6 +333,23 @@ const getSortKeys = (targetEle, isSimple = null) => {
 const sortHtmlElements = (parentEle, isSimple = null) => {
     let isChanged = false;
     const ul = $(parentEle);
+
+    // unsort if nothing is selected - START
+    const isInitSort = $(ul).data('init-sort');
+    const isCheckBoxChecked = $(ul).find('input[type="checkbox"]:checked');
+    const isSelectHasVal = $(ul)
+        .find('select')
+        .toArray()
+        .some((select) => $(select).val());
+    if (isCheckBoxChecked.length === 0 && !isSelectHasVal && !isInitSort) {
+        return;
+    }
+    // unsort if nothing is selected - END
+
+    // remove sortBtn css
+    $(ul).find('.sortCol').removeAttr('clicked');
+    $(ul).find('.sortCol').removeClass('asc desc');
+
     const items = ul.find('.list-group-item').get();
     items.sort((a, b) => {
         const aKeys = getSortKeys(a, isSimple);

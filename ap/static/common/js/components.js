@@ -362,6 +362,7 @@ const addGroupListCheckboxWithSearch = (
         categoryFilterDOM = null,
         colorDOM = null,
         judgeDOM = null,
+        itemVal = '',
     ) => {
         if (!chkBox) {
             return '';
@@ -409,12 +410,18 @@ const addGroupListCheckboxWithSearch = (
                 props.judge,
                 props.showFilter,
             ];
+            const shownNameByDateTime =
+                dataType === DataTypes.DATETIME.name
+                    ? isGetDate
+                        ? ''
+                        : shownName
+                    : shownName;
             html = `
-                <div class="col-sm-4 col-xs-4 show-name-col ${commonClass} shorten-name pr-1 search-col${isStrCol}" title="${shownName}">
+                <div class="col-sm-3 col-xs-3 show-name-col ${commonClass} shorten-name pr-1 search-col${isStrCol}" title="${shownName}" data-for-sort="${itemVal}">
                     ${chkBox}
                 </div>
-                <div class="col-sm-4 col-xs-4 show-name-col ${masterNameClass} shorten-name pr-1 search-col" title="${shownName}">
-                    ${dataType === DataTypes.DATETIME.name ? (isGetDate ? '' : shownName) : shownName}
+                <div class="col-sm-3 col-xs-3 show-name-col ${masterNameClass} shorten-name pr-1 search-col" title="${shownName}" data-for-sort="${shownNameByDateTime || ' '}">
+                    ${shownNameByDateTime}
                 </div>
             `;
             for (let i = 2; i < originalTotalCol.length; i++) {
@@ -713,6 +720,7 @@ const addGroupListCheckboxWithSearch = (
                 categoryFilterDOM,
                 colorDOM,
                 judgeDOM,
+                itemVal,
             ),
         );
     }
@@ -812,13 +820,28 @@ const addGroupListCheckboxWithSearch = (
         }
 
         const requiredClass = props.isRequired ? 'required-input' : '';
+
+        // for sort in filter => hide sort button by css: #cndPrc .sortCol
+        const createSortButton = (index) => `
+            <span idx=${index} class="sortCol" title="Sort">
+                <i class="fa fa-sm fa-play asc"></i>
+                <i class="fa fa-sm fa-play desc"></i>
+            </span>
+        `;
         allOption = `
-            <div class="col-sm-8 col-xs-8 show-name-col-header pr-1 custom-control custom-checkbox shorten-name">
-                 <input type="${inputType}" name="${props.name}"
-                    class="custom-control-input checkbox-all ${requiredClass}"
-                     id="checkbox-all-${id + parentId}" value="All" ${!props.noFilter && isChecked} ${isShowColorCheckBox ? 'hidden disabled' : ''}>
-                <label class="custom-control-label ${isShowColorCheckBox ? 'd-none' : ''}"
-                    for="checkbox-all-${id + parentId}">${i18nCommon.allSelection}</label>
+            <div class="col-sm-3 col-xs-3 show-name-col pr-1 custom-control custom-checkbox shorten-name">
+                <div>
+                    <input type="${inputType}" name="${props.name}"
+                        class="custom-control-input checkbox-all ${requiredClass}"
+                         id="checkbox-all-${id + parentId}" value="All" ${!props.noFilter && isChecked} ${isShowColorCheckBox ? 'hidden disabled' : ''}>
+                    <label class="custom-control-label ${isShowColorCheckBox ? 'd-none' : ''}"
+                        for="checkbox-all-${id + parentId}">${i18nCommon.allSelection}</label>
+                </div>
+                ${createSortButton(0)}
+          
+            </div>
+            <div class="col-sm-3 col-xs-3 show-name-col pr-1 custom-control custom-checkbox shorten-name">
+                ${createSortButton(1)}
             </div>
             ${typeColDOM}
             ${thresholdBoxDOM}
@@ -846,7 +869,7 @@ const addGroupListCheckboxWithSearch = (
             <div class="floating-dropdown-parent ${labelClass}${expandClass}">
                 ${expandArrow}
                 ${searchItems(id)}
-                <ul class="list-group grouplist-checkbox-with-search" id="${sensorListId}" >
+                <ul class="list-group grouplist-checkbox-with-search" id="${sensorListId}" data-init-sort="true">
                     ${genDetailItem(true, noFilterOption)}
                     ${genDetailItem(true, allOption)}
                     ${itemList.join(' ')}
@@ -857,7 +880,6 @@ const addGroupListCheckboxWithSearch = (
     $(`#${parentId}`).append(groupList);
 
     // show sensors as a floating list when hover for 1s
-
     showSensorAsFloatingList(sensorListId);
 
     // ADD EVENTS
@@ -1161,16 +1183,24 @@ const onchangeJudge = (e) => {
     const _this = $(e);
     const parentRow = _this.parents('li');
     const facetEl = parentRow.find('[name=catExpBox]');
-    const isChecked = $('input[name="judgeVar"]:checked').length > 0;
+    const isSelfChecked = _this.prop('checked');
+    const isAnyJudgeChecked = $('input[name="judgeVar"]:checked').length > 0;
     const judgeConditionCard = $('#judgeConditionCard');
     const NGCondition = $('#NGCondition');
     const NGConditionValue = $('#NGConditionValue');
 
-    if (isChecked) {
-        const dataType = _this.attr('data-type');
+    // check whether to show NG Condition
+    if (isAnyJudgeChecked) {
         judgeConditionCard.show();
         judgeConditionCard.find('input, select').prop('disabled', false);
+    } else {
+        judgeConditionCard.hide();
+        judgeConditionCard.find('input, select').prop('disabled', true);
+    }
 
+    // change attribute of NG Condition only if the radio is checked
+    if (isSelfChecked) {
+        const dataType = _this.attr('data-type');
         // show only =, != if type == str
         if (dataType === DataTypes.STRING.name) {
             NGCondition.find('option[show-for=real]').attr('hidden', true);
@@ -1185,12 +1215,8 @@ const onchangeJudge = (e) => {
                 NGConditionValue.val(0);
             }
         }
-
         // reset facet in row
         facetEl.val('');
-    } else {
-        judgeConditionCard.hide();
-        judgeConditionCard.find('input, select').prop('disabled', true);
     }
 
     compareSettingChange();

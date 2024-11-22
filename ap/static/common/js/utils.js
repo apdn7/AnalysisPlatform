@@ -258,6 +258,10 @@ const domEles = {
 
 const OFFSET_SCROLL = -15;
 
+const START_POINT_PROC_VALS = {
+    NO_LINK_DATA: '0',
+};
+
 const trimLeft = (target) => target.replace(new RegExp(/^[\s]+/), '');
 
 const trimRight = (target) => target.replace(new RegExp(/[\s]+$/), '');
@@ -2492,6 +2496,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
     setProcessID();
     setColorRelativeStartEndProc();
     checkIfProcessesAreLinked();
+    initSortIcon('ul.list-group');
 };
 
 // add end proc
@@ -4518,10 +4523,11 @@ const sortableTable = (
     }
 };
 
-const initSortIcon = () => {
+const initSortIcon = (containerSelector = 'table') => {
     // handle sort
     $('.sortCol').off('click');
     $('.sortCol').on('click', (el) => {
+        el.stopPropagation();
         let asc = true;
         const sortEl = $(el.target.closest('.sortCol'));
         const isFirstClick = sortEl.attr('clicked');
@@ -4543,17 +4549,41 @@ const initSortIcon = () => {
         }
 
         // Reset sort status in other cols
-        const thisTable = sortEl.closest('table');
-        const otherSortCols = thisTable.find(`.sortCol:not([idx=${idx}])`);
+        const containerEl = sortEl.closest(containerSelector);
+        const otherSortCols = $(containerEl).find(`.sortCol:not([idx=${idx}])`);
         otherSortCols.removeAttr('clicked');
-        otherSortCols.removeClass('asc');
-        otherSortCols.removeClass('desc');
+        otherSortCols.removeClass('asc desc');
 
-        const table = sortEl.parents('table').eq(0);
-        const rows = table.find('tbody tr').toArray().sort(comparer(idx, asc));
-
-        for (let i = 0; i < rows.length; i++) {
-            table.append(rows[i]);
+        if (containerSelector === 'table') {
+            const tableEl = sortEl.parents(containerSelector).eq(0);
+            $(tableEl)
+                .find('tbody tr')
+                .toArray()
+                .sort(comparer(idx, asc))
+                .forEach((row) => $(containerEl).append(row));
+        } else {
+            $(containerEl).data('init-sort', false);
+            Array.from($(containerEl).find('li:not(.keep-header)'))
+                .sort((a, b) => {
+                    const val1 = $(a)
+                        .find('.row')
+                        .children('div')
+                        .eq(idx)
+                        .data('for-sort');
+                    const val2 = $(b)
+                        .find('.row')
+                        .children('div')
+                        .eq(idx)
+                        .data('for-sort');
+                    if (val1 && val2) {
+                        if (asc)
+                            return val1.toUpperCase() > val2.toUpperCase()
+                                ? 1
+                                : -1;
+                        return val1.toUpperCase() > val2.toUpperCase() ? -1 : 1;
+                    }
+                })
+                .forEach((li) => $(containerEl).append(li));
         }
     });
 };
@@ -5053,7 +5083,7 @@ const tsvClipBoard = async (url, formData) => {
 const handleExportDataCommon = (
     type,
     formData,
-    url = '/ap/api/common/data_export',
+    url = '/ap/api/fpp/data_export',
 ) => {
     if (formData.get(CONST.ONLY_EXPORT_DATA_SELECTED) !== 'true') {
         const exportFrom = getExportDataSrc();

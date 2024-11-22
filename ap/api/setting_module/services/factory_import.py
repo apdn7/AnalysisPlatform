@@ -144,8 +144,13 @@ def import_factory(proc_id):
         if DataType[cfg_col.data_type] is DataType.DATETIME or col == get_date_col
     }
 
+    # Check if timezone information exists for the given column
+    _is_tz_col = False
+    if tz_info := dic_tz_info.get(get_date_col):
+        _is_tz_col = tz_info[0] if isinstance(tz_info, (list, tuple)) else tz_info
+
     # get factory max date
-    fac_min_date, fac_max_date, is_tz_col = get_factory_min_max_date(proc_cfg)
+    fac_min_date, fac_max_date, is_tz_col = get_factory_min_max_date(proc_cfg, _is_tz_col)
 
     inserted_row_count = 0
     calc_range_days_func = calc_sql_range_days()
@@ -565,7 +570,7 @@ def get_factory_data(proc_cfg, column_names, auto_increment_col, start_time, end
 
 
 @log_execution_time()
-def get_factory_min_max_date(proc_cfg):
+def get_factory_min_max_date(proc_cfg, is_tz_col=False):
     """
     get factory max date
     """
@@ -596,7 +601,10 @@ def get_factory_min_max_date(proc_cfg):
         if max_time == DATETIME_DUMMY:
             return None, None, False
 
-        is_tz_col = db_instance.is_timezone_hold_column(orig_tblname, get_date_col)
+        # because of sqlite has not tz information in DB, it necessary to get via value
+        # in case of could not extract timezone from data value, try to get timezone by factory instance
+        if not is_tz_col:
+            is_tz_col = db_instance.is_timezone_hold_column(orig_tblname, get_date_col)
         min_time = format_factory_date_to_meta_data(min_time, is_tz_col)
         max_time = format_factory_date_to_meta_data(max_time, is_tz_col)
 

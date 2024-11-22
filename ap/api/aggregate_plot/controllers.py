@@ -71,7 +71,7 @@ def generate_agp():
         dic_card_orders = graph_param.dic_card_orders
 
     org_dic_param = deepcopy(dic_param)
-    dic_params = get_end_procs_param(dic_param)
+    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
 
     for single_dic_param in dic_params:
         graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
@@ -109,7 +109,7 @@ def data_export(export_type):
 
     customize_dict_param(dic_param)
     dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
-    dic_params = get_end_procs_param(dic_param)
+    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
 
     delimiter = ',' if export_type == CSVExtTypes.CSV.value else '\t'
 

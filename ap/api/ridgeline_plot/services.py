@@ -1022,7 +1022,7 @@ def calc_rlp_scale_info(
         if is_datetime_col:
             plotdata[SCALE_AUTO][Y_MIN] = y_min
 
-        plotdata[SCALE_SETTING] = calc_setting_scale_y(plotdata, series_y)
+        plotdata[SCALE_SETTING] = calc_setting_scale_y(plotdata, series_y, is_check_y_none=True)
         plotdata[SCALE_THRESHOLD] = calc_threshold_scale_y(plotdata, series_y)
         plotdata[SCALE_COMMON] = {
             Y_MIN: all_graph_min,

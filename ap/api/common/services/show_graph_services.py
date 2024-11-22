@@ -96,6 +96,7 @@ from ap.common.constants import (
     IS_CAT_LIMITED,
     IS_CATEGORY,
     IS_GRAPH_LIMITED,
+    IS_PROC_LINKED,
     KDE_DATA,
     LAST_REQUEST_TIME,
     LOWER_OUTLIER_IDXS,
@@ -406,25 +407,25 @@ def gen_group_filter_list(df, graph_param, dic_param, others=[]):
     filter_sensors = graph_param.get_col_cfgs(filter_cols)
 
     filter_labels = []
-    actual_filter_cols = []
+    sorted_filter_cols = []
     for col in filter_sensors:
         sql_label = gen_sql_label(RANK_COL, col.id, col.column_name)
         if sql_label not in df.columns:
             sql_label = gen_sql_label(col.id, col.column_name)
         if sql_label in df.columns and df[sql_label].value_counts().size <= limit:
             filter_labels.append(sql_label)
-            actual_filter_cols.append(col.id)
+            sorted_filter_cols.append(col.id)
 
     if len(filter_labels) <= 1:
         return dic_param
 
-    group_list = list(df.groupby(filter_labels).groups.keys())
-
-    sorted_filter_cols = [col.id for col in filter_sensors if col.id in actual_filter_cols]
+    # find groups of filter columns from df
+    # do not use df.groupby(filter_labels).groups.keys() to avoid bad performance in huge df
+    group_df = df[filter_labels].drop_duplicates()
+    group_df = group_df.rename(columns=dict(zip(filter_labels, sorted_filter_cols)))
 
     # if group_list has nan, an int64 column will be converted to float64, 1 -> 1.0
     # should be keep original value of these columns, with convert nan to pd.NA first
-    group_df = pd.DataFrame(columns=sorted_filter_cols, data=group_list)
     for col in group_df:
         group_df[col] = group_df[col].astype('Int64', errors='ignore')
 
@@ -694,7 +695,9 @@ def gen_dic_param(
     dic_org_cates=None,
     is_get_chart_infos=True,
 ):
-    if df is None or not len(df):
+    # check if there is process links or 'no link data'
+    is_proc_linked = dic_param[COMMON].get(IS_PROC_LINKED, graph_param.common.is_proc_linked)
+    if is_proc_linked and (df is None or df.empty):
         dic_param[ARRAY_PLOTDATA] = []
         return dic_param
 
@@ -703,6 +706,8 @@ def gen_dic_param(
     original_graph_configs = None
     if TIME_COL in df.columns:
         times = df[TIME_COL]
+        # prevent index error
+        times.reset_index(drop=True, inplace=True)
         if len(times) and str(times[0])[-1].upper() != 'Z':
             times = [convert_time(tm) for tm in times if tm]
 
@@ -717,6 +722,9 @@ def gen_dic_param(
         chart_infos,
         original_graph_configs,
     )
+    dic_param[ARRAY_PLOTDATA] = [
+        {**plot_data, TIMES: dic_param.get(TIMES, [])} for plot_data in dic_param[ARRAY_PLOTDATA]
+    ]
     dic_param[CATEGORY_DATA] = gen_category_data(graph_param, dic_cates or dic_data, dic_org_cates)
 
     dic_param[CYCLE_IDS] = []
@@ -2073,14 +2081,21 @@ def make_irregular_data_none(dic_param):
     return dic_param
 
 
-def get_min_max_of_all_chart_infos(chart_infos):
-    vals = [chart.get(Y_MIN) for chart in chart_infos if chart.get(Y_MIN) is not None]
-    vals += [chart.get(Y_MAX) for chart in chart_infos if chart.get(Y_MAX) is not None]
+def get_min_max_of_all_chart_infos(chart_infos, is_check_y_none=None):
     y_min = None
     y_max = None
+
+    vals = [chart.get(Y_MIN) for chart in chart_infos if chart.get(Y_MIN) is not None]
+    vals += [chart.get(Y_MAX) for chart in chart_infos if chart.get(Y_MAX) is not None]
+
     if vals:
         y_min = min(vals)
         y_max = max(vals)
+
+    if is_check_y_none:
+        is_y_min_none = all(chart.get(Y_MIN) is None for chart in chart_infos)
+        is_y_max_none = all(chart.get(Y_MAX) is None for chart in chart_infos)
+        return y_min, y_max, is_y_min_none, is_y_max_none
 
     return y_min, y_max
 
@@ -2493,7 +2508,7 @@ def calc_auto_scale_y(plotdata, series_y, force_outlier=False):
     }
 
 
-def calc_setting_scale_y(plotdata, series_y):
+def calc_setting_scale_y(plotdata, series_y, is_check_y_none=None):
     series_y = convert_series_to_number(series_y)
     # calculate upper/lower limit
     chart_infos = plotdata.get(CHART_INFOS)
@@ -2504,7 +2519,18 @@ def calc_setting_scale_y(plotdata, series_y):
 
         return {Y_MIN: series_y.min(), Y_MAX: series_y.max()}
 
-    ymin, ymax = get_min_max_of_all_chart_infos(chart_infos)
+    # to set yMin or yMax of scale_auto to yMin or yMax of scale_setting if it's is none
+    is_y_min_none = is_y_max_none = None
+    if is_check_y_none:
+        ymin, ymax, is_y_min_none, is_y_max_none = get_min_max_of_all_chart_infos(
+            chart_infos,
+            is_check_y_none=is_check_y_none,
+        )
+    else:
+        ymin, ymax = get_min_max_of_all_chart_infos(
+            chart_infos,
+        )
+
     if ymin is None and ymax is None:
         if dic_scale_auto:
             return dic_scale_auto
@@ -2523,7 +2549,7 @@ def calc_setting_scale_y(plotdata, series_y):
     else:
         upper_outlier_idxs = series_y[series_y > ymax].index.tolist()
 
-    ymin, ymax = extend_min_max(ymin, ymax)
+    ymin, ymax = extend_min_max(ymin, ymax, is_y_min_none, is_y_max_none, dic_scale_auto=dic_scale_auto)
 
     return {
         Y_MIN: ymin,
@@ -2709,7 +2735,7 @@ def gen_kde_data_trace_data(dic_param, full_arrays=None):
     return dic_param
 
 
-def extend_min_max(y_min, y_max):
+def extend_min_max(y_min, y_max, is_y_min_none=None, is_y_max_none=None, dic_scale_auto=None):
     if y_max is None:
         y_max = y_min * 1.2 if y_min is not None else 1
 
@@ -2723,6 +2749,12 @@ def extend_min_max(y_min, y_max):
     if y_min == 0 and y_max == 0:
         y_min = -1
         y_max = 1
+
+    # to set yMin or yMax of scale_auto to yMin or yMax of scale_setting if it's is none
+    if is_y_min_none:
+        y_min = dic_scale_auto[Y_MIN]
+    if is_y_max_none:
+        y_max = dic_scale_auto[Y_MAX]
 
     return y_min, y_max
 
@@ -3410,6 +3442,13 @@ def get_filter_on_demand_data(dic_param, remove_filter_data=False):
     for key in filter_key:
         if key in dic_param:
             dic_param.pop(key)
+    # Update filter on demand for case No data link
+    # TODO: UNIQUE_DIV
+    if not dic_param[COMMON].get(IS_PROC_LINKED, True):
+        proc_id = int(dic_param[ARRAY_FORMVAL][0][END_PROC])
+        for key in dic_param[FILTER_ON_DEMAND]:
+            filter_vals = dic_param[FILTER_ON_DEMAND][key]
+            dic_param[FILTER_ON_DEMAND][key] = [val for val in filter_vals if val[PROC_NAME] == proc_id]
 
     save_params_and_odf_data_of_request(dic_param)
 

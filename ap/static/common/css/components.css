@@ -14,6 +14,18 @@
     border-right: none;
 }
 
+.end-proc .sortCol {
+    padding: 0 10px;
+    font-size: 10px;
+}
+.end-proc .sortCol:hover path {
+    color: #7d7d7d !important;
+}
+
+#cndPrc .sortCol {
+    display: none;
+}
+
 .shorten-name {
     white-space: nowrap;
     display: inline-block;

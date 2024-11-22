@@ -16,7 +16,7 @@ def filter_function_column(df: DataFrame, condition_proc: ConditionProc, end_pro
         if not filter_column or not filter_details:
             continue
 
-        if not len(filter_column.function_details):
+        if not (filter_column and filter_column.function_details):
             continue
 
         column_name = filter_details[0].column_name

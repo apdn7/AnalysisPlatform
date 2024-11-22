@@ -203,229 +203,34 @@ const parseDataTypeProc = (ele, idx, dataTypeDropdownElement = null) => {
     // changeSelectedColumnRaw(ele, idx);
     // updateSubmitBtn();
 };
-const parseDataType_New = (ele, idx, dataTypeDropdownElement = null) => {
-    dataTypeDropdownElement =
-        dataTypeDropdownElement == null
-            ? ele.closest('div.config-data-type-dropdown')
-            : dataTypeDropdownElement;
-    const rowIndex =
-        idx == null ? $(dataTypeDropdownElement.closest('tr')).index() : idx;
-    changeBackgroundColor(ele);
 
-    const value = ele.getAttribute('raw-data-type');
-    const dataColumn = $(ele).closest('tr').find('input[type=checkbox]');
-    // do not parse `datetime`, `date`, and `time` here.
-    if (
-        value === DataTypes.DATETIME.bs_value ||
-        value === DataTypes.DATE.bs_value ||
-        value === DataTypes.TIME.bs_value
-    ) {
-        const dataType = Object.entries(DataTypes).find(
-            ([, definition]) => definition.bs_value === value,
-        );
-        if (dataType !== null) {
-            const dataTypeName = dataType[1].name;
-            showProcDatetimeFormatSampleData({
-                colIdx: rowIndex,
-                dataType: dataTypeName,
-                dataTypeDropdownElement: dataTypeDropdownElement,
-            });
-            dataColumn.attr('raw-data-type', dataTypeName);
-        }
-    }
-
-    const vals = [
-        ...$(dataTypeDropdownElement)
-            .closest('div.proc-config-content')
-            .find('table[name="processColumnsTableSampleData"] tbody')
-            .find(`tr:eq(${rowIndex}) .sample-data`),
-    ].map((el) => $(el));
-    const attrName = 'data-original';
-
-    switch (value) {
-        case DataTypes.DATETIME.bs_value:
-        case DataTypes.DATE.bs_value:
-        case DataTypes.TIME.bs_value: {
-            const condition = displayDatetimeFormatCondition();
-            const appliedRows = [
-                {
-                    dataType: value,
-                    colIdx: $(ele).closest('tr').find('td[title="index"]')[0]
-                        .dataset.colIdx,
-                    dataTypeDropdownElement: dataTypeDropdownElement,
-                },
-            ];
-            if (condition.showRawData) {
-                showRawFormatDatetimeData(...appliedRows);
-            } else if (condition.showInputFormat) {
-                showInputFormatDatetimeData(...appliedRows);
-            } else if (condition.showAutoFormat) {
-                showAutoFormatDatetimeData(...appliedRows);
-            } else {
-                notifyInvalidFormat();
-            }
-            dataColumn.attr('raw-data-type', value);
-            break;
-        }
-        case DataTypes.INTEGER.bs_value:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseIntData(val);
-                e.html(val);
-            }
-            dataColumn.attr('raw-data-type', DataTypes.INTEGER.name);
-            break;
-        case DataTypes.SMALL_INT.bs_value:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseIntData(val);
-                e.html(val);
-            }
-            dataColumn.attr('raw-data-type', DataTypes.SMALL_INT.name);
-            break;
-        case DataTypes.BIG_INT.bs_value:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseIntData(val);
-                e.html(val);
-            }
-            dataColumn.attr('raw-data-type', DataTypes.BIG_INT.name);
-            break;
-        case DataTypes.BOOLEAN.bs_value:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseBooleanData(val);
-                e.html(val);
-            }
-            dataColumn.attr('raw-data-type', DataTypes.BOOLEAN.name);
-            break;
-        case DataTypes.REAL.bs_value:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseFloatData(val);
-                e.html(val);
-            }
-            dataColumn.attr('raw-data-type', DataTypes.REAL.name);
-            break;
-        case DataTypes.REAL_SEP.bs_value:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll(',', '');
-                val = parseFloatData(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.INTEGER_SEP.bs_value:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll(',', '');
-                val = parseIntData(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.EU_REAL_SEP.bs_value:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll('.', '');
-                val = val.replaceAll(',', '.');
-                val = parseFloatData(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.EU_INTEGER_SEP.bs_value:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll('.', '');
-                val = val.replaceAll(',', '.');
-                val = parseIntData(val);
-                e.html(val);
-            }
-            break;
-        default:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = trimBoth(String(val));
-                e.html(val);
-            }
-            dataColumn.attr('raw-data-type', DataTypes.TEXT.name);
-            break;
-    }
-};
-
-const parseProcDatetimeFormatSampleData = (dataType, val) => {
+const parseProcDatetimeFormatSampleData = async (dataType, values) => {
     const condition = displayDatetimeFormatCondition();
 
     if (condition.showRawData) {
-        return val;
-    } else if (condition.showInputFormat) {
-        return parseProcDatetimeInputFormat(dataType, val);
-    } else if (condition.showAutoFormat) {
-        return parseProcDatetimeAutoFormat(dataType, val);
+        return values;
+    } else {
+        return await parseProcDatetimeInputFormat(dataType, values);
     }
 };
 
-const parseProcDatetimeInputFormat = (dataType, val) => {
-    const format = getDatetimeFormat();
-    let inputFormat = null,
-        outputFormat = null;
-    switch (dataType) {
-        case DataTypes.DATETIME.name:
-            inputFormat = format.datetime;
-            outputFormat = PROC_CONFIG_DATETIME_FORMAT;
-            break;
-        case DataTypes.DATE.name:
-            inputFormat = format.date;
-            outputFormat = PROC_CONFIG_DATE_FORMAT;
-            break;
-        case DataTypes.TIME.name:
-            inputFormat = format.time;
-            outputFormat = PROC_CONFIG_TIME_FORMAT;
-            break;
-        default:
-            break;
-    }
-    const momentFormat = strftimeToMomentFormat(inputFormat);
-    const momentDate = moment(val, momentFormat, true);
-
-    return momentDate.isValid() ? momentDate.format(outputFormat) : '';
-};
-
-const parseProcDatetimeAutoFormat = (datatype, val) => {
-    let formats = null;
-    let outputFormat = null;
-    let outputGroup = null;
-
-    switch (datatype) {
-        case DataTypes.DATETIME.name:
-            formats = REGEX_FORMATS_DATETIME;
-            outputFormat = PROC_CONFIG_DATETIME_FORMAT;
-            outputGroup = REGEX_GROUP_DATETIME;
-            break;
-        case DataTypes.DATE.name:
-            formats = REGEX_FORMATS_DATE;
-            outputFormat = PROC_CONFIG_DATE_FORMAT;
-            outputGroup = REGEX_GROUP_DATE;
-            break;
-        case DataTypes.TIME.name:
-            formats = REGEX_FORMATS_TIME;
-            outputFormat = PROC_CONFIG_TIME_FORMAT;
-            outputGroup = REGEX_GROUP_TIME;
-            break;
-        default:
-            break;
-    }
-
-    if (formats === null) {
-        return '';
-    }
-
-    const originalData = trimBoth(val);
-    const correctFormat = formats.find(
-        (format) => originalData.match(format) !== null,
-    );
-
-    const replaceByGroup = originalData.replace(correctFormat, outputGroup);
-
-    const momentDate = moment(replaceByGroup, outputFormat);
-    return momentDate.isValid() ? momentDate.format(outputFormat) : '';
+const parseProcDatetimeInputFormat = async (dataType, values) => {
+    const inputFormat = procModalElements.procDateTimeFormatInput.val().trim();
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const formattedData = await fetch('/ap/api/setting/datetime_format', {
+        method: 'POST',
+        body: JSON.stringify({
+            data: values,
+            format: inputFormat,
+            dataType: dataType,
+            tzinfo: timeZone,
+        }),
+    })
+        .then((response) => response.json())
+        .catch((res) => {
+            console.log('Can not apply format');
+        });
+    return formattedData.map((data) => {
+        return data;
+    });
 };
