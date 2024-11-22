@@ -585,7 +585,7 @@ const clearProcModalColumnTable = () => {
     procModalElements.processColumnsSampleDataTableBody.html('');
 };
 
-const generateProcessList = (
+const generateProcessList = async (
     cols,
     rows,
     fromRegenerate = false,
@@ -681,6 +681,8 @@ const generateProcessList = (
 
     sortedCols.forEach((col, i) => {
         const column_raw_name = col.column_raw_name;
+        const isGeneratedDatetime =
+            column_raw_name === procModalElements.generatedDateTimeColumnName;
         // registerCol will be defined when the column already exists in the DB
         const registerCol = dicProcessCols[col.column_name];
         col = fromRegenerate ? col : registerCol || col;
@@ -726,6 +728,7 @@ const generateProcessList = (
             ...DataTypeDropdown_Controller.convertColumnTypeToAttrKey(
                 col.column_type,
             ),
+            is_generated_datetime: isGeneratedDatetime,
         };
 
         colTypes.push(DataTypes[col.data_type].value);
@@ -786,7 +789,7 @@ const generateProcessList = (
     handleScrollSampleDataTable();
     handleHoverProcessColumnsTableRow();
     validateSelectedColumnInput();
-    showProcDatetimeFormatSampleData();
+    await showProcDatetimeFormatSampleData();
     resizeMaxHeightProcColumnTable();
 };
 
@@ -1235,10 +1238,10 @@ const updateCurrentDatasource = () => {
     }
 };
 
-const showLatestRecordsFromPrc = (json) => {
+const showLatestRecordsFromPrc = async (json) => {
     dataGroupType = json.data_group_type;
     // genColumnWithCheckbox(json.cols, json.rows, dummyDatetimeIdx);
-    generateProcessList(json.cols, json.rows);
+    await generateProcessList(json.cols, json.rows);
     preventSelectAll(renderedCols);
     // update changed datasource
     updateCurrentDatasource();
@@ -1265,13 +1268,13 @@ const showLatestRecordsFromPrc = (json) => {
     handleShowFileNameColumn(procModalElements.isShowFileName[0]);
 };
 
-const addDummyDatetimePrc = (addCol = true) => {
+const addDummyDatetimePrc = async (addCol = true) => {
     if (!addCol) {
         // update content of csv
         prcPreviewData.cols.shift();
         prcPreviewData.dummy_datetime_idx = null;
     }
-    showLatestRecordsFromPrc(prcPreviewData);
+    await showLatestRecordsFromPrc(prcPreviewData);
     // todo: disable check/uncheck to prevent remove datetime column
     // if (!addCol && dummyCol.length) {
     //     dummyCol.remove();
@@ -1307,7 +1310,7 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
         type: 'POST',
         contentType: false,
         processData: false,
-        success: (json) => {
+        success: async (json) => {
             loading.hide();
             if (json.cols_duplicated) {
                 showToastrMsg(i18nCommon.colsDuplicated);
@@ -1319,7 +1322,7 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
                   })
                 : [];
             prcPreviewData.cols = currentLatestProcDataCols;
-            getProcessPreviewWith1000Data(json.rows);
+            await getProcessPreviewWith1000Data(json.rows);
             FunctionInfo.resetInputFunctionInfo(false, false);
             FunctionInfo.removeAllFunctionRows();
             showToastrMsgFailLimit(prcPreviewData);
@@ -1332,7 +1335,7 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
             ) {
                 showDummyDatetimeModal(prcPreviewData, true);
             } else {
-                showLatestRecordsFromPrc(prcPreviewData);
+                await showLatestRecordsFromPrc(prcPreviewData);
                 // checkDateAndTimeChecked();
                 updateBtnStyleWithValidation(
                     procModalElements.createOrUpdateProcCfgBtn,
@@ -1352,7 +1355,7 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
     });
 };
 
-const getProcessPreviewWith1000Data = (rows) => {
+const getProcessPreviewWith1000Data = async (rows) => {
     // prcPreviewWith1000Data = json;
     currentProcDataCols = procModalCurrentProcId
         ? currentProcDataCols
@@ -1375,20 +1378,20 @@ const getProcessPreviewWith1000Data = (rows) => {
     }, {});
 
     // convert data to {columnId1: [...], columnId2: [...]}
-    prcPreviewWith1000Data = json1000?.reduce((acc, curr) => {
-        for (let key in curr) {
-            let columnId = columnIdNameObj?.[key];
-            if (!acc[columnId]) {
-                acc[columnId] = [];
-            }
-            let value = curr[key];
-            const dataType = dataTypeNameObj?.[key];
-            value = parseDataByDataType(dataType, value);
-            acc[columnId].push(value);
-        }
-        return acc;
-    }, {});
-
+    // prcPreviewWith1000Data = await json1000?.reduce(async (acc, curr) => {
+    //     for (let key in curr) {
+    //         let columnId = columnIdNameObj?.[key];
+    //         if (!acc[columnId]) {
+    //             acc[columnId] = [];
+    //         }
+    //         let value = curr[key];
+    //         const dataType = dataTypeNameObj?.[key];
+    //         value = parseDataByDataType(dataType, value);
+    //         acc[columnId].push(value);
+    //     }
+    //     return acc;
+    // }, {});
+    const dictDataType = {};
     // convert data to {columnId1: [...], columnId2: [...]}
     prcRawDataWith1000Data = json1000?.reduce((acc, curr) => {
         for (let key in curr) {
@@ -1397,66 +1400,81 @@ const getProcessPreviewWith1000Data = (rows) => {
                 acc[columnId] = [];
             }
             let value = curr[key];
+            const dataType = dataTypeNameObj?.[key];
+            dictDataType[columnId] = dataType;
             acc[columnId].push(value);
         }
         return acc;
     }, {});
+    for (const [columnId, values] of Object.entries(prcRawDataWith1000Data)) {
+        const dataType = dictDataType[columnId];
+        const parseValues = await parseDataByDataType(dataType, values);
+        prcPreviewWith1000Data[columnId] = parseValues;
+    }
 };
 
-const parseDataByDataType = (
+const parseDataByDataType = async (
     dataType,
-    val,
+    values,
     isBigInt = false,
     isJudge = false,
 ) => {
     switch (dataType) {
         case DataTypes.INTEGER.name:
             if (!isBigInt) {
-                val = parseIntData(val);
+                values = values.map((value) => parseIntData(value));
             }
             break;
         case DataTypes.BOOLEAN.name:
             if (isJudge) {
-                val = parseJudgeData(val);
+                values = values.map((value) => parseJudgeData(value));
             } else {
-                val = parseBooleanData(val);
+                values = values.map((value) => parseBooleanData(value));
             }
             break;
         case DataTypes.REAL.name:
-            val = parseFloatData(val);
+            values = values.map((value) => parseFloatData(value));
             break;
         case DataTypes.DATETIME.name:
-            val = parseProcDatetimeFormatSampleData(dataType, val);
+            values = await parseProcDatetimeFormatSampleData(dataType, values);
             break;
         case DataTypes.DATE.name:
-            val = parseProcDatetimeFormatSampleData(dataType, val);
+            values = await parseProcDatetimeFormatSampleData(dataType, values);
             break;
         case DataTypes.TIME.name:
-            val = parseProcDatetimeFormatSampleData(dataType, val);
+            values = await parseProcDatetimeFormatSampleData(dataType, values);
             break;
         case DataTypes.REAL_SEP.name:
-            val = val.replaceAll(',', '');
-            val = parseFloatData(val);
+            values = values.map((value) => {
+                value = value.replaceAll(',', '');
+                return parseFloatData(value);
+            });
             break;
         case DataTypes.INTEGER_SEP.name:
-            val = val.replaceAll(',', '');
-            val = parseIntData(val);
+            values = values.map((value) => {
+                value = value.replaceAll(',', '');
+                return parseIntData(value);
+            });
             break;
         case DataTypes.EU_REAL_SEP.name:
-            val = val.replaceAll('.', '');
-            val = val.replaceAll(',', '.');
-            val = parseFloatData(val);
+            values = values.map((value) => {
+                value = value.replaceAll('.', '');
+                value = value.replaceAll(',', '.');
+                return parseFloatData(value);
+            });
             break;
         case DataTypes.EU_INTEGER_SEP.name:
-            val = val.replaceAll('.', '');
-            val = val.replaceAll(',', '.');
-            val = parseIntData(val);
+            values = values.map((value) => {
+                value = value.replaceAll('.', '');
+                value = value.replaceAll(',', '.');
+                return parseIntData(value);
+            });
             break;
         default:
-            val = trimBoth(String(val));
+            values = values.map((value) => trimBoth(String(value)));
             break;
     }
-    return val;
+    return values;
 };
 
 const clearWarning = () => {
@@ -2926,7 +2944,7 @@ $(() => {
     });
 
     // Show records button click event
-    procModalElements.showRecordsBtn.click((event) => {
+    procModalElements.showRecordsBtn.click(async (event) => {
         event.preventDefault();
         const currentShownTableName =
             getSelectedOptionOfSelect(procModalElements.tables).val() || null;

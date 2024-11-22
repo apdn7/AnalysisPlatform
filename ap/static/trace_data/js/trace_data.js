@@ -246,7 +246,7 @@ $(() => {
     initializeDateTimeRangePicker();
 
     startProcChangeEvents();
-
+    addAttributeToElement();
     bindScatterPlotEvents();
 });
 
@@ -692,6 +692,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
     const dicScatterXY = selectScatterXY(data.array_plotdata);
 
     const startProc = data.COMMON.start_proc;
+    const isProcLinked = data.COMMON.is_proc_linked;
     const histObjs = [];
     for (let i = 0; i < data.array_plotdata.length; i++) {
         const plotData = data.array_plotdata[i];
@@ -805,6 +806,12 @@ const traceDataChart = (data, clearOnFlyFilter) => {
                 isHideNonePoint,
             );
             allSummaryData.push(summaryData);
+        }
+        // Update data time for case start point is No data link
+        let plotTimes = [];
+        if (!isProcLinked) {
+            plotTimes = getNode(plotData, ['times'], []) || [];
+            data.times = plotTimes.map((x) => moment.utc(x).toDate()); // convert to localtime
         }
 
         // get serial for every datapoint
@@ -1667,7 +1674,8 @@ const startProcChangeEvents = () => {
     startProcDOM.off('change').on('change', async (e) => {
         const startProcID = $(e.target).val();
         xAxisShowSettings = null;
-        if (!startProcID) return;
+        if (!startProcID || startProcID === START_POINT_PROC_VALS.NO_LINK_DATA)
+            return;
         const procInfo = procConfigs[startProcID];
         await procInfo.updateColumns();
         const procColumns = procInfo.getColumns();

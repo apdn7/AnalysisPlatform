@@ -417,10 +417,11 @@ class DicParam:
 
     def add_cond_procs_to_array_formval(self):
         for proc in self.common.cond_procs:
-            self.add_proc_to_array_formval(proc.proc_id, [])
-            # col_ids = list(proc.dic_col_id_filters)
-            # if col_ids:
-            #     self.add_proc_to_array_formval(proc.proc_id, col_ids)
+            col_ids = []
+            for con_procs_column in proc.dic_col_id_filters:
+                col_ids.append(con_procs_column)
+
+            self.add_proc_to_array_formval(proc.proc_id, col_ids)
 
     def add_cat_exp_to_array_formval(self):
         if self.common.cat_exp:

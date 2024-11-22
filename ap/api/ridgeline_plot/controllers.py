@@ -79,7 +79,7 @@ def trace_data():
     compare_type = dic_param.get(COMMON).get(COMPARE_TYPE)
 
     org_dic_param = deepcopy(dic_param)
-    dic_params = get_end_procs_param(dic_param)
+    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
 
     for single_dic_param in dic_params:
         root_graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
@@ -159,7 +159,7 @@ def export_file(dic_form, export_type=CSVExtTypes.CSV.value):
 
     compare_type = dic_param.get(COMMON).get(COMPARE_TYPE)
 
-    dic_params = get_end_procs_param(dic_param)
+    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
 
     export_from = dic_param[COMMON].get(EXPORT_FROM, None) or dic_form.get(EXPORT_FROM, None)
     delimiter = ',' if export_type == CSVExtTypes.CSV.value else '\t'

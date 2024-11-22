@@ -3184,19 +3184,20 @@ const getUniqueAndSlideData = (
         originalDataByY ?? [],
     );
 
-    // get unique data and slice to 50 data
-    const uniqueDataByXY = Array.from(
-        new Set(mapDataByXY?.map((item) => JSON.stringify(item))),
-    )
+    // get unique data and slice to 50 date
+    const uniqueDataByXY = [
+        ...new Set(mapDataByXY.map((item) => JSON.stringify(item))),
+    ]
         .map((item) => JSON.parse(item))
         .slice(0, limit);
-
-    // get unique original data
-    const uniqueOriginDataByXY = Array.from(
-        new Set(mapOriginalDataByXY?.map((item) => JSON.stringify(item))),
-    )
-        .map((item) => JSON.parse(item))
-        .slice(0, limit);
+    const uniqueOriginDataByXY = uniqueDataByXY.map(
+        (item) =>
+            mapOriginalDataByXY[
+                mapDataByXY.findIndex(
+                    (x) => JSON.stringify(x) === JSON.stringify(item),
+                )
+            ],
+    );
 
     const [uniqueDataByX, uniqueDataByY] = sortEmptyStringDataXY(
         isBothXY,

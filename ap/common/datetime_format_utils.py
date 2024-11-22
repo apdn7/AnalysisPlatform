@@ -8,7 +8,7 @@ class DateTimeFormatUtils(object):
         self.date_format = dic['date']
         self.time_format = dic['time']
 
-    HOUR_FORMAT_CODES = ['%H', '%I']
+    TIME_FORMAT_CODES = ['%H', '%I', '%M', '%S']
     DATE_FORMAT_CODES = [
         '%a',
         '%A',
@@ -46,7 +46,7 @@ class DateTimeFormatUtils(object):
             indexes = [datetime_format_str.index(code) for code in format_codes if code in datetime_format_str]
             return min(indexes) if indexes else None
 
-        time_start_index = get_start_index_by_codes(DateTimeFormatUtils.HOUR_FORMAT_CODES)
+        time_start_index = get_start_index_by_codes(DateTimeFormatUtils.TIME_FORMAT_CODES)
         date_start_index = get_start_index_by_codes(DateTimeFormatUtils.DATE_FORMAT_CODES)
 
         if time_start_index is not None and date_start_index is not None:

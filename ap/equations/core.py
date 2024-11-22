@@ -103,6 +103,8 @@ def try_cast_series_pd_types(series: pd.Series, pd_types: list[pd.ExtensionType]
             return result_series.convert_dtypes().astype(dtype)
         with contextlib.suppress(TypeError, ValueError, OverflowError):
             return result_series.astype('object').astype(dtype)
+        with contextlib.suppress(TypeError, ValueError, OverflowError):
+            return pd.to_numeric(result_series).convert_dtypes().astype(dtype)
     return None
 
 

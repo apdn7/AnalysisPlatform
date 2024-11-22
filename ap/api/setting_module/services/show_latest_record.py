@@ -37,6 +37,7 @@ from ap.api.setting_module.services.v2_etl_services import (
     rename_sub_part_no,
 )
 from ap.common.common_utils import (
+    DATE_FORMAT_SIMPLE,
     add_suffix_for_same_column_name,
     get_csv_delimiter,
     get_files,
@@ -1405,6 +1406,7 @@ def add_show_file_name_column(header_names, df_data_details, org_headers, data_t
 def add_dummy_datetime_column(header_names, df_data_details, org_headers, data_types, is_gen_cols=None):
     dummy_datetime_col_idx = 0
     data = gen_dummy_datetime_data(df_data_details)
+    data = data.strftime(DATE_FORMAT_SIMPLE)  # get raw string of datetime to show on sample data preview
     data_type = DataType.DATETIME.value
     header_names, df_data_details, org_headers, data_types, dupl_cols, is_gen_cols = add_new_column_with_data(
         header_names,

@@ -3,6 +3,7 @@ import logging
 import os
 
 import flask
+import pandas as pd
 from flask import Blueprint, Response, jsonify, request
 from flask_babel import gettext as _
 
@@ -18,6 +19,7 @@ from ap.api.setting_module.services.common import (
     is_title_exist,
     save_user_settings,
 )
+from ap.api.setting_module.services.csv_import import convert_datetime_format
 from ap.api.setting_module.services.data_import import (
     check_db_con,
     update_or_create_constant_by_type,
@@ -90,6 +92,7 @@ from ap.common.constants import (
     dict_dtype,
 )
 from ap.common.cryptography_utils import encrypt
+from ap.common.memoize import clear_cache
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue, EventRemoveJobs
 from ap.common.scheduler import lock
 from ap.common.services.http_content import json_dumps, orjson_dumps
@@ -1630,3 +1633,26 @@ def restore_data():
         EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=process_id))
     add_restore_data_job(process_id, start_time, end_time)
     return json_dumps({}), 200
+
+
+@api_setting_module_blueprint.route('/clear_cache', methods=['POST'])
+def clear_cache_api():
+    """[Summary] delete cache in backend, only used for test"""
+    clear_cache()
+    return json_dumps({}), 200
+
+
+@api_setting_module_blueprint.route('/datetime_format', methods=['POST'])
+def format_datetime_data():
+    format_col = 'format_col'
+    data = json.loads(request.data)
+    format_values = data.get('data', [])
+    data_type = data.get('dataType', '')
+    datetime_format = data.get('format', '')
+    tzinfo = data.get('tzinfo', '')
+    dic_data_type = {
+        format_col: data_type,
+    }
+    df = pd.DataFrame(columns=[format_col], data=format_values)
+    df = convert_datetime_format(df, dic_data_type, datetime_format, tzinfo)
+    return orjson_dumps(df[format_col].to_list())

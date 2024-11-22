@@ -43,6 +43,7 @@ echo.> %stage_status%
 : Direct Startup Mode
 if %startup_mode% == 8 (
   echo Direct Startup Mode === Force to bypass Installation ===
+  set network_nck=True
   call :saveStartUpSetting
   goto START_APP
 ) else (

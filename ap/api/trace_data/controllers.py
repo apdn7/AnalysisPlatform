@@ -1,21 +1,36 @@
 import json
 import timeit
+from copy import deepcopy
 
 from flask import Blueprint, jsonify, request
 
 from ap import max_graph_config
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
+from ap.api.trace_data.services.csv_export import (
+    gen_csv_data,
+)
 from ap.api.trace_data.services.data_count import get_data_count_by_time_range
 from ap.api.trace_data.services.time_series_chart import (
     gen_graph_fpp,
 )
-from ap.common.constants import CfgConstantType, DataCountType, MaxGraphNumber
+from ap.common.constants import (
+    ARRAY_FORMVAL,
+    END_PROC,
+    CfgConstantType,
+    CSVExtTypes,
+    DataCountType,
+    MaxGraphNumber,
+)
 from ap.common.logger import log_execution_time
+from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
     bind_dic_param_to_class,
+    get_end_procs_param,
     parse_multi_filter_into_one,
     parse_request_params,
+    update_data_from_multiple_dic_params,
+    update_fpp_data_from_multiple_dic_params,
 )
 from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.import_export_config_n_data import (
@@ -65,21 +80,32 @@ def show_graph_fpp(dic_param, orig_graph_param=None, df=None):
     dic_param = get_dic_form_from_debug_info(dic_param)
     if orig_graph_param is None:
         dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
-        orig_graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+    else:
+        dic_proc_cfgs = orig_graph_param.dic_proc_cfgs
+        trace_graph = orig_graph_param.trace_graph
+        dic_card_orders = orig_graph_param.dic_card_orders
 
-    dic_param = gen_graph_fpp(
-        orig_graph_param,
-        dic_param,
-        max_graph_config[MaxGraphNumber.FPP_MAX_GRAPH.name],
-        df,
-    )
+    org_dic_param = deepcopy(dic_param)
+    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
+
+    for index, single_dic_param in enumerate(dic_params):
+        is_first_dic_param = index == 0
+        orig_graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
+        fpp_data = gen_graph_fpp(
+            orig_graph_param,
+            single_dic_param,
+            max_graph_config[MaxGraphNumber.FPP_MAX_GRAPH.name],
+            df,
+        )
+        org_dic_param = update_data_from_multiple_dic_params(org_dic_param, fpp_data)
+        org_dic_param = update_fpp_data_from_multiple_dic_params(org_dic_param, fpp_data, is_first_dic_param)
     # export mode ( output for export mode )
-    set_export_dataset_id_to_dic_param(dic_param)
-    dic_param['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.FPP))
+    set_export_dataset_id_to_dic_param(org_dic_param)
+    org_dic_param['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.FPP))
     stop = timeit.default_timer()
-    dic_param['backend_time'] = stop - start
+    org_dic_param['backend_time'] = stop - start
     # trace_data.htmlをもとにHTML生成
-    out_dict = orjson_dumps(dic_param)
+    out_dict = orjson_dumps(org_dic_param)
     return out_dict
 
 
@@ -180,3 +206,31 @@ def get_data_count():
     }
     out_dict = json_dumps(out_dict)
     return out_dict, 200
+
+
+@api_trace_data_blueprint.route('/data_export/<export_type>', methods=['GET'])
+def data_export(export_type):
+    """csv export
+
+    Returns:
+        [type] -- [description]
+    """
+    dic_form = parse_request_params(request)
+    dic_param = parse_multi_filter_into_one(dic_form)
+    dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+
+    delimiter = ',' if export_type == CSVExtTypes.CSV.value else '\t'
+    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
+    fpp_dataset = []
+    csv_list_name = []
+
+    for single_dic_param in dic_params:
+        graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
+        csv_str = gen_csv_data(graph_param, single_dic_param, delimiter=delimiter)
+        end_proc_id = int(single_dic_param[ARRAY_FORMVAL][0][END_PROC])
+        proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name
+        csv_list_name.append('{}.{}'.format(proc_name, export_type))
+        fpp_dataset.append(csv_str)
+
+    response = zip_file_to_response(fpp_dataset, csv_list_name, export_type=export_type)
+    return response

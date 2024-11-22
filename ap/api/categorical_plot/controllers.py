@@ -89,7 +89,7 @@ def trace_data():
         return {}, 200
 
     org_dicparam = deepcopy(dic_param)
-    dic_params = get_end_procs_param(dic_param)
+    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
 
     for single_dic_param in dic_params:
         graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)

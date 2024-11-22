@@ -1,5 +1,19 @@
 # Releases
 
+## v4.7.7
+
+Improvements
+
+- Now uses can sort columns by variable name on dropdown lists of setting area in visualization pages
+- Added No Data Link option in Full-points Plot (FPP)
+- Ridgeline Plot (RLP) now defaults to auto range for minimum and maximum axis value if either are set in Display Config
+- Datetime format now works against datetime values with 6 floating digits
+ 
+Bug fix
+
+- Fixed some issues when using "Function" columns for On-demand filter
+- Fixed an issue where value of "NG Condition" is not loaded properly from Bookmark on RLP
+
 ## v4.7.6
 
 Bug fix

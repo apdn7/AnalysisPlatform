@@ -75,7 +75,7 @@ def generate_heatmap():
 
     customize_dict_param(dic_param)
     org_dic_param = deepcopy(dic_param)
-    dic_params = get_end_procs_param(dic_param)
+    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
 
     for single_dic_param in dic_params:
         graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)

@@ -25,15 +25,20 @@ from ap.common.constants import (
     COLOR_ORDER,
     COLOR_VAR,
     COMMON,
+    COMMON_INFO,
     COMPARE_TYPE,
     COND_PROC,
     COND_PROCS,
+    CYCLE_IDS,
     CYCLIC_DIV_NUM,
     CYCLIC_INTERVAL,
     CYCLIC_TERMS,
     CYCLIC_TRACE_TIME,
     CYCLIC_WINDOW_LEN,
+    DATA_SIZE,
     DIC_CAT_FILTERS,
+    DIC_FILTER,
+    DIC_STR_COLS,
     DIV_BY_CAT,
     DIV_BY_DATA_NUM,
     DIV_FROM_TO,
@@ -62,6 +67,7 @@ from ap.common.constants import (
     HM_TRIM,
     ID,
     IMAGES,
+    INDEX_ORDER_COLS,
     IS_DUMMY_DATETIME,
     IS_EXPORT_MODE,
     IS_GET_DATE,
@@ -70,6 +76,7 @@ from ap.common.constants import (
     IS_NOMINAL_SCALE,
     IS_PROC_LINKED,
     IS_REMOVE_OUTLIER,
+    IS_THIN_DATA,
     IS_USE_DUMMY_DATETIME,
     IS_VALIDATE_DATA,
     JUDGE_VAR,
@@ -84,6 +91,7 @@ from ap.common.constants import (
     NOMINAL_VARS,
     NOT_EXACT_MATCH_FILTER_IDS,
     OBJ_VAR,
+    PROC_NAME,
     PROCS,
     RECENT_TIME_INTERVAL,
     REMOVE_OUTLIER_EXPLANATORY_VAR,
@@ -100,11 +108,13 @@ from ap.common.constants import (
     SCP_HMP_Y_AXIS,
     SELECT_ALL,
     SERIAL_COLUMN,
+    SERIAL_DATA,
     SERIAL_ORDER,
     SERIAL_PROCESS,
     START_DATE,
     START_PROC,
     START_TM,
+    STRING_COL_IDS,
     TBLS,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
@@ -113,8 +123,10 @@ from ap.common.constants import (
     TEMP_SERIAL_PROCESS,
     TEMP_X_OPTION,
     TERM_TRACE_TIME,
+    THIN_DATA_GROUP_COUNT,
     THRESHOLD_BOX,
     TIME_CONDS,
+    TIMES,
     TRACE_TIME,
     UNIQUE_COLOR,
     UNIQUE_SERIAL,
@@ -387,6 +399,11 @@ def parse_multi_filter_into_one(dic_form):
     dic_parsed[COMMON][REMOVE_OUTLIER_OBJECTIVE_VAR] = dic_form.get(REMOVE_OUTLIER_OBJECTIVE_VAR, [0])[0]
     dic_parsed[COMMON][REMOVE_OUTLIER_EXPLANATORY_VAR] = dic_form.get(REMOVE_OUTLIER_EXPLANATORY_VAR, [0])[0]
     is_start_proc_not_set = START_PROC in dic_parsed[COMMON] and isinstance(dic_parsed[COMMON][START_PROC], list)
+
+    start_proc = dic_parsed[COMMON].get(START_PROC)
+    # procs are linked when start_proc is not 0
+    dic_parsed[COMMON][IS_PROC_LINKED] = start_proc is None or is_start_proc_not_set or int(start_proc) != 0
+
     # set default start process
     if START_PROC not in dic_parsed[COMMON] or is_start_proc_not_set:
         list_of_end_procs = [proc[END_PROC] if END_PROC in proc else None for proc in array_formval]
@@ -648,12 +665,15 @@ def get_common_config_data(get_visualization_config=True):
     return output_dict
 
 
-def get_end_procs_param(dic_param):
+def get_end_procs_param(dic_param, dic_proc_cfgs):
     org_formval = dic_param[ARRAY_FORMVAL]
     dic_common = dic_param[COMMON]
     start_proc = int(dic_common[START_PROC]) if dic_common[START_PROC] else None
     cond_procs = dic_param[COMMON][COND_PROCS]
+    dic_cat_filters = dic_param[COMMON].get(DIC_CAT_FILTERS, [])
+    temp_cat_exp = dic_param[COMMON].get(TEMP_CAT_EXP, [])
     dic_params = []
+    is_proc_linked = bool(start_proc)
 
     if start_proc == 0 and len(org_formval) > 1:
         # filter cat_exp_box for no link data
@@ -667,11 +687,13 @@ def get_end_procs_param(dic_param):
         # zero is no data link
         for proc in org_formval:
             end_proc = proc[END_PROC]
+            dic_proc_cfg = dic_proc_cfgs[int(end_proc)]
+            dic_proc_cfg_columns = [col.id for col in dic_proc_cfg.columns]
             single_param = {
                 TBLS: 1,
                 COMMON: deepcopy(dic_param[COMMON]),
                 ARRAY_FORMVAL: [{END_PROC: end_proc, GET02_VALS_SELECT: proc[GET02_VALS_SELECT]}],
-                TIME_CONDS: deepcopy(dic_param[TIME_CONDS]),
+                TIME_CONDS: deepcopy(dic_param.get(TIME_CONDS, [])),
             }
             single_param[COMMON][END_PROC] = {}
             for sensor_id in proc[GET02_VALS_SELECT]:
@@ -683,14 +705,30 @@ def get_end_procs_param(dic_param):
             single_param[COMMON][COND_PROC] = [
                 cond_proc for cond_proc in cond_procs if cond_proc[COND_PROC] == end_proc
             ]
+            # filter on demand condition for no link data
+            if not is_proc_linked and dic_cat_filters:
+                single_param[COMMON][DIC_CAT_FILTERS] = {
+                    cat_filter: cat_filters
+                    for cat_filter, cat_filters in dic_cat_filters.items()
+                    if cat_filter in dic_proc_cfg_columns
+                }
+            if not is_proc_linked and temp_cat_exp:
+                single_param[COMMON][TEMP_CAT_EXP] = [
+                    cat_exp for cat_exp in temp_cat_exp if int(cat_exp) in dic_proc_cfg_columns
+                ]
+            # TODO: TEMP_CAT_PROCS
+
             for key, cat_exp_box in cat_exp_boxs.items():
                 if cat_exp_box.process_id == int(end_proc):
                     single_param[COMMON][key] = cat_exp_box.id
 
-            single_param[COMMON][IS_PROC_LINKED] = bool(start_proc)
+            single_param[COMMON][IS_PROC_LINKED] = is_proc_linked
+            # Update filter condition procs for no link data
+            if not single_param[COMMON][IS_PROC_LINKED]:
+                single_param[COMMON][COND_PROCS] = single_param[COMMON][COND_PROC]
             dic_params.append(single_param)
     else:
-        dic_param[COMMON][IS_PROC_LINKED] = bool(start_proc)
+        dic_param[COMMON][IS_PROC_LINKED] = is_proc_linked
         dic_params = [dic_param]
     return dic_params
 
@@ -719,6 +757,19 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
         NG_RATES,
         RL_CATES,
         REMOVED_OUTLIERS,
+        TBLS,
+        STRING_COL_IDS,
+        DIC_STR_COLS,
+        DATA_SIZE,
+        TIMES,
+        CYCLE_IDS,
+        SERIAL_DATA,
+        COMMON_INFO,
+        INDEX_ORDER_COLS,
+        PROC_NAME,
+        DIC_FILTER,
+        IS_THIN_DATA,
+        THIN_DATA_GROUP_COUNT,
     ]
     for key in updated_keys:
         if key not in dic_param:
@@ -740,9 +791,15 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
             else:
                 orig_dic_param[key] = None
         elif type(dic_param[key]) in [dict, defaultdict]:
+            orig_filter_on_demand = orig_dic_param.get(FILTER_ON_DEMAND, None)
             if key not in orig_dic_param:
                 orig_dic_param[key] = {}
-            orig_dic_param[key].update(dic_param[key])
+            if key is FILTER_ON_DEMAND and not dic_param[COMMON][IS_PROC_LINKED] and orig_filter_on_demand is not None:
+                for filter_key in orig_filter_on_demand:
+                    dic_filter_val = dic_param[FILTER_ON_DEMAND][filter_key]
+                    dic_param[FILTER_ON_DEMAND][filter_key] = orig_filter_on_demand[filter_key].extend(dic_filter_val)
+            else:
+                orig_dic_param[key].update(dic_param[key])
         elif isinstance(dic_param[key], bool):
             if key not in orig_dic_param:
                 orig_dic_param[key] = False
@@ -769,6 +826,15 @@ def update_rlp_data_from_multiple_dic_params(orig_dic_param, rlp_dat):
 
     if RL_XAXIS not in orig_dic_param:
         orig_dic_param[RL_XAXIS] = rlp_dat.get(RL_XAXIS, [])
+    return orig_dic_param
+
+
+def update_fpp_data_from_multiple_dic_params(orig_dic_param, fpp_data, is_first_dic_param):
+    # update FORM VAL
+    if is_first_dic_param:
+        orig_dic_param[ARRAY_FORMVAL] = fpp_data[ARRAY_FORMVAL]
+    else:
+        orig_dic_param[ARRAY_FORMVAL] += fpp_data[ARRAY_FORMVAL]
     return orig_dic_param
 
 

@@ -16,6 +16,7 @@ class ParallelPlot {
         this.fromJump = false;
         this.selectedOrder = [];
         this.selectedConstraintRange = {};
+        this.objectiveDimInfo = {};
 
         // init objective variable
         this.setObjective();
@@ -637,7 +638,15 @@ class ParallelPlot {
         dim.ticktext = dim.ticktext.map((i) => String(i));
         const notShowTicks =
             this.settings.fineSelect && !colData.col_detail.is_category;
-
+        // store calculated values of objectiveDimension only for colorbar calculation
+        if (colData.col_detail.col_id === this.objective.id) {
+            this.objectiveDimInfo = {
+                values: dim.values,
+                ticktext: dim.ticktext,
+                tickvals: dim.tickvals,
+                is_judge: colData.col_detail.is_judge,
+            };
+        }
         return {
             values: dim.values,
             ticktext: notShowTicks ? null : dim.ticktext,
@@ -935,13 +944,11 @@ class ParallelPlot {
     }
     genPCPData() {
         const fmt = this.traceData.fmt[this.objective.id];
+        const objectiveDimInfo = this.objectiveDimInfo;
         // get colors for lines from objective dimension data (replaced NA with naDumVal etc)
-        const dimObjective = this.dimensions.filter(
-            (i) => i.colId === this.objective.id,
-        )[0];
-        const colors = dimObjective.values;
+        const colors = objectiveDimInfo.values;
         const { tickVals, tickText, nTicks } =
-            this.calcParcoordsLineColorBar(dimObjective);
+            this.calcParcoordsLineColorBar(objectiveDimInfo);
         return [
             {
                 type: 'parcoords',
