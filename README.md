@@ -159,6 +159,10 @@ To uninstall the Analysis Platform:
    * `python_embedded_39`
    * `Oracle-Portable`
 
+## Updates
+
+You can check [release notes](RELEASE.md) for new features and bugfixes.
+
 ## Is there any sample data that we can use?
 
 By default, the Analysis Platform contains sample data and corresponding settings to get an overview of each visualization.  
@@ -192,16 +196,13 @@ or you can just remove each data source setting from GUI.
 
 ## License
 
-The Analysis Platform is released under MIT License.  
-See our [LICENSE](LICENSE.md) for more detail.
+* The Analysis Platform is released under MIT License. See our [LICENSE](LICENSE.md) for more detail.
+* The data set of section: Educational materials is released under [CDLA-Sharing-1.0](https://cdla.dev/sharing-1-0/).
 
-## Updates
+## Educational materials
 
-You can check [release notes](RELEASE.md) for new features and bugfixes.
+You can get some materials to use for educating AP+DN7.
 
-## Troubleshooting
-
-* The Analysis Platforms fails to activate with an error message:  
-ImportError: DLL load failed: The specified module could not be found.
-  * You might need to install the "Microsoft Visual C++ runtime library".
-  * Documents: [EN](https://github.com/apdn7/AnalysisPlatform/files/10956076/AP%2BDN7_troubleshooting_ImportError_DLL_load_failed_En.pdf) / [JA](https://github.com/apdn7/AnalysisPlatform/files/10956075/AP%2BDN7_troubleshooting_ImportError_DLL_load_failed_Jp.pdf)
+* [APDN7_eduational_materials.zip](): This file includes following materials
+  * Document (JA): Basic introduction of AP+DN7 and task description of hands-on data analysis using toy data set
+  * Toy data set (`instance folder` = Data pre-imported into AP+DN7)
