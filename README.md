@@ -197,6 +197,7 @@ or you can just remove each data source setting from GUI.
 ## License
 
 * The Analysis Platform is released under MIT License. See our [LICENSE](LICENSE.md) for more detail.
+* The document of section: Educational materials is released under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
 * The data set of section: Educational materials is released under [CDLA-Sharing-1.0](https://cdla.dev/sharing-1-0/).
 
 ## Educational materials
