@@ -51,7 +51,6 @@ if is_main:
         send_gtag,
     )
     from ap.script.convert_user_setting import convert_user_setting_url
-    from ap.script.disable_terminal_close_button import disable_terminal_close_btn
     from ap.script.hot_fix.fix_db_issues import unlock_db
 
     multiprocess_sharing.start_sharing_instance_server()
@@ -178,10 +177,6 @@ if is_main:
     # bundle assets
     with app.app_context():
         bundle_assets(app)
-
-    if not app.config.get('TESTING'):
-        # hide close button of cmd
-        disable_terminal_close_btn()
 
     try:
         app.config.update({'app_startup_time': datetime.utcnow()})
