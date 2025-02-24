@@ -149,19 +149,6 @@ if is_main:
     #
     #     check_and_copy_r_portable()
 
-    # disable quick edit of terminal to avoid pause
-    is_debug = app.config.get('DEBUG')
-    if not is_debug:
-        try:
-            from ap.script.disable_terminal_quickedit import disable_quickedit
-
-            disable_quickedit()
-            # from ap.script.hide_exe_root_folder import hide_bundle_folder, heartbeat_bundle_folder
-            # heartbeat_bundle_folder()
-            # hide_bundle_folder()
-        except Exception:
-            pass
-
     # add job when app started
     add_backup_dbs_job()
 
