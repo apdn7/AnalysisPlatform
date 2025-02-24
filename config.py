@@ -15,21 +15,26 @@ class Config(object):
     SECRET_KEY = '736670cb10a600b695a55839ca3a5aa54a7d7356cdef815d2ad6e19a2031182b'
     POSTS_PER_PAGE = 10
     PORT = 80
+    if os.name == 'nt':
+        path_separator = ';'
+    elif os.name == 'posix':
+        path_separator = ':'
+
     os.environ['FLASK_ENV'] = os.environ.get('FLASK_ENV', 'production')
     CICD_BASE_DIR = os.environ.get('CICD_BASE_DIR')
     parent_dir = CICD_BASE_DIR if CICD_BASE_DIR else os.path.dirname(basedir)
 
     R_PORTABLE = os.path.join(parent_dir, 'R-Portable', 'bin')
-    os.environ['PATH'] = '{};{}'.format(R_PORTABLE, os.environ.get('PATH', ''))
+    os.environ['PATH'] = '{}{}{}'.format(R_PORTABLE, path_separator, os.environ.get('PATH', ''))
 
     # R-PORTABLEを設定する。
     os.environ['R-PORTABLE'] = os.path.join(parent_dir, 'R-Portable')
 
     ORACLE_PATH = os.path.join(parent_dir, 'Oracle-Portable')
-    os.environ['PATH'] = '{};{}'.format(ORACLE_PATH, os.environ.get('PATH', ''))
+    os.environ['PATH'] = '{}{}{}'.format(ORACLE_PATH, path_separator, os.environ.get('PATH', ''))
 
     ORACLE_PATH_WITH_VERSION = os.path.join(ORACLE_PATH, 'instantclient_21_3')
-    os.environ['PATH'] = '{};{}'.format(ORACLE_PATH_WITH_VERSION, os.environ.get('PATH', ''))
+    os.environ['PATH'] = '{}{}{}'.format(ORACLE_PATH_WITH_VERSION, path_separator, os.environ.get('PATH', ''))
 
     logger.info(os.environ['PATH'])
     logger.info(R_PORTABLE)
