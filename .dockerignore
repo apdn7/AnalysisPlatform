@@ -4,10 +4,9 @@
 *.dll
 *.log
 
-init/
+init/sqlite3.dll
 start_ap/
 
-babel.cfg
 package.json
 package-lock.json
 
