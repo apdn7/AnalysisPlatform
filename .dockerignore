@@ -6,7 +6,9 @@
 *.ini
 .git
 
-init/sqlite3.dll
+init/app.sqlite3
+init/app.sqlite3.dll
+
 start_ap/
 
 package.json
