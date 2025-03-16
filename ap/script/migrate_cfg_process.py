@@ -8,7 +8,7 @@ remove_process_factname = """ALTER TABLE cfg_process DROP COLUMN process_factnam
 create_master_type = """ALTER TABLE cfg_process ADD COLUMN master_type TEXT;"""
 update_master_type_and_table_name = """UPDATE cfg_process
 SET master_type = 'SOFTWARE_WORKSHOP_MEASUREMENT',
-    table_name = CONCAT('measurement_', table_name)
+    table_name = 'measurement_' || table_name
 WHERE master_type IS NULL AND process_factid IS NOT NULL AND process_factid != '';"""
 
 

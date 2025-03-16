@@ -30,14 +30,14 @@ def _get_running_jobs():
 class CustomManager(BaseManager):
     """Store sharing instances between children processes and parent process
     - For parent process:
-        - Start a unique process at `AF_PIPE` address
+        - Start a unique process at `AF_PIPE` or `AF_INET` address
           See more: <https://docs.python.org/3/library/multiprocessing.html#address-formats>
         - Dump connected address into a file
         - Register new instance for sharing
           See more: <https://docs.python.org/3/library/multiprocessing.html#using-a-remote-manager>
 
     - For children processes:
-        - Connect to `AF_PIPE` address created by parent process
+        - Connect to `AF_PIPE` or `AF_INET` address created by parent process
           See more: <https://docs.python.org/3/library/multiprocessing.html#address-formats>
         - Getting sharing instances, we might add more functions to get more sharing instance if we want
             - `get_event_queue()`
@@ -57,17 +57,20 @@ class CustomManager(BaseManager):
 
     @classmethod
     def _generate_new_address(cls):
-        # create unique identifier for address
-        unique_identifier = uuid.uuid4().hex
+        if os.name == 'nt':
+            # create unique identifier for address
+            unique_identifier = uuid.uuid4().hex
 
-        # fixed unique address use for connecting to multiprocess pipe
-        address = rf'\\.\pipe\__custom_manager_address_multi_processes_{os.getpid()}_{unique_identifier}'
-        # make sure our uuid does not incorrectly create un-trimmed string
-        address = address.strip()
+            # fixed unique address use for connecting to multiprocess pipe
+            address = rf'\\.\pipe\__custom_manager_address_multi_processes_{os.getpid()}_{unique_identifier}'
+            # make sure our uuid does not incorrectly create un-trimmed string
+            address = address.strip()
 
-        # lock the file before writing
-        with filelock.FileLock(cls.__lock_path), open(cls.__address_path, 'w', encoding='utf-8') as f:
-            f.write(address)
+            # lock the file before writing
+            with filelock.FileLock(cls.__lock_path), open(cls.__address_path, 'w', encoding='utf-8') as f:
+                f.write(address)
+        elif os.name == 'posix':
+            address = ('127.0.0.1', 5000)
         return address
 
     @classmethod

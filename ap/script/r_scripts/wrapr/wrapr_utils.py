@@ -152,10 +152,10 @@ class RPipeline:
             # set path to python binary as environmental variable 'RETICULATE_PYTHON' for reticulate.
             rpath = None
             pypath = None
-            if self.rportable_path is not None:
+            if self.rportable_path is not None and (os.name == 'nt'):
                 rpath = os.path.join(self.rportable_path, "bin", "R.exe")
                 logger.info("`R-PORTABLE` : {}".format(self.rportable_path))
-            if (self.use_pkl is True) and (self.rportable_path is not None):
+            if (self.use_pkl is True) and (self.rportable_path is not None) and (os.name == 'nt'):
                 pypath = glob.glob("{}/python/python-*/python.exe".format(self.rportable_path))[0]
                 logger.info("python binary : {}".format(pypath))
 

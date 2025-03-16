@@ -7,7 +7,6 @@ from flask import request
 from ap.common.constants import AnnounceEvent
 from ap.common.logger import log_execution_time
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue, EventShutDown
-from ap.script.disable_terminal_close_button import close_terminal
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +18,6 @@ def shut_down_app():
     EventQueue.put(EventShutDown())
     logging.shutdown()
     sleep(5)
-
-    # close terminal
-    close_terminal()
 
     shutdown_function = request.environ.get('werkzeug.server.shutdown')
     if shutdown_function is not None:
